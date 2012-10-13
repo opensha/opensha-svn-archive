@@ -517,7 +517,7 @@ public class LogicTreePBSWriter {
 		limitations.add(momentFixes);
 
 //		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class);
-		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
+		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF2);
 		limitations.add(spatialSeis);
 		
 		return new ListBasedTreeTrimmer(limitations);
@@ -529,7 +529,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "fm3-zeng-gr-8hr";
+		String runName = "2012_10_10-fm3-logic-tree-sample";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -539,7 +539,7 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 10;
-		runName = df.format(new Date())+"-"+runName;
+//		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
@@ -554,8 +554,8 @@ public class LogicTreePBSWriter {
 
 		boolean lightweight = numRuns > 10;
 
-//		TreeTrimmer trimmer = getCustomTrimmer();
-		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -572,19 +572,19 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
-//		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
+		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
-		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
+//		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
 		
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
-//		TreeTrimmer defaultBranchesTrimmer = null;
+		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();

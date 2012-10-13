@@ -64,7 +64,7 @@ public class PaleoFitPlotter {
 		}
 	}
 	
-	private static double calcScaledAverage(double[] vals, double[] weights) {
+	public static double calcScaledAverage(double[] vals, double[] weights) {
 		if (vals.length == 1)
 			return vals[0];
 		double tot = 0d;

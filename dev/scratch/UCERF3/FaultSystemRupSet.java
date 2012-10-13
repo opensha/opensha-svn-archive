@@ -269,7 +269,7 @@ public abstract class FaultSystemRupSet {
 		return slips;
 	}
 	
-	protected Map<Integer, double[]> rupSectionSlipsCache = new HashMap<Integer, double[]>();
+	protected Map<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
 	
 	/**
 	 * This gives the slip (SI untis: m) on each section for the rth rupture
@@ -278,7 +278,7 @@ public abstract class FaultSystemRupSet {
 	public double[] getSlipOnSectionsForRup(int rthRup) {
 		double[] slips = rupSectionSlipsCache.get(rthRup);
 		if (slips == null) {
-			synchronized (this) {
+			synchronized (rupSectionSlipsCache) {
 				slips = rupSectionSlipsCache.get(rthRup);
 				if (slips != null)
 					return slips;
@@ -356,6 +356,7 @@ public abstract class FaultSystemRupSet {
 		// this is the model where section slip is proportional to section slip rate 
 		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
 		else if (slipModelType == SlipAlongRuptureModels.WG02) {
+			// TODO if we revive this, we need to change the cache copying due to moment changes
 			double totMoRateForRup = calcTotalAvailableMomentRate(rthRup);
 			for(int s=0; s<slipsForRup.length; s++) {
 				slipsForRup[s] = aveSlip*sectMoRate[s]*getAreaForRup(rthRup)/(totMoRateForRup*sectArea[s]);
@@ -368,8 +369,8 @@ public abstract class FaultSystemRupSet {
 			if(taperedSlipCDF == null) {
 				synchronized (FaultSystemRupSet.class) {
 					if (taperedSlipCDF == null) {
-						taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-						taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						EvenlyDiscretizedFunc taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						EvenlyDiscretizedFunc taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 						double x,y, sum=0;
 						int num = taperedSlipPDF.getNum();
 						for(int i=0; i<num;i++) {
@@ -386,6 +387,8 @@ public abstract class FaultSystemRupSet {
 								taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
 //								System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
 						}
+						FaultSystemRupSet.taperedSlipCDF = taperedSlipCDF;
+						FaultSystemRupSet.taperedSlipPDF = taperedSlipPDF;
 					}
 				}
 			}
@@ -397,6 +400,8 @@ public abstract class FaultSystemRupSet {
 				if(normEnd > 1 && normEnd < 1.01) normEnd = 1.0;
 				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
 				scaleFactor /= (normEnd-normBegin);
+				Preconditions.checkState(normEnd>=normBegin, "End is before beginning!");
+				Preconditions.checkState(aveSlip >= 0, "Negative ave slip: "+aveSlip);
 				slipsForRup[s] = aveSlip*scaleFactor;
 				normBegin = normEnd;
 			}
@@ -735,7 +740,7 @@ public abstract class FaultSystemRupSet {
 					p = new CalcProgressBar("Calculating Ruptures for each Parent Section", "Calculating Ruptures for each Parent Section");
 				}
 				// note this assumes that sections are in order
-				rupturesForParentSectionCache = Maps.newHashMap();
+				rupturesForParentSectionCache = Maps.newConcurrentMap();
 
 				int numRups = getNumRuptures();
 				for (int rupID=0; rupID<numRups; rupID++) {

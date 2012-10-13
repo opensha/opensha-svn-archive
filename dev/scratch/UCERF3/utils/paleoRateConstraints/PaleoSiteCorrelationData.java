@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +36,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
@@ -46,7 +48,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
-public class PaleoSiteCorrelationData {
+public class PaleoSiteCorrelationData implements Serializable {
 	
 	private String site1Name;
 	private Location site1Loc;
@@ -122,6 +124,14 @@ public class PaleoSiteCorrelationData {
 	public PaleoSiteCorrelationData getReversed() {
 		return new PaleoSiteCorrelationData(site2Name, site2Loc, site2SubSect, site1Name, site1Loc, site1SubSect,
 				site2Events, site1Events, numCorrelated, neighbors);
+	}
+	
+	/**
+	 * String used for hashing
+	 * @return
+	 */
+	public String getHashString() {
+		return getSite1Name()+"_"+getSite2Name();
 	}
 	
 	public static final String SUB_DIR_NAME = "paleoRateData";
@@ -337,7 +347,7 @@ public class PaleoSiteCorrelationData {
 		return resultsMap;
 	}
 	
-	private static double getRateCorrelated(PaleoProbabilityModel paleoProb, FaultSystemSolution sol, int sectIndex1, int sectIndex2) {
+	public static double getRateCorrelated(PaleoProbabilityModel paleoProb, FaultSystemSolution sol, int sectIndex1, int sectIndex2) {
 		double rateTogether = 0d;
 		double totRate = 0d;
 
@@ -428,33 +438,52 @@ public class PaleoSiteCorrelationData {
 		return ret;
 	}
 	
-	public static PlotSpec getCorrelationPlotSpec(String faultName,
-			Table<String, String,PaleoSiteCorrelationData> table, FaultSystemSolution sol) throws IOException {
+	public static PlotSpec getCorrelationPlotSpec(
+			String faultName,
+			Table<String, String,PaleoSiteCorrelationData> table,
+			FaultSystemSolution sol)
+			throws IOException {
 		PaleoProbabilityModel paleoProb = UCERF3_PaleoProbabilityModel.load();
 		return getCorrelationPlotSpec(faultName, table, sol, paleoProb);
 	}
 		
-	public static PlotSpec getCorrelationPlotSpec(String faultName,
-			Table<String, String,PaleoSiteCorrelationData> table, FaultSystemSolution sol,
+	public static PlotSpec getCorrelationPlotSpec(
+			String faultName,
+			Table<String, String,PaleoSiteCorrelationData> table,
+			FaultSystemSolution sol,
 			PaleoProbabilityModel paleoProb) {
+		List<PaleoSiteCorrelationData> corrs = getCorrelataionsToPlot(table);
+		List<double[]> solValues = Lists.newArrayList(); 
+		for (PaleoSiteCorrelationData corr : corrs) {
+			double myRate = getRateCorrelated(
+					paleoProb, sol, corr.getSite1SubSect(), corr.getSite2SubSect());
+			if (sol instanceof AverageFaultSystemSolution) {
+				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
+				double minAvgRate = Double.MAX_VALUE;
+				double maxAvgRate = 0d;
+				for (FaultSystemSolution subSol : avgSol) {
+					double avgRate = getRateCorrelated(
+							paleoProb, subSol, corr.getSite1SubSect(), corr.getSite2SubSect());
+					if (avgRate < minAvgRate)
+						minAvgRate = avgRate;
+					if (avgRate > maxAvgRate)
+						maxAvgRate = avgRate;
+				}
+				double[] vals = { minAvgRate, maxAvgRate, myRate };
+				solValues.add(vals);
+			} else {
+				double[] vals = { myRate };
+				solValues.add(vals);
+			}
+		}
 		
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		
-		PlotCurveCharacterstics sepChar = new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK);
-		PlotCurveCharacterstics dataChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED);
-		PlotCurveCharacterstics dataBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED);
-		PlotCurveCharacterstics solChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE);
-		PlotCurveCharacterstics solAvgBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
-		PlotCurveCharacterstics ucerf2Char = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, new Color(130, 86, 5));
-		
-		FaultSystemSolution ucerf2Sol = null;
-		if (sol != null)
-			ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(sol.getFaultModel());
+		return getCorrelationPlotSpec(faultName, sol.getFaultModel(), corrs, solValues, paleoProb);
+	}
+	
+	public static List<PaleoSiteCorrelationData> getCorrelataionsToPlot(
+			Table<String, String,PaleoSiteCorrelationData> table) {
 		
 		HashSet<String> doneHash = new HashSet<String>();
-		
-		double x = 0;
 		
 		List<PaleoSiteCorrelationData> corrs = Lists.newArrayList();
 		
@@ -495,7 +524,34 @@ public class PaleoSiteCorrelationData {
 			}
 		});
 		
-		for (PaleoSiteCorrelationData corr : corrs) {
+		return corrs;
+	}
+	
+	public static PlotSpec getCorrelationPlotSpec(
+			String faultName,
+			FaultModels fm,
+			List<PaleoSiteCorrelationData> corrs,
+			List<double[]> solValues,
+			PaleoProbabilityModel paleoProb) {
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		PlotCurveCharacterstics sepChar = new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK);
+		PlotCurveCharacterstics dataChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED);
+		PlotCurveCharacterstics dataBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED);
+		PlotCurveCharacterstics solChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE);
+		PlotCurveCharacterstics solAvgBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
+		PlotCurveCharacterstics ucerf2Char = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, new Color(130, 86, 5));
+		
+		FaultSystemSolution ucerf2Sol = null;
+		if (fm != null)
+			ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
+		
+		double x = 0;
+		
+		for (int i=0; i<corrs.size(); i++) {
+			PaleoSiteCorrelationData corr = corrs.get(i);
 
 			if (x > 0) {
 				// add spacer
@@ -517,32 +573,22 @@ public class PaleoSiteCorrelationData {
 			funcs.add(getHorizontalLine(bounds[1], x, newX, funcNamePrefix+". Upper Bound: "+bounds[1]));
 			chars.add(dataBoundsChar);
 
-			if (sol != null) {
-				double myRate = getRateCorrelated(
-						paleoProb, sol, corr.getSite1SubSect(), corr.getSite2SubSect());
+			if (solValues != null) {
+				double[] rates = solValues.get(i);
+				double myRate = rates[rates.length-1];
 				funcs.add(getHorizontalLine(myRate, x, newX, funcNamePrefix+". Inversion: "+myRate));
 				chars.add(solChar);
-				if (sol instanceof AverageFaultSystemSolution) {
-					AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
-					double minAvgRate = Double.MAX_VALUE;
-					double maxAvgRate = 0d;
-					for (FaultSystemSolution subSol : avgSol) {
-						double avgRate = getRateCorrelated(
-								paleoProb, subSol, corr.getSite1SubSect(), corr.getSite2SubSect());
-						if (avgRate < minAvgRate)
-							minAvgRate = avgRate;
-						if (avgRate > maxAvgRate)
-							maxAvgRate = avgRate;
-					}
-					
-					funcs.add(getHorizontalLine(minAvgRate, x, newX, funcNamePrefix+". Inversion Min: "+minAvgRate));
+				if (rates.length > 1) {
+					funcs.add(getHorizontalLine(rates[0], x, newX, funcNamePrefix+". Inversion Min: "+rates[0]));
 					chars.add(solAvgBoundsChar);
-					funcs.add(getHorizontalLine(maxAvgRate, x, newX, funcNamePrefix+". Inversion Max: "+maxAvgRate));
+					funcs.add(getHorizontalLine(rates[1], x, newX, funcNamePrefix+". Inversion Max: "+rates[1]));
 					chars.add(solAvgBoundsChar);
 				}
+			}
+			if (fm != null) {
 				double ucerf2Rate = getRateCorrelated(
 						paleoProb, ucerf2Sol, corr.getSite1SubSect(), corr.getSite2SubSect());
-				funcs.add(getHorizontalLine(ucerf2Rate, x, newX, funcNamePrefix+". UCERF2: "+myRate));
+				funcs.add(getHorizontalLine(ucerf2Rate, x, newX, funcNamePrefix+". UCERF2: "+ucerf2Rate));
 				chars.add(ucerf2Char);
 			}
 

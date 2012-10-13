@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
+import java.util.List;
 
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
 
 import mpi.MPI;
 import mpi.MPIException;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class DispatcherThread extends Thread {
 	
@@ -74,7 +77,9 @@ public class DispatcherThread extends Thread {
 		debug("now running.");
 		try {
 			// this keeps track of if each process has finished once all batches have been sent out;
-			boolean[] dones = null;
+			boolean[] dones = new boolean[size];
+			for (int i=0; i<size; i++)
+				dones[i] = true;
 			
 			int[] single_int_buf = new int[1];
 			while (true) {
@@ -96,26 +101,21 @@ public class DispatcherThread extends Thread {
 					// now we send the batch to the process.
 					debug("sending batch of length "+batch.length+" to: "+proc_id);
 					MPI.COMM_WORLD.Send(batch, 0, batch.length, MPI.INT, proc_id, MPJTaskCalculator.TAG_NEW_BATCH);
-				} else if (dones == null) {
-					// if we're done and we haven't initialized the dones array, do it now
-					debug("initializing dones array "+proc_id);
-					dones = new boolean[size];
-					dones[0] = true; // hard code this node to done, since it operates outside of MPJ
-				}
-				
-				if (dones != null) {
+					dones[proc_id] = false;
+				} else {
 					// set the index for the process we just communicated with to "done"
-					Preconditions.checkState(!dones[proc_id],
-							"proc id "+proc_id+" has already been marked done!");
+//					Preconditions.checkState(!dones[proc_id],
+//							"proc id "+proc_id+" has already been marked done!");
 					dones[proc_id] = true;
 					
 					// this means that we're done dispatching batches, and are waiting for everyone to report back
 					debug("checking if we're all done...");
+					List<Integer> notDones = Lists.newArrayList();
 					boolean allDone = true;
-					for (boolean done : dones) {
-						if (!done) {
+					for (int i=0; i<size; i++) {
+						if (!dones[i]) {
 							allDone = false;
-							break;
+							notDones.add(i);
 						}
 					}
 					if (allDone) {
@@ -123,7 +123,7 @@ public class DispatcherThread extends Thread {
 						debug("DONE!");
 						break;
 					}
-					debug("not yet.");
+					debug("not yet. waiting on: "+Joiner.on(",").join(notDones));
 				}
 			}
 		} catch (Throwable t) {

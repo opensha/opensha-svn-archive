@@ -45,6 +45,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.analysis.CompoundFSSPlots;
 import scratch.UCERF3.analysis.FaultSpecificSegmentationPlotGen;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -543,9 +544,10 @@ public class CommandLineInversionRunner {
 		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 7d, null);
 		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, paleoProbModel);
 	}
-
-	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix,
-			double jumpDist, double minMag, PaleoProbabilityModel paleoProbModel) throws IOException {
+	
+	public static EvenlyDiscretizedFunc[] getJumpFuncs(FaultSystemSolution sol,
+			Map<IDPairing, Double> distsMap, double jumpDist, double minMag,
+			PaleoProbabilityModel paleoProbModel) {
 		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		int maxX = solFunc.getNum()-1;
@@ -557,7 +559,7 @@ public class CommandLineInversionRunner {
 				continue;
 
 			List<Integer> sects = sol.getSectionsIndicesForRup(r);
-
+			
 			int jumpsOverDist = 0;
 			for (int i=1; i<sects.size(); i++) {
 				int sect1 = sects.get(i-1);
@@ -594,23 +596,50 @@ public class CommandLineInversionRunner {
 			double newY = totY * fract;
 			rupSetFunc.set(i, newY);
 		}
+		
+		EvenlyDiscretizedFunc[] ret = { solFunc, rupSetFunc };
+		return ret;
+	}
 
-		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
-		funcs.add(solFunc);
-		funcs.add(rupSetFunc);
-
+	public static void writeJumpPlot(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix,
+			double jumpDist, double minMag, PaleoProbabilityModel paleoProbModel) throws IOException {
+		EvenlyDiscretizedFunc[] funcsArray = getJumpFuncs(sol, distsMap, jumpDist, minMag, paleoProbModel);
+		writeJumpPlot(dir, prefix, funcsArray, jumpDist, minMag, paleoProbModel != null);
+	}
+	
+	public static void writeJumpPlot(File dir, String prefix,
+			DiscretizedFunc[] funcsArray, double jumpDist, double minMag, boolean paleoProb) throws IOException {
+		DiscretizedFunc[] solFuncs = { funcsArray[0] };
+		DiscretizedFunc[] rupSetFuncs = { funcsArray[1] };
+		
+		writeJumpPlot(dir, prefix, solFuncs, rupSetFuncs, jumpDist, minMag, paleoProb);
+	}
+	
+	public static void writeJumpPlot(File dir, String prefix,
+			DiscretizedFunc[] solFuncs, DiscretizedFunc[] rupSetFuncs, double jumpDist, double minMag, boolean paleoProb) throws IOException {
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		for (int i=0; i<solFuncs.length-1; i++) {
+			funcs.add(solFuncs[i]);
+			funcs.add(rupSetFuncs[i]);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
+		}
+
+		funcs.add(solFuncs[solFuncs.length-1]);
+		funcs.add(rupSetFuncs[rupSetFuncs.length-1]);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
 
 		String title = "Inversion Fault Jumps";
 
-		prefix = getJumpFilePrefix(prefix, minMag, paleoProbModel != null);
+		prefix = getJumpFilePrefix(prefix, minMag, paleoProb);
 
 		if (minMag > 0)
 			title += " Mag "+(float)minMag+"+";
 
-		if (paleoProbModel != null)
+		if (paleoProb)
 			title += " (Convolved w/ ProbPaleoVisible)";
 
 
@@ -802,6 +831,8 @@ public class CommandLineInversionRunner {
 		int numMag = (int)((maxMag - minMag) / 0.1d) + 1;
 		
 		CSVFile<String> sdomOverMeansCSV = null;
+		
+		boolean isAVG = sol instanceof AverageFaultSystemSolution;
 
 		for (int parentSectionID : parentSects.keySet()) {
 			String parentSectName = parentSects.get(parentSectionID);
@@ -814,7 +845,7 @@ public class CommandLineInversionRunner {
 			IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			partMFDs.add(partMFD);
 			
-			if (sol instanceof AverageFaultSystemSolution) {
+			if (isAVG) {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
 				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
 				calcAveSolMFDs(avgSol, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
@@ -841,8 +872,8 @@ public class CommandLineInversionRunner {
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
 			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
 
-			writeParentSectMFDPlot(dir, nuclMFDs, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFDs, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFDs, isAVG, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFDs, isAVG, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -930,7 +961,8 @@ public class CommandLineInversionRunner {
 		return sdom_over_means;
 	}
 
-	private static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds, List<IncrementalMagFreqDist> ucerf2MFDs,
+	public static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds,
+			boolean avgColoring, List<IncrementalMagFreqDist> ucerf2MFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
@@ -958,38 +990,50 @@ public class CommandLineInversionRunner {
 			funcs.add(maxMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
 		}
-		IncrementalMagFreqDist mfd = mfds.get(0);
-		mfd.setName("Incremental MFD");
-		funcs.add(mfd);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-		EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
-		cmlFunc.setName("Cumulative MFD");
-		funcs.add(cmlFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		
-		if (mfds.size() > 1) {
-			// this is an average fault system solution
+		IncrementalMagFreqDist mfd;
+		if (mfds.size() ==  1 || avgColoring) {
+			mfd = mfds.get(0);
+			mfd.setName("Incremental MFD");
+			funcs.add(mfd);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+			EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
+			cmlFunc.setName("Cumulative MFD");
+			funcs.add(cmlFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 			
-			// mean +/- SDOM
-			funcs.add(mfds.get(1));
-			funcs.add(mfds.get(2));
-			PlotCurveCharacterstics pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
-			chars.add(pchar);
-			chars.add(pchar);
-			
-			// mean +/- Std Dev
-			funcs.add(mfds.get(3));
-			funcs.add(mfds.get(4));
-			pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN);
-			chars.add(pchar);
-			chars.add(pchar);
-			
-			// min/max
-			funcs.add(mfds.get(5));
-			funcs.add(mfds.get(6));
-			pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY);
-			chars.add(pchar);
-			chars.add(pchar);
+			if (avgColoring) {
+				// this is an average fault system solution
+				
+				// mean +/- SDOM
+				funcs.add(mfds.get(1));
+				funcs.add(mfds.get(2));
+				PlotCurveCharacterstics pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
+				chars.add(pchar);
+				chars.add(pchar);
+				
+				// mean +/- Std Dev
+				funcs.add(mfds.get(3));
+				funcs.add(mfds.get(4));
+				pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN);
+				chars.add(pchar);
+				chars.add(pchar);
+				
+				// min/max
+				funcs.add(mfds.get(5));
+				funcs.add(mfds.get(6));
+				pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY);
+				chars.add(pchar);
+				chars.add(pchar);
+			}
+		} else {
+			// fractiles and such
+			int numFractils = mfds.size() - 3;
+			mfd = mfds.get(mfds.size()-1);
+			funcs.addAll(mfds);
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, numFractils));
+			for (IncrementalMagFreqDist imfd : mfds)
+				funcs.add(imfd.getCumRateDist());
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, numFractils));
 		}
 
 		double minX = mfd.getMinX();
@@ -1024,16 +1068,28 @@ public class CommandLineInversionRunner {
 	public static void writePaleoCorrelationPlots(
 			FaultSystemSolution sol, File dir, PaleoProbabilityModel paleoProb) throws IOException {
 		Map<String, Table<String, String, PaleoSiteCorrelationData>> tables =
-			PaleoSiteCorrelationData.loadPaleoCorrelationData(sol);
+				PaleoSiteCorrelationData.loadPaleoCorrelationData(sol);
+		
+		Map<String, PlotSpec> specMap = Maps.newHashMap();
+		
+		for (String faultName : tables.keySet())
+			specMap.put(faultName, PaleoSiteCorrelationData.getCorrelationPlotSpec(
+					faultName, tables.get(faultName), sol, paleoProb));
+		
+		writePaleoCorrelationPlots(dir, specMap);
+	}
+	
+	public static void writePaleoCorrelationPlots(
+			File dir, Map<String, PlotSpec> specMap) throws IOException {
+		
 		
 		if (!dir.exists())
 			dir.mkdir();
 		
-		for (String faultName : tables.keySet()) {
+		for (String faultName : specMap.keySet()) {
 			String fname = faultName.replaceAll("\\W+", "_");
 			
-			PlotSpec spec = PaleoSiteCorrelationData.getCorrelationPlotSpec(
-					faultName, tables.get(faultName), sol, paleoProb);
+			PlotSpec spec = specMap.get(faultName);
 			
 			double maxX = 0;
 			for (DiscretizedFunc func : spec.getFuncs()) {

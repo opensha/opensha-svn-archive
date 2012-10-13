@@ -229,7 +229,7 @@ public abstract class MPJTaskCalculator {
 		System.exit(0);
 	}
 	
-	protected static void abortAndExit(int ret) {
+	public static void abortAndExit(int ret) {
 		abortAndExit(null, ret);
 	}
 	

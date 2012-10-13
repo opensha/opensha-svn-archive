@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.ZipException;
 
+import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -17,6 +20,7 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
@@ -26,6 +30,7 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
@@ -38,17 +43,24 @@ import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter.DataForPaleoFaultPlots;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 import com.google.common.primitives.Doubles;
 
 public abstract class CompoundFSSPlots implements Serializable {
@@ -271,15 +283,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 					
 					funcs.addAll(getFractiles(solOffMFDsForRegion, weights, "Solution Off Fault MFDs", fractiles));
-					chars.addAll(getFractileChars(Color.GRAY, fractiles));
+					chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
 				}
 				
 				funcs.addAll(getFractiles(solMFDsForRegion, weights, "Solution On Fault MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.BLUE, fractiles));
+				chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
 				
 				if (!totalMFDsForRegion.isEmpty()) {
 					funcs.addAll(getFractiles(totalMFDsForRegion, weights, "Solution Total MFDs", fractiles));
-					chars.addAll(getFractileChars(Color.RED, fractiles));
+					chars.addAll(getFractileChars(Color.RED, fractiles.length));
 				}
 				
 				String title = "Magnitude Histogram for Final Rates";
@@ -341,6 +353,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			File dir) throws IOException {
 		boolean multiple = plotsMap.keySet().size() > 1;
 		
+		if (!dir.exists())
+			dir.mkdir();
+		
 		for (FaultModels fm : plotsMap.keySet()) {
 			Map<String, PlotSpec[]> specs = plotsMap.get(fm);
 			
@@ -392,19 +407,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				System.out.println("Preparing...");
 				List<PaleoRateConstraint> paleoRateConstraints = paleoConstraintMaps.get(fm);
 				if (paleoRateConstraints == null) {
-					synchronized (fm) {
+					synchronized (this) {
 						paleoRateConstraints = paleoConstraintMaps.get(fm);
 						if (paleoRateConstraints == null) {
 							System.out.println("I'm in the synchronized block! "+fm);
 							// do a bunch of FM specific stuff
 							paleoRateConstraints = CommandLineInversionRunner.getPaleoConstraints(fm, sol);
-							paleoConstraintMaps.put(fm, paleoRateConstraints);
 							slipConstraintMaps.put(fm, AveSlipConstraint.load(sol.getFaultSectionDataList()));
 							allParentsMaps.put(fm, PaleoFitPlotter.getAllParentsMap(sol.getFaultSectionDataList()));
 							namedFaultsMaps.put(fm, fm.getNamedFaultsMapAlt());
 							Map<Integer, Double> traceLengthCache = Maps.newConcurrentMap();
 							traceLengthCaches.put(fm, traceLengthCache);
 							fsdsMap.put(fm, sol.getFaultSectionDataList());
+							paleoConstraintMaps.put(fm, paleoRateConstraints);
 						}
 					}
 				}
@@ -438,7 +453,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				System.out.println("Archiving results...");
 				
-				synchronized (fm) {
+				synchronized (this) {
 					List<DataForPaleoFaultPlots> datasList = datasMap.get(fm);
 					if (datasList == null) {
 						datasList = Lists.newArrayList();
@@ -456,7 +471,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 					Preconditions.checkState(slipRates.size() == slipsForConstraints.size(),
 							"Slip rate sizes inconsistent!");
-					for (int i=0; i<slipRates.size(); i++)
+					for (int i=0; i<slipsForConstraints.size(); i++)
 						slipRates.get(i).add(slipsForConstraints.get(i));
 					
 					
@@ -490,7 +505,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (int i=0; i<aveSlips.size(); i++) {
 					List<Double> slipList = slipVals.get(i);
 					double[] slipArray = Doubles.toArray(slipList);
-					Preconditions.checkState(slipArray.length == weights.length);
+					Preconditions.checkState(slipArray.length == weights.length,
+							slipArray.length+" != "+weights.length);
 					
 					AveSlipConstraint constr = aveSlips.get(i);
 					
@@ -544,10 +560,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 					List<List<Double>> slipRatesList = slipRatesMap.get(fm);
 					if (slipRatesList == null) {
+						List<AveSlipConstraint> slipConstraints = slipConstraintMaps.get(fm);
 						slipRatesList = Lists.newArrayList();
+						for (int i=0; i<slipConstraints.size(); i++)
+							slipRatesList.add(new ArrayList<Double>());
 						slipRatesMap.put(fm, slipRatesList);
 					}
-					slipRatesList.addAll(o.slipRatesMap.get(fm));
+					for (int i=0; i<slipRatesList.size(); i++)
+						slipRatesList.get(i).addAll(o.slipRatesMap.get(fm).get(i));
 
 					List<Double> weightsList = weightsMap.get(fm);
 					if (weightsList == null) {
@@ -561,6 +581,489 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		protected Map<FaultModels, Map<String, PlotSpec[]>> getPlotsMap() {
 			return plotsMap;
+		}
+		
+	}
+	
+	public static void writePaleoCorrelationPlots(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir) throws IOException {
+		PaleoSiteCorrelationPlot plot = new PaleoSiteCorrelationPlot(weightProvider);
+		plot.buildPlot(fetch);
+		
+		writePaleoCorrelationPlots(plot.plotsMap, dir);
+	}
+	
+	public static void writePaleoCorrelationPlots(
+			Map<String, PlotSpec> plotsMap,
+			File dir) throws IOException {
+		System.out.println("Making paleo corr plots for "+plotsMap.keySet().size()+" Faults");
+		
+		if (!dir.exists())
+			dir.mkdir();
+		
+		CommandLineInversionRunner.writePaleoCorrelationPlots(dir, plotsMap);
+	}
+	
+	public static class PaleoSiteCorrelationPlot extends CompoundFSSPlots {
+		
+		private transient PaleoProbabilityModel paleoProbModel;
+		private transient BranchWeightProvider weightProvider;
+		
+		private Map<FaultModels, Map<String, List<PaleoSiteCorrelationData>>> corrsListsMap =
+				Maps.newHashMap();
+		
+		// <fault model, data list of: <fault name, corr values>>
+		private List<Map<String, double[]>> data = Lists.newArrayList();
+		private List<Double> weights = Lists.newArrayList();
+		
+		private Map<String, PlotSpec> plotsMap = Maps.newHashMap();
+		
+		public PaleoSiteCorrelationPlot(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+			
+			try {
+				paleoProbModel = UCERF3_PaleoProbabilityModel.load();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol) {
+			FaultModels fm = sol.getFaultModel();
+			
+			try {
+				System.out.println("Preparing...");
+				Map<String, List<PaleoSiteCorrelationData>> corrs =
+						corrsListsMap.get(fm);
+				if (corrs == null) {
+					synchronized (fm) {
+						corrs = corrsListsMap.get(fm);
+						if (corrs == null) {
+							System.out.println("I'm in the synchronized block! "+fm);
+							corrs = Maps.newHashMap();
+							
+							Map<String, Table<String, String, PaleoSiteCorrelationData>> table =
+									PaleoSiteCorrelationData.loadPaleoCorrelationData(sol);
+							
+							for (String faultName : table.keySet()) {
+								List<PaleoSiteCorrelationData> corrsToPlot =
+										PaleoSiteCorrelationData.getCorrelataionsToPlot(
+												table.get(faultName));
+								corrs.put(faultName, corrsToPlot);
+							}
+							corrsListsMap.put(fm, corrs);
+						}
+					}
+				}
+				
+				double weight = weightProvider.getWeight(branch);
+				
+				Map<String, double[]> myData = Maps.newHashMap();
+				
+				System.out.println("Building...");
+				for (String faultName : corrs.keySet()) {
+					List<PaleoSiteCorrelationData> corrsToPlot = corrs.get(faultName);
+					
+					double[] vals = new double[corrsToPlot.size()];
+					for (int i=0; i<vals.length; i++) {
+						PaleoSiteCorrelationData corr = corrsToPlot.get(i);
+						vals[i] = PaleoSiteCorrelationData.getRateCorrelated(
+								paleoProbModel, sol, corr.getSite1SubSect(), corr.getSite2SubSect());
+					}
+					
+					myData.put(faultName, vals);
+				}
+				
+				
+				System.out.println("Archiving results...");
+				
+				synchronized (this) {
+					data.add(myData);
+					weights.add(weight);
+				}
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				PaleoSiteCorrelationPlot o = (PaleoSiteCorrelationPlot)otherCalc;
+				
+				data.addAll(o.data);
+				weights.addAll(o.weights);
+				
+				for (FaultModels fm : o.corrsListsMap.keySet()) {
+					if (!corrsListsMap.containsKey(fm))
+						corrsListsMap.put(fm, o.corrsListsMap.get(fm));
+				}
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			Map<String, List<PaleoSiteCorrelationData>> allCorrsMap = Maps.newHashMap();
+			for (FaultModels fm : corrsListsMap.keySet()) {
+				Map<String, List<PaleoSiteCorrelationData>> corrsForFM = corrsListsMap.get(fm);
+				for (String faultName : corrsForFM.keySet()) {
+					if (!allCorrsMap.containsKey(faultName))
+						allCorrsMap.put(faultName, corrsForFM.get(faultName));
+				}
+			}
+			
+			for (String faultName : allCorrsMap.keySet()) {
+				List<double[]> solValsForFault = Lists.newArrayList();
+				List<Double> weightsForFault = Lists.newArrayList();
+				
+				for (int s=0; s<data.size(); s++) {
+					double[] solData = data.get(s).get(faultName);
+					if (solData != null) {
+						solValsForFault.add(solData);
+						weightsForFault.add(weights.get(s));
+					}
+				}
+				
+				List<PaleoSiteCorrelationData> corrs = allCorrsMap.get(faultName);
+				
+				List<double[]> solValues = Lists.newArrayList();
+				double[] weights = Doubles.toArray(weightsForFault);
+				
+				for (int i=0; i<corrs.size(); i++) {
+					double[] vals = new double[solValsForFault.size()];
+					for (int s=0; s<solValsForFault.size(); s++)
+						vals[s] = solValsForFault.get(s)[i];
+					double min = StatUtils.min(vals);
+					double max = StatUtils.max(vals);
+					double mean = PaleoFitPlotter.calcScaledAverage(vals, weights);
+					
+					double[] ret = { min, max, mean };
+					System.out.println("Vals for "+faultName+" CORR "+i+": "+min+","+max+","+mean
+							+" ("+vals.length+" sols)");
+					solValues.add(ret);
+				}
+				
+				PlotSpec spec = PaleoSiteCorrelationData.getCorrelationPlotSpec(
+						faultName, FaultModels.FM3_1, corrs, solValues, paleoProbModel);
+				
+				plotsMap.put(faultName, spec);
+			}
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
+		}
+
+		public Map<String, PlotSpec> getPlotsMap() {
+			return plotsMap;
+		}
+	}
+	
+	public static void writeParentSectionMFDPlots(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir) throws IOException {
+		ParentSectMFDsPlot plot = new ParentSectMFDsPlot(weightProvider);
+		plot.buildPlot(fetch);
+		
+		writeParentSectionMFDPlots(plot, dir);
+	}
+	
+	public static void writeParentSectionMFDPlots(
+			ParentSectMFDsPlot plot,
+			File dir) throws IOException {
+		System.out.println("Making parent sect MFD plots for "
+			+plot.plotNuclIncrMFDs.keySet().size()+" Faults");
+		
+		if (!dir.exists())
+			dir.mkdir();
+		
+		for (Integer parentID : plot.plotNuclIncrMFDs.keySet()) {
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, false, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, true, false);
+			
+			String name = plot.namesMap.get(parentID);
+			
+			writeParentSectionMFDPlot(dir, plot.plotNuclIncrMFDs.get(parentID),
+					ucerf2NuclMFDs, parentID, name, true);
+			writeParentSectionMFDPlot(dir, plot.plotPartIncrMFDs.get(parentID),
+					ucerf2PArtMFDs, parentID, name, false);
+		}
+	}
+	
+	private static void writeParentSectionMFDPlot(
+			File dir, List<IncrementalMagFreqDist> mfds, List<IncrementalMagFreqDist> ucerf2MFDs,
+			int id, String name, boolean nucleation) throws IOException {
+		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds, false, ucerf2MFDs, id,
+				name, nucleation);
+	}
+	
+	
+	public static class ParentSectMFDsPlot extends CompoundFSSPlots {
+		
+		private transient BranchWeightProvider weightProvider;
+		
+		// none (except min/mean/max which are always included)
+		private double[] fractiles;
+		
+		private ConcurrentMap<FaultModels, HashSet<Integer>>
+				parentMapsCache = Maps.newConcurrentMap();
+				
+		// these are organized as (region, solution)
+		private Map<Integer, XY_DataSetList> nuclIncrMFDs = Maps.newHashMap();
+		private Map<Integer, XY_DataSetList> partIncrMFDs = Maps.newHashMap();
+		
+		private Map<Integer, List<Double>> weightsMap = Maps.newHashMap();
+		private ConcurrentMap<Integer, String> namesMap = Maps.newConcurrentMap();
+				
+		private static final double minX = 5.05d;
+		private static final double maxX = 9.05d;
+		private static final double delta = 0.1d;
+		private static final int num = (int)((maxX - minX) / delta) + 1;
+		
+		private Map<Integer, List<IncrementalMagFreqDist>> plotNuclIncrMFDs = Maps.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotPartIncrMFDs = Maps.newHashMap();
+		
+		public ParentSectMFDsPlot(BranchWeightProvider weightProvider) {
+			this(weightProvider, new double[0]);
+		}
+		
+		public ParentSectMFDsPlot(BranchWeightProvider weightProvider, double[] fractiles) {
+			this.weightProvider = weightProvider;
+			this.fractiles = fractiles;
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol) {
+			FaultModels fm = sol.getFaultModel();
+			
+			HashSet<Integer> parentIDs = parentMapsCache.get(fm);
+			if (parentIDs == null) {
+				parentIDs = new HashSet<Integer>();
+				for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
+					FaultSectionPrefData sect = sol.getFaultSectionData(sectIndex);
+					Integer parentID = sect.getParentSectionId();
+					if (!parentIDs.contains(parentID)) {
+						parentIDs.add(parentID);
+						namesMap.putIfAbsent(parentID, sect.getParentSectionName());
+					}
+				}
+				parentMapsCache.putIfAbsent(fm, parentIDs);
+			}
+			
+			double weight = weightProvider.getWeight(branch);
+			
+			for (Integer parentID : parentIDs) {
+				SummedMagFreqDist nuclMFD =
+						sol.calcNucleationMFD_forParentSect(parentID, minX, maxX, num);
+				IncrementalMagFreqDist partMFD =
+						sol.calcParticipationMFD_forParentSect(parentID, minX, maxX, num);
+				
+				synchronized (this) {
+					if (!nuclIncrMFDs.containsKey(parentID)) {
+						nuclIncrMFDs.put(parentID, new XY_DataSetList());
+						partIncrMFDs.put(parentID, new XY_DataSetList());
+						weightsMap.put(parentID, new ArrayList<Double>());
+					}
+					nuclIncrMFDs.get(parentID).add(nuclMFD);
+					partIncrMFDs.get(parentID).add(partMFD);
+					weightsMap.get(parentID).add(weight);
+				}
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				ParentSectMFDsPlot o = (ParentSectMFDsPlot)otherCalc;
+				
+				for (Integer parentID : o.nuclIncrMFDs.keySet()) {
+					if (!nuclIncrMFDs.containsKey(parentID)) {
+						nuclIncrMFDs.put(parentID, new XY_DataSetList());
+						partIncrMFDs.put(parentID, new XY_DataSetList());
+						weightsMap.put(parentID, new ArrayList<Double>());
+					}
+					nuclIncrMFDs.get(parentID).addAll(o.nuclIncrMFDs.get(parentID));
+					partIncrMFDs.get(parentID).addAll(o.partIncrMFDs.get(parentID));
+					weightsMap.get(parentID).addAll(o.weightsMap.get(parentID));
+					if (!namesMap.containsKey(parentID))
+						namesMap.put(parentID, o.namesMap.get(parentID));
+				}
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			for (Integer parentID : nuclIncrMFDs.keySet()) {
+				plotNuclIncrMFDs.put(parentID, asIncr(getFractiles(
+						nuclIncrMFDs.get(parentID), weightsMap.get(parentID),
+						"Incremental Nucleation MFD", fractiles)));
+				plotPartIncrMFDs.put(parentID, asIncr(getFractiles(
+						partIncrMFDs.get(parentID), weightsMap.get(parentID),
+						"Incremental Participation MFD", fractiles)));
+			}
+		}
+		
+		private static List<IncrementalMagFreqDist> asIncr(List<DiscretizedFunc> funcs) {
+			List<IncrementalMagFreqDist> incrMFDs = Lists.newArrayList();
+			for (DiscretizedFunc func : funcs)
+				incrMFDs.add((IncrementalMagFreqDist)func);
+			return incrMFDs;
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
+		}
+		
+	}
+	
+	public static void writeJumpPlots(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir, String prefix) throws IOException {
+		RupJumpPlot plot = new RupJumpPlot(weightProvider);
+		plot.buildPlot(fetch);
+		
+		writeJumpPlots(plot, dir, prefix);
+	}
+	
+	public static void writeJumpPlots(
+			RupJumpPlot plot,
+			File dir, String prefix) throws IOException {
+		System.out.println("Making rup jump plots for "
+			+plot.weights.size()+" sols");
+		
+		for (int i=0; i<plot.minMags.length; i++) {
+			CommandLineInversionRunner.writeJumpPlot(dir, prefix, plot.plotSolFuncs.get(i),
+					plot.plotRupSetFuncs.get(i), RupJumpPlot.jumpDist, plot.minMags[i],
+					plot.paleoProbs[i]);
+		}
+	}
+	
+	public static class RupJumpPlot extends CompoundFSSPlots {
+		
+		private double[] minMags = { 7d, 0d };
+		private boolean[] paleoProbs = { false, true };
+		
+		private double[] fractiles;
+		
+		private static final double jumpDist = 1d;
+		
+		private BranchWeightProvider weightProvider;
+		private transient PaleoProbabilityModel paleoProbModel;
+		
+		private Map<FaultModels, Map<IDPairing, Double>> distancesCache = Maps.newHashMap();
+		
+		private List<XY_DataSetList> solFuncs = Lists.newArrayList();
+		private List<XY_DataSetList> rupSetFuncs = Lists.newArrayList();
+		private List<Double> weights = Lists.newArrayList();
+		
+		private List<DiscretizedFunc[]> plotSolFuncs = Lists.newArrayList();
+		private List<DiscretizedFunc[]> plotRupSetFuncs = Lists.newArrayList();
+		
+		public RupJumpPlot(BranchWeightProvider weightProvider) {
+			this(weightProvider, new double[0]);
+		}
+		
+		public RupJumpPlot(BranchWeightProvider weightProvider, double[] fractiles) {
+			this.weightProvider = weightProvider;
+			this.fractiles = fractiles;
+			
+			try {
+				paleoProbModel = UCERF3_PaleoProbabilityModel.load();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			
+			for (int i=0; i<minMags.length; i++) {
+				solFuncs.add(new XY_DataSetList());
+				rupSetFuncs.add(new XY_DataSetList());
+			}
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol) {
+			FaultModels fm = sol.getFaultModel();
+			
+			Map<IDPairing, Double> distances = distancesCache.get(fm);
+			if (distances == null) {
+				synchronized (this) {
+					distances = distancesCache.get(fm);
+					if (distances == null) {
+						distances = new DeformationModelFetcher(fm, sol.getDeformationModel(),
+								UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1)
+								.getSubSectionDistanceMap(5d);
+						distancesCache.put(fm, distances);
+					}
+				}
+			}
+			
+			double weight = weightProvider.getWeight(branch);
+			
+			List<EvenlyDiscretizedFunc[]> myFuncs = Lists.newArrayList();
+			for (int i=0; i<minMags.length; i++) {
+				EvenlyDiscretizedFunc[] funcs = CommandLineInversionRunner.getJumpFuncs(
+						sol, distances, jumpDist, minMags[i], paleoProbModel);
+				myFuncs.add(funcs);
+			}
+			synchronized (this) {
+				for (int i=0; i<myFuncs.size(); i++) {
+					EvenlyDiscretizedFunc[] funcs = myFuncs.get(i);
+					solFuncs.get(i).add(funcs[0]);
+					rupSetFuncs.get(i).add(funcs[1]);
+				}
+				weights.add(weight);
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				RupJumpPlot o = (RupJumpPlot)otherCalc;
+				
+				for (int i=0; i<minMags.length; i++) {
+					solFuncs.get(i).addAll(o.solFuncs.get(i));
+					rupSetFuncs.get(i).addAll(o.rupSetFuncs.get(i));
+				}
+				weights.addAll(o.weights);
+			}
+		}
+		
+		private static DiscretizedFunc[] toArray(List<DiscretizedFunc> funcs) {
+			DiscretizedFunc[] array = new DiscretizedFunc[funcs.size()];
+			for (int i=0; i<funcs.size(); i++)
+				array[i] = funcs.get(i);
+			return array;
+		}
+
+		@Override
+		protected void finalizePlot() {
+			for (int i=0; i<solFuncs.size(); i++) {
+				List<DiscretizedFunc> solFractiles =
+						getFractiles(solFuncs.get(i), weights, "Solution Jumps", fractiles);
+				List<DiscretizedFunc> rupSetFractiles =
+						getFractiles(rupSetFuncs.get(i), weights, "Rup Set Jumps", fractiles);
+				plotSolFuncs.add(toArray(solFractiles));
+				plotRupSetFuncs.add(toArray(rupSetFractiles));
+			}
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
 		}
 		
 	}
@@ -588,13 +1091,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 		return funcs;
 	}
 	
-	private static List<PlotCurveCharacterstics> getFractileChars(Color color, double[] fractiles) {
+	public static List<PlotCurveCharacterstics> getFractileChars(Color color, int numFractiles) {
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		PlotCurveCharacterstics thinChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, color);
 		PlotCurveCharacterstics thickChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color);
 		
-		for (int i=0; i<fractiles.length; i++)
+		for (int i=0; i<numFractiles; i++)
 			chars.add(thinChar);
 		chars.add(thinChar);
 		chars.add(thinChar);
@@ -663,26 +1166,43 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private FaultSystemSolutionFetcher fetcher;
 		private LogicTreeBranch branch;
 		private boolean invFSS;
+		private boolean mpj;
 		
 		public PlotSolComputeTask(Collection<CompoundFSSPlots> plots,
 				FaultSystemSolutionFetcher fetcher,
 				LogicTreeBranch branch,
 				boolean invFSS) {
+			this(plots, fetcher, branch, invFSS, false);
+		}
+		public PlotSolComputeTask(Collection<CompoundFSSPlots> plots,
+				FaultSystemSolutionFetcher fetcher,
+				LogicTreeBranch branch,
+				boolean invFSS,
+				boolean mpj) {
 			this.plots = plots;
 			this.fetcher = fetcher;
 			this.branch = branch;
 			this.invFSS = invFSS;
+			this.mpj = mpj;
 		}
 
 		@Override
 		public void compute() {
-			FaultSystemSolution sol = fetcher.getSolution(branch);
-			
-			if (invFSS)
-				sol = new InversionFaultSystemSolution(sol);
-			
-			for (CompoundFSSPlots plot : plots)
-				plot.processSolution(branch, sol);
+			try {
+				FaultSystemSolution sol = fetcher.getSolution(branch);
+				
+				if (invFSS)
+					sol = new InversionFaultSystemSolution(sol);
+				
+				for (CompoundFSSPlots plot : plots)
+					plot.processSolution(branch, sol);
+			} catch (Exception e) {
+				e.printStackTrace();
+				if (mpj)
+					MPJTaskCalculator.abortAndExit(1);
+				else
+					System.exit(1);
+			}
 		}
 		
 	}
@@ -729,20 +1249,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 	public static void main(String[] args) throws ZipException, IOException {
 		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 3);
+//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5);
 		
 		List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 		
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		File dir = new File("/tmp");
 		String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
-		for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider, regions)) {
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
-			gw.setYLog(true);
-		}
+//		for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider, regions)) {
+//			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
+//			gw.setYLog(true);
+//		}
 //		writeRegionalMFDPlots(fetch, weightProvider, regions, dir, prefix);
 //		File paleoDir = new File(dir, prefix+"-paleo-faults");
 //		writePaleoFaultPlots(fetch, weightProvider, paleoDir);
+//		File paleoCorrDir = new File(dir, prefix+"-paleo-corr");
+//		writePaleoCorrelationPlots(fetch, weightProvider, paleoCorrDir);
+//		File parentSectMFDsDir = new File(dir, prefix+"-parent-sect-mfds");
+//		writeParentSectionMFDPlots(fetch, weightProvider, parentSectMFDsDir);
+		writeJumpPlots(fetch, weightProvider, dir, prefix);
 	}
 
 }

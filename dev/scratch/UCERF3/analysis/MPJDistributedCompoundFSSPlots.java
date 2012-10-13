@@ -20,8 +20,11 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoFaultPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoSiteCorrelationPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ParentSectMFDsPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PlotSolComputeTask;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
@@ -78,7 +81,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		for (int index : batch) {
 			LogicTreeBranch branch = branches.get(index);
-			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS));
+			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS, true));
 		}
 		
 		System.out.println("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");
@@ -192,6 +195,21 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		paleoFaultOption.setRequired(false);
 		options.addOption(paleoFaultOption);
 		
+		Option paleoCorrOption = new Option("paleocorr", "plot-paleo-corrs", false,
+				"Flag for plotting paleo correlations");
+		paleoCorrOption.setRequired(false);
+		options.addOption(paleoCorrOption);
+		
+		Option parentMFDsOption = new Option("parentmfds", "plot-parent-mfds", false,
+				"Flag for plotting parent section MFDs");
+		parentMFDsOption.setRequired(false);
+		options.addOption(parentMFDsOption);
+		
+		Option jumpsOption = new Option("jumps", "plot-rup-jumps", false,
+				"Flag for plotting parent section MFDs");
+		jumpsOption.setRequired(false);
+		options.addOption(jumpsOption);
+		
 		Option randomSampleOption = new Option("rand", "random-sample", true,
 				"If supplied, a random sample of the given size will be used.");
 		randomSampleOption.setRequired(false);
@@ -244,6 +262,21 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				plots.add(paleo);
 			}
 			
+			if (cmd.hasOption("paleocorr")) {
+				PaleoSiteCorrelationPlot paleo = new PaleoSiteCorrelationPlot(weightProvider);
+				plots.add(paleo);
+			}
+			
+			if (cmd.hasOption("parentmfds")) {
+				ParentSectMFDsPlot plot = new ParentSectMFDsPlot(weightProvider);
+				plots.add(plot);
+			}
+			
+			if (cmd.hasOption("jumps")) {
+				RupJumpPlot plot = new RupJumpPlot(weightProvider);
+				plots.add(plot);
+			}
+			
 			MPJDistributedCompoundFSSPlots driver = new MPJDistributedCompoundFSSPlots(cmd, fetcher, plots);
 			
 			driver.run();
@@ -264,6 +297,21 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 						if (!paleoPlotsDir.exists())
 							paleoPlotsDir.mkdir();
 						CompoundFSSPlots.writePaleoFaultPlots(paleo.getPlotsMap(), paleoPlotsDir);
+					} else if (plot instanceof PaleoSiteCorrelationPlot) {
+						PaleoSiteCorrelationPlot paleo = (PaleoSiteCorrelationPlot)plot;
+						File paleoPlotsDir = new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME);
+						if (!paleoPlotsDir.exists())
+							paleoPlotsDir.mkdir();
+						CompoundFSSPlots.writePaleoCorrelationPlots(paleo.getPlotsMap(), paleoPlotsDir);
+					} else if (plot instanceof ParentSectMFDsPlot) {
+						ParentSectMFDsPlot parentPlots = (ParentSectMFDsPlot)plot;
+						File parentPlotsDir = new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME);
+						if (!parentPlotsDir.exists())
+							parentPlotsDir.mkdir();
+						CompoundFSSPlots.writeParentSectionMFDPlots(parentPlots, parentPlotsDir);
+					} else if (plot instanceof RupJumpPlot) {
+						RupJumpPlot jumpPlot = (RupJumpPlot)plot;
+						CompoundFSSPlots.writeJumpPlots(jumpPlot, dir, prefix);
 					}
 				}
 			}
