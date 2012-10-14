@@ -78,7 +78,7 @@ public class MPJDistributedPreInversionAnalysis extends MPJTaskCalculator {
 		else
 			limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08,
 					ScalingRelationships.SHAW_2009_MOD));
-		limitationsList.add(toList(TotalMag5Rate.RATE_8p7, TotalMag5Rate.RATE_7p1, TotalMag5Rate.RATE_10p6));
+		limitationsList.add(toList(TotalMag5Rate.RATE_8p7, TotalMag5Rate.RATE_7p6, TotalMag5Rate.RATE_10p0));
 		limitationsList.add(toList(MaxMagOffFault.MAG_7p2, MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0));
 		limitationsList.add(toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC));
 		if (ucerf2)

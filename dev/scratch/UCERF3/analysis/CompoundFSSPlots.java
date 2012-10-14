@@ -275,11 +275,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				if (!solOffMFDsForRegion.isEmpty()) {
 					// now add target GRs
-					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_10p6.getRateMag5()));
+					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_10p0.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_8p7.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p1.getRateMag5()));
+					funcs.add(InversionMFDs.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p6.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 					
 					funcs.addAll(getFractiles(solOffMFDsForRegion, weights, "Solution Off Fault MFDs", fractiles));

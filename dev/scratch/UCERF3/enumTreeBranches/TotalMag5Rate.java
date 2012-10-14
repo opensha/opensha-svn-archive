@@ -4,9 +4,9 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
 	
-	RATE_7p1(7.0,	0.1d),
+	RATE_7p6(7.6,	0.1d),
 	RATE_8p7(8.7,	0.6d),
-	RATE_10p6(10.0,	0.3d);
+	RATE_10p0(10.0,	0.3d);
 	
 	private double rate;
 	private double weight;

@@ -965,7 +965,7 @@ public class FaultSystemRupSetCalc {
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
 		mag5RateList.add(TotalMag5Rate.RATE_8p7);
 //		mag5RateList.add(TotalMag5Rate.RATE_7p1);
-		mag5RateList.add(TotalMag5Rate.RATE_10p6);
+		mag5RateList.add(TotalMag5Rate.RATE_10p0);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
 //		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
