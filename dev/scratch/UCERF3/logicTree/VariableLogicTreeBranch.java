@@ -70,6 +70,8 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 			String sub = name;
 			if (sub.endsWith(".csv"))
 				sub = sub.substring(0, name.indexOf(".csv"));
+			if (sub.endsWith("_sol.zip"))
+				sub = sub.substring(0, name.indexOf("_sol.zip"));
 			if (sub.contains("_Run"))
 				sub = sub.substring(0, sub.indexOf("_Run"));
 			if (sub.contains("_Var"))
