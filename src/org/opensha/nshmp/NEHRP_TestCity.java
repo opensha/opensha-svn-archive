@@ -8,6 +8,7 @@ import org.apache.commons.math.util.MathUtils;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -110,6 +111,20 @@ public enum NEHRP_TestCity {
 	public static EnumSet<NEHRP_TestCity> getShortListCA() {
 		return EnumSet.of(LOS_ANGELES, RIVERSIDE, SAN_DIEGO, SANTA_BARBARA,
 			OAKLAND, SACRAMENTO, SAN_FRANCISCO, SAN_JOSE);
+	}
+	
+	/**
+	 * Returns the city associated with the supplied location or {@code null}
+	 * if no city is coincident with the location.
+	 * @param loc location to search for
+	 * @return the city at location
+	 * @see LocationUtils#areSimilar(Location, Location);
+	 */
+	public static NEHRP_TestCity forLocation(Location loc) {
+		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
+			if (LocationUtils.areSimilar(city.loc, loc)) return city;
+		}
+		return null;
 	}
 	
 	/**
