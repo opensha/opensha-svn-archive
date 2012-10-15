@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
@@ -38,18 +39,18 @@ import com.google.common.collect.Lists;
  * @author Peter Powers
  * @version $Id:$
  */
-public class UC3_CalcWrapper {
+public class UC3_CalcDriver {
 
-	// public static final String COMPOUND_SOL_PATH =
-	// "/Volumes/Scratch/UC3/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
-	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
+//	public static final String COMPOUND_SOL_PATH = "/Volumes/Scratch/UC3/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
+	 static final String COMPOUND_SOL_PATH =
+	 "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
 
 	// private static final String OUT_DIR =
 	// "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
 	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UC3tmp";
 	private static final String S = File.separator;
 
-	UC3_CalcWrapper(String solSetPath, int solIdx, String outDir,
+	UC3_CalcDriver(String solSetPath, int solIdx, String outDir,
 		LocationList locs, Period[] periods, boolean epiUncert)
 			throws IOException, InterruptedException, ExecutionException {
 
@@ -57,17 +58,18 @@ public class UC3_CalcWrapper {
 		String erfName = null;
 
 		boolean compoundSol = solSetPath.contains("COMPOUND_SOL");
-
+		
 		if (compoundSol) {
 			CompoundFaultSystemSolution cfss = getCompoundSolution(solSetPath);
-			List<LogicTreeBranch> branches = Lists.newArrayList(cfss
-				.getBranches());
+			List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
+			System.out.println("numsols: " + branches.size());
 			LogicTreeBranch branch = branches.get(solIdx);
 			fss = cfss.getSolution(branch);
 			erfName = branch.buildFileName();
-
-		} else {
+			
+		} else { // average solution
 			AverageFaultSystemSolution afss = getAvgSolution(solSetPath);
+			System.out.println("numsols: " + afss.getNumSolutions());
 			fss = afss.getSolution(solIdx);
 			int ssIdx1 = StringUtils.lastIndexOf(solSetPath, "/");
 			int ssIdx2 = StringUtils.lastIndexOf(solSetPath, ".");
@@ -81,50 +83,32 @@ public class UC3_CalcWrapper {
 		for (Period period : periods) {
 			String outPath = OUT_DIR + S + erfName + S + period + S;
 			System.out.println(outPath);
-			// File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-			// HazardResultWriter writer = new HazardResultWriterCities(outFile,
-			// period);
-			// ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
-			// period, epiUncert, writer);
-			// thc.calculate(null);
+			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
+			HazardResultWriter writer = new HazardResultWriterCities(outFile,
+				period);
+			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
+				period, epiUncert, writer);
+			thc.calculate(null);
 		}
 	}
 
-	// try {
-	// writer = new HazardResultWriterCities(outFile, period);
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// System.exit(1);
-	// }
-
-	// UC3_CalcWrapper(UCERF3_FaultSysSol_ERF erf, LocationList locs, Period[]
-	// periods,
-	// boolean epiUncert) {
-	//
-	// ThreadedHazardCalc thc = null;
-	//
-	//
-	//
-	// try {
-	// thc = new ThreadedHazardCalc(erf, locs, period, epiUncert, writer);
-	// thc.calculate(null);
-	// } catch (ExecutionException ee) {
-	// ee.printStackTrace();
-	// } catch (InterruptedException ie) {
-	// ie.printStackTrace();
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// }
-	// }
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		if (args.length != 3) {
+			System.out.println("USAGE: " +
+					ClassUtils.getClassNameWithoutPackage(UC3_CalcDriver.class) +
+					" <filepath> <erfIndex> <outDir>");
+			System.exit(1);
+		}
+		
+		String solSetPath = args[0];
+		int erfIdx = Integer.parseInt(args[1]);
+		String outDir = args[2];
+		
 		Period[] periods = { GM0P00, GM0P20, GM1P00 };
-		String solSetPath = COMPOUND_SOL_PATH;
-		int idx = 3;
 		Set<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(LOS_ANGELES);
 		boolean epiUnc = false;
 
@@ -134,59 +118,13 @@ public class UC3_CalcWrapper {
 		}
 
 		try {
-			new UC3_CalcWrapper(solSetPath, idx, OUT_DIR, locs, periods, epiUnc);
+			new UC3_CalcDriver(solSetPath, erfIdx, outDir, locs, periods, epiUnc);
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
-
-		// CompoundFaultSystemSolution cfss =
-		// getCompoundSolution(COMPOUND_SOL_PATH);
-		// Iterable<LogicTreeBranch> branches = cfss.getBranches();
-		// LogicTreeBranch branch = Iterables.get(branches, 5);
-		// String erfName = branch.buildFileName();
-		//
-		//
-		// try {
-		//
-		// FaultSystemSolution fss = cfss.getSolution(branch);
-		//
-		// // Stopwatch sw = new Stopwatch();
-		// // sw.start();
-		// // sw.stop();
-		// // System.out.println("init time: " + sw.elapsedMillis());
-		//
-		// UCERF3_FaultSysSol_ERF erf = getUC3_ERF(fss);
-		// EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-		//
-		// String outPath = OUT_DIR + S + erfName + S + period + S;
-		// File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-		// // File mpjOutDir = new File(outPath);
-		//
-		// HazardResultWriter writer = new HazardResultWriterCities(outFile,
-		// period);
-		// // try {
-		// // writer = singleFile ?
-		// // new HazardResultWriterLocal(localOutFile, period) :
-		// // new HazardResultWriterMPJ(mpjOutDir);
-		// // } catch (IOException ioe) {
-		// // ioe.printStackTrace();
-		// // }
-		// boolean epiUnc = false;
-		//
-		// // Set<NEHRP_TestCity> cities = EnumSet.of(LOS_ANGELES);
-		// // LocationList locs = new LocationList();
-		// // for (NEHRP_TestCity city : cities) {
-		// // locs.add(city.location());
-		// // }
-		//
-		// new UC3_CalcWrapper(erf, locs, periods, epiUnc);
-		//
-		// } catch (IOException ioe) {
-		// ioe.printStackTrace();
-		// }
 	}
 
-	public static AverageFaultSystemSolution getAvgSolution(String path) {
+	private static AverageFaultSystemSolution getAvgSolution(String path) {
 		try {
 			File file = new File(path);
 			return AverageFaultSystemSolution.fromZipFile(file);
@@ -196,7 +134,7 @@ public class UC3_CalcWrapper {
 		}
 	}
 
-	public static CompoundFaultSystemSolution getCompoundSolution(String path) {
+	private static CompoundFaultSystemSolution getCompoundSolution(String path) {
 		try {
 			File cfssFile = new File(path);
 			return CompoundFaultSystemSolution.fromZipFile(cfssFile);
@@ -209,12 +147,8 @@ public class UC3_CalcWrapper {
 	/*
 	 * Returns an inversion based ERF for the supplied fault system solution.
 	 * Assumes the supplied FSS is an inversion solution.
-	 * 
-	 * @param faultSysSolZipFile
-	 * 
-	 * @return
 	 */
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF(FaultSystemSolution fss) {
+	private static UCERF3_FaultSysSol_ERF getUC3_ERF(FaultSystemSolution fss) {
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
 			fss);
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
