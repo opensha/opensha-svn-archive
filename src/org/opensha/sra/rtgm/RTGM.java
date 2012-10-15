@@ -3,6 +3,7 @@ package org.opensha.sra.rtgm;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.geom.Point2D;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -13,10 +14,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.Interpolate;
 import org.opensha.commons.util.DataUtils.Direction;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
@@ -107,7 +110,7 @@ public class RTGM implements Callable<RTGM> {
 	public static RTGM create(DiscretizedFunc hazCurve, Frequency sa, Double beta) {
 		checkNotNull(hazCurve, "Supplied curve is null");
 		RTGM instance = new RTGM();
-		instance.hazCurve = hazCurve;
+		instance.hazCurve = cleanCurve(hazCurve);
 		// geoMean to maxHorizDir component conversion
 		//    this could be done afterwards meaning scale the rtgm after
 		//    rather than incur the overhead of creating a new function
@@ -148,6 +151,7 @@ public class RTGM implements Callable<RTGM> {
 	 */
 	@Override
 	public RTGM call() {
+//		System.out.println(hazCurve);
 		calculate(hazCurve);
 		return this;
 	}
@@ -243,6 +247,8 @@ public class RTGM implements Callable<RTGM> {
 //				rtgmTmp = Interpolate.findLogLogY(
 //					Doubles.toArray(riskIters), Doubles.toArray(rtgmIters),
 //					TARGET_RISK);
+//				System.out.println("keys: " + Arrays.toString(Doubles.toArray(interpMap.keySet())));
+//				System.out.println("vals: " + Arrays.toString(Doubles.toArray(interpMap.values())));
 				rtgmTmp = Interpolate.findLogLogY(
 					Doubles.toArray(interpMap.keySet()),
 					Doubles.toArray(interpMap.values()),
@@ -269,7 +275,7 @@ public class RTGM implements Callable<RTGM> {
 			// Check risk calculated above against target risk
 //			errorRatio = checkRiskAgainstTarget(riskIters.get(i));
 			errorRatio = checkRiskAgainstTarget(riskTmp);
-		
+//			System.out.println(riskTmp + " " + rtgmTmp);
 			riskIters.add(riskTmp);
 			rtgmIters.add(rtgmTmp);
 			interpMap.put(riskTmp, rtgmTmp);
@@ -323,6 +329,18 @@ public class RTGM implements Callable<RTGM> {
 		for (int i=0; i<newXs.length; i++) {
 			fOut.set(newXs[i], newYs[i]);
 		}
+		return fOut;
+	}
+	
+	/* Cleans curve of zero valued points via copy and ensures size > 2 */
+	private static DiscretizedFunc cleanCurve(DiscretizedFunc f) {
+		ArbitrarilyDiscretizedFunc fOut = new ArbitrarilyDiscretizedFunc();
+		for (Point2D p : f) {
+			if (p.getY() != 0) fOut.set(p);
+		}
+		Preconditions.checkArgument(
+			fOut.getNum() > 2,
+			"Curve must have more than two non-zero y-values \n" + f);
 		return fOut;
 	}
 
