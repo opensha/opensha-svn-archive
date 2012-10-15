@@ -36,37 +36,33 @@ public class ScriptGenUC3 {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 3) {
-			System.out
-				.println("USAGE: " +
-					ClassUtils.getClassNameWithoutPackage(ScriptGenUC3.class) +
-					" <filepath> <erfIndex> <outDir>");
+		if (args.length != 4) {
+			System.out.println("USAGE: " +
+				ClassUtils.getClassNameWithoutPackage(ScriptGenUC3.class) +
+				" <filepath> <erfIndex> <javaLib> <outDir>");
 			System.exit(1);
 		}
 
 		String filepath = args[0];
 		int erfIndex = Integer.parseInt(args[1]);
-		System.out.println(erfIndex + " " + filepath);
-		String outDir = args[2];
-		System.out.println(outDir);
-		
+		String libDir = args[2];
+		String outDir = args[3];
+
 		int hours = 1;
 		int nodes = 1;
 		String queue = "nbns";
 
-		writeScript(filepath, outDir, erfIndex, hours, nodes, queue);
+		writeScript(filepath, libDir, outDir, erfIndex, hours, nodes, queue);
 	}
 
-	private static void writeScript(String filepath, String outDir, int erfIdx,
-			int hrs, int nodes, String queue) {
+	private static void writeScript(String filepath, String libDir,
+			String outDir, int erfIdx, int hrs, int nodes, String queue) {
 		try {
-			File hazDatDir = new File(outDir);
-			File libDir = new File(hazDatDir, "lib");
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			JavaShellScriptWriter jssw = new JavaShellScriptWriter(JAVA_BIN, 5120,
-				classpath);
+			JavaShellScriptWriter jssw = new JavaShellScriptWriter(JAVA_BIN,
+				5120, classpath);
 
 			String cliArgs = filepath + " " + erfIdx + " " + outDir;
 			List<String> script = jssw.buildScript(
@@ -86,29 +82,28 @@ public class ScriptGenUC3 {
 	}
 
 	private static class HPCC_ScriptWriter extends BatchScriptWriter {
-		
+
 		String nodesAddition;
-		
+
 		HPCC_ScriptWriter() {
 			this(null);
 		}
-		
+
 		HPCC_ScriptWriter(String nodesAddition) {
 			this.nodesAddition = nodesAddition;
 		}
 
 		@Override
-		public List<String> getBatchHeader(int hours, int nodes,
-				int ppn, String queue) {
+		public List<String> getBatchHeader(int hours, int nodes, int ppn,
+				String queue) {
 			ArrayList<String> pbs = new ArrayList<String>();
-			
-			if (queue != null && !queue.isEmpty())
-				pbs.add("#PBS -q "+queue);
-			String dashL = "#PBS -l walltime="+hours+":00:00,nodes="+nodes;
+
+			if (queue != null && !queue.isEmpty()) pbs.add("#PBS -q " + queue);
+			String dashL = "#PBS -l walltime=" + hours + ":00:00,nodes=" +
+				nodes;
 			if (nodesAddition != null && !nodesAddition.isEmpty())
-				dashL += ":"+nodesAddition;
-			if (ppn > 0)
-				dashL += ":ppn="+ppn;
+				dashL += ":" + nodesAddition;
+			if (ppn > 0) dashL += ":ppn=" + ppn;
 			pbs.add(dashL);
 			pbs.add("#PBS -V");
 			pbs.add("");
@@ -117,7 +112,7 @@ public class ScriptGenUC3 {
 			pbs.add("cat $PBS_NODEFILE | sort | uniq > $NEW_NODEFILE");
 			pbs.add("export PBS_NODEFILE=$NEW_NODEFILE");
 			pbs.add("");
-			
+
 			return pbs;
 		}
 

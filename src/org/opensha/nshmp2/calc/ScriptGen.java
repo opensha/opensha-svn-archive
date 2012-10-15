@@ -54,11 +54,11 @@ public class ScriptGen {
 	 */
 	public static void main(String[] args) throws IOException {
 		System.out.println(Arrays.toString(args));
-		if (args.length != 9) {
+		if (args.length != 10) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGen.class) +
-					" <name> <grids> <periods> <erfIDs> <outDir> <epi> <hours> <nodes> <queue>");
+					" <name> <grids> <periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue>");
 			System.exit(1);
 		}
 
@@ -76,25 +76,28 @@ public class ScriptGen {
 		String erfID = args[3];
 		System.out.println(erfID);
 		
-		String outDir = args[4];
+		String libDir = args[4];
+		System.out.println(libDir);
+
+		String outDir = args[5];
 		System.out.println(outDir);
 		
-		boolean epi = Boolean.parseBoolean(args[5]);
+		boolean epi = Boolean.parseBoolean(args[6]);
 		System.out.println(epi);
 		
-		int hours = Integer.parseInt(args[6]);
+		int hours = Integer.parseInt(args[7]);
 		System.out.println(hours);
 		
-		int nodes = Integer.parseInt(args[7]);
+		int nodes = Integer.parseInt(args[8]);
 		System.out.println(nodes);
 
-		String queue = args[8];
+		String queue = args[9];
 		System.out.println(queue);
 
 		for (TestGrid grid : gridList) {
 			for (Period period : periodList) {
 				File props = writeProps(outDir, name, grid, period, erfID, epi);
-				writeScript(outDir, props, hours, nodes, queue);
+				writeScript(libDir, props, hours, nodes, queue);
 			}
 		}
 		// List<String> script =
@@ -146,11 +149,9 @@ public class ScriptGen {
 		return pFile;
 	}
 
-	private static void writeScript(String outDir, File config, int hrs,
+	private static void writeScript(String libDir, File config, int hrs,
 			int nodes, String queue) {
 		try {
-			File hazDatDir = new File(outDir);
-			File libDir = new File(hazDatDir, "lib");
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
