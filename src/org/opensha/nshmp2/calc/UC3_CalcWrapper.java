@@ -6,6 +6,7 @@ import static org.opensha.nshmp2.util.Period.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -27,6 +28,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Add comments here
@@ -51,12 +53,17 @@ public class UC3_CalcWrapper {
 			InterruptedException, ExecutionException {
 		
 		CompoundFaultSystemSolution cfss = getCompoundSolution(solSetPath);
-		Iterable<LogicTreeBranch> branches = cfss.getBranches();
+		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
+		int first = 10;
+		int max = first + 1;
+		
 		FaultSystemSolution fss = null;
 		UCERF3_FaultSysSol_ERF erf = null;
 		EpistemicListERF wrappedERF = null;
 		
-		for (LogicTreeBranch branch : branches) {
+		for (int i=first; i < max; i++) {
+			LogicTreeBranch branch = branches.get(i);
+//		for (LogicTreeBranch branch : branches) {
 			fss = null;
 			erf = null;
 			wrappedERF = null;
@@ -76,9 +83,7 @@ public class UC3_CalcWrapper {
 					locs, period, epiUncert, writer);
 				thc.calculate(null);
 			}
-
 		}
-		
 	}
 	
 //	try {
