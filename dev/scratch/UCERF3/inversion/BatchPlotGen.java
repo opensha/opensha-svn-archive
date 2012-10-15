@@ -434,8 +434,12 @@ public class BatchPlotGen {
 		}
 		System.out.println("Processing: "+prefix);
 		
-		if (sol == null)
-			sol = SimpleFaultSystemSolution.fromFile(file);
+		if (sol == null) {
+			if (file.getName().contains("mean"))
+				sol = AverageFaultSystemSolution.fromZipFile(file);
+			if (sol == null)
+				sol = SimpleFaultSystemSolution.fromFile(file);
+		}
 		
 		if (!hasMapPlots) {
 			makeMapPlots(sol, dir, prefix);
