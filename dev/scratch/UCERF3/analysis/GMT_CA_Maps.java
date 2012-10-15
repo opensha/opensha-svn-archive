@@ -48,18 +48,20 @@ public class GMT_CA_Maps {
 	
 	final static String defaultNucleationCPT = GMT_CPT_Files.UCERF2_FIGURE_35.getFileName();
 	final static String defaultParticipationCPT = GMT_CPT_Files.UCERF2_FIGURE_35.getFileName();
-	final static String defaultRatioCPT = GMT_CPT_Files.MAX_SPECTRUM.getFileName();
+//	final static String defaultRatioCPT = GMT_CPT_Files.MAX_SPECTRUM.getFileName();
+//	final static String defaultRatioCPT = GMT_CPT_Files.GMT_POLAR.getFileName();
+	final static String defaultRatioCPT = GMT_CPT_Files.UCERF3_RATIOS.getFileName();
 	final static String defaultColorScaleLimits=GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY;
 	final static double defaultColorScaleMinNucl = -6.0;
 	final static double defaultColorScaleMaxNucl = -1.0;
 	final static double defaultColorScaleMinPart = -6.0;
 	final static double defaultColorScaleMaxPart = 0.0;
-	final static double defaultColorScaleMinRatio = -3.0;
-	final static double defaultColorScaleMaxRatio = 3.0;
+	final static double defaultColorScaleMinRatio = -2.0;
+	final static double defaultColorScaleMaxRatio = 2.0;
 	final static double defaultColorScaleMinPDF = -8.0;
 	final static double defaultColorScaleMaxPDF = -1.0;
-	final static double defaultColorScaleMinMoRate = 12.0;
-	final static double defaultColorScaleMaxMoRate = 18.0;
+	final static double defaultColorScaleMinMoRate = 13.0;
+	final static double defaultColorScaleMaxMoRate = 17.0;
 
 	
 	final static boolean makeMapOnServer = true;

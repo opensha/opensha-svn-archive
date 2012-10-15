@@ -54,13 +54,13 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	},
 	
 	/**
-	 * This includes the geologic deformation model, for which the off-fault s
-	 * patial distribution is uniform
+	 * This includes the geologic deformation model for the on fault portion, but not
+	 * the off fault portion
 	 */
 	AVG_DEF_MODEL_ALL("Average Deformation Model Including Faults",	"AveDM_all",0.0d,	0.0d) {
 		@Override public double[] getPDF() {
 			CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
-			GriddedGeoDataSet xyz = DeformationModelsCalc.getAveDefModSpatialPDF_WithFaults(false);
+			GriddedGeoDataSet xyz = DeformationModelsCalc.getAveDefModSpatialPDF_WithFaults();
 			List<Double> vals = Lists.newArrayList();
 			for (Location loc : region) {
 				vals.add(xyz.get(loc));
