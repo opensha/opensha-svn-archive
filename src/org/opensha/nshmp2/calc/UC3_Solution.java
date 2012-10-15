@@ -8,6 +8,6 @@ package org.opensha.nshmp2.calc;
  * @version $Id:$
  */
 public enum UC3_Solution {
-	MEAN,
+	AVERAGE,
 	COMPOUND;
 }
