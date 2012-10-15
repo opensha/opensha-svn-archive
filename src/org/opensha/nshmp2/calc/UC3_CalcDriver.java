@@ -41,13 +41,6 @@ import com.google.common.collect.Lists;
  */
 public class UC3_CalcDriver {
 
-//	public static final String COMPOUND_SOL_PATH = "/Volumes/Scratch/UC3/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
-	 static final String COMPOUND_SOL_PATH =
-	 "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
-
-	// private static final String OUT_DIR =
-	// "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UC3tmp";
 	private static final String S = File.separator;
 
 	UC3_CalcDriver(String solSetPath, int solIdx, String outDir,
@@ -81,7 +74,7 @@ public class UC3_CalcDriver {
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 
 		for (Period period : periods) {
-			String outPath = OUT_DIR + S + erfName + S + period + S;
+			String outPath = outDir + S + erfName + S + period + S;
 			System.out.println(outPath);
 			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
 			HazardResultWriter writer = new HazardResultWriterCities(outFile,

@@ -79,14 +79,14 @@ public class UC3_CalcWrapper {
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 
 		for (Period period : periods) {
-			String outPath = OUT_DIR + S + erfName + S + period + S;
+			String outPath = outDir + S + erfName + S + period + S;
 			System.out.println(outPath);
-			// File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-			// HazardResultWriter writer = new HazardResultWriterCities(outFile,
-			// period);
-			// ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
-			// period, epiUncert, writer);
-			// thc.calculate(null);
+			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
+			HazardResultWriter writer = new HazardResultWriterCities(outFile,
+				period);
+			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
+				period, epiUncert, writer);
+			thc.calculate(null);
 		}
 	}
 
