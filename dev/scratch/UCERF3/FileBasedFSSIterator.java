@@ -27,15 +27,20 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 	}
 	
 	public static FileBasedFSSIterator forDirectory(File dir, int maxDepth) {
-		return new FileBasedFSSIterator(solFilesForDirectory(dir, maxDepth));
+		return forDirectory(dir, Integer.MAX_VALUE, null);
 	}
 	
-	private static Map<LogicTreeBranch, File> solFilesForDirectory(File dir, int maxDepth) {
+	public static FileBasedFSSIterator forDirectory(File dir, int maxDepth, String nameGrep) {
+		return new FileBasedFSSIterator(solFilesForDirectory(dir, maxDepth, nameGrep));
+	}
+	
+	private static Map<LogicTreeBranch, File> solFilesForDirectory(
+			File dir, int maxDepth, String nameGrep) {
 		Map<LogicTreeBranch, File> files = Maps.newHashMap();
 		
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory() && maxDepth > 0) {
-				Map<LogicTreeBranch, File> subFiles = solFilesForDirectory(file, maxDepth-1);
+				Map<LogicTreeBranch, File> subFiles = solFilesForDirectory(file, maxDepth-1, nameGrep);
 				for (LogicTreeBranch branch : subFiles.keySet()) {
 					checkNoDuplicates(branch, subFiles.get(branch), files);
 					files.put(branch, subFiles.get(branch));
@@ -45,9 +50,13 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			String name = file.getName();
 			if (!name.endsWith("_sol.zip"))
 				continue;
-			if (name.contains("_run"))
+			if (nameGrep != null && !nameGrep.isEmpty()) {
+				if (!name.contains(nameGrep))
+					continue;
+			} else if (name.contains("_run")) {
 				// mean solutions allowed, individual runs not allowed
 				continue;
+			}
 			LogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
 			checkNoDuplicates(branch, file, files);
 			files.put(branch, file);

@@ -222,6 +222,10 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		particsOption.setRequired(false);
 		options.addOption(particsOption);
 		
+		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
+		plotAllOption.setRequired(false);
+		options.addOption(plotAllOption);
+		
 		Option randomSampleOption = new Option("rand", "random-sample", true,
 				"If supplied, a random sample of the given size will be used.");
 		randomSampleOption.setRequired(false);
@@ -263,38 +267,40 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			
 			List<CompoundFSSPlots> plots = Lists.newArrayList();
 			
-			if (cmd.hasOption("mfd")) {
+			boolean plotAll = cmd.hasOption("all");
+			
+			if (plotAll || cmd.hasOption("mfd")) {
 				List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 				RegionalMFDPlot mfd = new RegionalMFDPlot(weightProvider, regions);
 				plots.add(mfd);
 			}
 			
-			if (cmd.hasOption("paleofault")) {
+			if (plotAll || cmd.hasOption("paleofault")) {
 				PaleoFaultPlot paleo = new PaleoFaultPlot(weightProvider);
 				plots.add(paleo);
 			}
 			
-			if (cmd.hasOption("paleocorr")) {
+			if (plotAll || cmd.hasOption("paleocorr")) {
 				PaleoSiteCorrelationPlot paleo = new PaleoSiteCorrelationPlot(weightProvider);
 				plots.add(paleo);
 			}
 			
-			if (cmd.hasOption("parentmfds")) {
+			if (plotAll || cmd.hasOption("parentmfds")) {
 				ParentSectMFDsPlot plot = new ParentSectMFDsPlot(weightProvider);
 				plots.add(plot);
 			}
 			
-			if (cmd.hasOption("jumps")) {
+			if (plotAll || cmd.hasOption("jumps")) {
 				RupJumpPlot plot = new RupJumpPlot(weightProvider);
 				plots.add(plot);
 			}
 			
-			if (cmd.hasOption("slips")) {
+			if (plotAll || cmd.hasOption("slips")) {
 				SlipMisfitPlot slips = new SlipMisfitPlot(weightProvider);
 				plots.add(slips);
 			}
 			
-			if (cmd.hasOption("partics")) {
+			if (plotAll || cmd.hasOption("partics")) {
 				ParticipationMapPlot partics = new ParticipationMapPlot(weightProvider);
 				plots.add(partics);
 			}

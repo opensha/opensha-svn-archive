@@ -255,10 +255,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		if (args.length == 1) {
+		if (args.length == 1 || args.length == 2) {
 			// command line run
 			File dir = new File(args[0]);
-			BatchPlotGen.writeCombinedFSS(dir);
+			String nameGrep = null;
+			if (args.length == 2)
+				nameGrep = args[1];
+			BatchPlotGen.writeCombinedFSS(dir, nameGrep);
 			System.exit(0);
 		}
 		File dir = new File("/tmp/sol_zip");

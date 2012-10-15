@@ -50,6 +50,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Random;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -388,7 +389,18 @@ public class FileUtils {
 	}
 
 	public static File createTempDir() throws IOException {
-		File tempDir = File.createTempFile("openSHA", "temp");
+		File tempDir;
+		// first see if the system property was set
+		String tempDirProp = System.getProperty("TempDir");
+		if (tempDirProp != null) {
+			Random r = new Random();
+			tempDir = new File(tempDirProp, "openSHA"+r.nextInt(10000)+"temp");
+			while (tempDir.exists()) {
+				tempDir = new File(tempDirProp, "openSHA"+r.nextInt(10000)+"temp");
+			}
+		} else {
+			tempDir = File.createTempFile("openSHA", "temp");
+		}
 		tempDir.delete();
 		tempDir.mkdir();
 		return tempDir;

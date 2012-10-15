@@ -204,12 +204,20 @@ public class BatchPlotGen {
 	}
 	
 	public static void writeCombinedFSS(File dir) throws IOException {
-		File compoundFile = new File(dir, dir.getName()+"_COMPOUND_SOL.zip");
+		writeCombinedFSS(dir, null);
+	}
+	public static void writeCombinedFSS(File dir, String nameGrep) throws IOException {
+		String fName;
+		if (nameGrep != null && !nameGrep.isEmpty())
+			fName = dir.getName()+"_"+nameGrep+"_COMPOUND_SOL.zip";
+		else
+			fName = dir.getName()+"_COMPOUND_SOL.zip";
+		File compoundFile = new File(dir, fName);
 		
 		if (compoundFile.exists()) {
 			System.out.println("Compound solution already exists: "+compoundFile.getName());
 		} else {
-			FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1);
+			FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, nameGrep);
 			if (it.getBranches().size() > 1)
 				CompoundFaultSystemSolution.toZipFile(compoundFile, it);
 			else
@@ -390,8 +398,11 @@ public class BatchPlotGen {
 					misfitsMap.put(branch, loadMisfitsFile(misfitsFile));
 				} else {
 					try {
-						if (sol == null)
+						if (sol == null) {
+							if (file.getName().contains("mean"))
+								sol = AverageFaultSystemSolution.fromZipFile(file);
 							sol = SimpleFaultSystemSolution.fromFile(file);
+						}
 						invSol = new InversionFaultSystemSolution(sol);
 						Map<String, Double> misfits = invSol.getMisfits();
 						writeMisfitsFile(misfits, misfitsFile);

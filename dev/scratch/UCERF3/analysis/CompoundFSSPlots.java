@@ -20,6 +20,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -1018,6 +1019,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 	
 	public static class RupJumpPlot extends CompoundFSSPlots {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
 		private double[] minMags = { 7d, 0d };
 		private boolean[] paleoProbs = { false, true };
 		
@@ -1025,10 +1031,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		private static final double jumpDist = 1d;
 		
-		private BranchWeightProvider weightProvider;
+		private transient BranchWeightProvider weightProvider;
 		private transient PaleoProbabilityModel paleoProbModel;
 		
-		private Map<FaultModels, Map<IDPairing, Double>> distancesCache = Maps.newHashMap();
+		private transient ConcurrentMap<FaultModels, Map<IDPairing, Double>> distancesCache = Maps.newConcurrentMap();
 		
 		private List<XY_DataSetList> solFuncs = Lists.newArrayList();
 		private List<XY_DataSetList> rupSetFuncs = Lists.newArrayList();
@@ -1070,7 +1076,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						distances = new DeformationModelFetcher(fm, sol.getDeformationModel(),
 								UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1)
 								.getSubSectionDistanceMap(5d);
-						distancesCache.put(fm, distances);
+						distancesCache.putIfAbsent(fm, distances);
 					}
 				}
 			}
@@ -1419,9 +1425,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 					for (int s=0; s<valuesList.size(); s++)
 						rangeValsList.add(valuesList.get(s).get(i));
 					
-					double[] values = getWeightedAvg(faults.size(), rangeValsList, weightsList);
+//					double[] values = getWeightedAvg(faults.size(), rangeValsList, weightsList);
+					double[] values = new double[faults.size()];
 					// TODO
 //					double[] stdDevs = getStdDevs(faults.size(), valuesList.get(i));
+					double[] stdDevs = new double[values.length];
+					for (int s=0; s<values.length; s++) {
+						ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
+						for (int j=0; j<weightsList.size(); j++)
+							// val, weight
+							func.set(rangeValsList.get(j)[s], weightsList.get(j));
+						stdDevs[s] = func.getStdDev();
+						values[s] = func.getMean();
+					}
 					double[] logValues = FaultBasedMapGen.log10(values);
 					
 					String name = "partic_rates_"+(float)minMag;
@@ -1470,6 +1486,34 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 					
 					plots.add(new FaultBasedMapPlotData(logCPT, faults, ratios, region,
+							skipNans, title, name));
+					
+					double[] stdNormVals = new double[values.length];
+					
+					for (int s=0; s<stdNormVals.length; s++) {
+						if (ucerf2Vals[s] == 0)
+							stdNormVals[s] = Double.NaN;
+						else
+							stdNormVals[s] = (values[s] - ucerf2Vals[s]) / stdDevs[s];
+					}
+					
+					name = "partic_diffs_norm_std_dev_"+(float)minMag;
+					title = "(U3mean - U2mean)/U3std "+(float)+minMag;
+					if (maxMag < 9) {
+						name += "_"+(float)maxMag;
+						title += "=>"+(float)maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+//					title += ")";
+					
+					if (multipleFMs) {
+						name = fm.getShortName()+"_"+name;
+						title = fm.getShortName()+" "+title;
+					}
+					
+					plots.add(new FaultBasedMapPlotData(logCPT, faults, stdNormVals, region,
 							skipNans, title, name));
 				}
 			}
@@ -1848,6 +1892,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
+		if (args.length >= 3) {
+			File dir = new File(args[0]);
+			String prefix = args[1];
+			for (int i=2; i<args.length; i++) {
+				File plotFile = new File(dir, args[i]);
+				FaultBasedMapPlot.makeMapPlots(
+						dir, prefix, FaultBasedMapPlot.loadPlotData(plotFile));
+			}
+			System.exit(0);
+		}
 		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
 		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
 //		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
@@ -1876,7 +1930,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
-		plots.add(new ParentSectMFDsPlot(weightProvider));
+//		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
 //		plots.add(new SlipMisfitPlot(weightProvider));
 		plots.add(new ParticipationMapPlot(weightProvider));

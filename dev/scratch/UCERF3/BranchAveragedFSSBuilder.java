@@ -109,8 +109,14 @@ public class BranchAveragedFSSBuilder {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
-		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
-		File outputFile = new File("/tmp/2012_10_10-fm3-logic-tree-sample_branch_avg_sol.zip");
+		File file, outputFile;
+		if (args.length == 2) {
+			file = new File(args[0]);
+			outputFile = new File(args[1]);
+		} else {
+			file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
+			outputFile = new File("/tmp/2012_10_10-fm3-logic-tree-sample_branch_avg_sol.zip");
+		}
 		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		FaultModels fm = FaultModels.FM3_1;

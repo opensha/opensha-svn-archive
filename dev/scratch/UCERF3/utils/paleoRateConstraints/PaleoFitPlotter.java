@@ -28,6 +28,7 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.SimpleFaultSystemSolution;
@@ -429,8 +430,14 @@ public class PaleoFitPlotter {
 			getAllParentsMap(sol.getFaultSectionDataList());
 		
 		List<DataForPaleoFaultPlots> datas = Lists.newArrayList();
-		datas.add(DataForPaleoFaultPlots.build(sol, namedFaultsMap, namedFaultConstraintsMap,
-				allParentsMap, paleoProbModel, traceLengthCache, 1d));
+		if (sol instanceof AverageFaultSystemSolution) {
+			for (FaultSystemSolution s : (AverageFaultSystemSolution)sol)
+				datas.add(DataForPaleoFaultPlots.build(s, namedFaultsMap, namedFaultConstraintsMap,
+						allParentsMap, paleoProbModel, traceLengthCache, 1d));
+		} else {
+			datas.add(DataForPaleoFaultPlots.build(sol, namedFaultsMap, namedFaultConstraintsMap,
+					allParentsMap, paleoProbModel, traceLengthCache, 1d));
+		}
 		return getFaultSpecificPaleoPlotSpecs(namedFaultsMap, namedFaultConstraintsMap, datas, allParentsMap);
 	}
 	

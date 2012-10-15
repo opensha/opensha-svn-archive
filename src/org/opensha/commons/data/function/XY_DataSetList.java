@@ -20,6 +20,7 @@
 package org.opensha.commons.data.function;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -46,7 +47,7 @@ import org.opensha.commons.exceptions.XY_DataSetException;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class XY_DataSetList extends ArrayList<XY_DataSet> {
+public class XY_DataSetList extends ArrayList<XY_DataSet> implements Serializable {
 
 
     /**

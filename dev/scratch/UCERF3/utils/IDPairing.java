@@ -1,5 +1,7 @@
 package scratch.UCERF3.utils;
 
+import java.io.Serializable;
+
 /**
  * This class represents a pairing between two ID numbers, mostly useful with hashmaps.
  * The order of the numbers does matter here, so (0,1) is different than (1,0)
@@ -7,7 +9,12 @@ package scratch.UCERF3.utils;
  * @author Kevin
  *
  */
-public class IDPairing implements Comparable<IDPairing> {
+public class IDPairing implements Comparable<IDPairing>, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private int id1, id2;
 	
