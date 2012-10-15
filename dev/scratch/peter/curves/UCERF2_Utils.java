@@ -237,7 +237,7 @@ public class UCERF2_Utils {
 			Double.toString(pe2in50),
 			Double.toString(pe10in50),
 			Double.toString(rtgm));
-		return Iterables.concat(values);
+		return values;
 	}
 	
 	

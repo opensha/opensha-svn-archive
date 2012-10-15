@@ -1,6 +1,7 @@
 package org.opensha.nshmp2.calc;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
@@ -8,6 +9,8 @@ import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2_FM2pt1;
 
@@ -90,6 +93,11 @@ public enum ERF_ID {
 		public EpistemicListERF instance() {
 			return getUC2_FM2P1_FSS();
 		}
+	},
+	UCERF2_TIME_INDEP() {
+		public EpistemicListERF instance() {
+			return getUC2_TI();
+		}
 	};
 
 	// scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF
@@ -140,9 +148,21 @@ public enum ERF_ID {
 		erf.getTimeSpan().setDuration(1.0);
 		return wrapInList(erf);
 	}
+	
+	private static EpistemicListERF getUC2_TI() {
+		final UCERF2_TimeIndependentEpistemicList erf = new UCERF2_TimeIndependentEpistemicList();
+		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
+		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
+		Parameter floatParam = erf.getParameter(UCERF2.FLOATER_TYPE_PARAM_NAME);
+		floatParam.setValue(UCERF2.FULL_DDW_FLOATER);
+		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+		ts.setDuration(1);
+		erf.setTimeSpan(ts);		
+		return erf;
+	}
 
 	
-	private static EpistemicListERF wrapInList(final AbstractERF erf) {
+	public static EpistemicListERF wrapInList(final AbstractERF erf) {
 		EpistemicListERF listERF = new AbstractEpistemicListERF() {
 			{
 				addERF(erf, 1.0);

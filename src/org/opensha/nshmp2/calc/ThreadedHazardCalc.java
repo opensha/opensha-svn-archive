@@ -12,7 +12,6 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 
-
 /**
  * Class manages multithreaded NSHMP hazard calculations. Farms out
  * {@code HazardCalc}s to locally available cores and pipes results to a
@@ -28,6 +27,20 @@ public class ThreadedHazardCalc {
 	private boolean epiUncert;
 	private HazardResultWriter writer;
 	private EpistemicListERF erfList;
+
+	
+	/*
+	 * The supplied ERF should be ready to go, i.e. have had updateForecast()
+	 * called.
+	 */
+	ThreadedHazardCalc(EpistemicListERF erfList, LocationList locs,
+		Period period, boolean epiUncert, HazardResultWriter writer) {
+		this.locs = locs;
+		this.period = period;
+		this.writer = writer;
+		this.epiUncert = epiUncert;
+		this.erfList = erfList;
+	}
 
 	/*
 	 * Initializes a new threaded hazard calculation.

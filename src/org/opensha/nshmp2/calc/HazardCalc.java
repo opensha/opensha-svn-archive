@@ -104,13 +104,14 @@ public class HazardCalc implements Callable<HazardResult> {
 	
 	private void callCalc() {
 		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
-		imr.getParameter(NSHMP08_WUS_Grid.IMR_UNCERT_PARAM_NAME).setValue(
+		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
 			epiUncert);
 		imr.setSite(site);
 		DiscretizedFunc f = period.getFunction(); // utility function
 		for (int i=0; i<erfList.getNumERFs(); i++) {
 			ERF erf = erfList.getERF(i);
 			f = basicCalc(calc, f, site, imr, erf);
+//			System.out.println(f);
 			f.scale(erfList.getERF_RelativeWeight(i));
 			Utils.addFunc(curve, f);
 		}
@@ -311,14 +312,16 @@ public class HazardCalc implements Callable<HazardResult> {
 		sw.start();
 		
 		TimeUnit tu = TimeUnit.MILLISECONDS;
+		
+		NSHMP2008 erf = NSHMP2008.createCalifornia();
 //		WUS_ERF erf = new WUS_ERF();
-		EpistemicListERF erf = ERF_ID.NSHMP08.instance();
+//		EpistemicListERF erf = ERF_ID.UCERF2_TIME_INDEP.instance();
 //		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.gr.in");
-		erf.updateForecast();
+//		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
 		System.out.println("Seconds: " + sw.elapsedTime(tu));
-		Period p = Period.GM0P00;
+		Period p = Period.GM1P00;
 
 		sw.reset().start();
 		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());

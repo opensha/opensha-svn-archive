@@ -36,9 +36,6 @@ public class HazardCalcWrapper {
 
 	HazardCalcWrapper(ERF_ID erfID, LocationList locs, Period period, boolean epiUncert, HazardResultWriter writer) {
 	
-		// init result file
-//		File out = new File(OUT_DIR + S + name + S + period + S + "curves.csv");
-		
 		ThreadedHazardCalc thc = null;
 		
 		try {
