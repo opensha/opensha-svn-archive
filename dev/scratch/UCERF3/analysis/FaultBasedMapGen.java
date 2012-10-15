@@ -81,7 +81,7 @@ public class FaultBasedMapGen {
 	}
 	
 	private static CPT participationCPT = null;
-	private static CPT getParticipationCPT() {
+	public static CPT getParticipationCPT() {
 		if (participationCPT == null) {
 			try {
 				participationCPT = GMT_CPT_Files.UCERF2_FIGURE_35.instance();
@@ -94,7 +94,7 @@ public class FaultBasedMapGen {
 	}
 	
 	private static CPT linearRatioCPT = null;
-	private static CPT getLinearRatioCPT() {
+	public static CPT getLinearRatioCPT() {
 		if (linearRatioCPT == null) {
 			try {
 				linearRatioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
@@ -108,7 +108,7 @@ public class FaultBasedMapGen {
 	}
 	
 	private static CPT logRatioCPT = null;
-	private static CPT getLogRatioCPT() {
+	public static CPT getLogRatioCPT() {
 		if (logRatioCPT == null) {
 			try {
 				logRatioCPT = GMT_CPT_Files.UCERF3_RATIOS.instance();
@@ -683,7 +683,7 @@ public class FaultBasedMapGen {
 		return ret;
 	}
 	
-	private static ArrayList<LocationList> getTraces(List<FaultSectionPrefData> faults) {
+	public static ArrayList<LocationList> getTraces(List<FaultSectionPrefData> faults) {
 		ArrayList<LocationList> faultTraces = new ArrayList<LocationList>();
 		for (FaultSectionPrefData fault : faults)
 			faultTraces.add(fault.getFaultTrace());
@@ -705,7 +705,7 @@ public class FaultBasedMapGen {
 		
 	}
 	
-	private synchronized static void makeFaultPlot(CPT cpt, List<LocationList> faults, double[] values, Region region,
+	public synchronized static void makeFaultPlot(CPT cpt, List<LocationList> faults, double[] values, Region region,
 			File saveDir, String prefix, boolean display, boolean skipNans, String label)
 					throws GMT_MapException, RuntimeException, IOException {
 		GMT_Map map = buildMap(cpt, faults, values, region, skipNans, label);

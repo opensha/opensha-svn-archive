@@ -6,6 +6,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -100,14 +102,16 @@ public class LogicTreePBSWriter {
 
 			@Override
 			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
-				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
+				if (branch != null &&
+						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return 40000;
 				return 10000;
 			}
 
 			@Override
 			public int getPPN(LogicTreeBranch branch) {
-				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
+				if (branch != null &&
+						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return 24;
 				return 8;
 			}
@@ -502,7 +506,7 @@ public class LogicTreePBSWriter {
 		limitations.add(slipAlongs);
 
 		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
-//		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_10p6);
+//		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p6);
 //		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_10p6, TotalMag5Rate.RATE_8p7);
 		limitations.add(mag5s);
 
@@ -516,8 +520,8 @@ public class LogicTreePBSWriter {
 		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE);
 		limitations.add(momentFixes);
 
-//		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class);
-		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF2);
+		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF2);
 		limitations.add(spatialSeis);
 		
 		return new ListBasedTreeTrimmer(limitations);
@@ -529,7 +533,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "2012_10_10-fm3-logic-tree-sample";
+		String runName = "fm3-logic-tree-sample-x5";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -539,17 +543,20 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 10;
-//		runName = df.format(new Date())+"-"+runName;
+		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+		RunSites site = RunSites.RANGER;
+		int batchSize = 256;
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 5;
 		int runStart = 0;
 
 		boolean lightweight = numRuns > 10;
@@ -809,6 +816,9 @@ public class LogicTreePBSWriter {
 			saOptions = Lists.newArrayList();
 		if (saOptions.isEmpty())
 			saOptions.add(new InversionArg[0]);
+		
+		List<String> pbsNames = Lists.newArrayList();
+		int maxJobMins = 0;
 
 		for (LogicTreeBranch br : it) {
 			for (CustomArg[] variationBranch : variationBranches) {
@@ -899,6 +909,9 @@ public class LogicTreePBSWriter {
 							System.out.println("Writing: "+pbs.getName());
 
 							int jobMins = mins+60;
+							pbsNames.add(pbs.getName());
+							if (jobMins > maxJobMins)
+								maxJobMins = jobMins;
 
 							String className = CommandLineInversionRunner.class.getName();
 							String classArgs = ThreadedSimulatedAnnealing.completionCriteriaToArgument(criteria);
@@ -941,7 +954,87 @@ public class LogicTreePBSWriter {
 		System.out.println("Wrote "+cnt+" jobs");
 		System.out.println("Node hours: "+(float)nodeHours + " (/60: "+((float)nodeHours/60f)+") (/14: "+((float)nodeHours/14f)+")");
 		//		DeformationModels.forFaultModel(null).toArray(new DeformationModels[0])
+		if (batchSize > 0) {
+			System.out.println("Writing batches!");
+			writeBinnedJobs(site, pbsNames, batchSize, maxJobMins, runSubDir, writeDir);
+		}
 		System.exit(0);
+	}
+	
+	private static void writeBinnedJobs(RunSites site, List<String> pbsNames, int runsPerJob,
+			int maxRuntimeMins, File remoteDir, File writeDir) throws IOException {
+		Collections.sort(pbsNames, new Comparator<String>() {
+			
+			private int parseRun(String name) {
+				if (!name.contains("_run"))
+					return 0;
+				name = name.substring(name.indexOf("_run")+4);
+				return Integer.parseInt(name.substring(0, name.indexOf(".pbs")));
+			}
+
+			@Override
+			public int compare(String o1, String o2) {
+				Integer r1 = parseRun(o1);
+				Integer r2 = parseRun(o2);
+				if (r1 == r2)
+					return o1.compareTo(o2);
+				return r1.compareTo(r2);
+			}
+		});
+		List<List<String>> bins = Lists.newArrayList();
+		List<String> curBin = Lists.newArrayList();
+		for (String pbsName : pbsNames) {
+			if (curBin.size() == runsPerJob) {
+				bins.add(curBin);
+				curBin = Lists.newArrayList();
+			}
+			curBin.add(pbsName);
+		}
+		if (!curBin.isEmpty())
+			bins.add(curBin);
+		
+		int numLen = ((bins.size()-1)+"").length();
+		
+		BatchScriptWriter batch = site.forBranch(null);
+		int jobMins = maxRuntimeMins+30;
+		int ppn = site.getPPN(null);
+		
+		for (int i=0; i<bins.size(); i++) {
+			List<String> script = Lists.newArrayList();
+			int nodeNumber = 1;
+			List<String> bin = bins.get(i);
+			for (int j=0; j<bin.size(); j++) {
+				String pbsName = bin.get(j);
+				script.add("");
+				script.add("# run "+nodeNumber+": "+pbsName);
+				script.add("node=`sed -n '"+nodeNumber+"p' $PBS_NODEFILE`");
+				File pbsFile = new File(remoteDir, pbsName);
+				File pbsStdOutFile = new File(remoteDir, pbsName+".output");
+				script.add("chmod u+x "+pbsFile.getAbsolutePath());
+				// ssh -n -f user@host "sh -c 'cd /whereever; nohup ./whatever > /dev/null 2>&1 &'"
+				if (j == bin.size() -1)
+					// for the last one we execute in foreground and wait for completion
+					script.add("ssh $node \"sh -c '"+pbsFile.getAbsolutePath()+" > "
+							+pbsStdOutFile.getAbsolutePath()+" 2>&1'\"");
+				else
+					script.add("ssh -n -f $node \"sh -c 'nohup "+pbsFile.getAbsolutePath()+" > "
+							+pbsStdOutFile.getAbsolutePath()+" 2>&1 &'\"");
+				
+				nodeNumber++;
+			}
+			
+			script.add("# sleep for 30 mins to make sure everything is done");
+			script.add("sleep 1800");
+			
+			int nodes = bin.size();
+			
+			String iStr = i+"";
+			while (iStr.length() < numLen)
+				iStr = "0"+iStr;
+			File batchFile = new File(writeDir, "batch"+iStr+".pbs");
+			batch.writeScript(batchFile, script, jobMins, nodes, ppn, null);
+			System.out.println("Writing "+batchFile.getName()+" ("+nodes+" nodes)");
+		}
 	}
 
 }

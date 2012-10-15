@@ -1,6 +1,8 @@
 package scratch.UCERF3.logicTree;
 
-public interface BranchWeightProvider {
+import java.io.Serializable;
+
+public interface BranchWeightProvider extends Serializable {
 	
 	/**
 	 * Returns the weight for the given branch. Will not necessarily be normalized.

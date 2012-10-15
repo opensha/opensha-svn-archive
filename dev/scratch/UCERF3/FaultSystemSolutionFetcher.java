@@ -97,6 +97,21 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 		};
 	}
 	
+	public static double calcScaledAverage(double[] vals, double[] weights) {
+		if (vals.length == 1)
+			return vals[0];
+		double tot = 0d;
+		for (double weight : weights)
+			tot += weight;
+		
+		double scaledAvg = 0;
+		for (int i=0; i<vals.length; i++) {
+			scaledAvg += vals[i] * (weights[i] / tot);
+		}
+	
+		return scaledAvg;
+	}
+
 	public static FaultSystemSolutionFetcher getRandomSample(
 			final FaultSystemSolutionFetcher fetch, int num) {
 		List<LogicTreeBranch> origBranches = Lists.newArrayList();

@@ -4,24 +4,35 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.ZipException;
 
 import org.apache.commons.math.stat.StatUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.opensha.commons.calc.FractileCurveCalculator;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.XMLUtils;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -40,6 +51,7 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionMFDs;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -740,7 +752,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						vals[s] = solValsForFault.get(s)[i];
 					double min = StatUtils.min(vals);
 					double max = StatUtils.max(vals);
-					double mean = PaleoFitPlotter.calcScaledAverage(vals, weights);
+					double mean = FaultSystemSolutionFetcher.calcScaledAverage(vals, weights);
 					
 					double[] ret = { min, max, mean };
 					System.out.println("Vals for "+faultName+" CORR "+i+": "+min+","+max+","+mean
@@ -784,6 +796,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 		if (!dir.exists())
 			dir.mkdir();
 		
+		CSVFile<String> nucleationCSV = new CSVFile<String>(true);
+		CSVFile<String> participationCSV = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList();
+		List<Double> xVals = Lists.newArrayList();
+		for (double x=ParentSectMFDsPlot.minX; x<=ParentSectMFDsPlot.maxX;
+				x+=ParentSectMFDsPlot.delta)
+			xVals.add(x);
+		header.add("Fault ID");
+		header.add("Fault Name");
+		for (double x : xVals) {
+			header.add("M"+(float)x);
+			header.add("(UCERF2)");
+		}
+		nucleationCSV.addLine(header);
+		participationCSV.addLine(header);
+		
 		for (Integer parentID : plot.plotNuclIncrMFDs.keySet()) {
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, false, false);
@@ -792,11 +821,47 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			String name = plot.namesMap.get(parentID);
 			
-			writeParentSectionMFDPlot(dir, plot.plotNuclIncrMFDs.get(parentID),
+			List<IncrementalMagFreqDist> nuclMFDs = plot.plotNuclIncrMFDs.get(parentID);
+			List<IncrementalMagFreqDist> partMFDs = plot.plotPartIncrMFDs.get(parentID);
+			
+			EvenlyDiscretizedFunc nuclCmlMFD = nuclMFDs.get(nuclMFDs.size()-1).getCumRateDist();
+			EvenlyDiscretizedFunc partCmlMFD = partMFDs.get(nuclMFDs.size()-1).getCumRateDist();
+			
+			EvenlyDiscretizedFunc ucerf2NuclCmlMFD = null;
+			EvenlyDiscretizedFunc ucerf2PartCmlMFD = null;
+			if (ucerf2NuclMFDs != null) {
+				ucerf2NuclCmlMFD = ucerf2NuclMFDs.get(0).getCumRateDist();
+				ucerf2PartCmlMFD= ucerf2PArtMFDs.get(0).getCumRateDist();
+			}
+			
+			List<String> partLine = Lists.newArrayList(parentID+"", name);
+			List<String> nuclLine = Lists.newArrayList(parentID+"", name);
+			
+			for (int i=0; i<xVals.size(); i++) {
+				nuclLine.add(nuclCmlMFD.getY(i)+"");
+				partLine.add(partCmlMFD.getY(i)+"");
+				double x = xVals.get(i);
+				if (ucerf2NuclCmlMFD != null &&
+						ucerf2NuclCmlMFD.getMinX() <= x && ucerf2NuclCmlMFD.getMaxX() >= x) {
+					nuclLine.add(ucerf2NuclCmlMFD.getClosestY(x)+"");
+					partLine.add(ucerf2PartCmlMFD.getClosestY(x)+"");
+				} else {
+					nuclLine.add("");
+					partLine.add("");
+				}
+			}
+			
+			nucleationCSV.addLine(nuclLine);
+			participationCSV.addLine(partLine);
+			
+			writeParentSectionMFDPlot(dir, nuclMFDs,
 					ucerf2NuclMFDs, parentID, name, true);
-			writeParentSectionMFDPlot(dir, plot.plotPartIncrMFDs.get(parentID),
+			writeParentSectionMFDPlot(dir, partMFDs,
 					ucerf2PArtMFDs, parentID, name, false);
 		}
+		
+		nucleationCSV.writeToFile(new File(dir, "cumulative_nucleation_mfd_comparisons.csv"));
+		participationCSV.writeToFile(new File(dir, "cumulative_participation_mfd_comparisons.csv"));
 	}
 	
 	private static void writeParentSectionMFDPlot(
@@ -1091,6 +1156,499 @@ public abstract class CompoundFSSPlots implements Serializable {
 		return funcs;
 	}
 	
+	public static class SlipMisfitPlot extends FaultBasedMapPlot {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public static final String PLOT_DATA_FILE_NAME = "slip_misfit_plots.xml";
+		
+		private transient BranchWeightProvider weightProvider;
+		
+		private ConcurrentMap<FaultModels, List<LocationList>> faultsMap = Maps.newConcurrentMap();
+		private Map<FaultModels, List<double[]>> valuesMap = Maps.newHashMap();
+		private Map<FaultModels, List<Double>> weightsMap = Maps.newHashMap();
+		
+		private List<FaultBasedMapPlotData> plots;
+		
+		private static int cnt;
+		
+		public SlipMisfitPlot(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+			
+			cnt = 0;
+		}
+	
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol) {
+			int myCnt = cnt++;
+			System.out.println("Processing solution "+myCnt);
+			
+			double weight = weightProvider.getWeight(branch);
+			if (weight == 0)
+				return;
+			
+			double[] solSlips = sol.calcSlipRateForAllSects();
+			double[] targetSlips = sol.getSlipRateForAllSections();
+			double[] values = new double[solSlips.length];
+			for (int i=0; i<solSlips.length; i++) {
+				if (solSlips[i] == 0 && targetSlips[i] == 0)
+					values[i] = 1;
+				else
+					values[i] = solSlips[i] / targetSlips[i];
+			}
+			
+			FaultModels fm = sol.getFaultModel();
+			
+			if (!faultsMap.containsKey(fm)) {
+				List<LocationList> faults = FaultBasedMapGen.getTraces(
+						sol.getFaultSectionDataList());
+				faultsMap.putIfAbsent(fm, faults);
+			}
+			
+			System.out.println("Archiving solution "+myCnt);
+			
+			synchronized (this) {
+				List<double[]> valuesList = valuesMap.get(fm);
+				if (valuesList == null) {
+					valuesList = Lists.newArrayList();
+					valuesMap.put(fm, valuesList);
+				}
+				valuesList.add(values);
+				
+				List<Double> weightsList = weightsMap.get(fm);
+				if (weightsList == null) {
+					weightsList = Lists.newArrayList();
+					weightsMap.put(fm, weightsList);
+				}
+				weightsList.add(weight);
+			}
+			
+			System.out.println("Done with solution "+myCnt);
+		}
+	
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				SlipMisfitPlot o = (SlipMisfitPlot)otherCalc;
+				for (FaultModels fm : o.valuesMap.keySet()) {
+					if (!faultsMap.containsKey(fm)) {
+						faultsMap.put(fm, o.faultsMap.get(fm));
+						valuesMap.put(fm, new ArrayList<double[]>());
+						weightsMap.put(fm, new ArrayList<Double>());
+					}
+					valuesMap.get(fm).addAll(o.valuesMap.get(fm));
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+				}
+			}
+		}
+	
+		@Override
+		protected void finalizePlot() {
+			plots = Lists.newArrayList();
+			
+			boolean multipleFMs = faultsMap.keySet().size() > 1;
+			
+			CPT linearCPT = FaultBasedMapGen.getLinearRatioCPT();
+			CPT logCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-1, 1);
+			
+			Region region = new CaliforniaRegions.RELM_TESTING();
+			
+			boolean skipNans = false;
+			
+			for (FaultModels fm : faultsMap.keySet()) {
+				List<LocationList> faults = faultsMap.get(fm);
+				List<double[]> valuesList = valuesMap.get(fm);
+				List<Double> weightsList = weightsMap.get(fm);
+				
+				double[] values = getWeightedAvg(faults.size(), valuesList, weightsList);
+				
+				String label = "Mean(Solution Slip / Target Slip)";
+				String prefix = "";
+				if (multipleFMs) {
+					prefix += fm.getShortName()+"_";
+					label = fm.getShortName()+" "+label;
+				}
+				
+				plots.add(new FaultBasedMapPlotData(linearCPT, faults, values, region,
+						skipNans, label, prefix+"slip_misfit"));
+				
+				label = "Log10("+label+")";
+				double[] log10Values = FaultBasedMapGen.log10(values);
+				plots.add(new FaultBasedMapPlotData(logCPT, faults, log10Values, region,
+						skipNans, label, prefix+"slip_misfit_log"));
+			}
+		}
+	
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
+		}
+	
+		@Override
+		protected List<FaultBasedMapPlotData> getPlotData() {
+			return plots;
+		}
+	
+		@Override
+		protected String getPlotDataFileName() {
+			return PLOT_DATA_FILE_NAME;
+		}
+		
+	}
+	
+	public static class ParticipationMapPlot extends FaultBasedMapPlot {
+		
+		private List<double[]> ranges;
+		
+		public static List<double[]> getDefaultRanges() {
+			List<double[]> ranges = Lists.newArrayList();
+			
+			ranges.add(toArray(5d, 9d));
+			ranges.add(toArray(6.7d, 9d));
+			ranges.add(toArray(7.7d, 9d));
+			ranges.add(toArray(8d, 9d));
+			
+			return ranges;
+		}
+		private static double[] toArray(double... vals) {
+			return vals;
+		}
+		
+		private transient BranchWeightProvider weightProvider;
+		
+		private ConcurrentMap<FaultModels, List<LocationList>> faultsMap = Maps.newConcurrentMap();
+		private Map<FaultModels, List<List<double[]>>> valuesMap = Maps.newHashMap();
+		private Map<FaultModels, List<Double>> weightsMap = Maps.newHashMap();
+		
+		private List<FaultBasedMapPlotData> plots;
+		
+		public ParticipationMapPlot(BranchWeightProvider weightProvider) {
+			this(weightProvider, getDefaultRanges());
+		}
+		
+		public ParticipationMapPlot(BranchWeightProvider weightProvider, List<double[]> ranges) {
+			this.weightProvider = weightProvider;
+			this.ranges = ranges;
+		}
+	
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol) {
+			double weight = weightProvider.getWeight(branch);
+			if (weight == 0)
+				return;
+			
+			List<double[]> myValues = Lists.newArrayList();
+			for (double[] range : ranges) {
+				myValues.add(sol.calcParticRateForAllSects(range[0], range[1]));
+			}
+			
+			FaultModels fm = sol.getFaultModel();
+			
+			if (!faultsMap.containsKey(fm)) {
+				List<LocationList> faults = FaultBasedMapGen.getTraces(
+						sol.getFaultSectionDataList());
+				faultsMap.putIfAbsent(fm, faults);
+			}
+			
+			synchronized (this) {
+				List<List<double[]>> valuesList = valuesMap.get(fm);
+				if (valuesList == null) {
+					valuesList = Lists.newArrayList();
+					valuesMap.put(fm, valuesList);
+				}
+				valuesList.add(myValues);
+				
+				List<Double> weightsList = weightsMap.get(fm);
+				if (weightsList == null) {
+					weightsList = Lists.newArrayList();
+					weightsMap.put(fm, weightsList);
+				}
+				weightsList.add(weight);
+			}
+		}
+	
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				ParticipationMapPlot o = (ParticipationMapPlot)otherCalc;
+				for (FaultModels fm : o.valuesMap.keySet()) {
+					if (!faultsMap.containsKey(fm)) {
+						faultsMap.put(fm, o.faultsMap.get(fm));
+						valuesMap.put(fm, new ArrayList<List<double[]>>());
+						weightsMap.put(fm, new ArrayList<Double>());
+					}
+					valuesMap.get(fm).addAll(o.valuesMap.get(fm));
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+				}
+			}
+		}
+	
+		@Override
+		protected void finalizePlot() {
+			plots = Lists.newArrayList();
+			
+			boolean multipleFMs = faultsMap.keySet().size() > 1;
+			
+			CPT participationCPT = FaultBasedMapGen.getParticipationCPT();
+			CPT logCPT = FaultBasedMapGen.getLogRatioCPT();
+			
+			Region region = new CaliforniaRegions.RELM_TESTING();
+			
+			boolean skipNans = true;
+			boolean omitInfinites = true;
+			
+			for (FaultModels fm : faultsMap.keySet()) {
+				List<LocationList> faults = faultsMap.get(fm);
+				List<List<double[]>> valuesList = valuesMap.get(fm);
+				List<Double> weightsList = weightsMap.get(fm);
+				
+				FaultSystemSolution ucerf2 = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
+				
+				for (int i=0; i<ranges.size(); i++) {
+					double minMag = ranges.get(i)[0];
+					double maxMag = ranges.get(i)[1];
+					
+					List<double[]> rangeValsList = Lists.newArrayList();
+					for (int s=0; s<valuesList.size(); s++)
+						rangeValsList.add(valuesList.get(s).get(i));
+					
+					double[] values = getWeightedAvg(faults.size(), rangeValsList, weightsList);
+					// TODO
+//					double[] stdDevs = getStdDevs(faults.size(), valuesList.get(i));
+					double[] logValues = FaultBasedMapGen.log10(values);
+					
+					String name = "partic_rates_"+(float)minMag;
+					String title = "Log10(Participation Rates "+(float)+minMag;
+					if (maxMag < 9) {
+						name += "_"+(float)maxMag;
+						title += "=>"+(float)maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+					title += ")";
+					
+					if (multipleFMs) {
+						name = fm.getShortName()+"_"+name;
+						title = fm.getShortName()+" "+title;
+					}
+					
+					plots.add(new FaultBasedMapPlotData(participationCPT, faults, logValues, region,
+							skipNans, title, name));
+					
+					double[] ucerf2Vals = ucerf2.calcParticRateForAllSects(minMag, maxMag);
+					
+					double[] ratios = new double[ucerf2Vals.length];
+					for (int j=0; j<values.length; j++) {
+						ratios[j] = values[j] / ucerf2Vals[j];
+						if (omitInfinites && Double.isInfinite(ratios[j]))
+							ratios[j] = Double.NaN;
+					}
+					ratios = FaultBasedMapGen.log10(ratios);
+					
+					name = "partic_ratio_"+(float)minMag;
+					title = "Log10(Participation Ratios "+(float)+minMag;
+					if (maxMag < 9) {
+						name += "_"+(float)maxMag;
+						title += "=>"+(float)maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+					title += ")";
+					
+					if (multipleFMs) {
+						name = fm.getShortName()+"_"+name;
+						title = fm.getShortName()+" "+title;
+					}
+					
+					plots.add(new FaultBasedMapPlotData(logCPT, faults, ratios, region,
+							skipNans, title, name));
+				}
+			}
+		}
+	
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
+		}
+	
+		@Override
+		protected List<FaultBasedMapPlotData> getPlotData() {
+			return plots;
+		}
+	
+		@Override
+		protected String getPlotDataFileName() {
+			return "participation_plots.xml";
+		}
+		
+	}
+
+	private static class FaultBasedMapPlotData implements XMLSaveable, Serializable {
+		
+		private static final String XML_METADATA_NAME = "FaultBasedMap";
+		
+		private CPT cpt;
+		private List<LocationList> faults;
+		private double[] values;
+		private Region region;
+		private boolean skipNans;
+		private String label;
+		private String fileName;
+		
+		public FaultBasedMapPlotData(CPT cpt, List<LocationList> faults,
+			double[] values, Region region, boolean skipNans, String label, String fileName) {
+			this.cpt = cpt;
+			this.faults = faults;
+			this.values = values;
+			this.region = region;
+			this.skipNans = skipNans;
+			this.label = label;
+			this.fileName = fileName;
+		}
+		
+		public static FaultBasedMapPlotData fromXMLMetadata(Element xml) {
+			CPT cpt = CPT.fromXMLMetadata(xml.element(CPT.XML_METADATA_NAME));
+			
+			List<LocationList> faults = Lists.newArrayList();
+			List<Double> valuesList = Lists.newArrayList();
+			Iterator<Element> it = xml.elementIterator("Fault");
+			while (it.hasNext()) {
+				Element faultElem = it.next();
+				faults.add(LocationList.fromXMLMetadata(
+						faultElem.element(LocationList.XML_METADATA_NAME)));
+				valuesList.add(Double.parseDouble(faultElem.attributeValue("value")));
+			}
+			double[] values = Doubles.toArray(valuesList);
+			
+			Region region = Region.fromXMLMetadata(xml.element(Region.XML_METADATA_NAME));
+			
+			boolean skipNans = Boolean.parseBoolean(xml.attributeValue("skipNans"));
+			String label = xml.attributeValue("label");
+			String fileName = xml.attributeValue("fileName");
+			
+			return new FaultBasedMapPlotData(cpt, faults, values, region,
+					skipNans, label, fileName);
+		}
+
+		@Override
+		public Element toXMLMetadata(Element root) {
+			Element xml = root.addElement(XML_METADATA_NAME);
+			
+			cpt.toXMLMetadata(xml);
+			
+			for (int i=0; i<faults.size(); i++) {
+				Element faultElem = xml.addElement("Fault");
+				faultElem.addAttribute("value", values[i]+"");
+				faults.get(i).toXMLMetadata(faultElem);
+			}
+			
+			region.toXMLMetadata(xml);
+			
+			xml.addAttribute("skipNans", skipNans+"");
+			xml.addAttribute("label", label);
+			xml.addAttribute("fileName", fileName);
+			
+			return root;
+		}
+	}
+	
+	private static abstract class FaultBasedMapPlot extends CompoundFSSPlots {
+		
+		protected abstract List<FaultBasedMapPlotData> getPlotData();
+		
+		protected abstract String getPlotDataFileName();
+		
+		protected double[] getWeightedAvg(
+				int numFaults, List<double[]> valuesList, List<Double> weightsList) {
+			
+			double[] weights = Doubles.toArray(weightsList);
+			
+			double[] values = new double[numFaults];
+			for (int i=0; i<numFaults; i++) {
+				double[] faultVals = new double[weights.length];
+				for (int s=0; s<weights.length; s++)
+					faultVals[s] = valuesList.get(s)[i];
+				values[i] = FaultSystemSolutionFetcher.calcScaledAverage(faultVals, weights);
+			}
+			
+			return values;
+		}
+		
+		protected double[] getStdDevs(
+				int numFaults, List<double[]> valuesList) {
+			
+			double[] stdDevs = new double[numFaults];
+			for (int i=0; i<numFaults; i++) {
+				double[] faultVals = new double[valuesList.size()];
+				for (int s=0; s<valuesList.size(); s++)
+					faultVals[s] = valuesList.get(s)[i];
+				stdDevs[i] = Math.sqrt(StatUtils.variance(faultVals));
+			}
+			
+			return stdDevs;
+		}
+		
+		public void writePlotData(File dir) throws IOException {
+			Document doc = XMLUtils.createDocumentWithRoot();
+			Element root = doc.getRootElement();
+			
+			for (FaultBasedMapPlotData data : getPlotData())
+				data.toXMLMetadata(root);
+			
+			File dataFile = new File(dir, getPlotDataFileName());
+			XMLUtils.writeDocumentToFile(dataFile, doc);
+		}
+		
+		public static List<FaultBasedMapPlotData> loadPlotData(File file) throws MalformedURLException, DocumentException {
+			Document doc = XMLUtils.loadDocument(file);
+			Element root = doc.getRootElement();
+			
+			List<FaultBasedMapPlotData> plots = Lists.newArrayList();
+			
+			Iterator<Element> it = root.elementIterator(FaultBasedMapPlotData.XML_METADATA_NAME);
+			while (it.hasNext())
+				plots.add(FaultBasedMapPlotData.fromXMLMetadata(it.next()));
+			
+			return plots;
+		}
+		
+		public void makeMapPlots(File dir, String prefix)
+				throws GMT_MapException, RuntimeException, IOException {
+			makeMapPlots(dir, prefix, this.getPlotData());
+		}
+		
+		public static void makeMapPlot(File dir, String prefix, FaultBasedMapPlotData plot)
+				throws GMT_MapException, RuntimeException, IOException {
+			makeMapPlots(dir, prefix, Lists.newArrayList(plot));
+		}
+		
+		public static void makeMapPlots(File dir, String prefix, List<FaultBasedMapPlotData> plots)
+				throws GMT_MapException, RuntimeException, IOException {
+			for (FaultBasedMapPlotData plot : plots) {
+				String plotPrefix;
+				if (prefix != null && !prefix.isEmpty())
+					plotPrefix = prefix+"_";
+				else
+					plotPrefix = "";
+				plotPrefix += plot.fileName;
+				System.out.println("Making fault plot with title: "+plot.label);
+				FaultBasedMapGen.makeFaultPlot(plot.cpt, plot.faults, plot.values, plot.region,
+						dir, plotPrefix, false, plot.skipNans, plot.label);
+				System.out.println("DONE.");
+			}
+		}
+		
+	}
+	
 	public static List<PlotCurveCharacterstics> getFractileChars(Color color, int numFractiles) {
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -1240,22 +1798,68 @@ public abstract class CompoundFSSPlots implements Serializable {
 		for (CompoundFSSPlots plot : plots)
 			plot.finalizePlot();
 	}
+	
+	public static void batchWritePlots(Collection<CompoundFSSPlots> plots, File dir, String prefix)
+			throws Exception {
+		batchWritePlots(plots, dir, prefix, true);
+	}
+	
+	public static void batchWritePlots(
+			Collection<CompoundFSSPlots> plots, File dir, String prefix, boolean makeMapPlots)
+			throws Exception {
+		for (CompoundFSSPlots plot : plots) {
+			if (plot instanceof RegionalMFDPlot) {
+				RegionalMFDPlot mfd = (RegionalMFDPlot)plot;
+				
+				CompoundFSSPlots.writeRegionalMFDPlots(mfd.getSpecs(), mfd.getRegions(), dir, prefix);
+			} else if (plot instanceof PaleoFaultPlot) {
+				PaleoFaultPlot paleo = (PaleoFaultPlot)plot;
+				File paleoPlotsDir = new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME);
+				if (!paleoPlotsDir.exists())
+					paleoPlotsDir.mkdir();
+				CompoundFSSPlots.writePaleoFaultPlots(paleo.getPlotsMap(), paleoPlotsDir);
+			} else if (plot instanceof PaleoSiteCorrelationPlot) {
+				PaleoSiteCorrelationPlot paleo = (PaleoSiteCorrelationPlot)plot;
+				File paleoPlotsDir = new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME);
+				if (!paleoPlotsDir.exists())
+					paleoPlotsDir.mkdir();
+				CompoundFSSPlots.writePaleoCorrelationPlots(paleo.getPlotsMap(), paleoPlotsDir);
+			} else if (plot instanceof ParentSectMFDsPlot) {
+				ParentSectMFDsPlot parentPlots = (ParentSectMFDsPlot)plot;
+				File parentPlotsDir = new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME);
+				if (!parentPlotsDir.exists())
+					parentPlotsDir.mkdir();
+				CompoundFSSPlots.writeParentSectionMFDPlots(parentPlots, parentPlotsDir);
+			} else if (plot instanceof RupJumpPlot) {
+				RupJumpPlot jumpPlot = (RupJumpPlot)plot;
+				CompoundFSSPlots.writeJumpPlots(jumpPlot, dir, prefix);
+			} else if (plot instanceof FaultBasedMapPlot) {
+				FaultBasedMapPlot faultPlot = (FaultBasedMapPlot)plot;
+				faultPlot.writePlotData(dir);
+				if (makeMapPlots)
+					faultPlot.makeMapPlots(dir, prefix);
+			}
+		}
+	}
 
 	/**
 	 * @param args
 	 * @throws IOException 
 	 * @throws ZipException 
 	 */
-	public static void main(String[] args) throws ZipException, IOException {
-		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
+	public static void main(String[] args) throws ZipException, Exception {
+		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
+		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
+//		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5);
 		
 		List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 		
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
-		File dir = new File("/tmp");
-		String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
+//		File dir = new File("/tmp");
+//		String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
+		String prefix = dir.getName();
 //		for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider, regions)) {
 //			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
 //			gw.setYLog(true);
@@ -1267,7 +1871,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		writePaleoCorrelationPlots(fetch, weightProvider, paleoCorrDir);
 //		File parentSectMFDsDir = new File(dir, prefix+"-parent-sect-mfds");
 //		writeParentSectionMFDPlots(fetch, weightProvider, parentSectMFDsDir);
-		writeJumpPlots(fetch, weightProvider, dir, prefix);
+//		writeJumpPlots(fetch, weightProvider, dir, prefix);
+		List<CompoundFSSPlots> plots = Lists.newArrayList();
+//		plots.add(new RegionalMFDPlot(weightProvider, regions));
+//		plots.add(new PaleoFaultPlot(weightProvider));
+//		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
+		plots.add(new ParentSectMFDsPlot(weightProvider));
+//		plots.add(new RupJumpPlot(weightProvider));
+//		plots.add(new SlipMisfitPlot(weightProvider));
+		plots.add(new ParticipationMapPlot(weightProvider));
+		
+		batchPlot(plots, fetch, 3);
+		batchWritePlots(plots, dir, prefix, true);
+//		FaultBasedMapPlot.makeMapPlots(dir, prefix,
+//				FaultBasedMapPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));
+		
+		System.exit(0);
+		
 	}
 
 }

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -269,7 +270,7 @@ public abstract class FaultSystemRupSet {
 		return slips;
 	}
 	
-	protected Map<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
+	protected ConcurrentMap<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
 	
 	/**
 	 * This gives the slip (SI untis: m) on each section for the rth rupture
@@ -283,7 +284,7 @@ public abstract class FaultSystemRupSet {
 				if (slips != null)
 					return slips;
 				slips = calcSlipOnSectionsForRup(rthRup);
-				rupSectionSlipsCache.put(rthRup, slips);
+				rupSectionSlipsCache.putIfAbsent(rthRup, slips);
 			}
 		}
 		return slips;
@@ -699,7 +700,7 @@ public abstract class FaultSystemRupSet {
 				if (showProgress) {
 					p = new CalcProgressBar("Calculating Ruptures for each Section", "Calculating Ruptures for each Section");
 				}
-				rupturesForSectionCache = new ArrayList<List<Integer>>();
+				ArrayList<List<Integer>> rupturesForSectionCache = new ArrayList<List<Integer>>();
 				for (int secID=0; secID<getNumSections(); secID++)
 					rupturesForSectionCache.add(new ArrayList<Integer>());
 
@@ -713,6 +714,7 @@ public abstract class FaultSystemRupSet {
 				// now make the immutable
 				for (int i=0; i<rupturesForSectionCache.size(); i++)
 					rupturesForSectionCache.set(i, Collections.unmodifiableList(rupturesForSectionCache.get(i)));
+				this.rupturesForSectionCache = rupturesForSectionCache;
 				if (p != null) p.dispose();
 			}
 		}

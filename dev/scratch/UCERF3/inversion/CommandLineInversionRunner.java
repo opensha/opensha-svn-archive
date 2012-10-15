@@ -1100,7 +1100,7 @@ public class CommandLineInversionRunner {
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			setFontSizes(gp);
-			gp.setUserBounds(0d, maxX, 0d, 1d);
+			gp.setUserBounds(0d, maxX, -0.05d, 1.05d);
 			
 			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 					spec.getFuncs(), spec.getChars(), true, spec.getTitle());

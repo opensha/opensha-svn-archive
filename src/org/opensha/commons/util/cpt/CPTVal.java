@@ -90,11 +90,11 @@ public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable, XMLS
 		
 		Element start = xml.addElement("Start");
 		XMLUtils.colorToXML(start, minColor);
-		start.addAttribute("value", ""+start);
+		start.addAttribute("value", ""+this.start);
 		
 		Element end = xml.addElement("End");
 		XMLUtils.colorToXML(end, maxColor);
-		end.addAttribute("value", ""+end);
+		end.addAttribute("value", ""+this.end);
 		
 		return root;
 	}

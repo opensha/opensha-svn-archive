@@ -428,7 +428,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public synchronized double[] calcSlipRateForAllSects() {
 		if (slipRatesCache == null) {
-			slipRatesCache = new double[getNumSections()];
+			double[] slipRatesCache = new double[getNumSections()];
 			CalcProgressBar p = null;
 			if (showProgress) {
 				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
@@ -438,6 +438,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 				slipRatesCache[i] = doCalcSlipRateForSect(i);
 			}
 			if (p != null) p.dispose();
+			this.slipRatesCache = slipRatesCache;
 		}
 		return slipRatesCache;
 	}

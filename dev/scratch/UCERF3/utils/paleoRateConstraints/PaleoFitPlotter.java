@@ -29,6 +29,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -57,28 +58,13 @@ public class PaleoFitPlotter {
 		public AveSlipFakePaleoConstraint(
 				AveSlipConstraint aveSlip, int sectIndex, double[] slipRates, double[] weights) {
 			super(null, aveSlip.getSiteLocation(), sectIndex,
-					calcScaledAverage(slipRates, weights)/aveSlip.getWeightedMean(),
+					FaultSystemSolutionFetcher.calcScaledAverage(slipRates, weights)/aveSlip.getWeightedMean(),
 					StatUtils.min(slipRates)/aveSlip.getWeightedMean(),
 					StatUtils.max(slipRates)/aveSlip.getWeightedMean());
 			isMultiple = true;
 		}
 	}
 	
-	public static double calcScaledAverage(double[] vals, double[] weights) {
-		if (vals.length == 1)
-			return vals[0];
-		double tot = 0d;
-		for (double weight : weights)
-			tot += weight;
-		
-		double scaledAvg = 0;
-		for (int i=0; i<vals.length; i++) {
-			scaledAvg += vals[i] * (weights[i] / tot);
-		}
-
-		return scaledAvg;
-	}
-
 	public static PlotSpec getSegRateComparisonSpec(
 				List<PaleoRateConstraint> paleoRateConstraint,
 				List<AveSlipConstraint> aveSlipConstraints,
@@ -553,7 +539,7 @@ public class PaleoFitPlotter {
 				double[] myXvals = xvals[s];
 				double[] array = arrayVals[s];
 				
-				double mean = calcScaledAverage(array, weights);
+				double mean = FaultSystemSolutionFetcher.calcScaledAverage(array, weights);
 				if (Double.isInfinite(mean))
 					System.out.println("INFINITE! array=["+Joiner.on(",").join(Doubles.asList(array))
 							+"], weights=["+Joiner.on(",").join(Doubles.asList(weights)));

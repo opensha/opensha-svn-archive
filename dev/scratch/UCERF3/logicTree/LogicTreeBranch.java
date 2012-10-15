@@ -206,8 +206,11 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	
 	public String buildFileName() {
 		String str = null;
-		for (LogicTreeBranchNode<?> value : branch) {
-			Preconditions.checkNotNull(value, "Must be fully specified to build file name!");
+		for (int i=0; i<branch.size(); i++) {
+			LogicTreeBranchNode<?> value = branch.get(i);
+			if (value == null)
+				throw new IllegalStateException("Must be fully specified to build file name! (missing="
+					+ClassUtils.getClassNameWithoutPackage(getLogicTreeNodeClasses().get(i))+")");
 			if (str == null)
 				str = "";
 			else
@@ -425,6 +428,8 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 				}
 			}
 		}
+		if (node == null)
+			return 0d;
 		Class<? extends LogicTreeBranchNode> clazz = getEnumEnclosingClass(node.getClass());
 		return node.getRelativeWeight(im) / classWeightTotals.get(clazz, im);
 	}
