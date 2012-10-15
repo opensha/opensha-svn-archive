@@ -120,6 +120,8 @@ public class FractileCurveCalculator {
   /**
    * This computes the mean curve from the list of functions (and their associated
    * weights).
+   * 
+   * TODO this should use empiricalDists
    * @return
    */
   public AbstractXY_DataSet getMeanCurve() {
@@ -154,6 +156,9 @@ public class FractileCurveCalculator {
   
   /**
    * This returns a curve with the minimum value among all the curves.
+   * 
+   * TODO this should use empiricalDists
+   * 
    * @return
    */
   public AbstractXY_DataSet getMinimumCurve() {
@@ -177,6 +182,9 @@ public class FractileCurveCalculator {
   
   /**
    * This returns a curve with the maximum value among all the curves.
+   * 
+   * TODO this should use empiricalDists
+   * 
    * @return
    */
   public AbstractXY_DataSet getMaximumCurve() {
@@ -198,6 +206,22 @@ public class FractileCurveCalculator {
   }
 
 
+
+  /**
+   *  This returns the fractile curve corresponding to the specified fraction
+   * @param fraction
+   * @return
+   */
+  public ArbitrarilyDiscretizedFunc getStdDev() {
+    // function for the result
+    ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
+    for(int i=0; i<num; ++i) {
+      result.set(funcList.get(0).getX(i),
+                 ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getStdDev());
+    }
+    result.setName("stdDev");
+    return result;
+  }
 
 
 
