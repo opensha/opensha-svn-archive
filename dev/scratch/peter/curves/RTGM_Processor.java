@@ -61,11 +61,12 @@ class RTGM_Processor implements Runnable {
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
 		for (NEHRP_TestCity loc : locs) {
-			DiscretizedFunc f = per.getLogFunction();
+//			DiscretizedFunc f = per.getLogFunction();
+			DiscretizedFunc f = per.getFunction();
 			Site site = loc.getSite();
 			try {
 				f = calc.getHazardCurve(f, site, imr, erf);
-				f = deLog(f);
+//				f = deLog(f);
 				f = calc.getAnnualizedRates(f, TIME);
 //				System.out.println(f);
 				

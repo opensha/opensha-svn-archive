@@ -1,5 +1,7 @@
 package scratch.peter.curves;
 
+import org.opensha.commons.data.function.DiscretizedFunc;
+
 public enum ProbOfExceed {
 
 	PE2IN50(0.000404),
@@ -13,5 +15,9 @@ public enum ProbOfExceed {
 	
 	public double annualRate() {
 		return annualRate;
+	}
+	
+	public static double get(DiscretizedFunc f, ProbOfExceed pe) {
+		return f.getFirstInterpolatedX_inLogXLogYDomain(pe.annualRate());
 	}
 }

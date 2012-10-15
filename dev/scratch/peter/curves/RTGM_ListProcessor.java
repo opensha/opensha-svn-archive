@@ -1,6 +1,7 @@
 package scratch.peter.curves;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opensha.nshmp2.util.Period.*;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -59,7 +60,7 @@ class RTGM_ListProcessor implements Runnable {
 		Period per, String outDir) {
 		this.outDir = outDir;
 		
-		checkArgument(per.equals(Period.GM0P20) || per.equals(Period.GM1P00));
+//		checkArgument(per.equals(Period.GM0P20) || per.equals(Period.GM1P00));
 		this.imr = imr;
 		this.erfs = erfs;
 		this.loc = loc;
@@ -81,21 +82,26 @@ class RTGM_ListProcessor implements Runnable {
 				f = calc.getHazardCurve(f, site, imr, erf);
 //				f = deLog(f);
 				
-				f = calc.getAnnualizedRates(f, TIME);
-				// convert to annual rate
 				for (Point2D p : f) {
 					f.set(p.getX(), NSHMP_Utils.probToRate(p.getY(), 1));
 				}
 
-//				 System.out.println(f);
+//				f = calc.getAnnualizedRates(f, TIME);
+				// convert to annual rate
+
+//				System.out.println(per.name() + " " + loc + "\n" + f);
 				
-				RTGM.Frequency freq = per.equals(Period.GM0P20)
-					? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
-				RTGM rtgm = RTGM.create(f.deepClone(), freq, 0.8).call();
+//				double rtgmVal = 0.0;
+//				
+//				if (per.equals(GM0P20) || per.equals(GM1P00)) {
+//					RTGM.Frequency freq = per.equals(GM0P20)
+//							? RTGM.Frequency.SA_0P20 : RTGM.Frequency.SA_1P00;
+//					RTGM rtgm = RTGM.create(f.deepClone(), freq, 0.8).call();
+//					rtgmVal = rtgm.get();
+//				}
 				
 				double wt = erfs.getERF_RelativeWeight(i);
-				
-				addResults(i, wt, erf, f, rtgm.get());
+				addResults(i, wt, erf, f);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -116,7 +122,7 @@ class RTGM_ListProcessor implements Runnable {
 		return fOut;
 	}
 	
-	private void addResults(int idx, double wt, ERF erf, DiscretizedFunc f, double rtgm) {
+	private void addResults(int idx, double wt, ERF erf, DiscretizedFunc f) {
 		
 		// param data
 		List<String> paramDat = Lists.newArrayList();
@@ -133,7 +139,6 @@ class RTGM_ListProcessor implements Runnable {
 		List<String> curveDat = Lists.newArrayList();
 		curveDat.add(Integer.toString(idx));
 		curveDat.add(Double.toString(wt));
-		curveDat.add(Double.toString(rtgm));
 		for (Point2D p : f) {
 			curveDat.add(Double.toString(p.getY()));
 		}
@@ -199,7 +204,6 @@ class RTGM_ListProcessor implements Runnable {
 		List<String> curveHeader = Lists.newArrayList();
 		curveHeader.add("ERF#");
 		curveHeader.add("wt");
-		curveHeader.add("rtgm");
 		for (Double d : per.getIMLs()) {
 			curveHeader.add(d.toString());
 		}

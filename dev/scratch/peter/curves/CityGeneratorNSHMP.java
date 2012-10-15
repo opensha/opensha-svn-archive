@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.SourceIMR;
@@ -36,42 +37,39 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
- * USed to generate hazard curves for UCERF2 Time Independent List
- * 
- * @author Peter Powers
- * @version $Id:$
+ * Utility class to generate hazard curves for NEHRP test cities using NSHMP
+ * List ERFs.
  */
-class RTGM_Generator {
+class CityGeneratorNSHMP {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/MeanUCERF2update";
-//	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
+	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/NSHMP_CA_SHA-epi";
 	private static Period[] periods = { GM0P00, GM0P20, GM1P00 };
-//	private static Period[] periods = { Period.GM0P20};
 	private static Collection<NEHRP_TestCity> cities;
+	private static boolean epi = true;
 	
-	private List<Future<?>> futures;
-
 	static {
 		cities = NEHRP_TestCity.getCA();
-//		cities = EnumSet.of(NEHRP_TestCity.LOS_ANGELES);
+//		cities = EnumSet.of(NEHRP_TestCity.VENTURA);
 	}
 	
 	public static void main(String[] args) {
-		new RTGM_Generator();
+		new CityGeneratorNSHMP();
 	}
 
-	private RTGM_Generator() {
+	private CityGeneratorNSHMP() {
 		try {
 			int numProc = Runtime.getRuntime().availableProcessors();
-			ExecutorService ex = Executors.newFixedThreadPool(numProc);
+			ExecutorService ex = Executors.newFixedThreadPool(periods.length);
 			System.out.println("NumProc: " + numProc);
-			futures = Lists.newArrayList();
+			NSHMP2008 erf = newERF();
+			erf.updateForecast();
+			System.out.println(erf);
 			for (Period period : periods) {
-				ScalarIMR imr = newIMR(period);
-				ERF erf = newERF();
-				RTGM_Processor proc = new RTGM_Processor(imr, erf, cities,
-					period, OUT_DIR);
-				futures.add(ex.submit(proc));
+//				ScalarIMR imr = newIMR(period);
+				CityProcessorNSHMP proc = new CityProcessorNSHMP(erf, cities,
+					period, epi, OUT_DIR);
+				ex.submit(proc);
+//				proc.run();
 			}
 			ex.shutdown();
 			ex.awaitTermination(48, TimeUnit.HOURS);
@@ -80,16 +78,18 @@ class RTGM_Generator {
 		}
 	}
 
-	static ERF newERF() {
-		MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
+	static NSHMP2008 newERF() {
+		NSHMP2008 erf = NSHMP2008.createCalifornia();
+//		MeanUCERF2 erf = new MeanUCERF2();
+//		MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
 //		ModMeanUCERF2 erf = new ModMeanUCERF2();
 		
-		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
-		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
-		Parameter floatParam = erf.getParameter(UCERF2.FLOATER_TYPE_PARAM_NAME);
-		floatParam.setValue(UCERF2.FULL_DDW_FLOATER);
-		Parameter probParam = erf.getParameter(UCERF2.PROB_MODEL_PARAM_NAME);
-		probParam.setValue(UCERF2.PROB_MODEL_POISSON);
+//		Parameter bgSrcParam = erf.getParameter(UCERF2.BACK_SEIS_RUP_NAME);
+//		bgSrcParam.setValue(UCERF2.BACK_SEIS_RUP_POINT);
+//		Parameter floatParam = erf.getParameter(UCERF2.FLOATER_TYPE_PARAM_NAME);
+//		floatParam.setValue(UCERF2.FULL_DDW_FLOATER);
+//		Parameter probParam = erf.getParameter(UCERF2.PROB_MODEL_PARAM_NAME);
+//		probParam.setValue(UCERF2.PROB_MODEL_POISSON);
 		
 		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		ts.setDuration(1);
@@ -100,22 +100,11 @@ class RTGM_Generator {
 		return erf;
 	}
 
-	static ScalarIMR newIMR(Period period) {
-		
-		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period); //new NSHMP08_WUS();
-		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(false);
-		
-//		ScalarIMR imr = AttenRelRef.NSHMP_2008.instance(null);
-//		imr.setParamDefaults();
-//		if (period == Period.GM0P00) {
-//			imr.setIntensityMeasure("PGA");
-//		} else {
-//			imr.setIntensityMeasure("SA");
-//			imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
-//		}
-		
-		return imr;
-	}
+//	static ScalarIMR newIMR(Period period) {
+//		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period); //new NSHMP08_WUS();
+//		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(false);
+//		return imr;
+//	}
 
 //	static ScalarIMR newIMR(AttenRelRef imrRef, Period period) {
 //		ScalarIMR imr = imrRef.instance(null); 

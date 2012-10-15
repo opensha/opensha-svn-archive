@@ -1,6 +1,10 @@
 package scratch.peter.curves;
 
+import static org.opensha.nshmp2.util.Period.GM0P00;
+import static org.opensha.nshmp.NEHRP_TestCity.*;
+
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
@@ -22,7 +27,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -37,13 +44,12 @@ class RTGM_ListGenerator {
 
 	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
 //	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
-	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
-//	private static Period[] periods = { Period.GM0P20};
+//	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
+	private static Period[] periods = { Period.GM0P00, Period.GM0P20, Period.GM1P00};
 	private static Collection<NEHRP_TestCity> cities;
 	
-	private List<Future<?>> futures;
-
 	static {
+//		cities = EnumSet.of(LOS_ANGELES, VENTURA);
 		cities = NEHRP_TestCity.getCA();
 //		cities = NEHRP_TestCity.getShortListCA();
 //		cities = Sets.difference(NEHRP_TestCity.getCA(), NEHRP_TestCity.getShortListCA());
@@ -51,7 +57,7 @@ class RTGM_ListGenerator {
 	
 	public static void main(String[] args) {
 		new RTGM_ListGenerator();
-		System.out.println(cities);
+//		System.out.println(cities);
 //		RTGM_ListProcessor proc = new RTGM_ListProcessor(
 //			newIMR(Period.GM1P00), newERF(), NEHRP_TestCity.LOS_ANGELES, Period.GM1P00, OUT_DIR);
 //		proc.run();
@@ -60,20 +66,17 @@ class RTGM_ListGenerator {
 
 	private RTGM_ListGenerator() {
 		try {
-			int numProc = Runtime.getRuntime().availableProcessors();
-			ExecutorService ex = Executors.newFixedThreadPool(numProc);
-			System.out.println("NumProc: " + numProc);
-			futures = Lists.newArrayList();
+			int threadCt = Runtime.getRuntime().availableProcessors();
+			ExecutorService ex = Executors.newFixedThreadPool(threadCt);
 			for (Period period : periods) {
-//				for (AttenRelRef imrRef : imrRefs) {
-					for (NEHRP_TestCity loc : cities) {
-						ScalarIMR imr = newIMR(period);
-						EpistemicListERF erfs = newERF();
-						RTGM_ListProcessor proc = new RTGM_ListProcessor(
-							imr, erfs, loc, period, OUT_DIR);
-						futures.add(ex.submit(proc));
-					}
-//				}
+				for (NEHRP_TestCity loc : cities) {
+					ScalarIMR imr = newIMR(period);
+					EpistemicListERF erfs = newERF();
+					RTGM_ListProcessor proc = new RTGM_ListProcessor(imr, erfs,
+						loc, period, OUT_DIR);
+					ex.submit(proc);
+//					proc.run();
+				}
 			}
 			ex.shutdown();
 			ex.awaitTermination(48, TimeUnit.HOURS);
@@ -101,10 +104,21 @@ class RTGM_ListGenerator {
 
 	static ScalarIMR newIMR(Period period) {
 		
-		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period); //new NSHMP08_WUS();
+//		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period); //new NSHMP08_WUS();
+//		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(false);
+
+		ScalarIMR imr = new NSHMP08_WUS();
+		imr.setIntensityMeasure((period == GM0P00) ? PGA_Param.NAME : SA_Param.NAME);
+		try {
+			imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
+		}  catch (ConstraintException ce) { /* do nothing */ }
+
 		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(false);
-		
+		return imr;
+
 //		ScalarIMR imr = AttenRelRef.NSHMP_2008.instance(null);
+//		ScalarIMR imr = AttenRelRef.BA_2008.instance(null);
+		
 //		imr.setParamDefaults();
 //		if (period == Period.GM0P00) {
 //			imr.setIntensityMeasure("PGA");
@@ -113,8 +127,7 @@ class RTGM_ListGenerator {
 //			imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
 //		}
 		
-//		System.out.println(imr.getAllParamMetadata());
-		return imr;
+//		return imr;
 	}
 
 
