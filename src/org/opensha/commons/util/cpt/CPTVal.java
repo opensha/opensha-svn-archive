@@ -23,9 +23,13 @@ import java.awt.Color;
 import java.io.Serializable;
 
 import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.XMLUtils;
 
 
-public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable {
+public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable, XMLSaveable {
+	public static final String XML_METADATA_NAME = "CPTVal";
+	
 	/**
 	 * In general this information determines the indicator color associated
 	 * with a value with a certain range.
@@ -79,38 +83,32 @@ public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable {
 		// System.out.println("Min: " + minColor);
 		// System.out.println("Max: " + maxColor);
 	}
-
-	public Element toXML(Element cptVal)
-	{
-		Element min = cptVal.addElement("start");
-		min.addAttribute("val", new Float(start).toString());
-		min.addAttribute("r", minColor.getRed() + "");
-		min.addAttribute("g", minColor.getGreen() + "");
-		min.addAttribute("b", minColor.getBlue() + "");
-		Element max = cptVal.addElement("end");
-		max.addAttribute("val", new Float(end).toString());
-		max.addAttribute("r", maxColor.getRed() + "");
-		max.addAttribute("g", maxColor.getGreen() + "");
-		max.addAttribute("b", maxColor.getBlue() + "");
-
-		return cptVal;
+	
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element xml = root.addElement(XML_METADATA_NAME);
+		
+		Element start = xml.addElement("Start");
+		XMLUtils.colorToXML(start, minColor);
+		start.addAttribute("value", ""+start);
+		
+		Element end = xml.addElement("End");
+		XMLUtils.colorToXML(end, maxColor);
+		end.addAttribute("value", ""+end);
+		
+		return root;
 	}
-
-	public static CPTVal fromXML(Element cptVal)
-	{
-		Element valStart = cptVal.element("start");
-		float start = Float.parseFloat(valStart.attributeValue("val"));
-		int minR = Integer.parseInt(valStart.attributeValue("r"));
-		int minG = Integer.parseInt(valStart.attributeValue("g"));
-		int minB = Integer.parseInt(valStart.attributeValue("b"));
-
-		Element valEnd = cptVal.element("end");
-		float end = Float.parseFloat(valEnd.attributeValue("val"));
-		int maxR = Integer.parseInt(valEnd.attributeValue("r"));
-		int maxG = Integer.parseInt(valEnd.attributeValue("g"));
-		int maxB = Integer.parseInt(valEnd.attributeValue("b"));
-
-		return new CPTVal(start, minR, minG, minB, end, maxR, maxG, maxB);
+	
+	public static CPTVal fromXMLMetadata(Element valElem) {
+		Element startEl = valElem.element("Start");
+		Color startColor = XMLUtils.colorFromXML(startEl.element("Color"));
+		float minVal = Float.parseFloat(startEl.attributeValue("value"));
+		
+		Element endEl = valElem.element("End");
+		Color endColor = XMLUtils.colorFromXML(endEl.element("Color"));
+		float maxVal = Float.parseFloat(endEl.attributeValue("value"));
+		
+		return new CPTVal(minVal, startColor, maxVal, endColor);
 	}
 
 	/**

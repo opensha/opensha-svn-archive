@@ -33,13 +33,17 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.XMLUtils;
 
 import com.google.common.base.Preconditions;
 
@@ -50,12 +54,13 @@ import com.google.common.base.Preconditions;
  *
  */
 
-public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Cloneable {
+public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Cloneable, XMLSaveable {
 
 	/**
 	 * default serial version UID
 	 */
 	private static final long serialVersionUID = 1l;
+	public static final String XML_METADATA_NAME = "CPT";
 	private Color nanColor, belowMinColor, aboveMaxColor, gapColor;
 	public Blender blender;
 	
@@ -370,46 +375,43 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 
 		return cpt;
 	}
-
-	public static CPT fromXML(Element cptElement)
-	{
-		CPT cpt = new CPT();
-
-		Element cptValues = cptElement.element("cptValues");
-		List<Element> cptVals = cptValues.elements("cptVal");
-		for (Element cptValElem:cptVals)
-		{
-			CPTVal cptVal = CPTVal.fromXML(cptValElem);
-			cpt.add(cptVal);
-		}
-
-		Element nanColorElem = cptElement.element("nanColor");
-		int R = Integer.parseInt(nanColorElem.attributeValue("r"));
-		int G = Integer.parseInt(nanColorElem.attributeValue("g"));
-		int B = Integer.parseInt(nanColorElem.attributeValue("b"));
-		cpt.setNanColor(R, G, B);
-
-		cpt.setBelowMinColor(cpt.getMinColor());
-		cpt.setAboveMaxColor(cpt.getMaxColor());
-
-		return cpt;
+	
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element xml = root.addElement(XML_METADATA_NAME);
+		
+		for (CPTVal val : this)
+			val.toXMLMetadata(xml);
+		
+		XMLUtils.colorToXML(xml, aboveMaxColor, "AboveMaxColor");
+		XMLUtils.colorToXML(xml, belowMinColor, "BelowMinColor");
+		XMLUtils.colorToXML(xml, gapColor, "GapColor");
+		XMLUtils.colorToXML(xml, nanColor, "NanColor");
+		
+		if (name != null && !name.isEmpty())
+			xml.addAttribute("name", name);
+		
+		return root;
 	}
-
-	public Element toXML(Element cptElement)
-	{
-		Element cptValues = cptElement.addElement("cptValues");
-		for (int i = 0; i < this.size(); i++)
-		{
-			Element cptVal = cptValues.addElement("cptVal");
-			cptVal = this.get(i).toXML(cptVal);
-		}
-
-		Element nanColorElem = cptElement.addElement("nanColor");
-		nanColorElem.addAttribute("r", Integer.valueOf(Math.round(nanColor.getRed() * 255.0f)).toString());
-		nanColorElem.addAttribute("g", Integer.valueOf(Math.round(nanColor.getGreen() * 255.0f)).toString());
-		nanColorElem.addAttribute("b", Integer.valueOf(Math.round(nanColor.getBlue() * 255.0f)).toString());
-
-		return cptElement;
+	
+	public static CPT fromXMLMetadata(Element cptElem) {
+		CPT cpt;
+		Attribute nameAtt = cptElem.attribute("name");
+		if (nameAtt != null)
+			cpt = new CPT(nameAtt.getStringValue());
+		else
+			cpt = new CPT();
+		
+		Iterator<Element> it = cptElem.elementIterator(CPTVal.XML_METADATA_NAME);
+		while (it.hasNext())
+			cpt.add(CPTVal.fromXMLMetadata(it.next()));
+		
+		cpt.setAboveMaxColor(XMLUtils.colorFromXML(cptElem.element("AboveMaxColor")));
+		cpt.setBelowMinColor(XMLUtils.colorFromXML(cptElem.element("BelowMinColor")));
+		cpt.setGapColor(XMLUtils.colorFromXML(cptElem.element("GapColor")));
+		cpt.setNanColor(XMLUtils.colorFromXML(cptElem.element("NanColor")));
+		
+		return cpt;
 	}
 	
 	private String getCPTValStr(CPTVal val) {
@@ -734,4 +736,5 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 		
 		return newMin + ((oldVal - getMinValue()) / oldDelta) * newDelta;
 	}
+	
 }
