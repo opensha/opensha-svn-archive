@@ -401,7 +401,8 @@ public class BatchPlotGen {
 						if (sol == null) {
 							if (file.getName().contains("mean"))
 								sol = AverageFaultSystemSolution.fromZipFile(file);
-							sol = SimpleFaultSystemSolution.fromFile(file);
+							if (sol == null)
+								sol = SimpleFaultSystemSolution.fromFile(file);
 						}
 						invSol = new InversionFaultSystemSolution(sol);
 						Map<String, Double> misfits = invSol.getMisfits();
