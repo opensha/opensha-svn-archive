@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.NSHMP_ListERF;
@@ -64,7 +65,9 @@ public class HazardCalc implements Callable<HazardResult> {
 	private DiscretizedFunc curve;
 	
 	private HazardCurveCalculator calc;
-		
+	
+	private HazardCalc() {}
+	
 	/**
 	 * Creates a new calculation instance. Currently, NSHMP calculations use a
 	 * single shared reference to a threadsafe ERF. Note, however, that every
@@ -99,6 +102,7 @@ public class HazardCalc implements Callable<HazardResult> {
 		} else {
 			callCalc();
 		}
+
 		return new HazardResult(curve, site.getLocation());
 	}
 	
@@ -111,7 +115,6 @@ public class HazardCalc implements Callable<HazardResult> {
 		for (int i=0; i<erfList.getNumERFs(); i++) {
 			ERF erf = erfList.getERF(i);
 			f = basicCalc(calc, f, site, imr, erf);
-//			System.out.println(f);
 			f.scale(erfList.getERF_RelativeWeight(i));
 			Utils.addFunc(curve, f);
 		}
@@ -312,20 +315,20 @@ public class HazardCalc implements Callable<HazardResult> {
 		sw.start();
 		
 		TimeUnit tu = TimeUnit.MILLISECONDS;
-		
-		NSHMP2008 erf = NSHMP2008.createCalifornia();
 //		WUS_ERF erf = new WUS_ERF();
-//		EpistemicListERF erf = ERF_ID.UCERF2_TIME_INDEP.instance();
-//		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.gr.in");
-//		erf.updateForecast();
+//		EpistemicListERF erf = ERF_ID.MEAN_UCERF2.instance();
+//		EpistemicListERF erf = NSHMP2008.create();
+		EpistemicListERF erf = NSHMP2008.createSingleSource("mendo.in");
+		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
 		System.out.println("Seconds: " + sw.elapsedTime(tu));
-		Period p = Period.GM1P00;
+		Period p = Period.GM0P00;
 
 		sw.reset().start();
-		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
-		HazardCalc hc = HazardCalc.create(erf, site, p, true);
+//		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
+		Site site = new Site(new Location(40.3, -125.0));
+		HazardCalc hc = HazardCalc.create(erf, site, p, false);
 		HazardResult result = hc.call();
 		System.out.println(result.curve());
 		sw.stop();
