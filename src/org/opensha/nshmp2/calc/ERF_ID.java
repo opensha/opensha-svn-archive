@@ -1,5 +1,7 @@
 package org.opensha.nshmp2.calc;
 
+import java.io.File;
+
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp2.erf.NSHMP2008;
@@ -14,7 +16,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2_FM2pt1;
 
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
@@ -98,7 +102,14 @@ public enum ERF_ID {
 		public EpistemicListERF instance() {
 			return getUC2_TI();
 		}
-	};
+	},
+	UCERF3_REF_MEAN() {
+		public EpistemicListERF instance() {
+			return getUC3_REFmean();
+		}
+	}
+	
+	;
 
 	// scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF
 
@@ -161,6 +172,20 @@ public enum ERF_ID {
 		return erf;
 	}
 
+	private static final String UC3_PATH =
+			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+	
+	private static EpistemicListERF getUC3_REFmean() {
+		try {
+			File fssZip = new File(UC3_PATH);
+			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			return wrapInList(erf);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public static EpistemicListERF wrapInList(final AbstractERF erf) {
 		EpistemicListERF listERF = new AbstractEpistemicListERF() {
