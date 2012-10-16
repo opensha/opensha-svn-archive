@@ -155,7 +155,7 @@ public class ScriptGen {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			MPJShellScriptWriter mpj = new MPJShellScriptWriter(JAVA_BIN, 4096,
+			MPJShellScriptWriter mpj = new MPJShellScriptWriter(JAVA_BIN, 9216,
 				classpath, MPJ_HOME, false);
 
 			String cliArgs = config.getAbsolutePath();
