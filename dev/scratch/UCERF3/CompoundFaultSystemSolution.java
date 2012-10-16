@@ -187,7 +187,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return new CompoundFaultSystemSolution(new ZipFileSolutionFetcher(zip));
 	}
 	
-	private static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
+	static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
 		
 		private ZipFile zip;
 		private List<LogicTreeBranch> branches;
@@ -237,6 +237,20 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
 		}
+		
+		protected double[] getRates(LogicTreeBranch branch) throws IOException {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
+			return MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+		}
+		
+		protected double[] getMags(LogicTreeBranch branch) throws IOException {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
+			return MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
+		}
 
 		@Override
 		public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
@@ -264,8 +278,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			BatchPlotGen.writeCombinedFSS(dir, nameGrep);
 			System.exit(0);
 		}
-		File dir = new File("/tmp/sol_zip");
-		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir);
+		File dir = new File("/tmp/avg_test");
+		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, FileBasedFSSIterator.TAG_BUILD_MEAN);
 		
 		File compoundFile = new File(dir, "COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();

@@ -431,9 +431,12 @@ public class PaleoFitPlotter {
 		
 		List<DataForPaleoFaultPlots> datas = Lists.newArrayList();
 		if (sol instanceof AverageFaultSystemSolution) {
-			for (FaultSystemSolution s : (AverageFaultSystemSolution)sol)
+			int cnt = 0;
+			for (FaultSystemSolution s : (AverageFaultSystemSolution)sol) {
+				System.out.println("Building paleo data for solution: "+(++cnt));
 				datas.add(DataForPaleoFaultPlots.build(s, namedFaultsMap, namedFaultConstraintsMap,
 						allParentsMap, paleoProbModel, traceLengthCache, 1d));
+			}
 		} else {
 			datas.add(DataForPaleoFaultPlots.build(sol, namedFaultsMap, namedFaultConstraintsMap,
 					allParentsMap, paleoProbModel, traceLengthCache, 1d));

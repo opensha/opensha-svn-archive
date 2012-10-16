@@ -86,7 +86,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS, true));
 		}
 		
-		System.out.println("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");
+		debug("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");
 		
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
 		try {

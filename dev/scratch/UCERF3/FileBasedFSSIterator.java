@@ -1,24 +1,33 @@
 package scratch.UCERF3;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.math.stat.StatUtils;
 import org.opensha.commons.util.ExceptionUtils;
 
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
+import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 	
-	private Map<LogicTreeBranch, File> filesMap;
+	public static final String TAG_BUILD_MEAN = "BUILD_MEAN";
 	
-	public FileBasedFSSIterator(Map<LogicTreeBranch, File> filesMap) {
+	private Map<LogicTreeBranch, File[]> filesMap;
+	
+	public FileBasedFSSIterator(Map<LogicTreeBranch, File[]> filesMap) {
 		this.filesMap = filesMap;
 	}
 	
@@ -34,44 +43,75 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 		return new FileBasedFSSIterator(solFilesForDirectory(dir, maxDepth, nameGrep));
 	}
 	
-	private static Map<LogicTreeBranch, File> solFilesForDirectory(
+	private static Map<LogicTreeBranch, File[]> solFilesForDirectory(
 			File dir, int maxDepth, String nameGrep) {
-		Map<LogicTreeBranch, File> files = Maps.newHashMap();
+		Map<LogicTreeBranch, File[]> files = Maps.newHashMap();
+		
+		boolean assembleMean = nameGrep != null && nameGrep.equals(TAG_BUILD_MEAN);
 		
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory() && maxDepth > 0) {
-				Map<LogicTreeBranch, File> subFiles = solFilesForDirectory(file, maxDepth-1, nameGrep);
+				Map<LogicTreeBranch, File[]> subFiles = solFilesForDirectory(file, maxDepth-1, nameGrep);
 				for (LogicTreeBranch branch : subFiles.keySet()) {
-					checkNoDuplicates(branch, subFiles.get(branch), files);
-					files.put(branch, subFiles.get(branch));
+					if (assembleMean) {
+						File[] newFiles = subFiles.get(branch);
+						if (files.containsKey(branch)) {
+							File[] origFiles = files.get(branch);
+							File[] combined = new File[newFiles.length+origFiles.length];
+							System.arraycopy(origFiles, 0, combined, 0, origFiles.length);
+							System.arraycopy(newFiles, 0, combined, origFiles.length, newFiles.length);
+							files.put(branch, combined);
+						} else {
+							files.put(branch, newFiles);
+						}
+					} else {
+						checkNoDuplicates(branch, subFiles.get(branch)[0], files);
+						files.put(branch, subFiles.get(branch));
+					}
 				}
 				continue;
 			}
 			String name = file.getName();
 			if (!name.endsWith("_sol.zip"))
 				continue;
-			if (nameGrep != null && !nameGrep.isEmpty()) {
-				if (!name.contains(nameGrep))
+			if (!assembleMean) {
+				if (nameGrep != null && !nameGrep.isEmpty()) {
+					if (!name.contains(nameGrep))
+						continue;
+				} else if (name.contains("_run")) {
+					// mean solutions allowed, individual runs not allowed
 					continue;
-			} else if (name.contains("_run")) {
-				// mean solutions allowed, individual runs not allowed
-				continue;
+				}
 			}
 			LogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
-			checkNoDuplicates(branch, file, files);
-			files.put(branch, file);
+			if (assembleMean) {
+				File[] array = files.get(branch);
+				if (array == null) {
+					array = new File[1];
+					array[0] = file;
+				} else {
+					File[] newArray = new File[array.length+1];
+					System.arraycopy(array, 0, newArray, 0, array.length);
+					newArray[array.length] = file;
+				}
+				files.put(branch, array);
+			} else {
+				checkNoDuplicates(branch, file, files);
+				File[] array = { file };
+				files.put(branch, array);
+			}
 		}
 		
 		return files; 
 	}
 	
 	private static void checkNoDuplicates(
-			LogicTreeBranch branch, File file, Map<LogicTreeBranch, File> files) {
+			LogicTreeBranch branch, File file, Map<LogicTreeBranch, File[]> files) {
 		if (files.containsKey(branch)) {
 			LogicTreeBranch origBranch = null;
-			File origFile = files.get(branch);
+			File origFile = files.get(branch)[0];
 			for (LogicTreeBranch candidateBranch : files.keySet()) {
-				if (origFile == files.get(candidateBranch)) {
+				if (origFile == files.get(candidateBranch)[0]) {
 					origBranch = candidateBranch;
 					break;
 				}
@@ -93,7 +133,22 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 	@Override
 	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 		try {
-			return SimpleFaultSystemSolution.fromFile(filesMap.get(branch));
+			File[] files = filesMap.get(branch);
+			FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(files[0]);
+			if (files.length > 1) {
+				List<double[]> ratesList = Lists.newArrayList(sol.getRateForAllRups());
+				for (int i=1; i<files.length; i++) {
+					ZipFile zip = new ZipFile(files[i]);
+					ZipEntry ratesEntry = zip.getEntry("rates.bin");
+					double[] rates = MatrixIO.doubleArrayFromInputStream(
+							new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+					ratesList.add(rates);
+				}
+				sol = new AverageFaultSystemSolution(sol, ratesList);
+				System.out.println("Built mean with "+ratesList.size()+" sols");
+			}
+			
+			return sol;
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
@@ -101,13 +156,28 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 
 	@Override
 	public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-		File misfitsFile = new File(filesMap.get(branch).getAbsolutePath()+".misfits");
-		if (misfitsFile.exists()) {
-			try {
-				return BatchPlotGen.loadMisfitsFile(misfitsFile);
-			} catch (Exception e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+		List<Map<String, Double>> misfits = Lists.newArrayList();
+		for (File file : filesMap.get(branch)) {
+			File misfitsFile = new File(file.getAbsolutePath()+".misfits");
+			if (misfitsFile.exists()) {
+				try {
+					misfits.add(BatchPlotGen.loadMisfitsFile(misfitsFile));
+				} catch (Exception e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
 			}
+		}
+		if (misfits.size() > 0) {
+			if (misfits.size() == 1)
+				return misfits.get(0);
+			Map<String, Double> avgMisfits = Maps.newHashMap();
+			for (String key : misfits.get(0).keySet()) {
+				double[] vals = new double[misfits.size()];
+				for (int i=0; i<misfits.size(); i++)
+					vals[i] = misfits.get(i).get(key);
+				avgMisfits.put(key, StatUtils.mean(vals));
+			}
+			return avgMisfits;
 		}
 		return null;
 	}

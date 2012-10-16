@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
+import org.opensha.commons.util.ExceptionUtils;
+
+import scratch.UCERF3.CompoundFaultSystemSolution.ZipFileSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
@@ -31,16 +35,30 @@ public class BranchAveragedFSSBuilder {
 		for (LogicTreeBranch branch : fetch.getBranches()) {
 			if (branch.getValue(FaultModels.class) != fm)
 				continue;
+			
 			double weight = weightProvider.getWeight(branch);
 			if (weight == 0)
 				continue;
 			weightsList.add(weight);
 			if (weightsList.size() % 10 == 0) {
 				System.out.println("Loading solution "+weightsList.size());
+				System.gc();
 			}
-			FaultSystemSolution sol = fetch.getSolution(branch);
-			double[] rates = sol.getRateForAllRups();
-			double[] mags = sol.getMagForAllRups();
+			double[] rates;
+			double[] mags;
+			if (fetch instanceof ZipFileSolutionFetcher) {
+				ZipFileSolutionFetcher zipFetch = (ZipFileSolutionFetcher)fetch;
+				try {
+					rates = zipFetch.getRates(branch);
+					mags = zipFetch.getMags(branch);
+				} catch (IOException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+			} else {
+				FaultSystemSolution sol = fetch.getSolution(branch);
+				rates = sol.getRateForAllRups();
+				mags = sol.getMagForAllRups();
+			}
 			
 			if (ratesList.isEmpty()) {
 				for (int i=0; i<rates.length; i++) {
@@ -117,7 +135,10 @@ public class BranchAveragedFSSBuilder {
 			file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 			outputFile = new File("/tmp/2012_10_10-fm3-logic-tree-sample_branch_avg_sol.zip");
 		}
-		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
+		System.out.println("Loading: "+file.getAbsolutePath());
+		System.out.println("Will save to: "+outputFile.getAbsolutePath());
+//		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
+		FaultSystemSolutionFetcher fetcher = new ZipFileSolutionFetcher(new ZipFile(file));
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		FaultModels fm = FaultModels.FM3_1;
 		
