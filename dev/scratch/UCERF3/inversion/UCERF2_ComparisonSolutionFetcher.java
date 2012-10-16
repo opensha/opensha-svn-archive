@@ -83,10 +83,10 @@ public class UCERF2_ComparisonSolutionFetcher {
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		FaultModels fm = FaultModels.FM3_1;
-		String prefix = "FM3_1_UCERF2_DsrUni_CharConst_COMPARE";
+		String prefix = "FM3_1_UCERF2_DsrTap_CharConst_COMPARE";
 		File dir = new File("/tmp");
 		
-		SimpleFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.UNIFORM);
+		SimpleFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 //		BatchPlotGen.makeMapPlots(sol, dir, prefix);
 		sol.toZipFile(new File(dir, prefix+"_sol.zip"));
 		

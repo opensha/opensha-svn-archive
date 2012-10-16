@@ -1902,15 +1902,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			System.exit(0);
 		}
-		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
-		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
+		
+		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
+//		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
+//		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
+		File dir = new File("/tmp");
+		File file = new File(dir, "2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip");
 //		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
+		double wts = 0;
+		for (LogicTreeBranch branch : fetch.getBranches())
+			wts += weightProvider.getWeight(branch);
+		System.out.println("Total weight: "+wts);
+		System.exit(0);
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5);
 		
 		List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 		
-		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 //		File dir = new File("/tmp");
 //		String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
 		String prefix = dir.getName();

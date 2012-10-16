@@ -206,18 +206,33 @@ public class BatchPlotGen {
 	public static void writeCombinedFSS(File dir) throws IOException {
 		writeCombinedFSS(dir, null);
 	}
-	public static void writeCombinedFSS(File dir, String nameGrep) throws IOException {
+	public static void writeCombinedFSS(File dir, List<String> nameGreps) throws IOException {
 		String fName;
-		if (nameGrep != null && !nameGrep.isEmpty())
-			fName = dir.getName()+"_"+nameGrep+"_COMPOUND_SOL.zip";
-		else
+		if (nameGreps != null && !nameGreps.isEmpty()) {
+			boolean buildMean = false;
+			String grepsStr = "";
+			for (String nameGrep : nameGreps) {
+				if (nameGrep.equals(FileBasedFSSIterator.TAG_BUILD_MEAN))
+					buildMean = true;
+				else {
+					grepsStr += "_"+nameGrep;
+				}
+			}
+			
+			if (buildMean) {
+				grepsStr += "_MEAN";
+			}
+			fName = dir.getName()+grepsStr+"_COMPOUND_SOL.zip";
+			
+		} else {
 			fName = dir.getName()+"_COMPOUND_SOL.zip";
+		}
 		File compoundFile = new File(dir, fName);
 		
 		if (compoundFile.exists()) {
 			System.out.println("Compound solution already exists: "+compoundFile.getName());
 		} else {
-			FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, nameGrep);
+			FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, nameGreps);
 			if (it.getBranches().size() > 1)
 				CompoundFaultSystemSolution.toZipFile(compoundFile, it);
 			else

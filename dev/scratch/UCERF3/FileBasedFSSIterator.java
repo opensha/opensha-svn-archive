@@ -39,19 +39,28 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 		return forDirectory(dir, Integer.MAX_VALUE, null);
 	}
 	
-	public static FileBasedFSSIterator forDirectory(File dir, int maxDepth, String nameGrep) {
-		return new FileBasedFSSIterator(solFilesForDirectory(dir, maxDepth, nameGrep));
+	public static FileBasedFSSIterator forDirectory(File dir, int maxDepth, List<String> nameGreps) {
+		return new FileBasedFSSIterator(solFilesForDirectory(dir, maxDepth, nameGreps));
 	}
 	
 	private static Map<LogicTreeBranch, File[]> solFilesForDirectory(
-			File dir, int maxDepth, String nameGrep) {
+			File dir, int maxDepth, List<String> nameGreps) {
 		Map<LogicTreeBranch, File[]> files = Maps.newHashMap();
 		
-		boolean assembleMean = nameGrep != null && nameGrep.equals(TAG_BUILD_MEAN);
+		boolean assembleMean = nameGreps != null && nameGreps.contains(TAG_BUILD_MEAN);
 		
+		List<String> myNameGreps;
+		if (assembleMean) {
+			myNameGreps = Lists.newArrayList(nameGreps);
+			myNameGreps.remove(TAG_BUILD_MEAN);
+		} else {
+			myNameGreps = nameGreps;
+		}
+		
+		fileLoop:
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory() && maxDepth > 0) {
-				Map<LogicTreeBranch, File[]> subFiles = solFilesForDirectory(file, maxDepth-1, nameGrep);
+				Map<LogicTreeBranch, File[]> subFiles = solFilesForDirectory(file, maxDepth-1, nameGreps);
 				for (LogicTreeBranch branch : subFiles.keySet()) {
 					if (assembleMean) {
 						File[] newFiles = subFiles.get(branch);
@@ -74,14 +83,13 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			String name = file.getName();
 			if (!name.endsWith("_sol.zip"))
 				continue;
-			if (!assembleMean) {
-				if (nameGrep != null && !nameGrep.isEmpty()) {
+			if (myNameGreps != null && !myNameGreps.isEmpty()) {
+				for (String nameGrep : myNameGreps)
 					if (!name.contains(nameGrep))
-						continue;
-				} else if (name.contains("_run")) {
-					// mean solutions allowed, individual runs not allowed
-					continue;
-				}
+						continue fileLoop;
+			} else if (name.contains("_run") && !assembleMean) {
+				// mean solutions allowed, individual runs not allowed
+				continue;
 			}
 			LogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
 			if (assembleMean) {

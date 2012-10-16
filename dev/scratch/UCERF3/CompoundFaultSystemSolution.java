@@ -269,17 +269,17 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		if (args.length == 1 || args.length == 2) {
+		if (args.length >= 1) {
 			// command line run
 			File dir = new File(args[0]);
-			String nameGrep = null;
-			if (args.length == 2)
-				nameGrep = args[1];
-			BatchPlotGen.writeCombinedFSS(dir, nameGrep);
+			List<String> nameGreps = Lists.newArrayList();
+			for (int i=1; i<args.length; i++)
+				nameGreps.add(args[i]);
+			BatchPlotGen.writeCombinedFSS(dir, nameGreps);
 			System.exit(0);
 		}
 		File dir = new File("/tmp/avg_test");
-		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, FileBasedFSSIterator.TAG_BUILD_MEAN);
+		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
 		File compoundFile = new File(dir, "COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();

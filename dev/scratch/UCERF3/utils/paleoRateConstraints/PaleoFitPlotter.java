@@ -430,7 +430,8 @@ public class PaleoFitPlotter {
 			getAllParentsMap(sol.getFaultSectionDataList());
 		
 		List<DataForPaleoFaultPlots> datas = Lists.newArrayList();
-		if (sol instanceof AverageFaultSystemSolution) {
+		if (sol instanceof AverageFaultSystemSolution && 
+				((AverageFaultSystemSolution)sol).getNumSolutions() <= 10) {
 			int cnt = 0;
 			for (FaultSystemSolution s : (AverageFaultSystemSolution)sol) {
 				System.out.println("Building paleo data for solution: "+(++cnt));

@@ -194,6 +194,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			Preconditions.checkNotNull(clazz, "Couldn't find class for logic tree branch: "+key);
 			
 			String valueName = props.get(key);
+			if (valueName.equals("RATE_10p6"))
+				valueName = "RATE_10p0";
 			LogicTreeBranchNode<?> value = null;
 			for (LogicTreeBranchNode<?> testValue : clazz.getEnumConstants()) {
 				if (testValue.name().equals(valueName)) {
@@ -202,7 +204,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 				}
 			}
 			Preconditions.checkNotNull(value, "Couldn't find matching constant for logic tree value "+key+" (node="
-					+ClassUtils.getClassNameWithoutPackage(clazz)+")");
+					+ClassUtils.getClassNameWithoutPackage(clazz)+")"+" (val="+props.get(key)+")");
 			values.add(value);
 		}
 		
