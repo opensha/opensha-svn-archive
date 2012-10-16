@@ -70,18 +70,28 @@ public class NSHMP_PlotUtils {
 //		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM0P00, PE2IN50);
 //		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM0P20, PE2IN50);
 //		makeRegionalPE(MEMPHIS, "trunk", "FortranUpdate", 0.05, GM1P00, PE2IN50);
-
-//		makeRegionalPE_Ratio(CA_RELM, "trunk", "FortranUpdate", 0.2, GM0P00, PE2IN50);
-//		makeRegionalPE_Ratio("hpc", "muc2-1", CA_RELM, "FortranUpdate", 0.1, GM0P00, PE2IN50);
+		
+//		makeRegionalPE_Ratio("hpc", "nshmp_extestopt", GRID_TEST, "FortranUpdateEXT", 0.02, GM0P00, PE2IN50);
+//		makeRegionalPE_Ratio("hpc", "nshmp_extest", GRID_TEST, "FortranUpdateEXT", 0.02, GM0P00, PE2IN50);
+		
 
 //		makeRegionalPE_RatioSHA("hpc", "muc2-1", "muc2-2", CA_RELM, 0.1, GM0P00, PE2IN50);
 //		makeRegionalPE_RatioSHA("hpc", "muc2-1", "muc2-3", CA_RELM, 0.1, GM0P00, PE2IN50);
 //		makeRegionalPE_RatioSHA("hpc", "muc2-2", "muc2-3", CA_RELM, 0.1, GM0P00, PE2IN50);
 		
 //		makeRegionalPE_Ratio("hpc", "nshmp_us", NATIONAL_POLY, "FortranUpdate", 0.1, GM0P00, PE2IN50);
-//		tmpRatio("test", "stripe_test", "hpc", "ca_nshmp", STRIPE, CA_RELM, 0.1, GM0P00, PE2IN50);
+//		tmpRatio("hpc", "muc2_bg", "hpc", "nshmp_ca_bg", CA_RELM, CA_RELM, 0.1, GM0P00, PE2IN50);
+//		tmpScaleRatio("hpc", "nshmp_ca_bg", CA_RELM, 0.1, GM0P00, PE2IN50);
 		
-		makeRegionalPE_RatioSHA("hpc", "ca_nshmp", "ca_nshmp_all", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca_nobgopt", "~muc2-1", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2_pt", "nshmp_ca_pt", CA_RELM, 0.02, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2_pt_EXT", "nshmp_ca_pt_EXT", CA_RELM, 0.02, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca_pt_noEXT-WUS", "muc2_pt_noEXT-WUS", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca_fix", "muc2_fix", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca", "nshmp_ca_epi", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca", "muc2", CA_RELM, 0.1, GM0P00, PE2IN50);
+//		makeRegionalPE_RatioSHA("hpc", "muc2_fm2p1", "nshmp_ca", CA_RELM, 0.1, GM0P00, PE2IN50);
+
 //		makeRegionalPE_RatioSHA("hpc", "ca_nshmp_ca_noepi", "ca_nshmp_ca", CA_RELM, 0.1, GM0P00, PE2IN50);
 //		makeRegionalPE_RatioSHA("hpc", "mean_uc2_noepi", "ca_nshmp_ca_noepi", CA_RELM, 0.1, GM0P00, PE2IN50);
 //		makeRegionalPE_RatioSHA("hpc", "muc2-1", "ca_nshmp", CA_RELM, 0.05, GM0P00, PE2IN50);
@@ -111,10 +121,11 @@ public class NSHMP_PlotUtils {
 		
 		//makeRegionalMap_NSHMP(MEMPHIS_BIG, "FortranUpdate", GM0P00, PE2IN50);
 		//makeRegionalMap_NSHMP(LOS_ANGELES_BIG, "FortranUpdate", GM0P00, PE2IN50);
-//		makeRegionalMap_NSHMP(CA_RELM, "FortranUpdate", GM0P00, PE2IN50);
+//		makeRegionalMap_NSHMP(CA_RELM, "FortranUpdateGridTest", GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("test", "stripe_test", STRIPE, GM0P00, PE2IN50);
 		
-//		makeRegionalMap_SHA("hpc", "muc2-1", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "muc2_bg", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "nshmp_ca_bg", CA_RELM, GM0P00, PE2IN50);
 //		tmpMap("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp_ca", CA_RELM, GM0P00, PE2IN50);
@@ -128,6 +139,45 @@ public class NSHMP_PlotUtils {
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM1P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P20, PE2IN50);
+		
+		// =====================
+		
+//		String title = "OpenSHA/Fortan 2%50 1Hz w/epi";
+//		makeRegionalPE_Ratio("hpc", "nshmp_us_epi", NATIONAL_POLY, "FortranUpdate", 0.1, GM1P00, PE2IN50, title);
+		
+//		File out = new File("tmp/EXTmap.ch.2p50.no-opt.txt");
+//		NSHMP_GeoDataUtils.writePE("hpc", "nshmp_extest", GRID_TEST, GM0P00, PE2IN50,out);
+		
+		String title = "All Src SHA/Fort 2%50 1Hz w/ epi";
+		makeRegionalPE_Ratio("hpc", "nshmp_ca_allsrc_epi", CA_RELM, "FortranUpdate", 0.1, GM1P00, PE2IN50, title);
+
+//		String title = "CA_SHA/All_SHA 2%50 PGA w/ epi";
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca_epi", "nshmp_ca_allsrc_epi", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+//		String title = "All Src SHA/SHA 2%50 PGA w/o epi";
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_ca", "nshmp_ca_epi", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+//		String title = "CA Src mUC2/SHA-NSHM 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "muc2-originalbg", "nshmp_ca", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+//		String title = "mUC2/SHA-NSHM 2%50 PGA w/o opt";
+//		makeRegionalPE_RatioSHA("hpc", "muc2", "nshmp_ca_nobgopt", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+		
+//		String title = "mUC2fm2p1/mUC2 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "muc2_fm2p1", "muc2", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+//		String title = "mod-mUC2fm2p1/mUC2fm2p1 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "mmuc2_fm2p1", "muc2_fm2p1", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+		
+//		String title = "fss_uc2+Munc/mod-mUC2 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "fss_uc2_fm2p1+Munc", "mmuc2_fm2p1", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+//		title = "fss_uc2-Munc/mod-mUC2 2%50 PG";
+//		makeRegionalPE_RatioSHA("hpc", "fss_uc2_fm2p1-Munc", "mmuc2_fm2p1", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+
+		//		String title = "EXmap.ch SHA no-opt/opt 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "nshmp_extest", "nshmp_extestopt", GRID_TEST, 0.02, GM0P00, PE2IN50, title);
+
 	}
 	
 
@@ -170,31 +220,31 @@ public class NSHMP_PlotUtils {
 		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio(over, under,
 			p, pe, gr);
 		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name);
+		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name, name);
 	}
 	
 	/*
 	 * Make a regional over national plot
 	 */
 	private static void makeRegionalPE_Ratio(String shaDir, String dir, TestGrid over, String under,
-			double maxScale, Period p, ProbOfExceed pe) {
+			double maxScale, Period p, ProbOfExceed pe, String title) {
 		String name = dir + " over " + under + " " + pe + " " + p;
 		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHAoNSHMP(shaDir, dir, over, under,
 			p, pe);
-		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name);
+//		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, over.bounds(), 1-maxScale, 1+maxScale, name, title);
 	}
 
 	/*
 	 * Make a sha over sha plot
 	 */
 	private static void makeRegionalPE_RatioSHA(String shaDir, String dir1, String dir2, TestGrid grid,
-			double maxScale, Period p, ProbOfExceed pe) {
+			double maxScale, Period p, ProbOfExceed pe, String title) {
 		String name =  dir1 + " over " + dir2 + " " + pe + " " + p;
 		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHA(shaDir, dir1, dir2, grid,
 			p, pe);
-		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, grid.bounds(), -maxScale, maxScale, name);
+//		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, grid.bounds(), 1-maxScale, 1+maxScale, name, title);
 	}
 
 	private static void tmpRatio(String shaDir1, String dir1, String shaDir2, String dir2, TestGrid grid1, TestGrid grid2,
@@ -202,9 +252,17 @@ public class NSHMP_PlotUtils {
 		String name =  dir1 + " over " + dir2 + " " + pe + " " + p;
 		GeoDataSet xyz = NSHMP_GeoDataUtils.tmpPEratio(shaDir1, dir1, shaDir2, dir2, grid1, grid2, p, pe);
 		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, grid1.bounds(), -maxScale, maxScale, name);
+		makeRatioPlot(xyz, grid1.bounds(), -maxScale, maxScale, name, name);
 	}
 	
+	private static void tmpScaleRatio(String shaDir1, String dir1, TestGrid grid1,
+			double maxScale, Period p, ProbOfExceed pe) {
+		String name =  "scaled " + dir1 + " over " + dir1 + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.tmpScalePEratio(shaDir1, dir1, grid1, p, pe);
+		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(xyz, grid1.bounds(), -maxScale, maxScale, name, name);
+	}
+
 	/*
 	 * Make national scale RTGM comparison map
 	 */
@@ -214,7 +272,7 @@ public class NSHMP_PlotUtils {
 		GriddedRegion gr = NSHMP_UtilsDev.getNSHMP_Region(0.1);
 		GeoDataSet xyz = NSHMP_GeoDataUtils.getRTGM_Ratio(over, under, f, gr);
 		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name);
+		makeRatioPlot(xyz, NATIONAL.bounds(), -maxScale, maxScale, name, name);
 	}
 	
 	/*
@@ -226,12 +284,12 @@ public class NSHMP_PlotUtils {
 		String name = "RTGM " + over + " SHA" + shaDir + " over " + under + " " + f;
 		GeoDataSet xyz = NSHMP_GeoDataUtils.getRTGM_Ratio(over, shaDir, under, f);
 		NSHMP_GeoDataUtils.minusOne(xyz);
-		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name);
+		makeRatioPlot(xyz, over.bounds(), -maxScale, maxScale, name, name);
 	}
 	
 
 	private static void makeRatioPlot(GeoDataSet xyz, double[] bounds,
-			double scaleMin, double scaleMax, String name) {
+			double scaleMin, double scaleMax, String name, String title) {
 		GMT_MapGenerator map = create(bounds);
 		map.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
 		map.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
@@ -240,7 +298,7 @@ public class NSHMP_PlotUtils {
 			cptParam.setValue(GMT_CPT_Files.GMT_POLAR.getFileName());
 		map.setParameter(LOG_PLOT_NAME, false);
 		try {
-			makeMap(xyz, map, name, "No metadata", DL_DIR + name + File.separator);
+			makeMap(xyz, map, title, "No metadata", DL_DIR + name + File.separator);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -300,6 +358,7 @@ public class NSHMP_PlotUtils {
 //		}
 //	
 //	}
+	
 
 		
 	/**

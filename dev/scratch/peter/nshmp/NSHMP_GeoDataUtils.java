@@ -7,12 +7,18 @@ import static org.opensha.nshmp2.util.Period.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Formatter;
 
+import org.apache.commons.math.util.MathUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
@@ -190,6 +196,17 @@ public class NSHMP_GeoDataUtils {
 		return xyz3;
 	}
 
+	public static GeoDataSet tmpScalePEratio(String shaDir1, String dir1, TestGrid tg1, Period p, ProbOfExceed pe) {
+		File f1 = new File(SHA_SRC_DIR + shaDir1 + SEP + dir1 + SEP + tg1 + SEP + p + SEP + CURVE_CSV);
+		CurveContainer cc = null;
+		cc = CurveContainer.create(f1, tg1);
+		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(), pe);
+		GeoDataSet xyz2 = xyz1.copy();
+		xyz2.add(0.005);
+		xyz2.scale(1.02);
+		GeoDataSet xyz3 = GeoDataSetMath.divide(xyz1, xyz2);
+		return xyz3;
+	}
 
 /**
 	 * Returns a data set that is the ratio of two probability of
@@ -299,6 +316,44 @@ public class NSHMP_GeoDataUtils {
 			xyz.set(i, xyz.get(i) * value);
 		}
 		return xyz;
+	}
+	
+	public static void writePE(String dir, String group,TestGrid tg, Period p, ProbOfExceed pe, File out) {
+		GeoDataSet xyz = getPE_SHA(dir, group, tg, p, pe);
+		LocationList locs = xyz.getLocationList().clone();
+		Collections.sort(locs, new LocationComparator());
+		try {
+			Formatter formatter = new Formatter(out);
+			formatter.format("%s", PE_HEADER);
+		
+			for (Location loc : locs) {
+				double val = xyz.get(loc);
+				formatter.format(PE_FORMAT, loc.getLongitude(), loc.getLatitude(), val);
+			}
+			formatter.flush();
+			formatter.close();
+		} catch (FileNotFoundException fnfe) {
+			fnfe.printStackTrace();
+		}
+	}
+
+	private static final String PE_FORMAT = "%4.2f %4.2f %.8e\n";
+	private static final String PE_HEADER = "# lon lat 2p50\n";
+	private static final double TOLERANCE = 0.00000001;
+	
+	// sorts locations ascending by lon then lat
+	private static class LocationComparator implements Comparator<Location> {
+
+		@Override
+		public int compare(Location loc1, Location loc2) {
+			double lon1 = loc1.getLonRad();
+			double lat1 = loc1.getLonRad();
+			double lon2 = loc2.getLonRad();
+			double lat2 = loc2.getLonRad();
+			int dLon = MathUtils.equals(lon1, lon2, TOLERANCE) ? 0 : (int) Math.signum(lon1 - lon2);
+			int dLat = MathUtils.equals(lat1, lat2, TOLERANCE) ? 0 : (int) Math.signum(lat1 - lat2);
+			return (dLon == 0) ? dLat : dLon;
+		}
 	}
 
 }
