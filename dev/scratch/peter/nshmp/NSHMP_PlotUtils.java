@@ -120,7 +120,7 @@ public class NSHMP_PlotUtils {
 //		makeRegionalMap_SHA(LOS_ANGELES_BIG, "trunk", GM0P00, PE2IN50);
 		
 		//makeRegionalMap_NSHMP(MEMPHIS_BIG, "FortranUpdate", GM0P00, PE2IN50);
-		//makeRegionalMap_NSHMP(LOS_ANGELES_BIG, "FortranUpdate", GM0P00, PE2IN50);
+//		makeRegionalMap_NSHMP(CA_RELM, "FortranUpdate", GM0P00, PE2IN50);
 //		makeRegionalMap_NSHMP(CA_RELM, "FortranUpdateGridTest", GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("test", "stripe_test", STRIPE, GM0P00, PE2IN50);
 		
@@ -129,7 +129,7 @@ public class NSHMP_PlotUtils {
 //		tmpMap("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp_ca", CA_RELM, GM0P00, PE2IN50);
-//		makeRegionalMap_SHA("hpc", "ca_nshmp_ca_noepi", CA_RELM, GM0P00, PE2IN50);
+		makeRegionalMap_SHA("hpc", "nshmp_ca_epi", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "mean_uc2_noepi_cab", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "muc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "mmuc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
@@ -140,6 +140,10 @@ public class NSHMP_PlotUtils {
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM1P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P20, PE2IN50);
 		
+//		makeRegionalMap_SHA("hpc", "uc3_ref_mean", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "uc3_ref_mean", CA_RELM, GM0P20, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "uc3_ref_mean", CA_RELM, GM1P00, PE2IN50);
+		
 		// =====================
 		
 //		String title = "OpenSHA/Fortan 2%50 1Hz w/epi";
@@ -148,8 +152,8 @@ public class NSHMP_PlotUtils {
 //		File out = new File("tmp/EXTmap.ch.2p50.no-opt.txt");
 //		NSHMP_GeoDataUtils.writePE("hpc", "nshmp_extest", GRID_TEST, GM0P00, PE2IN50,out);
 		
-		String title = "All Src SHA/Fort 2%50 1Hz w/ epi";
-		makeRegionalPE_Ratio("hpc", "nshmp_ca_allsrc_epi", CA_RELM, "FortranUpdate", 0.1, GM1P00, PE2IN50, title);
+//		String title = "All Src SHA/Fort 2%50 PGA w/ epi";
+//		makeRegionalPE_Ratio("hpc", "nshmp_ca_allsrc_epi", CA_RELM, "FortranUpdate", 0.1, GM0P00, PE2IN50, title);
 
 //		String title = "CA_SHA/All_SHA 2%50 PGA w/ epi";
 //		makeRegionalPE_RatioSHA("hpc", "nshmp_ca_epi", "nshmp_ca_allsrc_epi", CA_RELM, 0.1, GM0P00, PE2IN50, title);
@@ -177,6 +181,9 @@ public class NSHMP_PlotUtils {
 
 		//		String title = "EXmap.ch SHA no-opt/opt 2%50 PGA";
 //		makeRegionalPE_RatioSHA("hpc", "nshmp_extest", "nshmp_extestopt", GRID_TEST, 0.02, GM0P00, PE2IN50, title);
+
+//		String title = "UC3/UC2 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "uc3_ref_mean", "nshmp_ca_nobgopt", CA_RELM, 0.2, GM0P00, PE2IN50, title);
 
 	}
 	
