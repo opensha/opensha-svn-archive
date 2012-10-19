@@ -391,7 +391,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<FaultModels, List<PaleoRateConstraint>> paleoConstraintMaps = Maps.newHashMap();
 		private Map<FaultModels, List<AveSlipConstraint>> slipConstraintMaps = Maps.newHashMap();
 		private Map<FaultModels, Map<Integer, List<FaultSectionPrefData>>> allParentsMaps = Maps.newHashMap();
-		private Map<FaultModels, Map<Integer, Double>> traceLengthCaches = Maps.newHashMap();
 		private Map<FaultModels, List<FaultSectionPrefData>> fsdsMap = Maps.newHashMap();
 		
 		// results
@@ -430,8 +429,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 							slipConstraintMaps.put(fm, AveSlipConstraint.load(sol.getFaultSectionDataList()));
 							allParentsMaps.put(fm, PaleoFitPlotter.getAllParentsMap(sol.getFaultSectionDataList()));
 							namedFaultsMaps.put(fm, fm.getNamedFaultsMapAlt());
-							Map<Integer, Double> traceLengthCache = Maps.newConcurrentMap();
-							traceLengthCaches.put(fm, traceLengthCache);
 							fsdsMap.put(fm, sol.getFaultSectionDataList());
 							paleoConstraintMaps.put(fm, paleoRateConstraints);
 						}
@@ -456,14 +453,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap = allParentsMaps.get(fm);
 				
-				Map<Integer, Double> traceLengthCache = traceLengthCaches.get(fm);
-				
 				double weight = weightProvider.getWeight(branch);
 				
 				System.out.println("Building...");
 				DataForPaleoFaultPlots data = DataForPaleoFaultPlots.build(
 						sol, namedFaultsMap, namedFaultConstraintsMap, allParentsMap,
-						paleoProbModel, traceLengthCache, weight);
+						paleoProbModel, weight);
 				
 				System.out.println("Archiving results...");
 				
@@ -561,7 +556,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 						paleoConstraintMaps.put(fm, o.paleoConstraintMaps.get(fm));
 						slipConstraintMaps.put(fm, o.slipConstraintMaps.get(fm));
 						allParentsMaps.put(fm, o.allParentsMaps.get(fm));
-						traceLengthCaches.put(fm, o.traceLengthCaches.get(fm));
 						fsdsMap.put(fm, o.fsdsMap.get(fm));
 					}
 					// now add data

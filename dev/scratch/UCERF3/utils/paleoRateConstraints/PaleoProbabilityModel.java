@@ -18,7 +18,7 @@ import scratch.UCERF3.inversion.InversionInputGenerator;
  */
 public abstract class PaleoProbabilityModel {
 	
-	private Map<Integer, Double> traceLengthCache = Maps.newHashMap();
+	private Map<Integer, Double> traceLengthCache = Maps.newConcurrentMap();
 	
 	public abstract double getProbPaleoVisible(FaultSystemRupSet rupSet, int rupIndex, int sectIndex);
 	

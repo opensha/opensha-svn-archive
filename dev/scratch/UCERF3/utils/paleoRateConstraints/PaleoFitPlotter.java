@@ -144,8 +144,6 @@ public class PaleoFitPlotter {
 			
 			double runningMisfitTotal = 0d;
 			
-			Map<Integer, Double> traceLengthCache = Maps.newHashMap();
-			
 			Color origColor = Color.BLACK;
 			
 			for (int p=0; p<paleoRateConstraint.size(); p++) {
@@ -201,8 +199,8 @@ public class PaleoFitPlotter {
 					origRtFunc.setName("(x="+x+") Solution original rates for: "+name);
 					for (int j=0; j<numSects; j++) {
 						int mySectID = minSect + j;
-						paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache));
-						origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null, traceLengthCache));
+						paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel));
+						origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null));
 						aveSlipRtFunc.set(j, getAveSlipProbRateForSect(sol, mySectID));
 					}
 					funcs.add(origRtFunc);
@@ -228,7 +226,7 @@ public class PaleoFitPlotter {
 					}
 				} else {
 					DiscretizedFunc func = funcParentsMap.get(parentID);
-					double rate = getPaleoRateForSect(sol, sectID, paleoProbModel, traceLengthCache);
+					double rate = getPaleoRateForSect(sol, sectID, paleoProbModel);
 	//					double misfit = Math.pow(constr.getMeanRate() - rate, 2) / Math.pow(constr.getStdDevOfMeanRate(), 2);
 					double misfit = Math.pow((constr.getMeanRate() - rate) / constr.getStdDevOfMeanRate(), 2);
 					String info = func.getInfo();
@@ -281,7 +279,7 @@ public class PaleoFitPlotter {
 	}
 	
 	static double getPaleoRateForSect(FaultSystemSolution sol, int sectIndex,
-			PaleoProbabilityModel paleoProbModel, Map<Integer, Double> traceLengthCache) {
+			PaleoProbabilityModel paleoProbModel) {
 		double rate = 0;
 		for (int rupID : sol.getRupturesForSection(sectIndex)) {
 			double rupRate = sol.getRateForRup(rupID);
@@ -342,7 +340,6 @@ public class PaleoFitPlotter {
 				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap,
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap,
 				PaleoProbabilityModel paleoProbModel,
-				Map<Integer, Double> traceLengthCache,
 				double weight) {
 			
 			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight);
@@ -364,8 +361,8 @@ public class PaleoFitPlotter {
 					for (int s=0; s<numSects; s++) {
 						FaultSectionPrefData sect = sects.get(s);
 						int mySectID = sect.getSectionId();
-						paleoRates[s] = getPaleoRateForSect(sol, mySectID, paleoProbModel, traceLengthCache);
-						origRates[s] = getPaleoRateForSect(sol, mySectID, null, traceLengthCache);
+						paleoRates[s] = getPaleoRateForSect(sol, mySectID, paleoProbModel);
+						origRates[s] = getPaleoRateForSect(sol, mySectID, null);
 						aveSlipRates[s] = getAveSlipProbRateForSect(sol, mySectID);
 						// convert slips to mm/yr
 						origSlips[s] = sect.getOrigAveSlipRate();
@@ -424,8 +421,6 @@ public class PaleoFitPlotter {
 		Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap =
 			 getNamedFaultConstraintsMap(paleoRateConstraint, sol.getFaultSectionDataList(), namedFaultsMap);
 		
-		Map<Integer, Double> traceLengthCache = Maps.newHashMap();
-		
 		Map<Integer, List<FaultSectionPrefData>> allParentsMap =
 			getAllParentsMap(sol.getFaultSectionDataList());
 		
@@ -436,11 +431,11 @@ public class PaleoFitPlotter {
 			for (FaultSystemSolution s : (AverageFaultSystemSolution)sol) {
 				System.out.println("Building paleo data for solution: "+(++cnt));
 				datas.add(DataForPaleoFaultPlots.build(s, namedFaultsMap, namedFaultConstraintsMap,
-						allParentsMap, paleoProbModel, traceLengthCache, 1d));
+						allParentsMap, paleoProbModel, 1d));
 			}
 		} else {
 			datas.add(DataForPaleoFaultPlots.build(sol, namedFaultsMap, namedFaultConstraintsMap,
-					allParentsMap, paleoProbModel, traceLengthCache, 1d));
+					allParentsMap, paleoProbModel, 1d));
 		}
 		return getFaultSpecificPaleoPlotSpecs(namedFaultsMap, namedFaultConstraintsMap, datas, allParentsMap);
 	}
