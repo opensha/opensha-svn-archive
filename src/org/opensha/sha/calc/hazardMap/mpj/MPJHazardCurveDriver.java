@@ -59,7 +59,7 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		
 		boolean multERFs = cmd.hasOption("mult-erfs");
 		
-		debug(rank, "loading inputs for "+getNumThreads()+" threads");
+		debug(rank, null, "loading inputs for "+getNumThreads()+" threads");
 		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
 		sites = inputs[0].getSites();
 		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[getNumThreads()];

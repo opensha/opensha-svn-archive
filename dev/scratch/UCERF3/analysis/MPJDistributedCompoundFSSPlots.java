@@ -86,7 +86,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			LogicTreeBranch branch = branches.get(index);
 			List<CompoundFSSPlots> myPlots = Lists.newArrayList(plots);
 			Collections.shuffle(myPlots);
-			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS, true));
+			tasks.add(new PlotSolComputeTask(myPlots, fetcher, branch, invFSS, true));
 		}
 		
 		debug("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");

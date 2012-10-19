@@ -47,7 +47,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 
 		Preconditions.checkArgument(getNumThreads() >= 1, 
 				"threads must be >= 1. you supplied: "+getNumThreads());
-		debug(rank, "setup for "+getNumThreads()+" threads");
+		debug(rank, null, "setup for "+getNumThreads()+" threads");
 		
 		URL props = new File(args[0]).toURI().toURL();
 		// throws FNF exceptions

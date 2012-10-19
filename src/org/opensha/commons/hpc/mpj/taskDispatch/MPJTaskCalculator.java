@@ -2,6 +2,7 @@ package org.opensha.commons.hpc.mpj.taskDispatch;
 
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -40,11 +41,17 @@ public abstract class MPJTaskCalculator {
 	
 	private static DeadlockDetectionThread deadlock;
 	
+	private String hostname;
+	
 	public MPJTaskCalculator(CommandLine cmd) {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		int minDispatch = MIN_DISPATCH_DEFAULT;
 		int maxDispatch = MAX_DISPATCH_DEFAULT;
 		boolean rootDispatchOnly = false;
+		
+		try {
+			hostname = java.net.InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {}
 		
 		if (cmd.hasOption("threads"))
 			numThreads = Integer.parseInt(cmd.getOptionValue("threads"));
@@ -84,14 +91,16 @@ public abstract class MPJTaskCalculator {
 	}
 	
 	protected void debug(String message) {
-		debug(rank, message);
+		debug(rank, hostname, message);
 	}
 	
-	protected static void debug(int rank, String message) {
+	protected static void debug(int rank, String hostname, String message) {
 		if (!D)
 			return;
-		
-		System.out.println("["+df.format(new Date())+" Process "+rank+"]: "+message);
+		if (hostname == null)
+			System.out.println("["+df.format(new Date())+" Process "+rank+"]: "+message);
+		else
+			System.out.println("["+df.format(new Date())+" ("+hostname+") Process "+rank+"]: "+message);
 	}
 	
 	protected abstract int getNumTasks();
@@ -102,10 +111,10 @@ public abstract class MPJTaskCalculator {
 			dispatcher = new DispatcherThread(size, getNumTasks(),
 					minDispatch, maxDispatch);
 			if (rootDispatchOnly) {
-				debug(0, "starting dispatcher serially");
+				debug("starting dispatcher serially");
 				dispatcher.run();
 			} else {
-				debug(0, "starting dispatcher threaded");
+				debug("starting dispatcher threaded");
 				dispatcher.start();
 			}
 		}
