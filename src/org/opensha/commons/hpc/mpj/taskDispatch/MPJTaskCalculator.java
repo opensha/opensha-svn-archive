@@ -202,7 +202,7 @@ public abstract class MPJTaskCalculator {
 		rootDispatchOnlyOption.setRequired(false);
 		ops.addOption(rootDispatchOnlyOption);
 		
-		Option deadlockOption = new Option("dead", "deadlock", true,
+		Option deadlockOption = new Option("dead", "deadlock", false,
 				"If supplied, dedlock detection will be enabled (no recovery, however).");
 		deadlockOption.setRequired(false);
 		ops.addOption(deadlockOption);
