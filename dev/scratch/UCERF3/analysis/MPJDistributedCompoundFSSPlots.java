@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import mpi.MPI;
@@ -83,6 +84,8 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		for (int index : batch) {
 			LogicTreeBranch branch = branches.get(index);
+			List<CompoundFSSPlots> myPlots = Lists.newArrayList(plots);
+			Collections.shuffle(myPlots);
 			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS, true));
 		}
 		

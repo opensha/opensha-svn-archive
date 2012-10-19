@@ -68,6 +68,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
+import scratch.kevin.DeadlockDetectionThread;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -1907,15 +1908,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
 //		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
 		File dir = new File("/tmp");
-		File file = new File(dir, "2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip");
+//		File file = new File(dir, "2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip");
+		File file = new File(dir, "zeng_convergence_compound.zip");
 //		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
 		double wts = 0;
 		for (LogicTreeBranch branch : fetch.getBranches())
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: "+wts);
-		System.exit(0);
+//		System.exit(0);
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5);
+		
+		new DeadlockDetectionThread(3000).start();
 		
 		List<Region> regions = RegionalMFDPlot.getDefaultRegions();
 		
@@ -1935,15 +1939,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		writeParentSectionMFDPlots(fetch, weightProvider, parentSectMFDsDir);
 //		writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
-//		plots.add(new RegionalMFDPlot(weightProvider, regions));
-//		plots.add(new PaleoFaultPlot(weightProvider));
-//		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
-//		plots.add(new ParentSectMFDsPlot(weightProvider));
-//		plots.add(new RupJumpPlot(weightProvider));
-//		plots.add(new SlipMisfitPlot(weightProvider));
+		plots.add(new RegionalMFDPlot(weightProvider, regions));
+		plots.add(new PaleoFaultPlot(weightProvider));
+		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
+		plots.add(new ParentSectMFDsPlot(weightProvider));
+		plots.add(new RupJumpPlot(weightProvider));
+		plots.add(new SlipMisfitPlot(weightProvider));
 		plots.add(new ParticipationMapPlot(weightProvider));
 		
-		batchPlot(plots, fetch, 3);
+		batchPlot(plots, fetch, 4);
 		batchWritePlots(plots, dir, prefix, true);
 //		FaultBasedMapPlot.makeMapPlots(dir, prefix,
 //				FaultBasedMapPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));

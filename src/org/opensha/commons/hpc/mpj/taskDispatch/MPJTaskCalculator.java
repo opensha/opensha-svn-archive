@@ -15,6 +15,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.opensha.commons.util.ClassUtils;
 
+import scratch.kevin.DeadlockDetectionThread;
+
 public abstract class MPJTaskCalculator {
 	
 	protected static final int TAG_READY_FOR_BATCH = 1;
@@ -36,6 +38,8 @@ public abstract class MPJTaskCalculator {
 	
 	private DispatcherThread dispatcher;
 	
+	private static DeadlockDetectionThread deadlock;
+	
 	public MPJTaskCalculator(CommandLine cmd) {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		int minDispatch = MIN_DISPATCH_DEFAULT;
@@ -53,6 +57,11 @@ public abstract class MPJTaskCalculator {
 		
 		if (cmd.hasOption("root-dispatch-only"))
 			rootDispatchOnly = true;
+		
+		if (cmd.hasOption("deadlock")) {
+			deadlock = new DeadlockDetectionThread(5000);
+			deadlock.start();
+		}
 		
 		init(numThreads, minDispatch, maxDispatch, rootDispatchOnly);
 	}
@@ -193,6 +202,11 @@ public abstract class MPJTaskCalculator {
 		rootDispatchOnlyOption.setRequired(false);
 		ops.addOption(rootDispatchOnlyOption);
 		
+		Option deadlockOption = new Option("dead", "deadlock", true,
+				"If supplied, dedlock detection will be enabled (no recovery, however).");
+		deadlockOption.setRequired(false);
+		ops.addOption(deadlockOption);
+		
 		return ops;
 	}
 	
@@ -225,6 +239,8 @@ public abstract class MPJTaskCalculator {
 	}
 	
 	protected static void finalizeMPJ() {
+		if (deadlock != null)
+			deadlock.kill();
 		MPI.Finalize();
 		System.exit(0);
 	}
@@ -240,6 +256,8 @@ public abstract class MPJTaskCalculator {
 	protected static void abortAndExit(Throwable t, int ret) {
 		if (t != null)
 			t.printStackTrace();
+		if (deadlock != null)
+			deadlock.kill();
 		MPI.COMM_WORLD.Abort(ret);
 		System.exit(ret);
 	}
