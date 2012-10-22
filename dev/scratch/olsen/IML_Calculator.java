@@ -20,7 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenRelRef;
@@ -31,7 +36,14 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.util.Period;
+
+import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -170,6 +182,10 @@ public class IML_Calculator {
 		ERF erf = new MeanUCERF2();
 		erf.setParameter(PROB_MODEL_PARAM_NAME, PROB_MODEL_POISSON);
 		
+		// UCERF3 flavor
+//		ERF erf = getUC3_ERF(null);
+
+		
 //		default is 1.0 km
 		erf.setParameter(RUP_OFFSET_PARAM_NAME, 1.0);
 //		default is 30 years
@@ -178,6 +194,8 @@ public class IML_Calculator {
 		// alternative erf 
 //		UCERF2_TimeDependentEpistemicList erfList = new UCERF2_TimeDependentEpistemicList();
 //		ERF erf = erfList.getERF(72);
+		
+		
 		
 		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
 		erf.updateForecast();
@@ -278,6 +296,38 @@ public class IML_Calculator {
 		}
 	}
 	
+	private static final String UC3_TREE_PATH =
+			"??/UC3/src/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+
+	private static final String UC3_REF_BRANCH =
+			"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU3";
+	
+	private static UCERF3_FaultSysSol_ERF getUC3_ERF(String branchName) {
+		try {
+			// null branch name defaults to 'reference branch'
+			if (branchName == null) branchName = UC3_REF_BRANCH;
+			// load the compound solution (720 branches)
+			File cfssFile = new File(UC3_TREE_PATH);
+			CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(cfssFile);
+			// configure logic tree branch request and fetch solution
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchName);
+			FaultSystemSolution fss = cfss.getSolution(branch);
+			InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
+				fss);
+			// create and configure ERF
+			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
+			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
+			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
+				IncludeBackgroundOption.INCLUDE);
+			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
+				.setValue(true);
+			return erf;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	
 	/*
 	 * Run me!
@@ -286,6 +336,6 @@ public class IML_Calculator {
 		IML_Calculator imc = new IML_Calculator();
 		
 	}
-	
+
 
 }
