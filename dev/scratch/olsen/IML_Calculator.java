@@ -36,6 +36,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.util.Period;
 
@@ -179,25 +180,29 @@ public class IML_Calculator {
 	 * forecast duration to 500 years will increase the event set to 200+.
 	 */
 	private ERF newERF() {
-		ERF erf = new MeanUCERF2();
-		erf.setParameter(PROB_MODEL_PARAM_NAME, PROB_MODEL_POISSON);
-		
-		// UCERF3 flavor
-//		ERF erf = getUC3_ERF(null);
-		// NOTE check timespan and background sources
+//		ERF erf = new MeanUCERF2();
+//		erf.setParameter(PROB_MODEL_PARAM_NAME, PROB_MODEL_POISSON);
 
-		
-//		default is 1.0 km
-		erf.setParameter(RUP_OFFSET_PARAM_NAME, 1.0);
-//		default is 30 years
-		erf.getTimeSpan().setDuration(30);
-		
 		// alternative erf 
 //		UCERF2_TimeDependentEpistemicList erfList = new UCERF2_TimeDependentEpistemicList();
 //		ERF erf = erfList.getERF(72);
 		
-		
-		
+		// needed for UCERF2 
+//		default is 1.0 km
+//		erf.setParameter(RUP_OFFSET_PARAM_NAME, 1.0);
+
+		// UCERF3 flavor
+		// reference branch
+		ERF erf = getUC3_ERF(null);
+		// branch specified
+		// ERF erf = getUC3_ERF("FM3_1_ABM_EllB_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2_sect_slips");
+		// list of reference branch variations (20 in all)
+		// List<String> refBranchVars = ERF_ID.refBranchList;
+		//ERF erf = getUC3_ERF(refBranchVars.get(0));
+
+//		default is 30 years
+		erf.getTimeSpan().setDuration(30);
+
 		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
 		erf.updateForecast();
 		return erf;
@@ -298,7 +303,7 @@ public class IML_Calculator {
 	}
 	
 	private static final String UC3_TREE_PATH =
-			"??/UC3/src/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+		"/Users/aolsen/USGS/Eclipse/OpenSHA/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
 
 	private static final String UC3_REF_BRANCH =
 			"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU3";
@@ -317,9 +322,9 @@ public class IML_Calculator {
 				fss);
 			// create and configure ERF
 			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
-			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
+			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-				IncludeBackgroundOption.INCLUDE);
+				IncludeBackgroundOption.EXCLUDE);
 			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
 				.setValue(true);
 			return erf;
