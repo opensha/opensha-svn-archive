@@ -1,6 +1,6 @@
 package scratch.olsen;
 
-import static org.opensha.nshmp2.util.Period.*;
+import static org.opensha.sha.nshmp.Period.*;
 import static org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2.*;
 import static org.opensha.sha.imr.param.OtherParams.StdDevTypeParam.*;
 import static org.opensha.sha.imr.AttenRelRef.*;
@@ -15,10 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
@@ -31,6 +31,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.sha.nshmp.Period;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -42,6 +43,19 @@ import com.google.common.io.Files;
  * Utility class to calculate IMLs at specific Sites for specific scenario
  * ruptures. This can be made multithreaded if performance becomes an issue.
  */
+
+/**
+ * Parameters for reducing computations:
+ * - Number of sites: 100 of 7k
+ */
+
+/**
+ * Things I can change:
+ * - Rupture forecast: {mean UCERF2, branch b of UCERF2 logic tree}
+ * - Bkgnd seismicity: {include, exclude}
+ * - GMPE:             {BA, AS, CY}
+ * - Vs30:             {760 everywhere, get Wills Vs30}
+ */
 public class IML_Calculator {
 	
 	private static final String OUT_DIR = "tmp/iml_gen/";
@@ -50,7 +64,7 @@ public class IML_Calculator {
 	// this can also be BA_2008, AS_2008, or CY_2008
 	private static final AttenRelRef IMR_REF = CY_2008;
 	private static final Period PERIOD = GM1P00;
-	private static final int NUM_EVENT_SETS = 2;
+	private static final int NUM_EVENT_SETS = 10;
 	
 	private static List<Location> locs;
 	private static List<Long> ids;
@@ -62,13 +76,15 @@ public class IML_Calculator {
 	}
 
 	public IML_Calculator() {
+		File root = new File(OUT_DIR);
+//		FileUtils.deleteDirectory(root);
 		System.out.println("Initializing ERF...");
 		ERF erf = newERF();
 		ScalarIMR imr = newIMR(IMR_REF, PERIOD);
 		
 		// =====  !! Currently shortening site list !! =======
-//		SiteSupplier sites = new SiteSupplier(locs);
-		SiteSupplier sites = new SiteSupplier(locs.subList(0, 100));
+		SiteSupplier sites = new SiteSupplier(locs);
+//		SiteSupplier sites = new SiteSupplier(locs.subList(0, 100));
 				
 		System.out.println("Processing...");
 		for (int i=0; i<NUM_EVENT_SETS; i++) {
@@ -77,6 +93,7 @@ public class IML_Calculator {
 			String outDir = OUT_DIR + "ES_" + (i+1) + "/";
 			processEventSet(rups, imr, sites, outDir);
 		}
+		System.out.println("Done and done");
 		
 	}
 	
@@ -111,7 +128,7 @@ public class IML_Calculator {
 	}	
 	
 	/*
-	 * Compute the mean ground motion and stadard deviations.
+	 * Compute the mean ground motion and standard deviations.
 	 */
 	private double[] getValues(ScalarIMR imr) {
 		double[] vals = new double[3];
@@ -125,7 +142,6 @@ public class IML_Calculator {
 		vals[2] = imr.getStdDev();
 		return vals;
 	}
-	
 	
 	/*
 	 * Write result set to file
@@ -153,21 +169,20 @@ public class IML_Calculator {
 	private ERF newERF() {
 		ERF erf = new MeanUCERF2();
 		erf.setParameter(PROB_MODEL_PARAM_NAME, PROB_MODEL_POISSON);
-		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
+		
 //		default is 1.0 km
-//		erf.setParameter(RUP_OFFSET_PARAM_NAME, 5.0);
+		erf.setParameter(RUP_OFFSET_PARAM_NAME, 1.0);
 //		default is 30 years
-//		erf.getTimeSpan().setDuration(500);
-		erf.updateForecast();
+		erf.getTimeSpan().setDuration(30);
 		
 		// alternative erf 
-//		UCERF2_TimeDependentEpistemicList erf = new UCERF2_TimeDependentEpistemicList();
-//		erf.getERF(0);
-//		erf.updateForecast();
+//		UCERF2_TimeDependentEpistemicList erfList = new UCERF2_TimeDependentEpistemicList();
+//		ERF erf = erfList.getERF(72);
 		
+		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
+		erf.updateForecast();
 		return erf;
 	}
-	
 	
 	/*
 	 * Instantiate and configure a new GMPE/IMR
@@ -184,7 +199,6 @@ public class IML_Calculator {
 		return imr;
 	}
 
-	
 	/*
 	 * Reads locations and object IDs; called on startup
 	 */
@@ -207,7 +221,6 @@ public class IML_Calculator {
 		}
 		return locMap;
 	}
-	
 	
 	/*
 	 * Nested class that is iterable over Sites corresponding to the locations
