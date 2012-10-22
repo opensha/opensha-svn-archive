@@ -190,6 +190,7 @@ public class IML_Calculator {
 		// needed for UCERF2 
 //		default is 1.0 km
 //		erf.setParameter(RUP_OFFSET_PARAM_NAME, 1.0);
+//		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
 
 		// UCERF3 flavor
 		// reference branch
@@ -203,7 +204,6 @@ public class IML_Calculator {
 //		default is 30 years
 		erf.getTimeSpan().setDuration(30);
 
-		erf.setParameter(BACK_SEIS_NAME, BACK_SEIS_EXCLUDE);
 		erf.updateForecast();
 		return erf;
 	}
@@ -303,7 +303,8 @@ public class IML_Calculator {
 	}
 	
 	private static final String UC3_TREE_PATH =
-		"/Users/aolsen/USGS/Eclipse/OpenSHA/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+		"tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+//			"/Users/aolsen/USGS/Eclipse/OpenSHA/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
 
 	private static final String UC3_REF_BRANCH =
 			"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU3";
