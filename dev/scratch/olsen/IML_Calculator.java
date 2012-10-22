@@ -1,6 +1,6 @@
 package scratch.olsen;
 
-import static org.opensha.sha.nshmp.Period.*;
+import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2.*;
 import static org.opensha.sha.imr.param.OtherParams.StdDevTypeParam.*;
 import static org.opensha.sha.imr.AttenRelRef.*;
@@ -31,7 +31,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
-import org.opensha.sha.nshmp.Period;
+import org.opensha.nshmp2.util.Period;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
