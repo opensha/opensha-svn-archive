@@ -157,16 +157,16 @@ public class NSHMP2008 extends NSHMP_ListERF {
 	public static NSHMP2008 createCaliforniaPointSrc() {
 		NSHMP2008 erf = new NSHMP2008(null);
 		List<GridERF> gridERFs = Lists.newArrayList();
-//		erf.addERF(Sources.get("CAmap.24.ch.in"));
-//		erf.addERF(Sources.get("CAmap.21.ch.in"));
-//		erf.addERF(Sources.get("CAmap.21.gr.in"));
-//		erf.addERF(Sources.get("CAmap.24.gr.in"));
-//		erf.addERF(Sources.get("impext.ch.in"));
-//		erf.addERF(Sources.get("impext.gr.in"));
+		erf.addERF(Sources.get("CAmap.24.ch.in"));
+		erf.addERF(Sources.get("CAmap.21.ch.in"));
+		erf.addERF(Sources.get("CAmap.21.gr.in"));
+		erf.addERF(Sources.get("CAmap.24.gr.in"));
+		erf.addERF(Sources.get("impext.ch.in"));
+		erf.addERF(Sources.get("impext.gr.in"));
 		erf.addERF(Sources.get("EXTmap.ch.in"));
-//		erf.addERF(Sources.get("EXTmap.gr.in"));
-//		erf.addERF(Sources.get("WUSmap.ch.in"));
-//		erf.addERF(Sources.get("WUSmap.gr.in"));
+		erf.addERF(Sources.get("EXTmap.gr.in"));
+		erf.addERF(Sources.get("WUSmap.ch.in"));
+		erf.addERF(Sources.get("WUSmap.gr.in"));
 		return erf;
 	}
 
