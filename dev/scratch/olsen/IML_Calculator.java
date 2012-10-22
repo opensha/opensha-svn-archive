@@ -184,6 +184,7 @@ public class IML_Calculator {
 		
 		// UCERF3 flavor
 //		ERF erf = getUC3_ERF(null);
+		// NOTE check timespan and background sources
 
 		
 //		default is 1.0 km
