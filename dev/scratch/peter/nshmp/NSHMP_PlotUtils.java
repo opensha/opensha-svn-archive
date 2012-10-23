@@ -199,6 +199,15 @@ public class NSHMP_PlotUtils {
 //		String title = "UC3/UC2 2%50 PGA";
 //		makeRegionalPE_RatioSHA("hpc", "uc3_ref_mean", "nshmp_ca_nobgopt", CA_RELM, 0.2, GM0P00, PE2IN50, title);
 
+		
+		// ================
+//		makeRegionalMap_SHA("hpc", "uc3_ref_bgUC2", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "uc3_ref_bgUC3", CA_RELM, GM0P00, PE2IN50);
+		makeRegionalMap_SHA("hpc", "nshmp_ca_pt", CA_RELM, GM0P00, PE2IN50);
+
+//		String title = "UC3bg/UC2bg 2%50 PGA";
+//		makeRegionalPE_RatioSHA("hpc", "uc3_ref_mean", "nshmp_ca_nobgopt", CA_RELM, 0.2, GM0P00, PE2IN50, title);
+
 	}
 	
 
