@@ -53,7 +53,7 @@ import com.google.common.primitives.Doubles;
  * @author Peter Powers
  * @version $Id:$
  */
-public class UCERF2_Utils {
+public class CurveUtils {
 
 	private static final Splitter SPLIT = Splitter.on(',');
 	private static final Joiner JOIN = Joiner.on(',');
