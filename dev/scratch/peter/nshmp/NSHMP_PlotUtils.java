@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -40,8 +41,9 @@ import com.google.common.io.Files;
  */
 public class NSHMP_PlotUtils {
 
-	private final static String DL_DIR = "/Volumes/Sorrento/hazfigs/";
-
+	private final static String DL_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/hazfigs/";
+//	private final static String DL_DIR = "/Volumes/Sorrento/hazfigs/";
+	
 	/**
 	 * @param args
 	 */
@@ -129,13 +131,25 @@ public class NSHMP_PlotUtils {
 //		tmpMap("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "ca_nshmp_ca", CA_RELM, GM0P00, PE2IN50);
-		makeRegionalMap_SHA("hpc", "nshmp_ca_epi", CA_RELM, GM0P00, PE2IN50);
+//		makeRegionalMap_SHA("hpc", "nshmp_ca_epi", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "mean_uc2_noepi_cab", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "muc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "mmuc2_fm2p1_noepi", CA_RELM, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "uc2_fm2p1_fss_noepi", CA_RELM, GM0P00, PE2IN50);
 		
-		
+//		makeRegionalMap_SHA("hpc", "uc3_ref_mean", CA_RELM, GM0P00, PE2IN50);
+//		for (int i=0; i<20; i++) {
+//			makeRegionalMap_SHA("hpc", "uc3_ref_" + i, CA_RELM, GM0P00, PE2IN50);
+//			String title = "UC3 RefVar"+ i + " over Ref 2%50 PGA";
+//			makeRegionalPE_RatioSHA("hpc", "uc3_ref_" + i, "uc3_ref_mean", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+//		}
+
+		for (int i=0; i<20; i++) {
+			GeoDataSet ref = getRatioData("hpc", "uc3_ref_19", "uc3_ref_mean", CA_RELM, GM0P00, PE2IN50);
+			String title = "UC3 RefVar"+ i + " over Ref 2%50 PGA";
+			ppTmp(ref, "hpc", "uc3_ref_" + i, "uc3_ref_mean", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+		}
+
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM1P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P20, PE2IN50);
@@ -242,6 +256,25 @@ public class NSHMP_PlotUtils {
 		makeRatioPlot(xyz, over.bounds(), 1-maxScale, 1+maxScale, name, title);
 	}
 
+	private static GeoDataSet getRatioData(String shaDir, String dir1, String dir2, TestGrid grid,
+			Period p, ProbOfExceed pe) {
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHA(shaDir, dir1, dir2, grid,
+			p, pe);
+		return xyz;
+	}
+	
+	/* tmp dividing uc3 ratio maps M>5 fix */
+	private static void ppTmp(GeoDataSet fix, String shaDir, String dir1, String dir2, TestGrid grid,
+			double maxScale, Period p, ProbOfExceed pe, String title) {
+		String name =  dir1 + " over " + dir2 + " " + pe + " " + p;
+		GeoDataSet xyz = NSHMP_GeoDataUtils.getPE_Ratio_SHA(shaDir, dir1, dir2, grid,
+			p, pe);
+		GeoDataSet ratioFix = GeoDataSetMath.divide(xyz, fix);
+//		NSHMP_GeoDataUtils.minusOne(xyz);
+		makeRatioPlot(ratioFix, grid.bounds(), 1-maxScale, 1+maxScale, name, title);
+	}
+	
+	
 	/*
 	 * Make a sha over sha plot
 	 */

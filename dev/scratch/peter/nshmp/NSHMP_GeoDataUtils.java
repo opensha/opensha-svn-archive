@@ -35,7 +35,8 @@ import scratch.peter.curves.ProbOfExceed;
 public class NSHMP_GeoDataUtils {
 	
 	private static final String NSHMP_SRC_DIR = "/Volumes/Scratch/nshmp-sources/";
-	private static final String SHA_SRC_DIR = "/Volumes/Scratch/nshmp-opensha-";
+	private static final String SHA_SRC_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/nshmp-opensha-";
+//	private static final String SHA_SRC_DIR = "/Volumes/Scratch/nshmp-opensha-";
 	private static final String SEP = File.separator;
 	private static final String CURVE_CSV = "curves.csv";
 	private static final String CURVE_DAT = "curves.dat";
