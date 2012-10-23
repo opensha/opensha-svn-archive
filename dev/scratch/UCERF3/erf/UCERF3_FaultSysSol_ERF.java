@@ -1,24 +1,13 @@
 package scratch.UCERF3.erf;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 
-
-import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
-import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
 
 /**
@@ -39,11 +28,11 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 //
 //		fileParam.setValue(file);
 		
-		bgIncludeParam.getEditor().setEnabled(true);
+//		bgIncludeParam.getEditor().setEnabled(true);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
-		bgRupTypeParam.getEditor().setEnabled(true);
+//		bgRupTypeParam.getEditor().setEnabled(true);
 		
-		applyAftershockFilterParam.setValue(true);
+//		applyAftershockFilterParam.setValue(true);
 		
 
 	}
@@ -52,19 +41,19 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		
 		fileParam.setValue(file);
 		
-		bgIncludeParam.getEditor().setEnabled(true);
+//		bgIncludeParam.getEditor().setEnabled(true);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
-		bgRupTypeParam.getEditor().setEnabled(true);
+//		bgRupTypeParam.getEditor().setEnabled(true);
 		
-		applyAftershockFilterParam.setValue(false);
+//		applyAftershockFilterParam.setValue(false);
 	}
 
 	
 	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
 		super(faultSysSolution);
-		bgIncludeParam.getEditor().setEnabled(true);
+//		bgIncludeParam.getEditor().setEnabled(true);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
-		bgRupTypeParam.getEditor().setEnabled(true);
+//		bgRupTypeParam.getEditor().setEnabled(true);
 
 	}
 		
@@ -91,7 +80,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 			if (bgRupType.equals(BackgroundRupType.POINT)) {
 				// default is false; gridGen will create point sources for those
 				// with M<6 anyway; this forces those M>6 to be points as well
-				ucerf3_gridSrcGen.setAsPointSources(true); 
+				ucerf3_gridSrcGen.setAsPointSources(true);
 				System.out.println("SET TO PTS");
 			}
 	
