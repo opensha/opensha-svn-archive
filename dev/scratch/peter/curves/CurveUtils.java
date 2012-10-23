@@ -48,7 +48,7 @@ import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
 /**
- * Utilities for working with UCERF2 logic tree branch results (hazard curves).
+ * Utilities for organizing UC2 & UC3 logic tree branch results (hazard curves).
  * 
  * @author Peter Powers
  * @version $Id:$
