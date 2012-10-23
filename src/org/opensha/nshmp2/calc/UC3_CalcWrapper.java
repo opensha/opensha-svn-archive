@@ -224,7 +224,7 @@ public class UC3_CalcWrapper {
 		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
 			.setValue(true);
 		erf.getTimeSpan().setDuration(1d);
-		erf.updateForecast();
+//		erf.updateForecast();
 		return erf;
 	}
 

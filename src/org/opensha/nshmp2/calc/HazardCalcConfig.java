@@ -28,6 +28,7 @@ public class HazardCalcConfig {
 	boolean epiUnc;
 	String outDir;
 	boolean singleFile;
+	String branch;
 
 	/**
 	 * Creates a new config instance from the supplied {@code File}.
@@ -49,5 +50,6 @@ public class HazardCalcConfig {
 		epiUnc = Boolean.valueOf(props.getProperty("epiUnc"));
 		outDir = props.getProperty("outDir");
 		singleFile = Boolean.valueOf(props.getProperty("singleFile"));
+		branch = props.getProperty("UC3branch");
 	}
 }

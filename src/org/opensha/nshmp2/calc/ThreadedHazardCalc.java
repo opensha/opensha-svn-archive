@@ -12,6 +12,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+
 /**
  * Class manages multithreaded NSHMP hazard calculations. Farms out
  * {@code HazardCalc}s to locally available cores and pipes results to a
@@ -43,7 +45,7 @@ public class ThreadedHazardCalc {
 	}
 
 	/*
-	 * Initializes a new threaded hazard calculation.
+	 * Initializes a new threaded hazard calculation with the specified ERF.
 	 */
 	ThreadedHazardCalc(ERF_ID erfID, LocationList locs, Period period,
 			boolean epiUncert, HazardResultWriter writer) {
@@ -55,6 +57,20 @@ public class ThreadedHazardCalc {
 		erfList.updateForecast();
 	}
 	
+	/*
+	 * Initializes a new threaded hazard calculation for the specified UC3 logic
+	 * tree branch.
+	 */
+	ThreadedHazardCalc(LogicTreeBranch branch, LocationList locs,
+		Period period, boolean epiUncert, HazardResultWriter writer) {
+		this.locs = locs;
+		this.period = period;
+		this.writer = writer;
+		this.epiUncert = epiUncert;
+		erfList = ERF_ID.instanceUC3(branch);
+		erfList.updateForecast();
+	}
+
 	/**
 	 * Calculates hazard curves for the specified indices. Presently no index
 	 * checking is performed. If {@code indices} is {@code null}, curves are

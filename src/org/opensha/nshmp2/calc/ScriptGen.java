@@ -53,12 +53,12 @@ public class ScriptGen {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		System.out.println(Arrays.toString(args));
-		if (args.length != 10) {
+		if (args.length < 9) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGen.class) +
-					" <name> <grids> <periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue>");
+					" <name> <grids> <periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue> [<branchID>]");
+			// branchID is only read if erfID is UCERF3_BRANCH
 			System.exit(1);
 		}
 
@@ -93,10 +93,16 @@ public class ScriptGen {
 
 		String queue = args[9];
 		System.out.println(queue);
+		
+		String branch = null;
+		if (ERF_ID.valueOf(erfID).equals(ERF_ID.UCERF3_BRANCH_BG)) {
+			branch = args[10];
+			System.out.println(branch);
+		}
 
 		for (TestGrid grid : gridList) {
 			for (Period period : periodList) {
-				File props = writeProps(outDir, name, grid, period, erfID, epi);
+				File props = writeProps(outDir, name, grid, period, erfID, epi, branch);
 				writeScript(libDir, props, hours, nodes, queue);
 			}
 		}
@@ -119,7 +125,7 @@ public class ScriptGen {
 	}
 	
 	private static File writeProps(String outDir, String name, TestGrid grid,
-			Period period, String erfID, boolean epi) {
+			Period period, String erfID, boolean epi, String branch) {
 		File pFile = null;
 		try {
 			String freq = period.equals(Period.GM0P00) ? "pga" : period
@@ -136,6 +142,7 @@ public class ScriptGen {
 			props.setProperty("epiUnc", Boolean.toString(epi));
 			props.setProperty("outDir", outDir);
 			props.setProperty("singleFile", "false"); // ignored in MPJ clacs
+			if (branch != null) props.setProperty("UC3branch",branch);
 
 			String comment = "# hpc calculation configuration";
 			BufferedWriter writer = Files.newWriter(pFile, Charsets.US_ASCII);

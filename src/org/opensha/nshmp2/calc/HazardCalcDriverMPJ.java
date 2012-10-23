@@ -19,6 +19,8 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
@@ -64,7 +66,10 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		Preconditions.checkNotNull(period);
 		
 		ERF_ID erfID = config.erfID;
-		Preconditions.checkNotNull(erfID);
+		LogicTreeBranch branch = null;
+		if (config.branch != null) {
+			branch = LogicTreeBranch.fromFileName(config.branch);
+		}
 		
 		boolean epiUncert = config.epiUnc;
 		
@@ -74,8 +79,13 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(erfID, grid.grid().getNodeList(), period,
-			epiUncert, writer);
+		if (branch != null ) {
+			calc = new ThreadedHazardCalc(branch, grid.grid().getNodeList(), period,
+				epiUncert, writer);
+		} else {
+			calc = new ThreadedHazardCalc(erfID, grid.grid().getNodeList(), period,
+				epiUncert, writer);
+		}
 	}
 	
 	@Override

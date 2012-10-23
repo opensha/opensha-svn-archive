@@ -317,8 +317,8 @@ public class HazardCalc implements Callable<HazardResult> {
 		TimeUnit tu = TimeUnit.MILLISECONDS;
 //		WUS_ERF erf = new WUS_ERF();
 //		EpistemicListERF erf = ERF_ID.MEAN_UCERF2.instance();
-//		EpistemicListERF erf = NSHMP2008.create();
-		EpistemicListERF erf = NSHMP2008.createSingleSource("mendo.in");
+		EpistemicListERF erf = NSHMP2008.create();
+//		EpistemicListERF erf = NSHMP2008.createSingleSource("mendo.in");
 		erf.updateForecast();
 		System.out.println(erf);
 		sw.stop();
@@ -326,8 +326,8 @@ public class HazardCalc implements Callable<HazardResult> {
 		Period p = Period.GM0P00;
 
 		sw.reset().start();
-//		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
-		Site site = new Site(new Location(40.3, -125.0));
+		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
+//		Site site = new Site(new Location(40.3, -125.0));
 		HazardCalc hc = HazardCalc.create(erf, site, p, false);
 		HazardResult result = hc.call();
 		System.out.println(result.curve());
