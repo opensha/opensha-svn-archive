@@ -106,6 +106,10 @@ public enum ERF_ID {
 			return getUC2_FM2P1_FSS();
 		}
 	},
+	/*
+	 * NOTE UCERF2 Time Indep requires manual override of floating rupture
+	 * offset as no direct access is provided to underlying UC2 object.
+	 */
 	UCERF2_TIME_INDEP() {
 		public EpistemicListERF instance() {
 			return getUC2_TI();
