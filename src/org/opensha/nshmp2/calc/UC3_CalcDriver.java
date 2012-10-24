@@ -33,8 +33,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 /**
- * Add comments here
- * 
+ * Class handles UC3 branch hazard calculations at a list of locations.
+ * Intended for use 
  * 
  * @author Peter Powers
  * @version $Id:$
@@ -53,7 +53,7 @@ public class UC3_CalcDriver {
 		boolean compoundSol = solSetPath.contains("COMPOUND_SOL");
 		
 		if (compoundSol) {
-			CompoundFaultSystemSolution cfss = getCompoundSolution(solSetPath);
+			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(solSetPath);
 			List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
 			System.out.println("numsols: " + branches.size());
 			LogicTreeBranch branch = branches.get(solIdx);
@@ -61,7 +61,7 @@ public class UC3_CalcDriver {
 			erfName = branch.buildFileName();
 			
 		} else { // average solution
-			AverageFaultSystemSolution afss = getAvgSolution(solSetPath);
+			AverageFaultSystemSolution afss = UC3_CalcWrapper.getAvgSolution(solSetPath);
 			System.out.println("numsols: " + afss.getNumSolutions());
 			fss = afss.getSolution(solIdx);
 			int ssIdx1 = StringUtils.lastIndexOf(solSetPath, "/");
@@ -70,7 +70,8 @@ public class UC3_CalcDriver {
 
 		}
 
-		UCERF3_FaultSysSol_ERF erf = getUC3_ERF(fss);
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 
 		for (Period period : periods) {
@@ -115,44 +116,6 @@ public class UC3_CalcDriver {
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
-	}
-
-	private static AverageFaultSystemSolution getAvgSolution(String path) {
-		try {
-			File file = new File(path);
-			return AverageFaultSystemSolution.fromZipFile(file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private static CompoundFaultSystemSolution getCompoundSolution(String path) {
-		try {
-			File cfssFile = new File(path);
-			return CompoundFaultSystemSolution.fromZipFile(cfssFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	/*
-	 * Returns an inversion based ERF for the supplied fault system solution.
-	 * Assumes the supplied FSS is an inversion solution.
-	 */
-	private static UCERF3_FaultSysSol_ERF getUC3_ERF(FaultSystemSolution fss) {
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-			fss);
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
-		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-			IncludeBackgroundOption.INCLUDE);
-		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
-			.setValue(true);
-		erf.getTimeSpan().setDuration(1d);
-		erf.updateForecast();
-		return erf;
 	}
 
 }

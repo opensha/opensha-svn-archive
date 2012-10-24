@@ -90,33 +90,6 @@ public class UC3_CalcWrapper {
 		}
 	}
 
-	// try {
-	// writer = new HazardResultWriterCities(outFile, period);
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// System.exit(1);
-	// }
-
-	// UC3_CalcWrapper(UCERF3_FaultSysSol_ERF erf, LocationList locs, Period[]
-	// periods,
-	// boolean epiUncert) {
-	//
-	// ThreadedHazardCalc thc = null;
-	//
-	//
-	//
-	// try {
-	// thc = new ThreadedHazardCalc(erf, locs, period, epiUncert, writer);
-	// thc.calculate(null);
-	// } catch (ExecutionException ee) {
-	// ee.printStackTrace();
-	// } catch (InterruptedException ie) {
-	// ie.printStackTrace();
-	// } catch (IOException ioe) {
-	// ioe.printStackTrace();
-	// }
-	// }
-
 	/**
 	 * @param args
 	 */
@@ -138,54 +111,13 @@ public class UC3_CalcWrapper {
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
-
-		// CompoundFaultSystemSolution cfss =
-		// getCompoundSolution(COMPOUND_SOL_PATH);
-		// Iterable<LogicTreeBranch> branches = cfss.getBranches();
-		// LogicTreeBranch branch = Iterables.get(branches, 5);
-		// String erfName = branch.buildFileName();
-		//
-		//
-		// try {
-		//
-		// FaultSystemSolution fss = cfss.getSolution(branch);
-		//
-		// // Stopwatch sw = new Stopwatch();
-		// // sw.start();
-		// // sw.stop();
-		// // System.out.println("init time: " + sw.elapsedMillis());
-		//
-		// UCERF3_FaultSysSol_ERF erf = getUC3_ERF(fss);
-		// EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-		//
-		// String outPath = OUT_DIR + S + erfName + S + period + S;
-		// File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-		// // File mpjOutDir = new File(outPath);
-		//
-		// HazardResultWriter writer = new HazardResultWriterCities(outFile,
-		// period);
-		// // try {
-		// // writer = singleFile ?
-		// // new HazardResultWriterLocal(localOutFile, period) :
-		// // new HazardResultWriterMPJ(mpjOutDir);
-		// // } catch (IOException ioe) {
-		// // ioe.printStackTrace();
-		// // }
-		// boolean epiUnc = false;
-		//
-		// // Set<NEHRP_TestCity> cities = EnumSet.of(LOS_ANGELES);
-		// // LocationList locs = new LocationList();
-		// // for (NEHRP_TestCity city : cities) {
-		// // locs.add(city.location());
-		// // }
-		//
-		// new UC3_CalcWrapper(erf, locs, periods, epiUnc);
-		//
-		// } catch (IOException ioe) {
-		// ioe.printStackTrace();
-		// }
 	}
 
+	/**
+	 * Returns an average fault system solution at the specified path.
+	 * @param path
+	 * @return
+	 */
 	public static AverageFaultSystemSolution getAvgSolution(String path) {
 		try {
 			File file = new File(path);
@@ -196,6 +128,12 @@ public class UC3_CalcWrapper {
 		}
 	}
 
+	
+	/**
+	 * Returns a compound fault system solution at the specified path.
+	 * @param path
+	 * @return
+	 */
 	public static CompoundFaultSystemSolution getCompoundSolution(String path) {
 		try {
 			File cfssFile = new File(path);
@@ -206,7 +144,8 @@ public class UC3_CalcWrapper {
 		}
 	}
 
-	/*
+	
+	/**
 	 * Returns an inversion based ERF for the supplied fault system solution.
 	 * Assumes the supplied FSS is an inversion solution.
 	 * 
@@ -224,7 +163,6 @@ public class UC3_CalcWrapper {
 		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
 			.setValue(true);
 		erf.getTimeSpan().setDuration(1d);
-//		erf.updateForecast();
 		return erf;
 	}
 
