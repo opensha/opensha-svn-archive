@@ -136,7 +136,7 @@ public class ScriptGen {
 				.equals(Period.GM1P00) ? "1hz" : "5hz";
 			String epiStr = (epi) ? "_epi" : "";
 			String spacStr = createSpacingID(spacing);
-			String pFileName = name + epiStr + "-" + freq + "-" + spacStr + ".props";
+			String pFileName = name + epiStr + "-" + spacStr + "-" + freq + ".props";
 			pFile = new File(pFileName);
 
 			Properties props = new Properties();

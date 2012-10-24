@@ -71,7 +71,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 			branch = LogicTreeBranch.fromFileName(config.branch);
 		}
 		
-		boolean epiUncert = config.epiUnc;
+		boolean epi = config.epiUnc;
 		
 		String out = config.outDir;
 		Preconditions.checkArgument(StringUtils.isNotBlank(out));
@@ -79,12 +79,10 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		if (branch != null ) {
-			calc = new ThreadedHazardCalc(branch, grid.grid(0.1).getNodeList(), period,
-				epiUncert, writer);
+		if (branch != null) {
+			calc = new ThreadedHazardCalc(branch, locs, period, epi, writer);
 		} else {
-			calc = new ThreadedHazardCalc(erfID, grid.grid(0.1).getNodeList(), period,
-				epiUncert, writer);
+			calc = new ThreadedHazardCalc(erfID, locs, period, epi, writer);
 		}
 	}
 	
