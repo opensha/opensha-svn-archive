@@ -428,7 +428,7 @@
 		<unjar src="${lib.dir}/ncCore-4.0.jar" dest="${build}" />
 		<unjar src="${lib.dir}/sdoapi.jar" dest="${build}" />
 		<unjar src="${lib.dir}/ojdbc5.jar" dest="${build}" />
-		<unjar src="${lib.dir}/guava-11.0.2.jar" dest="${build}" />
+		<unjar src="${lib.dir}/guava-13.0.1.jar" dest="${build}" />
 		<unjar src="${lib.dir}/servlet.jar" dest="${build}" />
 		<unjar src="${lib.dir}/Jama-1.0.2.jar" dest="${build}" />
 		<unjar src="${lib.dir}/mysql-connector-java-5.1.16-bin.jar" dest="${build}" />
@@ -476,7 +476,7 @@
 			<link href="http://commons.apache.org/io/api-release/"/>
 			<link href="http://commons.apache.org/lang/api-release/"/>
 			<link href="http://commons.apache.org/math/apidocs/"/>
-			<link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
+			<link href="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
 			<link href="http://dom4j.sourceforge.net/dom4j-1.6.1/apidocs/"/>
 			
 		</javadoc>
