@@ -458,7 +458,7 @@ public class FaultParser {
 	 */
 	public static void main(String[] args) {
 		Logger log = NSHMP_Utils.logger();
-		Level level = Level.FINE;
+		Level level = Level.ALL;
 		log.setLevel(level);
 		for (Handler h : NSHMP_Utils.logger().getHandlers()) {
 			h.setLevel(level);
@@ -498,26 +498,27 @@ public class FaultParser {
 			// String srcPath = datPath + "CEUS/faults/NMSZnocl.1000yr.5branch.in";
 			// String srcPath = datPath + "CEUS/faults/NMSZnocl.500yr.5branch.in";
 
-//		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "brange.3dip.gr.in").get(0);
+		SourceFile sf = SourceMgr.get(WUS, FAULT, "brange.3dip.gr.in").get(0);
 //		SourceFile sf = SourceMgr.get(CA, FAULT, "puente.ch.in").get(0);
-//		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.ch.in").get(0);
+//		SourceFile sf = SourceMgr.get(CA, FAULT, "aFault_unseg.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CEUS, FAULT, "NMSZnocl.500yr.5branch.in").get(0);
 //		NSHMP_ERF erf = Sources.get("newmad.500.cluster.in");
 //		NSHMP_ERF erf = Sources.get("bFault.gr.in");
-		NSHMP_ERF erf = Sources.get("brange.3dip.gr.in");
+//		NSHMP_ERF erf = Sources.get("aFault_unseg.in");
 
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
 //		log.info("Source: " + sf.getName());
-//		FaultERF erf = dev.parse(sf);
+		FaultERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());
 		//int count = 0;
-		erf.updateForecast();
-		System.out.println("   ERF: " + erf.getName());
-		System.out.println("  srcs: " + erf.getNumSources());
-		System.out.println("  rups: " + erf.getRuptureCount());
+		
+//		erf.updateForecast();
+//		System.out.println("   ERF: " + erf.getName());
+//		System.out.println("  srcs: " + erf.getNumSources());
+//		System.out.println("  rups: " + erf.getRuptureCount());
 		
 //		for (ProbEqkSource source : erf) {
 //			((FaultSource) source).init();
