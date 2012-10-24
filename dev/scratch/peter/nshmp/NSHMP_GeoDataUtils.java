@@ -104,7 +104,7 @@ public class NSHMP_GeoDataUtils {
 	
 	public static GeoDataSet getPE_SHA(String dir, String group, TestGrid tg, Period p, ProbOfExceed pe) {
 		File f = new File(SHA_SRC_DIR + dir + "/" + group + SEP + tg + SEP + p + SEP + CURVE_CSV);
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 		CurveContainer cc = CurveContainer.create(f, tg);
 		GeoDataSet xyz = NSHMP_DataUtils.extractPE(cc, gr, pe);
 		return xyz;
@@ -112,7 +112,7 @@ public class NSHMP_GeoDataUtils {
 
 	public static GeoDataSet getPE_NSHMP(TestGrid tg, String dir, Period p, ProbOfExceed pe) {
 		File f = new File(NSHMP_SRC_DIR + dir + SEP + p + SEP + CURVE_DAT);
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 		CurveContainer cc = CurveContainer.create(f);
 		GeoDataSet xyz = NSHMP_DataUtils.extractPE(cc, gr, pe);
 		return xyz;
@@ -123,7 +123,7 @@ public class NSHMP_GeoDataUtils {
 		File f1 = new File(SHA_SRC_DIR + shaDir + SEP + dir + SEP + tg + SEP + p + SEP + CURVE_CSV);
 		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + p + SEP + CURVE_DAT);
 		
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 		
 		CurveContainer cc = null;
 		cc = CurveContainer.create(f1, tg);
@@ -145,7 +145,7 @@ public class NSHMP_GeoDataUtils {
 		File f2 = new File(SHA_SRC_DIR + shaDir + SEP + dir2 + SEP + tg + SEP + p + SEP + CURVE_CSV);
 //		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + p + SEP + CURVE_DAT);
 		
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 		
 		CurveContainer cc = null;
 		cc = CurveContainer.create(f1, tg);
@@ -171,10 +171,10 @@ public class NSHMP_GeoDataUtils {
 		
 		CurveContainer cc = null;
 		cc = CurveContainer.create(f1, tg1);
-		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(), pe);
+		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 		
 		cc = CurveContainer.create(f2, tg2);
-		GeoDataSet xyz2 = NSHMP_DataUtils.extractPE(cc, tg1.grid(), pe);
+		GeoDataSet xyz2 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 
 		GeoDataSet xyz3 = GeoDataSetMath.divide(xyz1, xyz2);
 		
@@ -201,7 +201,7 @@ public class NSHMP_GeoDataUtils {
 		File f1 = new File(SHA_SRC_DIR + shaDir1 + SEP + dir1 + SEP + tg1 + SEP + p + SEP + CURVE_CSV);
 		CurveContainer cc = null;
 		cc = CurveContainer.create(f1, tg1);
-		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(), pe);
+		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 		GeoDataSet xyz2 = xyz1.copy();
 		xyz2.add(0.005);
 		xyz2.scale(1.02);
@@ -260,7 +260,7 @@ public class NSHMP_GeoDataUtils {
 		File f1 = new File(SHA_SRC_DIR + shaDir + "/" + tg + SEP + RTGM_DAT);
 		File f2 = new File(NSHMP_SRC_DIR + nd + SEP + RTGM_DAT);
 		
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 		
 		RTGM_Container rc = null;
 		rc = RTGM_Container.create(f1);

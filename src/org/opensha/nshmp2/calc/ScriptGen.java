@@ -57,7 +57,7 @@ public class ScriptGen {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGen.class) +
-					" <name> <grids> <periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue> [<branchID>]");
+					" <name> <grids> <spacing ><periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue> [<branchID>]");
 			// branchID is only read if erfID is UCERF3_BRANCH
 			System.exit(1);
 		}
@@ -68,41 +68,45 @@ public class ScriptGen {
 		String grids = args[1];
 		List<TestGrid> gridList = readArgAsList(grids, TestGrid.class);
 		System.out.println(gridList);
+		
+		String spacing = args[2];
+		double spacingVal = Double.parseDouble(spacing);
+		System.out.println(spacing);
 
-		String periods = args[2];
+		String periods = args[3];
 		List<Period> periodList = readArgAsList(periods, Period.class);
 		System.out.println(periodList);
 		
-		String erfID = args[3];
+		String erfID = args[4];
 		System.out.println(erfID);
 		
-		String libDir = args[4];
+		String libDir = args[5];
 		System.out.println(libDir);
 
-		String outDir = args[5];
+		String outDir = args[6];
 		System.out.println(outDir);
 		
-		boolean epi = Boolean.parseBoolean(args[6]);
+		boolean epi = Boolean.parseBoolean(args[7]);
 		System.out.println(epi);
 		
-		int hours = Integer.parseInt(args[7]);
+		int hours = Integer.parseInt(args[8]);
 		System.out.println(hours);
 		
-		int nodes = Integer.parseInt(args[8]);
+		int nodes = Integer.parseInt(args[9]);
 		System.out.println(nodes);
 
-		String queue = args[9];
+		String queue = args[10];
 		System.out.println(queue);
 		
 		String branch = null;
 		if (ERF_ID.valueOf(erfID).equals(ERF_ID.UCERF3_BRANCH_BG)) {
-			branch = args[10];
+			branch = args[11];
 			System.out.println(branch);
 		}
 
 		for (TestGrid grid : gridList) {
 			for (Period period : periodList) {
-				File props = writeProps(outDir, name, grid, period, erfID, epi, branch);
+				File props = writeProps(outDir, name, grid, spacingVal, period, erfID, epi, branch);
 				writeScript(libDir, props, hours, nodes, queue);
 			}
 		}
@@ -124,19 +128,21 @@ public class ScriptGen {
 		return Lists.newArrayList(it);
 	}
 	
-	private static File writeProps(String outDir, String name, TestGrid grid,
+	private static File writeProps(String outDir, String name, TestGrid grid, double spacing,
 			Period period, String erfID, boolean epi, String branch) {
 		File pFile = null;
 		try {
 			String freq = period.equals(Period.GM0P00) ? "pga" : period
 				.equals(Period.GM1P00) ? "1hz" : "5hz";
 			String epiStr = (epi) ? "_epi" : "";
-			String pFileName = name + epiStr + "-" + freq + ".props";
+			String spacStr = createSpacingID(spacing);
+			String pFileName = name + epiStr + "-" + freq + "-" + spacStr + ".props";
 			pFile = new File(pFileName);
 
 			Properties props = new Properties();
 			props.setProperty("name", name + epiStr);
 			props.setProperty("grid", grid.name());
+			props.setProperty("spacing", Double.toString(spacing));
 			props.setProperty("period", period.name());
 			props.setProperty("erfID", erfID);
 			props.setProperty("epiUnc", Boolean.toString(epi));
@@ -181,6 +187,12 @@ public class ScriptGen {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	private static String createSpacingID(double spacing) {
+		String str = Double.toString(spacing);
+		int pIdx = str.indexOf('.');
+		return str.substring(0,pIdx) + "p" + str.substring(pIdx+1);
 	}
 
 	private static class HPCC_ScriptWriter extends BatchScriptWriter {

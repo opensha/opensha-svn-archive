@@ -108,7 +108,7 @@ public class CurveContainer implements Iterable<Location> {
 	 * @return a new curve container object
 	 */
 	public static CurveContainer create(File f, TestGrid tg) {
-		CurveFileProcessor_SHA cfp = new CurveFileProcessor_SHA(tg.grid());
+		CurveFileProcessor_SHA cfp = new CurveFileProcessor_SHA(tg.grid(0.1));
 		CurveContainer curves = null;
 		try {
 			curves = Files.readLines(f, Charsets.US_ASCII, cfp);

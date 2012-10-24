@@ -23,6 +23,7 @@ public class HazardCalcConfig {
 	
 	String name;
 	TestGrid grid;
+	double spacing;
 	Period period;
 	ERF_ID erfID;
 	boolean epiUnc;
@@ -45,6 +46,7 @@ public class HazardCalcConfig {
 		
 		name = props.getProperty("name");
 		grid = TestGrid.valueOf(props.getProperty("grid"));
+		spacing = Double.parseDouble(props.getProperty("spacing"));
 		period = Period.valueOf(props.getProperty("period"));
 		erfID = ERF_ID.valueOf(props.getProperty("erfID"));
 		epiUnc = Boolean.valueOf(props.getProperty("epiUnc"));

@@ -60,7 +60,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		TestGrid grid = config.grid;
 		Preconditions.checkNotNull(grid);
-		locs = grid.grid().getNodeList();
+		locs = grid.grid(config.spacing).getNodeList();
 		
 		period = config.period;
 		Preconditions.checkNotNull(period);
@@ -80,10 +80,10 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
 		if (branch != null ) {
-			calc = new ThreadedHazardCalc(branch, grid.grid().getNodeList(), period,
+			calc = new ThreadedHazardCalc(branch, grid.grid(0.1).getNodeList(), period,
 				epiUncert, writer);
 		} else {
-			calc = new ThreadedHazardCalc(erfID, grid.grid().getNodeList(), period,
+			calc = new ThreadedHazardCalc(erfID, grid.grid(0.1).getNodeList(), period,
 				epiUncert, writer);
 		}
 	}

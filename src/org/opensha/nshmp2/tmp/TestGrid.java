@@ -36,8 +36,8 @@ public enum TestGrid {
 		new double[] {35.15,34.23,32.94,33.86},
 		new double[] {-119.07,-116.70,-117.42,-119.80}),
 	LOS_ANGELES_BIG(
-		new double[] {32.0,35.0},
-		new double[] {-120.0,-115.0}),
+		new double[] {32.0,36.0},
+		new double[] {-121.0,-115.0}),
 	SAN_FRANCISCO(
 		new double[] {37.19,36.43,38.23,39.02},
 		new double[] {-120.61,-122.09,-123.61,-122.08}),
@@ -82,19 +82,20 @@ public enum TestGrid {
 	/**
 	 * Initialize and return the associated gridded region.
 	 * 
+	 * @param spacing
 	 * @return the grid
 	 */
-	public GriddedRegion grid() {
+	public GriddedRegion grid(double spacing) {
 		if (grid != null) return grid;
 		if (lats.length == 2) {
 			return new GriddedRegion(new Location(lats[0], lons[0]),
-				new Location(lats[1], lons[1]), 0.1, GriddedRegion.ANCHOR_0_0);
+				new Location(lats[1], lons[1]), spacing, GriddedRegion.ANCHOR_0_0);
 		}
 		LocationList locs = new LocationList();
 		for (int i = 0; i < lats.length; i++) {
 			locs.add(new Location(lats[i], lons[i]));
 		}
-		return new GriddedRegion(locs, BorderType.MERCATOR_LINEAR, 0.1,
+		return new GriddedRegion(locs, BorderType.MERCATOR_LINEAR, spacing,
 			GriddedRegion.ANCHOR_0_0);
 	}
 
@@ -114,7 +115,7 @@ public enum TestGrid {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(TestGrid.NATIONAL_POLY.grid().getNodeCount());
+		System.out.println(TestGrid.NATIONAL_POLY.grid(0.1).getNodeCount());
 //		System.out.println();
 //		RegionUtils.locListToKML(getNationalPoly(), "NationalPoly", Color.ORANGE);
 		

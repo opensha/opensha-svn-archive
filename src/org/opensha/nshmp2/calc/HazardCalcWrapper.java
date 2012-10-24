@@ -170,7 +170,7 @@ public class HazardCalcWrapper {
 				ioe.printStackTrace();
 			}
 			
-			new HazardCalcWrapper(erfID, grid.grid().getNodeList(), period, epiUnc, writer);
+			new HazardCalcWrapper(erfID, grid.grid(0.1).getNodeList(), period, epiUnc, writer);
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

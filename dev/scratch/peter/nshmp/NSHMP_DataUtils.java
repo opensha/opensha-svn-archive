@@ -112,7 +112,7 @@ public class NSHMP_DataUtils {
 		File f5hz = new File(dataPath, GM0P20 + SEP + csvName);
 		File out = new File(dataPath, RTGM_OUT);
 
-		GriddedRegion gr = tg.grid();
+		GriddedRegion gr = tg.grid(0.1);
 
 		System.out.println("Processing 1hz...");
 		CurveContainer cc_1hz = CurveContainer.create(f1hz, tg);
