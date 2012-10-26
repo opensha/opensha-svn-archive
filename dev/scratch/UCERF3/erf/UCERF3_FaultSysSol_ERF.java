@@ -74,7 +74,10 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 			// KLUDGY need to have Inversion view of fault system solution
 			// TODO hold on to InversionFSSS reference instead of constructing
 			
-			InversionFaultSystemSolution ifss = new InversionFaultSystemSolution(faultSysSolution);
+			if (!(faultSysSolution instanceof InversionFaultSystemSolution)) {
+				faultSysSolution = new InversionFaultSystemSolution(faultSysSolution);
+			}
+			InversionFaultSystemSolution ifss = (InversionFaultSystemSolution)faultSysSolution;
 			ucerf3_gridSrcGen = new UCERF3_GridSourceGenerator(ifss);
 			
 			if (bgRupType.equals(BackgroundRupType.POINT)) {
