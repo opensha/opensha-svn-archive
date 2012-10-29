@@ -77,6 +77,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
 	protected BackgroundRupType bgRupType; // this is the primitive field
+	
+	final public static double MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS = 0.97;	// 3%
 
 	
 	// these help keep track of what's changed
@@ -422,7 +424,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		double mag = faultSysSolution.getMagForRup(invRupIndex);
 		double aftRateCorr = 1d;
-		if(applyAftershockFilter) aftRateCorr = GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
+		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			boolean isPoisson = true;
