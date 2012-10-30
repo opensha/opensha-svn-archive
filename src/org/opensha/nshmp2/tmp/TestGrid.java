@@ -9,6 +9,7 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 
 import com.google.common.primitives.Doubles;
@@ -66,17 +67,17 @@ public enum TestGrid {
 
 	private static final double BOUNDS_OFFSET = 0.0;
 	private double[] lats, lons;
-	private GriddedRegion grid;
+	private Region region;
 	
 	private TestGrid(double[] lats, double[] lons) {
 		this.lats = lats;
 		this.lons = lons;
 	}
 	
-	private TestGrid(GriddedRegion grid) {
-		lats = new double[] {grid.getMinLat(), grid.getMaxLat()};
-		lons = new double[] {grid.getMinLon(), grid.getMaxLon()};
-		this.grid = grid;
+	private TestGrid(Region region) {
+		lats = new double[] {region.getMinLat(), region.getMaxLat()};
+		lons = new double[] {region.getMinLon(), region.getMaxLon()};
+		this.region = region;
 	}
 
 	/**
@@ -86,7 +87,9 @@ public enum TestGrid {
 	 * @return the grid
 	 */
 	public GriddedRegion grid(double spacing) {
-		if (grid != null) return grid;
+		if (region != null) {
+			return new GriddedRegion(region, spacing, GriddedRegion.ANCHOR_0_0);
+		}
 		if (lats.length == 2) {
 			return new GriddedRegion(new Location(lats[0], lons[0]),
 				new Location(lats[1], lons[1]), spacing, GriddedRegion.ANCHOR_0_0);
