@@ -1,5 +1,15 @@
 package scratch.peter.curves;
 
+import static scratch.UCERF3.enumTreeBranches.DeformationModels.*;
+import static scratch.UCERF3.enumTreeBranches.FaultModels.*;
+import static scratch.UCERF3.enumTreeBranches.InversionModels.*;
+import static scratch.UCERF3.enumTreeBranches.MaxMagOffFault.*;
+import static scratch.UCERF3.enumTreeBranches.MomentRateFixes.*;
+import static scratch.UCERF3.enumTreeBranches.ScalingRelationships.*;
+import static scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels.*;
+import static scratch.UCERF3.enumTreeBranches.SpatialSeisPDF.*;
+import static scratch.UCERF3.enumTreeBranches.TotalMag5Rate.*;
+
 import static com.google.common.base.Charsets.US_ASCII;
 import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sra.rtgm.RTGM.Frequency.*;
@@ -29,8 +39,18 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
 
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.peter.nshmp.CurveContainer;
 
 import com.google.common.base.Functions;
@@ -43,6 +63,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
@@ -74,15 +95,17 @@ public class CurveUtils {
 
 		// generateFortranCityData();
 
-		// generateUC2branchSummaries();
+//		 generateBranchSummaries();
 
-		try {
-			String src = "tree_src";
-			String out = "tree";
-			reorganizeUC3branchResults(src, out, true);
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+//		try {
+//			String src = "convABM_src";
+//			String out = "convABM";
+//			reorganizeUC3branchResults(src, out, true);
+//		} catch (IOException ioe) {
+//			ioe.printStackTrace();
+//		}
+		
+		generateBranchList();
 
 	}
 
@@ -207,7 +230,7 @@ public class CurveUtils {
 		Iterable<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(VENTURA);
 		String imrID = NSHMP08_WUS.SHORT_NAME;
 		// String dir = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
-		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/vars";
+		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/convABM";
 		try {
 			runBranchSummaries(dir, imrID, periods, cities);
 		} catch (IOException ioe) {
@@ -417,6 +440,57 @@ public class CurveUtils {
 				pe10in50, rtgm, curve);
 			String cityLine = JOIN.join(cityData) + LF;
 			Files.append(cityLine, out, US_ASCII);
+		}
+	}
+	
+	private static void generateBranchList() {
+		
+		String fileName = "ref32Single";
+		Set<FaultModels> fltModels = EnumSet.of(
+			FM3_2); // FM3_1, FM3_2);
+		Set<DeformationModels> defModels = EnumSet.of(
+//			ABM, ZENG);
+			ABM, GEOLOGIC, NEOKINEMA, ZENG);
+		Set<ScalingRelationships> scalingRel = EnumSet.of(
+//			ELLSWORTH_B, SHAW_2009_MOD);
+			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
+			SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
+		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
+			TAPERED); //UNIFORM, TAPERED);
+		Set<InversionModels> invModels = EnumSet.of(
+			CHAR_CONSTRAINED);
+		Set<TotalMag5Rate> totM5rate = EnumSet.of(
+			RATE_8p7); //RATE_7p6, RATE_8p7, RATE_10p0);
+		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
+			MAG_7p6); // MAG_7p2, MAG_7p6, MAG_8p0);
+		Set<MomentRateFixes> momentFix = EnumSet.of(
+			NONE);
+		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
+			UCERF3); // UCERF2, UCERF3);
+
+		List<Set<? extends LogicTreeBranchNode<?>>> branchSets = Lists.newArrayList();
+		branchSets.add(fltModels);
+		branchSets.add(defModels);
+		branchSets.add(scalingRel);
+		branchSets.add(slipRup);
+		branchSets.add(invModels);
+		branchSets.add(totM5rate);
+		branchSets.add(mMaxOff);
+		branchSets.add(momentFix);
+		branchSets.add(spatialSeis);
+		
+		int count = 0;
+		Set<List<LogicTreeBranchNode<?>>> branches = Sets.cartesianProduct(branchSets);
+		try {
+		File out = new File("tmp/invSolSets", fileName + ".txt");
+		Files.write("", out, US_ASCII);
+		for (List<LogicTreeBranchNode<?>> branch : branches) {
+			LogicTreeBranch ltb = LogicTreeBranch.fromValues(branch);
+			Files.append(ltb.buildFileName() + LF, out, US_ASCII);
+			System.out.println((count++) + " " + ltb.buildFileName());
+		}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
 		}
 	}
 
