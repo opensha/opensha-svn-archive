@@ -1375,13 +1375,13 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add(commandLine+"\n");
 		} else {
 			if (!map.isUseGMTSmoothing()) {
-				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+"-Ts -K"+dpi+ region + " > " + psFileName;
+				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+"-Ts -K"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine+"\n");
 			}
 			// generate the image depending on whether topo relief is desired
 			else if (map.getTopoResolution() == null) {
 				gmtCommandLines.add("# Plot the gridded data");
-				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+tempFilePrefix+".cpt "+" -K -E"+dpi+ region + " > " + psFileName;
+				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+" -K -E"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine+"\n");
 			}
 			else {
@@ -1409,7 +1409,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				gmtCommandLines.add(commandLine);
 				gmtCommandLines.add("# Plot the gridded data with topographic shading");
 				commandLine="${GMT_PATH}grdimage "+hiResFile+" " + xOff + yOff + projWdth +
-				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-K -E"+dpi+ region + " > " + psFileName;
+				" -I"+tempFilePrefix+"Inten.grd -C"+cptFile+" "+ "-K -E"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine);
 			}
 		}
@@ -1492,17 +1492,17 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("# Make PS file for google earth");
 			if (!map.isUseGMTSmoothing()) {
 				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+tempFilePrefix+".cpt "+"-Ts"+dpi+ region + " > " + gEarth_psFileName;
+				" -C"+cptFile+" "+"-Ts"+dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine);
 			}
 			else if (map.getTopoResolution() == null) {
 				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+tempFilePrefix+".cpt "+" -E"+dpi+ region + " > " + gEarth_psFileName;
+				" -C"+cptFile+" "+" -E"+dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine);
 			}
 			else {
 				commandLine="${GMT_PATH}grdimage "+tempFilePrefix+"HiResData.grd " + xOff + yOff + gEarth_proj +
-				" -I"+tempFilePrefix+"Inten.grd -C"+tempFilePrefix+".cpt "+ "-E"+
+				" -I"+tempFilePrefix+"Inten.grd -C"+cptFile+" "+ "-E"+
 				dpi+ region + " > " + gEarth_psFileName;
 				gmtCommandLines.add(commandLine);
 			}
