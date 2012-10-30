@@ -117,14 +117,18 @@ public enum ERF_ID {
 	},
 	UCERF3_REF_MEAN() {
 		public EpistemicListERF instance() {
-			return getUC3_REFmean();
+			return getUC3_SolERF(UC3_CONV_PATH);
 		}
 	},
-	UCERF3_BRANCH_BG() {
+	
+	/** Using this ID should prompt any class to 
+	 */
+	UCERF3_BRANCH() {
 		public EpistemicListERF instance() {
 			return null;
 		}
 	},
+
 	UCERF3_REF_0() { public EpistemicListERF instance() { return getUC3_REF(0); }},
 	UCERF3_REF_1() { public EpistemicListERF instance() { return getUC3_REF(1); }},
 	UCERF3_REF_2() { public EpistemicListERF instance() { return getUC3_REF(2); }},
@@ -232,13 +236,13 @@ public enum ERF_ID {
 
 	public static EpistemicListERF instanceUC3(LogicTreeBranch branch) {
 		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC3_TREE_PATH);
+			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC3_1X7X_SOL_PATH);
 			FaultSystemSolution fss = cfss.getSolution(branch);
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
 			
 			// !!!!!!!!!!!!!!!
-			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-				IncludeBackgroundOption.ONLY);
+//			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
+//				IncludeBackgroundOption.ONLY);
 
 			return wrapInList(erf);
 		} catch (Exception e) {
@@ -249,12 +253,21 @@ public enum ERF_ID {
 	
 	private static final String UC3_CONV_PATH =
 			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-	private static final String UC3_TREE_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+	private static final String UC31_1X_SOL_PATH =
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
+	private static final String UC32_1X_SOL_PATH =
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
+	private static final String UC31_5X_SOL_PATH =
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x5-COMPOUND_SOL.zip";
+	private static final String UC31_7X_SOL_PATH =
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-fm31-tree-x7-COMPOUND_SOL.zip";
+	private static final String UC3_1X7X_SOL_PATH =
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND.zip";
 	
-	private static EpistemicListERF getUC3_REFmean() {
+	
+	private static EpistemicListERF getUC3_SolERF(String solPath) {
 		try {
-			File fssZip = new File(UC3_CONV_PATH);
+			File fssZip = new File(solPath);
 			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
 			return wrapInList(erf);
@@ -266,7 +279,7 @@ public enum ERF_ID {
 		
 	private static EpistemicListERF getUC3_REF(int idx) {
 		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC3_TREE_PATH);
+			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC31_5X_SOL_PATH);
 			String ltbStr = refBranchList.get(idx);
 			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(ltbStr);
 			FaultSystemSolution fss = cfss.getSolution(ltb);
@@ -277,6 +290,20 @@ public enum ERF_ID {
 		}
 		return null;
 	}
+
+//	private static EpistemicListERF getUC3_BrAvgMulti() {
+//		try {
+//			File fssZip = new File(UC3_BRAVG_MEAN);
+//			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
+//			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+//			return wrapInList(erf);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+	
+	
 
 	public static final List<String> refBranchList;
 	private static final List<String> refBranchListB;

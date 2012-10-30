@@ -99,7 +99,7 @@ public class ScriptGen {
 		System.out.println(queue);
 		
 		String branch = null;
-		if (ERF_ID.valueOf(erfID).equals(ERF_ID.UCERF3_BRANCH_BG)) {
+		if (ERF_ID.valueOf(erfID).equals(ERF_ID.UCERF3_BRANCH)) {
 			branch = args[11];
 			System.out.println(branch);
 		}
@@ -136,11 +136,11 @@ public class ScriptGen {
 				.equals(Period.GM1P00) ? "1hz" : "5hz";
 			String epiStr = (epi) ? "_epi" : "";
 			String spacStr = createSpacingID(spacing);
-			String pFileName = name + epiStr + "-" + spacStr + "-" + freq + ".props";
+			String pFileName = name + epiStr + "_" + spacStr + "-" + freq + ".props";
 			pFile = new File(pFileName);
 
 			Properties props = new Properties();
-			props.setProperty("name", name + epiStr);
+			props.setProperty("name", name + epiStr + "_" + spacStr);
 			props.setProperty("grid", grid.name());
 			props.setProperty("spacing", Double.toString(spacing));
 			props.setProperty("period", period.name());
