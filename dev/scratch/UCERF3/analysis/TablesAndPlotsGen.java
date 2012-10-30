@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Joiner;
@@ -17,6 +19,12 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -24,6 +32,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 public class TablesAndPlotsGen {
+	
+	
 	
 	/**
 	 * This creates the Average Slip data table for the report with columns for each Deformation Model.
@@ -125,12 +135,51 @@ public class TablesAndPlotsGen {
 		}
 	}
 	
+	
+	public static void makePreInversionMFDsFig() {
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		System.out.println(rupSet.getPreInversionAnalysisData(true));
+		FaultSystemRupSetCalc.plotPreInversionMFDs(rupSet, false, false, true, "preInvCharMFDs.pdf");
+		
+		rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.GR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		FaultSystemRupSetCalc.plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs.pdf");
+		
+		rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.GR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.APPLY_IMPLIED_CC, SpatialSeisPDF.UCERF3);
+		FaultSystemRupSetCalc.plotPreInversionMFDs(rupSet, false, false, false, "preInvGR_MFDs_applCC.pdf");
+	}
+	
+	
+	
+	public static void makeDefModSlipRateMaps() {
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		File saveDir = GMT_CA_Maps.GMT_DIR;
+		boolean display = true;
+		try {
+			FaultBasedMapGen.plotDeformationModelSlips(region, saveDir, display);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+
 	/**
 	 * @param args
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		buildAveSlipDataTable(new File("/tmp/ave_slip_table.csv"));
+		buildAveSlipDataTable(new File("ave_slip_table.csv"));
+//		makePreInversionMFDsFig();
+//		makeDefModSlipRateMaps();
+
 	}
 
 }

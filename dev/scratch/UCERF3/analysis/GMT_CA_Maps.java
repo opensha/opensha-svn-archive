@@ -58,8 +58,8 @@ public class GMT_CA_Maps {
 	final static double defaultColorScaleMaxPart = 0.0;
 	final static double defaultColorScaleMinRatio = -2.0;
 	final static double defaultColorScaleMaxRatio = 2.0;
-	final static double defaultColorScaleMinPDF = -8.0;
-	final static double defaultColorScaleMaxPDF = -1.0;
+	final static double defaultColorScaleMinPDF = -6.0;
+	final static double defaultColorScaleMaxPDF = -2.0;
 	final static double defaultColorScaleMinMoRate = 13.0;
 	final static double defaultColorScaleMaxMoRate = 17.0;
 

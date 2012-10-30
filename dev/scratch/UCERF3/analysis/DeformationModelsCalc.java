@@ -1160,8 +1160,9 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
+		writeListOfNewFaultSections();
 		
-		plotAllSpatialMoRateMaps();
+//		plotAllSpatialMoRateMaps();
 
 		
 //		calcMoRateAndMmaxDataForDefModels();

@@ -210,13 +210,14 @@ public class FaultSystemRupSetCalc {
 	 * @param numMag
 	 * @param deltaMag
 	 */
-	public static HistogramFunction getMagHistogram(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag) {
+	public static HistogramFunction getMagHistogram(InversionFaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag) {
 		HistogramFunction hist = new HistogramFunction(minMag, numMag, deltaMag);
 			for (int r=0;r<faultSystemRupSet.getNumRuptures(); r++) {
-				hist.add(faultSystemRupSet.getMagForRup(r), 1.0);
+				if(!faultSystemRupSet.isRuptureBelowSectMinMag(r))
+					hist.add(faultSystemRupSet.getMagForRup(r), 1.0);
 			}
 		if(D) System.out.println(hist);
-		hist.normalizeBySumOfY_Vals();
+//		hist.normalizeBySumOfY_Vals();
 		hist.setName("Mag Histogram for FaultSystemRupSet");
 		hist.setInfo("(based on "+faultSystemRupSet.getNumRuptures()+" ruptures)");
 		return hist;
@@ -255,7 +256,7 @@ public class FaultSystemRupSetCalc {
 	 * @param deltaMag
 	 * @param wtByMoRate
 	 */
-	public static void plotAllHistograms(FaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
+	public static void plotAllHistograms(InversionFaultSystemRupSet faultSystemRupSet, double minMag, int numMag, double deltaMag, boolean wtByMoRate) {
 		ArrayList<HistogramFunction> hists = new ArrayList<HistogramFunction>();
 		hists.add(getMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag));
 		hists.add(getMaxMagHistogram(faultSystemRupSet, minMag, numMag, deltaMag, wtByMoRate));
@@ -1396,6 +1397,11 @@ if(mMax<5.85)
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.GRAY));
 		
+		System.out.println("targetOnFaultSupraSeisMFD R>=6.5:\t"+targetOnFaultSupraSeisMFD.getCumRate(6.55));
+		System.out.println("trulyOffFaultMFD R>=6.5:\t"+trulyOffFaultMFD.getCumRate(6.55));
+		System.out.println("totalSubSeismoOnFaultMFD R>=6.5:\t"+totalSubSeismoOnFaultMFD.getCumRate(6.55));
+		System.out.println("totalTargetGR R>=6.5:\t"+totalTargetGR.getCumRate(6.55));
+		
 		if(isGR) {	// plot total implied target
 			SummedMagFreqDist totalMFDsum = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
 			totalMFDsum.addIncrementalMagFreqDist(targetOnFaultSupraSeisMFD);
@@ -2294,7 +2300,9 @@ if(mMax<5.85)
 		}
 		
 		
+		System.out.println("info:");
 		System.out.println(info);
+		System.out.println("rupsBelowMinMag:");
 		System.out.println(rupsBelowMinMag);
 		
 	}
@@ -2470,7 +2478,7 @@ if(mMax<5.85)
 		
 //		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
 
-		plotAllImpliedTotalSectGR_MFD();
+//		plotAllImpliedTotalSectGR_MFD();
 	
 //		writeParkfieldAveSlips();
 		
@@ -2480,9 +2488,16 @@ if(mMax<5.85)
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 //				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
-//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_2, DeformationModels.ZENG, 
-//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
-//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		
+//		HistogramFunction magHist = getMagHistogram(rupSet, 0.05, 90, 0.1);
+//		System.out.println();
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(magHist, "Mag Hist");
+
+		
+		plotPreInversionMFDs(rupSet, false, false, false, null);
 		
 //		plotSumOfCharInversionMFD_Constraints(rupSet);
 //		plotSumOfGR_InversionMFD_Constraints(rupSet);
@@ -2497,15 +2512,10 @@ if(mMax<5.85)
 //		graph.setY_AxisLabel("Rate (per year)");
 //		graph.setYLog(true);
 
-
-		
-		
-		
 //		computeMinSeismoMagForSections(rupSet, InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
 		
 //		tempTest2(rupSet);;
 		
-//		System.out.println(getMagHistogram(rupSet, 0.05, 90, 0.1));
 		
 //		tempSubsectionAreaTest(rupSet);
 		
