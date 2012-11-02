@@ -171,7 +171,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return remappings;
 	}
 	
-	private static String getRemappedName(String name, LogicTreeBranch branch) {
+	public static String getRemappedName(String name, LogicTreeBranch branch) {
 		String nodeStr = "";
 		List<Class<? extends LogicTreeBranchNode<?>>> dependencies = dependencyMap.get(name);
 		if (dependencies == null)
@@ -187,12 +187,12 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return new CompoundFaultSystemSolution(new ZipFileSolutionFetcher(zip));
 	}
 	
-	static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
+	public static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
 		
 		private ZipFile zip;
 		private List<LogicTreeBranch> branches;
 		
-		ZipFileSolutionFetcher(ZipFile zip) {
+		public ZipFileSolutionFetcher(ZipFile zip) {
 			this.zip = zip;
 			branches = Lists.newArrayList();
 			
@@ -238,14 +238,14 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			}
 		}
 		
-		protected double[] getRates(LogicTreeBranch branch) throws IOException {
+		public double[] getRates(LogicTreeBranch branch) throws IOException {
 			Map<String, String> nameRemappings = getRemappings(branch);
 			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
 			return MatrixIO.doubleArrayFromInputStream(
 					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
 		}
 		
-		protected double[] getMags(LogicTreeBranch branch) throws IOException {
+		public double[] getMags(LogicTreeBranch branch) throws IOException {
 			Map<String, String> nameRemappings = getRemappings(branch);
 			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
 			return MatrixIO.doubleArrayFromInputStream(

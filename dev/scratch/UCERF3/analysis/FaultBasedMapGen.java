@@ -15,6 +15,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -25,6 +26,7 @@ import org.opensha.commons.mapping.gmt.elements.CoastAttributes;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
@@ -571,7 +573,7 @@ public class FaultBasedMapGen {
 		Color penColor = Color.BLACK;
 		PSXYSymbolSet symbolSet = new PSXYSymbolSet(cpt, symbols, vals, penWidth, penColor, null);
 		
-		GMT_Map map = buildMap(cpt, new ArrayList<LocationList>(), new double[0], region, true, "Slip Rate (mm/yr)");
+		GMT_Map map = buildMap(cpt, new ArrayList<LocationList>(), new double[0], null, 1, region, true, "Slip Rate (mm/yr)");
 		
 		map.setSymbolSet(symbolSet);
 		
@@ -708,15 +710,18 @@ public class FaultBasedMapGen {
 	public synchronized static void makeFaultPlot(CPT cpt, List<LocationList> faults, double[] values, Region region,
 			File saveDir, String prefix, boolean display, boolean skipNans, String label)
 					throws GMT_MapException, RuntimeException, IOException {
-		GMT_Map map = buildMap(cpt, faults, values, region, skipNans, label);
+		GMT_Map map = buildMap(cpt, faults, values, null, 1, region, skipNans, label);
 		
 		plotMap(saveDir, prefix, display, map);
 	}
 
-	private static void plotMap(File saveDir, String prefix, boolean display,
+	public static void plotMap(File saveDir, String prefix, boolean display,
 			GMT_Map map) throws GMT_MapException, IOException {
-		if (gmt == null)
+		if (gmt == null) {
 			gmt = new GMT_MapGenerator();
+			gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.LOG_PLOT_NAME).setValue(false);
+			gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME).setValue(false);
+		}
 		
 		String url = gmt.makeMapUsingServlet(map, "metadata", null);
 		System.out.println(url);
@@ -741,9 +746,9 @@ public class FaultBasedMapGen {
 		}
 	}
 
-	private static GMT_Map buildMap(CPT cpt, List<LocationList> faults,
-			double[] values, Region region, boolean skipNans, String label) {
-		GMT_Map map = new GMT_Map(region, null, 1, cpt);
+	public static GMT_Map buildMap(CPT cpt, List<LocationList> faults,
+			double[] values, GeoDataSet griddedData, double spacing, Region region, boolean skipNans, String label) {
+		GMT_Map map = new GMT_Map(region, griddedData, spacing, cpt);
 		
 		map.setBlackBackground(false);
 		map.setRescaleCPT(false);
@@ -751,24 +756,28 @@ public class FaultBasedMapGen {
 		map.setCustomScaleMax((double)cpt.getMaxValue());
 		map.setCoast(new CoastAttributes(Color.BLACK, 2));
 		map.setCustomLabel(label);
+		map.setUseGMTSmoothing(false);
+		map.setTopoResolution(null);
 		
-		Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
-		
-		ArrayList<TraceValue> vals = new ArrayList<FaultBasedMapGen.TraceValue>();
-		for (int i=0; i<faults.size(); i++) {
-			if (skipNans && Double.isNaN(values[i]))
-				continue;
-			LocationList fault = faults.get(i);
-			vals.add(new TraceValue(fault, values[i]));
-		}
-		Collections.sort(vals); // so that high values are on top
-		
-		for (TraceValue val : vals) {
-			LocationList fault = val.trace;
-			double value = val.value;
-			Color c = cpt.getColor((float)value);
-			for (PSXYPolygon poly : getPolygons(fault, c))
-				map.addPolys(poly);
+		if (faults != null) {
+			Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
+			
+			ArrayList<TraceValue> vals = new ArrayList<FaultBasedMapGen.TraceValue>();
+			for (int i=0; i<faults.size(); i++) {
+				if (skipNans && Double.isNaN(values[i]))
+					continue;
+				LocationList fault = faults.get(i);
+				vals.add(new TraceValue(fault, values[i]));
+			}
+			Collections.sort(vals); // so that high values are on top
+			
+			for (TraceValue val : vals) {
+				LocationList fault = val.trace;
+				double value = val.value;
+				Color c = cpt.getColor((float)value);
+				for (PSXYPolygon poly : getPolygons(fault, c))
+					map.addPolys(poly);
+			}
 		}
 		return map;
 	}
@@ -796,13 +805,14 @@ public class FaultBasedMapGen {
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.1_VarOffAseis0_VarMFDMod1.3_VarNone_sol.zip");
 		File solFile = new File(invSolsDir, "FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
 //		File solFile = new File("/tmp/ucerf2_fm2_compare.zip");
-		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
+//		FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(solFile);
+		FaultSystemSolution sol = null;
 		
 		Region region = new CaliforniaRegions.RELM_TESTING();
 		
 		File saveDir = new File("/tmp");
 		String prefix = solFile.getName().replaceAll(".zip", "");
-		boolean display = true;
+		boolean display = false;
 		
 		plotDeformationModelSlips(region, saveDir, display);
 //		plotDeformationModelSlipRatiosToGeol(region, saveDir, display);

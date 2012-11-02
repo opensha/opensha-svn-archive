@@ -228,5 +228,9 @@ public class EventRecord {
 	public boolean hasElementSlipsAndIDs() {
 		return numElements > 0;
 	}
+	
+	public double getMoment() {
+		return moment;
+	}
 
 }

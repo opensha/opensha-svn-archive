@@ -886,7 +886,7 @@ public class GraphPanel extends JSplitPane {
 			} else if (ext.equals(".png")) {
 				saveAsPNG(fileName);
 			} else if (ext.equals(".txt")) {
-				FileUtils.save(fileName, dataTextArea.getText());
+				saveAsTXT(fileName);
 			} else {
 				throw new RuntimeException("Unknown extension selected: "+ext);
 			}
@@ -900,6 +900,15 @@ public class GraphPanel extends JSplitPane {
 	 */
 	public void saveAsPNG(String fileName) throws IOException {
 		saveAsPNG(fileName, chartPanel.getWidth(), chartPanel.getHeight());
+	}
+
+	/**
+	 * Allows the user to save the chart as TXT
+	 * @param fileName
+	 * @throws IOException
+	 */
+	public void saveAsTXT(String fileName) throws IOException {
+		FileUtils.save(fileName, dataTextArea.getText());
 	}
 	
 	/**

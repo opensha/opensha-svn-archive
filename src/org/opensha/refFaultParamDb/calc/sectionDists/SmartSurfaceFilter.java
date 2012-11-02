@@ -52,4 +52,12 @@ public class SmartSurfaceFilter implements SurfaceFilter {
 		return cornerMidptDistFilter;
 	}
 
+	public int getInternalModulus() {
+		return internalModulus;
+	}
+
+	public int getOutlineModulus() {
+		return outlineModulus;
+	}
+
 }

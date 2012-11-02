@@ -397,13 +397,7 @@ public class LogicTreePBSWriter {
 	}
 	
 	public static TreeTrimmer getZengOnlyTrimmer() {
-		return new TreeTrimmer() {
-			
-			@Override
-			public boolean isTreeValid(LogicTreeBranch branch) {
-				return branch.getValue(DeformationModels.class).equals(DeformationModels.ZENG);
-			}
-		};
+		return new SingleValsTreeTrimmer(DeformationModels.ZENG);
 	}
 	
 	private static TreeTrimmer getDiscreteCustomTrimmer() {
@@ -469,7 +463,7 @@ public class LogicTreePBSWriter {
 	private static TreeTrimmer getCustomTrimmer() {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
-		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_2);
 //		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
 		limitations.add(faultModels);
 
@@ -533,7 +527,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "fm3-logic-tree-sample-x5";
+		String runName = "logic-tree-sample-fm3-2";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -548,18 +542,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-		RunSites site = RunSites.RANGER;
-		int batchSize = 256;
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+//		RunSites site = RunSites.RANGER;
+//		int batchSize = 256;
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 5;
+		int numRuns = 1;
 		int runStart = 0;
 
-		boolean lightweight = numRuns > 10;
+//		boolean lightweight = numRuns > 10;
+		boolean lightweight = true;
 
 		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
@@ -590,6 +585,7 @@ public class LogicTreePBSWriter {
 		
 //		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.ABM));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
 		TreeTrimmer defaultBranchesTrimmer = null;
 		

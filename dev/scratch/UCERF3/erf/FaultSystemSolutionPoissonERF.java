@@ -157,12 +157,13 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
 		adjustableParams.addParameter(applyAftershockFilterParam);
 
+		// TODO I have commented out these references because they create a memory leak
 		bgIncludeParam = new IncludeBackgroundParam();
-		bgIncludeParam.getEditor().setEnabled(false);
+//		bgIncludeParam.getEditor().setEnabled(false);
 		adjustableParams.addParameter(bgIncludeParam);
 
 		bgRupTypeParam = new BackgroundRupParam();
-		bgRupTypeParam.getEditor().setEnabled(false);
+//		bgRupTypeParam.getEditor().setEnabled(false);
 		adjustableParams.addParameter(bgRupTypeParam);
 
 		// set listeners
@@ -237,7 +238,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		} else if (paramName.equalsIgnoreCase(bgIncludeParam.getName())) {
 			bgInclude = bgIncludeParam.getValue();
 			boolean enable = !bgInclude.equals(IncludeBackgroundOption.EXCLUDE);
-			bgRupTypeParam.getEditor().setEnabled(enable);
+			// TODO disabled due to memory leak
+//			bgRupTypeParam.getEditor().setEnabled(enable);
 		} else if (paramName.equalsIgnoreCase(bgRupTypeParam.getName())) {
 			bgRupType = bgRupTypeParam.getValue();
 

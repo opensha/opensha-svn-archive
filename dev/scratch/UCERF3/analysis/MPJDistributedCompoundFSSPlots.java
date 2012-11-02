@@ -20,6 +20,8 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoFaultPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoSiteCorrelationPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ParentSectMFDsPlot;
@@ -58,7 +60,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		invFSS = false;
 		for (CompoundFSSPlots plot : plots) {
-			if (plot.usesInversionFSS()) {
+			if (plot.usesInversionFSS() || plot.usesERFs()) {
 				invFSS = true;
 				break;
 			}
@@ -86,7 +88,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			LogicTreeBranch branch = branches.get(index);
 			List<CompoundFSSPlots> myPlots = Lists.newArrayList(plots);
 			Collections.shuffle(myPlots);
-			tasks.add(new PlotSolComputeTask(myPlots, fetcher, branch, invFSS, true));
+			tasks.add(new PlotSolComputeTask(myPlots, fetcher, branch, invFSS, true, index));
 		}
 		
 		debug("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");
@@ -211,19 +213,29 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		options.addOption(parentMFDsOption);
 		
 		Option jumpsOption = new Option("jumps", "plot-rup-jumps", false,
-				"Flag for plotting parent section MFDs");
+				"Flag for plotting rupture jumps");
 		jumpsOption.setRequired(false);
 		options.addOption(jumpsOption);
 		
 		Option slipMisfitsOption = new Option("slips", "plot-slip-misfits", false,
-				"Flag for plotting parent section MFDs");
+				"Flag for plotting slip misfits");
 		slipMisfitsOption.setRequired(false);
 		options.addOption(slipMisfitsOption);
 		
 		Option particsOption = new Option("partics", "plot-participations", false,
-				"Flag for plotting parent section MFDs");
+				"Flag for plotting fault based section participations");
 		particsOption.setRequired(false);
 		options.addOption(particsOption);
+		
+		Option gridParticsOption = new Option("gridpartics", "plot-gridded-participations", false,
+				"Flag for plotting gridded participations");
+		gridParticsOption.setRequired(false);
+		options.addOption(gridParticsOption);
+		
+		Option erfMFDsOption = new Option("erfmfds", "plot-erf-mfds", false,
+				"Flag for plotting gridded participations");
+		erfMFDsOption.setRequired(false);
+		options.addOption(erfMFDsOption);
 		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
@@ -306,6 +318,16 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("partics")) {
 				ParticipationMapPlot partics = new ParticipationMapPlot(weightProvider);
 				plots.add(partics);
+			}
+			
+			if (plotAll || cmd.hasOption("gridpartics")) {
+				GriddedParticipationMapPlot partics = new GriddedParticipationMapPlot(weightProvider);
+				plots.add(partics);
+			}
+			
+			if (plotAll || cmd.hasOption("erfmfds")) {
+				ERFBasedRegionalMFDPlot erfMFDs = new ERFBasedRegionalMFDPlot(weightProvider);
+				plots.add(erfMFDs);
 			}
 			
 			MPJDistributedCompoundFSSPlots driver = new MPJDistributedCompoundFSSPlots(cmd, fetcher, plots);

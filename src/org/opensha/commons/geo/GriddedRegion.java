@@ -829,12 +829,12 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		Element xml = root.addElement(GriddedRegion.XML_METADATA_NAME);
 		xml.addAttribute(GriddedRegion.XML_METADATA_GRID_SPACING_NAME,
 			this.getSpacing() + "");
-		Element xml_anchor = root
+		Element xml_anchor = xml
 			.addElement(GriddedRegion.XML_METADATA_ANCHOR_NAME);
-		xml = anchor.toXMLMetadata(xml_anchor);
+		anchor.toXMLMetadata(xml_anchor);
 		xml.addAttribute(GriddedRegion.XML_METADATA_NUM_POINTS_NAME,
 			this.getNodeCount() + "");
-		xml = super.toXMLMetadata(xml);
+		super.toXMLMetadata(xml);
 
 		return root;
 	}

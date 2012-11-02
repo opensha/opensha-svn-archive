@@ -83,5 +83,9 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 	public LocationList getLocationList() {
 		return region.getNodeList();
 	}
+	
+	public GriddedRegion getRegion() {
+		return region;
+	}
 
 }

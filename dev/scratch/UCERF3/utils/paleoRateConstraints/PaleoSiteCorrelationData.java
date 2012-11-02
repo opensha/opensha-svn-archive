@@ -60,10 +60,11 @@ public class PaleoSiteCorrelationData implements Serializable {
 	private int site2Events;
 	private int numCorrelated;
 	private boolean neighbors;
+	private FaultModels fm;
 
 	public PaleoSiteCorrelationData(String site1Name, Location site1Loc, int site1SubSect,
 			String site2Name, Location site2Loc, int site2SubSect, int site1Events,
-			int site2Events, int numCorrelated, boolean neighbors) {
+			int site2Events, int numCorrelated, boolean neighbors, FaultModels fm) {
 		super();
 		this.site1Name = site1Name;
 		this.site1Loc = site1Loc;
@@ -75,6 +76,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 		this.site2Events = site2Events;
 		this.numCorrelated = numCorrelated;
 		this.neighbors = neighbors;
+		this.fm = fm;
 	}
 
 	public String getSite1Name() {
@@ -121,9 +123,13 @@ public class PaleoSiteCorrelationData implements Serializable {
 		return neighbors;
 	}
 	
+	public FaultModels getFaultModel() {
+		return fm;
+	}
+	
 	public PaleoSiteCorrelationData getReversed() {
 		return new PaleoSiteCorrelationData(site2Name, site2Loc, site2SubSect, site1Name, site1Loc, site1SubSect,
-				site2Events, site1Events, numCorrelated, neighbors);
+				site2Events, site1Events, numCorrelated, neighbors, fm);
 	}
 	
 	/**
@@ -321,7 +327,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 					boolean neighbors = relativeCol == relativeRow + 1;
 					PaleoSiteCorrelationData corr = new PaleoSiteCorrelationData(name1, siteLocMap.get(name1),
 							sectIndex1, name2, siteLocMap.get(name2), sectIndex2, site1Count, site2Count,
-							numCorrelated, neighbors);
+							numCorrelated, neighbors, sol.getFaultModel());
 					table.put(name1, name2, corr);
 					table.put(name2, name1, corr.getReversed());
 					
@@ -477,7 +483,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 			}
 		}
 		
-		return getCorrelationPlotSpec(faultName, sol.getFaultModel(), corrs, solValues, paleoProb);
+		return getCorrelationPlotSpec(faultName, corrs, solValues, paleoProb);
 	}
 	
 	public static List<PaleoSiteCorrelationData> getCorrelataionsToPlot(
@@ -529,7 +535,6 @@ public class PaleoSiteCorrelationData implements Serializable {
 	
 	public static PlotSpec getCorrelationPlotSpec(
 			String faultName,
-			FaultModels fm,
 			List<PaleoSiteCorrelationData> corrs,
 			List<double[]> solValues,
 			PaleoProbabilityModel paleoProb) {
@@ -544,9 +549,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 		PlotCurveCharacterstics solAvgBoundsChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
 		PlotCurveCharacterstics ucerf2Char = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, new Color(130, 86, 5));
 		
-		FaultSystemSolution ucerf2Sol = null;
-		if (fm != null)
-			ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
+		Map<FaultModels, FaultSystemSolution> ucerf2Sols = Maps.newHashMap();
 		
 		double x = 0;
 		
@@ -585,7 +588,13 @@ public class PaleoSiteCorrelationData implements Serializable {
 					chars.add(solAvgBoundsChar);
 				}
 			}
+			FaultModels fm = corr.getFaultModel();
 			if (fm != null) {
+				FaultSystemSolution ucerf2Sol = ucerf2Sols.get(fm);
+				if (ucerf2Sol == null) {
+					ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
+					ucerf2Sols.put(fm, ucerf2Sol);
+				}
 				double ucerf2Rate = getRateCorrelated(
 						paleoProb, ucerf2Sol, corr.getSite1SubSect(), corr.getSite2SubSect());
 				funcs.add(getHorizontalLine(ucerf2Rate, x, newX, funcNamePrefix+". UCERF2: "+ucerf2Rate));

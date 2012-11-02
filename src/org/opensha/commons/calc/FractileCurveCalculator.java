@@ -230,9 +230,10 @@ public class FractileCurveCalculator {
    * @param fraction
    * @return
    */
-  public ArbitrarilyDiscretizedFunc getFractile(double fraction) {
+  public AbstractXY_DataSet getFractile(double fraction) {
+	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
     // function to save the result
-    ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
+//    ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
     for(int i=0; i<num; ++i) {
       result.set(funcList.get(0).getX(i),
                  ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getDiscreteFractile(fraction));

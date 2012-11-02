@@ -651,6 +651,7 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 	private static String getJumpFilePrefix(String prefix, double minMag, boolean probPaleoVisible) {
@@ -694,6 +695,7 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 	private static String getMFDPrefix(String prefix, Region region) {
@@ -725,6 +727,7 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 	public static boolean doPaleoPlotsExist(File dir, String prefix) {
@@ -750,6 +753,7 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 	private static String getSAFSegPrefix(String prefix, double minMag, boolean endsOnly) {
@@ -845,6 +849,11 @@ public class CommandLineInversionRunner {
 			IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			partMFDs.add(partMFD);
 			
+			List<EvenlyDiscretizedFunc> nuclCmlMFDs = Lists.newArrayList();
+			nuclCmlMFDs.add(nuclMFD.getCumRateDist());
+			List<EvenlyDiscretizedFunc> partCmlMFDs = Lists.newArrayList();
+			partCmlMFDs.add(partMFD.getCumRateDist());
+			
 			if (isAVG) {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
 				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
@@ -872,8 +881,8 @@ public class CommandLineInversionRunner {
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
 			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
 
-			writeParentSectMFDPlot(dir, nuclMFDs, isAVG, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFDs, isAVG, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -962,6 +971,7 @@ public class CommandLineInversionRunner {
 	}
 
 	public static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds,
+			List<EvenlyDiscretizedFunc> cmlMFDs,
 			boolean avgColoring, List<IncrementalMagFreqDist> ucerf2MFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -973,16 +983,17 @@ public class CommandLineInversionRunner {
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		if (ucerf2MFDs != null) {
+			Color lightRed = new Color (255, 128, 128);
+			
 			for (IncrementalMagFreqDist ucerf2MFD : ucerf2MFDs)
 				ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
 			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
 			funcs.add(meanMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, lightRed));
 			EvenlyDiscretizedFunc cmlMFD = meanMFD.getCumRateDist();
 			cmlMFD.setName("UCERF2 Cumulative");
 			funcs.add(cmlMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-			Color lightRed = new Color (255, 100, 100);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
 			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
 			funcs.add(minMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
@@ -996,7 +1007,7 @@ public class CommandLineInversionRunner {
 			mfd.setName("Incremental MFD");
 			funcs.add(mfd);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-			EvenlyDiscretizedFunc cmlFunc = mfd.getCumRateDist();
+			EvenlyDiscretizedFunc cmlFunc = cmlMFDs.get(0);
 			cmlFunc.setName("Cumulative MFD");
 			funcs.add(cmlFunc);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
@@ -1030,10 +1041,10 @@ public class CommandLineInversionRunner {
 			int numFractils = mfds.size() - 3;
 			mfd = mfds.get(mfds.size()-1);
 			funcs.addAll(mfds);
+			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractils));
+			numFractils = cmlMFDs.size() - 3;
+			funcs.addAll(cmlMFDs);
 			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, numFractils));
-			for (IncrementalMagFreqDist imfd : mfds)
-				funcs.add(imfd.getCumRateDist());
-			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, numFractils));
 		}
 
 		double minX = mfd.getMinX();
@@ -1063,6 +1074,7 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 	public static void writePaleoCorrelationPlots(
@@ -1109,6 +1121,7 @@ public class CommandLineInversionRunner {
 			gp.getCartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		}
 	}
 
@@ -1177,13 +1190,17 @@ public class CommandLineInversionRunner {
 				gp.getCartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
+				gp.saveAsTXT(file.getAbsolutePath()+".txt");
 			}
 		}
 	}
 	
 	public static void setFontSizes(HeadlessGraphPanel gp) {
-		gp.setTickLabelFontSize(16);
-		gp.setAxisLabelFontSize(18);
-		gp.setPlotLabelFontSize(20);
+//		gp.setTickLabelFontSize(16);
+//		gp.setAxisLabelFontSize(18);
+//		gp.setPlotLabelFontSize(20);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
 	}
 }

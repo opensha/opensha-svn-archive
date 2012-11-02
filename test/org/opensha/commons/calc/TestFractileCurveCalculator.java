@@ -141,7 +141,7 @@ public class TestFractileCurveCalculator {
 	@Test
 	public void testGetFractile() {
 		FractileCurveCalculator calc = new FractileCurveCalculator(getGoodTestData(), getGoodWeights());
-		ArbitrarilyDiscretizedFunc fractal;
+		AbstractXY_DataSet fractal;
 		
 		// test case for fraction of 0
 		fractal = calc.getFractile(0);
