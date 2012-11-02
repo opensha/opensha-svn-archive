@@ -83,7 +83,11 @@ public class FaultSystemSolutionCalc {
 			ref.setValue(scale);
 			FaultSystemSolution sol = fetcher.getSolution(ref);
 			
-			File file = new File(outputDir, "paleo_obs_slip_COV_"+scale.getShortName());
+			File file;
+			if (outputDir == null)
+				file = null;
+			else
+				file = new File(outputDir, "paleo_obs_slip_COV_"+scale.getShortName());
 			
 			plotPaleoObsSlipCOV_Histogram(sol, file);
 		}
