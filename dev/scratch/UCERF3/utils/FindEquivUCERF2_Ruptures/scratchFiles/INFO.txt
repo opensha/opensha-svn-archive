@@ -1,3 +1,13 @@
+On Nov 3, 2012 I discovered the following error in FM2to3_1_sectionNameChanges.txt and FM2to3_2_sectionNameChanges.txt:
+
+	Green Valley (So)	Green Valley 2011 CFM
+	Green Valley (No)	COMBINED
+
+(the first one should say COMBINED as well; I fixed this, and it shouldn't effect anything)
+
+************* Previous notes below:
+
+
 These are some files used in developing FM3_1_SectionsForUCERF2_Sources.txt & FM3_2_SectionsForUCERF2_Sources.txt.
 
 UCERF3_FaultSectAddAndRev_v3_2011_11_15.xlsx (renamed from "UCERF3 2011 Fault Section Additions and Revisions_ver 3_2011_11_15.xlsx") came from Tim via email on 2-17-12.

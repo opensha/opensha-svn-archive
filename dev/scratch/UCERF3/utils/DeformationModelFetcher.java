@@ -308,6 +308,14 @@ public class DeformationModelFetcher {
 	 * Note that overlapping sections on the Elsinore and San Jacinto are replaced with the combined sections
 	 * (the ones used in the UCERF2 un-segmented models rather than the segmented models).  This means
 	 * the sections here are not exactly the same as in the official UCERF2 deformation models.
+	 * Set the UCERF2 deformation model IDs as one of the following:
+	 * D2.1 = 82
+	 * D2.2 = 83
+	 * D2.3 = 84
+	 * D2.4 = 85
+	 * D2.5 = 86
+	 * D2.6 = 87
+
 	 */
 	private ArrayList<FaultSectionPrefData> getAll_UCERF2Sections(boolean includeSectionsWithNaN_slipRates) {
 
@@ -389,6 +397,92 @@ public class DeformationModelFetcher {
 		 */		
 		return allFaultSectionPrefData;
 	}
+	
+	
+	
+	
+	/**
+	 * This gets all section data from the UCERF2 deformation model, where the list is alphabetized,
+	 * and section with NaN slip rates are removed.  The creeping section is also removed
+	 * Note that overlapping sections on the Elsinore and San Jacinto are replaced with the combined sections
+	 * (the ones used in the UCERF2 un-segmented models rather than the segmented models).  This means
+	 * the sections here are not exactly the same as in the official UCERF2 deformation models.
+	 * 
+	 */
+	public static ArrayList<FaultSectionPrefData> getAll_UCERF2Sections(boolean includeSectionsWithNaN_slipRates, int u2_DefModelId) {
+
+		// fetch the sections
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		ArrayList<FaultSectionPrefData> prelimFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(u2_DefModelId);
+
+		// ****  Make a revised list, replacing step over sections on Elsinore and San Jacinto with the combined sections
+		ArrayList<FaultSectionPrefData> allFaultSectionPrefData= new ArrayList<FaultSectionPrefData>();
+
+		FaultSectionPrefData glenIvyStepoverfaultSectionPrefData=null,temeculaStepoverfaultSectionPrefData=null,anzaStepoverfaultSectionPrefData=null,valleyStepoverfaultSectionPrefData=null;
+
+		for(FaultSectionPrefData data : prelimFaultSectionPrefData) {
+			int id = data.getSectionId();
+			if(id==GLEN_IVY_STEPOVER_FAULT_SECTION_ID) {
+				glenIvyStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==TEMECULA_STEPOVER_FAULT_SECTION_ID) {
+				temeculaStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==SJ_ANZA_STEPOVER_FAULT_SECTION_ID) {
+				anzaStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else if(id==SJ_VALLEY_STEPOVER_FAULT_SECTION_ID) {
+				valleyStepoverfaultSectionPrefData = data;
+				continue;
+			}
+			else {
+				allFaultSectionPrefData.add(data);
+			}
+		}
+		PrefFaultSectionDataFinal faultSectionDataFinal = new PrefFaultSectionDataFinal();
+
+		FaultSectionPrefData newElsinoreSectionData = faultSectionDataFinal.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
+		newElsinoreSectionData.setAveSlipRate(glenIvyStepoverfaultSectionPrefData.getOrigAveSlipRate()+temeculaStepoverfaultSectionPrefData.getOrigAveSlipRate());
+		newElsinoreSectionData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
+		allFaultSectionPrefData.add(newElsinoreSectionData);
+
+		FaultSectionPrefData newSanJacinntoSectionData = faultSectionDataFinal.getFaultSectionPrefData(SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
+		newSanJacinntoSectionData.setAveSlipRate(anzaStepoverfaultSectionPrefData.getOrigAveSlipRate()+valleyStepoverfaultSectionPrefData.getOrigAveSlipRate());
+		newSanJacinntoSectionData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getOrigSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getOrigSlipRateStdDev());
+		allFaultSectionPrefData.add(newSanJacinntoSectionData);
+
+
+		//Alphabetize:
+		if(alphabetize)
+			Collections.sort(allFaultSectionPrefData, new NamedComparator());
+
+		// remove those with no slip rate if appropriate
+		if(!includeSectionsWithNaN_slipRates) {
+			if (D)System.out.println("Removing the following due to NaN slip rate:");
+			for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
+				if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
+					if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+					allFaultSectionPrefData.remove(i);
+				}	 
+		}
+
+		/**/
+		// REMOVE CREEPING SECTION for now (aseismicity not incorporated correctly)
+		if (D)System.out.println("Removing SAF Creeping Section.");
+		for(int i=0; i< allFaultSectionPrefData.size();i++) {
+			if (allFaultSectionPrefData.get(i).getSectionId() == 57)
+				allFaultSectionPrefData.remove(i);
+		}
+		 
+		return allFaultSectionPrefData;
+	}
+
+	
+	
+	
 
 
 	/**

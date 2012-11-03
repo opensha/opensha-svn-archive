@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSetMath;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -33,6 +35,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -55,6 +58,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
+import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
 
@@ -294,6 +298,169 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	public static void writeMoRateOfParentSectionsForAllDefAndFaultModels() {
+		
+		// make a master list of fault sections
+		ArrayList<String> fm3_sectionNamesList = new ArrayList<String>();
+		ArrayList<Integer> fm3_sectionIDsList = new ArrayList<Integer>();
+		
+		// loop over fault model 3.1
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName())) {
+				fm3_sectionNamesList.add(data.getParentSectionName());
+				fm3_sectionIDsList.add(data.getParentSectionId());
+			}
+		}
+		// add those from FM 3.2
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName())) {
+				fm3_sectionNamesList.add(data.getParentSectionName());
+				fm3_sectionIDsList.add(data.getParentSectionId());
+			}
+		}
+		
+		Hashtable<Integer,Double> moRateForFM3pt1_Zeng = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.ZENG);
+		Hashtable<Integer,Double> moRateForFM3pt1_NeoKinema = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> moRateForFM3pt1_Geologic = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> moRateForFM3pt1_ABM = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.ABM);
+		Hashtable<Integer,Double> moRateForFM3pt2_Zeng = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.ZENG);
+		Hashtable<Integer,Double> moRateForFM3pt2_NeoKinema = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> moRateForFM3pt2_Geologic = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> moRateForFM3pt2_ABM = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.ABM);
+		
+		// these only map names that actually changed, not ones that didn't
+		HashMap<String, String> u2nameFromU3NameMapFM3pt1 = null;
+		HashMap<String, String> u2nameFromU3NameMapFM3pt2 = null;
+		try {
+			u2nameFromU3NameMapFM3pt1 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_1);
+			u2nameFromU3NameMapFM3pt2 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_2);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> newFaultSectionsList = getListOfNewFaultSectionNames();
+		
+		/** UCERF2 deformation model IDs:
+		 * D2.1 = 82
+		 * D2.2 = 83
+		 * D2.3 = 84
+		 * D2.4 = 85
+		 * D2.5 = 86
+		 * D2.6 = 87
+		 */
+		HashMap<String,Double> moRateForDM2pt1 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> moRateForDM2pt2 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 83));
+		HashMap<String,Double> moRateForDM2pt3 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 84));
+		HashMap<String,Double> moRateForDM2pt4 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+		HashMap<String,Double> moRateForDM2pt5 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 86));
+		HashMap<String,Double> moRateForDM2pt6 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 87));
+
+		
+		ArrayList<String> lines = new ArrayList<String>();
+		String line = "sectName\tsectID\tFM3pt1_Zeng\tFM3pt1_NeoKinema\tFM3pt1_Geologic\tFM3pt1_ABM\tFM3pt2_Zeng\tFM3pt2_NeoKinema\tFM3pt2_Geologic\tFM3pt2_ABM";
+		line += "\tu2_name\tDM2pt1\tDM2pt2\tDM2pt3\tDM2pt4\tDM2pt5\tDM2pt6";
+		lines.add(line);
+		for(int s=0; s<fm3_sectionNamesList.size();s++) {
+			int id = fm3_sectionIDsList.get(s);
+			String u3_name = fm3_sectionNamesList.get(s);
+			line = u3_name;
+			line += "\t"+id;
+			line += "\t"+moRateForFM3pt1_Zeng.get(id);
+			line += "\t"+moRateForFM3pt1_NeoKinema.get(id);
+			line += "\t"+moRateForFM3pt1_Geologic.get(id);
+			line += "\t"+moRateForFM3pt1_ABM.get(id);
+
+			line += "\t"+moRateForFM3pt2_Zeng.get(id);
+			line += "\t"+moRateForFM3pt2_NeoKinema.get(id);
+			line += "\t"+moRateForFM3pt2_Geologic.get(id);
+			line += "\t"+moRateForFM3pt2_ABM.get(id);
+			
+			String u2_name = u2nameFromU3NameMapFM3pt1.get(u3_name);
+			if(u2_name == null)	// try again if that failed
+				u2_name = u2nameFromU3NameMapFM3pt2.get(u3_name);
+			if(u2_name == null)
+				u2_name = u3_name;	// in case name didn't change
+			if(newFaultSectionsList.contains(u2_name))	// set back to null if it's a new fault
+				u2_name = null;
+			else if(u2_name.equals("Green Valley 2011 CFM"))	// this is the one special case where previous sections were combined
+				u2_name = null;
+ // System.out.println(u3_name+"\t"+u2_name);
+			
+			line += "\t"+u2_name;
+			line += "\t"+moRateForDM2pt1.get(u2_name);
+			line += "\t"+moRateForDM2pt2.get(u2_name);
+			line += "\t"+moRateForDM2pt3.get(u2_name);
+			line += "\t"+moRateForDM2pt4.get(u2_name);
+			line += "\t"+moRateForDM2pt5.get(u2_name);
+			line += "\t"+moRateForDM2pt6.get(u2_name);
+			
+			lines.add(line);
+		}
+
+//		for(String str:u2nameFromU3NameMapFM3pt1.keySet()) {
+//			System.out.println(str+"\t\t\t"+u2nameFromU3NameMapFM3pt1.get(str));
+//		}
+		
+		File dataFile = new File("dev/scratch/UCERF3/data/scratch/FaultSectionMomentRates.txt");
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			for(String str:lines) {
+//			for(String str:moRateForDM2pt1.keySet()) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+
+	}
+	
+	
+	private static HashMap<String,Double> getMoRateHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.calcMomentRate(true));
+		}
+		
+		return hashtable;
+	}
+
+	private static Hashtable<Integer,Double> getMoRateHashtable(FaultModels fm, DeformationModels dm) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double moRateReduced=0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				moRateReduced += data.calcMomentRate(true);
+			}
+			else {
+				if(!lastName.equals("")) {
+					hashtable.put(lastID, moRateReduced);
+				}
+				// set first values for new parent section
+				moRateReduced=data.calcMomentRate(true);
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		hashtable.put(lastID, moRateReduced);
+
+		return hashtable;
+	}
+
+	
+	
 	public static void writeMoRateOfParentSections(FaultModels fm, DeformationModels dm) {
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		
@@ -318,6 +485,8 @@ public class DeformationModelsCalc {
 				moRateNotReduced=data.calcMomentRate(false);
 				lastName = data.getParentSectionName();
 			}
+
+		System.out.println(lastName+"\t"+(float)moRateReduced+"\t"+(float)moRateNotReduced+"\t"+getEquivUCERF2_SectionNames.contains(lastName));
 
 	}
 	
@@ -432,10 +601,10 @@ public class DeformationModelsCalc {
 	
 	
 	/**
-	 * This writes out the names of sections that are new to UCERF3 (either the section was added or it now
+	 * This gets the names of sections that are new to UCERF3 (either the section was added or it now
 	 * has a slip rate from the Geologic deformation model, as UCERF2 ignored sections with no slip rate)
 	 */
-	public static void writeListOfNewFaultSections() {
+	public static ArrayList<String> getListOfNewFaultSectionNames() {
 		
 		// get section name from FM 3.1
 		ArrayList<String> fm3_sectionNamesList = new ArrayList<String>();
@@ -465,7 +634,55 @@ public class DeformationModelsCalc {
 		for(String name: newSectionName)
 			System.out.println(name);
 		System.out.println("There are "+newSectionName.size()+" new sections listed above");
+		
+		return newSectionName;
 
+
+	}
+	
+	public static void plotNewFaultSectionsInGMT() {
+		
+		ArrayList<String> newParSectionNames = getListOfNewFaultSectionNames();
+		
+		List<LocationList> faults = Lists.newArrayList();
+		List<Double> valsList = Lists.newArrayList();
+		
+		// get section name from FM 3.1
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(newParSectionNames.contains(data.getParentSectionName())) { // check that it's a new section
+				faults.add(data.getFaultTrace());
+				valsList.add(data.getReducedAveSlipRate());
+			}
+		}
+		// this will plot any duplicate over each other
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(newParSectionNames.contains(data.getParentSectionName())) { 
+				faults.add(data.getFaultTrace());
+				valsList.add(data.getReducedAveSlipRate());
+			}
+		}
+		
+		double[] values = Doubles.toArray(valsList);
+		
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		File saveDir = GMT_CA_Maps.GMT_DIR;
+		boolean display = true;
+
+		
+		try {
+			FaultBasedMapGen.makeFaultPlot(FaultBasedMapGen.getSlipRateCPT(), faults, values, region, saveDir, "NewFaultsOnly", display, false, "Slip Rate (mm/yr)");
+		} catch (GMT_MapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 	
@@ -573,6 +790,7 @@ public class DeformationModelsCalc {
 		}
 		for(DeformationModels dm : dmListForAve) {
 			GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(fm, dm);
+			dm.getRelativeWeight(null);
 			
 			for(int i=0;i<onFaultData.size();i++) {
 				if(!Double.isNaN(onFaultData.get(i)))	// treat the Geo NaNs as zero
@@ -582,6 +800,45 @@ public class DeformationModelsCalc {
 		return aveDefModOnFault;
 	}
 	
+	
+	/**
+	 * This returns the wt averaged on-fault moment rates for the given fault model, where the weights are from the logic tree.
+	 * @param fm
+	 */
+	public static GriddedGeoDataSet getWtAveDefModSpatialOnFaultMomentRateData() {
+
+		ArrayList<DeformationModels> dmListForAve = new ArrayList<DeformationModels>();
+		dmListForAve.add(DeformationModels.GEOLOGIC);
+		dmListForAve.add(DeformationModels.ABM);
+		dmListForAve.add(DeformationModels.NEOKINEMA);
+		dmListForAve.add(DeformationModels.ZENG);
+		
+		// test weights
+		for(DeformationModels dm : dmListForAve) {
+			System.out.println(dm+" wt="+dm.getRelativeWeight(null));
+		}
+
+		GriddedGeoDataSet aveDefModOnFault = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
+		for(int i=0;i<aveDefModOnFault.size();i++) {// initialize to zero
+			aveDefModOnFault.set(i,0);
+		}
+		for(DeformationModels dm : dmListForAve) {
+			// do first fault model
+			GriddedGeoDataSet onFaultData = getDefModFaultMoRatesInRELM_Region(FaultModels.FM3_1, dm);
+			for(int i=0;i<onFaultData.size();i++) {
+				if(!Double.isNaN(onFaultData.get(i)))	// treat the Geo NaNs as zero
+					aveDefModOnFault.set(i, aveDefModOnFault.get(i) + onFaultData.get(i)*dm.getRelativeWeight(null)*0.5);	// 0.5 is for the this fault model
+			}
+			// now do second fault model
+			GriddedGeoDataSet onFaultData2 = getDefModFaultMoRatesInRELM_Region(FaultModels.FM3_2, dm);
+			for(int i=0;i<onFaultData2.size();i++) {
+				if(!Double.isNaN(onFaultData2.get(i)))	// treat the Geo NaNs as zero
+					aveDefModOnFault.set(i, aveDefModOnFault.get(i) + onFaultData2.get(i)*dm.getRelativeWeight(null)*0.5);	// 0.5 is for the this fault model
+			}
+		}
+		return aveDefModOnFault;
+	}
+
 	
 	/**
 	 * This returns the average moment rate data including both on- and off-fault sources,
@@ -628,6 +885,38 @@ public class DeformationModelsCalc {
 	}
 
 
+	
+	/**
+	 * This generates Figures in reports and talks
+	 */
+	public static void plotWtAveOnFaultMoRateRatioToUCERF2_Map() {
+		
+		// Get wt ave def model for on-fault data
+		GriddedGeoDataSet aveDefModOnFault = getWtAveDefModSpatialOnFaultMomentRateData();
+		
+		// make UCERF2 on-fault data
+		ModMeanUCERF2 erf= new ModMeanUCERF2();
+		erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		erf.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erf.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		erf.updateForecast();
+		GriddedGeoDataSet ucerf2_Faults = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+
+		try {
+			GMT_CA_Maps.plotRatioOfRateMaps(aveDefModOnFault, ucerf2_Faults, "WtedAveDefModOnFault_RatioToUCERF2_MoRateMap", " " , "WtedAveDefModOnFault_RatioToUCERF2_MoRateMap");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+		
+	}
+	
+	
+	
 	
 	/**
 	 * This generates Figures in reports and talks
@@ -1160,7 +1449,13 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeListOfNewFaultSections();
+		writeMoRateOfParentSectionsForAllDefAndFaultModels();
+			
+//		plotNewFaultSectionsInGMT();
+		
+//		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
+		
+//		writeListOfNewFaultSections();
 		
 //		plotAllSpatialMoRateMaps();
 

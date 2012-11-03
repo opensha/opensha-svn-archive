@@ -949,7 +949,7 @@ public class UCERF2_Section_MFDsCalc {
 		return UCERF3toUCERF2ParentSectionIDMap;
 	}
 	
-	private static HashMap<String, String> loadUCERF3toUCER2NameMappingFile(FaultModels fm) throws IOException {
+	public static HashMap<String, String> loadUCERF3toUCER2NameMappingFile(FaultModels fm) throws IOException {
 		String subDir = "FindEquivUCERF2_Ruptures";
 		String fName;
 		switch (fm) {

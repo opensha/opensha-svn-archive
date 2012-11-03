@@ -77,10 +77,24 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 		return sum;
 	}
 	
+	/**
+	 * The ratio here assumes equal weighting between U2 and U3 smoothed seis maps
+	 */
 	private static void plotMaps() {
 		try {
-			GMT_CA_Maps.plotSpatialPDF_Map(getUCERF2_PDF(), "UCERF2_SmoothSeisPDF", "test meta data", "UCERF2_SmoothSeisPDF_Map");
-			GMT_CA_Maps.plotSpatialPDF_Map(getUCERF3_PDF(), "UCERF3_SmoothSeisPDF", "test meta data", "UCERF3_SmoothSeisPFD_Map");
+			GriddedGeoDataSet u2pdf = getUCERF2_PDF();
+			GriddedGeoDataSet u3pdf = getUCERF3_PDF();
+			
+			GriddedGeoDataSet avePDF = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+			for(int i=0; i<u2pdf.size(); i++) {
+				avePDF.set(i, 0.5*(u2pdf.get(i)+u3pdf.get(i)));
+//				if( i>500 && i < 510)
+//					System.out.println(u2pdf.get(i)+"\t"+u3pdf.get(i)+"\t"+avePDF.get(i));
+			}
+
+			GMT_CA_Maps.plotSpatialPDF_Map(u2pdf.copy(), "UCERF2_SmoothSeisPDF", "test meta data", "UCERF2_SmoothSeisPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(u3pdf, "UCERF3_SmoothSeisPDF", "test meta data", "UCERF3_SmoothSeisPFD_Map");
+			GMT_CA_Maps.plotRatioOfRateMaps(avePDF, u2pdf, "aveUCERF3vsUCERF2_SmoothSeisPDF_Ratio", "test meta data", "aveUCERF3vsUCERF2_SmoothSeisPDF_Ratio");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

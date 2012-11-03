@@ -25,6 +25,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -2365,9 +2366,14 @@ if(mMax<5.85)
 		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
 
 		// make range of target GRs
-		SummedMagFreqDist subSeisAndOffFaultTarget = fltSystRupSet.getInversionMFDs().getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD();
-		subSeisAndOffFaultTarget.setName("subSeisAndOffFaultTarget");
-		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
+//		SummedMagFreqDist subSeisAndOffFaultTarget = fltSystRupSet.getInversionMFDs().getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD();
+//		subSeisAndOffFaultTarget.setName("subSeisAndOffFaultTarget");
+//		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
+		
+		SummedMagFreqDist targetOnFaultSupraSeisMFD = fltSystRupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
+		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
+		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=6.5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(6.55));
+
 
 		// make plot
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
@@ -2375,12 +2381,14 @@ if(mMax<5.85)
 		funcs.add(totalTargetGR);
 		funcs.add(summedMFD.getCumRateDistWithOffset());
 		funcs.add(totalTargetGR.getCumRateDistWithOffset());
-		funcs.add(subSeisAndOffFaultTarget.getCumRateDistWithOffset());
+		funcs.add(targetOnFaultSupraSeisMFD);
+		funcs.add(targetOnFaultSupraSeisMFD.getCumRateDistWithOffset());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.GRAY));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.GRAY));
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of Char MFD Constraints",plotChars);
 		graph.setX_AxisRange(5, 9);
@@ -2402,6 +2410,125 @@ if(mMax<5.85)
 //			}			
 //		}			
 	}
+	
+	
+	/**
+	 * This plots the average over def mods and M(A) relationships
+	 */
+	public static void plotSumOfCharInversionMFD_Constraints() {
+		double minMag = 5.05;
+		int numMag = 40;
+		double deltaMag =0.1;
+		
+		ArrayList<DeformationModels> defModsList = new ArrayList<DeformationModels>();
+		defModsList.add(DeformationModels.ABM);
+		defModsList.add(DeformationModels.ZENG);
+		defModsList.add(DeformationModels.GEOLOGIC);
+		defModsList.add(DeformationModels.NEOKINEMA);
+		
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		
+		SummedMagFreqDist summedCharMFDs = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		SummedMagFreqDist totalTargetGR = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		SummedMagFreqDist targetOnFaultSupraSeisMFD = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		SummedMagFreqDist subSeisAndOffFaultTarget = new SummedMagFreqDist(minMag, numMag, deltaMag);
+
+		InversionFaultSystemRupSet fltSystRupSet;
+		
+		int numBranches=0;
+		for(DeformationModels dm : defModsList) {
+			for(ScalingRelationships sr : scalingRelList) {
+				System.out.println("Working on "+dm+" & "+sr);
+				numBranches +=1;
+				fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
+						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
+						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				// sum all the char MFD constraints
+				ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
+				for(SectionMFD_constraint mfdConstr : constraints) {
+					if(mfdConstr != null) {
+						ArbIncrementalMagFreqDist resampMFD = mfdConstr.getResampledToEventlyDiscrMFD(minMag, numMag, deltaMag);
+						if(!Double.isNaN(resampMFD.getTotalIncrRate()))
+							summedCharMFDs.addIncrementalMagFreqDist(resampMFD);
+						else
+							System.out.println("Bad MFD");
+					}
+				}
+				// now get targets
+				totalTargetGR.addResampledMagFreqDist(fltSystRupSet.getInversionMFDs().getTotalTargetGR(), true);
+				targetOnFaultSupraSeisMFD.addResampledMagFreqDist(fltSystRupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD(), true);
+				subSeisAndOffFaultTarget.addResampledMagFreqDist(fltSystRupSet.getInversionMFDs().getTotalGriddedSeisMFD(), true);
+			}
+		}
+
+		summedCharMFDs.scale(1.0/(double)numBranches);
+		summedCharMFDs.setName("Sum of Char MFD Constraints");
+		summedCharMFDs.setInfo("Rate(M>=6.5)="+(float)summedCharMFDs.getCumRate(6.55));
+
+		totalTargetGR.scale(1.0/(double)numBranches);
+		totalTargetGR.setName("totalTargetGR");
+		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
+
+		targetOnFaultSupraSeisMFD.scale(1.0/(double)numBranches);
+		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
+		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=6.5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(6.55));
+
+		subSeisAndOffFaultTarget.scale(1.0/(double)numBranches);
+		subSeisAndOffFaultTarget.setName("subSeisAndOffFaultTarget");
+		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
+		
+		SummedMagFreqDist totalImpliedMFD = new SummedMagFreqDist(minMag, numMag, deltaMag);
+		totalImpliedMFD.addIncrementalMagFreqDist(summedCharMFDs);
+		totalImpliedMFD.addIncrementalMagFreqDist(subSeisAndOffFaultTarget);
+		totalImpliedMFD.setName("totalImpliedMFD");
+		totalImpliedMFD.setInfo("Rate(M>=6.5)="+(float)totalImpliedMFD.getCumRate(6.55));
+		
+		// test of target:
+		System.out.println("Total target rate test: "+totalTargetGR.getTotalIncrRate());
+
+
+		// make plot
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(summedCharMFDs);
+		funcs.add(totalTargetGR);
+		funcs.add(targetOnFaultSupraSeisMFD);
+		funcs.add(subSeisAndOffFaultTarget);
+		funcs.add(totalImpliedMFD);
+		funcs.add(totalTargetGR.getCumRateDistWithOffset());
+		funcs.add(totalImpliedMFD.getCumRateDistWithOffset());
+
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.CYAN));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.GRAY));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.ORANGE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4, null, 0, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4, null, 0, Color.ORANGE));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of Char MFD Constraints",plotChars);
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-6, 20);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+		String fileName = "SumOfAllBranchCharMFD_Constrints.pdf";
+		if(fileName != null) {
+			try {
+				graph.saveAsPDF(fileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}			
+	}
+
 	
 	
 	
@@ -2488,18 +2615,18 @@ if(mMax<5.85)
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
 //				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		
 //		HistogramFunction magHist = getMagHistogram(rupSet, 0.05, 90, 0.1);
 //		System.out.println();
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(magHist, "Mag Hist");
 
 		
-		plotPreInversionMFDs(rupSet, false, false, false, null);
+//		plotPreInversionMFDs(rupSet, false, false, false, null);
 		
-//		plotSumOfCharInversionMFD_Constraints(rupSet);
+		plotSumOfCharInversionMFD_Constraints();
 //		plotSumOfGR_InversionMFD_Constraints(rupSet);
 		
 //		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);

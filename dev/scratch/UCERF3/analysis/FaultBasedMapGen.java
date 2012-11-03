@@ -64,7 +64,7 @@ public class FaultBasedMapGen {
 	private static GMT_MapGenerator gmt;
 	
 	private static CPT slipCPT = null;
-	private static CPT getSlipRateCPT() {
+	public static CPT getSlipRateCPT() {
 		if (slipCPT == null) {
 			slipCPT = new CPT();
 			
