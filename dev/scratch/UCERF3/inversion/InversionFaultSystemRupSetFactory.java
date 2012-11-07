@@ -237,6 +237,7 @@ public class InversionFaultSystemRupSetFactory {
 //			FaultSystemRupSet rupSet = cachedForBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, true);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC, MagAreaRelationships.ELL_B, AveSlipForRupModels.ELLSWORTH_B,
 //					SlipAlongRuptureModels.TAPERED, InversionModels.GR, LaughTestFilter.getDefault(), MomentReductions.INCREASE_ASEIS);
+			System.out.println("Num sub sects: "+rupSet.getFaultSectionDataList().size());
 			
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, InversionModels.CHAR);
 			UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());

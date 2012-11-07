@@ -32,11 +32,11 @@ public class GeologicRatesInsert {
 	 */
 	public static void main(String[] args) throws IOException {
 		try {
-			FileWriter fw = new FileWriter(new File("/tmp/fm2_1_parents.txt"));
-			for (FaultSectionPrefData data : FaultModels.FM2_1.fetchFaultSections())
-				fw.write(data.getSectionId()+"\t"+data.getSectionName()+"\n");
-			fw.close();
-			System.exit(0);
+//			FileWriter fw = new FileWriter(new File("/tmp/fm2_1_parents.txt"));
+//			for (FaultSectionPrefData data : FaultModels.FM2_1.fetchFaultSections())
+//				fw.write(data.getSectionId()+"\t"+data.getSectionName()+"\n");
+//			fw.close();
+//			System.exit(0);
 				
 //			DB_AccessAPI db = DB_ConnectionPool.getLatestReadWriteConn();
 			DB_AccessAPI db = DB_ConnectionPool.getDirectLatestReadWriteConnection();
