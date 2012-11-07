@@ -23,15 +23,12 @@ package scratch.martinez.LossCurveSandbox.math.distribution;
 
 import java.io.Serializable;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.AbstractContinuousDistribution;
-import org.apache.commons.math.distribution.NormalDistribution;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
-import org.apache.commons.math.special.Erf;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.special.Erf;
 
 /**
  * Default implementation of
- * {@link org.apache.commons.math.distribution.NormalDistribution}.
+ * {@link org.apache.commons.math3.distribution.NormalDistribution}.
  * 
  * The conversion process used by this implementation will work for computing
  * <strong>CDF<strong> (cumulative distribution function) only. The
@@ -40,7 +37,7 @@ import org.apache.commons.math.special.Erf;
  * this class to compute normal distributions in log space.
  *
  */
-public class LogNormalDistribution extends NormalDistributionImpl
+public class LogNormalDistribution extends NormalDistribution
 		implements Serializable {
 	 
 	/** Serializable version identifier */
@@ -116,13 +113,13 @@ public class LogNormalDistribution extends NormalDistributionImpl
 	 * x is more than 20 standard deviations from the mean, in which case the
 	 * convergence exception is caught and 0 or 1 is returned.
 	 */
-	public double cumulativeProbability(double x) throws MathException {
+	public double cumulativeProbability(double x) {
 		// This is the only line changed to make this a "Log" distribution
 		x = Math.log(x);
 		try {
 			return 0.5 * (1.0 + Erf.erf((x - mean) /
 					(standardDeviation * Math.sqrt(2.0))));
-		} catch (MathException ex) {
+		} catch (RuntimeException ex) {
 			if (x < (mean - 20 * standardDeviation)) { // JDK 1.5 blows at 38
 				return 0.0d;
 			} else if (x > (mean + 20 * standardDeviation)) {
@@ -147,8 +144,7 @@ public class LogNormalDistribution extends NormalDistributionImpl
 	 * @throws IllegalArgumentException if <code>p</code> is not a valid
 	 * probability.
 	 */
-	public double inverseCumulativeProbability(final double p) 
-			throws MathException {
+	public double inverseCumulativeProbability(final double p) {
 		if (p == 0) {
 			return Double.NEGATIVE_INFINITY;
 		}

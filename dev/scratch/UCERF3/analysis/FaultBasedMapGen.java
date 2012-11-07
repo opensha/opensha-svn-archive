@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.zip.ZipException;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;

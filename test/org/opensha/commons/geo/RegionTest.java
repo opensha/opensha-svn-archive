@@ -36,7 +36,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.geo.BorderType;
@@ -629,22 +629,22 @@ public class RegionTest {
 	
 	@Test
 	public final void testGetMinLat() {
-		assertTrue(MathUtils.equals(25, octRegion.getMinLat(), TOLERANCE));
+		assertTrue(Precision.equals(25, octRegion.getMinLat(), TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMaxLat() {
-		assertTrue(MathUtils.equals(40, octRegion.getMaxLat(), TOLERANCE));
+		assertTrue(Precision.equals(40, octRegion.getMaxLat(), TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMinLon() {
-		assertTrue(MathUtils.equals(-120, octRegion.getMinLon(), TOLERANCE));
+		assertTrue(Precision.equals(-120, octRegion.getMinLon(), TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMaxLon() {
-		assertTrue(MathUtils.equals(-105, octRegion.getMaxLon(), TOLERANCE));
+		assertTrue(Precision.equals(-105, octRegion.getMaxLon(), TOLERANCE));
 	}
 
 	@Test(expected=NullPointerException.class)

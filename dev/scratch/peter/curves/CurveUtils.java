@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;

@@ -18,7 +18,7 @@ import java.util.zip.ZipFile;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.EnumerationUtils;
-import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;

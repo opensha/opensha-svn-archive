@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.ZipException;
 
-import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;

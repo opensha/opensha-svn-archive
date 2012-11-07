@@ -1,6 +1,6 @@
 package scratch.kevin.matBench;
 
-import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.opensha.commons.util.ClassUtils;
 
 public class ApacheMatWrapper extends AbstractBenchableMatrix2D {

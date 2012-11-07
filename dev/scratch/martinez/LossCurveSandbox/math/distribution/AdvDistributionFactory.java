@@ -1,28 +1,19 @@
 package scratch.martinez.LossCurveSandbox.math.distribution;
 
-import org.apache.commons.math.distribution.BinomialDistribution;
-import org.apache.commons.math.distribution.BinomialDistributionImpl;
-import org.apache.commons.math.distribution.ChiSquaredDistribution;
-import org.apache.commons.math.distribution.ChiSquaredDistributionImpl;
-import org.apache.commons.math.distribution.ExponentialDistribution;
-import org.apache.commons.math.distribution.ExponentialDistributionImpl;
-import org.apache.commons.math.distribution.FDistribution;
-import org.apache.commons.math.distribution.FDistributionImpl;
-import org.apache.commons.math.distribution.GammaDistribution;
-import org.apache.commons.math.distribution.GammaDistributionImpl;
-import org.apache.commons.math.distribution.HypergeometricDistribution;
-import org.apache.commons.math.distribution.HypergeometricDistributionImpl;
-import org.apache.commons.math.distribution.NormalDistribution;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
-import org.apache.commons.math.distribution.PoissonDistribution;
-import org.apache.commons.math.distribution.PoissonDistributionImpl;
-import org.apache.commons.math.distribution.TDistribution;
-import org.apache.commons.math.distribution.TDistributionImpl;
+import org.apache.commons.math3.distribution.BinomialDistribution;
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
+import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.apache.commons.math3.distribution.FDistribution;
+import org.apache.commons.math3.distribution.GammaDistribution;
+import org.apache.commons.math3.distribution.HypergeometricDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.apache.commons.math3.distribution.TDistribution;
 
 /**
  * An <code>AdvDistributionFactory</code> is a simple extension of the apache
  * commons 
- * <code>org.apache.commons.math.distribution.DistributionFactoryImpl</code>
+ * <code>org.apache.commons.math3.distribution.DistributionFactoryImpl</code>
  * factory class. It provides the same create methods with wrapper acessors
  * such that all arguments take their object-equivalent form. This allows for
  * easier introspection and dynamic invocation. In addition to these wrappers,
@@ -88,7 +79,7 @@ public class AdvDistributionFactory {
 	 */
 	public BinomialDistribution createBinomialDistribution(
 			Integer numberOfTrials, Double probabilityOfSuccess) {
-		return new BinomialDistributionImpl(
+		return new BinomialDistribution(
 				numberOfTrials,
 				probabilityOfSuccess);
 //		return super.createBinomialDistribution((int) numberOfTrials,
@@ -103,7 +94,7 @@ public class AdvDistributionFactory {
 	 */
 	public ChiSquaredDistribution createChiSquareDistribution(
 			Double degreesOfFreedom) {
-		return new ChiSquaredDistributionImpl(degreesOfFreedom);
+		return new ChiSquaredDistribution(degreesOfFreedom);
 //		return super.createChiSquareDistribution((double) degreesOfFreedom);
 	}
 	
@@ -115,7 +106,7 @@ public class AdvDistributionFactory {
 	 */
 	public ExponentialDistribution createExponentialDistribution(
 			Double mean) {
-		return new ExponentialDistributionImpl(mean);
+		return new ExponentialDistribution(mean);
 //		return super.createExponentialDistribution((double) mean);
 	}
 	
@@ -127,7 +118,7 @@ public class AdvDistributionFactory {
 	 */
 	public FDistribution createFDistribution(Double numeratorDegreesOfFreedom,
 			Double denominatorDegreesOfFreedom) {
-		return new FDistributionImpl(
+		return new FDistribution(
 				numeratorDegreesOfFreedom, 
 				denominatorDegreesOfFreedom);
 //		return super.createFDistribution((double) numeratorDegreesOfFreedom,
@@ -141,7 +132,7 @@ public class AdvDistributionFactory {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public GammaDistribution createGammaDistribution(Double alpha, Double beta) {
-		return new GammaDistributionImpl(alpha, beta);
+		return new GammaDistribution(alpha, beta);
 //		return super.createGammaDistribution((double) alpha, (double) beta);
 	}
 	
@@ -153,7 +144,7 @@ public class AdvDistributionFactory {
 	 */
 	public HypergeometricDistribution createHypergeometricDistribution(
 			Integer populationSize, Integer numberOfSuccesses, Integer sampleSize){
-		return new HypergeometricDistributionImpl(
+		return new HypergeometricDistribution(
 				populationSize, 
 				numberOfSuccesses, 
 				sampleSize);
@@ -168,7 +159,7 @@ public class AdvDistributionFactory {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public NormalDistribution createNormalDistribution(Double mean, Double sd) {
-		return new NormalDistributionImpl(mean, sd);
+		return new NormalDistribution(mean, sd);
 //		return super.createNormalDistribution((double) mean, (double) sd);
 	}
 	
@@ -179,7 +170,7 @@ public class AdvDistributionFactory {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public PoissonDistribution createPoissonDistribution(Double lambda) {
-		return new PoissonDistributionImpl(lambda);
+		return new PoissonDistribution(lambda);
 //		return super.createPoissonDistribution((double) lambda );
 	}
 	
@@ -190,7 +181,7 @@ public class AdvDistributionFactory {
 	 * This is done so we can inspect the class to find the required method.
 	 */
 	public TDistribution createTDistribution(Double degreesOfFreedom) {
-		return new TDistributionImpl(degreesOfFreedom);
+		return new TDistribution(degreesOfFreedom);
 //		return super.createTDistribution((double) degreesOfFreedom);
 	}
 }

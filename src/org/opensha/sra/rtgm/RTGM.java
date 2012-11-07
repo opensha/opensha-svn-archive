@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.math.MathException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -379,7 +378,7 @@ public class RTGM implements Callable<RTGM> {
 			return pdf;
 		}
 
-		DiscretizedFunc cdf() throws MathException {
+		DiscretizedFunc cdf() {
 			if (cdf == null) {
 				cdf = new ArbitrarilyDiscretizedFunc();
 				for (Point2D p : model) {

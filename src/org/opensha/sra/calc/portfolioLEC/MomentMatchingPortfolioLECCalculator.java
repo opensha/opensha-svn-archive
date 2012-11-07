@@ -2,8 +2,7 @@ package org.opensha.sra.calc.portfolioLEC;
 
 import java.util.ArrayList;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -100,7 +99,7 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 		PortfolioRuptureResults[][] rupResults = new PortfolioRuptureResults[erf.getNumSources()][];
 		
 		// used later
-		NormalDistributionImpl normDist = new NormalDistributionImpl();
+		NormalDistribution normDist = new NormalDistribution();
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			Boolean[] sourceIncludes = new Boolean[n];
@@ -357,12 +356,7 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 				for (int k=0; k<distFunc.getNum(); k++) {
 					double x = distFunc.getX(k);
 					double y = distFunc.getY(k);
-					double val;
-					try {
-						val = normDist.cumulativeProbability(y);
-					} catch (MathException e) {
-						throw new RuntimeException(e);
-					}
+					double val = normDist.cumulativeProbability(y);
 					exceedanceProbs.set(x, 1-val);
 				}
 				

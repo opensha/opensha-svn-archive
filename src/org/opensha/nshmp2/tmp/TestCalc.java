@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.rmi.RemoteException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.MathUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.data.Site;

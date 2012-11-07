@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.geo.BorderType;
@@ -403,29 +403,29 @@ public class GriddedRegionTest {
 
 	@Test
 	public final void testGetMinGridLat() {
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionML.getMinGridLat(), 25.0, TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMaxGridLat() {
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionML.getMaxGridLat(), 40.0, TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMinGridLon() {
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionML.getMinGridLon(), -119.5, TOLERANCE));
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionGC.getMinGridLon(), -119.5, TOLERANCE));
 	}
 
 	@Test
 	public final void testGetMaxGridLon() {
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionML.getMaxGridLon(), -105.5, TOLERANCE));
-		assertTrue(MathUtils.equals(
+		assertTrue(Precision.equals(
 				octRegionGC.getMaxGridLon(), -105.5, TOLERANCE));
 	}
 

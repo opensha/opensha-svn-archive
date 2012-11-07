@@ -1,6 +1,6 @@
 package org.opensha.sha.gui.infoTools;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
@@ -98,28 +98,28 @@ public final class IMT_Info {
 		if (imtName.equals(SA_Param.NAME) ||
 			imtName.equals(SA_InterpolatedParam.NAME)) {
 			for (int i = 0; i < NUM_SA; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_SA) + i * discretization_sa), 5);
 				function.set(xVal, 1.0);
 			}
 			return function;
 		} else if (imtName.equals(PGA_Param.NAME)) {
 			for (int i = 0; i < NUM_PGA; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_PGA) + i * discretization_pga), 5);
 				function.set(xVal, 1.0);
 			}
 			return function;
 		} else if ((imtName.equals(PGV_Param.NAME))) {
 			for (int i = 0; i < NUM_PGV; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_PGV) + i * discretization_pgv), 5);
 				function.set(xVal, 1.0);
 			}
 			return function;
 		} else if ((imtName.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))) {
 			for (int i = 0; i < NUM_FAULT_DISPL; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_FAULT_DISPL) + i *
 						discretization_fault_displ), 5);
 				function.set(xVal, 1.0);
@@ -127,14 +127,14 @@ public final class IMT_Info {
 			return function;
 		} else if ((imtName.equals(MMI_Param.NAME))) {
 			for (int i = 0; i < NUM_MMI; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_MMI) + i * discretization_mmi), 5);
 				function.set(xVal, 1.0);
 			}
 			return function;
 		} else if (imtName.equals(IA_Param.NAME)) {
 			for (int i = 0; i < NUM_IA; ++i) {
-				double xVal = MathUtils.round(
+				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_IA) + i * discretization_ia), 5);
 				function.set(xVal, 1.0);
 			}

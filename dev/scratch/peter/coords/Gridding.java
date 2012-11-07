@@ -3,7 +3,7 @@ package scratch.peter.coords;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 
 /**
  * Add comments here
@@ -111,7 +111,7 @@ public class Gridding {
 		// meter-scale rounding precision.
 		int scale = 5;
 		for (int i=0; i<count; i++) {
-			startVal = MathUtils.round(startVal, scale);
+			startVal = Precision.round(startVal, scale);
 			values[i] = val;
 			val += interval;
 		}

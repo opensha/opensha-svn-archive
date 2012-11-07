@@ -2,8 +2,7 @@ package org.opensha.sra.calc.portfolioLEC;
 
 import java.util.Random;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -38,7 +37,7 @@ AbstractPortfolioLECCalculator {
 		Random r3 = new Random();
 		Random r4 = new Random();
 		Random r5 = new Random();
-		NormalDistributionImpl normDist = new NormalDistributionImpl();
+		NormalDistribution normDist = new NormalDistribution();
 		double sqrt2 = Math.sqrt(2);
 		double oneDivN = 1d / (double)numSimulations;
 
@@ -104,34 +103,30 @@ AbstractPortfolioLECCalculator {
 
 						double u3 = r3.nextDouble();
 						double u5 = r5.nextDouble();
-						try {
-							// eqn 54
-							double vSubJNQ = medValue[j] * Math.exp(betaVJs[j]*
-									normDist.inverseCumulativeProbability(u1));
+						// eqn 54
+						double vSubJNQ = medValue[j] * Math.exp(betaVJs[j]*
+								normDist.inverseCumulativeProbability(u1));
 
-							// eqn 55
-							double sSubJNQ = imrResult.medIML
-							* Math.exp(imrResult.interSTD*normDist.inverseCumulativeProbability(u2))
-							* Math.exp(imrResult.intraSTD*normDist.inverseCumulativeProbability(u3));
-							
-							double mDamage = vuln.getMeanDamageFactor(imrResult.medIML); // y sub j bar
-							// Equation 23
-							double medDamage = mDamage / Math.sqrt(
-									1d + deltaJ*deltaJ);
+						// eqn 55
+						double sSubJNQ = imrResult.medIML
+								* Math.exp(imrResult.interSTD*normDist.inverseCumulativeProbability(u2))
+								* Math.exp(imrResult.intraSTD*normDist.inverseCumulativeProbability(u3));
 
-							// Equation 24
-							double betaVJsubS = Math.sqrt(Math.log(1+deltaJ*deltaJ));
+						double mDamage = vuln.getMeanDamageFactor(imrResult.medIML); // y sub j bar
+						// Equation 23
+						double medDamage = mDamage / Math.sqrt(
+								1d + deltaJ*deltaJ);
 
-							// eqn 56
-							double ySubJNQ = medDamage
-							* Math.exp((betaVJsubS/sqrt2) * normDist.inverseCumulativeProbability(u4))
-							* Math.exp((betaVJsubS/sqrt2) * normDist.inverseCumulativeProbability(u5));
-							
-							// eqn 57
-							LsubNQ += vSubJNQ * ySubJNQ;
-						} catch (MathException e) {
-							throw new RuntimeException(e);
-						}
+						// Equation 24
+						double betaVJsubS = Math.sqrt(Math.log(1+deltaJ*deltaJ));
+
+						// eqn 56
+						double ySubJNQ = medDamage
+								* Math.exp((betaVJsubS/sqrt2) * normDist.inverseCumulativeProbability(u4))
+								* Math.exp((betaVJsubS/sqrt2) * normDist.inverseCumulativeProbability(u5));
+
+						// eqn 57
+						LsubNQ += vSubJNQ * ySubJNQ;
 					}
 					// eqn 58
 //					double probLgivenQ = 1/numSimulations;

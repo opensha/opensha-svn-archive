@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Formatter;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
@@ -351,8 +351,8 @@ public class NSHMP_GeoDataUtils {
 			double lat1 = loc1.getLonRad();
 			double lon2 = loc2.getLonRad();
 			double lat2 = loc2.getLonRad();
-			int dLon = MathUtils.equals(lon1, lon2, TOLERANCE) ? 0 : (int) Math.signum(lon1 - lon2);
-			int dLat = MathUtils.equals(lat1, lat2, TOLERANCE) ? 0 : (int) Math.signum(lat1 - lat2);
+			int dLon = Precision.equals(lon1, lon2, TOLERANCE) ? 0 : (int) Math.signum(lon1 - lon2);
+			int dLat = Precision.equals(lat1, lat2, TOLERANCE) ? 0 : (int) Math.signum(lat1 - lat2);
 			return (dLon == 0) ? dLat : dLon;
 		}
 	}

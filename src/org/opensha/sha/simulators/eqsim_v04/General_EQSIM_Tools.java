@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -1471,15 +1470,10 @@ public class General_EQSIM_Tools {
 		PearsonsCorrelation corrCalc = new PearsonsCorrelation(vals);
 		double[] result = new double[2];
 		RealMatrix matrix;
-		try {
-			matrix = corrCalc.getCorrelationMatrix();
-			result[0] = matrix.getEntry(0, 1);
-			matrix = corrCalc.getCorrelationPValues();
-			result[1] = matrix.getEntry(0, 1);
-		} catch (MathException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		matrix = corrCalc.getCorrelationMatrix();
+		result[0] = matrix.getEntry(0, 1);
+		matrix = corrCalc.getCorrelationPValues();
+		result[1] = matrix.getEntry(0, 1);
 		return result;
 	}
 

@@ -24,10 +24,8 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.NormalDistribution;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
-import org.apache.commons.math.special.Erf;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.special.Erf;
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
@@ -181,7 +179,7 @@ public class Utils {
 	// * @param trunc truncation probability
 	// * @return the probability of exceeding the supplied iml
 	// * @throws MathException (due to internal use of
-	// * org.apache.commons.math.special.Erf)
+	// * org.apache.commons.math3.special.Erf)
 	// */
 	// public static double gaussProbExceed(double mean, double std, double
 	// value,
@@ -208,11 +206,11 @@ public class Utils {
 	 * @param type the truncation type
 	 * @return the probability of exceeding the supplied value
 	 * @throws MathException (due to internal use of
-	 *         org.apache.commons.math.special.Erf)
+	 *         org.apache.commons.math3.special.Erf)
 	 * @see #gaussProbExceed(double, double, double)
 	 */
 	public static double gaussProbExceed(double mean, double std, double value,
-			double trunc, GaussTruncation type) throws MathException {
+			double trunc, GaussTruncation type) {
 		// checkArgument(trunc >= 0,
 		// "Truncation must be a positive value or 0");
 		double P = gaussProbExceed(mean, std, value);
@@ -239,10 +237,9 @@ public class Utils {
 	 * @param value to exceed
 	 * @return the probability of exceeding the supplied value
 	 * @throws MathException (due to internal use of
-	 *         org.apache.commons.math.special.Erf)
+	 *         org.apache.commons.math3.special.Erf)
 	 */
-	public static double gaussProbExceed(double mean, double std, double value)
-			throws MathException {
+	public static double gaussProbExceed(double mean, double std, double value) {
 		return (Erf.erf((mean - value) / (std * SQRT_2)) + 1.0) * 0.5;
 	}
 
@@ -308,7 +305,7 @@ public class Utils {
 					Pclip, ONE_SIDED);
 				point.setLocation(x, y);
 			}
-		} catch (MathException me) {
+		} catch (RuntimeException me) {
 			me.printStackTrace();
 		}
 		return imls;

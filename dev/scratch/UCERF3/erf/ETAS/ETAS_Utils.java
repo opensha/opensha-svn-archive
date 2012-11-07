@@ -15,7 +15,7 @@ import java.util.List;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.apache.commons.math.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 

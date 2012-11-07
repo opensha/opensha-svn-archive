@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.base.Function;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -513,13 +513,13 @@ class SectionPolygons {
 	 * LocaitonUtils
 	 */
 	private static boolean areSimilar(Location p1, Location p2) {
-		if (!MathUtils.equals(p1.getLatitude(), p2.getLatitude(), TOL)) {
+		if (!Precision.equals(p1.getLatitude(), p2.getLatitude(), TOL)) {
 			return false;
 		}
-		if (!MathUtils.equals(p1.getLongitude(), p2.getLongitude(), TOL)) {
+		if (!Precision.equals(p1.getLongitude(), p2.getLongitude(), TOL)) {
 			return false;
 		}
-		if (!MathUtils.equals(p1.getDepth(), p2.getDepth(), TOL)) {
+		if (!Precision.equals(p1.getDepth(), p2.getDepth(), TOL)) {
 			return false;
 		}
 		return true;

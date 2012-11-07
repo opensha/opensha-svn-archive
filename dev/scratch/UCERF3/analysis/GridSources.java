@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
@@ -128,7 +128,7 @@ public class GridSources {
 			polyDat.set(i, mgr.getNodeFraction(i));
 		}
 		regionFraction = 100.0 * regionFraction / region.getNodeCount();
-		regionFraction = MathUtils.round(regionFraction, 1);
+		regionFraction = Precision.round(regionFraction, 1);
 		
 		StringBuffer sb = new StringBuffer("Fault buffer (km): ");
 		sb.append(buf);
@@ -137,10 +137,10 @@ public class GridSources {
 		
 		if (computeCatFrac) {
 			double clustPct = catInPolys(mgr, getCatalog(false));
-			clustPct = MathUtils.round(clustPct, 1);
+			clustPct = Precision.round(clustPct, 1);
 			sb.append("<br />% of whole catalog: ").append(clustPct);
 			double declustPct = catInPolys(mgr, getCatalog(true));
-			declustPct = MathUtils.round(declustPct, 1);
+			declustPct = Precision.round(declustPct, 1);
 			sb.append("<br />% of declustered catalog: ").append(declustPct);
 		}
 		

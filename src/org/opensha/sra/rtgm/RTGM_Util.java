@@ -5,10 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.NormalDistribution;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
-import org.apache.commons.math.special.Erf;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.special.Erf;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
@@ -76,8 +74,7 @@ class RTGM_Util {
 		return Math.exp(-0.5 * x1 * x1) / (std * SQRT2PI * x);
 	}
 
-	static double logNormalCumProb(double x, double mean, double std)
-			throws MathException {
+	static double logNormalCumProb(double x, double mean, double std) {
 		if (x <= 0) return 0;
 		final double dev = Math.log(x) - mean;
 		if (Math.abs(dev) > 40 * std) {
@@ -86,12 +83,12 @@ class RTGM_Util {
 		return 0.5 + 0.5 * Erf.erf(dev / (std * SQRT2));
 	}
 
-	private static NormalDistribution normDist = new NormalDistributionImpl();
+	private static NormalDistribution normDist = new NormalDistribution();
 
 	static double norminv(double p) {
 		try {
 			return normDist.inverseCumulativeProbability(p);
-		} catch (MathException e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			return Double.NaN;
 		}

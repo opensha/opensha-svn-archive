@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.nshmp2.util.SourceRegion;
 import org.opensha.nshmp2.util.SourceType;
 
@@ -38,7 +38,7 @@ class SourceFile {
 			.append(StringUtils.rightPad(type.toString(), 12))
 			.append(
 				StringUtils.rightPad(
-					new Double(MathUtils.round(weight, 7)).toString(), 11))
+					new Double(Precision.round(weight, 7)).toString(), 11))
 			.append(name).toString();
 	}
 

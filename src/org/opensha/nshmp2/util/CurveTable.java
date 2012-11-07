@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.cat.util.MagnitudeType;
@@ -169,7 +169,7 @@ public class CurveTable {
 		double value = start + interval / 2;
 		List<Double> list = Lists.newArrayList();
 		for (int i = 0; i < len; i++) {
-			list.add(MathUtils.round(value, 4));
+			list.add(Precision.round(value, 4));
 			value += interval;
 		}
 		return list;

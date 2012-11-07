@@ -27,7 +27,7 @@ import static org.opensha.commons.geo.GeoTools.EARTH_RADIUS_MEAN;
 import java.awt.geom.Line2D;
 import java.util.Collection;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
@@ -605,13 +605,13 @@ public final class LocationUtils {
 	 *         close, <code>false</code> otherwise.
 	 */
 	public static boolean areSimilar(Location p1, Location p2) {
-		if (!MathUtils.equals(p1.getLatRad(), p2.getLatRad(), TOLERANCE)) {
+		if (!Precision.equals(p1.getLatRad(), p2.getLatRad(), TOLERANCE)) {
 			return false;
 		}
-		if (!MathUtils.equals(p1.getLonRad(), p2.getLonRad(), TOLERANCE)) {
+		if (!Precision.equals(p1.getLonRad(), p2.getLonRad(), TOLERANCE)) {
 			return false;
 		}
-		if (!MathUtils.equals(p1.getDepth(), p2.getDepth(), TOLERANCE)) {
+		if (!Precision.equals(p1.getDepth(), p2.getDepth(), TOLERANCE)) {
 			return false;
 		}
 		return true;

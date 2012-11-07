@@ -4,7 +4,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
@@ -90,9 +91,9 @@ public enum NEHRP_TestCity {
 	 * @return the shifted location
 	 */
 	public Location shiftedLocation() {
-		// MathUtils rounds negatives down
-		double lat = MathUtils.round(loc.getLatitude(), 1);
-		double lon = MathUtils.round(loc.getLongitude(), 1);
+		// Precision rounds negatives down
+		double lat = Precision.round(loc.getLatitude(), 1);
+		double lon = Precision.round(loc.getLongitude(), 1);
 		return new Location(lat, lon, loc.getDepth());
 	}
 
@@ -158,8 +159,8 @@ public enum NEHRP_TestCity {
 			System.out.println("NAME=" + city);
 			Location loc = city.location();
 			System.out.println("LOC=\"" +
-				MathUtils.round(loc.getLatitude(), 2) + ", " +
-				MathUtils.round(loc.getLongitude(), 2) + "\"");
+				Precision.round(loc.getLatitude(), 2) + ", " +
+				Precision.round(loc.getLongitude(), 2) + "\"");
 			System.out.println();
 		}
 	}

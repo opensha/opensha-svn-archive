@@ -2,7 +2,7 @@ package scratch.UCERF3.erf.ETAS;
 
 import java.util.ArrayList;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.ArithmeticUtils;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
@@ -104,7 +104,7 @@ public class CodeTests {
 		// compute the Poisson probability for the number of events being 0, 1, 2, ...
 		EvenlyDiscretizedFunc targetFunc = new EvenlyDiscretizedFunc(0.0,maxNum,1.0);
 		for(int i=0; i<maxNum;i++) {
-			double y = Math.pow(lambda, i)*Math.exp(-lambda) / MathUtils.factorial(i);
+			double y = Math.pow(lambda, i)*Math.exp(-lambda) / ArithmeticUtils.factorial(i);
 //			System.out.println(i+"\t"+y);
 			targetFunc.set(i, y);
 		}

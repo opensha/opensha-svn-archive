@@ -1,15 +1,14 @@
 package scratch.kevin;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.PoissonDistributionImpl;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 
 public class PoissonTest {
 	
-	public static void main(String[] args) throws MathException {
+	public static void main(String[] args) {
 		double mean = 3;
 		double testMax = 8;
 		
-		PoissonDistributionImpl p = new PoissonDistributionImpl(mean);
+		PoissonDistribution p = new PoissonDistribution(mean);
 		
 		System.out.println("PROBABLITIES!");
 		for (int i=0; i<=testMax; i++)
