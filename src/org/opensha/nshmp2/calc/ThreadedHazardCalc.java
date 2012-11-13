@@ -99,13 +99,13 @@ public class ThreadedHazardCalc {
 			ecs.submit(hc);
 		}
 		ex.shutdown();
-		System.out.println("Jobs submitted: " + indices.length);
+//		System.out.println("Jobs submitted: " + indices.length);
 
 		// process results as they come in; ecs,take() blocks until result
 		// is available
 		for (int i = 0; i < indices.length; i++) {
 			writer.write(ecs.take().get());
-			if (i % 10 == 0) System.out.println("Jobs completed: " + i);
+//			if (i % 10 == 0) System.out.println("Jobs completed: " + i);
 		}
 		
 		writer.close();
