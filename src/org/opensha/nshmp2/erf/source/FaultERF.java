@@ -114,7 +114,7 @@ public class FaultERF extends NSHMP_ERF {
 		return sourcesAsEqs;
 	}
 	
-	List<FaultSource> getSources() { return sources; } 
+	public List<FaultSource> getSources() { return sources; } 
 
 	@Override
 	public ProbEqkSource getSource(int idx) {

@@ -21,6 +21,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
@@ -260,7 +261,8 @@ public class GridERF extends NSHMP_ERF {
 	 */
 	public IncrementalMagFreqDist getMFD(Location loc) {
 		for (int i=0; i < locs.size(); i++) {
-			if (locs.get(i).equals(loc)) {
+			if (LocationUtils.areSimilar(locs.get(i), loc)) {
+//			if (locs.get(i).equals(loc)) {
 				return mfds.get(i);
 			}
 		}
