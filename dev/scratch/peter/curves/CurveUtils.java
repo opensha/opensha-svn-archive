@@ -9,14 +9,16 @@ import static scratch.UCERF3.enumTreeBranches.ScalingRelationships.*;
 import static scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels.*;
 import static scratch.UCERF3.enumTreeBranches.SpatialSeisPDF.*;
 import static scratch.UCERF3.enumTreeBranches.TotalMag5Rate.*;
-
+import static org.opensha.nshmp.NEHRP_TestCity.*;
 import static com.google.common.base.Charsets.US_ASCII;
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -98,15 +100,16 @@ public class CurveUtils {
 //		 generateBranchSummaries();
 
 //		try {
-//			String src = "convABM_src";
-//			String out = "convABM";
-//			reorganizeUC3branchResults(src, out, true);
+//			String src = "tree_src/charHybrid";
+//			String out = "treeCharHybrid";
+//			reorganizeUC3branchResults(src, out, false);
 //		} catch (IOException ioe) {
 //			ioe.printStackTrace();
 //		}
 		
 		generateBranchList();
 
+//		 fix10in50s();
 	}
 
 	/**
@@ -229,10 +232,12 @@ public class CurveUtils {
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
 		Iterable<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(VENTURA);
 		String imrID = NSHMP08_WUS.SHORT_NAME;
-		// String dir = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
-		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/convABM";
+//		 String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC2-TimeIndep";
+//		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/convABM";
+		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/treeFM32single";
 		try {
-			runBranchSummaries(dir, imrID, periods, cities);
+			// boolean is tornado
+			runBranchSummaries(dir, imrID, periods, cities, true);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -242,42 +247,57 @@ public class CurveUtils {
 	 * Create summaries of logic tree branch hazard curves.
 	 */
 	private static void runBranchSummaries(String dir, String imrID,
-			Iterable<Period> periods, Iterable<NEHRP_TestCity> cities)
-			throws IOException {
+			Iterable<Period> periods, Iterable<NEHRP_TestCity> cities,
+			boolean tornado) throws IOException {
 		for (Period p : periods) {
 			for (NEHRP_TestCity c : cities) {
 				File srcDir = new File(dir + S + p.name() + S + c.name());
 				File srcFile = new File(srcDir, imrID + "_curves.csv");
-				File statFile = new File(srcDir, imrID + "_curves_stats.csv");
-				File sumFile = new File(srcDir, imrID + "_curves_summary.csv");
-				summarizeBranches(srcFile, statFile, sumFile, p);
+				File branchFile = new File(srcDir, imrID + "_params.csv");
+				File statFile = new File(srcDir, imrID + "_stats.csv");
+				File sumFile = new File(srcDir, imrID + "_summary.csv");
+				File torRTGM_File = null, tor2in50_File = null, tor10in50_File = null;
+				if (tornado) {
+					torRTGM_File = new File(srcDir, imrID + "_tornado_rtgm.csv");
+					tor2in50_File = new File(srcDir, imrID + "_tornado_2in50.csv");
+					tor10in50_File = new File(srcDir, imrID + "_tornado_10in50.csv");
+				}
+				summarizeBranches(srcFile, branchFile, statFile, sumFile,
+					torRTGM_File, tor2in50_File, tor10in50_File, p);
 			}
 		}
 	}
 
 	/*
-	 * Reads an erf branch file that has columns eith wts, rtgm values and a
+	 * Reads an erf branch file that has columns with wts, rtgm values and a
 	 * hazard curve values and outputs one summary file with min, max, and mean
 	 * data and another with just wt, pe2in50, and pe10in50.
 	 */
-	private static void summarizeBranches(File in, File stat, File summary,
-			Period period) throws IOException {
-		List<String> lines = Files.readLines(in, US_ASCII);
+	private static void summarizeBranches(File curveFile, File branchFile,
+			File stat, File summary, File torRTGM, File tor2in50,
+			File tor10in50, Period period)
+					throws IOException {
+		List<String> curveLines = Files.readLines(curveFile, US_ASCII);
 		List<Double> weights = Lists.newArrayList();
 		List<Double> rtgms = Lists.newArrayList();
 		List<Double> pe2in50s = Lists.newArrayList();
 		List<Double> pe10in50s = Lists.newArrayList();
 		XY_DataSetList curves = new XY_DataSetList();
+		
+		// branch list and index reverse lookup 
+		List<String> branchLines = Files.readLines(branchFile, US_ASCII);
+		List<String> branchList = Lists.newArrayList();
 
-		// create function: first line has ERF#, wt, rtgm, gm-vals ...
-		Iterable<String> firstLine = SPLIT.split(lines.get(0));
+		// create model function: first line has ERF#, wt, rtgm, gm-vals ...
+		Iterable<String> firstLine = SPLIT.split(curveLines.get(0));
 		DiscretizedFunc curveModel = new ArbitrarilyDiscretizedFunc();
 		for (String gmStr : Iterables.skip(firstLine, 2)) {
 			double gmVal = Double.parseDouble(gmStr);
 			curveModel.set(gmVal, 0.0);
 		}
 
-		for (String line : Iterables.skip(lines, 1)) {
+		// fill curves, pe intercepts and rtgm lists
+		for (String line : Iterables.skip(curveLines, 1)) {
 			Iterable<String> vals = SPLIT.split(line);
 
 			double weight = Double.parseDouble(Iterables.get(vals, 1));
@@ -300,6 +320,14 @@ public class CurveUtils {
 			double rtgm = getRTGM(curve, period);
 			rtgms.add(rtgm);
 		}
+		
+		// fill branch list and index lookup map
+		int idx = 0;
+		for (String line : Iterables.skip(branchLines, 1)) {
+			Iterable<String> vals = SPLIT.split(line);
+			String branchName = Iterables.get(vals, 1);
+			branchList.add(branchName);
+		}
 
 		// write PEs
 		Iterable<String> summaryFields = Iterables.concat(SUMMARY_FIELDS);
@@ -311,7 +339,17 @@ public class CurveUtils {
 			String summaryLine = JOIN.join(lineData) + LF;
 			Files.append(summaryLine, summary, US_ASCII);
 		}
-
+		
+		// write tornado data
+		if (torRTGM != null) {
+			TornadoData tdRTGM = new UC3_TornadoBuilder(branchList, rtgms).build();
+			Files.write(tdRTGM.toSortedString(), torRTGM, US_ASCII);
+			TornadoData td2in50 = new UC3_TornadoBuilder(branchList, pe2in50s).build();
+			Files.write(td2in50.toSortedString(), tor2in50, US_ASCII);
+			TornadoData td10in50 = new UC3_TornadoBuilder(branchList, pe10in50s).build();
+			Files.write(td10in50.toSortedString(), tor10in50, US_ASCII);
+		}
+		
 		// calc and write stats
 		double[] wtVals = Doubles.toArray(weights);
 		double[] rtgmVals = Doubles.toArray(rtgms);
@@ -445,28 +483,30 @@ public class CurveUtils {
 	
 	private static void generateBranchList() {
 		
-		String fileName = "ref32Single";
+		String fileName = "treeM5-10p0_UNI_U2";
 		Set<FaultModels> fltModels = EnumSet.of(
-			FM3_2); // FM3_1, FM3_2);
+			FM3_1, FM3_2); //FM3_2); // FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
-//			ABM, ZENG);
+//			ZENG);
 			ABM, GEOLOGIC, NEOKINEMA, ZENG);
 		Set<ScalingRelationships> scalingRel = EnumSet.of(
-//			ELLSWORTH_B, SHAW_2009_MOD);
+//			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
+//			SHAW_CONST_STRESS_DROP);
+//			SHAW_2009_MOD);
 			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
 			SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
 		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
-			TAPERED); //UNIFORM, TAPERED);
+			UNIFORM); //UNIFORM, TAPERED);
 		Set<InversionModels> invModels = EnumSet.of(
 			CHAR_CONSTRAINED);
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_8p7); //RATE_7p6, RATE_8p7, RATE_10p0);
+			RATE_10p0); //RATE_7p6, RATE_8p7, RATE_10p0);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
 			MAG_7p6); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(
 			NONE);
 		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
-			UCERF3); // UCERF2, UCERF3);
+			UCERF2); // UCERF2, UCERF3);
 
 		List<Set<? extends LogicTreeBranchNode<?>>> branchSets = Lists.newArrayList();
 		branchSets.add(fltModels);
@@ -493,5 +533,136 @@ public class CurveUtils {
 			ioe.printStackTrace();
 		}
 	}
+	
+	static class UC3_TornadoBuilder {
+		
+		private List<Double> values;
+		private List<String> branchNames;
+		private Map<String, Integer> branchIdxMap = Maps.newHashMap();
+		
+		UC3_TornadoBuilder(List<String> branchNames, List<Double> values) {
+			checkArgument(branchNames.size() == values.size());
+			this.branchNames = branchNames;
+			this.values = values;
+			int idx = 0;
+			for (String name : branchNames) {
+				branchIdxMap.put(name, idx++);
+			}
+		}
+		
+		public TornadoData build() {			
+
+			List<Class> classList = Lists.newArrayList(); // for ordering
+			Map<Class, Set<LogicTreeBranchNode>> nodeMap = Maps.newHashMap();
+
+			// init class to node variant map
+			for (Class clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
+				Set<LogicTreeBranchNode> nodeSet = Sets.newHashSet();
+				classList.add(clazz);
+				nodeMap.put(clazz, nodeSet);
+			}
+
+			// fill nodeMap wtih valid logic tree variants
+			for (String name : branchNames) {
+				LogicTreeBranch ltb = LogicTreeBranch.fromFileName(name);
+				for (LogicTreeBranchNode node : ltb) {
+					Class clazz = LogicTreeBranch.getEnumEnclosingClass(node.getClass());
+					Set<LogicTreeBranchNode> nodeSet = nodeMap.get(clazz);
+					nodeSet.add(node);
+				}
+			}
+
+			// median value and logic tree branch
+			int medIdx = medianIndex(values);
+			double medVal = values.get(medIdx);
+			String medBrName = branchNames.get(medIdx);
+			LogicTreeBranch medLTB = LogicTreeBranch.fromFileName(medBrName);
+			
+			// loop all valid nodes gathering values for branch variants
+			TornadoData td = new TornadoData(medVal);
+			for (Class clazz : classList) {
+				Set<LogicTreeBranchNode> nodeSet = nodeMap.get(clazz);
+				for (LogicTreeBranchNode node : nodeSet) {
+					LogicTreeBranch ltb = (LogicTreeBranch) medLTB.clone();
+					ltb.setValue(node);
+					String brName = ltb.buildFileName();
+					int brIdx = branchIdxMap.get(brName);
+					double brVal = values.get(brIdx);
+					td.add(clazz, (Enum) node, brVal);
+				}
+			}
+
+			return td;
+		}
+		
+	}
+	
+	/*
+	 * If values.size() is odd, method return the index of the median value. If
+	 * values.size() is even the index of values.size()/2 is returned.
+	 */
+	private static int medianIndex(List<Double> values) {
+		double[] sortedVals = Doubles.toArray(values);
+		Arrays.sort(sortedVals);
+		int idx = (sortedVals.length - 1) / 2;
+		double median = sortedVals[idx];
+		return values.indexOf(median);
+	}
+	
+	
+	
+	private static final String fix10in50path = "/Users/pmpowers/Documents/OpenSHA/RTGM/data";
+	private static final String[] fixList = {
+		"FortranUpdate", "FSS_UC2map", "MeanUCERF2", "MeanUCERF2update",
+		"MeanUCERF2update_FM2P1", "ModMeanUCERF2update_FM2P1", "NSHMP_CA_SHA", 
+		"NSHMP_CA_SHA-epi", "NSHMP_SHA", "NSHMP_SHA-epi"
+	};
+	
+	private static void fix10in50s() {
+		try {
+			Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+			for (String dir : fixList) {
+				for (Period p : periods) {
+					String path = fix10in50path + S + dir + S + p + S;
+					File curveFile = new File(path + "NSHMP08_WUS_curves.csv");
+					if (!curveFile.exists()) {
+						curveFile = new File(path + "NSHMP08_curves.csv");
+					}
+					if (!curveFile.exists()) {
+						curveFile = new File(path + "FORT_curves.csv");
+					}
+					
+					List<String> linesIn = Files.readLines(curveFile, US_ASCII);
+					Iterable<String> firstLine = SPLIT.split(linesIn.get(0));
+					DiscretizedFunc curveModel = new ArbitrarilyDiscretizedFunc();
+					for (String gmStr : Iterables.skip(firstLine, 4)) {
+						double gmVal = Double.parseDouble(gmStr);
+						curveModel.set(gmVal, 0.0);
+					}
+					Files.write(linesIn.get(0) + LF, curveFile, US_ASCII);
+	
+					// fill curves, pe intercepts and rtgm lists
+					for (String line : Iterables.skip(linesIn, 1)) {
+						Iterable<String> lineIter = SPLIT.split(line);
+						List<String> lineList = Lists.newArrayList(lineIter);
+						
+						DiscretizedFunc curve = curveModel.deepClone();
+						int idx = 0;
+						for (String val : Iterables.skip(lineIter, 4)) {
+							double annRate = Double.parseDouble(val);
+							curve.set(idx++, annRate);
+						}
+						double pe10in50 = getPE(curve, PE10IN50);
+						lineList.set(2, Double.toString(pe10in50));
+						String fixedLine = JOIN.join(lineList) + LF;
+						Files.append(fixedLine, curveFile, US_ASCII);
+					}
+				}
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
 
 }
