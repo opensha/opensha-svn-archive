@@ -127,30 +127,8 @@ public enum ERF_ID {
 		public EpistemicListERF instance() {
 			return null;
 		}
-	},
+	};
 
-	UCERF3_REF_0() { public EpistemicListERF instance() { return getUC3_REF(0); }},
-	UCERF3_REF_1() { public EpistemicListERF instance() { return getUC3_REF(1); }},
-	UCERF3_REF_2() { public EpistemicListERF instance() { return getUC3_REF(2); }},
-	UCERF3_REF_3() { public EpistemicListERF instance() { return getUC3_REF(3); }},
-	UCERF3_REF_4() { public EpistemicListERF instance() { return getUC3_REF(4); }},
-	UCERF3_REF_5() { public EpistemicListERF instance() { return getUC3_REF(5); }},
-	UCERF3_REF_6() { public EpistemicListERF instance() { return getUC3_REF(6); }},
-	UCERF3_REF_7() { public EpistemicListERF instance() { return getUC3_REF(7); }},
-	UCERF3_REF_8() { public EpistemicListERF instance() { return getUC3_REF(8); }},
-	UCERF3_REF_9() { public EpistemicListERF instance() { return getUC3_REF(9); }},
-	UCERF3_REF_10() { public EpistemicListERF instance() { return getUC3_REF(10); }},
-	UCERF3_REF_11() { public EpistemicListERF instance() { return getUC3_REF(11); }},
-	UCERF3_REF_12() { public EpistemicListERF instance() { return getUC3_REF(12); }},
-	UCERF3_REF_13() { public EpistemicListERF instance() { return getUC3_REF(13); }},
-	UCERF3_REF_14() { public EpistemicListERF instance() { return getUC3_REF(14); }},
-	UCERF3_REF_15() { public EpistemicListERF instance() { return getUC3_REF(15); }},
-	UCERF3_REF_16() { public EpistemicListERF instance() { return getUC3_REF(16); }},
-	UCERF3_REF_17() { public EpistemicListERF instance() { return getUC3_REF(17); }},
-	UCERF3_REF_18() { public EpistemicListERF instance() { return getUC3_REF(18); }},
-	UCERF3_REF_19() { public EpistemicListERF instance() { return getUC3_REF(19); }};
-
-	// scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF
 
 	public abstract EpistemicListERF instance();
 
@@ -262,7 +240,7 @@ public enum ERF_ID {
 	private static final String UC31_7X_SOL_PATH =
 			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-fm31-tree-x7-COMPOUND_SOL.zip";
 	private static final String UC3_1X7X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND.zip";
+			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
 	
 	
 	private static EpistemicListERF getUC3_SolERF(String solPath) {
@@ -277,81 +255,4 @@ public enum ERF_ID {
 		return null;
 	}
 		
-	private static EpistemicListERF getUC3_REF(int idx) {
-		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC31_5X_SOL_PATH);
-			String ltbStr = refBranchList.get(idx);
-			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(ltbStr);
-			FaultSystemSolution fss = cfss.getSolution(ltb);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
-			return wrapInList(erf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-//	private static EpistemicListERF getUC3_BrAvgMulti() {
-//		try {
-//			File fssZip = new File(UC3_BRAVG_MEAN);
-//			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
-//			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
-//			return wrapInList(erf);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-	
-	
-
-	public static final List<String> refBranchList;
-	private static final List<String> refBranchListB;
-
-	static {
-		refBranchList = Lists.newArrayList(
-			"FM3_1_ABM_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_EllBsqrtLen_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_HB08_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_EllBsqrtLen_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_HB08_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_EllBsqrtLen_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_HB08_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_EllBsqrtLen_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_HB08_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3");
-		
-		refBranchListB = Lists.newArrayList(
-			"FM3_1_ABM_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_EllBsqrtLen_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_ShConStrDrp_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_EllBsqrtLen_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_ShConStrDrp_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_GEOL_Shaw09Mod_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_EllBsqrtLen_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_ShConStrDrp_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_NEOK_Shaw09Mod_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_EllBsqrtLen_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_ShConStrDrp_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3",
-			"FM3_1_ZENG_Shaw09Mod_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3");
-	}
-	
 }
