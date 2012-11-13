@@ -6,17 +6,14 @@ import static org.opensha.sra.rtgm.RTGM.Frequency.SA_0P20;
 import static org.opensha.sra.rtgm.RTGM.Frequency.SA_1P00;
 import static scratch.peter.curves.ProbOfExceed.*;
 
-import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
@@ -39,22 +36,25 @@ import com.google.common.io.Flushables;
  * @author Peter Powers
  * @version $Id:$
  */
-public class HazardResultWriterCities implements HazardResultWriter {
+public class HazardResultWriterSites implements HazardResultWriter {
 
 	private static final Joiner JOIN = Joiner.on(',');
 	private BufferedWriter writer;
 	private boolean doRTGM;
 	private Period period;
+	private Map<String, Location> siteMap;
 
 	/**
 	 * Creates anew local writer instance.
 	 * @param outFile output location
 	 * @param period
+	 * @param siteMap 
 	 * @throws IOException
 	 */
-	public HazardResultWriterCities(File outFile, Period period)
-			throws IOException {
+	public HazardResultWriterSites(File outFile, Period period, 
+			Map<String, Location> siteMap) throws IOException {
 		this.period = period;
+		this.siteMap = siteMap;
 		Files.createParentDirs(outFile);
 		writer = Files.newWriter(outFile, Charsets.US_ASCII);
 		writeCurveHeader(writer, period);
@@ -67,8 +67,8 @@ public class HazardResultWriterCities implements HazardResultWriter {
 		double pe2in50 = ProbOfExceed.get(f, PE2IN50);
 		double pe10in50 = ProbOfExceed.get(f, PE10IN50);
 		double rtgm = (doRTGM) ? getRTGM(f, period) : 0;
-		NEHRP_TestCity city = NEHRP_TestCity.forLocation(result.location());
-		Iterable<String> cityData = createResult(city, pe2in50, pe10in50, rtgm, f);
+		String siteName = siteNameForLoc(result.location());
+		Iterable<String> cityData = createResult(siteName, pe2in50, pe10in50, rtgm, f);
 		String cityLine = JOIN.join(cityData);
 		writer.write(cityLine);
 		writer.newLine();
@@ -85,12 +85,20 @@ public class HazardResultWriterCities implements HazardResultWriter {
 		RTGM rtgm = RTGM.create(f, freq, 0.8).call();
 		return rtgm.get();
 	}
+	
+	private String siteNameForLoc(Location loc) {
+		for (String name : siteMap.keySet()) {
+			if (LocationUtils.areSimilar(siteMap.get(name), loc))
+				return name;
+		}
+		return "UnnamedSite";
+	}
 
-	private static Iterable<String> createResult(NEHRP_TestCity city, double pe2in50, 
+	private static Iterable<String> createResult(String name, double pe2in50, 
 			double pe10in50, double rtgm, DiscretizedFunc curve) {
 		
 		Iterable<String> intercepts = Lists.newArrayList(
-			city.name(),
+			name,
 			Double.toString(pe2in50),
 			Double.toString(pe10in50),
 			Double.toString(rtgm));

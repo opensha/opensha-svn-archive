@@ -36,26 +36,27 @@ public class ScriptGenUC3 {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 4) {
+		if (args.length != 5) {
 			System.out.println("USAGE: " +
 				ClassUtils.getClassNameWithoutPackage(ScriptGenUC3.class) +
-				" <filepath> <erfIndex> <javaLib> <outDir>");
+				" <filepath> <sitefile> <erfIndex> <javaLib> <outDir>");
 			System.exit(1);
 		}
 
 		String filepath = args[0];
-		int erfIndex = Integer.parseInt(args[1]);
-		String libDir = args[2];
-		String outDir = args[3];
+		String sitefile = args[1];
+		int erfIndex = Integer.parseInt(args[2]);
+		String libDir = args[3];
+		String outDir = args[4];
 
 		int hours = 1;
 		int nodes = 1;
 		String queue = "nbns";
 
-		writeScript(filepath, libDir, outDir, erfIndex, hours, nodes, queue);
+		writeScript(filepath, sitefile, libDir, outDir, erfIndex, hours, nodes, queue);
 	}
 
-	private static void writeScript(String filepath, String libDir,
+	private static void writeScript(String filepath, String sitefile, String libDir,
 			String outDir, int erfIdx, int hrs, int nodes, String queue) {
 		try {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
@@ -64,7 +65,7 @@ public class ScriptGenUC3 {
 			JavaShellScriptWriter jssw = new JavaShellScriptWriter(JAVA_BIN,
 				5120, classpath);
 
-			String cliArgs = filepath + " " + erfIdx + " " + outDir;
+			String cliArgs = filepath + " " + sitefile + " " + erfIdx + " " + outDir;
 			List<String> script = jssw.buildScript(
 				UC3_CalcDriver.class.getName(), cliArgs);
 			script.add(NEWLINE);

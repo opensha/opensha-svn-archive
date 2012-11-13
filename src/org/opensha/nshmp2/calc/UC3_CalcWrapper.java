@@ -7,10 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.Period;
@@ -30,6 +32,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Add comments here
@@ -42,15 +45,15 @@ public class UC3_CalcWrapper {
 
 	// public static final String COMPOUND_SOL_PATH =
 	// "/Volumes/Scratch/UC3/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
-	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
-
-	// private static final String OUT_DIR =
-	// "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2";
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UC3tmp";
+//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
+	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip ";
+	 private static final String OUT_DIR =
+	 "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/test";
+//	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UC3tmp";
 	private static final String S = File.separator;
 
 	UC3_CalcWrapper(String solSetPath, int solIdx, String outDir,
-		LocationList locs, Period[] periods, boolean epiUncert)
+		Map<String, Location> siteMap, Period[] periods, boolean epiUncert)
 			throws IOException, InterruptedException, ExecutionException {
 
 		FaultSystemSolution fss = null;
@@ -77,13 +80,17 @@ public class UC3_CalcWrapper {
 
 		UCERF3_FaultSysSol_ERF erf = getUC3_ERF(fss);
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-
+		LocationList locs = new LocationList();
+		for (Location loc : siteMap.values()) {
+			locs.add(loc);
+		}
+		
 		for (Period period : periods) {
 			String outPath = outDir + S + erfName + S + period + S;
 			System.out.println(outPath);
 			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-			HazardResultWriter writer = new HazardResultWriterCities(outFile,
-				period);
+			HazardResultWriter writer = new HazardResultWriterSites(outFile,
+				period, siteMap);
 			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
 				period, epiUncert, writer);
 			thc.calculate(null);
@@ -98,16 +105,21 @@ public class UC3_CalcWrapper {
 		Period[] periods = { GM0P00, GM0P20, GM1P00 };
 		String solSetPath = COMPOUND_SOL_PATH;
 		int idx = 3;
-		Set<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(LOS_ANGELES);
 		boolean epiUnc = false;
 
-		LocationList locs = new LocationList();
-		for (NEHRP_TestCity city : cities) {
-			locs.add(city.location());
-		}
+		
+		Map<String,Location> siteMap = NEHRP_TestCity.asMap();
+		
+		siteMap.clear();
+		NEHRP_TestCity city = NEHRP_TestCity.LOS_ANGELES;
+		siteMap.put(city.name(), city.location());
 
 		try {
-			new UC3_CalcWrapper(solSetPath, idx, OUT_DIR, locs, periods, epiUnc);
+			Stopwatch sw = new Stopwatch();
+			sw.start();
+			
+			new UC3_CalcWrapper(solSetPath, idx, OUT_DIR, siteMap, periods, epiUnc);
+			System.out.println(sw.stop().elapsedMillis());
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
