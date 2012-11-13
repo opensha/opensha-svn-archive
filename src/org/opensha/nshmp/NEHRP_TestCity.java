@@ -1,6 +1,7 @@
 package org.opensha.nshmp;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -14,6 +15,9 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 /**
  * List of 34 city sites in regions of the United States of greatest seismic
@@ -128,6 +132,14 @@ public enum NEHRP_TestCity {
 		return null;
 	}
 	
+	public static Map<String, Location> asMap() {
+		Map<String, Location> cityMap = Maps.newHashMap();
+		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
+			cityMap.put(city.name(), city.location());
+		}
+		return ImmutableMap.copyOf(cityMap);
+	}
+	
 	/**
 	 * Returns a site object for this location.
 	 * @return
@@ -156,11 +168,10 @@ public enum NEHRP_TestCity {
 
 	public static void main(String[] args) {
 		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
-			System.out.println("NAME=" + city);
 			Location loc = city.location();
-			System.out.println("LOC=\"" +
-				Precision.round(loc.getLatitude(), 2) + ", " +
-				Precision.round(loc.getLongitude(), 2) + "\"");
+			System.out.println(city.name() + "," +
+				Precision.round(loc.getLatitude(), 2) + "," +
+				Precision.round(loc.getLongitude(), 2));
 			System.out.println();
 		}
 	}
