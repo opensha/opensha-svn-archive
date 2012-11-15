@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
@@ -16,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -170,16 +172,74 @@ public class TablesAndPlotsGen {
 	}
 	
 	
+	public static void makeParentSectConvergenceTable(
+			File csvOutputFile, AverageFaultSystemSolution aveSol, int parentSectionID) throws IOException {
+		List<Integer> rups = aveSol.getRupturesForParentSection(parentSectionID);
+		
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		int numSols = aveSol.getNumSolutions();
+		
+		List<String> header = Lists.newArrayList();
+		header.add("Rup ID");
+		header.add("Mag");
+		header.add("Length (km)");
+		header.add("Start Sect");
+		header.add("End Sect");
+		header.add("Mean Rate");
+		header.add("Min Rate");
+		header.add("Max Rate");
+		header.add("Std Dev Rate");
+		for (int i=0; i<numSols; i++)
+			header.add("Rate #"+i);
+		
+		csv.addLine(header);
+		
+		for (int rup : rups) {
+			List<String> line = Lists.newArrayList();
+			
+			List<FaultSectionPrefData> sects = aveSol.getFaultSectionDataForRupture(rup);
+			
+			double[] rates = aveSol.getRatesForAllSols(rup);
+			
+			line.add(rup+"");
+			line.add(aveSol.getMagForRup(rup)+"");
+			line.add(aveSol.getLengthForRup(rup)/1000d+""); // m => km
+			line.add(sects.get(0).getSectionName());
+			line.add(sects.get(sects.size()-1).getSectionName());
+			line.add(aveSol.getRateForRup(rup)+"");
+			line.add(aveSol.getRateMin(rup)+"");
+			line.add(aveSol.getRateMax(rup)+"");
+			line.add(aveSol.getRateStdDev(rup)+"");
+			
+			for (int i=0; i<rates.length; i++)
+				line.add(rates[i]+"");
+			
+			csv.addLine(line);
+		}
+		
+		csv.writeToFile(csvOutputFile);
+	}
+	
+	
 
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws DocumentException 
 	 */
-	public static void main(String[] args) throws IOException {
-		buildAveSlipDataTable(new File("ave_slip_table.csv"));
+	public static void main(String[] args) throws IOException, DocumentException {
+//		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
-
+		
+		
+		int mojaveParentID = 301;
+		AverageFaultSystemSolution aveSol = AverageFaultSystemSolution.fromZipFile(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/" +
+						"InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
+						"_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip"));
+		makeParentSectConvergenceTable(new File("/tmp/mojave_s_rups.csv"), aveSol, mojaveParentID);
 	}
 
 }
