@@ -177,6 +177,15 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	/**
+	 * Returns a double array conatining the rate for this rup in every solution
+	 * @param rupIndex
+	 * @return
+	 */
+	public double[] getRatesForAllSols(int rupIndex) {
+		return ratesByRup[rupIndex];
+	}
+	
+	/**
 	 * Returns a SimpleFaultSystemSolution for the given solution index. Solutions are cached locally and only
 	 * built once for each index.
 	 * 
