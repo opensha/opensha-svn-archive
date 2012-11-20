@@ -432,8 +432,7 @@ public class InversionInputGenerator {
 					}
 				}
 				if (Double.isNaN(val))
-					throw new IllegalStateException("A["+row+"]["+col+"] is NaN! sectSlipRateReduced["+row
-							+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
+					throw new IllegalStateException("A["+row+"]["+col+"] = "+val+"! sectSlipRateReduced["+row+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
 				if (QUICK_GETS_SETS)
 					A.setQuick(row, col, slipRateConstraintWt* val);
 				else
@@ -506,8 +505,6 @@ public class InversionInputGenerator {
 				double lowRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getUpperUncertaintyBound();
 				double highRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getLowerUncertaintyBound();
 				double constraintError = highRateBound - lowRateBound;
-				System.out.println("meanRate = "+meanRate);
-				System.out.println("constraintError = "+constraintError);
 				d[rowIndex]=relativePaleoSlipWt * meanRate / constraintError;
 				List<Integer> rupsForSect = rupSet.getRupturesForSection(subsectionIndex);
 				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
