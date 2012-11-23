@@ -331,11 +331,13 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) {
 		
+		makeUCERF2_PartRateMaps();
+		
 //		testUCERF2_Figure25();
 		
 //		makeDraftFinalModelReportPartPlots();
 		
-		plotMFD_InRegion(new CaliforniaRegions.NORTHRIDGE_BOX(), "Northridge_BoxMFDs.pdf");
+//		plotMFD_InRegion(new CaliforniaRegions.NORTHRIDGE_BOX(), "Northridge_BoxMFDs.pdf");
 //		plotMFD_InRegion(new CaliforniaRegions.SF_BOX(), "SF_BoxMFDs.pdf");
 //		plotMFD_InRegion(new CaliforniaRegions.LA_BOX(), "LA_BoxMFDs.pdf");
 		

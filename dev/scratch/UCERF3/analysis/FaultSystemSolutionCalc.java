@@ -1,19 +1,42 @@
 package scratch.UCERF3.analysis;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.zip.ZipException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 public class FaultSystemSolutionCalc {
+	
+	public static void writeRupRatesToFile(SimpleFaultSystemSolution fltSysSol) {
+		File dataFile = new File("tempFSS_Rates.txt");
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			for(int r=0;r<fltSysSol.getNumRuptures();r++) {
+				double mag =fltSysSol.getMagForRup(r);
+				double rate = fltSysSol.getRateForRup(r);
+				String str = r+"\t"+mag+"\t"+rate+"\t"+(rate/Math.pow(10, -mag));
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+	}
 	
 	public static void plotPaleoObsSlipCOV_Histogram(FaultSystemSolution fltSysSol) {
 		plotPaleoObsSlipCOV_Histogram(fltSysSol, null);
@@ -99,15 +122,25 @@ public class FaultSystemSolutionCalc {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
+		
+		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+		try {
+			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		// This is the COMPOUND_SOL.zip file, you can download it from here:
 		// http://opensha.usc.edu/ftp/kmilner/ucerf3/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip
 		
-		File compoundSolFile = new File("/tmp/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
-		
-		// output dir
-		File outputDir = new File("/tmp");
-		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
+//		File compoundSolFile = new File("/tmp/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
+//		
+//		// output dir
+//		File outputDir = new File("/tmp");
+//		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
 	}
 
 }

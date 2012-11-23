@@ -153,18 +153,22 @@ public class UCERF2_A_FaultMapper {
 //				new File(dir, "FM2to3_2_sectionNameChanges.txt"));
 		
 		// now test
-		for (FaultModels fm : FaultModels.values()) {
-			DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
-			
-			for (FaultSectionPrefData sect : new DeformationModelFetcher(
-					fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getParentSectionList())
-				if (wasUCERF2_TypeAFault(sect.getSectionId()))
-					System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
-		}
-//		for (FaultSectionPrefData sect : FaultModels.FM3_1.fetchFaultSections()) {
+//		for (FaultModels fm : FaultModels.values()) {
+//			DeformationModels dm = DeformationModels.forFaultModel(fm).get(0);
+//			
+//			for (FaultSectionPrefData sect : new DeformationModelFetcher(
+//					fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getParentSectionList())
+//				if (wasUCERF2_TypeAFault(sect.getSectionId()))
+//					System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
+//		}
+		
+		DeformationModelFetcher fetcher = new DeformationModelFetcher(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, null, 0.0);
+				
+		for (FaultSectionPrefData sect : fetcher.getParentSectionList()) {
 //			if (wasUCERF2_TypeAFault(sect.getSectionId()))
 //				System.out.println("A Fault: "+sect.getSectionId()+". "+sect.getSectionName());
-//		}
+			System.out.println(sect.getSectionId()+"\t"+sect.getSectionName()+"\t"+wasUCERF2_TypeAFault(sect.getSectionId()));
+		}
 	}
 
 }

@@ -1462,9 +1462,11 @@ if(mMax<5.85)
 			mfds.add(u2fetcher.getTotalMFD());
 			mfds.add(u2fetcher.getBackgroundSeisMFD());
 			mfds.add(u2fetcher.getFaultMFD());
+			mfds.add(u2fetcher.getTargetMinusBackgroundMFD());
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.MAGENTA));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLUE));
+			plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.CYAN));
 		}
 
 		// plot orig GR nucleation MFD if GR branch
@@ -2611,9 +2613,9 @@ if(mMax<5.85)
 		
 //		writeParkfieldMags();
 		
-//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.HANKS_BAKUN_08, SlipAlongRuptureModels.TAPERED, 
-//				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_7p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
 
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
@@ -2624,9 +2626,9 @@ if(mMax<5.85)
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(magHist, "Mag Hist");
 
 		
-//		plotPreInversionMFDs(rupSet, false, false, false, null);
+		plotPreInversionMFDs(rupSet, false, false, true, null);
 		
-		plotSumOfCharInversionMFD_Constraints();
+//		plotSumOfCharInversionMFD_Constraints();
 //		plotSumOfGR_InversionMFD_Constraints(rupSet);
 		
 //		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);
