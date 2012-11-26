@@ -365,6 +365,16 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	}
 	
 	
+	/**
+	 * This returns the fault system rupture index for the ith source
+	 * @param iSrc
+	 * @return
+	 */
+	public double getFltSysRupIndexForSource(int iSrc) {
+		return fltSysRupIndexForSource[iSrc];
+	}
+	
+	
 	private void readFaultSysSolutionFromFile() {
 		// set input file
 		File file = fileParam.getValue();
