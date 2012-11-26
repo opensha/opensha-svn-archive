@@ -101,7 +101,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 			nodeWeights[i] = Math.cos(latitude*Math.PI/180);
 			tot += nodeWeights[i];
 		}
-		for(int i=0;i<numPts;i++) nodeWeights[i] /= (tot*numPts);
+		for(int i=0;i<numPts;i++) nodeWeights[i] /= (tot);
 	}
 	
 	/*
