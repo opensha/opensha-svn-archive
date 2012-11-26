@@ -16,7 +16,9 @@ import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,11 +38,17 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -50,6 +58,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
@@ -68,6 +77,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.io.Files;
+import com.google.common.primitives.Chars;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -80,6 +90,9 @@ public class CurveUtils {
 
 	private static final Splitter SPLIT = Splitter.on(',');
 	private static final Joiner JOIN = Joiner.on(',');
+	private static final Joiner TAB_JOIN = Joiner.on('\t');
+	
+	
 	private static final Mean MEAN = new Mean();
 	private static final String S = File.separator;
 	private static final String LF = IOUtils.LINE_SEPARATOR;
@@ -93,23 +106,162 @@ public class CurveUtils {
 	private static final String CURVE_FILE = "NSHMP08_WUS_curves";
 	private static final String PARAM_FILE = "NSHMP08_WUS_params";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
-		// generateFortranCityData();
+//		 generateFortranCityData();
 
-//		 generateBranchSummaries();
+//		 generateBranchSummaries2();
 
-//		try {
-//			String src = "tree_src/charHybrid";
-//			String out = "treeCharHybrid";
-//			reorganizeUC3branchResults(src, out, false);
-//		} catch (IOException ioe) {
-//			ioe.printStackTrace();
-//		}
+//		File srcDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440");
+//		File outDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440reduce");
+//		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
+			
+//		File srcDir = new File(UC3_ROOT + "SRPconvTest_src");
+//		File outDir = new File(UC3_ROOT + "SRPconvTest");
+//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile, true);
 		
-		generateBranchList();
+//		File srcDir = new File(UC3_ROOT + "SRPconvTest_src/charHybrid");
+//		File outDir = new File(UC3_ROOT + "SRPconvTest");
+//		reorganizeUC3branchResults(srcDir, outDir, true);
 
-//		 fix10in50s();
+//		generateBranchList();
+
+//		fix10in50s();
+		
+//		listAllBranches();
+		 writeConvTestMags();
+	}
+	
+	
+
+	/**
+	 * UCERF3 logic tree reorganizer. Currently UC3 logic tree hazard curves
+	 * computed for NEHRP test cities are grouped by logic tree branch; it is
+	 * better to initialize a branch erf and loop location (cities) than to loop
+	 * branch erf's at each location (city). This utility method groups curves
+	 * for each city in a single file and writes statistical curve summaries.
+	 * 
+	 * @param src
+	 * @param out
+	 * @param ignoreWts
+	 * @throws IOException
+	 */
+	public static void reorganizeUC3branchResults(File srcDir, File outDir,
+			File locFile, boolean ignoreWts) throws IOException {
+		
+		// convert solutions grouped by branch to solutions grouped by city
+		Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		
+		// create location list
+		List<String> locLines = Files.readLines(locFile, US_ASCII);
+		List<String> locNames = Lists.newArrayList();
+		for (String line : locLines) {
+			locNames.add(Iterables.get(SPLIT.split(line), 0));
+		}
+
+		BiMap<String, Integer> indexMap = HashBiMap.create();
+		Map<Integer, Double> wtMap = Maps.newHashMap();
+
+		File[] branchDirs = srcDir.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				return !f.getName().startsWith(".");
+			}
+		});
+
+		for (int i=0; i<branchDirs.length; i++) {
+			System.out.println(i + " " + branchDirs[i].getName());
+		}
+
+		APrioriBranchWeightProvider wtProvider = new APrioriBranchWeightProvider();
+		int index = 0;
+		for (File branch : branchDirs) {
+			if (!branch.isDirectory()) continue;
+			String branchName = branch.getName();
+			indexMap.put(branchName, index);
+			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branchName);
+			double wt = ignoreWts ? 1.0 : wtProvider.getWeight(ltb);
+			wtMap.put(index, wt);
+			index++;
+		}
+
+		// normalize weights
+		if (!ignoreWts) {
+			Collection<Double> wts = wtMap.values();
+			double sum = DataUtils.sum(Doubles.toArray(wts));
+			System.out.println("Weight sum: " + sum);
+			for (int idx : wtMap.keySet()) {
+				double wt = wtMap.get(idx);
+				wtMap.put(idx, wt / sum);
+			}
+		}
+
+		Map<Period, Table<Integer, String, String>> curveMap = Maps
+			.newHashMap();
+		Table<Integer, String, String> table = null;
+		table = ArrayTable.create(indexMap.values(), locNames);
+		curveMap.put(GM0P00, table);
+		table = ArrayTable.create(indexMap.values(), locNames);
+		curveMap.put(GM0P20, table);
+		table = ArrayTable.create(indexMap.values(), locNames);
+		curveMap.put(GM1P00, table);
+
+		for (File branch : branchDirs) {
+			if (!branch.isDirectory()) continue;
+			String branchName = branch.getName();
+			int branchIdx = indexMap.get(branchName);
+			double branchWt = wtMap.get(branchIdx);
+			for (Period period : periods) {
+				table = curveMap.get(period);
+				File periodDir = new File(branch, period.name());
+				File curveFile = new File(periodDir, CURVE_FILE + ".csv");
+				List<String> lines = Files.readLines(curveFile, US_ASCII);
+				for (String line : Iterables.skip(lines, 1)) {
+					String locStr = StringUtils.substringBefore(line, ",");
+					String curveStr = StringUtils.substringAfter(StringUtils
+						.substringAfter(
+							StringUtils.substringAfter(
+								StringUtils.substringAfter(line, ","), ","),
+							","), ",");
+					String curveStrOut = branchIdx + "," + branchWt + "," +
+						curveStr;
+					table.put(branchIdx, locStr, curveStrOut);
+				}
+			}
+		}
+
+		for (Period period : periods) {
+			table = curveMap.get(period);
+			for (String name : locNames) {
+
+				File curvesOut = new File(outDir, period.name() + S +
+					name + S + CURVE_FILE + ".csv");
+				Files.createParentDirs(curvesOut);
+				// header
+				Iterable<String> gmVals = Collections2.transform(period
+					.getFunction().xValues(), Functions.toStringFunction());
+				List<String> headers = Lists.newArrayList("ERF#", "wt");
+				Iterable<String> cityFields = Iterables.concat(headers, gmVals);
+				String cityHeader = JOIN.join(cityFields) + LF;
+				Files.write(cityHeader, curvesOut, US_ASCII);
+
+				File paramsOut = new File(outDir, period.name() + S +
+					name + S + PARAM_FILE + ".csv");
+				Files.createParentDirs(paramsOut);
+				Files.write("ERF#,BranchName" + LF, paramsOut, US_ASCII);
+
+				// data
+				Map<Integer, String> indexMapInverse = indexMap.inverse();
+				for (int i = 0; i < indexMap.size(); i++) {
+					String curveLine = table.get(i, name) + LF;
+					String paramLine = i + "," + indexMapInverse.get(i) + LF;
+					Files.append(curveLine, curvesOut, US_ASCII);
+					Files.append(paramLine, paramsOut, US_ASCII);
+				}
+			}
+		}
 	}
 
 	/**
@@ -124,7 +276,7 @@ public class CurveUtils {
 	 * @param ignoreWts
 	 * @throws IOException
 	 */
-	public static void reorganizeUC3branchResults(String src, String out,
+	public static void reorganizeUC3branchResults(File srcDir, File outDir,
 			boolean ignoreWts) throws IOException {
 		// convert solutions grouped by branch to solutions grouped by city
 		Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
@@ -132,7 +284,6 @@ public class CurveUtils {
 		BiMap<String, Integer> indexMap = HashBiMap.create();
 		Map<Integer, Double> wtMap = Maps.newHashMap();
 
-		File srcDir = new File(UC3_ROOT + src);
 		File[] branchDirs = srcDir.listFiles();
 
 		APrioriBranchWeightProvider wtProvider = new APrioriBranchWeightProvider();
@@ -197,7 +348,7 @@ public class CurveUtils {
 			table = curveMap.get(period);
 			for (NEHRP_TestCity city : NEHRP_TestCity.getCA()) {
 
-				File curvesOut = new File(UC3_ROOT + out, period.name() + S +
+				File curvesOut = new File(outDir, period.name() + S +
 					city.name() + S + CURVE_FILE + ".csv");
 				Files.createParentDirs(curvesOut);
 				// header
@@ -208,7 +359,7 @@ public class CurveUtils {
 				String cityHeader = JOIN.join(cityFields) + LF;
 				Files.write(cityHeader, curvesOut, US_ASCII);
 
-				File paramsOut = new File(UC3_ROOT + out, period.name() + S +
+				File paramsOut = new File(outDir, period.name() + S +
 					city.name() + S + PARAM_FILE + ".csv");
 				Files.createParentDirs(paramsOut);
 				Files.write("ERF#,BranchName" + LF, paramsOut, US_ASCII);
@@ -242,6 +393,57 @@ public class CurveUtils {
 			ioe.printStackTrace();
 		}
 	}
+	
+	public static void generateBranchSummaries2() {
+		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		List<String> locNames = Lists.newArrayList();
+//		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
+		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
+		try {
+		List<String> locLines = Files.readLines(locFile, US_ASCII);
+			for (String line : locLines) {
+				locNames.add(Iterables.get(SPLIT.split(line), 0));
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		String imrID = NSHMP08_WUS.SHORT_NAME;
+		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/SRPconvTest";
+		try {
+			// boolean is tornado
+			runBranchSummaries2(dir, imrID, periods, locNames, false);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Create summaries of logic tree branch hazard curves.
+	 */
+	private static void runBranchSummaries2(String dir, String imrID,
+			Iterable<Period> periods, Iterable<String> locNames,
+			boolean tornado) throws IOException {
+		for (Period p : periods) {
+			for (String name : locNames) {
+				System.out.println(name + " " + p);
+				File srcDir = new File(dir + S + p.name() + S + name);
+				File srcFile = new File(srcDir, imrID + "_curves.csv");
+				File branchFile = new File(srcDir, imrID + "_params.csv");
+				File statFile = new File(srcDir, imrID + "_stats.csv");
+				File sumFile = new File(srcDir, imrID + "_summary.csv");
+				File torRTGM_File = null, tor2in50_File = null, tor10in50_File = null;
+				if (tornado) {
+					torRTGM_File = new File(srcDir, imrID + "_tornado_rtgm.csv");
+					tor2in50_File = new File(srcDir, imrID + "_tornado_2in50.csv");
+					tor10in50_File = new File(srcDir, imrID + "_tornado_10in50.csv");
+				}
+				summarizeBranches(srcFile, branchFile, statFile, sumFile,
+					torRTGM_File, tor2in50_File, tor10in50_File, p);
+			}
+		}
+	}
+
 
 	/*
 	 * Create summaries of logic tree branch hazard curves.
@@ -483,7 +685,7 @@ public class CurveUtils {
 	
 	private static void generateBranchList() {
 		
-		String fileName = "treeM5-10p0_UNI_U2";
+		String fileName = "tree_refNoBG_tap";
 		Set<FaultModels> fltModels = EnumSet.of(
 			FM3_1, FM3_2); //FM3_2); // FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
@@ -496,17 +698,17 @@ public class CurveUtils {
 			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
 			SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
 		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
-			UNIFORM); //UNIFORM, TAPERED);
+			TAPERED); //UNIFORM, TAPERED);
 		Set<InversionModels> invModels = EnumSet.of(
 			CHAR_CONSTRAINED);
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_10p0); //RATE_7p6, RATE_8p7, RATE_10p0);
+			RATE_8p7); //RATE_7p6, RATE_8p7, RATE_10p0);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
 			MAG_7p6); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(
 			NONE);
 		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
-			UCERF2); // UCERF2, UCERF3);
+			UCERF3); // UCERF2, UCERF3);
 
 		List<Set<? extends LogicTreeBranchNode<?>>> branchSets = Lists.newArrayList();
 		branchSets.add(fltModels);
@@ -664,5 +866,66 @@ public class CurveUtils {
 		}
 	}
 
+	private static void listAllBranches() {
+		try {
+			String path1440 = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
+			CompoundFaultSystemSolution cfss = UC3_CalcWrapper
+				.getCompoundSolution(path1440);
+			List<LogicTreeBranch> branches = Lists.newArrayList(cfss
+				.getBranches());
+			File out = new File("tmp/branchlist1440.txt");
+			Files.write("", out, US_ASCII);
+			int idx = 0;
 
+			for (LogicTreeBranch branch : branches) {
+				Files.append((idx++) + " " + branch.buildFileName() + LF, out,
+					US_ASCII);
+			}
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	
+	private static void writeConvTestMags() throws IOException {
+		// rupture of interest: 29749
+		int fssRupIdx = 29749;
+		int maxIdx = 1;
+		
+		File out = new File("tmp/SRPconvTestRupRates.txt");
+		String header = TAB_JOIN.join("FSSidx","fssRate","fssMag","erfRate","erfMag") + LF;
+		Files.write(header, out, US_ASCII);
+		
+		// load conv fss
+		String convSolPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+		AverageFaultSystemSolution afss = UC3_CalcWrapper.getAvgSolution(convSolPath);
+		for (int i=0; i<maxIdx; i++) {
+			FaultSystemSolution fss = afss.getSolution(i);
+			double fssRupRate = fss.getRateForRup(fssRupIdx);
+			double fssRupMag = fss.getMagForRup(fssRupIdx);
+			System.out.println(fssRupRate + "\t" + fssRupMag);
+		
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			erf.updateForecast();
+			int srcIdx = -1;
+			for (int j=0; j<erf.getNumFaultSystemSources(); j++) {
+				int rupIdx = erf.getFltSysRupIndexForSource(j);
+				if (rupIdx == fssRupIdx) {
+					srcIdx = j;
+					break;
+				}
+			}
+			checkArgument(srcIdx != -1);
+			ProbEqkSource src = erf.getSource(srcIdx);
+			System.out.println(src.getSourceMetadata());
+			ProbEqkRupture rup = src.getRupture(0);
+			double erfRupRate = rup.getMeanAnnualRate(1d);
+			double erfRupMag = rup.getMag();
+			String outLine = TAB_JOIN.join(i, fssRupRate, fssRupMag, erfRupRate, erfRupMag) + LF;
+			System.out.println(outLine);
+			Files.append(outLine, out, US_ASCII);
+		}
+	}
+	
 }
