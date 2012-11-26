@@ -370,7 +370,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * @param iSrc
 	 * @return
 	 */
-	public double getFltSysRupIndexForSource(int iSrc) {
+	public int getFltSysRupIndexForSource(int iSrc) {
 		return fltSysRupIndexForSource[iSrc];
 	}
 	
