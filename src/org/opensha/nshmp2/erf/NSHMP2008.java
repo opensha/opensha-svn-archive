@@ -112,6 +112,18 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		return erf;
 	}
 	
+	/**
+	 * Returns an NSHMP {@code ERF} that includes California (i.e. UCERF2)
+	 * fault sources. Note that this excludes the non-CA bFaults that are 
+	 * included in MeanUCERF2.
+	 * @return an NSHMP {@code ERF}
+	 */
+	public static NSHMP2008 createCaliforniaFault() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		erf.addERFs(Sources.getFaultList(CA));
+		return erf;
+	}
+
 	
 	/**
 	 * Returns an NSHMP {@code ERF} that includes California (i.e. UCERF2)
