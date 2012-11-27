@@ -61,6 +61,11 @@ public enum ERF_ID {
 			return NSHMP2008.createCaliforniaGridded();
 		}
 	},
+	NSHMP08_CA_FLT() {
+		public EpistemicListERF instance() {
+			return NSHMP2008.createCaliforniaFault();
+		}
+	},
 	NSHMP08_CA_FIX() {
 		public EpistemicListERF instance() {
 			return NSHMP2008.createCaliforniaFixedStrk();
@@ -118,6 +123,17 @@ public enum ERF_ID {
 	UCERF3_REF_MEAN() {
 		public EpistemicListERF instance() {
 			return getUC3_SolERF(UC3_CONV_PATH);
+		}
+	},
+	
+	UCERF3_UC2MAP1() {
+		public EpistemicListERF instance() {
+			return getUC3_UC2_MAP(UC3_UC2_MAP_TAP);
+		}
+	},
+	UCERF3_UC2MAP2() {
+		public EpistemicListERF instance() {
+			return getUC3_UC2_MAP(UC3_UC2_MAP_UNI);
 		}
 	},
 	
@@ -188,6 +204,23 @@ public enum ERF_ID {
 		erf.setTimeSpan(ts);		
 		return erf;
 	}
+	
+	private static EpistemicListERF getUC3_UC2_MAP(String solPath) {
+		try {
+			File fssZip = new File(solPath);
+			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			
+			// !!!!!!!!!!!!!!!
+			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
+				IncludeBackgroundOption.EXCLUDE);
+			
+			return wrapInList(erf);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static EpistemicListERF wrapInList(final AbstractERF erf) {
 		EpistemicListERF listERF = new AbstractEpistemicListERF() {
@@ -220,7 +253,7 @@ public enum ERF_ID {
 			
 			// !!!!!!!!!!!!!!!
 //			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-//				IncludeBackgroundOption.ONLY);
+//				IncludeBackgroundOption.EXCLUDE);
 
 			return wrapInList(erf);
 		} catch (Exception e) {
@@ -242,6 +275,10 @@ public enum ERF_ID {
 	private static final String UC3_1X7X_SOL_PATH =
 			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
 	
+	private static final String UC3_UC2_MAP_TAP = 
+			"/home/scec-00/pmpowers/UC3/src/uc2map/FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
+	private static final String UC3_UC2_MAP_UNI = 
+			"/home/scec-00/pmpowers/UC3/src/uc2map/FM2_1_UC2ALL_AveU2_DsrUni_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
 	
 	private static EpistemicListERF getUC3_SolERF(String solPath) {
 		try {
