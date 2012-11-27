@@ -25,6 +25,12 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
+
+/**
+ * This class constructs and stores the various pre-inversion MFDs.
+ * @author field
+ *
+ */
 public class InversionMFDs {
 	
 	// debugging flag

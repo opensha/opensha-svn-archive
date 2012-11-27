@@ -1642,11 +1642,11 @@ if(mMax<5.85)
 	
 	/**
 	 * This returns the total rate of events at or above the given minimum magnitude. If <code>probPaleoVisible</code>
-	 * is true then rates are convolved with their paleo visible probability.
+	 * is not null then rates are multiplied by the paleo visible probability.
 	 * 
 	 * @param sol
 	 * @param minMag
-	 * @param probPaleoVisible
+	 * @param paleoProbModel
 	 * @return
 	 */
 	public static double calcTotRateAboveMag(FaultSystemSolution sol, double minMag, PaleoProbabilityModel paleoProbModel) {
