@@ -721,6 +721,9 @@ public class PaleoFitPlotter {
 			
 			// now add paleo sites
 			for (PaleoRateConstraint constr : constraints) {
+				Preconditions.checkNotNull(constr, "Paleo Constraint NULL!");
+				Preconditions.checkNotNull(constr.getPaleoSiteLoction(),
+						"Paleo Constraint Location NULL!");
 				double paleoRateX;
 				if (latitudeX)
 					paleoRateX = constr.getPaleoSiteLoction().getLatitude();

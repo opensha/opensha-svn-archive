@@ -87,6 +87,9 @@ public class FaultSpecificSegmentationPlotGen {
 		for (Integer parent : parentSects) {
 			List<FaultSectionPrefData> sects = subSectsByParent.get(parent);
 			
+			if (sects == null && parent == 13)
+				continue;
+			
 			List<Location> sectStoppingPoints = Lists.newArrayList();
 			for (int i=0; i<sects.size(); i++) {
 				FaultSectionPrefData sect = sects.get(i);

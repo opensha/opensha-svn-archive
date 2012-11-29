@@ -238,8 +238,8 @@ public class TablesAndPlotsGen {
 		AverageFaultSystemSolution aveSol = AverageFaultSystemSolution.fromZipFile(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/" +
 						"InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
-						"_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip"));
-		makeParentSectConvergenceTable(new File("/tmp/mojave_s_rups.csv"), aveSol, mojaveParentID);
+						"_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip"));
+		makeParentSectConvergenceTable(new File("/tmp/mojave_s_rups_start_zero.csv"), aveSol, mojaveParentID);
 	}
 
 }

@@ -185,6 +185,11 @@ public class CommandLineInversionRunner {
 		Option dirOp = new Option("dir", "directory", true, "Directory to store inputs");
 		dirOp.setRequired(true);
 		ops.addOption(dirOp);
+		
+		Option noPlotsOp = new Option("noplots", "no-plots", false,
+				"Flag to disable any plots (but still write solution zip file)");
+		noPlotsOp.setRequired(false);
+		ops.addOption(noPlotsOp);
 
 		return ops;
 	}
@@ -208,6 +213,7 @@ public class CommandLineInversionRunner {
 			CommandLine cmd = parser.parse(options, args);
 
 			boolean lightweight = cmd.hasOption("lightweight");
+			boolean noPlots = cmd.hasOption("no-plots");
 
 			// get the directory/logic tree branch
 			File dir = new File(cmd.getOptionValue("directory"));
@@ -429,70 +435,73 @@ public class CommandLineInversionRunner {
 					+"\tsolution: "+p.solutionMoment+"\tdiff: "+p.getDiff();
 				}
 				info += "\n**********************************************";
-				CSVFile<String> moRateCSV = new CSVFile<String>(true);
-				moRateCSV.addLine(Lists.newArrayList("ID", "Name", "Target", "Solution", "Diff"));
-				for (ParentMomentRecord p : parentMoRates)
-					moRateCSV.addLine(Lists.newArrayList(p.parentID+"", p.name, p.targetMoment+"",
-							p.solutionMoment+"", p.getDiff()+""));
-				moRateCSV.writeToFile(new File(subDir, prefix+"_sect_mo_rates.csv"));
 
 				sol.setInfoString(info);
 
 				System.out.println("Writing solution");
 				sol.toZipFile(solutionFile);
-
-				System.out.println("Writing Plots");
-				tsa.writePlots(criteria, new File(subDir, prefix));
-
-				// 1 km jump plot
-				try {
-					writeJumpPlots(sol, distsMap, subDir, prefix);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				// MFD plots
-				try {
-					writeMFDPlots(invSol, subDir, prefix);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				List<AveSlipConstraint> aveSlipConstraints = null;
-				try {
-					if (config.getPaleoSlipConstraintWt() > 0d)
-						aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
-					else
-						aveSlipConstraints = null;
-					writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, subDir, prefix);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				try {
-					writeSAFSegPlots(sol, subDir, prefix);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 				
-				try {
-					writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				try {
-					writePaleoCorrelationPlots(
-							sol, new File(subDir, PALEO_CORRELATION_DIR_NAME), paleoProbabilityModel);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				try {
-					writePaleoFaultPlots(
-							paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
-									PALEO_FAULT_BASED_DIR_NAME));
-				} catch (Exception e) {
-					e.printStackTrace();
+				if (!noPlots) {
+					CSVFile<String> moRateCSV = new CSVFile<String>(true);
+					moRateCSV.addLine(Lists.newArrayList("ID", "Name", "Target", "Solution", "Diff"));
+					for (ParentMomentRecord p : parentMoRates)
+						moRateCSV.addLine(Lists.newArrayList(p.parentID+"", p.name, p.targetMoment+"",
+								p.solutionMoment+"", p.getDiff()+""));
+					moRateCSV.writeToFile(new File(subDir, prefix+"_sect_mo_rates.csv"));
+					
+					System.out.println("Writing Plots");
+					tsa.writePlots(criteria, new File(subDir, prefix));
+
+					// 1 km jump plot
+					try {
+						writeJumpPlots(sol, distsMap, subDir, prefix);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					// MFD plots
+					try {
+						writeMFDPlots(invSol, subDir, prefix);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					List<AveSlipConstraint> aveSlipConstraints = null;
+					try {
+						if (config.getPaleoSlipConstraintWt() > 0d)
+							aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+						else
+							aveSlipConstraints = null;
+						writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, subDir, prefix);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					try {
+						writeSAFSegPlots(sol, subDir, prefix);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					try {
+						writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					try {
+						writePaleoCorrelationPlots(
+								sol, new File(subDir, PALEO_CORRELATION_DIR_NAME), paleoProbabilityModel);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					try {
+						writePaleoFaultPlots(
+								paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
+										PALEO_FAULT_BASED_DIR_NAME));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
@@ -711,8 +720,8 @@ public class CommandLineInversionRunner {
 	}
 
 	public static ArrayList<PaleoRateConstraint> getPaleoConstraints(FaultModels fm, FaultSystemRupSet rupSet) throws IOException {
-//		if (fm == FaultModels.FM2_1)
-//			return UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
+		if (fm == FaultModels.FM2_1)
+			return UCERF2_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 		return UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 	}
 

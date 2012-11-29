@@ -387,6 +387,12 @@ public class DeformationModelFetcher {
 				allFaultSectionPrefData.remove(i);
 		}
 		 */
+		// REMOVE MENDOCINO SECTION
+		if (D)System.out.println("Removing Mendocino Section.");
+		for(int i=0; i< allFaultSectionPrefData.size();i++) {
+			if (allFaultSectionPrefData.get(i).getSectionId() == 13)
+				allFaultSectionPrefData.remove(i);
+		}
 		/*		
 		if(D) {
 			System.out.println("FINAL SECTIONS");

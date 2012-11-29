@@ -23,13 +23,16 @@ public class DispatcherThread extends Thread {
 	private int size;
 	private int maxPerDispatch;
 	private int minPerDispatch;
+	private int exactDispatch;
 	
 	private Deque<Integer> stack;
 	
-	public DispatcherThread(int size, int numTasks, int minPerDispatch, int maxPerDispatch) {
+	public DispatcherThread(int size, int numTasks, int minPerDispatch, int maxPerDispatch,
+			int exactDispatch) {
 		this.size = size;
 		this.minPerDispatch = minPerDispatch;
 		this.maxPerDispatch = maxPerDispatch;
+		this.exactDispatch = exactDispatch;
 		Preconditions.checkArgument(minPerDispatch <= maxPerDispatch, "min per dispatch must be <= max");
 		Preconditions.checkArgument(minPerDispatch >= 1, "min per dispatch must be >= 1");
 		Preconditions.checkArgument(size >= 1, "size must be >= 1");
@@ -52,13 +55,19 @@ public class DispatcherThread extends Thread {
 		debug("getting batch with "+numLeft+" left");
 		if (numLeft == 0)
 			return new int[0];
-		double numLeftPer = (double)numLeft / (double)size;
 		
-		int numToDispatch = (int)Math.ceil(numLeftPer);
-		if (numToDispatch > maxPerDispatch)
-			numToDispatch = maxPerDispatch;
-		if (numToDispatch < minPerDispatch)
-			numToDispatch = minPerDispatch;
+		int numToDispatch;
+		if (exactDispatch > 0) {
+			numToDispatch = exactDispatch;
+		} else {
+			double numLeftPer = (double)numLeft / (double)size;
+			
+			numToDispatch = (int)Math.ceil(numLeftPer);
+			if (numToDispatch > maxPerDispatch)
+				numToDispatch = maxPerDispatch;
+			if (numToDispatch < minPerDispatch)
+				numToDispatch = minPerDispatch;
+		}
 		
 		if (numToDispatch > numLeft)
 			numToDispatch = numLeft;

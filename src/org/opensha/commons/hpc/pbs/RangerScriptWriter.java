@@ -8,6 +8,7 @@ import java.util.List;
 public class RangerScriptWriter extends BatchScriptWriter {
 	
 	public static final File JAVA_BIN = new File("/share/home/00950/kevinm/java/default/bin/java");
+	public static final File MPJ_HOME = new File("/share/home/00950/kevinm/mpj-v0_38");
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
@@ -27,6 +28,7 @@ public class RangerScriptWriter extends BatchScriptWriter {
 		pbs.add("#$ -l h_rt=00:"+mins+":00");
 		pbs.add("#$ -pe "+pType+" "+cpus);
 		pbs.add("#$ -q "+queue);
+		pbs.add("#$ -cwd");
 		pbs.add("#$ -V");
 		pbs.add("");
 		pbs.add("PBS_NODEFILE=\"/tmp/${USER}-hostfile-${JOB_ID}\"");

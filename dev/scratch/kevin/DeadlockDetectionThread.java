@@ -13,6 +13,7 @@ public class DeadlockDetectionThread extends Thread {
 	
 	public DeadlockDetectionThread(long checkMillis) {
 		this.checkMillis = checkMillis;
+		this.setDaemon(true);
 	}
 
 	@Override

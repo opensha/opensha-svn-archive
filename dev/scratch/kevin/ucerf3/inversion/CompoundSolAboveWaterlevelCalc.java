@@ -2,6 +2,7 @@ package scratch.kevin.ucerf3.inversion;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +17,12 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -67,21 +70,19 @@ public class CompoundSolAboveWaterlevelCalc {
 	}
 	
 	private static Map<String, boolean[]> getAbovesForZip(File zipFile) throws IOException {
-		return getAbovesForZip(zipFile, null);
+		return getAbovesForZip(zipFile, -1);
 	}
 	
-	private static Map<String, boolean[]> getAbovesForZip(File zipFile, String grep) throws IOException {
+	private static Map<String, boolean[]> getAbovesForZip(File zipFile, int maxSols) throws IOException {
 		ZipFile zip = new ZipFile(zipFile);
 		Map<String, boolean[]> abovesForPrefix = Maps.newHashMap();
 		
-		getAbovesForZip(zip, abovesForPrefix, grep);
+		Map<String, Integer> counts;
+		if (maxSols > 0)
+			counts = Maps.newHashMap();
+		else
+			counts = null;
 		
-		System.out.println("Loaded "+abovesForPrefix.size()+" branches!");
-		
-		return abovesForPrefix;
-	}
-	
-	private static void getAbovesForZip(ZipFile zip, Map<String, boolean[]> abovesForPrefix, String grep) throws IOException {
 		Enumeration<? extends ZipEntry> entries = zip.entries();
 		while (entries.hasMoreElements()) {
 			ZipEntry entry = entries.nextElement();
@@ -90,12 +91,19 @@ public class CompoundSolAboveWaterlevelCalc {
 			if (!name.endsWith("_noMinRates.bin"))
 				continue;
 			
-			if (grep != null && !grep.isEmpty() && !name.contains(grep))
-				continue;
-			
 			String prefix = name.substring(0, name.indexOf("_noMinRates.bin"));
 			if (prefix.contains("_run"))
 				prefix = name.substring(0, name.indexOf("_run"));
+			
+			if (counts != null) {
+				Integer count = counts.get(prefix);
+				if (count == null)
+					count = 0;
+				if (count == maxSols)
+					continue;
+				count++;
+				counts.put(prefix, count);
+			}
 			
 			double[] rates = MatrixIO.doubleArrayFromInputStream(zip.getInputStream(entry), entry.getSize());
 			
@@ -110,6 +118,10 @@ public class CompoundSolAboveWaterlevelCalc {
 				if (rates[i] > 0)
 					aboves[i] = true;
 		}
+		
+		System.out.println("Loaded "+abovesForPrefix.size()+" branches!");
+		
+		return abovesForPrefix;
 	}
 	
 	private static int[] getAboveWaterlevelCounts(Map<String, boolean[]> abovesForPrefix) throws IOException {
@@ -128,43 +140,103 @@ public class CompoundSolAboveWaterlevelCalc {
 		return aboves;
 	}
 	
-	private static void plotAboves(int[] aboves, File dir) throws IOException {
-		int max = 0;
-		for (int above : aboves)
-			if (above > max)
-				max = above;
+	private static void plotAboves(int[] aboves , File dir) throws IOException {
+		List<int[]> abovesList = Lists.newArrayList(aboves);
+		plotAboves(abovesList, dir);
+	}
+	
+	private static void plotAboves(List<int[]> abovesList, File dir) throws IOException {
+		ArrayList<DiscretizedFunc> hists = Lists.newArrayList();
+		for (int i=0; i<abovesList.size(); i++) {
+			int[] aboves = abovesList.get(i);
+			
+			int max = 0;
+			for (int above : aboves)
+				if (above > max)
+					max = above;
+			
+			if (i == abovesList.size()-1) {
+				FileWriter fw = new FileWriter(new File(dir, "zeros_indexes.txt"));
+				for (int rupIndex=0; rupIndex<aboves.length; rupIndex++) {
+					if (aboves[rupIndex] == 0)
+						fw.write(rupIndex+"\n");
+				}
+				fw.close();
+			}
+			
+			HistogramFunction hist = new HistogramFunction(0d, max+1, 1d);
+			
+			for (int above : aboves)
+				hist.add(above, 1d);
+			
+			hists.add(hist);
+			
+			EvenlyDiscretizedFunc cml = getCmlGreaterOrEqual(hist);
+			
+			ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+			funcs.add(hist);
+//			funcs.add(cml);
+			
+			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, Color.BLACK));
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			CommandLineInversionRunner.setFontSizes(gp);
+			
+			String title = "Rups Above Waterlevel";
+			
+			String xAxisName = "# Solutions With Rup Above Waterlevel";
+			String yAxisName = "# Ruptures";
+			
+			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, false, title);
+			
+			String nameAdd;
+			if (abovesList.size() > 1)
+				nameAdd = "_"+i;
+			else
+				nameAdd = "";
+			
+			File file = new File(dir, "rups_above_waterlevel"+nameAdd);
+			
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		}
 		
-		HistogramFunction hist = new HistogramFunction(0d, max+1, 1d);
-		
-		for (int above : aboves)
-			hist.add(above, 1d);
-		
-		EvenlyDiscretizedFunc cml = getCmlGreaterOrEqual(hist);
-		
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-		funcs.add(hist);
-//		funcs.add(cml);
-		
-		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, Color.BLACK));
-//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
-		
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		CommandLineInversionRunner.setFontSizes(gp);
-		
-		String title = "Rups Above Waterlevel";
-		
-		String xAxisName = "# Solutions With Rup Above Waterlevel";
-		String yAxisName = "# Ruptures";
-		
-		gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, false, title);
-		
-		File file = new File(dir, "rups_above_waterlevel");
-		
-		gp.getCartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		if (abovesList.size() > 1) {
+			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+			for (int i=0; i<abovesList.size(); i++)
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			CommandLineInversionRunner.setFontSizes(gp);
+			
+			String title = "Rups Above Waterlevel";
+			
+			String xAxisName = "# Solutions With Rup Above Waterlevel";
+			String yAxisName = "# Ruptures";
+			
+			double maxY = 0;
+			for (DiscretizedFunc func : hists) {
+				double y = func.getY(0);
+				if (y > maxY)
+					maxY = y;
+			}
+			
+			gp.setUserBounds(0d, 10d, 0d, maxY+10d);
+			
+			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, true, title);
+			
+			File file = new File(dir, "rups_above_waterlevel_combined");
+			
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		}
 	}
 	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {
@@ -188,21 +260,32 @@ public class CompoundSolAboveWaterlevelCalc {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CompoundSolAboveWaterlevelCalc.class)+" <dir>");
 			System.exit(2);
 		}
+		int num = 6;
 		File dir = new File(args[0]);
-		Map<String, boolean[]> abovesMap;
+		List<int[]> abovesList;
 		if (dir.getName().endsWith(".zip")) {
 			File zipFile = dir;
 			dir = zipFile.getParentFile();
 			Preconditions.checkArgument(zipFile.exists(), "Zip file "+zipFile.getAbsolutePath()+" doesn't exist!");
-			abovesMap = getAbovesForZip(zipFile, null);
+			abovesList = Lists.newArrayList();
+			if (num > 0) {
+				for (int i=0; i<num; i++) {
+					Map<String, boolean[]> abovesMap = getAbovesForZip(zipFile, i+1);
+					abovesList.add(getAboveWaterlevelCounts(abovesMap));
+				}
+			} else {
+				Map<String, boolean[]> abovesMap = getAbovesForZip(zipFile, -1);
+				abovesList.add(getAboveWaterlevelCounts(abovesMap));
+			}
 		} else {
 			Preconditions.checkArgument(dir.exists(), "Dir "+dir.getAbsolutePath()+" doesn't exist!");
 			Preconditions.checkArgument(dir.isDirectory(), dir.getAbsolutePath()+" isn't a directory!");
-			abovesMap = getAbovesForDir(dir);
+			Map<String, boolean[]> abovesMap = getAbovesForDir(dir);
+			int[] aboves = getAboveWaterlevelCounts(abovesMap);
+			abovesList = Lists.newArrayList(aboves);
 		}
-		int[] aboves = getAboveWaterlevelCounts(abovesMap);
 		
-		plotAboves(aboves, dir);
+		plotAboves(abovesList, dir);
 	}
 
 }

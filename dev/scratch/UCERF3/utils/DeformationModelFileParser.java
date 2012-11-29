@@ -449,7 +449,7 @@ public class DeformationModelFileParser {
 			// now load the creep file
 			
 			InputStream is = UCERF3_DataUtils.locateResourceAsStream("creep",
-					"creep-by-minisection-2012_06_03.xls");
+					"creep-by-minisection-2012_11_28.xls");
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
@@ -714,7 +714,7 @@ public class DeformationModelFileParser {
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
-		List<String> header = Lists.newArrayList("Minisection ID", "Name");
+		List<String> header = Lists.newArrayList("Minisection ID", "Name", "Creep Rate");
 		
 		List<Map<Integer, DeformationSection>> sectsList = Lists.newArrayList();
 		
@@ -728,7 +728,8 @@ public class DeformationModelFileParser {
 			if (dm == DeformationModels.GEOLOGIC_LOWER || dm == DeformationModels.GEOLOGIC_UPPER)
 				continue;
 			
-			header.add(dm.getName());
+			header.add(dm.getShortName()+" Slip");
+			header.add(dm.getShortName()+" Moment Reduction");
 			
 			Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
 			
@@ -763,12 +764,16 @@ public class DeformationModelFileParser {
 			int[] miniSection = parseMinisectionNumber(miniSectionStr);
 			int id = miniSection[0];
 			int sect = miniSection[1];
-			List<String> line = Lists.newArrayList(getMinisectionString(miniSection), namesMap.get(id));
+			List<String> line = Lists.newArrayList(getMinisectionString(miniSection), namesMap.get(id), creep+"");
 			
 			for (int i=0; i<sectsList.size(); i++) {
 				DeformationSection def = sectsList.get(i).get(id);
 				double momRed = def.getMomentReductions().get(sect-1);
+				if (momRed > DeformationModelFetcher.MOMENT_REDUCTION_MAX)
+					momRed = DeformationModelFetcher.MOMENT_REDUCTION_MAX;
+				double slip = def.getSlips().get(sect-1);
 				
+				line.add(slip+"");
 				line.add(momRed+"");
 			}
 			
@@ -789,9 +794,9 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
-//		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
-//		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
-//		System.exit(0);
+		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
+		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
+		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		

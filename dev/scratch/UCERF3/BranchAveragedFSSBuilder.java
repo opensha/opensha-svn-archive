@@ -16,6 +16,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -24,7 +25,7 @@ import com.google.common.primitives.Doubles;
 public class BranchAveragedFSSBuilder {
 	
 	public static SimpleFaultSystemSolution build(FaultSystemSolutionFetcher fetch,
-			BranchWeightProvider weightProvider, FaultModels fm) {
+			BranchWeightProvider weightProvider, FaultModels fm, List<String> branchNames) {
 		
 		// rupIndex, solIndex
 		List<List<Double>> ratesList = Lists.newArrayList();
@@ -32,9 +33,24 @@ public class BranchAveragedFSSBuilder {
 		
 		List<Double> weightsList = Lists.newArrayList();
 		
+		branchLoop:
 		for (LogicTreeBranch branch : fetch.getBranches()) {
 			if (branch.getValue(FaultModels.class) != fm)
 				continue;
+			
+			if (branchNames != null) {
+				for (String branchName : branchNames) {
+					boolean found = false;
+					for (LogicTreeBranchNode<?> node : branch) {
+						if (node.name().equals(branchName)) {
+							found = true;
+							break;
+						}
+					}
+					if (!found)
+						continue branchLoop;
+				}
+			}
 			
 			double weight = weightProvider.getWeight(branch);
 			if (weight == 0)
@@ -128,9 +144,15 @@ public class BranchAveragedFSSBuilder {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		File file, outputFile;
-		if (args.length == 2) {
+		List<String> branchNames = null;
+		if (args.length >= 2) {
 			file = new File(args[0]);
 			outputFile = new File(args[1]);
+			if (args.length > 2) {
+				branchNames = Lists.newArrayList();
+				for (int i=2; i<args.length; i++)
+					branchNames.add(args[i]);
+			}
 		} else {
 			file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 			outputFile = new File("/tmp/2012_10_10-fm3-logic-tree-sample_branch_avg_sol.zip");
@@ -142,7 +164,7 @@ public class BranchAveragedFSSBuilder {
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		FaultModels fm = FaultModels.FM3_1;
 		
-		SimpleFaultSystemSolution sol = build(fetcher, weightProvider, fm);
+		SimpleFaultSystemSolution sol = build(fetcher, weightProvider, fm, branchNames);
 		
 		sol.toZipFile(outputFile);
 	}

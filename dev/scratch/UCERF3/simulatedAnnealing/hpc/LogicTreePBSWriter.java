@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.EpicenterScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
@@ -52,6 +53,8 @@ import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -71,7 +74,7 @@ public class LogicTreePBSWriter {
 	public enum RunSites {
 		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null) {
+				null, null) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				InversionModels im = branch.getValue(InversionModels.class);
@@ -92,7 +95,7 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null) {
+				null, USC_HPCC_ScriptWriter.MPJ_HOME) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
@@ -116,7 +119,8 @@ public class LogicTreePBSWriter {
 				return 8;
 			}
 		},
-		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN, null) { // TODO!!!!
+		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN,
+				null, RangerScriptWriter.MPJ_HOME) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				return new RangerScriptWriter();
@@ -124,7 +128,7 @@ public class LogicTreePBSWriter {
 
 			@Override
 			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
-				return 28000;
+				return 29000;
 			}
 
 			@Override
@@ -136,11 +140,13 @@ public class LogicTreePBSWriter {
 		private File RUN_DIR;
 		private File JAVA_BIN;
 		private String FM_STORE;
+		private File MPJ_HOME;
 
-		private RunSites(String path, File javaBin, String fmStore) {
+		private RunSites(String path, File javaBin, String fmStore, File mpjHome) {
 			RUN_DIR = new File(path);
 			JAVA_BIN = javaBin;
 			FM_STORE = fmStore;
+			MPJ_HOME = mpjHome;
 		}
 
 		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
@@ -463,8 +469,8 @@ public class LogicTreePBSWriter {
 	private static TreeTrimmer getCustomTrimmer() {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
-		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_2);
-//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
+//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_2);
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
 		limitations.add(faultModels);
 
 		// if null, all that are applicable to each fault model will be used
@@ -527,7 +533,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "logic-tree-sample-fm3-2";
+		String runName = "ucerf2_ingredients-no-mendocino";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -544,21 +550,25 @@ public class LogicTreePBSWriter {
 		//		RunSites site = RunSites.EPICENTER;
 		RunSites site = RunSites.HPCC;
 		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 256;
+//		int jobsPerNode = 3;
+//		String threads = "5"; // *3 = 15 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 1;
+		int numRuns = 10;
 		int runStart = 0;
 
-//		boolean lightweight = numRuns > 10;
-		boolean lightweight = true;
+		boolean lightweight = numRuns > 10 || batchSize > 1;
+		boolean noPlots = batchSize > 1;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
-//		TreeTrimmer trimmer = getUCERF2Trimmer();
+		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
 		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
@@ -585,7 +595,7 @@ public class LogicTreePBSWriter {
 		
 //		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.ABM));
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
 		TreeTrimmer defaultBranchesTrimmer = null;
 		
@@ -629,7 +639,9 @@ public class LogicTreePBSWriter {
 		} */
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
 //				InversionOptions.PARKFIELD_WT };
@@ -786,7 +798,7 @@ public class LogicTreePBSWriter {
 		//		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("pe1950");
 		//		BatchScriptWriter batch = new USC_HPCC_ScriptWriter("quadcore");
 		File javaBin = site.JAVA_BIN;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 		//		String threads = "1";
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
 		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
@@ -813,7 +825,7 @@ public class LogicTreePBSWriter {
 		if (saOptions.isEmpty())
 			saOptions.add(new InversionArg[0]);
 		
-		List<String> pbsNames = Lists.newArrayList();
+		List<String> argsList = Lists.newArrayList();
 		int maxJobMins = 0;
 
 		for (LogicTreeBranch br : it) {
@@ -905,7 +917,6 @@ public class LogicTreePBSWriter {
 							System.out.println("Writing: "+pbs.getName());
 
 							int jobMins = mins+60;
-							pbsNames.add(pbs.getName());
 							if (jobMins > maxJobMins)
 								maxJobMins = jobMins;
 
@@ -923,6 +934,8 @@ public class LogicTreePBSWriter {
 							classArgs += " --directory "+runSubDir.getAbsolutePath();
 							if (lightweight && r > 0)
 								classArgs += " --lightweight";
+							if (noPlots)
+								classArgs += " --no-plots";
 							//										classArgs += " --slower-cooling 1000";
 							for (CustomArg variation : variationBranch) {
 								if (variation != null)
@@ -933,6 +946,8 @@ public class LogicTreePBSWriter {
 								if (invArg != null)
 									classArgs += " "+invArg.arg;
 							}
+							
+							argsList.add(classArgs);
 
 							batch.writeScript(pbs, javaWriter.buildScript(className, classArgs),
 									jobMins, 1, ppn, queue);
@@ -952,13 +967,83 @@ public class LogicTreePBSWriter {
 		//		DeformationModels.forFaultModel(null).toArray(new DeformationModels[0])
 		if (batchSize > 0) {
 			System.out.println("Writing batches!");
-			writeBinnedJobs(site, pbsNames, batchSize, maxJobMins, runSubDir, writeDir);
+			writeMPJDispatchJob(site, argsList, numRuns, batchSize, jobsPerNode, maxJobMins, runSubDir, writeDir);
 		}
 		System.exit(0);
 	}
 	
+	private static void writeMPJDispatchJob(RunSites site,
+			List<String> argsList, int numRuns, int maxNodes, int jobsPerNode,
+			int maxRuntimeMins, File remoteDir, File writeDir) throws IOException {
+		if (numRuns > 1) {
+			List<String> sortedArgsList = Lists.newArrayList();
+			
+			Preconditions.checkState(argsList.size() % numRuns == 0);
+			int numBranches = argsList.size() / numRuns;
+			for (int r=0; r<numRuns; r++) {
+				for (int i=0; i<numBranches; i++) {
+					int index = i * numRuns + r;
+					sortedArgsList.add(argsList.get(index));
+				}
+			}
+			
+			argsList = sortedArgsList;
+		}
+		
+		int maxJobsPerBatch = maxNodes * jobsPerNode;
+		
+		List<List<String>> bins = Lists.newArrayList();
+		List<String> curBin = Lists.newArrayList();
+		for (String args : argsList) {
+			if (curBin.size() == maxJobsPerBatch) {
+				bins.add(curBin);
+				curBin = Lists.newArrayList();
+			}
+			curBin.add(args);
+		}
+		if (!curBin.isEmpty())
+			bins.add(curBin);
+		
+		int numLen = ((bins.size()-1)+"").length();
+		
+		BatchScriptWriter batch = site.forBranch(null);
+		int jobMins = maxRuntimeMins+30;
+		int ppn = site.getPPN(null);
+		
+		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
+				getClasspath(site), site.MPJ_HOME, false);
+		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
+		mpjWrite.setHeadless(true);
+		
+		for (int i=0; i<bins.size(); i++) {
+			String iStr = i+"";
+			while (iStr.length() < numLen)
+				iStr = "0"+iStr;
+			
+			List<String> bin = bins.get(i);
+			List<String[]> binArrays = Lists.newArrayList();
+			for (String args : bin)
+				binArrays.add(Iterables.toArray(Splitter.on(" ").split(args), String.class));
+			File xmlFile = new File(writeDir, "batch"+iStr+".xml");
+			MPJInversionDistributor.writeXMLInputFile(binArrays, xmlFile);
+			File remoteXMLFile = new File(remoteDir, xmlFile.getName());
+			
+			String args = "--exact-dispatch "+jobsPerNode+" "+remoteXMLFile.getAbsolutePath();
+			
+			List<String> script = mpjWrite.buildScript(MPJInversionDistributor.class.getName(), args);
+			
+			double nodesNeeded = (double)bin.size() / (double)jobsPerNode;
+			int nodes = (int)Math.ceil(nodesNeeded);
+			
+			File batchFile = new File(writeDir, "batch"+iStr+".pbs");
+			batch.writeScript(batchFile, script, jobMins, nodes, ppn, null);
+			System.out.println("Writing "+batchFile.getName()+" ("+nodes+" nodes)");
+		}
+	}
+	
 	private static void writeBinnedJobs(RunSites site, List<String> pbsNames, int runsPerJob,
 			int maxRuntimeMins, File remoteDir, File writeDir) throws IOException {
+		// OLD VERSION
 		Collections.sort(pbsNames, new Comparator<String>() {
 			
 			private int parseRun(String name) {

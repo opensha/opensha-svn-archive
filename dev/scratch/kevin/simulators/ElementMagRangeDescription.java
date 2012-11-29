@@ -23,6 +23,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	public static final int SAF_MOJAVE_ELEMENT_ID = 1246;
 	public static final int SAF_CARRIZO_ELEMENT_ID = 1026;
 	public static final int SAF_COACHELLA_ELEMENT_ID = 1602;
+	public static final int SAF_CHOLAME_ELEMENT_ID = 966;
 	public static final int GARLOCK_WEST_ELEMENT_ID = 6036;
 	public static final int SAN_JACINTO__ELEMENT_ID = 1931;
 	

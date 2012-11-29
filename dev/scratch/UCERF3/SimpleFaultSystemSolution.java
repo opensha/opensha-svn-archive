@@ -367,7 +367,10 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	
 	@Override
 	public double getLengthForRup(int rupIndex) {
-		throw new RuntimeException("not yet implemented");
+		double len = 0d;
+		for (FaultSectionPrefData data : getFaultSectionDataForRupture(rupIndex))
+			len += data.getTraceLength()*1e3;
+		return len;
 	}
 
 }

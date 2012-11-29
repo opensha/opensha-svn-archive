@@ -34,6 +34,7 @@ public abstract class MPJTaskCalculator {
 	protected int size;
 	private int minDispatch;
 	private int maxDispatch;
+	private int exactDispatch;
 	private boolean rootDispatchOnly;
 	private int numThreads;
 	
@@ -47,6 +48,7 @@ public abstract class MPJTaskCalculator {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		int minDispatch = MIN_DISPATCH_DEFAULT;
 		int maxDispatch = MAX_DISPATCH_DEFAULT;
+		int exactDispatch = -1;
 		boolean rootDispatchOnly = false;
 		
 		try {
@@ -62,6 +64,9 @@ public abstract class MPJTaskCalculator {
 		if (cmd.hasOption("max-dispatch"))
 			maxDispatch = Integer.parseInt(cmd.getOptionValue("max-dispatch"));
 		
+		if (cmd.hasOption("exact-dispatch"))
+			exactDispatch = Integer.parseInt(cmd.getOptionValue("exact-dispatch"));
+		
 		if (cmd.hasOption("root-dispatch-only"))
 			rootDispatchOnly = true;
 		
@@ -70,19 +75,20 @@ public abstract class MPJTaskCalculator {
 			deadlock.start();
 		}
 		
-		init(numThreads, minDispatch, maxDispatch, rootDispatchOnly);
+		init(numThreads, minDispatch, maxDispatch, exactDispatch, rootDispatchOnly);
 	}
 	
 	public MPJTaskCalculator(int numThreads, int minDispatch, int maxDispatch, boolean rootDispatchOnly) {
-		init(numThreads, minDispatch, maxDispatch, rootDispatchOnly);
+		init(numThreads, minDispatch, maxDispatch, -1, rootDispatchOnly);
 	}
 	
-	private void init(int numThreads, int minDispatch, int maxDispatch, boolean rootDispatchOnly) {
+	private void init(int numThreads, int minDispatch, int maxDispatch, int exactDispatch, boolean rootDispatchOnly) {
 		this.rank = MPI.COMM_WORLD.Rank();
 		this.size = MPI.COMM_WORLD.Size();
 		this.numThreads = numThreads;
 		this.minDispatch = minDispatch;
 		this.maxDispatch = maxDispatch;
+		this.exactDispatch = exactDispatch;
 		this.rootDispatchOnly = rootDispatchOnly;
 	}
 	
@@ -109,7 +115,7 @@ public abstract class MPJTaskCalculator {
 		if (rank == 0) {
 			// launch the dispatcher
 			dispatcher = new DispatcherThread(size, getNumTasks(),
-					minDispatch, maxDispatch);
+					minDispatch, maxDispatch, exactDispatch);
 			if (rootDispatchOnly) {
 				debug("starting dispatcher serially");
 				dispatcher.run();
@@ -205,6 +211,11 @@ public abstract class MPJTaskCalculator {
 				" sites divided by the number of nodes. Default: "+MAX_DISPATCH_DEFAULT);
 		maxDispatchOption.setRequired(false);
 		ops.addOption(maxDispatchOption);
+		
+		Option exactDispatchOption = new Option("exact", "exact-dispatch", true, "Exact number of tasks to dispatch" +
+				" to a compute node at a time. Default is calculated from min/max and number of tasks left.");
+		exactDispatchOption.setRequired(false);
+		ops.addOption(exactDispatchOption);
 		
 		Option rootDispatchOnlyOption = new Option("rdo", "root-dispatch-only", false, "Flag for root node only" +
 				"dispatching tasks and not calculating itself");

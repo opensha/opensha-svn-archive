@@ -41,6 +41,20 @@ public class EventsInWindowsMatcher {
 		update();
 	}
 	
+	static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs) {
+		EQSIM_Event r = new EQSIM_Event(e.get(0));
+		if (e.size() > 1)
+			r.addAll(e.subList(1, e.size()));
+		double[] origTimes = new double[e.size()];
+		for (int i=0; i<e.size(); i++)
+			origTimes[i] = e.get(i).getTime();
+		r.setTime(timeSecs);
+		// this also sets it in the EventRecord instances themselves - reset it
+		for (int i=0; i<e.size(); i++)
+			r.get(i).setTime(origTimes[i]);
+		return r;
+	}
+	
 	private List<EQSIM_Event> update() {
 		eventsInWindows = Lists.newArrayList();
 		timeFromStarts = Lists.newArrayList();
@@ -55,16 +69,8 @@ public class EventsInWindowsMatcher {
 			ArrayList<EQSIM_Event> randomizedEvents = new ArrayList<EQSIM_Event>();
 			
 			for (EQSIM_Event e : events) {
-				EQSIM_Event r = new EQSIM_Event(e.get(0));
-				if (e.size() > 1)
-					r.addAll(e.subList(1, e.size()));
-				double[] origTimes = new double[e.size()];
-				for (int i=0; i<e.size(); i++)
-					origTimes[i] = e.get(i).getTime();
-				r.setTime(startTime+Math.random()*simDuration);
-				// this also sets it in the EventRecord instances themselves - reset it
-				for (int i=0; i<e.size(); i++)
-					r.get(i).setTime(origTimes[i]);
+				double time = startTime+Math.random()*simDuration;
+				EQSIM_Event r = cloneNewTime(e, time);
 				randomizedEvents.add(r);
 			}
 			
