@@ -80,7 +80,7 @@ public class UCERF2_PaleoRateConstraintFetcher {
 
 			// add to Seg Rate Constraint list
 			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
-			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, closestFaultSectionIndex, 
+			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
 					rate, sigma, lower95Conf, upper95Conf);
 			if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
 					" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\trate="+(float)rate+

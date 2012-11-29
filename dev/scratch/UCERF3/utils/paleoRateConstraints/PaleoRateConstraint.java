@@ -31,7 +31,7 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 	 * This is the constructor used for UCERF2 constraints
 	 * @param faultName
 	 */
-	public PaleoRateConstraint(String faultSectionName, int sectionIndex, double meanRate, 
+	public PaleoRateConstraint(String faultSectionName, Location paleoSiteLoction, int sectionIndex, double meanRate, 
 			double stdDevOfMeanRate, double lower95ConfOfRate, double upper95ConfOfRate) {
 		this.faultSectionName = faultSectionName;
 		this.sectionIndex = sectionIndex;
@@ -39,7 +39,7 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 		this.stdDevOfMeanRate = stdDevOfMeanRate;
 		this.lower95ConfOfRate=lower95ConfOfRate;
 		this.upper95ConfOfRate=upper95ConfOfRate;
-		
+		this.paleoSiteLoction = paleoSiteLoction;
 	}
 	
 
@@ -158,7 +158,7 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 			  sigmaTotal+=sigmaSq;
 			  total+=sigmaSq*segRateConstraint.getMeanRate();
 		  }
-		  PaleoRateConstraint finalSegRateConstraint = new PaleoRateConstraint(faultSectName, segIndex, total/sigmaTotal, 
+		  PaleoRateConstraint finalSegRateConstraint = new PaleoRateConstraint(faultSectName, null, segIndex, total/sigmaTotal, 
 				  Math.sqrt(1.0/sigmaTotal), Double.NaN, Double.NaN);
 		  return finalSegRateConstraint;
 	  }
