@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -24,6 +26,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -61,6 +64,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.SectionMFD_constraint;
 import scratch.UCERF3.utils.UCERF2_A_FaultMapper;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
 /**
@@ -2415,6 +2419,257 @@ if(mMax<5.85)
 	
 	
 	/**
+	 * This writes a plot of the average (over all logic tree branches) char MFD 
+	 * constraint for each fault section, together with the mean from UCERF2 
+	 * (if contained therein) and the UCERF2 mapped MFD.  This was done for visual verification
+	 * that all look resonable.  This gives equal weight for each deformation model
+	 * (not exactly correct).  Currently implemented for FM 3.1, and not sure how the average
+	 * UCERF2 results are weighted (with respect the sections only in FM 2.1).
+	 */
+	public static void writeEachParentAveCharInversionMFD_Constraint() {
+		
+		File dir = new File("ParentAveCharMFD_ConstrPlots");
+		if (!dir.exists())
+			dir.mkdir();
+
+
+		double minMag = 5.05;
+		int numMag = 40;
+		double deltaMag =0.1;
+		
+		ArrayList<DeformationModels> defModsList = new ArrayList<DeformationModels>();
+		defModsList.add(DeformationModels.ABM);
+		defModsList.add(DeformationModels.ZENG);
+		defModsList.add(DeformationModels.GEOLOGIC);
+		defModsList.add(DeformationModels.NEOKINEMA);
+		
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		
+		// create one and make the list of parent sections names
+		InversionFaultSystemRupSet fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
+				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
+				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		HashMap<Integer,String> parNameFromID_Map = new HashMap<Integer,String>();
+		for(FaultSectionPrefData subSectData : fltSystRupSet.getFaultSectionDataList())
+			if(!parNameFromID_Map.keySet().contains(subSectData.getParentSectionId()))
+				parNameFromID_Map.put(subSectData.getParentSectionId(),subSectData.getParentSectionName());
+		
+		HashMap<Integer, SummedMagFreqDist> aveParSectMFD_ConstraintMap = new HashMap<Integer, SummedMagFreqDist>();
+		HashMap<Integer, Integer> numParSectMFD_ConstraintMap = new HashMap<Integer, Integer>();
+		for(Integer parID: parNameFromID_Map.keySet()) {
+			aveParSectMFD_ConstraintMap.put(parID, new SummedMagFreqDist(minMag, numMag, deltaMag));
+			numParSectMFD_ConstraintMap.put(parID, new Integer(0));
+		}		
+		
+		// loop over all branches
+		int totNumBranches = 0;
+		for(DeformationModels dm : defModsList) {
+			for(ScalingRelationships sr : scalingRelList) {
+				totNumBranches += 1;
+				System.out.println("Working on "+dm+" & "+sr);
+				fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
+						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
+						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				
+				HashMap<Integer, SummedMagFreqDist> sumOfSubSectMFD_ConstraintMap = new HashMap<Integer, SummedMagFreqDist>();
+				for(Integer parID: parNameFromID_Map.keySet()) {
+					sumOfSubSectMFD_ConstraintMap.put(parID, new SummedMagFreqDist(minMag, numMag, deltaMag));
+				}		
+
+				ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
+				for(int i=0; i<constraints.size(); i++) {
+					Integer parID = fltSystRupSet.getFaultSectionData(i).getParentSectionId();
+					SectionMFD_constraint constr =constraints.get(i);
+					if(constr != null)
+						sumOfSubSectMFD_ConstraintMap.get(parID).addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(minMag, numMag, deltaMag));
+				}
+				
+				// now add to total average
+				for(Integer parID: sumOfSubSectMFD_ConstraintMap.keySet()) {
+					SummedMagFreqDist parMFD = sumOfSubSectMFD_ConstraintMap.get(parID);
+					if(parMFD.getTotalIncrRate()>1e-15) {	// make sure something was added (all were not null)
+						aveParSectMFD_ConstraintMap.get(parID).addIncrementalMagFreqDist(parMFD);
+						int newNum = numParSectMFD_ConstraintMap.get(parID) + 1;
+						numParSectMFD_ConstraintMap.put(parID, newNum);
+					}
+				}				
+			}
+		}
+		
+		// now divide by number of branches (and write those with null branches)
+		System.out.println("totNumBranches = "+totNumBranches);
+		for(Integer parID: aveParSectMFD_ConstraintMap.keySet()) {
+			int num = numParSectMFD_ConstraintMap.get(parID);
+			SummedMagFreqDist mfd = aveParSectMFD_ConstraintMap.get(parID);
+			mfd.scale(1.0/(double)num);
+			mfd.setName(parNameFromID_Map.get(parID)+" ave MFD constraint");
+			mfd.setInfo(" ");
+			if(num<totNumBranches) {
+				System.out.println(parID+" has null constraint for "+(totNumBranches-num)+" branches");
+			}
+		}
+
+		// get mean UCERF2 MFD			************	WHAT ABOUT FM 2.1 VS 2.2?
+		HashMap<Integer, IncrementalMagFreqDist> aveUCERF2_MFD_Map = new HashMap<Integer, IncrementalMagFreqDist>();
+		for(Integer parID: parNameFromID_Map.keySet()) {
+			ArrayList<IncrementalMagFreqDist> mfds = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parID, false, false);
+			if(mfds == null)
+				aveUCERF2_MFD_Map.put(parID, null);
+			else
+				aveUCERF2_MFD_Map.put(parID, mfds.get(0));	// zeroeth element is mean MFD
+		}
+
+		// get mapped MFD - Note that the IDs are for UCERF2 parent section IDs (OR ARE THEY?)
+		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
+		HashMap<Integer, SummedMagFreqDist> mappedUCERF2_FSS_ParSectMFD_Map = new HashMap<Integer, SummedMagFreqDist>();
+		for(int s=0; s<UCERF2_FltSysSol.getNumSections(); s++) {
+			int parSectID = UCERF2_FltSysSol.getFaultSectionData(s).getParentSectionId();
+			if(!mappedUCERF2_FSS_ParSectMFD_Map.keySet().contains(parSectID)) {
+				mappedUCERF2_FSS_ParSectMFD_Map.put(parSectID, new SummedMagFreqDist(minMag, numMag, deltaMag));
+			}
+			IncrementalMagFreqDist nuclMFD = UCERF2_FltSysSol.calcNucleationMFD_forSect(s, minMag, minMag+deltaMag*(numMag-1), numMag);
+			mappedUCERF2_FSS_ParSectMFD_Map.get(parSectID).addIncrementalMagFreqDist(nuclMFD);
+		}
+		
+		// now make & save the plots
+		HashMap<Integer, Integer> u3_to_U2_IDmapping = UCERF2_Section_MFDsCalc.getUCERF3toUCERF2ParentSectionIDMap();
+		
+		for(Integer parID: parNameFromID_Map.keySet()) {
+			String parSectName = parNameFromID_Map.get(parID);
+			
+			ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			
+			funcs.add(aveParSectMFD_ConstraintMap.get(parID));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+
+			IncrementalMagFreqDist aveUCERF2_MFD = aveUCERF2_MFD_Map.get(parID);
+			if (aveUCERF2_MFD != null) {
+				funcs.add(aveUCERF2_MFD);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+			}
+
+			SummedMagFreqDist mappedU2_MFD = null;
+			if(mappedUCERF2_FSS_ParSectMFD_Map.keySet().contains(parID)) {	// parID exists in UCERF2
+				mappedU2_MFD = mappedUCERF2_FSS_ParSectMFD_Map.get(parID);
+			}
+			else if(mappedUCERF2_FSS_ParSectMFD_Map.keySet().contains(u3_to_U2_IDmapping.get(parID))) {	// check if ID changed
+				mappedU2_MFD = mappedUCERF2_FSS_ParSectMFD_Map.get(u3_to_U2_IDmapping.get(parID));
+			}
+			if (mappedU2_MFD != null) {
+				funcs.add(mappedU2_MFD);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			}
+
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setYLog(true);
+			gp.setRenderingOrder(DatasetRenderingOrder.FORWARD);
+			gp.setUserBounds(5.0, 9.0, 1e-10, 1e-1);
+			String fname = parSectName.replaceAll("\\W+", "_");
+			String title = "Nucleation MFDs";
+			String yAxisLabel = "Nucleation Rate";
+			title += " for "+parSectName+" ("+parID+")";
+			gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
+			File file = new File(dir, fname);
+			gp.getCartPanel().setSize(1000, 800);
+			try {
+//				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		}
+	}
+	
+	
+	
+	/**
+	 * This tests the variability of parent section nucleation MFD constraints over different
+	 * UCERF3 logic tree branches (plotting each) for the "San Andreas (Mojave S)" parent section, 
+	 * where the constraints are converted back to evently discretized MFDs. Results are pretty
+	 * much identical, meaning variation in minimum magnitude among the branches is not significant.
+	 */
+	public static void testParentCharInversionMFD_Constraint() {
+		
+		String targetName = "San Andreas (Mojave S)";
+		
+		double minMag = 5.05;
+		int numMag = 40;
+		double deltaMag =0.1;
+		
+		ArrayList<DeformationModels> defModsList = new ArrayList<DeformationModels>();
+		defModsList.add(DeformationModels.ABM);
+		defModsList.add(DeformationModels.ZENG);
+		defModsList.add(DeformationModels.GEOLOGIC);
+		defModsList.add(DeformationModels.NEOKINEMA);
+		
+		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
+		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
+		scalingRelList.add(ScalingRelationships.HANKS_BAKUN_08);
+		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
+		
+		ArrayList<SummedMagFreqDist> mfdList = new ArrayList<SummedMagFreqDist>();
+		ArrayList<String> parSectNames = new ArrayList<String>();
+		
+		// loop over all branches
+		int totNumBranches = 0;
+		for(DeformationModels dm : defModsList) {
+			for(ScalingRelationships sr : scalingRelList) {
+				totNumBranches += 1;
+				System.out.println("Working on "+dm+" & "+sr);
+				InversionFaultSystemRupSet fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
+						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
+						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, numMag, deltaMag);
+				ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
+				for(int i=0; i<constraints.size(); i++) {
+					String parName = fltSystRupSet.getFaultSectionData(i).getParentSectionName();
+					SectionMFD_constraint constr =constraints.get(i);
+					if(parName.equals(targetName) && constr != null) {
+						mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(minMag, numMag, deltaMag));
+					}
+				}
+				mfdList.add(mfd);
+			}
+		}
+
+//		// get mapped MFD - Note that the IDs are for UCERF2 parent section IDs
+//		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
+//		HashMap<Integer, SummedMagFreqDist> mappedUCERF2_FSS_ParSectMFD_Map = new HashMap<Integer, SummedMagFreqDist>();
+//		for(int s=0; s<UCERF2_FltSysSol.getNumSections(); s++) {
+//			int parSectID = UCERF2_FltSysSol.getFaultSectionData(s).getParentSectionId();
+//			if(!mappedUCERF2_FSS_ParSectMFD_Map.keySet().contains(parSectID)) {
+//				mappedUCERF2_FSS_ParSectMFD_Map.put(parSectID, new SummedMagFreqDist(minMag, numMag, deltaMag));
+//			}
+//			IncrementalMagFreqDist nuclMFD = UCERF2_FltSysSol.calcNucleationMFD_forSect(s, minMag, minMag+deltaMag*(numMag-1), numMag);
+//			mappedUCERF2_FSS_ParSectMFD_Map.get(parSectID).addIncrementalMagFreqDist(nuclMFD);
+//		}
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Char MFD Constraint Test");
+		graph.setX_AxisRange(5, 9);
+		graph.setY_AxisRange(1e-6, 1e-2);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+
+		graph.setTickLabelFontSize(14);
+		graph.setAxisLabelFontSize(16);
+		graph.setPlotLabelFontSize(18);
+
+	}
+
+	
+	
+	
+	
+	/**
 	 * This plots the average over def mods and M(A) relationships
 	 */
 	public static void plotSumOfCharInversionMFD_Constraints() {
@@ -2603,6 +2858,10 @@ if(mMax<5.85)
 	 */
 	public static void main(String[] args) {
 		
+		testParentCharInversionMFD_Constraint();
+		
+//		writeEachParentAveCharInversionMFD_Constraint();
+		
 //		writeParkfieldMags();
 		
 //		plotOffFaultTaperedGR_Comparisons(rupSet, "GR_MaxAndTaperComparison");
@@ -2613,9 +2872,9 @@ if(mMax<5.85)
 		
 //		writeParkfieldMags();
 		
-		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
-				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_7p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
+//		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, 
+//				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.TAPERED, 
+//				TotalMag5Rate.RATE_7p6, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
 
 //		InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
 //				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, 
@@ -2626,7 +2885,7 @@ if(mMax<5.85)
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(magHist, "Mag Hist");
 
 		
-		plotPreInversionMFDs(rupSet, false, false, true, null);
+//		plotPreInversionMFDs(rupSet, false, false, true, null);
 		
 //		plotSumOfCharInversionMFD_Constraints();
 //		plotSumOfGR_InversionMFD_Constraints(rupSet);
