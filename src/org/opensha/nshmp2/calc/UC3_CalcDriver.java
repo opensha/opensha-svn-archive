@@ -119,7 +119,7 @@ public class UC3_CalcDriver {
 		}
 	}
 	
-	private Map<String, Location> readSiteFile(String path) throws IOException {
+	public static Map<String, Location> readSiteFile(String path) throws IOException {
 		File f = new File(path);
 		List<String> lines = Files.readLines(f, US_ASCII);
 		Map<String, Location> siteMap = Maps.newHashMap();
