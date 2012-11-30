@@ -698,15 +698,20 @@ public class SectionMFD_constraint {
 		funcs.add(getMFD());
 		funcs.add(getTargetCumMFD());
 		funcs.add(getTargetMFD());
+		ArbIncrementalMagFreqDist evenlyMFD = getResampledToEventlyDiscrMFD(0.05, 100, 0.1);
+		evenlyMFD.scale(1.0/evenlyMFD.getDelta());
+		funcs.add(evenlyMFD);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, PlotSymbol.CIRCLE,4, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GREEN));
 		
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Section Constraint MFDs", plotChars); 
 		graph.setX_AxisLabel("Mangitude");
 		graph.setY_AxisLabel("Rate (per year)");
+		graph.setAxisRange(6.0, 8.5, 1e-8, 1e-2);
 		graph.setYLog(true);
 
 	}
