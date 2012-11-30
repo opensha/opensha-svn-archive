@@ -908,7 +908,7 @@ public class UCERF2_Section_MFDsCalc {
 	 * was subdivided or combined from UCERF2 to UCERF3.
 	 * @return
 	 */
-	private synchronized static HashMap<Integer, Integer> getUCERF3toUCERF2ParentSectionIDMap() {
+	public synchronized static HashMap<Integer, Integer> getUCERF3toUCERF2ParentSectionIDMap() {
 		if (UCERF3toUCERF2ParentSectionIDMap == null) {
 			UCERF3toUCERF2ParentSectionIDMap = Maps.newHashMap();
 			
