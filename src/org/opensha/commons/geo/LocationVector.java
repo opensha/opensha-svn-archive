@@ -130,6 +130,19 @@ public class LocationVector {
 	public void setAzimuth(double azimuth) {
 		this.azimuth = azimuth;
 	}
+	
+	/**
+	 * Returns the angle (in decimal degrees) between this vector and the
+	 * horizontal based on the current internal vertical and horizontal
+	 * separation values. This method is intended for use at relatively short
+	 * separations ( e.g. &lteq; 200km) as it degrades at large distances where
+	 * curvature is not considered. Note that positive angles are down, negative
+	 * angles are up.
+	 * @return the plunge of this vector
+	 */
+	public double getPlunge() {
+		return Math.atan(vertical / horizontal) * GeoTools.TO_DEG;
+	}
 
 	/**
 	 * Gets the vertical component of this <code>LocationVector</code>.

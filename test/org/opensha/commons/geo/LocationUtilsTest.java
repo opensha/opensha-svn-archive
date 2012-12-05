@@ -379,6 +379,13 @@ public class LocationUtilsTest {
 		v.reverse();
 		assertEquals((az + 180) % 360, v.getAzimuth(), 0);
 		assertEquals(-dv, v.getVertDistance(), 0);
+		
+		// test plunge
+		LocationVector vPlunge = new LocationVector(0.0, 2, 2);
+		assertEquals(45.0, vPlunge.getPlunge(), 0.0);
+		vPlunge = new LocationVector(0.0, 2, -2);
+		assertEquals(-45.0, vPlunge.getPlunge(), 0.0);
+		
 	}
 	
 	@Test
