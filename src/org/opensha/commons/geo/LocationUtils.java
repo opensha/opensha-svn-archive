@@ -557,6 +557,20 @@ public final class LocationUtils {
 
 		return v;
 	}
+	
+	
+	/**
+	 * Returns the angle (in decimal degrees) of a line between the first and second
+	 * location relative to horizontal. This method is intended for use at relatively short
+	 * separations ( e.g. &lteq; 200km) as it degrades at large distances where
+	 * curvature is not considered. Note that positive angles are down, negative
+	 * angles are up.
+	 * @return the plunge of this vector
+	 */
+	public static double plunge(Location p1, Location p2) {
+		return vector(p1, p2).getPlunge();
+	}
+
 
 	/**
 	 * Method returns a unit {@code LocationVector} that bisects the angle
@@ -574,6 +588,7 @@ public final class LocationUtils {
 		double az = (v2.getAzimuth() + v1.getAzimuth()) / 2;
 		return new LocationVector(az, 1, 0);
 	}
+	
 
 	/**
 	 * Tolerance used for location comparisons; 0.000000000001 which in

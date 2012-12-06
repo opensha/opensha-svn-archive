@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -50,6 +51,7 @@ import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -100,7 +102,7 @@ public class General_EQSIM_Tools {
 	final static int EVENT_FILE_SPEC_LEVEL = 2;
 	public final static double SECONDS_PER_YEAR = 365*24*60*60;
 	
-	ArrayList<String> infoStrings;
+//	ArrayList<String> infoStrings;
 	String dirNameForSavingFiles;
 	
 	UCERF2_DataForComparisonFetcher ucerf2_dataFetcher = new UCERF2_DataForComparisonFetcher();
@@ -345,7 +347,7 @@ public class General_EQSIM_Tools {
 				// the rest of the line contains: comment_text
 				
 				// check for triangular elements
-				if(n_sect_triangle>0) throw new RuntimeException("Don't yet support trinagles");
+				if(n_sect_triangle>0) throw new RuntimeException("Don't yet support triangles");
 				
 				namesOfSections.add(name);
 				faultIDs_ForSections.add(fault_id);
@@ -1098,7 +1100,7 @@ public class General_EQSIM_Tools {
 	 * @param normRI_List
 	 * @param plotTitle
 	 */
-	public static GraphiWindowAPI_Impl plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+	public static HeadlessGraphPanel plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
 		// find max value
 		double max=0;
 		for(Double val:normRI_List)
@@ -1135,18 +1137,26 @@ public class General_EQSIM_Tools {
 		dist.setInfo("(Number of points = "+ numData+")");
 		funcList.add(dist);
 		
-		// make plot
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, plotTitle); 
-		graph.setX_AxisLabel("RI (yrs)");
-		graph.setY_AxisLabel("Density");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
-		graph.setPlottingFeatures(curveCharacteristics);
-		graph.setX_AxisRange(0, 5);
 		
-		return graph;
+		// make plot
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, plotTitle); 
+//		graph.setX_AxisLabel("RI (yrs)");
+//		graph.setY_AxisLabel("Density");
+//		graph.setPlottingFeatures(curveCharacteristics);
+//		graph.setX_AxisRange(0, 5);
+//		return graph;
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setUserMinX(0.0);
+		gp.setUserMaxX(5.0);
+		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, true, plotTitle);
+		gp.getCartPanel().setSize(1000, 800);
+		
+		return gp;
 		
 	}
 	
@@ -1154,9 +1164,11 @@ public class General_EQSIM_Tools {
 	/**
 	 * This method evaluates Ned's average time- and slip-predictability in various ways.
 	 * @param magThresh
-	 * @param fileName
+	 * @param saveStuff
+	 * @param testElementID - set null if not wanted
+	 * @return info string
 	 */
-	public void testTimePredictability(double magThresh, boolean saveStuff) {
+	public String testTimePredictability(double magThresh, boolean saveStuff, Integer testElementID, boolean plotSectionResults) {
 		
 		String linesFor_fw_timePred = new String();
 		String tempInfoString = new String();
@@ -1176,13 +1188,15 @@ public class General_EQSIM_Tools {
 			ArrayList<Double> tpInterval2List = new ArrayList<Double>();
 			ArrayList<Double> spInterval1List = new ArrayList<Double>();
 			ArrayList<Double> spInterval2List = new ArrayList<Double>();
+			ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
+			ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
 			ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
 			ArrayList<Double> norm_spInterval2List = new ArrayList<Double>();
 			ArrayList<Integer> firstSectionList = new ArrayList<Integer>();
 			
 			// these are for an element-specific analysis (e.g., to see if tp and sp are correlated at an element)
-			Integer testElementID = new Integer(661);
-			boolean eventUtilizesTestElement;
+//			Integer testElementID = new Integer(661); MOVED TO CONSTRUCTOR
+			boolean eventUtilizesTestElement = false;
 			ArrayList<Double> tpInterval2ListForTestElement = new ArrayList<Double>();
 			ArrayList<Double> spInterval2ListForTestElement = new ArrayList<Double>();
 			
@@ -1263,10 +1277,12 @@ public class General_EQSIM_Tools {
 					if(aveSlipRate == 0) goodSample = false;
 					
 					// set boolean for whether event utilizes test element
-					if(Ints.contains(elemIDs, testElementID))
-						eventUtilizesTestElement=true;
-					else
-						eventUtilizesTestElement=false;
+					if(testElementID != null) {
+						if(Ints.contains(elemIDs, testElementID))
+							eventUtilizesTestElement=true;
+						else
+							eventUtilizesTestElement=false;
+					}
 
 					if(goodSample) {
 						counter += 1;
@@ -1286,14 +1302,19 @@ public class General_EQSIM_Tools {
 						spInterval1List.add(spInterval1);
 						spInterval2List.add(spInterval2);
 						firstSectionList.add(event.get(0).getSectionID());
+						norm_tpInterval1List.add(norm_tpInterval1);
+						norm_spInterval1List.add(norm_spInterval1);
 						norm_tpInterval2List.add(norm_tpInterval2);
 						norm_spInterval2List.add(norm_spInterval2);
 						
 						// add to test element list if it's the right element
-						if(eventUtilizesTestElement) {
-							tpInterval2ListForTestElement.add(tpInterval2);
-							spInterval2ListForTestElement.add(spInterval2);
+						if(testElementID != null) {
+							if(eventUtilizesTestElement) {
+								tpInterval2ListForTestElement.add(tpInterval2);
+								spInterval2ListForTestElement.add(spInterval2);
+							}						
 						}
+
 						
 					}
 					else {
@@ -1311,12 +1332,16 @@ public class General_EQSIM_Tools {
 			}
 			
 			// plot the normalized distributions and best fits
-			GraphiWindowAPI_Impl plot1 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
-			GraphiWindowAPI_Impl plot2 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
+			HeadlessGraphPanel plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
+			HeadlessGraphPanel plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
+			HeadlessGraphPanel plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
+			HeadlessGraphPanel plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
 			if(saveStuff) {
 				try {
-					plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
-					plot2.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
+					plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
+					plot2.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval1_Dist.pdf");
+					plot3.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
+					plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1360,11 +1385,13 @@ public class General_EQSIM_Tools {
 				if(vals1.size()>2) {
 					result = this.getCorrelationAndP_Value(vals1, vals2);
 					double[] result2 = this.getCorrelationAndP_Value(vals2, vals3);
-					tempInfoString +="\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+
-							")\t"+(float)result2[0]+"\t("+(float)result2[1]+")\tfor section "+namesOfSections.get(s)+" (num points = "+vals1.size()+")\n";
+					String info = "\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+")\t"+(float)result2[0]+
+						"\t("+(float)result2[1]+")\tfor section "+namesOfSections.get(s)+" (num points = "+vals1.size()+")\n";
+					tempInfoString +=info;
 					// make XY data for plot
 					DefaultXY_DataSet xy_data = new DefaultXY_DataSet(vals2,vals1);
 					xy_data.setName(namesOfSections.get(s));
+					xy_data.setInfo(info);
 					obs_tp2_funcs.add(xy_data);
 
 				}
@@ -1378,52 +1405,94 @@ public class General_EQSIM_Tools {
 			graph.setAllLineTypes(null, PlotSymbol.CROSS);
 			graph.setYLog(true);
 			graph.setXLog(true);
-			
-			// print and plot the test element correlations
-			tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
-			result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
-			ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
-			DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
-			obs_tp1_funcsForTestElement.add(xy_data);
-			GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
-			graph2.setX_AxisLabel("Time-Pred RI (years)");
-			graph2.setY_AxisLabel("Slip-Pred RI (years)");
-			graph2.setAllLineTypes(null, PlotSymbol.CROSS);
-			graph2.setYLog(true);
-			graph2.setXLog(true);
-			
 			if(saveStuff) {
 				try {
 					graph.saveAsPDF(dirNameForSavingFiles+"/obsVersusTimePred2_RIs.pdf");
-					graph2.saveAsPDF(dirNameForSavingFiles+"/slipVersusTimePred2_RI_AtElemID"+testElementID+".pdf");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+
 			
-			// Make the norm RI plot for each section
-			for(int s=0;s<namesOfSections.size();s++) {
-//			for(int s=0;s<1;s++) {  // only do first one for now
-				ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
-				for(int i=0; i<norm_tpInterval2List.size();i++) {
-					if(firstSectionList.get(i) == (s+1)) { // does section ID correspond to section index
-						sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
+			// print and plot the test element correlations
+			if(testElementID != null) {
+				tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
+				result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
+				tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
+				ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
+				DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
+				obs_tp1_funcsForTestElement.add(xy_data);
+				GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
+				graph2.setX_AxisLabel("Time-Pred RI (years)");
+				graph2.setY_AxisLabel("Slip-Pred RI (years)");
+				graph2.setAllLineTypes(null, PlotSymbol.CROSS);
+				graph2.setYLog(true);
+				graph2.setXLog(true);	
+				if(saveStuff) {
+					try {
+						graph2.saveAsPDF(dirNameForSavingFiles+"/slipVersusTimePred2_RI_AtElemID"+testElementID+".pdf");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
-				if(sectNorm_tpInterval2List.size()>25){
-					String plotTitle = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
-					GraphiWindowAPI_Impl plot = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle);
-					if(saveStuff) {
-						String fileName = "/norm_tpInterval2_Dist_forSect"+s+".pdf";
-						try {
-							plot.saveAsPDF(dirNameForSavingFiles+fileName);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+			}
+			
+			
+			// Make the norm RI plot for each section
+			if(plotSectionResults) {
+				String subDir = "sectionPlots";
+				File file1 = new File(dirNameForSavingFiles,subDir);
+				file1.mkdirs();
+
+				for(int s=0;s<namesOfSections.size();s++) {
+					//					for(int s=0;s<1;s++) {  // only do first one for now
+					System.out.println("Working on "+s+"\t"+namesOfSections.get(s));
+					ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
+					for(int i=0; i<norm_tpInterval2List.size();i++) {
+						if(firstSectionList.get(i) == (s+1)) { // does section ID correspond to section index
+							sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
 						}
-					}			
+					}
+					if(sectNorm_tpInterval2List.size()>25){
+						// Plot RI PDF
+						String plotTitle6 = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
+						HeadlessGraphPanel plot6 = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle6);
+						
+						// plot obs vs predicted scatter plot
+						String plotTitle7 = "Obs vs Time-Pred RIs for "+namesOfSections.get(s);
+						HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
+						ArrayList tempList = new ArrayList();
+						tempList.add(obs_tp2_funcs.get(s));
+if(s==0)	System.out.println(obs_tp2_funcs.get(s));
+						ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+						curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
+						plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
+						plot7.setUserBounds(10, 10000, 10, 10000);
+						plot7.setXLog(true);
+						plot7.setYLog(true);
+						plot7.getCartPanel().setSize(1000, 800);
+
+//						GraphiWindowAPI_Impl plot7 = new GraphiWindowAPI_Impl(obs_tp2_funcs.get(s), plotTitle7);   
+//						plot7.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
+//						plot7.setY_AxisLabel("Observed RI (years)");
+//						plot7.setAllLineTypes(null, PlotSymbol.CROSS);
+//						plot7.setYLog(true);
+//						plot7.setXLog(true);
+
+						if(saveStuff) {
+							String fileName6 = dirNameForSavingFiles+"/"+subDir+"/norm_tpInterval2_Dist_forSect"+s+".pdf";
+							String fileName7 = dirNameForSavingFiles+"/"+subDir+"/obsVsTimePred_RI_forSect"+s+".pdf";
+							try {
+								plot6.saveAsPDF(fileName6);
+//								plot7.saveAsPDF(fileName7);
+								plot7.saveAsPNG(fileName7);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}			
+					}
 				}
 			}
 
@@ -1443,8 +1512,8 @@ public class General_EQSIM_Tools {
 			e1.printStackTrace();
 		}
 		
-		infoStrings.add(tempInfoString);
 		System.out.println(tempInfoString);
+		return tempInfoString;
 
 	}
 	
@@ -1768,7 +1837,7 @@ public class General_EQSIM_Tools {
 				}
 			}
 		}
-		GraphiWindowAPI_Impl graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
+		HeadlessGraphPanel graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.pdf");
@@ -1788,10 +1857,11 @@ public class General_EQSIM_Tools {
 	 * @param lon
 	 * @param magThresh
 	 * @param makePlot
-	 * @return
+	 * @return info string
 	 */
-	public double[] getRecurIntervalsForNearestLoc(Location loc, double magThresh, boolean makePlot, 
+	public String plotRecurIntervalsForNearestLoc(Location loc, double magThresh, boolean makePlot, 
 			boolean savePlot, String locName) {
+		String infoString = new String();
 		double minDist= Double.MAX_VALUE;
 		int elementIndex=-1;
 		//Find nearest Element
@@ -1810,19 +1880,19 @@ public class General_EQSIM_Tools {
 		}
 		
 		Integer elemID = rectElementsList.get(elementIndex).getID();
-		System.out.println("Closest Element to location "+locName+" is rect elem ID "+elemID+
-				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
-		infoStrings.add("Closest Element to loc"+locName+" is rect elem ID "+elemID+
-				" on "+rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)");
+		String str = "\nClosest Element to location "+locName+" is rect elem ID "+elemID+" on "+
+			rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)";
+		System.out.println(str);
+		infoString += str+"\n";;
 		
 		double[] intervals = getRecurIntervalsForElement(elemID, magThresh);
 		double maxInterval=0;
 		for(int i=1;i<intervals.length;i++) {
 			if(intervals[i]>maxInterval) maxInterval = intervals[i];
 		}
-		
-		System.out.println("number of RIs for loc is "+intervals.length+" for Mag>="+magThresh);
-		infoStrings.add("\tnumber of RIs for loc is "+intervals.length+" for Mag>="+magThresh);
+		String str2 = "\tnumber of RIs for loc is "+intervals.length+" for Mag>="+magThresh;
+		System.out.println(str2);
+		infoString += str2+"\n";;
 		
 		// calc num bins at 10-year intervals
 		int numBins = (int)Math.ceil(maxInterval/10.0);
@@ -1882,12 +1952,9 @@ public class General_EQSIM_Tools {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
-
-
 		}
 
-		return intervals;
+		return infoString;
 	}
 	
 	
@@ -1974,8 +2041,13 @@ public class General_EQSIM_Tools {
 	}
 	
 	
-	public void doAllAnalysis(String dirNameForSavingFiles, double magThresh) {
-		infoStrings = new ArrayList<String>();
+	/**
+	 * This is no longer used or needed?
+	 * @param dirNameForSavingFiles
+	 * @param magThresh
+	 */
+	public void oldTests(String dirNameForSavingFiles, double magThresh) {
+		ArrayList<String> infoStrings = new ArrayList<String>();
 		this.dirNameForSavingFiles = dirNameForSavingFiles;
 		File file1 = new File(dirNameForSavingFiles);
 		file1.mkdirs();
@@ -1997,14 +2069,16 @@ public class General_EQSIM_Tools {
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times.
 //		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
-//		getRecurIntervalsForNearestLoc(loc, 6.5, true, false,loc.toString());
-		
+//		String info = plotRecurIntervalsForNearestLoc(loc, 6.5, true, false,loc.toString());
+//		infoStrings.add(info);
+
 //		computeTotalMagFreqDist(4.05,9.05,51,true,true);
 		
 //		computeMagFreqDistByFaultSection(4.05,9.05,51,true,true,true);
 		
 		randomizeEventTimes();
-		testTimePredictability(magThresh, true);
+		String info2 = testTimePredictability(magThresh, true, null, true);
+		infoStrings.add(info2);
 
 		
 //		System.out.println(infoStrings);
@@ -2060,8 +2134,20 @@ public class General_EQSIM_Tools {
 		
 	}
 	
+	/**
+	 * This sets the directory name for files that are saved
+	 * @param dirNameForSavingFiles
+	 */
+	public void setDirNameForSavingFiles(String dirNameForSavingFiles) {
+		this.dirNameForSavingFiles=dirNameForSavingFiles;
+		File file1 = new File(dirNameForSavingFiles);
+		file1.mkdirs();
+	}
+	
+	
+	
 	public void mkFigsForUCERF3_ProjPlanRepot(String dirNameForSavingFiles, double magThresh) {
-		infoStrings = new ArrayList<String>();
+		ArrayList<String> infoStrings = new ArrayList<String>();
 		this.dirNameForSavingFiles = dirNameForSavingFiles;
 		File file1 = new File(dirNameForSavingFiles);
 		file1.mkdirs();
@@ -2070,10 +2156,15 @@ public class General_EQSIM_Tools {
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
 		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
-		getRecurIntervalsForNearestLoc(loc, 6.5, true, true,"RI_distAt_NSAF_ElementID497");
+		String info = plotRecurIntervalsForNearestLoc(loc, 6.5, true, true,"RI_distAt_NSAF_ElementID497");
+		infoStrings.add(info);
 		
-		testTimePredictability(magThresh, true);
+		Integer testElementID = new Integer(661); // not sure how this was chosen
+//testElementID = null; 
 		
+		String info2 = testTimePredictability(magThresh, true, testElementID, true);
+		infoStrings.add(info2);
+
 //		System.out.println(infoStrings);
 
 		try {
@@ -2102,11 +2193,12 @@ public class General_EQSIM_Tools {
 		// RSQSim Runs:
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
-		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+//		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
+		test.read_EQSIMv04_EventsFile("/Users/field/workspace/OpenSHA/src/org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/eqs.NCA_RSQSim.barall.txt");
 		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run",  6.5);
 		
-		test.randomizeEventTimes();
-		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run_Randomized",  6.5);
+//		test.randomizeEventTimes();
+//		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run_Randomized",  6.5);
 
 /*		
 		// VC Runs:
@@ -2161,7 +2253,7 @@ public class General_EQSIM_Tools {
 //		test.randomizeEventTimes();
 //		test.plotYearlyEventRates();
 //		test.test();
-//		test.doAllAnalysis("NEDS_TEST", 6.5);
+//		test.oldTests("NEDS_TEST", 6.5);
 //		test.writeEventsThatInvolveMultSections();
 		
 

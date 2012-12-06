@@ -6,6 +6,7 @@ package org.opensha.sha.faultSurface;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 
 /**
  * This class represents an evenly gridded surface composed of four Locations.
@@ -24,8 +25,9 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 
 	/**
 	 * The constructs the surface from the Locations given (counter clockwise 
-	 * when looking at surface from positive side).  This computes gridSpacingAlong and 
-	 * gridSpacingDown as the average of the two calculable distances for each.
+	 * when looking at surface from positive side), where no sub-discretization
+	 * is applied.  This gridSpacingAlong is the average between the top two and bottom
+	 * two points, and likewise for gridSpacingDown.
 	 * @param upperLeft
 	 * @param lowerLeft
 	 * @param lowerRight
@@ -52,13 +54,28 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 	}
 
 	@Override
+	/**
+	 * This returns the average dip implied by the two end-point pairs
+	 */
 	public double getAveDip() {
-		throw new RuntimeException("Method not yet implemented");
+		
+		double dip1 = LocationUtils.plunge(get(0,0), get(1,0));
+		double dip2 = LocationUtils.plunge(get(0,1), get(1,1));
+		double aveDip = (dip1+dip2)/2d;
+		if(aveDip < 0.0)
+			throw new RuntimeException("aveDip must be positive; the value = "+aveDip);
+		
+		return aveDip;
 	}
 
 	@Override
+	/**
+	 * This returns the average implied by the two end-point pairs
+	 */
 	public double getAveDipDirection() {
-		throw new RuntimeException("Method not yet implemented");
+		double az1 = LocationUtils.azimuth(get(0,0), get(1,0));
+		double az2 = LocationUtils.azimuth(get(0,1), get(1,1));
+		return (az1+az2)/2d;
 	}
 
 	@Override

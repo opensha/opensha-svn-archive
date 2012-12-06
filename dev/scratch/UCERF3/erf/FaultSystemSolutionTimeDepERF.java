@@ -32,6 +32,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
@@ -588,7 +589,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //		for(Double nRI:normalizedRecurIntervals)
 //			System.out.println(nRI);
 		
-		GraphiWindowAPI_Impl plot = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, 
+		HeadlessGraphPanel plot = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, 
 				"Normalized RIs");
 		
 //		System.out.println(obsMFD);
