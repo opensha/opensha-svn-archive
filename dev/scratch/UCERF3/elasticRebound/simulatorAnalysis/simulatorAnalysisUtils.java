@@ -563,10 +563,10 @@ public class simulatorAnalysisUtils {
 		tempList.add(func);
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
-		plot7.drawGraphPanel("test", "test", tempList, curveCharacteristics, true, plotTitle7);
 		plot7.setUserBounds(10, 10000, 10, 10000);
 		plot7.setXLog(true);
 		plot7.setYLog(true);
+		plot7.drawGraphPanel("test", "test", tempList, curveCharacteristics, true, plotTitle7);
 		plot7.getCartPanel().setSize(1000, 800);
 		String fileName7 = "testFuncPlot.pdf";
 		try {
