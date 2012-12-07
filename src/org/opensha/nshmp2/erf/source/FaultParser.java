@@ -61,7 +61,6 @@ public class FaultParser {
 		
 		List<String> dat = sf.readLines();
 
-		
 		// index from which fault source name starts; general WUS case is 4
 		int srcNameIdx = (srcRegion == CA || srcRegion == CEUS) ? 3 : 4;
 
@@ -287,6 +286,7 @@ public class FaultParser {
 
 		// loop over epistemic uncertainties
 		GutenbergRichterMagFreqDist mfd;
+
 		if (md.hasEpistemic) {
 			double mMax = gr.mMax; // reference; gr.mMax will vary
 			double weight = gr.weight; // reference; weight will vary
@@ -297,6 +297,7 @@ public class FaultParser {
 				if (gr.nMag > 0) {
 					gr.weight = weight * md.epiWeights[i];
 					mfd = makeGR(gr, tmr);
+
 					fs.mfds.add(mfd);
 					if (log.isLoggable(Level.FINE)) {
 						log.fine(new StringBuilder()
@@ -306,6 +307,7 @@ public class FaultParser {
 							.append(IOUtils.LINE_SEPARATOR)
 							.append(mfd.getMetadataString()).toString());
 					}
+
 				} else {
 					StringBuilder sb = new StringBuilder()
 						.append("GR MFD epi branch with no mags");

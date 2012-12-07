@@ -31,6 +31,7 @@ public class SubductionSource extends FaultSource {
 	int size = 0;
 	ApproxEvenlyGriddedSurface surface;
 
+	// these are in parent and can probably be deleted
 	List<FloatingPoissonFaultSource> sources;
 	List<Integer> rupCount;
 

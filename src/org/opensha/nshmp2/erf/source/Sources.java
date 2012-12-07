@@ -52,6 +52,8 @@ public class Sources {
 				return getFault(name);
 			case CLUSTER:
 				return getCluster(name);
+			case SUBDUCTION:
+				return getSub(name);
 			default:
 				return null;
 		}
@@ -182,8 +184,9 @@ public class Sources {
 	 * @return the associated region
 	 */
 	public static SourceRegion regionForSource(String name) {
-		SourceFile sf = SourceMgr.get(null, null, name).get(0);
-		return (sf != null) ? sf.getRegion() : null;
+		List<SourceFile> sfl = SourceMgr.get(null, null, name);
+		if (sfl.isEmpty()) return null;
+		return sfl.get(0).getRegion();
 	}
 
 	/**
@@ -193,8 +196,9 @@ public class Sources {
 	 * @return the associated type
 	 */
 	public static SourceType typeForSource(String name) {
-		SourceFile sf = SourceMgr.get(null, null, name).get(0);
-		return (sf != null) ? sf.getType() : null;
+		List<SourceFile> sfl = SourceMgr.get(null, null, name);
+		if (sfl.isEmpty()) return null;
+		return sfl.get(0).getType();
 	}
 
 	/**
