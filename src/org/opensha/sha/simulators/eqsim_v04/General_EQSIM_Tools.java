@@ -15,6 +15,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
@@ -1371,6 +1372,7 @@ public class General_EQSIM_Tools {
 			// now do correlations for each section
 			tempInfoString +="\nCorrelations (and chance it's random) between Observed-tpInterval2 & tpInterval2-spInterval2 by Section:\n";
 			ArrayList<DefaultXY_DataSet> obs_tp2_funcs = new ArrayList<DefaultXY_DataSet>();
+			HashMap<Integer,DefaultXY_DataSet> obs_tp2_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
 			for(int s=0;s<namesOfSections.size();s++) {
 				ArrayList<Double> vals1 = new ArrayList<Double>();
 				ArrayList<Double> vals2 = new ArrayList<Double>();
@@ -1393,6 +1395,7 @@ public class General_EQSIM_Tools {
 					xy_data.setName(namesOfSections.get(s));
 					xy_data.setInfo(info);
 					obs_tp2_funcs.add(xy_data);
+					obs_tp2_funcsMap.put(s, xy_data);
 
 				}
 				else
@@ -1463,15 +1466,14 @@ public class General_EQSIM_Tools {
 						// plot obs vs predicted scatter plot
 						String plotTitle7 = "Obs vs Time-Pred RIs for "+namesOfSections.get(s);
 						HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
-						ArrayList tempList = new ArrayList();
-						tempList.add(obs_tp2_funcs.get(s));
-if(s==0)	System.out.println(obs_tp2_funcs.get(s));
+						ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
+						tempList.add(obs_tp2_funcsMap.get(s));
 						ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 						curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
-						plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
 						plot7.setUserBounds(10, 10000, 10, 10000);
 						plot7.setXLog(true);
 						plot7.setYLog(true);
+						plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
 						plot7.getCartPanel().setSize(1000, 800);
 
 //						GraphiWindowAPI_Impl plot7 = new GraphiWindowAPI_Impl(obs_tp2_funcs.get(s), plotTitle7);   
@@ -1486,8 +1488,8 @@ if(s==0)	System.out.println(obs_tp2_funcs.get(s));
 							String fileName7 = dirNameForSavingFiles+"/"+subDir+"/obsVsTimePred_RI_forSect"+s+".pdf";
 							try {
 								plot6.saveAsPDF(fileName6);
-//								plot7.saveAsPDF(fileName7);
-								plot7.saveAsPNG(fileName7);
+								plot7.saveAsPDF(fileName7);
+//								plot7.saveAsPNG(fileName7);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
