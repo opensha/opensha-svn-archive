@@ -36,7 +36,8 @@ import scratch.UCERF3.utils.UpdatedUCERF2.UCERF2_FM2pt1_FSS_ERFupdate;
  */
 class CityGenerator {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/MeanUCERF2";
+	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/ModMeanUC2";
+//	private static final String OUT_DIR = "?/Volumes/Scratch/rtgm/MeanUCERF2";
 //	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/MeanUCERF2update";
 //	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/MeanUCERF2update_FM2P1";
 //	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/ModMeanUCERF2update_FM2P1";
@@ -77,7 +78,8 @@ class CityGenerator {
 	}
 
 	static ERF newERF() {
-		MeanUCERF2 erf = new MeanUCERF2();
+//		MeanUCERF2 erf = new MeanUCERF2();
+		ModMeanUCERF2 erf = new ModMeanUCERF2();
 //		MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
 //		MeanUCERF2 erf = new MeanUCERF2update_FM2p1();
 //		ModMeanUCERF2 erf = new ModMeanUCERF2update_FM2p1();

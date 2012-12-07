@@ -110,28 +110,29 @@ public class CurveUtils {
 
 //		 generateFortranCityData();
 
-//		 generateBranchSummaries2();
+		 generateBranchSummaries2();
 
 //		File srcDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440");
 //		File outDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440reduce");
 //		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 			
-//		File srcDir = new File(UC3_ROOT + "SRPconvTest_src");
-//		File outDir = new File(UC3_ROOT + "SRPconvTest");
+//		File srcDir = new File(UC3_ROOT + "convVar0/src");
+//		File outDir = new File(UC3_ROOT + "convVar0");
 //		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, true);
 		
-//		File srcDir = new File(UC3_ROOT + "SRPconvTest_src/charHybrid");
-//		File outDir = new File(UC3_ROOT + "SRPconvTest");
-//		reorganizeUC3branchResults(srcDir, outDir, true);
+//		File srcDir = new File(UC3_ROOT + "tree_src/PalmdaleTree");
+//		File outDir = new File(UC3_ROOT + "PalmdaleTree");
+//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palm.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 
 //		generateBranchList();
 
 //		fix10in50s();
 		
 //		listAllBranches();
-		 writeConvTestMags();
+//		 writeConvTestMags();
 	}
 	
 	
@@ -398,7 +399,7 @@ public class CurveUtils {
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
 		List<String> locNames = Lists.newArrayList();
 //		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
-		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
+		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palm.txt");
 		try {
 		List<String> locLines = Files.readLines(locFile, US_ASCII);
 			for (String line : locLines) {
@@ -409,10 +410,10 @@ public class CurveUtils {
 		}
 
 		String imrID = NSHMP08_WUS.SHORT_NAME;
-		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/SRPconvTest";
+		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/PalmdaleTree";
 		try {
 			// boolean is tornado
-			runBranchSummaries2(dir, imrID, periods, locNames, false);
+			runBranchSummaries2(dir, imrID, periods, locNames, true);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
