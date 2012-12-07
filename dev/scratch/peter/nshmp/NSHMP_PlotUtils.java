@@ -144,11 +144,11 @@ public class NSHMP_PlotUtils {
 //			makeRegionalPE_RatioSHA("hpc", "uc3_ref_" + i, "uc3_ref_mean", CA_RELM, 0.1, GM0P00, PE2IN50, title);
 //		}
 
-		for (int i=0; i<20; i++) {
-			GeoDataSet ref = getRatioData("hpc", "uc3_ref_19", "uc3_ref_mean", CA_RELM, GM0P00, PE2IN50);
-			String title = "UC3 RefVar"+ i + " over Ref 2%50 PGA";
-			ppTmp(ref, "hpc", "uc3_ref_" + i, "uc3_ref_mean", CA_RELM, 0.1, GM0P00, PE2IN50, title);
-		}
+//		for (int i=0; i<20; i++) {
+//			GeoDataSet ref = getRatioData("hpc", "uc3_ref_19", "uc3_ref_mean", CA_RELM, GM0P00, PE2IN50);
+//			String title = "UC3 RefVar"+ i + " over Ref 2%50 PGA";
+//			ppTmp(ref, "hpc", "uc3_ref_" + i, "uc3_ref_mean", CA_RELM, 0.1, GM0P00, PE2IN50, title);
+//		}
 
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM0P00, PE2IN50);
 //		makeRegionalMap_SHA("hpc", "us_test", NATIONAL_POLY, GM1P00, PE2IN50);
@@ -353,11 +353,11 @@ public class NSHMP_PlotUtils {
 		}
 	}
 	
-	private static GMT_CPT_Files getCPT(Period p) {
+	public static GMT_CPT_Files getCPT(Period p) {
 		return (p == GM1P00) ? GMT_CPT_Files.NSHMP_1hz : GMT_CPT_Files.NSHMP_5hz;
 	}
 	
-	private static double[] getRange(Period p) {
+	public static double[] getRange(Period p) {
 		return (p == GM1P00) ? new double[] {0.0, 1.0} : new double[] {0.0, 3.0};
 	}
 	

@@ -2,6 +2,12 @@ package scratch.peter.nshmp;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
+import org.opensha.nshmp2.erf.source.FaultERF;
+import org.opensha.nshmp2.erf.source.FaultSource;
+import org.opensha.nshmp2.util.NSHMP_Utils;
 
 /**
  * Class of experimental static utility methods.
@@ -51,6 +57,27 @@ public class NSHMP_UtilsDev {
 	 */
 	public static double toNum(String s) {
 		return Double.parseDouble(s);
+	}
+
+//	for (NSHMP_ERF erf : caTmp) {
+//	if (erf instanceof FaultERF) {
+//		FaultERF ferf = (FaultERF) erf;
+//		RegionUtils.regionToKML(calcBounds(ferf), "BOUNDS_" + ferf.getName(), Color.PINK);
+//	}
+//}
+	private static Region calcBounds(FaultERF erf) {
+		double minLat = Double.POSITIVE_INFINITY;
+		double maxLat = Double.NEGATIVE_INFINITY;
+		double minLon = Double.POSITIVE_INFINITY;
+		double maxLon = Double.NEGATIVE_INFINITY;
+		for (FaultSource source : erf.getSources()) {
+			LocationList locs = source.getAllSourceLocs();
+			minLat = Math.min(minLat, LocationUtils.calcMinLat(locs));
+			maxLat = Math.max(maxLat, LocationUtils.calcMaxLat(locs));
+			minLon = Math.min(minLon, LocationUtils.calcMinLon(locs));
+			maxLon = Math.max(maxLon, LocationUtils.calcMaxLon(locs));
+		}
+		return NSHMP_Utils.creatBounds(minLat, maxLat, minLon, maxLon, 15.0);
 	}
 
 }

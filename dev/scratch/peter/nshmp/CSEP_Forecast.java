@@ -1,241 +1,385 @@
 package scratch.peter.nshmp;
 
-import static org.dom4j.DocumentHelper.*;
 import static org.opensha.nshmp2.util.SourceRegion.WUS;
 import static org.opensha.nshmp2.util.SourceType.FAULT;
+import static org.opensha.nshmp2.util.SourceType.*;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.QName;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.Interpolate;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.erf.NSHMP2008;
+import org.opensha.nshmp2.erf.NSHMP_ListERF;
 import org.opensha.nshmp2.erf.source.FaultERF;
 import org.opensha.nshmp2.erf.source.FaultSource;
 import org.opensha.nshmp2.erf.source.GridERF;
-import org.opensha.nshmp2.erf.source.Sources;
-import org.opensha.nshmp2.util.Utils;
-import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.nshmp2.erf.source.NSHMP_ERF;
+import org.opensha.nshmp2.erf.source.SubductionERF;
+import org.opensha.nshmp2.util.NSHMP_Utils;
+import org.opensha.nshmp2.util.SourceType;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 
 /**
  * Add comments here
- *
+ * 
  * 
  * @author Peter Powers
  * @version $Id:$
  */
 public class CSEP_Forecast {
 
-	private static final String TEMPLATE_PATH =
-			"/Users/pmpowers/Documents/NSHMP/CSEP/csep-forecast-template-m5.xml";
+	private static final String TEMPLATE_PATH = "/Users/pmpowers/Documents/NSHMP/CSEP/csep-forecast-template-m5.xml";
 	private static final String DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 	private static final String issueDate, startDate, endDate;
-	private static final IncrementalMagFreqDist modelMFD;
-	
+	private static final String NAME = "USGS NSHMP CA 2008";
+	private static final String VERSION = "3.0";
+	private static final String AUTHOR = "USGS";
+	private static final double NODE_SIZE = 0.1;
+	private static final double MFD_MIN = 5.0;
+	private static final double MFD_MAX = 9.0;
+	private static final int MFD_NUM = 41;
+
+	private NSHMP_ListERF erf;
+	private Document forecastDoc;
+	private Map<Integer, Location> locIndexMap;
+	private Map<Integer, Element> cellElementMap;
+	private Map<Integer, IncrementalMagFreqDist> cellMfdMap;
+
 	static {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FMT);
-		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-		cal.set(2010, 0, 0);
+		sdf.setTimeZone(tz);
+		GregorianCalendar cal = new GregorianCalendar(tz);
+		cal.set(2010, 0, 1, 0, 0, 0);
 		issueDate = sdf.format(cal.getTime());
-		cal.set(2008, 0, 0);
+		cal.set(2008, 0, 1, 0, 0, 0);
 		startDate = sdf.format(cal.getTime());
-		cal.set(2013, 0, 0);
+		cal.set(2013, 11, 31, 23, 59, 59);
 		endDate = sdf.format(cal.getTime());
-		
-		modelMFD = new IncrementalMagFreqDist(5.0,  9.0,  41);
 	}
-	
+
 	/**
-	 * @param args
-	 * 
-	 * -- loop all GridERFs averaging MFDs at 4 nearest locations to CSEP grid
-	 * -- grid source mfds may be different sizes :-(
-	 * -- resample mfd into CSEP discretization
-	 *     6.05    6.15   6.25   6.35
-	 *     
-	 */
-	public static void main(String[] args) {
-		GridERF erf = (GridERF) Sources.get("CAmap.21.ch.in");
-		Location loc = NEHRP_TestCity.SAN_FRANCISCO.location();
-		System.out.println(erf.getMFD(loc));
-		
-//		FaultERF erf = (FaultERF) Sources.get("brange.3dip.ch.in");
-//		erf.updateForecast();
-//		String sourceName = "997bcd Sevier/Toroweap fault zone (southern)";
-//		
-//		for (ProbEqkSource src : erf) {
-//			if (!src.getName().equals(sourceName)) continue;
-//			FaultSource fSrc = (FaultSource) src;
-//			List<IncrementalMagFreqDist> mfds = fSrc.getMFDs();
-//			for (IncrementalMagFreqDist mfd : mfds) {
-////				System.out.println("Original cum rate: " + mfd.getCumRate(0));
-//				System.out.println(mfd);
-//				IncrementalMagFreqDist mfdResam = CSEP_Forecast.resample(
-//					mfd, CSEP_Forecast.newForecastMFD(), true, true);
-////				System.out.println("Resampled cum rate: " + mfdResam.getCumRate(0));
-//				System.out.println(mfdResam);
-//			}
-//		}
-	}
-	
-	
-	
-//	public static void createForecast(File out) {
-//		Document doc = XMLUtils.loadDocument(TEMPLATE_PATH);
-//		Element forecastData = initDocument(doc);
-//		
-//		// build location list of cells
-//		List<?> cellElements = forecastData.elements("cell");
-//		for ()
-//		
-//	}
-	
-//	private Document buildForecastDoc(
-//			String name, 
-//			String version, 
-//			Date issueDate,
-//			Date startDate,
-//			Date endDate
-//			) {
-//		Element root = createElement("CSEPForecast");
-//		root.addNamespace(null, CSEP_NS);
-//		Document doc = DocumentHelper.createDocument(root);
-//		root.addElement("modelName").addText(name);
-//		root.addElement("version").addText(version);
-//		root.addElement("author").addText("USGS");
-//		root.addElement("forecastStartDate").addText(sdf.format(startDate));
-//		root.addElement("forecastEndDate").addText(sdf.format(endDate));
-//		root.addElement("defaultCellDimension")
-//			.addAttribute("latRange", "0.1")
-//			.addAttribute("latRange", "0.1");
-//		root.addElement("defaultMagBinDimension").addText("0.1");
-//		root.addElement("lastMagBinOpen").addText("1");
-//		root.addElement("depthLayer")
-//			.addAttribute("min", "0.0")
-//			.addAttribute("max", "30.0");
-//		
-//		
-//		doc.addElement("CSEPForecast");
-//
-//		return null;
-//	}
-	
-	public void locLooper(LocationList locs, double binWidth) {
-		
-		// 
-		
-	}
-	
-	/**
-	 * Returns an MFD for a {@code Location} that is assumed to be at the
-	 * center of 4 grid nodes in the supplied {@code erf}.
+	 * Builds a CSEP compatible forecast (XML format) and wirtes it to the
+	 * supplied file.
 	 * @param erf
-	 * @param loc
+	 * @param out
+	 * @throws Exception if problem encountered
+	 */
+	public static void createForecast(NSHMP_ListERF erf, File out) throws Exception {
+		new CSEP_Forecast(erf, out);
+	}
+
+	private CSEP_Forecast(NSHMP_ListERF erf, File out) throws Exception {
+		System.out.println("Initializing...");
+		this.erf = erf;
+		Files.createParentDirs(out);
+		forecastDoc = XMLUtils.loadDocument(TEMPLATE_PATH);
+		Element cellElem = initDocument();
+		// use index map instead of Locations as keys in latter two maps
+		locIndexMap = Maps.newHashMap();
+		cellElementMap = Maps.newHashMap();
+		cellMfdMap = Maps.newHashMap();
+		initCellMaps(cellElem);
+		System.out.println("Processing...");
+		processForecast();
+		System.out.println("Writing MFDs...");
+		writeMFDs();
+		System.out.println("Writing XML...");
+		XMLUtils.writeDocumentToFile(out, forecastDoc);
+		System.out.println("Done.");
+	}
+	
+	/*
+	 * Sets header elements of forecast.
+	 */
+	private Element initDocument() {
+		Element fd = forecastDoc.getRootElement().element("forecastData");
+		fd.element("modelName").setText(NAME);
+		fd.element("version").setText(VERSION);
+		fd.element("author").setText(AUTHOR);
+		fd.element("issueDate").setText(issueDate);
+		fd.element("forecastStartDate").setText(startDate);
+		fd.element("forecastEndDate").setText(endDate);
+		fd.element("lastMagBinOpen").setText("1");
+		return fd.element("depthLayer");
+	}
+
+	/*
+	 * Builds maps of Locations indices; the indices ar eused to reference maps
+	 * of ELements and MFDs.
+	 */
+	private void initCellMaps(Element cellWrapper) {
+		List cellElements = cellWrapper.elements("cell");
+		for (int i = 0; i < cellElements.size(); i++) {
+			Element cell = (Element) cellElements.get(i);
+			Location loc = new Location(Double.valueOf(cell
+				.attributeValue("lat")), Double.valueOf(cell
+				.attributeValue("lon")));
+			locIndexMap.put(i, loc);
+			cellElementMap.put(i, cell);
+			cellMfdMap.put(i, null);
+		}
+	}
+
+	private void processForecast() throws Exception {
+		// init thread mgr
+		int numProc = Runtime.getRuntime().availableProcessors();
+		ExecutorService ex = Executors.newFixedThreadPool(numProc);
+		CompletionService<ProcessorResult> ecs = 
+				new ExecutorCompletionService<ProcessorResult>(ex);
+
+		Set<Integer> indices = locIndexMap.keySet();
+		for (Integer idx : indices) {
+			Location loc = locIndexMap.get(idx);
+			LocationProcessor locProc = new LocationProcessor(erf, loc, idx);
+			ecs.submit(locProc);
+		}
+		ex.shutdown();
+		
+		for (int i = 0; i < indices.size(); i++) {
+			ProcessorResult pr = ecs.take().get();
+			cellMfdMap.put(pr.idx, pr.mfd);
+		}
+	}
+	
+	private static class LocationProcessor implements 
+		Callable<ProcessorResult> {
+		
+		private NSHMP_ListERF erfList;
+		private Location loc;
+		private int idx;
+		
+		LocationProcessor(NSHMP_ListERF erfList, Location loc, int idx) {
+			this .erfList = erfList;
+			this.loc = loc;
+			this.idx = idx;
+		}
+
+		@Override
+		public ProcessorResult call() {
+			SummedMagFreqDist sum = newSummedForecastMFD();
+			for (NSHMP_ERF erf : erfList) {
+				
+				SourceType type = erf.getSourceType();
+				
+				if (type.equals(GRIDDED)) {
+					GridERF gerf = (GridERF) erf;
+					IncrementalMagFreqDist gmfd = getOffsetGridMFD(gerf, loc,
+						NODE_SIZE);
+					// getOffsetGrid may return null mfds
+					if (gmfd == null) continue;
+					sum.addIncrementalMagFreqDist(gmfd);
+					
+				} else if (type.equals(FAULT)) {
+					FaultERF ferf = (FaultERF) erf;
+					IncrementalMagFreqDist fmfd = getFaultMFD(ferf, loc);
+					// getFaultMFD will always return a (possibly empty) sum
+					sum.addIncrementalMagFreqDist(fmfd);
+					
+				} else if (type.equals(SUBDUCTION)) {
+					SubductionERF serf = (SubductionERF) erf;
+					IncrementalMagFreqDist fmfd = getSubductionMFD(serf, loc);
+					// getSubductionMFD will always return a (possibly empty) sum
+					sum.addIncrementalMagFreqDist(fmfd);
+					
+				} else {
+					throw new UnsupportedOperationException(
+						"Invalid Source Type");
+				}
+				
+			}
+			return createResult(idx, sum);
+		}
+		
+	}
+	
+	private static ProcessorResult createResult(int idx, 
+			IncrementalMagFreqDist mfd) {
+		ProcessorResult pr = new ProcessorResult();
+		pr.idx = idx;
+		pr.mfd = mfd;
+		return pr;
+	}
+	
+	private static class ProcessorResult {
+		int idx;
+		IncrementalMagFreqDist mfd;
+	}
+	
+	/*
+	 * Transfers raw MFDs to value fields in forecast XML elements.
+	 */
+	private void writeMFDs() {
+		for (int idx : cellMfdMap.keySet()) {
+			IncrementalMagFreqDist mfd = cellMfdMap.get(idx);
+			Element e = cellElementMap.get(idx);
+			writeMFD(mfd, e);
+		}
+	}
+	
+	private static void writeMFD(IncrementalMagFreqDist mfd, Element e) {
+		List bins = e.elements("bin");
+		for (int i=0; i<bins.size(); i++) {
+			Element bin = (Element) bins.get(i);
+			double mag = Double.valueOf(bin.attributeValue("m"));
+			double rate = mfd.getY(mag);
+			bin.setText(Double.toString(rate));
+		}
+	}
+
+	public static IncrementalMagFreqDist getFaultMFD(FaultERF erf, Location loc) {
+		SummedMagFreqDist sum = newSummedForecastMFD();
+		Site nodeSite = new Site(loc);
+		Region nodeRegion = getNodeRegion(loc, NODE_SIZE, NODE_SIZE);
+
+		for (FaultSource fSrc : erf.getSources()) {
+
+			// skip if likely outside node
+			double quickDist = fSrc.getMinDistance(nodeSite);
+			if (quickDist > 10.0) continue;
+
+			// compute fraction of source inside node
+			double nodeWt = fSrc.getSourceSurface()
+				.getFractionOfSurfaceInRegion(nodeRegion);
+			if (nodeWt == 0.0) continue;
+			
+			// mfds are weighted already
+			for (IncrementalMagFreqDist mfd : fSrc.getMFDs()) {
+				boolean moBalance = mfd.getClass().equals(
+					GaussianMagFreqDist.class);
+				// no need to clone original as resample does not alter src
+				IncrementalMagFreqDist mfdResamp = resample(mfd,
+					newIncrForecastMFD(), moBalance, true);
+				mfdResamp.scale(nodeWt); // scale by fraction in node
+				sum.addIncrementalMagFreqDist(mfdResamp);
+			}
+		}
+		sum.scale(erf.getSourceWeight()); // scale by the erf wt
+		return sum;
+	}
+	
+	public static IncrementalMagFreqDist getSubductionMFD(SubductionERF erf, 
+			Location loc) {
+		SummedMagFreqDist sum = newSummedForecastMFD();
+		Site nodeSite = new Site(loc);
+		Region nodeRegion = getNodeRegion(loc, NODE_SIZE, NODE_SIZE);
+
+		for (FaultSource fSrc : erf.getSources()) {
+
+			// skip if likely outside node
+			double quickDist = fSrc.getMinDistance(nodeSite);
+			if (quickDist > 10.0) continue;
+
+			// compute fraction of source inside node
+			double nodeWt = fSrc.getSourceSurface()
+				.getFractionOfSurfaceInRegion(nodeRegion);
+			if (nodeWt == 0.0) continue;
+			
+			// mfds are weighted already
+			for (IncrementalMagFreqDist mfd : fSrc.getMFDs()) {
+				// no need to clone original as resample does not alter src
+				IncrementalMagFreqDist mfdResamp = resample(mfd,
+					newIncrForecastMFD(), false, true);
+				mfdResamp.scale(nodeWt); // scale by fraction in node
+				sum.addIncrementalMagFreqDist(mfdResamp);
+			}
+		}
+		sum.scale(erf.getSourceWeight()); // scale by the erf wt
+		return sum;
+	}
+
+
+	/**
+	 * Returns an MFD for a {@code Location} that is assumed to be at the center
+	 * of 4 grid nodes in the supplied {@code erf}. Method returns {@code null}
+	 * if any of the 4 nodes are {@code null}.
+	 * 
+	 * @param erf to process
+	 * @param loc to process
 	 * @param spacing of erf grid
 	 * @return an MFD
 	 */
-	public static IncrementalMagFreqDist offsetGridMFD(GridERF erf, Location loc, double spacing) {
+	public static IncrementalMagFreqDist getOffsetGridMFD(GridERF erf,
+			Location loc, double spacing) {
+		// skip locations outside area of grid with non-zero a-values
+		if (!erf.getBorder().contains(loc)) return null;
 		double w = spacing / 2;
 		double lat = loc.getLatitude();
 		double lon = loc.getLongitude();
 		List<Location> locs = Lists.newArrayList(
-			new Location(lat - w, lon - w),
-			new Location(lat + w, lon - w),
-			new Location(lat + w, lon + w),
-			new Location(lat - w, lon + w));
-		return null;
-//		List<>
-//		SummedMagFreqDist summedMFD = new Summ
-//		erf.getMFD(loc)
+			new Location(lat - w, lon - w), new Location(lat + w, lon - w),
+			new Location(lat + w, lon + w), new Location(lat - w, lon + w));
+		SummedMagFreqDist sum = newSummedForecastMFD();
+		for (Location cLoc : locs) {
+			IncrementalMagFreqDist mfd = erf.getMFD(cLoc);
+			// bail if all four surrounding nodes are not available
+			if (mfd == null) return null;
+			// no need to clone original as resample does not alter src
+			IncrementalMagFreqDist mfdResamp = resample(mfd,
+				newIncrForecastMFD(), false, true);
+			sum.addIncrementalMagFreqDist(mfdResamp);
+		}
+		sum.scale(0.25); // 4 mfds were used so scale to 1/4
+		sum.scale(erf.getSourceWeight()); // scale again by the erf wt
+		return sum;
 	}
-	
+
 	/**
 	 * Returns a CSEP forecast MFD with all rates initialized to 0.
-	 * @return
+	 * @return a summed MFD that can be used to compile MFDs from different
+	 *         sources
 	 */
-	public static IncrementalMagFreqDist newForecastMFD() {
-		return new IncrementalMagFreqDist(5.0,  9.0,  41);
+	public static SummedMagFreqDist newSummedForecastMFD() {
+		return new SummedMagFreqDist(MFD_MIN, MFD_MAX, MFD_NUM);
 	}
-	
-	private static Element initDocument(Document doc) {
-		Element fd = doc.getRootElement().element("forecastData");
-		fd.element("modelName").setText("NSHMP 2008");
-		fd.element("version").setText("3.0");
-		fd.element("author").setText("USGS");
-		fd.element("issueDate").setText("issueDate");
-		fd.element("forecastStartDate").setText("startDate");
-		fd.element("forecastEndDate").setText("endDate");
-		fd.element("lastMagBinOpen").setText("0");
-		return fd.element("depthLayer");
-	}
-	
+
 	/**
-	 * Resamples a magnitude frequency distribution preserving event rates. This
-	 * algorithm distributes src rates according to the position of 
-	 * src mags relative to those of dest. If a src mag exactly matches a dest mag,
-	 * then 100% of the rate is applied to the dest mag bin. If a src mag exactly
-	 * matches a dest mag bin edge, then 50% of the rate is assigned to the
-	 * adjacent dest mags. Any mag or mag rate that falls outside the range
-	 * spanned by dest is ignored.
-	 * 
-	 * @param src MFD
-	 * @param dest MFD
-	 * @return dest MFD
+	 * Returns a CSEP forecast MFD with all rates initialized to 0.
+	 * @return a summed MFD that can be used to compile MFDs from different
+	 *         sources
 	 */
-	public static IncrementalMagFreqDist resampleMFD(
-			IncrementalMagFreqDist src,
-			IncrementalMagFreqDist dest) {
-		double d = dest.getDelta();
-		double d2 = d / 2.0;
-		double destMin = dest.getMinX() - d2;
-		double destMax = dest.getMaxX() + d2;
-		for (int i=0; i<src.getNum(); i++) {
-			double srcMag = src.getX(i);
-			double srcRate = src.getY(i);
-			// skip out of range rates
-			if (srcMag >= destMax || srcMag <= destMin) continue;
-			// mag offset from bin center
-			double destMag = dest.getClosestX(srcMag);
-			double dM = srcMag - destMag;
-			// rate wt for current bin
-			double binWt = (Math.abs(dM) + d2) / d;
-			// set rate
-			int destIdx = dest.getClosestXIndex(srcMag);
-			double destRate = dest.getY(destIdx);
-			dest.set(destIdx, destRate + srcRate * binWt);
-			// switch to bin index above or below [-1, 0, 1]
-			destIdx += (int) Math.signum(dM);
-			// skip if out of range
-			if (destIdx < 0 || destIdx >= dest.getNum()) continue;
-			// set rate
-			destRate = dest.getY(destIdx);
-			dest.set(destIdx, destRate + srcRate * binWt);
-		}
-		return dest;
+	public static IncrementalMagFreqDist newIncrForecastMFD() {
+		return new IncrementalMagFreqDist(MFD_MIN, MFD_MAX, MFD_NUM);
 	}
-	
+
+
 	/**
 	 * MFD resampler. Algorithm determines the {@code dest} magnitudes bins that
 	 * span the entire range of {@code src} magnitudes. It determines event
 	 * rates via linear or logY interpolation of {@code src} rates, fills out
 	 * {@code dest} with rates resampled from {@code src}, and scales
 	 * {@code dest} to have the same cumulative rate or Mo rate as original.
+	 * 
+	 * This could be publicised; compare with resampling in MFD api (I believe
+	 * MFDs force rates into nearby bins resulting in odd resampling; NOTE there
+	 * is an NSHMP customization to force events into the M=5 bin; M=5.05 rounds
+	 * up to M=5.1
 	 * 
 	 * @param src MFD
 	 * @param dest MFD, rate values will be overwritten
@@ -249,6 +393,15 @@ public class CSEP_Forecast {
 			IncrementalMagFreqDist dest, boolean momentBalance,
 			boolean logInterp) {
 
+		// Handle case where src only has one mag - put rate in closest bin
+		// Single mag mfds that are high (e.g. M=9.2 cascadia) will go in
+		// highest dest bin (M=9.0)
+		if (src.getNum() == 1) {
+			int destIdx = dest.getClosestXIndex(src.getX(0));
+			dest.set(destIdx, src.getY(0));
+			return dest;
+		}
+
 		// src mfd points used as basis for interpolation
 		double[] srcMags = new double[src.getNum()];
 		double[] srcRates = new double[src.getNum()];
@@ -257,9 +410,14 @@ public class CSEP_Forecast {
 			srcMags[idx] = p.getX();
 			srcRates[idx++] = p.getY();
 		}
-
-		// iterate dest
-		int minDestIdx = dest.getClosestXIndex(src.getMinMagWithNonZeroRate());
+		
+		// iterate target dest indices
+		// the slight offset on the low side below guarantess that the CSEP
+		// M=5 bin is filled, otherwise the NSHMP M=5.05 events all go into
+		// the CSEP M=5.1 bin. This effectively increases the NSHMP mfd by
+		// one bin, but the cumulative rate stays the same.
+		
+		int minDestIdx = dest.getClosestXIndex(src.getMinMagWithNonZeroRate() - 0.000001);
 		int maxDestIdx = dest.getClosestXIndex(src.getMaxMagWithNonZeroRate());
 		for (int destIdx = minDestIdx; destIdx <= maxDestIdx; destIdx++) {
 			// min and max indices are already clamped to dest min max
@@ -277,62 +435,110 @@ public class CSEP_Forecast {
 		return dest;
 	}
 
+	/**
+	 * Returns a {@code Region} marks the border of grid node identified by the
+	 * supplied location (center of the node).
+	 * 
+	 * @param p node center
+	 * @param w node width (in decimal degrees)
+	 * @param h node height (in decimal degrees)
+	 * @return the node {@code Region}
+	 */
+	public static Region getNodeRegion(Location p, double w, double h) {
+		double halfW = w / 2;
+		double halfH = h / 2;
+		double nodeLat = p.getLatitude();
+		double nodeLon = p.getLongitude();
+		LocationList locs = new LocationList();
+		locs.add(new Location(nodeLat + halfH, nodeLon + halfW)); // top right
+		locs.add(new Location(nodeLat - halfH, nodeLon + halfW)); // bot right
+		locs.add(new Location(nodeLat - halfH, nodeLon - halfW)); // bot left
+		locs.add(new Location(nodeLat + halfH, nodeLon - halfW)); // top left
+		return new Region(locs, BorderType.MERCATOR_LINEAR);
+	}
+	
+	public static void main(String[] args) {
+		File out = new File("tmp/CSEP/testForecast2.xml");
+		
+//		NSHMP2008 erf = NSHMP2008.createSingleSource("CAmap.21.gr.in");
+//		NSHMP2008 erf = NSHMP2008.createSingleSource("bFault.gr.in");
+//		NSHMP2008 erf = NSHMP2008.createSingleSource("cascadia.top.9pm.in");
+//		NSHMP2008 erf = NSHMP2008.createSingleSource("cascadia.top.8082.in");
+		NSHMP2008 erf = NSHMP2008.createCaliforniaCSEP();
+		System.out.println(erf);
+		erf.updateForecast();
+		
+		try {
+			createForecast(erf, out);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+//		NSHMP2008 wusTmp = NSHMP2008.createCaliforniaCSEP();
+//		NSHMP2008 caTmp = NSHMP2008.createSingleSource("orwa_c.in");
+//		caTmp.updateForecast();
+		
+	}
+	
+
 }
 
-//<?xml version='1.0' encoding='UTF-8'?>
-//<CSEPForecast xmlns='http://www.scec.org/xml-ns/csep/forecast/0.1'>
-//  <forecastData publicID='smi:org.scec/csep/forecast/1'>
-//    <modelName>unknown</modelName>
-//    <version>1.0</version>
-//    <author>CSEP</author>
-//    <issueDate>2005-06-18T10:30:00Z</issueDate>
-//    <forecastStartDate>2006-01-01T00:00:00Z</forecastStartDate>
-//    <forecastEndDate>2011-01-01T00:00:00Z</forecastEndDate>
-//    <defaultCellDimension latRange='0.1' lonRange='0.1'/>
-//    <defaultMagBinDimension>0.1</defaultMagBinDimension>
-//    <lastMagBinOpen>1</lastMagBinOpen>
-//    <depthLayer max='30.0' min='0.0'>
-//      <cell lat='40.15' lon='-125.35'>
-//        <bin m='5.0'>0.0</bin>
-//        <bin m='5.1'>0.0</bin>
-//        <bin m='5.2'>0.0</bin>
-//        <bin m='5.3'>0.0</bin>
-//        <bin m='5.4'>0.0</bin>
-//        <bin m='5.5'>0.0</bin>
-//        <bin m='5.6'>0.0</bin>
-//        <bin m='5.7'>0.0</bin>
-//        <bin m='5.8'>0.0</bin>
-//        <bin m='5.9'>0.0</bin>
-//        <bin m='6.0'>0.0</bin>
-//        <bin m='6.1'>0.0</bin>
-//        <bin m='6.2'>0.0</bin>
-//        <bin m='6.3'>0.0</bin>
-//        <bin m='6.4'>0.0</bin>
-//        <bin m='6.5'>0.0</bin>
-//        <bin m='6.6'>0.0</bin>
-//        <bin m='6.7'>0.0</bin>
-//        <bin m='6.8'>0.0</bin>
-//        <bin m='6.9'>0.0</bin>
-//        <bin m='7.0'>0.0</bin>
-//        <bin m='7.1'>0.0</bin>
-//        <bin m='7.2'>0.0</bin>
-//        <bin m='7.3'>0.0</bin>
-//        <bin m='7.4'>0.0</bin>
-//        <bin m='7.5'>0.0</bin>
-//        <bin m='7.6'>0.0</bin>
-//        <bin m='7.7'>0.0</bin>
-//        <bin m='7.8'>0.0</bin>
-//        <bin m='7.9'>0.0</bin>
-//        <bin m='8.0'>0.0</bin>
-//        <bin m='8.1'>0.0</bin>
-//        <bin m='8.2'>0.0</bin>
-//        <bin m='8.3'>0.0</bin>
-//        <bin m='8.4'>0.0</bin>
-//        <bin m='8.5'>0.0</bin>
-//        <bin m='8.6'>0.0</bin>
-//        <bin m='8.7'>0.0</bin>
-//        <bin m='8.8'>0.0</bin>
-//        <bin m='8.9'>0.0</bin>
-//        <bin m='9.0'>0.0</bin>
-//      </cell>
+// <cell mask='0'....> if no rates for bin
+
+// <?xml version='1.0' encoding='UTF-8'?>
+// <CSEPForecast xmlns='http://www.scec.org/xml-ns/csep/forecast/0.1'>
+// <forecastData publicID='smi:org.scec/csep/forecast/1'>
+// <modelName>unknown</modelName>
+// <version>1.0</version>
+// <author>CSEP</author>
+// <issueDate>2005-06-18T10:30:00Z</issueDate>
+// <forecastStartDate>2006-01-01T00:00:00Z</forecastStartDate>
+// <forecastEndDate>2011-01-01T00:00:00Z</forecastEndDate>
+// <defaultCellDimension latRange='0.1' lonRange='0.1'/>
+// <defaultMagBinDimension>0.1</defaultMagBinDimension>
+// <lastMagBinOpen>1</lastMagBinOpen>
+// <depthLayer max='30.0' min='0.0'>
+// <cell lat='40.15' lon='-125.35'>
+// <bin m='5.0'>0.0</bin>
+// <bin m='5.1'>0.0</bin>
+// <bin m='5.2'>0.0</bin>
+// <bin m='5.3'>0.0</bin>
+// <bin m='5.4'>0.0</bin>
+// <bin m='5.5'>0.0</bin>
+// <bin m='5.6'>0.0</bin>
+// <bin m='5.7'>0.0</bin>
+// <bin m='5.8'>0.0</bin>
+// <bin m='5.9'>0.0</bin>
+// <bin m='6.0'>0.0</bin>
+// <bin m='6.1'>0.0</bin>
+// <bin m='6.2'>0.0</bin>
+// <bin m='6.3'>0.0</bin>
+// <bin m='6.4'>0.0</bin>
+// <bin m='6.5'>0.0</bin>
+// <bin m='6.6'>0.0</bin>
+// <bin m='6.7'>0.0</bin>
+// <bin m='6.8'>0.0</bin>
+// <bin m='6.9'>0.0</bin>
+// <bin m='7.0'>0.0</bin>
+// <bin m='7.1'>0.0</bin>
+// <bin m='7.2'>0.0</bin>
+// <bin m='7.3'>0.0</bin>
+// <bin m='7.4'>0.0</bin>
+// <bin m='7.5'>0.0</bin>
+// <bin m='7.6'>0.0</bin>
+// <bin m='7.7'>0.0</bin>
+// <bin m='7.8'>0.0</bin>
+// <bin m='7.9'>0.0</bin>
+// <bin m='8.0'>0.0</bin>
+// <bin m='8.1'>0.0</bin>
+// <bin m='8.2'>0.0</bin>
+// <bin m='8.3'>0.0</bin>
+// <bin m='8.4'>0.0</bin>
+// <bin m='8.5'>0.0</bin>
+// <bin m='8.6'>0.0</bin>
+// <bin m='8.7'>0.0</bin>
+// <bin m='8.8'>0.0</bin>
+// <bin m='8.9'>0.0</bin>
+// <bin m='9.0'>0.0</bin>
+// </cell>
 
