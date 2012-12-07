@@ -88,17 +88,18 @@ public class FaultERF extends NSHMP_ERF {
 		return bounds;
 	}
 	
+	// TODO should be able to retreive a bounds with a variable sized buffer
 	private void initBounds() {
-		double minLat = Double.MAX_VALUE;
-		double maxLat = Double.MIN_VALUE;
-		double minLon = Double.MAX_VALUE;
-		double maxLon = Double.MIN_VALUE;
+		double minLat = Double.POSITIVE_INFINITY;
+		double maxLat = Double.NEGATIVE_INFINITY;
+		double minLon = Double.POSITIVE_INFINITY;
+		double maxLon = Double.NEGATIVE_INFINITY;
 		for (FaultSource source : sources) {
 			LocationList locs = source.getAllSourceLocs();
 			minLat = Math.min(minLat, LocationUtils.calcMinLat(locs));
-			maxLat = Math.min(maxLat, LocationUtils.calcMinLat(locs));
-			minLon = Math.min(minLon, LocationUtils.calcMinLat(locs));
-			maxLon = Math.min(maxLon, LocationUtils.calcMinLat(locs));
+			maxLat = Math.max(maxLat, LocationUtils.calcMaxLat(locs));
+			minLon = Math.min(minLon, LocationUtils.calcMinLon(locs));
+			maxLon = Math.max(maxLon, LocationUtils.calcMaxLon(locs));
 		}
 		bounds = NSHMP_Utils.creatBounds(minLat, maxLat, minLon, maxLon, maxR);
 	}
