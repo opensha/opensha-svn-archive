@@ -125,6 +125,11 @@ public enum ERF_ID {
 			return getUC3_SolERF(UC3_CONV_PATH);
 		}
 	},
+	UCERF3_REF_MEAN_VAR0() {
+		public EpistemicListERF instance() {
+			return getUC3_SolERF(UC3_CONV_PATH_VAR0);
+		}
+	},
 	
 	UCERF3_UC2MAP1() {
 		public EpistemicListERF instance() {
@@ -238,7 +243,7 @@ public enum ERF_ID {
 		uc2.setParameter(MeanUCERF2.RUP_OFFSET_PARAM_NAME, 1.0);
 		uc2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME,
 			UCERF2.PROB_MODEL_POISSON);
-		uc2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		uc2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		uc2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 		uc2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME,
 			UCERF2.FULL_DDW_FLOATER);
@@ -264,6 +269,9 @@ public enum ERF_ID {
 	
 	private static final String UC3_CONV_PATH =
 			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+	private static final String UC3_CONV_PATH_VAR0 =
+			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
+
 	private static final String UC31_1X_SOL_PATH =
 			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
 	private static final String UC32_1X_SOL_PATH =
