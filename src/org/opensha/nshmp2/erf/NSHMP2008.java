@@ -8,9 +8,11 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.param.impl.EnumParameter;
+import org.opensha.nshmp2.erf.source.FaultERF;
 import org.opensha.nshmp2.erf.source.GridERF;
 import org.opensha.nshmp2.erf.source.NSHMP_ERF;
 import org.opensha.nshmp2.erf.source.Sources;
+import org.opensha.nshmp2.erf.source.SubductionERF;
 import org.opensha.nshmp2.util.FaultType;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.EpistemicListERF;
@@ -109,6 +111,45 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		erf.addERF(Sources.get("EXTmap.gr.in"));
 		erf.addERF(Sources.get("WUSmap.ch.in"));
 		erf.addERF(Sources.get("WUSmap.gr.in"));
+		return erf;
+	}
+	
+	/**
+	 * Creates a forecast that is limited to those CA, WUS, and CASC sources
+	 * that will contribute to event rates is the bins of the CA RELM testing
+	 * region.
+	 * @return an NSHMP {@code ERF}
+	 */
+	public static NSHMP2008 createCaliforniaCSEP() {
+		NSHMP2008 erf = new NSHMP2008("CSEP");
+		
+		// CA gridded sources
+//		List<GridERF> gridERFs = Sources.getGridList(CA);
+//		erf.addERFs(gridERFs);
+//		// additional WUS gridded sources
+//		erf.addERF(Sources.get("EXTmap.ch.in"));
+//		erf.addERF(Sources.get("EXTmap.gr.in"));
+//		erf.addERF(Sources.get("WUSmap.ch.in"));
+//		erf.addERF(Sources.get("WUSmap.gr.in"));
+//
+//		// CA fault sources
+//		List<FaultERF> caFaults = Sources.getFaultList(CA);
+//		erf.addERFs(caFaults);
+//		// additional WUS fault sources
+//		erf.addERF(Sources.get("brange.3dip.65.in"));
+//		erf.addERF(Sources.get("brange.3dip.ch.in"));
+//		erf.addERF(Sources.get("brange.3dip.gr.in"));
+//		erf.addERF(Sources.get("nv.3dip.ch.in"));
+//		erf.addERF(Sources.get("nv.3dip.ch.gr"));
+//		erf.addERF(Sources.get("nvut.3dip.65.gr"));
+//		erf.addERF(Sources.get("orwa_n.3dip.ch.in"));
+//		erf.addERF(Sources.get("orwa_n.3dip.gr.in"));
+//		erf.addERF(Sources.get("orwa_c.in"));
+		
+		// Subduction sources
+		List<SubductionERF> subs = Sources.getSubductionList(CASC);
+		erf.addERFs(subs);
+		
 		return erf;
 	}
 	
