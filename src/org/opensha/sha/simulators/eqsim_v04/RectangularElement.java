@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
 
@@ -82,6 +83,15 @@ public class RectangularElement {
 	 */
 	public String getName() {
 		return sectionName;
+	}
+	
+	/**
+	 * This computes and returns the area (m-sq)
+	 * @return
+	 */
+	public double getArea() {
+		
+		return LocationUtils.linearDistance(vertices[0], vertices[1])*LocationUtils.linearDistance(vertices[1], vertices[2])*1e6;
 	}
 
 	public int getID() {

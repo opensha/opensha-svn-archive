@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 
 public class HeadlessGraphPanel extends GraphPanel implements GraphPanelAPI, PlotControllerAPI {
 	
-	private double userMinX, userMaxX, userMinY, userMaxY;
+	private double userMinX=Double.NaN, userMaxX=Double.NaN, userMinY=Double.NaN, userMaxY=Double.NaN;
 	private int tickLabelFontSize=12, axisLabelFontSize=12, plotLabelFontSize=14;
 	private boolean xLog=false, yLog=false;
 	
@@ -20,13 +20,14 @@ public class HeadlessGraphPanel extends GraphPanel implements GraphPanelAPI, Plo
 	
 	public void drawGraphPanel(String xAxisName, String yAxisName,
 			ArrayList funcList, ArrayList plotChars, boolean customAxis, String title) {
+		checkUserBounds(funcList);
 		setCurvePlottingCharacterstic(plotChars);
 		drawGraphPanel(xAxisName, yAxisName, funcList, customAxis, title);
 	}
 	
 	public void drawGraphPanel(String xAxisName, String yAxisName,
 			ArrayList funcList, boolean customAxis, String title) {
-		// TODO Auto-generated method stub
+		checkUserBounds(funcList);
 		super.drawGraphPanel(xAxisName, yAxisName, funcList, xLog, yLog, customAxis,
 				title, this);
 		
@@ -36,6 +37,13 @@ public class HeadlessGraphPanel extends GraphPanel implements GraphPanelAPI, Plo
 		
 		this.validate();
 		this.repaint();
+	}
+	
+	private void checkUserBounds(ArrayList funcList) {
+		if(Double.isNaN(userMinX) || Double.isNaN(userMaxX))
+			this.setUserX_BoundsFromFuncList(funcList);
+		if(Double.isNaN(userMinY) || Double.isNaN(userMaxY))
+			this.setUserY_BoundsFromFuncList(funcList);
 	}
 
 	@Override
@@ -80,6 +88,50 @@ public class HeadlessGraphPanel extends GraphPanel implements GraphPanelAPI, Plo
 		setUserMinY(minY);
 		setUserMaxY(maxY);
 	}
+	
+	/**
+	 * This sets the bound from the min and max in the list of functions (no buffer added)
+	 * @param funcList
+	 */
+	public void setUserBoundsFromFuncList(ArrayList funcList) {
+		setUserX_BoundsFromFuncList(funcList);
+		setUserY_BoundsFromFuncList(funcList);
+	}
+	
+	/**
+	 * This sets the bound from the min and max in the list of functions (no buffer added)
+	 * @param funcList
+	 */
+	public void setUserX_BoundsFromFuncList(ArrayList funcList) {
+		double minX = Double.POSITIVE_INFINITY;
+		double maxX = Double.NEGATIVE_INFINITY;
+		for(Object func: funcList) {
+			if(minX > ((XY_DataSet)func).getMinX())
+				minX = ((XY_DataSet)func).getMinX();
+			if(maxX < ((XY_DataSet)func).getMaxX())
+				maxX = ((XY_DataSet)func).getMaxX();
+		}
+		setUserMinX(minX);
+		setUserMaxX(maxX);
+	}
+	
+	/**
+	 * This sets the bound from the min and max in the list of functions (no buffer added)
+	 * @param funcList
+	 */
+	public void setUserY_BoundsFromFuncList(ArrayList funcList) {
+		double minY = Double.POSITIVE_INFINITY;
+		double maxY = Double.NEGATIVE_INFINITY;
+		for(Object func: funcList) {
+			if(minY > ((XY_DataSet)func).getMinY())
+				minY = ((XY_DataSet)func).getMinY();
+			if(maxY < ((XY_DataSet)func).getMaxY())
+				maxY = ((XY_DataSet)func).getMaxY();
+		}
+		setUserMinY(minY);
+		setUserMaxY(maxY);
+	}
+
 
 	public int getTickLabelFontSize() {
 		return tickLabelFontSize;

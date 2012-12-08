@@ -2,6 +2,11 @@ package org.opensha.sha.simulators.eqsim_v04;
 
 import java.util.ArrayList;
 
+/**
+ * Event records are ordered such that the first is where the event nucleated
+ * @author field
+ *
+ */
 public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQSIM_Event> {
 	
 	int event_id;			
@@ -15,6 +20,23 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		this.magnitude=eventRecord.getMagnitude();
 		this.time=eventRecord.getTime();
 		this.duration=eventRecord.getDuration();
+	}
+	
+	public String toString() {
+		String info="";
+		info += "event_id="+event_id+"\n";
+		info += "magnitude="+magnitude+"\n";
+		info += "time="+time+"\n";
+		info += "duration="+duration+"\n";
+		info += "getLength()="+getLength()+"\n";
+		info += "getArea()="+getArea()+"\n";
+		info += "size()="+size()+"\n";
+		for(int i=0;i<this.size();i++) {
+			EventRecord evRec = get(i);
+			info += "EventRecord "+i+":\n"+evRec.toString();
+		}
+		
+		return info;
 	}
 	
 	public int compareTo(EQSIM_Event event) {
@@ -177,7 +199,10 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		for(EventRecord evRec:this) area += evRec.getArea();
 		return area;
 	}
-
+	
+	
+	
+	
 	/**
 	 * This returns the event length in meters
 	 * (computed as the sum of (das_hi-das_lo) from event records

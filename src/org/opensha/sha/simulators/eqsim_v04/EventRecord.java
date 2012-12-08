@@ -233,4 +233,21 @@ public class EventRecord {
 		return moment;
 	}
 
+	public String toString() {
+		String info = "";
+		info += "event_id="+event_id+"\n";			
+		info += "magnitude="+magnitude+"\n";			
+		info += "time="+time+"\n";			
+		info += "duration="+duration+"\n";			
+		info += "sectionID="+sectionID+"\n";			
+		info += "depth_lo="+depth_lo+"\n";			
+		info += "depth_hi="+depth_hi+"\n";			
+		info += "das_lo="+das_lo+"\n";			
+		info += "das_hi="+das_hi+"\n";			
+		info += "event_id="+event_id+"\n";			
+		info += "area="+area+"\n";			
+		info += "mean_slip="+mean_slip+"\n";			
+		info += "moment="+moment+"\n";			
+	    return info;
+	}
 }
