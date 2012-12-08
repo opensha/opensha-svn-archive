@@ -475,27 +475,36 @@ public class General_EQSIM_Tools {
 
 	
 	/**
-	 * This tells whether the sqrt(area) of the rupture is greater than 75% 
-	 * of the average down dip width of the fault sections involved.
+	 * This tells whether the given event is a supra-seismogenic rupture.
+	 * If magThresh is not NaN, this returns true if event mag is >= magThresh
+	 * If magThresh is NaN, this returns true sqrt(rupArea) >= aveDownDipWidth of fault
+	 * sections involved (latter may be biased is relatively little of one section
+	 * is utilized)
 	 * @param event
+	 * @param magThresh - set as Double.NaN to use down-dip-width
 	 * @return
 	 */
-	private boolean doesEventRuptureFullDepth(EQSIM_Event event) {
-				
-		// compute average ddw of faults involved
-		double totFltArea = 0;
-		double totFltLength = 0;
-		for(EventRecord evRec:event) {
-			int sectIndex = evRec.getSectionID()-1;
-			totFltLength += lengthForSections.get(sectIndex);
-			totFltArea += areaForSections.get(sectIndex);
-		}
-		double aveFltDDW = totFltArea/totFltLength;
+	private boolean isEventSupraSeismogenic(EQSIM_Event event, double magThresh) {
+		boolean supraSeis = false;
+		if(Double.isNaN(magThresh)) {	// apply sqrt(area) > aveDDW
+			// compute average ddw of faults involved (assumes all of each section is used)
+			double totFltArea = 0;
+			double totFltLength = 0;
+			for(EventRecord evRec:event) {
+				int sectIndex = evRec.getSectionID()-1;
+				totFltLength += lengthForSections.get(sectIndex);
+				totFltArea += areaForSections.get(sectIndex);
+			}
+			double aveFltDDW = totFltArea/totFltLength;
 
-		if(Math.sqrt(event.getArea()) >= 1.2*aveFltDDW)
-			return true;
-		else
-			return false;
+			if(Math.sqrt(event.getArea()) >= aveFltDDW)
+				supraSeis = true;
+		}
+		else {
+			if(event.getMagnitude() >= magThresh)
+				supraSeis = true;
+		}
+		return supraSeis;
 	}
 	
 	
@@ -1242,8 +1251,7 @@ public class General_EQSIM_Tools {
 		int[] numEventsForElement = new int[rectElementsList.size()];
 		for(EQSIM_Event event:eventList) {
 			double eventTime = event.getTime();
-			if(event.hasElementSlipsAndIDs() && doesEventRuptureFullDepth(event)) {  // this didn't work better for eqs.NCA_RSQSim.barall.txt (but had weird events)
-				//				if(event.hasElementSlipsAndIDs() && event.getMagnitude() >= magThresh) {
+			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, magThresh)) {  
 				double[] slips = event.getAllElementSlips();
 				int[] elemIDs = event.getAllElementIDs();
 				int numElements = slips.length;
@@ -1266,411 +1274,395 @@ public class General_EQSIM_Tools {
 		}
 			
 			
-			// reinitialize array
-			for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
+		// reinitialize array
+		for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
 
-			int numBad=0;
-			double minElementArea = Double.MAX_VALUE;
-			double maxElementArea = 0;
-			int counter=-1;
+		int numBad=0;
+		double minElementArea = Double.MAX_VALUE;
+		double maxElementArea = 0;
+		int counter=-1;
 			
-			ArrayList<Double> obsIntervalList = new ArrayList<Double>();
-			ArrayList<Double> tpInterval1List = new ArrayList<Double>();
-			ArrayList<Double> tpInterval2List = new ArrayList<Double>();
-			ArrayList<Double> spInterval1List = new ArrayList<Double>();
-			ArrayList<Double> spInterval2List = new ArrayList<Double>();
-			ArrayList<Double> aveSlipRateList = new ArrayList<Double>();
-			ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
-			ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
-			ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
-			ArrayList<Double> norm_spInterval2List = new ArrayList<Double>();
-			ArrayList<Double> norm_obsIntervalList = new ArrayList<Double>();
-			ArrayList<Double> norm_lastEventSlipList = new ArrayList<Double>();
-			ArrayList<Double> norm_nextEventSlipList = new ArrayList<Double>();
+		ArrayList<Double> obsIntervalList = new ArrayList<Double>();
+		ArrayList<Double> tpInterval1List = new ArrayList<Double>();
+		ArrayList<Double> tpInterval2List = new ArrayList<Double>();
+		ArrayList<Double> spInterval1List = new ArrayList<Double>();
+		ArrayList<Double> spInterval2List = new ArrayList<Double>();
+		ArrayList<Double> aveSlipRateList = new ArrayList<Double>();
+		ArrayList<Double> norm_obsIntervalList = new ArrayList<Double>();	// normalized by long-term RI averaged over all elements
+		ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
+		ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
+		ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
+		ArrayList<Double> norm_spInterval2List = new ArrayList<Double>();
+		ArrayList<Double> norm_lastEventSlipList = new ArrayList<Double>();	// normalized by long-term ave slip over all elements
+		ArrayList<Double> norm_nextEventSlipList = new ArrayList<Double>();	// normalized by long-term ave slip over all elements
+
+		ArrayList<Integer> nucleationSectionList = new ArrayList<Integer>();	// this saves which section each event nucleated on
 			
-			ArrayList<Integer> nucleationSectionList = new ArrayList<Integer>();
+		// these are for an element-specific analysis (e.g., to see if tp and sp are correlated at the element given in the constructor)
+		boolean eventUtilizesTestElement = false;
+		ArrayList<Double> tpInterval2ListForTestElement = new ArrayList<Double>();
+		ArrayList<Double> spInterval2ListForTestElement = new ArrayList<Double>();
 			
-			// these are for an element-specific analysis (e.g., to see if tp and sp are correlated at an element)
-//			Integer testElementID = new Integer(661); MOVED TO CONSTRUCTOR
-			boolean eventUtilizesTestElement = false;
-			ArrayList<Double> tpInterval2ListForTestElement = new ArrayList<Double>();
-			ArrayList<Double> spInterval2ListForTestElement = new ArrayList<Double>();
+		tempInfoString+="Minimum Magnitude Considered for time and slip predicatbility = "+magThresh+"\n";
 			
-			tempInfoString+="Minimum Magnitude Considered for time and slip predicatbility = "+magThresh+"\n";
-			
-			// write file header
-			linesFor_fw_timePred+="counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
+		// write file header
+		linesFor_fw_timePred+="counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
 						"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\tnorm_obsInterval\t"+
 						"aveLastSlip\taveSlip\tnorm_lastEventSlip\tnorm_nextEventSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n";
 			
-			
-			// loop over all events
-			for(EQSIM_Event event:eventList) {
-				double eventTime = event.getTime();
-				
-				if(event.hasElementSlipsAndIDs() && doesEventRuptureFullDepth(event)) {  // this didn't work better for eqs.NCA_RSQSim.barall.txt (but had weird events)
-//				if(event.hasElementSlipsAndIDs() && event.getMagnitude() >= magThresh) {
-					boolean goodSample = true;
-					double eventMag = event.getMagnitude();
-					String sectionsInEventString = new String();
-					double[] slips = event.getAllElementSlips();
-					int[] elemIDs = event.getAllElementIDs();
-					// collect slip and ID data from all event records
-					for(EventRecord evRec: event) {
-						if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
-/*if((evRec.getSectionID()-1) == 61) {
-	System.out.println("eventID="+event.getID()+"\teventMag="+event.getMagnitude()+"\tevRec="+evRec.getID()+"\tevRecSectID="+evRec.getSectionID());
-}*/
-						sectionsInEventString += namesOfSections.get(evRec.getSectionID()-1) + " + ";
+		// loop over all events
+		for(EQSIM_Event event:eventList) {
+			double eventTime = event.getTime();
+
+			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, magThresh)) {  
+				boolean goodSample = true;
+				double eventMag = event.getMagnitude();
+				String sectionsInEventString = new String();
+				double[] slips = event.getAllElementSlips();
+				int[] elemIDs = event.getAllElementIDs();
+				// compile list of sections involved
+				for(EventRecord evRec: event) {
+					if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
+					sectionsInEventString += namesOfSections.get(evRec.getSectionID()-1) + " + ";
+				}
+				// get average date of last event and average predicted date of next
+				double aveLastEvTime=0;
+				double ave_tpNextEvTime=0;
+				double ave_spNextEvTime=0;
+				double aveSlipRate =0;
+				double aveLastSlip =0;
+				double aveEventSlip=0;
+				double aveSlipOverElements=0;	// the average of long-term ave slips
+				double aveElementRI=0;			// the long-term RI averaged over all elements
+				int numElements = slips.length;
+				for(int e=0;e<numElements;e++) {
+					int index = elemIDs[e]-1;  // index = ID-1
+					double lastTime = lastTimeForElement[index];
+					double lastSlip = lastSlipForElement[index];
+					double slipRate = rectElementsList.get(index).getSlipRate();
+					double area = rectElementsList.get(index).getArea();
+					if(area<minElementArea) minElementArea = area;
+					if(area>maxElementArea) maxElementArea = area;
+					aveLastEvTime += lastTime;
+					if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
+						ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+						ave_spNextEvTime += lastTime + slips[e]/(slipRate/SECONDS_PER_YEAR);
 					}
-					// get average date of last event and average predicted date of next
-					double aveLastEvTime=0;
-					double ave_tpNextEvTime=0;
-					double ave_spNextEvTime=0;
-					double aveSlipRate =0;
-					double aveLastSlip =0;
-					double aveEventSlip=0;
-					double aveSlipOverElements=0;
-					double aveElementRI=0;
-					int numElements = slips.length;
-					for(int e=0;e<numElements;e++) {
-						int index = elemIDs[e]-1;  // index = ID-1
-						double lastTime = lastTimeForElement[index];
-						double lastSlip = lastSlipForElement[index];
-						double slipRate = rectElementsList.get(index).getSlipRate();
-						double area = rectElementsList.get(index).getArea();
-						if(area<minElementArea) minElementArea = area;
-						if(area>maxElementArea) maxElementArea = area;
-						aveLastEvTime += lastTime;
-						if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
-							ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
-							ave_spNextEvTime += lastTime + slips[e]/(slipRate/SECONDS_PER_YEAR);
-						}
-						aveSlipRate += slipRate/SECONDS_PER_YEAR;
-						aveLastSlip += lastSlip;
-						aveEventSlip += slips[e];
-						// mark as bad sample if  lastTime is -1
-						if(lastTime==-1){
-							goodSample=false;
-//							System.out.println("time=0 for element"+e+" of event"+eventNum);
-						}
-						aveElementRI += aveRI_ForElement[index];
-						aveSlipOverElements += aveSlipForElement[index];
+					aveSlipRate += slipRate/SECONDS_PER_YEAR;
+					aveLastSlip += lastSlip;
+					aveEventSlip += slips[e];
+					// mark as bad sample if  lastTime is -1
+					if(lastTime==-1){
+						goodSample=false;
+						//							System.out.println("time=0 for element"+e+" of event"+eventNum);
 					}
-					aveLastEvTime /= numElements;
-					ave_tpNextEvTime /= numElements;
-					ave_spNextEvTime /= numElements;
-					aveSlipRate /= numElements;
-					aveLastSlip /= numElements;
-					aveEventSlip /= numElements;
-					aveElementRI /= numElements;
-					aveSlipOverElements /= numElements;
-					double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
-					double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
-					double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
-					double spInterval1 = (ave_spNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
-					double spInterval2 = (aveEventSlip/aveSlipRate)/SECONDS_PER_YEAR;
-					double norm_tpInterval1 = obsInterval/tpInterval1;
-					double norm_tpInterval2 = obsInterval/tpInterval2;
-					double norm_spInterval1 = obsInterval/spInterval1;
-					double norm_spInterval2 = obsInterval/spInterval2;
-					double norm_obsInterval = obsInterval/aveElementRI;
-					double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
-					double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
-					
-					// skip those that have zero aveSlipRate (causes Inf for tpInterval2 &spInterval2)
-					if(aveSlipRate == 0) goodSample = false;
-					
-					// set boolean for whether event utilizes test element
+					aveElementRI += aveRI_ForElement[index];
+					aveSlipOverElements += aveSlipForElement[index];
+				}
+				aveLastEvTime /= numElements;
+				ave_tpNextEvTime /= numElements;
+				ave_spNextEvTime /= numElements;
+				aveSlipRate /= numElements;
+				aveLastSlip /= numElements;
+				aveEventSlip /= numElements;
+				aveElementRI /= numElements;
+				aveSlipOverElements /= numElements;
+				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
+				double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
+				double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
+				double spInterval1 = (ave_spNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
+				double spInterval2 = (aveEventSlip/aveSlipRate)/SECONDS_PER_YEAR;
+				double norm_tpInterval1 = obsInterval/tpInterval1;
+				double norm_tpInterval2 = obsInterval/tpInterval2;
+				double norm_spInterval1 = obsInterval/spInterval1;
+				double norm_spInterval2 = obsInterval/spInterval2;
+				double norm_obsInterval = obsInterval/aveElementRI;
+				double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
+				double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
+
+				// skip those that have zero aveSlipRate (causes Inf for tpInterval2 &spInterval2)
+				if(aveSlipRate == 0) goodSample = false;
+
+				// set boolean for whether event utilizes test element
+				if(testElementID != null) {
+					if(Ints.contains(elemIDs, testElementID))
+						eventUtilizesTestElement=true;
+					else
+						eventUtilizesTestElement=false;
+				}
+
+				if(goodSample) {
+					counter += 1;
+					linesFor_fw_timePred+=counter+"\t"+obsInterval+"\t"+
+					tpInterval1+"\t"+(float)norm_tpInterval1+"\t"+
+					tpInterval2+"\t"+(float)norm_tpInterval2+"\t"+
+					spInterval1+"\t"+(float)norm_spInterval1+"\t"+
+					spInterval2+"\t"+(float)norm_spInterval2+"\t"+
+					(float)norm_obsInterval+"\t"+
+					(float)aveLastSlip+"\t"+(float)aveEventSlip+"\t"+
+					(float)norm_lastEventSlip+"\t"+(float)norm_nextEventSlip+"\t"+
+					(float)eventMag+"\t"+event.getID()+"\t"+
+					event.get(0).getSectionID()+"\t"+
+					event.size()+"\t"+sectionsInEventString+"\n";
+					// save for calculating correlations
+					obsIntervalList.add(obsInterval);
+					tpInterval1List.add(tpInterval1);
+					tpInterval2List.add(tpInterval2);
+					spInterval1List.add(spInterval1);
+					spInterval2List.add(spInterval2);
+					aveSlipRateList.add(aveSlipRate);
+					nucleationSectionList.add(event.get(0).getSectionID());
+					norm_obsIntervalList.add(norm_obsInterval);
+					norm_tpInterval1List.add(norm_tpInterval1);
+					norm_spInterval1List.add(norm_spInterval1);
+					norm_tpInterval2List.add(norm_tpInterval2);
+					norm_spInterval2List.add(norm_spInterval2);
+					norm_lastEventSlipList.add(norm_lastEventSlip);
+					norm_nextEventSlipList.add(norm_nextEventSlip);
+
+					// add to test element list if it's the right element
 					if(testElementID != null) {
-						if(Ints.contains(elemIDs, testElementID))
-							eventUtilizesTestElement=true;
-						else
-							eventUtilizesTestElement=false;
+						if(eventUtilizesTestElement) {
+							tpInterval2ListForTestElement.add(tpInterval2);
+							spInterval2ListForTestElement.add(spInterval2);
+						}						
 					}
 
-					if(goodSample) {
-						counter += 1;
-						linesFor_fw_timePred+=counter+"\t"+obsInterval+"\t"+
-								tpInterval1+"\t"+(float)norm_tpInterval1+"\t"+
-								tpInterval2+"\t"+(float)norm_tpInterval2+"\t"+
-								spInterval1+"\t"+(float)norm_spInterval1+"\t"+
-								spInterval2+"\t"+(float)norm_spInterval2+"\t"+
-								(float)norm_obsInterval+"\t"+
-								(float)aveLastSlip+"\t"+(float)aveEventSlip+"\t"+
-								(float)norm_lastEventSlip+"\t"+(float)norm_nextEventSlip+"\t"+
-								(float)eventMag+"\t"+event.getID()+"\t"+
-								event.get(0).getSectionID()+"\t"+
-								event.size()+"\t"+sectionsInEventString+"\n";
-						// save for calculating correlations
-						obsIntervalList.add(obsInterval);
-						tpInterval1List.add(tpInterval1);
-						tpInterval2List.add(tpInterval2);
-						spInterval1List.add(spInterval1);
-						spInterval2List.add(spInterval2);
-						aveSlipRateList.add(aveSlipRate);
-						nucleationSectionList.add(event.get(0).getSectionID());
-						norm_tpInterval1List.add(norm_tpInterval1);
-						norm_spInterval1List.add(norm_spInterval1);
-						norm_tpInterval2List.add(norm_tpInterval2);
-						norm_spInterval2List.add(norm_spInterval2);
-						norm_obsIntervalList.add(norm_obsInterval);
-						norm_lastEventSlipList.add(norm_lastEventSlip);
-						norm_nextEventSlipList.add(norm_nextEventSlip);
-						
-						// add to test element list if it's the right element
-						if(testElementID != null) {
-							if(eventUtilizesTestElement) {
-								tpInterval2ListForTestElement.add(tpInterval2);
-								spInterval2ListForTestElement.add(spInterval2);
-							}						
-						}
-						
-						if(obsInterval<1.0) { // less then one year
-							String str = "Short Interval ("+obsInterval+" yrs) for eventID="+event.getID()+
-											"; mag="+(float)eventMag+"; timeYrs="+(float)event.getTimeInYears()+"\n";
-							tempInfoString += str;
-							System.out.println(str);
-						}
-
-						
-					}
-					else {
-//						System.out.println("event "+ eventNum+" is bad");
-						numBad += 1;
+					if(obsInterval<1.0) { // less then one year
+						String str = "Short Interval (<1yr):\t"+obsInterval+" yrs) for eventID="+event.getID()+
+						"; mag="+(float)eventMag+"; timeYrs="+(float)event.getTimeInYears()+"\n";
+						tempInfoString += str;
 					}
 
-					// now fill in the last event data for next time
-					for(int e=0;e<numElements;e++) {
-						int index = elemIDs[e]-1;
-						lastTimeForElement[index] = eventTime;
-						lastSlipForElement[index] = slips[e];
-					}
+
+				}
+				else {
+//					System.out.println("event "+ eventNum+" is bad");
+					numBad += 1;
+				}
+
+				// now fill in the last event data for next time
+				for(int e=0;e<numElements;e++) {
+					int index = elemIDs[e]-1;
+					lastTimeForElement[index] = eventTime;
+					lastSlipForElement[index] = slips[e];
 				}
 			}
-			
-			// plot the normalized distributions and best fits
-			HeadlessGraphPanel plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
-			HeadlessGraphPanel plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
-			HeadlessGraphPanel plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
-			HeadlessGraphPanel plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
-			HeadlessGraphPanel plot5 = plotNormRI_Distribution(norm_obsIntervalList, "Normalized Obs to Ave Element RI (norm_obsIntervalList)");			
+		}
+
+		// plot the normalized distributions and best fits
+		HeadlessGraphPanel plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
+		HeadlessGraphPanel plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
+		HeadlessGraphPanel plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
+		HeadlessGraphPanel plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
+		HeadlessGraphPanel plot5 = plotNormRI_Distribution(norm_obsIntervalList, "Normalized Obs to Ave Element RI (norm_obsIntervalList)");			
+		HeadlessGraphPanel plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");			
+		if(saveStuff) {
+			try {
+				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
+				plot2.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval1_Dist.pdf");
+				plot3.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
+				plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
+				plot5.saveAsPDF(dirNameForSavingFiles+"/norm_obsInterval_Dist.pdf");
+				plot6.saveAsPDF(dirNameForSavingFiles+"/norm_aveSlip_Dist.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		// Print correlations for "observed" and predicted intervals
+		double[] result;
+		tempInfoString +="\nCorrelations (and chance it's random) between all Observed and Predicted Intervals (these are deceiving!):\n";
+		result = this.getCorrelationAndP_Value(tpInterval1List, obsIntervalList);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 (num pts ="+tpInterval1List.size()+")\n";
+		result = this.getCorrelationAndP_Value(tpInterval2List, obsIntervalList);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 (num pts ="+tpInterval2List.size()+")\n";
+		result = this.getCorrelationAndP_Value(spInterval1List, obsIntervalList);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for spInterval1 (num pts ="+spInterval1List.size()+")\n";
+		result = this.getCorrelationAndP_Value(spInterval2List, obsIntervalList);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for spInterval2 (num pts ="+spInterval2List.size()+")\n";
+		result = this.getCorrelationAndP_Value(norm_lastEventSlipList, norm_obsIntervalList);
+		
+		tempInfoString +="\nCorrelations (and chance it's random) for true time and slip predictability tests:\n";
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for norm_lastEventSlip vs norm_obsInterval (num pts ="+norm_lastEventSlipList.size()+")\n";
+		result = this.getCorrelationAndP_Value(norm_nextEventSlipList, norm_obsIntervalList);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for norm_nextEventSlip vs norm_obsInterval (num pts ="+norm_nextEventSlipList.size()+")\n";
+
+		// Print correlations between time-pred. and slip-pred. intervals
+		tempInfoString +="\nCorrelations (and chance it's random) between all Predicted Intervals:\n";
+		result = this.getCorrelationAndP_Value(tpInterval1List, spInterval1List);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 vs spInterval1List (num pts ="+tpInterval1List.size()+")\n";
+		result = this.getCorrelationAndP_Value(tpInterval2List, spInterval2List);
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2List.size()+")\n";
+
+		// plot normalized obs vs last slip correlation
+		result = getCorrelationAndP_Value(norm_lastEventSlipList, norm_obsIntervalList);
+		String info1 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_obsIntervalList vs norm_lastEventSlipList \n";
+		DefaultXY_DataSet xy_data1 = new DefaultXY_DataSet(norm_lastEventSlipList, norm_obsIntervalList);
+		xy_data1.setName("norm_obsIntervalList vs norm_lastEventSlipList");
+		xy_data1.setInfo(info1);
+		GraphiWindowAPI_Impl graph1 = new GraphiWindowAPI_Impl(xy_data1, "Norm Obs RI vs Norm Last Slip");   
+		graph1.setX_AxisLabel("Normalized Last-Event Slip");
+		graph1.setY_AxisLabel("Normalized Recurrence Interval");
+		graph1.setAllLineTypes(null, PlotSymbol.CROSS);
+		graph1.setAxisRange(0.1, 10, 0.1, 10);
+		graph1.setYLog(true);
+		graph1.setXLog(true);
+		if(saveStuff) {
+			try {
+				graph1.saveAsPDF(dirNameForSavingFiles+"/normObsRI_vsNormLastSlip.pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// plot normalized obs vs next slip correlation
+		result = getCorrelationAndP_Value(norm_nextEventSlipList, norm_obsIntervalList);
+		String info2 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_obsIntervalList vs norm_nextEventSlipList \n";
+		DefaultXY_DataSet xy_data2 = new DefaultXY_DataSet(norm_nextEventSlipList, norm_obsIntervalList);
+		xy_data2.setName("norm_obsIntervalList vs norm_nextEventSlipList");
+		xy_data2.setInfo(info2);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(xy_data2, "Norm Obs RI vs Norm Next Slip");   
+		graph2.setX_AxisLabel("Normalized Next-Event Slip");
+		graph2.setY_AxisLabel("Normalized Recurrence Interval");
+		graph2.setAllLineTypes(null, PlotSymbol.CROSS);
+		graph2.setAxisRange(0.1, 10, 0.1, 10);
+		graph2.setYLog(true);
+		graph2.setXLog(true);
+		if(saveStuff) {
+			try {
+				graph2.saveAsPDF(dirNameForSavingFiles+"/normObsRI_vsNormNextSlip.pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// now do correlations for each section
+		tempInfoString +="\nCorrelations (and chance it's random) between Observed-tpInterval2 & tpInterval2-spInterval2 by Section:\n";
+		ArrayList<DefaultXY_DataSet> obs_tp2_funcs = new ArrayList<DefaultXY_DataSet>();
+		HashMap<Integer,DefaultXY_DataSet> obs_tp2_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
+		for(int s=0;s<namesOfSections.size();s++) {
+			ArrayList<Double> obsVals = new ArrayList<Double>();
+			ArrayList<Double> tpVals = new ArrayList<Double>();
+			ArrayList<Double> spVals = new ArrayList<Double>();
+			for(int i=0;i<obsIntervalList.size();i++) {
+				if(nucleationSectionList.get(i).intValue() == s+1) {
+					obsVals.add(obsIntervalList.get(i));
+					tpVals.add(tpInterval2List.get(i));
+					spVals.add(spInterval2List.get(i));
+				}
+			}
+			if(obsVals.size()>2) {
+				result = this.getCorrelationAndP_Value(obsVals, tpVals);
+				double[] result2 = this.getCorrelationAndP_Value(tpVals, spVals);
+				String info = "\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+")\t"+(float)result2[0]+
+				"\t("+(float)result2[1]+")\tfor section "+namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
+				tempInfoString +=info;
+				// make XY data for plot
+				DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpVals,obsVals);
+				xy_data.setName(namesOfSections.get(s));
+				xy_data.setInfo(info);
+				obs_tp2_funcs.add(xy_data);
+				obs_tp2_funcsMap.put(s, xy_data);
+
+			}
+			else
+				tempInfoString +="\t"+(s+1)+"\tNaN\t\t\t\t\t\t\t\t"+
+				namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
+		}
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(obs_tp2_funcs, "Obs vs Time-Pred RIs");   
+		graph.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
+		graph.setY_AxisLabel("Observed RI (years)");
+		graph.setAllLineTypes(null, PlotSymbol.CROSS);
+		graph.setYLog(true);
+		graph.setXLog(true);
+		if(saveStuff) {
+			try {
+				graph.saveAsPDF(dirNameForSavingFiles+"/obsVersusTimePred2_RIs.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+		// print and plot the test element correlations
+		if(testElementID != null) {
+			tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
+			result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
+			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
+			ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
+			DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
+			obs_tp1_funcsForTestElement.add(xy_data);
+			GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
+			graph3.setX_AxisLabel("Time-Pred RI (years)");
+			graph3.setY_AxisLabel("Slip-Pred RI (years)");
+			graph3.setAllLineTypes(null, PlotSymbol.CROSS);
+			graph3.setYLog(true);
+			graph3.setXLog(true);	
 			if(saveStuff) {
 				try {
-					plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
-					plot2.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval1_Dist.pdf");
-					plot3.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
-					plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
-					plot5.saveAsPDF(dirNameForSavingFiles+"/norm_obsInterval_Dist.pdf");
+					graph3.saveAsPDF(dirNameForSavingFiles+"/slipVersusTimePred2_RI_AtElemID"+testElementID+".pdf");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			
-			// Print correlations for "observed" and predicted intervals
-			double[] result;
-			tempInfoString +="\nCorrelations (and chance it's random) between all Observed and Predicted Intervals:\n";
-			result = this.getCorrelationAndP_Value(tpInterval1List, obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 (num pts ="+tpInterval1List.size()+")\n";
-			result = this.getCorrelationAndP_Value(tpInterval2List, obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 (num pts ="+tpInterval2List.size()+")\n";
-			result = this.getCorrelationAndP_Value(spInterval1List, obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for spInterval1 (num pts ="+spInterval1List.size()+")\n";
-			result = this.getCorrelationAndP_Value(spInterval2List, obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for spInterval2 (num pts ="+spInterval2List.size()+")\n";
-			result = this.getCorrelationAndP_Value(norm_lastEventSlipList, norm_obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for norm_lastEventSlip vs norm_obsInterval (num pts ="+norm_lastEventSlipList.size()+")\n";
-			result = this.getCorrelationAndP_Value(norm_nextEventSlipList, norm_obsIntervalList);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for norm_nextEventSlip vs norm_obsInterval (num pts ="+norm_nextEventSlipList.size()+")\n";
+		}
 
 
-			// Print correlations between time-pred. and slip-pred. intervals
-			tempInfoString +="\nCorrelations (and chance it's random) between all Predicted Intervals:\n";
-			result = this.getCorrelationAndP_Value(tpInterval1List, spInterval1List);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 vs spInterval1List (num pts ="+tpInterval1List.size()+")\n";
-			result = this.getCorrelationAndP_Value(tpInterval2List, spInterval2List);
-			tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2List.size()+")\n";
+		// Make the norm TP RI histogram and scatter plot for each section
+		if(plotSectionResults) {
+			String subDir = "sectionPlots";
+			File file1 = new File(dirNameForSavingFiles,subDir);
+			file1.mkdirs();
 
-			// plot normalized obs vs last slip correlation
-			result = this.getCorrelationAndP_Value(norm_lastEventSlipList, norm_obsIntervalList);
-			String info1 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_obsIntervalList vs norm_lastEventSlipList \n";
-			DefaultXY_DataSet xy_data1 = new DefaultXY_DataSet(norm_lastEventSlipList, norm_obsIntervalList);
-			xy_data1.setName("norm_obsIntervalList vs norm_lastEventSlipList");
-			xy_data1.setInfo(info1);
-			GraphiWindowAPI_Impl graph1 = new GraphiWindowAPI_Impl(xy_data1, "Norm Obs RI vs Norm Last Slip");   
-			graph1.setX_AxisLabel("Normalized Last-Event Slip");
-			graph1.setY_AxisLabel("Normalized Recurrence Interval");
-			graph1.setAllLineTypes(null, PlotSymbol.CROSS);
-			graph1.setAxisRange(0.1, 10, 0.1, 10);
-			graph1.setYLog(true);
-			graph1.setXLog(true);
-			if(saveStuff) {
-				try {
-					graph1.saveAsPDF(dirNameForSavingFiles+"/normObsRI_vsNormLastSlip.pdf");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			// plot normalized obs vs next slip correlation
-			result = this.getCorrelationAndP_Value(norm_nextEventSlipList, norm_obsIntervalList);
-			String info2 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_obsIntervalList vs norm_nextEventSlipList \n";
-			DefaultXY_DataSet xy_data2 = new DefaultXY_DataSet(norm_nextEventSlipList, norm_obsIntervalList);
-			xy_data2.setName("norm_obsIntervalList vs norm_nextEventSlipList");
-			xy_data2.setInfo(info2);
-			GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(xy_data2, "Norm Obs RI vs Norm Next Slip");   
-			graph2.setX_AxisLabel("Normalized Next-Event Slip");
-			graph2.setY_AxisLabel("Normalized Recurrence Interval");
-			graph2.setAllLineTypes(null, PlotSymbol.CROSS);
-			graph2.setAxisRange(0.1, 10, 0.1, 10);
-			graph2.setYLog(true);
-			graph2.setXLog(true);
-			if(saveStuff) {
-				try {
-					graph2.saveAsPDF(dirNameForSavingFiles+"/normObsRI_vsNormNextSlip.pdf");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-
-
-			
-			// now do correlations for each section
-			tempInfoString +="\nCorrelations (and chance it's random) between Observed-tpInterval2 & tpInterval2-spInterval2 by Section:\n";
-			ArrayList<DefaultXY_DataSet> obs_tp2_funcs = new ArrayList<DefaultXY_DataSet>();
-			HashMap<Integer,DefaultXY_DataSet> obs_tp2_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
 			for(int s=0;s<namesOfSections.size();s++) {
-				ArrayList<Double> obsVals = new ArrayList<Double>();
-				ArrayList<Double> tpVals = new ArrayList<Double>();
-				ArrayList<Double> spVals = new ArrayList<Double>();
-				for(int i=0;i<obsIntervalList.size();i++) {
-					if(nucleationSectionList.get(i).intValue() == s+1) {
-						obsVals.add(obsIntervalList.get(i));
-						tpVals.add(tpInterval2List.get(i));
-						spVals.add(spInterval2List.get(i));
+//				System.out.println("Working on "+s+"\t"+namesOfSections.get(s));
+				ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
+				for(int i=0; i<norm_tpInterval2List.size();i++) {
+					if(nucleationSectionList.get(i) == (s+1)) { // does section ID correspond to section index
+						sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
 					}
 				}
-				if(obsVals.size()>2) {
-					result = this.getCorrelationAndP_Value(obsVals, tpVals);
-					double[] result2 = this.getCorrelationAndP_Value(tpVals, spVals);
-					String info = "\t"+(s+1)+"\t"+(float)result[0]+"\t("+(float)result[1]+")\t"+(float)result2[0]+
-						"\t("+(float)result2[1]+")\tfor section "+namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
-					tempInfoString +=info;
-					// make XY data for plot
-					DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpVals,obsVals);
-					xy_data.setName(namesOfSections.get(s));
-					xy_data.setInfo(info);
-					obs_tp2_funcs.add(xy_data);
-					obs_tp2_funcsMap.put(s, xy_data);
+				if(sectNorm_tpInterval2List.size()>25){	// only do it if there are more than 25 data pointns
+					// Plot RI PDF
+					String plotTitle8 = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
+					HeadlessGraphPanel plot8 = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle8);
 
-				}
-				else
-					tempInfoString +="\t"+(s+1)+"\tNaN\t\t\t\t\t\t\t\t"+
-							namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
-			}
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(obs_tp2_funcs, "Obs vs Time-Pred RIs");   
-			graph.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
-			graph.setY_AxisLabel("Observed RI (years)");
-			graph.setAllLineTypes(null, PlotSymbol.CROSS);
-			graph.setYLog(true);
-			graph.setXLog(true);
-			if(saveStuff) {
-				try {
-					graph.saveAsPDF(dirNameForSavingFiles+"/obsVersusTimePred2_RIs.pdf");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			
-			// print and plot the test element correlations
-			if(testElementID != null) {
-				tempInfoString +="\nCorrelations (and chance it's random) between Predicted Intervals That Involve Element ID="+testElementID+":\n";
-				result = getCorrelationAndP_Value(tpInterval2ListForTestElement, spInterval2ListForTestElement);
-				tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2ListForTestElement.size()+")\n";
-				ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
-				DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
-				obs_tp1_funcsForTestElement.add(xy_data);
-				GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
-				graph3.setX_AxisLabel("Time-Pred RI (years)");
-				graph3.setY_AxisLabel("Slip-Pred RI (years)");
-				graph3.setAllLineTypes(null, PlotSymbol.CROSS);
-				graph3.setYLog(true);
-				graph3.setXLog(true);	
-				if(saveStuff) {
-					try {
-						graph3.saveAsPDF(dirNameForSavingFiles+"/slipVersusTimePred2_RI_AtElemID"+testElementID+".pdf");
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			
-			
-			// Make the norm RI plot for each section
-			if(plotSectionResults) {
-				String subDir = "sectionPlots";
-				File file1 = new File(dirNameForSavingFiles,subDir);
-				file1.mkdirs();
-
-				for(int s=0;s<namesOfSections.size();s++) {
-					//					for(int s=0;s<1;s++) {  // only do first one for now
-					System.out.println("Working on "+s+"\t"+namesOfSections.get(s));
-					ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
-					for(int i=0; i<norm_tpInterval2List.size();i++) {
-						if(nucleationSectionList.get(i) == (s+1)) { // does section ID correspond to section index
-							sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
+					// plot obs vs predicted scatter plot
+					String plotTitle7 = "Obs vs Time-Pred RIs for "+namesOfSections.get(s);
+					HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
+					ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
+					tempList.add(obs_tp2_funcsMap.get(s));
+					ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+					curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
+					//						plot7.setUserBounds(10, 10000, 10, 10000);
+					plot7.setXLog(true);
+					plot7.setYLog(true);
+					plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
+					plot7.getCartPanel().setSize(1000, 800);
+					if(saveStuff) {
+						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/norm_tpInterval2_Dist_forSect"+s+".pdf";
+						String fileName7 = dirNameForSavingFiles+"/"+subDir+"/obsVsTimePred_RI_forSect"+s+".pdf";
+						try {
+							plot8.saveAsPDF(fileName8);
+							plot7.saveAsPDF(fileName7);
+							//								plot7.saveAsPNG(fileName7);
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-					}
-					if(sectNorm_tpInterval2List.size()>25){
-						// Plot RI PDF
-						String plotTitle6 = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
-						HeadlessGraphPanel plot6 = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle6);
-						
-						// plot obs vs predicted scatter plot
-						String plotTitle7 = "Obs vs Time-Pred RIs for "+namesOfSections.get(s);
-						HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
-						ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
-						tempList.add(obs_tp2_funcsMap.get(s));
-						ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-						curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
-//						plot7.setUserBounds(10, 10000, 10, 10000);
-						plot7.setXLog(true);
-						plot7.setYLog(true);
-						plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
-						plot7.getCartPanel().setSize(1000, 800);
-
-//						GraphiWindowAPI_Impl plot7 = new GraphiWindowAPI_Impl(obs_tp2_funcs.get(s), plotTitle7);   
-//						plot7.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
-//						plot7.setY_AxisLabel("Observed RI (years)");
-//						plot7.setAllLineTypes(null, PlotSymbol.CROSS);
-//						plot7.setYLog(true);
-//						plot7.setXLog(true);
-
-						if(saveStuff) {
-							String fileName6 = dirNameForSavingFiles+"/"+subDir+"/norm_tpInterval2_Dist_forSect"+s+".pdf";
-							String fileName7 = dirNameForSavingFiles+"/"+subDir+"/obsVsTimePred_RI_forSect"+s+".pdf";
-							try {
-								plot6.saveAsPDF(fileName6);
-								plot7.saveAsPDF(fileName7);
-//								plot7.saveAsPNG(fileName7);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}			
-					}
+					}			
 				}
 			}
+		}
 
 
-			tempInfoString +="\n"+numBad+" events were bad\n";
-			
-			tempInfoString +="minElementArea="+(float)minElementArea+"\tmaxElementArea"+(float)maxElementArea+"\n";
-			
+		tempInfoString +="\n"+numBad+" events were bad (e.g., no previous event time because it was first)\n";
+
+		tempInfoString +="minElementArea="+(float)minElementArea+"\tmaxElementArea"+(float)maxElementArea+"\n";
+
 		try {
 			if(saveStuff) {
 				FileWriter fw_timePred = new FileWriter(dirNameForSavingFiles+"/TimePredTestData.txt");
@@ -1681,12 +1673,12 @@ public class General_EQSIM_Tools {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		System.out.println(tempInfoString);
 		return tempInfoString;
 
 	}
-	
+
 	
 	/**
 	 * This computes the correlation coefficient and the p-value between the two lists.  
@@ -2285,7 +2277,7 @@ public class General_EQSIM_Tools {
 		for(EQSIM_Event event:eventList) {
 			double mag = event.getMagnitude();
 			if(mag<4) continue;
-			if(doesEventRuptureFullDepth(event)) {
+			if(isEventSupraSeismogenic(event, Double.NaN)) {
 				if(mag<minMagThatDoes) {
 					minMagThatDoes=mag;
 					eventID_forMin=event.getID();
