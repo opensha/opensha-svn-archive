@@ -3,9 +3,11 @@ package scratch.peter.curves;
 import static org.opensha.nshmp2.util.Period.GM0P00;
 import static org.opensha.nshmp.NEHRP_TestCity.*;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -13,8 +15,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.calc.UC3_CalcDriver;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.NSHMP08_WUS_Grid;
 import org.opensha.nshmp2.util.Period;
@@ -46,13 +50,21 @@ class RTGM_ListGenerator {
 //	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
 //	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
 	private static Period[] periods = { Period.GM0P00, Period.GM0P20, Period.GM1P00};
-	private static Collection<NEHRP_TestCity> cities;
+	private static Map<String, Location> locMap;
+//	private static String sitePath = "tmp/UC3sites/NEHRPsites.txt";
+//	private static String sitePath = "tmp/UC3sites/PBRsites.txt";
+	private static String sitePath = "tmp/UC3sites/SRPsites.txt";
 	
 	static {
 //		cities = EnumSet.of(LOS_ANGELES, VENTURA);
-		cities = NEHRP_TestCity.getCA();
+//		locMap = NEHRP_TestCity.asMap();
 //		cities = NEHRP_TestCity.getShortListCA();
 //		cities = Sets.difference(NEHRP_TestCity.getCA(), NEHRP_TestCity.getShortListCA());
+		try {
+			locMap = UC3_CalcDriver.readSiteFile(sitePath);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -69,11 +81,11 @@ class RTGM_ListGenerator {
 			int threadCt = Runtime.getRuntime().availableProcessors();
 			ExecutorService ex = Executors.newFixedThreadPool(threadCt);
 			for (Period period : periods) {
-				for (NEHRP_TestCity loc : cities) {
+				for (String locName : locMap.keySet()) {
 					ScalarIMR imr = newIMR(period);
 					EpistemicListERF erfs = newERF();
 					RTGM_ListProcessor proc = new RTGM_ListProcessor(imr, erfs,
-						loc, period, OUT_DIR);
+						locName, locMap.get(locName), period, OUT_DIR);
 					ex.submit(proc);
 //					proc.run();
 				}

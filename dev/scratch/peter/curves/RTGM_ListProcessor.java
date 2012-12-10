@@ -17,15 +17,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.SiteTypeParam;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sra.rtgm.RTGM;
 
 import com.google.common.base.Joiner;
@@ -43,7 +49,8 @@ class RTGM_ListProcessor implements Runnable {
 
 	private ScalarIMR imr;
 	private EpistemicListERF erfs;
-	private NEHRP_TestCity loc;
+	private String name;
+	private Location loc;
 	private Period per;
 	private Site site;
 	
@@ -56,16 +63,17 @@ class RTGM_ListProcessor implements Runnable {
 	private List<List<String>> paramData;
 	private List<List<String>> curveData;
 
-	RTGM_ListProcessor(ScalarIMR imr, EpistemicListERF erfs, NEHRP_TestCity loc,
-		Period per, String outDir) {
+	RTGM_ListProcessor(ScalarIMR imr, EpistemicListERF erfs, String name,
+		Location loc, Period per, String outDir) {
 		this.outDir = outDir;
 		
 //		checkArgument(per.equals(Period.GM0P20) || per.equals(Period.GM1P00));
 		this.imr = imr;
 		this.erfs = erfs;
 		this.loc = loc;
+		this.name = name;
 		this.per = per;
-		site = loc.getSite();
+		site = initSite(loc);
 	}
 
 	@Override
@@ -146,7 +154,7 @@ class RTGM_ListProcessor implements Runnable {
 	}
 
 	private void writeFiles() {
-		String outDirName = outDir + S + per + S + loc.name() + S;
+		String outDirName = outDir + S + per + S + name + S;
 		File outDir = new File(outDirName);
 		outDir.mkdirs();
 		String paramFile = outDirName +  imr.getShortName() + "_params.csv";
@@ -172,7 +180,7 @@ class RTGM_ListProcessor implements Runnable {
 	
 	@Override
 	public String toString() {
-		return "  " + imr.getShortName() + " " + per + " " + loc.name();
+		return "  " + imr.getShortName() + " " + per + " " + name;
 	}
 	
 	
@@ -244,5 +252,35 @@ class RTGM_ListProcessor implements Runnable {
 		System.out.println("HEADER: " + R + header);
 	}
 	
+	private static Site initSite(Location loc) {
+		
+		Site s = new Site(loc);
+		
+		// CY AS
+		DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
+			0, 1000, true);
+		d10p.setValueAsDefault();
+		s.addParameter(d10p);
+		// CB
+		DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
+			0, 1000, true);
+		d25p.setValueAsDefault();
+		s.addParameter(d25p);
+		// all
+		Vs30_Param vs30p = new Vs30_Param(760);
+		vs30p.setValueAsDefault();
+		s.addParameter(vs30p);
+		// AS CY
+		Vs30_TypeParam vs30tp = new Vs30_TypeParam();
+		vs30tp.setValueAsDefault();
+		s.addParameter(vs30tp);
+		
+		// CEUS only (TODO imrs need to be changed to accept vs value)
+		SiteTypeParam siteTypeParam = new SiteTypeParam();
+		s.addParameter(siteTypeParam);
+		
+		return s;
+	}
+
 
 }
