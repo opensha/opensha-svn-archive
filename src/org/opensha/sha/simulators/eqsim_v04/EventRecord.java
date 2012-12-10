@@ -63,8 +63,16 @@ public class EventRecord {
 	    this.depth_hi = Double.parseDouble(tok.nextToken()); 
 	    this.das_lo = Double.parseDouble(tok.nextToken());
 	    this.das_hi = Double.parseDouble(tok.nextToken());
-	    this.hypo_depth = Double.parseDouble(tok.nextToken());
-	    this.hypo_das = Double.parseDouble(tok.nextToken());
+//	    try {
+			this.hypo_depth = Double.parseDouble(tok.nextToken());	// some models don't have this
+//		} catch (NumberFormatException e1) {
+//			this.hypo_depth = Double.NaN;
+//		}
+//	    try {
+			this.hypo_das = Double.parseDouble(tok.nextToken());	// some models don't have this
+//		} catch (NumberFormatException e1) {
+//			this.hypo_das = Double.NaN;
+//		}
 	    this.area = Double.parseDouble(tok.nextToken());
 	    this.mean_slip = Double.parseDouble(tok.nextToken());
 	    this.moment = Double.parseDouble(tok.nextToken());
