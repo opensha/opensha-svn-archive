@@ -46,20 +46,17 @@ import com.google.common.collect.Sets;
  */
 class RTGM_ListGenerator {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeIndep";
+	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UCERF2-TimeIndepSRP";
 //	private static AttenRelRef[] imrRefs = { AttenRelRef.NSHMP_2008 };
 //	private static Period[] periods = { Period.GM0P20, Period.GM1P00 };
 	private static Period[] periods = { Period.GM0P00, Period.GM0P20, Period.GM1P00};
 	private static Map<String, Location> locMap;
-//	private static String sitePath = "tmp/UC3sites/NEHRPsites.txt";
-//	private static String sitePath = "tmp/UC3sites/PBRsites.txt";
-	private static String sitePath = "tmp/UC3sites/SRPsites.txt";
+	private static String sitePath;
 	
 	static {
-//		cities = EnumSet.of(LOS_ANGELES, VENTURA);
-//		locMap = NEHRP_TestCity.asMap();
-//		cities = NEHRP_TestCity.getShortListCA();
-//		cities = Sets.difference(NEHRP_TestCity.getCA(), NEHRP_TestCity.getShortListCA());
+		// sitePath = "tmp/UC3sites/NEHRPsites.txt";
+		// sitePath = "tmp/UC3sites/PBRsites.txt";
+		sitePath = "tmp/UC3sites/SRPsites.txt";
 		try {
 			locMap = UC3_CalcDriver.readSiteFile(sitePath);
 		} catch (IOException ioe) {

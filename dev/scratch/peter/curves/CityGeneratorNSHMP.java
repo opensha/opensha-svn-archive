@@ -2,9 +2,11 @@ package scratch.peter.curves;
 
 import static org.opensha.nshmp2.util.Period.*;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,8 +14,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.calc.UC3_CalcDriver;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
@@ -42,14 +46,23 @@ import com.google.common.collect.Sets;
  */
 class CityGeneratorNSHMP {
 
-	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/NSHMP_CA_SHA-epi";
+//	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/NSHMP_CA_SHA-epi";
+	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/NSHMP_CA_SHA";
 	private static Period[] periods = { GM0P00, GM0P20, GM1P00 };
-	private static Collection<NEHRP_TestCity> cities;
+	private static Map<String, Location> locMap;
+	private static String sitePath;
 	private static boolean epi = true;
 	
 	static {
-		cities = NEHRP_TestCity.getCA();
-//		cities = EnumSet.of(NEHRP_TestCity.VENTURA);
+		// sitePath = "tmp/curves/sites/NEHRPsites.txt";
+		// sitePath = "tmp/curves/sites/PBRsites.txt";
+		// sitePath = "tmp/curves/sites/SRPsites.txt";
+		sitePath = "tmp/curves/sites/all.txt";
+		try {
+			locMap = UC3_CalcDriver.readSiteFile(sitePath);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -66,7 +79,7 @@ class CityGeneratorNSHMP {
 			System.out.println(erf);
 			for (Period period : periods) {
 //				ScalarIMR imr = newIMR(period);
-				CityProcessorNSHMP proc = new CityProcessorNSHMP(erf, cities,
+				CityProcessorNSHMP proc = new CityProcessorNSHMP(erf, locMap,
 					period, epi, OUT_DIR);
 				ex.submit(proc);
 //				proc.run();

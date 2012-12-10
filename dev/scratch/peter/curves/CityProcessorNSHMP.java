@@ -11,11 +11,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.commons.geo.Location;
 import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.erf.NSHMP2008;
@@ -34,7 +35,7 @@ import com.google.common.collect.Lists;
 class CityProcessorNSHMP implements Runnable {
 
 	private NSHMP2008 erf;
-	private Iterable<NEHRP_TestCity> locs;
+	private Map<String, Location> locMap;
 	private Period per;
 	private boolean epi;
 	private boolean doRTGM = false;
@@ -45,11 +46,11 @@ class CityProcessorNSHMP implements Runnable {
 	
 	private List<List<String>> curveData;
 
-	CityProcessorNSHMP(NSHMP2008 erf, Iterable<NEHRP_TestCity> locs,
+	CityProcessorNSHMP(NSHMP2008 erf, Map<String, Location> locMap,
 		Period per, boolean epi,  String outDir) {
 		this.outDir = outDir;
 		this.erf = erf;
-		this.locs = locs;
+		this.locMap = locMap;
 		this.per = per;
 		this.epi = epi;
 		doRTGM = per == GM1P00 || per == GM0P20;
@@ -59,12 +60,12 @@ class CityProcessorNSHMP implements Runnable {
 	public void run() {
 		System.out.println("Starting: " + toString());
 		init();
-		for (NEHRP_TestCity loc : locs) {
-			Site site = new Site(loc.location());
+		for (String locName : locMap.keySet()) {
+			Site site = new Site(locMap.get(locName));
 			HazardCalc calc = HazardCalc.create(erf, site, per, epi);
 			HazardResult result = calc.call();
-			addResults(loc, result.curve());
-			System.out.println(loc.toString().substring(0, 6) + " " + per);
+			addResults(locName, result.curve());
+			System.out.println(locName.substring(0, 6) + " " + per);
 		}
 		writeFiles();
 		System.out.println("Finished: " + toString());
@@ -78,14 +79,14 @@ class CityProcessorNSHMP implements Runnable {
 		return fOut;
 	}
 	
-	private void addResults(NEHRP_TestCity loc, DiscretizedFunc f) {
+	private void addResults(String name, DiscretizedFunc f) {
 		double pe2in50 = getPE(f, PE2IN50);
 		double pe10in50 = getPE(f, PE10IN50);
 		double rtgm = getRTGM(f);
 		
 		// curve data
 		List<String> curveDat = Lists.newArrayList();
-		curveDat.add(loc.name());
+		curveDat.add(name);
 		curveDat.add(Double.toString(pe2in50));
 		curveDat.add(Double.toString(pe10in50));
 		if (doRTGM) curveDat.add(Double.toString(rtgm));
