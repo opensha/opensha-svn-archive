@@ -122,10 +122,17 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	 * This tells whether the event has data for slip on each element
 	 * @return
 	 */
+//	public boolean hasElementSlipsAndIDs() {	// CHANGED BECAUSE WARD HAS SOME RECORDS THAT HAVE NO SLIPS (MOVED TO OTHER RECORDS?)
+//		boolean hasThem = true;
+//		for (EventRecord evRec : this) {
+//			if(!evRec.hasElementSlipsAndIDs()) hasThem = false;  // false is any event record lacks slips and IDs
+//		}
+//		return hasThem;
+//	}
 	public boolean hasElementSlipsAndIDs() {
-		boolean hasThem = true;
+		boolean hasThem = false;
 		for (EventRecord evRec : this) {
-			if(!evRec.hasElementSlipsAndIDs()) hasThem = false;  // false is any event record lacks slips and IDs
+			if(evRec.hasElementSlipsAndIDs()) hasThem = true;  // true if any event record has slips and IDs
 		}
 		return hasThem;
 	}

@@ -19,18 +19,18 @@ public class simulatorAnalysisUtils {
 	public static void test() {
 		
 		// Set the simulator Geometry file
-//		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
-		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-//		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
-		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 //		File eventFile = new File(simEventFileDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 //		File eventFile = new File(simEventFileDir, "ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat");
-		File eventFile = new File(simEventFileDir, "ALLCAL2-30k-output[3-24-11].converted");
-//		File eventFile = new File(simEventFileDir, "Fred-allcal2-7june11.txt");
+//		File eventFile = new File(simEventFileDir, "ALLCAL2-30k-output[3-24-11].converted");
+		File eventFile = new File(simEventFileDir, "Fred-allcal2-7june11.txt");
 
 				String dirNameForSavingFiles = "tempSimTest";
 
@@ -41,11 +41,12 @@ public class simulatorAnalysisUtils {
 					tools.read_EQSIMv04_EventsFile(eventFile);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
 					
+//					tools.testElementAreas();
 //					tools.printMinAndMaxElementArea();
-					tools.checkElementSlipRates(null, true);
+//					tools.checkElementSlipRates(null, true);
 //					tools.checkEventMagnitudes();
 //					tools.checkFullDDW_rupturing();
-//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, false);
 //					tools.plotNormRecurIntsForAllSurfaceElements(6.0, true);
 					
 //					ArrayList<String> infoStrings = new ArrayList<String>();

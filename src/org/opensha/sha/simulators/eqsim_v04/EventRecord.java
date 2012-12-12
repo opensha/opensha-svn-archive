@@ -53,8 +53,13 @@ public class EventRecord {
 		StringTokenizer tok = new StringTokenizer(fileLine);
 		int kindOfLine = Integer.parseInt(tok.nextToken());
 		if(kindOfLine != 200) throw new RuntimeException("wrong line type");
-		
-		this.event_id = Integer.parseInt(tok.nextToken());
+		String idString = tok.nextToken();
+		try {;
+			this.event_id = Integer.parseInt(idString);
+		} catch (NumberFormatException e2) {
+			// try setting it as a double (some in Ward's file are specified as, for example, "1e+05"
+			this.event_id = (int)Math.round(Double.parseDouble(idString));
+		}
 		this.magnitude = Double.parseDouble(tok.nextToken());
 		this.time = Double.parseDouble(tok.nextToken());
 		this.duration = Double.parseDouble(tok.nextToken());
@@ -63,16 +68,16 @@ public class EventRecord {
 	    this.depth_hi = Double.parseDouble(tok.nextToken()); 
 	    this.das_lo = Double.parseDouble(tok.nextToken());
 	    this.das_hi = Double.parseDouble(tok.nextToken());
-//	    try {
-			this.hypo_depth = Double.parseDouble(tok.nextToken());	// some models don't have this
-//		} catch (NumberFormatException e1) {
-//			this.hypo_depth = Double.NaN;
-//		}
-//	    try {
-			this.hypo_das = Double.parseDouble(tok.nextToken());	// some models don't have this
-//		} catch (NumberFormatException e1) {
-//			this.hypo_das = Double.NaN;
-//		}
+	    try {
+			this.hypo_depth = Double.parseDouble(tok.nextToken());	// some models don't have this (e.g., Ward's)
+		} catch (NumberFormatException e1) {
+			this.hypo_depth = Double.NaN;
+		}
+	    try {
+			this.hypo_das = Double.parseDouble(tok.nextToken());	// some models don't have this (e.g., Ward's)
+		} catch (NumberFormatException e1) {
+			this.hypo_das = Double.NaN;
+		}
 	    this.area = Double.parseDouble(tok.nextToken());
 	    this.mean_slip = Double.parseDouble(tok.nextToken());
 	    this.moment = Double.parseDouble(tok.nextToken());

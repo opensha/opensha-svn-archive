@@ -247,6 +247,13 @@ public class General_EQSIM_Tools {
 				} catch (Exception e) {
 					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
 					line = buffRead.readLine();
+					// skip lines until we get to 200 type line (otherwise 201 lines get mapped to previous event)
+					StringTokenizer tok2 = new StringTokenizer(line);
+					while(Integer.parseInt(tok2.nextToken()) != 200) {
+// System.out.println("\nSkipping: "+ line);
+						line = buffRead.readLine();
+						tok2 = new StringTokenizer(line);						
+					}
 					continue;
 				}
 				numEventRecs+=1;
@@ -528,6 +535,26 @@ public class General_EQSIM_Tools {
 		System.out.println("min element area (km) = "+(float)(min*1e-6));
 		System.out.println("max element area (km) = "+(float)(max*1e-6));
 	}
+	
+	
+	public void testElementAreas() {
+		double min = Double.POSITIVE_INFINITY;
+		double max = Double.NEGATIVE_INFINITY;
+		int el_index = 0;
+		for(RectangularElement re:getElementsList()) {
+			double area1 = re.getArea()*1e-6;
+			if(area1<min) min=area1;
+			if(area1>max) max=area1;
+			double area2 = re.getGriddedSurface().getArea();
+			double ratio = area1/area2;
+			if(ratio >1.01 || ratio < 0.99)
+				System.out.println(el_index+"\t"+ratio+"\t"+area1+"\t"+area2);
+			el_index += 1;
+		}
+		System.out.println("min element area (km) = "+(float)(min*1e-6));
+		System.out.println("max element area (km) = "+(float)(max*1e-6));
+	}
+
 
 	
 	/**
@@ -1123,8 +1150,25 @@ public class General_EQSIM_Tools {
 	}
 	
 	
+	/**
+	 * Note that because some events were filtered out, the index in the returned array list
+	 * is not neccessariy equal to the eventID minus one (getEventsList().get(index).getID()=1 != index).
+	 * @return
+	 */
 	public ArrayList<EQSIM_Event> getEventsList() {
 		return eventList;
+	}
+	
+	/**
+	 * This returns a HashMap of EQSIM_Event objects where the key is the event ID
+	 * @return
+	 */
+	public HashMap<Integer,EQSIM_Event> getEventsHashMap() {
+		HashMap<Integer,EQSIM_Event> map = new HashMap<Integer,EQSIM_Event>();
+		for(EQSIM_Event event:getEventsList()) {
+			map.put(event.getID(), event);
+		}
+		return map;
 	}
 	
 	
@@ -1760,9 +1804,9 @@ public class General_EQSIM_Tools {
 				int numElements = slips.length;
 				for(int e=0;e<numElements;e++) {
 					int index = elemIDs[e]-1;
-					double area = rectElementsList.get(index).getGriddedSurface().getArea();
+					double area = rectElementsList.get(index).getArea();	// given in meters-sq
 					double slip = slips[e]; // this is in meters
-					moment += FaultMomentCalc.getMoment(area*1e6, slip);	// convert area to meters squared
+					moment += FaultMomentCalc.getMoment(area, slip);	// convert area to meters squared
 				}
 				double computedMag = MagUtils.momentToMag(moment);
 				double diff = Math.abs(eventMag-computedMag);
@@ -1843,6 +1887,7 @@ public class General_EQSIM_Tools {
 					int index = elemIDs[e]-1;
 					obsAveSlipRate[index] += slips[e];
 					numEvents[index] += 1;
+// if(index==924) System.out.println(index+"\t"+event.getID()+"\t"+ slips[e]);
 					//						if(eventNum ==3) System.out.println("Test: el_ID="+elementID_List.get(e).intValue()+"\tindex="+index+"\tslip="+slipList.get(e));
 				}
 			}
