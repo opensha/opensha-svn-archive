@@ -38,6 +38,7 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.calc.UC3_CalcDriver;
 import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
@@ -640,11 +641,13 @@ public class CurveUtils {
 	 * specified NEHRP test cities.
 	 */
 
-	public static void generateFortranCityData() {
+	public static void generateFortranCityData() throws IOException {
 		String srcPath = "/Volumes/Scratch/nshmp-sources/FortranUpdate";
 		String outPath = "/Volumes/Scratch/rtgm/FortranUpdate";
 
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		Map<String, Location> siteMap = 
+				UC3_CalcDriver.readSiteFile("tmp/curves/sites/all.txt");
 		Iterable<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(VENTURA);
 
 		for (Period p : periods) {
@@ -652,14 +655,14 @@ public class CurveUtils {
 			File out = new File(outPath + S + p.name() + S + "FORT_curves.csv");
 			try {
 				Files.createParentDirs(out);
-				deriveCityData(cities, src, out, p);
+				deriveCityData(siteMap, src, out, p);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
 		}
 	}
 
-	private static void deriveCityData(Iterable<NEHRP_TestCity> cities,
+	private static void deriveCityData(Map<String, Location> siteMap,
 			File src, File out, Period period) throws IOException {
 
 		// header
@@ -671,13 +674,13 @@ public class CurveUtils {
 
 		// extract data
 		CurveContainer cc = CurveContainer.create(src);
-		for (NEHRP_TestCity city : cities) {
-			Location loc = city.location();
+		for (String siteName : siteMap.keySet()) {
+			Location loc = siteMap.get(siteName);
 			DiscretizedFunc curve = cc.getCurve(loc);
 			double pe2in50 = getPE(curve, PE2IN50);
 			double pe10in50 = getPE(curve, PE10IN50);
 			double rtgm = getRTGM(curve, period);
-			Iterable<String> cityData = createData(city.name(), pe2in50,
+			Iterable<String> cityData = createData(siteName, pe2in50,
 				pe10in50, rtgm, curve);
 			String cityLine = JOIN.join(cityData) + LF;
 			Files.append(cityLine, out, US_ASCII);
