@@ -55,6 +55,13 @@ public class test {
 //			ioe.printStackTrace();
 //		}
 		
+		// Eureka - orig converg runs (little salmon)
+		// Eureka - mean
+		// Eureka - faults only
+		// Palmda - faults only
+		
+		
+		
 		try {
 			String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
 			String sitesPath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt";
