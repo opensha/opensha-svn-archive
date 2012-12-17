@@ -45,11 +45,11 @@ public class UC3_CalcWrapper {
 
 	// public static final String COMPOUND_SOL_PATH =
 	// "/Volumes/Scratch/UC3/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
-//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip ";
-	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip ";
-	 private static final String OUT_DIR =
-	 "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/test";
-//	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/UC3tmp";
+//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
+//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
+//	 private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/test";
+	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/convVar0mean";
 	private static final String S = File.separator;
 
 	UC3_CalcWrapper(String solSetPath, int solIdx, String outDir,
@@ -71,7 +71,11 @@ public class UC3_CalcWrapper {
 
 		} else {
 			AverageFaultSystemSolution afss = getAvgSolution(solSetPath);
-			fss = afss.getSolution(solIdx);
+			if (solIdx == -1) {
+				fss = afss;
+			} else {
+				fss = afss.getSolution(solIdx);
+			}
 			int ssIdx1 = StringUtils.lastIndexOf(solSetPath, "/");
 			int ssIdx2 = StringUtils.lastIndexOf(solSetPath, ".");
 			erfName = solSetPath.substring(ssIdx1, ssIdx2) + "_" + solIdx;
@@ -79,6 +83,7 @@ public class UC3_CalcWrapper {
 		}
 
 		UCERF3_FaultSysSol_ERF erf = getUC3_ERF(fss);
+		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 		LocationList locs = new LocationList();
 		for (Location loc : siteMap.values()) {
@@ -100,26 +105,22 @@ public class UC3_CalcWrapper {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		Period[] periods = { GM0P00, GM0P20, GM1P00 };
 		String solSetPath = COMPOUND_SOL_PATH;
-		int idx = 3;
+		int idx = -1;
 		boolean epiUnc = false;
 
-		
-		Map<String,Location> siteMap = NEHRP_TestCity.asMap();
-		
-		siteMap.clear();
-		NEHRP_TestCity city = NEHRP_TestCity.LOS_ANGELES;
-		siteMap.put(city.name(), city.location());
+		String sitePath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt";
+		Map<String,Location> siteMap = UC3_CalcDriver.readSiteFile(sitePath);
+//		Map<String,Location> siteMap = NEHRP_TestCity.asMap();
+//		siteMap.clear();
+//		NEHRP_TestCity city = NEHRP_TestCity.LOS_ANGELES;
+//		siteMap.put(city.name(), city.location());
 
 		try {
-			Stopwatch sw = new Stopwatch();
-			sw.start();
-			
 			new UC3_CalcWrapper(solSetPath, idx, OUT_DIR, siteMap, periods, epiUnc);
-			System.out.println(sw.stop().elapsedMillis());
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
