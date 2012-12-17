@@ -65,7 +65,7 @@ class CityProcessorNSHMP implements Runnable {
 			HazardCalc calc = HazardCalc.create(erf, site, per, epi);
 			HazardResult result = calc.call();
 			addResults(locName, result.curve());
-			System.out.println(locName.substring(0, 6) + " " + per);
+			System.out.println(locName + " " + per);
 		}
 		writeFiles();
 		System.out.println("Finished: " + toString());

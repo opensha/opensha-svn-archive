@@ -51,7 +51,7 @@ class CityGeneratorNSHMP {
 	private static Period[] periods = { GM0P00, GM0P20, GM1P00 };
 	private static Map<String, Location> locMap;
 	private static String sitePath;
-	private static boolean epi = true;
+	private static boolean epi = false;
 	
 	static {
 		// sitePath = "tmp/curves/sites/NEHRPsites.txt";
@@ -60,6 +60,7 @@ class CityGeneratorNSHMP {
 		sitePath = "tmp/curves/sites/all.txt";
 		try {
 			locMap = UC3_CalcDriver.readSiteFile(sitePath);
+			System.out.println(locMap);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -75,7 +76,7 @@ class CityGeneratorNSHMP {
 			ExecutorService ex = Executors.newFixedThreadPool(periods.length);
 			System.out.println("NumProc: " + numProc);
 			NSHMP2008 erf = newERF();
-			erf.updateForecast();
+//			erf.updateForecast();
 			System.out.println(erf);
 			for (Period period : periods) {
 //				ScalarIMR imr = newIMR(period);
