@@ -124,6 +124,7 @@ public class UC3_CalcDriver {
 		List<String> lines = Files.readLines(f, US_ASCII);
 		Map<String, Location> siteMap = Maps.newHashMap();
 		for (String line : lines) {
+			if (line.startsWith("#")) continue;
 			Iterator<String> it = SPLIT.split(line).iterator();
 			String name = it.next();
 			double lat = Double.parseDouble(it.next());
