@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.EqkProbDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.ExponentialDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
+import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
@@ -195,6 +196,7 @@ ParameterChangeListener{
 		probDistList.add(new BPT_DistCalc());
 		probDistList.add(new LognormalDistCalc());
 		probDistList.add(new ExponentialDistCalc());
+		probDistList.add(new WeibullDistCalc());
 		
 		probDistNames = new ArrayList<String>();
 		for(int i=0; i<probDistList.size(); ++i)

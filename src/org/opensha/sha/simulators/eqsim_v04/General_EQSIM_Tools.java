@@ -42,6 +42,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
+import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -269,6 +270,8 @@ public class General_EQSIM_Tools {
 						currEvent.add(evRec);
 					}
 					else { // it's a new event
+// if(currEvent.getID()==1214) System.out.println(currEvent.getID()+"\t"+currEvent.getAllElementIDs().length);
+
 						EQSIM_Event event = new EQSIM_Event(evRec);
 						eventList.add(event);
 						currEvent = event;
@@ -276,6 +279,7 @@ public class General_EQSIM_Tools {
 				}
 			}
 			else if(kindOfLine ==201) {	// Slip map record
+// if(currEvent.getID()==1214) System.out.println(line);
 				evRec.addSlipAndElementData(line); // add to the last event record created
 			}
 			else if(kindOfLine ==202)
@@ -465,23 +469,6 @@ public class General_EQSIM_Tools {
 		}
 		
 	}
-	
-	/**
-	 * This tells whether any part of the earthquake ruptured more than 66.6% of the down-dip width
-	 * @param event
-	 * @return
-	 */
-	private boolean doesEventRuptureFullDepthOld(EQSIM_Event event) {
-		boolean result = false;
-		for(EventRecord evRec:event) {
-			int sectIndex = evRec.getSectionID()-1;
-			double rupThickness = evRec.getDepthHi()-evRec.getDepthLo();
-			double sectThickness = depthHiForSections.get(sectIndex)-depthLoForSections.get(sectIndex);
-			if(rupThickness > 0.95*sectThickness) result = true;
-		}
-		return result;
-	}
-
 	
 	/**
 	 * This tells whether the given event is a supra-seismogenic rupture.
@@ -1224,7 +1211,7 @@ public class General_EQSIM_Tools {
 		dist.setTolerance(2*delta);
 		int numData=normRI_List.size();
 		for(Double val:normRI_List) {
-//System.out.println(val);
+System.out.println(val);
 			dist.add(val, 1.0/(numData*delta));  // this makes it a true PDF
 		}
 		
@@ -1244,8 +1231,16 @@ public class General_EQSIM_Tools {
 		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitLogNorm_func = logNorm_calc.getPDF();
 		fitLogNorm_func.setName("Best Fit Lognormal Dist");
-		fitLogNorm_func.setInfo("(mean="+(float)bpt_calc.getMean()+", aper="+(float)bpt_calc.getAperiodicity()+")");
+		fitLogNorm_func.setInfo("(mean="+(float)logNorm_calc.getMean()+", aper="+(float)logNorm_calc.getAperiodicity()+")");
 		funcList.add(fitLogNorm_func);
+		
+		// add best-fit Weibull dist function
+		WeibullDistCalc weibull_calc = new WeibullDistCalc();
+		weibull_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
+		EvenlyDiscretizedFunc fitWeibull_func = weibull_calc.getPDF();
+		fitWeibull_func.setName("Best Fit Weibull Dist");
+		fitWeibull_func.setInfo("(mean="+(float)weibull_calc.getMean()+", aper="+(float)weibull_calc.getAperiodicity()+")");
+		funcList.add(fitWeibull_func);
 		
 		// add the histogram created here
 		dist.setName("Recur. Int. Dist");
@@ -1255,6 +1250,7 @@ public class General_EQSIM_Tools {
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		// make plot
@@ -1290,7 +1286,8 @@ public class General_EQSIM_Tools {
 		
 		double[] lastTimeForElement = new double[rectElementsList.size()];
 		double[] lastSlipForElement = new double[rectElementsList.size()];
-		for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=Double.NaN;  // initialize to bogus value so we can check
+		for(int i=0; i<lastTimeForElement.length;i++) 
+			lastTimeForElement[i]=Double.NaN;  // initialize to bogus value so we can check
 
 
 		// first get average RI and ave slip for each element
@@ -1323,7 +1320,8 @@ public class General_EQSIM_Tools {
 			
 			
 		// reinitialize array
-		for(int i=0; i<lastTimeForElement.length;i++) lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
+		for(int i=0; i<lastTimeForElement.length;i++) 
+			lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
 
 		int numBad=0;
 		double minElementArea = Double.MAX_VALUE;
@@ -1336,7 +1334,7 @@ public class General_EQSIM_Tools {
 		ArrayList<Double> spInterval1List = new ArrayList<Double>();
 		ArrayList<Double> spInterval2List = new ArrayList<Double>();
 		ArrayList<Double> aveSlipRateList = new ArrayList<Double>();
-		ArrayList<Double> aveElementInteralList = new ArrayList<Double>();
+		ArrayList<Double> aveElementIntervalList = new ArrayList<Double>();
 		ArrayList<Double> norm_aveElementIntervalList = new ArrayList<Double>();	// normalized by long-term RI averaged over all elements
 		ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
 		ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
@@ -1419,6 +1417,19 @@ public class General_EQSIM_Tools {
 				aveSlipOverElements /= numElements;
 				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
+//if(tpInterval1<0 && goodSample) {
+//	System.out.println("numElements="+numElements);
+//	for(int e=0;e<numElements;e++) {
+//		int index = elemIDs[e]-1;  // index = ID-1
+//		double lastTime = lastTimeForElement[index];
+//		double lastSlip = lastSlipForElement[index];
+//		double slipRate = rectElementsList.get(index).getSlipRate();
+//		System.out.println(elemIDs[e]+"\t"+event.getID()+"\t"+eventMag+"\t"+event.getArea()+"\t"+tpInterval1+"\t"+lastTime+"\t"+lastSlip+"\t"+
+//				slipRate+"\t"+ (lastTime+(lastSlip/slipRate))+"\t"+sectionsInEventString);
+////			ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+//	}
+//	throw new RuntimeException("tpInterval1 is negative") ;
+//}
 				double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
 				double spInterval1 = (ave_spNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double spInterval2 = (aveEventSlip/aveSlipRate)/SECONDS_PER_YEAR;
@@ -1444,16 +1455,16 @@ public class General_EQSIM_Tools {
 				if(goodSample) {
 					counter += 1;
 					linesFor_fw_timePred+=counter+"\t"+obsInterval+"\t"+
-					tpInterval1+"\t"+(float)norm_tpInterval1+"\t"+
-					tpInterval2+"\t"+(float)norm_tpInterval2+"\t"+
-					spInterval1+"\t"+(float)norm_spInterval1+"\t"+
-					spInterval2+"\t"+(float)norm_spInterval2+"\t"+
-					(float)norm_aveElementInterval+"\t"+
-					(float)aveLastSlip+"\t"+(float)aveEventSlip+"\t"+
-					(float)norm_lastEventSlip+"\t"+(float)norm_nextEventSlip+"\t"+
-					(float)eventMag+"\t"+event.getID()+"\t"+
-					event.get(0).getSectionID()+"\t"+
-					event.size()+"\t"+sectionsInEventString+"\n";
+						tpInterval1+"\t"+(float)norm_tpInterval1+"\t"+
+						tpInterval2+"\t"+(float)norm_tpInterval2+"\t"+
+						spInterval1+"\t"+(float)norm_spInterval1+"\t"+
+						spInterval2+"\t"+(float)norm_spInterval2+"\t"+
+						(float)norm_aveElementInterval+"\t"+
+						(float)aveLastSlip+"\t"+(float)aveEventSlip+"\t"+
+						(float)norm_lastEventSlip+"\t"+(float)norm_nextEventSlip+"\t"+
+						(float)eventMag+"\t"+event.getID()+"\t"+
+						event.get(0).getSectionID()+"\t"+
+						event.size()+"\t"+sectionsInEventString+"\n";
 					// save for calculating correlations
 					obsIntervalList.add(obsInterval);
 					tpInterval1List.add(tpInterval1);
@@ -1461,7 +1472,7 @@ public class General_EQSIM_Tools {
 					spInterval1List.add(spInterval1);
 					spInterval2List.add(spInterval2);
 					aveSlipRateList.add(aveSlipRate);
-					aveElementInteralList.add(aveElementInterval);
+					aveElementIntervalList.add(aveElementInterval);
 					nucleationSectionList.add(event.get(0).getSectionID());
 					norm_aveElementIntervalList.add(norm_aveElementInterval);
 					norm_tpInterval1List.add(norm_tpInterval1);
@@ -1524,8 +1535,8 @@ public class General_EQSIM_Tools {
 
 		// Print correlations for "observed" and predicted intervals
 		double[] result;
-		tempInfoString +="\nCorrelations (and chance it's random) between all Observed and Predicted Intervals:\n";
-		result = this.getCorrelationAndP_Value(aveElementInteralList, obsIntervalList);
+		tempInfoString +="\nCorrelations (and chance it's random) between all Observed and Predicted Intervals:\n\n";
+		result = this.getCorrelationAndP_Value(aveElementIntervalList, obsIntervalList);
 		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for aveElementInteral (num pts ="+tpInterval1List.size()+")\n";
 		result = this.getCorrelationAndP_Value(tpInterval1List, obsIntervalList);
 		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 (num pts ="+tpInterval1List.size()+")\n";
@@ -1536,7 +1547,7 @@ public class General_EQSIM_Tools {
 		result = this.getCorrelationAndP_Value(spInterval2List, obsIntervalList);
 		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for spInterval2 (num pts ="+spInterval2List.size()+")\n";
 
-		tempInfoString +="\nCorrelations (and chance it's random) for true time and slip predictability tests:\n";
+		tempInfoString +="\nCorrelations (and chance it's random) for true time and slip predictability tests:\n\n";
 		result = this.getCorrelationAndP_Value(norm_lastEventSlipList, norm_aveElementIntervalList);	
 		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for norm_lastEventSlip vs norm_aveElementInterval (num pts ="+norm_lastEventSlipList.size()+")\n";
 		result = this.getCorrelationAndP_Value(norm_nextEventSlipList, norm_aveElementIntervalList);
@@ -1550,7 +1561,7 @@ public class General_EQSIM_Tools {
 //		result = this.getCorrelationAndP_Value(tpInterval2List, spInterval2List);
 //		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval2 vs spInterval2List (num pts ="+tpInterval2List.size()+")\n";
 
-		// plot normalized obs vs last slip correlation
+		// plot normalized obs interval vs normalized last slip correlation
 		result = getCorrelationAndP_Value(norm_lastEventSlipList, norm_aveElementIntervalList);
 		String info1 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_aveElementIntervalList vs norm_lastEventSlipList \n";
 		DefaultXY_DataSet xy_data1 = new DefaultXY_DataSet(norm_lastEventSlipList, norm_aveElementIntervalList);
@@ -1571,7 +1582,7 @@ public class General_EQSIM_Tools {
 			}
 		}
 
-		// plot normalized obs vs next slip correlation
+		// plot normalized obs interval vs normalized next slip correlation
 		result = getCorrelationAndP_Value(norm_nextEventSlipList, norm_aveElementIntervalList);
 		String info2 = "correlation="+(float)result[0]+"\t("+(float)result[1]+") for norm_aveElementIntervalList vs norm_nextEventSlipList \n";
 		DefaultXY_DataSet xy_data2 = new DefaultXY_DataSet(norm_nextEventSlipList, norm_aveElementIntervalList);
@@ -1593,32 +1604,46 @@ public class General_EQSIM_Tools {
 		}
 
 		// now do correlations for each section (by where it nucleates)
-		tempInfoString +="\nCorrelations (and chance it's random) between Observed-aveElementInterval, Observed-tpInterval2, & Observed-spInterval2 by Section:\n";
+		tempInfoString +="\nCorrelations (and chance it's random) between: Observed & aveElementInterval, Observed & tpInterval2, Observed & spInterval2, normObserved & normAveLastSlip, and normObserved & normAveNextSlip by Section:\n\n";
+		tempInfoString +="\tsectID\taveElRI\tprobRand\ttpInt2\tprobRand\tspInt2\tprobRand\tnormObsVsNormLastSlip\tprobRand\tnormObsVsNormNextSlip\tprobRand\tsectName\tsectID\tnumPts\n";
 		ArrayList<DefaultXY_DataSet> obs_tp2_funcs = new ArrayList<DefaultXY_DataSet>();
 		HashMap<Integer,DefaultXY_DataSet> obs_tp2_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
 		ArrayList<DefaultXY_DataSet> obs_aveElement_funcs = new ArrayList<DefaultXY_DataSet>();
 		HashMap<Integer,DefaultXY_DataSet> obs_aveElement_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
+		ArrayList<DefaultXY_DataSet> normObs_vs_normLastSlip_funcs = new ArrayList<DefaultXY_DataSet>();
+		HashMap<Integer,DefaultXY_DataSet> normObs_vs_normLastSlip_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
+		
 		for(int s=0;s<namesOfSections.size();s++) {
 			ArrayList<Double> obsVals = new ArrayList<Double>();
 			ArrayList<Double> tpVals = new ArrayList<Double>();
 			ArrayList<Double> spVals = new ArrayList<Double>();
 			ArrayList<Double> aveElVals = new ArrayList<Double>();
+			ArrayList<Double> normObsVals = new ArrayList<Double>();
+			ArrayList<Double> normLastSlipVals = new ArrayList<Double>();
+			ArrayList<Double> normNextSlipVals = new ArrayList<Double>();
 			for(int i=0;i<obsIntervalList.size();i++) {
 				if(nucleationSectionList.get(i).intValue() == s+1) {
 					obsVals.add(obsIntervalList.get(i));
 					tpVals.add(tpInterval2List.get(i));
 					spVals.add(spInterval2List.get(i));
-					aveElVals.add(aveElementInteralList.get(i));
+					aveElVals.add(aveElementIntervalList.get(i));
+					normObsVals.add(norm_aveElementIntervalList.get(i));
+					normLastSlipVals.add(norm_lastEventSlipList.get(i));
+					normNextSlipVals.add(norm_nextEventSlipList.get(i));
 				}
 			}
 			if(obsVals.size()>2) {
 				double[] result0 = getCorrelationAndP_Value(obsVals, aveElVals);
 				double[] result1 = getCorrelationAndP_Value(obsVals, tpVals);
 				double[] result2 = getCorrelationAndP_Value(obsVals, spVals);
-				String info = "\t"+(s+1)+"\t"+(float)result0[0]+"\t("+(float)result0[1]+")\t"+
-											  (float)result1[0]+"\t("+(float)result1[1]+")\t"+
-											  (float)result2[0]+"\t("+(float)result2[1]+")\t"+
-											  "for section "+namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
+				double[] result3 = getCorrelationAndP_Value(normObsVals, normLastSlipVals);
+				double[] result4 = getCorrelationAndP_Value(normObsVals, normNextSlipVals);
+				String info = "\t"+(s+1)+"\t"+(float)result0[0]+"\t"+(float)result0[1]+"\t"+
+											  (float)result1[0]+"\t"+(float)result1[1]+"\t"+
+											  (float)result2[0]+"\t"+(float)result2[1]+"\t"+
+											  (float)result3[0]+"\t"+(float)result3[1]+"\t"+
+											  (float)result4[0]+"\t"+(float)result4[1]+"\t"+
+											  namesOfSections.get(s)+"\t"+(s+1)+"\t"+obsVals.size()+"\n";
 				tempInfoString +=info;
 				
 				// make XY data for plot
@@ -1633,6 +1658,12 @@ public class General_EQSIM_Tools {
 				xy_data.setInfo("sectID = "+(s+1)+"\tcorr = "+(float)result1[0]+"\t("+(float)result1[1]+")\t");
 				obs_tp2_funcs.add(xy_data);
 				obs_tp2_funcsMap.put(s, xy_data);
+				
+				DefaultXY_DataSet xy_data5 = new DefaultXY_DataSet(normLastSlipVals,normObsVals);
+				xy_data5.setName(namesOfSections.get(s));
+				xy_data5.setInfo("sectID = "+(s+1)+"\tcorr = "+(float)result3[0]+"\t("+(float)result3[1]+")\t");
+				normObs_vs_normLastSlip_funcs.add(xy_data5);
+				normObs_vs_normLastSlip_funcsMap.put(s, xy_data5);
 
 			}
 			else
@@ -1653,6 +1684,7 @@ public class General_EQSIM_Tools {
 		graph.setXLog(true);
 		if(saveStuff) {
 			try {
+				graph0.saveAsPDF(dirNameForSavingFiles+"/obsVersusAveElementRIs.pdf");
 				graph.saveAsPDF(dirNameForSavingFiles+"/obsVersusTimePred2_RIs.pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -1694,32 +1726,32 @@ public class General_EQSIM_Tools {
 
 			for(int s=0;s<namesOfSections.size();s++) {
 //				System.out.println("Working on "+s+"\t"+namesOfSections.get(s));
-				ArrayList<Double> sectNorm_tpInterval2List = new ArrayList<Double>();
-				for(int i=0; i<norm_tpInterval2List.size();i++) {
+				ArrayList<Double> sectNormObsIntervalList = new ArrayList<Double>();
+				for(int i=0; i<norm_aveElementIntervalList.size();i++) {
 					if(nucleationSectionList.get(i) == (s+1)) { // does section ID correspond to section index
-						sectNorm_tpInterval2List.add(norm_tpInterval2List.get(i));
+						sectNormObsIntervalList.add(norm_aveElementIntervalList.get(i));
 					}
 				}
-				if(sectNorm_tpInterval2List.size()>25){	// only do it if there are more than 25 data pointns
+				if(sectNormObsIntervalList.size()>2){	// only do it if there are more than 2  data points
 					// Plot RI PDF
-					String plotTitle8 = "Normalized Ave Time-Pred RI (norm_tpInterval2List) for "+namesOfSections.get(s);
-					HeadlessGraphPanel plot8 = plotNormRI_Distribution(sectNorm_tpInterval2List, plotTitle8);
+					String plotTitle8 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+namesOfSections.get(s);
+					HeadlessGraphPanel plot8 = plotNormRI_Distribution(sectNormObsIntervalList, plotTitle8);
 
 					// plot obs vs predicted scatter plot
-					String plotTitle7 = "Obs vs Time-Pred RIs for "+namesOfSections.get(s);
+					String plotTitle7 = "Norm Obs RI vs Norm Last Slip for "+namesOfSections.get(s);
 					HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
 					ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
-					tempList.add(obs_tp2_funcsMap.get(s));
+					tempList.add(normObs_vs_normLastSlip_funcsMap.get(s));
 					ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 					curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
 					//						plot7.setUserBounds(10, 10000, 10, 10000);
 					plot7.setXLog(true);
 					plot7.setYLog(true);
-					plot7.drawGraphPanel("Time Pred RI (tpInterval2List) (years)", "Observed RI (years)", tempList, curveCharacteristics, true, plotTitle7);
+					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics, true, plotTitle7);
 					plot7.getCartPanel().setSize(1000, 800);
 					if(saveStuff) {
-						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/norm_tpInterval2_Dist_forSect"+s+".pdf";
-						String fileName7 = dirNameForSavingFiles+"/"+subDir+"/obsVsTimePred_RI_forSect"+s+".pdf";
+						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
+						String fileName7 = dirNameForSavingFiles+"/"+subDir+"/normObsVsLastSlip_forSect"+s+".pdf";
 						try {
 							plot8.saveAsPDF(fileName8);
 							plot7.saveAsPDF(fileName7);
@@ -2040,14 +2072,14 @@ public class General_EQSIM_Tools {
 	 * For the specified element ID, this computes the intervals between events that have 
 	 * magnitude greater than the given threshold.
 	 * @param elemID
-	 * @param magThresh
+	 * @param magThresh - set as Double.NaN to use sqrt(area)>aveFaultDDW instead
 	 * @return
 	 */
 	public double[] getRecurIntervalsForElement(int elemID, double magThresh) {
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
 		for(EQSIM_Event event:eventList)
 			if(event.hasElementSlipsAndIDs())
-				if(Ints.contains(event.getAllElementIDs(), elemID) && event.getMagnitude() >= magThresh)
+				if(Ints.contains(event.getAllElementIDs(), elemID) && isEventSupraSeismogenic(event, magThresh))
 					eventTimes.add(event.getTimeInYears());
 		if (eventTimes.size()>0) {
 			double[] intervals = new double[eventTimes.size()-1];
@@ -2456,7 +2488,7 @@ public class General_EQSIM_Tools {
 		
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
-/*		*/
+/*		
 		// RSQSim Runs:
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
@@ -2466,14 +2498,16 @@ public class General_EQSIM_Tools {
 		
 //		test.randomizeEventTimes();
 //		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run_Randomized",  6.5);
-
-/*		
+*/
+/*	*/	
 		// VC Runs:
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
-		test.read_EQSIMv04_EventsFile("org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/VC_NCAL_Ward_Event.d");
-		test.mkFigsForUCERF3_ProjPlanRepot("VC_Run",  6.5);
-*/
+		File simEventFile = new File("/Users/field/workspace/OpenSHA/src/org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith","VC_norcal.d.txt");
+		test.read_EQSIMv04_EventsFile(simEventFile);
+//		test.mkFigsForUCERF3_ProjPlanRepot("VC_Run",  6.5);
+		test.checkElementSlipRates("VC_Run", true);
+
 		/*
 		// Ward Runs:
 //		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCAL4_Ward_Geometry.dat.txt";

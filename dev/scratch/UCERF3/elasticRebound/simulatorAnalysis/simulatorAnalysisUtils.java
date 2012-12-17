@@ -27,10 +27,10 @@ public class simulatorAnalysisUtils {
 		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
 //		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
-//		File eventFile = new File(simEventFileDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
+		File eventFile = new File(simEventFileDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 //		File eventFile = new File(simEventFileDir, "ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat");
 //		File eventFile = new File(simEventFileDir, "ALLCAL2-30k-output[3-24-11].converted");
-		File eventFile = new File(simEventFileDir, "Fred-allcal2-7june11.txt");
+//		File eventFile = new File(simEventFileDir, "Fred-allcal2-7june11.txt");
 
 				String dirNameForSavingFiles = "tempSimTest";
 
@@ -46,7 +46,8 @@ public class simulatorAnalysisUtils {
 //					tools.checkElementSlipRates(null, true);
 //					tools.checkEventMagnitudes();
 //					tools.checkFullDDW_rupturing();
-					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, false);
+					tools.plotNormRecurIntsForAllSurfaceElements(Double.NaN, true);
+//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, false);
 //					tools.plotNormRecurIntsForAllSurfaceElements(6.0, true);
 					
 //					ArrayList<String> infoStrings = new ArrayList<String>();
@@ -79,22 +80,23 @@ public class simulatorAnalysisUtils {
 	public static void runAll() {
 		
 		// Set the simulator Geometry file
-//		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
-		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-//		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
-		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
-				"ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat",
-				"ALLCAL2-30k-output[3-24-11].converted",
-				"Fred-allcal2-7june11.txt"
+				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall" //,	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
+//				"ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat" //,
+//				"ALLCAL2-30k-output[3-24-11].converted" //,
+//				"Fred-allcal2-7june11.txt"
 				};
-		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
+//		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
+		String[] dirNamesPrefixArray = {"RSQSim"};
 		
 		// set the list of supra-seismogenic mag thresholds (NaN means it will be defined by ave fault DDW)
 		double[] seismoMagThreshArray = {6.5,Double.NaN};
@@ -120,7 +122,7 @@ public class simulatorAnalysisUtils {
 //					tools.checkEventMagnitudes();
 //					tools.checkFullDDW_rupturing();
 //					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
-//					tools.plotNormRecurIntsForAllSurfaceElements(6.0, true);
+//					tools.plotNormRecurIntsForAllSurfaceElements(6.0, false);
 					
 					ArrayList<String> infoStrings = new ArrayList<String>();
 					infoStrings.add("UCERF3.elasticRebound.simulatorAnalysis.simulatorAnalysisUtils.runAll()\n");
@@ -154,8 +156,8 @@ public class simulatorAnalysisUtils {
 	 */
 	public static void main(String[] args) {	
 		
-		test();
-//		runAll();
+//		test();
+		runAll();
 		
 	}
 
