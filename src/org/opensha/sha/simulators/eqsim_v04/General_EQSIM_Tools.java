@@ -1417,19 +1417,6 @@ System.out.println(val);
 				aveSlipOverElements /= numElements;
 				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
-//if(tpInterval1<0 && goodSample) {
-//	System.out.println("numElements="+numElements);
-//	for(int e=0;e<numElements;e++) {
-//		int index = elemIDs[e]-1;  // index = ID-1
-//		double lastTime = lastTimeForElement[index];
-//		double lastSlip = lastSlipForElement[index];
-//		double slipRate = rectElementsList.get(index).getSlipRate();
-//		System.out.println(elemIDs[e]+"\t"+event.getID()+"\t"+eventMag+"\t"+event.getArea()+"\t"+tpInterval1+"\t"+lastTime+"\t"+lastSlip+"\t"+
-//				slipRate+"\t"+ (lastTime+(lastSlip/slipRate))+"\t"+sectionsInEventString);
-////			ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
-//	}
-//	throw new RuntimeException("tpInterval1 is negative") ;
-//}
 				double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
 				double spInterval1 = (ave_spNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double spInterval2 = (aveEventSlip/aveSlipRate)/SECONDS_PER_YEAR;
@@ -1440,6 +1427,28 @@ System.out.println(val);
 				double norm_aveElementInterval = obsInterval/aveElementInterval;
 				double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
 				double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
+				
+if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
+	System.out.println("obsInterval="+obsInterval);
+	System.out.println("tpInterval1="+tpInterval1);
+	System.out.println("tpInterval2="+tpInterval2);
+	System.out.println("ave_tpNextEvTime="+ave_tpNextEvTime);
+	System.out.println("aveLastEvTime="+aveLastEvTime);
+	System.out.println("numElements="+numElements);
+	System.out.println("elemIDs\teventID\teventMag\teventArea\ttpInterval1\tlastTime\tlastSlip\tslipRate\t(lastSlip/slipRate)\tsectsInEvent");
+
+	for(int e=0;e<numElements;e++) {
+		int index = elemIDs[e]-1;  // index = ID-1
+		double lastTime = lastTimeForElement[index];
+		double lastSlip = lastSlipForElement[index];
+		double slipRate = rectElementsList.get(index).getSlipRate();
+		System.out.println(elemIDs[e]+"\t"+event.getID()+"\t"+eventMag+"\t"+event.getArea()+"\t"+tpInterval1+"\t"+lastTime+"\t"+lastSlip+"\t"+
+				(float)slipRate+"\t"+ (float)(lastSlip/slipRate)+"\t"+sectionsInEventString);
+//			ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
+	}
+
+	throw new RuntimeException("norm_tpInterval1 is negative: "+norm_tpInterval1);
+}
 
 				// skip those that have zero aveSlipRate (causes Inf for tpInterval2 &spInterval2)
 				if(aveSlipRate == 0) goodSample = false;
