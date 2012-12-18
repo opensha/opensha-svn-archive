@@ -1930,6 +1930,13 @@ ScalarIMRChangeListener {
 		/*		External XY Data Control		*/
 		controlComboBox.addItem(XY_ValuesControlPanel.NAME);
 		controlPanels.add(new XY_ValuesControlPanel(this, this));
+		
+		/*		Epistempic list Control		*/
+		controlComboBox.addItem(ERF_EpistemicListControlPanel.NAME);
+		epistemicControlPanel = new ERF_EpistemicListControlPanel(this, this);
+		System.out.println("init: " + epistemicControlPanel.getName());
+		controlPanels.add(epistemicControlPanel);
+
 	}
 
 	/**
@@ -1963,9 +1970,6 @@ ScalarIMRChangeListener {
 		controlComboBox.addItem(CyberShakeSiteSetterControlPanel.NAME);
 		controlPanels.add(new CyberShakeSiteSetterControlPanel(this.siteGuiBean));
 
-		/*		Epistempic list Control		*/
-		controlComboBox.addItem(ERF_EpistemicListControlPanel.NAME);
-		controlPanels.add(epistemicControlPanel = new ERF_EpistemicListControlPanel(this, this));
 	}
 
 	private void selectControlPanel() {
@@ -2020,6 +2024,8 @@ ScalarIMRChangeListener {
 
 	protected void showControlPanel(String controlName) {
 		ControlPanel control = (ControlPanel)ListUtils.getObjectByName(controlPanels, controlName);
+		System.out.println("controlName: " + controlName);
+		System.out.println("control:" + control);
 		if (control == null)
 			throw new NullPointerException("Control Panel '" + controlName + "' not found!");
 		showControlPanel(control);
