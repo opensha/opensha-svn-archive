@@ -74,7 +74,7 @@ public class ERF_Calculator {
 	 */
 	public static SummedMagFreqDist getTotalMFD_ForERF(ERF eqkRupForecast, double min,double max,int num, boolean preserveRates) {
 		return getTotalMFD_ForSourceRange(eqkRupForecast, min, max, num, preserveRates, 
-				0, eqkRupForecast.getNumSources());
+				0, eqkRupForecast.getNumSources()-1);
 	}
 
 
