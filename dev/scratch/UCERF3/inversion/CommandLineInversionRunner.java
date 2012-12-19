@@ -95,6 +95,7 @@ public class CommandLineInversionRunner {
 		//				"Flag to turn off subseimogenic reductions"),
 		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint weight"),
 		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros"),
+		INITIAL_RANDOM("random", "initial-random", "RandStart", false, "Force initial state to random distribution"),
 		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight"),
 		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,
 				"Relative section nucleation MFD constraint weight"),
@@ -206,6 +207,12 @@ public class CommandLineInversionRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		run(args);
+		System.out.println("DONE");
+		System.exit(0);
+	}
+	
+	public static void run(String[] args) {
 		Options options = createOptions();
 
 		try {
@@ -309,6 +316,17 @@ public class CommandLineInversionRunner {
 			double[] initialState = gen.getInitial();
 			if (cmd.hasOption(InversionOptions.INITIAL_ZERO.argName))
 				initialState = new double[initialState.length];
+			if (cmd.hasOption(InversionOptions.INITIAL_RANDOM.argName)) {
+				initialState = new double[initialState.length];
+				// random rate from to^-10 => 10^2
+				double minExp = -10;
+				double maxExp = 2;
+				
+				double deltaExp = maxExp - minExp;
+				
+				for (int r=0; r<initialState.length; r++)
+					initialState[r] = Math.pow(10d, Math.random() * deltaExp + minExp);
+			}
 			DoubleMatrix2D A_ineq = gen.getA_ineq();
 			double[] d_ineq = gen.getD_ineq();
 			double[] minimumRuptureRates = gen.getMinimumRuptureRates();
@@ -521,8 +539,6 @@ public class CommandLineInversionRunner {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println("DONE");
-		System.exit(0);
 	}
 	
 	private static String getPreInversionInfo(InversionFaultSystemRupSet rupSet) {

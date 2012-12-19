@@ -60,7 +60,7 @@ public class MPJInversionDistributor extends MPJTaskCalculator {
 
 		@Override
 		public void run() {
-			CommandLineInversionRunner.main(args);
+			CommandLineInversionRunner.run(args);
 		}
 	}
 

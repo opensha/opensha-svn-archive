@@ -128,7 +128,7 @@ public class LogicTreePBSWriter {
 
 			@Override
 			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
-				return 29000;
+				return 20000;
 			}
 
 			@Override
