@@ -1,11 +1,13 @@
 package scratch.kevin.simulators;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,43 +63,83 @@ public class PeriodicityPlotter {
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
+		double[] interevent_mags = { 5d, 5.5d, 6d, 6.5d, 7d, 7.5d };
+		for (double mag : interevent_mags) {
+			List<RuptureIdentifier> rupIdens = Lists.newArrayList();
+			List<String> rupIdenNames = Lists.newArrayList();
+			
+			rupIdens.add(new ElementMagRangeDescription(
+					ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, mag, 10d));
+			rupIdenNames.add("Cholame");
+			
+			rupIdens.add(new ElementMagRangeDescription(
+					ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, mag, 10d));
+			rupIdenNames.add("Carrizo");
+			
+			makeMultiRecurrPlots(writeDir, display, mag, events, rupIdens, rupIdenNames);
+		}
+		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
 		List<String> rupIdenNames = Lists.newArrayList();
 		List<Color> colors = Lists.newArrayList();
-		rupIdens.add(new ElementMagRangeDescription(
-				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Mojave 7+");
-		colors.add(Color.BLACK);
-		rupIdens.add(new ElementMagRangeDescription(
-				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Coachella 7+");
-		colors.add(Color.BLUE);
-		rupIdens.add(new ElementMagRangeDescription(
-				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Carrizo 7+");
-		colors.add(Color.RED);
+		
 		rupIdens.add(new ElementMagRangeDescription(
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d));
 		rupIdenNames.add("SAF Cholame 7+");
 		colors.add(Color.RED);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Carrizo 7+");
+		colors.add(Color.BLUE);
+		
 		rupIdens.add(new ElementMagRangeDescription(
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d));
 		rupIdenNames.add("Garlock 7+");
 		colors.add(Color.GREEN);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Mojave 7+");
+		colors.add(Color.BLACK);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Coachella 7+");
+		colors.add(Color.RED);
+		
 		rupIdens.add(new ElementMagRangeDescription(
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
 		rupIdenNames.add("San Jacinto 7+");
 		colors.add(Color.CYAN);
+		
 //		rupIdens.add(new MagRangeRuptureIdentifier(7d, 10d));
 //		rupIdenNames.add("All 7+");
 //		colors.add(Color.GRAY);
 		
-		int coachellaIndex = 1;
-		int carrizoIndex = 2;
-		int mojaveIndex = 0;
-		int cholameIndex = 3;
-		int garlockIndex = 4;
+		int cholameIndex = 0;
+		int carrizoIndex = 1;
+		int garlockIndex = 2;
+		int mojaveIndex = 3;
+		int coachellaIndex = 4;
+		int sanJacintoIndex = 5;
 		
+		List<RuptureIdentifier> rupIdensSubset = Lists.newArrayList();
+		List<String> rupIdenNamesSubset = Lists.newArrayList();
+		List<Color> colorsSubset = Lists.newArrayList();
+		rupIdensSubset.add(rupIdens.get(mojaveIndex));
+		rupIdenNamesSubset.add(rupIdenNames.get(mojaveIndex));
+		colorsSubset.add(colors.get(mojaveIndex));
+		rupIdensSubset.add(rupIdens.get(coachellaIndex));
+		rupIdenNamesSubset.add(rupIdenNames.get(coachellaIndex));
+		colorsSubset.add(colors.get(coachellaIndex));
+		
+		List<RuptureIdentifier> rupIdensNoCholame = Lists.newArrayList(rupIdens);
+		rupIdensNoCholame.remove(cholameIndex);
+		List<String> rupIdenNamesNoCholame = Lists.newArrayList(rupIdenNames);
+		rupIdenNamesNoCholame.remove(cholameIndex);
+		List<Color> colorsNoCholame = Lists.newArrayList(colors);
+		colorsNoCholame.remove(cholameIndex);
 		
 		List<RuptureIdentifier> elemRupIdens = getOnlyElemMagDescriptions(rupIdens);
 		
@@ -118,87 +160,15 @@ public class PeriodicityPlotter {
 				events = randomResampledCatalog;
 			}
 			
-			Color duplicateColor = Color.ORANGE;
-			
-			HashSet<Integer> duplicates = new HashSet<Integer>();
-			Map<Integer, EQSIM_Event> eventsMap = Maps.newHashMap();
-			List<HashSet<Integer>> idsList = Lists.newArrayList();
-			
-			for (int i=0; i<rupIdens.size(); i++) {
-				RuptureIdentifier rupIden = rupIdens.get(i);
-				String name = rupIdenNames.get(i);
-				
-				HistogramFunction hist;
-				if (rupIden instanceof ElementMagRangeDescription)
-					hist = new HistogramFunction(5d, 100, 10d);
-				else
-					hist = new HistogramFunction(5d, 100, 1d);
-				
-				HashSet<Integer> ids = new HashSet<Integer>();
-				idsList.add(ids);
-				
-				double prevTime = -1;
-				
-				for (EQSIM_Event match : rupIden.getMatches(events)) {
-					double time = match.getTimeInYears();
-					Integer id = match.getID();
-					if (eventsMap.containsKey(id))
-						duplicates.add(id);
-					else
-						eventsMap.put(id, match);
-					ids.add(match.getID());
-					
-					if (prevTime > 0) {
-						double diff = time - prevTime;
-						int ind = hist.getXIndex(diff);
-						if (ind >= 0)
-							hist.add(ind, 1d);
-					}
-					prevTime = time;
-				}
-				
-				ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-				funcs.add(hist);
-				funcs.add(getCmlGreaterOrEqual(hist));
-				ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-				chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, colors.get(i)));
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
-				
-				makePlot(writeDir, "period_"+getFileSafeString(name), display, randomized, funcs, chars, name+" Periodicity");
-			}
-			
-			ArrayList<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
-			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-			
-			ArbitrarilyDiscretizedFunc duplicateFunc = new ArbitrarilyDiscretizedFunc();
-			
-			for (int i=0; i<rupIdens.size(); i++) {
-				ArbitrarilyDiscretizedFunc overlayFunc = new ArbitrarilyDiscretizedFunc();
-				HashSet<Integer> ids = idsList.get(i);
-				for (Integer id : ids) {
-					EQSIM_Event event = eventsMap.get(id);
-					if (duplicates.contains(id))
-						duplicates.add(id);
-					else
-						overlayFunc.set(event.getTimeInYears(), event.getMagnitude());
-				}
-				overlayFunc.setName(rupIdenNames.get(i)+" events"); 
-				funcs.add(overlayFunc);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
-			}
-			
-			for (Integer id : duplicates) {
-				EQSIM_Event event = eventsMap.get(id);
-				duplicateFunc.set(event.getTimeInYears(), event.getMagnitude());
-			}
-			duplicateFunc.setName("Duplicates");
-			funcs.add(duplicateFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 3f, duplicateColor));
-			
-			makePlot(writeDir, "event_times", displayEventTimes, randomized, funcs, chars, "Event Times");
+			plotPeriodsAndEvents(events, display, displayEventTimes, writeDir,
+					rupIdensSubset, rupIdenNamesSubset, colorsSubset, randomized);
+			plotPeriodsAndEvents(events, display, displayEventTimes, writeDir,
+					rupIdensNoCholame, rupIdenNamesNoCholame, colorsNoCholame, randomized);
 			
 			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
 					rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex));
+			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
 			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
 			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
@@ -211,6 +181,10 @@ public class PeriodicityPlotter {
 					rupIdens.get(cholameIndex), rupIdenNames.get(cholameIndex));
 			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(garlockIndex), rupIdenNames.get(garlockIndex));
+			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(garlockIndex), rupIdenNames.get(garlockIndex),
+					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
+			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(sanJacintoIndex), rupIdenNames.get(sanJacintoIndex),
+					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
 			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
 			
@@ -274,6 +248,229 @@ public class PeriodicityPlotter {
 		}
 	}
 	
+	private static Color duplicateColor = Color.ORANGE.darker();
+
+	private static void plotPeriodsAndEvents(List<EQSIM_Event> events,
+			boolean display, boolean displayEventTimes, File writeDir,
+			List<RuptureIdentifier> rupIdens, List<String> rupIdenNames,
+			List<Color> colors, boolean randomized) throws IOException {
+		int[] dimensions = { 1000, 500 };
+		
+		HashSet<Integer> duplicates = new HashSet<Integer>();
+		Map<Integer, EQSIM_Event> eventsMap = Maps.newHashMap();
+		List<HashSet<Integer>> idsList = Lists.newArrayList();
+		
+		ArrayList<DiscretizedFunc> allPeriodFuncs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> allPeriodChars = Lists.newArrayList();
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> labelFuncs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> labelChars = Lists.newArrayList();
+		
+		for (int i=0; i<rupIdens.size(); i++) {
+			RuptureIdentifier rupIden = rupIdens.get(i);
+			String name = rupIdenNames.get(i);
+			
+			HistogramFunction hist;
+			if (rupIden instanceof ElementMagRangeDescription)
+				hist = new HistogramFunction(5d, 100, 10d);
+			else
+				hist = new HistogramFunction(5d, 100, 1d);
+			
+			HashSet<Integer> ids = new HashSet<Integer>();
+			idsList.add(ids);
+			
+			double prevTime = -1;
+			
+			ArbitrarilyDiscretizedFunc labelFunc = new ArbitrarilyDiscretizedFunc(rupIdenNames.get(i)+" Rups");
+			
+			double labelY = (rupIdens.size()-1) - i + 1;
+			
+			ArrayList<Double> rpList = Lists.newArrayList();
+			
+			for (EQSIM_Event match : rupIden.getMatches(events)) {
+				double time = match.getTimeInYears();
+				labelFunc.set(time, labelY);
+				Integer id = match.getID();
+				if (eventsMap.containsKey(id))
+					duplicates.add(id);
+				else
+					eventsMap.put(id, match);
+				ids.add(match.getID());
+				
+				if (prevTime > 0) {
+					double diff = time - prevTime;
+					rpList.add(diff);
+					int ind = hist.getXIndex(diff);
+					if (ind >= 0)
+						hist.add(ind, 1d);
+				}
+				prevTime = time;
+			}
+			
+			double[] rps = Doubles.toArray(rpList);
+			Arrays.sort(rps);
+			double mean = StatUtils.mean(rps);
+			double median = BatchPlotGen.median(rps);
+			
+			double[] deviations = new double[rps.length];
+			for (int j=0; j<rps.length; j++)
+				deviations[j] = Math.abs(rps[j] - median);
+			Arrays.sort(deviations);
+			double mad = BatchPlotGen.median(deviations);
+			
+			System.out.println(rupIdenNames.get(i)+": mean="+mean+"\tmedian="+median+"\tmad="+mad);
+			
+			labelFuncs.add(labelFunc);
+			labelChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_SQUARE, 8f, colors.get(i)));
+			
+			ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+			funcs.add(hist);
+			allPeriodFuncs.add(hist);
+//			funcs.add(getCmlGreaterOrEqual(hist));
+			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, colors.get(i)));
+			allPeriodChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+			
+			makePlot(writeDir, "period_"+getFileSafeString(name), display, randomized,
+					funcs, chars, name+" Inter-Event Times", "Years", "Number", null, null, dimensions);
+		}
+		
+		double[][] periodRanges = new double[2][2];
+		periodRanges[0][0] = 0;
+		periodRanges[0][1] = 1000;
+		periodRanges[1][0] = 0.9;
+		periodRanges[1][1] = 2000;
+		boolean[] periodLogs = { false, true };
+		makePlot(writeDir, "period_all_log", display, randomized,
+				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions);
+		
+		periodLogs[1] = false;
+		periodRanges[1][0] = 0;
+		makePlot(writeDir, "period_all", display, randomized,
+				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions);
+		
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		ArbitrarilyDiscretizedFunc duplicateFunc = new ArbitrarilyDiscretizedFunc();
+		
+		for (int i=0; i<rupIdens.size(); i++) {
+			ArbitrarilyDiscretizedFunc overlayFunc = new ArbitrarilyDiscretizedFunc();
+			HashSet<Integer> ids = idsList.get(i);
+			for (Integer id : ids) {
+				EQSIM_Event event = eventsMap.get(id);
+				if (duplicates.contains(id))
+					duplicates.add(id);
+				else
+					overlayFunc.set(event.getTimeInYears(), event.getMagnitude());
+			}
+			overlayFunc.setName(rupIdenNames.get(i)+" events"); 
+			funcs.add(overlayFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
+		}
+		
+		for (Integer id : duplicates) {
+			EQSIM_Event event = eventsMap.get(id);
+			duplicateFunc.set(event.getTimeInYears(), event.getMagnitude());
+		}
+		duplicateFunc.setName("Duplicates");
+		funcs.add(duplicateFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 3f, duplicateColor));
+		
+		String prefix = "event_times";
+		if (rupIdens.size() < 3)
+			prefix += "_subset";
+		
+		makePlot(writeDir, prefix, displayEventTimes, randomized, funcs, chars, "Event Times");
+		
+		List<int[]> xRanges = Lists.newArrayList();
+		xRanges.add(toIntArray(0, 5000));
+		xRanges.add(toIntArray(0, 10000));
+		xRanges.add(toIntArray(5000, 10000));
+		xRanges.add(toIntArray(200000, 205000));
+		xRanges.add(toIntArray(205000, 210000));
+		xRanges.add(toIntArray(210000, 215000));
+		xRanges.add(toIntArray(215000, 220000));
+		xRanges.add(toIntArray(220000, 225000));
+		
+		colors = Lists.newArrayList(colors);
+		colors.add(duplicateColor);
+		
+		for (int[] xRange : xRanges) {
+			double[][] ranges = new double[2][2];
+			ranges[0][0] = xRange[0];
+			ranges[0][1] = xRange[1];
+			ranges[1][0] = 6.75;
+			ranges[1][1] = 8;
+			
+			// need to do this as lines to make it readible, smallest on top
+			
+			List<HashSet<ArbitrarilyDiscretizedFunc>> funcSets = Lists.newArrayList();
+			
+			for (DiscretizedFunc func : funcs) {
+				HashSet<ArbitrarilyDiscretizedFunc> subFuncs = new HashSet<ArbitrarilyDiscretizedFunc>();
+				
+				for (Point2D pt : func) {
+					if (pt.getX() < ranges[0][0])
+						continue;
+					if (pt.getX() > ranges[0][1])
+						break;
+					ArbitrarilyDiscretizedFunc subFunc = new ArbitrarilyDiscretizedFunc();
+					subFunc.set(pt.getX(), 6d);
+					subFunc.set(pt.getX()+1e-10, pt.getY());
+					subFuncs.add(subFunc);
+				}
+				
+				funcSets.add(subFuncs);
+			}
+			
+			ArrayList<ArbitrarilyDiscretizedFunc> subFuncs = Lists.newArrayList();
+			ArrayList<PlotCurveCharacterstics> subChars = Lists.newArrayList();
+			
+			for (HashSet<ArbitrarilyDiscretizedFunc> set : funcSets)
+				subFuncs.addAll(set);
+			
+			Collections.sort(subFuncs, new Comparator<ArbitrarilyDiscretizedFunc>() {
+
+				@Override
+				public int compare(ArbitrarilyDiscretizedFunc o1,
+						ArbitrarilyDiscretizedFunc o2) {
+					double y1 = o1.getY(1);
+					double y2 = o2.getY(1);
+					return -Double.compare(y1, y2);
+				}
+			});
+			
+			funcLoop:
+			for (ArbitrarilyDiscretizedFunc func : subFuncs) {
+				for (int i=0; i<funcSets.size(); i++) {
+					HashSet<ArbitrarilyDiscretizedFunc> set = funcSets.get(i);
+					if (set.contains(func)) {
+						subChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, colors.get(i)));
+						continue funcLoop;
+					}
+				}
+				throw new IllegalStateException("Func not found in any set!");
+			}
+			
+			makePlot(writeDir, prefix+"_"+xRange[0]+"_"+xRange[1], displayEventTimes, randomized,
+					subFuncs, subChars, "Event Times", "Years", "Magnitude", ranges, null, dimensions);
+			
+			double[][] labelRange = new double[2][2];
+			labelRange[0][0] = xRange[0];
+			labelRange[0][1] = xRange[1];
+			labelRange[1][0] = 0.5;
+			labelRange[1][1] = labelFuncs.size()+0.5;
+			
+			int[] labelDims = { 1000, 300 };
+			
+			makePlot(writeDir, prefix+"_labels_"+xRange[0]+"_"+xRange[1], displayEventTimes, randomized,
+					labelFuncs, labelChars, "Event Times", "Years", "Magnitude", labelRange, null, labelDims);
+		}
+	}
+	
 	private static List<RuptureIdentifier> getOnlyElemMagDescriptions(List<RuptureIdentifier> rupIdens) {
 		List<RuptureIdentifier> ret = Lists.newArrayList();
 		
@@ -293,8 +490,12 @@ public class PeriodicityPlotter {
 		
 		List<EQSIM_Event> matches1 = iden1.getMatches(events);
 		List<EQSIM_Event> matches2 = iden2.getMatches(events);
-//		HashSet<EQSIM_Event> matches1set = new HashSet<EQSIM_Event>(matches1);
-//		HashSet<EQSIM_Event> matches2set = new HashSet<EQSIM_Event>(matches2);
+		HashSet<EQSIM_Event> matches1set = new HashSet<EQSIM_Event>(matches1);
+		HashSet<EQSIM_Event> matches2set = new HashSet<EQSIM_Event>(matches2);
+		
+		int numWithin5years = 0;
+		int totalNum = 0;
+		int numCoruptures = 0;
 		
 		for (EQSIM_Event event1 : matches1) {
 			double timeYears1 = event1.getTimeInYears();
@@ -318,6 +519,24 @@ public class PeriodicityPlotter {
 			if (absMin >= 0 && absMin <= maxX) {
 				absHist.add(absMin, 1d);
 			}
+			
+			totalNum++;
+			if (absMin <= 10d)
+				numWithin5years++;
+			if (absMin == 0d)
+				numCoruptures++;
+		}
+		
+		if (!randomized) {
+			double percentWithin5 = (double)numWithin5years / (double)totalNum;
+			percentWithin5 *= 100;
+			System.out.println(name1+" to "+name2+": "+(float)percentWithin5+" % within 5 years");
+			double percentCorupture = (double)numCoruptures / (double)totalNum;
+			percentCorupture *= 100;
+			System.out.println(name1+" to "+name2+": "+(float)percentCorupture+" % co-ruptures");
+			double percentWithin5NonCorupture = (double)(numWithin5years - numCoruptures) / (double)totalNum;
+			percentWithin5NonCorupture *= 100;
+			System.out.println(name1+" to "+name2+": "+(float)percentWithin5NonCorupture+" % within 5 years no co-rupture");
 		}
 		
 		double[][] ranges = new double[2][2];
@@ -326,26 +545,27 @@ public class PeriodicityPlotter {
 		ranges[1][0] = 0;
 		ranges[1][1] = 3500;
 		
-		String plotTitle = "Inter-event time from "+name1+" to "+name2;
+		String plotTitle = "Inter-Event Times From "+name1+" to "+name2;
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(hist);
 //		funcs.add(getCmlGreaterOrEqual(hist));
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, Color.BLACK));
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, duplicateColor));
 		makePlot(writeDir, "inter_event_"+getFileSafeString(name1)+"_to_"+getFileSafeString(name2),
 				display, randomized, funcs, chars, plotTitle, null, null, ranges, null);
 		
-		plotTitle = "Absolute Inter-event time from "+name1+" to "+name2;
+		plotTitle = "Absolute Inter-Event Times From "+name1+" to "+name2;
 		funcs = Lists.newArrayList();
 		funcs.add(absHist);
 		makePlot(writeDir, "inter_event_abs_"+getFileSafeString(name1)+"_to_"+getFileSafeString(name2),
 				display, randomized, funcs, chars, plotTitle, null, null, ranges, null);
 		
-		HistogramFunction matrixHist = new HistogramFunction(-2500, 500, 10d);
+		HistogramFunction matrixHist = new HistogramFunction(-1000, 200, 10d);
 		double matHistMin = matrixHist.getMinX() - 5d;
 		double matHistMax = matrixHist.getMaxX() + 5d;
-		HistogramFunction absMatrixHist = new HistogramFunction(5d, 250, 10d);
+		HistogramFunction absMatrixHist = new HistogramFunction(5d, 100, 10d);
+		HistogramFunction absBothMatrixHist = new HistogramFunction(5d, 100, 10d);
 		
 		for (EQSIM_Event event1 : matches1) {
 			double timeYears1 = event1.getTimeInYears();
@@ -357,26 +577,37 @@ public class PeriodicityPlotter {
 				
 				if (timeDelta >= matHistMin && timeDelta <= matHistMax)
 					matrixHist.add(timeDelta, 1d);
-				if (absDelta <= matHistMax)
+				if (absDelta <= matHistMax) {
 					absMatrixHist.add(absDelta, 1d);
+					if (matches1set.contains(event2) && matches2set.contains(event1))
+						absBothMatrixHist.add(absDelta, 1d);
+				}
 			}
 		}
 		
-		plotTitle = "Inter-event time from ALL "+name1+" to ALL "+name2;
+		double[][] allRanges = new double[2][2];
+		
+		allRanges[0][0] = 0;
+		allRanges[0][1] = 1000;
+		allRanges[1][0] = 0;
+		allRanges[1][1] = absMatrixHist.getMaxY()*1.1d;
+		
+		plotTitle = "Inter-Event Times From All "+name1+" to All "+name2;
 		funcs = Lists.newArrayList();
 		funcs.add(matrixHist);
 //		funcs.add(getCmlGreaterOrEqual(hist));
 		chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, Color.BLACK));
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 		makePlot(writeDir, "all_inter_event_"+getFileSafeString(name1)+"_to_"+getFileSafeString(name2),
-				display, randomized, funcs, chars, plotTitle);
+				display, randomized, funcs, chars, plotTitle, "Years", "Number", null, null);
 		
-		plotTitle = "Absolute Inter-event time from ALL "+name1+" to ALL "+name2;
+		plotTitle = "Absolute Inter-Event Times From All "+name1+" to All "+name2;
 		funcs = Lists.newArrayList();
 		funcs.add(absMatrixHist);
+		funcs.add(absBothMatrixHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 5f, duplicateColor));
 		makePlot(writeDir, "all_inter_event_abs_"+getFileSafeString(name1)+"_to_"+getFileSafeString(name2),
-				display, randomized, funcs, chars, plotTitle);
+				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {
@@ -646,7 +877,7 @@ public class PeriodicityPlotter {
 		List<EQSIM_Event> matches = Lists.newArrayList(matchesSet);
 		Collections.sort(matches);
 		
-		HistogramFunction hist = new HistogramFunction(5d, 50, 10d);
+		HistogramFunction hist = new HistogramFunction(5d, 20, 10d);
 		
 		double prevTime = matches.get(0).getTimeInYears();
 		
@@ -782,6 +1013,64 @@ public class PeriodicityPlotter {
 				"Day", "Cumulative # Events", ranges, logs);
 	}
 	
+	private static void makeMultiRecurrPlots(File dir, boolean display, double mag,
+			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens, List<String> idenNames)
+					throws IOException {
+		HashSet<EQSIM_Event> matches = new HashSet<EQSIM_Event>();
+		
+		for (RuptureIdentifier rupIden : rupIdens)
+			matches.addAll(rupIden.getMatches(events));
+		
+		List<EQSIM_Event> matchesList = Lists.newArrayList(matches);
+		Collections.sort(matchesList);
+		
+		double delta = 2.5d;
+		double min = delta * 0.5d;
+		int num = (int)(500d / delta);
+		HistogramFunction hist = new HistogramFunction(min, num, delta);
+		
+		double maxDelta = hist.getMaxX() + (delta * 0.5d);
+		
+		double prevTime = matchesList.get(0).getTimeInYears();
+		
+		double cnt = 0d;
+		for (int i=1; i<matchesList.size(); i++) {
+			double time = matchesList.get(i).getTimeInYears();
+			double timeDelta = time - prevTime;
+			
+			if (timeDelta <= maxDelta) {
+				hist.add(timeDelta, 1d);
+				cnt += 1;
+			}
+			
+			prevTime = time;
+		}
+		
+		hist.scale(1d / cnt);
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(hist);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
+		
+		String title = Joiner.on(", ").join(idenNames)+" M"+(float)mag+"+";
+		String xAxisLabel = "Interevent Time (years)";
+		String yAxisLabel = null;
+		
+		String prefix = null;
+		for (String idenName : idenNames) {
+			if (prefix == null)
+				prefix = "";
+			else
+				prefix += "_";
+			prefix += getFileSafeString(idenName);
+		}
+		prefix = "interevent_"+prefix+"_"+(float)mag+"+";
+		
+		makePlot(dir, prefix, display, false, funcs, chars, title, xAxisLabel, yAxisLabel,
+				null, null);
+	}
+	
 	private static void makePlot(File dir, String prefix, boolean display, boolean randomized,
 			ArrayList<? extends DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars, String plotTitle)
 					throws IOException {
@@ -791,16 +1080,26 @@ public class PeriodicityPlotter {
 	private static void makePlot(File dir, String prefix, boolean display, boolean randomized,
 			ArrayList<? extends DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars, String plotTitle,
 			String xAxisLabel, String yAxisLabel, double[][] ranges, boolean[] logs) throws IOException {
+		makePlot(dir, prefix, display, randomized, funcs, chars, plotTitle,
+				xAxisLabel, yAxisLabel, ranges, logs, null);
+	}
+	
+	private static void makePlot(File dir, String prefix, boolean display, boolean randomized,
+			ArrayList<? extends DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars, String plotTitle,
+			String xAxisLabel, String yAxisLabel, double[][] ranges, boolean[] logs, int[] dimensions) throws IOException {
 		if (randomized) {
 			plotTitle = "RANDOMIZED "+plotTitle;
 			prefix = prefix+"_randomized";
 		}
 		
-		String fileName = new File(dir, prefix+".png").getAbsolutePath();
+		String fileName = new File(dir, prefix).getAbsolutePath();
 		
 		if (display) {
 			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, plotTitle, chars, display);
-			gw.getGraphWindow().setSize(600, 800);
+			if (dimensions == null)
+				gw.getGraphWindow().setSize(600, 800);
+			else
+				gw.getGraphWindow().setSize(dimensions[0], dimensions[1]);
 			if (xAxisLabel != null)
 				gw.setX_AxisLabel(xAxisLabel);
 			if (yAxisLabel != null)
@@ -814,7 +1113,13 @@ public class PeriodicityPlotter {
 				gw.setYLog(logs[1]);
 			}
 			
-			gw.saveAsPNG(fileName);
+			gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
+			gw.setTickLabelFontSize(18);
+			gw.setAxisLabelFontSize(20);
+			gw.setPlotLabelFontSize(21);
+			
+			gw.saveAsPNG(fileName+".png");
+			gw.saveAsPDF(fileName+".pdf");
 		} else {
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			if (ranges != null) {
@@ -824,15 +1129,27 @@ public class PeriodicityPlotter {
 				gp.setXLog(logs[0]);
 				gp.setYLog(logs[1]);
 			}
+			gp.setBackgroundColor(Color.WHITE);
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
 			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, ranges != null, plotTitle);
-			gp.getCartPanel().setSize(1000, 800);
-			gp.saveAsPNG(fileName);
+			if (dimensions == null)
+				gp.getCartPanel().setSize(1000, 800);
+			else
+				gp.getCartPanel().setSize(dimensions[0], dimensions[1]);
+			gp.saveAsPNG(fileName+".png");
+			gp.saveAsPDF(fileName+".pdf");
 		}
 		
 	}
 	
-	private static String getFileSafeString(String str) {
+	static String getFileSafeString(String str) {
 		return str.replaceAll("\\W+", "_");
+	}
+	
+	public static int[] toIntArray(int... ints) {
+		return ints;
 	}
 
 }

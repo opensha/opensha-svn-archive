@@ -497,7 +497,7 @@ public class BatchPlotGen {
 	 * @param m
 	 * @return
 	 */
-	private static double median(double[] m) {
+	static double median(double[] m) {
 		int middle = (m.length)/2;  // subscript of middle element
 		if (m.length%2 == 1) {
 			// Odd number of elements -- return the middle one.
