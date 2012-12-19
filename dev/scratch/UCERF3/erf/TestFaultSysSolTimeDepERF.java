@@ -21,13 +21,8 @@ public class TestFaultSysSolTimeDepERF {
 	public static void main(String[] args) {
 		
 		
-		
-	
-		
-		
-		
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
-		invERF.aleatoryMagAreaStdDevParam.setValue(0.12);
+		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
 		invERF.getTimeSpan().setDuration(10000);	// yrs

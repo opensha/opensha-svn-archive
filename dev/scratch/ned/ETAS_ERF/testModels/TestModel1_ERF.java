@@ -275,7 +275,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			if(!Double.isNaN(srcMFD.getTotalIncrRate())) { // not sure why this is needed
 				magDist.addIncrementalMagFreqDist(srcMFD);
 				// test
-				if(s<numFaultSystemSources) {
+				if(s<numNonZeroFaultSystemSources) {
 					testFault += srcMFD.getCumRate(magThresh);
 					if(rupsThatOverlap.contains(s)) {
 						testFaultSame += srcMFD.getCumRate(magThresh);
@@ -317,7 +317,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		double totalLargeFaultProb=0;
 		for(int s=0; s<srcTrigProb.length; s++) {
 			totalProb += srcTrigProb[s];
-			if(s<numFaultSystemSources) {
+			if(s<numNonZeroFaultSystemSources) {
 				if(getSource(s).getNumRuptures() != 1)  throw new RuntimeException("Problem");	// check to make sure there is only one rupture
 				if(getSource(s).getRupture(0).getMag() >= (magThresh-0.05)) {	// 0.05 is half the bin width
 					totalLargeEventProb += srcTrigProb[s];
@@ -329,7 +329,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			}
 			else {
 				// these are all gridded sources
-				if(!locIndicesOnFault.contains(s-numFaultSystemSources)){	// make sure this is not a fault location (that would be double counting)
+				if(!locIndicesOnFault.contains(s-numNonZeroFaultSystemSources)){	// make sure this is not a fault location (that would be double counting)
 					totalLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;
 					totalPtSrcLargeEventProb += srcTrigProb[s]*ptSrcProbAboveMagThresh;				
 				}

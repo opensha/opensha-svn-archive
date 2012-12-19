@@ -48,6 +48,8 @@ import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
  * To make accessing ruptures less confusing, this class keeps track of "nth" ruptures within the ERF 
  * (see the last 7 methods here); these methods could be added to AbstractERF.
  * 
+ * Note that all sources are created regardless of the value of IncludeBackgroundParam
+ * 
  * Subclasses can add other (non-fault system) sources by simply overriding and implementing the private 
  * getOtherSource(iSource) method and setting numOtherSources accordingly in the subclass constructor.
  * 
@@ -73,6 +75,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	double aleatoryMagAreaStdDev = Double.NaN;
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
 	protected boolean applyAftershockFilter;
+	protected boolean applyAftershockFilterChanged;
 	protected IncludeBackgroundParam bgIncludeParam;
 	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
@@ -88,13 +91,13 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	
 	protected FaultSystemSolution faultSysSolution;
-	protected int numFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
-	int totNumRupsFromFaultSystem;	// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
+	protected int numNonZeroFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
+	int totNumRupsFromFaultSystem;				// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
-	protected int numOtherSources=0; // the non fault system sources
-	protected int[] fltSysRupIndexForSource;  		// used to keep only inv rups with non-zero rates
-	protected int[] srcIndexForFltSysRup;			// this stores the src index for the fault system source (-1 if there is no mapping?)
-	protected int[] fltSysRupIndexForNthRup;		// the fault system rupture index for the nth rup
+	protected int numOtherSources=0; 					// the non fault system sources
+	protected int[] fltSysRupIndexForSource;  			// used to keep only inv rups with non-zero rates
+	protected int[] srcIndexForFltSysRup;				// this stores the src index for the fault system source (-1 if there is no mapping)
+	protected int[] fltSysRupIndexForNthRup;			// the fault system rupture index for the nth rup
 	protected ArrayList<int[]> nthRupIndicesForSource;	// this gives the nth indices for a given source
 	
 	// THESE COULD BE ADDED TO ABSRACT ERF:
@@ -116,7 +119,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		this.faultSysSolution=faultSysSolution;
 		// remove the fileParam from the adjustable parameter list
 		adjustableParams.removeParameter(fileParam);
-		aleatoryMagAreaStdDevChanged = true;
+		aleatoryMagAreaStdDevChanged = true;	// set so everything is updated in updateForecast()
 	}
 
 	
@@ -157,7 +160,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
 		adjustableParams.addParameter(applyAftershockFilterParam);
 
-		// TODO I have commented out these references because they create a memory leak
+		// TODO I have commented out these references because they create a memory leak;
+		// need to figure out how to make these invisible when there is no background seis
 		bgIncludeParam = new IncludeBackgroundParam();
 //		bgIncludeParam.getEditor().setEnabled(false);
 		adjustableParams.addParameter(bgIncludeParam);
@@ -189,7 +193,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * @return
 	 */
 	public int getNumFaultSystemSources(){
-		return numFaultSystemSources;
+		return numNonZeroFaultSystemSources;
 	}
 	
 	@Override
@@ -202,17 +206,20 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
 			setupArraysAndLists();
 		}
-		else if (aleatoryMagAreaStdDevChanged) {	// faultGridSpacingChanged not influential here
+		else if (aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
 			setupArraysAndLists();
 			aleatoryMagAreaStdDevChanged = false;
+			applyAftershockFilterChanged = false;
+			faultGridSpacingChanged = false;
 		}
-		
-		initOtherSources();
+		// TODO arrays like srcIndexForNthRup set in setupArraysAndLists() wont include gridded seismicity until that is called again;
+
+		initOtherSources();	// these are created even if not used
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		if(D) {
 			System.out.println("Done updating forecast (took "+runTime+" seconds)");
-			System.out.println("numFaultSystemSources="+numFaultSystemSources);
+			System.out.println("numFaultSystemSources="+numNonZeroFaultSystemSources);
 			System.out.println("totNumRupsFromFaultSystem="+totNumRupsFromFaultSystem);
 			System.out.println("totNumRups="+totNumRups);
 			System.out.println("numOtherSources="+this.numOtherSources);
@@ -263,18 +270,18 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		}
 		
 		// count number of non-zero rate inversion ruptures (each will be a source)
-		numFaultSystemSources =0;
+		numNonZeroFaultSystemSources =0;
 		for(int r=0; r< faultSysSolution.getNumRuptures();r++){
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
 			if(faultSysSolution instanceof InversionFaultSystemSolution)
 				rupTooSmall = ((InversionFaultSystemSolution)faultSysSolution).isRuptureBelowSectMinMag(r);
 //			System.out.println("rate="+faultSysSolution.getRateForRup(r));
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall)
-				numFaultSystemSources +=1;			
+				numNonZeroFaultSystemSources +=1;			
 		}
 		
 		if(D) {
-			System.out.println("   " + numFaultSystemSources+" of "+
+			System.out.println("   " + numNonZeroFaultSystemSources+" of "+
 					faultSysSolution.getNumRuptures()+ 
 					" fault system sources had non-zero rates");
 		}
@@ -283,7 +290,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		srcIndexForFltSysRup = new int[faultSysSolution.getNumRuptures()];
 		for(int i=0; i<srcIndexForFltSysRup.length;i++)
 			srcIndexForFltSysRup[i] = -1;				// initialize values to -1 (no mapping due to zero rate)
-		fltSysRupIndexForSource = new int[numFaultSystemSources];
+		fltSysRupIndexForSource = new int[numNonZeroFaultSystemSources];
 		int srcIndex = 0;
 		for(int r=0; r< faultSysSolution.getNumRuptures();r++) {
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
@@ -302,6 +309,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //							HashMap<String,Integer> nForSrcAndRupIndices;
 		
 //		System.out.println("starting to make nForSrcAndRupIndices HashMap");
+		
+		// TODO code below needs to be cleaned now that list of src objects is created and kept (plus srcIndexForNthRup etc don't includ background seis on first run)
+
 		totNumRups=0;
 		totNumRupsFromFaultSystem=0;
 		nthRupForSrcAndRupIndices = new HashMap<String,Integer>();
@@ -317,7 +327,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		// create reference array of all non-gridded sources and ruptures
 		if (!bgInclude.equals(ONLY)) {
 			faultSources = Lists.newArrayList();
-			for (int i=0; i<numFaultSystemSources; i++) {
+			for (int i=0; i<numNonZeroFaultSystemSources; i++) {
 				faultSources.add(makeFaultSystemSource(i));
 			}
 		}
@@ -328,14 +338,14 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 			int numRups = getSource(s).getNumRuptures();	// prob at 7773
 			totNumRups += numRups;
-			if(s<numFaultSystemSources) {
+			if(s<numNonZeroFaultSystemSources) {
 				totNumRupsFromFaultSystem += numRups;
 			}
 			int[] nthRupsForSrc = new int[numRups];
 			for(int r=0; r<numRups; r++) {
 				tempSrcIndexForNthRup.add(s);
 				tempRupIndexForNthRup.add(r);
-				if(s<numFaultSystemSources)
+				if(s<numNonZeroFaultSystemSources)
 					tempFltSysRupIndexForNthRup.add(fltSysRupIndexForSource[s]);
 
 				String srcAndRup = s+","+r;
@@ -406,8 +416,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	@Override
 	public int getNumSources() {
 		if (bgInclude.equals(ONLY)) return numOtherSources;
-		if (bgInclude.equals(EXCLUDE)) return numFaultSystemSources;
-		return numFaultSystemSources + numOtherSources;
+		if (bgInclude.equals(EXCLUDE)) return numNonZeroFaultSystemSources;
+		return numNonZeroFaultSystemSources + numOtherSources;
 	}
 	
 	@Override
@@ -416,10 +426,10 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			return getOtherSource(iSource);
 		} else if(bgInclude.equals(EXCLUDE)) {
 			return faultSources.get(iSource);
-		} else if (iSource < numFaultSystemSources) {
+		} else if (iSource < numNonZeroFaultSystemSources) {
 			return faultSources.get(iSource);
 		} else {
-			return getOtherSource(iSource - numFaultSystemSources);
+			return getOtherSource(iSource - numNonZeroFaultSystemSources);
 		}
 	}
 

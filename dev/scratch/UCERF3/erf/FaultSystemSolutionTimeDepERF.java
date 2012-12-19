@@ -162,16 +162,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// first check whether file changed (this info will be erased by parent updataForecast(), and it's needed below)
 		boolean fileChange = fileParamChanged;
 		
-		// the following is needed here because super.updateForecast() will call the local getSource 
+		// the following is needed here because super.updateForecast() will call the getSource method here
 		// method, which uses this array (values are set as 1.0 when this array is null)
 		if(timeSpanChangeFlag || fileChange || bpt_AperiodicityChanged)
 			probGainForFaultSystemSource = null;
 
-		// now update forecast using super (only does something if a param has changed)
-		super.updateForecast();	// inefficient if only bpt_Aperiodicity has changed
-		
-		// rest this to be safe
-//		lastSrcRequested=-1;
+		// now update forecast using super (only does something if an appropriate parent param has changed?)
+		super.updateForecast();	// inefficient if only bpt_Aperiodicity has changed?
 		
 		System.out.println("time span duration = "+timeSpan.getDuration());
 
@@ -201,12 +198,12 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// now update the the prob gains if needed (must be done after the above)
 		if(timeSpanChangeFlag || fileChange || bpt_AperiodicityChanged) {
 			System.out.println("updating all prob gains");
-			probGainForFaultSystemSource = new double[numFaultSystemSources];
-			for(int s=0; s<numFaultSystemSources; s++)
+			probGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
+			for(int s=0; s<numNonZeroFaultSystemSources; s++)
 				probGainForFaultSystemSource[s] = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);	// NaN if no data available
 			timeSpanChangeFlag = false;
 			
-			//			long runTime = System.currentTimeMillis();
+			// long runTime = System.currentTimeMillis();
 			// set ruptureSampler if in simulation mode
 			if(SIMULATION_MODE) {
 				if(spontaneousRupSampler==null) {		// loop over all sources
@@ -225,7 +222,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				}
 				else {			// loop only over fault system sources
 					int nthRup=0;
-					for(int s=0;s<numFaultSystemSources;s++) {	
+					for(int s=0;s<numNonZeroFaultSystemSources;s++) {	
 						ProbEqkSource src = getSource(s);
 						for(ProbEqkRupture rup:src) {
 							double rate = rup.getMeanAnnualRate(timeSpan.getDuration());
@@ -506,10 +503,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		SIMULATION_MODE=true;
 		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
 		normalizedRecurIntervals = new ArrayList<Double>();
-		double startYear = ((double)origStartTime)*MILLISEC_PER_YEAR+1970.0;	// THIS SHOULD BE DIVIDED BY!!!!!!!!
+		double startYear = ((double)origStartTime)/MILLISEC_PER_YEAR+1970.0;
 		long startTimeMillis = origStartTime;
 
-		timeSpan.setDuration(1.0);
+		timeSpan.setDuration(1.0);	// use annual probability to sample events
 		System.out.println("start time: "+origStartTime+ " millis ("+startYear+" yrs)");
 		System.out.println("originalDuration: "+origDuration+" ("+timeSpan.getDurationUnits()+")");
 		int numRups=0;
@@ -517,9 +514,11 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// apache tool for sampling from exponential distribution here
 		RandomDataImpl randomDataSampler = new RandomDataImpl();
 		
-		// create the ERF and make the target MFD
+		// create the ERF
 		if(D) System.out.println("Updating forecast");
 		updateForecast();
+		
+		// make the target MFD
 		if(D) System.out.println("Making target MFD");
 		SummedMagFreqDist targetMFD = ERF_Calculator.getTotalMFD_ForERF(this, 2.05, 8.95, 70, true);
 		targetMFD.setName("Target MFD");
@@ -566,8 +565,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			counter +=timeOfNextInYrs;
 			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
 
-			// update gains for next loop
-			for(int s=0;s<numFaultSystemSources;s++) {
+			// update gains for next loop given possible fault-based event and start-time change
+			for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 				double probGain = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
 				if(Double.isNaN(probGain))
 					probGainForFaultSystemSource[s] = 1;
@@ -589,8 +588,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //		for(Double nRI:normalizedRecurIntervals)
 //			System.out.println(nRI);
 		
-		HeadlessGraphPanel plot = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, 
-				"Normalized RIs");
+		General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, "Normalized RIs");
 		
 //		System.out.println(obsMFD);
 
@@ -883,7 +881,7 @@ numSpontEvents=0;
 
 				// update gains for next round (prevents running updateForecast())
 				// need to do all since the start time has changed
-				for(int s=0;s<numFaultSystemSources;s++) {
+				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 					double probGain = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
 					if(Double.isNaN(probGain))  // NEEDED? (NOT DONE IN UPDATEFORECAST)
 						probGainForFaultSystemSource[s] = 1;
@@ -894,7 +892,7 @@ numSpontEvents=0;
 
 				// now update rates in blocks (for rups that change probs)
 				System.out.println("Updating block rates");
-				for(int s=0; s<numFaultSystemSources;s++) {
+				for(int s=0; s<numNonZeroFaultSystemSources;s++) {
 					ProbEqkSource src = getSource(s);
 					// now assuming all rups in source have same rupture surface
 					LocationList locsOnSurface = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
@@ -1202,7 +1200,7 @@ numSpontEvents=0;
 				erf_rup = getNthRupture(nthRup);
 					
 				// set hypo location
-				if(randSrcIndex<numFaultSystemSources) {	// it's a fault system source
+				if(randSrcIndex<numNonZeroFaultSystemSources) {	// it's a fault system source
 					// following should really sample one of the points on the surface?
 					hypoLoc = erf_RatesAtPointsInSpace.getLocationForSamplerIndex(randPtIndex);
 				}
@@ -1287,7 +1285,7 @@ numSpontEvents=0;
 
 				// update gains for next round (prevents running updateForecast())
 				// need to do all since the start time has changed
-				for(int s=0;s<numFaultSystemSources;s++) {
+				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 					double probGain = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
 					if(Double.isNaN(probGain))  // NEEDED? (NOT DONE IN UPDATEFORECAST)
 						probGainForFaultSystemSource[s] = 1;
@@ -1629,7 +1627,7 @@ numSpontEvents=0;
 
 				// update gains for next round (prevents running updateForecast())
 				// need to do all since the start time has changed
-				for(int s=0;s<numFaultSystemSources;s++) {
+				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 					double probGain = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
 					if(Double.isNaN(probGain))  // NEEDED? (NOT DONE IN UPDATEFORECAST)
 						probGainForFaultSystemSource[s] = 1;
@@ -2002,7 +2000,7 @@ numSpontEvents=0;
 
 				// update gains for next round (prevents running updateForecast())
 				// need to do all since the start time has changed
-				for(int s=0;s<numFaultSystemSources;s++) {
+				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 					double probGain = computeProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
 					if(Double.isNaN(probGain))  // NEEDED? (NOT DONE IN UPDATEFORECAST)
 						probGainForFaultSystemSource[s] = 1;
@@ -2013,7 +2011,7 @@ numSpontEvents=0;
 
 				// now update rates in space (for rups that change probs)
 				System.out.println("Updating rates in space");
-				for(int s=0; s<numFaultSystemSources;s++) {
+				for(int s=0; s<numNonZeroFaultSystemSources;s++) {
 					ProbEqkSource src = getSource(s);
 					// now assuming all rups in source have same rupture surface
 					LocationList locsOnSurface = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
@@ -2096,7 +2094,8 @@ numSpontEvents=0;
 //		else {
 			ProbEqkSource src = super.getSource(iSource);
 //System.out.println(src.getNumRuptures());
-			if (iSource <numFaultSystemSources) {
+			// ajust for time dependence if it's a fault-based source
+			if (iSource <numNonZeroFaultSystemSources) {
 				// get poisson source from parent
 				double probGain = Double.NaN;
 				// the following is needed because the parent updateForecast ends up calling this 

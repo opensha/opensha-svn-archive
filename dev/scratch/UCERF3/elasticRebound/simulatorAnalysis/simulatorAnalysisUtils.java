@@ -16,6 +16,9 @@ import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 public class simulatorAnalysisUtils {
 	
 	
+	/**
+	 * This tests the event files for various things
+	 */
 	public static void test() {
 		
 		// Set the simulator Geometry file
@@ -90,9 +93,9 @@ public class simulatorAnalysisUtils {
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
+				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
 //				"ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat" //,
-//				"ALLCAL2-30k-output[3-24-11].converted",
+				"ALLCAL2-30k-output[3-24-11].converted",
 				"Fred-allcal2-7june11.txt"
 				};
 //		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};

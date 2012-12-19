@@ -71,7 +71,7 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 			numOtherSources = numGridSources+fixedStrikeSources.size();
 			
 			if(D) {
-				System.out.println("numFaultSystemSources="+numFaultSystemSources);
+				System.out.println("numFaultSystemSources="+numNonZeroFaultSystemSources);
 				System.out.println("numOtherSources="+numOtherSources);
 				System.out.println("numGridSources="+numGridSources);
 				System.out.println("numFixedStrikeSources="+fixedStrikeSources.size());
