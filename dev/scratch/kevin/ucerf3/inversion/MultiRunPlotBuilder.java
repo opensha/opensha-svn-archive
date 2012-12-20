@@ -51,7 +51,7 @@ public class MultiRunPlotBuilder {
 			if (dir.getName().contains("mean"))
 				continue;
 			
-			if (count == num)
+			if (count++ == num)
 				break;
 			
 			File solFile = new File(dir, dir.getName()+"_sol.zip");
