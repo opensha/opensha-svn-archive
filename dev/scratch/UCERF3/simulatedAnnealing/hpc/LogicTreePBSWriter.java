@@ -49,6 +49,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.VariableSubTimeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.params.CoolingScheduleType;
+import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
@@ -533,7 +534,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf2_ingredients-no-mendocino";
+		String runName = "inversion-verification-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -548,27 +549,33 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
-		int batchSize = 0;
-		int jobsPerNode = 1;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
-//		RunSites site = RunSites.RANGER;
-//		int batchSize = 256;
-//		int jobsPerNode = 3;
-//		String threads = "5"; // *3 = 15 (out of 16 possible)
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+//		int jobsPerNode = 1;
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+		RunSites site = RunSites.RANGER;
+		int batchSize = 256;
+		int jobsPerNode = 2;
+		String threads = "8"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 10;
+		int numRuns = 15;
 		int runStart = 0;
+		boolean forcePlots = true;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
 		boolean noPlots = batchSize > 1;
+		
+		if (forcePlots) {
+			lightweight = false;
+			noPlots = false;
+		}
 
 //		TreeTrimmer trimmer = getCustomTrimmer();
-//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
-		TreeTrimmer trimmer = getUCERF2Trimmer();
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
 		TreeTrimmer charOnly = new SingleValsTreeTrimmer(InversionModels.CHAR_CONSTRAINED);
@@ -593,11 +600,11 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
-		TreeTrimmer defaultBranchesTrimmer = null;
+//		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -642,6 +649,11 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
 		
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.SERIAL };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
+		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
 //				InversionOptions.PARKFIELD_WT };
@@ -673,6 +685,24 @@ public class LogicTreePBSWriter {
 		
 		
 		List<InversionArg[]> saOptions = null;
+		
+		saOptions = Lists.newArrayList();
+		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
+				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };
+		String[] perturbFuncs = { GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE.name(),
+				GenerationFunctionType.GAUSSIAN.name(), GenerationFunctionType.TANGENT.name(),
+				GenerationFunctionType.POWER_LAW.name(), GenerationFunctionType.EXPONENTIAL.name() };
+		
+		for (String coolingFunc : coolingFuncs) {
+			for (String perturbFunc : perturbFuncs) {
+				InversionArg[] invOps = {
+						new InversionArg("--cooling-schedule "+coolingFunc,
+								"Cool"+coolingFunc.replaceAll("_", "")),
+						new InversionArg("--perturbation-function "+perturbFunc,
+								"Perturb"+perturbFunc.replaceAll("_", "")) };
+				saOptions.add(invOps);
+			}
+		}
 		
 //		saOptions = Lists.newArrayList();
 //		String[] coolingSlowdowns = { "1", "10", "100", "1000", "10000", "100000" };
@@ -801,6 +831,17 @@ public class LogicTreePBSWriter {
 //		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 		//		String threads = "1";
 		CoolingScheduleType cool = CoolingScheduleType.FAST_SA;
+		if (saOptions != null) {
+			cancelLoop:
+			for (InversionArg[] saOps : saOptions) {
+				for (InversionArg op : saOps) {
+					if (op.arg.startsWith("--cool")) {
+						cool = null;
+						break cancelLoop;
+					}
+				}
+			}
+		}
 		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
 //		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1),
 //				TimeCompletionCriteria.getInSeconds(2), TimeCompletionCriteria.getInSeconds(5),
@@ -925,7 +966,8 @@ public class LogicTreePBSWriter {
 							classArgs += " "+ThreadedSimulatedAnnealing.subCompletionCriteriaToArgument(subCompletion);
 							if (keepCurrentAsBest)
 								classArgs += " --cur-as-best";
-							classArgs += " --cool "+cool.name();
+							if (cool != null)
+								classArgs += " --cool "+cool.name();
 							classArgs += " --nonneg "+nonNeg.name();
 							classArgs += " --num-threads "+threads;
 							if (checkPointCriteria != null)

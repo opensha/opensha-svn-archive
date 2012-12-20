@@ -34,6 +34,8 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	
 	private List<String> rangeNames;
 	
+	private long iterMod = 0;
+	
 	public ProgressTrackingCompletionCriteria(CompletionCriteria criteria) {
 		this(criteria, null, 0);
 	}
@@ -64,7 +66,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 		}
 	}
 	
-	public void writeFile(File file) throws IOException {
+	public synchronized void writeFile(File file) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		ArrayList<String> header = Lists.newArrayList("Iterations", "Time (millis)", "Energy (total)",
@@ -88,7 +90,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 
 	@Override
 	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
-		if (energy[0] < Double.MAX_VALUE) {
+		if (energy[0] < Double.MAX_VALUE && (iterMod > 0 && iter % iterMod == 0l)) {
 			times.add(watch.getTime());
 			iterations.add(iter);
 			energies.add(energy);
@@ -200,6 +202,10 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	
 	public CompletionCriteria getCriteria() {
 		return criteria;
+	}
+	
+	public void setIterationModulus(long iterMod) {
+		this.iterMod = iterMod;
 	}
 
 }

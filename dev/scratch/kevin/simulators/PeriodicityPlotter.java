@@ -537,6 +537,9 @@ public class PeriodicityPlotter {
 			double percentWithin5NonCorupture = (double)(numWithin5years - numCoruptures) / (double)totalNum;
 			percentWithin5NonCorupture *= 100;
 			System.out.println(name1+" to "+name2+": "+(float)percentWithin5NonCorupture+" % within 5 years no co-rupture");
+//			double timeIndepExpectedWithin = 100d * ((double)(matches1.size() - numCoruptures) * 10d
+//					/ General_EQSIM_Tools.getSimulationDurationYears(events));
+//			System.out.println(name1+" to "+name2+": "+(float)timeIndepExpectedWithin+" % within 5 years no co-rupture (RANDOM)");
 		}
 		
 		double[][] ranges = new double[2][2];

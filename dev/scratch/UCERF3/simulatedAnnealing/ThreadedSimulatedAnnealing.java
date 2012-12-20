@@ -63,7 +63,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	private static final int plot_width = 1000;
 	private static final int plot_height = 800;
 	
-	private CompletionCriteria subCompetionCriteria;
+	private CompletionCriteria subCompletionCriteria;
 	private boolean startSubIterationsAtZero;
 	private TimeCompletionCriteria checkPointCriteria;
 	private File checkPointFileBase;
@@ -102,7 +102,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		Preconditions.checkNotNull(subCompetionCriteria, "subCompetionCriteria cannot be null");
 		
 		this.numThreads = numThreads;
-		this.subCompetionCriteria = subCompetionCriteria;
+		this.subCompletionCriteria = subCompetionCriteria;
 		this.minimumRuptureRates = minimumRuptureRates;
 		this.initialState = initialState;
 		
@@ -116,8 +116,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		this.A_ineq = A_ineq;
 	}
 	
+	public void setSubCompletionCriteria(CompletionCriteria subCompletionCriteria) {
+		this.subCompletionCriteria = subCompletionCriteria;
+	}
+	
 	public CompletionCriteria getSubCompetionCriteria() {
-		return subCompetionCriteria;
+		return subCompletionCriteria;
 	}
 	
 	public boolean isStartSubIterationsAtZero() {
@@ -270,11 +274,22 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	@Override
 	public long[] iterate(long startIter, long startPerturbs, CompletionCriteria criteria) {
 		if (D) System.out.println("Threaded Simulated Annealing starting with "+numThreads
-				+" threads, "+criteria+", SUB: "+subCompetionCriteria);
+				+" threads, "+criteria+", SUB: "+subCompletionCriteria);
 		
 		if (criteria instanceof ProgressTrackingCompletionCriteria
-				&& rangeNames != null && !rangeNames.isEmpty())
+				&& rangeNames != null && !rangeNames.isEmpty()) {
 			((ProgressTrackingCompletionCriteria)criteria).setRangeNames(rangeNames);
+			if (Ebest.length < rangeNames.size()+4) {
+				double[] Ebest_new = new double[rangeNames.size()+4];
+				for (int i=0; i<Ebest.length; i++)
+					Ebest_new[i] = Ebest[i];
+				for (int i=Ebest.length; i<Ebest_new.length; i++)
+					Ebest_new[i] = Double.POSITIVE_INFINITY;
+				Ebest = Ebest_new;
+				for (SerialSimulatedAnnealing sa : sas)
+					sa.setResults(Ebest, xbest, misfit, misfit_ineq);
+			}
+		}
 		
 		StopWatch watch = new StopWatch();
 		watch.start();
@@ -286,14 +301,19 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		}
 		long perturbs = startPerturbs;
 		
-		if (subCompetionCriteria instanceof VariableSubTimeCompletionCriteria)
-			((VariableSubTimeCompletionCriteria)subCompetionCriteria).setGlobalCriteria(criteria);
+		if (subCompletionCriteria instanceof VariableSubTimeCompletionCriteria)
+			((VariableSubTimeCompletionCriteria)subCompletionCriteria).setGlobalCriteria(criteria);
+		
+		// little fix for force serial option
+		if (criteria == subCompletionCriteria && criteria instanceof ProgressTrackingCompletionCriteria) {
+			criteria = ((ProgressTrackingCompletionCriteria)criteria).getCriteria();
+		}
 		
 		int rounds = 0;
 		long iter = startIter;
 		while (!criteria.isSatisfied(watch, iter, Ebest, perturbs)) {
-			if (subCompetionCriteria instanceof VariableSubTimeCompletionCriteria)
-				((VariableSubTimeCompletionCriteria)subCompetionCriteria).setGlobalState(watch, iter, Ebest, perturbs);
+			if (subCompletionCriteria instanceof VariableSubTimeCompletionCriteria)
+				((VariableSubTimeCompletionCriteria)subCompletionCriteria).setGlobalState(watch, iter, Ebest, perturbs);
 			
 			if (checkPointCriteria != null &&
 					checkPointCriteria.isSatisfied(checkPointWatch, iter, Ebest, perturbs)) {
@@ -325,7 +345,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 					start = 0l;
 				else
 					start = iter;
-				threads.add(new SAThread(sas.get(i), start, perturbs, subCompetionCriteria));
+				threads.add(new SAThread(sas.get(i), start, perturbs, subCompletionCriteria));
 			}
 			
 			// start the threads
@@ -398,6 +418,14 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	
 	public int getNumThreads() {
 		return numThreads;
+	}
+	
+	public void setNumThreads(int numThreads) {
+		Preconditions.checkState(numThreads <= this.numThreads,
+				"Can only decrease number of threads for now");
+		this.numThreads = numThreads;
+		while (sas.size() > numThreads)
+			sas.remove(sas.size()-1);
 	}
 	
 	public void setRanges(List<Integer> rangeEndRows, List<String> rangeNames) {
@@ -859,8 +887,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
 		gp.drawGraphPanel("Rank", "Rate", funcs, chars, false, "Rupture Rate Distribution");
-		File file = new File(prefix.getParentFile(), prefix.getName()+"_rate_dist.png");
-		gp.saveAsPNG(file.getAbsolutePath(), plot_width, plot_height);
+		File file = new File(prefix.getParentFile(), prefix.getName()+"_rate_dist");
+		gp.saveAsPNG(file.getAbsolutePath()+".png", plot_width, plot_height);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf", plot_width, plot_height);
 	}
 	
 	private void writeProgressPlots(ProgressTrackingCompletionCriteria track, File prefix) throws IOException {
@@ -920,6 +949,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_time.png").getAbsolutePath(),
 				plot_width, plot_height);
+		gp.saveAsPDF(new File(prefix.getParentFile(),
+				prefix.getName()+"_energy_vs_time.pdf").getAbsolutePath(),
+				plot_width, plot_height);
 		
 		// energy vs iters plot
 		gp.setUserBounds(itersMin, iterMax, energyPlotMin, energyPlotMax);
@@ -927,6 +959,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				true, "Energy Vs Time");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_iters.png").getAbsolutePath(),
+				plot_width, plot_height);
+		gp.saveAsPDF(new File(prefix.getParentFile(),
+				prefix.getName()+"_energy_vs_iters.pdf").getAbsolutePath(),
 				plot_width, plot_height);
 		
 		// perturbations vs iters plots

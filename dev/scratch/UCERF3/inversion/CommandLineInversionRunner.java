@@ -104,7 +104,8 @@ public class CommandLineInversionRunner {
 		PALEO_SECT_MFD_SMOOTH("paleomfdsmooth", "paleo-sect-mfd-smooth", "SmoothPaleoSect", true,
 				"MFD smoothness constraint weight for peleo parent sects"),
 		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults."),
-		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt");
+		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt"),
+		SERIAL("serial", "force-serial", "Serial", false, "Force serial annealing");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -348,6 +349,13 @@ public class CommandLineInversionRunner {
 			if (!(criteria instanceof ProgressTrackingCompletionCriteria)) {
 				File csvFile = new File(dir, prefix+".csv");
 				criteria = new ProgressTrackingCompletionCriteria(criteria, csvFile);
+			}
+			if (cmd.hasOption(InversionOptions.SERIAL.argName)) {
+				// this forces serial annealing by setting the sub completion criteria to the
+				// general completion criteria
+				((ProgressTrackingCompletionCriteria)criteria).setIterationModulus(10000l);
+				tsa.setSubCompletionCriteria(criteria);
+				tsa.setNumThreads(1);
 			}
 			System.out.println("Starting Annealing");
 			tsa.iterate(criteria);

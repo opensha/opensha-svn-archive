@@ -31,7 +31,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
  */
 public class DeformationModelSummaryFinal implements Serializable {
 	
-	private static ArrayList<DeformationModelSummary> deformationModelSummariesList;
+	private ArrayList<DeformationModelSummary> deformationModelSummariesList;
 	private static final String XML_DATA_FILENAME = "DeformationModelSummaries.xml";
 
 	  public DeformationModelSummaryFinal() {
