@@ -1194,27 +1194,25 @@ public class General_EQSIM_Tools {
 	}
 	
 	
-	/**
-	 * This is a utility method for plotting histograms of normalized recurrence intervals,
-	 * and it also finds a best-fit BPT and Lognormal distribuiton.
-	 * @param normRI_List
-	 * @param plotTitle
-	 */
-	public static HeadlessGraphPanel plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+	public static EvenlyDiscretizedFunc getNormRI_Distribution(ArrayList<Double> normRI_List, double deltaT) {
 		// find max value
 		double max=0;
 		for(Double val:normRI_List)
 			if(val>max) max = val;
-		double delta=0.1;
-		int num = (int)Math.ceil(max/delta)+2;
-		EvenlyDiscretizedFunc dist = new EvenlyDiscretizedFunc(delta/2, num,delta);
-		dist.setTolerance(2*delta);
+//		double deltaX=0.1;
+		int num = (int)Math.ceil(max/deltaT)+2;
+		EvenlyDiscretizedFunc dist = new EvenlyDiscretizedFunc(deltaT/2,num,deltaT);
+		dist.setTolerance(2*deltaT);
 		int numData=normRI_List.size();
 		for(Double val:normRI_List) {
-System.out.println(val);
-			dist.add(val, 1.0/(numData*delta));  // this makes it a true PDF
+//System.out.println(val);
+			dist.add(val, 1.0/(numData*deltaT));  // this makes it a true PDF
 		}
-		
+		return dist;
+	}
+	
+	
+	public static ArrayList<EvenlyDiscretizedFunc> getRenewalModelFunctionFitsToDist(EvenlyDiscretizedFunc dist) {
 		// now make the function list for the plot
 		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 		
@@ -1241,10 +1239,68 @@ System.out.println(val);
 		fitWeibull_func.setName("Best Fit Weibull Dist");
 		fitWeibull_func.setInfo("(mean="+(float)weibull_calc.getMean()+", aper="+(float)weibull_calc.getAperiodicity()+")");
 		funcList.add(fitWeibull_func);
+
+		return funcList;
+	}
+	
+	/**
+	 * This utility returns a graph panel with a histogram of normalized recurrence intervals 
+	 * from normRI_List, along with best-fit BPT, Lognormal, and Weibull distributions.
+	 * 
+	 * 	 * This is an alternative version of plotNormRI_Distribution(*)
+
+	 * @param normRI_List
+	 * @param plotTitle
+	 */
+	public static HeadlessGraphPanel getNormRI_DistributionGraphPanel(ArrayList<Double> normRI_List, String plotTitle) {
 		
+		// get the normalized RI dist
+		double delta=0.1;
+		EvenlyDiscretizedFunc dist = getNormRI_Distribution(normRI_List, delta);
+		
+		// now make the list of best-fit functions for the plot
+		ArrayList<EvenlyDiscretizedFunc> funcList = getRenewalModelFunctionFitsToDist(dist);
+				
 		// add the histogram created here
 		dist.setName("Recur. Int. Dist");
-		dist.setInfo("(Number of points = "+ numData+")");
+		dist.setInfo("(Number of points = "+ normRI_List.size()+")");
+		funcList.add(dist);
+		
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setUserMinX(0.0);
+		gp.setUserMaxX(5.0);
+		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, true, plotTitle);
+		gp.getCartPanel().setSize(1000, 800);
+		
+		return gp;
+	}
+	
+	/**
+	 * This utility plots the histogram of normalized recurrence intervals from normRI_List, 
+	 * along with best-fit BPT, Lognormal, and Weibull distributions.  Use the returned object
+	 * if you want to save to a file.
+	 * This is an alternative version of getNormRI_DistributionGraphPanel(*)
+	 * @param normRI_List
+	 * @param plotTitle
+	 */
+	public static GraphiWindowAPI_Impl plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+		
+		// get the normalized RI dist
+		double delta=0.1;
+		EvenlyDiscretizedFunc dist = getNormRI_Distribution(normRI_List, delta);
+		
+		// now make the list of best-fit functions for the plot
+		ArrayList<EvenlyDiscretizedFunc> funcList = getRenewalModelFunctionFitsToDist(dist);
+				
+		// add the histogram created here
+		dist.setName("Recur. Int. Dist");
+		dist.setInfo("(Number of points = "+ normRI_List.size()+")");
 		funcList.add(dist);
 		
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
@@ -1254,22 +1310,15 @@ System.out.println(val);
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		// make plot
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, plotTitle); 
-//		graph.setX_AxisLabel("RI (yrs)");
-//		graph.setY_AxisLabel("Density");
-//		graph.setPlottingFeatures(curveCharacteristics);
-//		graph.setX_AxisRange(0, 5);
-//		return graph;
-		
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setUserMinX(0.0);
-		gp.setUserMaxX(5.0);
-		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, true, plotTitle);
-		gp.getCartPanel().setSize(1000, 800);
-		
-		return gp;
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, plotTitle); 
+		graph.setX_AxisLabel("RI (yrs)");
+		graph.setY_AxisLabel("Density");
+		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setX_AxisRange(0, 5);
+		return graph;
 		
 	}
+
 	
 	
 	/**
@@ -1382,8 +1431,8 @@ System.out.println(val);
 				double aveEventSlip=0;
 				double aveSlipOverElements=0;	// the average of long-term ave slips
 				double aveElementInterval=0;			// the long-term RI averaged over all elements
-				int numElements = slips.length;
-				for(int e=0;e<numElements;e++) {
+				int numElementsUsed = 0;
+				for(int e=0;e<slips.length;e++) {
 					int index = elemIDs[e]-1;  // index = ID-1
 					double lastTime = lastTimeForElement[index];
 					double lastSlip = lastSlipForElement[index];
@@ -1391,30 +1440,31 @@ System.out.println(val);
 					double area = rectElementsList.get(index).getArea();
 					if(area<minElementArea) minElementArea = area;
 					if(area>maxElementArea) maxElementArea = area;
-					aveLastEvTime += lastTime;
-					if(slipRate != 0) {  // there are a few of these, and I don't know what else to do
+					if(slipRate != 0) {  // there are a few of these, and I don't know what else to do other than ignore
+						aveLastEvTime += lastTime;
 						ave_tpNextEvTime += lastTime + lastSlip/(slipRate/SECONDS_PER_YEAR);
 						ave_spNextEvTime += lastTime + slips[e]/(slipRate/SECONDS_PER_YEAR);
+						aveSlipRate += slipRate/SECONDS_PER_YEAR;
+						aveLastSlip += lastSlip;
+						aveEventSlip += slips[e];
+						aveElementInterval += aveRI_ForElement[index];
+						aveSlipOverElements += aveSlipForElement[index];
+						numElementsUsed += 1;
 					}
-					aveSlipRate += slipRate/SECONDS_PER_YEAR;
-					aveLastSlip += lastSlip;
-					aveEventSlip += slips[e];
 					// mark as bad sample if  lastTime is -1
 					if(lastTime==-1){
 						goodSample=false;
 						//							System.out.println("time=0 for element"+e+" of event"+eventNum);
 					}
-					aveElementInterval += aveRI_ForElement[index];
-					aveSlipOverElements += aveSlipForElement[index];
 				}
-				aveLastEvTime /= numElements;
-				ave_tpNextEvTime /= numElements;
-				ave_spNextEvTime /= numElements;
-				aveSlipRate /= numElements;
-				aveLastSlip /= numElements;
-				aveEventSlip /= numElements;
-				aveElementInterval /= numElements;
-				aveSlipOverElements /= numElements;
+				aveLastEvTime /= numElementsUsed;
+				ave_tpNextEvTime /= numElementsUsed;
+				ave_spNextEvTime /= numElementsUsed;
+				aveSlipRate /= numElementsUsed;
+				aveLastSlip /= numElementsUsed;
+				aveEventSlip /= numElementsUsed;
+				aveElementInterval /= numElementsUsed;
+				aveSlipOverElements /= numElementsUsed;
 				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
@@ -1428,16 +1478,16 @@ System.out.println(val);
 				double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
 				double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
 				
-if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
+if(norm_tpInterval1 < 0  && goodSample) {
 	System.out.println("obsInterval="+obsInterval);
 	System.out.println("tpInterval1="+tpInterval1);
 	System.out.println("tpInterval2="+tpInterval2);
 	System.out.println("ave_tpNextEvTime="+ave_tpNextEvTime);
 	System.out.println("aveLastEvTime="+aveLastEvTime);
-	System.out.println("numElements="+numElements);
+	System.out.println("numElements="+numElementsUsed);
 	System.out.println("elemIDs\teventID\teventMag\teventArea\ttpInterval1\tlastTime\tlastSlip\tslipRate\t(lastSlip/slipRate)\tsectsInEvent");
 
-	for(int e=0;e<numElements;e++) {
+	for(int e=0;e<numElementsUsed;e++) {
 		int index = elemIDs[e]-1;  // index = ID-1
 		double lastTime = lastTimeForElement[index];
 		double lastSlip = lastSlipForElement[index];
@@ -1513,7 +1563,7 @@ if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
 				}
 
 				// now fill in the last event data for next time
-				for(int e=0;e<numElements;e++) {
+				for(int e=0;e<numElementsUsed;e++) {
 					int index = elemIDs[e]-1;
 					lastTimeForElement[index] = eventTime;
 					lastSlipForElement[index] = slips[e];
@@ -1522,12 +1572,12 @@ if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
 		}
 
 		// plot the normalized distributions and best fits
-		HeadlessGraphPanel plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
-		HeadlessGraphPanel plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
-		HeadlessGraphPanel plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
-		HeadlessGraphPanel plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
-		HeadlessGraphPanel plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
-		HeadlessGraphPanel plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");			
+		HeadlessGraphPanel plot1 = getNormRI_DistributionGraphPanel(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
+		HeadlessGraphPanel plot2 = getNormRI_DistributionGraphPanel(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
+		HeadlessGraphPanel plot3 = getNormRI_DistributionGraphPanel(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
+		HeadlessGraphPanel plot4 = getNormRI_DistributionGraphPanel(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
+		HeadlessGraphPanel plot5 = getNormRI_DistributionGraphPanel(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
+		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");			
 		if(saveStuff) {
 			try {
 				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
@@ -1744,7 +1794,7 @@ if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
 				if(sectNormObsIntervalList.size()>2){	// only do it if there are more than 2  data points
 					// Plot RI PDF
 					String plotTitle8 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+namesOfSections.get(s);
-					HeadlessGraphPanel plot8 = plotNormRI_Distribution(sectNormObsIntervalList, plotTitle8);
+					HeadlessGraphPanel plot8 = getNormRI_DistributionGraphPanel(sectNormObsIntervalList, plotTitle8);
 
 					// plot obs vs predicted scatter plot
 					String plotTitle7 = "Norm Obs RI vs Norm Last Slip for "+namesOfSections.get(s);
@@ -2124,7 +2174,7 @@ if(norm_tpInterval1 == -3.8095589792887172  && goodSample) {
 				}
 			}
 		}
-		HeadlessGraphPanel graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
+		GraphiWindowAPI_Impl graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.pdf");

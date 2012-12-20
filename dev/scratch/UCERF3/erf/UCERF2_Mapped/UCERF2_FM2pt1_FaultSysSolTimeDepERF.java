@@ -133,7 +133,7 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 		obsEqkRuptureList.add(landersObs);
 		
-		erf.setRuptureOccurrence(nthRup, 0);
+		erf.setRuptureOccurrenceTimePred(nthRup, 0);
 		
 		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=false;
