@@ -40,7 +40,12 @@ public class SectionCluster extends ArrayList<Integer> {
 	Map<Integer, Double> rakesMap;
 	Map<IDPairing, Double> subSectionDistances;
 	CoulombRates coulombRates;
-
+	
+	// This will change the sign of azimuths for 2 left-lateral faults Garlock and Pinto Mtn, to allow then to rupture with SAF to the south (and similarly, forming acute angles with other right-lateral faults)
+	// THIS IS HARD CODED TO THE PARENT SECTION IDs FOR GARLOCK & PINTO MTN
+	boolean applyGarlockPintoMtnFix = false;  
+	
+	
 	/**
 	 * 
 	 * @param sectionDataList - this assumes that index in this list is equal to the Id of the contained FaultSectionPrefData (i = sectionDataList.get(i).getSectionId())
@@ -252,8 +257,12 @@ public class SectionCluster extends ArrayList<Integer> {
 			if(list.size()>=3 && lastParID_NotSameAsSecToLast) {
 				// make sure there are enough points to compute an azimuth change
 				double newAzimuth = sectionAzimuths.get(new IDPairing(lastIndex, newIndex));
+				if (applyGarlockPintoMtnFix && (sectionDataList.get(newIndex).getParentSectionId() == 49 || sectionDataList.get(newIndex).getParentSectionId() == 341 || sectionDataList.get(newIndex).getParentSectionId() == 48 || sectionDataList.get(newIndex).getParentSectionId() == 93))
+					newAzimuth = sectionAzimuths.get(new IDPairing(newIndex, lastIndex));
 				int thirdToLastIndex = list.get(list.size()-3);
 				double prevAzimuth = sectionAzimuths.get(new IDPairing(thirdToLastIndex, secToLastIndex));
+				if (applyGarlockPintoMtnFix && (sectionDataList.get(thirdToLastIndex).getParentSectionId() == 49 || sectionDataList.get(thirdToLastIndex).getParentSectionId() == 341 || sectionDataList.get(thirdToLastIndex).getParentSectionId() == 48 || sectionDataList.get(thirdToLastIndex).getParentSectionId() == 93))
+					prevAzimuth = sectionAzimuths.get(new IDPairing(secToLastIndex, thirdToLastIndex));
 				
 				// check change
 				double azimuthChange = Math.abs(getAzimuthDifference(prevAzimuth,newAzimuth));
