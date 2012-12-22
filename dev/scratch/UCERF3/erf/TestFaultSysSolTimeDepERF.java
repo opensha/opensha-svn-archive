@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
@@ -21,7 +22,13 @@ public class TestFaultSysSolTimeDepERF {
 	public static void main(String[] args) {
 		
 		
-		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
+//		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
+		
+//		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
+
+		
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);

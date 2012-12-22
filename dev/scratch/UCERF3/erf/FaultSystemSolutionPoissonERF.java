@@ -92,7 +92,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	protected FaultSystemSolution faultSysSolution;
 	protected int numNonZeroFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
-	int totNumRupsFromFaultSystem;				// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
+	int totNumRupsFromFaultSystem;					// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
 	protected int numOtherSources=0; 					// the non fault system sources
 	protected int[] fltSysRupIndexForSource;  			// used to keep only inv rups with non-zero rates

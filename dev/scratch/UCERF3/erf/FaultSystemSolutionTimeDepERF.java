@@ -406,13 +406,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	
 	public double[] getRenewalRatesForFaultSysRups() {
+//		System.out.println("starting getRenewalRatesForFaultSysRups()");
 		double[] rateForRup = new double[faultSysSolution.getNumRuptures()];
-		double[] rateForSectArray = faultSysSolution.calcNucleationRateForAllSects(0d, 10d);
+		double[] rateForSectArray = faultSysSolution.calcTotParticRateForAllSects();
 		for(int r=0;r<faultSysSolution.getNumRuptures(); r++) {
 			List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(r);
 			double aveExpRI=0, totArea=0;
-			for(int s=0;s<fltData.size();s++) {
-				FaultSectionPrefData data = fltData.get(s);
+			for(FaultSectionPrefData data:fltData) {
 				int sectID = data.getSectionId();
 				double area = data.getTraceLength()*data.getReducedDownDipWidth();
 				totArea += area;
@@ -420,6 +420,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			}
 			rateForRup[r] = aveExpRI/totArea;
 		}
+//		System.out.println("done with getRenewalRatesForFaultSysRups()");
 		return rateForRup;
 	}
 		
@@ -476,7 +477,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
 			double prob_bpt = BPT_DistCalc.getCondProb(aveExpRI, bpt_Aperiodicity, timeSinceLast, duration);
 			double prob_pois = 1-Math.exp(-duration/aveExpRI);
-			gain = (prob_bpt/prob_pois)*(goodArea/totArea) + 1.0*(totArea-goodArea)/totArea; // areas with no data get prob gain of 1.0
+//			gain = (prob_bpt/prob_pois)*(goodArea/totArea) + 1.0*(totArea-goodArea)/totArea; // areas with no data get prob gain of 1.0
+			gain = (prob_bpt/prob_pois);
 			
 //if(faultSysRupIndex == 174542) {
 //			System.out.println("\ncomputProbGainForFaultSysRup("+faultSysRupIndex+")\n");
@@ -716,7 +718,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes\n");	
 			}
 			
-//			System.out.println(numRups+"\t"+yr);
+			System.out.println(numRups+"\t"+yr);
 			
 			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
 //			System.out.println("Start time: "+startTimeMillis+"\t"+yr+"\t"+(1970+(double)startTimeMillis/MILLISEC_PER_YEAR));
@@ -725,18 +727,18 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //			updateForecast();
 //			runTimeForUpdateForecast += System.currentTimeMillis()-time;
 
-//System.out.println("totalRate="+totalRate);
+// System.out.println(totalRate);
 
 			double timeOfNextInYrs = randomDataSampler.nextExponential(1.0/totalRate);
 			long eventTimeMillis = startTimeMillis + (long)(timeOfNextInYrs*MILLISEC_PER_YEAR);
 //System.out.println("Event time: "+eventTimeMillis+" ("+(yr+timeOfNextInYrs)+" yrs)");
+long milis = System.currentTimeMillis();
 			int nthRup = spontaneousRupSampler.getRandomInt();
-//long milis = System.currentTimeMillis();
 			if(TIME_PRED)
 				setRuptureOccurrenceTimePred(nthRup, eventTimeMillis);
 			else
 				setRuptureOccurrence(nthRup, eventTimeMillis);
-//System.out.println("setOccur took (sec): "+(System.currentTimeMillis()-milis)/1e3);
+System.out.println("sampling & setting event took (sec): "+(System.currentTimeMillis()-milis)/1e3);
 
 //			System.out.print((float)timeOfNextInYrs+" ("+(float)totalRate+"); ");	
 //			System.out.print(numRups+"\t"+nthRup+"\t"+(float)timeOfNextInYrs+" ("+(float)totalRate+"); \n");	
@@ -748,7 +750,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
 
 			// update gains for next loop given possible fault-based event and start-time change
-//milis = System.currentTimeMillis();
+milis = System.currentTimeMillis();
 			for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 				double probGain;
 				if(TIME_PRED)
@@ -761,8 +763,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				else
 					probGainForFaultSystemSource[s] = probGain;
 			}
-//System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
+System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
 
+milis = System.currentTimeMillis();
 			// now update totalRate and ruptureSampler (for rups that change probs)
 			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
 //				double newRate = longTermRateOfNthRups[n];	// poisson probs
@@ -770,6 +773,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				spontaneousRupSampler.set(n, newRate);
 			}
 			totalRate = spontaneousRupSampler.getSumOfY_vals();
+System.out.println("updating sampler took (sec): "+(System.currentTimeMillis()-milis)/1e3);
+
 		}
 		System.out.println("numRups="+numRups);
 		
