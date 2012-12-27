@@ -30,11 +30,22 @@ public class RupSetDiffMaker {
 //		File rupSet2File = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/" +
 //				"scratch/InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
 //				"_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		File diffFile = new File("/tmp/garlockNewRups.zip");
+		boolean oldRups = true;
+		
+		File diffFile;
+		if (oldRups)
+			diffFile = new File("/tmp/garlockOldRups.zip");
+		else
+			diffFile = new File("/tmp/garlockNewRups.zip");
 		
 		FaultSystemRupSet rupSet1 = SimpleFaultSystemRupSet.fromZipFile(rupSet1File);
 //		FaultSystemRupSet rupSet2 = SimpleFaultSystemRupSet.fromZipFile(rupSet2File);
 		FaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1);
+		if (oldRups) {
+			FaultSystemRupSet tmp = rupSet1;
+			rupSet1 = rupSet2;
+			rupSet2 = tmp;
+		}
 		
 		HashSet<Rup> rups2 = new HashSet<Rup>();
 		for (int r=0; r<rupSet2.getNumRuptures(); r++) {

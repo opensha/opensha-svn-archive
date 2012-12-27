@@ -43,7 +43,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	
 	// This will change the sign of azimuths for 2 left-lateral faults Garlock and Pinto Mtn, to allow then to rupture with SAF to the south (and similarly, forming acute angles with other right-lateral faults)
 	// THIS IS HARD CODED TO THE PARENT SECTION IDs FOR GARLOCK & PINTO MTN
-	boolean applyGarlockPintoMtnFix = false;  
+	boolean applyGarlockPintoMtnFix = true;  
 	
 	
 	/**

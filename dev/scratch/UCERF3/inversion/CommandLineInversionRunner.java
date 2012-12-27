@@ -58,6 +58,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
@@ -72,7 +73,9 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
+import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
+import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -105,7 +108,8 @@ public class CommandLineInversionRunner {
 				"MFD smoothness constraint weight for peleo parent sects"),
 		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults."),
 		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt"),
-		SERIAL("serial", "force-serial", "Serial", false, "Force serial annealing");
+		SERIAL("serial", "force-serial", "Serial", false, "Force serial annealing"),
+		SYNTHETIC("syn", "synthetic", "Synthetic", false, "Synthetic data from solution rates named syn.bin.");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -320,8 +324,8 @@ public class CommandLineInversionRunner {
 			if (cmd.hasOption(InversionOptions.INITIAL_RANDOM.argName)) {
 				initialState = new double[initialState.length];
 				// random rate from to^-10 => 10^2
-				double minExp = -10;
-				double maxExp = 2;
+				double minExp = -4;
+				double maxExp = -8;
 				
 				double deltaExp = maxExp - minExp;
 				
@@ -333,6 +337,62 @@ public class CommandLineInversionRunner {
 			double[] minimumRuptureRates = gen.getMinimumRuptureRates();
 			List<Integer> rangeEndRows = gen.getRangeEndRows();
 			List<String> rangeNames = gen.getRangeNames();
+			
+			if (cmd.hasOption(InversionOptions.SYNTHETIC.argName)) {
+				double[] synrates = MatrixIO.doubleArrayFromFile(new File(dir, "syn.bin"));
+				Preconditions.checkState(synrates.length == initialState.length,
+						"synthetic starting solution has different num rups!");
+				// subtract min rates
+				synrates = gen.adjustSolutionForMinimumRates(synrates);
+				
+				DoubleMatrix1D synMatrix = new DenseDoubleMatrix1D(synrates);
+				
+				DenseDoubleMatrix1D syn = new DenseDoubleMatrix1D(A.rows());
+				A.zMult(synMatrix, syn);
+				
+				double[] d_syn = syn.elements();
+				
+				Preconditions.checkState(d.length == d_syn.length,
+						"D and D_syn lengths tdon't match!");
+				
+				List<int[]> rangesToCopy = Lists.newArrayList();
+				
+				for (int i=0; i<rangeNames.size(); i++) {
+					String name = rangeNames.get(i);
+					boolean keep = false;
+					if (name.equals("Slip Rate"))
+						keep = true;
+					else if (name.equals("Paleo Event Rates"))
+						keep = true;
+					else if (name.equals("Paleo Slips"))
+						keep = true;
+					else if (name.equals("MFD Equality"))
+						keep = true;
+					else if (name.equals("MFD Nucleation"))
+						keep = true;
+					else if (name.equals("Parkfield"))
+						keep = true;
+					
+					if (keep) {
+						int prevRow;
+						if (i == 0)
+							prevRow = 0;
+						else
+							prevRow = rangeEndRows.get(i-1) + 1;
+						int[] range = { prevRow, rangeEndRows.get(i) };
+						
+						rangesToCopy.add(range);
+					}
+				}
+				
+				for (int[] range : rangesToCopy) {
+					System.out.println("Copying range "+range[0]+" => "+range[1]+" from syn to D");
+					for (int i=range[0]; i<=range[1]; i++)
+						d[i] = d_syn[i];
+				}
+				
+				// copy over slip rate
+			}
 
 			for (int i=0; i<rangeEndRows.size(); i++) {
 				System.out.println(i+". "+rangeNames.get(i)+": "+rangeEndRows.get(i));

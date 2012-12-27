@@ -66,6 +66,8 @@ public class DeformationModelFetcher {
 	private final static double[] parkfield_mo_reds = {0.5000,    0.5571,    0.6143,    0.6714,    0.7286,    0.7857,    0.8429,    0.9000};
 	// coupling coefficient for each mini ection
 	private final static double[] custom_mendocino_couplings = { 1.0, 1.0, 0.15, 0.15, 0.15 };
+	private final static double brawley_aseis = 0.9;
+	private final static double quien_sabe_aseis = 0.9;
 
 	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
 	public final static double MOMENT_REDUCTION_MAX = 0.95;
@@ -958,6 +960,16 @@ public class DeformationModelFetcher {
 					double couplingCoeff = getLengthBasedAverage(subLocs, subCouplingCoeffs);
 					subSect.setCouplingCoeff(couplingCoeff);
 				}
+				
+				boolean customBrawley = parentID == 170 || parentID == 171;
+				
+				if (customBrawley)
+					subSect.setAseismicSlipFactor(brawley_aseis);
+				
+				boolean customQuienSabe = parentID == 648;
+				
+				if (customQuienSabe)
+					subSect.setAseismicSlipFactor(quien_sabe_aseis);
 			}
 
 			if (DD) System.out.println("Done with subsection assignment.");

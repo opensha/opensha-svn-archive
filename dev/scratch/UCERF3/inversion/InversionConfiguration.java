@@ -303,6 +303,8 @@ public class InversionConfiguration {
 				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
 				initialRupModel = adjustParkfield(rupSet, initialRupModel);
 				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
+				
+				initialRupModel = new double[initialRupModel.length];
 			} else if (model == InversionModels.GR_CONSTRAINED) {
 				participationSmoothnessConstraintWt = 1000;
 				nucleationMFDConstraintWt = 0;

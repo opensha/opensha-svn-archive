@@ -36,7 +36,7 @@ public class AveSlipConstraint implements Serializable {
 	public static final String DIR_NAME = "aveSlip";
 	public static final String TABLE_5_FILE_NAME = "Table R5v4_withMappings.xls";
 	// TODO switch back to new version when ready for 3.2 runs
-	public static final String TABLE_6_FILE_NAME = "Table R6v4_withMappings.xls";
+	public static final String TABLE_6_FILE_NAME = "Table R6v5_withMappings.xls";
 	
 	private static ArbitrarilyDiscretizedFunc probObsSlipModel;
 	static {

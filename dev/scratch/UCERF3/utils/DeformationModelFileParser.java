@@ -449,7 +449,7 @@ public class DeformationModelFileParser {
 			// now load the creep file
 			
 			// TODO switch back to new version when ready for 3.2 runs
-			String creepFileName = "creep-by-minisection-2012_06_03.xls";
+			String creepFileName = "creep-by-minisection-2012_12_27.xls";
 //			String creepFileName = "creep-by-minisection-2012_11_28.xls";
 			InputStream is = UCERF3_DataUtils.locateResourceAsStream("creep",
 					creepFileName);

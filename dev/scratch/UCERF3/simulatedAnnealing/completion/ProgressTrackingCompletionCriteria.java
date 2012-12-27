@@ -90,7 +90,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 
 	@Override
 	public boolean isSatisfied(StopWatch watch, long iter, double[] energy, long numPerturbsKept) {
-		if (energy[0] < Double.MAX_VALUE && (iterMod > 0 && iter % iterMod == 0l)) {
+		if (energy[0] < Double.MAX_VALUE && (iterMod <= 0 || iter % iterMod == 0l)) {
 			times.add(watch.getTime());
 			iterations.add(iter);
 			energies.add(energy);

@@ -534,7 +534,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "inversion-verification-tests";
+		String runName = "ucerf3p2_prod_runs_1";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -543,6 +543,8 @@ public class LogicTreePBSWriter {
 		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
+//		int constrained_run_mins = 60 * 10;	// 10 hours
+//		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
@@ -561,9 +563,9 @@ public class LogicTreePBSWriter {
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 
-		int numRuns = 15;
+		int numRuns = 10;
 		int runStart = 0;
-		boolean forcePlots = true;
+		boolean forcePlots = false;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
 		boolean noPlots = batchSize > 1;
@@ -600,10 +602,10 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
-//		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer(false);
+		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
 //		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
@@ -649,10 +651,15 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.SERIAL };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.SERIAL };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
 		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
@@ -686,34 +693,31 @@ public class LogicTreePBSWriter {
 		
 		List<InversionArg[]> saOptions = null;
 		
-		saOptions = Lists.newArrayList();
-		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
-				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };
-		String[] perturbFuncs = { GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE.name(),
-				GenerationFunctionType.GAUSSIAN.name(), GenerationFunctionType.TANGENT.name(),
-				GenerationFunctionType.POWER_LAW.name(), GenerationFunctionType.EXPONENTIAL.name() };
-		
-		for (String coolingFunc : coolingFuncs) {
-			for (String perturbFunc : perturbFuncs) {
-				InversionArg[] invOps = {
-						new InversionArg("--cooling-schedule "+coolingFunc,
-								"Cool"+coolingFunc.replaceAll("_", "")),
-						new InversionArg("--perturbation-function "+perturbFunc,
-								"Perturb"+perturbFunc.replaceAll("_", "")) };
-				saOptions.add(invOps);
-			}
-		}
-		
 //		saOptions = Lists.newArrayList();
-//		String[] coolingSlowdowns = { "1", "10", "100", "1000", "10000", "100000" };
-//		String[] energyScaleFactors = { "1", "10", "100", "1000", "10000", "100000" };
+//		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
+//				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };
+//		String[] perturbFuncs = { GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE.name(),
+//				GenerationFunctionType.GAUSSIAN.name(), GenerationFunctionType.TANGENT.name(),
+//				GenerationFunctionType.POWER_LAW.name(), GenerationFunctionType.EXPONENTIAL.name() };
 //		
-//		for (String coolingSlow : coolingSlowdowns) {
-//			for (String energyScale : energyScaleFactors) {
-//				InversionArg[] invOps = { new InversionArg("--slower-cooling "+coolingSlow, "SlowCool"+coolingSlow),
-//						new InversionArg("--energy-scale "+energyScale, "EScale"+energyScale) };
+//		for (String coolingFunc : coolingFuncs) {
+//			for (String perturbFunc : perturbFuncs) {
+//				InversionArg[] invOps = {
+//						new InversionArg("--cooling-schedule "+coolingFunc,
+//								"Cool"+coolingFunc.replaceAll("_", "")),
+//						new InversionArg("--perturbation-function "+perturbFunc,
+//								"Perturb"+perturbFunc.replaceAll("_", "")) };
 //				saOptions.add(invOps);
 //			}
+//		}
+		
+//		saOptions = Lists.newArrayList();
+//		String[] coolingSlowdowns = { "1", "2", "5", "10" };
+//		
+//		for (String coolingSlow : coolingSlowdowns) {
+//			InversionArg[] invOps = { new InversionArg(
+//					"--slower-cooling "+coolingSlow, "SlowCool"+coolingSlow) };
+//			saOptions.add(invOps);
 //		}
 		
 //		variationBranches.add(buildVariationBranch(ops, toArray("0")));
