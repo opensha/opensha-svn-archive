@@ -828,6 +828,17 @@ System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis
 		// apache tool for sampling from exponential distribution here
 		RandomDataImpl randomDataSampler = new RandomDataImpl();
 		
+		double refRI = 200;
+		double refDur = 1d;
+		int numPts = 703;	// adding 3 makes the last value in function 700
+		BPT_DistCalc bptDistCalc = new BPT_DistCalc();
+		bptDistCalc.setAll(refRI, bpt_Aperiodicity, 1d, numPts, refDur); 
+		EvenlyDiscretizedFunc bptCondProbFunc = bptDistCalc.getCondProbFunc();
+		double lastCondBPT_Prob = bptCondProbFunc.getY(bptCondProbFunc.getNum()-1);
+		double lastTimeSinceLast = bptCondProbFunc.getX(bptCondProbFunc.getNum()-1);
+
+		
+		
 		// create the ERF
 		if(D) System.out.println("Updating forecast");
 		updateForecast();
@@ -842,8 +853,7 @@ System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis
 		// MFD for simulation
 		SummedMagFreqDist obsMFD = new SummedMagFreqDist(5.05,8.95,40);
 		
-		
-		
+		if(D) System.out.println("Making sectIndexArrayForSrcList & other arrays");
 		// Make local sectIndexArrayForSrcList for simulation
 		ArrayList<int[]> sectIndexArrayForSrcList = new ArrayList<int[]>();
 		for(int s=0; s<numNonZeroFaultSystemSources;s++) {
@@ -864,6 +874,16 @@ System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis
 		}
 		
 	
+		double minCondRI=Double.MAX_VALUE,maxCondRI=0;
+		for(double rate: ruptureRenewalRatesForFltSysRups) {
+			double ri = 1d/rate;
+			if(!Double.isInfinite(ri)) {
+				if(ri < minCondRI) minCondRI = ri;
+				if(ri > maxCondRI) maxCondRI = ri;
+			}
+		}
+		System.out.println("minCondRI="+minCondRI);
+		System.out.println("maxCondRI="+maxCondRI);
 		
 		
 		double counter=0;
@@ -880,7 +900,7 @@ System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis
 				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes\n");	
 			}
 			
-			System.out.println(numRups+"\t"+yr);
+//			System.out.println(numRups+"\t"+yr);
 			
 			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
 
@@ -916,9 +936,8 @@ System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis
 				}
 				if(goodRI) {
 					aveDateOfLast /= totArea;  // epoch millis
-					double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];	// years
 					double timeSinceLast = (eventTimeMillis-aveDateOfLast)/MILLISEC_PER_YEAR;
-					double normRI= timeSinceLast/aveExpRI;
+					double normRI= timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
 					normalizedRecurIntervals.add(normRI);
 				}
 
@@ -966,18 +985,45 @@ long milis = System.currentTimeMillis();
 				}
 				else {
 					aveDateOfLast /= totArea;  // epoch millis
+//					long aveDateOfLast = defaultAveDateOfLast;
 					double timeSinceLast = (startTime-aveDateOfLast)/MILLISEC_PER_YEAR;
-					if(timeSinceLast <0)
-						throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
-								startTime+" and aveDateOfLast="+aveDateOfLast+"; "+timeSinceLast+" yrs)");
-					double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
-					double prob_bpt = BPT_DistCalc.getCondProb(aveExpRI, bpt_Aperiodicity, timeSinceLast, duration);
+					if(timeSinceLast < 0) {
+						if(timeSinceLast > -1)
+							timeSinceLast = 0;	// convert slightly negative values to 0
+						else
+							throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
+									startTime+" and aveDateOfLast="+aveDateOfLast+"; "+timeSinceLast+" yrs)");
+					}
+						
+//					double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
+					double duration = 1.0;	// 1 year
+					
+					
+					double prob_bpt;
+					double normTimeSinceLast = timeSinceLast*refRI/aveExpRI;
+					double normDuration = refRI/aveExpRI;
+					if(normTimeSinceLast<lastTimeSinceLast)
+						prob_bpt= bptCondProbFunc.getInterpolatedY(normTimeSinceLast)*normDuration;
+					else
+						prob_bpt= lastCondBPT_Prob*normDuration;
+
+					
+//					if(Double.isNaN(prob_bpt)) {
+//						double val = timeSinceLast*refRI/aveExpRI;
+//						System.out.println(bptCondProbFunc);
+//						throw new RuntimeException("timeSinceLast="+timeSinceLast+"\trefRI="+refRI+"\taveExpRI="+aveExpRI+"\tval="+val);
+//					}
+					
+//					double prob_bpt = BPT_DistCalc.getCondProb(aveExpRI, bpt_Aperiodicity, timeSinceLast, duration);
+					
+			//		bptCondProbFunc.getInterpolatedY(x);
 					double prob_pois = 1-Math.exp(-duration/aveExpRI);
 					probGainForFaultSystemSource[s] =  (prob_bpt/prob_pois);
+//					probGainForFaultSystemSource[s] =  prob_pois;
 				}
 
 			}
-System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
+// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
 
 //milis = System.currentTimeMillis();
 			// now update totalRate and ruptureSampler (for rups that change probs)
