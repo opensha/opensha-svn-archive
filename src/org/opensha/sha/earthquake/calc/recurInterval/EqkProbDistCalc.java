@@ -103,7 +103,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	/*
 	 * This gives a function of the probability of an event occurring between time T
 	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T.
-	 * THIS NEEDS TO BE TESTED
+	 * TODO THIS NEEDS TO BE TESTED
 	 */
 	public EvenlyDiscretizedFunc getCondProbFunc() {
 		if(duration==0)
@@ -117,12 +117,21 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		return condFunc;
 	}
 	
+	public EvenlyDiscretizedFunc getCondProbFunc(double durationYears) {
+//		durationParam.setValue(durationYears);
+		duration = durationYears;
+		return getCondProbFunc();
+	}
+
+	
 
 	/**
 	 * This is a non-static version that is slightly more accurate (due to
 	 * interpolation of the cdf function), although it requires instantiation of the class to
 	 * access (and stores information internally). The commented out bit of code gives the non 
 	 * interpolated result which is exactly the same as what comes from the static version.
+	 * This does not check for numerical errors at high timeSinceLast (look for a getSafeCondProb(*)
+	 * version of this method in subclasses.
 	 * @param timeSinceLast
 	 * @param duration
 	 * @return
@@ -133,7 +142,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
 //		System.out.println("t1 and t2:\t"+timeSinceLast+"\t"+(timeSinceLast+duration));		
-//		System.out.println("p1 and p2:\t"+p1+"\t"+p2);		
+//		System.out.println("p1 and p2:\t"+p1+"\t"+p2);
 		return (p2-p1)/(1.0-p1);
 
 		

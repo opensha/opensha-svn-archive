@@ -5,14 +5,18 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
+import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
+import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 
 public class TestFaultSysSolTimeDepERF {
 
@@ -21,23 +25,38 @@ public class TestFaultSysSolTimeDepERF {
 	 */
 	public static void main(String[] args) {
 		
+//		FaultSystemSolutionTimeDepERF.testFastBPT_Calc();
+		FaultSystemSolutionTimeDepERF.testTimeToPoisCondProb();
 		
+//		double[] aperArray= {0.1,0.2,0.4,0.6,0.8, 1.0};
+//		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+//		for(double aper:aperArray)
+//			funcs.add(FaultSystemSolutionTimeDepERF.getBPT_TimeToPoisCondProb(aper));
+//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "BPT_TimeToPoisCondProb");
+
+//		System.exit(0);
+
 //		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
 		
-		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
-
+//		TestModel1_FSS testFSS = new TestModel1_FSS();
+//		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(testFSS);
 		
-		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
-		invERF.bpt_AperiodicityParam.setValue(0.2);
-		invERF.getTimeSpan().setStartTimeInMillis(0);
-		invERF.getTimeSpan().setDuration(10000);	// yrs
 		
-		long runtime = System.currentTimeMillis();
-		invERF.testER_SimulationFast();
-		runtime -= System.currentTimeMillis();
-		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
+		
+//		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
+//		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
+//		
+//		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
+//		invERF.bpt_AperiodicityParam.setValue(0.2);
+//		invERF.getTimeSpan().setStartTimeInMillis(0);
+//		invERF.getTimeSpan().setDuration(1000);	// yrs
+//		
+//		long runtime = System.currentTimeMillis();
+//		invERF.testER_SimulationFast();
+////		invERF.testER_Simulation();
+//		runtime -= System.currentTimeMillis();
+//		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);
 //
 //		invERF.getTimeSpan().setStartTime(1970);

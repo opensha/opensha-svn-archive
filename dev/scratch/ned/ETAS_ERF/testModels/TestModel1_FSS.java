@@ -117,7 +117,7 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		double totMoRate = FaultMomentCalc.getMoment(area*1e6, slipRate*1e-3);
 		
 		totMoRate *= 0.5/1.1420689;	// this makes it one M>=5 every 2 years
-		totMoRate /= 10;
+//		totMoRate /= 10;
 		
 		EvenlyDiscretizedFunc magNumDist = new EvenlyDiscretizedFunc(6.15, 7.55, 15);
 		magNumDist.setTolerance(0.1);

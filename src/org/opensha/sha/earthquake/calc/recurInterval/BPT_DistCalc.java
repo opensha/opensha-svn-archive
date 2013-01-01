@@ -37,7 +37,9 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 
 public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
+	final static double SAFE_ONE_MINUS_CDF = 10e-11;	// found by trial and error over aperiodicity from 0.1 to 1.0
 	
+	double safeTimeSinceLast=Double.NaN;
 	
 	public BPT_DistCalc() {
 		NAME = "BPT";
@@ -113,6 +115,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			pdf.set(i,pd);
 			cdf.set(i,cd);
 		}
+		computeSafeTimeSinceLastCutoff();
 		upToDate = true;
 	}
 
@@ -122,7 +125,9 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * This computed the conditional probability using Trapezoidal integration (slightly more
 	 * accurrate that the WGCEP-2002 code, which this method is modeled after). Although this method 
 	 * is static (doesn't require instantiation), it is less efficient than the non-static version 
-	 * here (it is also very slightly less accurate because the other interpolates the cdf).  
+	 * here (it is also very slightly less accurate because the other interpolates the cdf). 
+	 * Note also that if timeSinceLast/mean > aperiodicity*10, timeSinceLast is changed to equal
+	 * mean*aperiodicity*10 (to avoid numerical problems at high timeSinceLast). 
 	 * @param timeSinceLast - time since last event
 	 * @param rate - average rate of events
 	 * @param alpha - coefficient of variation (technically corrrect??)
@@ -201,6 +206,59 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) numPointsParam.getValue()).intValue();
 		this.upToDate = false;
 	}
+	
+	
+	
+	/**
+	 * This is a version of the parent method getCondProb(*) that avoids numerical artifacts
+	 * at high timeSinceLast.  If timeSinceLast is greater than safeTimeSinceLast, then the
+	 * conditional probability at safeTimeSinceLast is returned (i.e., cond prob is constant
+	 * above safeTimeSinceLast).  The safe values have been visually verified for aperiodicity 
+	 * values of 0.1 to 1.0 (using the GUI).
+	 * @param timeSinceLast
+	 * @param duration
+	 * @return
+	 */
+	public double getSafeCondProb(double timeSinceLast, double duration) {
+		if(!upToDate) computeDistributions();
+		
+		// convert to safe time since last if value too high
+		if(timeSinceLast>safeTimeSinceLast)
+			timeSinceLast=safeTimeSinceLast;
+		double p1 = cdf.getInterpolatedY(timeSinceLast);
+		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
+		double denom = 1.0-p1;
+		return (p2-p1)/denom;
+	}	
+	
+	
+	/**
+	 * The returns the maximum value of timeSinceLast (as discretized in the x-axis of the cdf) that is  
+	 * numerically safe (values above will return NaN from getSafeCondProb(*) due to numerical problems).
+	 * This returns Double.Nan is no x-axis values are safe.  The safe values were found by trial and
+	 * error for aperiodicity values between 0.1 and 1.0 (using the GUI).
+	 * @return
+	 */
+	public double getSafeTimeSinceLastCutoff() {
+		return safeTimeSinceLast;
+	}
+	
+	/**
+	 * See doc for getSafeTimeSinceLastCutoff()
+	 */
+	private void computeSafeTimeSinceLastCutoff() {
+		safeTimeSinceLast = Double.NaN;
+		for(int x=0;x<cdf.getNum();x++) {
+			if(1.0-cdf.getY(x) < SAFE_ONE_MINUS_CDF) {
+				break;
+				
+			}
+			else {
+				safeTimeSinceLast = cdf.getX(x);
+			}
+		}
+	}
+
 	
 	/**
 	 *  Main method for running tests.  

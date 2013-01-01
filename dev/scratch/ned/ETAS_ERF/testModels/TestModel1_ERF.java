@@ -75,6 +75,8 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 	public TestModel1_ERF() {
 		super(new TestModel1_FSS());
 		
+//		System.out.println("SIMULATION_MODE="+SIMULATION_MODE);
+		
 		griddedRegion = new GriddedRegion(new Location(minGridLat,minGridLon), new Location(maxGridLat,maxGridLon), gridSpacing, gridSpacing, null);
 		
 		numOtherSources = griddedRegion.getNumLocations();
