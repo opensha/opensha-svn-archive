@@ -26,7 +26,7 @@ public class TestFaultSysSolTimeDepERF {
 	public static void main(String[] args) {
 		
 //		FaultSystemSolutionTimeDepERF.testFastBPT_Calc();
-		FaultSystemSolutionTimeDepERF.testTimeToPoisCondProb();
+//		FaultSystemSolutionTimeDepERF.testTimeToPoisCondProb();
 		
 //		double[] aperArray= {0.1,0.2,0.4,0.6,0.8, 1.0};
 //		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
@@ -34,29 +34,28 @@ public class TestFaultSysSolTimeDepERF {
 //			funcs.add(FaultSystemSolutionTimeDepERF.getBPT_TimeToPoisCondProb(aper));
 //		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "BPT_TimeToPoisCondProb");
 
-//		System.exit(0);
-
 //		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
 		
+		// this one doesn't work because full-fault rupture shuts everything down (expected annual rate goes to zero)
 //		TestModel1_FSS testFSS = new TestModel1_FSS();
 //		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(testFSS);
 		
 		
 		
-//		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
-//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
-//		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
-//		
-//		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
-//		invERF.bpt_AperiodicityParam.setValue(0.2);
-//		invERF.getTimeSpan().setStartTimeInMillis(0);
-//		invERF.getTimeSpan().setDuration(1000);	// yrs
-//		
-//		long runtime = System.currentTimeMillis();
-//		invERF.testER_SimulationFast();
-////		invERF.testER_Simulation();
-//		runtime -= System.currentTimeMillis();
-//		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
+		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
+		
+		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
+		invERF.bpt_AperiodicityParam.setValue(0.2);
+		invERF.getTimeSpan().setStartTimeInMillis(0);
+		invERF.getTimeSpan().setDuration(1000);	// yrs
+		
+		long runtime = System.currentTimeMillis();
+		invERF.testER_SimulationFast();
+//		invERF.testER_Simulation();
+		runtime -= System.currentTimeMillis();
+		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);
 //
 //		invERF.getTimeSpan().setStartTime(1970);

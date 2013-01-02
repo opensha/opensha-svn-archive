@@ -104,11 +104,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	static double refRI = 200;
 	static double refSimDur = 1d;	// 1 year for the reference simulator duration
 	static double deltaT = 0.1;
-	BPT_DistCalc bptDistCalcForSims;				// for simulations using refSimDur
-	double timeWhereBPT_CondProbSameAsPoisForSims;	// normalized by refRI
-	BPT_DistCalc bptDistCalc;						// for full timespan duration
-	double timeWhereBPT_CondProbSameAsPois;			// for full timespan duration
+	BPT_DistCalc refBPT_DistributionCalc;	
+	ArbitrarilyDiscretizedFunc bptTimeToPoisCondProbFunc;
 	
+	// for ave date of last event calculations
+	double[] areaForSect;	// compute these oence to speed things up
+	double totRupArea, totRupAreaWithDateOfLast;
+	boolean allSectionsHadDateOfLast;
+	
+	// cached for speed:
+	ArrayList<int[]> sectIndexArrayForSrcList;
+	long[] dateOfLastForSect;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -145,30 +151,52 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		initiateTimeSpan();
 	}
 	
+	/**
+	 * This initializes the reference BPT calculator & bptTimeToPoisCondProbFunc.
+	 */
 	protected void initBPT_CondProbCalc() {
 		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 		long endTime = timeSpan.getEndTimeCalendar().getTimeInMillis();
 		double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
-		bptDistCalc = getRef_BPT_DistCalc(bpt_Aperiodicity, duration);
-		double poisProb = 1-Math.exp(-duration/refRI);	
-		timeWhereBPT_CondProbSameAsPois = bptDistCalcForSims.getCondProbFunc().getFirstInterpolatedX(poisProb)/refRI;	// normalized by RI
+		refBPT_DistributionCalc = getRef_BPT_DistCalc(bpt_Aperiodicity, duration);
+		bptTimeToPoisCondProbFunc = this.getBPT_TimeToPoisCondProbFunc(bpt_Aperiodicity);
 		
-		System.out.println("safeTimeSinceLastCutoff="+bptDistCalcForSims.getSafeTimeSinceLastCutoff()/refRI);
-		System.out.println("timeWhereBPT_CondProbSameAsPoiss="+timeWhereBPT_CondProbSameAsPoisForSims);
+		// TODO the following could be created only in simulation mode (to reduce memory)
+		areaForSect = new double[faultSysSolution.getNumSections()];
+		for(int s=0; s<faultSysSolution.getNumSections();s++) {
+			double ddw = faultSysSolution.getFaultSectionData(s).getReducedDownDipWidth();
+			double length = faultSysSolution.getFaultSectionData(s).getFaultTrace().getTraceLength();
+			areaForSect[s] = ddw*length;
+		}
+		
+		// Make local sectIndexArrayForSrcList for faster simulations
+		sectIndexArrayForSrcList = new ArrayList<int[]>();
+		for(int s=0; s<numNonZeroFaultSystemSources;s++) {
+			List<Integer> indexList = faultSysSolution.getSectionsIndicesForRup(fltSysRupIndexForSource[s]);
+			int[] indexArray = new int[indexList.size()];
+			for(int i=0;i<indexList.size();i++)
+				indexArray[i] = indexList.get(i);
+			sectIndexArrayForSrcList.add(indexArray);
+		}
+		
+		// Make date of last event for section array for faster simulations 
+		// TODO = note that any actual values in the fault section data objects are not mapped in)
+		dateOfLastForSect = new long[faultSysSolution.getNumSections()];
+		for(int s=0; s<faultSysSolution.getNumSections();s++) {
+			dateOfLastForSect[s]=Long.MIN_VALUE;
+		}
+
+
 	}
 
-	
-	protected void initBPT_CondProbCalcForSims() {
-		bptDistCalcForSims = getRef_BPT_DistCalc(bpt_Aperiodicity, refSimDur);
-		double poisProb = 1-Math.exp(-refSimDur/refRI);	// uses refSimDur
-		timeWhereBPT_CondProbSameAsPoisForSims = bptDistCalcForSims.getCondProbFunc().getFirstInterpolatedX(poisProb)/refRI;	// normalized by RI
-		
-		System.out.println("safeTimeSinceLastCutoff="+bptDistCalcForSims.getSafeTimeSinceLastCutoff()/refRI);
-		System.out.println("timeWhereBPT_CondProbSameAsPoiss="+timeWhereBPT_CondProbSameAsPoisForSims);
-	}
-	
+	/**
+	 * This creates a reference BPT distribution calculator
+	 * @param bpt_Aperiodicity
+	 * @param durationInYears
+	 * @return
+	 */
 	protected static BPT_DistCalc getRef_BPT_DistCalc(double bpt_Aperiodicity, double durationInYears) {
-		int numPts = (int)Math.round(7*refRI/deltaT);	// adding 3 makes the last value in function 700
+		int numPts = (int)Math.round((7*refRI+durationInYears)/deltaT);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		bptCalc.setAll(refRI, bpt_Aperiodicity, deltaT, numPts, durationInYears);
 		return bptCalc;
@@ -216,7 +244,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		System.out.println("time span duration = "+timeSpan.getDuration());
 		
-		// make the bpt calculator (only really needed if timespan or aperiodicity changes)
+		// make the bpt calculator (only really needed if time span or aperiodicity changes)
 		initBPT_CondProbCalc();
 
 		// fill in totalRate, longTermRateOfNthRups, and magOfNthRups, where the first two do not include time dependence
@@ -470,8 +498,16 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 	/**
 	 * This computes the gain by averaging the long-term rates on each section.  A value of Double.NaN
-	 * is returned if there were no fault sections with a date of last event.  Note that this uses the
-	 * full duration of the current time span.
+	 * is returned if there were no fault sections with a date of last event.  If more than one section 
+	 * has a date of last event, but others don't, those that don't get a date of last event that is equal
+	 * to that producing a BPT probability equal to the Poisson probability.  If no sections have a date of
+	 * last event, this approach would yield a probability gain of 1.0 (although NaN is returned for this
+	 * case so users can decide how to handle this case)
+	 * 
+	 * Note that this uses the full duration of the current time span.
+	 * 
+	 * TODO this could be made a bit faster by using cached dates of last event and the sections used in
+	 * each rupture (dealing with object pointers appears to be much slower in simulations).
 	 * @param faultSysRupIndex
 	 * @return
 	 */
@@ -484,17 +520,21 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				
 		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 		long endTime = timeSpan.getEndTimeCalendar().getTimeInMillis();
+		double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
 		
 		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(faultSysRupIndex);
 		double totArea=0, goodArea=0;
 		double sumDateOfLast = 0;
 		
-		long defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*0.7);	// TODO factor of 0.7 assume BPT, aper=0.2, and duration is 1 yr (giving same conditional prob as poisson model)
+		double durOverRI = duration/aveExpRI;
+		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
+		double defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
 		
 		for(int s=0;s<fltData.size();s++) {
 			FaultSectionPrefData data = fltData.get(s);
 			long dateOfLast = data.getDateOfLastEvent();
-			double area = data.getTraceLength()*data.getReducedDownDipWidth();
+			double area = areaForSect[data.getSectionId()];
+//			double area = data.getTraceLength()*data.getReducedDownDipWidth();
 			totArea += area;
 			if(dateOfLast != Long.MIN_VALUE) {
 				sumDateOfLast += (double)dateOfLast*area;
@@ -519,10 +559,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
 							startTime+" and aveDateOfLast="+aveDateOfLast+"; "+timeSinceLast+" yrs)");
 			}
-			double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
 			double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
 			double refDuration = duration*refRI/aveExpRI;
-			double prob_bpt= bptDistCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+			double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
 			double prob_pois = 1-Math.exp(-duration/aveExpRI);
 			
 			gain = (prob_bpt/prob_pois);
@@ -608,7 +647,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		for(FaultSectionPrefData data:fltData) {
 			long dateOfLast = data.getDateOfLastEvent();
 			if(dateOfLast != Long.MIN_VALUE) {
-				double area = data.getTraceLength()*data.getReducedDownDipWidth();
+				double area = areaForSect[data.getSectionId()];
+//				double area = data.getTraceLength()*data.getReducedDownDipWidth();
 				totArea += area;
 				sumDateOfLast += (double)dateOfLast * area;
 			}
@@ -628,6 +668,171 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		double normRI= timeSinceLast/aveExpRI;
 		return normRI;
 	}
+	
+	/**
+	 * This method returns the average date of last event (epoch milliseconds) for the given rupture, representing
+	 * an area-weight averaged value.  Fault sections that have no date of last event are given the equivalent
+	 * date of last that is closest to the Poisson distribution.
+	 * Users will know this has been done by the following global variables being non equal after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionsHadDateOfLast
+	 * 
+	 * @param fltSystRupIndex
+	 * @return
+	 */
+	public long getAveDateOfLastEventCorrected(int fltSystRupIndex) {
+		// compute average date of last event
+		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
+		double durOverRI = timeSpan.getDuration()/aveExpRI;
+		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
+		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
+		double defaultAveDateOfLast =  (double)startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
+
+		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSystRupIndex);
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumDateOfLast = 0;
+		for(FaultSectionPrefData data:fltData) {
+			long dateOfLast = data.getDateOfLastEvent();
+			double area = data.getTraceLength()*data.getReducedDownDipWidth();
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				sumDateOfLast += (double)dateOfLast*area;
+			}
+			else {
+				sumDateOfLast += defaultAveDateOfLast;
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		return Math.round(sumDateOfLast/totRupArea);  // epoch millis
+	}
+	
+	
+	/**
+	 * This method returns the weight-averaged date of last event (epoch milliseconds, where weights are section ares) 
+	 * for the given rupture.  This version gets date of last event and computes are from the fault section data objects.
+	 * Fault sections that have no date of last event are ignored, and Long.MIN_VALUE is returned if no sections have a 
+	 * date of last event.  Users can determine how much of the total area had date of last event by comparing the following 
+	 * global variables after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionsHadDateOfLast
+	 * 
+	 * @param fltSystRupIndex
+	 * @return
+	 */
+	public long getAveDateOfLastEvent(int fltSystRupIndex) {
+		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSystRupIndex);
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumDateOfLast = 0;
+		for(FaultSectionPrefData data:fltData) {
+			long dateOfLast = data.getDateOfLastEvent();
+			double area = data.getTraceLength()*data.getReducedDownDipWidth();
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				sumDateOfLast += (double)dateOfLast*area;
+			}
+			else {
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		if(totRupAreaWithDateOfLast>0.0)
+			return Math.round(sumDateOfLast/totRupArea);  // epoch millis
+		else
+			return Long.MIN_VALUE;
+	}
+	
+	
+	/**
+	 * This method returns the average date of last event (epoch milliseconds) for the given rupture, representing
+	 * an area-weight averaged value.  Fault sections that have no date of last event are given the equivalent
+	 * date of last that is closest to the Poisson distribution.  Users will know this has been done by the following 
+	 * global variables being non equal after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionsHadDateOfLast
+	 * 
+	 * This uses cached arrays for speed.
+	 * 
+	 * @param fltSystRupIndex
+	 * @return
+	 */
+	public long getAveDateOfLastEventCorrectedFast(int fltSystRupIndex, long startTimeMillis, double durationYears) {
+		// compute average date of last event
+		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
+		double durOverRI = durationYears/aveExpRI;
+		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
+		double defaultAveDateOfLast =  (double)startTimeMillis - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
+
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumDateOfLast = 0;
+		for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
+			long dateOfLast = dateOfLastForSect[sect];
+			double area = areaForSect[sect];
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				sumDateOfLast += (double)dateOfLast*area;
+			}
+			else {
+				sumDateOfLast += defaultAveDateOfLast;
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		return Math.round(sumDateOfLast/totRupArea);  // epoch millis
+	}
+
+	
+	
+	/**
+	 * This method returns the weight-averaged date of last event (epoch milliseconds, where weights are section ares) 
+	 * for the given rupture.  This version uses cached arrays to for section area, date of last event, and sections in rupture.
+	 * Fault sections that have no date of last event are ignored, and Long.MIN_VALUE is returned if no sections have a 
+	 * date of last event.  Users can determine how much of the total area had date of last event by comparing the following 
+	 * global variables after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionHadDateOfLast
+	 * 
+	 * @param fltSystRupIndex
+	 * @return
+	 */
+	public long getAveDateOfLastEventFast(int fltSystRupIndex) {
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumDateOfLast = 0;
+		for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
+			long dateOfLast = dateOfLastForSect[sect];
+			double area = areaForSect[sect];
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				sumDateOfLast += (double)dateOfLast*area;
+			}
+			else {
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		if(totRupAreaWithDateOfLast>0.0)
+			return Math.round(sumDateOfLast/totRupArea);  // epoch millis
+		else
+			return Long.MIN_VALUE;
+	}
+
+
 	
 	
 	/**
@@ -691,6 +896,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 
 	
+	
+	
+	
 	/**
 	 * This simulates events from using elastic rebound probabilities
 	 * 
@@ -704,164 +912,30 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * 
 	 * @param durationInYears
 	 */
-	public void testER_Simulation() {
-		
-		this.TIME_PRED = false;
-		
-		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
-		double origDuration = timeSpan.getDuration();
-		SIMULATION_MODE=true;
-		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
-		normalizedRecurIntervals = new ArrayList<Double>();
-		double startYear = ((double)origStartTime)/MILLISEC_PER_YEAR+1970.0;
-		long startTimeMillis = origStartTime;
-
-		timeSpan.setDuration(1.0);	// use annual probability to sample events
-		System.out.println("start time: "+origStartTime+ " millis ("+startYear+" yrs)");
-		System.out.println("originalDuration: "+origDuration+" ("+timeSpan.getDurationUnits()+")");
-		int numRups=0;
-		
-		// apache tool for sampling from exponential distribution here
-		RandomDataImpl randomDataSampler = new RandomDataImpl();
-		
-		// create the ERF
-		if(D) System.out.println("Updating forecast");
-		updateForecast();
-		
-		// make the target MFD
-		if(D) System.out.println("Making target MFD");
-		SummedMagFreqDist targetMFD = ERF_Calculator.getTotalMFD_ForERF(this, 2.05, 8.95, 70, true);
-		targetMFD.setName("Target MFD");
-		targetMFD.setInfo(" ");
-//		System.out.println(targetMFD);
-
-		// MFD for simulation
-		SummedMagFreqDist obsMFD = new SummedMagFreqDist(5.05,8.95,40);
-		
-		double counter=0;
-		int percDone=0;
-		System.out.println(percDone+"% done");
-		double yr=startYear;
-		long startRunTime = System.currentTimeMillis();
-		while (yr<origDuration+startYear) {
-			// write progress
-			if(counter > origDuration/50) {
-				counter =0;
-				percDone += 2;
-				double timeInMin = ((double)(System.currentTimeMillis()-startRunTime)/(1000.0*60.0));
-				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes\n");	
-			}
-			
-//			System.out.println(numRups+"\t"+yr+"\t"+totalRate);
-			
-			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
-//			System.out.println("Start time: "+startTimeMillis+"\t"+yr+"\t"+(1970+(double)startTimeMillis/MILLISEC_PER_YEAR));
-			
-			double timeOfNextInYrs = randomDataSampler.nextExponential(1.0/totalRate);
-			long eventTimeMillis = startTimeMillis + (long)(timeOfNextInYrs*MILLISEC_PER_YEAR);
-//System.out.println("Event time: "+eventTimeMillis+" ("+(yr+timeOfNextInYrs)+" yrs)");
-//long milis = System.currentTimeMillis();
-			int nthRup = spontaneousRupSampler.getRandomInt();
-			if(TIME_PRED)
-				setRuptureOccurrenceTimePred(nthRup, eventTimeMillis);
-			else
-				setRuptureOccurrenceRenewal(nthRup, eventTimeMillis);
-//System.out.println("sampling & setting event took (sec): "+(System.currentTimeMillis()-milis)/1e3);
-
-//			System.out.print((float)timeOfNextInYrs+" ("+(float)totalRate+"); ");	
-//			System.out.print(numRups+"\t"+nthRup+"\t"+(float)timeOfNextInYrs+" ("+(float)totalRate+"); \n");	
-
-			numRups+=1;
-			obsMFD.addResampledMagRate(magOfNthRups[nthRup], 1.0, true);
-			yr+=timeOfNextInYrs;
-			counter +=timeOfNextInYrs;
-			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
-
-			// update gains for next loop given possible fault-based event and start-time change
-long milis = System.currentTimeMillis();
-			for(int s=0;s<numNonZeroFaultSystemSources;s++) {
-				double probGain;
-				if(TIME_PRED)
-					probGain = computeTimePredProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
-				else
-//					probGain = 1;
-					probGain = computeRenewalProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
-
-				if(Double.isNaN(probGain))
-					probGainForFaultSystemSource[s] = 1;
-				else
-					probGainForFaultSystemSource[s] = probGain;
-			}
-// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
-
-//milis = System.currentTimeMillis();
-			// now update totalRate and ruptureSampler (for rups that change probs)
-			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
-//				double newRate = longTermRateOfNthRups[n];	// poisson probs
-				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
-				spontaneousRupSampler.set(n, newRate);
-			}
-			totalRate = spontaneousRupSampler.getSumOfY_vals();
-//System.out.println("updating sampler took (sec): "+(System.currentTimeMillis()-milis)/1e3);
-
-		}
-		System.out.println("numRups="+numRups);
-		
-
-		System.out.println("normalizedRecurIntervals.size()="+normalizedRecurIntervals.size());
-//		for(Double nRI:normalizedRecurIntervals)
-//			System.out.println(nRI);
-		
-		General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, "Normalized RIs; TIME_PRED="+TIME_PRED);
-		
-//		System.out.println(obsMFD);
-
-		// plot MFDs
-		obsMFD.scale(1.0/origDuration);
-		obsMFD.setName("Simulated MFD");
-		obsMFD.setInfo(" ");
-
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(targetMFD);
-		funcs.add(obsMFD);
-		funcs.add(targetMFD.getCumRateDistWithOffset());
-		funcs.add(obsMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists; TIME_PRED="+TIME_PRED); 
-		graph.setX_AxisLabel("Mag");
-		graph.setY_AxisLabel("Rate");
-//		graph.setYLog(true);	// this causes problems
-		graph.setY_AxisRange(1e-6, 1.0);
-
-	}
-	
-	
-	
-	
 	public void testER_SimulationFast() {
 		
-		this.TIME_PRED = false;
+		TIME_PRED = false;	// only needed for slow way
 		
+		// save original start time and total duration (these will get over ridden)
 		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 		double origDuration = timeSpan.getDuration();
-		SIMULATION_MODE=true;
-		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
-		normalizedRecurIntervals = new ArrayList<Double>();
 		double startYear = ((double)origStartTime)/MILLISEC_PER_YEAR+1970.0;
 		long startTimeMillis = origStartTime;
-		
-		// make the BPT calculator for simulations
-		initBPT_CondProbCalcForSims();
 
-		timeSpan.setDuration(1.0);	// use annual probability to sample events
+		// switch to simulation mode
+		SIMULATION_MODE=true;
+		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
+		double simDuration = 1.0;	// 1 year; this could be the expected time to next event?
+		timeSpan.setDuration(simDuration);	// use annual probability to sample events
 		System.out.println("start time: "+origStartTime+ " millis ("+startYear+" yrs)");
 		System.out.println("originalDuration: "+origDuration+" ("+timeSpan.getDurationUnits()+")");
+		
+		// initialize some things
+		normalizedRecurIntervals = new ArrayList<Double>();
 		int numRups=0;
+		RandomDataImpl randomDataSampler = new RandomDataImpl();	// apache tool for sampling from exponential distribution here
 		
-		// apache tool for sampling from exponential distribution here
-		RandomDataImpl randomDataSampler = new RandomDataImpl();
-		
-		
-		// create the ERF
+		// Update forecast
 		if(D) System.out.println("Updating forecast");
 		updateForecast();
 		
@@ -875,27 +949,8 @@ long milis = System.currentTimeMillis();
 		// MFD for simulation
 		SummedMagFreqDist obsMFD = new SummedMagFreqDist(5.05,8.95,40);
 		
-		if(D) System.out.println("Making sectIndexArrayForSrcList & other arrays");
-		// Make local sectIndexArrayForSrcList for simulation
-		ArrayList<int[]> sectIndexArrayForSrcList = new ArrayList<int[]>();
-		for(int s=0; s<numNonZeroFaultSystemSources;s++) {
-			List<Integer> indexList = faultSysSolution.getSectionsIndicesForRup(fltSysRupIndexForSource[s]);
-			int[] indexArray = new int[indexList.size()];
-			for(int i=0;i<indexList.size();i++)
-				indexArray[i] = indexList.get(i);
-			sectIndexArrayForSrcList.add(indexArray);
-		}
-		// Make area and date of last event for each section arrays
-		double[] areaForSect = new double[faultSysSolution.getNumSections()];
-		long[] dateOfLastForSect = new long[faultSysSolution.getNumSections()];
-		for(int s=0; s<faultSysSolution.getNumSections();s++) {
-			dateOfLastForSect[s]=Long.MIN_VALUE;
-			double ddw = faultSysSolution.getFaultSectionData(s).getReducedDownDipWidth();
-			double length = faultSysSolution.getFaultSectionData(s).getFaultTrace().getTraceLength();
-			areaForSect[s] = ddw*length;
-		}
 		
-	
+		// print minimum and maximum conditional rate of rupture
 		double minCondRI=Double.MAX_VALUE,maxCondRI=0;
 		for(double rate: ruptureRenewalRatesForFltSysRups) {
 			double ri = 1d/rate;
@@ -907,13 +962,14 @@ long milis = System.currentTimeMillis();
 		System.out.println("minCondRI="+minCondRI);
 		System.out.println("maxCondRI="+maxCondRI);
 		
-		
+		// do simulation loop
 		double counter=0;
 		int percDone=0;
 		System.out.println(percDone+"% done"+"\ttotalRate="+totalRate+"\n");
 		double yr=startYear;
 		long startRunTime = System.currentTimeMillis();
 		while (yr<origDuration+startYear) {
+			
 			// write progress
 			if(counter > origDuration/50) {
 				counter =0;
@@ -925,40 +981,53 @@ long milis = System.currentTimeMillis();
 //			System.out.println(numRups+"\t"+yr+"\t"+totalRate);
 			
 			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
+			// sample time of next event
 			double timeOfNextInYrs = randomDataSampler.nextExponential(1.0/totalRate);
 			long eventTimeMillis = startTimeMillis + (long)(timeOfNextInYrs*MILLISEC_PER_YEAR);
 // System.out.println("Event time: "+eventTimeMillis+" ("+(yr+timeOfNextInYrs)+" yrs)");
-//long milis = System.currentTimeMillis();
+
+			// sample an event
 			int nthRup = spontaneousRupSampler.getRandomInt();
 			int srcIndex = srcIndexForNthRup[nthRup];
 
 			// set that fault system event has occurred
-			if(nthRup < totNumRupsFromFaultSystem) {
+			if(nthRup < totNumRupsFromFaultSystem) {	// ignore subseimo ruptures
 				int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
 
-				// compute and save the normalize recurrence interval, and set new date of last on each section
-				double totArea=0;
-				double sumDateOfLast = 0;
-				boolean goodRI = true;
-// if(magOfNthRups[nthRup] > 7.8) System.out.println("updating date of last event");
-				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
-					long dateOfLast = dateOfLastForSect[sect];	// cast to double
-					// reset dateOfLastForSect[sect]
-					dateOfLastForSect[sect] = eventTimeMillis;
-					if(dateOfLast != Long.MIN_VALUE) {
-						sumDateOfLast += (double)dateOfLast*areaForSect[sect];
-						totArea += areaForSect[sect];
-					}
-					else {
-						goodRI = false;
-					}
-				}
-				if(goodRI) {
-					long aveDateOfLastMillis = Math.round(sumDateOfLast/totArea);  // epoch millis
+				// compute and save the normalize recurrence interval if all sections had date of last
+				long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
+				if(allSectionsHadDateOfLast) {
 					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
-					double normRI= timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
-					normalizedRecurIntervals.add(normRI);
+					normalizedRecurIntervals.add(timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex]);
 				}
+				
+				// reset last event time on sections
+				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
+					dateOfLastForSect[sect] = eventTimeMillis;
+				}
+				
+//				double totArea=0;
+//				double sumDateOfLast = 0;
+//				boolean goodRI = true;
+//				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
+//					long dateOfLast = dateOfLastForSect[sect];	// cast to double
+//					// reset dateOfLastForSect[sect]
+//					dateOfLastForSect[sect] = eventTimeMillis;
+//					if(dateOfLast != Long.MIN_VALUE) {
+//						sumDateOfLast += (double)dateOfLast*areaForSect[sect];
+//						totArea += areaForSect[sect];
+//					}
+//					else {
+//						goodRI = false;
+//					}
+//				}
+//				if(goodRI) {
+//					long aveDateOfLastMillis = Math.round(sumDateOfLast/totArea);  // epoch millis
+//					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
+//					double normRI= timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
+//					normalizedRecurIntervals.add(normRI);
+//				}
+					
 
 				timeSpanChangeFlag=true;	// not sure if this is needed
 			}
@@ -972,62 +1041,113 @@ long milis = System.currentTimeMillis();
 			double gainForSouce = probGainForFaultSystemSource[srcIndex];			
 			
 long milis = System.currentTimeMillis();
+
 			// Now update gains for each source
 			long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 			for(int s=0;s<numNonZeroFaultSystemSources;s++) {
-				double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSysRupIndexForSource[s]];
-				double defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPoisForSims);	// set at time that will give cond prob equiv to poisson
-
-				// compute ave data of last
-				double sumDateOfLastRup = 0;	// using long causes numerical problems after long simulation times (weird)
-				double totArea=0, goodArea=0;
-				for(int sect:sectIndexArrayForSrcList.get(s)) {
-					long dateOfLast = dateOfLastForSect[sect];
-					double sectArea = areaForSect[sect];
-					totArea += sectArea;
-					if(dateOfLast != Long.MIN_VALUE) {
-						sumDateOfLastRup += (double)dateOfLast*sectArea;
-						goodArea += sectArea;
-					}
-					else {
-						sumDateOfLastRup += defaultAveDateOfLast*sectArea;
-					}
-				}
-
-				long aveDateOfLastRup = (long)(sumDateOfLastRup/totArea);  // epoch millis
 				
+				// SLOW way ****************:
+//				double probGain = computeRenewalProbGainForFaultSysRup(fltSysRupIndexForSource[s]);;
+//				if(Double.isNaN(probGain))
+//					probGainForFaultSystemSource[s] = 1;
+//				else
+//					probGainForFaultSystemSource[s] = probGain;
+				
+				
+				// FAST way *********************:
+				long aveDateOfLastRup = getAveDateOfLastEventCorrectedFast(fltSysRupIndexForSource[s], startTimeMillis, simDuration);
 				if(D) {	// test that aveDateOfLastRup = eventTimeMillis
 					long testDiff = aveDateOfLastRup - eventTimeMillis;
 					if(testDiff<0) testDiff *= -1;
 					if(s == srcIndex && testDiff > 10) 
 						throw new RuntimeException("aveDateOfLast ("+aveDateOfLastRup+") != eventTimeMillis ("+eventTimeMillis+")");				
 				}
-				
 				// now compute and set gain
-				if(goodArea == 0.0) {	// no date of last event on any section (redundant with using defaultAveDateOfLast, but faster?)
+				if(totRupAreaWithDateOfLast == 0.0) {	// this should not be necessary, but faster?
 					probGainForFaultSystemSource[s] = 1;
 				}
 				else {
 					double timeSinceLast = (startTime-aveDateOfLastRup)/MILLISEC_PER_YEAR;
-					if(timeSinceLast < 0) {
+					if(timeSinceLast < 0) {	// TODO still needed?
 						if(timeSinceLast > -1)
 							timeSinceLast = 0;	// convert slightly negative values to 0
 						else
 							throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
 									startTime+" and aveDateOfLast="+aveDateOfLastRup+"; "+timeSinceLast+" yrs)");
 					}
-						
-					double duration = 1.0;	// 1 year; this could be the expected time to next event?
-					
-					double prob_bpt;
+					double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSysRupIndexForSource[s]];
 					double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
 					double refDuration = refSimDur*refRI/aveExpRI;
-					prob_bpt= bptDistCalcForSims.getSafeCondProb(refTimeSinceLast, refDuration);
-					double prob_pois = 1-Math.exp(-duration/aveExpRI);
+					double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+					double prob_pois = 1-Math.exp(-simDuration/aveExpRI);
 					probGainForFaultSystemSource[s] =  (prob_bpt/prob_pois);
 //					probGainForFaultSystemSource[s] =  1;	// for testing
 					
 				}
+
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
+//				double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSysRupIndexForSource[s]];
+//				double durOverRI = simDuration/aveExpRI;
+//				double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
+//				double defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
+//
+//				// compute ave data of last
+//				double sumDateOfLastRup = 0;	// using long causes numerical problems after long simulation times (weird)
+//				double totArea=0, goodArea=0;
+//				for(int sect:sectIndexArrayForSrcList.get(s)) {
+//					long dateOfLast = dateOfLastForSect[sect];
+//					double sectArea = areaForSect[sect];
+//					totArea += sectArea;
+//					if(dateOfLast != Long.MIN_VALUE) {
+//						sumDateOfLastRup += (double)dateOfLast*sectArea;
+//						goodArea += sectArea;
+//					}
+//					else {
+//						sumDateOfLastRup += defaultAveDateOfLast*sectArea;
+//					}
+//				}
+//				long aveDateOfLastRup = (long)(sumDateOfLastRup/totArea);  // epoch millis
+//				
+//				if(D) {	// test that aveDateOfLastRup = eventTimeMillis
+//					long testDiff = aveDateOfLastRup - eventTimeMillis;
+//					if(testDiff<0) testDiff *= -1;
+//					if(s == srcIndex && testDiff > 10) 
+//						throw new RuntimeException("aveDateOfLast ("+aveDateOfLastRup+") != eventTimeMillis ("+eventTimeMillis+")");				
+//				}
+//				
+//				// now compute and set gain
+//				if(goodArea == 0.0) {	// no date of last event on any section (redundant with using defaultAveDateOfLast, but faster?)
+//					probGainForFaultSystemSource[s] = 1;
+//				}
+//				else {
+//					double timeSinceLast = (startTime-aveDateOfLastRup)/MILLISEC_PER_YEAR;
+//					if(timeSinceLast < 0) {
+//						if(timeSinceLast > -1)
+//							timeSinceLast = 0;	// convert slightly negative values to 0
+//						else
+//							throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
+//									startTime+" and aveDateOfLast="+aveDateOfLastRup+"; "+timeSinceLast+" yrs)");
+//					}
+//											
+//					double prob_bpt;
+//					double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
+//					double refDuration = refSimDur*refRI/aveExpRI;
+//					prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+//					double prob_pois = 1-Math.exp(-simDuration/aveExpRI);
+//					probGainForFaultSystemSource[s] =  (prob_bpt/prob_pois);
+//					probGainForFaultSystemSource[s] =  1;	// for testing
+//					
+//				}
+				// ********************
 
 			}
 			// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
@@ -1121,10 +1241,9 @@ long milis = System.currentTimeMillis();
 	 * the closest to the Poisson probability (all other values would have higher probabilities).
 	 * @param aperiodicity
 	 */
-	public static ArbitrarilyDiscretizedFunc getBPT_TimeToPoisCondProb(double aperiodicity) {
+	public static ArbitrarilyDiscretizedFunc getBPT_TimeToPoisCondProbFunc(double aperiodicity) {
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-//		double[] durOverRI_Array = {1e-3,1e-2,1e-1,1,10,100};
 		double logLowDurOverRI = -3;
 		double logHighDurOverRI = 2;
 		int numDurOverRI = 201;
@@ -1171,83 +1290,63 @@ long milis = System.currentTimeMillis();
 	
 
 	/**
-	 * This should test that Poisson probabilities are equal to BPt conditional probabilities when the
-	 * appropriate time-since-last-event value is uses in the BPT case.
+	 * This tests how close the BPT conditional probability is to Poisson when the former is based
+	 * on the distance out from the getBPT_TimeToPoisCondProb(aper) function.  The two are the same
+	 * except in cases where they are expected to differ: when duration is 1.5 to 2 times the recurrence
+	 * interval, the BPT probability is 25% to 16% higher than the Poisson (and can't get any closer).
+	 * 
+	 * This also tests that getBPT_TimeToPoisCondProb(aper) only depends on the ratio of duration/ri,
+	 * and that the fast way of calculating things (by scaling ri and duration to a reference) gives 
+	 * the same result as the slower way.
 	 */
 	public static void testTimeToPoisCondProb() {
-		double[] durationArray = {1,10,100};
-//		double[] ri_array = {20};
-//		double[] ri_array = {20,60,1e2,2e2,2e3,2e4,2e5,2e6,2e7,2e8}; 	// recurrence intervals to loop over
 		double[] ri_array = {10,1e2,1e3,1e4,1e5,1e6,1e7,1e8}; 	// recurrence intervals to loop over
-		double[] aperArray = {0.2};					// aperiodicities to loop over
-//		double[] aperArray = {0.2,0.4,0.6,0.8};					// aperiodicities to loop over
-		for(double aper:aperArray) {
-			for(double duration:durationArray) {
-				for(double ri:ri_array) {
+//		double[] aperArray = {0.2};					// aperiodicities to loop over
+		double[] aperArray = {0.2,0.4,0.6,0.8};					// aperiodicities to loop over
+		
+		double logLowDurOverRI = -2;
+		double logHighDurOverRI = 1;
+		int numDurOverRI = 31;
+		double deltaLogDurOverRI = (logHighDurOverRI-logLowDurOverRI)/(numDurOverRI-1);
+		
+		System.out.println("bpt/pois\tdistOut\tdurOverRI\tri\tduration\taper\tpoisProb\tbptProb");
 
-					ArbitrarilyDiscretizedFunc distOutFunc = getBPT_TimeToPoisCondProb(aper);
-					
+		for(double aper:aperArray) {
+			ArbitrarilyDiscretizedFunc distOutFunc = getBPT_TimeToPoisCondProbFunc(aper);
+			for(double ri:ri_array) {
+				for(int i=0;i<numDurOverRI;i++) {
+					double durOverRI = Math.pow(10,logLowDurOverRI+i*deltaLogDurOverRI);
+					double duration = durOverRI*ri;
+
 					// the fast way using reference RI:
-					BPT_DistCalc bptCalc = getRef_BPT_DistCalc(aper, duration);
 					double refDuration = duration*refRI/ri;
+					BPT_DistCalc bptCalc = getRef_BPT_DistCalc(aper, refDuration);
 					double poisProbFast = 1-Math.exp(-refDuration/refRI);
 					double distOutFast = distOutFunc.getInterpolatedY(refDuration/refRI);
 					double bptEquivProbFast = bptCalc.getCondProb(refRI*distOutFast, refDuration);
-//					double distOutFast;
-//					try {	// this fails if poisson probability is below the BPT conditional prob when time since last is zero (ri short compared to duration)
-//						distOutFast = bptCalc.getCondProbFunc(refDuration).getFirstInterpolatedX(poisProbFast)/refRI;
-//					} catch (Exception e) {
-//						//					double min = bptCalc.getCondProbFunc(refDuration).getY(0);
-//						//					System.out.println("poisProbFast ("+(float)poisProbFast+") is less than min BPT cond prob ("+(float)min+"); refRI="+refRI+" & refDuration="+refDuration);
-//						distOutFast = Double.NaN;
-//					}
 
 					// the slower calculation
 					double poisProb = 1-Math.exp(-duration/ri);
 					BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
 					double deltaT_Alt = deltaT*ri/refRI;
-					int numPts = (int)Math.round(7*refRI/deltaT);
+					int numPts = (int)Math.round((7*ri+duration)/deltaT_Alt);
 					bptDistCalcAlt.setAll(ri, aper, deltaT_Alt, numPts, duration);
 					double distOut = distOutFunc.getInterpolatedY(duration/ri);
 					double bptEquivProbAlt = bptDistCalcAlt.getCondProb(ri*distOut, duration);
 					
-//					System.out.println(distOut+"\t"+distOutFast);
-					
-					
-//					double distOut;
-//					try {	// this fails if poisson probability is below the BPT conditional prob when time since last is zero (ri short compared to duration)
-//						distOut = bptDistCalcAlt.getCondProbFunc(duration).getFirstInterpolatedX(poisProb)/ri;
-//					} catch (Exception e) {
-//						//					double min = bptDistCalcAlt.getCondProbFunc(testDuration).getY(0);
-//						//					System.out.println("poisProb ("+(float)poisProb+") is less than min BPT cond prob ("+(float)min+"); ri="+ri+" & testDuration="+testDuration);
-//						distOut = Double.NaN;
-//					}
-
-					// get small duration limiting value & prob computed from this value
-//					double smallDur = 1; // 1 yr
-//					double poisProbSmallDur = 1-Math.exp(-smallDur/ri);
-//					double distOutSmallDur = bptDistCalcAlt.getCondProbFunc(smallDur).getFirstInterpolatedX(poisProbSmallDur)/ri;
-//					// now get BPT prob using this distOutSmallDur
-//					double prob;
-//					try {
-//						prob = bptDistCalcAlt.getSafeCondProb(distOutSmallDur*ri, duration);
-//					} catch (Exception e) {
-//						System.out.println("Problem for ri,duration: "+ri+", "+duration);
-//						prob = Double.NaN;
-//					}
-
 					// this tests that fast calc is equivalent to slow calc
 					double ratio = bptEquivProbFast/bptEquivProbAlt;
 					if(ratio>1.001 || ratio <0.999)
-						throw new RuntimeException("fast way not same as slow; ratio="+ratio);
-					//				System.out.println((float)distOut+"\t"+aper+"\t"+ri+"\t"+(float)distOutFast+"\t"+(float)ratio);	// last column should be 1.0
+						throw new RuntimeException("fast way not same as slow for BPT Prob; ratio="+ratio);
+					
+					ratio = distOutFast/distOut;
+//					System.out.println(distOut+"\t"+distOutFast);
+					if(ratio>1.001 || ratio <0.999)
+						throw new RuntimeException("fast way not same as slow for distOut; ratio="+ratio);
 
-					double durOverRI = duration/ri;
-
-					System.out.println((float)(bptEquivProbFast/poisProb)+"\t"+(float)durOverRI+"\t"+ri+"\t"+duration+"\t"+aper+"\t"+
+					// we want the first column to be 1.0 (if possible)
+					System.out.println((float)(bptEquivProbFast/poisProb)+"\t"+(float)distOut+"\t"+(float)durOverRI+"\t"+ri+"\t"+duration+"\t"+aper+"\t"+
 							+(float)poisProb+"\t"+(float)bptEquivProbFast);
-//					System.out.println((float)distOut+"\t"+durOverRI+"\t"+ri+"\t"+duration+"\t"+aper+"\t"+
-//							+(float)poisProb+"\t"+(float)prob+"\t"+(float)(prob/poisProb));
 				}
 			}
 		}
