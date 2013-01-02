@@ -1,15 +1,18 @@
 package scratch.peter.curves;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Class that encapsulates statistical data from suite of logic tree results
@@ -38,14 +41,14 @@ public class TornadoData {
 	}
 	
 	public String toSortedString() {
-		List<TornadoEntry<? extends Enum<?>>> entries = 
+		List<? extends TornadoEntry<? extends Enum<?>>> entries = 
 				Lists.newArrayList(entryMap.values());
 		Collections.sort(entries);
 		return buildString(median, entries);
 	}
 	
 	private static String buildString(double median,
-			Collection<TornadoEntry<? extends Enum<?>>> entries) {
+			Collection<? extends TornadoEntry<? extends Enum<?>>> entries) {
 		StringBuilder sb = new StringBuilder();
 		// putting in twice so format matches subsequent rows
 		sb.append(J.join("median", median, "median", median)).append(LF);
