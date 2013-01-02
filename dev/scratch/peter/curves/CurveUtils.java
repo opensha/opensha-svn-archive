@@ -16,6 +16,7 @@ import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -574,28 +575,28 @@ public class CurveUtils {
 		}
 		
 		// calc and write stats
-		double[] wtVals = Doubles.toArray(weights);
-		double[] rtgmVals = Doubles.toArray(rtgms);
-		double[] pe2in50Vals = Doubles.toArray(pe2in50s);
-		double[] pe10in50Vals = Doubles.toArray(pe10in50s);
-
-		double minRTGM = Doubles.min(rtgmVals);
-		double maxRTGM = Doubles.max(rtgmVals);
-		double meanRTGM = MEAN.evaluate(rtgmVals, wtVals);
-
-		double min2in50 = Doubles.min(pe2in50Vals);
-		double max2in50 = Doubles.max(pe2in50Vals);
-		double mean2in50 = MEAN.evaluate(pe2in50Vals, wtVals);
-
-		double min10in50 = Doubles.min(pe10in50Vals);
-		double max10in50 = Doubles.max(pe10in50Vals);
-		double mean10in50 = MEAN.evaluate(pe10in50Vals, wtVals);
-
 		FractileCurveCalculator fcc = new FractileCurveCalculator(curves,
 			weights);
 		XY_DataSet minCurve = fcc.getMinimumCurve();
 		XY_DataSet maxCurve = fcc.getMaximumCurve();
 		XY_DataSet meanCurve = fcc.getMeanCurve();
+		
+		ArbitrarilyDiscretizedFunc f;
+
+		f = xyDataToFunc(meanCurve);
+		double mean2in50 = getPE(f, PE2IN50);
+		double mean10in50 = getPE(f, PE10IN50);
+		double meanRTGM = getRTGM(f, period);
+
+		f = xyDataToFunc(minCurve);
+		double min2in50 = getPE(f, PE2IN50);
+		double min10in50 = getPE(f, PE10IN50);
+		double minRTGM = getRTGM(f, period);
+
+		f = xyDataToFunc(maxCurve);
+		double max2in50 = getPE(f, PE2IN50);
+		double max10in50 = getPE(f, PE10IN50);
+		double maxRTGM = getRTGM(f, period);
 
 		// header
 		Iterable<String> statFields = Iterables.concat(STAT_FIELDS,
@@ -949,6 +950,14 @@ public class CurveUtils {
 			System.out.println(outLine);
 			Files.append(outLine, out, US_ASCII);
 		}
+	}
+	
+	private static ArbitrarilyDiscretizedFunc xyDataToFunc(XY_DataSet xy) {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		for (Point2D p : xy) {
+			f.set(p);
+		}
+		return f;
 	}
 	
 }
