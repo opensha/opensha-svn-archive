@@ -1,6 +1,7 @@
 package scratch.peter.curves;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class TornadoData {
 	public String toSortedString() {
 		List<TornadoEntry<? extends Enum<?>>> entries = 
 				Lists.newArrayList(entryMap.values());
-//		Collections.sort(entries);
+		Collections.sort(entries);
 		return buildString(median, entries);
 	}
 	

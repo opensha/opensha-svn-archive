@@ -111,13 +111,33 @@ public class CurveUtils {
 
 //		 generateFortranCityData();
 
-		 generateBranchSummaries2();
+//		String srcPath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/SRP1440";
+//		String locFile = srcPath + "/SRPsites.txt";
+//		String curveDir = srcPath + "/reduce";
+//		generateBranchSummaries2(locFile, curveDir, true);
+		
+//		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		String locFile = srcPath + "sites.txt";
+//		String curveDir = srcPath + "NEHRP-PBR-SRP/UC2-TimeIndep";
+//		generateBranchSummaries2(locFile, curveDir, false);
 
-//		File srcDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440");
-//		File outDir = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBR1440reduce");
-//		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
+		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+		String locFile = srcPath + "sites.txt";
+		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3";
+		generateBranchSummaries2(locFile, curveDir, true);
+
+//		String treePath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/SRP1440";
+//		File srcDir = new File(treePath + "/src");
+//		File outDir = new File(treePath + "/reduce");
+//		File locFile = new File(treePath + "/SRPsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 			
+//		String treePath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/PBR1440";
+//		File srcDir = new File(treePath + "/src");
+//		File outDir = new File(treePath + "/reduce");
+//		File locFile = new File(treePath + "/PBRsites.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
+
 //		File srcDir = new File(UC3_ROOT + "convVar0/src");
 //		File outDir = new File(UC3_ROOT + "convVar0");
 //		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
@@ -396,14 +416,15 @@ public class CurveUtils {
 		}
 	}
 	
-	public static void generateBranchSummaries2() {
+	public static void generateBranchSummaries2(String locPath, String curveDir,
+			boolean tornado) {
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
 		List<String> locNames = Lists.newArrayList();
-//		File locFile = new File("/Users/pmpowers/Documents/UCERF3/PBR/PBRsites.txt");
-		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palm.txt");
+		File locFile = new File(locPath);
 		try {
 		List<String> locLines = Files.readLines(locFile, US_ASCII);
 			for (String line : locLines) {
+				if (line.startsWith("#")) continue;
 				locNames.add(Iterables.get(SPLIT.split(line), 0));
 			}
 		} catch (IOException ioe) {
@@ -411,10 +432,9 @@ public class CurveUtils {
 		}
 
 		String imrID = NSHMP08_WUS.SHORT_NAME;
-		String dir = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/PalmdaleTree";
 		try {
 			// boolean is tornado
-			runBranchSummaries2(dir, imrID, periods, locNames, true);
+			runBranchSummaries2(curveDir, imrID, periods, locNames, tornado);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -526,7 +546,6 @@ public class CurveUtils {
 		}
 		
 		// fill branch list and index lookup map
-		int idx = 0;
 		for (String line : Iterables.skip(branchLines, 1)) {
 			Iterable<String> vals = SPLIT.split(line);
 			String branchName = Iterables.get(vals, 1);
