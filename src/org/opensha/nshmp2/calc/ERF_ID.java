@@ -141,6 +141,12 @@ public enum ERF_ID {
 			return getUC3_UC2_MAP(UC3_UC2_MAP_UNI);
 		}
 	},
+	UCERF3_RATE_TEST() {
+		public EpistemicListERF instance() {
+			return getUC3_SolERF(UC3_RATE_TEST);
+		}
+	},
+	
 	
 	/** Using this ID should prompt any class to 
 	 */
@@ -271,6 +277,9 @@ public enum ERF_ID {
 			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
 	private static final String UC3_CONV_PATH_VAR0 =
 			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
+
+	private static final String UC3_RATE_TEST =
+			"/home/scec-00/pmpowers/UC3/src/rateTest/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
 
 	private static final String UC31_1X_SOL_PATH =
 			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
