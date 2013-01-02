@@ -798,6 +798,32 @@ if(debug) {
 		}
 		return d;
 	}
+	
+	public static void main(String[] args) {
+		ArbitrarilyDiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
+		f.set(100d, 0.013609);
+		f.set(250d, 0.033695);
+		f.set(500d, 0.059583);
+		f.set(1000d, 0.093446);
+		f.set(1500d, 0.119977);
+		f.set(2500d, 0.163888);
+		f.set(3000d, 0.177374);
+		f.set(5000d, 0.228356);
+		f.set(7000d, 0.265878);
+		f.set(10000d, 0.314945);
+		
+//		double[] lookups = {10,20,30,40,50,60,70,80,100,150,200,250,333,475,700,800,1000,1200,1300,1500,1800,2000,2475,10000};
+		double[] lookups = {150,200,250,333,475,700,800,1000,1200,1300,1500,1800,2000,2475,10000};
+
+		for (double v : lookups) {
+			int iBefore = f.getXIndexBefore(v);
+			double yInterp = f.getInterpolatedY_inLogXLogYDomain(v);
+			
+			System.out.println("lookup: " + v);
+			System.out.println("  iBefore: " + iBefore);
+			System.out.println("  yInterp: " + yInterp);
+		}
+	}
 	/*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {
 
