@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf;
 
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -12,6 +13,7 @@ import org.apache.commons.math3.random.RandomDataImpl;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
@@ -19,6 +21,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -34,6 +37,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
@@ -73,8 +77,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	private static final boolean D = false;
 	
-	boolean TIME_PRED = false;
-
 	public static final String NAME = "Fault System Solution Time Dep ERF";
 	
 	public final static double MILLISEC_PER_YEAR = 1000*60*60*24*365.25;
@@ -93,12 +95,14 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	// these fields are for simulation mode (stochastic event sets).
 	public boolean SIMULATION_MODE = true;
-	ArrayList<Double> normalizedRecurIntervals;
+	ArrayList<Double> normalizedRupRecurIntervals;
+	ArrayList<Double> normalizedSectRecurIntervals;
 	protected double totalRate;
 	IntegerPDF_FunctionSampler spontaneousRupSampler=null;
 	double[] longTermRateOfNthRups;
 	double[] magOfNthRups;
-	double[] ruptureRenewalRatesForFltSysRups = null;	// the long-term participation rate averaged over all sections involved in the rupture
+	double[] aveCondRecurIntervalForFltSysRups = null;	// the recurrence interval of each rupture conditioned on the fact that it is the next event to occur
+	double[] longTermPartRateForSectArray;
 	
 	// for BPT conditional prob calculations (200 year recurrence interval)
 	static double refRI = 200;
@@ -159,7 +163,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		long endTime = timeSpan.getEndTimeCalendar().getTimeInMillis();
 		double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
 		refBPT_DistributionCalc = getRef_BPT_DistCalc(bpt_Aperiodicity, duration);
-		bptTimeToPoisCondProbFunc = this.getBPT_TimeToPoisCondProbFunc(bpt_Aperiodicity);
+		bptTimeToPoisCondProbFunc = getBPT_TimeToPoisCondProbFunc(bpt_Aperiodicity);
 		
 		// TODO the following could be created only in simulation mode (to reduce memory)
 		areaForSect = new double[faultSysSolution.getNumSections()];
@@ -273,13 +277,24 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// now update the the prob gains if needed (must be done after the above)
 		if(timeSpanChangeFlag || fileChange || bpt_AperiodicityChanged) {
+			
+			// the following gets long-term, conditional rates from the fault system solution
+			// TODO  this only needs to be recomputed if FSS has changed
+			initAveCondRecurIntervalForFltSysRups();
+
 			System.out.println("updating all prob gains");
 			probGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
+			double duration = timeSpan.getDuration();
 			for(int s=0; s<numNonZeroFaultSystemSources; s++) {
-				if(TIME_PRED)
-					probGainForFaultSystemSource[s] = computeTimePredProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
-				else
-					probGainForFaultSystemSource[s] = computeRenewalProbGainForFaultSysRup(fltSysRupIndexForSource[s]);
+				int fltSystRupIndex = fltSysRupIndexForSource[s];
+				double aveTimeSinceLastYears = (double)getAveDateOfLastEventCorrected(fltSystRupIndex)/MILLISEC_PER_YEAR;
+				if(totRupAreaWithDateOfLast == 0) {	// shouldn't be necessary, but more efficient
+					probGainForFaultSystemSource[s] = 1.0;
+				}
+				else {
+					double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
+					probGainForFaultSystemSource[s] = computeER_ProbGainForFaultSysRup(fltSystRupIndex, aveCondRecurInterval, aveTimeSinceLastYears, duration);					
+				}
 			}
 			timeSpanChangeFlag = false;
 			
@@ -342,40 +357,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 	
 	/**
-	 * This method resets the date of last event for all FaultSectionPrefData
-	 * utilized by the specified rupture (and for the given event time).  This also adds 
-	 * the normalized RI to normalizedRecurIntervals if in simulation mode.  This does not
-	 * update the probability gains because the next start time may differ from the origin
-	 * time given here.
-	 * @param nthRup
-	 * @param eventTimeInMillis
-	 */
-	public void setRuptureOccurrenceRenewal(int nthRup, long eventTimeInMillis) {
-		// only process if it's a fault system rupture
-		if(nthRup < totNumRupsFromFaultSystem) {
-			// save the normalize recurrence interval?
-			if(SIMULATION_MODE) {
-				double normRI = getNormalizedRenewalRecurInterval(nthRup, eventTimeInMillis);
-				if(!Double.isNaN(normRI)) {
-					normalizedRecurIntervals.add(normRI);
-					if(D)System.out.println("added normRI");
-				}
-			}
-			// reset date of last event in fault section data
-			int fltSysIndex = fltSysRupIndexForNthRup[nthRup];
-			List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSysIndex);
-			for(int i=0; i< fltData.size(); i++) {
-				FaultSectionPrefData data = fltData.get(i);
-				data.setDateOfLastEvent(eventTimeInMillis);
-			}
-			// set the following to make sure gains are recomputed in updataForecast()
-			timeSpanChangeFlag=true;
-		}
-	}
-
-
-	
-	/**
+	 * TODO remove the legacy method (still used in ETAS simulations)?
+	 * 
 	 * This method resets the slip and date of last events for all FaultSectionPrefData
 	 * utilized by the specified rupture (and for the given event time).  This also adds 
 	 * the normalized RI to normalizedRecurIntervals if in simulation mode.  This does not
@@ -391,7 +374,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			if(SIMULATION_MODE) {
 				double normRI = getNormalizedRecurIntervalTimePred(nthRup, eventTimeInMillis);
 				if(!Double.isNaN(normRI)) {
-					normalizedRecurIntervals.add(normRI);
+					normalizedRupRecurIntervals.add(normRI);
 					if(D)System.out.println("added normRI");
 				}
 			}
@@ -412,6 +395,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 	
 	/**
+	 * TODO remove the legacy method (still used in ETAS simulations)?
+	 * 
 	 * This does the time-dependent calculation in my appendix.  A value of Double.NaN
 	 * is returned if there were no fault sections with both date of and amount of slip
 	 * in last event.
@@ -475,105 +460,58 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		return gain;
 	}
 	
-	
-	public double[] getRenewalRatesForFaultSysRups() {
+	/**
+	 * The initializes the array of average conditional recurrent intervals for each fault system rup
+	 * (the recurrence interval assuming the rup is the next to occur, which is computed as one over the
+	 * average long-term participation rate of all sections involved in the rupture ( where the average is
+	 * weighted by section area)).
+	 * 
+	 * This also initializes longTermPartRateForSectArray.
+	 * @return
+	 */
+	public void initAveCondRecurIntervalForFltSysRups() {
 //		System.out.println("starting getRenewalRatesForFaultSysRups()");
-		double[] rateForRup = new double[faultSysSolution.getNumRuptures()];
-		double[] rateForSectArray = faultSysSolution.calcTotParticRateForAllSects();
+		aveCondRecurIntervalForFltSysRups = new double[faultSysSolution.getNumRuptures()];
+		longTermPartRateForSectArray = faultSysSolution.calcTotParticRateForAllSects();
 		for(int r=0;r<faultSysSolution.getNumRuptures(); r++) {
 			List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(r);
-			double aveExpRI=0, totArea=0;
+			double aveRate=0, totArea=0;
 			for(FaultSectionPrefData data:fltData) {
 				int sectID = data.getSectionId();
 				double area = data.getTraceLength()*data.getReducedDownDipWidth();
 				totArea += area;
-				aveExpRI += rateForSectArray[sectID]*area;  // weight averaged by area
+				aveRate += longTermPartRateForSectArray[sectID]*area;  // weight averaged by area
 			}
-			rateForRup[r] = aveExpRI/totArea;
+			aveCondRecurIntervalForFltSysRups[r] = 1/(aveRate/totArea);
 		}
 //		System.out.println("done with getRenewalRatesForFaultSysRups()");
-		return rateForRup;
 	}
 	
 
+	
 	/**
-	 * This computes the gain by averaging the long-term rates on each section.  A value of Double.NaN
-	 * is returned if there were no fault sections with a date of last event.  If more than one section 
-	 * has a date of last event, but others don't, those that don't get a date of last event that is equal
-	 * to that producing a BPT probability equal to the Poisson probability.  If no sections have a date of
-	 * last event, this approach would yield a probability gain of 1.0 (although NaN is returned for this
-	 * case so users can decide how to handle this case)
-	 * 
-	 * Note that this uses the full duration of the current time span.
-	 * 
-	 * TODO this could be made a bit faster by using cached dates of last event and the sections used in
-	 * each rupture (dealing with object pointers appears to be much slower in simulations).
+	 * This is made fast by using a reference calculator (with a reference RI), rather than
+	 * redoing the calculation each time 
 	 * @param faultSysRupIndex
+	 * @param aveRecurInterval
+	 * @param aveTimeSinceLastYears
+	 * @param duration
 	 * @return
 	 */
-	protected double computeRenewalProbGainForFaultSysRup(int faultSysRupIndex) {
-		
-		if(ruptureRenewalRatesForFltSysRups==null && TIME_PRED==false) {
-			ruptureRenewalRatesForFltSysRups = getRenewalRatesForFaultSysRups();
-		}
-		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[faultSysRupIndex];
-				
-		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
-		long endTime = timeSpan.getEndTimeCalendar().getTimeInMillis();
-		double duration = (endTime-startTime)/MILLISEC_PER_YEAR;
-		
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(faultSysRupIndex);
-		double totArea=0, goodArea=0;
-		double sumDateOfLast = 0;
-		
-		double durOverRI = duration/aveExpRI;
-		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
-		double defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
-		
-		for(int s=0;s<fltData.size();s++) {
-			FaultSectionPrefData data = fltData.get(s);
-			long dateOfLast = data.getDateOfLastEvent();
-			double area = areaForSect[data.getSectionId()];
-//			double area = data.getTraceLength()*data.getReducedDownDipWidth();
-			totArea += area;
-			if(dateOfLast != Long.MIN_VALUE) {
-				sumDateOfLast += (double)dateOfLast*area;
-				goodArea += area;
-			}
-			else{
-				sumDateOfLast += (double)defaultAveDateOfLast*area;
-			}
-		}
-		
-		if(goodArea == 0.0) {
-			return Double.NaN;
-		}
-		else {
-			double gain;
-			long aveDateOfLast = Math.round(sumDateOfLast/totArea);  // epoch millis
-			double timeSinceLast = (startTime-aveDateOfLast)/MILLISEC_PER_YEAR;
-			if(timeSinceLast <0) {
-				if(timeSinceLast>-1)
-					timeSinceLast = 0;
-				else
-					throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
-							startTime+" and aveDateOfLast="+aveDateOfLast+"; "+timeSinceLast+" yrs)");
-			}
-			double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
-			double refDuration = duration*refRI/aveExpRI;
-			double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
-			double prob_pois = 1-Math.exp(-duration/aveExpRI);
-			
-			gain = (prob_bpt/prob_pois);
-			
-			return gain;
-
-		}
+	public double computeER_ProbGainForFaultSysRup(int faultSysRupIndex, double aveRecurInterval, double aveTimeSinceLastYears, double duration) {
+		double refTimeSinceLast = aveTimeSinceLastYears*refRI/aveRecurInterval;
+		double refDuration = duration*refRI/aveRecurInterval;
+		double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+		double prob_pois = 1-Math.exp(-duration/aveRecurInterval);
+		return prob_bpt/prob_pois;
 	}
+
 
 	
 	
 	/**
+	 * TODO remove the legacy method (still used in ETAS simulations)?
+	 * 
 	 * This returns the ratio of the observed to predicted time-predictable recurrence 
 	 * interval (considering slip in last event), or Double.NaN if any of the slip or 
 	 * date-of-last-event-data are not available from any section involved.
@@ -632,42 +570,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	
 	
-	/**
-	 * This returns the ratio of the observed to predicted recurrence interval for the
-	 * renewal model (considering slip in last event), or Double.NaN if any of the slip or 
-	 * date-of-last-event-data are not available from any section involved.
-	 * @param nthRup
-	 * @param eventTimeInMillis
-	 * @return
-	 */
-	private double getNormalizedRenewalRecurInterval(int nthRup, long eventTimeInMillis) {
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSysRupIndexForNthRup[nthRup]);
-		double totArea=0;
-		double sumDateOfLast = 0;
-		for(FaultSectionPrefData data:fltData) {
-			long dateOfLast = data.getDateOfLastEvent();
-			if(dateOfLast != Long.MIN_VALUE) {
-				double area = areaForSect[data.getSectionId()];
-//				double area = data.getTraceLength()*data.getReducedDownDipWidth();
-				totArea += area;
-				sumDateOfLast += (double)dateOfLast * area;
-			}
-			else {
-				return Double.NaN;
-			}
-		}
-		long aveDateOfLast = Math.round(sumDateOfLast/totArea);  // epoch millis
-		
-		if(ruptureRenewalRatesForFltSysRups==null && TIME_PRED==false) {
-			ruptureRenewalRatesForFltSysRups = getRenewalRatesForFaultSysRups();
-		}
-
-		int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
-		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];	// years
-		double timeSinceLast = (eventTimeInMillis-aveDateOfLast)/MILLISEC_PER_YEAR;
-		double normRI= timeSinceLast/aveExpRI;
-		return normRI;
-	}
 	
 	/**
 	 * This method returns the average date of last event (epoch milliseconds) for the given rupture, representing
@@ -684,7 +586,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 */
 	public long getAveDateOfLastEventCorrected(int fltSystRupIndex) {
 		// compute average date of last event
-		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
+		double aveExpRI = aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
 		double durOverRI = timeSpan.getDuration()/aveExpRI;
 		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
 		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
@@ -768,7 +670,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 */
 	public long getAveDateOfLastEventCorrectedFast(int fltSystRupIndex, long startTimeMillis, double durationYears) {
 		// compute average date of last event
-		double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
+		double aveExpRI = aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
 		double durOverRI = durationYears/aveExpRI;
 		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
 		double defaultAveDateOfLast =  (double)startTimeMillis - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
@@ -896,7 +798,48 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 
 	
+	private int getNumSectWithDateOfLastEvent() {
+		int numGoodDateOfLast=0;
+		for(double lastDate:dateOfLastForSect) {
+			if(lastDate != Long.MIN_VALUE)
+				numGoodDateOfLast+=1;					
+		}
+		return numGoodDateOfLast;
+	}
 	
+	private void plotProbGainHistogram(String info) {
+		HistogramFunction probGainFunc = new HistogramFunction(0.1, 71, 0.2);
+		for(double gain:probGainForFaultSystemSource) {
+			probGainFunc.add(gain, 1.0);
+		}
+		ArrayList<HistogramFunction> funcs = new ArrayList<HistogramFunction>();
+		funcs.add(probGainFunc);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2, Color.BLUE));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Prob Gain Distribution "+info, plotChars);
+	}
+	
+	
+	private void plotNormTimeSinceLastEventHistogram(String info) {
+		HistogramFunction histFunc = new HistogramFunction(-0.3, 73, 0.2);	// -0.3 bin for no date of last event
+		long startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
+		for(int s=0; s<dateOfLastForSect.length;s++) {
+			long timeOfLastMillis = dateOfLastForSect[s];
+			if(timeOfLastMillis != Long.MIN_VALUE) {
+				double normYrsSinceLast = ((startTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[s];
+				histFunc.add(normYrsSinceLast, 1.0);
+			}
+			else {
+				histFunc.add(0, 1.0);	// this is the -0.1 x-axis bin
+			}
+		}
+		ArrayList<HistogramFunction> funcs = new ArrayList<HistogramFunction>();
+		funcs.add(histFunc);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2, Color.MAGENTA));
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Norm Time Since Last Distribution "+info, plotChars);
+	}
+
 	
 	
 	/**
@@ -912,10 +855,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * 
 	 * @param durationInYears
 	 */
-	public void testER_SimulationFast() {
+	public void testER_Simulation() {
 		
-		TIME_PRED = false;	// only needed for slow way
-		
+
 		// save original start time and total duration (these will get over ridden)
 		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 		double origDuration = timeSpan.getDuration();
@@ -931,7 +873,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("originalDuration: "+origDuration+" ("+timeSpan.getDurationUnits()+")");
 		
 		// initialize some things
-		normalizedRecurIntervals = new ArrayList<Double>();
+		normalizedRupRecurIntervals = new ArrayList<Double>();
+		normalizedSectRecurIntervals = new ArrayList<Double>();
 		int numRups=0;
 		RandomDataImpl randomDataSampler = new RandomDataImpl();	// apache tool for sampling from exponential distribution here
 		
@@ -952,8 +895,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// print minimum and maximum conditional rate of rupture
 		double minCondRI=Double.MAX_VALUE,maxCondRI=0;
-		for(double rate: ruptureRenewalRatesForFltSysRups) {
-			double ri = 1d/rate;
+		for(double ri: aveCondRecurIntervalForFltSysRups) {
 			if(!Double.isInfinite(ri)) {
 				if(ri < minCondRI) minCondRI = ri;
 				if(ri > maxCondRI) maxCondRI = ri;
@@ -963,34 +905,44 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("maxCondRI="+maxCondRI);
 		
 		// do simulation loop
-		double counter=0;
-		int percDone=0;
-		System.out.println(percDone+"% done"+"\ttotalRate="+totalRate+"\n");
 		double yr=startYear;
+
+		int percDoneThresh=0;
+		int percDoneIncrement=2;
+		int numGoodDateOfLast=getNumSectWithDateOfLastEvent();
+		int percentGood = (int)Math.round((100.0*(double)numGoodDateOfLast/(double)dateOfLastForSect.length));
+
 		long startRunTime = System.currentTimeMillis();
 		while (yr<origDuration+startYear) {
 			
 			// write progress
-			if(counter > origDuration/50) {
-				counter =0;
-				percDone += 2;
+			int percDone = (int)Math.round(100*(yr-startYear)/origDuration);
+			if(percDone >= percDoneThresh) {
 				double timeInMin = ((double)(System.currentTimeMillis()-startRunTime)/(1000.0*60.0));
-				System.out.println("\n"+percDone+"% done in "+(float)timeInMin+" minutes"+";\ttotalRate="+totalRate+"\n");	
+				numGoodDateOfLast=getNumSectWithDateOfLastEvent();
+				percentGood = (int)Math.round((100.0*(double)numGoodDateOfLast/(double)dateOfLastForSect.length));
+				System.out.println("\n"+percDoneThresh+"% done in "+(float)timeInMin+" minutes"+";  totalRate="+totalRate+"; yr="+yr+";  % sect with date of last = "+percentGood+"\n");	
+				// plot prob-gain and/or norm date since last histogram
+				// plotProbGainHistogram(percDoneThresh+"% done");
+				plotNormTimeSinceLastEventHistogram(percDoneThresh+"% done");
+				percDoneThresh += percDoneIncrement;
 			}
 			
 //			System.out.println(numRups+"\t"+yr+"\t"+totalRate);
 			
+			// get current start time
 			startTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
+			
 			// sample time of next event
 			double timeOfNextInYrs = randomDataSampler.nextExponential(1.0/totalRate);
 			long eventTimeMillis = startTimeMillis + (long)(timeOfNextInYrs*MILLISEC_PER_YEAR);
-// System.out.println("Event time: "+eventTimeMillis+" ("+(yr+timeOfNextInYrs)+" yrs)");
+			// System.out.println("Event time: "+eventTimeMillis+" ("+(yr+timeOfNextInYrs)+" yrs)");
 
 			// sample an event
 			int nthRup = spontaneousRupSampler.getRandomInt();
 			int srcIndex = srcIndexForNthRup[nthRup];
 
-			// set that fault system event has occurred
+			// set that fault system event has occurred (and save normalized RI)
 			if(nthRup < totNumRupsFromFaultSystem) {	// ignore subseimo ruptures
 				int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
 
@@ -998,70 +950,42 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
 				if(allSectionsHadDateOfLast) {
 					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
-					normalizedRecurIntervals.add(timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex]);
+					normalizedRupRecurIntervals.add(timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex]);
+				}
+				
+				// save normalized fault sections recurrence intervals
+				for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
+					long timeOfLastMillis = dateOfLastForSect[sect];
+					if(timeOfLastMillis != Long.MIN_VALUE) {
+						double normYrsSinceLast = ((eventTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[sect];
+						normalizedSectRecurIntervals.add(normYrsSinceLast);
+					}
 				}
 				
 				// reset last event time on sections
 				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
 					dateOfLastForSect[sect] = eventTimeMillis;
 				}
-				
-//				double totArea=0;
-//				double sumDateOfLast = 0;
-//				boolean goodRI = true;
-//				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
-//					long dateOfLast = dateOfLastForSect[sect];	// cast to double
-//					// reset dateOfLastForSect[sect]
-//					dateOfLastForSect[sect] = eventTimeMillis;
-//					if(dateOfLast != Long.MIN_VALUE) {
-//						sumDateOfLast += (double)dateOfLast*areaForSect[sect];
-//						totArea += areaForSect[sect];
-//					}
-//					else {
-//						goodRI = false;
-//					}
-//				}
-//				if(goodRI) {
-//					long aveDateOfLastMillis = Math.round(sumDateOfLast/totArea);  // epoch millis
-//					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
-//					double normRI= timeSinceLast*ruptureRenewalRatesForFltSysRups[fltSystRupIndex];
-//					normalizedRecurIntervals.add(normRI);
-//				}
-					
-
-				timeSpanChangeFlag=true;	// not sure if this is needed
 			}
 
 			numRups+=1;
 			obsMFD.addResampledMagRate(magOfNthRups[nthRup], 1.0, true);
 			yr+=timeOfNextInYrs;
-			counter +=timeOfNextInYrs;
 			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
 			
-			double gainForSouce = probGainForFaultSystemSource[srcIndex];			
-			
-long milis = System.currentTimeMillis();
-
 			// Now update gains for each source
+//			long millis = System.currentTimeMillis();
 			long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 			for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 				
-				// SLOW way ****************:
-//				double probGain = computeRenewalProbGainForFaultSysRup(fltSysRupIndexForSource[s]);;
-//				if(Double.isNaN(probGain))
-//					probGainForFaultSystemSource[s] = 1;
-//				else
-//					probGainForFaultSystemSource[s] = probGain;
+				int fltSysRupIndex = fltSysRupIndexForSource[s];
 				
+				// fast way:
+				long aveDateOfLastRup = getAveDateOfLastEventCorrectedFast(fltSysRupIndex, startTimeMillis, simDuration);
+				// slow way (100 time slower!!):
+//				long aveDateOfLastRup = getAveDateOfLastEventCorrected(fltSysRupIndex);
+
 				
-				// FAST way *********************:
-				long aveDateOfLastRup = getAveDateOfLastEventCorrectedFast(fltSysRupIndexForSource[s], startTimeMillis, simDuration);
-				if(D) {	// test that aveDateOfLastRup = eventTimeMillis
-					long testDiff = aveDateOfLastRup - eventTimeMillis;
-					if(testDiff<0) testDiff *= -1;
-					if(s == srcIndex && testDiff > 10) 
-						throw new RuntimeException("aveDateOfLast ("+aveDateOfLastRup+") != eventTimeMillis ("+eventTimeMillis+")");				
-				}
 				// now compute and set gain
 				if(totRupAreaWithDateOfLast == 0.0) {	// this should not be necessary, but faster?
 					probGainForFaultSystemSource[s] = 1;
@@ -1075,98 +999,33 @@ long milis = System.currentTimeMillis();
 							throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
 									startTime+" and aveDateOfLast="+aveDateOfLastRup+"; "+timeSinceLast+" yrs)");
 					}
-					double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSysRupIndexForSource[s]];
-					double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
-					double refDuration = refSimDur*refRI/aveExpRI;
-					double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
-					double prob_pois = 1-Math.exp(-simDuration/aveExpRI);
-					probGainForFaultSystemSource[s] =  (prob_bpt/prob_pois);
-//					probGainForFaultSystemSource[s] =  1;	// for testing
-					
+					double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups[fltSysRupIndex];
+					probGainForFaultSystemSource[s] = computeER_ProbGainForFaultSysRup(fltSysRupIndex, aveCondRecurInterval, timeSinceLast, simDuration);					
+				}
+				
+				if(D) {	// test that aveDateOfLastRup = eventTimeMillis
+					long testDiff = aveDateOfLastRup - eventTimeMillis;
+					if(testDiff<0) testDiff *= -1;
+					if(s == srcIndex && testDiff > 10) 
+						throw new RuntimeException("aveDateOfLast ("+aveDateOfLastRup+") != eventTimeMillis ("+eventTimeMillis+")");				
 				}
 
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-//				double aveExpRI = 1.0/ruptureRenewalRatesForFltSysRups[fltSysRupIndexForSource[s]];
-//				double durOverRI = simDuration/aveExpRI;
-//				double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
-//				double defaultAveDateOfLast = startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
-//
-//				// compute ave data of last
-//				double sumDateOfLastRup = 0;	// using long causes numerical problems after long simulation times (weird)
-//				double totArea=0, goodArea=0;
-//				for(int sect:sectIndexArrayForSrcList.get(s)) {
-//					long dateOfLast = dateOfLastForSect[sect];
-//					double sectArea = areaForSect[sect];
-//					totArea += sectArea;
-//					if(dateOfLast != Long.MIN_VALUE) {
-//						sumDateOfLastRup += (double)dateOfLast*sectArea;
-//						goodArea += sectArea;
-//					}
-//					else {
-//						sumDateOfLastRup += defaultAveDateOfLast*sectArea;
-//					}
-//				}
-//				long aveDateOfLastRup = (long)(sumDateOfLastRup/totArea);  // epoch millis
-//				
-//				if(D) {	// test that aveDateOfLastRup = eventTimeMillis
-//					long testDiff = aveDateOfLastRup - eventTimeMillis;
-//					if(testDiff<0) testDiff *= -1;
-//					if(s == srcIndex && testDiff > 10) 
-//						throw new RuntimeException("aveDateOfLast ("+aveDateOfLastRup+") != eventTimeMillis ("+eventTimeMillis+")");				
-//				}
-//				
-//				// now compute and set gain
-//				if(goodArea == 0.0) {	// no date of last event on any section (redundant with using defaultAveDateOfLast, but faster?)
-//					probGainForFaultSystemSource[s] = 1;
-//				}
-//				else {
-//					double timeSinceLast = (startTime-aveDateOfLastRup)/MILLISEC_PER_YEAR;
-//					if(timeSinceLast < 0) {
-//						if(timeSinceLast > -1)
-//							timeSinceLast = 0;	// convert slightly negative values to 0
-//						else
-//							throw new RuntimeException("timeSinceLast cannot be negative (startTime="+
-//									startTime+" and aveDateOfLast="+aveDateOfLastRup+"; "+timeSinceLast+" yrs)");
-//					}
-//											
-//					double prob_bpt;
-//					double refTimeSinceLast = timeSinceLast*refRI/aveExpRI;
-//					double refDuration = refSimDur*refRI/aveExpRI;
-//					prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
-//					double prob_pois = 1-Math.exp(-simDuration/aveExpRI);
-//					probGainForFaultSystemSource[s] =  (prob_bpt/prob_pois);
-//					probGainForFaultSystemSource[s] =  1;	// for testing
-//					
-//				}
-				// ********************
-
 			}
-			// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-milis)/1e3);
+			// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-millis)/1e3);
 			
-//milis = System.currentTimeMillis();
-			// now update totalRate and ruptureSampler (for rups that change probs)
+			// now update totalRate and ruptureSampler (for all rups since start time changed)
 			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
 				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
 				spontaneousRupSampler.set(n, newRate);
 			}
 			totalRate = spontaneousRupSampler.getSumOfY_vals();
-//System.out.println("updating sampler took (sec): "+(System.currentTimeMillis()-milis)/1e3);
 
 		}
 		System.out.println("numRups="+numRups);
-
-		System.out.println("normalizedRecurIntervals.size()="+normalizedRecurIntervals.size());
+		System.out.println("normalizedRecurIntervals.size()="+normalizedRupRecurIntervals.size());
 		
-		General_EQSIM_Tools.plotNormRI_Distribution(normalizedRecurIntervals, "Normalized RIs; TIME_PRED="+TIME_PRED);
+		General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs");
+		General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs");
 		
 //		System.out.println(obsMFD);
 
@@ -1180,7 +1039,7 @@ long milis = System.currentTimeMillis();
 		funcs.add(obsMFD);
 		funcs.add(targetMFD.getCumRateDistWithOffset());
 		funcs.add(obsMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists; TIME_PRED="+TIME_PRED); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists; TIME_PRED="); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 //		graph.setYLog(true);	// this causes problems
@@ -1375,7 +1234,7 @@ long milis = System.currentTimeMillis();
 		
 		double maxBlockDepth=24;
 		
-		normalizedRecurIntervals = new ArrayList<Double>();
+		normalizedRupRecurIntervals = new ArrayList<Double>();
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -1751,7 +1610,7 @@ numSpontEvents=0;
 //		double minDist = 3;
 		boolean includeEqkRates = true;	// whether or not to include the long-term rate of events in sampling aftershocks
 				
-		normalizedRecurIntervals = new ArrayList<Double>();
+		normalizedRupRecurIntervals = new ArrayList<Double>();
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -2115,7 +1974,7 @@ numSpontEvents=0;
 		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);
 		
 				
-		normalizedRecurIntervals = new ArrayList<Double>();
+		normalizedRupRecurIntervals = new ArrayList<Double>();
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -2454,7 +2313,7 @@ numSpontEvents=0;
 		double minDist = 0.3;
 		boolean includeEqkRates = true;	// whether or not to include the long-term rate of events in sampling aftershocks
 				
-		normalizedRecurIntervals = new ArrayList<Double>();
+		normalizedRupRecurIntervals = new ArrayList<Double>();
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -2838,21 +2697,12 @@ numSpontEvents=0;
 //			return currentSrc;
 //		else {
 			ProbEqkSource src = super.getSource(iSource);
-//System.out.println(src.getNumRuptures());
 			// ajust for time dependence if it's a fault-based source
-			if (iSource <numNonZeroFaultSystemSources) {
-				// get poisson source from parent
-				double probGain = Double.NaN;
-				// the following is needed because the parent updateForecast ends up calling this 
+			if (iSource < numNonZeroFaultSystemSources && probGainForFaultSystemSource != null) { 
+				// the latter test is needed because the parent updateForecast ends up calling this 
 				// method, and probGainForFaultSystemSource isn't populated until the 
 				// parent constructor is called (because we don't know it's size)
-				if(probGainForFaultSystemSource != null) // skip if being called by parent
-					probGain = probGainForFaultSystemSource[iSource];
-				if(Double.isNaN(probGain))
-					probGain = 1.0;
-				((FaultRuptureSource)src).scaleRupRates(probGain);
-//if(probGain != 1.0) System.out.println("non-unit prob gain ("+probGain+") for s="+iSource+" named "+src.getName());
-// if(iSource == 4755) System.out.println("prob gain ="+probGain+" for s="+iSource+" named "+src.getName());
+				((FaultRuptureSource)src).scaleRupRates(probGainForFaultSystemSource[iSource]);
 			}
 //			currentSrc = src;
 //			lastSrcRequested = iSource;		

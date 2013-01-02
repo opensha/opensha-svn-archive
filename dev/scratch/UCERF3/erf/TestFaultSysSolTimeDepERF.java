@@ -49,10 +49,10 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
-		invERF.getTimeSpan().setDuration(1000);	// yrs
+		invERF.getTimeSpan().setDuration(10000);	// yrs
 		
 		long runtime = System.currentTimeMillis();
-		invERF.testER_SimulationFast();
+		invERF.testER_Simulation();
 //		invERF.testER_Simulation();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
