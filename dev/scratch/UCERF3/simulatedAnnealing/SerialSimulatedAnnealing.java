@@ -395,7 +395,7 @@ public class SerialSimulatedAnnealing implements SimulatedAnnealing {
 				coolIter = ((double)iter - 1) / coolingFuncSlowdown + 1;
 			switch (coolingFunc) {
 			case CLASSICAL_SA:
-				T = 1/Math.log(coolIter); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
+				T = 1/Math.log(coolIter + 1); // classical SA cooling schedule (Geman and Geman, 1984) (slow but ensures convergence)
 				break;
 			case FAST_SA:
 				T = 1 / coolIter;  // fast SA cooling schedule (Szu and Hartley, 1987) (recommended)
