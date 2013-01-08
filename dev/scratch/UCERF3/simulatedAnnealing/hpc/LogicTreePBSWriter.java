@@ -17,10 +17,12 @@ import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
+import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.EpicenterScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
+import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -79,7 +81,7 @@ public class LogicTreePBSWriter {
 	public enum RunSites {
 		EPICENTER("/home/epicenter/kmilner/inversions", EpicenterScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, null) {
+				null, null, false) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				InversionModels im = branch.getValue(InversionModels.class);
@@ -100,7 +102,7 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, USC_HPCC_ScriptWriter.MPJ_HOME) {
+				null, USC_HPCC_ScriptWriter.MPJ_HOME, false) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
@@ -125,10 +127,27 @@ public class LogicTreePBSWriter {
 			}
 		},
 		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN,
-				null, RangerScriptWriter.MPJ_HOME) {
+				null, RangerScriptWriter.MPJ_HOME, false) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				return new RangerScriptWriter();
+			}
+
+			@Override
+			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
+				return 20000;
+			}
+
+			@Override
+			public int getPPN(LogicTreeBranch branch) {
+				return 16;
+			}
+		},
+		STAMPEDE("/work/00950/kevinm/ucerf3/inversion", StampedeScriptWriter.JAVA_BIN,
+				null, StampedeScriptWriter.FMPJ_HOME, true) {
+			@Override
+			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
+				return new StampedeScriptWriter();
 			}
 
 			@Override
@@ -146,12 +165,14 @@ public class LogicTreePBSWriter {
 		private File JAVA_BIN;
 		private String FM_STORE;
 		private File MPJ_HOME;
+		boolean fastMPJ;
 
-		private RunSites(String path, File javaBin, String fmStore, File mpjHome) {
+		private RunSites(String path, File javaBin, String fmStore, File mpjHome, boolean fastMPJ) {
 			RUN_DIR = new File(path);
 			JAVA_BIN = javaBin;
 			FM_STORE = fmStore;
 			MPJ_HOME = mpjHome;
+			this.fastMPJ = fastMPJ;
 		}
 
 		public abstract BatchScriptWriter forBranch(LogicTreeBranch branch);
@@ -556,13 +577,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p2_prod_runs_1_filler";
+		String runName = "stampede_test";
 		if (args.length > 1)
 			runName = args[1];
-//		int constrained_run_mins = 60;	// 1 hour
+		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-		int constrained_run_mins = 300; // 5 hours
+//		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 60 * 10;	// 10 hours
@@ -573,22 +594,26 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
-		int batchSize = 0;
-		int jobsPerNode = 1;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+//		int jobsPerNode = 1;
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 256;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
+		RunSites site = RunSites.STAMPEDE;
+		int batchSize = 64;
+		int jobsPerNode = 2;
+		String threads = "8"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
 		
-//		HashSet<String> ignores = null;
-		HashSet<String> ignores = loadIgnoresFromZip(new File("/tmp/2012_12_27-ucerf3p2_prod_runs_1_bins.zip"));
+		HashSet<String> ignores = null;
+//		HashSet<String> ignores = loadIgnoresFromZip(new File("/tmp/2012_12_27-ucerf3p2_prod_runs_1_bins.zip"));
 
-		int numRuns = 5;
+		int numRuns = 1;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -1084,11 +1109,16 @@ public class LogicTreePBSWriter {
 		int numLen = ((bins.size()-1)+"").length();
 		
 		BatchScriptWriter batch = site.forBranch(null);
-		int jobMins = maxRuntimeMins+30;
+		int jobMins = maxRuntimeMins+60;
 		int ppn = site.getPPN(null);
 		
-		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
-				getClasspath(site, remoteDir), site.MPJ_HOME, false);
+		JavaShellScriptWriter mpjWrite;
+		if (site.fastMPJ)
+			mpjWrite = new FastMPJShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
+					getClasspath(site, remoteDir), site.MPJ_HOME, false);
+		else
+			mpjWrite = new MPJExpressShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
+					getClasspath(site, remoteDir), site.MPJ_HOME, false);
 		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
 		mpjWrite.setHeadless(true);
 		

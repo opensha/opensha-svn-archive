@@ -81,7 +81,10 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 			script.add("date");
 			script.add("echo \"RUNNING FMPJ\"");
 			String command = "fmpjrun -machinefile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$FMPJ_HOME/lib";
-			command += getJVMArgs(classNames.get(i));
+			command += getJVMArgs(" ");
+			if (!command.endsWith(" "))
+				command += " ";
+			command += "-class "+classNames.get(i);
 			command += getFormattedArgs(argss.get(i));
 			script.add(command);
 			
