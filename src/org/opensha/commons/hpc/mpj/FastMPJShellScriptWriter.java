@@ -11,20 +11,20 @@ import org.opensha.commons.metadata.XMLSaveable;
 
 import com.google.common.base.Preconditions;
 
-public class MPJShellScriptWriter extends JavaShellScriptWriter {
+public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 	
 	public static final String XML_METADATA_NAME = "MPJShellScriptWriter";
 	
 	private File mpjHome;
 	private boolean useMXDev;
 	
-	private MPJShellScriptWriter(JavaShellScriptWriter javaWriter,
+	private FastMPJShellScriptWriter(JavaShellScriptWriter javaWriter,
 			File mpjHome, boolean useMXDev) {
 		this(javaWriter.getJavaBin(), javaWriter.getMaxHeapSizeMB(), javaWriter.getClasspath(),
 				mpjHome, useMXDev);
 	}
 	
-	public MPJShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath,
+	public FastMPJShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath,
 			File mpjHome, boolean useMXDev) {
 		super(javaBin, heapSizeMB, classpath);
 		setMpjHome(mpjHome);
@@ -54,8 +54,8 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 		
 		script.add("#!/bin/bash");
 		script.add("");
-		script.add("export MPJ_HOME="+mpjHome.getAbsolutePath());
-		script.add("export PATH=$PATH:$MPJ_HOME/bin");
+		script.add("export FMPJ_HOME="+mpjHome.getAbsolutePath());
+		script.add("export PATH=$PATH:$FMPJ_HOME/bin");
 		script.add("");
 		script.add("if [[ -e $PBS_NODEFILE ]]; then");
 		script.add("  #count the number of processors assigned by PBS");
@@ -70,11 +70,6 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 		script.add("  echo \"invalid NP: $NP\"");
 		script.add("  exit 1");
 		script.add("fi");
-		script.add("");
-		script.add("date");
-		script.add("echo \"STARTING MPJ\"");
-		script.add("mpjboot $PBS_NODEFILE");
-		
 		
 		String dev;
 		if (useMXDev)
@@ -84,18 +79,19 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 		for (int i=0; i<classNames.size(); i++) {
 			script.add("");
 			script.add("date");
-			script.add("echo \"RUNNING MPJ\"");
-			String command = "mpjrun.sh -machinesfile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$MPJ_HOME/lib";
+			script.add("echo \"RUNNING FMPJ\"");
+			String command = "fmpjrun -machinefile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$FMPJ_HOME/lib";
 			command += getJVMArgs(classNames.get(i));
 			command += getFormattedArgs(argss.get(i));
 			script.add(command);
+			
+			script.add("ret=$?");
+			script.add("");
+			script.add("date");
+			script.add("echo \"DONE with process "+i+". EXIT CODE: $ret\"");
 		}
 		
-		script.add("ret=$?");
-		script.add("");
-		script.add("date");
-		script.add("echo \"HALTING MPJ\"");
-		script.add("mpjhalt $PBS_NODEFILE");
+		
 		script.add("");
 		script.add("exit $ret");
 		
@@ -115,14 +111,14 @@ public class MPJShellScriptWriter extends JavaShellScriptWriter {
 		return root;
 	}
 	
-	public static MPJShellScriptWriter fromXMLMetadata(Element mpjEl) {
+	public static FastMPJShellScriptWriter fromXMLMetadata(Element mpjEl) {
 		File mpjHome = new File(mpjEl.attributeValue("mpjHome"));
 		boolean useMXDev = Boolean.parseBoolean(mpjEl.attributeValue("useMXDev"));
 		
 		JavaShellScriptWriter javaWriter = JavaShellScriptWriter.fromXMLMetadata(
 				mpjEl.element(JavaShellScriptWriter.XML_METADATA_NAME));
 		
-		return new MPJShellScriptWriter(javaWriter, mpjHome, useMXDev);
+		return new FastMPJShellScriptWriter(javaWriter, mpjHome, useMXDev);
 	}
 
 }

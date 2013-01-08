@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -70,7 +70,7 @@ public class MPJ_EAL_ScriptWriter {
 		classpath.add(new File(remoteDir.getParentFile(), "OpenSHA_complete.jar"));
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
+		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
 				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();

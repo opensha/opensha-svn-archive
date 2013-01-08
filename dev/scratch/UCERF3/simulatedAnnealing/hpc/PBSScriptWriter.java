@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.ClassUtils;
@@ -88,7 +88,7 @@ public class PBSScriptWriter {
 
 			ThreadedScriptCreator creator;
 			if (nodes > 1) {
-				MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, classpath, mpjHome, useMXDev);
+				MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, classpath, mpjHome, useMXDev);
 				creator = new DistributedScriptCreator(mpjWriter,numThreads, null, criteria,
 						subCompletion, mpjHome, false);
 			} else {

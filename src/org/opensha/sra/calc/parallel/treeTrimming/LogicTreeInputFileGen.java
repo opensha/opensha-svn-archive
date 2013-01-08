@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 
 public class LogicTreeInputFileGen {
 	
-	public static void writeJob(MPJShellScriptWriter writer, File portfolio, File vulnFile,
+	public static void writeJob(MPJExpressShellScriptWriter writer, File portfolio, File vulnFile,
 			File localDir, File remoteDir, String jobName, File outputFile, int mins, int nodes,
 			String queue, boolean multiERF)
 					throws IOException {
@@ -99,7 +99,7 @@ public class LogicTreeInputFileGen {
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
+		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
 				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		AbstractEpistemicListERF erfList = new UCERF2_TimeDependentEpistemicList();

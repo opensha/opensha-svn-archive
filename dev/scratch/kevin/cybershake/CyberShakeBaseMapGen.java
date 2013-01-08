@@ -15,7 +15,7 @@ import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
@@ -117,7 +117,7 @@ public class CyberShakeBaseMapGen {
 		classpath.add(jarFile);
 		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 7000, classpath,
+		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 7000, classpath,
 				USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		for (ScalarIMR imr : imrs) {

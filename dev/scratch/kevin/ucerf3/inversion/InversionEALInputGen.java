@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.XMLUtils;
@@ -49,7 +49,7 @@ public class InversionEALInputGen {
 		return files;
 	}
 	
-	private static void writeRTGMJob(MPJShellScriptWriter writer, File portfolio, File vulnFile,
+	private static void writeRTGMJob(MPJExpressShellScriptWriter writer, File portfolio, File vulnFile,
 			File localDir, File remoteDir, String jobName, File outputFile, int mins, int nodes,
 			String queue, boolean multiERF) throws IOException {
 		File inputsFile = new File(remoteDir, jobName+".xml");
@@ -96,7 +96,7 @@ public class InversionEALInputGen {
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
-		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 7000,
+		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 7000,
 				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		List<File> solFiles = loadRemotePaths(localDir, remoteDir);

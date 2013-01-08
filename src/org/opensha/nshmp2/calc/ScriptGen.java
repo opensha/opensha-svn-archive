@@ -11,7 +11,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.ClassUtils;
@@ -168,7 +168,7 @@ public class ScriptGen {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			MPJShellScriptWriter mpj = new MPJShellScriptWriter(JAVA_BIN, 9216,
+			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(JAVA_BIN, 9216,
 				classpath, MPJ_HOME, false);
 
 			String cliArgs = config.getAbsolutePath();

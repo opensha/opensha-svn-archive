@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
@@ -129,7 +129,7 @@ public class MultiSABenchmarkPBSWriter {
 		CompletionCriteria tsaSingleCriteria = TimeCompletionCriteria.getInMinutes(tsaSingleMins);
 		System.out.println("TSA (single node) criteria: "+tsaSingleCriteria);
 		
-		MPJShellScriptWriter mpjWriter = new MPJShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
+		MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, null, null, dsaCriteria, subCompletion, mpjHome, false);

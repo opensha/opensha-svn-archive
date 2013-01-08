@@ -26,7 +26,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.StringParameter;
@@ -499,7 +499,7 @@ public class HardCodedTest {
 			classpath.add(jarFile);
 			classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 			
-			MPJShellScriptWriter mpj = new MPJShellScriptWriter(javaBin, 2000, classpath,
+			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 2000, classpath,
 					USC_HPCC_ScriptWriter.MPJ_HOME, false);
 			
 			ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);

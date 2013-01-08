@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 
 import com.google.common.base.Preconditions;
 
@@ -17,7 +17,7 @@ public class DistributedScriptCreator extends ThreadedScriptCreator {
 	
 	private CompletionCriteria distSubCompletion = null;
 
-	public DistributedScriptCreator(MPJShellScriptWriter mpj, String numThreads, File solFile,
+	public DistributedScriptCreator(MPJExpressShellScriptWriter mpj, String numThreads, File solFile,
 			CompletionCriteria criteria, CompletionCriteria subCompletion,
 			File mpjHome, boolean useMxdev) {
 		super(mpj, numThreads, solFile, criteria, subCompletion);

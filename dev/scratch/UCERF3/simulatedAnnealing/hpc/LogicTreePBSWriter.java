@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.EpicenterScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
@@ -1087,7 +1087,7 @@ public class LogicTreePBSWriter {
 		int jobMins = maxRuntimeMins+30;
 		int ppn = site.getPPN(null);
 		
-		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
+		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
 				getClasspath(site, remoteDir), site.MPJ_HOME, false);
 		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
 		mpjWrite.setHeadless(true);
