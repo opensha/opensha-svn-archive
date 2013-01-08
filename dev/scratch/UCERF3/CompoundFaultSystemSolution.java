@@ -144,6 +144,21 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			File ratesFile = new File(tempDir, remappings.get("rates.bin"));
 			MatrixIO.doubleArrayToFile(sol.getRateForAllRups(), ratesFile);
 			zipFileNames.add(ratesFile.getName());
+			if (sol instanceof AverageFaultSystemSolution) {
+				String ratesPrefix = ratesFile.getName();
+				ratesPrefix = ratesPrefix.substring(0, ratesPrefix.indexOf(".bin"));
+				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
+				int num = avgSol.getNumSolutions();
+				int digits = ((num-1)+"").length();
+				for (int i=0; i<num; i++) {
+					String numStr = i+"";
+					while (numStr.length() < digits)
+						numStr = "0"+numStr;
+					File ithRatesFile = new File(tempDir, ratesPrefix+"_"+numStr+".bin");
+					MatrixIO.doubleArrayToFile(avgSol.getRates(i), ithRatesFile);
+					zipFileNames.add(ithRatesFile.getName());
+				}
+			}
 			
 			// now write misfits, if applicable
 			Map<String, Double> misfits = fetcher.getMisfits(branch);

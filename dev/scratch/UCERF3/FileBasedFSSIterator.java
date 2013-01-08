@@ -3,6 +3,7 @@ package scratch.UCERF3;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FileNameComparator;
 
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -81,7 +83,8 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 				continue;
 			}
 			String name = file.getName();
-			if (!name.endsWith("_sol.zip"))
+			boolean solFile = name.endsWith("_sol.zip") || (name.endsWith(".bin") && !name.contains("noMinRates"));
+			if (!solFile)
 				continue;
 			if (myNameGreps != null && !myNameGreps.isEmpty()) {
 				for (String nameGrep : myNameGreps)
@@ -142,14 +145,21 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 		try {
 			File[] files = filesMap.get(branch);
+			Arrays.sort(files, new FileNameComparator());
 			FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(files[0]);
 			if (files.length > 1) {
 				List<double[]> ratesList = Lists.newArrayList(sol.getRateForAllRups());
 				for (int i=1; i<files.length; i++) {
-					ZipFile zip = new ZipFile(files[i]);
-					ZipEntry ratesEntry = zip.getEntry("rates.bin");
-					double[] rates = MatrixIO.doubleArrayFromInputStream(
-							new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+					double[] rates;
+					if (files[i].getName().endsWith(".zip")) {
+						ZipFile zip = new ZipFile(files[i]);
+						ZipEntry ratesEntry = zip.getEntry("rates.bin");
+						rates = MatrixIO.doubleArrayFromInputStream(
+								new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+					} else if (files[i].getName().endsWith(".bin")) {
+						rates = MatrixIO.doubleArrayFromFile(files[i]);
+					} else
+						throw new RuntimeException("Wrong file type for solution: "+files[i].getName());
 					ratesList.add(rates);
 				}
 				sol = new AverageFaultSystemSolution(sol, ratesList);
@@ -158,6 +168,20 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			
 			return sol;
 		} catch (Exception e) {
+			System.err.println("Error check file list dump!");
+			System.err.println("\tBRANCH: "+branch);
+			File[] files = filesMap.get(branch);
+			if (files == null) {
+				System.err.println("\tFILES ARE NULL!");
+			} else {
+				for (int i=0; i<files.length; i++) {
+					File file = files[i];
+					if (file == null)
+						System.err.println("\t"+i+". NULL");
+					else
+						System.err.println("\t"+i+". "+file.getName());
+				}
+			}
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}

@@ -84,7 +84,7 @@ public class PBSScriptWriter {
 			}
 			String queue = null;
 
-			ArrayList<File> classpath = LogicTreePBSWriter.getClasspath(RunSites.HPCC);
+			ArrayList<File> classpath = LogicTreePBSWriter.getClasspath(RunSites.HPCC, dir);
 
 			ThreadedScriptCreator creator;
 			if (nodes > 1) {

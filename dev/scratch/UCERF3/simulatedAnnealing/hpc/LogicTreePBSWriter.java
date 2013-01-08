@@ -10,7 +10,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -56,6 +59,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -63,9 +67,9 @@ public class LogicTreePBSWriter {
 
 	private static DateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 
-	public static ArrayList<File> getClasspath(RunSites runSite) {
+	public static ArrayList<File> getClasspath(RunSites runSite, File jobDir) {
 		ArrayList<File> jars = new ArrayList<File>();
-		jars.add(new File(runSite.RUN_DIR, "OpenSHA_complete.jar"));
+		jars.add(new File(jobDir, "OpenSHA_complete.jar"));
 		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
 		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
 		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
@@ -527,6 +531,24 @@ public class LogicTreePBSWriter {
 		
 		return new ListBasedTreeTrimmer(limitations);
 	}
+	
+	private static HashSet<String> loadIgnoresFromZip(File zipFile) throws IOException {
+		HashSet<String> set = new HashSet<String>();
+		
+		ZipFile zip = new ZipFile(zipFile);
+		
+		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+			String name = new File(entry.getName()).getName();
+			if (name.contains("noMinRates"))
+				continue;
+			if (name.contains("."))
+				name = name.substring(0, name.lastIndexOf("."));
+			System.out.println("Ignoring: "+name);
+			set.add(name);
+		}
+		
+		return set;
+	}
 
 	/**
 	 * @param args
@@ -534,7 +556,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p2_prod_runs_1";
+		String runName = "ucerf3p2_prod_runs_1_filler";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -551,19 +573,22 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-//		int jobsPerNode = 1;
-//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
-		RunSites site = RunSites.RANGER;
-		int batchSize = 256;
-		int jobsPerNode = 2;
-		String threads = "8"; // *2 = 16 (out of 16 possible)
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		RunSites site = RunSites.RANGER;
+//		int batchSize = 256;
+//		int jobsPerNode = 2;
+//		String threads = "8"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
+		
+//		HashSet<String> ignores = null;
+		HashSet<String> ignores = loadIgnoresFromZip(new File("/tmp/2012_12_27-ucerf3p2_prod_runs_1_bins.zip"));
 
-		int numRuns = 10;
+		int numRuns = 5;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -852,7 +877,7 @@ public class LogicTreePBSWriter {
 //				TimeCompletionCriteria.getInSeconds(20) };
 		//		CompletionCriteria subCompletion = VariableSubTimeCompletionCriteria.instance("5s", "300");
 		boolean keepCurrentAsBest = false;
-		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site));
+		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, -1, getClasspath(site, runSubDir));
 		javaWriter.setHeadless(true);
 		if (site.FM_STORE != null) {
 			javaWriter.setProperty(FaultModels.FAULT_MODEL_STORE_PROPERTY_NAME, site.FM_STORE);
@@ -949,6 +974,7 @@ public class LogicTreePBSWriter {
 						javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
 						javaWriter.setInitialHeapSizeMB(site.getInitialHeapSizeMB(branch));
 
+						runLoop:
 						for (int r=runStart; r<numRuns; r++) {
 							String jobName = name;
 							if (numRuns > 1) {
@@ -957,6 +983,11 @@ public class LogicTreePBSWriter {
 									rStr = "0"+rStr;
 								jobName += "_run"+rStr;
 							}
+							
+							if (ignores != null)
+								for (String ignore : ignores)
+									if (jobName.startsWith(ignore))
+										continue runLoop;
 
 							File pbs = new File(writeDir, jobName+".pbs");
 							System.out.println("Writing: "+pbs.getName());
@@ -1057,7 +1088,7 @@ public class LogicTreePBSWriter {
 		int ppn = site.getPPN(null);
 		
 		MPJShellScriptWriter mpjWrite = new MPJShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
-				getClasspath(site), site.MPJ_HOME, false);
+				getClasspath(site, remoteDir), site.MPJ_HOME, false);
 		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
 		mpjWrite.setHeadless(true);
 		
