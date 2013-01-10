@@ -102,10 +102,10 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, USC_HPCC_ScriptWriter.MPJ_HOME, false) {
+				null, USC_HPCC_ScriptWriter.FMPJ_HOME, true) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
-				if (branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
+				if (branch != null && branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
 				return new USC_HPCC_ScriptWriter("quadcore");
 			}
@@ -127,7 +127,7 @@ public class LogicTreePBSWriter {
 			}
 		},
 		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN,
-				null, RangerScriptWriter.MPJ_HOME, false) {
+				null, RangerScriptWriter.FMPJ_HOME, true) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				return new RangerScriptWriter();
@@ -577,16 +577,16 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "stampede_test";
+		String runName = "initial-random-test";
 		if (args.length > 1)
 			runName = args[1];
-		int constrained_run_mins = 60;	// 1 hour
+//		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
 //		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
-//		int constrained_run_mins = 60 * 10;	// 10 hours
+		int constrained_run_mins = 60 * 10;	// 10 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
@@ -594,18 +594,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-//		int jobsPerNode = 1;
-//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+////		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
-//		int batchSize = 256;
+//		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-		RunSites site = RunSites.STAMPEDE;
-		int batchSize = 64;
-		int jobsPerNode = 2;
-		String threads = "8"; // *2 = 16 (out of 16 possible)
+//		RunSites site = RunSites.STAMPEDE;
+//		int batchSize = 64;
+//		int jobsPerNode = 3;
+//		String threads = "5"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -613,7 +614,7 @@ public class LogicTreePBSWriter {
 		HashSet<String> ignores = null;
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/tmp/2012_12_27-ucerf3p2_prod_runs_1_bins.zip"));
 
-		int numRuns = 1;
+		int numRuns = 5;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -624,6 +625,8 @@ public class LogicTreePBSWriter {
 			lightweight = false;
 			noPlots = false;
 		}
+		
+		int overallMaxJobs = -1;
 
 //		TreeTrimmer trimmer = getCustomTrimmer();
 		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
@@ -652,10 +655,10 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
-		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
+//		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
 //		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
@@ -706,10 +709,10 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
 		
-//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.SERIAL };
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.SERIAL, InversionOptions.INITIAL_RANDOM };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON)));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON)));
 		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
@@ -923,6 +926,7 @@ public class LogicTreePBSWriter {
 		List<String> argsList = Lists.newArrayList();
 		int maxJobMins = 0;
 
+		mainLoop:
 		for (LogicTreeBranch br : it) {
 			for (CustomArg[] variationBranch : variationBranches) {
 				for (InversionArg[] invArgs : saOptions) {
@@ -1008,6 +1012,9 @@ public class LogicTreePBSWriter {
 									rStr = "0"+rStr;
 								jobName += "_run"+rStr;
 							}
+							
+							if (cnt == overallMaxJobs)
+								break mainLoop;
 							
 							if (ignores != null)
 								for (String ignore : ignores)

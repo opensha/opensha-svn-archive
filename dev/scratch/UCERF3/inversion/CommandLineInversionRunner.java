@@ -324,8 +324,8 @@ public class CommandLineInversionRunner {
 			if (cmd.hasOption(InversionOptions.INITIAL_RANDOM.argName)) {
 				initialState = new double[initialState.length];
 				// random rate from to^-10 => 10^2
-				double minExp = -4;
-				double maxExp = -8;
+				double minExp = -6;
+				double maxExp = -10;
 				
 				double deltaExp = maxExp - minExp;
 				

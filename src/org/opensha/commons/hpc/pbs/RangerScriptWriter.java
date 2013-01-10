@@ -9,6 +9,7 @@ public class RangerScriptWriter extends BatchScriptWriter {
 	
 	public static final File JAVA_BIN = new File("/share/home/00950/kevinm/java/default/bin/java");
 	public static final File MPJ_HOME = new File("/share/home/00950/kevinm/mpj-v0_38");
+	public static final File FMPJ_HOME = new File("/share/home/00950/kevinm/FastMPJ");
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
