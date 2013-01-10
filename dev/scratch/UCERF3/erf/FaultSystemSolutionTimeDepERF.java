@@ -1009,7 +1009,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		
 		
-		// temp correction MFD
+		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rate fit
 		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
 		for(int i=0;i<correctionMFD.getNum();i++)
 			correctionMFD.set(i,1.0);
@@ -1077,6 +1077,14 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// Update forecast
 		if(D) System.out.println("Updating forecast");
 		updateForecast();
+		
+		
+		System.out.println("1918: "+faultSysSolution.getFaultSectionData(1918).getName());
+		System.out.println("1923: "+faultSysSolution.getFaultSectionData(1923).getName());
+		System.out.println("1817: "+faultSysSolution.getFaultSectionData(1817).getName());
+		System.out.println("1827: "+faultSysSolution.getFaultSectionData(1827).getName());
+		System.exit(0);
+
 		
 		// this is for storing the simulated rate of events for each section
 		double[] obsSectRateArray = new double[faultSysSolution.getNumSections()];
@@ -1196,8 +1204,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// now update totalRate and ruptureSampler (for all rups since start time changed)
 			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
-				double corr = correctionMFD.getClosestY(magOfNthRups[n]);
-				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * corr;
+//				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n];
+				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
 				spontaneousRupSampler.set(n, newRate);
 			}
 			totalRate = spontaneousRupSampler.getSumOfY_vals();

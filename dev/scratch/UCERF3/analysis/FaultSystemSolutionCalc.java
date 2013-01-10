@@ -1,5 +1,6 @@
 package scratch.UCERF3.analysis;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,9 +8,13 @@ import java.util.ArrayList;
 import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
@@ -115,6 +120,38 @@ public class FaultSystemSolutionCalc {
 			plotPaleoObsSlipCOV_Histogram(sol, file);
 		}
 	}
+	
+	
+	
+	public static void plotRupLengthRateHistogram(SimpleFaultSystemSolution fss) {
+		
+//		double minLength=Double.MAX_VALUE;
+//		double maxLength=Double.MIN_VALUE;
+//		for(int r=0;r<fss.getNumRuptures();r++) {
+//			double length = fss.getLengthForRup(r);
+//			if(minLength>length) minLength=length;
+//			if(maxLength<length) maxLength=length;
+//		}
+//		System.out.println("minLength="+minLength);
+//		System.out.println("maxLength="+maxLength);
+		
+		HistogramFunction hist = new HistogramFunction(5.0,1235.0,124);
+		for(int r=0;r<fss.getNumRuptures();r++) {
+			double length = fss.getLengthForRup(r)/1000;;
+			hist.add(length, fss.getRateForRup(r));
+		}
+
+		hist.normalizeBySumOfY_Vals();
+		ArrayList<HistogramFunction> funcs2 = new ArrayList<HistogramFunction>();
+		funcs2.add(hist);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Rupture Length Histogram"); 
+		graph2.setX_AxisLabel("Length (km)");
+		graph2.setY_AxisLabel("Fraction");
+
+		
+	}
 
 	/**
 	 * @param args
@@ -125,7 +162,8 @@ public class FaultSystemSolutionCalc {
 		
 		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		try {
-			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+//			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
