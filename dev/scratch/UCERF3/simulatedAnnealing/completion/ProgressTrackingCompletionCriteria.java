@@ -107,6 +107,8 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 		}
 		if (criteria.isSatisfied(watch, iter, energy, numPerturbsKept)) {
 			if (automaticFile != null) {
+				System.out.println("Criteria satisfied with time="+(watch.getTime()/60000f)
+						+" min, iter="+iter+", energy="+energy[0]+", pertubs kept="+numPerturbsKept);
 				System.out.println("Writing progress to file: "+automaticFile.getAbsolutePath());
 				// write out results first
 				try {
@@ -115,6 +117,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 					System.err.println("Error writing results file!");
 					e.printStackTrace();
 				}
+				System.out.println("Done writing progress file ("+times.size()+" entries)");
 			}
 			return true;
 		}
