@@ -388,7 +388,7 @@ public class BatchPlotGen {
 		fw.close();
 	}
 	
-	private static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
+	public static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
 			Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap)
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		File dir = file.getParentFile();
