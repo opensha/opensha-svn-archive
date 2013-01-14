@@ -269,11 +269,11 @@ public abstract class MPJTaskCalculator {
 		abortAndExit(null, ret);
 	}
 	
-	protected static void abortAndExit(Throwable t) {
+	public static void abortAndExit(Throwable t) {
 		abortAndExit(t, 1);
 	}
 	
-	protected static void abortAndExit(Throwable t, int ret) {
+	public static void abortAndExit(Throwable t, int ret) {
 		if (t != null)
 			t.printStackTrace();
 		if (deadlock != null)

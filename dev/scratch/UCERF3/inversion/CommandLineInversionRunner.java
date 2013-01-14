@@ -31,6 +31,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -200,24 +201,27 @@ public class CommandLineInversionRunner {
 		return ops;
 	}
 
-	public static void printHelp(Options options) {
+	public static void printHelp(Options options, boolean mpj) {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(
 				ClassUtils.getClassNameWithoutPackage(CommandLineInversionRunner.class),
 				options, true );
-		System.exit(2);
+		if (mpj)
+			MPJTaskCalculator.abortAndExit(2);
+		else
+			System.exit(2);
 	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		run(args);
+		run(args, false);
 		System.out.println("DONE");
 		System.exit(0);
 	}
 	
-	public static void run(String[] args) {
+	public static void run(String[] args, boolean mpj) {
 		Options options = createOptions();
 
 		try {
@@ -599,13 +603,17 @@ public class CommandLineInversionRunner {
 			rupSetFile.delete();
 		} catch (MissingOptionException e) {
 			System.err.println(e.getMessage());
-			printHelp(options);
+			printHelp(options, mpj);
 		} catch (ParseException e) {
 			System.err.println(e.getMessage());
-			printHelp(options);
+			printHelp(options, mpj);
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			if (mpj) {
+				MPJTaskCalculator.abortAndExit(e);
+			} else {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}
 	}
 	

@@ -46,16 +46,16 @@ public class DeformationModelOffFaultMoRateData {
 	}
 	
 	public static final String SUBDIR = "DeformationModels";
-	public static final String FILENAME_FM3_1 = "gridded_moment_fm_3_1_oct11.txt";
-	public static final String FILENAME_FM3_2 = "gridded_moment_fm_3_2_oct11.txt";
+	public static final String FILENAME_FM3_1 = "gridded_moment_fm_3_1_jan14_2013_combined.txt";
+	public static final String FILENAME_FM3_2 = "gridded_moment_fm_3_2_jan14_2013_combined.txt";
 	public static final double KAJ_SEISMO_THICKNESS = 11d;
 	public static final double REVISED_SEISMO_THICKNESS = 11d;
 	public static final double NEOK_ZERO_VALS = Math.pow(10, -1000)*REVISED_SEISMO_THICKNESS/KAJ_SEISMO_THICKNESS;
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
-	GriddedGeoDataSet neok_Fm3pt1_xyzData, zeng_Fm3pt1_xyzData, abm_Fm3pt1_xyzData,geol_Fm3pt1_xyzData, abmPlusGeol_Fm3pt1_xyzData;
-	GriddedGeoDataSet neok_Fm3pt2_xyzData, zeng_Fm3pt2_xyzData, abm_Fm3pt2_xyzData, geol_Fm3pt2_xyzData, abmPlusGeol_Fm3pt2_xyzData;
+	GriddedGeoDataSet neok_Fm3pt1_xyzData, zeng_b_bound_Fm3pt1_xyzData, zeng_orig_Fm3pt1_xyzData, abm_Fm3pt1_xyzData,geol_Fm3pt1_xyzData, abmPlusGeol_Fm3pt1_xyzData;
+	GriddedGeoDataSet neok_Fm3pt2_xyzData, zeng_b_bound_Fm3pt2_xyzData, zeng_orig_Fm3pt2_xyzData, abm_Fm3pt2_xyzData, geol_Fm3pt2_xyzData, abmPlusGeol_Fm3pt2_xyzData;
 	
 	/**
 	 * This is private so that we always use the cached version. use getInstance() instead.
@@ -123,10 +123,12 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	private void readDefModelGridData() {
 		neok_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		zeng_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zeng_orig_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zeng_b_bound_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		abm_Fm3pt1_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		neok_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		zeng_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zeng_orig_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		zeng_b_bound_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		abm_Fm3pt2_xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		
 		// to convert seismo thickness
@@ -145,8 +147,9 @@ public class DeformationModelOffFaultMoRateData {
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
 				neok_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[2]))*CONVERSION);
-				zeng_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
-				abm_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
+				zeng_b_bound_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
+				zeng_orig_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
+				abm_Fm3pt1_xyzData.set(index, Math.pow(10, Double.valueOf(st[5]))*CONVERSION);
 			}
 		} catch (Exception e) {
 			ExceptionUtils.throwAsRuntimeException(e);
@@ -165,8 +168,9 @@ public class DeformationModelOffFaultMoRateData {
 				Location loc = new Location(Double.valueOf(st[0]),Double.valueOf(st[1]));
 				int index = griddedRegion.indexForLocation(loc);
 				neok_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[2]))*CONVERSION);
-				zeng_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
-				abm_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
+				zeng_b_bound_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[3]))*CONVERSION);
+				zeng_orig_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[4]))*CONVERSION);
+				abm_Fm3pt2_xyzData.set(index, Math.pow(10, Double.valueOf(st[5]))*CONVERSION);
 			}
 		} catch (Exception e) {
 			ExceptionUtils.throwAsRuntimeException(e);
@@ -184,11 +188,12 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	public GriddedGeoDataSet getAveDefModelSpatialOffFaultMoRates(FaultModels fm, boolean includeGeologic) {
 		GriddedGeoDataSet aveData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
-		GriddedGeoDataSet neok_xyzData, zeng_xyzData, abm_xyzData, geol_xyzData=null;
+		GriddedGeoDataSet neok_xyzData, zeng_b_bound_xyzData, zeng_orig_xyzData, abm_xyzData, geol_xyzData=null;
 		
 		if(fm == FaultModels.FM3_1) {
 			neok_xyzData = neok_Fm3pt1_xyzData;
-			zeng_xyzData = zeng_Fm3pt1_xyzData;
+			zeng_orig_xyzData = zeng_orig_Fm3pt1_xyzData;
+			zeng_b_bound_xyzData = zeng_b_bound_Fm3pt1_xyzData;
 			abm_xyzData = abm_Fm3pt1_xyzData;
 			if(includeGeologic) {
 				if(geol_Fm3pt1_xyzData == null) {makeGeolData();}
@@ -197,7 +202,8 @@ public class DeformationModelOffFaultMoRateData {
 		}
 		else if(fm == FaultModels.FM3_2) {
 			neok_xyzData = neok_Fm3pt2_xyzData;
-			zeng_xyzData = zeng_Fm3pt2_xyzData;
+			zeng_orig_xyzData = zeng_orig_Fm3pt2_xyzData;
+			zeng_b_bound_xyzData = zeng_b_bound_Fm3pt2_xyzData;
 			abm_xyzData = abm_Fm3pt2_xyzData;
 			if(includeGeologic) {
 				if(geol_Fm3pt2_xyzData == null) {makeGeolData();}
@@ -215,8 +221,8 @@ public class DeformationModelOffFaultMoRateData {
 				val += neok_xyzData.get(i);
 				num+=1;
 			}
-			if(zeng_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
-				val += zeng_xyzData.get(i);
+			if(zeng_b_bound_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
+				val += zeng_b_bound_xyzData.get(i);
 				num+=1;
 			}
 			if(abm_xyzData.get(i) > 2*NEOK_ZERO_VALS) {
@@ -315,7 +321,10 @@ public class DeformationModelOffFaultMoRateData {
 				data = neok_Fm3pt1_xyzData;
 				break;
 			case ZENG:
-				data = zeng_Fm3pt1_xyzData;
+				data = zeng_orig_Fm3pt1_xyzData;
+				break;
+			case ZENGBB:
+				data = zeng_b_bound_Fm3pt1_xyzData;
 				break;
 			case GEOLOGIC:
 				if(geol_Fm3pt1_xyzData == null) makeGeolData();
@@ -341,7 +350,10 @@ public class DeformationModelOffFaultMoRateData {
 				data = neok_Fm3pt2_xyzData;
 				break;
 			case ZENG:
-				data = zeng_Fm3pt2_xyzData;
+				data = zeng_orig_Fm3pt2_xyzData;
+				break;
+			case ZENGBB:
+				data = zeng_b_bound_Fm3pt2_xyzData;
 				break;
 			case GEOLOGIC:
 				if(geol_Fm3pt2_xyzData == null) makeGeolData();
@@ -472,10 +484,12 @@ public class DeformationModelOffFaultMoRateData {
 	 */
 	public void listNumZeroValues() {
 		System.out.println("neok_Fm3pt1_xyzData numZeros = "+countZeroValues(neok_Fm3pt1_xyzData));
-		System.out.println("zeng_Fm3pt1_xyzData numZeros = "+countZeroValues(zeng_Fm3pt1_xyzData));
+		System.out.println("zeng_orig_Fm3pt1_xyzData numZeros = "+countZeroValues(zeng_orig_Fm3pt1_xyzData));
+		System.out.println("zeng_b_bound_Fm3pt1_xyzData numZeros = "+countZeroValues(zeng_b_bound_Fm3pt1_xyzData));
 		System.out.println("abm_Fm3pt1_xyzData numZeros = "+countZeroValues(abm_Fm3pt1_xyzData));
 		System.out.println("neok_Fm3pt2_xyzData numZeros = "+countZeroValues(neok_Fm3pt2_xyzData));
-		System.out.println("zeng_Fm3pt2_xyzData numZeros = "+countZeroValues(zeng_Fm3pt2_xyzData));
+		System.out.println("zeng_orig_Fm3pt2_xyzData numZeros = "+countZeroValues(zeng_orig_Fm3pt2_xyzData));
+		System.out.println("zeng_b_bound_Fm3pt2_xyzData numZeros = "+countZeroValues(zeng_b_bound_Fm3pt2_xyzData));
 		System.out.println("abm_Fm3pt2_xyzData numZeros = "+countZeroValues(abm_Fm3pt2_xyzData));
 		System.out.println("(out of "+neok_Fm3pt2_xyzData.size()+" grid points)");
 	}

@@ -797,9 +797,9 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
-		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
-		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
-		System.exit(0);
+//		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
+//		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
+//		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		
@@ -813,9 +813,32 @@ public class DeformationModelFileParser {
 			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
 			for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
 				Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
+//				for (DeformationSection sect : sects.values()) {
+//					if (sect.slips.size() == 1) {
+//						System.out.println("Sect "+sect.id+" only has one mini!");
+//						for (FaultSectionPrefData data : datas) {
+//							if (data.getSectionId() == sect.id) {
+//								System.out.println("Sect Name: "+data.getSectionName());
+//								break;
+//							}
+//						}
+//					}
+//				}
+//				System.exit(0);
 				System.out.println("TESTING "+fm+" : "+dm);
 				boolean success = compareAgainst(sects, datas, fmSects);
 				System.out.println("VALIDATED??? "+success);
+				int nanSlips = 0;
+				int nanRakes = 0;
+				for (DeformationSection sect : sects.values()) {
+					for (double slip : sect.getSlips())
+						if (Double.isNaN(slip))
+							nanSlips++;
+					for (double rake : sect.getRakes())
+						if (Double.isNaN(rake))
+							nanRakes++;
+				}
+				System.out.println("NaNs: "+nanSlips+" slips, "+nanRakes+" rakes");
 				try {
 					new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
 				} catch (Exception e) {

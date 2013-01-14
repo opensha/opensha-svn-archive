@@ -26,11 +26,15 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	// GEOBOUNDED INVERSION
 	GEOBOUND(				"Geobounded",			"GEOB",		0d,		FaultModels.FM3_1,	"geobound_slip_rake__MAPPED_2012_06_05.csv"),
 	// NEOKINEMA
-	NEOKINEMA(				"Neokinema",			"NEOK",		0.20d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2012_10_09.csv",
-																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2012_10_09.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		0.20d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2013_01_12.csv",
+																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2013_01_12.csv"),
 	// ZENG
-	ZENG(					"Zeng",					"ZENG",		0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_10_11.csv",
+	ZENG(					"Zeng Unbounded",		"ZENG",		0.00d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_10_11.csv",
 																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_10_11.csv"),
+	ZENGAB(					"Zeng All Bounded",		"ZENGAB",	0.00d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_all_bounded_2013_01_10.csv",
+																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_all_bounded_2013_01_10.csv"),
+	ZENGBB(					"Zeng B-Fault Bounded",	"ZENGBB",	0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_b_bounded_2013_01_10.csv",
+																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_b_bounded_2013_01_10.csv"),
 	// GEOLOGIC
 	GEOLOGIC(				"Geologic",				"GEOL", 	0.30d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2012_09_06.csv",
 																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2012_09_06.csv"),
