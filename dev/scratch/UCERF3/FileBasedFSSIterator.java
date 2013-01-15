@@ -83,7 +83,13 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 				continue;
 			}
 			String name = file.getName();
-			boolean solFile = name.endsWith("_sol.zip") || (name.endsWith(".bin") && !name.contains("noMinRates"));
+			boolean solFile = name.endsWith("_sol.zip");
+			if (!solFile && name.endsWith(".bin") && !name.contains("noMinRates")) {
+				// if the sol.zip is available, use that instead
+				String zipName = name.replaceAll(".bin", "_sol.zip");
+				if (!new File(dir, zipName).exists())
+					solFile = true;
+			}
 			if (!solFile)
 				continue;
 			if (myNameGreps != null && !myNameGreps.isEmpty()) {

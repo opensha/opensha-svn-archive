@@ -162,7 +162,17 @@ public class BranchAveragedFSSBuilder {
 //		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
 		FaultSystemSolutionFetcher fetcher = new ZipFileSolutionFetcher(new ZipFile(file));
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
-		FaultModels fm = FaultModels.FM3_1;
+		FaultModels fm = null;
+		if (branchNames != null) {
+			for (String branchName : branchNames) {
+				for (FaultModels testFM : FaultModels.values()) {
+					if (testFM.name().equals(branchName) || testFM.getShortName().equals(branchName))
+						fm = testFM;
+				}
+			}
+		}
+		if (fm == null)
+			fm = FaultModels.FM3_1;
 		
 		SimpleFaultSystemSolution sol = build(fetcher, weightProvider, fm, branchNames);
 		
