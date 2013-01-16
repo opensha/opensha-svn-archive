@@ -1013,21 +1013,21 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
 		for(int i=0;i<correctionMFD.getNum();i++)
 			correctionMFD.set(i,1.0);
-		correctionMFD.set(5.55,0.68401);
-		correctionMFD.set(5.65,0.514048);
-		correctionMFD.set(5.75,0.790005);
-		correctionMFD.set(5.85,0.837815);
-		correctionMFD.set(5.95,0.871158);
-		correctionMFD.set(6.05,0.837409);
-		correctionMFD.set(6.15,0.817532);
-		correctionMFD.set(6.25,0.794629);
-		correctionMFD.set(6.35,0.819054);
-		correctionMFD.set(6.45,0.85752);
-		correctionMFD.set(6.55,0.866264);
-		correctionMFD.set(6.65,0.8861);
-		correctionMFD.set(6.75,0.925039);
-		correctionMFD.set(6.85,0.910973);
-		correctionMFD.set(6.95,0.948021);
+		correctionMFD.set(5.55,0.68401*0.9);
+		correctionMFD.set(5.65,0.514048*0.9);
+		correctionMFD.set(5.75,0.790005*0.9);
+		correctionMFD.set(5.85,0.837815*0.9);
+		correctionMFD.set(5.95,0.871158*0.9);
+		correctionMFD.set(6.05,0.837409*0.9);
+		correctionMFD.set(6.15,0.817532*0.9);
+		correctionMFD.set(6.25,0.794629*0.9);
+		correctionMFD.set(6.35,0.819054*0.9);
+		correctionMFD.set(6.45,0.857520*0.9);
+		correctionMFD.set(6.55,0.866264*0.9);
+		correctionMFD.set(6.65,0.886100*0.9);
+		correctionMFD.set(6.75,0.925039*0.9);
+		correctionMFD.set(6.85,0.910973*0.9);
+		correctionMFD.set(6.95,0.948021*0.9);
 		correctionMFD.set(7.05,0.974252);
 		correctionMFD.set(7.15,0.9974);
 		correctionMFD.set(7.25,1.00688);
@@ -1079,15 +1079,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		updateForecast();
 		
 		
-		System.out.println("1918: "+faultSysSolution.getFaultSectionData(1918).getName());
-		System.out.println("1923: "+faultSysSolution.getFaultSectionData(1923).getName());
-		System.out.println("1817: "+faultSysSolution.getFaultSectionData(1817).getName());
-		System.out.println("1827: "+faultSysSolution.getFaultSectionData(1827).getName());
-		System.exit(0);
+//		System.out.println("1918: "+faultSysSolution.getFaultSectionData(1918).getName());
+//		System.out.println("1923: "+faultSysSolution.getFaultSectionData(1923).getName());
+//		System.out.println("1817: "+faultSysSolution.getFaultSectionData(1817).getName());
+//		System.out.println("1827: "+faultSysSolution.getFaultSectionData(1827).getName());
+//		System.exit(0);
 
 		
 		// this is for storing the simulated rate of events for each section
 		double[] obsSectRateArray = new double[faultSysSolution.getNumSections()];
+		double[] obsSectRateArrayM6pt05to6pt65 = new double[faultSysSolution.getNumSections()];
+		double[] obsSectRateArrayM7pt95to8pt25 = new double[faultSysSolution.getNumSections()];
 
 		
 		// make the target MFD
@@ -1179,6 +1181,12 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
 					dateOfLastForSect[sect] = eventTimeMillis;
 					obsSectRateArray[sect] += 1.0; // add the event
+					
+					double mag = magOfNthRups[nthRup];
+					if(mag>6 && mag<6.7)
+						obsSectRateArrayM6pt05to6pt65[sect] += 1;
+					else if (mag>7.9 && mag<8.3)
+						obsSectRateArrayM7pt95to8pt25[sect] += 1;
 				}
 			}
 
@@ -1204,8 +1212,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// now update totalRate and ruptureSampler (for all rups since start time changed)
 			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
-//				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n];
-				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
+				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
+//				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
 				spontaneousRupSampler.set(n, newRate);
 			}
 			totalRate = spontaneousRupSampler.getSumOfY_vals();
@@ -1246,8 +1254,11 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		
 		// plot observed versus imposed section rates
-		for(int i=0;i<obsSectRateArray.length;i++)
+		for(int i=0;i<obsSectRateArray.length;i++) {
 			obsSectRateArray[i] = obsSectRateArray[i]/origDuration;
+			obsSectRateArrayM6pt05to6pt65[i] = obsSectRateArrayM6pt05to6pt65[i]/origDuration;
+			obsSectRateArrayM7pt95to8pt25[i] = obsSectRateArrayM7pt95to8pt25[i]/origDuration;
+		}
 		DefaultXY_DataSet obsVsImposedSectRates = new DefaultXY_DataSet(longTermPartRateForSectArray,obsSectRateArray);
 		obsVsImposedSectRates.setName("Simulated vs Imposed Section Event Rates");
 		DefaultXY_DataSet perfectAgreementFunc = new DefaultXY_DataSet();
@@ -1263,8 +1274,67 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Obs vs Imposed Section Rates; "+probTypeString, plotChars); 
 		graph2.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph2.setY_AxisLabel("Simulated Section Participation Rate (per yr)");
-
+		
+		
+		
+		// write out test section rates
+		ArrayList<String> outStringList = new ArrayList<String>();
+		int numSect=faultSysSolution.getNumSections();
+		double[] predSectRateArrayM6pt05to6pt65 = new double[numSect];
+		double[] predSectRateArrayM7pt95to8pt25 = new double[numSect];
+		for(int s=0;s<numSect;s++) {
+			double partRateMlow=0;
+			double partRateMhigh=0;
+			for (int r : faultSysSolution.getRupturesForSection(s)) {
+				double mag = faultSysSolution.getMagForRup(r);
+				if(mag>6 && mag<6.7)
+					partRateMlow += faultSysSolution.getRateForRup(r);
+				else if (mag>7.9 && mag<8.3)
+					partRateMhigh = faultSysSolution.getRateForRup(r);
+			}
+			predSectRateArrayM6pt05to6pt65[s]=partRateMlow;
+			predSectRateArrayM7pt95to8pt25[s]=partRateMhigh;
+			outStringList.add(s+"\t"+
+					predSectRateArrayM6pt05to6pt65[s]+"\t"+
+					obsSectRateArrayM6pt05to6pt65[s]+"\t"+
+					predSectRateArrayM7pt95to8pt25[s]+"\t"+
+					obsSectRateArrayM7pt95to8pt25[s]+"\t"+
+					faultSysSolution.getFaultSectionData(s).getName()+"\n");
+		}
+		if(!dataDir.exists()) dataDir.mkdir();
+		File dataFile = new File(dataDir,File.separator+"testSectRates");
+		try {
+			FileWriter fileWriter = new FileWriter(dataFile);
+			for(String line:outStringList) {
+				fileWriter.write(line);
+			}
+			fileWriter.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		DefaultXY_DataSet obs_pred_ratioForSections = new DefaultXY_DataSet();
+		for(int s=0;s<numSect;s++) {
+			if(predSectRateArrayM6pt05to6pt65[s] >= 10.0/origDuration) {	// only keep where 10 should have occurred
+				obs_pred_ratioForSections.set(predSectRateArrayM6pt05to6pt65[s], obsSectRateArrayM6pt05to6pt65[s]/predSectRateArrayM6pt05to6pt65[s]);
+			}
+		}
+		DefaultXY_DataSet perfectAgreementFunc2 = new DefaultXY_DataSet();
+		perfectAgreementFunc2.set(10.0/origDuration,1d);
+		perfectAgreementFunc2.set(0.1,1d);
+		perfectAgreementFunc2.setName("Perfect agreement line");
+		ArrayList<DefaultXY_DataSet> funcs3 = new ArrayList<DefaultXY_DataSet>();
+		funcs3.add(obs_pred_ratioForSections);
+		funcs3.add(perfectAgreementFunc2);
+		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
+		plotChars2.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
+		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+probTypeString, plotChars2); 
+		graph3.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
+		graph3.setY_AxisLabel("Ratio of Observed to Imposed");
 	}
+	
+	
 	
 	private void writeSectTimeSinceLastEventToFile(String fileName, long currentTimeMillis) {		
 		if(!dataDir.exists())
