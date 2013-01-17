@@ -121,16 +121,42 @@ public class UC3_MapMaker {
 
 		// =====
 		
-		String uc3srcDir = "uc3uc2mapTAP_0p1";
-		GeoDataSet over = loadSingle(uc3srcDir, pe, grid, p);
+//		String uc3srcDir = "uc3uc2mapTAP_0p1";
+//		GeoDataSet over = loadSingle(uc3srcDir, pe, grid, p);
+//
+//		String nshmpSrcDir = "muc2up_fm2p1_nobg_0p1"; //"nshmp_ca_nobg";
+//		GeoDataSet under = loadSingle(nshmpSrcDir, pe, grid, p);
+//
+//		GeoDataSet xyzout = GeoDataSetMath.divide(over, under);
+//		
+//		String dlDir = ROOT + "maps/UC3UC2MAPTAP-UC2FM2P1-nobg/PGA-10p50-log";
+//		makeRatioPlot(xyzout, grid.bounds(), dlDir, "10% in 50 : PGA", true);
 
-		String nshmpSrcDir = "muc2up_fm2p1_nobg_0p1"; //"nshmp_ca_nobg";
-		GeoDataSet under = loadSingle(nshmpSrcDir, pe, grid, p);
-
-		GeoDataSet xyzout = GeoDataSetMath.divide(over, under);
+		// ===== rate (glenn biasi) test comparison
 		
-		String dlDir = ROOT + "maps/UC3UC2MAPTAP-UC2FM2P1-nobg/PGA-10p50-log";
-		makeRatioPlot(xyzout, grid.bounds(), dlDir, "10% in 50 : PGA", true);
+		// glenn biasi rates using 20 runs
+		String srcDir = "uc3rateTest";
+		GeoDataSet rateTest = loadSingle(srcDir, pe, grid, p);
+
+		// ref branch using 7 runs
+		srcDir = "FM-DM-MS-DSR-UV/FM3_2_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_0p1";
+		GeoDataSet refBranch = loadSingle(srcDir, pe, grid, p);
+		
+		// NSHMP reference
+		srcDir = "nshmp_ca";
+		GeoDataSet nshmp = loadSingle(srcDir, pe, grid, p);
+
+		GeoDataSet rateOverRef = GeoDataSetMath.divide(rateTest, refBranch);
+		GeoDataSet rateOverNSHMP = GeoDataSetMath.divide(rateTest, nshmp);
+		GeoDataSet refOverNSHMP = GeoDataSetMath.divide(rateTest, nshmp);
+		
+		String dlDir = ROOT + "maps/rateTestGB/rate_over_ref-PGA-2p50-log";
+		makeRatioPlot(rateOverRef, grid.bounds(), dlDir, "2% in 50 : PGA", true);
+		dlDir = ROOT + "maps/rateTestGB/rate_over_nshmp-PGA-2p50-log";
+		makeRatioPlot(rateOverNSHMP, grid.bounds(), dlDir, "2% in 50 : PGA", true);
+		dlDir = ROOT + "maps/rateTestGB/ref_over_nshmp-PGA-2p50-log";
+		makeRatioPlot(refOverNSHMP, grid.bounds(), dlDir, "2% in 50 : PGA", true);
+
 		
 //		GMT_CPT_Files cpt = NSHMP_PlotUtils.getCPT(GM0P00);
 //		double[] minmax = NSHMP_PlotUtils.getRange(GM0P00);
