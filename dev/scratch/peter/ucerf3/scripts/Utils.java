@@ -45,22 +45,21 @@ import com.google.common.io.Files;
 public class Utils {
 
 	public static void main(String[] args) {
-		generateBranchList();
+//		generateFullTreeBranchList("UC32tree1440");
+		generateBranchList("UC32refBranch");
 	}
 	
 
 	private static final String LF = IOUtils.LINE_SEPARATOR;
 	
-	private static void generateBranchList() {
+	private static void generateFullTreeBranchList(String fileName) {
 		
-		String fileName = "UC32tree1440";
 		Set<FaultModels> fltModels = EnumSet.of(
 			FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
 			ABM, GEOLOGIC, NEOKINEMA, ZENGBB);
 		Set<ScalingRelationships> scalingRel = EnumSet.of(
-			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
-			SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
+			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08, SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
 		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
 			UNIFORM, TAPERED);
 		Set<InversionModels> invModels = EnumSet.of(
@@ -73,7 +72,48 @@ public class Utils {
 			NONE);
 		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
 			UCERF2, UCERF3);
+		
+		buildList(fileName, fltModels, defModels, scalingRel, slipRup, invModels, 
+			totM5rate, mMaxOff, momentFix, spatialSeis);
+	}
 
+	private static void generateBranchList(String fileName) {
+		
+		Set<FaultModels> fltModels = EnumSet.of(
+			FM3_1); // FM3_1, FM3_2);
+		Set<DeformationModels> defModels = EnumSet.of(
+			ZENGBB); // ABM, GEOLOGIC, NEOKINEMA, ZENGBB);
+		Set<ScalingRelationships> scalingRel = EnumSet.of(
+			SHAW_2009_MOD); //ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08, SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
+		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
+			TAPERED); //UNIFORM, TAPERED);
+		Set<InversionModels> invModels = EnumSet.of(
+			CHAR_CONSTRAINED);
+		Set<TotalMag5Rate> totM5rate = EnumSet.of(
+			RATE_8p7); // RATE_7p6, RATE_8p7, RATE_10p0);
+		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
+			MAG_7p6); // MAG_7p2, MAG_7p6, MAG_8p0);
+		Set<MomentRateFixes> momentFix = EnumSet.of(
+			NONE);
+		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
+			UCERF3); // UCERF2, UCERF3);
+
+		buildList(fileName, fltModels, defModels, scalingRel, slipRup, invModels, 
+			totM5rate, mMaxOff, momentFix, spatialSeis);
+	}
+
+	private static void buildList(
+			String fileName,
+			Set<FaultModels> fltModels,
+			Set<DeformationModels> defModels,
+			Set<ScalingRelationships> scalingRel,
+			Set<SlipAlongRuptureModels> slipRup,
+			Set<InversionModels> invModels,
+			Set<TotalMag5Rate> totM5rate,
+			Set<MaxMagOffFault> mMaxOff,
+			Set<MomentRateFixes> momentFix,
+			Set<SpatialSeisPDF> spatialSeis) {
+		
 		List<Set<? extends LogicTreeBranchNode<?>>> branchSets = Lists.newArrayList();
 		branchSets.add(fltModels);
 		branchSets.add(defModels);
@@ -99,6 +139,5 @@ public class Utils {
 			ioe.printStackTrace();
 		}
 	}
-
 
 }
