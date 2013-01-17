@@ -1,6 +1,5 @@
 package scratch.peter.ucerf3;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -10,7 +9,6 @@ import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
-import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
@@ -19,15 +17,14 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 /**
  * Add comments here
@@ -50,7 +47,7 @@ public class SpeedTest {
 			String path = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
 
 			System.out.println("*** PRE GET COMPOUND " + timeFmt.format(System.currentTimeMillis()));
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(path);
+			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(path);
 			System.out.println("*** POST GET COMPOUND " + timeFmt.format(System.currentTimeMillis()));
 
 			System.out.println("*** PRE GET FSS " + timeFmt.format(System.currentTimeMillis()));
