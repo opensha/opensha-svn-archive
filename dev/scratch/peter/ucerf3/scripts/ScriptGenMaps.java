@@ -42,11 +42,11 @@ public class ScriptGenMaps {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length < 12) {
+		if (args.length != 11) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGenMaps.class) +
-					" <queue> <nodes> <hours> <libDir>" +
+					" <queue> <nodes> <hours> <libDir> <scriptPath>" +
 					" <solPath> <branchID> <grid> <spacing> <period> <outDir>");
 			System.exit(1);
 		}
@@ -55,21 +55,22 @@ public class ScriptGenMaps {
 		int nodes = Integer.parseInt(args[1]);
 		int hours = Integer.parseInt(args[2]);
 		String libDir = args[3];
+		String scriptPath = args[4];
 
-		Iterable<String> otherArgs = Iterables.skip(Arrays.asList(args), 4);
+		Iterable<String> otherArgs = Iterables.skip(Arrays.asList(args), 5);
 		String scriptArgs = J_SPACE.join(otherArgs);
 
-		writeScript(libDir, hours, nodes, queue, scriptArgs);
+		writeScript(libDir, hours, nodes, queue, scriptPath, scriptArgs);
 	}
 
 	private static void writeScript(String libDir, int hrs,
-			int nodes, String queue, String args) {
+			int nodes, String queue, String scriptPath, String args) {
 		try {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(JAVA_BIN, 9216,
-				classpath, MPJ_HOME, false);
+			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(
+				JAVA_BIN, 4096, classpath, MPJ_HOME, false);
 
 			List<String> script = mpj.buildScript(
 				UC3_HazardCalcDriverMPJ.class.getName(), args);
@@ -77,7 +78,7 @@ public class ScriptGenMaps {
 			HPCC_ScriptWriter writer = new HPCC_ScriptWriter();
 			script = writer.buildScript(script, hrs, nodes, 0, queue);
 
-			File pbsFile = new File("UC3mapJob.pbs");
+			File pbsFile = new File(scriptPath);
 			String scriptStr = J_NL.join(script);
 			Files.write(scriptStr, pbsFile, Charsets.US_ASCII);
 		} catch (Exception e) {
