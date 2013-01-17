@@ -411,6 +411,31 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		}
 	}
 	
+	// scratch
+	public String getEpsilonDataVals() {
+		String data = "";
+		for (ScalarIMR imr : imrMap.keySet()) {
+			data += imr.getShortName() + " " + im.getValue() + " " + imr.getMean() + " " + imr.getStdDev() + "\n";
+		}
+		return data;
+	}
+	
+	//sratch
+	public String getPEs() {
+		String data = "";
+		for (ScalarIMR imr : imrMap.keySet()) {
+			double mean = imr.getMean();
+			double std = imr.getStdDev();
+			double iml = ((Double) im.getValue()).doubleValue();
+			double pe1 = ((AttenuationRelationship) imr).getExceedProbability();
+			double pe2 = Utils.getExceedProbability(iml, mean, std, false, 0.0);
+			data += imr.getShortName() + " " + pe1 + " " + pe2 + "\n";
+		}
+		return data;
+	}
+	
+
+	
 	@Override
 	public double getMean() {
 		throw new UnsupportedOperationException();
@@ -423,7 +448,45 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 
 	@Override
 	public double getEpsilon() {
-		throw new UnsupportedOperationException();
+		// NOTE experimental, redundant mean & sigma calcs
+		
+		// set mean, sigma, and weight arrays
+		int curveCount = imrMap.size();
+		if (includeImrUncert) curveCount *= EPI_CT;
+		double[] means = new double[curveCount];
+		double[] sigmas = new double[curveCount];
+		double[] weights = new double[curveCount];
+		
+		int idx = 0;
+		for (ScalarIMR imr : imrMap.keySet()) {
+			double m = imr.getMean();
+			double s = imr.getStdDev();
+			double w = imrMap.get(imr);
+			if (includeImrUncert) {
+				double mag = magParam.getValue();
+				double dist = distanceJBParam.getValue();
+				double epiVal = getUncertainty(mag, dist);
+				for (int i=0; i<EPI_CT; i++) {
+					means[idx] = m + epiVal * EPI_SIGN[i];
+					weights[idx] = w * EPI_WT[i];
+					sigmas[idx] = s;
+					idx++;
+				}
+			} else {
+				means[idx] = m;
+				sigmas[idx] = s;
+				weights[idx] = w;
+				idx++;
+			}
+		}
+		
+		// get and sum values
+		double iml = ((Double) im.getValue()).doubleValue();
+		double epsilon = 0.0;
+		for (int i=0; i<means.length; i++) {
+			epsilon += ((iml - means[i]) / sigmas[i]) * weights[i];
+		}
+		return epsilon;
 	}
 
 	@Override
@@ -479,7 +542,45 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
-		throw new UnsupportedOperationException();
+		// NOTE experimental, redundant mean & sigma calcs
+
+		// set mean, sigma, and weight arrays
+		int curveCount = imrMap.size();
+		if (includeImrUncert) curveCount *= EPI_CT;
+		double[] means = new double[curveCount];
+		double[] sigmas = new double[curveCount];
+		double[] weights = new double[curveCount];
+		
+		int idx = 0;
+		for (ScalarIMR imr : imrMap.keySet()) {
+			double m = imr.getMean();
+			double s = imr.getStdDev();
+			double w = imrMap.get(imr);
+			if (includeImrUncert) {
+				double mag = magParam.getValue();
+				double dist = distanceJBParam.getValue();
+				double epiVal = getUncertainty(mag, dist);
+				for (int i=0; i<EPI_CT; i++) {
+					means[idx] = m + epiVal * EPI_SIGN[i];
+					weights[idx] = w * EPI_WT[i];
+					sigmas[idx] = s;
+					idx++;
+				}
+			} else {
+				means[idx] = m;
+				sigmas[idx] = s;
+				weights[idx] = w;
+				idx++;
+			}
+		}
+		
+		// get and sum values
+		double pe = 0.0;
+		for (int i=0; i<means.length; i++) {
+			pe += Utils.getExceedProbability(
+				Math.exp((Double) im.getValue()), means[i], sigmas[i], false, 0.0) * weights[i];
+		}
+		return pe;
 	}
 
 	@Override
