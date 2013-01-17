@@ -310,6 +310,20 @@ public class Utils {
 		}
 		return imls;
 	}
+	
+	public static double getExceedProbability(double iml,
+			double mean, double sigma, boolean clamp, double clampVal) {
+
+		double clip = mean + 3 * sigma;
+		if (clamp) {
+			double clip3s = Math.exp(clip);
+			double clipPer = clampVal;
+			if (clipPer < clip3s && clipPer > 0) clip = Math.log(clipPer);
+		}
+		double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
+		return Utils.gaussProbExceed(mean, sigma, Math.log(iml), Pclip, ONE_SIDED);
+	}
+
 
 	// public static void main(String[] args) {
 	// double x1, x2, y1, y2, y;
