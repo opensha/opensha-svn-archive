@@ -1,15 +1,5 @@
 package scratch.peter.curves;
 
-import static scratch.UCERF3.enumTreeBranches.DeformationModels.*;
-import static scratch.UCERF3.enumTreeBranches.FaultModels.*;
-import static scratch.UCERF3.enumTreeBranches.InversionModels.*;
-import static scratch.UCERF3.enumTreeBranches.MaxMagOffFault.*;
-import static scratch.UCERF3.enumTreeBranches.MomentRateFixes.*;
-import static scratch.UCERF3.enumTreeBranches.ScalingRelationships.*;
-import static scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels.*;
-import static scratch.UCERF3.enumTreeBranches.SpatialSeisPDF.*;
-import static scratch.UCERF3.enumTreeBranches.TotalMag5Rate.*;
-import static org.opensha.nshmp.NEHRP_TestCity.*;
 import static com.google.common.base.Charsets.US_ASCII;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opensha.nshmp2.util.Period.*;
@@ -17,7 +7,6 @@ import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
 import java.awt.geom.Point2D;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -39,8 +28,6 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.nshmp2.calc.UC3_CalcDriver;
-import org.opensha.nshmp2.calc.UC3_CalcWrapper;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -65,6 +52,7 @@ import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.peter.nshmp.CurveContainer;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
@@ -122,10 +110,10 @@ public class CurveUtils {
 //		String curveDir = srcPath + "NEHRP-PBR-SRP/UC2-TimeIndep";
 //		generateBranchSummaries2(locFile, curveDir, false);
 
-		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
-		String locFile = srcPath + "sites.txt";
-		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3";
-		generateBranchSummaries2(locFile, curveDir, true);
+//		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		String locFile = srcPath + "sites.txt";
+//		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3";
+//		generateBranchSummaries2(locFile, curveDir, true);
 
 //		String treePath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/SRP1440";
 //		File srcDir = new File(treePath + "/src");
@@ -139,10 +127,11 @@ public class CurveUtils {
 //		File locFile = new File(treePath + "/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 
-//		File srcDir = new File(UC3_ROOT + "convVar0/src");
-//		File outDir = new File(UC3_ROOT + "convVar0");
-//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt");
-//		reorganizeUC3branchResults(srcDir, outDir, locFile, true);
+		File srcDir = new File(UC3_ROOT + "convAFnoBG/src");
+		File outDir = new File(UC3_ROOT + "convAFnoBG");
+		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt");
+		reorganizeUC3branchResults(srcDir, outDir, locFile, true);
+		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
 		
 //		File srcDir = new File(UC3_ROOT + "tree_src/PalmdaleTree");
 //		File outDir = new File(UC3_ROOT + "PalmdaleTree");
@@ -667,7 +656,7 @@ public class CurveUtils {
 
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
 		Map<String, Location> siteMap = 
-				UC3_CalcDriver.readSiteFile("tmp/curves/sites/all.txt");
+				UC3_CalcUtils.readSiteFile("tmp/curves/sites/all.txt");
 		Iterable<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(VENTURA);
 
 		for (Period p : periods) {
@@ -707,58 +696,6 @@ public class CurveUtils {
 		}
 	}
 	
-	private static void generateBranchList() {
-		
-		String fileName = "tree_refNoBG_tap";
-		Set<FaultModels> fltModels = EnumSet.of(
-			FM3_1, FM3_2); //FM3_2); // FM3_1, FM3_2);
-		Set<DeformationModels> defModels = EnumSet.of(
-//			ZENG);
-			ABM, GEOLOGIC, NEOKINEMA, ZENG);
-		Set<ScalingRelationships> scalingRel = EnumSet.of(
-//			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
-//			SHAW_CONST_STRESS_DROP);
-//			SHAW_2009_MOD);
-			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08,
-			SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
-		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
-			TAPERED); //UNIFORM, TAPERED);
-		Set<InversionModels> invModels = EnumSet.of(
-			CHAR_CONSTRAINED);
-		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_8p7); //RATE_7p6, RATE_8p7, RATE_10p0);
-		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
-			MAG_7p6); // MAG_7p2, MAG_7p6, MAG_8p0);
-		Set<MomentRateFixes> momentFix = EnumSet.of(
-			NONE);
-		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
-			UCERF3); // UCERF2, UCERF3);
-
-		List<Set<? extends LogicTreeBranchNode<?>>> branchSets = Lists.newArrayList();
-		branchSets.add(fltModels);
-		branchSets.add(defModels);
-		branchSets.add(scalingRel);
-		branchSets.add(slipRup);
-		branchSets.add(invModels);
-		branchSets.add(totM5rate);
-		branchSets.add(mMaxOff);
-		branchSets.add(momentFix);
-		branchSets.add(spatialSeis);
-		
-		int count = 0;
-		Set<List<LogicTreeBranchNode<?>>> branches = Sets.cartesianProduct(branchSets);
-		try {
-		File out = new File("tmp/invSolSets", fileName + ".txt");
-		Files.write("", out, US_ASCII);
-		for (List<LogicTreeBranchNode<?>> branch : branches) {
-			LogicTreeBranch ltb = LogicTreeBranch.fromValues(branch);
-			Files.append(ltb.buildFileName() + LF, out, US_ASCII);
-			System.out.println((count++) + " " + ltb.buildFileName());
-		}
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
 	
 	static class UC3_TornadoBuilder {
 		
@@ -893,7 +830,7 @@ public class CurveUtils {
 	private static void listAllBranches() {
 		try {
 			String path1440 = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper
+			CompoundFaultSystemSolution cfss = UC3_CalcUtils
 				.getCompoundSolution(path1440);
 			List<LogicTreeBranch> branches = Lists.newArrayList(cfss
 				.getBranches());
@@ -923,14 +860,14 @@ public class CurveUtils {
 		
 		// load conv fss
 		String convSolPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-		AverageFaultSystemSolution afss = UC3_CalcWrapper.getAvgSolution(convSolPath);
+		AverageFaultSystemSolution afss = UC3_CalcUtils.getAvgSolution(convSolPath);
 		for (int i=0; i<maxIdx; i++) {
 			FaultSystemSolution fss = afss.getSolution(i);
 			double fssRupRate = fss.getRateForRup(fssRupIdx);
 			double fssRupMag = fss.getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
 			erf.updateForecast();
 			int srcIdx = -1;
 			for (int j=0; j<erf.getNumFaultSystemSources(); j++) {

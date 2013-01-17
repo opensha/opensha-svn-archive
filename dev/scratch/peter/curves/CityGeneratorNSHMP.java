@@ -3,42 +3,17 @@ package scratch.peter.curves;
 import static org.opensha.nshmp2.util.Period.*;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.Parameter;
-import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.nshmp2.calc.UC3_CalcDriver;
 import org.opensha.nshmp2.erf.NSHMP2008;
-import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
-import org.opensha.nshmp2.util.SourceIMR;
-import org.opensha.sha.earthquake.AbstractEpistemicListERF;
-import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.EpistemicListERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.imr.AttenRelRef;
-import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
-import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
-import scratch.UCERF3.utils.UpdatedUCERF2.GridSources;
-import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 /**
  * Utility class to generate hazard curves for NEHRP test cities using NSHMP
@@ -59,7 +34,7 @@ class CityGeneratorNSHMP {
 		// sitePath = "tmp/curves/sites/SRPsites.txt";
 		sitePath = "tmp/curves/sites/all.txt";
 		try {
-			locMap = UC3_CalcDriver.readSiteFile(sitePath);
+			locMap = UC3_CalcUtils.readSiteFile(sitePath);
 			System.out.println(locMap);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
