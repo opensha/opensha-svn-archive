@@ -59,7 +59,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 
 	public static final String NAME = "Fault System Solution Poisson ERF";
 	
@@ -211,6 +211,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			aleatoryMagAreaStdDevChanged = false;
 			applyAftershockFilterChanged = false;
 			faultGridSpacingChanged = false;
+		} else {
+			// time span changes not being monitored
+			setupArraysAndLists();
 		}
 		// TODO arrays like srcIndexForNthRup set in setupArraysAndLists() wont include gridded seismicity until that is called again;
 
