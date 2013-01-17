@@ -1,7 +1,10 @@
 package scratch.UCERF3.erf;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.File;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
@@ -19,7 +22,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 
 	private UCERF3_GridSourceGenerator ucerf3_gridSrcGen;
 	
-	public static final String NAME = "UCERF3 Poisson ERF";
+	private String name = "UCERF3 Poisson ERF";
 	
 	public UCERF3_FaultSysSol_ERF() {
 		
@@ -94,6 +97,21 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 			// treat as point sources
 //			System.out.println("numOtherSources=" + numOtherSources);
 	}	
+	
+	/**
+	 * Sets the erf name. For UCERF3 erf this will commonly be the branch
+	 * identifier string or similar.
+	 * @param name
+	 */
+	public void setName(String name) {
+		checkArgument(!StringUtils.isBlank(name), "Name cannot be empty");
+		this.name = name;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
 	
 	/**
 	 * @param args
