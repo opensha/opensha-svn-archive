@@ -59,9 +59,9 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		String solPath = args[0];
 		String branchID = args[1];
-		LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchID);
 		TestGrid grid = TestGrid.valueOf(args[2]);
 		double spacing = Double.parseDouble(args[3]);
+		locs = grid.grid(spacing).getNodeList();
 		Period period = Period.valueOf(args[4]);
 		String outPath = args[5];
 
@@ -69,7 +69,7 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(branch, locs, period, false, writer);
+		calc = new ThreadedHazardCalc(solPath, branchID, locs, period, false, writer);
 	}
 	
 	@Override

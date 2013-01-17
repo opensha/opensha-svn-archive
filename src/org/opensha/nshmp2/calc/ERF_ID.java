@@ -45,6 +45,7 @@ import scratch.peter.ucerf3.calc.UC3_CalcUtils;
  * @author Peter Powers
  * @version $Id:$
  */
+@SuppressWarnings("javadoc")
 public enum ERF_ID {
 
 	NSHMP08() {
@@ -123,28 +124,28 @@ public enum ERF_ID {
 	},
 	UCERF3_REF_MEAN() {
 		public EpistemicListERF instance() {
-			return getUC3_SolERF(UC3_CONV_PATH);
+			return getUC3(UC3_CONV_PATH);
 		}
 	},
 	UCERF3_REF_MEAN_VAR0() {
 		public EpistemicListERF instance() {
-			return getUC3_SolERF(UC3_CONV_PATH_VAR0);
+			return getUC3(UC3_CONV_PATH_VAR0);
 		}
 	},
 	
 	UCERF3_UC2MAP1() {
 		public EpistemicListERF instance() {
-			return getUC3_UC2_MAP(UC3_UC2_MAP_TAP);
+			return getUC3_noBG(UC3_UC2_MAP_TAP);
 		}
 	},
 	UCERF3_UC2MAP2() {
 		public EpistemicListERF instance() {
-			return getUC3_UC2_MAP(UC3_UC2_MAP_UNI);
+			return getUC3_noBG(UC3_UC2_MAP_UNI);
 		}
 	},
 	UCERF3_RATE_TEST() {
 		public EpistemicListERF instance() {
-			return getUC3_SolERF(UC3_RATE_TEST);
+			return getUC3(UC3_RATE_TEST);
 		}
 	},
 	
@@ -218,29 +219,43 @@ public enum ERF_ID {
 		return erf;
 	}
 	
-	private static EpistemicListERF getUC3_UC2_MAP(String solPath) {
-		try {
-			File fssZip = new File(solPath);
-			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
-			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-				IncludeBackgroundOption.EXCLUDE);
-			return wrapInList(erf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	private static EpistemicListERF getUC3(String solPath) {
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			solPath, IncludeBackgroundOption.INCLUDE,
+			false, true, 1.0);
+		return wrapInList(erf);
 	}
 
+	private static EpistemicListERF getUC3_noBG(String solPath) {
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			solPath, IncludeBackgroundOption.EXCLUDE,
+			false, true, 1.0);
+		return wrapInList(erf);
+	}
+
+	private static EpistemicListERF getUC3_onlyBG(String solPath) {
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			solPath, IncludeBackgroundOption.ONLY,
+			false, true, 1.0);
+		return wrapInList(erf);
+	}
+
+	/**
+	 * Wraps an ERF in an Epistemic list with weight=1.
+	 * KLUDGY TODO This needs to go away; it's a by-product of wrapping
+	 * the 2008 NSHMP sources in an epistemic list rather than creating
+	 * a new CompoundSource or similar that can handle weights
+	 * 
+	 * @param erf
+	 * @return
+	 */
 	public static EpistemicListERF wrapInList(final AbstractERF erf) {
 		EpistemicListERF listERF = new AbstractEpistemicListERF() {
 			{
 				addERF(erf, 1.0);
 			}
 		};
-		TimeSpan timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-		timeSpan.setDuration(1);
-		listERF.setTimeSpan(timeSpan);
+		listERF.setTimeSpan(erf.getTimeSpan());
 		return listERF;
 	}
 	
@@ -255,22 +270,6 @@ public enum ERF_ID {
 		uc2.getTimeSpan().setDuration(1.0);
 	}
 
-	public static EpistemicListERF instanceUC3(LogicTreeBranch branch) {
-		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(UC31_PATH);
-			FaultSystemSolution fss = cfss.getSolution(branch);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
-			
-			// !!!!!!!!!!!!!!!
-//			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-//				IncludeBackgroundOption.EXCLUDE);
-
-			return wrapInList(erf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 	private static final String BASE_PATH = "/home/scec-00/pmpowers/UC3/src";
 	
@@ -292,17 +291,6 @@ public enum ERF_ID {
 	private static final String UC3_UC2_MAP_UNI = BASE_PATH +
 			"/uc2map/FM2_1_UC2ALL_AveU2_DsrUni_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
 	
-	private static EpistemicListERF getUC3_SolERF(String solPath) {
-		try {
-			File fssZip = new File(solPath);
-			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
-			return wrapInList(erf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 //	private static final String UC31_1X_SOL_PATH = BASE_PATH +
 //			"/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";

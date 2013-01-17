@@ -20,6 +20,7 @@ import org.opensha.nshmp2.calc.HazardResultWriterSites;
 import org.opensha.nshmp2.calc.ThreadedHazardCalc;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -45,30 +46,8 @@ public class UC3_CalcDriver {
 		Period[] periods, boolean epiUncert)
 			throws IOException, InterruptedException, ExecutionException {
 
-		FaultSystemSolution fss = null;
-		String erfName = null;
-
-		boolean compoundSol = solSetPath.contains("COMPOUND_SOL");
-		
-		if (compoundSol) {
-			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solSetPath);
-			List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
-			System.out.println("numsols: " + branches.size());
-			LogicTreeBranch branch = branches.get(solIdx);
-			fss = cfss.getSolution(branch);
-			erfName = branch.buildFileName();
-			
-		} else { // average solution
-			AverageFaultSystemSolution afss = UC3_CalcUtils.getAvgSolution(solSetPath);
-			System.out.println("numsols: " + afss.getNumSolutions());
-			fss = afss.getSolution(solIdx);
-			int ssIdx1 = StringUtils.lastIndexOf(solSetPath, "/");
-			int ssIdx2 = StringUtils.lastIndexOf(solSetPath, ".");
-			erfName = solSetPath.substring(ssIdx1, ssIdx2) + "_" + solIdx;
-
-		}
-
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			solSetPath, solIdx, IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 		Map<String, Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
@@ -78,7 +57,7 @@ public class UC3_CalcDriver {
 		}
 		
 		for (Period period : periods) {
-			String outPath = outDir + S + erfName + S + period + S;
+			String outPath = outDir + S + erf.getName() + S + period + S;
 			System.out.println(outPath);
 			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
 			HazardResultWriter writer = new HazardResultWriterSites(outFile,

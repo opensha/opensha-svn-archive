@@ -57,8 +57,7 @@ public class ScriptGen {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGen.class) +
-					" <name> <grids> <spacing ><periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue> [<branchID>]");
-			// branchID is only read if erfID is UCERF3_BRANCH
+					" <name> <grids> <spacing ><periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue>");
 			System.exit(1);
 		}
 
@@ -98,15 +97,9 @@ public class ScriptGen {
 		String queue = args[10];
 		System.out.println(queue);
 		
-		String branch = null;
-		if (ERF_ID.valueOf(erfID).equals(ERF_ID.UCERF3_BRANCH)) {
-			branch = args[11];
-			System.out.println(branch);
-		}
-
 		for (TestGrid grid : gridList) {
 			for (Period period : periodList) {
-				File props = writeProps(outDir, name, grid, spacingVal, period, erfID, epi, branch);
+				File props = writeProps(outDir, name, grid, spacingVal, period, erfID, epi);
 				writeScript(libDir, props, hours, nodes, queue);
 			}
 		}
@@ -129,7 +122,7 @@ public class ScriptGen {
 	}
 	
 	private static File writeProps(String outDir, String name, TestGrid grid, double spacing,
-			Period period, String erfID, boolean epi, String branch) {
+			Period period, String erfID, boolean epi) {
 		File pFile = null;
 		try {
 			String freq = period.equals(Period.GM0P00) ? "pga" : period
@@ -148,7 +141,6 @@ public class ScriptGen {
 			props.setProperty("epiUnc", Boolean.toString(epi));
 			props.setProperty("outDir", outDir);
 			props.setProperty("singleFile", "false"); // ignored in MPJ clacs
-			if (branch != null) props.setProperty("UC3branch",branch);
 
 			String comment = "# hpc calculation configuration";
 			BufferedWriter writer = Files.newWriter(pFile, Charsets.US_ASCII);

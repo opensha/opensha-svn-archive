@@ -42,6 +42,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
@@ -163,21 +164,6 @@ public class UC3_DeaggWrapper {
 	}
 
 
-	public static AbstractERF erfFromBranch(String branch) {
-		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(COMP_SOL);
-			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
-			FaultSystemSolution fss = cfss.getSolution(ltb);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
-			erf.updateForecast();
-			return erf;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	
 	/**
 	 * @param args
 	 */
@@ -204,7 +190,10 @@ public class UC3_DeaggWrapper {
 
 		String outPath = OUT_DIR + "/SONGS/UC3FM3P2/";
 		String branchID = "FM3_2_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
-		AbstractERF erf = erfFromBranch(branchID); // excludes bg seis
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			COMP_SOL, branchID, IncludeBackgroundOption.EXCLUDE,
+			false, true, 1.0);
+		erf.updateForecast();
 
 //		String outPath = OUT_DIR + "/SONGS/NSHMP_CA/";
 //		AbstractERF erf = NSHMP2008.createCalifornia();
@@ -217,99 +206,6 @@ public class UC3_DeaggWrapper {
 		}
 	}
 
-	/**
-	 * Returns an average fault system solution at the specified path.
-	 * @param path
-	 * @return
-	 */
-	public static AverageFaultSystemSolution getAvgSolution(String path) {
-		try {
-			File file = new File(path);
-			return AverageFaultSystemSolution.fromZipFile(file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	
-	/**
-	 * Returns a compound fault system solution at the specified path.
-	 * @param path
-	 * @return
-	 */
-	public static CompoundFaultSystemSolution getCompoundSolution(String path) {
-		try {
-			File cfssFile = new File(path);
-			return CompoundFaultSystemSolution.fromZipFile(cfssFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static FaultSystemSolutionPoissonERF getERF(String path) {
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(path);
-		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-			IncludeBackgroundOption.EXCLUDE);
-		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
-			.setValue(true);
-		erf.getTimeSpan().setDuration(1d);
-		return erf;
-	}
-	
-	/**
-	 * Returns an inversion based ERF for the supplied fault system solution.
-	 * Assumes the supplied FSS is an inversion solution.
-	 * 
-	 * @param faultSysSolZipFile
-	 * 
-	 * @return
-	 */
-	public static AbstractERF getUC3_ERF(
-			String solSetPath, int solIdx) {
-
-		FaultSystemSolution fss = null;
-		String erfName = null;
-
-		boolean compoundSol = solSetPath.contains("COMPOUND_SOL");
-
-		if (compoundSol) {
-			CompoundFaultSystemSolution cfss = getCompoundSolution(solSetPath);
-			List<LogicTreeBranch> branches = Lists.newArrayList(cfss
-				.getBranches());
-			LogicTreeBranch branch = branches.get(solIdx);
-			fss = cfss.getSolution(branch);
-			erfName = branch.buildFileName();
-
-		} else {
-			AverageFaultSystemSolution afss = getAvgSolution(solSetPath);
-			if (solIdx == -1) {
-				fss = afss;
-			} else {
-				fss = afss.getSolution(solIdx);
-			}
-			int ssIdx1 = StringUtils.lastIndexOf(solSetPath, "/");
-			int ssIdx2 = StringUtils.lastIndexOf(solSetPath, ".");
-			erfName = solSetPath.substring(ssIdx1, ssIdx2) + "_" + solIdx;
-		}
-		
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-			fss);
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
-		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(
-			IncludeBackgroundOption.EXCLUDE);
-		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME)
-			.setValue(true);
-		erf.getTimeSpan().setDuration(1d);
-		
-		erf.updateForecast();
-		
-		return erf;
-	}
-	
 	
 	private void initSite(Site s) {
 		

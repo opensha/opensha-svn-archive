@@ -1,4 +1,4 @@
-package org.opensha.nshmp2.calc;
+package scratch.peter.ucerf3.scripts;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-public class ScriptGenUC3 {
+public class ScriptGenCurves {
 
 	private static final String NEWLINE = IOUtils.LINE_SEPARATOR;
 	private static final Joiner J = Joiner.on(NEWLINE);
@@ -40,7 +40,7 @@ public class ScriptGenUC3 {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 5) {
 			System.out.println("USAGE: " +
-				ClassUtils.getClassNameWithoutPackage(ScriptGenUC3.class) +
+				ClassUtils.getClassNameWithoutPackage(ScriptGenCurves.class) +
 				" <filepath> <sitefile> <erfIndex> <javaLib> <outDir>");
 			System.exit(1);
 		}
@@ -74,7 +74,7 @@ public class ScriptGenUC3 {
 			HPCC_ScriptWriter writer = new HPCC_ScriptWriter();
 			script = writer.buildScript(script, hrs, nodes, 0, queue);
 
-			String pbsName = "UC3job" + ".pbs";
+			String pbsName = "UC3curveJob" + ".pbs";
 			File pbsFile = new File(pbsName);
 			String scriptStr = J.join(script);
 			Files.write(scriptStr, pbsFile, Charsets.US_ASCII);

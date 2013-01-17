@@ -66,10 +66,6 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		Preconditions.checkNotNull(period);
 		
 		ERF_ID erfID = config.erfID;
-		LogicTreeBranch branch = null;
-		if (config.branch != null) {
-			branch = LogicTreeBranch.fromFileName(config.branch);
-		}
 		
 		boolean epi = config.epiUnc;
 		
@@ -79,11 +75,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		if (branch != null) {
-			calc = new ThreadedHazardCalc(branch, locs, period, epi, writer);
-		} else {
-			calc = new ThreadedHazardCalc(erfID, locs, period, epi, writer);
-		}
+		calc = new ThreadedHazardCalc(erfID, locs, period, epi, writer);
 	}
 	
 	@Override

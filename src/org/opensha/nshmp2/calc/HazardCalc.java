@@ -111,9 +111,6 @@ public class HazardCalc implements Callable<HazardResult> {
 	}
 	
 	private void callCalc() {
-//		ScalarIMR imr = AttenRelRef.CB_2008.instance(null);
-//		imr.setParamDefaults();
-//		imr.setIntensityMeasure((period == GM0P00) ? PGA_Param.NAME : SA_Param.NAME);
 		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
 		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
 			epiUncert);

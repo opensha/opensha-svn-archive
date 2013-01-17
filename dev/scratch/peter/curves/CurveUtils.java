@@ -32,6 +32,7 @@ import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
 
@@ -867,7 +868,8 @@ public class CurveUtils {
 			double fssRupMag = fss.getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.toUC3(fss);
+			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 			erf.updateForecast();
 			int srcIdx = -1;
 			for (int j=0; j<erf.getNumFaultSystemSources(); j++) {

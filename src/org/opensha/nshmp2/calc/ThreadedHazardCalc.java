@@ -11,8 +11,11 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 /**
  * Class manages multithreaded NSHMP hazard calculations. Farms out
@@ -30,11 +33,11 @@ public class ThreadedHazardCalc {
 	private HazardResultWriter writer;
 	private EpistemicListERF erfList;
 
-	
-	/*
+	/**
 	 * The supplied ERF should be ready to go, i.e. have had updateForecast()
 	 * called.
 	 */
+	@SuppressWarnings("javadoc")
 	public ThreadedHazardCalc(EpistemicListERF erfList, LocationList locs,
 		Period period, boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
@@ -44,9 +47,10 @@ public class ThreadedHazardCalc {
 		this.erfList = erfList;
 	}
 
-	/*
+	/**
 	 * Initializes a new threaded hazard calculation with the specified ERF.
 	 */
+	@SuppressWarnings("javadoc")
 	public ThreadedHazardCalc(ERF_ID erfID, LocationList locs, Period period,
 			boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
@@ -57,17 +61,20 @@ public class ThreadedHazardCalc {
 		erfList.updateForecast();
 	}
 	
-	/*
+	/**
 	 * Initializes a new threaded hazard calculation for the specified UC3 logic
 	 * tree branch.
 	 */
-	public ThreadedHazardCalc(LogicTreeBranch branch, LocationList locs,
+	@SuppressWarnings("javadoc")
+	public ThreadedHazardCalc(String solPath, String branchID, LocationList locs,
 		Period period, boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
 		this.writer = writer;
 		this.epiUncert = epiUncert;
-		erfList = ERF_ID.instanceUC3(branch);
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath, branchID,
+			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		erfList = ERF_ID.wrapInList(erf);
 		erfList.updateForecast();
 	}
 

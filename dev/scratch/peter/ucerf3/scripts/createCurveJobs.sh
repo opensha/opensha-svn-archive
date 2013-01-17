@@ -28,6 +28,6 @@ mkdir $DIRNAME
 for i in `seq 0 $ERF_COUNT`
 do
     java -cp /Users/pmpowers/projects/OpenSHA/dist/OpenSHA_complete.jar:/Users/pmpowers/projects/OpenSHA/lib/commons-cli-1.2.jar org.opensha.nshmp2.calc.ScriptGenUC3 $FILEPATH $SITEFILE $i $JAVA_LIB $OUTDIR
-    mv UC3job.pbs $DIRNAME/job$i.pbs
+    mv UC3curveJob.pbs $DIRNAME/job$i.pbs
     echo "created: $i"
 done
