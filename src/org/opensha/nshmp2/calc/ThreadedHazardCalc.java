@@ -35,7 +35,7 @@ public class ThreadedHazardCalc {
 	 * The supplied ERF should be ready to go, i.e. have had updateForecast()
 	 * called.
 	 */
-	ThreadedHazardCalc(EpistemicListERF erfList, LocationList locs,
+	public ThreadedHazardCalc(EpistemicListERF erfList, LocationList locs,
 		Period period, boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
@@ -47,7 +47,7 @@ public class ThreadedHazardCalc {
 	/*
 	 * Initializes a new threaded hazard calculation with the specified ERF.
 	 */
-	ThreadedHazardCalc(ERF_ID erfID, LocationList locs, Period period,
+	public ThreadedHazardCalc(ERF_ID erfID, LocationList locs, Period period,
 			boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
@@ -61,7 +61,7 @@ public class ThreadedHazardCalc {
 	 * Initializes a new threaded hazard calculation for the specified UC3 logic
 	 * tree branch.
 	 */
-	ThreadedHazardCalc(LogicTreeBranch branch, LocationList locs,
+	public ThreadedHazardCalc(LogicTreeBranch branch, LocationList locs,
 		Period period, boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;

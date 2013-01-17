@@ -36,6 +36,7 @@ import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update_FM2p1;
 import scratch.UCERF3.utils.UpdatedUCERF2.ModMeanUCERF2update_FM2p1;
 import scratch.UCERF3.utils.UpdatedUCERF2.UCERF2_FM2pt1_FSS_ERFupdate;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 /**
  * Add comments here
@@ -148,7 +149,8 @@ public enum ERF_ID {
 	},
 	
 	
-	/** Using this ID should prompt any class to 
+	/** 
+	 * Placeholder identifier
 	 */
 	UCERF3_BRANCH() {
 		public EpistemicListERF instance() {
@@ -220,12 +222,9 @@ public enum ERF_ID {
 		try {
 			File fssZip = new File(solPath);
 			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
-			
-			// !!!!!!!!!!!!!!!
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
 				IncludeBackgroundOption.EXCLUDE);
-			
 			return wrapInList(erf);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,9 +257,9 @@ public enum ERF_ID {
 
 	public static EpistemicListERF instanceUC3(LogicTreeBranch branch) {
 		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcWrapper.getCompoundSolution(UC3_1X7X_SOL_PATH);
+			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(UC31_PATH);
 			FaultSystemSolution fss = cfss.getSolution(branch);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
 			
 			// !!!!!!!!!!!!!!!
 //			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
@@ -273,40 +272,46 @@ public enum ERF_ID {
 		return null;
 	}
 	
-	private static final String UC3_CONV_PATH =
-			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-	private static final String UC3_CONV_PATH_VAR0 =
-			"/home/scec-00/pmpowers/UC3/src/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
-
-	private static final String UC3_RATE_TEST =
-			"/home/scec-00/pmpowers/UC3/src/rateTest/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-
-	private static final String UC31_1X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
-	private static final String UC32_1X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
-	private static final String UC31_5X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_14-fm31-tree-x5-COMPOUND_SOL.zip";
-	private static final String UC31_7X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-fm31-tree-x7-COMPOUND_SOL.zip";
-	private static final String UC3_1X7X_SOL_PATH =
-			"/home/scec-00/pmpowers/UC3/src/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
+	private static final String BASE_PATH = "/home/scec-00/pmpowers/UC3/src";
 	
-	private static final String UC3_UC2_MAP_TAP = 
-			"/home/scec-00/pmpowers/UC3/src/uc2map/FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
-	private static final String UC3_UC2_MAP_UNI = 
-			"/home/scec-00/pmpowers/UC3/src/uc2map/FM2_1_UC2ALL_AveU2_DsrUni_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
+	private static final String UC3_CONV_PATH = BASE_PATH +
+			"/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+	private static final String UC3_CONV_PATH_VAR0 = BASE_PATH +
+			"/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
+
+	private static final String UC3_RATE_TEST = BASE_PATH +
+			"/rateTest/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+
+	private static final String UC31_PATH = BASE_PATH +
+			"/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
+	private static final String UC32_PATH = BASE_PATH +
+			"/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
+	
+	private static final String UC3_UC2_MAP_TAP = BASE_PATH +
+			"/uc2map/FM2_1_UC2ALL_AveU2_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
+	private static final String UC3_UC2_MAP_UNI = BASE_PATH +
+			"/uc2map/FM2_1_UC2ALL_AveU2_DsrUni_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2_mean_sol.zip";
 	
 	private static EpistemicListERF getUC3_SolERF(String solPath) {
 		try {
 			File fssZip = new File(solPath);
 			SimpleFaultSystemSolution fss = SimpleFaultSystemSolution.fromZipFile(fssZip);
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcWrapper.getUC3_ERF(fss);
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(fss);
 			return wrapInList(erf);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+	
+//	private static final String UC31_1X_SOL_PATH = BASE_PATH +
+//			"/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
+//	private static final String UC32_1X_SOL_PATH = BASE_PATH +
+//			"/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip";
+//	private static final String UC31_5X_SOL_PATH = BASE_PATH +
+//			"/tree/2012_10_14-fm31-tree-x5-COMPOUND_SOL.zip";
+//	private static final String UC31_7X_SOL_PATH = BASE_PATH +
+//			"/tree/2012_10_29-fm31-tree-x7-COMPOUND_SOL.zip";
+
 		
 }

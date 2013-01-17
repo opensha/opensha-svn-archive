@@ -11,6 +11,8 @@ import java.util.Properties;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
+import scratch.peter.ucerf3.calc.UC3_CalcDriver;
+
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
