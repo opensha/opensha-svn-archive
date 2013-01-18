@@ -97,7 +97,7 @@ class RTGM_ListProcessor implements Runnable {
 //				f = calc.getAnnualizedRates(f, TIME);
 				// convert to annual rate
 
-//				System.out.println(per.name() + " " + loc + "\n" + f);
+				System.out.println(per.name() + " " + loc + "\n" + f);
 				
 //				double rtgmVal = 0.0;
 //				
@@ -115,7 +115,7 @@ class RTGM_ListProcessor implements Runnable {
 				e.printStackTrace();
 			}
 			if (i % 20 == 0) {
-				System.out.println(loc.toString().substring(0, 6) + " " + i);
+				System.out.println(name + " " + per + " " + i);
 			}
 		}
 		writeFiles();
