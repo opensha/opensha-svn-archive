@@ -87,52 +87,52 @@ public class UC3_DeaggWrapper {
 	static final String S = File.separator;
 
 	// updateForecast should have been called by here
-	UC3_DeaggWrapper(AbstractERF erf, String outDir,
-		Location loc, Period[] periods, boolean epiUncert,
-		ProbOfExceed[] PEs)
-			throws IOException, InterruptedException, ExecutionException {
+	UC3_DeaggWrapper(AbstractERF erf, String outDir, Map<String, Location> locMap,
+		String id, Period[] periods, boolean epiUncert, ProbOfExceed[] PEs) {
 
 //		LocationList locs = new LocationList();
-//		for (Location loc : siteMap.values()) {
-//			locs.add(loc);
-//		}
 		
-		for (Period period : periods) {
-			
+		for (String locName : locMap.keySet()) {
+			Location loc = locMap.get(locName);
 			System.out.println("Starting site: " + loc);
-			// init site
-			Site s = new Site(loc);
-			// initSite(s); this is taken care of when site is passed into
-			// hazard calc below
-
-			// hazard calc
-			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-			HazardCalc hc = HazardCalc.create(wrappedERF, s, period, epiUncert);
-			HazardResult hr = hc.call();
-//			System.out.println(hr.curve());
-//			double iml = hr.curve().getFirstInterpolatedX_inLogXLogYDomain(0.0202);
+		
+			for (Period period : periods) {
 				
-			for (ProbOfExceed pe : PEs) {
-				
-				String outPath = outDir + "SHA-" + pe + "-" + period + S;
-
-				double iml = ProbOfExceed.get(hr.curve(), pe);
-				System.out.println("IML: " + iml);
-				
-				DisaggregationCalculator deagg = new DisaggregationCalculator();
-				deagg.setNumSourcestoShow(100);
-				deagg.setShowDistances(true);
-				
-//				ScalarIMR imr = AttenRelRef.CB_2008.instance(null);
-//				imr.setParamDefaults();
-//				imr.setIntensityMeasure((period == GM0P00) ? PGA_Param.NAME : SA_Param.NAME);
-				ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
-				imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
-					epiUncert);
-
-				deagg.disaggregate(Math.log(iml), s, imr, erf, deaggParams());
-				
-				showDisaggregationResults(deagg, 100, true, iml, 0.02, outPath);
+				// init site
+				Site s = new Site(loc);
+				// initSite(s); this is taken care of when site is passed into
+				// hazard calc below
+	
+				// hazard calc
+				EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
+				HazardCalc hc = HazardCalc.create(wrappedERF, s, period, epiUncert);
+				HazardResult hr = hc.call();
+	//			System.out.println(hr.curve());
+	//			double iml = hr.curve().getFirstInterpolatedX_inLogXLogYDomain(0.0202);
+					
+				for (ProbOfExceed pe : PEs) {
+					
+					String outPath = outDir + S + locName + S + "SHA-" + pe + 
+							"-" + period + "-" + id + S;
+	
+					double iml = ProbOfExceed.get(hr.curve(), pe);
+					System.out.println("IML: " + iml);
+					
+					DisaggregationCalculator deagg = new DisaggregationCalculator();
+					deagg.setNumSourcestoShow(100);
+					deagg.setShowDistances(true);
+					
+	//				ScalarIMR imr = AttenRelRef.CB_2008.instance(null);
+	//				imr.setParamDefaults();
+	//				imr.setIntensityMeasure((period == GM0P00) ? PGA_Param.NAME : SA_Param.NAME);
+					ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
+					imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
+						epiUncert);
+	
+					deagg.disaggregate(Math.log(iml), s, imr, erf, deaggParams());
+					
+					showDisaggregationResults(deagg, 100, true, iml, 0.02, outPath);
+				}
 			}
 		}
 	}
@@ -172,8 +172,8 @@ public class UC3_DeaggWrapper {
 		// SONGS
 		Location loc = new Location(33.4, -117.55);
 		
-		Period[] periods = { GM0P00 , GM0P20, GM1P00 };
-		ProbOfExceed[] PEs = { PE2IN50 , PE10IN50};
+		Period[] periods = { GM0P00 }; //, GM0P20, GM1P00 };
+		ProbOfExceed[] PEs = { PE2IN50 }; //, PE10IN50};
 		String solSetPath = SOL_PATH;
 		int idx = 0;
 		boolean epiUnc = false;
@@ -188,50 +188,68 @@ public class UC3_DeaggWrapper {
 //		String branchID = "FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
 //		AbstractERF erf = erfFromBranch(branchID); // excludes bg seis
 
-		String outPath = OUT_DIR + "/SONGS/UC3FM3P2/";
-		String branchID = "FM3_2_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
-			COMP_SOL, branchID, IncludeBackgroundOption.EXCLUDE,
-			false, true, 1.0);
-		erf.updateForecast();
+//		String outPath = OUT_DIR + "/TMP/UC3FM3P2/";
+//		String branchID = "FM3_2_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
+//		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+//			COMP_SOL, branchID, IncludeBackgroundOption.EXCLUDE,
+//			false, true, 1.0);
+//		erf.updateForecast();
+		
+
+		String outPath = OUT_DIR + "/TMP/UC3FM3P1/";
+		String sitePath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt";
+		Map<String,Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
+		for (int i=0; i<100; i++) {
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+				solSetPath, i, IncludeBackgroundOption.EXCLUDE,
+				false, true, 1.0);
+			erf.updateForecast();
+//			try {
+			new UC3_DeaggWrapper(erf, outPath, siteMap, Integer.toString(i),
+				periods, epiUnc, PEs);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+
+		}
 
 //		String outPath = OUT_DIR + "/SONGS/NSHMP_CA/";
 //		AbstractERF erf = NSHMP2008.createCalifornia();
 //		erf.updateForeecast();
 		
-		try {
-			new UC3_DeaggWrapper(erf, outPath, loc, periods, epiUnc, PEs);
-		} catch (Exception ioe) {
-			ioe.printStackTrace();
-		}
+//		try {
+//			new UC3_DeaggWrapper(erf, outPath, loc, periods, epiUnc, PEs);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	
-	private void initSite(Site s) {
-		
-		// CY AS
-		DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
-			0, 1000, true);
-		d10p.setValueAsDefault();
-		s.addParameter(d10p);
-		// CB
-		DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
-			0, 1000, true);
-		d25p.setValueAsDefault();
-		s.addParameter(d25p);
-		// all
-		Vs30_Param vs30p = new Vs30_Param(760);
-		vs30p.setValueAsDefault();
-		s.addParameter(vs30p);
-		// AS CY
-		Vs30_TypeParam vs30tp = new Vs30_TypeParam();
-		vs30tp.setValueAsDefault();
-		s.addParameter(vs30tp);
-		
-		// CEUS only (TODO imrs need to be changed to accept vs value)
-		SiteTypeParam siteTypeParam = new SiteTypeParam();
-		s.addParameter(siteTypeParam);
-	}
+//	private void initSite(Site s) {
+//		
+//		// CY AS
+//		DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
+//			0, 1000, true);
+//		d10p.setValueAsDefault();
+//		s.addParameter(d10p);
+//		// CB
+//		DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
+//			0, 1000, true);
+//		d25p.setValueAsDefault();
+//		s.addParameter(d25p);
+//		// all
+//		Vs30_Param vs30p = new Vs30_Param(760);
+//		vs30p.setValueAsDefault();
+//		s.addParameter(vs30p);
+//		// AS CY
+//		Vs30_TypeParam vs30tp = new Vs30_TypeParam();
+//		vs30tp.setValueAsDefault();
+//		s.addParameter(vs30tp);
+//		
+//		// CEUS only (TODO imrs need to be changed to accept vs value)
+//		SiteTypeParam siteTypeParam = new SiteTypeParam();
+//		s.addParameter(siteTypeParam);
+//	}
 	
 	private static void showDisaggregationResults(
 			DisaggregationCalculator disaggCalc,
