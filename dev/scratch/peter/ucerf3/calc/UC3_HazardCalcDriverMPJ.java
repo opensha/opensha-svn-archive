@@ -62,7 +62,7 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 		TestGrid grid = TestGrid.valueOf(args[2]);
 		double spacing = Double.parseDouble(args[3]);
 		locs = grid.grid(spacing).getNodeList();
-		Period period = Period.valueOf(args[4]);
+		period = Period.valueOf(args[4]);
 		String outPath = args[5];
 
 		outDir = new File(outPath + S + branchID + S + grid + S + period);
