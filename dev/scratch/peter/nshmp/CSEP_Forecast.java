@@ -54,10 +54,9 @@ import com.google.common.io.Files;
  */
 public class CSEP_Forecast {
 
-	private static final String TEMPLATE_PATH = "/Users/pmpowers/Documents/NSHMP/CSEP/csep-forecast-template-m5.xml";
+	private static final String TEMPLATE_PATH = "tmp/CSEP/csep-forecast-template-m5.xml";
 	private static final String DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 	private static final String issueDate, startDate, endDate;
-	private static final String NAME = "USGS NSHMP CA 2008";
 	private static final String VERSION = "3.0";
 	private static final String AUTHOR = "USGS";
 	private static final double NODE_SIZE = 0.1;
@@ -87,20 +86,23 @@ public class CSEP_Forecast {
 	/**
 	 * Builds a CSEP compatible forecast (XML format) and wirtes it to the
 	 * supplied file.
+	 * 
+	 * @param name
 	 * @param erf
 	 * @param out
 	 * @throws Exception if problem encountered
 	 */
-	public static void createForecast(NSHMP_ListERF erf, File out) throws Exception {
-		new CSEP_Forecast(erf, out);
+	public static void createForecast(String name, NSHMP_ListERF erf, File out)
+			throws Exception {
+		new CSEP_Forecast(name, erf, out);
 	}
 
-	private CSEP_Forecast(NSHMP_ListERF erf, File out) throws Exception {
+	private CSEP_Forecast(String name, NSHMP_ListERF erf, File out) throws Exception {
 		System.out.println("Initializing...");
 		this.erf = erf;
 		Files.createParentDirs(out);
 		forecastDoc = XMLUtils.loadDocument(TEMPLATE_PATH);
-		Element cellElem = initDocument();
+		Element cellElem = initDocument(name);
 		// use index map instead of Locations as keys in latter two maps
 		locIndexMap = Maps.newHashMap();
 		cellElementMap = Maps.newHashMap();
@@ -108,19 +110,20 @@ public class CSEP_Forecast {
 		initCellMaps(cellElem);
 		System.out.println("Processing...");
 		processForecast();
+		checkEmpties();
 		System.out.println("Writing MFDs...");
 		writeMFDs();
 		System.out.println("Writing XML...");
 		XMLUtils.writeDocumentToFile(out, forecastDoc);
 		System.out.println("Done.");
 	}
-	
+
 	/*
 	 * Sets header elements of forecast.
 	 */
-	private Element initDocument() {
+	private Element initDocument(String name) {
 		Element fd = forecastDoc.getRootElement().element("forecastData");
-		fd.element("modelName").setText(NAME);
+		fd.element("modelName").setText(name);
 		fd.element("version").setText(VERSION);
 		fd.element("author").setText(AUTHOR);
 		fd.element("issueDate").setText(issueDate);
@@ -151,8 +154,8 @@ public class CSEP_Forecast {
 		// init thread mgr
 		int numProc = Runtime.getRuntime().availableProcessors();
 		ExecutorService ex = Executors.newFixedThreadPool(numProc);
-		CompletionService<ProcessorResult> ecs = 
-				new ExecutorCompletionService<ProcessorResult>(ex);
+		CompletionService<ProcessorResult> ecs = new ExecutorCompletionService<ProcessorResult>(
+			ex);
 
 		Set<Integer> indices = locIndexMap.keySet();
 		for (Integer idx : indices) {
@@ -161,22 +164,21 @@ public class CSEP_Forecast {
 			ecs.submit(locProc);
 		}
 		ex.shutdown();
-		
+
 		for (int i = 0; i < indices.size(); i++) {
 			ProcessorResult pr = ecs.take().get();
 			cellMfdMap.put(pr.idx, pr.mfd);
 		}
 	}
-	
-	private static class LocationProcessor implements 
-		Callable<ProcessorResult> {
-		
+
+	private static class LocationProcessor implements Callable<ProcessorResult> {
+
 		private NSHMP_ListERF erfList;
 		private Location loc;
 		private int idx;
-		
+
 		LocationProcessor(NSHMP_ListERF erfList, Location loc, int idx) {
-			this .erfList = erfList;
+			this.erfList = erfList;
 			this.loc = loc;
 			this.idx = idx;
 		}
@@ -185,9 +187,9 @@ public class CSEP_Forecast {
 		public ProcessorResult call() {
 			SummedMagFreqDist sum = newSummedForecastMFD();
 			for (NSHMP_ERF erf : erfList) {
-				
+
 				SourceType type = erf.getSourceType();
-				
+
 				if (type.equals(GRIDDED)) {
 					GridERF gerf = (GridERF) erf;
 					IncrementalMagFreqDist gmfd = getOffsetGridMFD(gerf, loc,
@@ -195,43 +197,53 @@ public class CSEP_Forecast {
 					// getOffsetGrid may return null mfds
 					if (gmfd == null) continue;
 					sum.addIncrementalMagFreqDist(gmfd);
-					
+
 				} else if (type.equals(FAULT)) {
 					FaultERF ferf = (FaultERF) erf;
 					IncrementalMagFreqDist fmfd = getFaultMFD(ferf, loc);
 					// getFaultMFD will always return a (possibly empty) sum
 					sum.addIncrementalMagFreqDist(fmfd);
-					
+
 				} else if (type.equals(SUBDUCTION)) {
 					SubductionERF serf = (SubductionERF) erf;
 					IncrementalMagFreqDist fmfd = getSubductionMFD(serf, loc);
-					// getSubductionMFD will always return a (possibly empty) sum
+					// getSubductionMFD will always return a (possibly empty)
+					// sum
 					sum.addIncrementalMagFreqDist(fmfd);
-					
+
 				} else {
 					throw new UnsupportedOperationException(
 						"Invalid Source Type");
 				}
-				
+
 			}
 			return createResult(idx, sum);
 		}
-		
+
 	}
-	
-	private static ProcessorResult createResult(int idx, 
+
+	private static ProcessorResult createResult(int idx,
 			IncrementalMagFreqDist mfd) {
 		ProcessorResult pr = new ProcessorResult();
 		pr.idx = idx;
 		pr.mfd = mfd;
 		return pr;
 	}
-	
+
 	private static class ProcessorResult {
 		int idx;
 		IncrementalMagFreqDist mfd;
 	}
-	
+
+	private void checkEmpties() {
+		for (int idx : cellMfdMap.keySet()) {
+			double rate = cellMfdMap.get(idx).getCumRate(0);
+			if (rate == 0.0) {
+				System.out.println("Empty MFD: " + locIndexMap.get(idx));
+			}
+		}
+	}
+
 	/*
 	 * Transfers raw MFDs to value fields in forecast XML elements.
 	 */
@@ -242,10 +254,10 @@ public class CSEP_Forecast {
 			writeMFD(mfd, e);
 		}
 	}
-	
+
 	private static void writeMFD(IncrementalMagFreqDist mfd, Element e) {
 		List bins = e.elements("bin");
-		for (int i=0; i<bins.size(); i++) {
+		for (int i = 0; i < bins.size(); i++) {
 			Element bin = (Element) bins.get(i);
 			double mag = Double.valueOf(bin.attributeValue("m"));
 			double rate = mfd.getY(mag);
@@ -268,7 +280,7 @@ public class CSEP_Forecast {
 			double nodeWt = fSrc.getSourceSurface()
 				.getFractionOfSurfaceInRegion(nodeRegion);
 			if (nodeWt == 0.0) continue;
-			
+
 			// mfds are weighted already
 			for (IncrementalMagFreqDist mfd : fSrc.getMFDs()) {
 				boolean moBalance = mfd.getClass().equals(
@@ -283,8 +295,8 @@ public class CSEP_Forecast {
 		sum.scale(erf.getSourceWeight()); // scale by the erf wt
 		return sum;
 	}
-	
-	public static IncrementalMagFreqDist getSubductionMFD(SubductionERF erf, 
+
+	public static IncrementalMagFreqDist getSubductionMFD(SubductionERF erf,
 			Location loc) {
 		SummedMagFreqDist sum = newSummedForecastMFD();
 		Site nodeSite = new Site(loc);
@@ -300,7 +312,7 @@ public class CSEP_Forecast {
 			double nodeWt = fSrc.getSourceSurface()
 				.getFractionOfSurfaceInRegion(nodeRegion);
 			if (nodeWt == 0.0) continue;
-			
+
 			// mfds are weighted already
 			for (IncrementalMagFreqDist mfd : fSrc.getMFDs()) {
 				// no need to clone original as resample does not alter src
@@ -313,7 +325,6 @@ public class CSEP_Forecast {
 		sum.scale(erf.getSourceWeight()); // scale by the erf wt
 		return sum;
 	}
-
 
 	/**
 	 * Returns an MFD for a {@code Location} that is assumed to be at the center
@@ -352,6 +363,7 @@ public class CSEP_Forecast {
 
 	/**
 	 * Returns a CSEP forecast MFD with all rates initialized to 0.
+	 * 
 	 * @return a summed MFD that can be used to compile MFDs from different
 	 *         sources
 	 */
@@ -361,13 +373,13 @@ public class CSEP_Forecast {
 
 	/**
 	 * Returns a CSEP forecast MFD with all rates initialized to 0.
+	 * 
 	 * @return a summed MFD that can be used to compile MFDs from different
 	 *         sources
 	 */
 	public static IncrementalMagFreqDist newIncrForecastMFD() {
 		return new IncrementalMagFreqDist(MFD_MIN, MFD_MAX, MFD_NUM);
 	}
-
 
 	/**
 	 * MFD resampler. Algorithm determines the {@code dest} magnitudes bins that
@@ -410,14 +422,15 @@ public class CSEP_Forecast {
 			srcMags[idx] = p.getX();
 			srcRates[idx++] = p.getY();
 		}
-		
+
 		// iterate target dest indices
 		// the slight offset on the low side below guarantess that the CSEP
 		// M=5 bin is filled, otherwise the NSHMP M=5.05 events all go into
 		// the CSEP M=5.1 bin. This effectively increases the NSHMP mfd by
 		// one bin, but the cumulative rate stays the same.
-		
-		int minDestIdx = dest.getClosestXIndex(src.getMinMagWithNonZeroRate() - 0.000001);
+
+		int minDestIdx = dest
+			.getClosestXIndex(src.getMinMagWithNonZeroRate() - 0.000001);
 		int maxDestIdx = dest.getClosestXIndex(src.getMaxMagWithNonZeroRate());
 		for (int destIdx = minDestIdx; destIdx <= maxDestIdx; destIdx++) {
 			// min and max indices are already clamped to dest min max
@@ -456,30 +469,31 @@ public class CSEP_Forecast {
 		locs.add(new Location(nodeLat + halfH, nodeLon - halfW)); // top left
 		return new Region(locs, BorderType.MERCATOR_LINEAR);
 	}
-	
+
 	public static void main(String[] args) {
-		File out = new File("tmp/CSEP/testForecast2.xml");
-		
-//		NSHMP2008 erf = NSHMP2008.createSingleSource("CAmap.21.gr.in");
-//		NSHMP2008 erf = NSHMP2008.createSingleSource("bFault.gr.in");
-//		NSHMP2008 erf = NSHMP2008.createSingleSource("cascadia.top.9pm.in");
-//		NSHMP2008 erf = NSHMP2008.createSingleSource("cascadia.top.8082.in");
-		NSHMP2008 erf = NSHMP2008.createCaliforniaCSEP();
-		System.out.println(erf);
-		erf.updateForecast();
-		
+		File out;
+		NSHMP2008 erf;
+		String name;
+
 		try {
-			createForecast(erf, out);
+			out = new File("tmp/CSEP/USGS_NSHMP_CA_2008r3.xml");
+			erf = NSHMP2008.createCaliforniaCSEP();
+			erf.updateForecast();
+			System.out.println(erf);
+			name = "USGS NSHMP CA 2008r3";
+			createForecast(name, erf, out);
+
+			out = new File("tmp/CSEP/MEAN_UCERF2_2008.xml");
+			erf = NSHMP2008.createCalifornia();
+			erf.updateForecast();
+			System.out.println(erf);
+			name = "MEAN UCERF2 2008";
+			createForecast(name, erf, out);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-//		NSHMP2008 wusTmp = NSHMP2008.createCaliforniaCSEP();
-//		NSHMP2008 caTmp = NSHMP2008.createSingleSource("orwa_c.in");
-//		caTmp.updateForecast();
-		
 	}
-	
 
 }
 
