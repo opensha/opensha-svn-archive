@@ -101,6 +101,7 @@ public class CurveUtils {
 
 //		 generateFortranCityData();
 
+//		 generateBranchSummaries2();
 //		String srcPath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/SRP1440";
 //		String locFile = srcPath + "/SRPsites.txt";
 //		String curveDir = srcPath + "/reduce";
@@ -121,13 +122,13 @@ public class CurveUtils {
 //		File outDir = new File(treePath + "/reduce");
 //		File locFile = new File(treePath + "/SRPsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
-			
+
 //		String treePath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/PBR1440";
 //		File srcDir = new File(treePath + "/src");
 //		File outDir = new File(treePath + "/reduce");
 //		File locFile = new File(treePath + "/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
-
+			
 		File srcDir = new File(UC3_ROOT + "convAFnoBG/src");
 		File outDir = new File(UC3_ROOT + "convAFnoBG");
 		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt");
@@ -570,7 +571,7 @@ public class CurveUtils {
 		XY_DataSet minCurve = fcc.getMinimumCurve();
 		XY_DataSet maxCurve = fcc.getMaximumCurve();
 		XY_DataSet meanCurve = fcc.getMeanCurve();
-		
+
 		ArbitrarilyDiscretizedFunc f;
 
 		f = xyDataToFunc(meanCurve);
@@ -653,12 +654,11 @@ public class CurveUtils {
 
 	public static void generateFortranCityData() throws IOException {
 		String srcPath = "/Volumes/Scratch/nshmp-sources/FortranUpdate";
-		String outPath = "/Volumes/Scratch/rtgm/FortranUpdate";
+		String outPath = "/Volumes/Scratch/rtgm/FortranUpdate2";
 
 		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
 		Map<String, Location> siteMap = 
-				UC3_CalcUtils.readSiteFile("tmp/curves/sites/all.txt");
-		Iterable<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(VENTURA);
+				UC3_CalcUtils.readSiteFile("tmp/UC3sites/all.txt");
 
 		for (Period p : periods) {
 			File src = new File(srcPath + S + p.name() + S + "curves.dat");
@@ -697,7 +697,7 @@ public class CurveUtils {
 		}
 	}
 	
-	
+
 	static class UC3_TornadoBuilder {
 		
 		private List<Double> values;
