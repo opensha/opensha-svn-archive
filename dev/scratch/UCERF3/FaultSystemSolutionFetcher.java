@@ -48,6 +48,14 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 		return sol;
 	}
 	
+	public double[] getRates(LogicTreeBranch branch) {
+		return getSolution(branch).getRateForAllRups();
+	}
+	
+	public double[] getMags(LogicTreeBranch branch) {
+		return getSolution(branch).getMagForAllRups();
+	}
+	
 	protected abstract Map<String, Double> fetchMisfits(LogicTreeBranch branch);
 	
 	/**

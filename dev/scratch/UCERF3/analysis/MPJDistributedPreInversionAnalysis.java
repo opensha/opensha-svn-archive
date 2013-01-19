@@ -68,7 +68,7 @@ public class MPJDistributedPreInversionAnalysis extends MPJTaskCalculator {
 		if (ucerf2)
 			limitationsList.add(toList(DeformationModels.UCERF2_ALL));
 		else
-			limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENG));
+			limitationsList.add(toList(DeformationModels.GEOLOGIC, DeformationModels.ABM, DeformationModels.NEOKINEMA, DeformationModels.ZENGBB));
 		limitationsList.add(toList(InversionModels.CHAR_CONSTRAINED, InversionModels.GR_CONSTRAINED));
 		limitationsList.add(toList(SlipAlongRuptureModels.TAPERED));
 		limitationsList.add(toList(ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_2009_MOD));

@@ -502,6 +502,7 @@ public class GraphPanel extends JSplitPane {
 				StyleConstants.setFontSize(setLegend,12);
 				//checking if element in the list is weighted function list object
 				Object obj = funcList.get(i);
+				PlotCurveCharacterstics chars = this.curvePlottingCharacterstics.get(plotPrefIndex);
 				String datasetName = "DATASET #"+(i+1);
 				if(obj instanceof WeightedFuncListforPlotting){
 					//getting the metadata for weighted functionlist
@@ -509,7 +510,7 @@ public class GraphPanel extends JSplitPane {
 
 					String listInfo = weightedList.getInfo();
 
-					legend = new String(datasetName+"\n"+
+					legend = new String(datasetName+" ("+chars+")"+"\n"+
 							listInfo+SystemUtils.LINE_SEPARATOR);
 					legendString.add(legend);
 					StyleConstants.setForeground(setLegend,Color.black);
@@ -566,7 +567,7 @@ public class GraphPanel extends JSplitPane {
 					XY_DataSet func = (XY_DataSet)funcList.get(i);
 					String functionInfo = func.getInfo();
 					String name = func.getName();
-					legend = new String(datasetName+"\n"+
+					legend = new String(datasetName+" ("+chars+")"+"\n"+
 							name+"  "+SystemUtils.LINE_SEPARATOR+
 							functionInfo+SystemUtils.LINE_SEPARATOR);
 					legendString.add(legend);

@@ -60,21 +60,8 @@ public class BranchAveragedFSSBuilder {
 				System.out.println("Loading solution "+weightsList.size());
 				System.gc();
 			}
-			double[] rates;
-			double[] mags;
-			if (fetch instanceof ZipFileSolutionFetcher) {
-				ZipFileSolutionFetcher zipFetch = (ZipFileSolutionFetcher)fetch;
-				try {
-					rates = zipFetch.getRates(branch);
-					mags = zipFetch.getMags(branch);
-				} catch (IOException e) {
-					throw ExceptionUtils.asRuntimeException(e);
-				}
-			} else {
-				FaultSystemSolution sol = fetch.getSolution(branch);
-				rates = sol.getRateForAllRups();
-				mags = sol.getMagForAllRups();
-			}
+			double[] rates = fetch.getRates(branch);
+			double[] mags = fetch.getMags(branch);
 			
 			if (ratesList.isEmpty()) {
 				for (int i=0; i<rates.length; i++) {

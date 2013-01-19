@@ -22,6 +22,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MiniSectRIPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoFaultPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoSiteCorrelationPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ParentSectMFDsPlot;
@@ -237,6 +238,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		erfMFDsOption.setRequired(false);
 		options.addOption(erfMFDsOption);
 		
+		Option miniSectRIsOption = new Option("miniris", "mini-sect-ris", false,
+				"Flag for creating mini section RIs tables");
+		miniSectRIsOption.setRequired(false);
+		options.addOption(miniSectRIsOption);
+		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
 		options.addOption(plotAllOption);
@@ -328,6 +334,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("erfmfds")) {
 				ERFBasedRegionalMFDPlot erfMFDs = new ERFBasedRegionalMFDPlot(weightProvider);
 				plots.add(erfMFDs);
+			}
+			
+			if (plotAll || cmd.hasOption("miniris")) {
+				MiniSectRIPlot miniRIs = new MiniSectRIPlot(weightProvider);
+				plots.add(miniRIs);
 			}
 			
 			MPJDistributedCompoundFSSPlots driver = new MPJDistributedCompoundFSSPlots(cmd, fetcher, plots);

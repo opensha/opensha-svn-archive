@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.ZipException;
 
@@ -69,6 +70,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
@@ -82,6 +84,8 @@ import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.oldStuff.RupsInFaultSystemInversion;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
+import scratch.UCERF3.utils.DeformationModelFileParser;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -94,6 +98,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 import scratch.kevin.DeadlockDetectionThread;
+import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -1185,8 +1190,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		for (Integer parentID : plot.plotNuclIncrMFDs.keySet()) {
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, false, false);
-			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs =
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclCmlMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, false, true);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, true, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentID, true, true);
 			
 			String name = plot.namesMap.get(parentID);
 			
@@ -1195,14 +1204,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<IncrementalMagFreqDist> partMFDs = plot.plotPartIncrMFDs.get(parentID);
 			List<EvenlyDiscretizedFunc> partCmlMFDs = plot.plotPartCmlMFDs.get(parentID);
 			
-			EvenlyDiscretizedFunc nuclCmlMFD = nuclMFDs.get(nuclMFDs.size()-1).getCumRateDist();
-			EvenlyDiscretizedFunc partCmlMFD = partMFDs.get(nuclMFDs.size()-1).getCumRateDist();
+			for (int i=0; i<nuclMFDs.size(); i++) {
+				nuclMFDs.get(i).setInfo(" ");
+				nuclCmlMFDs.get(i).setInfo(" ");
+				partMFDs.get(i).setInfo(" ");
+				partCmlMFDs.get(i).setInfo(" ");
+			}
+			
+			EvenlyDiscretizedFunc nuclCmlMFD = nuclCmlMFDs.get(nuclCmlMFDs.size()-3);
+			nuclCmlMFD.setInfo(getCmlMFDInfo(nuclCmlMFD));
+			EvenlyDiscretizedFunc partCmlMFD = partCmlMFDs.get(partCmlMFDs.size()-3);
+			partCmlMFD.setInfo(getCmlMFDInfo(partCmlMFD));
 			
 			EvenlyDiscretizedFunc ucerf2NuclCmlMFD = null;
 			EvenlyDiscretizedFunc ucerf2PartCmlMFD = null;
-			if (ucerf2NuclMFDs != null) {
-				ucerf2NuclCmlMFD = ucerf2NuclMFDs.get(0).getCumRateDist();
-				ucerf2PartCmlMFD= ucerf2PArtMFDs.get(0).getCumRateDist();
+			if (ucerf2NuclCmlMFDs != null) {
+				ucerf2NuclCmlMFD = ucerf2NuclCmlMFDs.get(0);
+				ucerf2PartCmlMFD = ucerf2PartCmlMFDs.get(0);
 			}
 			
 			List<String> partLine = Lists.newArrayList(parentID+"", name);
@@ -1226,20 +1244,37 @@ public abstract class CompoundFSSPlots implements Serializable {
 			participationCSV.addLine(partLine);
 			
 			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
-					ucerf2NuclMFDs, parentID, name, true);
+					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, parentID, name, true);
 			writeParentSectionMFDPlot(dir, partMFDs, partCmlMFDs,
-					ucerf2PArtMFDs, parentID, name, false);
+					ucerf2PartMFDs, ucerf2PartCmlMFDs, parentID, name, false);
 		}
 		
 		nucleationCSV.writeToFile(new File(dir, "cumulative_nucleation_mfd_comparisons.csv"));
 		participationCSV.writeToFile(new File(dir, "cumulative_participation_mfd_comparisons.csv"));
 	}
 	
+	private static String getCmlMFDInfo(EvenlyDiscretizedFunc cmlMFD) {
+		double totRate = cmlMFD.getMaxY();
+//		double rate6p7 = cmlMFD.getClosestY(6.7d);
+		double rate6p7 = cmlMFD.getInterpolatedY_inLogYDomain(6.7d);
+//		for (int i=0; i<cmlMFD.getNum(); i++)
+//			System.out.println("CML: "+i+": "+cmlMFD.getX(i)+","+cmlMFD.getY(i));
+		String info = "\t\tTotal Rate: "+(float)totRate+"\n";
+		info += "\t\tRate M6.7+: "+(float)rate6p7+"\n";
+		double totRI = 1d/totRate;
+		double ri6p7 = 1d/rate6p7;
+		info += "\t\tTotal RI: "+(int)Math.round(totRI)+"\n";
+		info += "\t\tRI M6.7+: "+(int)Math.round(ri6p7);
+//		System.out.println(info);
+		
+		return info;
+	}
+	
 	private static void writeParentSectionMFDPlot(
 			File dir, List<IncrementalMagFreqDist> mfds, List<EvenlyDiscretizedFunc> cmlMFDs,
-			List<IncrementalMagFreqDist> ucerf2MFDs,
+			List<IncrementalMagFreqDist> ucerf2MFDs, List<IncrementalMagFreqDist> ucerf2CmlMFDs,
 			int id, String name, boolean nucleation) throws IOException {
-		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds, cmlMFDs, false, ucerf2MFDs, id,
+		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds, cmlMFDs, false, ucerf2MFDs, ucerf2CmlMFDs, id,
 				name, nucleation);
 	}
 	
@@ -1272,7 +1307,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<Integer, List<EvenlyDiscretizedFunc>> plotPartCmlMFDs = Maps.newHashMap();
 		
 		private static double[] getDefaultFractiles() {
-			double[] ret = { 0.5 };
+//			double[] ret = { 0.5 };
+			double[] ret = {};
 			return ret;
 		}
 		
@@ -1537,6 +1573,169 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 	
+	public static void writeMiniSectRITables(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir, String prefix) throws IOException {
+		MiniSectRIPlot plot = new MiniSectRIPlot(weightProvider);
+		plot.buildPlot(fetch);
+		
+		writeMiniSectRITables(plot, dir, prefix);
+	}
+	
+	public static void writeMiniSectRITables(
+			MiniSectRIPlot plot,
+			File dir, String prefix) throws IOException {
+		System.out.println("Making mini sect RI plot!");
+		
+		for (FaultModels fm : plot.solRatesMap.keySet()) {
+			Map<Integer, DeformationSection> dm = plot.loadDM(fm);
+			
+			for (int i=0; i<plot.minMags.length; i++) {
+				File file = new File(dir, prefix+"_"+fm.getShortName()
+						+"_mini_sect_RIs_"+(float)plot.minMags[i]+"+.csv");
+				MiniSectRecurrenceGen.writeRates(file, dm, plot.avgRatesMap.get(fm).get(i));
+			}
+		}
+	}
+	
+	public static class MiniSectRIPlot extends CompoundFSSPlots {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private double[] minMags = { 6.7d };
+		
+		private transient BranchWeightProvider weightProvider;
+		
+		private transient ConcurrentMap<FaultModels, Map<Integer, List<List<Integer>>>>
+				fmMappingsMap = Maps.newConcurrentMap();
+		
+		private Map<FaultModels, List<List<Map<Integer, List<Double>>>>> solRatesMap = Maps.newHashMap();
+		private Map<FaultModels, List<Double>> weightsMap = Maps.newHashMap();
+		
+		private Map<FaultModels, List<Map<Integer, List<Double>>>> avgRatesMap = Maps.newHashMap();
+		
+		public MiniSectRIPlot(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+		}
+		
+		private transient Map<FaultModels, Map<Integer, DeformationSection>> fmDMsMap =
+				Maps.newHashMap();
+		private synchronized Map<Integer, DeformationSection> loadDM(FaultModels fm) {
+			Map<Integer, DeformationSection> dm = fmDMsMap.get(fm);
+			if (dm == null) {
+				try {
+					dm = DeformationModelFileParser.load(DeformationModels.GEOLOGIC.getDataFileURL(fm));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				fmDMsMap.put(fm, dm);
+				List<List<Map<Integer, List<Double>>>> solRates = Lists.newArrayList();
+				List<Double> weights = Lists.newArrayList();
+				solRatesMap.put(fm, solRates);
+				weightsMap.put(fm, weights);
+			}
+			return dm;
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getFaultModel();
+			
+			Map<Integer, DeformationSection> dm = loadDM(fm);
+			
+			Map<Integer, List<List<Integer>>> mappings = fmMappingsMap.get(fm);
+			if (mappings == null) {
+				synchronized (this) {
+					mappings = fmMappingsMap.get(fm);
+					if (mappings == null) {
+						mappings = MiniSectRecurrenceGen.buildSubSectMappings(
+								dm, sol.getFaultSectionDataList());
+						fmMappingsMap.putIfAbsent(fm, mappings);
+					}
+				}
+			}
+			
+			double weight = weightProvider.getWeight(branch);
+			
+			List<Map<Integer, List<Double>>> myRates = Lists.newArrayList();
+			for (int i=0; i<minMags.length; i++) {
+				myRates.add(MiniSectRecurrenceGen.calcMinisectionParticRates(
+						sol, mappings, minMags[i], true));
+			}
+			synchronized (this) {
+				solRatesMap.get(fm).add(myRates);
+				weightsMap.get(fm).add(weight);
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				MiniSectRIPlot o = (MiniSectRIPlot)otherCalc;
+				for (FaultModels fm : o.solRatesMap.keySet()) {
+					if (!solRatesMap.containsKey(fm)) {
+						List<List<Map<Integer, List<Double>>>> solRates = Lists.newArrayList();
+						List<Double> weights = Lists.newArrayList();
+						solRatesMap.put(fm, solRates);
+						weightsMap.put(fm, weights);
+					}
+					solRatesMap.get(fm).addAll(o.solRatesMap.get(fm));
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+				}
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			for (int i=0; i<minMags.length; i++) {
+				for (FaultModels fm : solRatesMap.keySet()) {
+					List<Map<Integer, List<Double>>> avgRatesList = avgRatesMap.get(fm);
+					if (!avgRatesMap.containsKey(fm)) {
+						avgRatesList = Lists.newArrayList();
+						avgRatesMap.put(fm, avgRatesList);
+					}
+					List<Map<Integer, List<Double>>> solRates = solRatesMap.get(fm).get(i);
+					double[] weights = Doubles.toArray(weightsMap.get(fm));
+					Set<Integer> parents = solRates.get(0).keySet();
+					Map<Integer, List<Double>> avg = Maps.newHashMap();
+					
+					for (Integer parentID : parents) {
+						List<double[]> solRatesList = Lists.newArrayList();
+						int numMinis = solRates.get(0).get(parentID).size();
+						for (int m=0; m<numMinis; m++)
+							solRatesList.add(new double[solRates.size()]);
+						for (int s=0; s<solRates.size(); s++) {
+							List<Double> rates = solRates.get(s).get(parentID);
+							for (int m=0; m<rates.size(); m++)
+								solRatesList.get(m)[s] = rates.get(m);
+						}
+						
+						List<Double> avgRates = Lists.newArrayList();
+						
+						for (int m=0; m<numMinis; m++) {
+							avgRates.add(FaultSystemSolutionFetcher.calcScaledAverage(
+									solRatesList.get(m), weights));
+						}
+						avg.put(parentID, avgRates);
+					}
+					avgRatesList.add(avg);
+				}
+			}
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return false;
+		}
+		
+	}
+	
 	private static List<DiscretizedFunc> getFractiles(
 			XY_DataSetList data, List<Double> weights, String name, double[] fractiles) {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -1547,15 +1746,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 			func.setName(name+" (fractile at "+fractile+")");
 			funcs.add(func);
 		}
+		DiscretizedFunc meanFunc = (DiscretizedFunc) calc.getMeanCurve();
+		meanFunc.setName(name+" (weighted mean)");
+		funcs.add(meanFunc);
 		DiscretizedFunc minFunc = (DiscretizedFunc) calc.getMinimumCurve();
 		minFunc.setName(name+" (minimum)");
 		funcs.add(minFunc);
 		DiscretizedFunc maxFunc = (DiscretizedFunc) calc.getMaximumCurve();
 		maxFunc.setName(name+" (maximum)");
 		funcs.add(maxFunc);
-		DiscretizedFunc meanFunc = (DiscretizedFunc) calc.getMeanCurve();
-		meanFunc.setName(name+" (weighted mean)");
-		funcs.add(meanFunc);
 		
 		return funcs;
 	}
@@ -2422,9 +2621,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		for (int i=0; i<numFractiles; i++)
 			chars.add(medChar);
-		chars.add(thinChar);
-		chars.add(thinChar);
 		chars.add(thickChar);
+		chars.add(thinChar);
+		chars.add(thinChar);
 		
 		return chars;
 	}
@@ -2631,6 +2830,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof RupJumpPlot) {
 				RupJumpPlot jumpPlot = (RupJumpPlot)plot;
 				CompoundFSSPlots.writeJumpPlots(jumpPlot, dir, prefix);
+			} else if (plot instanceof MiniSectRIPlot) {
+				MiniSectRIPlot miniPlot = (MiniSectRIPlot)plot;
+				CompoundFSSPlots.writeMiniSectRITables(miniPlot, dir, prefix);
 			} else if (plot instanceof MapBasedPlot) {
 				MapBasedPlot faultPlot = (MapBasedPlot)plot;
 				faultPlot.writePlotData(dir);
@@ -2667,8 +2869,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 //		File dir = new File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
 //		File file = new File(dir, "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
-		File dir = new File("/tmp");
-		File file = new File(dir, "2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip");
+		File dir = new File("/tmp/comp_plots");
+		File file = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 //		File file = new File(dir, "zeng_convergence_compound.zip");
 //		File file = new File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
@@ -2677,7 +2879,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: "+wts);
 //		System.exit(0);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 1);
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 10);
 		
 		new DeadlockDetectionThread(3000).start();
 		
@@ -2710,12 +2912,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new SlipMisfitPlot(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
-		plots.add(new ERFBasedRegionalMFDPlot(weightProvider, regions));
+//		plots.add(new ERFBasedRegionalMFDPlot(weightProvider, regions));
+		plots.add(new MiniSectRIPlot(weightProvider));
 		
 		batchPlot(plots, fetch, 1);
 		
-		for (CompoundFSSPlots plot : plots)
-			FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);
+//		for (CompoundFSSPlots plot : plots)
+//			FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);
 		batchWritePlots(plots, dir, prefix, true);
 //		FaultBasedMapPlot.makeMapPlots(dir, prefix,
 //				FaultBasedMapPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));

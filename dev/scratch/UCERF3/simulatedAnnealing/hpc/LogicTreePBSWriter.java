@@ -67,14 +67,18 @@ import com.google.common.collect.Maps;
 
 public class LogicTreePBSWriter {
 
-	private static DateFormat df = new SimpleDateFormat("yyyy_MM_dd");
+	public static DateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 
 	public static ArrayList<File> getClasspath(RunSites runSite, File jobDir) {
+		return getClasspath(runSite.RUN_DIR, jobDir);
+	}
+	
+	public static ArrayList<File> getClasspath(File jarDir, File jobDir) {
 		ArrayList<File> jars = new ArrayList<File>();
 		jars.add(new File(jobDir, "OpenSHA_complete.jar"));
-		jars.add(new File(runSite.RUN_DIR, "parallelcolt-0.9.4.jar"));
-		jars.add(new File(runSite.RUN_DIR, "commons-cli-1.2.jar"));
-		jars.add(new File(runSite.RUN_DIR, "csparsej.jar"));
+		jars.add(new File(jarDir, "parallelcolt-0.9.4.jar"));
+		jars.add(new File(jarDir, "commons-cli-1.2.jar"));
+		jars.add(new File(jarDir, "csparsej.jar"));
 		return jars;
 	}
 
@@ -165,7 +169,7 @@ public class LogicTreePBSWriter {
 		private File JAVA_BIN;
 		private String FM_STORE;
 		private File MPJ_HOME;
-		boolean fastMPJ;
+		private boolean fastMPJ;
 
 		private RunSites(String path, File javaBin, String fmStore, File mpjHome, boolean fastMPJ) {
 			RUN_DIR = new File(path);
@@ -181,6 +185,26 @@ public class LogicTreePBSWriter {
 			return getMaxHeapSizeMB(branch);
 		}
 		public abstract int getPPN(LogicTreeBranch branch);
+
+		public File getRUN_DIR() {
+			return RUN_DIR;
+		}
+
+		public File getJAVA_BIN() {
+			return JAVA_BIN;
+		}
+
+		public String getFM_STORE() {
+			return FM_STORE;
+		}
+
+		public File getMPJ_HOME() {
+			return MPJ_HOME;
+		}
+
+		public boolean isFastMPJ() {
+			return fastMPJ;
+		}
 	}
 
 	private static ArrayList<CustomArg[]> buildVariationBranches(List<CustomArg[]> variations, CustomArg[] curVariation) {

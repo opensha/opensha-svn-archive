@@ -25,6 +25,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -980,10 +981,12 @@ public class CommandLineInversionRunner {
 			}
 			
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
-			ArrayList<IncrementalMagFreqDist> ucerf2PArtMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclCmlMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, true);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, true);
 
-			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PArtMFDs, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, ucerf2NuclCmlMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PartMFDs, ucerf2PartCmlMFDs, parentSectionID, parentSectName, false);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -1070,10 +1073,28 @@ public class CommandLineInversionRunner {
 		
 		return sdom_over_means;
 	}
+	
+	private static DiscretizedFunc getRIFunc(EvenlyDiscretizedFunc cmlFunc, String name) {
+		ArbitrarilyDiscretizedFunc riCmlFunc = new ArbitrarilyDiscretizedFunc();
+		riCmlFunc.setName(name);
+		riCmlFunc.setInfo(" ");
+		for (int i=0; i<cmlFunc.getNum(); i++) {
+			double y = cmlFunc.getY(i);
+			if (y > 0)
+				riCmlFunc.set(cmlFunc.getX(i), 1d/y);
+		}
+		if (riCmlFunc.getNum() == 0) {
+			for (int i=0; i<cmlFunc.getNum(); i++) {
+				riCmlFunc.set(cmlFunc.getX(i), 0d);
+			}
+		}
+		return riCmlFunc;
+	}
 
 	public static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds,
 			List<EvenlyDiscretizedFunc> cmlMFDs,
 			boolean avgColoring, List<IncrementalMagFreqDist> ucerf2MFDs,
+			List<IncrementalMagFreqDist> ucerf2CmlMFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
@@ -1083,25 +1104,9 @@ public class CommandLineInversionRunner {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		if (ucerf2MFDs != null) {
-			Color lightRed = new Color (255, 128, 128);
-			
-			for (IncrementalMagFreqDist ucerf2MFD : ucerf2MFDs)
-				ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
-			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
-			funcs.add(meanMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, lightRed));
-			EvenlyDiscretizedFunc cmlMFD = meanMFD.getCumRateDist();
-			cmlMFD.setName("UCERF2 Cumulative");
-			funcs.add(cmlMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
-			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
-			funcs.add(minMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
-			IncrementalMagFreqDist maxMFD = ucerf2MFDs.get(2);
-			funcs.add(maxMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
-		}
+		ArrayList<DiscretizedFunc> riFuncs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> riChars = Lists.newArrayList();
+		
 		IncrementalMagFreqDist mfd;
 		if (mfds.size() ==  1 || avgColoring) {
 			mfd = mfds.get(0);
@@ -1112,6 +1117,11 @@ public class CommandLineInversionRunner {
 			cmlFunc.setName("Cumulative MFD");
 			funcs.add(cmlFunc);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			
+			if (!nucleation) {
+				riFuncs.add(getRIFunc(cmlFunc, "Recurrence Interval (RI) for "+name));
+				riChars.add(chars.get(chars.size()-1));
+			}
 			
 			if (avgColoring) {
 				// this is an average fault system solution
@@ -1138,14 +1148,70 @@ public class CommandLineInversionRunner {
 				chars.add(pchar);
 			}
 		} else {
-			// fractiles and such
-			int numFractils = mfds.size() - 3;
-			mfd = mfds.get(mfds.size()-1);
-			funcs.addAll(mfds);
-			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractils));
-			numFractils = cmlMFDs.size() - 3;
+			int numFractils = cmlMFDs.size()-3;
 			funcs.addAll(cmlMFDs);
 			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, numFractils));
+			if (!nucleation) {
+				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-3),
+						"Recurrence Interval (RI) for "+name));
+				riChars.add(chars.get(chars.size()-3));
+				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-1),
+						"Recurrence Interval (RI) for "+name+" (minimum)"));
+				riChars.add(chars.get(chars.size()-1));
+				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-2),
+						"Recurrence Interval (RI) for "+name+" (maximum)"));
+				riChars.add(chars.get(chars.size()-2));
+			}
+			numFractils = mfds.size()-3;
+			mfd = mfds.get(mfds.size()-3);
+			funcs.addAll(mfds);
+			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractils));
+			// little hack to remove min/max from incremental plots
+			funcs.remove(funcs.size()-1);
+			funcs.remove(funcs.size()-1);
+			chars.remove(chars.size()-1);
+			chars.remove(chars.size()-1);
+		}
+		
+		if (ucerf2MFDs != null) {
+			Color lightRed = new Color (255, 128, 128);
+			
+			for (IncrementalMagFreqDist ucerf2MFD : ucerf2MFDs)
+				ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
+			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
+			funcs.add(meanMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, lightRed));
+//			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
+//			funcs.add(minMFD);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
+//			IncrementalMagFreqDist maxMFD = ucerf2MFDs.get(2);
+//			funcs.add(maxMFD);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
+			if (ucerf2CmlMFDs != null) {
+				EvenlyDiscretizedFunc cmlMeanMFD = ucerf2CmlMFDs.get(0);
+				for (IncrementalMagFreqDist ucerf2MFD : ucerf2CmlMFDs)
+					ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
+				funcs.add(cmlMeanMFD);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
+				IncrementalMagFreqDist cmlMinMFD = ucerf2CmlMFDs.get(1);
+				funcs.add(cmlMinMFD);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+				IncrementalMagFreqDist cmlMaxMFD = ucerf2CmlMFDs.get(2);
+				funcs.add(cmlMaxMFD);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+				if (!nucleation) {
+					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(0),
+							"UCERF2 Recurrence Interval (RI) for "+name));
+					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
+					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(2),
+							"UCERF2 Recurrence Interval (RI) for "+name+" (minimum)"));
+					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(1),
+							"UCERF2 Recurrence Interval (RI) for "+name+" (maximum)"));
+					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+				}
+			}
+			
 		}
 
 		double minX = mfd.getMinX();
@@ -1169,6 +1235,7 @@ public class CommandLineInversionRunner {
 		}
 		title += " for "+name+" ("+id+")";
 		
+		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
 		
 		File file = new File(dir, fname);
@@ -1176,6 +1243,18 @@ public class CommandLineInversionRunner {
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		if (!nucleation) {
+			gp.setUserBounds(5d, 9d, 10, 1e9);
+			
+			gp.drawGraphPanel("Magnitude", "Recurrence Interval", riFuncs, riChars, true, title);
+			
+			file = new File(dir, name.replaceAll("\\W+", "_")+"_cmlRI_participation");
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		}
 	}
 
 	public static void writePaleoCorrelationPlots(

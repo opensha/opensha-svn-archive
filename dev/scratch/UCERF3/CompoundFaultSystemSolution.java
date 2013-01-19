@@ -32,6 +32,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -202,6 +203,16 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return new CompoundFaultSystemSolution(new ZipFileSolutionFetcher(zip));
 	}
 	
+	@Override
+	public double[] getRates(LogicTreeBranch branch) {
+		return fetcher.getRates(branch);
+	}
+
+	@Override
+	public double[] getMags(LogicTreeBranch branch) {
+		return fetcher.getMags(branch);
+	}
+
 	public static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
 		
 		private ZipFile zip;
@@ -253,18 +264,26 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			}
 		}
 		
-		public double[] getRates(LogicTreeBranch branch) throws IOException {
-			Map<String, String> nameRemappings = getRemappings(branch);
-			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
-			return MatrixIO.doubleArrayFromInputStream(
-					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+		public double[] getRates(LogicTreeBranch branch) {
+			try {
+				Map<String, String> nameRemappings = getRemappings(branch);
+				ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
+				return MatrixIO.doubleArrayFromInputStream(
+						new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
 		}
 		
-		public double[] getMags(LogicTreeBranch branch) throws IOException {
-			Map<String, String> nameRemappings = getRemappings(branch);
-			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
-			return MatrixIO.doubleArrayFromInputStream(
-					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
+		public double[] getMags(LogicTreeBranch branch) {
+			try {
+				Map<String, String> nameRemappings = getRemappings(branch);
+				ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
+				return MatrixIO.doubleArrayFromInputStream(
+						new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
 		}
 
 		@Override
@@ -293,15 +312,15 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			BatchPlotGen.writeCombinedFSS(dir, nameGreps);
 			System.exit(0);
 		}
-		File dir = new File("/tmp/avg_test");
-		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
+		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
-		File compoundFile = new File(dir, "COMPOUND_SOL.zip");
+		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();
-		watch.start();
-		toZipFile(compoundFile, it);
-		watch.stop();
-		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to save");
+//		watch.start();
+//		toZipFile(compoundFile, it);
+//		watch.stop();
+//		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to save");
 		
 		watch.reset();
 		watch.start();

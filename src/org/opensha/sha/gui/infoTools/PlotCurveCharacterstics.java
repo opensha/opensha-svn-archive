@@ -249,4 +249,19 @@ public class PlotCurveCharacterstics implements Named, Cloneable, Serializable {
 				color, numCurvesWithSamePlottingFeatures);
 	}
 
+	@Override
+	public String toString() {
+		String str = "";
+		if (lineType != null && lineWidth > 0)
+			str += "line: "+lineType+", width="+lineWidth;
+		if (!str.isEmpty())
+			str += "; ";
+		if (symbol != null && symbolWidth > 0)
+			str += "symbol: "+symbol+", width="+symbolWidth;
+		if (!str.isEmpty() && !str.endsWith("; "))
+			str += "; ";
+		str += "color: "+color.getRed()+","+color.getGreen()+","+color.getBlue();
+		return str;
+	}
+
 }

@@ -27,8 +27,6 @@ public class StampedeScriptWriter extends BatchScriptWriter {
 		pbs.add("#SBATCH -t 00:"+mins+":00");
 		pbs.add("#SBATCH -n "+cpus);
 		pbs.add("#SBATCH -p "+queue);
-		pbs.add("#$ -cwd");
-		pbs.add("#$ -V");
 		pbs.add("");
 		pbs.add("PBS_NODEFILE=\"/tmp/${USER}-hostfile-${SLURM_JOBID}\"");
 		pbs.add("echo \"creating PBS_NODEFILE: $PBS_NODEFILE\"");
