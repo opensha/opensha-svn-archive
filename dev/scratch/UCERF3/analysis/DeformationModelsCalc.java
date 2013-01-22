@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -320,15 +321,15 @@ public class DeformationModelsCalc {
 				fm3_sectionIDsList.add(data.getParentSectionId());
 			}
 		}
-		
-		Hashtable<Integer,Double> moRateForFM3pt1_Zeng = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.ZENG);
-		Hashtable<Integer,Double> moRateForFM3pt1_NeoKinema = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
-		Hashtable<Integer,Double> moRateForFM3pt1_Geologic = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
-		Hashtable<Integer,Double> moRateForFM3pt1_ABM = getMoRateHashtable(FaultModels.FM3_1, DeformationModels.ABM);
-		Hashtable<Integer,Double> moRateForFM3pt2_Zeng = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.ZENG);
-		Hashtable<Integer,Double> moRateForFM3pt2_NeoKinema = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA);
-		Hashtable<Integer,Double> moRateForFM3pt2_Geologic = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC);
-		Hashtable<Integer,Double> moRateForFM3pt2_ABM = getMoRateHashtable(FaultModels.FM3_2, DeformationModels.ABM);
+		boolean creepReduced = true;
+		Hashtable<Integer,Double> moRateForFM3pt1_Zeng = getParentSectMoRateHashtable(FaultModels.FM3_1, DeformationModels.ZENGBB, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt1_NeoKinema = getParentSectMoRateHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt1_Geologic = getParentSectMoRateHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt1_ABM = getParentSectMoRateHashtable(FaultModels.FM3_1, DeformationModels.ABM, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt2_Zeng = getParentSectMoRateHashtable(FaultModels.FM3_2, DeformationModels.ZENGBB, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt2_NeoKinema = getParentSectMoRateHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt2_Geologic = getParentSectMoRateHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC, creepReduced);
+		Hashtable<Integer,Double> moRateForFM3pt2_ABM = getParentSectMoRateHashtable(FaultModels.FM3_2, DeformationModels.ABM, creepReduced);
 		
 		// these only map names that actually changed, not ones that didn't
 		HashMap<String, String> u2nameFromU3NameMapFM3pt1 = null;
@@ -351,12 +352,12 @@ public class DeformationModelsCalc {
 		 * D2.5 = 86
 		 * D2.6 = 87
 		 */
-		HashMap<String,Double> moRateForDM2pt1 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
-		HashMap<String,Double> moRateForDM2pt2 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 83));
-		HashMap<String,Double> moRateForDM2pt3 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 84));
-		HashMap<String,Double> moRateForDM2pt4 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
-		HashMap<String,Double> moRateForDM2pt5 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 86));
-		HashMap<String,Double> moRateForDM2pt6 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 87));
+		HashMap<String,Double> moRateForDM2pt1 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82), creepReduced);
+		HashMap<String,Double> moRateForDM2pt2 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 83), creepReduced);
+		HashMap<String,Double> moRateForDM2pt3 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 84), creepReduced);
+		HashMap<String,Double> moRateForDM2pt4 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85), creepReduced);
+		HashMap<String,Double> moRateForDM2pt5 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 86), creepReduced);
+		HashMap<String,Double> moRateForDM2pt6 = getMoRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 87), creepReduced);
 
 		
 		ArrayList<String> lines = new ArrayList<String>();
@@ -420,44 +421,484 @@ public class DeformationModelsCalc {
 	}
 	
 	
-	private static HashMap<String,Double> getMoRateHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+	
+	public static void writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels() {
+		
+		// make a master list of fault sections
+		ArrayList<String> fm3_sectionNamesList = new ArrayList<String>();
+		ArrayList<Integer> fm3_sectionIDsList = new ArrayList<Integer>();
+		
+		// loop over fault model 3.1
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName())) {
+				fm3_sectionNamesList.add(data.getParentSectionName());
+				fm3_sectionIDsList.add(data.getParentSectionId());
+			}
+		}
+		// add those from FM 3.2
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+			if(!fm3_sectionNamesList.contains(data.getParentSectionName())) {
+				fm3_sectionNamesList.add(data.getParentSectionName());
+				fm3_sectionIDsList.add(data.getParentSectionId());
+			}
+		}
+		
+		double[] fm3_sectionLengthList = new double[fm3_sectionNamesList.size()];	// km
+		double[] fm3_sectionOrigAreaList = new double[fm3_sectionNamesList.size()];	// km-sq
+		boolean[] sectionDone = new boolean[fm3_sectionNamesList.size()];
+		
+		// loop over fault model 3.1
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_1, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(int s=0; s<fm3_sectionIDsList.size();s++) {
+			sectionDone[s]=false;
+			int parSectID = fm3_sectionIDsList.get(s);
+			for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+				if(data.getParentSectionId() == parSectID) {
+					fm3_sectionLengthList[s] += data.getTraceLength();
+					fm3_sectionOrigAreaList[s] += data.getOrigDownDipWidth()*data.getTraceLength();
+					sectionDone[s]=true;
+				}
+			}
+		}
+		
+		// add those from FM 3.2
+		defFetch = new DeformationModelFetcher(FaultModels.FM3_2, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		for(int s=0; s<fm3_sectionIDsList.size();s++) {
+			if(sectionDone[s])
+				continue;
+			int parSectID = fm3_sectionIDsList.get(s);
+			for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+				if(data.getParentSectionId() == parSectID) {
+					fm3_sectionLengthList[s] += data.getTraceLength();
+					fm3_sectionOrigAreaList[s] += data.getOrigDownDipWidth()*data.getTraceLength();
+				}
+			}
+		}
+		
+		boolean creepReduced = false;
+		Hashtable<Integer,Double> slipRateForFM3pt1_Zeng = getParentSectAveSlipRateHashtable(FaultModels.FM3_1, DeformationModels.ZENGBB, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt1_NeoKinema = getParentSectAveSlipRateHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt1_Geologic = getParentSectAveSlipRateHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt1_ABM = getParentSectAveSlipRateHashtable(FaultModels.FM3_1, DeformationModels.ABM, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt2_Zeng = getParentSectAveSlipRateHashtable(FaultModels.FM3_2, DeformationModels.ZENGBB, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt2_NeoKinema = getParentSectAveSlipRateHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt2_Geologic = getParentSectAveSlipRateHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC, creepReduced);
+		Hashtable<Integer,Double> slipRateForFM3pt2_ABM = getParentSectAveSlipRateHashtable(FaultModels.FM3_2, DeformationModels.ABM, creepReduced);
+
+		// asies
+		Hashtable<Integer,Double> aseisForFM3pt1_Zeng = getParentSectAveAseisHashtable(FaultModels.FM3_1, DeformationModels.ZENGBB);
+		Hashtable<Integer,Double> aseisForFM3pt1_NeoKinema = getParentSectAveAseisHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> aseisForFM3pt1_Geologic = getParentSectAveAseisHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> aseisForFM3pt1_ABM = getParentSectAveAseisHashtable(FaultModels.FM3_1, DeformationModels.ABM);
+		Hashtable<Integer,Double> aseisForFM3pt2_Zeng = getParentSectAveAseisHashtable(FaultModels.FM3_2, DeformationModels.ZENGBB);
+		Hashtable<Integer,Double> aseisForFM3pt2_NeoKinema = getParentSectAveAseisHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> aseisForFM3pt2_Geologic = getParentSectAveAseisHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> aseisForFM3pt2_ABM = getParentSectAveAseisHashtable(FaultModels.FM3_2, DeformationModels.ABM);
+		
+		// coupCoeff
+		Hashtable<Integer,Double> ccForFM3pt1_Zeng = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_1, DeformationModels.ZENGBB);
+		Hashtable<Integer,Double> ccForFM3pt1_NeoKinema = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> ccForFM3pt1_Geologic = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> ccForFM3pt1_ABM = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_1, DeformationModels.ABM);
+		Hashtable<Integer,Double> ccForFM3pt2_Zeng = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_2, DeformationModels.ZENGBB);
+		Hashtable<Integer,Double> ccForFM3pt2_NeoKinema = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_2, DeformationModels.NEOKINEMA);
+		Hashtable<Integer,Double> ccForFM3pt2_Geologic = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_2, DeformationModels.GEOLOGIC);
+		Hashtable<Integer,Double> ccForFM3pt2_ABM = getParentSectAveCouplingCoeffHashtable(FaultModels.FM3_2, DeformationModels.ABM);
+
+		// these only map names that actually changed, not ones that didn't
+		HashMap<String, String> u2nameFromU3NameMapFM3pt1 = null;
+		HashMap<String, String> u2nameFromU3NameMapFM3pt2 = null;
+		try {
+			u2nameFromU3NameMapFM3pt1 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_1);
+			u2nameFromU3NameMapFM3pt2 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_2);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> newFaultSectionsList = getListOfNewFaultSectionNames();
+		
+		/** UCERF2 deformation model IDs:
+		 * D2.1 = 82
+		 * D2.2 = 83
+		 * D2.3 = 84
+		 * D2.4 = 85
+		 * D2.5 = 86
+		 * D2.6 = 87
+		 */
+		HashMap<String,Double> slipRateForDM2pt1 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> slipRateForDM2pt2 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 83));
+		HashMap<String,Double> slipRateForDM2pt3 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 84));
+		HashMap<String,Double> slipRateForDM2pt4 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+		HashMap<String,Double> slipRateForDM2pt5 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 86));
+		HashMap<String,Double> slipRateForDM2pt6 = getOrigSlipRateHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 87));
+		
+		// the following differ only by fault model, so computing for DM2.1 and DM2.4
+		HashMap<String,Double> lengthForDM2pt1 = getLengthHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> lengthForDM2pt4 = getLengthHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+
+		// the following differ only by fault model, so computing for DM2.1 and DM2.4
+		HashMap<String,Double> origAreaForDM2pt1 = getOrigAreaHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> origAreaForDM2pt4 = getOrigAreaHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+
+		// the following differ only by fault model (I checked), so computing for DM2.1 and DM2.4
+		HashMap<String,Double> aseisForDM2pt1 = getAseisHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> aseisForDM2pt4 = getAseisHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+
+		// the following differ only by fault model (I checked), so computing for DM2.1 and DM2.4
+		HashMap<String,Double> ccForDM2pt1 = getCouplingCoeffHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 82));
+		HashMap<String,Double> ccForDM2pt4 = getCouplingCoeffHashtable(DeformationModelFetcher.getAll_UCERF2Sections(false, 85));
+
+		
+		ArrayList<String> lines = new ArrayList<String>();
+		String line = "sectName\tsectID\tLength\torigArea";
+		line += "\tFM3pt1_Zeng\tFM3pt1_NeoKinema\tFM3pt1_Geologic\tFM3pt1_ABM\tFM3pt2_Zeng\tFM3pt2_NeoKinema\tFM3pt2_Geologic\tFM3pt2_ABM";
+		line += "\tFM3pt1_Zeng_aseis\tFM3pt1_NeoKinema_aseis\tFM3pt1_Geologic_aseis\tFM3pt1_ABM_aseis\tFM3pt2_Zeng_aseis\tFM3pt2_NeoKinema_aseis\tFM3pt2_Geologic_aseis\tFM3pt2_ABM_aseis";
+		line += "\tFM3pt1_Zeng_cc\tFM3pt1_NeoKinema_cc\tFM3pt1_Geologic_cc\tFM3pt1_ABM_cc\tFM3pt2_Zeng_cc\tFM3pt2_NeoKinema_cc\tFM3pt2_Geologic_cc\tFM3pt2_ABM_cc";
+		line += "\tu2_name\tlength\torigArea\tDM2pt1\tDM2pt2\tDM2pt3\tDM2pt4\tDM2pt5\tDM2pt6\tAseis\tcoupCoeff";
+		lines.add(line);
+		for(int s=0; s<fm3_sectionNamesList.size();s++) {
+			int id = fm3_sectionIDsList.get(s);
+			double areaTimesShearMod = fm3_sectionOrigAreaList[s]*1e6*FaultMomentCalc.SHEAR_MODULUS;	// 1e6 converts area to m-sq
+			String u3_name = fm3_sectionNamesList.get(s);
+			line = u3_name;
+			line += "\t"+id;
+			line += "\t"+fm3_sectionLengthList[s];
+			line += "\t"+fm3_sectionOrigAreaList[s];
+			// slip rates
+			line += "\t"+slipRateForFM3pt1_Zeng.get(id);	
+			line += "\t"+slipRateForFM3pt1_NeoKinema.get(id);
+			line += "\t"+slipRateForFM3pt1_Geologic.get(id);
+			line += "\t"+slipRateForFM3pt1_ABM.get(id);
+			line += "\t"+slipRateForFM3pt2_Zeng.get(id);
+			line += "\t"+slipRateForFM3pt2_NeoKinema.get(id);
+			line += "\t"+slipRateForFM3pt2_Geologic.get(id);
+			line += "\t"+slipRateForFM3pt2_ABM.get(id);
+			// aseis
+			line += "\t"+aseisForFM3pt1_Zeng.get(id);	
+			line += "\t"+aseisForFM3pt1_NeoKinema.get(id);
+			line += "\t"+aseisForFM3pt1_Geologic.get(id);
+			line += "\t"+aseisForFM3pt1_ABM.get(id);
+			line += "\t"+aseisForFM3pt2_Zeng.get(id);
+			line += "\t"+aseisForFM3pt2_NeoKinema.get(id);
+			line += "\t"+aseisForFM3pt2_Geologic.get(id);
+			line += "\t"+aseisForFM3pt2_ABM.get(id);
+			// coup coeff
+			line += "\t"+ccForFM3pt1_Zeng.get(id);	
+			line += "\t"+ccForFM3pt1_NeoKinema.get(id);
+			line += "\t"+ccForFM3pt1_Geologic.get(id);
+			line += "\t"+ccForFM3pt1_ABM.get(id);
+			line += "\t"+ccForFM3pt2_Zeng.get(id);
+			line += "\t"+ccForFM3pt2_NeoKinema.get(id);
+			line += "\t"+ccForFM3pt2_Geologic.get(id);
+			line += "\t"+ccForFM3pt2_ABM.get(id);
+			
+			String u2_name = u2nameFromU3NameMapFM3pt1.get(u3_name);
+			if(u2_name == null)	// try again if that failed
+				u2_name = u2nameFromU3NameMapFM3pt2.get(u3_name);
+			if(u2_name == null)
+				u2_name = u3_name;	// in case name didn't change
+			if(newFaultSectionsList.contains(u2_name))	// set back to null if it's a new fault
+				u2_name = null;
+			else if(u2_name.equals("Green Valley 2011 CFM"))	// this is the one special case where previous sections were combined
+				u2_name = null;
+ // System.out.println(u3_name+"\t"+u2_name);
+			
+			line += "\t"+u2_name;
+			
+			// area
+			Double u2_length = lengthForDM2pt1.get(u2_name);
+			if(u2_length == null)
+				u2_length = lengthForDM2pt4.get(u2_name);
+			line += "\t"+u2_length;
+			
+			// area
+			Double u2_area = origAreaForDM2pt1.get(u2_name);
+			if(u2_area == null)
+				u2_area = origAreaForDM2pt4.get(u2_name);
+			line += "\t"+u2_area;
+
+			line += "\t"+slipRateForDM2pt1.get(u2_name);
+			line += "\t"+slipRateForDM2pt2.get(u2_name);
+			line += "\t"+slipRateForDM2pt3.get(u2_name);
+			line += "\t"+slipRateForDM2pt4.get(u2_name);
+			line += "\t"+slipRateForDM2pt5.get(u2_name);
+			line += "\t"+slipRateForDM2pt6.get(u2_name);
+			
+			Double u2_aseis = aseisForDM2pt1.get(u2_name);
+			if(u2_aseis == null)
+				u2_aseis = aseisForDM2pt4.get(u2_name);
+			line += "\t"+u2_aseis;
+
+			Double u2_cc = ccForDM2pt1.get(u2_name);
+			if(u2_cc == null)
+				u2_cc = ccForDM2pt4.get(u2_name);
+			line += "\t"+u2_cc;
+
+	
+//			line += "\t"+aseisForDM2pt1.get(u2_name);
+//			line += "\t"+aseisForDM2pt2.get(u2_name);
+//			line += "\t"+aseisForDM2pt3.get(u2_name);
+//			line += "\t"+aseisForDM2pt4.get(u2_name);
+//			line += "\t"+aseisForDM2pt5.get(u2_name);
+//			line += "\t"+aseisForDM2pt6.get(u2_name);
+			
+//			line += "\t"+ccForDM2pt1.get(u2_name);
+//			line += "\t"+ccForDM2pt2.get(u2_name);
+//			line += "\t"+ccForDM2pt3.get(u2_name);
+//			line += "\t"+ccForDM2pt4.get(u2_name);
+//			line += "\t"+ccForDM2pt5.get(u2_name);
+//			line += "\t"+ccForDM2pt6.get(u2_name);
+			
+			lines.add(line);
+		}
+
+//		for(String str:u2nameFromU3NameMapFM3pt1.keySet()) {
+//			System.out.println(str+"\t\t\t"+u2nameFromU3NameMapFM3pt1.get(str));
+//		}
+		
+		File dataFile = new File("dev/scratch/UCERF3/data/scratch/ParentFaultSectionSlipRatesEtc.txt");
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			for(String str:lines) {
+//			for(String str:moRateForDM2pt1.keySet()) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+
+	}
+
+	
+	
+	private static HashMap<String,Double> getMoRateHashtable(ArrayList<FaultSectionPrefData> faultSectDataList, boolean creepReduced) {
 		
 		HashMap<String,Double> hashtable = new HashMap<String,Double>();
 		for(FaultSectionPrefData data:faultSectDataList) {
-			hashtable.put(data.getName(), data.calcMomentRate(true));
+			hashtable.put(data.getName(), data.calcMomentRate(creepReduced));
 		}
 		
 		return hashtable;
 	}
+	
+	
+	private static HashMap<String,Double> getOrigSlipRateHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.getOrigAveSlipRate());
+		}
+		return hashtable;
+	}
 
-	private static Hashtable<Integer,Double> getMoRateHashtable(FaultModels fm, DeformationModels dm) {
+	private static HashMap<String,Double> getAseisHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.getAseismicSlipFactor());
+		}
+		return hashtable;
+	}
+	
+	private static HashMap<String,Double> getCouplingCoeffHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.getCouplingCoeff());
+		}
+		return hashtable;
+	}
+
+	/**
+	 * Areas are in km-sq
+	 * @param faultSectDataList
+	 * @return
+	 */
+	private static HashMap<String,Double> getOrigAreaHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.getOrigDownDipWidth()*data.getTraceLength());
+		}
+		return hashtable;
+	}
+
+	/**
+	 * Areas are in km
+	 * @param faultSectDataList
+	 * @return
+	 */
+	private static HashMap<String,Double> getLengthHashtable(ArrayList<FaultSectionPrefData> faultSectDataList) {
+		HashMap<String,Double> hashtable = new HashMap<String,Double>();
+		for(FaultSectionPrefData data:faultSectDataList) {
+			hashtable.put(data.getName(), data.getTraceLength());
+		}
+		return hashtable;
+	}
+
+
+	private static Hashtable<Integer,Double> getParentSectMoRateHashtable(FaultModels fm, DeformationModels dm, boolean creepReduced) {
 		
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
 
 		String lastName = "";
 		Integer lastID = -100;
-		double moRateReduced=0;
+		double moRate=0;
 
 		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
 			if(data.getParentSectionName().equals(lastName)) {
-				moRateReduced += data.calcMomentRate(true);
+				moRate += data.calcMomentRate(creepReduced);
 			}
 			else {
 				if(!lastName.equals("")) {
-					hashtable.put(lastID, moRateReduced);
+					hashtable.put(lastID, moRate);
 				}
 				// set first values for new parent section
-				moRateReduced=data.calcMomentRate(true);
+				moRate=data.calcMomentRate(creepReduced);
 				lastName = data.getParentSectionName();
 				lastID = data.getParentSectionId();
 			}
 		}
 		// do the last one
-		hashtable.put(lastID, moRateReduced);
+		hashtable.put(lastID, moRate);
 
 		return hashtable;
 	}
+	
+	
+	private static Hashtable<Integer,Double> getParentSectAveAseisHashtable(FaultModels fm, DeformationModels dm) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double totOrigArea=0;
+		double totReducedArea=0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				totOrigArea += data.getOrigDownDipWidth()*data.getTraceLength();
+				totReducedArea += data.getReducedDownDipWidth()*data.getTraceLength();
+			}
+			else {
+				if(!lastName.equals("")) {
+					hashtable.put(lastID, 1.0-totReducedArea/totOrigArea);
+				}
+				// set first values for new parent section
+				totOrigArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				totReducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		hashtable.put(lastID, 1.0-totReducedArea/totOrigArea);
+
+		return hashtable;
+	}
+	
+	
+	/**
+	 * The math here was derived so that section averages would come out right.
+	 * @param fm
+	 * @param dm
+	 * @return
+	 */
+	private static Hashtable<Integer,Double> getParentSectAveCouplingCoeffHashtable(FaultModels fm, DeformationModels dm) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double sumOrig=0;
+		double sumReduced=0;
+		double origAreaSum=0;
+		double reducedAreaSum=0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum+=origArea;
+				reducedAreaSum+=reducedArea;
+				sumOrig += data.getOrigAveSlipRate()*origArea;
+				sumReduced += data.getReducedAveSlipRate()*reducedArea;
+			}
+			else {
+				if(!lastName.equals("")) {
+						hashtable.put(lastID, (sumReduced*origAreaSum)/(sumOrig*reducedAreaSum));
+				}
+				// set first values for new parent section
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum=origArea;
+				reducedAreaSum=reducedArea;
+				sumOrig = data.getOrigAveSlipRate()*origArea;
+				sumReduced = data.getReducedAveSlipRate()*reducedArea;
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		hashtable.put(lastID, (sumReduced*origAreaSum)/(sumOrig*reducedAreaSum));
+
+		return hashtable;
+	}
+
+
+
+	private static Hashtable<Integer,Double> getParentSectAveSlipRateHashtable(FaultModels fm, DeformationModels dm, boolean creepReduced) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double sumOrig=0;
+		double sumReduced=0;
+		double origAreaSum=0;
+		double reducedAreaSum=0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum+=origArea;
+				reducedAreaSum+=reducedArea;
+				sumOrig += data.getOrigAveSlipRate()*origArea;
+				sumReduced += data.getReducedAveSlipRate()*reducedArea;
+			}
+			else {
+				if(!lastName.equals("")) {
+					if(creepReduced)
+						hashtable.put(lastID, sumReduced/reducedAreaSum);
+					else
+						hashtable.put(lastID, sumOrig/origAreaSum);
+				}
+				// set first values for new parent section
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum=origArea;
+				reducedAreaSum=reducedArea;
+				sumOrig = data.getOrigAveSlipRate()*origArea;
+				sumReduced = data.getReducedAveSlipRate()*reducedArea;
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		if(creepReduced)
+			hashtable.put(lastID, sumReduced/reducedAreaSum);
+		else
+			hashtable.put(lastID, sumOrig/origAreaSum);
+
+		return hashtable;
+	}
+
 
 	
 	
@@ -583,14 +1024,14 @@ public class DeformationModelsCalc {
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA,rateM5));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENGBB,rateM5));
 
 		fm = FaultModels.FM3_2;
 		
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ABM,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.GEOLOGIC,rateM5));
 		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.NEOKINEMA,rateM5));
-		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENG,rateM5));
+		tableData.add(getTableLineForMoRateAndMmaxDataForDefModels(fm,DeformationModels.ZENGBB,rateM5));
 
 		System.out.println("\nfltMod\tdefMod\tfltMoRate\tfractOff\tmoRateOff\ttotMoRate\tMmax\tRate_gtM8\tMRIgtM8\tnewFltMoRate");
 		for(String tableLine : tableData)
@@ -1449,7 +1890,15 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeMoRateOfParentSectionsForAllDefAndFaultModels();
+		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		
+//		writeMoRateOfParentSectionsForAllDefAndFaultModels();
+		
+//		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
+		
+//		calcMoRateAndMmaxDataForDefModels();
+
+
 			
 //		plotNewFaultSectionsInGMT();
 		
@@ -1457,10 +1906,8 @@ public class DeformationModelsCalc {
 		
 //		writeListOfNewFaultSections();
 		
-//		plotAllSpatialMoRateMaps();
-
 		
-//		calcMoRateAndMmaxDataForDefModels();
+//		plotAllSpatialMoRateMaps();
 		
 //		writeSubSectDataForParent("Imperial", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 //		writeSubSectDataForParent("Mendocino", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
