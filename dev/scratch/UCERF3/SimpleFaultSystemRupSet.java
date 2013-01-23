@@ -987,7 +987,21 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		else
 			clusterSects = null;
 		
-		ZipEntry fsdEntry = zip.getEntry(getRemappedName("fault_sections.xml", nameRemappings));
+		String fsdRemappedName = getRemappedName("fault_sections.xml", nameRemappings);
+		ZipEntry fsdEntry = zip.getEntry(fsdRemappedName);
+		if (fsdEntry == null && fsdRemappedName.startsWith("FM")) {
+			// might be a legacy compound solution before the bug fix
+			// try removing the DM from the name
+			int ind = fsdRemappedName.indexOf("fault_sections");
+			// the -1 removes the underscore before fault
+			String prefix = fsdRemappedName.substring(0, ind-1);
+			prefix = prefix.substring(0, prefix.lastIndexOf("_"));
+			fsdRemappedName = prefix+"_fault_sections.xml";
+			fsdEntry = zip.getEntry(fsdRemappedName);
+			if (fsdEntry != null)
+				System.out.println("WARNING: using old non DM-specific fault_sections.xml file, " +
+						"may have incorrect non reduced slip rates: "+fsdRemappedName);
+		}
 		Document doc = XMLUtils.loadDocument(
 				new BufferedInputStream(zip.getInputStream(fsdEntry)));
 		Element fsEl = doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List");

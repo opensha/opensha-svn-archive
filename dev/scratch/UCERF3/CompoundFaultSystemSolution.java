@@ -74,7 +74,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * close_sections.bin			FM
 	 * cluster_rups.bin				FM
 	 * cluster_sects.bin			FM
-	 * fault_sections.xml			FM
+	 * fault_sections.xml			FM, DM
 	 * info.txt						ALL
 	 * mags.bin						FM, DM, Scale
 	 * rakes.bin					FM, DM
@@ -96,7 +96,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("close_sections.bin", buildList(FaultModels.class));
 		dependencyMap.put("cluster_rups.bin", buildList(FaultModels.class));
 		dependencyMap.put("cluster_sects.bin", buildList(FaultModels.class));
-		dependencyMap.put("fault_sections.xml", buildList(FaultModels.class));
+		dependencyMap.put("fault_sections.xml", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("info.txt", null);
 		dependencyMap.put("mags.bin", buildList(FaultModels.class, DeformationModels.class, ScalingRelationships.class));
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
