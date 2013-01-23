@@ -52,7 +52,7 @@ public class TablesAndPlotsGen {
 		dms.add(DeformationModels.ABM);
 		dms.add(DeformationModels.GEOLOGIC);
 		dms.add(DeformationModels.NEOKINEMA);
-		dms.add(DeformationModels.ZENG);
+		dms.add(DeformationModels.ZENGBB);
 		
 		Map<FaultModels, List<AveSlipConstraint>> aveSlipConstraints = Maps.newHashMap();
 		Map<FaultModels, List<FaultSectionPrefData>> subSectDatasMap = Maps.newHashMap();
@@ -229,7 +229,8 @@ public class TablesAndPlotsGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-//		buildAveSlipDataTable(new File("ave_slip_table.csv"));
+		buildAveSlipDataTable(new File("/tmp/ave_slip_table.csv"));
+		System.exit(0);
 //		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
 		

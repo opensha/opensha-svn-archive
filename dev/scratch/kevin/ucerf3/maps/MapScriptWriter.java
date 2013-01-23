@@ -3,14 +3,18 @@ package scratch.kevin.ucerf3.maps;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipException;
 
+import org.apache.commons.io.FileUtils;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
+import org.opensha.commons.util.ExceptionUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -29,7 +33,7 @@ public class MapScriptWriter {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
-		String runName = "ucerf3p2-pga-maps";
+		String runName = "ucerf3p2-pga-maps-complete";
 		if (args.length > 1)
 			runName = args[1];
 		
@@ -38,8 +42,10 @@ public class MapScriptWriter {
 		
 		RunSites site = RunSites.STAMPEDE;
 		int nodes = 64;
-		int bundleSize = 30; // TODO, must be >0
-		int jobMins = 6*60; // TODO
+//		int bundleSize = 30; // TODO, must be >0
+//		int jobMins = 6*60; // TODO
+		int bundleSize = 10; // TODO, must be >0
+		int jobMins = 2*60; // TODO
 		
 		String regionCode = "CA_RELM";
 		String resCode = "0.1";
@@ -62,6 +68,10 @@ public class MapScriptWriter {
 		
 		CompoundFaultSystemSolution fss = CompoundFaultSystemSolution.fromZipFile(localCompoundFile);
 		
+//		HashSet<LogicTreeBranch> ignores = null;
+		HashSet<String> ignores = loadIgnoreBranchesFromList(new File(
+				"/home/kevin/OpenSHA/UCERF3/maps/2013_01_18-ucerf3p2-pga-maps/results/curveList.txt"));
+		
 		List<File> classpath = LogicTreePBSWriter.getClasspath(remoteMainDir, remoteDir);
 		
 		JavaShellScriptWriter mpjWrite;
@@ -81,6 +91,8 @@ public class MapScriptWriter {
 		
 		List<LogicTreeBranch> branchGroup = Lists.newArrayList();
 		for (LogicTreeBranch branch : fss.getBranches()) {
+			if (ignores != null && ignores.contains(branch.buildFileName()))
+				continue;
 			if (branchGroup.size() >= bundleSize) {
 				branchGroupLists.add(branchGroup);
 				branchGroup = Lists.newArrayList();
@@ -120,6 +132,52 @@ public class MapScriptWriter {
 		}
 		
 		System.out.println("Wrote "+batchCount+" batches ("+jobCount+" jobs)");
+	}
+	
+	private static HashSet<String> loadIgnoreBranchesFromList(
+			File file) {
+		HashSet<String> ignores = new HashSet<String>();
+		try {
+			for (String line : FileUtils.readLines(file)) {
+				line = line.trim();
+				if (line.isEmpty())
+					continue;
+				String branchStr = line.split("/")[1];
+//				LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchStr);
+//				System.out.println("Ignoring: "+branch.buildFileName());
+				ignores.add(branchStr);
+			}
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		
+		return ignores;
+	}
+	
+	private static HashSet<LogicTreeBranch> loadIgnoreBranchesFromDir(
+			File dir, Collection<LogicTreeBranch> branches) {
+		HashSet<LogicTreeBranch> ignores = new HashSet<LogicTreeBranch>();
+		for (LogicTreeBranch branch : branches) {
+			File subDir = new File(dir, branch.buildFileName());
+			if (findCurvesFile(subDir))
+				ignores.add(branch);
+		}
+		
+		return ignores;
+	}
+	
+	private static boolean findCurvesFile(File dir) {
+		if (!dir.exists())
+			return false;
+		
+		for (File file : dir.listFiles()) {
+			if (file.isDirectory() && findCurvesFile(file))
+				return true;
+			
+			if (file.getName().equals("curves.csv"))
+				return true;
+		}
+		return false;
 	}
 
 }

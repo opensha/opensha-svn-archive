@@ -20,6 +20,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MiniSectRIPlot;
@@ -35,6 +36,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -238,10 +240,15 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		erfMFDsOption.setRequired(false);
 		options.addOption(erfMFDsOption);
 		
-		Option miniSectRIsOption = new Option("miniris", "mini-sect-ris", false,
+		Option miniSectRIsOption = new Option("miniris", "plot-mini-sect-ris", false,
 				"Flag for creating mini section RIs tables");
 		miniSectRIsOption.setRequired(false);
 		options.addOption(miniSectRIsOption);
+		
+		Option aveSlipsOption = new Option("paleotables", "plot-paleo-tables", false,
+				"Flag for creating ave slip tables");
+		aveSlipsOption.setRequired(false);
+		options.addOption(aveSlipsOption);
 		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
@@ -338,6 +345,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			
 			if (plotAll || cmd.hasOption("miniris")) {
 				MiniSectRIPlot miniRIs = new MiniSectRIPlot(weightProvider);
+				plots.add(miniRIs);
+			}
+			
+			if (plotAll || cmd.hasOption("paleotables")) {
+				PaleoRatesTable miniRIs = new PaleoRatesTable(weightProvider);
 				plots.add(miniRIs);
 			}
 			

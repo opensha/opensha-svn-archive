@@ -80,6 +80,7 @@ import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
@@ -1077,7 +1078,23 @@ public class CommandLineInversionRunner {
 	private static DiscretizedFunc getRIFunc(EvenlyDiscretizedFunc cmlFunc, String name) {
 		ArbitrarilyDiscretizedFunc riCmlFunc = new ArbitrarilyDiscretizedFunc();
 		riCmlFunc.setName(name);
-		riCmlFunc.setInfo(" ");
+		String info = cmlFunc.getInfo();
+		String newInfo = " ";
+		if (info != null && info.length()>1) {
+			newInfo = null;
+			for (String line : Splitter.on("\n").split(info)) {
+				if (line.contains("RI")) {
+					if (newInfo == null)
+						newInfo = "";
+					else
+						newInfo += "\n";
+					newInfo += line;
+				}
+			}
+			if (newInfo == null)
+				newInfo = " ";
+		}
+		riCmlFunc.setInfo(newInfo);
 		for (int i=0; i<cmlFunc.getNum(); i++) {
 			double y = cmlFunc.getY(i);
 			if (y > 0)

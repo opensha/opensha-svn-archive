@@ -278,7 +278,7 @@ public class PaleoFitPlotter {
 		return gp;
 	}
 	
-	static double getPaleoRateForSect(FaultSystemSolution sol, int sectIndex,
+	public static double getPaleoRateForSect(FaultSystemSolution sol, int sectIndex,
 			PaleoProbabilityModel paleoProbModel) {
 		double rate = 0;
 		for (int rupID : sol.getRupturesForSection(sectIndex)) {

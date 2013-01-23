@@ -70,12 +70,16 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
@@ -97,6 +101,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 import scratch.kevin.DeadlockDetectionThread;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
@@ -1171,7 +1176,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			dir.mkdir();
 		
 		CSVFile<String> nucleationCSV = new CSVFile<String>(true);
+		CSVFile<String> nucleationMinCSV = new CSVFile<String>(true);
+		CSVFile<String> nucleationMaxCSV = new CSVFile<String>(true);
 		CSVFile<String> participationCSV = new CSVFile<String>(true);
+		CSVFile<String> participationMinCSV = new CSVFile<String>(true);
+		CSVFile<String> participationMaxCSV = new CSVFile<String>(true);
 		
 		List<String> header = Lists.newArrayList();
 		List<Double> xVals = Lists.newArrayList();
@@ -1185,7 +1194,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			header.add("(UCERF2)");
 		}
 		nucleationCSV.addLine(header);
+		nucleationMinCSV.addLine(header);
+		nucleationMaxCSV.addLine(header);
 		participationCSV.addLine(header);
+		participationMinCSV.addLine(header);
+		participationMaxCSV.addLine(header);
 		
 		for (Integer parentID : plot.plotNuclIncrMFDs.keySet()) {
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
@@ -1212,36 +1225,31 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			
 			EvenlyDiscretizedFunc nuclCmlMFD = nuclCmlMFDs.get(nuclCmlMFDs.size()-3);
-			nuclCmlMFD.setInfo(getCmlMFDInfo(nuclCmlMFD));
+			nuclCmlMFD.setInfo(getCmlMFDInfo(nuclCmlMFD, false));
 			EvenlyDiscretizedFunc partCmlMFD = partCmlMFDs.get(partCmlMFDs.size()-3);
-			partCmlMFD.setInfo(getCmlMFDInfo(partCmlMFD));
+			partCmlMFD.setInfo(getCmlMFDInfo(partCmlMFD, false));
 			
 			EvenlyDiscretizedFunc ucerf2NuclCmlMFD = null;
+			EvenlyDiscretizedFunc ucerf2NuclCmlMinMFD = null;
+			EvenlyDiscretizedFunc ucerf2NuclCmlMaxMFD = null;
 			EvenlyDiscretizedFunc ucerf2PartCmlMFD = null;
+			EvenlyDiscretizedFunc ucerf2PartCmlMinMFD = null;
+			EvenlyDiscretizedFunc ucerf2PartCmlMaxMFD = null;
 			if (ucerf2NuclCmlMFDs != null) {
 				ucerf2NuclCmlMFD = ucerf2NuclCmlMFDs.get(0);
+				ucerf2NuclCmlMinMFD = ucerf2NuclCmlMFDs.get(1);
+				ucerf2NuclCmlMaxMFD = ucerf2NuclCmlMFDs.get(2);
 				ucerf2PartCmlMFD = ucerf2PartCmlMFDs.get(0);
+				ucerf2PartCmlMinMFD = ucerf2PartCmlMFDs.get(1);
+				ucerf2PartCmlMaxMFD = ucerf2PartCmlMFDs.get(2);
 			}
 			
-			List<String> partLine = Lists.newArrayList(parentID+"", name);
-			List<String> nuclLine = Lists.newArrayList(parentID+"", name);
-			
-			for (int i=0; i<xVals.size(); i++) {
-				nuclLine.add(nuclCmlMFD.getY(i)+"");
-				partLine.add(partCmlMFD.getY(i)+"");
-				double x = xVals.get(i);
-				if (ucerf2NuclCmlMFD != null &&
-						ucerf2NuclCmlMFD.getMinX() <= x && ucerf2NuclCmlMFD.getMaxX() >= x) {
-					nuclLine.add(ucerf2NuclCmlMFD.getClosestY(x)+"");
-					partLine.add(ucerf2PartCmlMFD.getClosestY(x)+"");
-				} else {
-					nuclLine.add("");
-					partLine.add("");
-				}
-			}
-			
-			nucleationCSV.addLine(nuclLine);
-			participationCSV.addLine(partLine);
+			nucleationCSV.addLine(getCSVLine(xVals, parentID, name, nuclCmlMFD, ucerf2NuclCmlMFD));
+			nucleationMinCSV.addLine(getCSVLine(xVals, parentID, name, nuclCmlMFDs.get(nuclCmlMFDs.size()-2), ucerf2NuclCmlMinMFD));
+			nucleationMaxCSV.addLine(getCSVLine(xVals, parentID, name, nuclCmlMFDs.get(nuclCmlMFDs.size()-1), ucerf2NuclCmlMaxMFD));
+			participationCSV.addLine(getCSVLine(xVals, parentID, name, partCmlMFD, ucerf2PartCmlMFD));
+			participationMinCSV.addLine(getCSVLine(xVals, parentID, name, partCmlMFDs.get(partCmlMFDs.size()-2), ucerf2PartCmlMinMFD));
+			participationMaxCSV.addLine(getCSVLine(xVals, parentID, name, partCmlMFDs.get(partCmlMFDs.size()-1), ucerf2PartCmlMaxMFD));
 			
 			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
 					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, parentID, name, true);
@@ -1250,21 +1258,49 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 		
 		nucleationCSV.writeToFile(new File(dir, "cumulative_nucleation_mfd_comparisons.csv"));
+		nucleationMinCSV.writeToFile(new File(dir, "cumulative_nucleation_min_mfd_comparisons.csv"));
+		nucleationMaxCSV.writeToFile(new File(dir, "cumulative_nucleation_max_mfd_comparisons.csv"));
 		participationCSV.writeToFile(new File(dir, "cumulative_participation_mfd_comparisons.csv"));
+		participationMinCSV.writeToFile(new File(dir, "cumulative_participation_min_mfd_comparisons.csv"));
+		participationMaxCSV.writeToFile(new File(dir, "cumulative_participation_max_mfd_comparisons.csv"));
 	}
 	
-	private static String getCmlMFDInfo(EvenlyDiscretizedFunc cmlMFD) {
+	private static List<String> getCSVLine(List<Double> xVals, int parentID, String name,
+			EvenlyDiscretizedFunc cmlMFD, EvenlyDiscretizedFunc ucerf2CmlMFD) {
+		List<String> line = Lists.newArrayList(parentID+"", name);
+		
+		for (int i=0; i<xVals.size(); i++) {
+			line.add(cmlMFD.getY(i)+"");
+			double x = xVals.get(i);
+			if (ucerf2CmlMFD != null &&
+					ucerf2CmlMFD.getMinX() <= x && ucerf2CmlMFD.getMaxX() >= x) {
+				line.add(ucerf2CmlMFD.getClosestY(x)+"");
+			} else {
+				line.add("");
+			}
+		}
+		
+		return line;
+	}
+	
+	private static String getCmlMFDInfo(EvenlyDiscretizedFunc cmlMFD, boolean isAlreadyRI) {
 		double totRate = cmlMFD.getMaxY();
 //		double rate6p7 = cmlMFD.getClosestY(6.7d);
 		double rate6p7 = cmlMFD.getInterpolatedY_inLogYDomain(6.7d);
 //		for (int i=0; i<cmlMFD.getNum(); i++)
 //			System.out.println("CML: "+i+": "+cmlMFD.getX(i)+","+cmlMFD.getY(i));
-		String info = "\t\tTotal Rate: "+(float)totRate+"\n";
-		info += "\t\tRate M6.7+: "+(float)rate6p7+"\n";
-		double totRI = 1d/totRate;
-		double ri6p7 = 1d/rate6p7;
-		info += "\t\tTotal RI: "+(int)Math.round(totRI)+"\n";
-		info += "\t\tRI M6.7+: "+(int)Math.round(ri6p7);
+		String info;
+		if (isAlreadyRI) {
+			info = "\t\tTotal RI: "+(int)Math.round(totRate)+"\n";
+			info += "\t\tRI M>=6.7: "+(int)Math.round(rate6p7);
+		} else {
+			info = "\t\tTotal Rate: "+(float)totRate+"\n";
+			info += "\t\tRate M>=6.7: "+(float)rate6p7+"\n";
+			double totRI = 1d/totRate;
+			double ri6p7 = 1d/rate6p7;
+			info += "\t\tTotal RI: "+(int)Math.round(totRI)+"\n";
+			info += "\t\tRI M>=6.7: "+(int)Math.round(ri6p7);
+		}
 //		System.out.println(info);
 		
 		return info;
@@ -1736,6 +1772,317 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 	
+	public static void writePaleoRatesTables(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir, String prefix) throws IOException {
+		PaleoRatesTable plot = new PaleoRatesTable(weightProvider);
+		plot.buildPlot(fetch);
+		
+		writePaleoRatesTables(plot, dir, prefix);
+	}
+	
+	public static void writePaleoRatesTables(
+			PaleoRatesTable plot,
+			File dir, String prefix) throws IOException {
+		System.out.println("Making paleo/ave slip tables!");
+		
+		for (FaultModels fm : plot.aveSlipCSVOutputMap.keySet()) {
+			File subDir = new File(dir, "paleo_fault_based");
+			if (!subDir.exists())
+				subDir.mkdir();
+			File aveSlipFile = new File(subDir, fm.getShortName()
+					+"_ave_slip_rates.csv");
+			plot.aveSlipCSVOutputMap.get(fm).writeToFile(aveSlipFile);
+			File paleoFile = new File(subDir, fm.getShortName()
+					+"_paleo_rates.csv");
+			plot.paleoCSVOutputMap.get(fm).writeToFile(paleoFile);
+		}
+	}
+	
+	public static class PaleoRatesTable extends CompoundFSSPlots {
+		
+		private transient BranchWeightProvider weightProvider;
+		private transient PaleoProbabilityModel paleoProbModel;
+		
+		private ConcurrentMap<FaultModels, List<PaleoRateConstraint>> paleoConstraintsMap = Maps.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<AveSlipConstraint>> aveSlipConstraintsMap = Maps.newConcurrentMap();
+		private transient ConcurrentMap<FaultModels, ConcurrentMap<Integer, List<Integer>>> rupsForSectsMap = Maps.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<double[]>> reducedSlipsMap = Maps.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<double[]>> proxyAveSlipRatesMap = Maps.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<double[]>> aveSlipObsRatesMap = Maps.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<double[]>> paleoObsRatesMap = Maps.newConcurrentMap();
+		
+		private ConcurrentMap<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
+		
+		private transient Map<FaultModels, CSVFile<String>> aveSlipCSVOutputMap = Maps.newHashMap();
+		private transient Map<FaultModels, CSVFile<String>> paleoCSVOutputMap = Maps.newHashMap();
+		
+		public PaleoRatesTable(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+			
+			try {
+				paleoProbModel = UCERF3_PaleoProbabilityModel.load();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getFaultModel();
+			
+			List<AveSlipConstraint> aveSlipConstraints = aveSlipConstraintsMap.get(fm);
+			if (aveSlipConstraints == null) {
+				synchronized (this) {
+					aveSlipConstraints = aveSlipConstraintsMap.get(fm);
+					List<PaleoRateConstraint> paleoConstraints = null;
+					if (aveSlipConstraints == null) {
+						try {
+							aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+							paleoConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
+						} catch (IOException e) {
+							ExceptionUtils.throwAsRuntimeException(e);
+						}
+						aveSlipConstraintsMap.putIfAbsent(fm, aveSlipConstraints);
+						paleoConstraintsMap.putIfAbsent(fm, paleoConstraints);
+						ConcurrentMap<Integer, List<Integer>> rupsForSectsLists = Maps.newConcurrentMap();
+						for (AveSlipConstraint constr : aveSlipConstraints)
+							rupsForSectsLists.putIfAbsent(constr.getSubSectionIndex(),
+									sol.getRupturesForSection(constr.getSubSectionIndex()));
+						for (PaleoRateConstraint constr : paleoConstraints)
+							rupsForSectsLists.putIfAbsent(constr.getSectionIndex(),
+									sol.getRupturesForSection(constr.getSectionIndex()));
+						rupsForSectsMap.putIfAbsent(fm, rupsForSectsLists);
+						List<double[]> slipsList = Lists.newArrayList();
+						reducedSlipsMap.putIfAbsent(fm, slipsList);
+						List<double[]> proxyRatesList = Lists.newArrayList();
+						proxyAveSlipRatesMap.putIfAbsent(fm, proxyRatesList);
+						List<double[]> obsRatesList = Lists.newArrayList();
+						aveSlipObsRatesMap.putIfAbsent(fm, obsRatesList);
+						List<double[]> paleoObsRatesList = Lists.newArrayList();
+						paleoObsRatesMap.putIfAbsent(fm, paleoObsRatesList);
+						List<Double> weightsList = Lists.newArrayList();
+						weightsMap.putIfAbsent(fm, weightsList);
+					}
+				}
+			}
+			
+			double[] slips = new double[aveSlipConstraints.size()];
+			double[] proxyRates = new double[aveSlipConstraints.size()];
+			double[] obsRates = new double[aveSlipConstraints.size()];
+			
+			Map<Integer, List<Integer>> rupsForSectsLists = rupsForSectsMap.get(fm);
+			
+			for (int i=0; i<aveSlipConstraints.size(); i++) {
+				AveSlipConstraint constr = aveSlipConstraints.get(i);
+				int subsectionIndex = constr.getSubSectionIndex();
+				
+				slips[i] = sol.getSlipRateForSection(subsectionIndex);
+				proxyRates[i] = slips[i] / constr.getWeightedMean();
+				double obsRate = 0d;
+				for (int rupID : rupsForSectsLists.get(constr.getSubSectionIndex())) {
+					int sectIndexInRup = sol.getSectionsIndicesForRup(rupID).indexOf(subsectionIndex);
+					double slipOnSect = sol.getSlipOnSectionsForRup(rupID)[sectIndexInRup];
+					double probVisible = AveSlipConstraint.getProbabilityOfObservedSlip(slipOnSect);
+					obsRate += sol.getRateForRup(rupID)*probVisible;
+				}
+				obsRates[i] = obsRate;
+			}
+			
+			List<PaleoRateConstraint> paleoConstraints = paleoConstraintsMap.get(fm);
+			
+			double[] paleoRates = new double[paleoConstraints.size()];
+			for (int i=0; i<paleoConstraints.size(); i++) {
+				PaleoRateConstraint constr = paleoConstraints.get(i);
+				
+				double obsRate = 0d;
+				for (int rupID : rupsForSectsLists.get(constr.getSectionIndex())) {
+					obsRate += sol.getRateForRup(rupID)*paleoProbModel.getProbPaleoVisible(sol, rupID, constr.getSectionIndex());
+				}
+				paleoRates[i] = obsRate;
+			}
+			
+			synchronized (this) {
+				weightsMap.get(fm).add(weightProvider.getWeight(branch));
+				reducedSlipsMap.get(fm).add(slips);
+				proxyAveSlipRatesMap.get(fm).add(proxyRates);
+				aveSlipObsRatesMap.get(fm).add(obsRates);
+				paleoObsRatesMap.get(fm).add(paleoRates);
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				PaleoRatesTable o = (PaleoRatesTable)otherCalc;
+				
+				for (FaultModels fm : o.weightsMap.keySet()) {
+					if (!weightsMap.containsKey(fm)) {
+						weightsMap.put(fm, new ArrayList<Double>());
+						aveSlipConstraintsMap.put(fm, o.aveSlipConstraintsMap.get(fm));
+						paleoConstraintsMap.put(fm, o.paleoConstraintsMap.get(fm));
+						reducedSlipsMap.put(fm, new ArrayList<double[]>());
+						proxyAveSlipRatesMap.put(fm, new ArrayList<double[]>());
+						aveSlipObsRatesMap.put(fm, new ArrayList<double[]>());
+						paleoObsRatesMap.put(fm, new ArrayList<double[]>());
+					}
+					
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+					reducedSlipsMap.get(fm).addAll(o.reducedSlipsMap.get(fm));
+					proxyAveSlipRatesMap.get(fm).addAll(o.proxyAveSlipRatesMap.get(fm));
+					aveSlipObsRatesMap.get(fm).addAll(o.aveSlipObsRatesMap.get(fm));
+					paleoObsRatesMap.get(fm).addAll(o.paleoObsRatesMap.get(fm));
+				}
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			SimpleFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+			List<AveSlipConstraint> ucerf2AveSlipConstraints;
+			List<PaleoRateConstraint> ucerf2PaleoConstraints;
+			try {
+				ucerf2AveSlipConstraints = AveSlipConstraint.load(ucerf2Sol.getFaultSectionDataList());
+				ucerf2PaleoConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(ucerf2Sol.getFaultSectionDataList());
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+			
+			// ave slip table
+			for (FaultModels fm : weightsMap.keySet()) {
+				CSVFile<String> csv = new CSVFile<String>(true);
+				
+				List<String> header = Lists.newArrayList(fm.getShortName()+" Mapping", "Latitude", "Longitude",
+						"Weighted Mean Slip", "UCERF2 Reduced Slip Rate", "UCERF2 Proxy Event Rate",
+						"UCERF3 Mean Reduced Slip Rate", "UCERF3 Mean Proxy Event Rate", "UCERF3 Mean Paleo Visible Rate",
+						"UCERF3 Min Paleo Visible Rate", "UCERF3 Max Paleo Visible Rate");
+				
+				csv.addLine(header);
+				
+				List<AveSlipConstraint> constraints = aveSlipConstraintsMap.get(fm);
+				
+				for (int i=0; i<constraints.size(); i++) {
+					AveSlipConstraint constr = constraints.get(i);
+					
+					// find matching UCERF2 constraint
+					AveSlipConstraint ucerf2Constraint = null;
+					for (AveSlipConstraint u2Constr : ucerf2AveSlipConstraints) {
+						if (u2Constr.getSiteLocation().equals(constr.getSiteLocation())) {
+							ucerf2Constraint = u2Constr;
+							break;
+						}
+					}
+					
+					List<String> line = Lists.newArrayList();
+					line.add(constr.getSubSectionName());
+					line.add(constr.getSiteLocation().getLatitude()+"");
+					line.add(constr.getSiteLocation().getLongitude()+"");
+					line.add(constr.getWeightedMean()+"");
+					if (ucerf2Constraint == null) {
+						line.add("");
+						line.add("");
+					} else {
+						double ucerf2SlipRate = ucerf2Sol.getSlipRateForSection(ucerf2Constraint.getSubSectionIndex());
+						line.add(ucerf2SlipRate+"");
+						double ucerf2ProxyRate = ucerf2SlipRate / constr.getWeightedMean();
+						line.add(ucerf2ProxyRate+"");
+					}
+					List<double[]> reducedSlipList = reducedSlipsMap.get(fm);
+					List<double[]> proxyRatesList = proxyAveSlipRatesMap.get(fm);
+					List<double[]> obsRatesList = aveSlipObsRatesMap.get(fm);
+					
+					int numSols = reducedSlipList.size();
+					double[] slips = new double[numSols];
+					double[] proxyRates = new double[numSols];
+					double[] rates = new double[numSols];
+					double[] weigths = Doubles.toArray(weightsMap.get(fm));
+					
+					for (int j=0; j<numSols; j++) {
+						slips[j] = reducedSlipList.get(j)[i];
+						proxyRates[j] = proxyRatesList.get(j)[i];
+						rates[j] = obsRatesList.get(j)[i];
+					}
+					
+					line.add(FaultSystemSolutionFetcher.calcScaledAverage(slips, weigths)+"");
+					line.add(FaultSystemSolutionFetcher.calcScaledAverage(proxyRates, weigths)+"");
+					line.add(FaultSystemSolutionFetcher.calcScaledAverage(rates, weigths)+"");
+					line.add(StatUtils.min(rates)+"");
+					line.add(StatUtils.max(rates)+"");
+					
+					csv.addLine(line);
+				}
+				
+				aveSlipCSVOutputMap.put(fm, csv);
+			}
+			
+			// paleo table
+			for (FaultModels fm : weightsMap.keySet()) {
+				CSVFile<String> csv = new CSVFile<String>(true);
+				
+				List<String> header = Lists.newArrayList(fm.getShortName()+" Mapping", "Latitude", "Longitude",
+						"Paleo Observed Rate", "Paleo Observed Lower Bound", "Paleo Observed Upper Bound",
+						"UCERF2 Proxy Event Rate", "UCERF3 Mean Paleo Visible Rate",
+						"UCERF3 Min Paleo Visible Rate", "UCERF3 Max Paleo Visible Rate");
+				
+				csv.addLine(header);
+				
+				List<PaleoRateConstraint> constraints = paleoConstraintsMap.get(fm);
+				
+				for (int i=0; i<constraints.size(); i++) {
+					PaleoRateConstraint constr = constraints.get(i);
+					
+					// find matching UCERF2 constraint
+					PaleoRateConstraint ucerf2Constraint = null;
+					for (PaleoRateConstraint u2Constr : ucerf2PaleoConstraints) {
+						if (u2Constr.getPaleoSiteLoction().equals(constr.getPaleoSiteLoction())) {
+							ucerf2Constraint = u2Constr;
+							break;
+						}
+					}
+					
+					List<String> line = Lists.newArrayList();
+					line.add(constr.getFaultSectionName());
+					line.add(constr.getPaleoSiteLoction().getLatitude()+"");
+					line.add(constr.getPaleoSiteLoction().getLongitude()+"");
+					line.add(constr.getMeanRate()+"");
+					line.add(constr.getLower95ConfOfRate()+"");
+					line.add(constr.getUpper95ConfOfRate()+"");
+					if (ucerf2Constraint == null) {
+						line.add("");
+					} else {
+						line.add(PaleoFitPlotter.getPaleoRateForSect(ucerf2Sol, ucerf2Constraint.getSectionIndex(), paleoProbModel)+"");
+					}
+					List<double[]> obsRatesList = paleoObsRatesMap.get(fm);
+					
+					int numSols = obsRatesList.size();
+					double[] rates = new double[numSols];
+					double[] weigths = Doubles.toArray(weightsMap.get(fm));
+					
+					for (int j=0; j<numSols; j++)
+						rates[j] = obsRatesList.get(j)[i];
+					
+					line.add(FaultSystemSolutionFetcher.calcScaledAverage(rates, weigths)+"");
+					line.add(StatUtils.min(rates)+"");
+					line.add(StatUtils.max(rates)+"");
+					
+					csv.addLine(line);
+				}
+				
+				paleoCSVOutputMap.put(fm, csv);
+			}
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+	}
+	
 	private static List<DiscretizedFunc> getFractiles(
 			XY_DataSetList data, List<Double> weights, String name, double[] fractiles) {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -1771,7 +2118,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private transient BranchWeightProvider weightProvider;
 		
 		private ConcurrentMap<FaultModels, List<LocationList>> faultsMap = Maps.newConcurrentMap();
-		private Map<FaultModels, List<double[]>> valuesMap = Maps.newHashMap();
+		private Map<FaultModels, List<double[]>> ratiosMap = Maps.newHashMap();
+		private Map<FaultModels, List<double[]>> fractDiffMap = Maps.newHashMap();
 		private Map<FaultModels, List<Double>> weightsMap = Maps.newHashMap();
 		
 		private List<MapPlotData> plots;
@@ -1796,12 +2144,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			double[] solSlips = sol.calcSlipRateForAllSects();
 			double[] targetSlips = sol.getSlipRateForAllSections();
-			double[] values = new double[solSlips.length];
+			double[] ratios = new double[solSlips.length];
+			double[] fractDiffs = new double[solSlips.length];
 			for (int i=0; i<solSlips.length; i++) {
-				if (solSlips[i] == 0 && targetSlips[i] == 0)
-					values[i] = 1;
-				else
-					values[i] = solSlips[i] / targetSlips[i];
+				if (solSlips[i] == 0 && targetSlips[i] == 0) {
+					ratios[i] = 1;
+					fractDiffs[i] = 0;
+				} else {
+					ratios[i] = solSlips[i] / targetSlips[i];
+					fractDiffs[i] = (solSlips[i] - targetSlips[i]) / targetSlips[i];
+				}
 			}
 			
 			FaultModels fm = sol.getFaultModel();
@@ -1815,12 +2167,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 			System.out.println("Archiving solution "+myCnt);
 			
 			synchronized (this) {
-				List<double[]> valuesList = valuesMap.get(fm);
-				if (valuesList == null) {
-					valuesList = Lists.newArrayList();
-					valuesMap.put(fm, valuesList);
+				List<double[]> ratiosList = ratiosMap.get(fm);
+				if (ratiosList == null) {
+					ratiosList = Lists.newArrayList();
+					ratiosMap.put(fm, ratiosList);
 				}
-				valuesList.add(values);
+				ratiosList.add(ratios);
+				
+				List<double[]> fractDiffsList = fractDiffMap.get(fm);
+				if (fractDiffsList == null) {
+					fractDiffsList = Lists.newArrayList();
+					fractDiffMap.put(fm, fractDiffsList);
+				}
+				fractDiffsList.add(fractDiffs);
 				
 				List<Double> weightsList = weightsMap.get(fm);
 				if (weightsList == null) {
@@ -1838,13 +2197,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 				Collection<CompoundFSSPlots> otherCalcs) {
 			for (CompoundFSSPlots otherCalc : otherCalcs) {
 				SlipMisfitPlot o = (SlipMisfitPlot)otherCalc;
-				for (FaultModels fm : o.valuesMap.keySet()) {
+				for (FaultModels fm : o.ratiosMap.keySet()) {
 					if (!faultsMap.containsKey(fm)) {
 						faultsMap.put(fm, o.faultsMap.get(fm));
-						valuesMap.put(fm, new ArrayList<double[]>());
+						ratiosMap.put(fm, new ArrayList<double[]>());
+						fractDiffMap.put(fm, new ArrayList<double[]>());
 						weightsMap.put(fm, new ArrayList<Double>());
 					}
-					valuesMap.get(fm).addAll(o.valuesMap.get(fm));
+					ratiosMap.get(fm).addAll(o.ratiosMap.get(fm));
+					fractDiffMap.get(fm).addAll(o.fractDiffMap.get(fm));
 					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
 				}
 			}
@@ -1865,10 +2226,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			for (FaultModels fm : faultsMap.keySet()) {
 				List<LocationList> faults = faultsMap.get(fm);
-				List<double[]> valuesList = valuesMap.get(fm);
+				List<double[]> ratiosList = ratiosMap.get(fm);
 				List<Double> weightsList = weightsMap.get(fm);
 				
-				double[] values = getWeightedAvg(faults.size(), valuesList, weightsList);
+				double[] ratios = getWeightedAvg(faults.size(), ratiosList, weightsList);
 				
 				String label = "Mean(Solution Slip / Target Slip)";
 				String prefix = "";
@@ -1877,13 +2238,26 @@ public abstract class CompoundFSSPlots implements Serializable {
 					label = fm.getShortName()+" "+label;
 				}
 				
-				plots.add(new MapPlotData(linearCPT, faults, values, region,
+				plots.add(new MapPlotData(linearCPT, faults, ratios, region,
 						skipNans, label, prefix+"slip_misfit"));
 				
 				label = "Log10("+label+")";
-				double[] log10Values = FaultBasedMapGen.log10(values);
+				double[] log10Values = FaultBasedMapGen.log10(ratios);
 				plots.add(new MapPlotData(logCPT, faults, log10Values, region,
 						skipNans, label, prefix+"slip_misfit_log"));
+				
+				List<double[]> fractDiffList = fractDiffMap.get(fm);
+				double[] fractDiffs = getWeightedAvg(faults.size(), fractDiffList, weightsList);
+				
+				label = "Mean((Solution Slip - Target Slip) / Target Slip)";
+				prefix = "";
+				if (multipleFMs) {
+					prefix += fm.getShortName()+"_";
+					label = fm.getShortName()+" "+label;
+				}
+				
+				plots.add(new MapPlotData(logCPT, faults, fractDiffs, region,
+						skipNans, label, prefix+"slip_misfit_fract_diff"));
 			}
 		}
 	
@@ -2833,6 +3207,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof MiniSectRIPlot) {
 				MiniSectRIPlot miniPlot = (MiniSectRIPlot)plot;
 				CompoundFSSPlots.writeMiniSectRITables(miniPlot, dir, prefix);
+			} else if (plot instanceof PaleoRatesTable) {
+				PaleoRatesTable aveSlip = (PaleoRatesTable)plot;
+				CompoundFSSPlots.writePaleoRatesTables(aveSlip, dir, prefix);
 			} else if (plot instanceof MapBasedPlot) {
 				MapBasedPlot faultPlot = (MapBasedPlot)plot;
 				faultPlot.writePlotData(dir);
@@ -2909,19 +3286,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
-//		plots.add(new SlipMisfitPlot(weightProvider));
+		plots.add(new SlipMisfitPlot(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider, regions));
-		plots.add(new MiniSectRIPlot(weightProvider));
+//		plots.add(new MiniSectRIPlot(weightProvider));
+		plots.add(new PaleoRatesTable(weightProvider));
 		
 		batchPlot(plots, fetch, 1);
 		
 //		for (CompoundFSSPlots plot : plots)
 //			FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);
 		batchWritePlots(plots, dir, prefix, true);
-//		FaultBasedMapPlot.makeMapPlots(dir, prefix,
-//				FaultBasedMapPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));
+		MapBasedPlot.makeMapPlots(dir, prefix,
+				MapBasedPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));
 		
 		System.exit(0);
 		

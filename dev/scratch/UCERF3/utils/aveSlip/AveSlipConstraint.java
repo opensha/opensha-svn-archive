@@ -49,16 +49,18 @@ public class AveSlipConstraint implements Serializable {
 	}
 	
 	private int subSectionIndex;
+	private String subSectionName;
 	private double weightedMean;
 	private double upperUncertaintyBound;
 	private double lowerUncertaintyBound;
 	private Location loc;
 	
-	public AveSlipConstraint(int subSectionIndex, double weightedMean,
+	public AveSlipConstraint(int subSectionIndex, String subSectionName, double weightedMean,
 			double upperUncertaintyBound, double lowerUncertaintyBound,
 			Location loc) {
 		super();
 		this.subSectionIndex = subSectionIndex;
+		this.subSectionName = subSectionName;
 		this.weightedMean = weightedMean;
 		this.upperUncertaintyBound = upperUncertaintyBound;
 		this.lowerUncertaintyBound = lowerUncertaintyBound;
@@ -67,6 +69,10 @@ public class AveSlipConstraint implements Serializable {
 
 	public int getSubSectionIndex() {
 		return subSectionIndex;
+	}
+	
+	public String getSubSectionName() {
+		return subSectionName;
 	}
 
 	/**
@@ -208,7 +214,7 @@ public class AveSlipConstraint implements Serializable {
 			double uncertaintyPlus = row.getCell(23).getNumericCellValue();
 			double uncertaintyMinus = row.getCell(24).getNumericCellValue();
 			
-			constraints.add(new AveSlipConstraint(matchSect.getSectionId(), mean,
+			constraints.add(new AveSlipConstraint(matchSect.getSectionId(), matchSect.getSectionName(), mean,
 					mean+uncertaintyPlus, mean-uncertaintyMinus, loc));
 			
 			if (mappingCol > 0) {
