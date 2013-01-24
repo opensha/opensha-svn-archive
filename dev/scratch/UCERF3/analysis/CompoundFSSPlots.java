@@ -105,6 +105,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 import scratch.kevin.DeadlockDetectionThread;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashBasedTable;
@@ -1670,6 +1671,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 				fmDMsMap.put(fm, dm);
 				List<List<Map<Integer, List<Double>>>> solRates = Lists.newArrayList();
+				for (int i=0; i<minMags.length; i++)
+					solRates.add(new ArrayList<Map<Integer, List<Double>>>());
 				List<Double> weights = Lists.newArrayList();
 				solRatesMap.put(fm, solRates);
 				weightsMap.put(fm, weights);
@@ -1701,10 +1704,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<Map<Integer, List<Double>>> myRates = Lists.newArrayList();
 			for (int i=0; i<minMags.length; i++) {
 				myRates.add(MiniSectRecurrenceGen.calcMinisectionParticRates(
-						sol, mappings, minMags[i], true));
+						sol, mappings, minMags[i], false));
 			}
 			synchronized (this) {
-				solRatesMap.get(fm).add(myRates);
+				for (int i=0; i<minMags.length; i++) {
+					solRatesMap.get(fm).get(i).add(myRates.get(i));
+				}
 				weightsMap.get(fm).add(weight);
 			}
 		}
@@ -1721,7 +1726,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 						solRatesMap.put(fm, solRates);
 						weightsMap.put(fm, weights);
 					}
-					solRatesMap.get(fm).addAll(o.solRatesMap.get(fm));
+					for (int i=0; i<minMags.length; i++) {
+						solRatesMap.get(fm).get(i).addAll(o.solRatesMap.get(fm).get(i));
+					}
 					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
 				}
 			}
@@ -1755,10 +1762,21 @@ public abstract class CompoundFSSPlots implements Serializable {
 						List<Double> avgRates = Lists.newArrayList();
 						
 						for (int m=0; m<numMinis; m++) {
-							avgRates.add(FaultSystemSolutionFetcher.calcScaledAverage(
-									solRatesList.get(m), weights));
+							double avgRate = FaultSystemSolutionFetcher.calcScaledAverage(
+									solRatesList.get(m), weights);
+							double ri = 1d/avgRate;
+							avgRates.add(ri);
 						}
 						avg.put(parentID, avgRates);
+						
+//						if (parentID == 651) {
+//							System.out.println("Avg: "+Joiner.on(",").join(avgRates));
+//							System.out.println("Branches:");
+//							for (int j=0; j<solRates.size(); j++) {
+//								Map<Integer, List<Double>> sol = solRates.get(j);
+//								System.out.println("\t"+Joiner.on(",").join(sol.get(parentID))+" (weight="+(float)weights[j]+")");
+//							}
+//						}
 					}
 					avgRatesList.add(avg);
 				}
@@ -1845,7 +1863,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 						} catch (IOException e) {
 							ExceptionUtils.throwAsRuntimeException(e);
 						}
-						aveSlipConstraintsMap.putIfAbsent(fm, aveSlipConstraints);
 						paleoConstraintsMap.putIfAbsent(fm, paleoConstraints);
 						ConcurrentMap<Integer, List<Integer>> rupsForSectsLists = Maps.newConcurrentMap();
 						for (AveSlipConstraint constr : aveSlipConstraints)
@@ -1865,6 +1882,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						paleoObsRatesMap.putIfAbsent(fm, paleoObsRatesList);
 						List<Double> weightsList = Lists.newArrayList();
 						weightsMap.putIfAbsent(fm, weightsList);
+						
+						
+						// must be last
+						aveSlipConstraintsMap.putIfAbsent(fm, aveSlipConstraints);
 					}
 				}
 			}
@@ -3286,20 +3307,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
-		plots.add(new SlipMisfitPlot(weightProvider));
+//		plots.add(new SlipMisfitPlot(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider, regions));
-//		plots.add(new MiniSectRIPlot(weightProvider));
-		plots.add(new PaleoRatesTable(weightProvider));
+		plots.add(new MiniSectRIPlot(weightProvider));
+//		plots.add(new PaleoRatesTable(weightProvider));
 		
 		batchPlot(plots, fetch, 1);
 		
 //		for (CompoundFSSPlots plot : plots)
 //			FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);
 		batchWritePlots(plots, dir, prefix, true);
-		MapBasedPlot.makeMapPlots(dir, prefix,
-				MapBasedPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));
+//		MapBasedPlot.makeMapPlots(dir, prefix,
+//				MapBasedPlot.loadPlotData(new File(dir, SlipMisfitPlot.PLOT_DATA_FILE_NAME)));
 		
 		System.exit(0);
 		

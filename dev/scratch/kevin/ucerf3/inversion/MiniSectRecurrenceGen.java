@@ -36,7 +36,7 @@ public class MiniSectRecurrenceGen {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		File file = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
-				"2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		
 		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
 		Map<Integer, DeformationSection> origDM =
@@ -45,7 +45,7 @@ public class MiniSectRecurrenceGen {
 		
 		
 		
-		
+		writeRates(new File("/tmp/mini_sect_branch_avg.csv"), origDM, calcMinisectionParticRates(origDM, sol, 6.7d, true));
 		
 		
 	}

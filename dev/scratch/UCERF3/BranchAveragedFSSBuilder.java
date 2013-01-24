@@ -96,7 +96,7 @@ public class BranchAveragedFSSBuilder {
 				fm, DeformationModels.GEOLOGIC);
 		
 		Preconditions.checkState(reference.getNumRuptures() == rates.length,
-				"Rupture count for GEOLOGIC reference different than from FSS fetcher!");
+				"Rupture count for GEOLOGIC reference different than from FSS fetcher! ("+reference.getNumRuptures()+" != "+rates.length);
 		
 		String info = reference.getInfoString();
 		
