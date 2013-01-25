@@ -1264,6 +1264,7 @@ public class CommandLineInversionRunner {
 		if (!nucleation) {
 			gp.setUserBounds(5d, 9d, 10, 1e9);
 			
+			title = "Participation Recurrence Interval for "+name+" ("+id+")";
 			gp.drawGraphPanel("Magnitude", "Recurrence Interval", riFuncs, riChars, true, title);
 			
 			file = new File(dir, name.replaceAll("\\W+", "_")+"_cmlRI_participation");

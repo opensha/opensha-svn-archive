@@ -96,21 +96,21 @@ public class CoulombRates extends HashMap<IDPairing, CoulombRatesRecord> {
 	public static void main(String[] args) throws IOException {
 		CoulombRates rates = loadUCERF3CoulombRates(FaultModels.FM3_1);
 		
-		IDPairing pairing = new IDPairing(1373, 1359);
+		IDPairing pairing = new IDPairing(1383, 1369);
 		System.out.println(rates.get(pairing));
 		System.out.println(rates.get(pairing.getReversed()));
 		pairing = new IDPairing(1372, 1737);
 		System.out.println(rates.get(pairing));
 		System.out.println(rates.get(pairing.getReversed()));
 		
-		rates = loadUCERF3CoulombRates(FaultModels.FM3_2);
-		
-		pairing = new IDPairing(1381, 1793);
-		System.out.println(rates.get(pairing));
-		System.out.println(rates.get(pairing.getReversed()));
-		pairing = new IDPairing(1368, 1382);
-		System.out.println(rates.get(pairing));
-		System.out.println(rates.get(pairing.getReversed()));
+//		rates = loadUCERF3CoulombRates(FaultModels.FM3_2);
+//		
+//		pairing = new IDPairing(1381, 1793);
+//		System.out.println(rates.get(pairing));
+//		System.out.println(rates.get(pairing.getReversed()));
+//		pairing = new IDPairing(1368, 1382);
+//		System.out.println(rates.get(pairing));
+//		System.out.println(rates.get(pairing.getReversed()));
 	}
 
 }

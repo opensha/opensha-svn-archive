@@ -46,6 +46,7 @@ import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.XMLUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * This class represents a GMT CPT file.
@@ -735,6 +736,30 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 		double newDelta = newMax - newMin;
 		
 		return newMin + ((oldVal - getMinValue()) / oldDelta) * newDelta;
+	}
+	
+	/**
+	 * @return reversed version of this CPT file
+	 */
+	public CPT reverse() {
+		CPT cpt = (CPT)clone();
+		
+		List<Color> colors = Lists.newArrayList();
+		
+		for (CPTVal val : cpt) {
+			colors.add(val.minColor);
+			colors.add(val.maxColor);
+		}
+		
+		for (int i=0; i<cpt.size(); i++) {
+			cpt.get(i).minColor = colors.remove(colors.size()-1);
+			cpt.get(i).maxColor = colors.remove(colors.size()-1);
+		}
+		
+		cpt.setBelowMinColor(getAboveMaxColor());
+		cpt.setAboveMaxColor(getBelowMinColor());
+		
+		return cpt;
 	}
 	
 }
