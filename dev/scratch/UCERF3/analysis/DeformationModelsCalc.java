@@ -1223,7 +1223,7 @@ public class DeformationModelsCalc {
 		}
 		dmListForAve.add(DeformationModels.ABM);
 		dmListForAve.add(DeformationModels.NEOKINEMA);
-		dmListForAve.add(DeformationModels.ZENG);
+		dmListForAve.add(DeformationModels.ZENGBB);
 
 		GriddedGeoDataSet aveDefModOnFault = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
 		for(int i=0;i<aveDefModOnFault.size();i++) {// initialize to zero
@@ -1252,7 +1252,7 @@ public class DeformationModelsCalc {
 		dmListForAve.add(DeformationModels.GEOLOGIC);
 		dmListForAve.add(DeformationModels.ABM);
 		dmListForAve.add(DeformationModels.NEOKINEMA);
-		dmListForAve.add(DeformationModels.ZENG);
+		dmListForAve.add(DeformationModels.ZENGBB);
 		
 		// test weights
 		for(DeformationModels dm : dmListForAve) {
@@ -1422,7 +1422,7 @@ public class DeformationModelsCalc {
 		dmList.add(DeformationModels.GEOLOGIC);
 		dmList.add(DeformationModels.ABM);
 		dmList.add(DeformationModels.NEOKINEMA);
-		dmList.add(DeformationModels.ZENG);
+		dmList.add(DeformationModels.ZENGBB);
 				
 
 		for(DeformationModels dm : dmList) {
@@ -1890,7 +1890,15 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
+
+//		plotAllSpatialMoRateMaps();
+		
+		
+		
+
+		
+//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
 		
 //		writeMoRateOfParentSectionsForAllDefAndFaultModels();
 		
@@ -1901,14 +1909,10 @@ public class DeformationModelsCalc {
 
 			
 //		plotNewFaultSectionsInGMT();
-		
-//		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
-		
+				
 //		writeListOfNewFaultSections();
 		
-		
-//		plotAllSpatialMoRateMaps();
-		
+				
 //		writeSubSectDataForParent("Imperial", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 //		writeSubSectDataForParent("Mendocino", FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		

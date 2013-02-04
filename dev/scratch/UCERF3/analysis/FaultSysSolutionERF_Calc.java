@@ -325,12 +325,14 @@ public class FaultSysSolutionERF_Calc {
 		
 	}
 
+	
 
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+				
 		makeUCERF2_PartRateMaps();
 		
 //		testUCERF2_Figure25();

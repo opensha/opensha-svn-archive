@@ -544,13 +544,13 @@ public class FaultBasedMapGen {
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_LOWER, "fm3_1_geol_lower");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, "fm3_1_abm");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, "fm3_1_neok");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENG, "fm3_1_zeng");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENGBB, "fm3_1_zengbb");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC, "fm3_2_geol");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, "fm3_2_geol_upper");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_LOWER, "fm3_2_geol_lower");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ABM, "fm3_2_abm");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.NEOKINEMA, "fm3_2_neok");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ZENG, "fm3_2_zeng");
+		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ZENGBB, "fm3_2_zengbb");
 		
 		// now make geologic pts plot
 		CPT cpt = getSlipRateCPT();

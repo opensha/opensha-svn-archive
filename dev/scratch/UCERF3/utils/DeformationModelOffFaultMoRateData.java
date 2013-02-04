@@ -192,7 +192,7 @@ public class DeformationModelOffFaultMoRateData {
 		
 		if(fm == FaultModels.FM3_1) {
 			neok_xyzData = neok_Fm3pt1_xyzData;
-			zeng_orig_xyzData = zeng_orig_Fm3pt1_xyzData;
+//			zeng_orig_xyzData = zeng_orig_Fm3pt1_xyzData;
 			zeng_b_bound_xyzData = zeng_b_bound_Fm3pt1_xyzData;
 			abm_xyzData = abm_Fm3pt1_xyzData;
 			if(includeGeologic) {
@@ -202,7 +202,7 @@ public class DeformationModelOffFaultMoRateData {
 		}
 		else if(fm == FaultModels.FM3_2) {
 			neok_xyzData = neok_Fm3pt2_xyzData;
-			zeng_orig_xyzData = zeng_orig_Fm3pt2_xyzData;
+//			zeng_orig_xyzData = zeng_orig_Fm3pt2_xyzData;
 			zeng_b_bound_xyzData = zeng_b_bound_Fm3pt2_xyzData;
 			abm_xyzData = abm_Fm3pt2_xyzData;
 			if(includeGeologic) {
