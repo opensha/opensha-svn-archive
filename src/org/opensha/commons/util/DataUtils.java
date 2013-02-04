@@ -176,9 +176,9 @@ public class DataUtils {
 		// if passed in arguments are NaN, +Inf, or -Inf, and step <= 0,
 		// then capacity [c] will end up 0 because (int) NaN = 0, or outside the
 		// range 1:10000
+		checkArgument(min <= max, "min-max reversed");
 		int c = (int) Math.floor((max - min) / step);
 		checkArgument(c > 0 && c < MAX_SEQ_LEN, "sequence size");
-		checkArgument(min <= max, "min-max reversed");
 		if (dir == ASCENDING) return buildSequence(min, max, step, c + 2);
 		double[] descSeq = buildSequence(-max, -min, step, c + 2);
 		return flip(descSeq);
@@ -245,7 +245,31 @@ public class DataUtils {
 	public static double[] exp(double... array) {
 		return transform(EXP, array);
 	}
-	
+
+	/**
+	 * Applies the natural log function to every element of the supplied 
+	 * {@code array}.
+	 * 
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] ln(double... array) {
+		return transform(LN, array);
+	}
+
+	/**
+	 * Applies the base-10 log function to every element of the supplied 
+	 * {@code array}.
+	 * 
+	 * @param array to operate on
+	 * @return a reference to the array
+	 * @throws IllegalArgumentException if {@code array} is empty
+	 */
+	public static double[] log(double... array) {
+		return transform(LOG, array);
+	}
+
 	/**
 	 * Flips the sign of every element in the supplied {@code array}.
 	 * @param array to operate on
@@ -350,6 +374,14 @@ public class DataUtils {
 	
 	private static final Function<Double, Double> EXP = new Function<Double, Double>() {
 		@Override public Double apply(Double in) { return Math.exp(in); }
+	}; 
+
+	private static final Function<Double, Double> LN = new Function<Double, Double>() {
+		@Override public Double apply(Double in) { return Math.log(in); }
+	}; 
+
+	private static final Function<Double, Double> LOG = new Function<Double, Double>() {
+		@Override public Double apply(Double in) { return Math.log10(in); }
 	}; 
 
 	private static class Scale implements Function<Double, Double> {

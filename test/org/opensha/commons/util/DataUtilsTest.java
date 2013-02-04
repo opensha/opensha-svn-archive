@@ -324,6 +324,7 @@ public class DataUtilsTest {
 		double[] logResDn = {1000, 100, 10, 1};
 		assertArrayEquals(logExpDn, logResDn, SEQ_TOL);
 		
+		
 	}
 	
 	// the following tests a small number of argument options that should
