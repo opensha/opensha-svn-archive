@@ -1258,21 +1258,19 @@ public class CommandLineInversionRunner {
 			minX = 5;
 		gp.setUserBounds(minX, mfd.getMaxX(),
 				1e-10, 1e-1);
-		String title;
 		String yAxisLabel;
 		
 		String fname = name.replaceAll("\\W+", "_");
 		
 		if (nucleation) {
-			title = "Nucleation MFD";
 			yAxisLabel = "Nucleation Rate";
 			fname += "_nucleation";
 		} else {
-			title = "Participation MFD";
 			yAxisLabel = "Participation Rate";
 			fname += "_participation";
 		}
-		title += " for "+name+" ("+id+")";
+		String title = name;
+		yAxisLabel += " (per yr)";
 		
 		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);

@@ -361,12 +361,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 					chars.addAll(getFractileChars(Color.RED, fractiles.length));
 				}
 				
-				String title = "Magnitude Histogram for Final Rates";
-				if (region.getName() != null && !region.getName().isEmpty())
-					title += " ("+region.getName()+")";
+				String title = region.getName();
+				if (title == null || title.isEmpty())
+					title = "Unnamed Region";
 				
 				String xAxisLabel = "Magnitude";
-				String yAxisLabel = "Frequency (per bin)";
+				String yAxisLabel = "Incremental Rate (per yr)";
 				
 				PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				specs.add(spec);
@@ -722,12 +722,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				funcs.addAll(getFractiles(solMFDs.get(r), weights, "UCERF3 MFDs", fractiles));
 				chars.addAll(getFractileChars(Color.RED, fractiles.length));
 				
-				String title = "Magnitude Histogram for Final Rates";
-				if (region.getName() != null && !region.getName().isEmpty())
-					title += " ("+region.getName()+")";
+				String title = region.getName();
+				if (title == null || title.isEmpty())
+					title = "Unnamed Region";
 				
 				String xAxisLabel = "Magnitude";
-				String yAxisLabel = "Frequency (per bin)";
+				String yAxisLabel = "Incremental Rate (per yr)";
 				
 				PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				specs.add(spec);
@@ -3104,9 +3104,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			plots = Lists.newArrayList();
 			
-			CPT participationCPT = FaultBasedMapGen.getParticipationCPT();
+			CPT participationCPT = FaultBasedMapGen.getParticipationCPT().rescale(-5, -1);
 			CPT ratioCPT = (CPT) FaultBasedMapGen.getLogRatioCPT().clone();
 			ratioCPT.setNanColor(Color.WHITE);
+			ratioCPT.setAboveMaxColor(Color.BLACK);
 			
 			MeanUCERF2 ucerf2 = new MeanUCERF2();
 			ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
@@ -3183,6 +3184,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 				GriddedGeoDataSet ucerf2Vals = ERF_Calculator.getParticipationRatesInRegion(
 						ucerf2, griddedRegion, range[0], range[1]);
 				
+				// first plot UCERF2 on its own
+				GriddedGeoDataSet ucerf2LogVals = ucerf2Vals.copy();
+				ucerf2LogVals.log10();
+				
+				name = "gridded_partic_rates_ucerf2_"+(float)minMag;
+				title = "Log10(UCERF2 Participation Rates "+(float)+minMag;
+				if (maxMag < 9) {
+					name += "_"+(float)maxMag;
+					title += "=>"+(float)maxMag;
+				} else {
+					name += "+";
+					title += "+";
+				}
+				title += ")";
+				
+				plots.add(new MapPlotData(participationCPT, ucerf2LogVals, spacing, griddedRegion,
+						true, title, name));
+				
+				// now plot ratios
 				GeoDataSet ratios = GeoDataSetMath.divide(data, ucerf2Vals);
 				
 				ratios.log10();

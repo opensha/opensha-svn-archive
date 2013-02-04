@@ -587,11 +587,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
 		}
 		
-		String plotTitle = "Magnitude Histogram for Final Rates";
-		if (region.getName() != null && !region.getName().isEmpty())
-			plotTitle += " ("+region.getName()+")";
+		String plotTitle = region.getName();
+		if (plotTitle == null || plotTitle.isEmpty())
+			plotTitle = "Unnamed Region";
 		
-		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Frequency (per bin)");
+		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Incremental Rate (per yr)");
 	}
 	
 	private static IncrementalMagFreqDist resizeMFD(IncrementalMagFreqDist smaller, IncrementalMagFreqDist target) {
