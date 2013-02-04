@@ -506,8 +506,10 @@ public class CommandLineInversionRunner {
 				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, paleoProbabilityModel);
 
 				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, null);
+//				double totalM5Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 5d, null); // TODO
 				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, paleoProbabilityModel);
 
+//				info += "\n\nTotal rupture rate (M5+): "+totalM5Rate;
 				info += "\n\nTotal rupture rate (M7+): "+totalM7Rate;
 				info += "\nTotal multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate;
 				info += "\n% of M7+ rate that are multiply named: "
@@ -527,6 +529,29 @@ public class CommandLineInversionRunner {
 					+"\tsolution: "+p.solutionMoment+"\tdiff: "+p.getDiff();
 				}
 				info += "\n**********************************************";
+				
+				if (!noPlots) {
+					// MFD plots
+					try {
+						ArrayList<? extends DiscretizedFunc> funcs = writeMFDPlots(invSol, subDir, prefix);
+						
+						if (!funcs.isEmpty()) {
+							info += "\n\n****** MFD Cumulative M5 Rates ******";
+							for (DiscretizedFunc func : funcs) {
+								double cumulative = 0d;
+								for (int i=func.getNum(); --i>=0;)
+									if (func.getX(i) >= 5d)
+										cumulative += func.getY(i);
+									else
+										break;
+								info += "\n"+func.getName()+":\t"+cumulative;
+							}
+							info += "\n**********************************************";
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 
 				sol.setInfoString(info);
 
@@ -551,12 +576,6 @@ public class CommandLineInversionRunner {
 						e.printStackTrace();
 					}
 
-					// MFD plots
-					try {
-						writeMFDPlots(invSol, subDir, prefix);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 					List<AveSlipConstraint> aveSlipConstraints = null;
 					try {
 						if (config.getPaleoSlipConstraintWt() > 0d)
@@ -775,12 +794,8 @@ public class CommandLineInversionRunner {
 		return new File(dir, getJumpFilePrefix(prefix, minMag, probPaleoVisible)+".png").exists();
 	}
 
-	public static void writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+	public static ArrayList<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
-
-		// statewide
-		writeMFDPlot(invSol, dir, prefix, invSol.getInversionMFDs().getTotalTargetGR(), invSol.getInversionMFDs().getTargetOnFaultSupraSeisMFD(),
-				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 
 		// no cal
 		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_NoCal(), invSol.getInversionMFDs().noCalTargetSupraMFD,
@@ -789,16 +804,23 @@ public class CommandLineInversionRunner {
 		// so cal
 		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_SoCal(), invSol.getInversionMFDs().soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
+		
+		// statewide
+		return writeMFDPlot(invSol, dir, prefix, invSol.getInversionMFDs().getTotalTargetGR(), invSol.getInversionMFDs().getTargetOnFaultSupraSeisMFD(),
+						RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 	}
 
-	public static void writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
+	public static ArrayList<? extends DiscretizedFunc> writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
-		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(totalMFD, targetMFD, region, ucerf2Fetch);
+		PlotSpec spec = invSol.getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
+		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(spec, totalMFD);
 		File file = new File(dir, getMFDPrefix(prefix, region));
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		return spec.getFuncs();
 	}
 
 	private static String getMFDPrefix(String prefix, Region region) {
@@ -1337,7 +1359,7 @@ public class CommandLineInversionRunner {
 			Map<String, PlotSpec[]> specs, String prefix, File dir)
 					throws IOException {
 		
-		String[] fname_adds = { "paleo", "slips", "combined" };
+		String[] fname_adds = { "paleo", "slips", "combined", "ave_event_slip" };
 		
 		if (!dir.exists())
 			dir.mkdir();
@@ -1366,19 +1388,20 @@ public class CommandLineInversionRunner {
 				PlotSpec spec = specArray[i];
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				setFontSizes(gp);
-				gp.setYLog(true);
+				if (i != 3)
+					gp.setYLog(true);
 				if (xMax > 0)
 					// only when latitudeX, this is a kludgy way of detecting this for CA
 					gp.setxAxisInverted(true);
 				System.out.println("X Range: "+xMin+"=>"+xMax);
-				if (i == 0)
-					// just paleo
-					gp.setUserBounds(xMin, xMax, 1e-5, 1e-1);
 				if (i == 1)
 					// just slip
 					gp.setUserBounds(xMin, xMax, 1e-1, 5e1);
+				else if (i == 3)
+					// just ave slip data
+					gp.setUserBounds(xMin, xMax, 0, 10d);
 				else
-					// combined
+					// combined or just paleo
 					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 				
 				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),

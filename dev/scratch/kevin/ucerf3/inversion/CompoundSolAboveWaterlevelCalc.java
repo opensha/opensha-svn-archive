@@ -42,9 +42,12 @@ public class CompoundSolAboveWaterlevelCalc {
 	}
 	
 	private static void getAbovesForDir(File dir, Map<String, boolean[]> abovesForPrefix) throws IOException {
+//		System.out.println("getAbovesForDir: "+dir.getName());
 		for (File file : dir.listFiles()) {
+			if (file.getName().startsWith("."))
+				continue;
 			if (file.isDirectory())
-				getAbovesForDir(dir, abovesForPrefix);
+				getAbovesForDir(file, abovesForPrefix);
 			
 			String name = file.getName();
 			if (!name.endsWith("_noMinRates.bin"))

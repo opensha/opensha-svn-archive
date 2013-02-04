@@ -20,6 +20,8 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
@@ -39,6 +41,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
@@ -60,6 +63,24 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		branches = Lists.newArrayList();
 		branches.addAll(fetcher.getBranches());
+		
+		if (cmd.hasOption("name-grep")) {
+			List<String> greps = Lists.newArrayList(Splitter.on(",").split(cmd.getOptionValue("name-grep")));
+			List<LogicTreeBranch> filtered = Lists.newArrayList();
+			
+			branchLoop:
+			for (LogicTreeBranch branch : branches) {
+				String fname = branch.buildFileName();
+				for (String grep : greps) {
+					if (!fname.contains(grep))
+						continue branchLoop;
+				}
+				filtered.add(branch);
+			}
+			
+			System.out.println("Filtered branches size: "+filtered.size()+"/"+branches.size());
+			branches = filtered;
+		}
 		
 		invFSS = false;
 		for (CompoundFSSPlots plot : plots) {
@@ -245,19 +266,40 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		miniSectRIsOption.setRequired(false);
 		options.addOption(miniSectRIsOption);
 		
-		Option aveSlipsOption = new Option("paleotables", "plot-paleo-tables", false,
-				"Flag for creating ave slip tables");
+		Option paleoTablesOption = new Option("paleotables", "plot-paleo-tables", false,
+				"Flag for creating paleo rate tables");
+		paleoTablesOption.setRequired(false);
+		options.addOption(paleoTablesOption);
+		
+		Option aveSlipsOption = new Option("aveslips", "plot-ave-slips", false,
+				"Flag for creating ave slip map based plots");
 		aveSlipsOption.setRequired(false);
 		options.addOption(aveSlipsOption);
+		
+		Option multiFaultOption = new Option("multi", "plot-multi-faults", false,
+				"Flag for creating ave slip map based plots");
+		multiFaultOption.setRequired(false);
+		options.addOption(multiFaultOption);
 		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
 		options.addOption(plotAllOption);
 		
+		Option noERFOption = new Option("noerf", "no-erf-plots", false, "Flag for disabling ERF " +
+				"based plots (can be used with --plot-all");
+		noERFOption.setRequired(false);
+		options.addOption(noERFOption);
+		
 		Option randomSampleOption = new Option("rand", "random-sample", true,
 				"If supplied, a random sample of the given size will be used.");
 		randomSampleOption.setRequired(false);
 		options.addOption(randomSampleOption);
+		
+		Option nameGrepsOption = new Option("ng", "name-grep", true,
+				"If supplied, logic tree branches will be filtered out based on grepping for these comma separated " +
+				"strings.");
+		nameGrepsOption.setRequired(false);
+		options.addOption(nameGrepsOption);
 		
 		return options;
 	}
@@ -351,6 +393,22 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("paleotables")) {
 				PaleoRatesTable miniRIs = new PaleoRatesTable(weightProvider);
 				plots.add(miniRIs);
+			}
+			
+			if (plotAll || cmd.hasOption("aveslips")) {
+				AveSlipMapPlot aveSlip = new AveSlipMapPlot(weightProvider);
+				plots.add(aveSlip);
+			}
+			
+			if (plotAll || cmd.hasOption("multi")) {
+				MultiFaultParticPlot multi = new MultiFaultParticPlot(weightProvider);
+				plots.add(multi);
+			}
+			
+			if (cmd.hasOption("noerf")) {
+				for (int i=plots.size(); --i>=0;)
+					if (plots.get(i).usesERFs())
+						plots.remove(i);
 			}
 			
 			MPJDistributedCompoundFSSPlots driver = new MPJDistributedCompoundFSSPlots(cmd, fetcher, plots);

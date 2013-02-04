@@ -160,7 +160,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public synchronized ArbDiscrEmpiricalDistFunc calcPaloeObsSlipPFD_ForSect(int sectIndex) {
+	public synchronized ArbDiscrEmpiricalDistFunc calcPaleoObsSlipPFD_ForSect(int sectIndex) {
 		ArbDiscrEmpiricalDistFunc slipPDF = slipPaleoObsPDFMap.get(sectIndex);
 		if (slipPDF != null)
 			return slipPDF;

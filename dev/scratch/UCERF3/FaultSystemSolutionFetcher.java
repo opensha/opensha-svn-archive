@@ -8,6 +8,7 @@ import java.util.Random;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -122,12 +123,27 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 
 	public static FaultSystemSolutionFetcher getRandomSample(
 			final FaultSystemSolutionFetcher fetch, int num) {
+		return getRandomSample(fetch, num, null);
+	}
+	
+	public static FaultSystemSolutionFetcher getRandomSample(
+			final FaultSystemSolutionFetcher fetch, int num, LogicTreeBranchNode<?>... branchNodes) {
 		List<LogicTreeBranch> origBranches = Lists.newArrayList();
 		origBranches.addAll(fetch.getBranches());
 		final List<LogicTreeBranch> branches = Lists.newArrayList();
 		Random r = new Random();
+		LogicTreeBranch testBranch = null;
+		if (branchNodes != null && branchNodes.length > 0)
+			testBranch = LogicTreeBranch.fromValues(false, branchNodes);
 		for (int i=0; i<num; i++) {
-			branches.add(origBranches.get(r.nextInt(origBranches.size())));
+			if (testBranch == null) {
+				branches.add(origBranches.get(r.nextInt(origBranches.size())));
+			} else {
+				LogicTreeBranch branch = null;
+				while (branch == null || !testBranch.matchesNonNulls(branch))
+					branch = origBranches.get(r.nextInt(origBranches.size()));
+				branches.add(branch);
+			}
 		}
 		return new FaultSystemSolutionFetcher() {
 			

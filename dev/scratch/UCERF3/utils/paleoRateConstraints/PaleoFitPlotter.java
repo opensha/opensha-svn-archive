@@ -41,6 +41,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter.AveSlipFakePale
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
@@ -49,11 +50,15 @@ public class PaleoFitPlotter {
 
 	public static class AveSlipFakePaleoConstraint extends PaleoRateConstraint {
 		private boolean isMultiple;
+		private double origAveSlip, origAveSlipUpper, origAveSlipLower;
 		
 		public AveSlipFakePaleoConstraint(AveSlipConstraint aveSlip, int sectIndex, double slipRate) {
 			super(null, aveSlip.getSiteLocation(), sectIndex, slipRate/aveSlip.getWeightedMean(),
 					slipRate/aveSlip.getLowerUncertaintyBound(), slipRate/aveSlip.getUpperUncertaintyBound());
 			isMultiple = false;
+			origAveSlip = aveSlip.getWeightedMean();
+			origAveSlipLower = aveSlip.getLowerUncertaintyBound();
+			origAveSlipUpper = aveSlip.getUpperUncertaintyBound();
 		}
 		
 		public AveSlipFakePaleoConstraint(
@@ -63,6 +68,9 @@ public class PaleoFitPlotter {
 					StatUtils.min(slipRates)/aveSlip.getWeightedMean(),
 					StatUtils.max(slipRates)/aveSlip.getWeightedMean());
 			isMultiple = true;
+			origAveSlip = aveSlip.getWeightedMean();
+			origAveSlipLower = aveSlip.getLowerUncertaintyBound();
+			origAveSlipUpper = aveSlip.getUpperUncertaintyBound();
 		}
 	}
 	
@@ -310,6 +318,8 @@ public class PaleoFitPlotter {
 		private Map<Integer, double[]> paleoRatesMap;
 		private Map<Integer, double[]> origRatesMap;
 		private Map<Integer, double[]> aveSlipRatesMap;
+		private Map<Integer, double[]> aveSlipsMap;
+		private Map<Integer, double[]> avePaleoSlipsMap;
 		
 		private List<Map<Integer, double[]>> allArraysList;
 		
@@ -322,6 +332,8 @@ public class PaleoFitPlotter {
 			paleoRatesMap = Maps.newHashMap();
 			origRatesMap = Maps.newHashMap();
 			aveSlipRatesMap = Maps.newHashMap();
+			aveSlipsMap = Maps.newHashMap();
+			avePaleoSlipsMap = Maps.newHashMap();
 			
 			allArraysList = Lists.newArrayList();
 			allArraysList.add(origSlipsMap);
@@ -330,6 +342,8 @@ public class PaleoFitPlotter {
 			allArraysList.add(paleoRatesMap);
 			allArraysList.add(origRatesMap);
 			allArraysList.add(aveSlipRatesMap);
+			allArraysList.add(aveSlipsMap);
+			allArraysList.add(avePaleoSlipsMap);
 			
 			this.weight = weight;
 		}
@@ -341,8 +355,35 @@ public class PaleoFitPlotter {
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap,
 				PaleoProbabilityModel paleoProbModel,
 				double weight) {
+//			double[] aveSlips = new double[sol.getNumSections()];
+//			double[] avePaleoSlips = new double[sol.getNumSections()];
+//			for (int i=0; i<aveSlips.length; i++) {
+//				aveSlips[i] = sol.calcSlipPFD_ForSect(i).getMean();
+//				avePaleoSlips[i] = sol.calcPaleoObsSlipPFD_ForSect(i).getMean();
+//			}
+			
+			return build(sol, namedFaultsMap, namedFaultConstraintsMap, allParentsMap,
+					paleoProbModel, weight, null, null);
+		}
+		
+		public static DataForPaleoFaultPlots build(
+				FaultSystemSolution sol,
+				Map<String, List<Integer>> namedFaultsMap,
+				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap,
+				Map<Integer, List<FaultSectionPrefData>> allParentsMap,
+				PaleoProbabilityModel paleoProbModel,
+				double weight,
+				double[] aveSlipsData,
+				double[] aveSlipsPaleoObsData) {
 			
 			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight);
+			
+			Stopwatch watch = new Stopwatch();
+			Stopwatch paleoWatch = new Stopwatch();
+			Stopwatch slipsWatch = new Stopwatch();
+			Stopwatch aveSlipsWatch = new Stopwatch();
+			
+			watch.start();
 			
 			for (String name : namedFaultConstraintsMap.keySet()) {
 				List<Integer> parentIDs = namedFaultsMap.get(name);
@@ -357,31 +398,47 @@ public class PaleoFitPlotter {
 					double[] paleoRates = new double[numSects];
 					double[] origRates = new double[numSects];
 					double[] aveSlipRates = new double[numSects];
+					double[] aveSlips = new double[numSects];
+					double[] avePaleoSlips = new double[numSects];
 					
 					for (int s=0; s<numSects; s++) {
 						FaultSectionPrefData sect = sects.get(s);
 						int mySectID = sect.getSectionId();
+						paleoWatch.start();
 						paleoRates[s] = getPaleoRateForSect(sol, mySectID, paleoProbModel);
 						origRates[s] = getPaleoRateForSect(sol, mySectID, null);
 						aveSlipRates[s] = getAveSlipProbRateForSect(sol, mySectID);
+						paleoWatch.stop();
 						// convert slips to mm/yr
+						slipsWatch.start();
 						origSlips[s] = sect.getOrigAveSlipRate();
 						targetSlips[s] = sol.getSlipRateForSection(sect.getSectionId())*1e3;
 						solSlips[s] = sol.calcSlipRateForSect(sect.getSectionId())*1e3;
+						slipsWatch.stop();
+						
+						aveSlipsWatch.start();
+						if (aveSlipsData == null) {
+							aveSlips[s] = sol.calcSlipPFD_ForSect(sect.getSectionId()).getMean();
+							avePaleoSlips[s] = sol.calcPaleoObsSlipPFD_ForSect(sect.getSectionId()).getMean();
+						} else {
+							aveSlips[s] = aveSlipsData[sect.getSectionId()];
+							avePaleoSlips[s] = aveSlipsPaleoObsData[sect.getSectionId()];
+						}
+						aveSlipsWatch.stop();
 					}
 					
-					if (parentID == 301) {
-						if (StatUtils.min(solSlips) < 1) {
-							System.out.println("Solution slip less than 1 on Mojave S...WTF?");
-							System.out.println("origSlips: ["+Joiner.on(",").join(Doubles.asList(origSlips))+"]");
-							System.out.println("targetSlips: ["+Joiner.on(",").join(Doubles.asList(targetSlips))+"]");
-							System.out.println("solSlips: ["+Joiner.on(",").join(Doubles.asList(solSlips))+"]");
-							System.out.println("paleoRates: ["+Joiner.on(",").join(Doubles.asList(paleoRates))+"]");
-							System.out.println("origRates: ["+Joiner.on(",").join(Doubles.asList(origRates))+"]");
-							System.out.println("aveSlipRates: ["+Joiner.on(",").join(Doubles.asList(aveSlipRates))+"]");
-							System.exit(1);
-						}
-					}
+//					if (parentID == 301) {
+//						if (StatUtils.min(solSlips) < 1) {
+//							System.out.println("Solution slip less than 1 on Mojave S...WTF?");
+//							System.out.println("origSlips: ["+Joiner.on(",").join(Doubles.asList(origSlips))+"]");
+//							System.out.println("targetSlips: ["+Joiner.on(",").join(Doubles.asList(targetSlips))+"]");
+//							System.out.println("solSlips: ["+Joiner.on(",").join(Doubles.asList(solSlips))+"]");
+//							System.out.println("paleoRates: ["+Joiner.on(",").join(Doubles.asList(paleoRates))+"]");
+//							System.out.println("origRates: ["+Joiner.on(",").join(Doubles.asList(origRates))+"]");
+//							System.out.println("aveSlipRates: ["+Joiner.on(",").join(Doubles.asList(aveSlipRates))+"]");
+//							System.exit(1);
+//						}
+//					}
 					
 					data.origSlipsMap.put(parentID, origSlips);
 					data.targetSlipsMap.put(parentID, targetSlips);
@@ -389,8 +446,14 @@ public class PaleoFitPlotter {
 					data.paleoRatesMap.put(parentID, paleoRates);
 					data.origRatesMap.put(parentID, origRates);
 					data.aveSlipRatesMap.put(parentID, aveSlipRates);
+					data.aveSlipsMap.put(parentID, aveSlips);
+					data.avePaleoSlipsMap.put(parentID, avePaleoSlips);
 				}
 			}
+			watch.stop();
+			
+			System.out.println("Calc Times:\ttotal="+(watch.elapsedMillis()/1000f)+"\tpaleo="+(paleoWatch.elapsedMillis()/1000f)
+					+"\tslip="+(slipsWatch.elapsedMillis()/1000f)+"\taveSlip="+(aveSlipsWatch.elapsedMillis()/1000f));
 			return data;
 		}
 	}
@@ -588,6 +651,8 @@ public class PaleoFitPlotter {
 			ArrayList<PlotCurveCharacterstics> rateChars = Lists.newArrayList();
 			ArrayList<DiscretizedFunc> slipFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> slipChars = Lists.newArrayList();
+			ArrayList<DiscretizedFunc> aveSlipFuncs = Lists.newArrayList();
+			ArrayList<PlotCurveCharacterstics> aveSlipChars = Lists.newArrayList();
 			
 			List<Location> allSepLocs = Lists.newArrayList();
 			
@@ -604,6 +669,13 @@ public class PaleoFitPlotter {
 			aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
 			ArbitrarilyDiscretizedFunc aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
 			aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
+			
+			ArbitrarilyDiscretizedFunc aveSlipDataMean = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateMean.setName("Ave Slip Per Event Data: Mean");
+			ArbitrarilyDiscretizedFunc aveSlipDataUpper = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateUpper.setName("Ave Slip Per Event Data: Upper 95% Confidence");
+			ArbitrarilyDiscretizedFunc aveSlipDataLower = new ArbitrarilyDiscretizedFunc();
+			aveSlipRateLower.setName("Ave Slip Per Event Data: Lower 95% Confidence");
 			
 			// first create data lines
 			
@@ -662,6 +734,7 @@ public class PaleoFitPlotter {
 				List<FaultSectionPrefData> sectionsForParent = sectionsForFault.get(parentID);
 				if (sectionsForParent == null)
 					continue;
+				String parentName = sectionsForParent.get(0).getParentSectionName();
 				actualCount++;
 				
 				// add separators
@@ -684,17 +757,21 @@ public class PaleoFitPlotter {
 				}
 				
 				List<DiscretizedFunc> origSlipFuncs = getFuncsForScalar(datas, 0, parentID, xvals,
-						"Original nonreduced slip rates for: "+name);
+						"Original nonreduced slip rates for: "+parentName);
 				List<DiscretizedFunc> targetSlipFuncs = getFuncsForScalar(datas, 1, parentID, xvals,
-						"Target slip rates for: "+name);
+						"Target slip rates for: "+parentName);
 				List<DiscretizedFunc> solSlipFuncs = getFuncsForScalar(datas, 2, parentID, xvals,
-						"Solution slip rates for: "+name);
+						"Solution slip rates for: "+parentName);
 				List<DiscretizedFunc> paleoRtFuncs = getFuncsForScalar(datas, 3, parentID, xvals,
-						"Solution paleo rates for: "+name);
+						"Solution paleo rates for: "+parentName);
 				List<DiscretizedFunc> origRtFuncs = getFuncsForScalar(datas, 4, parentID, xvals,
-						"Solution original rates for: "+name);
+						"Solution original rates for: "+parentName);
 				List<DiscretizedFunc> aveSlipRtFuncs = getFuncsForScalar(datas, 5, parentID, xvals,
-						"Solution ave slip prob visible rates for: "+name);
+						"Solution ave slip prob visible rates for: "+parentName);
+				List<DiscretizedFunc> myAveSlipsFuncs = getFuncsForScalar(datas, 6, parentID, xvals,
+						"Solution average slip per event for: "+parentName);
+				List<DiscretizedFunc> myAvePaleoSlipsFuncs = getFuncsForScalar(datas, 7, parentID, xvals,
+						"Solution average paleo observable slip per event for: "+parentName);
 				
 				// skip if no rate on any of the sections
 				boolean skip = origRtFuncs.get(origRtFuncs.size()-1).getMaxY() <= 0;
@@ -713,6 +790,10 @@ public class PaleoFitPlotter {
 					slipChars.addAll(getCharsForFuncs(targetSlipFuncs, Color.BLUE, 2f));
 					slipFuncs.addAll(solSlipFuncs);
 					slipChars.addAll(getCharsForFuncs(solSlipFuncs, Color.MAGENTA, 2f));
+					aveSlipFuncs.addAll(myAveSlipsFuncs);
+					aveSlipChars.addAll(getCharsForFuncs(myAveSlipsFuncs, Color.BLUE, 2f));
+					aveSlipFuncs.addAll(myAvePaleoSlipsFuncs);
+					aveSlipChars.addAll(getCharsForFuncs(myAvePaleoSlipsFuncs, Color.MAGENTA, 2f));
 				}
 			}
 			if (actualCount == 0)
@@ -733,6 +814,9 @@ public class PaleoFitPlotter {
 					aveSlipRateMean.set(paleoRateX, constr.getMeanRate());
 					aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
 					aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
+					aveSlipDataMean.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlip);
+					aveSlipDataUpper.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlipUpper);
+					aveSlipDataLower.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlipLower);
 				} else {
 					paleoRateMean.set(paleoRateX, constr.getMeanRate());
 					paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
@@ -758,6 +842,15 @@ public class PaleoFitPlotter {
 				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
 			}
 			
+			if (aveSlipDataMean.getNum() > 0) {
+				aveSlipFuncs.add(aveSlipDataMean);
+				aveSlipChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, aveSlipColor));
+				aveSlipFuncs.add(aveSlipDataUpper);
+				aveSlipChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+				aveSlipFuncs.add(aveSlipDataLower);
+				aveSlipChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+			}
+			
 			// no longer needed
 //			String[] parentNameArray = new String[parentNames.size()];
 //			for (int i=0; i<parentNames.size(); i++)
@@ -778,6 +871,7 @@ public class PaleoFitPlotter {
 			
 			String paleoTitle = "Paleo Rates/Constraints for "+name;
 			String slipTitle = "Slip Rates for "+name;
+			String aveSlipTitle = "Average Slip In Events for "+name;
 			String xAxisLabel;
 			if (latitudeX)
 				xAxisLabel = "Latitude (degrees)";
@@ -785,6 +879,7 @@ public class PaleoFitPlotter {
 				xAxisLabel = "Longitude (degrees)";
 			String paleoYAxisLabel = "Event Rate Per Year";
 			String slipYAxisLabel = "Slip Rate (mm/yr)";
+			String aveSlipYAxisLabel = "Ave Slip In Events (m)";
 			
 			ArrayList<DiscretizedFunc> paleoOnlyFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> paleoOnlyChars = Lists.newArrayList();
@@ -799,6 +894,7 @@ public class PaleoFitPlotter {
 			for (Location sepLoc : allSepLocs) {
 				ArbitrarilyDiscretizedFunc paleoFunc = new ArbitrarilyDiscretizedFunc();
 				ArbitrarilyDiscretizedFunc slipFunc = new ArbitrarilyDiscretizedFunc();
+				ArbitrarilyDiscretizedFunc aveSlipFunc = new ArbitrarilyDiscretizedFunc();
 				paleoFunc.setName("(separator)");
 				slipFunc.setName("(separator)");
 				double x;
@@ -810,16 +906,22 @@ public class PaleoFitPlotter {
 				paleoFunc.set(x+0.0001, 1e-4);
 				slipFunc.set(x, 5e1);
 				slipFunc.set(x+0.0001, 1e-1);
+				aveSlipFunc.set(x, 0);
+				aveSlipFunc.set(x+0.0001, 10);
 				paleoOnlyFuncs.add(paleoFunc);
 				paleoOnlyChars.add(sepChar);
 				slipOnlyFuncs.add(slipFunc);
 				slipOnlyChars.add(sepChar);
+				aveSlipFuncs.add(aveSlipFunc);
+				aveSlipChars.add(sepChar);
 			}
 			
 			PlotSpec paleoOnlySpec = new PlotSpec(
 					paleoOnlyFuncs, paleoOnlyChars, paleoTitle, xAxisLabel, paleoYAxisLabel);
 			PlotSpec slipOnlySpec = new PlotSpec(
 					slipOnlyFuncs, slipOnlyChars, slipTitle, xAxisLabel, slipYAxisLabel);
+			PlotSpec aveSlipSpec = new PlotSpec(
+					aveSlipFuncs, aveSlipChars, aveSlipTitle, xAxisLabel, aveSlipYAxisLabel);
 			ArrayList<DiscretizedFunc> combinedFuncs = Lists.newArrayList(paleoOnlyFuncs);
 			for (DiscretizedFunc func : slipFuncs) {
 				ArbitrarilyDiscretizedFunc scaledFunc = new ArbitrarilyDiscretizedFunc(
@@ -835,7 +937,7 @@ public class PaleoFitPlotter {
 			combinedChars.addAll(slipChars);
 			PlotSpec combinedSpec = new PlotSpec(
 					combinedFuncs, combinedChars, paleoTitle, xAxisLabel, paleoYAxisLabel);
-			PlotSpec[] specArray = { paleoOnlySpec, slipOnlySpec, combinedSpec };
+			PlotSpec[] specArray = { paleoOnlySpec, slipOnlySpec, combinedSpec, aveSlipSpec };
 			specs.put(name, specArray);
 		}
 		

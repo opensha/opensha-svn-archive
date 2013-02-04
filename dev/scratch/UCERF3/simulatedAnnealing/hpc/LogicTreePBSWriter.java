@@ -106,12 +106,13 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, USC_HPCC_ScriptWriter.FMPJ_HOME, true) {
+				null, USC_HPCC_ScriptWriter.MPJ_HOME, false) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch != null && branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
-				return new USC_HPCC_ScriptWriter("quadcore");
+//				return new USC_HPCC_ScriptWriter("quadcore"); // TODO
+				return new USC_HPCC_ScriptWriter();
 			}
 
 			@Override
@@ -119,7 +120,7 @@ public class LogicTreePBSWriter {
 				if (branch != null &&
 						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return 40000;
-				return 10000;
+				return 8000;
 			}
 
 			@Override
@@ -267,7 +268,7 @@ public class LogicTreePBSWriter {
 		return vals;
 	}
 
-	private static List<LogicTreeBranchNode<?>> getNonZeroChoices(Class<? extends LogicTreeBranchNode<?>> clazz, InversionModels im) {
+	public static List<LogicTreeBranchNode<?>> getNonZeroChoices(Class<? extends LogicTreeBranchNode<?>> clazz, InversionModels im) {
 		List<LogicTreeBranchNode<?>> nonZeros = Lists.newArrayList();
 		for (LogicTreeBranchNode<?> val : clazz.getEnumConstants())
 			if (val.getRelativeWeight(im) > 0)
@@ -519,17 +520,17 @@ public class LogicTreePBSWriter {
 	private static TreeTrimmer getCustomTrimmer() {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
-//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_2);
-		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
+//		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
 		limitations.add(faultModels);
 
 		// if null, all that are applicable to each fault model will be used
 //		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.GEOLOGIC);
-//		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class, InversionModels.CHAR_CONSTRAINED);
 //		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.ABM);
 //		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.NEOKINEMA);
 //		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.ZENG);
-		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.ZENGBB, DeformationModels.NEOKINEMA);
+//		List<LogicTreeBranchNode<?>> defModels = toList(DeformationModels.ZENGBB, DeformationModels.NEOKINEMA);
 		limitations.add(defModels);
 
 //		List<LogicTreeBranchNode<?>> inversionModels = allOf(InversionModels.class);
@@ -555,14 +556,14 @@ public class LogicTreePBSWriter {
 		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class, InversionModels.CHAR_CONSTRAINED);
 		limitations.add(slipAlongs);
 
-		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
-//		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p6);
+//		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_8p7);
 //		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_10p6, TotalMag5Rate.RATE_8p7);
 		limitations.add(mag5s);
 
-		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class, InversionModels.CHAR_CONSTRAINED);
-//		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6, MaxMagOffFault.MAG_8p0);
-//		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6);
+//		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_8p0);
+		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6);
 		limitations.add(maxMags);
 
 //		List<LogicTreeBranchNode<?>> momentFixes = getNonZeroChoices(MomentRateFixes.class);
@@ -570,8 +571,8 @@ public class LogicTreePBSWriter {
 		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE);
 		limitations.add(momentFixes);
 
-		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
-//		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF2);
+//		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
 		limitations.add(spatialSeis);
 		
 		return new ListBasedTreeTrimmer(limitations);
@@ -603,7 +604,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "stampede_3p2_production_runs_zeng_neok";
+		String runName = "ucerf3p2-convergence";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -620,19 +621,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-//		int jobsPerNode = 1;
-//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
-////		String threads = "50%";
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-		RunSites site = RunSites.STAMPEDE;
-		int batchSize = 128;
-		int jobsPerNode = 3;
-		String threads = "5"; // *2 = 16 (out of 16 possible)
+//		RunSites site = RunSites.STAMPEDE;
+//		int batchSize = 128;
+//		int jobsPerNode = 3;
+//		String threads = "5"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -642,7 +643,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 5;
+		int numRuns = 100;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -656,8 +657,11 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
-//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+//				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
+//				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -674,7 +678,7 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
-//		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
+		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
@@ -683,11 +687,11 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
-		TreeTrimmer defaultBranchesTrimmer = null;
+//		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -843,14 +847,16 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, "100")));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, "1000")));
 
-		//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		//		InversionOptions[] ops = { InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES, InversionOptions.A_PRIORI_CONST_WT,
-		//				InversionOptions.WATER_LEVEL_FRACT };
-		////		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100", "0")));
-		//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000", "0")));
-		//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000", "0")));
-		////		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
-		////		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
+//				variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//				InversionOptions[] ops = { InversionOptions.MFD_WT };
+//				variationBranches.add(buildVariationBranch(ops, toArray("0")));
+//				variationBranches.add(buildVariationBranch(ops, toArray("10")));
+//				variationBranches.add(buildVariationBranch(ops, toArray("1000", "10", "1000")));
+//				variationBranches.add(buildVariationBranch(ops, toArray("0", "10", "1000")));
+//				variationBranches.add(buildVariationBranch(ops, toArray("1000", "0", "1000")));
+//				variationBranches.add(buildVariationBranch(ops, toArray("1000", "10", "0")));
+		//		variationBranches.add(buildVariationBranch(ops, toArray(null, "1000")));
+		//		variationBranches.add(buildVariationBranch(ops, toArray(null, "100")));
 
 		VariableLogicTreeBranch[] defaultBranches = null;
 		

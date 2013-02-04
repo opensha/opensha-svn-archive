@@ -66,7 +66,7 @@ public class FaultSystemSolutionCalc {
 		HistogramFunction covHist = new HistogramFunction(delta/2, num, delta);
 		double aveCOV = 0;
 		for(int s=0;s<fltSysSol.getNumSections();s++) {
-			double cov = fltSysSol.calcPaloeObsSlipPFD_ForSect(s).getCOV();
+			double cov = fltSysSol.calcPaleoObsSlipPFD_ForSect(s).getCOV();
 			aveCOV += cov;
 //			System.out.println("COV: "+cov+" MAX: "+covHist.getMaxX());
 			covHist.add(cov, 1.0);

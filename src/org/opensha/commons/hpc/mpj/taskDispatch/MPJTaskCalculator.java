@@ -249,6 +249,7 @@ public abstract class MPJTaskCalculator {
 			CommandLine cmd = parser.parse(options, args);
 			return cmd;
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp(
 					ClassUtils.getClassNameWithoutPackage(clazz),

@@ -19,6 +19,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -702,6 +703,10 @@ public class FaultBasedMapGen {
 
 		@Override
 		public int compareTo(TraceValue o) {
+			if (Double.isNaN(value))
+				return -1;
+			if (Double.isNaN(o.value))
+				return 1;
 			return Double.compare(value, o.value);
 		}
 		
@@ -745,7 +750,9 @@ public class FaultBasedMapGen {
 			new ImageViewerWindow(url,metadata, true);
 		}
 	}
-
+	
+	public static final double FAULT_HIGHLIGHT_VALUE = -123456e20;
+	
 	public static GMT_Map buildMap(CPT cpt, List<LocationList> faults,
 			double[] values, GeoDataSet griddedData, double spacing, Region region, boolean skipNans, String label) {
 		GMT_Map map = new GMT_Map(region, griddedData, spacing, cpt);
@@ -759,6 +766,8 @@ public class FaultBasedMapGen {
 		map.setUseGMTSmoothing(false);
 		map.setTopoResolution(null);
 		
+		double thickness = 8;
+		
 		if (faults != null) {
 			Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
 			
@@ -770,27 +779,41 @@ public class FaultBasedMapGen {
 				vals.add(new TraceValue(fault, values[i]));
 			}
 			Collections.sort(vals); // so that high values are on top
+//			for (int i=1; i<vals.size(); i++)
+//				Preconditions.checkState(Double.isNaN(vals.get(i).value)
+//						|| vals.get(i).value >= vals.get(i-1).value, vals.get(i-1).value+", "+vals.get(i).value);
 			
 			for (TraceValue val : vals) {
 				LocationList fault = val.trace;
 				double value = val.value;
-				Color c = cpt.getColor((float)value);
-				for (PSXYPolygon poly : getPolygons(fault, c))
-					map.addPolys(poly);
+				if ((float)value == (float)FAULT_HIGHLIGHT_VALUE) {
+					Color c = Color.BLACK;
+					for (PSXYPolygon poly : getPolygons(fault, c, 4*thickness))
+						map.addPolys(poly);
+				} else {
+					Color c = cpt.getColor((float)value);
+					for (PSXYPolygon poly : getPolygons(fault, c, thickness))
+						map.addPolys(poly);
+				}
 			}
 		}
 		return map;
 	}
 	
-	private static ArrayList<PSXYPolygon> getPolygons(LocationList locs, Color c) {
+	private static ArrayList<PSXYPolygon> getPolygons(LocationList locs, Color c, double thickness) {
 		ArrayList<PSXYPolygon> polys = new ArrayList<PSXYPolygon>();
 		
 		for (int i=1; i<locs.size(); i++) {
 			Location loc1 = locs.get(i-1);
 			Location loc2 = locs.get(i);
+			if (thickness > 10) {
+				// this will make everything appear smoother for thick lines
+				loc1 = LocationUtils.location(loc1, LocationUtils.azimuthRad(loc2, loc1), 0.1*thickness);
+				loc2 = LocationUtils.location(loc2, LocationUtils.azimuthRad(loc1, loc2), 0.1*thickness);
+			}
 			PSXYPolygon poly = new PSXYPolygon(loc1, loc2);
 			poly.setPenColor(c);
-			poly.setPenWidth(8);
+			poly.setPenWidth(thickness);
 			polys.add(poly);
 		}
 		

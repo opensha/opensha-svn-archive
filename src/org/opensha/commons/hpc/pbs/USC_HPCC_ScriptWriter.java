@@ -21,6 +21,14 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 		this.nodesAddition = nodesAddition;
 	}
 
+	public String getNodesAddition() {
+		return nodesAddition;
+	}
+
+	public void setNodesAddition(String nodesAddition) {
+		this.nodesAddition = nodesAddition;
+	}
+
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
 			int ppn, String queue) {

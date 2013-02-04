@@ -148,4 +148,41 @@ public class CoulombRatesFilter {
 				+ "]";
 	}
 
+	public double getMinAverageProb() {
+		return minAverageProb;
+	}
+
+	public void setMinAverageProb(double minAverageProb) {
+		this.minAverageProb = minAverageProb;
+	}
+
+	public double getMinIndividualProb() {
+		return minIndividualProb;
+	}
+
+	public void setMinIndividualProb(double minIndividualProb) {
+		this.minIndividualProb = minIndividualProb;
+	}
+
+	public double getMinimumStressExclusionCeiling() {
+		return minimumStressExclusionCeiling;
+	}
+
+	public void setMinimumStressExclusionCeiling(
+			double minimumStressExclusionCeiling) {
+		this.minimumStressExclusionCeiling = minimumStressExclusionCeiling;
+	}
+
+	public TestType getTestType() {
+		return testType;
+	}
+
+	public void setTestType(TestType testType) {
+		this.testType = testType;
+	}
+
+	public void setApplyBranchesOnly(boolean applyBranchesOnly) {
+		this.applyBranchesOnly = applyBranchesOnly;
+	}
+
 }
