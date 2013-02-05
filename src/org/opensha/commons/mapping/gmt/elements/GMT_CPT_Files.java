@@ -22,6 +22,7 @@ public enum GMT_CPT_Files {
 	STEP("STEP.cpt"),
 	UCERF2_FIGURE_35("ucerf2_fig_35.cpt"),
 	UCERF3_RATIOS("UCERF3_RatiosCPT.cpt"),
+	UCERF3_RATIOS_ALT("UCERF3_RatiosCPTalt.cpt"),
 	NSHMP_1hz("nshmp_1hz.cpt"),
 	NSHMP_5hz("nshmp_5hz.cpt"),
 	GMT_COPPER("GMT_copper.cpt"),
