@@ -21,6 +21,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
@@ -281,6 +282,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		multiFaultOption.setRequired(false);
 		options.addOption(multiFaultOption);
 		
+		Option misfitOption = new Option("misfit", "plot-misfits", false,
+				"Flag for creating misfits table");
+		misfitOption.setRequired(false);
+		options.addOption(misfitOption);
+		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
 		options.addOption(plotAllOption);
@@ -403,6 +409,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("multi")) {
 				MultiFaultParticPlot multi = new MultiFaultParticPlot(weightProvider);
 				plots.add(multi);
+			}
+			
+			if (plotAll || cmd.hasOption("misfit")) {
+				MisfitTable misfit = new MisfitTable();
+				plots.add(misfit);
 			}
 			
 			if (cmd.hasOption("noerf")) {

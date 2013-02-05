@@ -113,7 +113,11 @@ public class BatchPlotGen {
 		return sol;
 	}
 	
-	private static void writeMisfitsCSV(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap) throws IOException {
+	public static void writeMisfitsCSV(File dir, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap) throws IOException {
+		writeMisfitsCSV(dir, dir.getName(), misfitsMap);
+	}
+	
+	public static void writeMisfitsCSV(File dir, String prefix, Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap) throws IOException {
 		List<String> misfitNames = Lists.newArrayList();
 		for (Map<String, Double> misfits : misfitsMap.values())
 			for (String name : misfits.keySet())

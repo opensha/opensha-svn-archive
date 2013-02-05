@@ -88,6 +88,7 @@ import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
@@ -97,6 +98,7 @@ import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.oldStuff.RupsInFaultSystemInversion;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
@@ -1800,6 +1802,74 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected boolean usesInversionFSS() {
 			return false;
+		}
+		
+	}
+	
+	public static void writeMisfitTables(
+			FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider,
+			File dir, String prefix) throws IOException {
+		MisfitTable plot = new MisfitTable();
+		plot.buildPlot(fetch);
+		
+		writeMisfitTables(plot, dir, prefix);
+	}
+	
+	public static void writeMisfitTables(
+			MisfitTable plot,
+			File dir, String prefix) throws IOException {
+		System.out.println("Making mini sect RI plot!");
+		
+		BatchPlotGen.writeMisfitsCSV(dir, prefix, plot.misfitsMap);
+	}
+	
+	public static class MisfitTable extends CompoundFSSPlots {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private ConcurrentMap<VariableLogicTreeBranch, Map<String, Double>> misfitsMap = Maps.newConcurrentMap();
+		
+		public MisfitTable() {
+			
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol, int solIndex) {
+			VariableLogicTreeBranch vbr = new VariableLogicTreeBranch(branch, null);
+			FaultModels fm = sol.getFaultModel();
+			
+			InversionFaultSystemSolution invSol = null;
+			
+			if (sol instanceof InversionFaultSystemSolution)
+				invSol = (InversionFaultSystemSolution)sol;
+			else
+				invSol = new InversionFaultSystemSolution(sol);
+			
+			misfitsMap.putIfAbsent(vbr, invSol.getMisfits());
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				MisfitTable o = (MisfitTable)otherCalc;
+				misfitsMap.putAll(o.misfitsMap);
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return true;
 		}
 		
 	}
