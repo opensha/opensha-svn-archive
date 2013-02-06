@@ -244,16 +244,12 @@ public class DataUtilsTest {
 		DataUtils.sum(data);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public final void testSumIAE() {
-		DataUtils.sum(new double[0]);
-	}
-
 	@Test
 	public final void testSum() {
 		double[] array = {0,1,2,3,4};
 		double[] arrayNaN = {0,1,Double.NaN,3,4};
 		assertEquals(10.0, DataUtils.sum(array), 0.0);
+		assertEquals(0.0, DataUtils.sum(new double[0]), 0.0);
 		assertTrue(Double.isNaN(DataUtils.sum(arrayNaN)));
 	}
 	
@@ -261,12 +257,28 @@ public class DataUtilsTest {
 	public final void testAsWeights() {
 		double[] array = {0,1,2,3,4};
 		double[] expect = {0, 0.1, 0.2, 0.3, 0.4};
-		double[] arrayNaN = {0,1,Double.NaN,3,4};
-		double[] expectNaN = {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
 		assertArrayEquals(expect, DataUtils.asWeights(array), 0.0000000000000001);
-		assertArrayEquals(expectNaN, DataUtils.asWeights(arrayNaN), 0.0);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public final void testAsWeightsIAE1() { 
+		DataUtils.asWeights(new double[] {0,1,Double.NaN,3,4}); 
 	}
 
+	@Test (expected = IllegalArgumentException.class)
+	public final void testAsWeightsIAE2() { 
+		DataUtils.asWeights(new double[] {0,1,-3,4}); 
+	}
+
+	@Test (expected = IllegalArgumentException.class)
+	public final void testAsWeightsIAE3() { 
+		DataUtils.asWeights(new double[] {0,1,Double.POSITIVE_INFINITY,3,4}); 
+	}
+
+	@Test (expected = IllegalArgumentException.class)
+	public final void testAsWeightsIAE4() { 
+		DataUtils.asWeights(new double[] {0,0}); 
+	}
 
 	@Test
 	public final void testIsMonotonic() {
@@ -297,6 +309,21 @@ public class DataUtilsTest {
 		assertFalse(DataUtils.isMonotonic(DESCENDING, true, d6));
 	}
 	
+	@Test
+	public final void testIsPositive() {
+		
+		double[] d0 = {1, 2, 3};
+		double[] d1 = {-2, -1, 0, 1, 2};
+		double[] d2 = {0, 1, 2, -2, -1, 0};
+		double[] d3 = {1, 1, 2, 2, Double.NEGATIVE_INFINITY, 4};
+		double[] d4 = {1, 1, 2, 2, Double.NaN, 4};
+		
+		assertTrue(DataUtils.isPositive(d0));
+		assertFalse(DataUtils.isPositive(d1));
+		assertFalse(DataUtils.isPositive(d2));
+		assertFalse(DataUtils.isPositive(d3));
+		assertFalse(DataUtils.isPositive(d4));
+	}
 	
 	@Test
 	public final void testPercentDiff() {

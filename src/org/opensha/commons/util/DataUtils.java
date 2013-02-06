@@ -37,6 +37,7 @@ import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -79,6 +80,16 @@ public class DataUtils {
 	 * We could probably intern commonly used scale functions.
 	 */
 	
+	private static final Range<Double> POS_RANGE = Range.open(0d,
+		Double.POSITIVE_INFINITY);
+
+	@SuppressWarnings("javadoc")
+	public enum Direction {
+		ASCENDING,
+		DESCENDING;
+	}
+
+
 	/**
 	 * Returns the difference between {@code test} and {@code target}, relative
 	 * to {@code target}, as a percent. If {@code target} is 0, method returns 0
@@ -94,14 +105,38 @@ public class DataUtils {
 		return Math.abs(test - target) / target * 100d;
 	}
 
-	@SuppressWarnings("javadoc")
-	public enum Direction {
-		ASCENDING,
-		DESCENDING;
-	}
-
 	/**
-	 * Returns whether the elements of the supplied {@code array} increase or
+	 * Returns whether the supplied {@code data} are all positive.
+	 * @param data to check
+	 * @return {@code true} if all values are &ge;0
+	 */
+	public static boolean isPositive(double... data) {
+		checkNotNull(data);
+		checkArgument(data.length > 0, "data is empty");
+		for (double d : data) {
+			if (d >= 0) continue;
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns whether the supplied {@code data} are all positive.
+	 * @param data to check
+	 * @return {@code true} if all values are &ge;0
+	 */
+	public static boolean isPositive(List<Double> data) {
+		checkNotNull(data);
+		checkArgument(data.size() > 0, "data is empty");
+		for (double d : data) {
+			if (d >= 0) continue;
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Returns whether the elements of the supplied {@code data} increase or
 	 * decrease monotonically, with a flag indicating if duplicate elements are
 	 * permitted. The {@code repeats} flag could be {@code false} if checking
 	 * the x-values of a function for any steps, or {@code true} if checking the
@@ -109,32 +144,32 @@ public class DataUtils {
 	 * constant.
 	 * @param dir direction of monotonicity
 	 * @param repeats whether repeated adjacent elements are allowed
-	 * @param array to validate
+	 * @param data to validate
 	 * @return {@code true} if monotonic, {@code false} otherwise
 	 */
 	public static boolean isMonotonic(Direction dir, boolean repeats,
-			double... array) {
+			double... data) {
 		checkNotNull(dir, "direction");
-		double[] diff = diff(array);
+		double[] diff = diff(data);
 		if (dir == DESCENDING) flip(diff);
 		double min = Doubles.min(diff);
 		return (repeats) ? min >= 0 : min > 0;
 	}
 
 	/**
-	 * Returns the difference of adjacent elements in the supplied {@code array}
-	 * . Method returns results in a new array that has {@code array.length - 1}
-	 * where differences are computed per {@code array[i+1] - array[i]}.
-	 * @param array to difference
+	 * Returns the difference of adjacent elements in the supplied {@code data}
+	 * . Method returns results in a new array that has {@code data.length - 1}
+	 * where differences are computed per {@code data[i+1] - data[i]}.
+	 * @param data to difference
 	 * @return the differences between adjacent values
 	 */
-	public static double[] diff(double... array) {
-		checkNotNull(array);
-		checkArgument(array.length > 1);
-		int size = array.length - 1;
+	public static double[] diff(double... data) {
+		checkNotNull(data);
+		checkArgument(data.length > 1);
+		int size = data.length - 1;
 		double[] diff = new double[size];
 		for (int i = 0; i < size; i++) {
-			diff[i] = array[i + 1] - array[i];
+			diff[i] = data[i + 1] - data[i];
 		}
 		return diff;
 	}
@@ -388,42 +423,48 @@ public class DataUtils {
 		double infTest = 1d/0;
 		System.out.println(infTest);
 		System.out.println(sum(new double[] {0,Double.NaN,2,3,4,5}));
+		System.out.println("===");
+		System.out.println(Double.POSITIVE_INFINITY + 3);
+		System.out.println(Double.NEGATIVE_INFINITY < 0);
+		System.out.println("===");
+		Range<Double> range = Range.open(0d, Double.POSITIVE_INFINITY);
+		System.out.println(range.contains(Double.POSITIVE_INFINITY));
 	}
 	
 	/**
 	 * Converts the elements of {@code data} to weights, in place, such that
-	 * they sum to 1. Returned reference to {@code data} will contain only
-	 * {@code Double.NaN} if any element is {@code Double.NaN}.
+	 * they sum to 1.
 	 * @param data to convert
 	 * @return a reference to the supplied array
-	 * @throws IllegalArgumentException if {@code array} is empty or contains
-	 *         values that sum to 0
+	 * @throws IllegalArgumentException if {@code data} is empty, contains any
+	 *         {@code Double.NaN} or negative values, or sums to a value outside
+	 *         the range {@code (0..Double.POSITIVE_INFINITY)}
 	 */
 	public static double[] asWeights(double... data) {
+		checkArgument(isPositive(data));
 		double sum = sum(data);
-		checkArgument(sum > 0);
+		checkArgument(POS_RANGE.contains(sum));
 		double scale = 1d / sum;
 		return scale(scale, data);
 	}
 
 	/**
 	 * Converts the elements of {@code data} to weights, in place, such that
-	 * they sum to 1. Returned reference to {@code data} will contain only
-	 * {@code Double.NaN} if any element is {@code Double.NaN}.
+	 * they sum to 1.
 	 * @param data to convert
 	 * @return a reference to the supplied array
-	 * @throws IllegalArgumentException if {@code array} is empty or contains
-	 *         values that sum to 0
+	 * @throws IllegalArgumentException if {@code data} is empty, contains any
+	 *         {@code Double.NaN} or negative values, or sums to a value outside
+	 *         the range {@code (0..Double.POSITIVE_INFINITY)}
 	 */
 	public static List<Double> asWeights(List<Double> data) {
+		checkArgument(isPositive(data));
 		double sum = sum(data);
-		checkArgument(sum > 0);
+		checkArgument(POS_RANGE.contains(sum));
 		double scale = 1d / sum;
 		return scale(scale, data);
 	}
 
-	// TODO length checks probably not necessary; just return empty array
-	
 	/**
 	 * Transforms the supplied {@code data} in place as per the supplied
 	 * {@code function}'s {@link Function#apply(Object)} method.
