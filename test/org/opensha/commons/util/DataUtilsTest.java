@@ -7,6 +7,7 @@ import static org.opensha.commons.util.DataUtils.Direction.DESCENDING;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
@@ -154,15 +155,17 @@ public class DataUtilsTest {
 	}
 	
 	@Test(expected=NullPointerException.class)
-	public final void testTransformNPE() {
-		DataUtils.scale(5, null);
+	public final void testTransformNPE1() {
+		double[] testVals = null;
+		DataUtils.scale(5, testVals);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public final void testTransformIAE() {
-		DataUtils.scale(5);
+	@Test(expected=NullPointerException.class)
+	public final void testTransformNPE2() {
+		List<Double> testVals = null;
+		DataUtils.scale(5, testVals);
 	}
-	
+
 	@Test
 	public final void testAdd() {
 		double[] dat = Arrays.copyOf(utility, utility.length);
@@ -237,7 +240,8 @@ public class DataUtilsTest {
 	
 	@Test(expected=NullPointerException.class)
 	public final void testSumNPE() {
-		DataUtils.sum(null);
+		double[] data = null;
+		DataUtils.sum(data);
 	}
 
 	@Test(expected=IllegalArgumentException.class)

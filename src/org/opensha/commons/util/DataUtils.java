@@ -41,7 +41,7 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 /**
- * Utilities for operating on {@code double}-values data. This class: <ul>
+ * Utilities for operating on {@code double}-valued data. This class: <ul>
  * <li>should probably be enhanced to work with {@code Double}
  * {@code Collection}s</li> <li>could be renamed to DoubleUtils or something
  * funny like Dubbles</li> </p>
@@ -49,6 +49,12 @@ import com.google.common.primitives.Ints;
  * <p>See {@link Doubles}  minimum, maximum, sum,
  * mean, product, etc... of {@code double} arrays as well as other
  * properties</p>
+ * 
+ * <p>Transformations of {@code double} arrays or {@code List}s may be
+ * performed on empty data sets; {@code null} data sets throw an exception.</p>
+ * 
+ * <p>Class designed to reduce data copying hence why List variants do not
+ * call toArray() and delegate to varargs variant.</p>
  * 
  * @author Peter Powers
  * @author Kevin Milner
@@ -197,174 +203,258 @@ public class DataUtils {
 	}	
 
 	/**
-	 * Scales (multiplies) the elements of the supplied {@code array} in place
+	 * Scales (multiplies) the elements of the supplied {@code data} in place
 	 * by {@code value}.
 	 * 
 	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
-	 * @param array to scale
+	 * @param data to scale
 	 * @param value to scale by
-	 * @return a reference to the supplied array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @return a reference to the supplied data
 	 */
-	public static double[] scale(double value, double... array) {
-		return transform(new Scale(value), array);
+	public static double[] scale(double value, double... data) {
+		return transform(new Scale(value), data);
 	}
-	
+
 	/**
-	 * Adds the {@code value} to the supplied {@code array} in place.
+	 * Scales (multiplies) the elements of the supplied {@code List} in place
+	 * by {@code value}.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
+	 * @param list of {@code Double}s to scale
+	 * @param value to scale by
+	 * @return a reference to the supplied data
+	 */
+	public static List<Double> scale(double value, List<Double> list) {
+		return transform(new Scale(value), list);
+	}
+
+	/**
+	 * Adds the {@code value} to the supplied {@code data} in place.
 	 * 
 	 * <p><b>Note:</b> This method does not check for over/underrun.</p>
-	 * @param array to add to
+	 * @param data to add to
 	 * @param value to add
-	 * @return a reference to the supplied array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @return a reference to the supplied data
 	 */
-	public static double[] add(double value, double... array) {
-		return transform(new Add(value), array);
+	public static double[] add(double value, double... data) {
+		return transform(new Add(value), data);
 	}
 	
 	/**
-	 * Sets every element of the supplied {@code array} to its absolute value.
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * Adds the values of {@code data2} to {@code data1} ad returns a reference
+	 * to {@code data1}.
+	 * @param data1 array 
+	 * @param data2
+	 * @return a reference to {@code data1}
 	 */
-	public static double[] abs(double... array) {
-		return transform(ABS, array);
+	public static double[] add(double[] data1, double[] data2) {
+		checkArgument(checkNotNull(data1).length == checkNotNull(data2).length);
+		for (int i=0; i<data1.length; i++) {
+			data1[i] += data2[i];
+		}
+		return data1; 
+	}
+	
+	/**
+	 * Adds the values of {@code data2} to {@code data1} ad returns a reference
+	 * to {@code data1}.
+	 * @param data1 array 
+	 * @param data2
+	 * @return a reference to {@code data1}
+	 */
+	public static List<Double> add(List<Double> data1, List<Double> data2) {
+		checkArgument(checkNotNull(data1).size() == checkNotNull(data2).size());
+		for (int i=0; i<data1.size(); i++) {
+			data1.set(i, data1.get(i) + data2.get(i));
+		}
+		return data1;
+	}
+
+	/**
+	 * Sets every element of the supplied {@code data} to its absolute value.
+	 * @param data to operate on
+	 * @return a reference to the data
+	 */
+	public static double[] abs(double... data) {
+		return transform(ABS, data);
 	}
 	
 	/**
 	 * Applies the exponential function to every element of the supplied 
-	 * {@code array}.
+	 * {@code data}.
 	 * 
 	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @param data to operate on
+	 * @return a reference to the data
 	 */
-	public static double[] exp(double... array) {
-		return transform(EXP, array);
+	public static double[] exp(double... data) {
+		return transform(EXP, data);
 	}
 
 	/**
 	 * Applies the natural log function to every element of the supplied 
-	 * {@code array}.
+	 * {@code data}.
 	 * 
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @param data to operate on
+	 * @return a reference to the data
 	 */
-	public static double[] ln(double... array) {
-		return transform(LN, array);
+	public static double[] ln(double... data) {
+		return transform(LN, data);
 	}
 
 	/**
 	 * Applies the base-10 log function to every element of the supplied 
-	 * {@code array}.
+	 * {@code data}.
 	 * 
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @param data to operate on
+	 * @return a reference to the data
 	 */
-	public static double[] log(double... array) {
-		return transform(LOG, array);
+	public static double[] log(double... data) {
+		return transform(LOG, data);
 	}
 
 	/**
-	 * Flips the sign of every element in the supplied {@code array}.
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * Flips the sign of every element in the supplied {@code data}.
+	 * @param data to operate on
+	 * @return a reference to the data
 	 */
-	public static double[] flip(double... array) {
-		return transform(new Scale(-1), array);
+	public static double[] flip(double... data) {
+		return transform(new Scale(-1), data);
 	}
 	
 	/**
 	 * Returns the minimum of the supplied values. Method delegates to
 	 * {@link Doubles#min(double...)}. Method returns {@code Double.NaN} if
-	 * array contains {@code Double.NaN}.
+	 * {@code data} contains {@code Double.NaN}.
 	 * 
-	 * @param array of values to search
+	 * @param data array to search
 	 * @return the minimum of the supplied values
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @throws IllegalArgumentException if {@code data} is empty
 	 * @see Doubles#min(double...)
 	 */
-	public static double min(double... array) {
-		return Doubles.min(array);
+	public static double min(double... data) {
+		return Doubles.min(data);
 	}
 	
 	/**
 	 * Returns the maximum of the supplied values. Method delegates to
 	 * {@link Doubles#max(double...)}. Method returns {@code Double.NaN} if
-	 * array contains {@code Double.NaN}.
+	 * {@code data} contains {@code Double.NaN}.
 	 * 
-	 * @param array of values to search
+	 * @param data array to search
 	 * @return the maximum of the supplied values
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @throws IllegalArgumentException if {@code data} is empty
 	 * @see Doubles#max(double...)
 	 */
-	public static double max(double... array) {
-		return Doubles.max(array);
+	public static double max(double... data) {
+		return Doubles.max(data);
 	}
 
 	/**
 	 * Returns the sum of the supplied values. Method returns {@code Double.NaN}
-	 * if array contains {@code Double.NaN}.
+	 * if {@code data} contains {@code Double.NaN}.
 	 * 
 	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
-	 * @param array of values to add together
+	 * @param data to add together
 	 * @return the sum of the supplied values
-	 * @throws IllegalArgumentException if {@code array} is empty
 	 */
-	public static double sum(double... array) {
-		checkNotNull(array, "array");
-		checkArgument(array.length > 0, "empty array");
+	public static double sum(double... data) {
+		checkNotNull(data);
 		double sum = 0;
-		for (double d : array) {
+		for (double d : data) {
 			sum += d;
 		}
 		return sum;
 	}
 	
+	/**
+	 * Returns the sum of the supplied values. Method returns {@code Double.NaN}
+	 * if {@code data} contains {@code Double.NaN}.
+	 * 
+	 * <p><b>Note:</b> This method does not check for over/underflow.</p>
+	 * @param data to add together
+	 * @return the sum of the supplied values
+	 */
+	public static double sum(List<Double> data) {
+		checkNotNull(data);
+		double sum = 0;
+		for (double d : data) {
+			sum += d;
+		}
+		return sum;
+	}
+
 	public static void main(String[] args) {
+		double infTest = 1d/0;
+		System.out.println(infTest);
 		System.out.println(sum(new double[] {0,Double.NaN,2,3,4,5}));
 	}
 	
 	/**
-	 * Converts the elements of the supplied array to weights, in place, such
-	 * that they sum to 1. Array will contain only {@code Double.NaN} if any
-	 * element is {@code Double.NaN}.
-	 * @param array to convert
+	 * Converts the elements of {@code data} to weights, in place, such that
+	 * they sum to 1. Returned reference to {@code data} will contain only
+	 * {@code Double.NaN} if any element is {@code Double.NaN}.
+	 * @param data to convert
 	 * @return a reference to the supplied array
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @throws IllegalArgumentException if {@code array} is empty or contains
+	 *         values that sum to 0
 	 */
-	public static double[] asWeights(double... array) {
-		double scale = 1d / sum(array);
-		return scale(scale, array);
+	public static double[] asWeights(double... data) {
+		double sum = sum(data);
+		checkArgument(sum > 0);
+		double scale = 1d / sum;
+		return scale(scale, data);
 	}
-		
+
 	/**
-	 * Transforms the supplied {@code array} in place as per the supplied
+	 * Converts the elements of {@code data} to weights, in place, such that
+	 * they sum to 1. Returned reference to {@code data} will contain only
+	 * {@code Double.NaN} if any element is {@code Double.NaN}.
+	 * @param data to convert
+	 * @return a reference to the supplied array
+	 * @throws IllegalArgumentException if {@code array} is empty or contains
+	 *         values that sum to 0
+	 */
+	public static List<Double> asWeights(List<Double> data) {
+		double sum = sum(data);
+		checkArgument(sum > 0);
+		double scale = 1d / sum;
+		return scale(scale, data);
+	}
+
+	// TODO length checks probably not necessary; just return empty array
+	
+	/**
+	 * Transforms the supplied {@code data} in place as per the supplied
 	 * {@code function}'s {@link Function#apply(Object)} method.
-	 * @param function to apply to array elements
-	 * @param array to operate on
-	 * @return a reference to the array
-	 * @throws NullPointerException if {@code array} or {@code function} are
-	 *         {@code null}
-	 * @throws IllegalArgumentException if {@code array} is empty
+	 * @param function to apply to data elements
+	 * @param data to operate on
+	 * @return a reference to the supplied {@code data} array
 	 */
 	private static double[] transform(Function<Double, Double> function,
-			double... array) {
-		// checkNotNull(function, "function"); uncomment if public
-		checkNotNull(array, "array");
-		checkArgument(array.length > 0, "empty array");
-		for (int i = 0; i < array.length; i++) {
-			array[i] = function.apply(array[i]);
+			double... data) {
+		checkNotNull(data);
+		for (int i = 0; i < data.length; i++) {
+			data[i] = function.apply(data[i]);
 		}
-		return array;
+		return data;
 	}	
 	
+	/**
+	 * Transforms the supplied {@code data} in place as per the supplied
+	 * {@code function}'s {@link Function#apply(Object)} method.
+	 * @param function to apply to data elements
+	 * @param data to operate on
+	 * @return a reference to the supplied {@code data} array
+	 */
+	private static List<Double> transform(Function<Double, Double> function,
+			List<Double> data) {
+		checkNotNull(data);
+		for (int i = 0; i < data.size(); i++) {
+			data.set(i, function.apply(data.get(i)));
+		}
+		return data;
+	}	
 	
 	// @formatter:off
 	
