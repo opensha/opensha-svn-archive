@@ -437,7 +437,7 @@ public class FaultParser {
 	static void skipHeader1(Iterator<String> it) {
 		int numSta = readInt(it.next(), 0); // grid of sites or station list
 		// skip num station lines or lat lon bounds (2 lines)
-		Iterators.skip(it, (numSta > 0) ? numSta : 2);
+		Iterators.advance(it, (numSta > 0) ? numSta : 2);
 		it.next(); // site data (Vs30) and Campbell basin depth
 	}
 	
@@ -445,12 +445,12 @@ public class FaultParser {
 		int nP = readInt(it.next(), 0); // num periods
 		for (int i = 0; i < nP; i++) {
 			double epi = readDouble(it.next(), 1); // period w/ epi. unc. flag
-			if (epi > 0) Iterators.skip(it, 3); 
+			if (epi > 0) Iterators.advance(it, 3); 
 			it.next(); // out file
 			it.next(); // num ground motion values
 			it.next(); // ground motion values
 			int nAR = readInt(it.next(), 0); // num atten. rel.
-			Iterators.skip(it, nAR); // atten rel
+			Iterators.advance(it, nAR); // atten rel
 		}
 		it.next(); // distance sampling on fault and dMove
 	}

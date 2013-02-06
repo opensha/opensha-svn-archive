@@ -143,14 +143,14 @@ public class SubductionParser {
 	private static void skipHeader(Iterator<String> it) {
 		int numSta = readInt(it.next(), 0); // grid of sites or station list
 		// skip num station lines or lat lon bounds (2 lines)
-		Iterators.skip(it, (numSta > 0) ? numSta : 2);
+		Iterators.advance(it, (numSta > 0) ? numSta : 2);
 		it.next(); // site data (Vs30)
 		int nP = readInt(it.next(), 0); // num periods
 		for (int i = 0; i < nP; i++) {
 			it.next(); // period
 			it.next(); // out file
 			int nAR = readInt(it.next(), 0); // num atten. rel.
-			Iterators.skip(it, nAR); // atten rel
+			Iterators.advance(it, nAR); // atten rel
 			it.next(); // num ground motion values
 			it.next(); // ground motion values
 		}

@@ -97,7 +97,7 @@ public class GridParser {
 		// grid of sites (1-30) or station list (0)
 		int numSta = readInt(it.next(), 0);
 		// skip stations or lat-lon bounds
-		Iterators.skip(it, (numSta > 0) ? numSta : 2);
+		Iterators.advance(it, (numSta > 0) ? numSta : 2);
 		// skip site data (Vs30) and Campbell basin depth
 		it.next();
 		// read rupture top data (num, [z, wt M<=6.5, wt M>6.5], ...)
