@@ -394,6 +394,10 @@ public class InversionConfiguration {
 			System.out.println("Setting slip rate constraint wt: "+slipRateConstraintWt);
 		}
 		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.NO_WEIGHT_SLIP_RATES.getArgName())) {
+			weightSlipRates = false;
+		}
+		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		

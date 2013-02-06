@@ -604,7 +604,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p2-convergence";
+		String runName = "no-slip-rate-weighting";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -643,7 +643,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 100;
+		int numRuns = 1;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -657,11 +657,11 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-//		TreeTrimmer trimmer = getCustomTrimmer();
+		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 //				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -688,7 +688,7 @@ public class LogicTreePBSWriter {
 		
 		
 		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
 //		TreeTrimmer defaultBranchesTrimmer = null;
@@ -735,6 +735,10 @@ public class LogicTreePBSWriter {
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+		
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };

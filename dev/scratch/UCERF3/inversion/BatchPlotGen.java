@@ -125,7 +125,7 @@ public class BatchPlotGen {
 					misfitNames.add(name);
 		Collections.sort(misfitNames);
 
-		File misfitsCSV = new File(dir, dir.getName()+"_misfits.csv");
+		File misfitsCSV = new File(dir, prefix+"_misfits.csv");
 
 		int numLogicTreeElems = -1;
 		for (VariableLogicTreeBranch branch : misfitsMap.keySet()) {

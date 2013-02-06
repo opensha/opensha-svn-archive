@@ -1,5 +1,6 @@
 package scratch.UCERF3.logicTree;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,7 +25,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>, Cloneable {
+public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>, Cloneable, Serializable {
 	
 	/**
 	 * This is the default reference branch

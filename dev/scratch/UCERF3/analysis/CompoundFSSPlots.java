@@ -3891,6 +3891,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof PaleoRatesTable) {
 				PaleoRatesTable aveSlip = (PaleoRatesTable)plot;
 				CompoundFSSPlots.writePaleoRatesTables(aveSlip, dir, prefix);
+			} else if (plot instanceof MisfitTable) {
+				MisfitTable table = (MisfitTable)plot;
+				BatchPlotGen.writeMisfitsCSV(dir, prefix, table.misfitsMap);
 			} else if (plot instanceof MapBasedPlot) {
 				MapBasedPlot faultPlot = (MapBasedPlot)plot;
 				faultPlot.writePlotData(dir);

@@ -111,6 +111,7 @@ public class CommandLineInversionRunner {
 				"MFD smoothness constraint weight for peleo parent sects"),
 		REMOVE_OUTLIER_FAULTS("removefaults", "remove-faults", "RemoveFaults", false, "Remove some outlier high slip faults."),
 		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt"),
+		NO_WEIGHT_SLIP_RATES("nowtslip", "no-weight-slips", "NoWeightSlip", false, "Flag to disable slip rate weighting"),
 		SERIAL("serial", "force-serial", "Serial", false, "Force serial annealing"),
 		SYNTHETIC("syn", "synthetic", "Synthetic", false, "Synthetic data from solution rates named syn.bin.");
 
