@@ -17,6 +17,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
@@ -339,15 +340,17 @@ public class NSHMP_PlotUtils {
 
 	private static void makeRatioPlot(GeoDataSet xyz, double[] bounds,
 			double scaleMin, double scaleMax, String name, String title) {
-		GMT_MapGenerator map = create(bounds);
-		map.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
-		map.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
-		CPTParameter cptParam = (CPTParameter) map.getAdjustableParamsList()
+		GMT_MapGenerator mapGen = create(bounds);
+		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
+		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
+		CPTParameter cptParam = (CPTParameter) mapGen.getAdjustableParamsList()
 				.getParameter(CPT_PARAM_NAME);
 			cptParam.setValue(GMT_CPT_Files.GMT_POLAR.getFileName());
-		map.setParameter(LOG_PLOT_NAME, false);
+		mapGen.setParameter(LOG_PLOT_NAME, false);
 		try {
-			makeMap(xyz, map, title, "No metadata", DL_DIR + name + File.separator);
+			GMT_Map map = mapGen.getGMTMapSpecification(xyz);
+			map.setCustomLabel(title);
+			makeMap(map, mapGen, "No metadata", DL_DIR + name + File.separator);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -363,15 +366,17 @@ public class NSHMP_PlotUtils {
 	
 	private static void makeMapPlot(GeoDataSet xyz, double[] bounds,
 			double scaleMin, double scaleMax, String name, GMT_CPT_Files cpt) {
-		GMT_MapGenerator map = create(bounds);
-		map.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
-		map.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
-		CPTParameter cptParam = (CPTParameter) map.getAdjustableParamsList()
+		GMT_MapGenerator mapGen = create(bounds);
+		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, scaleMin);
+		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, scaleMax);
+		CPTParameter cptParam = (CPTParameter) mapGen.getAdjustableParamsList()
 				.getParameter(CPT_PARAM_NAME);
 		cptParam.setValue(cpt.getFileName());
-		map.setParameter(LOG_PLOT_NAME, false);
+		mapGen.setParameter(LOG_PLOT_NAME, false);
 		try {
-			makeMap(xyz, map, name, "No metadata", DL_DIR + name + File.separator);
+			GMT_Map map = mapGen.getGMTMapSpecification(xyz);
+			map.setCustomLabel(name);
+			makeMap(map, mapGen, "No metadata", DL_DIR + name + File.separator);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -421,12 +426,12 @@ public class NSHMP_PlotUtils {
 	 * @param dlDir
 	 * @throws IOException
 	 */
-	public static void makeMap(GeoDataSet xyz,
-			GMT_MapGenerator gmt_MapGenerator, String scaleLabel,
+	public static void makeMap(GMT_Map map,
+			GMT_MapGenerator gmt_MapGenerator,
 			String metadata, String dlDir) throws IOException {
 		try {
-			if(makeMapOnServer) {
-				String url = gmt_MapGenerator.makeMapUsingServlet(xyz, scaleLabel, metadata, null);
+//			if(makeMapOnServer) {
+				String url = gmt_MapGenerator.makeMapUsingServlet(map, metadata, null);
 				metadata += GMT_MapGuiBean.getClickHereHTML(gmt_MapGenerator.getGMTFilesWebAddress());
 				File zipFile = new File(dlDir, "allFiles.zip");
 				Files.createParentDirs(zipFile);
@@ -435,9 +440,9 @@ public class NSHMP_PlotUtils {
 				FileUtils.downloadURL(zipURL, zipFile);
 				FileUtils.unzipFile(zipFile, new File(dlDir));
 				new ImageViewerWindow(url,metadata, true);
-			} else {
-				gmt_MapGenerator.makeMapLocally(xyz, scaleLabel, metadata, dlDir);
-			}
+//			} else {
+//				gmt_MapGenerator.makeMapLocally(xyz, scaleLabel, metadata, dlDir);
+//			}
 		} catch (GMT_MapException e) {
 			e.printStackTrace();
 		}

@@ -1,5 +1,6 @@
 package scratch.peter.nshmp;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static scratch.peter.nshmp.NSHMP_UtilsDev.*;
 
 import java.io.File;
@@ -12,8 +13,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
+
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -34,7 +39,8 @@ import com.google.common.primitives.Doubles;
  * http://earthquake.usgs.gov/hazards/products/conterminous/2008/data/
  * 
  * and on related pages (see comments at bottom of class for formatting
- * variants), or OpenSHA regional and national curve data sets.
+ * variants), or OpenSHA regional and national curve data sets. Class does not
+ * specify whether curves are probability or rate based.
  *
  * @author Peter Powers
  * @version $Id:$
@@ -69,6 +75,31 @@ public class CurveContainer implements Iterable<Location> {
 	 */
 	public int size() {
 		return ysMap.size();
+	}
+	
+	/**
+	 * Scales the contained curves in place by the supplied value.
+	 * @param scale
+	 * @return a reference to {@code this} (for inlining and chaining)
+	 */
+	public CurveContainer scale(double scale) {
+		for (List<Double> values : ysMap.values()) {
+			DataUtils.scale(scale, values);
+		}
+		return this;
+	}
+	
+	/**
+	 * Adds the curves of the supplied container to this one.
+	 * @param cc container to add
+	 * @throws IllegalArgumentException if underlying gridded regions are not
+	 *         the same
+	 */
+	public void add(CurveContainer cc) {
+		checkArgument(region.equals(cc.region));
+		for (Integer idx : ysMap.keySet()) {
+			DataUtils.add(ysMap.get(idx), cc.ysMap.get(idx)) ;
+		}
 	}
 	
 	@Override
@@ -117,6 +148,8 @@ public class CurveContainer implements Iterable<Location> {
 		}
 		return curves;
 	}
+	
+	
 
 
 	static class CurveFileProcessor_NSHMP implements LineProcessor<CurveContainer> {
@@ -241,17 +274,62 @@ public class CurveContainer implements Iterable<Location> {
 //		System.out.println("size: " + cc.size());
 //		System.out.println(cc.getCurve(NEHRP_TestCity.LOS_ANGELES.location()));
 
-		File f = new File("/Volumes/Scratch/nshmp-cf/MEMPHIS/GM0P00/curves.csv");
-		Stopwatch sw = new Stopwatch();
-		sw.start();
-		CurveContainer cc = CurveContainer.create(f, TestGrid.MEMPHIS);
-		sw.stop();
-		System.out.println("time: " + sw.elapsedMillis());
-		System.out.println("size: " + cc.size());
-		System.out.println(cc.getCurve(NEHRP_TestCity.MEMPHIS.location()));
+//		// testing curve container addition
+//		File f1 = new File("/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/src/FM-DM-MS-DSR-UV/FM3_1_ABM_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_0p1/CA_RELM/GM0P00/curves.csv");
+//		File f2 = new File("/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/src/FM-DM-MS-DSR-UV/FM3_1_GEOL_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_0p1/CA_RELM/GM0P00/curves.csv");
+//		File f3 = new File("/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/src/FM-DM-MS-DSR-UV/FM3_1_NEOK_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_0p1/CA_RELM/GM0P00/curves.csv");
+//		CurveContainer cc1 = CurveContainer.create(f1, TestGrid.CA_RELM);
+//		CurveContainer cc2 = CurveContainer.create(f2, TestGrid.CA_RELM);
+//		CurveContainer cc3 = CurveContainer.create(f3, TestGrid.CA_RELM);
+//		
+//		Location loc = NEHRP_TestCity.LOS_ANGELES.location();
+//		
+//		System.out.println(cc1.getCurve(loc));
+//		System.out.println(cc2.getCurve(loc));
+//		System.out.println(cc3.getCurve(loc));
+//		
+//		cc1.add(cc2);
+//		System.out.println(cc1.getCurve(loc));
+//		
+//		cc1.add(cc3);
+//		System.out.println(cc1.getCurve(loc));
+		
+	
+//		// testing curve container scaling
+//		File f1 = new File("/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/src/FM-DM-MS-DSR-UV/FM3_1_ABM_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2_0p1/CA_RELM/GM0P00/curves.csv");
+//		CurveContainer cc1 = CurveContainer.create(f1, TestGrid.CA_RELM);
+//		Location loc = NEHRP_TestCity.LOS_ANGELES.location();
+//		System.out.println(cc1.getCurve(loc));
+//		cc1.scale(0.5);
+//		System.out.println(cc1.getCurve(loc));
+		
+
+//		String ltbID = "FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU2";
+//		LogicTreeBranch ltb = LogicTreeBranch.fromFileName(ltbID);
+//		System.out.println(ltb.getAprioriBranchWt());
+		
+//		File f = new File("/Volumes/Scratch/nshmp-cf/MEMPHIS/GM0P00/curves.csv");
+//		Stopwatch sw = new Stopwatch();
+//		sw.start();
+//		CurveContainer cc = CurveContainer.create(f, TestGrid.MEMPHIS);
+//		sw.stop();
+//		System.out.println("time: " + sw.elapsedMillis());
+//		System.out.println("size: " + cc.size());
+//		System.out.println(cc.getCurve(NEHRP_TestCity.MEMPHIS.location()));
 		
 //		GriddedRegion gr = TestGrid.MEMPHIS.grid();
 //		System.out.println(gr.indexForLocation(NEHRP_TestCity.MEMPHIS.location()));
+		
+		LogicTreeBranch branch = LogicTreeBranch.fromFileName("FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2");
+		System.out.println(branch);
+		System.out.println(branch.getValue(DeformationModels.class));
+		System.out.println(branch.getAprioriBranchWt());
+		if (branch.getValue(DeformationModels.class).equals(DeformationModels.ZENG)) {
+			branch.setValue(DeformationModels.ZENGBB);
+		}
+		System.out.println(branch);
+		System.out.println(branch.getValue(DeformationModels.class));
+		System.out.println(branch.getAprioriBranchWt());
 	}
 
 }
