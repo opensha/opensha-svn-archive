@@ -193,6 +193,7 @@ public class UC3_MapMaker {
 			throws IOException {
 
 		List<String> branchNames = Files.readLines(branchListFile, US_ASCII);
+		System.out.println("Loading: " + branchListFile.getName());
 		
 		// create wt list (subbing ZENGBB [wt=0.3] for ZENG [wt=0.0])
 		List<Double> wtList = Lists.newArrayList();
@@ -211,7 +212,7 @@ public class UC3_MapMaker {
 		
 		int idx = 0;
 		for (String brName : branchNames) {
-			System.out.println(brName);
+			if (idx % 100 == 0) System.out.print(idx + " ");
 			String brID = brName + suffix;
 			String brPath = srcDir + S + brID + S + cPath;
 			File brFile = new File(brPath);
@@ -224,6 +225,7 @@ public class UC3_MapMaker {
 				mapcc.add(cc);
 			}
 		}
+		System.out.println();
 		return NSHMP_DataUtils.extractPE(mapcc, gr, pe);
 	}
 	
@@ -524,27 +526,8 @@ public class UC3_MapMaker {
 
 
 	private static void generateBranchList() {
-		// dir = FM-DM-MS-DSR
-		// FM31-[DM]-[MS]-TAP-87-76-U3 / FM31-ZENG-S09M-TAP-87-76-U3
-		// FM31-[DM]-[MS]-UNI-87-76-U3 / FM31-ZENG-S09M-UNI-87-76-U3
-		// FM32-[DM]-[MS]-TAP-87-76-U3 / FM32-ZENG-S09M-TAP-87-76-U3
-		// FM32-[DM]-[MS]-UNI-87-76-U3 / FM32-ZENG-S09M-UNI-87-76-U3
 		
-		// dir = FM-DM-MS-DSR
-		// [FM]-ZENG-S09M-[DSR]-87-76-U3 / FM31-ZENG-S09M-TAP-87-76-U3
-		
-		// dir = FM-DM-MS-UV (for U2) FM-DM-MS-DSR (for U3)
-		// FM31-[DM]-S09M-TAP-87-76-U2 / FM31-ZENG-S09M-TAP-87-76-U2
-		// FM31-[DM]-S09M-TAP-87-76-U3 / FM31-ZENG-S09M-TAP-87-76-U2
-		// FM32-[DM]-S09M-TAP-87-76-U2 / FM32-ZENG-S09M-TAP-87-76-U2
-		// FM32-[DM]-S09M-TAP-87-76-U3 / FM32-ZENG-S09M-TAP-87-76-U2
-		
-		// dir = FM-M5-MM
-		// FM31-ZENG-S09M-TAP-[M5]-[MM]-U3 / FM31-ZENG-S09M-TAP-87-76-U3
-		// FM32-ZENG-S09M-TAP-[M5]-[MM]-U3 / FM32-ZENG-S09M-TAP-87-76-U3
-
-		
-		String fileName = "all";
+		String fileName = "M510";
 		Set<FaultModels> fltModels = EnumSet.of(
 			FM3_1, FM3_2); //FM3_2); // FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
@@ -559,7 +542,7 @@ public class UC3_MapMaker {
 		Set<InversionModels> invModels = EnumSet.of(
 			CHAR_CONSTRAINED);
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_7p6, RATE_8p7, RATE_10p0); //RATE_7p6, RATE_8p7, RATE_10p0);
+			RATE_10p0); //RATE_7p6, RATE_8p7, RATE_10p0);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
 			MAG_7p2, MAG_7p6, MAG_8p0); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(
