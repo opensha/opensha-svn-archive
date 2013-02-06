@@ -1,10 +1,10 @@
 #!/bin/bash
 
-JOBGROUP=UC32refBranch
+JOBGROUP=UC32-FM-DM-MS
 
 # Local config for script
 SHA_LOCAL=/Users/pmpowers/projects/OpenSHA
-DIST_LOCAL=/$SHA_LOCAL/dist
+DIST_LOCAL=$SHA_LOCAL/dist
 LIB_LOCAL=$SHA_LOCAL/lib
 TMP_LOCAL=$SHA_LOCAL/tmp/invSolSets
 BRANCHLIST=$TMP_LOCAL/$JOBGROUP.txt

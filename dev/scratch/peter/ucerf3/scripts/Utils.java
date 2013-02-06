@@ -46,7 +46,7 @@ public class Utils {
 
 	public static void main(String[] args) {
 //		generateFullTreeBranchList("UC32tree1440");
-		generateBranchList("UC32refBranch");
+		generateBranchList("UC32-FM-DM-MS");
 	}
 	
 
@@ -80,11 +80,11 @@ public class Utils {
 	private static void generateBranchList(String fileName) {
 		
 		Set<FaultModels> fltModels = EnumSet.of(
-			FM3_1); // FM3_1, FM3_2);
+			FM3_1, FM3_2); // FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
-			ZENGBB); // ABM, GEOLOGIC, NEOKINEMA, ZENGBB);
+			ABM, GEOLOGIC, NEOKINEMA, ZENGBB); // ABM, GEOLOGIC, NEOKINEMA, ZENGBB);
 		Set<ScalingRelationships> scalingRel = EnumSet.of(
-			SHAW_2009_MOD); //ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08, SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
+			ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08, SHAW_CONST_STRESS_DROP, SHAW_2009_MOD); //ELLSWORTH_B, ELLB_SQRT_LENGTH, HANKS_BAKUN_08, SHAW_CONST_STRESS_DROP, SHAW_2009_MOD);
 		Set<SlipAlongRuptureModels> slipRup = EnumSet.of(
 			TAPERED); //UNIFORM, TAPERED);
 		Set<InversionModels> invModels = EnumSet.of(

@@ -38,28 +38,31 @@ public class ScriptGenCurves {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 5) {
+		if (args.length != 6) {
 			System.out.println("USAGE: " +
 				ClassUtils.getClassNameWithoutPackage(ScriptGenCurves.class) +
-				" <filepath> <sitefile> <erfIndex> <javaLib> <outDir>");
+				" <script> <filepath> <sitefile> <erfIndex> <javaLib> <outDir>");
 			System.exit(1);
 		}
 
-		String filepath = args[0];
-		String sitefile = args[1];
-		int erfIndex = Integer.parseInt(args[2]);
-		String libDir = args[3];
-		String outDir = args[4];
+		String scriptpath = args[0];
+		String filepath = args[1];
+		String sitefile = args[2];
+		int erfIndex = Integer.parseInt(args[3]);
+		String libDir = args[4];
+		String outDir = args[5];
 
 		int hours = 1;
 		int nodes = 1;
 		String queue = "nbns";
 
-		writeScript(filepath, sitefile, libDir, outDir, erfIndex, hours, nodes, queue);
+		writeScript(scriptpath, filepath, sitefile, libDir, outDir, erfIndex,
+			hours, nodes, queue);
 	}
 
-	private static void writeScript(String filepath, String sitefile, String libDir,
-			String outDir, int erfIdx, int hrs, int nodes, String queue) {
+	private static void writeScript(String scriptpath, String filepath,
+			String sitefile, String libDir, String outDir, int erfIdx, int hrs,
+			int nodes, String queue) {
 		try {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
@@ -74,8 +77,7 @@ public class ScriptGenCurves {
 			HPCC_ScriptWriter writer = new HPCC_ScriptWriter();
 			script = writer.buildScript(script, hrs, nodes, 0, queue);
 
-			String pbsName = "UC3curveJob" + ".pbs";
-			File pbsFile = new File(pbsName);
+			File pbsFile = new File(scriptpath);
 			String scriptStr = J.join(script);
 			Files.write(scriptStr, pbsFile, Charsets.US_ASCII);
 		} catch (Exception e) {
