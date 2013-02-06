@@ -487,7 +487,7 @@ public class UC3_MapMaker {
 		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, log ? scale : 1+scale);
 		CPTParameter cptParam = (CPTParameter) mapGen.getAdjustableParamsList()
 				.getParameter(CPT_PARAM_NAME);
-		GMT_CPT_Files cpt = log ? GMT_CPT_Files.UCERF3_RATIOS_ALT : GMT_CPT_Files.GMT_POLAR;
+		GMT_CPT_Files cpt = log ? GMT_CPT_Files.UCERF3_HAZ_RATIO : GMT_CPT_Files.GMT_POLAR;
 		cptParam.setValue(cpt.getFileName());
 		mapGen.setParameter(LOG_PLOT_NAME, log ? true : false);
 		
