@@ -58,6 +58,7 @@ public class GeologicSlipRateLoader {
 		HSSFSheet sheet = wb.getSheetAt(0);
 		
 		boolean newTable = sheet.getRow(0).getCell(8).getStringCellValue().startsWith("ID");
+		boolean newerTable = sheet.getRow(0).getCell(10).getStringCellValue().startsWith("Site-specific Data");
 		
 		int latCol, lonCol, valCol, idCol;
 		
@@ -66,6 +67,11 @@ public class GeologicSlipRateLoader {
 			lonCol = 20;
 			valCol = 17;
 			idCol = 8;
+		} else if (newerTable) {
+			latCol = 12;
+			lonCol = 11;
+			valCol = 9;
+			idCol = 1;
 		} else {
 			latCol = 10;
 			lonCol = 9;
