@@ -276,9 +276,9 @@ public class DataUtils {
 	}
 	
 	/**
-	 * Adds the values of {@code data2} to {@code data1} ad returns a reference
+	 * Adds the values of {@code data2} to {@code data1} and returns a reference
 	 * to {@code data1}.
-	 * @param data1 array 
+	 * @param data1 
 	 * @param data2
 	 * @return a reference to {@code data1}
 	 */
@@ -291,9 +291,9 @@ public class DataUtils {
 	}
 	
 	/**
-	 * Adds the values of {@code data2} to {@code data1} ad returns a reference
+	 * Adds the values of {@code data2} to {@code data1} and returns a reference
 	 * to {@code data1}.
-	 * @param data1 array 
+	 * @param data1 
 	 * @param data2
 	 * @return a reference to {@code data1}
 	 */
@@ -301,6 +301,36 @@ public class DataUtils {
 		checkArgument(checkNotNull(data1).size() == checkNotNull(data2).size());
 		for (int i=0; i<data1.size(); i++) {
 			data1.set(i, data1.get(i) + data2.get(i));
+		}
+		return data1;
+	}
+
+	/**
+	 * Subtracts the values of {@code data2} from {@code data1} and returns a
+	 * reference to {@code data1}.
+	 * @param data1
+	 * @param data2
+	 * @return a reference to {@code data1}
+	 */
+	public static double[] subtract(double[] data1, double[] data2) {
+		checkArgument(checkNotNull(data1).length == checkNotNull(data2).length);
+		for (int i = 0; i < data1.length; i++) {
+			data1[i] -= data2[i];
+		}
+		return data1;
+	}
+
+	/**
+	 * Subtracts the values of {@code data2} from {@code data1} and returns a
+	 * reference to {@code data1}.
+	 * @param data1
+	 * @param data2
+	 * @return a reference to {@code data1}
+	 */
+	public static List<Double> subtract(List<Double> data1, List<Double> data2) {
+		checkArgument(checkNotNull(data1).size() == checkNotNull(data2).size());
+		for (int i = 0; i < data1.size(); i++) {
+			data1.set(i, data1.get(i) - data2.get(i));
 		}
 		return data1;
 	}
