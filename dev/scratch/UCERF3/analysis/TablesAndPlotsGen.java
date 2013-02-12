@@ -229,19 +229,19 @@ public class TablesAndPlotsGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		buildAveSlipDataTable(new File("/tmp/ave_slip_table.csv"));
-		System.exit(0);
+//		buildAveSlipDataTable(new File("/tmp/ave_slip_table.csv"));
+//		System.exit(0);
 //		makePreInversionMFDsFig();
-//		makeDefModSlipRateMaps();
+		makeDefModSlipRateMaps();
 		
 		
 //		int mojaveParentID = 301;
-		int littleSalmonParentID = 17;
-		AverageFaultSystemSolution aveSol = AverageFaultSystemSolution.fromZipFile(
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/" +
-						"InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
-						"_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip"));
-		makeParentSectConvergenceTable(new File("/tmp/little_salmon_onshore_rups_start_zero.csv"), aveSol, littleSalmonParentID);
+//		int littleSalmonParentID = 17;
+//		AverageFaultSystemSolution aveSol = AverageFaultSystemSolution.fromZipFile(
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/" +
+//						"InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
+//						"_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip"));
+//		makeParentSectConvergenceTable(new File("/tmp/little_salmon_onshore_rups_start_zero.csv"), aveSol, littleSalmonParentID);
 	}
 
 }

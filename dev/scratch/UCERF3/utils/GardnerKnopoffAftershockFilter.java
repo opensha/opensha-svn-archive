@@ -26,7 +26,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	
 	// fraction of events that are mainshocks >= M 5
 	// from Table 21 of Felzer's UCERF2 Appendix I (http://pubs.usgs.gov/of/2007/1437/i/of2007-1437i.pdf)
-	public final static double FRACT_MAINSH_GTM5 = 4.17/7.5;
+	public final static double FRACT_MAINSH_GTM5 = 4.17/7.5; // = 0.556
 
 	private static GardnerKnopoffAftershockFilter instance;
 	
@@ -130,6 +130,27 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		ArrayList<EvenlyDiscretizedFunc> incrMFDs = new ArrayList<EvenlyDiscretizedFunc>();
+		incrMFDs.add(allGR);
+		incrMFDs.add(mainGR);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(incrMFDs, "Incremental GR MFDs for Gardner-Knopoff filter", plotChars);
+		graph2.setX_AxisLabel("Magnitude");
+		graph2.setY_AxisLabel("Normalized Rate");
+		graph2.setAxisLabelFontSize(18);
+		graph2.setPlotLabelFontSize(20);
+		graph2.setTickLabelFontSize(16);
+		graph2.setX_AxisRange(5, 8);
+		graph2.setY_AxisRange(1e-3, 20);
+		graph2.setYLog(true);
+		try {
+			graph2.saveAsPDF("incrMFDsForGardnerKnopoffFilter.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 
 		plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
@@ -137,16 +158,16 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 		ArrayList<EvenlyDiscretizedFunc> filters = new ArrayList<EvenlyDiscretizedFunc>();
 		filters.add(this);
 		filters.add(getKarensFractions());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(filters, "Gardner-Knopoff filter", plotChars);
-		graph2.setX_AxisLabel("Magnitude");
-		graph2.setY_AxisLabel("Fraction Mainshocks (Incremental Distribution)");
-		graph2.setAxisLabelFontSize(18);
-		graph2.setPlotLabelFontSize(20);
-		graph2.setTickLabelFontSize(16);
-		graph2.setX_AxisRange(5, 8);
-		graph2.setY_AxisRange(0,1.2);
+		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(filters, "Gardner-Knopoff filter", plotChars);
+		graph3.setX_AxisLabel("Magnitude");
+		graph3.setY_AxisLabel("Fraction Mainshocks (Incremental Distribution)");
+		graph3.setAxisLabelFontSize(18);
+		graph3.setPlotLabelFontSize(20);
+		graph3.setTickLabelFontSize(16);
+		graph3.setX_AxisRange(5, 8);
+		graph3.setY_AxisRange(0,1.2);
 		try {
-			graph2.saveAsPDF("GardnerKnopoffFilter.pdf");
+			graph3.saveAsPDF("GardnerKnopoffFilter.pdf");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

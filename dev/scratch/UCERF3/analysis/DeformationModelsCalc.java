@@ -299,6 +299,152 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	
+	/**
+	 * This computes the average moment rate inside the given region, where the average
+	 * is over all fault and deformation models
+	 * 
+	 */
+	public static void writeAveMoRateOfParentSectionsInsideRegion(Region region) {
+		
+		ArrayList<Double> u3_MoRateInside = new ArrayList<Double>();
+		ArrayList<String> u3_SectNameInside = new ArrayList<String>();
+		
+		FaultModels[] fm_array = FaultModels.values();
+		DeformationModels[] dm_array = DeformationModels.values();
+		DeformationModelFetcher defFetch;
+		for(FaultModels fm:fm_array) {
+			for(DeformationModels dm:dm_array) {
+				if(fm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) > 0 && dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) > 0) {
+					defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+					System.out.println(fm+"\t"+fm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED)+"\t"+dm+"\t"+dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED));
+					for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+						StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+						double frcInside = surf.getFractionOfSurfaceInRegion(region);
+						if(frcInside > 1e-4) {
+							double moRate = frcInside*data.calcMomentRate(true)*fm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED)*dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED);
+							String u3_name = data.getParentSectionName();
+							if(!u3_SectNameInside.contains(u3_name)) {	// it's a new parent section
+								u3_SectNameInside.add(u3_name);
+								u3_MoRateInside.add(moRate) ;
+							}
+							else {
+								int index = u3_SectNameInside.indexOf(u3_name);
+								double newMoRate = u3_MoRateInside.get(index)+moRate;
+								u3_MoRateInside.set(index, newMoRate);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+
+		double total=0;
+		System.out.println("\nUCERF3 section moment rates inside "+region.getName()+":");
+		for(int i=0;i<u3_MoRateInside.size();i++) {
+			System.out.println((float)u3_MoRateInside.get(i).doubleValue()+"\t"+u3_SectNameInside.get(i));
+			total+= u3_MoRateInside.get(i);
+		}
+		System.out.println("UCERF3 total = "+(float)total);
+
+		
+
+		/** UCERF2 deformation model IDs:
+		 * D2.1 = 82
+		 * D2.2 = 83
+		 * D2.3 = 84
+		 * D2.4 = 85
+		 * D2.5 = 86
+		 * D2.6 = 87
+		 */
+		
+		int[] u2_dm_array = {82,83,84,85,86,87};
+		double[] u2_dm_wts_array = {0.5*0.5,0.5*0.2,0.5*0.3,0.5*0.5,0.5*0.2,0.5*0.3};
+		ArrayList<Double> u2_MoRateInside = new ArrayList<Double>();
+		ArrayList<String> u2_SectNameInside = new ArrayList<String>();
+
+		for(int i=0; i<u2_dm_array.length;i++) {
+			int dmID = u2_dm_array[i];
+			for(FaultSectionPrefData data : DeformationModelFetcher.getAll_UCERF2Sections(false, dmID)) {
+				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+				double frcInside = surf.getFractionOfSurfaceInRegion(region);
+				if(frcInside > 1e-4) {
+					double moRate = frcInside*data.calcMomentRate(true)*u2_dm_wts_array[i];
+					String u2_name = data.getSectionName();
+					if(!u2_SectNameInside.contains(u2_name)) {	// it's a new parent section
+						u2_SectNameInside.add(u2_name);
+						u2_MoRateInside.add(moRate) ;
+					}
+					else {
+						int index = u2_SectNameInside.indexOf(u2_name);
+						double newMoRate = u2_MoRateInside.get(index)+moRate;
+						u2_MoRateInside.set(index, newMoRate);
+					}
+				}
+			}
+		}
+
+		total=0;
+		System.out.println("\nUCERF2 section moment rates inside "+region.getName()+":");
+		for(int i=0;i<u2_MoRateInside.size();i++) {
+			System.out.println((float)u2_MoRateInside.get(i).doubleValue()+"\t"+u2_SectNameInside.get(i));
+			total+= u2_MoRateInside.get(i);
+		}
+		System.out.println("UCERF2 total = "+(float)total);
+
+
+		
+//		// these only map names that actually changed, not ones that didn't
+//		HashMap<String, String> u2nameFromU3NameMapFM3pt1 = null;
+//		HashMap<String, String> u2nameFromU3NameMapFM3pt2 = null;
+//		try {
+//			u2nameFromU3NameMapFM3pt1 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_1);
+//			u2nameFromU3NameMapFM3pt2 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_2);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		ArrayList<String> newFaultSectionsList = getListOfNewFaultSectionNames();
+//		
+//		
+//		double u3_total=0;
+//		double u2_total=0;
+//		System.out.println("\n\n");
+//		for(int i=0;i<moRateInside.length;i++) {
+//			if(moRateInside[i]>0) {
+//				String u3_name = fm3_sectionNamesList.get(i);
+//				double u3_moRate = moRateInside[i];
+//				u3_total += u3_moRate;
+//				
+//				// now get U2 values
+//				double u2_moRate = Double.NaN;
+//				String u2_name = u2nameFromU3NameMapFM3pt1.get(u3_name);
+//				if(u2_name == null)	// try again if that failed
+//					u2_name = u2nameFromU3NameMapFM3pt2.get(u3_name);
+//				if(u2_name == null)
+//					u2_name = u3_name;	// in case name didn't change
+//				if(newFaultSectionsList.contains(u2_name))	// set back to null if it's a new fault
+//					u2_name = null;
+//				else if(u2_name.equals("Green Valley 2011 CFM"))	// this is the one special case where previous sections were combined
+//					u2_name = null;
+//				if(u2_name != null && u2_SectNameInside.contains(u2_name)) {
+//					int index = u2_SectNameInside.indexOf(u2_name);
+//					u2_moRate = u2_MoRateInside.get(index);
+//					u2_total += u2_moRate;
+//				}
+////				System.out.println(u3_moRate+"\t"+u3_name+"\t"+u2_moRate+"\t"+u2_name);
+//				System.out.println(u3_name+"\t"+u2_name);
+//			}
+//		}		
+//		System.out.println("UCERF3 total = "+u3_total+"\n\n");
+//		System.out.println("UCERF2 total = "+u2_total+"\n\n");
+
+		
+	}
+	
+	
 	public static void writeMoRateOfParentSectionsForAllDefAndFaultModels() {
 		
 		// make a master list of fault sections
@@ -1360,7 +1506,7 @@ public class DeformationModelsCalc {
 	
 	
 	/**
-	 * This generates Figures in reports and talks
+	 * This generates Figures in reports and talks using only FM 3.1.
 	 */
 	public static void plotAllSpatialMoRateMaps() {
 		
@@ -1890,7 +2036,9 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
+		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
+		
+//		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
 
 //		plotAllSpatialMoRateMaps();
 		
