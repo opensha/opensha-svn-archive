@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -26,12 +27,22 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import com.google.common.collect.Lists;
@@ -302,14 +313,13 @@ public class DeformationModelsCalc {
 	
 	/**
 	 * This computes the average moment rate inside the given region, where the average
-	 * is over all fault and deformation models
+	 * is over all fault and deformation models.  UCERF2 is done as well.
 	 * 
 	 */
 	public static void writeAveMoRateOfParentSectionsInsideRegion(Region region) {
 		
 		ArrayList<Double> u3_MoRateInside = new ArrayList<Double>();
 		ArrayList<String> u3_SectNameInside = new ArrayList<String>();
-		
 		FaultModels[] fm_array = FaultModels.values();
 		DeformationModels[] dm_array = DeformationModels.values();
 		DeformationModelFetcher defFetch;
@@ -338,8 +348,6 @@ public class DeformationModelsCalc {
 				}
 			}
 		}
-		
-
 		double total=0;
 		System.out.println("\nUCERF3 section moment rates inside "+region.getName()+":");
 		for(int i=0;i<u3_MoRateInside.size();i++) {
@@ -358,12 +366,10 @@ public class DeformationModelsCalc {
 		 * D2.5 = 86
 		 * D2.6 = 87
 		 */
-		
 		int[] u2_dm_array = {82,83,84,85,86,87};
 		double[] u2_dm_wts_array = {0.5*0.5,0.5*0.2,0.5*0.3,0.5*0.5,0.5*0.2,0.5*0.3};
 		ArrayList<Double> u2_MoRateInside = new ArrayList<Double>();
 		ArrayList<String> u2_SectNameInside = new ArrayList<String>();
-
 		for(int i=0; i<u2_dm_array.length;i++) {
 			int dmID = u2_dm_array[i];
 			for(FaultSectionPrefData data : DeformationModelFetcher.getAll_UCERF2Sections(false, dmID)) {
@@ -384,7 +390,6 @@ public class DeformationModelsCalc {
 				}
 			}
 		}
-
 		total=0;
 		System.out.println("\nUCERF2 section moment rates inside "+region.getName()+":");
 		for(int i=0;i<u2_MoRateInside.size();i++) {
@@ -392,57 +397,157 @@ public class DeformationModelsCalc {
 			total+= u2_MoRateInside.get(i);
 		}
 		System.out.println("UCERF2 total = "+(float)total);
-
+	}
+	
+	
+	
+	/**
+	 * This computes the average moment rate inside the given region, where the average
+	 * is over all fault and deformation models.  UCERF2 is done as well.
+	 * 
+	 */
+	public static void writeParentSectionsNearSite(Location loc, int maxNumSectionsToList) {
+		
+		// Make distance func for hazard proxy
+		BA_2008_AttenRel ba2008 = new BA_2008_AttenRel(null);
+		// set SA with period = 1.0
+		ba2008.setIntensityMeasure(SA_Param.NAME);
+		ba2008.getParameter(PeriodParam.NAME).setValue(new Double(1.0));
+		double vs30	= 400;
+		double mag = 7;
+		String faultType = BA_2008_AttenRel.FLT_TYPE_UNKNOWN;
+		String component = ComponentParam.COMPONENT_GMRotI50;
+		
+		ba2008.getParameter(Vs30_Param.NAME).setValue(vs30);
+		ba2008.getParameter(MagParam.NAME).setValue(mag);
+		ba2008.getParameter(FaultTypeParam.NAME).setValue(faultType);
+		ba2008.getParameter(ComponentParam.NAME).setValue(component);
+		
+		EvenlyDiscretizedFunc imlVsDistFunc = new EvenlyDiscretizedFunc(0., 201., 202);
+		for(int i=0;i<imlVsDistFunc.getNum();i++) {
+			Double dist = new Double(imlVsDistFunc.getX(i));
+			DistanceJBParameter distParm = (DistanceJBParameter) ba2008.getParameter(DistanceJBParameter.NAME);
+			distParm.setValueIgnoreWarning(dist);
+			imlVsDistFunc.set(i,Math.exp(ba2008.getMean()));
+		}
+		
+		// I checked this against the attenuation relationship plotting app
+//		for(Parameter param: ba2008.getMeanIndependentParams()) {
+//			System.out.println(param.getName()+"\t"+param.getValue());
+//		}
+//		System.out.println(imlVsDistFunc);
 
 		
-//		// these only map names that actually changed, not ones that didn't
-//		HashMap<String, String> u2nameFromU3NameMapFM3pt1 = null;
-//		HashMap<String, String> u2nameFromU3NameMapFM3pt2 = null;
-//		try {
-//			u2nameFromU3NameMapFM3pt1 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_1);
-//			u2nameFromU3NameMapFM3pt2 = UCERF2_Section_MFDsCalc.loadUCERF3toUCER2NameMappingFile(FaultModels.FM3_2);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
+		
+		// UCERF3 Sections
+		ArrayList<Double> u3_ParSectMoRate = new ArrayList<Double>();
+		ArrayList<Double> u3_ParSectMinDist = new ArrayList<Double>();
+		ArrayList<Double> u3_ParSectHazProxy = new ArrayList<Double>();
+		ArrayList<String> u3_SectName = new ArrayList<String>();
+		FaultModels[] fm_array = FaultModels.values();
+		DeformationModels[] dm_array = DeformationModels.values();
+		DeformationModelFetcher defFetch;
+		for(FaultModels fm:fm_array) {
+			for(DeformationModels dm:dm_array) {
+				if(fm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) > 0 && dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) > 0) {
+					defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+					for(FaultSectionPrefData data : defFetch.getSubSectionList()) {
+						StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+						double distJB = surf.getDistanceJB(loc);
+						if(distJB <= 200) {
+							double moRate = data.calcMomentRate(true)*fm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED)*dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED);
+							String u3_name = data.getParentSectionName();
+							if(!u3_SectName.contains(u3_name)) {	// it's a new parent section
+								u3_SectName.add(u3_name);
+								u3_ParSectMoRate.add(moRate);
+								u3_ParSectMinDist.add(distJB);
+							}
+							else {
+								int index = u3_SectName.indexOf(u3_name);
+								double newMoRate = u3_ParSectMoRate.get(index)+moRate;
+								u3_ParSectMoRate.set(index, newMoRate);
+								if(distJB<u3_ParSectMinDist.get(index))	// replace distance if less
+									u3_ParSectMinDist.set(index,distJB);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		
+		for(int i=0;i<u3_ParSectMinDist.size();i++) {
+			u3_ParSectHazProxy.add(u3_ParSectMoRate.get(i)*imlVsDistFunc.getInterpolatedY(u3_ParSectMinDist.get(i)));
+		}
+		
+		System.out.println("NON SORTED:");
+		for(int i=0;i<u3_ParSectMinDist.size();i++) {
+			System.out.println(u3_ParSectMinDist.get(i)+"\t"+u3_ParSectMoRate.get(i)+"\t"+u3_ParSectHazProxy.get(i)+"\t"+u3_SectName.get(i));
+		}
+
+		List<Integer> sortedIndices = DataUtils.sortedIndices(u3_ParSectHazProxy,true);
+		System.out.println("SORTED:");
+		for(int index : sortedIndices) {
+			System.out.println(u3_ParSectMinDist.get(index)+"\t"+u3_ParSectMoRate.get(index)+"\t"+u3_ParSectHazProxy.get(index)+"\t"+u3_SectName.get(index));
+		}
+
+		
+
+//		/** UCERF2 deformation model IDs:
+//		 * D2.1 = 82
+//		 * D2.2 = 83
+//		 * D2.3 = 84
+//		 * D2.4 = 85
+//		 * D2.5 = 86
+//		 * D2.6 = 87
+//		 */
+//		int[] u2_dm_array = {82,83,84,85,86,87};
+//		double[] u2_dm_wts_array = {0.5*0.5,0.5*0.2,0.5*0.3,0.5*0.5,0.5*0.2,0.5*0.3};
+//		ArrayList<Double> u2_ParSectMoRate = new ArrayList<Double>();
+//		ArrayList<Double> u2_ParSectMinDist = new ArrayList<Double>();
+//		ArrayList<Double> u2_ParSectHazProxy = new ArrayList<Double>();
+//		ArrayList<String> u2_SectName = new ArrayList<String>();
+//		for(int i=0; i<u2_dm_array.length;i++) {
+//			int dmID = u2_dm_array[i];
+//			for(FaultSectionPrefData data : DeformationModelFetcher.getAll_UCERF2Sections(false, dmID)) {
+//				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+//				double distJB = surf.getDistanceJB(loc);
+//				if(distJB <= 200) {
+//					double moRate = data.calcMomentRate(true)*u2_dm_wts_array[i];
+//					String u2_name = data.getSectionName();
+//					if(!u2_SectName.contains(u2_name)) {	// it's a new parent section
+//						u2_SectName.add(u2_name);
+//						u2_ParSectMoRate.add(moRate);
+//						u2_ParSectMinDist.add(distJB);
+//					}
+//					else {
+//						int index = u2_SectName.indexOf(u2_name);
+//						double newMoRate = u2_ParSectMoRate.get(index)+moRate;
+//						u2_ParSectMoRate.set(index, newMoRate);
+//						if(distJB<u2_ParSectMinDist.get(index))	// replace distance if less
+//							u2_ParSectMinDist.set(index,distJB);
+//					}
+//				}
+//			}
 //		}
 //		
-//		ArrayList<String> newFaultSectionsList = getListOfNewFaultSectionNames();
 //		
+//		for(int i=0;i<u2_ParSectMinDist.size();i++) {
+//			u2_ParSectHazProxy.add(u2_ParSectMoRate.get(i)*imlVsDistFunc.getInterpolatedY(u2_ParSectMinDist.get(i)));
+//		}
 //		
-//		double u3_total=0;
-//		double u2_total=0;
-//		System.out.println("\n\n");
-//		for(int i=0;i<moRateInside.length;i++) {
-//			if(moRateInside[i]>0) {
-//				String u3_name = fm3_sectionNamesList.get(i);
-//				double u3_moRate = moRateInside[i];
-//				u3_total += u3_moRate;
-//				
-//				// now get U2 values
-//				double u2_moRate = Double.NaN;
-//				String u2_name = u2nameFromU3NameMapFM3pt1.get(u3_name);
-//				if(u2_name == null)	// try again if that failed
-//					u2_name = u2nameFromU3NameMapFM3pt2.get(u3_name);
-//				if(u2_name == null)
-//					u2_name = u3_name;	// in case name didn't change
-//				if(newFaultSectionsList.contains(u2_name))	// set back to null if it's a new fault
-//					u2_name = null;
-//				else if(u2_name.equals("Green Valley 2011 CFM"))	// this is the one special case where previous sections were combined
-//					u2_name = null;
-//				if(u2_name != null && u2_SectNameInside.contains(u2_name)) {
-//					int index = u2_SectNameInside.indexOf(u2_name);
-//					u2_moRate = u2_MoRateInside.get(index);
-//					u2_total += u2_moRate;
-//				}
-////				System.out.println(u3_moRate+"\t"+u3_name+"\t"+u2_moRate+"\t"+u2_name);
-//				System.out.println(u3_name+"\t"+u2_name);
-//			}
-//		}		
-//		System.out.println("UCERF3 total = "+u3_total+"\n\n");
-//		System.out.println("UCERF2 total = "+u2_total+"\n\n");
-
-		
+//		System.out.println("NON SORTED:");
+//		for(int i=0;i<u2_ParSectMinDist.size();i++) {
+//			System.out.println(u2_ParSectMinDist.get(i)+"\t"+u2_ParSectMoRate.get(i)+"\t"+u2_ParSectHazProxy.get(i)+"\t"+u2_SectName.get(i));
+//		}
+//
+//		List<Integer> sortedIndices = DataUtils.sortedIndices(u2_ParSectHazProxy,false);
+//		System.out.println("SORTED:");
+//		for(int index : sortedIndices) {
+//			System.out.println(u2_ParSectMinDist.get(index)+"\t"+u2_ParSectMoRate.get(index)+"\t"+u2_ParSectHazProxy.get(index)+"\t"+u2_SectName.get(index));
+//		}
 	}
+
 	
 	
 	public static void writeMoRateOfParentSectionsForAllDefAndFaultModels() {
@@ -2036,7 +2141,9 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
+		writeParentSectionsNearSite(new Location(37.7,-122.4),10);
+		
+//		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
 		
 //		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
 
