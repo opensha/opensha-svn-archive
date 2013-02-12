@@ -681,8 +681,9 @@ public class DataUtils {
 	 * @param ascending if {@code true}, descending if {@code false}
 	 * @return an index {@code List}
 	 */
-	public static List<Integer> sortedIndices(List<Double> data, boolean ascending) {
-		checkNotNull(data, "Source array is null");
+	public static List<Integer> sortedIndices(List<Double> data,
+			boolean ascending) {
+		checkNotNull(data);
 		List<Integer> indices = Ints.asList(indices(data.size()));
 		Collections.sort(indices, new IndexComparator(data, ascending));
 		return indices;
