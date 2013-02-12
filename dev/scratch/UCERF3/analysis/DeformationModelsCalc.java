@@ -402,8 +402,10 @@ public class DeformationModelsCalc {
 	
 	
 	/**
-	 * This computes the average moment rate inside the given region, where the average
-	 * is over all fault and deformation models.  UCERF2 is done as well.
+	 * This lists the parent fault sections near the site, ordered by a proxy hazard
+	 * computed as the moment-rate of the section multiplied by the mean 1-second-period 
+	 * SA from BA_2008_AttenRel with M=7, vs30=400, COMPONENT_GMRotI50, FLT_TYPE_UNKNOWN,
+	 * and the distance for the given fault section.
 	 * 
 	 */
 	public static void writeParentSectionsNearSite(Location loc, int maxNumSectionsToList) {
