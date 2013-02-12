@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.xyz.GeoDataSet;
@@ -76,6 +79,7 @@ public class UC3_MapMaker {
 //		buildMaps();
 //		makeMultiBranchMap();
 		buildMapsUC32();
+		
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -216,6 +220,8 @@ public class UC3_MapMaker {
 			String brID = brName + suffix;
 			String brPath = srcDir + S + brID + S + cPath;
 			File brFile = new File(brPath);
+			// catch when referencing UC3.1 branches which use ZENG, not ZENGBB
+			if (!brFile.exists()) brFile = new File(replaceZeng(brPath));
 			CurveContainer cc = CurveContainer.create(brFile, grid);
 			cc.scale(wtList.get(idx++));
 
@@ -227,6 +233,60 @@ public class UC3_MapMaker {
 		}
 		System.out.println();
 		return NSHMP_DataUtils.extractPE(mapcc, gr, pe);
+	}
+	
+	private static GeoDataSet loadMultiNoBG(String srcDir, String bgSrcDir,
+			File branchListFile, ProbOfExceed pe, TestGrid grid, Period p) 
+					throws IOException {
+
+		List<String> branchNames = Files.readLines(branchListFile, US_ASCII);
+		System.out.println("Loading: " + branchListFile.getName());
+		
+		// create wt list (subbing ZENGBB [wt=0.3] for ZENG [wt=0.0])
+		List<Double> wtList = Lists.newArrayList();
+		for (String brName : branchNames) {
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(brName);
+			if (branch.getValue(DeformationModels.class).equals(ZENG)) {
+				branch.setValue(ZENGBB);
+			}
+			wtList.add(branch.getAprioriBranchWt());
+		}
+		DataUtils.asWeights(wtList);
+		
+		String cPath = grid + S + p + S + "curves.csv";
+		GriddedRegion gr = grid.grid(0.1);
+		CurveContainer mapcc = null;
+		
+		int idx = 0;
+		for (String brName : branchNames) {
+			if (idx % 100 == 0) System.out.print(idx + " ");
+			String brID = brName;
+			String totBrPath = srcDir + S + brID + S + cPath;
+			String bgBrPath = bgSrcDir + S + brID + S + cPath;
+			File totBrFile = new File(totBrPath);
+			File bgBrFile = new File(bgBrPath);
+			CurveContainer ccTot = CurveContainer.create(totBrFile, grid);
+			CurveContainer ccBg = CurveContainer.create(bgBrFile, grid);
+			ccTot.scale(wtList.get(idx));
+			ccBg.scale(wtList.get(idx++));
+			ccTot.subtract(ccBg);
+
+			if (mapcc == null) {
+				mapcc = ccTot;
+			} else {
+				mapcc.add(ccTot);
+			}
+		}
+		System.out.println();
+		return NSHMP_DataUtils.extractPE(mapcc, gr, pe);
+	}
+	
+
+	private static String replaceZeng(String branchID) {
+		StringBuffer sb = new StringBuffer(branchID);
+		int pos = sb.indexOf("ZENGBB");
+		if (pos >= 0) sb.delete(pos+4, pos+6);
+		return sb.toString();
 	}
 	
 //	private static GeoDataSet loadMultiOLD(String srcDir, String branchList,
@@ -279,6 +339,8 @@ public class UC3_MapMaker {
 	private static void buildMapsUC32() throws IOException {
 		List<String> brOverList = null;
 		String brUnder = null;
+		String branches = null;
+		String uc31srcDir = null;
 		String srcDir = ROOT + "src/UC32/";
 		String outDir = ROOT + "mapsUC32/";
 		
@@ -292,38 +354,86 @@ public class UC3_MapMaker {
 		
 		
 		// other branch node comparisons
-		brOverList = Lists.newArrayList("FM32");
-		brUnder = "FM31";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList(
-			"DM_ABM", "DM_GEOL", "DM_NEOK");
-		brUnder = "DM_ZBB";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList(
-			"MS_ELLB", "MS_ELLBSL", "MS_HB08", "MS_SHCSD");
-		brUnder = "MS_SH09M";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList("DSR_UNI");
-		brUnder = "DSR_TAP";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList("M576", "M510");
-		brUnder = "M587";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList("MX72","MX80");
-		brUnder = "MX76";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
-
-		brOverList = Lists.newArrayList("UC2");
-		brUnder = "UC3";
-		makeRatioMap(srcDir, outDir, brOverList, brUnder);
 		
+		
+		brOverList = Lists.newArrayList(
+			"FM31", "FM32", 
+			"DM_ZBB", "DM_ABM", "DM_GEOL", "DM_NEOK",
+			"MS_SH09M", "MS_ELLB", "MS_ELLBSL", "MS_HB08", "MS_SHCSD",
+			"DSR_TAP", "DSR_UNI",
+			"M576", "M587", "M510",
+			"MX72", "MX76", "MX80",
+			"UC2", "UC3");
+		makeRatioMap(srcDir, outDir, brOverList);
+		
+//		// comparisons with UC3.1 logic tree subsets; M5 and MX variants
+//		// 160 branches each
+//		branches = "UC31cf-M587-MX76";
+//		uc31srcDir = ROOT + "src/FM-DM-MS-DSR-UV/";
+//		makeUC31cfMap(srcDir, uc31srcDir, outDir, branches);
+//		
+//		branches = "UC31cf-M576-MX72";
+//		uc31srcDir = ROOT + "src/FM-DM-MS-DSR-UV-M576-MX72/";
+//		makeUC31cfMap(srcDir, uc31srcDir, outDir, branches);
+//
+//		branches = "UC31cf-M576-MX76";
+//		uc31srcDir = ROOT + "src/FM-DM-MS-DSR-UV-M576-MX76/";
+//		makeUC31cfMap(srcDir, uc31srcDir, outDir, branches);
+		
+		
+		// ratio maps of UC3.2 over NHSMP, faults only
+		// subsets
+//		String bgDir = ROOT + "src/UC32-FM-DM-MS-bgOnly";
+//		brOverList = Lists.newArrayList("NoBG-DM-ABM", "NoBG-DM-GEOL",
+//			"NoBG-DM-NEOK", "NoBG-DM-ZENGBB", "NoBG-FM31", "NoBG-FM32",
+//			"NoBG-MS-ELLB", "NoBG-MS-ELLBSL", "NoBG-MS-HB08", "NoBG-MS-SH09M",
+//			"NoBG-MS-SHCSD");
+//		makeRatioMapNoBG(srcDir, bgDir, outDir, brOverList);
+		
+		// all 40 branches run
+//		String bgDir = ROOT + "src/UC32-FM-DM-MS-bgOnly";
+//		brOverList = Lists.newArrayList("NoBG-FM-DM-MS");
+//		makeRatioMapNoBG(srcDir, bgDir, outDir, brOverList);
+		
+		// ratio maps just UC3.2 background models over NSHMP
+		// UC32_noBg_combo / nshmp_ca - nshmap_ca_nobg
+		
+		// ratio map UC32 over NSMP (1440 branches)
+//		branches = "all";
+//		makeRatioMap(srcDir, outDir, branches);
+
+//		branches = "UC2";
+//		makeRatioMap(srcDir, outDir, branches);
+
 	}
 	
+	private static GeoDataSet UC32xyz;
+	
+	// UCERF3.2 node ratio maps
+	private static void makeRatioMap(String srcDir, String outDir,
+			List<String> brOverList) throws IOException {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		String suffix = "";
+		
+		if (UC32xyz == null) {
+			File brFile = new File(ROOT + "branchsetsUC32", "all.txt");
+			UC32xyz = loadMulti(srcDir, brFile, pe, grid, p, suffix);
+		}
+		
+		int numProc = Runtime.getRuntime().availableProcessors();
+		ExecutorService ex = Executors.newFixedThreadPool(numProc);
+
+		for (String brOver : brOverList) {
+			RatioMapMaker rmm = new RatioMapMaker(UC32xyz, brOver, srcDir,
+				outDir, pe, grid, p, suffix);
+			ex.submit(rmm);
+		}
+		ex.shutdown();
+	}
+
+	// UCERF3.2 node ratio maps
 	private static void makeRatioMap(String srcDir, String outDir,
 			List<String> brOverList, String brUnder) throws IOException {
 		TestGrid grid = CA_RELM;
@@ -344,7 +454,91 @@ public class UC3_MapMaker {
 			makeRatioPlot(xyz, grid.bounds(), dlDir, "hazard ratio", true, true);
 		}
 	}
+	
+	private static class RatioMapMaker implements Callable<Void> {
 
+		GeoDataSet xyzRef;
+		String branches;
+		String srcDir;
+		String outDir;
+		ProbOfExceed pe;
+		TestGrid grid;
+		Period p;
+		String suffix;
+		
+		RatioMapMaker(GeoDataSet xyzRef, String branches, String srcDir, String outDir,
+			ProbOfExceed pe, TestGrid grid, Period p, String suffix) {
+			this.xyzRef = xyzRef;
+			this.branches = branches;
+			this.srcDir = srcDir;
+			this.outDir = outDir;
+			this.pe = pe;
+			this.grid = grid;
+			this.p = p;
+			this.suffix = suffix;
+		}
+		
+		@Override
+		public Void call() throws IOException {
+			File brFile = new File(ROOT + "branchsetsUC32", branches + ".txt");
+			GeoDataSet xyz = loadMulti(srcDir, brFile, pe, grid, p, suffix);
+			GeoDataSet xyzRatio = GeoDataSetMath.divide(xyz, xyzRef);
+			String dlDir = outDir + branches + "_sup_REF";
+			makeRatioPlot(xyzRatio, grid.bounds(), dlDir, "hazard ratio", true, true);
+			return null;
+		}
+		
+	}
+	
+	// UCERF3.1 to 3.2 comparison maps
+	private static void makeUC31cfMap(String srcDirUC32, String srcDirUC31, 
+			String outDir, String branches) throws IOException {
+		
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		
+		File branchFile = new File(ROOT + "branchsetsUC32", branches + ".txt");
+		GeoDataSet xyz31 = loadMulti(srcDirUC31, branchFile, pe, grid, p, SUFFIX);
+		GeoDataSet xyz32 = loadMulti(srcDirUC32, branchFile, pe, grid, p, "");
+
+		GeoDataSet xyz = GeoDataSetMath.divide(xyz32, xyz31);
+		String dlDir = outDir + branches;
+		makeRatioPlot(xyz, grid.bounds(), dlDir, "hazard ratio", true, true);
+	}
+
+	// UCERF3.2 NSHMP ratio maps
+	private static void makeRatioMap(String srcDir, String outDir,
+			String branches) throws IOException {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		
+		GeoDataSet xyzNSHMP = loadSingle("nshmp_ca", pe, grid, p);
+		File branchFile = new File(ROOT + "branchsetsUC32", branches + ".txt");
+		GeoDataSet xyzUC32 = loadMulti(srcDir, branchFile, pe, grid, p, "");
+		GeoDataSet xyz = GeoDataSetMath.divide(xyzUC32, xyzNSHMP);
+		String dlDir = outDir + branches + "_sup_NSHMP";
+		makeRatioPlot(xyz, grid.bounds(), dlDir, "hazard ratio", true, false);
+	}
+
+	// UCERF3.2 NSHMP fault ratio maps (no bg)
+	private static void makeRatioMapNoBG(String srcDir, String bgDir, String outDir,
+			List<String> branchFileList) throws IOException {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		
+		GeoDataSet xyzNSHMP = loadSingle("nshmp_ca_nobg", pe, grid, p);
+
+		for (String branches : branchFileList) {
+			File branchFile = new File(ROOT + "branchsetsUC32", branches + ".txt");
+			GeoDataSet xyzUC32 = loadMultiNoBG(srcDir, bgDir,branchFile, pe, grid, p);
+			GeoDataSet xyz = GeoDataSetMath.divide(xyzUC32, xyzNSHMP);
+			String dlDir = outDir + branches + "_sup_NSHMP";
+			makeRatioPlot(xyz, grid.bounds(), dlDir, "hazard ratio", true, false);
+		}
+	}
 
 //	/*
 //	 * Used to make ratio maps for UCERF3.1 report 
@@ -483,13 +677,13 @@ public class UC3_MapMaker {
 		
 	private static void makeRatioPlot(GeoDataSet xyz, double[] bounds,
 			String dlDir, String title, boolean log, boolean smooth) {
-		double scale = log ? 0.1 : 0.2;
+		double scale = log ? 0.3 : 0.2;
 		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
 		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, log ? -scale : 1-scale);
 		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, log ? scale : 1+scale);
 		CPTParameter cptParam = (CPTParameter) mapGen.getAdjustableParamsList()
 				.getParameter(CPT_PARAM_NAME);
-		GMT_CPT_Files cpt = log ? GMT_CPT_Files.UCERF3_HAZ_RATIO : GMT_CPT_Files.GMT_POLAR;
+		GMT_CPT_Files cpt = log ? GMT_CPT_Files.UCERF3_HAZ_RATIO_P3 : GMT_CPT_Files.GMT_POLAR;
 		cptParam.setValue(cpt.getFileName());
 		mapGen.setParameter(LOG_PLOT_NAME, log ? true : false);
 		
