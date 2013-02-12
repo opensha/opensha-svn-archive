@@ -101,7 +101,20 @@ public class CurveContainer implements Iterable<Location> {
 			DataUtils.add(ysMap.get(idx), cc.ysMap.get(idx)) ;
 		}
 	}
-	
+
+	/**
+	 * Subtracts the curves of the supplied container to this one.
+	 * @param cc container to add
+	 * @throws IllegalArgumentException if underlying gridded regions are not
+	 *         the same
+	 */
+	public void subtract(CurveContainer cc) {
+		checkArgument(region.equals(cc.region));
+		for (Integer idx : ysMap.keySet()) {
+			DataUtils.subtract(ysMap.get(idx), cc.ysMap.get(idx)) ;
+		}
+	}
+
 	@Override
 	public Iterator<Location> iterator() {
 		return region.iterator();
