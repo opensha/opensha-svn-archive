@@ -2,8 +2,6 @@ package org.opensha.commons.util;
 
 import static org.junit.Assert.*;
 import static org.opensha.commons.util.DataUtils.*;
-import static org.opensha.commons.util.DataUtils.Direction.ASCENDING;
-import static org.opensha.commons.util.DataUtils.Direction.DESCENDING;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -294,19 +292,19 @@ public class DataUtilsTest {
 		double[] d6 = DataUtils.add(2, DataUtils.flip(d3));
 		
 		
-		assertTrue(DataUtils.isMonotonic(ASCENDING, false, d1));
-		assertTrue(DataUtils.isMonotonic(ASCENDING, true, d1));
-		assertTrue(DataUtils.isMonotonic(ASCENDING, true, d2));
-		assertFalse(DataUtils.isMonotonic(ASCENDING, false, d2));
-		assertFalse(DataUtils.isMonotonic(ASCENDING, false, d3));
-		assertFalse(DataUtils.isMonotonic(ASCENDING, true, d3));
+		assertTrue(DataUtils.isMonotonic(true, false, d1));
+		assertTrue(DataUtils.isMonotonic(true, true, d1));
+		assertTrue(DataUtils.isMonotonic(true, true, d2));
+		assertFalse(DataUtils.isMonotonic(true, false, d2));
+		assertFalse(DataUtils.isMonotonic(true, false, d3));
+		assertFalse(DataUtils.isMonotonic(true, true, d3));
 		
-		assertTrue(DataUtils.isMonotonic(DESCENDING, false, d4));
-		assertTrue(DataUtils.isMonotonic(DESCENDING, true, d4));
-		assertTrue(DataUtils.isMonotonic(DESCENDING, true, d5));
-		assertFalse(DataUtils.isMonotonic(DESCENDING, false, d5));
-		assertFalse(DataUtils.isMonotonic(DESCENDING, false, d6));
-		assertFalse(DataUtils.isMonotonic(DESCENDING, true, d6));
+		assertTrue(DataUtils.isMonotonic(false, false, d4));
+		assertTrue(DataUtils.isMonotonic(false, true, d4));
+		assertTrue(DataUtils.isMonotonic(false, true, d5));
+		assertFalse(DataUtils.isMonotonic(false, false, d5));
+		assertFalse(DataUtils.isMonotonic(false, false, d6));
+		assertFalse(DataUtils.isMonotonic(false, true, d6));
 	}
 	
 	@Test
@@ -340,18 +338,18 @@ public class DataUtilsTest {
 	@Test
 	public final void testCreateSequence() {
 		double[] expectUp = {1, 1.7, 2.4, 3.1, 3.8, 4.5, 5};
-		double[] resultUp = DataUtils.buildSequence(1, 5, 0.7, Direction.ASCENDING);
+		double[] resultUp = DataUtils.buildSequence(1, 5, 0.7, true);
 		assertArrayEquals(expectUp, resultUp, SEQ_TOL);
 		
 		double[] expectDn = {5, 4.3, 3.6, 2.9, 2.2, 1.5, 1};
-		double[] resultDn = DataUtils.buildSequence(1, 5, 0.7, Direction.DESCENDING);
+		double[] resultDn = DataUtils.buildSequence(1, 5, 0.7, false);
 		assertArrayEquals(expectDn, resultDn, SEQ_TOL);
 		
-		double[] logExpUp = DataUtils.buildLogSequence(1, 1000, 10, ASCENDING);
+		double[] logExpUp = DataUtils.buildLogSequence(1, 1000, 10, true);
 		double[] logResUp = {1, 10, 100, 1000};
 		assertArrayEquals(logExpUp, logResUp, SEQ_TOL);
 		
-		double[] logExpDn = DataUtils.buildLogSequence(1, 1000, 10, DESCENDING);
+		double[] logExpDn = DataUtils.buildLogSequence(1, 1000, 10, false);
 		double[] logResDn = {1000, 100, 10, 1};
 		assertArrayEquals(logExpDn, logResDn, SEQ_TOL);
 		
@@ -364,23 +362,23 @@ public class DataUtilsTest {
 	// range
 	@Test(expected=IllegalArgumentException.class)
 	public final void testCreateSequenceIAE0() {
-		DataUtils.buildSequence(1, Double.NaN, 0.7, Direction.ASCENDING);
+		DataUtils.buildSequence(1, Double.NaN, 0.7, true);
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public final void testCreateSequenceIAE1() {
-		DataUtils.buildSequence(1, Double.POSITIVE_INFINITY, 0.7, Direction.ASCENDING);
+		DataUtils.buildSequence(1, Double.POSITIVE_INFINITY, 0.7, true);
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public final void testCreateSequenceIAE2() {
-		DataUtils.buildSequence(Double.NEGATIVE_INFINITY, 5, 0.7, Direction.ASCENDING);
+		DataUtils.buildSequence(Double.NEGATIVE_INFINITY, 5, 0.7, true);
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public final void testCreateSequenceIAE3() { //min > max
-		DataUtils.buildSequence(5, 1, 0.7, Direction.ASCENDING);
+		DataUtils.buildSequence(5, 1, 0.7, true);
 	}
 	@Test(expected=IllegalArgumentException.class)
 	public final void testCreateSequenceIAE4() { //min = max
-		DataUtils.buildSequence(1,1,1,Direction.ASCENDING);
+		DataUtils.buildSequence(1,1,1, true);
 	}
 	
 	

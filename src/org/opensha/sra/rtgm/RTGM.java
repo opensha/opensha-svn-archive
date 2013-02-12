@@ -16,7 +16,6 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.Interpolate;
-import org.opensha.commons.util.DataUtils.Direction;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -227,7 +226,6 @@ public class RTGM implements Callable<RTGM> {
 		// For adequate discretization of fragility curves...
 		DiscretizedFunc upsampHazCurve = logResample(hazCurve, MIN_SA,
 			UPSAMPLING_FACTOR);
-
 		double errorRatio = Double.NaN;
 
 		// Iterative calculation of RTGM
@@ -322,7 +320,7 @@ public class RTGM implements Callable<RTGM> {
 			oldYs[i] = f.getY(i);
 		}
 		double[] newXs = DataUtils.buildLogSequence(min, f.getMaxX(), interval,
-			Direction.ASCENDING);
+			true);
 		double[] newYs = Interpolate.findLogLogY(oldXs, oldYs, newXs);
 		DiscretizedFunc fOut = new ArbitrarilyDiscretizedFunc();
 		for (int i=0; i<newXs.length; i++) {

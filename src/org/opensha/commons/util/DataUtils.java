@@ -21,7 +21,6 @@ package org.opensha.commons.util;
 
 import static com.google.common.base.Preconditions.*;
 import static org.junit.Assert.assertArrayEquals;
-import static org.opensha.commons.util.DataUtils.Direction.*;
 import static java.lang.Double.*;
 
 import java.lang.reflect.Array;
@@ -83,13 +82,6 @@ public class DataUtils {
 	private static final Range<Double> POS_RANGE = Range.open(0d,
 		Double.POSITIVE_INFINITY);
 
-	@SuppressWarnings("javadoc")
-	public enum Direction {
-		ASCENDING,
-		DESCENDING;
-	}
-
-
 	/**
 	 * Returns the difference between {@code test} and {@code target}, relative
 	 * to {@code target}, as a percent. If {@code target} is 0, method returns 0
@@ -142,16 +134,15 @@ public class DataUtils {
 	 * the x-values of a function for any steps, or {@code true} if checking the
 	 * y-values of a cumulative distribution function, which are commonly
 	 * constant.
-	 * @param dir direction of monotonicity
+	 * @param ascending if {@code true}, descending if {@code false}
 	 * @param repeats whether repeated adjacent elements are allowed
 	 * @param data to validate
 	 * @return {@code true} if monotonic, {@code false} otherwise
 	 */
-	public static boolean isMonotonic(Direction dir, boolean repeats,
+	public static boolean isMonotonic(boolean ascending, boolean repeats,
 			double... data) {
-		checkNotNull(dir, "direction");
 		double[] diff = diff(data);
-		if (dir == DESCENDING) flip(diff);
+		if (!ascending) flip(diff);
 		double min = Doubles.min(diff);
 		return (repeats) ? min >= 0 : min > 0;
 	}
@@ -180,8 +171,7 @@ public class DataUtils {
 	 * @param min sequence value
 	 * @param max sequence value
 	 * @param step sequence spacing
-	 * @param dir sequence direction ({@code min} to {@code max} or {@code max}
-	 *        to {@code min})
+	 * @param ascending if {@code true}, descending if {@code false}
 	 * @return a monotonically increasing or decreasing sequence where the log
 	 *         of the values are evenly spaced
 	 * @throws IllegalArgumentException if {@code min >= max}, {@code step <= 0}
@@ -191,9 +181,9 @@ public class DataUtils {
 	 * 
 	 */
 	public static double[] buildLogSequence(double min, double max,
-			double step, Direction dir) {
+			double step, boolean ascending) {
 		double[] seq = buildSequence(Math.log(min), Math.log(max),
-			Math.log(step), dir);
+			Math.log(step), ascending);
 		return exp(seq);
 	}
 
@@ -204,8 +194,7 @@ public class DataUtils {
 	 * @param min sequence value
 	 * @param max sequence value
 	 * @param step sequence spacing
-	 * @param dir sequence direction ({@code min} to {@code max} or {@code max}
-	 *        to {@code min})
+	 * @param ascending if {@code true}, descending if {@code false}
 	 * @return a monotonically increasing or decreasing sequence of values
 	 * @throws IllegalArgumentException if {@code min >= max}, {@code step <= 0}
 	 *         , or any arguments are {@code Double.NaN},
@@ -213,14 +202,14 @@ public class DataUtils {
 	 *         {@code Double.NEGATIVE_INFINITY}
 	 */
 	public static double[] buildSequence(double min, double max, double step,
-			Direction dir) {
+			boolean ascending) {
 		// if passed in arguments are NaN, +Inf, or -Inf, and step <= 0,
 		// then capacity [c] will end up 0 because (int) NaN = 0, or outside the
 		// range 1:10000
 		checkArgument(min <= max, "min-max reversed");
 		int c = (int) Math.floor((max - min) / step);
 		checkArgument(c > 0 && c < MAX_SEQ_LEN, "sequence size");
-		if (dir == ASCENDING) return buildSequence(min, max, step, c + 2);
+		if (ascending) return buildSequence(min, max, step, c + 2);
 		double[] descSeq = buildSequence(-max, -min, step, c + 2);
 		return flip(descSeq);
 	}
@@ -450,15 +439,21 @@ public class DataUtils {
 	}
 
 	public static void main(String[] args) {
-		double infTest = 1d/0;
-		System.out.println(infTest);
-		System.out.println(sum(new double[] {0,Double.NaN,2,3,4,5}));
-		System.out.println("===");
-		System.out.println(Double.POSITIVE_INFINITY + 3);
-		System.out.println(Double.NEGATIVE_INFINITY < 0);
-		System.out.println("===");
-		Range<Double> range = Range.open(0d, Double.POSITIVE_INFINITY);
-		System.out.println(range.contains(Double.POSITIVE_INFINITY));
+//		double infTest = 1d/0;
+//		System.out.println(infTest);
+//		System.out.println(sum(new double[] {0,Double.NaN,2,3,4,5}));
+//		System.out.println("===");
+//		System.out.println(Double.POSITIVE_INFINITY + 3);
+//		System.out.println(Double.NEGATIVE_INFINITY < 0);
+//		System.out.println("===");
+//		Range<Double> range = Range.open(0d, Double.POSITIVE_INFINITY);
+//		System.out.println(range.contains(Double.POSITIVE_INFINITY));
+		
+		double[] vals = new double[] {2, 5, -3, 12, -4, 8};
+		List<Double> data = Doubles.asList(vals);
+		List<Integer> indices = sortedIndices(data, true);
+		System.out.println(indices);
+		
 	}
 	
 	/**
@@ -652,6 +647,7 @@ public class DataUtils {
 	 * @return the inidices of the unsorted array values
 	 * @throws NullPointerException if source array is {@code null}
 	 */
+	@Deprecated
 	public static int[] indexAndSort(final double[] data) {
 		checkNotNull(data, "Source array is null");
 		List<Integer> indices = Ints.asList(new int[data.length]);
@@ -669,7 +665,62 @@ public class DataUtils {
 		Arrays.sort(data);
 		return Ints.toArray(indices);
 	}
-
+	
+	/**
+	 * Returns an index {@code List} that provides a pointers to sorted
+	 * {@code data}. Let's say you have a number of {@code List<Double>}s and
+	 * want to sort them all according to one of your choosing. Supply this
+	 * method with the desired {@code data} and use the returned indices view
+	 * any of your arrays according to the sort order of the supplied
+	 * {@code data}.
+	 * 
+	 * <p>Note that the supplied data should not be sorted and that this method
+	 * does not modify the supplied {@code data} in any way.</p>
+	 * 
+	 * @param data to provide sort indices for
+	 * @param ascending if {@code true}, descending if {@code false}
+	 * @return an index {@code List}
+	 */
+	public static List<Integer> sortedIndices(List<Double> data, boolean ascending) {
+		checkNotNull(data, "Source array is null");
+		List<Integer> indices = Ints.asList(indices(data.size()));
+		Collections.sort(indices, new IndexComparator(data, ascending));
+		return indices;
+	}
+	
+	/*
+	 * A comparator for ascending sorting of an index array based on the
+	 * supplied double array of data.
+	 */
+	private static class IndexComparator implements Comparator<Integer> {
+		List<Double> data;
+		boolean ascending;
+		IndexComparator(List<Double> data, boolean ascending) {
+			this.data = data;
+			this.ascending = ascending;
+		}
+		@Override
+		public int compare(Integer i1, Integer i2) {
+			double d1 = data.get(ascending ? i1 : i2);
+			double d2 = data.get(ascending ? i2 : i1);
+			return (d1 < d2) ? -1 : (d1 == d2) ? 0 : 1;
+		}
+	}
+	
+	/**
+	 * Returns an {@code int[]} of values ascending from {@code 0} to
+	 * {@code 1-length} that can be used for sorting.
+	 * @param length
+	 * @return an index array
+	 * @see DataUtils#sortedIndices(List, boolean)
+	 */
+	public static int[] indices(int length) {
+		int[] indices = new int[length];
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = i;
+		}
+		return indices;
+	}
 
     /**
      * Creates an array of random {@code double} values.
