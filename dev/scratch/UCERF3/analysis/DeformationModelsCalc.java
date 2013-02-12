@@ -475,19 +475,28 @@ public class DeformationModelsCalc {
 			}
 		}
 		
-		
+		// set the hazard proxy value
 		for(int i=0;i<u3_ParSectMinDist.size();i++) {
 			u3_ParSectHazProxy.add(u3_ParSectMoRate.get(i)*imlVsDistFunc.getInterpolatedY(u3_ParSectMinDist.get(i)));
 		}
-		
-		System.out.println("NON SORTED:");
-		for(int i=0;i<u3_ParSectMinDist.size();i++) {
-			System.out.println(u3_ParSectMinDist.get(i)+"\t"+u3_ParSectMoRate.get(i)+"\t"+u3_ParSectHazProxy.get(i)+"\t"+u3_SectName.get(i));
-		}
+		// list of sorted indices
+		List<Integer> sortedIndices = DataUtils.sortedIndices(u3_ParSectHazProxy,false);
 
-		List<Integer> sortedIndices = DataUtils.sortedIndices(u3_ParSectHazProxy,true);
-		System.out.println("SORTED:");
-		for(int index : sortedIndices) {
+		
+		// TESTS:
+//		System.out.println("NON SORTED:");
+//		for(int i=0;i<u3_ParSectMinDist.size();i++) {
+//			System.out.println(u3_ParSectMinDist.get(i)+"\t"+u3_ParSectMoRate.get(i)+"\t"+u3_ParSectHazProxy.get(i)+"\t"+u3_SectName.get(i));
+//		}
+//		System.out.println("SORTED:");
+//		for(int index : sortedIndices) {
+//			System.out.println(u3_ParSectMinDist.get(index)+"\t"+u3_ParSectMoRate.get(index)+"\t"+u3_ParSectHazProxy.get(index)+"\t"+u3_SectName.get(index));
+//		}
+		
+		System.out.println("UCERF3:");
+		System.out.println("minDistJB\tMoRate\thazProxy\tSectName");
+		for(int i=0; i<maxNumSectionsToList;i++) {
+			int index = sortedIndices.get(i);
 			System.out.println(u3_ParSectMinDist.get(index)+"\t"+u3_ParSectMoRate.get(index)+"\t"+u3_ParSectHazProxy.get(index)+"\t"+u3_SectName.get(index));
 		}
 
@@ -501,51 +510,59 @@ public class DeformationModelsCalc {
 //		 * D2.5 = 86
 //		 * D2.6 = 87
 //		 */
-//		int[] u2_dm_array = {82,83,84,85,86,87};
-//		double[] u2_dm_wts_array = {0.5*0.5,0.5*0.2,0.5*0.3,0.5*0.5,0.5*0.2,0.5*0.3};
-//		ArrayList<Double> u2_ParSectMoRate = new ArrayList<Double>();
-//		ArrayList<Double> u2_ParSectMinDist = new ArrayList<Double>();
-//		ArrayList<Double> u2_ParSectHazProxy = new ArrayList<Double>();
-//		ArrayList<String> u2_SectName = new ArrayList<String>();
-//		for(int i=0; i<u2_dm_array.length;i++) {
-//			int dmID = u2_dm_array[i];
-//			for(FaultSectionPrefData data : DeformationModelFetcher.getAll_UCERF2Sections(false, dmID)) {
-//				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
-//				double distJB = surf.getDistanceJB(loc);
-//				if(distJB <= 200) {
-//					double moRate = data.calcMomentRate(true)*u2_dm_wts_array[i];
-//					String u2_name = data.getSectionName();
-//					if(!u2_SectName.contains(u2_name)) {	// it's a new parent section
-//						u2_SectName.add(u2_name);
-//						u2_ParSectMoRate.add(moRate);
-//						u2_ParSectMinDist.add(distJB);
-//					}
-//					else {
-//						int index = u2_SectName.indexOf(u2_name);
-//						double newMoRate = u2_ParSectMoRate.get(index)+moRate;
-//						u2_ParSectMoRate.set(index, newMoRate);
-//						if(distJB<u2_ParSectMinDist.get(index))	// replace distance if less
-//							u2_ParSectMinDist.set(index,distJB);
-//					}
-//				}
-//			}
-//		}
-//		
-//		
-//		for(int i=0;i<u2_ParSectMinDist.size();i++) {
-//			u2_ParSectHazProxy.add(u2_ParSectMoRate.get(i)*imlVsDistFunc.getInterpolatedY(u2_ParSectMinDist.get(i)));
-//		}
-//		
+		int[] u2_dm_array = {82,83,84,85,86,87};
+		double[] u2_dm_wts_array = {0.5*0.5,0.5*0.2,0.5*0.3,0.5*0.5,0.5*0.2,0.5*0.3};
+		ArrayList<Double> u2_ParSectMoRate = new ArrayList<Double>();
+		ArrayList<Double> u2_ParSectMinDist = new ArrayList<Double>();
+		ArrayList<Double> u2_ParSectHazProxy = new ArrayList<Double>();
+		ArrayList<String> u2_SectName = new ArrayList<String>();
+		for(int i=0; i<u2_dm_array.length;i++) {
+			int dmID = u2_dm_array[i];
+			for(FaultSectionPrefData data : DeformationModelFetcher.getAll_UCERF2Sections(false, dmID)) {
+				StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0);
+				double distJB = surf.getDistanceJB(loc);
+				if(distJB <= 200) {
+					double moRate = data.calcMomentRate(true)*u2_dm_wts_array[i];
+					String u2_name = data.getSectionName();
+					if(!u2_SectName.contains(u2_name)) {	// it's a new parent section
+						u2_SectName.add(u2_name);
+						u2_ParSectMoRate.add(moRate);
+						u2_ParSectMinDist.add(distJB);
+					}
+					else {
+						int index = u2_SectName.indexOf(u2_name);
+						double newMoRate = u2_ParSectMoRate.get(index)+moRate;
+						u2_ParSectMoRate.set(index, newMoRate);
+						if(distJB<u2_ParSectMinDist.get(index))	// replace distance if less
+							u2_ParSectMinDist.set(index,distJB);
+					}
+				}
+			}
+		}
+		
+		
+		for(int i=0;i<u2_ParSectMinDist.size();i++) {
+			u2_ParSectHazProxy.add(u2_ParSectMoRate.get(i)*imlVsDistFunc.getInterpolatedY(u2_ParSectMinDist.get(i)));
+		}
+		List<Integer> sortedIndices2 = DataUtils.sortedIndices(u2_ParSectHazProxy,false);
+
+		
 //		System.out.println("NON SORTED:");
 //		for(int i=0;i<u2_ParSectMinDist.size();i++) {
 //			System.out.println(u2_ParSectMinDist.get(i)+"\t"+u2_ParSectMoRate.get(i)+"\t"+u2_ParSectHazProxy.get(i)+"\t"+u2_SectName.get(i));
 //		}
-//
-//		List<Integer> sortedIndices = DataUtils.sortedIndices(u2_ParSectHazProxy,false);
 //		System.out.println("SORTED:");
-//		for(int index : sortedIndices) {
+//		for(int index : sortedIndices2) {
 //			System.out.println(u2_ParSectMinDist.get(index)+"\t"+u2_ParSectMoRate.get(index)+"\t"+u2_ParSectHazProxy.get(index)+"\t"+u2_SectName.get(index));
 //		}
+		
+		System.out.println("UCERF2:");
+		System.out.println("minDistJB\tMoRate\thazProxy\tSectName");
+		for(int i=0; i<maxNumSectionsToList;i++) {
+			int index = sortedIndices2.get(i);
+			System.out.println(u2_ParSectMinDist.get(index)+"\t"+u2_ParSectMoRate.get(index)+"\t"+u2_ParSectHazProxy.get(index)+"\t"+u2_SectName.get(index));
+		}
+
 	}
 
 	
