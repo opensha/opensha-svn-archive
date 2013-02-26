@@ -25,7 +25,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
-public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>, Cloneable, Serializable {
+public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>,
+	Cloneable, Serializable, Comparable<LogicTreeBranch> {
 	
 	/**
 	 * This is the default reference branch
@@ -437,6 +438,18 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			return 0d;
 		Class<? extends LogicTreeBranchNode> clazz = getEnumEnclosingClass(node.getClass());
 		return node.getRelativeWeight(im) / classWeightTotals.get(clazz, im);
+	}
+
+	@Override
+	public int compareTo(LogicTreeBranch o) {
+		for (int i=0; i<getLogicTreeNodeClasses().size(); i++) {
+			LogicTreeBranchNode<?> val = getValue(i);
+			LogicTreeBranchNode<?> oval = o.getValue(i);
+			int cmp = val.getShortName().compareTo(oval.getShortName());
+			if (cmp != 0)
+				return cmp;
+		}
+		return 0;
 	}
 
 }

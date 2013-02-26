@@ -18,11 +18,11 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
-import scratch.UCERF3.inversion.LaughTestFilter;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.inversion.SectionClusterList;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter.TestType;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester.TestType;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -261,7 +261,6 @@ public class RupSetValidator {
 //		double[] maxTotAzChanges = { 45, 60, 75, 90 };
 //		double[] maxTotAzChanges = { 90 };
 		double[] maxTotAzChanges = { 60 };
-		double maxRakeDiff = Double.POSITIVE_INFINITY;
 //		double[] maxCmlJumpDists = { 5, 7.5, 10 };
 //		double[] maxCmlJumpDists = { 10 };
 		double[] maxCmlJumpDists = { 5 };
@@ -297,13 +296,13 @@ public class RupSetValidator {
 									for (double minimumStressExclusionCeiling : minimumStressExclusionCeilings) {
 										if (minIndividualProb > minAverageProb)
 											continue;
-										CoulombRatesFilter coulombFilter =
-											new CoulombRatesFilter(TestType.COULOMB_STRESS, minAverageProb,
+										CoulombRatesTester coulombFilter =
+											new CoulombRatesTester(TestType.COULOMB_STRESS, minAverageProb,
 													minIndividualProb, minimumStressExclusionCeiling, applyBranchesOnly);
 										filters.add(new LaughTestFilter(maxJumpDist, maxAzimuthChange,
-												maxTotAzimuthChange, maxRakeDiff, maxCumJumpDist,
+												maxTotAzimuthChange, maxCumJumpDist,
 												maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup,
-												coulombFilter));
+												false, coulombFilter));
 									}
 								}
 							}

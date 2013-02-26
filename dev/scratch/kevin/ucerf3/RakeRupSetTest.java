@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
-import scratch.UCERF3.inversion.LaughTestFilter;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
 public class RakeRupSetTest {

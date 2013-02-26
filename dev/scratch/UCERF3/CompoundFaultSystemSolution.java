@@ -12,10 +12,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 
@@ -34,6 +37,8 @@ import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -275,6 +280,28 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			}
 		}
 		
+		public String getInfo(LogicTreeBranch branch) {
+			try {
+				Map<String, String> nameRemappings = getRemappings(branch);
+				ZipEntry infoEntry = zip.getEntry(nameRemappings.get("info.txt"));
+				StringBuilder text = new StringBuilder();
+			    String NL = System.getProperty("line.separator");
+			    Scanner scanner = new Scanner(
+						new BufferedInputStream(zip.getInputStream(infoEntry)));
+			    try {
+			      while (scanner.hasNextLine()){
+			        text.append(scanner.nextLine() + NL);
+			      }
+			    }
+			    finally{
+			      scanner.close();
+			    }
+			    return text.toString();
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+		}
+		
 		public double[] getMags(LogicTreeBranch branch) {
 			try {
 				Map<String, String> nameRemappings = getRemappings(branch);
@@ -302,6 +329,52 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		
 	}
 	
+	protected void writeMomentRatesTable(File file) throws IOException {
+		Preconditions.checkState(fetcher instanceof ZipFileSolutionFetcher,
+				"Only works for ZipFileSolutionFetcher");
+		
+		ZipFileSolutionFetcher zfetch = (ZipFileSolutionFetcher)fetcher;
+		
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList();
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
+			header.add(ClassUtils.getClassNameWithoutPackage(clazz));
+		header.add("Target On Fault Moment Rate");
+		header.add("Solution On Fault Moment Rate");
+		
+		csv.addLine(header);
+		
+		List<LogicTreeBranch> branches = Lists.newArrayList(getBranches());
+		Collections.sort(branches);
+		
+		Splitter sp = Splitter.on("\n");
+		
+		for (LogicTreeBranch branch : branches) {
+			List<String> line = Lists.newArrayList();
+			for (int i=0; i<LogicTreeBranch.getLogicTreeNodeClasses().size(); i++)
+				line.add(branch.getValue(i).getShortName());
+			List<String> info = Lists.newArrayList(sp.split(zfetch.getInfo(branch)));
+			double target = 0d;
+			double sol = 0d;
+			for (String infoLine : info) {
+				infoLine = infoLine.trim();
+				if (infoLine.startsWith("Fault Moment Rate"))
+					target = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
+				if (infoLine.startsWith("Fault Solution Moment Rate"))
+					sol = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
+			}
+			Preconditions.checkState(target > 0);
+			Preconditions.checkState(sol > 0);
+			line.add(target+"");
+			line.add(sol+"");
+			
+			csv.addLine(line);
+		}
+		
+		csv.writeToFile(file);
+	}
+	
 	public static void main(String[] args) throws IOException {
 		if (args.length >= 1) {
 			// command line run
@@ -325,6 +398,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		watch.reset();
 		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
+		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
+		System.exit(0);
 		
 		for (LogicTreeBranch branch : compoundSol.getBranches()) {
 			System.out.println("Loading "+branch);

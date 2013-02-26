@@ -23,6 +23,9 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
+import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -232,10 +235,12 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1);
+			
+//			LaughTestFilter filter = LaughTestFilter.getDefault();
+//			filter.setAllowSingleSectDuringJumps(false);
 //			List<Integer> counts = Lists.newArrayList();
 //			List<Double> ratios = Lists.newArrayList();
 //			for (double ratio=0; ratio<=0.1; ratio+=0.005) {
-//				LaughTestFilter filter = LaughTestFilter.getDefault();
 //				filter.getCoulombFilter().setMinAverageProb(ratio);
 //				filter.getCoulombFilter().setMinIndividualProb(ratio);
 //				counts.add(forBranch(filter, DEFAULT_ASEIS_VALUE, FaultModels.FM3_1).getNumRuptures());
@@ -243,7 +248,8 @@ public class InversionFaultSystemRupSetFactory {
 //			}
 //			System.out.println("<coulomb ratio>: <rupture count>");
 //			for (int i=0; i<counts.size(); i++)
-//				System.out.println(ratios.get(i)+": "+counts.get(i));
+//				System.out.println(ratios.get(i).floatValue()+": "+counts.get(i));
+			
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, InversionModels.CHAR);
 //			cachedForBranch(true, DeformationModels.UCERF2_ALL);
 //			InversionFaultSystemRupSet rupSet = forBranch(LogicTreeBranch.DEFAULT);

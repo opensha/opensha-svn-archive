@@ -54,6 +54,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
@@ -595,7 +596,10 @@ public class CommandLineInversionRunner {
 					}
 					
 					try {
-						writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
+						if (invSol == null)
+							writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
+						else
+							writeParentSectionMFDPlots(invSol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1004,13 +1008,43 @@ public class CommandLineInversionRunner {
 				sdomOverMeansCSV.addLine(line);
 			}
 			
-			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
-			ArrayList<IncrementalMagFreqDist> ucerf2NuclCmlMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, true);
-			ArrayList<IncrementalMagFreqDist> ucerf2PartMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
-			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, true);
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2NuclCmlMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, true);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, false);
+			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs =
+					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, true);
+			
+			List<IncrementalMagFreqDist> subSeismoMFDs;
+			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs;
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs;
+			if (sol instanceof InversionFaultSystemSolution) {
+				InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
+				subSeismoMFDs = Lists.newArrayList();
+				subPlusSupraSeismoMFDs = Lists.newArrayList();
+				subPlusSupraSeismoCmlMFDs = Lists.newArrayList();
+				SummedMagFreqDist subSeismoMFD = invSol.getFinalSubSeismoOnFaultMFDForParent(parentSectionID);
+				SummedMagFreqDist subPlusSupraSeismoMFD = new SummedMagFreqDist(
+						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
+				subPlusSupraSeismoMFD.addIncrementalMagFreqDist(subSeismoMFD);
+				subPlusSupraSeismoMFD.addIncrementalMagFreqDist(resizeToDimensions(
+						nuclMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
+				EvenlyDiscretizedFunc subPlusSupraSeismoCmlMFD = subPlusSupraSeismoMFD.getCumRateDist();
+				subSeismoMFDs.add(subSeismoMFD);
+				subPlusSupraSeismoMFDs.add(subPlusSupraSeismoMFD);
+				subPlusSupraSeismoCmlMFDs.add(subPlusSupraSeismoCmlMFD);
+			} else {
+				subSeismoMFDs = null;
+				subPlusSupraSeismoMFDs = null;
+				subPlusSupraSeismoCmlMFDs = null;
+			}
 
-			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, ucerf2NuclCmlMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PartMFDs, ucerf2PartCmlMFDs, parentSectionID, parentSectName, false);
+			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, ucerf2NuclCmlMFDs,
+					subSeismoMFDs, subPlusSupraSeismoMFDs, subPlusSupraSeismoCmlMFDs, parentSectionID, parentSectName, true);
+			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PartMFDs, ucerf2PartCmlMFDs,
+					null, null, null, parentSectionID, parentSectName, false);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -1024,6 +1058,19 @@ public class CommandLineInversionRunner {
 			
 			sdomOverMeansCSV.writeToFile(new File(dir, "participation_sdom_over_means.csv"));
 		}
+	}
+	
+	private static IncrementalMagFreqDist resizeToDimensions(
+			IncrementalMagFreqDist mfd, double min, int num, double delta) {
+		if (mfd.getMinX() == min && mfd.getNum() == num && mfd.getDelta() == delta)
+			return mfd;
+		IncrementalMagFreqDist resized = new IncrementalMagFreqDist(min, num, delta);
+		
+		for (int i=0; i<mfd.getNum(); i++)
+			if (mfd.getY(i) > 0)
+				resized.set(mfd.get(i));
+		
+		return resized;
 	}
 	
 	/**
@@ -1135,6 +1182,10 @@ public class CommandLineInversionRunner {
 			List<EvenlyDiscretizedFunc> cmlMFDs,
 			boolean avgColoring, List<IncrementalMagFreqDist> ucerf2MFDs,
 			List<IncrementalMagFreqDist> ucerf2CmlMFDs,
+			// these 3 are for nucleation only
+			List<IncrementalMagFreqDist> subSeismoMFDs,
+			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs,
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs,
 			int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
@@ -1281,18 +1332,85 @@ public class CommandLineInversionRunner {
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		File smallDir = new File(dir.getParentFile(), "small_MFD_plots");
+		if (!smallDir.exists())
+			smallDir.mkdir();
+		file = new File(smallDir, fname+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.getCartPanel().setSize(1000, 800);
 		
-		if (!nucleation) {
+		
+		if (nucleation) {
+			if (subSeismoMFDs != null) {
+				// make off fault nucleation MFDs
+				funcs = Lists.newArrayList();
+				chars = Lists.newArrayList();
+				
+				if (subSeismoMFDs.size() == 1 || avgColoring) {
+					funcs.add(subSeismoMFDs.get(0));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
+					funcs.add(subPlusSupraSeismoMFDs.get(0));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
+					funcs.add(subPlusSupraSeismoCmlMFDs.get(0));
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
+				} else {
+					int numFractiles = subSeismoMFDs.size()-3;
+					funcs.addAll(subSeismoMFDs);
+					chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, numFractiles));
+					// little hack to remove min/max from incremental plots
+					funcs.remove(funcs.size()-1);
+					funcs.remove(funcs.size()-1);
+					chars.remove(chars.size()-1);
+					chars.remove(chars.size()-1);
+					funcs.addAll(subPlusSupraSeismoMFDs);
+					chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractiles));
+					// little hack to remove min/max from incremental plots
+					funcs.remove(funcs.size()-1);
+					funcs.remove(funcs.size()-1);
+					chars.remove(chars.size()-1);
+					chars.remove(chars.size()-1);
+					funcs.addAll(subPlusSupraSeismoCmlMFDs);
+					chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, numFractiles));
+				}
+				
+				gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
+				
+				fname += "_sub_seismo";
+				File subDir = new File(dir, "sub_seismogenic_plots");
+				if (!subDir.exists())
+					subDir.mkdir();
+				file = new File(subDir, fname);
+				gp.getCartPanel().setSize(1000, 800);
+				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+				gp.saveAsTXT(file.getAbsolutePath()+".txt");
+				file = new File(smallDir, fname+"_small");
+				gp.getCartPanel().setSize(500, 400);
+				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+			}
+		} else {
+			// make participation cumulative RI plots
 			gp.setUserBounds(5d, 9d, 10, 1e9);
 			
 			title = "Participation Recurrence Interval for "+name+" ("+id+")";
 			gp.drawGraphPanel("Magnitude", "Recurrence Interval", riFuncs, riChars, true, title);
 			
-			file = new File(dir, name.replaceAll("\\W+", "_")+"_cmlRI_participation");
+			fname = name.replaceAll("\\W+", "_")+"_cmlRI_participation";
+			File subDir = new File(dir, "cumulative_recurrence_plots");
+			if (!subDir.exists())
+				subDir.mkdir();
+			file = new File(subDir, fname);
 			gp.getCartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			file = new File(smallDir, fname+"_small");
+			gp.getCartPanel().setSize(500, 400);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
 	}
 

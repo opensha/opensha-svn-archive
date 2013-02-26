@@ -34,7 +34,7 @@ import scratch.UCERF3.analysis.CompoundFSSPlots.ParticipationMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PlotSolComputeTask;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.SlipMisfitPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.SlipRatePlots;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
@@ -83,6 +83,24 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			branches = filtered;
 		}
 		
+		if (cmd.hasOption("name-exclude")) {
+			List<String> greps = Lists.newArrayList(Splitter.on(",").split(cmd.getOptionValue("name-exclude")));
+			List<LogicTreeBranch> filtered = Lists.newArrayList();
+			
+			branchLoop:
+			for (LogicTreeBranch branch : branches) {
+				String fname = branch.buildFileName();
+				for (String grep : greps) {
+					if (fname.contains(grep))
+						continue branchLoop;
+				}
+				filtered.add(branch);
+			}
+			
+			System.out.println("Filtered branches size: "+filtered.size()+"/"+branches.size());
+			branches = filtered;
+		}
+		
 		invFSS = false;
 		for (CompoundFSSPlots plot : plots) {
 			if (plot.usesInversionFSS() || plot.usesERFs()) {
@@ -122,6 +140,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		try {
 			comp.computThreaded(threads);
 		} catch (InterruptedException e) {
+			debug("Exception computing threaded: "+e.getMessage());
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		myCalcs += batch.length;
@@ -242,7 +261,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		jumpsOption.setRequired(false);
 		options.addOption(jumpsOption);
 		
-		Option slipMisfitsOption = new Option("slips", "plot-slip-misfits", false,
+		Option slipMisfitsOption = new Option("slips", "plot-slip-rates", false,
 				"Flag for plotting slip misfits");
 		slipMisfitsOption.setRequired(false);
 		options.addOption(slipMisfitsOption);
@@ -296,16 +315,27 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		noERFOption.setRequired(false);
 		options.addOption(noERFOption);
 		
+		Option onlyERFOption = new Option("onlyerf", "only-erf-plots", false, "Flag for only ERF " +
+				"based plots (when used with --plot-all");
+		onlyERFOption.setRequired(false);
+		options.addOption(onlyERFOption);
+		
 		Option randomSampleOption = new Option("rand", "random-sample", true,
 				"If supplied, a random sample of the given size will be used.");
 		randomSampleOption.setRequired(false);
 		options.addOption(randomSampleOption);
 		
 		Option nameGrepsOption = new Option("ng", "name-grep", true,
-				"If supplied, logic tree branches will be filtered out based on grepping for these comma separated " +
+				"If supplied, logic tree branches will be only be included out based on grepping for these comma separated " +
 				"strings.");
 		nameGrepsOption.setRequired(false);
 		options.addOption(nameGrepsOption);
+		
+		Option nameExcludeOption = new Option("ne", "name-exclude", true,
+				"If supplied, logic tree branches will be filtered out based on grepping for these comma separated " +
+				"strings.");
+		nameExcludeOption.setRequired(false);
+		options.addOption(nameExcludeOption);
 		
 		return options;
 	}
@@ -372,7 +402,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			}
 			
 			if (plotAll || cmd.hasOption("slips")) {
-				SlipMisfitPlot slips = new SlipMisfitPlot(weightProvider);
+				SlipRatePlots slips = new SlipRatePlots(weightProvider);
 				plots.add(slips);
 			}
 			
@@ -419,6 +449,12 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (cmd.hasOption("noerf")) {
 				for (int i=plots.size(); --i>=0;)
 					if (plots.get(i).usesERFs())
+						plots.remove(i);
+			}
+			
+			if (cmd.hasOption("onlyerf")) {
+				for (int i=plots.size(); --i>=0;)
+					if (!plots.get(i).usesERFs())
 						plots.remove(i);
 			}
 			

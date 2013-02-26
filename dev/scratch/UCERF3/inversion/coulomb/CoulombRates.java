@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -38,6 +39,10 @@ public class CoulombRates extends HashMap<IDPairing, CoulombRatesRecord> {
 
 	private CoulombRates() {
 		// private so that it can only be instantiated with the from data file methods
+	}
+	
+	public CoulombRates(Map<IDPairing, CoulombRatesRecord> rates) {
+		this.putAll(rates);
 	}
 	
 	/**
@@ -96,10 +101,10 @@ public class CoulombRates extends HashMap<IDPairing, CoulombRatesRecord> {
 	public static void main(String[] args) throws IOException {
 		CoulombRates rates = loadUCERF3CoulombRates(FaultModels.FM3_1);
 		
-		IDPairing pairing = new IDPairing(1383, 1369);
+		IDPairing pairing = new IDPairing(504, 1197);
 		System.out.println(rates.get(pairing));
 		System.out.println(rates.get(pairing.getReversed()));
-		pairing = new IDPairing(1372, 1737);
+		pairing = new IDPairing(2155, 2168);
 		System.out.println(rates.get(pairing));
 		System.out.println(rates.get(pairing.getReversed()));
 		

@@ -161,7 +161,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		enumParams = new ParameterList();
 		enumParams.addParameter(buildEnumParam(FaultModels.class, FaultModels.FM3_1));
 		enumParams.addParameter(buildEnumParam(DeformationModels.class, null));
-		enumParams.addParameter(buildEnumParam(ScalingRelationships.class, ScalingRelationships.ELLSWORTH_B));
+		enumParams.addParameter(buildEnumParam(ScalingRelationships.class, ScalingRelationships.SHAW_2009_MOD));
 		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
 		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR_CONSTRAINED));
 		enumParams.addParameter(buildEnumParam(TotalMag5Rate.class, TotalMag5Rate.RATE_8p7));
@@ -364,6 +364,8 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			for (int i=0; i<branch.size(); i++) {
 				LogicTreeBranchNode<?> node = branch.getValue(i);
 				if (node == null) {
+					if (candidate.getValue(i) == null)
+						System.out.println("WFT? Class: "+LogicTreeBranch.getLogicTreeNodeClasses().get(i));
 					diffNames.add(candidate.getValue(i).getShortName());
 				}
 			}

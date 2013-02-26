@@ -18,7 +18,9 @@ import scratch.UCERF3.utils.IDPairing;
  * @author kevin
  *
  */
-public class CoulombRatesFilter {
+public class CoulombRatesTester {
+	
+	public static boolean BUGGY_MIN_STRESS = true;
 	
 	public enum TestType {
 		/** just test the coulomb values */
@@ -38,7 +40,7 @@ public class CoulombRatesFilter {
 	private TestType testType;
 	private boolean applyBranchesOnly;
 	
-	public CoulombRatesFilter(TestType testType, double minAverageProb, double minIndividualProb,
+	public CoulombRatesTester(TestType testType, double minAverageProb, double minIndividualProb,
 			double minimumStressExclusionCeiling, boolean applyBranchesOnly) {
 		this.minAverageProb = minAverageProb;
 		this.minIndividualProb = minIndividualProb;
@@ -46,6 +48,9 @@ public class CoulombRatesFilter {
 		Preconditions.checkNotNull(testType, "Test type must be specified!");
 		this.testType = testType;
 		this.applyBranchesOnly = applyBranchesOnly;
+		
+		if (BUGGY_MIN_STRESS)
+			System.err.println("WARNING: buggy coulomb min stress exclusion implementation being used.");
 	}
 	
 	public boolean isApplyBranchesOnly() {
@@ -95,20 +100,31 @@ public class CoulombRatesFilter {
 		
 		int pairs = rates.size();
 		
+		int num = 0;
 		for (CoulombRatesRecord record : rates) {
 			double stress = getStress(type, record);
 			double prob = getProbability(type, record);
+			
+			// see if the stress change is already above our ceiling, which means 
+			// that we can ignore this record
+			if (!BUGGY_MIN_STRESS && stress >= minimumStressExclusionCeiling)
+				continue;
 			
 			if (stress < minStress)
 				minStress = stress;
 			if (prob < minProb)
 				minProb = prob;
 			sumProbs += prob;
+			num++;
 		}
 		
-		double avgProb = sumProbs / (double)pairs;
+		if (num == 0)
+			// all tests were skipped for minimum exclusion ceiling
+			return true;
 		
-		// see if the minimum stress change is already above our ceiling (whcih means pass no matter what
+		double avgProb = sumProbs / (double)num;
+		
+		// see if the minimum stress change is already above our ceiling (which means pass no matter what
 		if (minStress > minimumStressExclusionCeiling)
 			return true;
 		

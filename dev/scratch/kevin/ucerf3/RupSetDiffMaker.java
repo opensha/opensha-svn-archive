@@ -9,6 +9,7 @@ import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
@@ -16,6 +17,10 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.SectionCluster;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
+import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 
 public class RupSetDiffMaker {
 
@@ -26,27 +31,66 @@ public class RupSetDiffMaker {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException, DocumentException {
-		File rupSet1File = new File("/tmp/GarlockPintoMtnFix_RupSet.zip");
-//		File rupSet2File = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/" +
-//				"scratch/InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
-//				"_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		boolean oldRups = true;
+//		File rupSet1File = new File("/tmp/GarlockPintoMtnFix_RupSet.zip");
+////		File rupSet2File = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/" +
+////				"scratch/InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7" +
+////				"_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+//		boolean oldRups = true;
+//		
+//		File diffFile;
+//		if (oldRups)
+//			diffFile = new File("/tmp/garlockOldRups.zip");
+//		else
+//			diffFile = new File("/tmp/garlockNewRups.zip");
+//		
+//		FaultSystemRupSet rupSet1 = SimpleFaultSystemRupSet.fromZipFile(rupSet1File);
+////		FaultSystemRupSet rupSet2 = SimpleFaultSystemRupSet.fromZipFile(rupSet2File);
+//		FaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1);
+//		if (oldRups) {
+//			FaultSystemRupSet tmp = rupSet1;
+//			rupSet1 = rupSet2;
+//			rupSet2 = tmp;
+//		}
+//		
+//		writeDiffs(diffFile, rupSet1, rupSet2);
 		
-		File diffFile;
-		if (oldRups)
-			diffFile = new File("/tmp/garlockOldRups.zip");
-		else
-			diffFile = new File("/tmp/garlockNewRups.zip");
+		LaughTestFilter laughTest = LaughTestFilter.getDefault();
+//		laughTest.setCoulombFilter(null);
+//		laughTest.setMaxCmlRakeChange(Double.POSITIVE_INFINITY);
 		
-		FaultSystemRupSet rupSet1 = SimpleFaultSystemRupSet.fromZipFile(rupSet1File);
-//		FaultSystemRupSet rupSet2 = SimpleFaultSystemRupSet.fromZipFile(rupSet2File);
-		FaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1);
-		if (oldRups) {
-			FaultSystemRupSet tmp = rupSet1;
-			rupSet1 = rupSet2;
-			rupSet2 = tmp;
-		}
+		LaughTestFilter.USE_BUGGY_COULOMB = false;
+		CoulombRatesTester.BUGGY_MIN_STRESS = false;
+		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
+		laughTest.setAllowSingleSectDuringJumps(true);
+		Stopwatch watch = new Stopwatch();
+		watch.start();
+		FaultSystemRupSet rupSet1 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
+		watch.stop();
+		new SimpleFaultSystemRupSet(rupSet1).toZipFile(new File("/tmp/rupSet1.zip"));
+		double secsNew = watch.elapsedMillis() / 1000d;
+		rupSet1.setInfoString("");
+		LaughTestFilter.USE_BUGGY_COULOMB = true;
+		CoulombRatesTester.BUGGY_MIN_STRESS = true;
+		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = true;
+		laughTest.setAllowSingleSectDuringJumps(false);
+//		SectionCluster.NEW_ADD_RUPS = false;
+//		CoulombRatesTester.BUGGY_MIN_STRESS = true;
+//		laughTest.setAllowSingleSectDuringJumps(false);
+		watch.reset();
+		watch.start();
+		FaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
+		watch.stop();
+		double secsOld = watch.elapsedMillis() / 1000d;
 		
+		System.out.println("New method: "+rupSet1.getNumRuptures()+" rups ("+(float)secsNew+" s)");
+		System.out.println("Old method: "+rupSet2.getNumRuptures()+" rups ("+(float)secsOld+" s)");
+		
+		writeDiffs(new File("/tmp/new_rups_in.zip"), rupSet1, rupSet2);
+		writeDiffs(new File("/tmp/new_rups_out.zip"), rupSet2, rupSet1);
+	}
+
+	public static void writeDiffs(File diffFile, FaultSystemRupSet rupSet1,
+			FaultSystemRupSet rupSet2) throws IOException {
 		HashSet<Rup> rups2 = new HashSet<Rup>();
 		for (int r=0; r<rupSet2.getNumRuptures(); r++) {
 			rups2.add(new Rup(rupSet2.getSectionsIndicesForRup(r)));
@@ -63,22 +107,27 @@ public class RupSetDiffMaker {
 		System.out.println("Found "+newRups.size()+" new rups ("
 				+rupSet1.getNumRuptures()+" => "+rupSet2.getNumRuptures()+")");
 		
-		// verify
-		for (Integer r : newRups) {
-			HashSet<Integer> rup = new HashSet<Integer>(rupSet1.getSectionsIndicesForRup(r));
-			rup2loop:
-			for (int r2=0; r2<rupSet2.getNumRuptures(); r2++) {
-				List<Integer> rup2 = rupSet2.getSectionsIndicesForRup(r2);
-				if (rup2.size() == rup.size()) {
-					for (Integer s : rup2)
-						if (!rup.contains(s))
-							continue rup2loop;
-					System.out.println("Equals ? "+new Rup(rupSet1.getSectionsIndicesForRup(r))
-								.equals(new Rup(rupSet2.getSectionsIndicesForRup(r2))));
-					throw new IllegalStateException("Found a match, wtf??");
-				}
-			}
+		if (newRups.isEmpty()) {
+			System.out.println("No rups!");
+			return;
 		}
+		
+//		// verify
+//		for (Integer r : newRups) {
+//			HashSet<Integer> rup = new HashSet<Integer>(rupSet1.getSectionsIndicesForRup(r));
+//			rup2loop:
+//			for (int r2=0; r2<rupSet2.getNumRuptures(); r2++) {
+//				List<Integer> rup2 = rupSet2.getSectionsIndicesForRup(r2);
+//				if (rup2.size() == rup.size()) {
+//					for (Integer s : rup2)
+//						if (!rup.contains(s))
+//							continue rup2loop;
+//					System.out.println("Equals ? "+new Rup(rupSet1.getSectionsIndicesForRup(r))
+//								.equals(new Rup(rupSet2.getSectionsIndicesForRup(r2))));
+//					throw new IllegalStateException("Found a match, wtf??");
+//				}
+//			}
+//		}
 		
 		double[] mags = new double[newRups.size()];
 		double[] rupAveSlips = new double[newRups.size()];

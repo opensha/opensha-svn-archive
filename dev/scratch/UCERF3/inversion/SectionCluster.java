@@ -9,13 +9,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import scratch.UCERF3.inversion.coulomb.CoulombRates;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesFilter;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesRecord;
+import scratch.UCERF3.inversion.laughTest.BuggyCoulombFilter;
+import scratch.UCERF3.inversion.laughTest.CoulombFilter;
+import scratch.UCERF3.inversion.laughTest.AbstractLaughTest;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.utils.IDPairing;
 
 /**
@@ -45,6 +52,7 @@ public class SectionCluster extends ArrayList<Integer> {
 	// THIS IS HARD CODED TO THE PARENT SECTION IDs FOR GARLOCK & PINTO MTN
 	boolean applyGarlockPintoMtnFix = true;  
 	
+	private static final boolean OLD_ADD_RUPS = false;
 	
 	/**
 	 * 
@@ -61,8 +69,8 @@ public class SectionCluster extends ArrayList<Integer> {
 			List<List<Integer>> sectionConnectionsListList, Map<IDPairing, Double> subSectionAzimuths,
 			Map<Integer, Double> rakesMap, double maxAzimuthChange, double maxTotAzimuthChange, 
 			double maxRakeDiff, Map<IDPairing, Double> subSectionDistances, double maxCumJumpDist) {
-		this(new LaughTestFilter(5d, maxAzimuthChange, maxTotAzimuthChange, maxRakeDiff,
-				maxCumJumpDist, 360, 540, minNumSectInRup, null),
+		this(new LaughTestFilter(5d, maxAzimuthChange, maxTotAzimuthChange,
+				maxCumJumpDist, 360, 540, minNumSectInRup, false, null),
 				sectionDataList, sectionConnectionsListList, subSectionAzimuths, rakesMap, subSectionDistances, null);
 	}
 
@@ -147,8 +155,116 @@ public class SectionCluster extends ArrayList<Integer> {
 //	int rupCounterProgressIncrement = 1000000;
 	int rupCounterProgress =100000;
 	int rupCounterProgressIncrement = 100000;
+	
+	private void addRuptures(FaultSectionPrefData sect, List<AbstractLaughTest> laughTests) {
+		List<FaultSectionPrefData> rupture = Lists.newArrayList(sect);
+		List<Integer> junctionIndexes = Lists.newArrayList();
+		List<IDPairing> pairings = Lists.newArrayList();
+		
+		HashSet<Integer> idsSet = new HashSet<Integer>();
+		idsSet.add(sect.getSectionId());
+		List<Integer> idsList = Lists.newArrayList(idsSet);
+		
+		addRuptures(rupture, pairings, junctionIndexes, laughTests, idsList, idsSet);
+	}
+	
+	/**
+	 * This creates a rupture list for the given cluster by applying the laugh tests.
+	 * 
+	 * @param rupture
+	 * @param pairings
+	 * @param junctionIndexes
+	 * @param tests
+	 * @param idsList
+	 * @param idsSet
+	 */
+	private void addRuptures(List<FaultSectionPrefData> rupture, List<IDPairing> pairings,
+			List<Integer> junctionIndexes, List<AbstractLaughTest> tests,
+			List<Integer> idsList, HashSet<Integer> idsSet) {
+		FaultSectionPrefData currentLastSect = rupture.get(rupture.size()-1);
+		
+		List<Integer> branches = sectionConnectionsListList.get(currentLastSect.getSectionId());
+		
+		// this is for enabling debugging to figure out why a certain rupture is included
+//		boolean debugMatch = idsList.size() > 1 && idsList.get(0) == 1 && idsList.get(1) == 1;
+//		boolean debugMatch = idsList.get(0) == 1;
+		final boolean debugMatch = false;
+		
+		for(int candidateIndex : branches) {
 
-
+			// avoid looping back on self or to previous section
+			if(idsSet.contains(candidateIndex))
+				continue;
+			
+//			boolean debugMatch = idsList.get(idsList.size()-1) == 2351 && candidateIndex == 208
+//					|| idsList.get(idsList.size()-1) == 208 && candidateIndex == 2351;
+			
+			FaultSectionPrefData candidateLastSect = sectionDataList.get(candidateIndex);
+			
+			List<FaultSectionPrefData> candidateRupture = Lists.newArrayList(rupture);
+			candidateRupture.add(candidateLastSect);
+			
+			List<Integer> candidateJunctionIndexes = Lists.newArrayList(junctionIndexes);
+			
+			boolean junction = currentLastSect.getParentSectionId() !=
+					candidateLastSect.getParentSectionId();
+			if (junction)
+				// this equals candidateRupture.size() - 1, but one less arithmetic operation
+				candidateJunctionIndexes.add(rupture.size());
+			
+			List<IDPairing> candidatePairings = Lists.newArrayList(pairings);
+			candidatePairings.add(new IDPairing(currentLastSect.getSectionId(), candidateIndex));
+			
+			boolean pass = true;
+			boolean cont = true;
+			
+			for (AbstractLaughTest test : tests) {
+				if (!junction && test.isApplyJunctionsOnly())
+					continue;
+				
+				boolean testPass = test.doesLastSectionPass(
+						candidateRupture, candidatePairings, candidateJunctionIndexes);
+				if (!testPass) {
+					pass = false;
+					if (debugMatch)
+						System.out.println("Failed: "+
+								ClassUtils.getClassNameWithoutPackage(test.getClass())
+								+" ("+Joiner.on(",").join(idsList)+","+candidateIndex+")");
+					if (!test.isContinueOnFaulure()) {
+						// be careful to only break if this isn't a fail when we can continue
+						cont = false;
+						break;
+					}
+				}
+			}
+			
+			if (!cont)
+				// this means we failed a non-continuation test
+				continue;
+			
+			ArrayList<Integer> candidateIDList = Lists.newArrayList(idsList);
+			candidateIDList.add(candidateIndex);
+			HashSet<Integer> candidateIDSet = new HashSet<Integer>(idsSet);
+			candidateIDSet.add(candidateIndex);
+			
+			if (pass) {
+				rupListIndices.add(candidateIDList);
+				if (numRupsAdded > 1000000) {
+					System.out.println("WARNING: Bailing on a cluster after 1 million ruptures!");
+					return;
+				}
+				numRupsAdded += 1;
+				// show progress
+				if(numRupsAdded >= rupCounterProgress) {
+					if (D) System.out.println(numRupsAdded+" ["+rupListIndices.size()+"]");
+					rupCounterProgress += rupCounterProgressIncrement;
+				}
+			}
+			addRuptures(candidateRupture, candidatePairings, candidateJunctionIndexes,
+					tests, candidateIDList, candidateIDSet);
+		}
+	}
+	
 	/**
 	 * This iteratively adds sections to the list (if the new section passes azimuth 
 	 * and other checks), and saves each rupture to the rupture list.
@@ -160,8 +276,8 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * (even if it's headed in an allowed direction).
 	 * @param list
 	 */
-	private void addRuptures(ArrayList<Integer> list) {
-		addRuptures(list, 0d, 0d, 0d, null, null, false);
+	private void addRupturesOld(ArrayList<Integer> list) {
+		addRupturesOld(list, 0d, 0d, 0d, null, null, false);
 	}
 	
 	/**
@@ -177,8 +293,10 @@ public class SectionCluster extends ArrayList<Integer> {
 			if (rupture.contains(branch))
 				continue;
 			int branchParent = sectionDataList.get(branch).getParentSectionId();
-			if (branchParent != sectParent)
+			if (branchParent != sectParent) {
+//				System.out.println("It's a junction! Possibility: "+index+"=>"+branch);
 				return true;
+			}
 		}
 		return false;
 	}
@@ -194,14 +312,14 @@ public class SectionCluster extends ArrayList<Integer> {
 	 * (even if it's headed in an allowed direction).
 	 * @param list
 	 */
-	private void addRuptures(ArrayList<Integer> list, double cmlRakeChange, double cmlAzimuthChange, double cmlJumpDist,
+	private void addRupturesOld(ArrayList<Integer> list, double cmlRakeChange, double cmlAzimuthChange, double cmlJumpDist,
 			ArrayList<CoulombRatesRecord> forwardRates, ArrayList<CoulombRatesRecord> backwardRates, boolean multiFault) {
 		int lastIndex = list.get(list.size()-1);
 		int secToLastIndex = -1;	// bogus index in case the next if fails
 		if(list.size()>1)
 			secToLastIndex = list.get(list.size()-2);
 		
-		CoulombRatesFilter coulombFilter = laughTestFilter.getCoulombFilter();
+		CoulombRatesTester coulombFilter = laughTestFilter.getCoulombFilter();
 		
 		if (forwardRates == null && coulombFilter != null) {
 			forwardRates = new ArrayList<CoulombRatesRecord>();
@@ -212,6 +330,8 @@ public class SectionCluster extends ArrayList<Integer> {
 			for (int i=1; i<list.size(); i++) {
 				rup.add(list.get(i-1));
 				if (!coulombFilter.isApplyBranchesOnly() || isBranchPoint(i-1, rup)) {
+					System.out.println("Adding up top!");
+					System.exit(0);
 					IDPairing pairing = new IDPairing(list.get(i-1), list.get(i));
 					CoulombRatesRecord record = coulombRates.get(pairing);
 					Preconditions.checkNotNull(record, "No mapping exists for pairing: "+pairing);
@@ -317,27 +437,31 @@ public class SectionCluster extends ArrayList<Integer> {
 				double newAzimuth = sectionAzimuths.get(newLastPairing);
 				newCMLAzimuthChange += Math.abs(newAzimuth - prevAzimuth);
 				if(newCMLAzimuthChange > laughTestFilter.getMaxCmlAzimuthChange())
-					continue;				
+					continue;
 			} 
 			
 			
 			// Filter out rupture if the set of rakes over entire rupture has too large a spread
-			if (!isNaNInfinite(laughTestFilter.getMaxRakeDiff())) {
-				double[] rakes, anglediffs2;
-				rakes = new double[newList.size()];
-				for (int i=0; i<newList.size(); i++)
-					rakes[i] = getRake(newList.get(i));
-				Arrays.sort(rakes);
-				anglediffs2 = new double[newList.size()];
-				for (int i=0; i<newList.size()-1; i++) {
-					anglediffs2[i] = rakes[i+1]-rakes[i];
-				}
-				anglediffs2[anglediffs2.length-1] = rakes[0]+360-rakes[newList.size()-1];
-				double rakeDiff = 360-StatUtils.max(anglediffs2);
-				if (rakeDiff>laughTestFilter.getMaxRakeDiff()) {
-					continue;
-				}
-			}
+			// now retired
+//			if (!isNaNInfinite(laughTestFilter.getMaxRakeDiff())) {
+//				double[] rakes, anglediffs2;
+//				rakes = new double[newList.size()];
+//				for (int i=0; i<newList.size(); i++)
+//					rakes[i] = getRake(newList.get(i));
+//				Arrays.sort(rakes);
+//				anglediffs2 = new double[newList.size()];
+//				for (int i=0; i<newList.size()-1; i++) {
+//					anglediffs2[i] = rakes[i+1]-rakes[i];
+//				}
+//				anglediffs2[anglediffs2.length-1] = rakes[0]+360-rakes[newList.size()-1];
+//				double rakeDiff = 360-StatUtils.max(anglediffs2);
+//				if (rakeDiff>laughTestFilter.getMaxRakeDiff()) {
+//					continue;
+//				}
+//			}
+			
+//			boolean debugMatch = newList.contains(2154) && newList.contains(1942) && newList.contains(2168);
+//			debugMatch = debugMatch || (newList.get(0) == 2155 && newList.get(newList.size()-1) == 1847);
 			
 			// if we've made it this far then we should check coulomb
 			ArrayList<CoulombRatesRecord> myForwardRates = null;
@@ -349,6 +473,10 @@ public class SectionCluster extends ArrayList<Integer> {
 						System.out.println(sectionDataList.get(newLastPairing.getID1()).getSectionName());
 						System.out.println(sectionDataList.get(newLastPairing.getID2()).getSectionName());
 					}
+//					if (debugMatch && newIndex == 302) {
+//						System.out.println("Adding at 302. newList: "+Joiner.on(";").join(newList));
+//					}
+//					System.out.println("Adding coulomb. newIndex="+newIndex+"; prev="+newList.get(newList.size()-2)+"; pairing="+newLastPairing);
 					Preconditions.checkNotNull(forward, "No mapping exists for pairing: "+newLastPairing);
 					IDPairing reversedPairing = newLastPairing.getReversed();
 					CoulombRatesRecord backward = coulombRates.get(reversedPairing);
@@ -363,11 +491,22 @@ public class SectionCluster extends ArrayList<Integer> {
 				}
 			}
 			
+//			debugMatch = debugMatch && newList.contains(2285);
+			
 			boolean sameParID = sectionDataList.get(lastIndex).getParentSectionId() == sectionDataList.get(newIndex).getParentSectionId();
 			if(newList.size() >= laughTestFilter.getMinNumSectInRup() && sameParID)  {// it's a rupture
 				// now test coulomb
 				// TODO remove newList.size() <= 2 hack. this is in here to make sure that each section is
 				// involved in at least one rupture
+//				if (debugMatch)
+//					System.out.println("We made it this far!!!!");
+//				if (debugMatch) {
+//					System.out.println("Rup: "+Joiner.on(", ").join(newList));
+//					BuggyCoulombFilter.printDebugRates(newList, myForwardRates, myBackwardRates);
+//					System.out.println("Coulomb test: "+coulombFilter.doesRupturePass(myForwardRates, myBackwardRates));
+//					if (!newIsMultiFault)
+//						System.out.println("Passes because single fault!");
+//				}
 				if (coulombFilter == null || !newIsMultiFault
 						|| coulombFilter.doesRupturePass(myForwardRates, myBackwardRates)) {
 					// uncomment these lines to only save a very small amount of ruptures
@@ -377,6 +516,8 @@ public class SectionCluster extends ArrayList<Integer> {
 						System.out.println("WARNING: Bailing on a cluster after 1 million ruptures!");
 						return;
 					}
+//					if (debugMatch)
+//						System.out.println("and now we add because it passed coulomb!");
 					numRupsAdded += 1;
 					// show progress
 					if(numRupsAdded >= rupCounterProgress) {
@@ -384,10 +525,15 @@ public class SectionCluster extends ArrayList<Integer> {
 						rupCounterProgress += rupCounterProgressIncrement;
 					}
 				} else {
+//					if (debugMatch) {
+//						System.out.println("Boo it failed.");
+//						System.out.println("Rup: "+Joiner.on(", ").join(newList));
+//						BuggyCoulombFilter.printDebugRates(newList, myForwardRates, myBackwardRates);
+//					}
 					continue;
 				}
 			}
-			addRuptures(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist, myForwardRates, myBackwardRates, newIsMultiFault);
+			addRupturesOld(newList, newCMLRakeChange, newCMLAzimuthChange, newCMLJumpDist, myForwardRates, myBackwardRates, newIsMultiFault);
 		}
 	}
 	
@@ -410,6 +556,9 @@ public class SectionCluster extends ArrayList<Integer> {
 		numRupsAdded=0;
 		//		System.out.print("% Done:\t");
 		// loop over every section as the first in the rupture
+		List<AbstractLaughTest> laughTests = laughTestFilter.buildLaughTests(
+				sectionAzimuths, subSectionDistances, rakesMap, coulombRates,
+				applyGarlockPintoMtnFix, sectionConnectionsListList, sectionDataList);
 		for(int s=0;s<size();s++) {
 			//		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
 			// show progress
@@ -420,7 +569,10 @@ public class SectionCluster extends ArrayList<Integer> {
 			ArrayList<Integer> sectList = new ArrayList<Integer>();
 			int sectIndex = get(s);
 			sectList.add(sectIndex);
-			addRuptures(sectList);
+			if (OLD_ADD_RUPS)
+				addRupturesOld(sectList);
+			else
+				addRuptures(sectionDataList.get(sectIndex), laughTests);
 			//			System.out.println(rupList.size()+" ruptures after section "+s);
 		}
 		if (D) System.out.println("\nAdded "+numRupsAdded+" rups so far!");

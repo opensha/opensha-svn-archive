@@ -39,6 +39,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
@@ -509,7 +510,9 @@ public class BatchPlotGen {
 		}
 		if (!hasParentMFDPlots) {
 			try {
-				CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
+				if (invSol == null)
+					invSol = new InversionFaultSystemSolution(sol);
+				CommandLineInversionRunner.writeParentSectionMFDPlots(invSol,
 						new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME));
 			} catch (Exception e) {
 				e.printStackTrace();

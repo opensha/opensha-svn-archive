@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -631,6 +632,21 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			subSeisMFD_list = getInversionMFDs().getTargetSubSeismoOnFaultMFD_List();
 		}
 		return subSeisMFD_list;
+	}
+	
+	public SummedMagFreqDist getFinalSubSeismoOnFaultMFDForParent(int parentSectionID) {
+		
+		SummedMagFreqDist mfd = new SummedMagFreqDist(InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
+		
+		List<GutenbergRichterMagFreqDist> subSeismoMFDs = getFinalSubSeismoOnFaultMFD_List();
+		
+		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
+			if (getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
+				continue;
+			mfd.addIncrementalMagFreqDist(subSeismoMFDs.get(sectIndex));
+		}
+		
+		return mfd;
 	}
 
 	

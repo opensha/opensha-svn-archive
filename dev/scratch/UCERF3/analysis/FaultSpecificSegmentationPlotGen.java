@@ -380,23 +380,26 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM3_1_UCERF2_COMPARISON_sol.zip");
 //		File solFile = new File("/tmp/FM2_1_UCERF2_COMPARISON_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
-		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"), "FM3_1_UCERF2_COMPARISON_sol.zip");
+		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
+		
+		CommandLineInversionRunner.writeSAFSegPlots(sol, new File("/tmp/branch_avg"), "branch_avg");
 		
 //		Map<Integer, List<Integer>> namedMap = sol.getFaultModel().getNamedFaultsMap();
 //		List<Integer> parents = namedMap.get(32);
 		// NBMK: 294
-		List<Integer> parents = getSAFParents(sol.getFaultModel());
-		
-		System.out.println(Joiner.on(", ").join(parents));
-		
-//		plotSegmentation(parents, sol, 0, true);
-//		plotSegmentation(parents, sol, 0, false);
-//		plotSegmentation(parents, sol, 7, true);
-//		plotSegmentation(parents, sol, 6.5, false);
-		plotSegmentation(parents, sol, 7, false);
-//		plotSegmentation(parents, sol, 7.5, true);
-//		plotSegmentation(parents, sol, 7.5, false);
+//		List<Integer> parents = getSAFParents(sol.getFaultModel());
+//		
+//		System.out.println(Joiner.on(", ").join(parents));
+//		
+////		plotSegmentation(parents, sol, 0, true);
+////		plotSegmentation(parents, sol, 0, false);
+////		plotSegmentation(parents, sol, 7, true);
+////		plotSegmentation(parents, sol, 6.5, false);
+//		plotSegmentation(parents, sol, 7, false);
+////		plotSegmentation(parents, sol, 7.5, true);
+////		plotSegmentation(parents, sol, 7.5, false);
 	}
 
 }

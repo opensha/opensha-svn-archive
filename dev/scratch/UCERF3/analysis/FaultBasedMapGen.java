@@ -556,7 +556,7 @@ public class FaultBasedMapGen {
 		// now make geologic pts plot
 		CPT cpt = getSlipRateCPT();
 		List<GeologicSlipRate> geoRates = GeologicSlipRateLoader.loadExcelFile(
-				new URL("http://www.wgcep.org/sites/wgcep.org/files/UCERF3_Geologic_Slip%20Rates_version%203_2011_08_03.xls"));
+				new URL("http://www.wgcep.org/sites/wgcep.org/files/UCERF3_Geologic_Slip%20Rates_version%203_2012_11_01.xls"));
 		ArrayList<PSXYSymbol> symbols = Lists.newArrayList();
 		ArrayList<Double> vals = Lists.newArrayList();
 		

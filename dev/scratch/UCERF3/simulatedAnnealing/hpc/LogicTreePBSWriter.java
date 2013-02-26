@@ -604,7 +604,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "no-slip-rate-weighting";
+		String runName = "2013_02_06-no-carrizo-combined-paleo-wts";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -616,7 +616,7 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 60 * 10;	// 10 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
-		runName = df.format(new Date())+"-"+runName;
+//		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
@@ -687,11 +687,11 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
-//		TreeTrimmer defaultBranchesTrimmer = null;
+		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -736,9 +736,16 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
 		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
+		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
+		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray("4")));
+		variationBranches.add(buildVariationBranch(ops, toArray("6")));
+		variationBranches.add(buildVariationBranch(ops, toArray("8")));
+		variationBranches.add(buildVariationBranch(ops, toArray("10")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };

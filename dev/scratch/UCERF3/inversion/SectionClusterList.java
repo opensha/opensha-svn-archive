@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.coulomb.CoulombRates;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 
@@ -139,7 +140,7 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 		}
 	}
 	
-	private void addClusterLinks(int subSectIndex, SectionCluster list, List<List<Integer>> sectionConnectionsListList) {
+	static void addClusterLinks(int subSectIndex, SectionCluster list, List<List<Integer>> sectionConnectionsListList) {
 		List<Integer> branches = sectionConnectionsListList.get(subSectIndex);
 		for(int i=0; i<branches.size(); i++) {
 			Integer subSect = branches.get(i);

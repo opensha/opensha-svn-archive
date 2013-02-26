@@ -11,7 +11,7 @@ import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
-import scratch.UCERF3.inversion.LaughTestFilter;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;

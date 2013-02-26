@@ -38,6 +38,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.RupInRegionCache;
+import org.opensha.sha.faultSurface.RupNodesCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -204,7 +205,7 @@ public class ERF_Calculator {
 						}
 					}
 				else
-					isInside = rupInRegionCache.isRupInRegion(rupture, srcIndex, rupIndex, region);
+					isInside = rupInRegionCache.isRupInRegion(source, rupture, srcIndex, rupIndex, region);
 				
 				if(isInside) {
 					double equivRate = rupture.getMeanAnnualRate(duration);
@@ -331,24 +332,53 @@ public class ERF_Calculator {
 	 */
 	public static GriddedGeoDataSet getNucleationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
 			double minMag, double maxMag) {
+		return getNucleationRatesInRegion(erf, griddedRegion, minMag, maxMag, null);
+	}
+	
+	/**
+	 * The gives the effective nucleation rates for events greater than or equal to minMag
+	 * and less than maxMag for each point in the supplied GriddedRegion.
+	 * @param erf - it's assumed that erf.updateForecast() has already been called
+	 * @param griddedRegion
+	 * @param minMag
+	 * @param maxMag
+	 * @return GriddedGeoDataSet - X-axis is set as Latitude, and Y-axis is Longitude
+	 */
+	public static GriddedGeoDataSet getNucleationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
+			double minMag, double maxMag, RupNodesCache rupNodesCache) {
 
 		GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		double[] zVals = new double[griddedRegion.getNodeCount()];
 
 		double duration = erf.getTimeSpan().getDuration();
-		for (ProbEqkSource source : erf) {
-			for (ProbEqkRupture rupture : source) {
+		for (int srcIndex=0; srcIndex<erf.getNumSources(); srcIndex++) {
+			ProbEqkSource source = erf.getSource(srcIndex);
+			for (int rupIndex=0; rupIndex<source.getNumRuptures(); rupIndex++) {
+				ProbEqkRupture rupture = source.getRupture(rupIndex);
 				double mag = rupture.getMag();
 				if(mag>=minMag && mag<maxMag) {
-					LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
-					double ptRate = rupture.getMeanAnnualRate(duration)/surfLocs.size();
-					for(Location loc: surfLocs) {
-						int index = griddedRegion.indexForLocation(loc);
-						//					  int index = xyzData.indexOf(loc);	// this is slow and should be changed; revise this later when it has been
-						if(index >= 0) {
-							//						  xyzData.set(index, xyzData.get(index)+ptRate);
-							zVals[index] += ptRate;
-						}			  
+					int[] nodes = null;
+					if (rupNodesCache != null)
+						nodes = rupNodesCache.getNodesForRup(
+								source, rupture, srcIndex, rupIndex, griddedRegion);
+					
+					if (nodes == null) {
+						LocationList surfLocs = rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+						double ptRate = rupture.getMeanAnnualRate(duration)/surfLocs.size();
+						for(Location loc: surfLocs) {
+							int index = griddedRegion.indexForLocation(loc);
+							//					  int index = xyzData.indexOf(loc);	// this is slow and should be changed; revise this later when it has been
+							if(index >= 0) {
+								//						  xyzData.set(index, xyzData.get(index)+ptRate);
+								zVals[index] += ptRate;
+							}			  
+						}
+					} else {
+						double[] fracts = rupNodesCache.getFractsInNodesForRup(
+								source, rupture, srcIndex, rupIndex, griddedRegion);
+						double rate = rupture.getMeanAnnualRate(duration);
+						for (int i=0; i<nodes.length; i++)
+							zVals[nodes[i]] += rate*fracts[i];
 					}
 				}
 			}
@@ -415,37 +445,29 @@ public class ERF_Calculator {
 	}
 
 	public static GriddedGeoDataSet getParticipationRatesInRegion(ERF erf, GriddedRegion griddedRegion,
-			double minMag, double maxMag, ConcurrentMap<Integer, int[]> rupNodesCache) {
+			double minMag, double maxMag, RupNodesCache rupNodesCache) {
 
 		GriddedGeoDataSet xyzData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 		double[] zVals = new double[griddedRegion.getNodeCount()];
 
 		double duration = erf.getTimeSpan().getDuration();
-		int rupIndex = 0;
-		for (ProbEqkSource source : erf) {
-			for (ProbEqkRupture rupture : source) {
+		for (int srcIndex=0; srcIndex<erf.getNumSources(); srcIndex++) {
+			ProbEqkSource source = erf.getSource(srcIndex);
+			for (int rupIndex=0; rupIndex<source.getNumRuptures(); rupIndex++) {
+				ProbEqkRupture rupture = source.getRupture(rupIndex);
 				double mag = rupture.getMag();
 				if(mag>=minMag && mag<maxMag) {
 					int[] rupNodes = null;
 					if (rupNodesCache != null)
-						rupNodes = rupNodesCache.get(rupIndex);
-					if (rupNodes == null) {
-						HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
-						for(Location loc: rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
-							int index = griddedRegion.indexForLocation(loc);
-							if(index >= 0)
-								locIndices.add(index);
-						}
-						rupNodes = Ints.toArray(locIndices);
-						if (rupNodesCache != null)
-							rupNodesCache.putIfAbsent(rupIndex, rupNodes);
-					}
+						rupNodes = rupNodesCache.getNodesForRup(
+								source, rupture, srcIndex, rupIndex, griddedRegion);
+					if (rupNodes == null)
+						rupNodes = getRupNodesInRegion(rupture, griddedRegion);
 					double qkRate = rupture.getMeanAnnualRate(duration);
 					for(int locIndex : rupNodes) {
 						zVals[locIndex] += qkRate;
 					}
 				}
-				rupIndex++;
 			}
 		}
 
@@ -453,6 +475,17 @@ public class ERF_Calculator {
 			xyzData.set(i, zVals[i]);
 
 		return xyzData;
+	}
+
+	public static int[] getRupNodesInRegion(
+			ProbEqkRupture rupture, GriddedRegion griddedRegion) {
+		HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
+		for(Location loc: rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+			int index = griddedRegion.indexForLocation(loc);
+			if(index >= 0)
+				locIndices.add(index);
+		}
+		return Ints.toArray(locIndices);
 	}
 
 

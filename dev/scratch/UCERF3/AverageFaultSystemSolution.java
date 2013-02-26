@@ -176,6 +176,13 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		return ratesBySol[solIndex];
 	}
 	
+	public List<double[]> getRatesForAllSols() {
+		List<double[]> list = Lists.newArrayList();
+		for (int i=0; i<getNumSolutions(); i++)
+			list.add(getRates(i));
+		return list;
+	}
+	
 	/**
 	 * Returns a double array conatining the rate for this rup in every solution
 	 * @param rupIndex
@@ -671,19 +678,21 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		File file = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/" +
-				"InversionSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_" +
-				"SpatSeisU3_VarPaleo0.1_mean_sol.zip");
+//		File file = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+		File file = new File("/tmp/asdf/file.zip");
 		
-//		AverageFaultSystemSolution avg = fromZipFile(file);
+		AverageFaultSystemSolution avg = fromZipFile(file);
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_21-zeng-ref-lowpaleo-100runs/paleo");
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_31-zeng-ref-char-unconst-lowpaleo-100runs/results");
-		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(new File(dir,
-				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_run00_sol.zip"));
-		AverageFaultSystemSolution avg = fromDirectory(rupSet, dir,
-				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_31-zeng-ref-char-unconst-lowpaleo-100runs/results");
+//		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(new File(dir,
+//				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1_run00_sol.zip"));
+//		AverageFaultSystemSolution avg = fromDirectory(rupSet, dir,
+//				"FM3_1_ZENG_EllB_DsrUni_CharUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPaleo0.1");
 //		avg.writePaleoPlots(dir);
 //		avg.writePaleoBoundsPlot(dir);
+		
+		System.out.println(avg.getDeformationModel());
+		System.exit(0);
 		
 		IncrementalMagFreqDist[] mfds = avg.calcParentSectionNucleationMFDs(301);
 		PlotSpec spec = getMFDConvergencePlotSpec(mfds, true, "SAF Mojave", 10);
