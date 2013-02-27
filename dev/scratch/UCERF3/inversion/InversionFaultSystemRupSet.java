@@ -402,8 +402,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	  
 	  /**
 	   * This writes the section data to an ASCII file
+	 * @throws IOException 
 	   */
-	  public void writeSectionsToFile(String filePathAndName) {
+	  public void writeSectionsToFile(String filePathAndName) throws IOException {
 		  ArrayList<String> metaData = new ArrayList<String>();
 		  metaData.add("defModName = "+defModName);
 		  FaultSectionDataWriter.writeSectionsToFile(faultSectionData, metaData, filePathAndName);

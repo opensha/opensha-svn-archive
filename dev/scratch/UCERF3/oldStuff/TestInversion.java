@@ -521,8 +521,9 @@ public class TestInversion {
 
 	  /**
 	   * This writes the section data to an ASCII file
+	 * @throws IOException 
 	   */
-	  public void writeSectionsToFile(String filePathAndName) {
+	  public void writeSectionsToFile(String filePathAndName) throws IOException {
 		  ArrayList<String> metaData = new ArrayList<String>();
 		  metaData.add("deformationModelId = "+deformationModelId);
 		  metaData.add("includeSectionsWithNaN_slipRates = "+includeSectionsWithNaN_slipRates);

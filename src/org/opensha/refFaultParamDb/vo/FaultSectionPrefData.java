@@ -287,6 +287,16 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	}
 	
 	/**
+	 * This returns the upper seismogenic (km) depth that has been modified
+	 * by the aseismicity factor
+	 * @return
+	 */
+	public double getReducedAveUpperDepth() {
+		double depthToReduce = aseismicSlipFactor*(getAveLowerDepth() - getOrigAveUpperDepth());
+		return getOrigAveUpperDepth() + depthToReduce;
+	}
+	
+	/**
 	 * This returns the dip direction (degrees)
 	 * @return
 	 */
@@ -542,8 +552,7 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	public SimpleFaultData getSimpleFaultData(boolean aseisReducesArea) {
 		double upperDepth = getOrigAveUpperDepth();
 		if (aseisReducesArea) {
-			double depthToReduce = aseismicSlipFactor*(getAveLowerDepth() - getOrigAveUpperDepth());
-			upperDepth = getOrigAveUpperDepth() + depthToReduce;
+			upperDepth = getReducedAveUpperDepth();
 		}
 		return new SimpleFaultData(getAveDip(), getAveLowerDepth(), upperDepth, getFaultTrace(), getDipDirection());
 	}

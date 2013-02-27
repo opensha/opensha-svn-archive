@@ -63,23 +63,22 @@ public class InversionConvergencePlotGen {
 				"NoFix_SpatSeisU3_mean_sol.zip");
 		AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromZipFile(avgFile);
 		
-		// now non waterlevel plots
-		File fm3_1_bins = new File(solDir,
-				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_bins.zip");
-		writeWaterlevelResults(outputDir, "branch_runs_fm3_1_run0",
-				loadNonWaterlevelsForBranches(new ZipFile(fm3_1_bins), "run0"));
-		
 		File avgSol0rates = new File(solDir, "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_" +
 				"M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run00.bin");
 		File avgSol0NoMins = new File(solDir, "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_" +
 				"M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run00_noMinRates.bin");
 		double[] waterlevels = loadWaterlevels(avgSol0rates, avgSol0NoMins);
-		writeWaterlevelResults(outputDir, "ref_branch", loadNonWaterlevelsForAvg(avgSol, waterlevels));
+		writeWaterlevelResults(outputDir, "ref_branch", loadNonWaterlevelsForAvg(avgSol, waterlevels), avgSol.getNumRuptures());
 		
 		// these are for branch averages
+		// now non waterlevel plots
 		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(
 				new File(compoundSol.getParentFile(),
 						"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		File fm3_1_bins = new File(solDir,
+				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_bins.zip");
+		writeWaterlevelResults(outputDir, "branch_runs_fm3_1_run0",
+				loadNonWaterlevelsForBranches(new ZipFile(fm3_1_bins), "run0"), rupSet.getNumRuptures());
 		writeResults(loadBranchAverages(zip, FaultModels.FM3_1, rupSet.getNumRuptures()),
 				outputDir, "mean_fm3_1", rupSet);
 		writeResults(loadBranchRuns(zip, FaultModels.FM3_1, "_rates_0.bin"),
@@ -293,9 +292,18 @@ public class InversionConvergencePlotGen {
 	private static void writePlot(File dir, String prefix,
 			ArrayList<DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars,
 			String title, String xAxis, String yAxis, boolean yLog) throws IOException {
+		writePlot(dir, prefix, funcs, chars, title, xAxis, yAxis, yLog, null);
+	}
+	
+	private static void writePlot(File dir, String prefix,
+			ArrayList<DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars,
+			String title, String xAxis, String yAxis, boolean yLog, double[][] axis) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(yLog);
 		CommandLineInversionRunner.setFontSizes(gp);
+		
+		if (axis != null)
+			gp.setUserBounds(axis[0][0], axis[0][1], axis[1][0], axis[1][1]);
 		
 		gp.drawGraphPanel(xAxis, yAxis, funcs, chars, true, title);
 		
@@ -416,7 +424,7 @@ public class InversionConvergencePlotGen {
 		return func;
 	}
 	
-	private static void writeWaterlevelResults(File dir, String prefix, EvenlyDiscretizedFunc func)
+	private static void writeWaterlevelResults(File dir, String prefix, EvenlyDiscretizedFunc func, int numRups)
 			throws IOException {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -424,8 +432,14 @@ public class InversionConvergencePlotGen {
 		funcs.add(func);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
+		double[][] axis = new double[2][2];
+		axis[0][0] = 0d;
+		axis[0][1] = func.getMaxX();
+		axis[1][0] = 0d;
+		axis[1][1] = numRups;
+		
 		writePlot(dir, prefix+"_above_waterlevel", funcs, chars, "Ruptures Above Waterlevel",
-				"# Runs", "# Rups Above Waterlevel", false);
+				"# Runs", "# Rups Above Waterlevel", false, axis);
 	}
 
 }

@@ -77,6 +77,7 @@ public class LaughTestFilter {
 		USE_BUGGY_COULOMB = true;
 		CoulombRatesTester.BUGGY_MIN_STRESS = true;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = true;
+		AzimuthChangeFilter.INCLUDE_OWL_LAKE = false;
 	}
 	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,

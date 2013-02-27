@@ -19,6 +19,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
+import scratch.UCERF3.inversion.laughTest.AzimuthChangeFilter;
 import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 
@@ -61,6 +62,7 @@ public class RupSetDiffMaker {
 		LaughTestFilter.USE_BUGGY_COULOMB = false;
 		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
+		AzimuthChangeFilter.INCLUDE_OWL_LAKE = true;
 		laughTest.setAllowSingleSectDuringJumps(true);
 		Stopwatch watch = new Stopwatch();
 		watch.start();
@@ -69,10 +71,11 @@ public class RupSetDiffMaker {
 		new SimpleFaultSystemRupSet(rupSet1).toZipFile(new File("/tmp/rupSet1.zip"));
 		double secsNew = watch.elapsedMillis() / 1000d;
 		rupSet1.setInfoString("");
-		LaughTestFilter.USE_BUGGY_COULOMB = true;
-		CoulombRatesTester.BUGGY_MIN_STRESS = true;
-		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = true;
-		laughTest.setAllowSingleSectDuringJumps(false);
+		LaughTestFilter.USE_BUGGY_COULOMB = false;
+		CoulombRatesTester.BUGGY_MIN_STRESS = false;
+		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
+		AzimuthChangeFilter.INCLUDE_OWL_LAKE = false;
+		laughTest.setAllowSingleSectDuringJumps(true);
 //		SectionCluster.NEW_ADD_RUPS = false;
 //		CoulombRatesTester.BUGGY_MIN_STRESS = true;
 //		laughTest.setAllowSingleSectDuringJumps(false);

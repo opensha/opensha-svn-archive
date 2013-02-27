@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3.utils;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,17 +27,24 @@ public class FaultSectionDataWriter {
 	 * @param subSectionPrefDataList
 	 * @param metaData - each String in this list will have a "# " and "\n" added to the beginning and ending, respectively
 	 * @param filePathAndName
+	 * @throws IOException 
 	 */
 	public final static void writeSectionsToFile(List<FaultSectionPrefData> subSectionPrefDataList, 
-			ArrayList<String> metaData, String filePathAndName) {
-		try {
-			FileWriter fw = new FileWriter(filePathAndName);
-			fw.write(getSectionsASCII(subSectionPrefDataList, metaData).toString());
-			fw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			List<String> metaData, String filePathAndName) throws IOException {
+		writeSectionsToFile(subSectionPrefDataList, metaData, new File(filePathAndName), false);
+	}
+	
+	/**
+	 * 
+	 * @param subSectionPrefDataList
+	 * @param metaData - each String in this list will have a "# " and "\n" added to the beginning and ending, respectively
+	 * @param file
+	 */
+	public final static void writeSectionsToFile(List<FaultSectionPrefData> subSectionPrefDataList, 
+			List<String> metaData, File file, boolean applyReductions) throws IOException {
+		FileWriter fw = new FileWriter(file);
+		fw.write(getSectionsASCII(subSectionPrefDataList, metaData, applyReductions).toString());
+		fw.close();
 	}
 
 	/**
@@ -46,7 +54,7 @@ public class FaultSectionDataWriter {
 	 * @param filePathAndName
 	 */
 	public final static StringBuffer getSectionsASCII(List<FaultSectionPrefData> subSectionPrefDataList, 
-			ArrayList<String> metaData) {
+			List<String> metaData, boolean applyReductions) {
 		StringBuffer buff = new StringBuffer();
 		if (metaData != null && !metaData.isEmpty()) {
 			String header1 = "# ******** MetaData **************\n";
@@ -54,16 +62,19 @@ public class FaultSectionDataWriter {
 				header1 += "# "+metaDataLine+"\n";
 			buff.append(header1);
 		}
+		String reducedStr = "";
+		if (applyReductions)
+			reducedStr = "Reduced ";
 		String header2 = "# ******** Data Format ***********\n"+ 
 				"# Section Index\n"+
 				"# Section Name\n"+
 				"# Parent Section ID\n"+
 				"# Parent Section Name\n"+
-				"# Ave Upper Seis Depth (km)\n"+
+				"# Ave "+reducedStr+"Upper Seis Depth (km)\n"+
 				"# Ave Lower Seis Depth (km)\n"+
 				"# Ave Dip (degrees)\n"+
 				"# Ave Dip Direction\n"+
-				"# Ave Long Term Slip Rate\n"+
+				"# Ave "+reducedStr+"Long Term Slip Rate\n"+
 				"# Ave Aseismic Slip Factor\n"+
 				"# Ave Rake\n"+
 				"# Trace Length (derivative value) (km)\n"+
@@ -78,13 +89,19 @@ public class FaultSectionDataWriter {
 			FaultTrace faultTrace = sectData.getFaultTrace(); 
 			String str =  sectData.getSectionId()+"\n"+sectData.getSectionName()+"\n"+
 					getValue(sectData.getParentSectionId())+"\n"+
-					getValue(sectData.getParentSectionName())+"\n"+
-					getValue(sectData.getOrigAveUpperDepth())+"\n"+
-					getValue(sectData.getAveLowerDepth())+"\n"+
+					getValue(sectData.getParentSectionName())+"\n";
+			if (applyReductions)
+				str += getValue(sectData.getReducedAveUpperDepth())+"\n";
+			else
+				str += getValue(sectData.getOrigAveUpperDepth())+"\n";
+			str += 	getValue(sectData.getAveLowerDepth())+"\n"+
 					getValue(sectData.getAveDip()) +"\n"+
-					getValue(sectData.getDipDirection())+"\n"+
-					getValue(sectData.getOrigAveSlipRate())+"\n"+
-					getValue(sectData.getAseismicSlipFactor())+"\n"+
+					getValue(sectData.getDipDirection())+"\n";
+			if (applyReductions)
+				str += getValue(sectData.getReducedAveSlipRate())+"\n";
+			else
+				str += getValue(sectData.getOrigAveSlipRate())+"\n";
+			str += 	getValue(sectData.getAseismicSlipFactor())+"\n"+
 					getValue(sectData.getAveRake())+"\n"+
 					getValue(faultTrace.getTraceLength())+"\n"+
 					faultTrace.getNumLocations()+"\n";

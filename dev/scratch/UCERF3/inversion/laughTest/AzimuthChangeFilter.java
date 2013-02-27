@@ -21,7 +21,10 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class AzimuthChangeFilter extends AbstractLaughTest {
 	
+	public static boolean INCLUDE_OWL_LAKE = false;
+	
 	private boolean applyGarlockPintoMtnFix;
+	private HashSet<Integer> leftLateralFixParents;
 	private Map<IDPairing, Double> sectionAzimuths;
 	
 	private double maxAzimuthChange;
@@ -33,6 +36,15 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 		this.maxTotAzimuthChange = maxTotAzimuthChange;
 		this.applyGarlockPintoMtnFix = applyGarlockPintoMtnFix;
 		this.sectionAzimuths = sectionAzimuths;
+		if (applyGarlockPintoMtnFix) {
+			leftLateralFixParents = new HashSet<Integer>();
+			leftLateralFixParents.add(48);
+			leftLateralFixParents.add(49);
+			leftLateralFixParents.add(93);
+			leftLateralFixParents.add(341);
+			if (INCLUDE_OWL_LAKE)
+				leftLateralFixParents.add(47);
+		}
 	}
 
 	@Override
@@ -59,12 +71,10 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 			int prevSectParent = rupture.get(lastIndexInRup-2).getParentSectionId();
 			Preconditions.checkState(newSectParent != prevSectParent);
 			
-			if (newSectParent == 49 || newSectParent == 341
-					|| newSectParent == 48 || newSectParent == 93)
+			if (leftLateralFixParents.contains(newSectParent))
 				newSectPairing = newSectPairing.getReversed();
 			
-			if (prevSectParent == 49 || prevSectParent == 341
-					|| prevSectParent == 48 || prevSectParent == 93)
+			if (leftLateralFixParents.contains(prevSectParent))
 				prevSectPairing = prevSectPairing.getReversed();
 		}
 		
