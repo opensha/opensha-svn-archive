@@ -90,6 +90,8 @@ public class DeformationModelFetcher {
 
 	String fileNamePrefix;
 	File precomputedDataDir;
+	
+	public static final String SUB_DIR_NAME = "FaultSystemRupSets";
 
 	ArrayList<FaultSectionPrefData> faultSectPrefDataList;
 	ArrayList<FaultSectionPrefData> faultSubSectPrefDataList;
@@ -117,7 +119,7 @@ public class DeformationModelFetcher {
 	public DeformationModelFetcher(FaultModels faultModel, DeformationModels deformationModel,
 			File precomputedDataDir, double defaultAseismicityValue) {
 		double maxSubSectionLength = 0.5; // in units of DDW
-		this.precomputedDataDir = new File(precomputedDataDir, "FaultSystemRupSets");;
+		this.precomputedDataDir = new File(precomputedDataDir, SUB_DIR_NAME);
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
 		this.faultModel = faultModel;

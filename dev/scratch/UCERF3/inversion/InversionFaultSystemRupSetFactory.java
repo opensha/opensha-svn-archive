@@ -174,6 +174,23 @@ public class InversionFaultSystemRupSetFactory {
 			LaughTestFilter laughTest,
 			double defaultAseismicityValue,
 			LogicTreeBranch branch) {
+		return forBranch(laughTest, defaultAseismicityValue, branch, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+	}
+	
+	/**
+	 * Creates a rupture set for the specified branch on the logic tree and the given laugh test filter
+	 * 
+	 * @param laughTest
+	 * @param defaultAseismicityValue
+	 * @param branch Logic tree branch for which to build a model. Must be fully specified (no null values)</code>
+	 * @param scratchDir this is the scratch directory where temporary distance calculation files should be cached.
+	 * @return
+	 */
+	public static InversionFaultSystemRupSet forBranch(
+			LaughTestFilter laughTest,
+			double defaultAseismicityValue,
+			LogicTreeBranch branch,
+			File scratchDir) {
 		Preconditions.checkArgument(branch.isFullySpecified(), "Logic tree must be fully specified (no null values) in order " +
 				"to create an InversionFaultSystemRupSet.");
 		
@@ -192,7 +209,7 @@ public class InversionFaultSystemRupSetFactory {
 			filterBasis = deformationModel;
 		}
 		DeformationModelFetcher filterBasisFetcher = new DeformationModelFetcher(faultModel, filterBasis,
-				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue);
+				scratchDir, defaultAseismicityValue);
 //		System.out.println("Creating clusters with filter basis: "+filterBasis+", Fault Model: "+faultModel);
 		SectionClusterList clusters = new SectionClusterList(filterBasisFetcher, laughTest);
 		
@@ -200,9 +217,9 @@ public class InversionFaultSystemRupSetFactory {
 		if (filterBasis == deformationModel) {
 			faultSectionData = clusters.getFaultSectionData();
 		} else {
-			// we need to get it outselves
+			// we need to get it ourselves
 			faultSectionData = new DeformationModelFetcher(faultModel, deformationModel,
-					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, defaultAseismicityValue).getSubSectionList();
+					scratchDir, defaultAseismicityValue).getSubSectionList();
 		}
 		
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(branch,

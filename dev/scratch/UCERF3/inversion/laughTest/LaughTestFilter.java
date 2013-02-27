@@ -80,6 +80,13 @@ public class LaughTestFilter {
 		AzimuthChangeFilter.INCLUDE_OWL_LAKE = false;
 	}
 	
+	public static void revertUCERF3p2Bugs() {
+		USE_BUGGY_COULOMB = false;
+		CoulombRatesTester.BUGGY_MIN_STRESS = false;
+		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
+		AzimuthChangeFilter.INCLUDE_OWL_LAKE = true;
+	}
+	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,
 			double maxTotAzimuthChange,
 			double maxCumJumpDist, double maxCmlRakeChange,
