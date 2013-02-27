@@ -188,8 +188,8 @@ public class SectionCluster extends ArrayList<Integer> {
 		// this is for enabling debugging to figure out why a certain rupture is included
 //		boolean debugMatch = idsList.size() > 1 && idsList.get(0) == 1 && idsList.get(1) == 1;
 //		boolean debugMatch = idsList.get(0) == 1;
-//		final boolean debugMatch = false;
-		boolean debugMatch = idsList.contains(613) && idsList.contains(1495);
+		final boolean debugMatch = false;
+//		boolean debugMatch = idsList.contains(613) && idsList.contains(1495);
 		
 		for(int candidateIndex : branches) {
 
