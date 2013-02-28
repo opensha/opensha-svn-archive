@@ -24,6 +24,7 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesTester.TestType;
 import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -251,9 +252,14 @@ public class InversionFaultSystemRupSetFactory {
 //			UCERF3_GEOLOGIC.getRupSet(true);
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
-			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1);
+//			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1);
 			
-//			LaughTestFilter filter = LaughTestFilter.getDefault();
+			LaughTestFilter filter = LaughTestFilter.getDefault();
+			LaughTestFilter.revertUCERF3p2Bugs();
+			filter.setAllowSingleSectDuringJumps(true);
+			filter.setCoulombFilter(new CoulombRatesTester(TestType.COULOMB_STRESS, 0.05, 0.05, 1.25, true));
+			FaultSystemRupSet rupSet = forBranch(filter, DEFAULT_ASEIS_VALUE, FaultModels.FM3_1);
+			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/rup_set_0.05_1.25.zip"));
 //			filter.setAllowSingleSectDuringJumps(false);
 //			List<Integer> counts = Lists.newArrayList();
 //			List<Double> ratios = Lists.newArrayList();

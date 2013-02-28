@@ -62,7 +62,7 @@ public class RupSetDiffMaker {
 		LaughTestFilter.USE_BUGGY_COULOMB = false;
 		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
-		AzimuthChangeFilter.INCLUDE_OWL_LAKE = true;
+		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = true;
 		laughTest.setAllowSingleSectDuringJumps(true);
 		Stopwatch watch = new Stopwatch();
 		watch.start();
@@ -74,7 +74,7 @@ public class RupSetDiffMaker {
 		LaughTestFilter.USE_BUGGY_COULOMB = false;
 		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
-		AzimuthChangeFilter.INCLUDE_OWL_LAKE = false;
+		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
 		laughTest.setAllowSingleSectDuringJumps(true);
 //		SectionCluster.NEW_ADD_RUPS = false;
 //		CoulombRatesTester.BUGGY_MIN_STRESS = true;

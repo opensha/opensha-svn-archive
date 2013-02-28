@@ -77,14 +77,14 @@ public class LaughTestFilter {
 		USE_BUGGY_COULOMB = true;
 		CoulombRatesTester.BUGGY_MIN_STRESS = true;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = true;
-		AzimuthChangeFilter.INCLUDE_OWL_LAKE = false;
+		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
 	}
 	
 	public static void revertUCERF3p2Bugs() {
 		USE_BUGGY_COULOMB = false;
 		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
-		AzimuthChangeFilter.INCLUDE_OWL_LAKE = true;
+		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = true;
 	}
 	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,

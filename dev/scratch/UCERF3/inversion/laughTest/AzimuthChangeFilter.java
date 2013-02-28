@@ -21,7 +21,7 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class AzimuthChangeFilter extends AbstractLaughTest {
 	
-	public static boolean INCLUDE_OWL_LAKE = false;
+	public static boolean INCLUDE_UCERF3p3_NEW_LL = false;
 	
 	private boolean applyGarlockPintoMtnFix;
 	private HashSet<Integer> leftLateralFixParents;
@@ -42,8 +42,10 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 			leftLateralFixParents.add(49);
 			leftLateralFixParents.add(93);
 			leftLateralFixParents.add(341);
-			if (INCLUDE_OWL_LAKE)
+			if (INCLUDE_UCERF3p3_NEW_LL) {
 				leftLateralFixParents.add(47);
+				leftLateralFixParents.add(169);
+			}
 		}
 	}
 

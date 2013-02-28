@@ -29,14 +29,14 @@ public class LaughTestRupExclusionDebugger {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		int[] sects = {612, 613, 1495, 1496};
+//		int[] sects = {612, 613, 1495, 1496};
+		int[] sects = {2343, 2342, 1962, 1925, 1926};
 		
 		boolean applyGarlockPintoMtnFix = true;
 		
 		LaughTestFilter filter = LaughTestFilter.getDefault();
-		AzimuthChangeFilter.INCLUDE_OWL_LAKE = true;
-		LaughTestFilter.USE_BUGGY_COULOMB = false;
-		CoulombRatesTester.BUGGY_MIN_STRESS = false;
+		LaughTestFilter.revertUCERF3p2Bugs();
+		filter.setAllowSingleSectDuringJumps(true);
 		
 		FaultModels fm = FaultModels.FM3_1;
 		DeformationModels dm = DeformationModels.GEOLOGIC;
