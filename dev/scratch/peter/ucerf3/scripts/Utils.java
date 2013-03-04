@@ -46,7 +46,7 @@ public class Utils {
 
 	public static void main(String[] args) {
 //		generateFullTreeBranchList("UC32tree1440");
-		generateBranchList("UC32-FM-DM-MS");
+		generateBranchList("UC32-FM-DM-MS-U2-1sec");
 	}
 	
 
@@ -96,7 +96,7 @@ public class Utils {
 		Set<MomentRateFixes> momentFix = EnumSet.of(
 			NONE);
 		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(
-			UCERF3); // UCERF2, UCERF3);
+			UCERF2); // UCERF2, UCERF3);
 
 		buildList(fileName, fltModels, defModels, scalingRel, slipRup, invModels, 
 			totM5rate, mMaxOff, momentFix, spatialSeis);
