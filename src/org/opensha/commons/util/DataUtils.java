@@ -449,7 +449,7 @@ public class DataUtils {
 //		Range<Double> range = Range.open(0d, Double.POSITIVE_INFINITY);
 //		System.out.println(range.contains(Double.POSITIVE_INFINITY));
 		
-		double[] vals = new double[] {2, 5, -3, 12, -4, 8};
+		double[] vals = new double[] {4, 1e-6, -3.0, 8d, 0.0, 1e8, Double.POSITIVE_INFINITY};
 		List<Double> data = Doubles.asList(vals);
 		List<Integer> indices = sortedIndices(data, true);
 		System.out.println(indices);
@@ -674,8 +674,10 @@ public class DataUtils {
 	 * any of your arrays according to the sort order of the supplied
 	 * {@code data}.
 	 * 
-	 * <p>Note that the supplied data should not be sorted and that this method
-	 * does not modify the supplied {@code data} in any way.</p>
+	 * <p> <b>Notes:</b> <ul> <li>The supplied data should not be sorted</li>
+	 * <li>This method does not modify the supplied {@code data} in any way</li>
+	 * <li>Any {@code NaN}s in {@code data} are placed at the start of the sort
+	 * order, regardless of sort direction</li> <ul> </p>
 	 * 
 	 * @param data to provide sort indices for
 	 * @param ascending if {@code true}, descending if {@code false}
