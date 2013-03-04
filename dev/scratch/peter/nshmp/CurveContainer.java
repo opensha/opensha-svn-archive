@@ -103,7 +103,7 @@ public class CurveContainer implements Iterable<Location> {
 	}
 
 	/**
-	 * Subtracts the curves of the supplied container to this one.
+	 * Subtracts the curves of the supplied container from this one.
 	 * @param cc container to add
 	 * @throws IllegalArgumentException if underlying gridded regions are not
 	 *         the same
