@@ -22,7 +22,7 @@ import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 class CityGeneratorNSHMP {
 
 //	private static final String OUT_DIR = "/Volumes/Scratch/rtgm/NSHMP_CA_SHA-epi";
-	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/NSHMP_CA_SHA";
+	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/NSHMP_CA_SHA-flt";
 	private static Period[] periods = { GM0P00, GM0P20, GM1P00 };
 	private static Map<String, Location> locMap;
 	private static String sitePath;
@@ -35,7 +35,7 @@ class CityGeneratorNSHMP {
 		sitePath = "tmp/curves/sites/all.txt";
 		try {
 			locMap = UC3_CalcUtils.readSiteFile(sitePath);
-			System.out.println(locMap);
+//			System.out.println(locMap);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -52,7 +52,7 @@ class CityGeneratorNSHMP {
 			System.out.println("NumProc: " + numProc);
 			NSHMP2008 erf = newERF();
 //			erf.updateForecast();
-			System.out.println(erf);
+//			System.out.println(erf);
 			for (Period period : periods) {
 //				ScalarIMR imr = newIMR(period);
 				CityProcessorNSHMP proc = new CityProcessorNSHMP(erf, locMap,
@@ -68,7 +68,7 @@ class CityGeneratorNSHMP {
 	}
 
 	static NSHMP2008 newERF() {
-		NSHMP2008 erf = NSHMP2008.createCalifornia();
+		NSHMP2008 erf = NSHMP2008.createCaliforniaFault();
 //		MeanUCERF2 erf = new MeanUCERF2();
 //		MeanUCERF2 erf = new MeanUCERF2update(GridSources.ALL);
 //		ModMeanUCERF2 erf = new ModMeanUCERF2();

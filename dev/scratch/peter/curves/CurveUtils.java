@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
@@ -33,6 +35,9 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sra.rtgm.RTGM;
 import org.opensha.sra.rtgm.RTGM.Frequency;
 
@@ -114,8 +119,22 @@ public class CurveUtils {
 
 //		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
 //		String locFile = srcPath + "sites.txt";
-//		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3";
+//		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3.2-bg";
 //		generateBranchSummaries2(locFile, curveDir, true);
+		
+//		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		File srcDir = new File(treePath + "NEHRP-PBR-SRP/UC32tree1440-bg/");
+//		File outDir = new File(treePath + "NEHRP-PBR-SRP/UC32tree1440-bg-reduce");
+//		File locFile = new File(treePath + "sites.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
+//		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
+
+//		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		File srcDir = new File(treePath + "NEHRP-PBR-SRP/UC32treeNewSites/");
+//		File outDir = new File(treePath + "NEHRP-PBR-SRP/UC32treeNewSites-reduce");
+//		File locFile = new File(treePath + "newsites.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
+//		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
 
 //		String treePath = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tree/SRP1440";
 //		File srcDir = new File(treePath + "/src");
@@ -129,19 +148,30 @@ public class CurveUtils {
 //		File locFile = new File(treePath + "/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 
-		String treePath = UC3_ROOT + "tree/UC32tree1440";
-		File srcDir = new File(treePath + "/src");
-		File outDir = new File(treePath + "/reduce");
-		File locFile = new File(treePath + "/all.txt");
-		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
-		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
+//		String treePath = UC3_ROOT + "tree/UC32tree1440";
+//		File srcDir = new File(treePath + "/src");
+//		File outDir = new File(treePath + "/reduce");
+//		File locFile = new File(treePath + "/all.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
+//		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
 
-//		File srcDir = new File(UC3_ROOT + "convAFnoBG/src");
-//		File outDir = new File(UC3_ROOT + "convAFnoBG");
-//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt");
-//		reorganizeUC3branchResults(srcDir, outDir, locFile, true);
+//		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		String locFile = srcPath + "sites.txt";
+//		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3.2-bg";
+//		generateBranchSummaries2(locFile, curveDir, true);
+
+//		File srcDir = new File(UC3_ROOT + "UC3.2-conv-src");
+//		File outDir = new File(UC3_ROOT + "UC3.2-conv");
+//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
 //		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
-		
+
+		File srcDir = new File(UC3_ROOT + "UC3.2-vars-src");
+		File outDir = new File(UC3_ROOT + "UC3.2-vars");
+		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt");
+		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
+		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
+
 //		File srcDir = new File(UC3_ROOT + "tree_src/PalmdaleTree");
 //		File outDir = new File(UC3_ROOT + "PalmdaleTree");
 //		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palm.txt");
@@ -154,6 +184,16 @@ public class CurveUtils {
 		
 //		listAllBranches();
 //		 writeConvTestMags();
+		
+//		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		String totSrc = treePath + "NEHRP-PBR-SRP/UC3.2/";
+//		String bgSrc = treePath + "NEHRP-PBR-SRP/UC3.2-bg/";
+//		String fltDest = treePath + "NEHRP-PBR-SRP/UC3.2-flt/";
+//		String locFile = treePath + "sites.txt";
+//		extractFaultCurves(totSrc, bgSrc, fltDest, locFile);
+		
+//		morganSurface();
+		
 	}
 	
 	
@@ -518,6 +558,7 @@ public class CurveUtils {
 			int idx = 0;
 			for (String val : Iterables.skip(vals, 2)) {
 				double annRate = Double.parseDouble(val);
+				if (annRate < 0) annRate = 0;
 				curve.set(idx++, annRate);
 			}
 			curves.add(curve);
@@ -892,6 +933,98 @@ public class CurveUtils {
 			f.set(p);
 		}
 		return f;
+	}
+	
+	/*
+	 * subtracts background from total curves to get fault source only curves
+	 */
+	private static void extractFaultCurves(String totalDir, String bgDir,
+			String fltDir, String locFile) throws IOException {
+		
+		Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locFile);
+		String paramFile = PARAM_FILE + ".csv";
+		String curveFile = CURVE_FILE + ".csv";
+		
+		for (Period p : periods) {
+			for (String locName : locMap.keySet()) {
+					
+				File totSrc = new File(totalDir + p + S + locName + S + curveFile);
+				File bgSrc = new File(bgDir + p + S + locName + S + curveFile);
+				File fltDest = new File(fltDir + p + S + locName + S + curveFile);
+
+				Iterator<String> totCurves = Files.readLines(totSrc, US_ASCII).iterator();
+				Iterator<String> bgCurves = Files.readLines(bgSrc, US_ASCII).iterator();
+				
+				// header
+				Files.createParentDirs(fltDest);
+				Files.write(totCurves.next() + LF, fltDest, US_ASCII);
+				bgCurves.next();
+				
+				// curves
+				while (totCurves.hasNext()) {
+					Iterable<String> totDat = SPLIT.split(totCurves.next());
+					Iterable<String> bgDat = SPLIT.split(bgCurves.next());					
+					Iterable<String> totValStr = Iterables.skip(totDat, 2);
+					Iterable<String> bgValStr = Iterables.skip(bgDat, 2);
+					List<Double> totVals = stringToDouble(totValStr);
+					List<Double> bgVals = stringToDouble(bgValStr);
+					List<Double> fltVals = DataUtils.subtract(totVals, bgVals);
+					Iterable<?> dat = Iterables.concat(Iterables.limit(totDat, 2), fltVals);
+					String fltStr = JOIN.join(dat);
+					Files.append(fltStr + LF, fltDest, US_ASCII);
+				}
+				
+				// copy params / logic tree branch list
+				File paramSrc = new File(totalDir + p + S + locName + S + paramFile);
+				File paramDest = new File(fltDir + p + S + locName + S + paramFile);
+				Files.createParentDirs(paramDest);
+				Files.copy(paramSrc, paramDest);
+			}
+		}
+	}
+	
+	private static List<Double> stringToDouble(Iterable<String> strVals) {
+		List<Double> vals = Lists.newArrayList();
+		for (String s : strVals) {
+			vals.add(Double.parseDouble(s));
+		}
+		return vals;
+	}
+	
+	private static List<String> doubleToString(Iterable<Double> dblVals) {
+		List<String> strs = Lists.newArrayList();
+		for (Double d : dblVals) {
+			strs.add(Double.toString(d));
+		}
+		return strs;
+	}
+	
+	
+	private static void morganSurface() throws IOException {
+		// 20 km fault width @ 50 deg = 15.321 km depth
+		File srcDat = new File("tmp/morgan/segment.txt");
+		File outDat = new File("tmp/morgan/segment-surface.txt");
+		Iterable<String> locLines = Files.readLines(srcDat, US_ASCII);
+		FaultTrace trace = new FaultTrace("test");
+		Splitter split =  Splitter.on(" ").omitEmptyStrings();
+		for (String locLine : locLines) {
+			Iterator<String> it = split.split(locLine).iterator();
+			double lon = Double.parseDouble(it.next());
+			double lat = Double.parseDouble(it.next());
+			trace.add(new Location(lat, lon));
+		}
+		SimpleFaultData sfd = new SimpleFaultData(50, 15.321, 0, trace);
+		double spacing = trace.getTraceLength()/255;
+		StirlingGriddedSurface sgs = new StirlingGriddedSurface(sfd, spacing, 0.158); // CW_EB 256 x 128
+		System.out.println(sgs);
+		System.out.println(sgs.getGridSpacingDownDip());
+		System.out.println(sgs.getGridSpacingAlongStrike());
+		
+		Files.write(sgs.toString(), outDat, US_ASCII);
+		Files.append("Along strike spacing: " + sgs.getGridSpacingAlongStrike() + "\n", outDat, US_ASCII);
+		Files.append("Down dip spacing: " + sgs.getGridSpacingDownDip() + "\n", outDat, US_ASCII);
+
 	}
 	
 }
