@@ -11,7 +11,10 @@ import java.util.Properties;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.peter.ucerf3.calc.UC3_CalcDriver;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
@@ -65,18 +68,22 @@ public class test {
 		
 		
 		try {
-			String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-			String sitesPath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/SRPsites1.txt";
-			String outPath = "/Users/pmpowers/projects/OpenSHA/tmp/SRPconvTest";
-			Period[] periods = new Period[] { Period.GM0P00 };
-			for (int i = 0; i < 100; i++) {
-//				File out = new File("tmp/SRPconvTestHCtest.txt");
-//				Files.write("", out, US_ASCII);
-
-				UC3_CalcDriver cd = new UC3_CalcDriver(solSetPath, i,
-					sitesPath, outPath, periods, false);
-				
-			}
+			
+			String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+//			String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+//			String sitesPath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/test.txt";
+//			String outPath = "/Users/pmpowers/projects/OpenSHA/tmp/UC32-CONV-TEST";
+//			Period[] periods = new Period[] { Period.GM0P00 };
+//			for (int i = 0; i < 100; i++) {
+//				UC3_CalcDriver cd = new UC3_CalcDriver(solSetPath, i,
+//					sitesPath, outPath, periods, false);
+//			}
+			
+			AverageFaultSystemSolution afss = UC3_CalcUtils.getAvgSolution(solSetPath);
+			FaultSystemSolution fss = afss.getSolution(8);
+			System.out.println(fss.getDeformationModel());
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
