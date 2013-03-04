@@ -48,10 +48,11 @@ import com.google.common.collect.Maps;
 public class UC3_LocalCalc {
 
 //	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/compound/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip";
-//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
-	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
+	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_14-fm3-logic-tree-sample-x5_run0_COMPOUND_SOL.zip";
+//	static final String COMPOUND_SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
 //	 private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/NSHMPdev2/test";
-	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/convVar0mean";
+//	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/UC3.2-conv-mean";
+	private static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/data/UC3/tmp";
 	private static final String S = File.separator;
 
 	UC3_LocalCalc(String solSetPath, int solIdx, String outDir,
@@ -59,7 +60,7 @@ public class UC3_LocalCalc {
 			throws IOException, InterruptedException, ExecutionException {
 
 		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
-			solSetPath, solIdx, IncludeBackgroundOption.INCLUDE,false, true, 1.0);
+			solSetPath, solIdx, IncludeBackgroundOption.EXCLUDE,false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 		LocationList locs = new LocationList();
@@ -68,7 +69,8 @@ public class UC3_LocalCalc {
 		}
 		
 		for (Period period : periods) {
-			String outPath = outDir + S + erf.getName() + S + period + S;
+//			String outPath = outDir + S + erf.getName() + S + period + S;
+			String outPath = outDir + S + period + S;
 			System.out.println(outPath);
 			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
 			HazardResultWriter writer = new HazardResultWriterSites(outFile,
@@ -84,12 +86,12 @@ public class UC3_LocalCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 
-		Period[] periods = { GM0P00 }; //, GM0P20, GM1P00 };
+		Period[] periods = { GM0P00, GM0P20, GM1P00 };
 		String solSetPath = COMPOUND_SOL_PATH;
 		int idx = -1;
 		boolean epi = false;
 
-		String sitePath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt";
+		String sitePath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/test.txt";
 		Map<String,Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
 
 		try {
