@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOBGROUP=UC32tree1440
+JOBGROUP=UC32vars
 
 #Local config for script
 SHA_LOCAL=/Users/pmpowers/projects/OpenSHA
@@ -19,7 +19,8 @@ SITEFILE=$BASEDIR/UC3/curvejobs/sites/all.txt
 #OUTDIR=$BASEDIR/UC3/curves/conv/$JOBGROUP
 #FILENAME=/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip
 #FILENAME=/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip
-#ERF_COUNT=99
+#FILENAME=/conv/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip
+#ERF_COUNT=10
 
 #OUTDIR=$BASEDIR/UC3/curves/tree/$JOBGROUP
 #FILENAME=/tree/2012_10_14-fm31-tree-x1-COMPOUND_SOL.zip
@@ -28,10 +29,14 @@ SITEFILE=$BASEDIR/UC3/curvejobs/sites/all.txt
 #FILENAME=/tree/2012_10_29-fm31-tree-x7-COMPOUND_SOL.zip
 #ERF_COUNT=719
 
-OUTDIR=$BASEDIR/UC3/curves/tree/$JOBGROUP
+#OUTDIR=$BASEDIR/UC3/curves/tree/$JOBGROUP
 #FILENAME=/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip
-FILENAME=/tree/2013_01_14-UC32-COMPOUND_SOL.zip
-ERF_COUNT=1439
+#FILENAME=/tree/2013_01_14-UC32-COMPOUND_SOL.zip
+#ERF_COUNT=1439
+
+OUTDIR=$BASEDIR/UC3/curves/vars/$JOBGROUP
+FILENAME=/vars/2013_02_01-ucerf3p2-weights_COMPOUND_SOL.zip
+ERF_COUNT=10
 
 SOLFILE=$SRCDIR$FILENAME
 mkdir $SCRIPT_DIR
