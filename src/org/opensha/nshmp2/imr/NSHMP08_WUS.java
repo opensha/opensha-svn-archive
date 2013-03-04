@@ -438,7 +438,13 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 	
 	@Override
 	public double getMean() {
-		throw new UnsupportedOperationException();
+		// tmp KLUDGY for Nico
+		double mean = 0;
+		for (ScalarIMR imr : imrMap.keySet()) {
+			mean += 0.3333 * Math.exp(imr.getMean());
+		}
+		return Math.log(mean);
+//		throw new UnsupportedOperationException();
 	}
 
 	@Override
