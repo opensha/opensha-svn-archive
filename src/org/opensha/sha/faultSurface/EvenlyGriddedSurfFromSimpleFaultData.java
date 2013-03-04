@@ -156,7 +156,7 @@ extends AbstractEvenlyGriddedSurfaceWithSubsets{
 		double length = faultTrace.getTraceLength();
 		double gridSpacingAlong = length/Math.ceil(length/maxGridSpacingAlong);
 		double downDipWidth = (lowerSeismogenicDepth-upperSeismogenicDepth)/Math.sin(aveDip*Math.PI/180 );
-		double gridSpacingDown = downDipWidth/Math.ceil(downDipWidth/maxGridSpacingAlong);
+		double gridSpacingDown = downDipWidth/Math.ceil(downDipWidth/maxGridSpacingDown);
 /*		
 		System.out.println(faultTrace.getName()+"\n\t"+
 				maxGridSpacingAlong+"\t"+(float)gridSpacingAlong+"\t"+(float)gridSpacingDown+"\t"+
