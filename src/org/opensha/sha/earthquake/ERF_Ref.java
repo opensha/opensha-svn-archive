@@ -177,9 +177,9 @@ public enum ERF_Ref {
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
 			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false),
 	
-	INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME, EXPERIMENTAL, false),
+	INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME, EXPERIMENTAL, false);
 	
-	TEST_ETAS1_ERF(TestModel1_ERF.class, TestModel1_ERF.NAME, EXPERIMENTAL, false);
+//	TEST_ETAS1_ERF(TestModel1_ERF.class, TestModel1_ERF.NAME, EXPERIMENTAL, false);
 
 	
 	private Class<? extends BaseERF> clazz;
