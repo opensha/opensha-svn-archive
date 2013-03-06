@@ -43,13 +43,16 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 	private File outDir;
 	private Period period;
 	
+	// FOR USE WITH SINGLE SOLUTIONS: DOES NOT EXPECT A BRANCH IDENTIFIER BUT
+	// TAKES A NAME INSTEAD THAT IS USED FOR OUTPUT
+	
 	public UC3_HazardCalcDriverMPJ2(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
 		if (args.length != 6) {
 			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] " +
-					"<solPath> <branchID> <grid> <spacing> <period> <outPath>");
+					"<solPath> <mapID> <grid> <spacing> <period> <outPath>");
 			abortAndExit(2);
 		}
 
@@ -58,18 +61,18 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 		debug(rank, null, "setup for "+getNumThreads()+" threads");
 		
 		String solPath = args[0];
-		String branchID = args[1];
+		String mapID = args[1];
 		TestGrid grid = TestGrid.valueOf(args[2]);
 		double spacing = Double.parseDouble(args[3]);
 		locs = grid.grid(spacing).getNodeList();
 		period = Period.valueOf(args[4]);
 		String outPath = args[5];
 
-		outDir = new File(outPath + S + branchID + S + grid + S + period);
+		outDir = new File(outPath + S + mapID + S + grid + S + period);
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(solPath, branchID, locs, period, false, writer);
+		calc = new ThreadedHazardCalc(solPath, locs, period, false, writer);
 	}
 	
 	@Override
