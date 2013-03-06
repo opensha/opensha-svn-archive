@@ -312,7 +312,7 @@ public class BatchPlotGen {
 			
 			if (prefix.contains("_run")) {
 				// make sure that every run is done
-				prefix = prefix.substring(0, prefix.indexOf("_run"));
+				prefix = prefix.substring(0, prefix.indexOf("_run")+1); // leave the underscore after
 				// if we're in a subdirectory, skip out to main
 				File myDir;
 				if (file.getParentFile().getName().startsWith(prefix))
@@ -335,7 +335,7 @@ public class BatchPlotGen {
 					System.out.println("Not quite done with '"+prefix+"' ("+completed+"/"+total+")");
 					continue;
 				}
-				String meanPrefix = prefix + "_mean";
+				String meanPrefix = prefix + "mean";
 				File meanSolDir = new File(myDir, meanPrefix);
 				if (!meanSolDir.exists())
 					meanSolDir.mkdir();
