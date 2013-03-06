@@ -79,6 +79,23 @@ public class ThreadedHazardCalc {
 	}
 
 	/**
+	 * Initializes a new threaded hazard calculation for the specified UC3 
+	 * solution.
+	 */
+	@SuppressWarnings("javadoc")
+	public ThreadedHazardCalc(String solPath, LocationList locs,
+		Period period, boolean epiUncert, HazardResultWriter writer) {
+		this.locs = locs;
+		this.period = period;
+		this.writer = writer;
+		this.epiUncert = epiUncert;
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath, -1,
+			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		erfList = ERF_ID.wrapInList(erf);
+		erfList.updateForecast();
+	}
+
+	/**
 	 * Calculates hazard curves for the specified indices. Presently no index
 	 * checking is performed. If {@code indices} is {@code null}, curves are
 	 * calculated at all locations.
