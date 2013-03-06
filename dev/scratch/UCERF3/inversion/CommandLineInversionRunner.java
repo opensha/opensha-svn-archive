@@ -114,7 +114,11 @@ public class CommandLineInversionRunner {
 		SLIP_WT("slipwt", "slip-wt", "SlipWt", true, "Slip rate constraint wt"),
 		NO_WEIGHT_SLIP_RATES("nowtslip", "no-weight-slips", "NoWeightSlip", false, "Flag to disable slip rate weighting"),
 		SERIAL("serial", "force-serial", "Serial", false, "Force serial annealing"),
-		SYNTHETIC("syn", "synthetic", "Synthetic", false, "Synthetic data from solution rates named syn.bin.");
+		SYNTHETIC("syn", "synthetic", "Synthetic", false, "Synthetic data from solution rates named syn.bin."),
+		COULOMB("coulomb", "coulomb-threshold", "Coulomb", true, "Set coulomb filter threshold"),
+		COULOMB_EXCLUDE("coulombex", "coulomb-exclude-threshold", "CoulombExclusion", true,
+				"Set coulomb filter exclusion DCFF threshold"),
+		UCERF3p2("u3p2", "ucerf3p2", "U3p2", false, "Flag for reverting to UCERF3.2 rup set/data");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -248,7 +252,20 @@ public class CommandLineInversionRunner {
 			if (!subDir.exists())
 				subDir.mkdir();
 
-			LaughTestFilter laughTest = LaughTestFilter.getDefault();
+			LaughTestFilter laughTest;
+			if (cmd.hasOption(InversionOptions.UCERF3p2.argName))
+				laughTest = LaughTestFilter.getUCERF3p2Filter();
+			else
+				laughTest = LaughTestFilter.getDefault();
+			if (cmd.hasOption(InversionOptions.COULOMB.argName)) {
+				double val = Double.parseDouble(cmd.getOptionValue(InversionOptions.COULOMB.argName));
+				laughTest.getCoulombFilter().setMinAverageProb(val);
+				laughTest.getCoulombFilter().setMinIndividualProb(val);
+			}
+			if (cmd.hasOption(InversionOptions.COULOMB_EXCLUDE.argName)) {
+				double val = Double.parseDouble(cmd.getOptionValue(InversionOptions.COULOMB_EXCLUDE.argName));
+				laughTest.getCoulombFilter().setMinimumStressExclusionCeiling(val);
+			}
 			String aseisArg = InversionOptions.DEFAULT_ASEISMICITY.argName;
 			double defaultAseis = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
 			if (cmd.hasOption(aseisArg)) {

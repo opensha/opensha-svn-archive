@@ -1,11 +1,9 @@
 package scratch.UCERF3.inversion.coulomb;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
-
-import scratch.UCERF3.utils.IDPairing;
+import com.google.common.collect.Lists;
 
 /**
  * Laugh test filter based on Coulomb Rates
@@ -20,7 +18,7 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class CoulombRatesTester {
 	
-	public static boolean BUGGY_MIN_STRESS = true;
+	private boolean BUGGY_MIN_STRESS = false;
 	
 	public enum TestType {
 		/** just test the coulomb values */
@@ -39,18 +37,23 @@ public class CoulombRatesTester {
 	private double minimumStressExclusionCeiling;
 	private TestType testType;
 	private boolean applyBranchesOnly;
+	private boolean allowAnyWay;
 	
 	public CoulombRatesTester(TestType testType, double minAverageProb, double minIndividualProb,
-			double minimumStressExclusionCeiling, boolean applyBranchesOnly) {
+			double minimumStressExclusionCeiling, boolean applyBranchesOnly, boolean allowAnyWay) {
 		this.minAverageProb = minAverageProb;
 		this.minIndividualProb = minIndividualProb;
 		this.minimumStressExclusionCeiling = minimumStressExclusionCeiling;
 		Preconditions.checkNotNull(testType, "Test type must be specified!");
 		this.testType = testType;
 		this.applyBranchesOnly = applyBranchesOnly;
-		
-		if (BUGGY_MIN_STRESS)
+		this.allowAnyWay = allowAnyWay;
+	}
+	
+	public void setBuggyMinStress(boolean buggyMinStress) {
+		if (buggyMinStress)
 			System.err.println("WARNING: buggy coulomb min stress exclusion implementation being used.");
+		this.BUGGY_MIN_STRESS = buggyMinStress;
 	}
 	
 	public boolean isApplyBranchesOnly() {
@@ -70,10 +73,10 @@ public class CoulombRatesTester {
 			return true; // return true if no rates to check
 		// check simple cases first
 		if (testType == TestType.SHEAR_STRESS || testType == TestType.COULOMB_STRESS)
-			return doesRupturePassEitherWay(forwardRates, backwardRates, testType);
+			return doesRupturePass(forwardRates, backwardRates, testType);
 		// this means we need to test both!
 		// first test coulomb
-		boolean coulombPass = doesRupturePassEitherWay(forwardRates, backwardRates, TestType.COULOMB_STRESS);
+		boolean coulombPass = doesRupturePass(forwardRates, backwardRates, TestType.COULOMB_STRESS);
 		// if coulomb passed and it's an "either" criteria, go ahead and pass
 		if (testType == TestType.EITHER && coulombPass)
 			return true;
@@ -81,11 +84,68 @@ public class CoulombRatesTester {
 		if (testType == TestType.BOTH && !coulombPass)
 			return false;
 		// getting here means passing depends only on shear passing
-		return doesRupturePassEitherWay(forwardRates, backwardRates, TestType.SHEAR_STRESS);
+		return doesRupturePass(forwardRates, backwardRates, TestType.SHEAR_STRESS);
 	}
 	
-	private boolean doesRupturePassEitherWay(List<CoulombRatesRecord> forwardRates, List<CoulombRatesRecord> backwardRates, TestType type) {
+	private boolean doesRupturePass(List<CoulombRatesRecord> forwardRates, List<CoulombRatesRecord> backwardRates, TestType type) {
+		if (allowAnyWay)
+			return doesRupturePassAnyWay(forwardRates, backwardRates, type);
 		return doesRupturePassOneWay(forwardRates, type) || doesRupturePassOneWay(backwardRates, type);
+	}
+	
+	private boolean doesRupturePassAnyWay(List<CoulombRatesRecord> forwardRates, List<CoulombRatesRecord> backwardRates, TestType type) {
+//		// this is a temporary hack to allow for always using the better juncture
+//		List<CoulombRatesRecord> bestRates = Lists.newArrayList();
+//		for (int i=0; i<forwardRates.size(); i++) {
+//			CoulombRatesRecord fwd = forwardRates.get(i);
+//			CoulombRatesRecord bkw = backwardRates.get((backwardRates.size()-1)-i);
+//			if (fwd.getCoulombStressChange()>=minimumStressExclusionCeiling)
+//				bestRates.add(fwd);
+//			else if (bkw.getCoulombStressChange()>=minimumStressExclusionCeiling)
+//				bestRates.add(bkw);
+//			else if (fwd.getCoulombStressProbability() > bkw.getCoulombStressProbability())
+//				bestRates.add(fwd);
+//			else
+//				bestRates.add(bkw);
+//		}
+//		boolean ret = doesRupturePassOneWay(bestRates, type);
+//		if (!ret) {
+//			// check to make sure this is actually the case, woah
+//			boolean trueFail = false;
+//			for (int i=0; i<forwardRates.size(); i++) {
+//				CoulombRatesRecord fwd = forwardRates.get(i);
+//				CoulombRatesRecord bkw = backwardRates.get((backwardRates.size()-1)-i);
+//				trueFail = !(fwd.getCoulombStressChange()>=minimumStressExclusionCeiling
+//						|| bkw.getCoulombStressChange()>=minimumStressExclusionCeiling
+//						|| fwd.getCoulombStressProbability()>=minIndividualProb
+//						|| bkw.getCoulombStressProbability()>=minIndividualProb);
+//				if (trueFail)
+//					break;
+//			}
+//			Preconditions.checkState(trueFail);
+//		}
+//		return ret;
+		
+		
+		// starting points can be before the first, in between any junctions, and after the last
+		// 'i' here represents the first junction after the start of the rupture
+		for (int i=0; i<=forwardRates.size(); i++) {
+			List<CoulombRatesRecord> rates = Lists.newArrayList();
+			// first add backward rates before index
+			for (int j=0; j<i; j++)
+				// backwardRates is reversed thus (size()-1) - j
+				rates.add(backwardRates.get((backwardRates.size()-1)-j));
+			// now add forward rates at or after i
+			for (int j=i; j<forwardRates.size(); j++)
+				rates.add(forwardRates.get(j));
+			
+			Preconditions.checkState(rates.size() == forwardRates.size());
+			
+			if (doesRupturePassOneWay(rates, testType))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -199,6 +259,14 @@ public class CoulombRatesTester {
 
 	public void setApplyBranchesOnly(boolean applyBranchesOnly) {
 		this.applyBranchesOnly = applyBranchesOnly;
+	}
+
+	public boolean isAllowAnyWay() {
+		return allowAnyWay;
+	}
+
+	public void setAllowAnyWay(boolean allowAnyWay) {
+		this.allowAnyWay = allowAnyWay;
 	}
 
 }

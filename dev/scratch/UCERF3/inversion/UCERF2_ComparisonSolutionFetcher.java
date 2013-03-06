@@ -57,29 +57,34 @@ public class UCERF2_ComparisonSolutionFetcher {
 					LaughTestFilter.getDefault(), 0, fm, dm, ScalingRelationships.AVE_UCERF2,
 					slipModel, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
 
-			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
-
-			SimpleFaultSystemRupSet modRupSet = new SimpleFaultSystemRupSet(rupSet);
-
-			double[] mags = new double[ucerf2_magsAndRates.size()];
-			double[] rates = new double[ucerf2_magsAndRates.size()];
-			for (int i=0; i<ucerf2_magsAndRates.size(); i++) {
-				double[] ucerf2_vals = ucerf2_magsAndRates.get(i);
-				if (ucerf2_vals == null) {
-					mags[i] = rupSet.getMagForRup(i);
-					rates[i] = 0;
-				} else {
-					mags[i] = ucerf2_vals[0];
-					rates[i] = ucerf2_vals[1];
-				}
-			}
-
-			modRupSet.setMagForallRups(mags);
-
-			sol = new SimpleFaultSystemSolution(modRupSet, rates);
+			sol = getUCERF2Solution(rupSet);
+			
 			cache.put(fm, slipModel, sol);
 		}
 		return sol;
+	}
+	
+	public static SimpleFaultSystemSolution getUCERF2Solution(FaultSystemRupSet rupSet) {
+		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
+
+		SimpleFaultSystemRupSet modRupSet = new SimpleFaultSystemRupSet(rupSet);
+
+		double[] mags = new double[ucerf2_magsAndRates.size()];
+		double[] rates = new double[ucerf2_magsAndRates.size()];
+		for (int i=0; i<ucerf2_magsAndRates.size(); i++) {
+			double[] ucerf2_vals = ucerf2_magsAndRates.get(i);
+			if (ucerf2_vals == null) {
+				mags[i] = rupSet.getMagForRup(i);
+				rates[i] = 0;
+			} else {
+				mags[i] = ucerf2_vals[0];
+				rates[i] = ucerf2_vals[1];
+			}
+		}
+
+		modRupSet.setMagForallRups(mags);
+
+		return new SimpleFaultSystemSolution(modRupSet, rates);
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {

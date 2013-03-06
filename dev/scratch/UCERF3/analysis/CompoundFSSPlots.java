@@ -4084,7 +4084,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 	
-	private static class FSSRupNodesCache implements RupNodesCache {
+	public static class FSSRupNodesCache implements RupNodesCache {
 		
 		private ConcurrentMap<Region, ConcurrentMap<Integer, int[]>> nodesMap = Maps
 				.newConcurrentMap();
@@ -4156,7 +4156,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 
-	private static class MapPlotData implements XMLSaveable, Serializable {
+	public static class MapPlotData implements XMLSaveable, Serializable {
 
 		private static final String XML_METADATA_NAME = "FaultBasedMap";
 
@@ -4315,9 +4315,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			return root;
 		}
+
+		public GeoDataSet getGriddedData() {
+			return griddedData;
+		}
+
+		public String getLabel() {
+			return label;
+		}
 	}
 
-	private static abstract class MapBasedPlot extends CompoundFSSPlots {
+	public static abstract class MapBasedPlot extends CompoundFSSPlots {
 
 		protected abstract List<MapPlotData> getPlotData();
 

@@ -35,7 +35,6 @@ public class LaughTestRupExclusionDebugger {
 		boolean applyGarlockPintoMtnFix = true;
 		
 		LaughTestFilter filter = LaughTestFilter.getDefault();
-		LaughTestFilter.revertUCERF3p2Bugs();
 		filter.setAllowSingleSectDuringJumps(true);
 		
 		FaultModels fm = FaultModels.FM3_1;
@@ -58,10 +57,8 @@ public class LaughTestRupExclusionDebugger {
 		List<AbstractLaughTest> laughTests = filter.buildLaughTests(subSectionAzimuths, subSectionDistances, null, coulombRates,
 				applyGarlockPintoMtnFix, sectionConnectionsListList, datas);
 		
-		List<Integer> junctionIndexes = Lists.newArrayList();
 		for (int i=1; i<rupture.size(); i++) {
 			if (rupture.get(i).getParentSectionId() != rupture.get(i-1).getParentSectionId()) {
-				junctionIndexes.add(i);
 				IDPairing pairing = new IDPairing(rupture.get(i-1).getSectionId(), rupture.get(i).getSectionId());
 				if (!sectionConnectionsListList.get(pairing.getID1()).contains(pairing.getID2())) {
 					System.out.println("Pairing doesn't exist in connections list: "+pairing);
@@ -74,7 +71,7 @@ public class LaughTestRupExclusionDebugger {
 		}
 		
 		for (AbstractLaughTest test : laughTests) {
-			if (!test.doesRupturePass(rupture, junctionIndexes)) {
+			if (!test.doesRupturePass(rupture)) {
 				System.out.println("FAILED: "+ClassUtils.getClassNameWithoutPackage(test.getClass()));
 			}
 		}

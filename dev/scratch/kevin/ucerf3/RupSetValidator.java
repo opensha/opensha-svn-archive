@@ -298,7 +298,7 @@ public class RupSetValidator {
 											continue;
 										CoulombRatesTester coulombFilter =
 											new CoulombRatesTester(TestType.COULOMB_STRESS, minAverageProb,
-													minIndividualProb, minimumStressExclusionCeiling, applyBranchesOnly);
+													minIndividualProb, minimumStressExclusionCeiling, applyBranchesOnly, true);
 										filters.add(new LaughTestFilter(maxJumpDist, maxAzimuthChange,
 												maxTotAzimuthChange, maxCumJumpDist,
 												maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup,

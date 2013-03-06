@@ -168,6 +168,16 @@ public class SectionCluster extends ArrayList<Integer> {
 		addRuptures(rupture, pairings, junctionIndexes, laughTests, idsList, idsSet);
 	}
 	
+	private FailureHandler failHandle;
+	
+	public static interface FailureHandler {
+		public void ruptureFailed(List<FaultSectionPrefData> rupture, boolean continuable);
+	}
+	
+	public void setFailureHandler(FailureHandler failHandle) {
+		this.failHandle = failHandle;
+	}
+	
 	/**
 	 * This creates a rupture list for the given cluster by applying the laugh tests.
 	 * 
@@ -238,6 +248,10 @@ public class SectionCluster extends ArrayList<Integer> {
 					}
 				}
 			}
+			
+			// this is for debugging
+			if (failHandle != null && !pass)
+				failHandle.ruptureFailed(candidateRupture, cont);
 			
 			if (!cont)
 				// this means we failed a non-continuation test
@@ -557,7 +571,9 @@ public class SectionCluster extends ArrayList<Integer> {
 		numRupsAdded=0;
 		//		System.out.print("% Done:\t");
 		// loop over every section as the first in the rupture
-		List<AbstractLaughTest> laughTests = laughTestFilter.buildLaughTests(
+		List<AbstractLaughTest> laughTests = laughTestFilter.getLaughTests();
+		if (laughTests == null)
+			laughTests = laughTestFilter.buildLaughTests(
 				sectionAzimuths, subSectionDistances, rakesMap, coulombRates,
 				applyGarlockPintoMtnFix, sectionConnectionsListList, sectionDataList);
 		for(int s=0;s<size();s++) {

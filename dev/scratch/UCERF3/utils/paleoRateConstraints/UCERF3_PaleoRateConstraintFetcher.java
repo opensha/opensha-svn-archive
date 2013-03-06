@@ -27,14 +27,15 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionInputGenerator;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v08_withMappings.xls";
-//	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_vBIASI_withMappings.xls";
+//	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v08_withMappings.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_BIASI_v01_withMappings.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -70,8 +71,12 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		}
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
 		HSSFSheet sheet = wb.getSheetAt(0);
+		
+		// this determines if it is a new UCERF3.3+ (Biasi) file verses the old UCERF3.2 (Parsons) file
+		boolean hasQuantiles = sheet.getRow(0).getCell(4).getStringCellValue().startsWith("2.5%");
+		
 		int lastRowIndex = sheet.getLastRowNum();
-		double lat, lon, meanRate, lower68Conf, upper68Conf;
+		double lat, lon, meanRate, lower68Conf, upper68Conf, lower95Conf, upper95Conf;
 		String siteName;
 		for(int r=1; r<=lastRowIndex; ++r) {	
 			HSSFRow row = sheet.getRow(r);
@@ -86,9 +91,19 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			siteName = nameCell.getStringCellValue().trim();
 			lon = row.getCell(2).getNumericCellValue();
 			// skipping MRI cells
-			meanRate = row.getCell(6).getNumericCellValue();
-			lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
-			upper68Conf =  row.getCell(7).getNumericCellValue();
+			if (hasQuantiles) {
+				meanRate = row.getCell(8).getNumericCellValue();
+				lower68Conf = row.getCell(10).getNumericCellValue();
+				upper68Conf =  row.getCell(11).getNumericCellValue();
+				lower95Conf = row.getCell(9).getNumericCellValue();
+				upper95Conf =  row.getCell(12).getNumericCellValue();
+			} else {
+				meanRate = row.getCell(6).getNumericCellValue();
+				lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
+				upper68Conf =  row.getCell(7).getNumericCellValue();
+				lower95Conf = Double.NaN;
+				upper95Conf = Double.NaN;
+			}
 			
 			if (lower68Conf == upper68Conf) {
 				// TODO we don't want any of these
@@ -133,12 +148,19 @@ public class UCERF3_PaleoRateConstraintFetcher {
 			System.out.println("Matching constraint for closest index: "+closestFaultSectionIndex+" site name: "+siteName);
 			// add to Seg Rate Constraint list
 			String name = faultSectionData.get(closestFaultSectionIndex).getSectionName();
-			PaleoRateConstraint paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
-					meanRate, lower68Conf, upper68Conf);
+			PaleoRateConstraint paleoRateConstraint;
+			if (hasQuantiles) {
+				paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
+						meanRate, lower68Conf, upper68Conf, lower95Conf, upper95Conf);
+			} else {
+				paleoRateConstraint = new PaleoRateConstraint(name, loc, closestFaultSectionIndex, 
+						meanRate, lower68Conf, upper68Conf);
+			}
 			paleoRateConstraint.setPaleoSiteName(siteName);
 			if(D) System.out.println("\t"+siteName+" (lat="+lat+", lon="+lon+") associated with "+name+
 					" (section index = "+closestFaultSectionIndex+")\tdist="+(float)minDist+"\tmeanRate="+(float)meanRate+
-					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
+					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf+
+					"\tlower95="+(float)lower95Conf+"\tupper95="+(float)upper95Conf);
 			paleoRateConstraints.add(paleoRateConstraint);
 			
 			if (mappingCol > 0) {
@@ -156,11 +178,12 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
-		int mappingCol = 14;
+		int mappingCol = 16; // 14 for parsons, 16 for biasi
 		for (FaultModels fm : FaultModels.values()) {
-			FaultSystemRupSet faultSysRupSet =
-				InversionFaultSystemRupSetFactory.cachedForBranch(fm, DeformationModels.forFaultModel(fm).get(0));
-			UCERF3_PaleoRateConstraintFetcher.getConstraints(faultSysRupSet.getFaultSectionDataList(), mappingCol++);
+			List<FaultSectionPrefData> datas = new DeformationModelFetcher(
+					fm, DeformationModels.forFaultModel(fm).get(0),	UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR,
+					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE).getSubSectionList();
+			UCERF3_PaleoRateConstraintFetcher.getConstraints(datas, mappingCol++);
 		}
 		System.exit(0);
 //   		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.cachedForBranch(DeformationModels.GEOLOGIC);

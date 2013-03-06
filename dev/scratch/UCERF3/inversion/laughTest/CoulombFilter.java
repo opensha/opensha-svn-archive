@@ -23,12 +23,10 @@ public class CoulombFilter extends AbstractLaughTest {
 	
 	private CoulombRates rates;
 	private CoulombRatesTester tester;
-	private boolean minEqualsAvg;
 	
 	public CoulombFilter(CoulombRates rates, CoulombRatesTester tester) {
 		this.rates = rates;
 		this.tester = tester;
-		this.minEqualsAvg = tester.getMinAverageProb() <= tester.getMinIndividualProb();
 	}
 
 	@Override
@@ -39,26 +37,26 @@ public class CoulombFilter extends AbstractLaughTest {
 		
 		List<CoulombRatesRecord> forwardRates = Lists.newArrayList();
 		List<CoulombRatesRecord> backwardRates = Lists.newArrayList();
-		if (minEqualsAvg) {
-			// this means we can just test the last junction since the average could not possibly
-			// get below the filter level
-			IDPairing pair = pairings.get(pairings.size()-1);
-			forwardRates.add(rates.get(pair));
-			backwardRates.add(rates.get(pair.getReversed()));
+		
+//		if (true) {
+//			// debug for just testing last
+//			IDPairing lastPairing = pairings.get(pairings.size()-1);
+//			forwardRates.add(rates.get(lastPairing));
+//			backwardRates.add(rates.get(lastPairing.getReversed()));
+//			return tester.doesRupturePass(forwardRates, backwardRates);
+//		}
+		
+		if (isApplyJunctionsOnly()) {
+			for (int junctionIndex : junctionIndexes) {
+				// junctionIndex-1 here  because junctions point forwards, but pairings start one back
+				IDPairing pair = pairings.get(junctionIndex-1);
+				forwardRates.add(rates.get(pair));
+				backwardRates.add(0, rates.get(pair.getReversed()));
+			}
 		} else {
-			// add all previous ones
-			if (isApplyJunctionsOnly()) {
-				for (int junctionIndex : junctionIndexes) {
-					// index+1 here because pairing list starts with the second section
-					IDPairing pair = pairings.get(junctionIndex+1);
-					forwardRates.add(rates.get(pair));
-					backwardRates.add(0, rates.get(pair.getReversed()));
-				}
-			} else {
-				for (IDPairing pair : pairings) {
-					forwardRates.add(rates.get(pair));
-					backwardRates.add(0, rates.get(pair.getReversed()));
-				}
+			for (IDPairing pair : pairings) {
+				forwardRates.add(rates.get(pair));
+				backwardRates.add(0, rates.get(pair.getReversed()));
 			}
 		}
 		return tester.doesRupturePass(forwardRates, backwardRates);

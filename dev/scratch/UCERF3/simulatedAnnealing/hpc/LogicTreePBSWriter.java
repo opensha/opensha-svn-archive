@@ -517,6 +517,78 @@ public class LogicTreePBSWriter {
 		return new DiscreteListTreeTrimmer(branches);
 	}
 	
+	private static TreeTrimmer getFullBranchSpan() {
+		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
+
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
+		limitations.add(faultModels);
+
+		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(defModels);
+
+		List<LogicTreeBranchNode<?>> inversionModels = toList(InversionModels.CHAR_CONSTRAINED);
+		limitations.add(inversionModels);
+
+		List<LogicTreeBranchNode<?>> scaling = getNonZeroChoices(ScalingRelationships.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(scaling);
+
+		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(slipAlongs);
+
+		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_8p7);
+		limitations.add(mag5s);
+
+		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6);
+		limitations.add(maxMags);
+
+		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE);
+		limitations.add(momentFixes);
+
+		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
+		limitations.add(spatialSeis);
+		
+		return new ListBasedTreeTrimmer(limitations);
+	}
+	
+	private static TreeTrimmer getMiniBranchSpan() {
+		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
+
+		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1, FaultModels.FM3_2);
+		limitations.add(faultModels);
+
+		List<LogicTreeBranchNode<?>> defModels = getNonZeroChoices(DeformationModels.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(defModels);
+
+		List<LogicTreeBranchNode<?>> inversionModels = toList(InversionModels.CHAR_CONSTRAINED);
+		limitations.add(inversionModels);
+
+		List<LogicTreeBranchNode<?>> scaling = getNonZeroChoices(ScalingRelationships.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(scaling);
+
+		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class, InversionModels.CHAR_CONSTRAINED);
+		limitations.add(slipAlongs);
+
+//		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_8p7);
+		limitations.add(mag5s);
+
+//		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> maxMags = toList(MaxMagOffFault.MAG_7p6);
+		limitations.add(maxMags);
+
+		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE);
+		limitations.add(momentFixes);
+
+//		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
+		limitations.add(spatialSeis);
+		
+		return new ListBasedTreeTrimmer(limitations);
+	}
+	
 	private static TreeTrimmer getCustomTrimmer() {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
@@ -604,7 +676,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "2013_02_06-no-carrizo-combined-paleo-wts";
+		String runName = "new-paleo-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -616,7 +688,7 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 60 * 10;	// 10 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
-//		runName = df.format(new Date())+"-"+runName;
+		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
@@ -657,11 +729,13 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getFullBranchSpan();
+//		TreeTrimmer trimmer = getMiniBranchSpan();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 //				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -687,11 +761,11 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
-		TreeTrimmer defaultBranchesTrimmer = null;
+//		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -732,6 +806,23 @@ public class LogicTreePBSWriter {
 			variationBranches.add(buildVariationBranch(ops, myWeightsLow));
 		} */
 		
+		
+		// this is for varying each weight one at a time for deciding on paleo weights
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { 	InversionOptions.PALEO_WT,
+									InversionOptions.PALEO_SECT_MFD_SMOOTH,
+									InversionOptions.SECTION_NUCLEATION_MFD_WT };
+		
+		List<String[]> argVals = Lists.newArrayList();
+		argVals.add(toArray("1", "2", "4"));
+		argVals.add(toArray("500", "1000", "2000"));
+		argVals.add(toArray("0.005", "0.01", "0.02"));
+		
+		for (String val1 : argVals.get(0))
+			for (String val2 : argVals.get(1))
+				for (String val3 : argVals.get(2))
+					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
+		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
@@ -740,12 +831,18 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.PALEO_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray("4")));
-		variationBranches.add(buildVariationBranch(ops, toArray("6")));
-		variationBranches.add(buildVariationBranch(ops, toArray("8")));
-		variationBranches.add(buildVariationBranch(ops, toArray("10")));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray("4")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("6")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("8")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("10")));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.COULOMB };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.05")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.1")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };

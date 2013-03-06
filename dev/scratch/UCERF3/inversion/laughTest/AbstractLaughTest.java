@@ -17,8 +17,7 @@ public abstract class AbstractLaughTest {
 	 * @param junctionIndexes
 	 * @return
 	 */
-	public boolean doesRupturePass(List<FaultSectionPrefData> rupture,
-			List<Integer> junctionIndexes) {
+	public boolean doesRupturePass(List<FaultSectionPrefData> rupture) {
 		List<FaultSectionPrefData> subRup = Lists.newArrayList();
 		List<Integer> subJunctions = Lists.newArrayList();
 		List<IDPairing> pairings = Lists.newArrayList();

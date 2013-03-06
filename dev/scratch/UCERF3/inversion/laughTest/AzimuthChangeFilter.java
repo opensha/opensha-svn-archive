@@ -21,8 +21,6 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class AzimuthChangeFilter extends AbstractLaughTest {
 	
-	public static boolean INCLUDE_UCERF3p3_NEW_LL = false;
-	
 	private boolean applyGarlockPintoMtnFix;
 	private HashSet<Integer> leftLateralFixParents;
 	private Map<IDPairing, Double> sectionAzimuths;
@@ -36,17 +34,22 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 		this.maxTotAzimuthChange = maxTotAzimuthChange;
 		this.applyGarlockPintoMtnFix = applyGarlockPintoMtnFix;
 		this.sectionAzimuths = sectionAzimuths;
-		if (applyGarlockPintoMtnFix) {
-			leftLateralFixParents = new HashSet<Integer>();
-			leftLateralFixParents.add(48);
-			leftLateralFixParents.add(49);
-			leftLateralFixParents.add(93);
-			leftLateralFixParents.add(341);
-			if (INCLUDE_UCERF3p3_NEW_LL) {
-				leftLateralFixParents.add(47);
-				leftLateralFixParents.add(169);
-			}
-		}
+		if (applyGarlockPintoMtnFix)
+			setUCERF3p3LL_List();
+	}
+	
+	public void setUCERF3p2LL_List() {
+		leftLateralFixParents = new HashSet<Integer>();
+		leftLateralFixParents.add(48);
+		leftLateralFixParents.add(49);
+		leftLateralFixParents.add(93);
+		leftLateralFixParents.add(341);
+	}
+	
+	public void setUCERF3p3LL_List() {
+		setUCERF3p2LL_List();
+		leftLateralFixParents.add(47);
+		leftLateralFixParents.add(169);
 	}
 
 	@Override

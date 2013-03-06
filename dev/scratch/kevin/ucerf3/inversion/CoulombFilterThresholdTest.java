@@ -42,9 +42,8 @@ public class CoulombFilterThresholdTest {
 		double[] pdcffs = { 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1 };
 		
 		LaughTestFilter filter = LaughTestFilter.getDefault();
-		LaughTestFilter.revertUCERF3p2Bugs();
 		filter.setAllowSingleSectDuringJumps(true);
-		filter.setCoulombFilter(new CoulombRatesTester(TestType.COULOMB_STRESS, 0d, 0d, 0d, true));
+		filter.setCoulombFilter(new CoulombRatesTester(TestType.COULOMB_STRESS, 0d, 0d, 0d, true, true));
 		
 		FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 				filter, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, fm);
@@ -57,19 +56,14 @@ public class CoulombFilterThresholdTest {
 		
 		for (double minStress : minStresses) {
 			for (double pdcff : pdcffs) {
-				CoulombRatesTester tester = new CoulombRatesTester(TestType.COULOMB_STRESS, pdcff, pdcff, minStress, true);
+				CoulombRatesTester tester = new CoulombRatesTester(TestType.COULOMB_STRESS, pdcff, pdcff, minStress, true, true);
 				
 				CoulombFilter cf = new CoulombFilter(rates, tester);
 				
 				int filteredCount = 0;
 				for (int r=0; r<rupSet.getNumRuptures(); r++) {
 					List<FaultSectionPrefData> rupture = rupSet.getFaultSectionDataForRupture(r);
-					List<Integer> junctionIndexes = Lists.newArrayList();
-					for (int i=1; i<rupture.size(); i++) {
-						if (rupture.get(i).getParentSectionId() != rupture.get(i-1).getParentSectionId())
-							junctionIndexes.add(i);
-					}
-					if (cf.doesRupturePass(rupture, junctionIndexes))
+					if (cf.doesRupturePass(rupture))
 						filteredCount++;
 				}
 				

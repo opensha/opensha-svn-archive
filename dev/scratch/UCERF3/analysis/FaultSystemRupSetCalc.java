@@ -2121,7 +2121,7 @@ if(mMax<5.85)
 
 		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
 				
-		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
+		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet);
 		
 
 		// first compute momentRate and number of sub-sections for each parent section

@@ -18,7 +18,7 @@ import scratch.UCERF3.utils.IDPairing;
  */
 public class CumulativeAzimuthChangeFilter extends AbstractLaughTest {
 	
-	public static boolean USE_BUGGY_AZ_CHANGE = true;
+	private boolean USE_BUGGY_AZ_CHANGE = false;
 	
 	private Map<IDPairing, Double> azimuths;
 	private double maxCmlAzimuthChange;
@@ -26,10 +26,13 @@ public class CumulativeAzimuthChangeFilter extends AbstractLaughTest {
 	public CumulativeAzimuthChangeFilter(Map<IDPairing, Double> azimuths, double maxCmlAzimuthChange) {
 		this.azimuths = azimuths;
 		this.maxCmlAzimuthChange = maxCmlAzimuthChange;
-		// TODO
-//		if (USE_BUGGY_AZ_CHANGE)
-//			System.err.println("WARNING: CumulativeAzimuthChangeFilter has buggy implementation with respect " +
-//				"to the 0/360 boundary. Bug left in for compatibility but should be removed for next runs");
+	}
+	
+	public void setBuggyAzChange(boolean buggyAzChange) {
+		this.USE_BUGGY_AZ_CHANGE = buggyAzChange;
+		if (USE_BUGGY_AZ_CHANGE)
+			System.err.println("WARNING: CumulativeAzimuthChangeFilter has buggy implementation with respect " +
+				"to the 0/360 boundary. Bug left in for compatibility but should be removed for next runs");
 	}
 
 	@Override

@@ -23,28 +23,20 @@ public class LaughTestFilter {
 	private HashSet<Integer> parentSectsToIgnore;
 	private boolean allowSingleSectDuringJumps;
 	
-	public static boolean USE_BUGGY_COULOMB = false;
+	private List<AbstractLaughTest> laughTests;
+	
+	private boolean ucerf3p2Filter = false;
 	
 	/**
 	 * This returns the current default laugh test filter
 	 * 
 	 * @return
 	 */
-	public static LaughTestFilter getDefault() {
-		// original laugh test filter
-//		double maxAzimuthChange = 90;
-//		double maxJumpDist = 5d;
-//		double maxCumJumpDist = 10d;
-//		double maxTotAzimuthChange = 90d;
-//		double maxRakeDiff = Double.POSITIVE_INFINITY;
-//		int minNumSectInRup = 2;
-//		double maxCmlRakeChange = 360;
-//		double maxCmlAzimuthChange = 540;
-//		double minAverageProb = 0.1;
-//		double minIndividualProb = 0.05;
-//		double minimumStressExclusionCeiling = 1d;
-		
-
+	public static LaughTestFilter getUCERF3p2Filter() {
+		System.err.println("*** WARNING ***");
+		System.err.println("UCERF3.2 and before laugh test bugs have been enabled for " +
+				"backwards compatibility. This should be disabled before future production runs!");
+		System.err.println("*** WARNING ***");
 		double maxAzimuthChange = 60;
 		double maxJumpDist = 5d;
 		double maxCumJumpDist = Double.POSITIVE_INFINITY;
@@ -52,39 +44,54 @@ public class LaughTestFilter {
 		int minNumSectInRup = 2;
 		double maxCmlRakeChange = 180;
 		double maxCmlAzimuthChange = 560;
-		applyUCERF3p2Bugs();
 		boolean allowSingleSectDuringJumps = false; // TODO CHANGE FOR UCERF3.3
 		double minAverageProb = 0.1;
 		double minIndividualProb = 0.1;
 		double minimumStressExclusionCeiling = 1.5d;
-		boolean applyBranchesOnly = true; // if true the coulomb filter will only be applied at branch points
-//		double minimumStressExclusionCeiling = Double.POSITIVE_INFINITY;
+		// if true the coulomb filter will only be applied at branch points
+		boolean applyBranchesOnly = true;
+		boolean allowAnyWay = false;
 		
 		CoulombRatesTester coulombFilter = new CoulombRatesTester(
 				TestType.COULOMB_STRESS, minAverageProb, minIndividualProb,
-				minimumStressExclusionCeiling, applyBranchesOnly);
+				minimumStressExclusionCeiling, applyBranchesOnly, allowAnyWay);
+		coulombFilter.setBuggyMinStress(true);
 		
-		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange, maxCumJumpDist,
-				maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup, allowSingleSectDuringJumps, coulombFilter);
+		LaughTestFilter filter =  new LaughTestFilter(maxJumpDist, maxAzimuthChange,
+				maxTotAzimuthChange, maxCumJumpDist, maxCmlRakeChange, maxCmlAzimuthChange,
+				minNumSectInRup, allowSingleSectDuringJumps, coulombFilter);
+		filter.ucerf3p2Filter = true;
+		return filter;
 	}
 	
-	public static void applyUCERF3p2Bugs() {
-		System.err.println("*** WARNING ***");
-		System.err.println("UCERF3.2 and before laugh test bugs have been enabled for " +
-				"backwards compatibility. This should be disabled before future production runs!");
-		System.err.println("*** WARNING ***");
+	/**
+	 * This returns the current default laugh test filter
+	 * 
+	 * @return
+	 */
+	public static LaughTestFilter getDefault() {
+		double maxAzimuthChange = 60;
+		double maxJumpDist = 5d;
+		double maxCumJumpDist = Double.POSITIVE_INFINITY;
+		double maxTotAzimuthChange = 60d;
+		int minNumSectInRup = 2;
+		double maxCmlRakeChange = 180;
+		double maxCmlAzimuthChange = 560;
+		boolean allowSingleSectDuringJumps = true;
+		double minAverageProb = 0.05;
+		double minIndividualProb = 0.05;
+		double minimumStressExclusionCeiling = 1.25d;
+		// if true the coulomb filter will only be applied at branch points
+		boolean applyBranchesOnly = true;
+		boolean allowAnyWay = true;
 		
-		USE_BUGGY_COULOMB = true;
-		CoulombRatesTester.BUGGY_MIN_STRESS = true;
-		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = true;
-		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
-	}
-	
-	public static void revertUCERF3p2Bugs() {
-		USE_BUGGY_COULOMB = false;
-		CoulombRatesTester.BUGGY_MIN_STRESS = false;
-		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
-		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = true;
+		CoulombRatesTester coulombFilter = new CoulombRatesTester(
+				TestType.COULOMB_STRESS, minAverageProb, minIndividualProb,
+				minimumStressExclusionCeiling, applyBranchesOnly, allowAnyWay);
+		
+		return new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange,
+				maxCumJumpDist, maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup,
+				allowSingleSectDuringJumps, coulombFilter);
 	}
 	
 	public LaughTestFilter(double maxJumpDist, double maxAzimuthChange,
@@ -103,7 +110,7 @@ public class LaughTestFilter {
 		this.coulombFilter = coulombFilter;
 	}
 	
-	public List<AbstractLaughTest> buildLaughTests(
+	public synchronized List<AbstractLaughTest> buildLaughTests(
 			Map<IDPairing, Double> azimuths,
 			Map<IDPairing, Double> distances,
 			Map<Integer, Double> rakesMap,
@@ -132,14 +139,47 @@ public class LaughTestFilter {
 			tests.add(new CumulativeAzimuthChangeFilter(azimuths, maxCmlAzimuthChange));
 		
 		if (coulombFilter != null) {
-			if (USE_BUGGY_COULOMB)
+			if (ucerf3p2Filter)
 				tests.add(new BuggyCoulombFilter(coulombRates, coulombFilter,
 						subSectData, sectionConnectionsListList));
 			else
 				tests.add(new CoulombFilter(coulombRates, coulombFilter));
 		}
 		
+		this.laughTests = tests;
+		
+		if (ucerf3p2Filter) {
+			getLaughTest(AzimuthChangeFilter.class).setUCERF3p2LL_List();
+			if (!isNaNInfinite(maxCmlRakeChange))
+				getLaughTest(CumulativeAzimuthChangeFilter.class).setBuggyAzChange(true);
+		}
+		
 		return tests;
+	}
+	
+	/**
+	 * 
+	 * @return list of laugh tests, or null if not yet built
+	 */
+	public List<AbstractLaughTest> getLaughTests() {
+		return laughTests;
+	}
+	
+	/**
+	 * 
+	 * @param clazz
+	 * @return laugh test of the specified class, or null of no such test exists or laugh tests
+	 * not yet built.
+	 */
+	@SuppressWarnings("unchecked")
+	public <E extends AbstractLaughTest> E getLaughTest(Class<E> clazz) {
+		if (laughTests == null)
+			return null;
+		for (AbstractLaughTest test : laughTests) {
+			if (clazz.isInstance(test))
+				return (E)test;
+		}
+		return null;
 	}
 	
 	private static boolean isNaNInfinite(double val) {

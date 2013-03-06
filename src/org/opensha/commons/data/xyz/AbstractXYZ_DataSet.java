@@ -132,6 +132,13 @@ public abstract class AbstractXYZ_DataSet implements XYZ_DataSet {
 		}
 	}
 
+//	@Override
+	public void exp(double base) {
+		for (int i=0; i<size(); i++) {
+			set(i, Math.pow(10d, get(i)));
+		}
+	}
+
 	@Override
 	public void pow(double pow) {
 		for (int i=0; i<size(); i++) {

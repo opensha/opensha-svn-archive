@@ -240,6 +240,11 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	public void exp();
 	
 	/**
+	 * Given number raised to the power of each value in the dataset.
+	 */
+	public void exp(double base);
+	
+	/**
 	 * Each value in this dataset is raised to the given power.
 	 * 
 	 * @param pow - the power with which to raise each value in the dataset

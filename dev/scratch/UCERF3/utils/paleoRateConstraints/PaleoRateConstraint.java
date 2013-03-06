@@ -44,7 +44,7 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 	
 
 	/**
-	 * This is the constructor used for UCERF3 constraints.  See code for how the following are
+	 * This is the constructor used for UCERF3.2 or earlier constraints.  See code for how the following are
 	 * set: stdDevOfMeanRate, lower95ConfOfRate, upper95ConfOfRate
 	 * @param faultName
 	 */
@@ -62,6 +62,26 @@ public class PaleoRateConstraint  implements java.io.Serializable {
 		
 		lower95ConfOfRate = Math.pow(10, Math.log10(meanRate) - 2*aveLogStd);
 		upper95ConfOfRate = Math.pow(10, Math.log10(meanRate) + 2*aveLogStd);
+	}
+	
+
+	/**
+	 * This is the constructor used for UCERF3.3+ constraints.  See code for how the following are
+	 * set: stdDevOfMeanRate, lower95ConfOfRate, upper95ConfOfRate
+	 * @param faultName
+	 */
+	public PaleoRateConstraint(String faultSectionName, Location paleoSiteLocation, int sectionIndex, double meanRate, 
+			double lower68ConfOfRate, double upper68ConfOfRate, double lower95ConfOfRate, double upper95ConfOfRate) {
+		this.faultSectionName = faultSectionName;
+		this.paleoSiteLoction = paleoSiteLocation;
+		this.sectionIndex = sectionIndex;
+		this.meanRate = meanRate;
+		this.lower68ConfOfRate=lower68ConfOfRate;
+		this.upper68ConfOfRate=upper68ConfOfRate;
+		stdDevOfMeanRate =  ((meanRate-lower68ConfOfRate)+(upper68ConfOfRate-meanRate))/2;
+		
+		this.lower95ConfOfRate = lower95ConfOfRate;
+		this.upper95ConfOfRate = upper95ConfOfRate;
 	}
 
 	
