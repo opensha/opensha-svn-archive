@@ -412,7 +412,7 @@ public class HazardCurve2DB {
 		
 		String sql = "SELECT X_Value, Y_Value FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + id + 
 						" ORDER BY X_Value";
-		System.out.println(sql);
+//		System.out.println(sql);
 
 		ResultSet rs = null;
 		try {

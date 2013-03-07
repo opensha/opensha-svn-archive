@@ -343,7 +343,7 @@ public class HardCodedInterpDiffMapCreator {
 			System.out.println("Map address: " + addr);
 			
 			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
-				getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, isProbAt_IML, val, customLabel);
+				addr = getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, isProbAt_IML, val, customLabel);
 				
 				System.out.println("Comp map address: " + addr);
 			}
@@ -455,10 +455,10 @@ public class HardCodedInterpDiffMapCreator {
 		
 		CPT polar = GMT_CPT_Files.GMT_POLAR.instance();
 		CPT diffCPT = polar.rescale(-0.8, 0.8);
-		CPT ratioCPT = polar.rescale(-0, 2);
+		CPT ratioCPT = polar.rescale(0, 2);
 		
-		AbstractGeoDataSet diffData = ProbGainCalc.calcProbDiff(scatterData1, scatterData2);
-		AbstractGeoDataSet ratioData = ProbGainCalc.calcProbGain(scatterData1, scatterData2);
+		AbstractGeoDataSet diffData = ProbGainCalc.calcProbDiff(scatterData2, scatterData1);
+		AbstractGeoDataSet ratioData = ProbGainCalc.calcProbGain(scatterData2, scatterData1);
 		
 		InterpDiffMap map = new InterpDiffMap(region, null, 0.005, diffCPT, diffData, interpSettings, mapTypes);
 		map.setCustomLabel("Difference, "+customLabel);
@@ -466,6 +466,8 @@ public class HardCodedInterpDiffMapCreator {
 		map.setLogPlot(logPlot);
 		map.setDpi(300);
 		map.setXyzFileName("diff_map.xyz");
+		map.setCustomScaleMin((double)diffCPT.getMinValue());
+		map.setCustomScaleMax((double)diffCPT.getMaxValue());
 		
 		String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 						"val: " + val + "\n" +
@@ -480,6 +482,8 @@ public class HardCodedInterpDiffMapCreator {
 		map.setLogPlot(logPlot);
 		map.setDpi(300);
 		map.setXyzFileName("ratio_map.xyz");
+		map.setCustomScaleMin((double)ratioCPT.getMinValue());
+		map.setCustomScaleMax((double)ratioCPT.getMaxValue());
 		
 		System.out.println("Making map...");
 		String ratioAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);

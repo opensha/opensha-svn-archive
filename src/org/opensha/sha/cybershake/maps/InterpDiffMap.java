@@ -42,6 +42,8 @@ public class InterpDiffMap extends GMT_Map {
 	private GMT_InterpolationSettings interpSettings;
 	private InterpDiffMapType[] mapTypes;
 	
+	private boolean useCPTForScatterColor = false;
+	
 	public InterpDiffMap(Region region, GeoDataSet baseMap, double basemapInc, CPT cpt,
 			GeoDataSet scatter, GMT_InterpolationSettings interpSettings,
 			InterpDiffMapType[] mapTypes) {
@@ -77,6 +79,14 @@ public class InterpDiffMap extends GMT_Map {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public boolean isUseCPTForScatterColor() {
+		return useCPTForScatterColor;
+	}
+
+	public void setUseCPTForScatterColor(boolean useCPTForScatterColor) {
+		this.useCPTForScatterColor = useCPTForScatterColor;
 	}
 
 }

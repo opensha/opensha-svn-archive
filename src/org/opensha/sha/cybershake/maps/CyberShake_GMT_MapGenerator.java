@@ -273,6 +273,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		CPT diffCPT = null;
 		String ratioCPTfile = null;
 		CPT ratioCPT = null;
+		CPT cpt = null;
 		for (InterpDiffMapType mapType : mapTypes) {
 			if (mapType == InterpDiffMapType.DIFF) {
 				try {
@@ -298,7 +299,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			inputCPT = GMT_MapGenerator.SCEC_GMT_DATA_PATH + map.getCptFile();
 		} else {
 			inputCPT = "cptFile_input.cpt";
-			CPT cpt = map.getCpt();
+			cpt = map.getCpt();
 			try {
 				cpt.writeCPTFile(dir + inputCPT);
 			} catch (IOException e) {
@@ -388,6 +389,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			String myCPTFileName = cptFile;
 			double myCPTMin = colorScaleMin;
 			double myCPTMax = colorScaleMax;
+			CPT myCPT = cpt;
 			String scaleLabel = map.getCustomLabel();
 			if (mapType == InterpDiffMapType.BASEMAP) {
 				grdFile = baseGRD;
@@ -404,6 +406,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				myCPTFileName = diffCPTfile;
 				myCPTMin = diffCPT.getMinValue();
 				myCPTMax = diffCPT.getMaxValue();
+				myCPT = diffCPT;
 				grdFile = interpSampledGRD;
 				scaleLabel = "Difference Map, "+scaleLabel;
 			} else {
@@ -413,6 +416,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				myCPTFileName = ratioCPTfile;
 				myCPTMin = ratioCPT.getMinValue();
 				myCPTMax = ratioCPT.getMaxValue();
+				myCPT = ratioCPT;
 				grdFile = interpRatioSampledGRD;
 				scaleLabel = "Ratio Map, "+scaleLabel;
 			}
@@ -451,6 +455,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 					Point2D pt = scatterData.getPoint(i);
 					double x = pt.getX();
 					double y = pt.getY();
+					
+					if (map.isUseCPTForScatterColor() && myCPT != null)
+						colorStr = GMT_MapGenerator.getGMTColorString(myCPT.getColor((float)scatterData.get(i)));
 					
 					commandLine = "echo " + x + " " + y + " | ";
 					commandLine += "${GMT_PATH}psxy"+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
