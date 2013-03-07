@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -517,9 +518,8 @@ public class DeformationModelFileParser {
 //		wb.write(new FileOutputStream(new File("/tmp/fixed.xls")));
 //	}
 	
-	public static void applyMomentReductions(Map<Integer, DeformationSection> model, DeformationModels dm,
+	public static void applyMomentReductions(Map<Integer, DeformationSection> model, double maxMomentReduction) {
 		// first load the data if needed
-			double maxMomentReduction) {
 		try {
 			loadMomentReductionsData();
 		} catch (IOException e) {
@@ -657,7 +657,7 @@ public class DeformationModelFileParser {
 			
 			Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
 			
-			applyMomentReductions(sects, dm, 10d);
+			applyMomentReductions(sects, 10d);
 			
 			sectsList.add(sects);
 		}
@@ -740,7 +740,7 @@ public class DeformationModelFileParser {
 			
 			Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
 			
-			applyMomentReductions(sects, dm, 10d);
+			applyMomentReductions(sects, 10d);
 			
 			sectsList.add(sects);
 		}
@@ -789,6 +789,72 @@ public class DeformationModelFileParser {
 		
 		csv.writeToFile(file);
 		csv.writeToTabSeparatedFile(new File(file.getParentFile(), file.getName().replaceAll(".csv", ".txt")), 1);
+	}
+	
+	/**
+	 * This creates a branch averaged deformation model. Slip rates are averaged by each deformation model's weight,
+	 * and rakes are taken from the Geologic model.
+	 * @param fm
+	 * @return
+	 * @throws IOException
+	 */
+	public static Map<Integer, DeformationSection> loadMeanUCERF3_DM(FaultModels fm) throws IOException {
+		List<Double> weights = Lists.newArrayList();
+		List<Map<Integer, DeformationSection>> models = Lists.newArrayList();
+		// use GEOLOGIC rakes
+		Map<Integer, DeformationSection> rakeBasis = null;
+		Set<Integer> parentIDs = null;
+		double weightSum = 0d;
+		for (DeformationModels dm : DeformationModels.values()) {
+			double weight = dm.getRelativeWeight(null);
+			if (weight > 0) {
+				weights.add(weight);
+				Map<Integer, DeformationSection> model = load(dm.getDataFileURL(fm));
+				models.add(model);
+				if (parentIDs == null)
+					parentIDs = model.keySet();
+				else
+					Preconditions.checkState(parentIDs.size() == model.size(), "DM's have different numbers of parents");
+				if (dm == DeformationModels.GEOLOGIC)
+					rakeBasis = model;
+				weightSum += weight;
+			}
+		}
+		
+		// normalize the weights
+		if (weightSum != 1d) {
+			for (int i=0; i<weights.size(); i++)
+				weights.set(i, weights.get(i)/weightSum);
+		}
+		
+		Preconditions.checkNotNull(rakeBasis, "Is geologic zero weight? We need it for rakes...");
+		
+		Map<Integer, DeformationSection> mean = Maps.newHashMap();
+		
+		for (Integer parentID : parentIDs) {
+			DeformationSection sect = new DeformationSection(parentID);
+			
+			DeformationSection sectRakeBasis = rakeBasis.get(parentID);
+			int numMinis = sectRakeBasis.getSlips().size();
+			for (int i=0; i<numMinis; i++)
+				sect.add(sectRakeBasis.getLocs1().get(i), sectRakeBasis.getLocs2().get(i),
+						0, sectRakeBasis.getRakes().get(i));
+			
+			for (int i=0; i<weights.size(); i++) {
+				DeformationSection oSect = models.get(i).get(parentID);
+				double weight = weights.get(i);
+				for (int j=0; j<numMinis; j++) {
+					double slip = oSect.slips.get(j);
+					if (Double.isNaN(slip))
+						slip = 0;
+					sect.slips.set(j, sect.slips.get(j)+weight*slip);
+				}
+			}
+			
+			mean.put(parentID, sect);
+		}
+		
+		return mean;
 	}
 
 	/**

@@ -6,6 +6,7 @@ package scratch.UCERF3.enumTreeBranches;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -16,6 +17,8 @@ import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import com.google.common.collect.Lists;
 
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
@@ -154,6 +157,61 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		@Override
 		public double getRelativeWeight(InversionModels im) {
 			return 0.2d;
+		}
+	},
+	
+	MEAN_UCERF3("Mean UCERF3 Scaling Relationship", "MeanU3Scale") {
+		
+		private List<Double> meanWeights;
+		private List<ScalingRelationships> scales;
+		
+		private List<Double> getNormalizedMeanWeights() {
+			if (meanWeights == null) {
+				synchronized (this) {
+					List<Double> weights = Lists.newArrayList();
+					List<ScalingRelationships> scales = Lists.newArrayList();
+					double sum = 0;
+					for (ScalingRelationships s : ScalingRelationships.values()) {
+						double weight = s.getRelativeWeight(null);
+						if (weight > 0) {
+							weights.add(weight);
+							sum += weight;
+							scales.add(s);
+						}
+					}
+					if (sum != 0)
+						for (int i=0; i<weights.size(); i++)
+							weights.set(i, weights.get(i)/sum);
+					meanWeights = weights;
+					this.scales = scales;
+				}
+			}
+			return meanWeights;
+		}
+		
+		@Override
+		public double getRelativeWeight(InversionModels im) {
+			return 0;
+		}
+
+		@Override
+		public double getAveSlip(double area, double length, double origWidth) {
+			List<Double> weights = getNormalizedMeanWeights();
+			double slip = 0;
+			for (int i=0; i<weights.size(); i++) {
+				slip += weights.get(i)*scales.get(i).getAveSlip(area, length, origWidth);
+			}
+			return slip;
+		}
+
+		@Override
+		public double getMag(double area, double origWidth) {
+			List<Double> weights = getNormalizedMeanWeights();
+			double map = 0;
+			for (int i=0; i<weights.size(); i++) {
+				map += weights.get(i)*scales.get(i).getMag(area, origWidth);
+			}
+			return map;
 		}
 	};
 	

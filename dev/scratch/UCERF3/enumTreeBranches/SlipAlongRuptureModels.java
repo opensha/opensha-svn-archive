@@ -8,7 +8,8 @@ public enum SlipAlongRuptureModels implements LogicTreeBranchNode<SlipAlongRuptu
 	CHAR(		"Characteristic",	"Char",	0d),	// "Characteristic (Dsr=Ds)"
 	UNIFORM(	"Uniform",			"Uni",	0.5d),	// "Uniform/Boxcar (Dsr=Dr)"
 	WG02(		"WGCEP-2002",		"WG02",	0d),	// "WGCEP-2002 model (Dsr prop to Vs)"
-	TAPERED(	"Tapered Ends",		"Tap",	0.5d);	// "Tapered Ends ([Sin(x)]^0.5)"
+	TAPERED(	"Tapered Ends",		"Tap",	0.5d),
+	MEAN_UCERF3("Mean UCERF3 Dsr",	"MeanU3Dsr", 0d);	// "Mean UCERF3"
 	
 	private String name, shortName;
 	private double weight;

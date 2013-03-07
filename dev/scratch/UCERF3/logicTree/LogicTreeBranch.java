@@ -46,6 +46,15 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 //			ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
+	/**
+	 * This is the Mean UCERF3 reference branch
+	 */
+	public static LogicTreeBranch getMEAN_UCERF3(FaultModels fm) {
+		return fromValues(fm, DeformationModels.MEAN_UCERF3, ScalingRelationships.MEAN_UCERF3,
+				SlipAlongRuptureModels.MEAN_UCERF3, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p6,
+				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
+	}
+	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> logicTreeClasses;
 	
 	public static synchronized List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {

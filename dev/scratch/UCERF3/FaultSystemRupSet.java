@@ -328,8 +328,6 @@ public abstract class FaultSystemRupSet {
 		
 		List<Integer> sectionIndices = getSectionsIndicesForRup(rthRup);
 		int numSects = sectionIndices.size();
-
-		double[] slipsForRup = new double[numSects];
 		
 		// compute rupture area
 		double[] sectArea = new double[numSects];
@@ -344,6 +342,48 @@ public abstract class FaultSystemRupSet {
 		}
 			 		
 		double aveSlip = getAveSlipForRup(rthRup);  // in meters
+		
+		if (slipModelType == SlipAlongRuptureModels.MEAN_UCERF3) {
+			// get mean weights
+			List<Double> meanWeights = Lists.newArrayList();
+			List<SlipAlongRuptureModels> meanSALs = Lists.newArrayList();
+			
+			double sum = 0;
+			for (SlipAlongRuptureModels sal : SlipAlongRuptureModels.values()) {
+				double weight = sal.getRelativeWeight(null);
+				if (weight > 0) {
+					meanWeights.add(weight);
+					meanSALs.add(sal);
+					sum += weight;
+				}
+			}
+			if (sum != 0)
+				for (int i=0; i<meanWeights.size(); i++)
+					meanWeights.set(i, meanWeights.get(i)/sum);
+			
+			// calculate mean
+			double[] slipsForRup = new double[numSects];
+			
+			for (int i=0; i<meanSALs.size(); i++) {
+				double weight = meanWeights.get(i);
+				double[] subSlips = calcSlipOnSectionsForRup(rthRup, meanSALs.get(i), sectArea,
+						sectMoRate, aveSlip);
+				
+				for (int j=0; j<numSects; j++)
+					slipsForRup[j] += weight*subSlips[j];
+			}
+			
+			return slipsForRup;
+		}
+		
+		return calcSlipOnSectionsForRup(rthRup, slipModelType, sectArea,
+				sectMoRate, aveSlip);
+	}
+
+	public double[] calcSlipOnSectionsForRup(int rthRup,
+			SlipAlongRuptureModels slipModelType,
+			double[] sectArea, double[] sectMoRate, double aveSlip) {
+		double[] slipsForRup = new double[sectArea.length];
 		
 		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
 		if(slipModelType == SlipAlongRuptureModels.CHAR) {
@@ -407,25 +447,8 @@ public abstract class FaultSystemRupSet {
 				normBegin = normEnd;
 			}
 		}
-/*		*/
-		// check the average
-//		if(D) {
-//			double aveCalcSlip =0;
-//			for(int s=0; s<slipsForRup.length; s++)
-//				aveCalcSlip += slipsForRup[s]*sectArea[s];
-//			aveCalcSlip /= rupArea[rthRup];
-//			System.out.println("AveSlip & CalcAveSlip:\t"+(float)aveSlip+"\t"+(float)aveCalcSlip);
-//		}
-
-//		if (D) {
-//			System.out.println("\tsectionSlip\tsectSlipRate\tsectArea");
-//			for(int s=0; s<slipsForRup.length; s++) {
-//				FaultSectionPrefData sectData = faultSectionData.get(sectionIndices.get(s));
-//				System.out.println(s+"\t"+(float)slipsForRup[s]+"\t"+(float)sectData.getAveLongTermSlipRate()+"\t"+sectArea[s]);
-//			}
-//					
-//		}
-		return slipsForRup;		
+		
+		return slipsForRup;
 	}
 	
 	/**

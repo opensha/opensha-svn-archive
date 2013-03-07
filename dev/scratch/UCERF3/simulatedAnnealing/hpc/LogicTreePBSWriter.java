@@ -676,7 +676,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-paleo-tests";
+		String runName = "2013_03_05-new-paleo-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -688,7 +688,7 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 60 * 10;	// 10 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
-		runName = df.format(new Date())+"-"+runName;
+//		runName = df.format(new Date())+"-"+runName;
 		//		runName = "2012_03_02-weekend-converg-test";
 
 		//		RunSites site = RunSites.RANGER;
@@ -814,7 +814,7 @@ public class LogicTreePBSWriter {
 									InversionOptions.SECTION_NUCLEATION_MFD_WT };
 		
 		List<String[]> argVals = Lists.newArrayList();
-		argVals.add(toArray("1", "2", "4"));
+		argVals.add(toArray("0.4", "0.6", "0.8"));
 		argVals.add(toArray("500", "1000", "2000"));
 		argVals.add(toArray("0.005", "0.01", "0.02"));
 		

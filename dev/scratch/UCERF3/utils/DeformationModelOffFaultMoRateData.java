@@ -3,19 +3,26 @@ package scratch.UCERF3.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSetMath;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 /**
@@ -367,6 +374,34 @@ public class DeformationModelOffFaultMoRateData {
 		}
 		else {
 			throw new RuntimeException("Error - unrecognized fault model: "+fm);
+		}
+		
+		if (dm == DeformationModels.MEAN_UCERF3) {
+			List<Double> weights = Lists.newArrayList();
+			List<DeformationModels> dms = Lists.newArrayList();
+			double sum = 0;
+			for (DeformationModels d : DeformationModels.values()) {
+				double weight = d.getRelativeWeight(null);
+				if (weight > 0) {
+					weights.add(weight);
+					sum += weight;
+					dms.add(d);
+				}
+			}
+			if (sum != 0)
+				for (int i=0; i<weights.size(); i++)
+					weights.set(i, weights.get(i)/sum);
+			data = null;
+			for (int i=0; i<dms.size(); i++) {
+				DeformationModels d = dms.get(i);
+				double weight = weights.get(i);
+				GriddedGeoDataSet subData = getDefModSpatialOffFaultMoRates(fm, d);
+				if (data == null)
+					data = new GriddedGeoDataSet(subData.getRegion(), subData.isLatitudeX());
+				Preconditions.checkState(subData.size() == data.size());
+				for (int j=0; j<data.size(); j++)
+					data.set(j, data.get(j)+weight*subData.get(j));
+			}
 		}
 		
 		if(data == null)

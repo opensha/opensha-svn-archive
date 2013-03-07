@@ -123,14 +123,20 @@ public class DeformationModelFetcher {
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
 		this.faultModel = faultModel;
-		if (deformationModel.getDataFileURL(faultModel) != null) {
+		if (deformationModel.getDataFileURL(faultModel) != null || deformationModel == DeformationModels.MEAN_UCERF3) {
 			// UCERF3
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
-				if (D) System.out.println("Loading def model from: "+url);
-				Map<Integer,DeformationSection> model = DeformationModelFileParser.load(url);
+				Map<Integer,DeformationSection> model;
+				if (deformationModel == DeformationModels.MEAN_UCERF3) {
+					if (D) System.out.println("Loading branch averaged model from");
+					model = DeformationModelFileParser.loadMeanUCERF3_DM(faultModel);
+				} else {
+					if (D) System.out.println("Loading def model from: "+url);
+					model = DeformationModelFileParser.load(url);
+				}
 				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
-				DeformationModelFileParser.applyMomentReductions(model, deformationModel, MOMENT_REDUCTION_MAX);
+				DeformationModelFileParser.applyMomentReductions(model, MOMENT_REDUCTION_MAX);
 				if (D) System.out.println("Loading fault model: "+faultModel);
 				faultSectPrefDataList = faultModel.fetchFaultSections();
 				if (D) System.out.println("Combining model with sections...");
