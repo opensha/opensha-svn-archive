@@ -80,7 +80,7 @@ public class ThreadedHazardCalc {
 
 	/**
 	 * Initializes a new threaded hazard calculation for the specified UC3 
-	 * solution.
+	 * (averaged) solution.
 	 */
 	@SuppressWarnings("javadoc")
 	public ThreadedHazardCalc(String solPath, LocationList locs,
