@@ -18,6 +18,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
@@ -303,6 +304,7 @@ public class HardCodedInterpDiffMapCreator {
 			int imTypeID = 21;
 			int velModelID = 1;
 			List<Integer> datasetIDs = Lists.newArrayList(12, 21);
+			List<Integer> compDatasetIDs = Lists.newArrayList(1);
 			Double customMin = 0d;
 			Double customMax = 1.4;
 			
@@ -340,6 +342,12 @@ public class HardCodedInterpDiffMapCreator {
 			
 			System.out.println("Map address: " + addr);
 			
+			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
+				getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, isProbAt_IML, val, customLabel);
+				
+				System.out.println("Comp map address: " + addr);
+			}
+			
 			System.exit(0);
 		} catch (Throwable t) {
 			// TODO Auto-generated catch block
@@ -350,7 +358,7 @@ public class HardCodedInterpDiffMapCreator {
 	
 //	protected static InterpDiffMapType[] normPlotTypes = null;
 	protected static InterpDiffMapType[] normPlotTypes = { InterpDiffMapType.INTERP_NOMARKS,
-			InterpDiffMapType.INTERP_MARKS, InterpDiffMapType.BASEMAP, InterpDiffMapType.DIFF};
+			InterpDiffMapType.INTERP_MARKS, InterpDiffMapType.BASEMAP, InterpDiffMapType.DIFF, InterpDiffMapType.RATIO};
 	protected static InterpDiffMapType[] gainPlotTypes = 
 			{ InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS};
 	
@@ -430,6 +438,52 @@ public class HardCodedInterpDiffMapCreator {
 		
 		System.out.println("Making map...");
 		return CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
+	}
+	
+	protected static String getCompareMap(boolean logPlot, List<Integer> dataset1IDs, List<Integer> dataset2IDs, int imTypeID,
+			boolean isProbAt_IML, double val, String customLabel) throws FileNotFoundException,
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
+		System.out.println("Fetching curves...");
+		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID);
+		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID);
+		
+		System.out.println("Creating map instance...");
+		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
+		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
+		
+		InterpDiffMapType[] mapTypes = gainPlotTypes;
+		
+		CPT polar = GMT_CPT_Files.GMT_POLAR.instance();
+		CPT diffCPT = polar.rescale(-0.8, 0.8);
+		CPT ratioCPT = polar.rescale(-0, 2);
+		
+		AbstractGeoDataSet diffData = ProbGainCalc.calcProbDiff(scatterData1, scatterData2);
+		AbstractGeoDataSet ratioData = ProbGainCalc.calcProbGain(scatterData1, scatterData2);
+		
+		InterpDiffMap map = new InterpDiffMap(region, null, 0.005, diffCPT, diffData, interpSettings, mapTypes);
+		map.setCustomLabel("Difference, "+customLabel);
+		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+		map.setLogPlot(logPlot);
+		map.setDpi(300);
+		map.setXyzFileName("diff_map.xyz");
+		
+		String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
+						"val: " + val + "\n" +
+						"imTypeID: " + imTypeID + "\n";
+		
+		System.out.println("Making map...");
+		String diffAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
+		
+		map = new InterpDiffMap(region, null, 0.005, ratioCPT, ratioData, interpSettings, mapTypes);
+		map.setCustomLabel("Ratio, "+customLabel);
+		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+		map.setLogPlot(logPlot);
+		map.setDpi(300);
+		map.setXyzFileName("ratio_map.xyz");
+		
+		System.out.println("Making map...");
+		String ratioAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
+		return diffAddr+" "+ratioAddr;
 	}
 
 }
