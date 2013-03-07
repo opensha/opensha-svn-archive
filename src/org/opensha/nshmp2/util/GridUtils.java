@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -171,6 +172,54 @@ public class GridUtils {
 		}
 		//Element e = new Elem
 	}
+	
+	// write region
+	public static void tracesToKML(
+			Map<String, LocationList> traceMap, String filename, Color c) {
+		String kmlFileName = filename + ".kml";
+		Document doc = DocumentHelper.createDocument();
+		Element root = new DefaultElement(
+				"kml", 
+				new Namespace("", "http://www.opengis.net/kml/2.2"));
+		doc.add(root);
+		
+		Element e_doc = root.addElement("Document");
+		Element e_doc_name = e_doc.addElement("name");
+		e_doc_name.addText(kmlFileName);
+		
+		addBorderStyle(e_doc, c);
+		addBorderVertexStyle(e_doc);
+		addGridNodeStyle(e_doc, c);
+		
+		Element e_folder = e_doc.addElement("Folder");
+		Element e_folder_name = e_folder.addElement("name");
+		e_folder_name.addText("traces");
+		Element e_open = e_folder.addElement("open");
+		e_open.addText("1");
+		
+		for (String name : traceMap.keySet()) {
+			addLine(e_folder, name, traceMap.get(name));
+		}
+		
+		
+		String outDirName = "sha_kml/";
+		File outDir = new File(outDirName);
+		outDir.mkdirs();
+		String tmpFile = outDirName + kmlFileName;
+		
+		try {
+			//XMLUtils.writeDocumentToFile(tmpFile, doc);
+			XMLWriter writer;
+			OutputFormat format = new OutputFormat("\t", true);
+			writer = new XMLWriter(new FileWriter(tmpFile), format);
+			writer.write(doc);
+			writer.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		//Element e = new Elem
+	}
+
 
 	// border polygon
 	private static Element addBorder(Element e, Region region) {
@@ -207,6 +256,24 @@ public class GridUtils {
 		addPoly(e_poly, "outerBoundaryIs", locs);
 		return e;
 	}
+	
+	private static Element addLine(Element e, String name, LocationList locs) {
+		Element e_placemark = e.addElement("Placemark");
+		Element e_name = e_placemark.addElement("name");
+		e_name.addText(name);
+		Element e_style = e_placemark.addElement("styleUrl");
+		e_style.addText("#" + Style.BORDER.toString());
+		Element e_poly = e_placemark.addElement("LineString");
+		Element e_tessellate = e_poly.addElement("tessellate");
+		e_tessellate.addText("1");
+		Element e_coord = e_poly.addElement("coordinates");
+		StringBuffer sb = new StringBuffer(NL);
+		for (Location loc: locs) {
+			sb.append(loc.toKML() + NL);
+		}
+		e_coord.addText(sb.toString());
+		return e;
+	}
 
 	// create lat-lon data string
 	private static Element addPoly(
@@ -229,6 +296,7 @@ public class GridUtils {
 		
 		return e;
 	}
+	
 	
 //	// create lat-lon data string
 //	private static String parseBorderCoords(Region region) {
@@ -338,7 +406,7 @@ public class GridUtils {
 		Element e_color = e_lineStyle.addElement("color");
 		e_color.addText(colorToHex(c));
 		Element e_width = e_lineStyle.addElement("width");
-		e_width.addText("2");
+		e_width.addText("3");
 		
 		// poly style
 		Element e_polyStyle = e_style.addElement("PolyStyle");
