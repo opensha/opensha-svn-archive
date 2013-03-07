@@ -326,7 +326,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				grdFile = interpPlotGRD;
 			} else {
 				grdFile = interpSampledGRD;
-				continue;
 			}
 			
 			int dpi = map.getDpi();
