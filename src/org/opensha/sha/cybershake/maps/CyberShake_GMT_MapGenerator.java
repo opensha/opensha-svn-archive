@@ -434,7 +434,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				topoFile.resolution() + "c -Q "+region;
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
-				if (mapType != InterpDiffMapType.DIFF)
+				if (mapType != InterpDiffMapType.DIFF && mapType != InterpDiffMapType.RATIO)
 					topoOption = " -I"+intenGRD;
 			}
 			if (maskGRD != null) {
