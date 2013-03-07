@@ -1692,14 +1692,18 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	
 	public static void addColorbarCommand(ArrayList<String> gmtCommandLines, GMT_Map map,
 			double colorScaleMin, double colorScaleMax, String cptFile, String psFile) {
+		addColorbarCommand(gmtCommandLines, map.getCustomLabel(), map.isLogPlot(), colorScaleMin, colorScaleMax, cptFile, psFile);
+	}
+	
+	public static void addColorbarCommand(ArrayList<String> gmtCommandLines, String scaleLabel, boolean isLog,
+			double colorScaleMin, double colorScaleMax, String cptFile, String psFile) {
 		// add the color scale
 		DecimalFormat df2 = new DecimalFormat("0.E0");
 		Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
 		//checks to see if customLabel is selected, then get the custom label
-		String scaleLabel = map.getCustomLabel();
 		if (scaleLabel == null)
 			scaleLabel = " ";
-		else if (map.isLogPlot())
+		else if (isLog)
 			scaleLabel = "Log10("+scaleLabel+")";
 		scaleLabel = stripFormatLabel(scaleLabel);
 		gmtCommandLines.add("# Colorbar/label");

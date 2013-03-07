@@ -13,7 +13,8 @@ public class InterpDiffMap extends GMT_Map {
 		BASEMAP("basemap", null),
 		INTERP_NOMARKS("interpolated", null),
 		INTERP_MARKS("interpolated_marks", Color.WHITE),
-		DIFF("diff", Color.BLACK);
+		DIFF("diff", Color.BLACK),
+		RATIO("ratio", Color.BLACK);
 		
 		private String prefix;
 		private Color markerColor;

@@ -49,7 +49,7 @@ public class ParkfieldAseisFileGen {
 		
 		for (DeformationModels dm : dms) {
 			Map<Integer, DeformationSection> def = DeformationModelFileParser.load(dm.getDataFileURL(fm));
-			DeformationModelFileParser.applyMomentReductions(def, dm, Double.POSITIVE_INFINITY);
+			DeformationModelFileParser.applyMomentReductions(def, Double.POSITIVE_INFINITY);
 			dmDatas.add(def);
 		}
 		

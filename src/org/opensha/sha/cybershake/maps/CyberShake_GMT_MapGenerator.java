@@ -15,6 +15,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.SecureMapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
@@ -26,7 +27,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
 	public static int[] dpis = {72, 150, 300};
 	
-	public static GeoDataSet getDiffs(GeoDataSet baseMap, GeoDataSet scatterData) {
+	public static GeoDataSet getDiffs(GeoDataSet baseMap, GeoDataSet scatterData, boolean ratio) {
 		System.out.println("Generating diffs for interpolation...");
 		GeoDataSet diffs = new ArbDiscrGeoDataSet(baseMap.isLatitudeX());
 		
@@ -40,7 +41,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //			System.out.println("scatterVal: " + scatterVal);
 //			System.out.println("closestVal: " + closestVal);
 			
-			diffs.set(loc, scatterVal - closestVal);
+			if (ratio)
+				diffs.set(loc, scatterVal / closestVal);
+			else
+				diffs.set(loc, scatterVal - closestVal);
 		}
 		System.out.println("DONE");
 		
@@ -87,14 +91,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		boolean shouldInterp = false;
 		boolean shouldMakeTopo = false;
+		boolean shouldMakeRatio = false;
 		for (InterpDiffMapType type : mapTypes) {
 			if (type != InterpDiffMapType.BASEMAP) {
 				// if it's anything but a basemap, we need to do the interpolation
 				shouldInterp = true;
 			}
-			if (type != InterpDiffMapType.DIFF) {
+			if (type != InterpDiffMapType.DIFF && type != InterpDiffMapType.RATIO) {
 				// if it's anything but a diff map, we need to prepare the topo
 				shouldMakeTopo = map.getTopoResolution() != null;
+			}
+			if (type == InterpDiffMapType.RATIO && map.getGriddedData() != null) {
+				shouldMakeRatio = true;
 			}
 		}
 		
@@ -145,6 +153,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		String interpUnsampledGRD = "interpolated.grd";
 		String interpSampledGRD = "interp_resampled.grd";
+		String interpRatioUnsampledGRD = "interpolated_ratio.grd";
+		String interpRatioSampledGRD = "interp_ratio_resampled.grd";
 		if (shouldInterp) {
 			// do the interpolation
 			String interpXYZName;
@@ -154,13 +164,14 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				toBeWritten = scatterData;
 			} else {
 				interpXYZName = "scatter_diffs.xyz";
-				toBeWritten = getDiffs(griddedData, scatterData);
+				toBeWritten = getDiffs(griddedData, scatterData, false);
 			}
 			try {
 				ArbDiscrGeoDataSet.writeXYZFile(toBeWritten, dir + interpXYZName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}
+			
 			rmFiles.add(interpUnsampledGRD);
 			gmtCommandLines.add("# do GMT interpolation on the scatter data");
 			commandLine = "${GMT_PATH}surface "+ interpXYZName +" -G"+ interpUnsampledGRD+ " -I"+interpGridSpacing
@@ -181,6 +192,37 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				if (!bicubic)
 					commandLine += "-Q";
 				gmtCommandLines.add(commandLine+"\n");
+			}
+			
+			String interpRatioXYZName = "ratios.xyz";
+			if (shouldMakeRatio) {
+				try {
+					ArbDiscrGeoDataSet.writeXYZFile(getDiffs(griddedData, scatterData, true), dir + interpRatioXYZName);
+				} catch (IOException e) {
+					throw new GMT_MapException("Could not write XYZ data to a file", e);
+				}
+				
+				rmFiles.add(interpRatioUnsampledGRD);
+				gmtCommandLines.add("# do GMT interpolation on the scatter data");
+				commandLine = "${GMT_PATH}surface "+ interpRatioXYZName +" -G"+ interpRatioUnsampledGRD+ " -I"+interpGridSpacing
+								+region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
+								+" "+interpSettings.getTensionArg()+" -: -H0";
+				gmtCommandLines.add(commandLine);
+				// resample the interpolation
+				
+				rmFiles.add(interpRatioSampledGRD);
+				if (interpGridSpacing == mapGridSpacing) {
+					gmtCommandLines.add("# the grid spacings are equal, we can just copy");
+					gmtCommandLines.add("cp " + interpRatioUnsampledGRD + " " + interpRatioSampledGRD);
+				} else {
+					gmtCommandLines.add("# resample the interpolated file");
+					boolean bicubic = false;
+					commandLine = "${GMT_PATH}grdsample "+interpRatioUnsampledGRD+" -G"+interpRatioSampledGRD
+									+" -I"+mapGridSpacing+region;
+					if (!bicubic)
+						commandLine += "-Q";
+					gmtCommandLines.add(commandLine+"\n");
+				}
 			}
 		}
 		
@@ -227,6 +269,33 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		// write the CPT
 		String inputCPT;
+		String diffCPTfile = null;
+		CPT diffCPT = null;
+		String ratioCPTfile = null;
+		CPT ratioCPT = null;
+		for (InterpDiffMapType mapType : mapTypes) {
+			if (mapType == InterpDiffMapType.DIFF) {
+				try {
+					diffCPT = GMT_CPT_Files.GMT_POLAR.instance();
+					diffCPT = diffCPT.rescale(-0.8, 0.8);
+					diffCPTfile = "cptFile_diff.cpt";
+					diffCPT.writeCPTFile(dir+diffCPTfile);
+				} catch (IOException e) {
+					throw new GMT_MapException("Could not write diff CPT file", e);
+				}
+				break;
+			} else if (mapType == InterpDiffMapType.RATIO) {
+				try {
+					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
+					ratioCPT = ratioCPT.rescale(-0.5, 0.5);
+					ratioCPTfile = "cptFile_diff.cpt";
+					ratioCPT.writeCPTFile(dir+ratioCPTfile);
+				} catch (IOException e) {
+					throw new GMT_MapException("Could not write ratio CPT file", e);
+				}
+				break;
+			}
+		}
 		if (map.getCptFile() != null) {
 			inputCPT = GMT_MapGenerator.SCEC_GMT_DATA_PATH + map.getCptFile();
 		} else {
@@ -318,14 +387,36 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			String psFile = mapType.getPrefix()+".ps";
 			Color markerColor = mapType.getMarkerColor();
 			boolean markers = markerColor != null;
+			String myCPTFileName = cptFile;
+			double myCPTMin = colorScaleMin;
+			double myCPTMax = colorScaleMax;
+			String scaleLabel = map.getCustomLabel();
 			if (mapType == InterpDiffMapType.BASEMAP) {
 				grdFile = baseGRD;
+				scaleLabel = "GMPE Basemap, "+scaleLabel;
 			} else if (mapType == InterpDiffMapType.INTERP_MARKS) {
 				grdFile = interpPlotGRD;
+				scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
 			} else if (mapType == InterpDiffMapType.INTERP_NOMARKS) {
 				grdFile = interpPlotGRD;
-			} else {
+				scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
+			} else if (mapType == InterpDiffMapType.DIFF) {
+				if (griddedData == null)
+					continue;
+				myCPTFileName = diffCPTfile;
+				myCPTMin = diffCPT.getMinValue();
+				myCPTMax = diffCPT.getMaxValue();
 				grdFile = interpSampledGRD;
+				scaleLabel = "Difference Map, "+scaleLabel;
+			} else {
+				// ratios!
+				if (griddedData == null)
+					continue;
+				myCPTFileName = ratioCPTfile;
+				myCPTMin = ratioCPT.getMinValue();
+				myCPTMax = ratioCPT.getMaxValue();
+				grdFile = interpRatioSampledGRD;
+				scaleLabel = "Ratio Map, "+scaleLabel;
 			}
 			
 			int dpi = map.getDpi();
@@ -351,7 +442,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+grdFile+"\n");
 			}
 			gmtCommandLines.add("# Plot the gridded data");
-			commandLine="${GMT_PATH}grdimage "+ grdFile + xOff + yOff + proj + topoOption + " -C"+cptFile+
+			commandLine="${GMT_PATH}grdimage "+ grdFile + xOff + yOff + proj + topoOption + " -C"+myCPTFileName+
 							" "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + psFile;
 			gmtCommandLines.add(commandLine+"\n");
 			
@@ -372,8 +463,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			
 			GMT_MapGenerator.addSpecialElements(gmtCommandLines, map, region, proj, psFile);
 			
-			GMT_MapGenerator.addColorbarCommand(gmtCommandLines, map,
-					colorScaleMin, colorScaleMax, cptFile, psFile);
+			GMT_MapGenerator.addColorbarCommand(gmtCommandLines, scaleLabel, map.isLogPlot(),
+					myCPTMin, myCPTMax, myCPTFileName, psFile);
 			
 			gmtCommandLines.add("# basemap");
 			commandLine = "${GMT_PATH}psbasemap -B0.5/0.5eWNs"+region+proj+"-O >> "+psFile;

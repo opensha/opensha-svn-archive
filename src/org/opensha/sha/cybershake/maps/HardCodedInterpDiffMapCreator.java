@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -45,23 +46,35 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 public class HardCodedInterpDiffMapCreator {
 	
-	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int velModelID, int imTypeID) {
+	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int datasetID, int imTypeID) {
+		List<Integer> datasetIDs = Lists.newArrayList(datasetID);
+		return getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
+	}
+	
+	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, List<Integer> datasetIDs, int imTypeID) {
+		Preconditions.checkArgument(!datasetIDs.isEmpty(), "Must supply at least one dataset ID");
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-		int erfID = 35;
-		int rupVarScenarioID = 3;
-		int sgtVarID = 5;
-		HazardCurveFetcher fetcher =
-			new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
-		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
-		ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, val);
-		
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);
-		for (int i=0; i<sites.size(); i++) {
-			CybershakeSite site = sites.get(i);
-			double siteVal = vals.get(i);
-			scatterData.set(new Location(site.lat, site.lon), siteVal);
+		for (int datasetID : datasetIDs) {
+			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
+			ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+			ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, val);
+			
+			for (int i=0; i<sites.size(); i++) {
+				CybershakeSite site = sites.get(i);
+				if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
+					continue;
+				Location loc = site.createLocation();
+				if (scatterData.contains(loc))
+					continue;
+				double siteVal = vals.get(i);
+				scatterData.set(loc, siteVal);
+			}
 		}
 		return scatterData;
 	}
@@ -189,11 +202,36 @@ public class HardCodedInterpDiffMapCreator {
 		AttenRelDataSets2DB ds2db = new AttenRelDataSets2DB(db);
 		int datasetID = ds2db.getDataSetID(attenRelID, 35, velModelID, 1, 1, null);
 		
+		File cacheFile = new File(getCacheDir(), "ar_curves_"+attenRelID+"_"+datasetID+"_"
+				+isProbAt_IML+"_"+(float)level+"_"+imTypeID+".txt");
+		if (cacheFile.exists()) {
+			try {
+				return ArbDiscrGeoDataSet.loadXYZFile(cacheFile.getAbsolutePath(), true);
+			} catch (Exception e) {
+				// don't fail on cache problem
+				e.printStackTrace();
+			}
+		}
+		
 		AttenRelCurves2DB curves2db = new AttenRelCurves2DB(db);
 		GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true);
 		System.out.println("Got "+xyz.size()+" basemap values!");
 		
+		try {
+			ArbDiscrGeoDataSet.writeXYZFile(xyz, cacheFile.getAbsolutePath());
+		} catch (IOException e) {
+			// don't fail on cache problem
+			e.printStackTrace();
+		}
+		
 		return xyz;
+	}
+	
+	private static File getCacheDir() {
+		if (System.getProperties().containsKey("CyberShakeCache")) {
+			return new File(System.getProperties().getProperty("CyberShakeCache"));
+		}
+		return new File("/home/kevin/CyberShake/cache");
 	}
 	
 	private static AbstractGeoDataSet loadBaseMap(boolean singleDay, boolean isProbAt_IML,
@@ -263,7 +301,8 @@ public class HardCodedInterpDiffMapCreator {
 		try {
 			boolean logPlot = false;
 			int imTypeID = 21;
-			int velModelID = 2;
+			int velModelID = 1;
+			List<Integer> datasetIDs = Lists.newArrayList(12, 21);
 			Double customMin = 0d;
 			Double customMax = 1.4;
 			
@@ -288,14 +327,14 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
-			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);
 			String customLabel = "3sec SA, 2% in 50 yrs";
 			boolean probGain = false;
 			
 			
-			String addr = getMap(logPlot, velModelID, imTypeID, customMin, customMax,
+			String addr = getMap(logPlot, velModelID, datasetIDs, imTypeID, customMin, customMax,
 					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
 			
@@ -315,7 +354,17 @@ public class HardCodedInterpDiffMapCreator {
 	protected static InterpDiffMapType[] gainPlotTypes = 
 			{ InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS};
 	
-	protected static String getMap(boolean logPlot, int velModelID, int imTypeID,
+	protected static String getMap(boolean logPlot, int velModelID, int datasetID, int imTypeID,
+			Double customMin, Double customMax, boolean isProbAt_IML,
+			double val, ScalarIMR baseMapIMR, ModProbConfig config,
+			boolean probGain, String customLabel) throws FileNotFoundException,
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
+		List<Integer> datasetIDs = Lists.newArrayList(datasetID);
+		return getMap(logPlot, velModelID, datasetIDs, imTypeID, customMin, customMax, isProbAt_IML, val,
+				baseMapIMR, config, probGain, customLabel);
+	}
+	
+	protected static String getMap(boolean logPlot, int velModelID, List<Integer> datasetIDs, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
@@ -337,7 +386,7 @@ public class HardCodedInterpDiffMapCreator {
 		if (singleDay)
 			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
 		else
-			scatterData = getMainScatter(isProbAt_IML, val, velModelID, imTypeID);
+			scatterData = getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
 		
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();

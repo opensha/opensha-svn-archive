@@ -59,7 +59,7 @@ public class PosterImageGen {
 		
 		boolean logPlot = true;
 		int imTypeID = 21;
-		int velModelID = 1;
+//		int velModelID = 1; // TODO replaced with dataset ID
 		boolean isProbAt_IML = true;
 		double val = 0.2;
 		
@@ -82,28 +82,28 @@ public class PosterImageGen {
 		HardCodedInterpDiffMapCreator.gainPlotTypes = types;
 		HardCodedInterpDiffMapCreator.normPlotTypes = types;
 
-		try {
-			writeLocsFile(mainDir + "/locs.txt");
-			System.exit(0);
-			for (ModProbConfig config : ModProbConfigFactory.modProbConfigs.values()) {
-				String name = config.getName().replaceAll(" ", "");
-				if (!gainOnly) {
-					String normAddr = 
-						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, normCustomMin, normCustomMax,
-								isProbAt_IML, val, baseMapIMR, config, false, normLabel);
-					saveCurves(normAddr, mainDir, name, InterpDiffMapType.INTERP_NOMARKS);
-				}
-				if (config instanceof ScenarioBasedModProbConfig) {
-					String gainAddr = 
-						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, gainCustomMin, gainCustomMax,
-								isProbAt_IML, val, baseMapIMR, config, true, gainLabel);
-					saveCurves(gainAddr, mainDir, name+"_gain", InterpDiffMapType.INTERP_NOMARKS);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(2);
-		}
+//		try {
+//			writeLocsFile(mainDir + "/locs.txt");
+//			System.exit(0);
+//			for (ModProbConfig config : ModProbConfigFactory.modProbConfigs.values()) {
+//				String name = config.getName().replaceAll(" ", "");
+//				if (!gainOnly) {
+//					String normAddr = 
+//						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, normCustomMin, normCustomMax,
+//								isProbAt_IML, val, baseMapIMR, config, false, normLabel);
+//					saveCurves(normAddr, mainDir, name, InterpDiffMapType.INTERP_NOMARKS);
+//				}
+//				if (config instanceof ScenarioBasedModProbConfig) {
+//					String gainAddr = 
+//						HardCodedInterpDiffMapCreator.getMap(logPlot, velModelID, imTypeID, gainCustomMin, gainCustomMax,
+//								isProbAt_IML, val, baseMapIMR, config, true, gainLabel);
+//					saveCurves(gainAddr, mainDir, name+"_gain", InterpDiffMapType.INTERP_NOMARKS);
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.exit(2);
+//		}
 		System.exit(0);
 	}
 
