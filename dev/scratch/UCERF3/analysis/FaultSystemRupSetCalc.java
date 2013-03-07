@@ -2679,7 +2679,7 @@ if(mMax<5.85)
 		
 		ArrayList<DeformationModels> defModsList = new ArrayList<DeformationModels>();
 		defModsList.add(DeformationModels.ABM);
-		defModsList.add(DeformationModels.ZENG);
+		defModsList.add(DeformationModels.ZENGBB);
 		defModsList.add(DeformationModels.GEOLOGIC);
 		defModsList.add(DeformationModels.NEOKINEMA);
 		
@@ -2858,7 +2858,10 @@ if(mMax<5.85)
 	 */
 	public static void main(String[] args) {
 		
-		testParentCharInversionMFD_Constraint();
+		plotSumOfCharInversionMFD_Constraints();
+
+		
+//		testParentCharInversionMFD_Constraint();
 		
 //		writeEachParentAveCharInversionMFD_Constraint();
 		
@@ -2887,7 +2890,6 @@ if(mMax<5.85)
 		
 //		plotPreInversionMFDs(rupSet, false, false, true, null);
 		
-//		plotSumOfCharInversionMFD_Constraints();
 //		plotSumOfGR_InversionMFD_Constraints(rupSet);
 		
 //		ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(rupSet);

@@ -200,31 +200,31 @@ public class FaultSystemSolutionCalc {
 	public static void main(String[] args) throws ZipException, IOException {
 		
 		// some U3.1 file:
-//		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		
 		// U3.2 files
 //		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 ////		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip");
 //
-//		try {
-//			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
-////			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
-////			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
-//		} catch (DocumentException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+//			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
+//			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		// This is the COMPOUND_SOL.zip file, you can download it from here:
 		// http://opensha.usc.edu/ftp/kmilner/ucerf3/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip
 		
-		File compoundSolFile = new File("/tmp/comp_plots/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
-		
-		// output dir
-		File outputDir = new File("/tmp");
-		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
+//		File compoundSolFile = new File("/tmp/comp_plots/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
+//		
+//		// output dir
+//		File outputDir = new File("/tmp");
+//		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
 	}
 
 }

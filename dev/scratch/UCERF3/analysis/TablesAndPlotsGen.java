@@ -229,10 +229,10 @@ public class TablesAndPlotsGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-//		buildAveSlipDataTable(new File("/tmp/ave_slip_table.csv"));
+		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 //		makePreInversionMFDsFig();
-		makeDefModSlipRateMaps();
+//		makeDefModSlipRateMaps();
 		
 		
 //		int mojaveParentID = 301;
