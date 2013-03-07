@@ -283,7 +283,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				} catch (IOException e) {
 					throw new GMT_MapException("Could not write diff CPT file", e);
 				}
-				break;
 			} else if (mapType == InterpDiffMapType.RATIO) {
 				try {
 					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
@@ -293,7 +292,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				} catch (IOException e) {
 					throw new GMT_MapException("Could not write ratio CPT file", e);
 				}
-				break;
 			}
 		}
 		if (map.getCptFile() != null) {
