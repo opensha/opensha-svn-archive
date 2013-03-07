@@ -421,6 +421,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				scaleLabel = "Ratio Map, "+scaleLabel;
 			}
 			
+			if (markers && myCPT != null && myCPT.get(0).minColor.equals(Color.BLUE)
+					&& myCPT.get(myCPT.size()-1).maxColor.equals(Color.RED))
+				// little hack for polar images
+				markerColor = Color.BLACK;
+			
 			int dpi = map.getDpi();
 			String gmtSmoothOption="";
 			if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
