@@ -325,7 +325,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			} else if (mapType == InterpDiffMapType.INTERP_NOMARKS) {
 				grdFile = interpPlotGRD;
 			} else {
-				// TODO implement DIFF
+				grdFile = interpSampledGRD;
 				continue;
 			}
 			
@@ -334,7 +334,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
 			// generate the image depending on whether topo relief is desired
 			String topoOption = "";
-			if (shouldMakeTopo) {
+			if (shouldMakeTopo && mapType != InterpDiffMapType.DIFF) {
 				String topoResGRD = "topores_"+grdFile;
 				rmFiles.add(topoResGRD);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
