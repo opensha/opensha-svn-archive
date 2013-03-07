@@ -89,6 +89,7 @@ public class UCERF3_GridSourceGenerator {
 		this.fss = fss;
 		branch = fss.getBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
+//		srcSpatialPDF = SpatialSeisPDF.AVG_DEF_MODEL_OFF.getPDF();
 		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
 		realOffFaultMFD = fss.getFinalTrulyOffFaultMFD();
 
