@@ -109,9 +109,9 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			CommandLine cmd = parse(options, args, UC3_HazardCalcDriverMPJ.class);
+			CommandLine cmd = parse(options, args, UC3_HazardCalcDriverMPJ2.class);
 			args = cmd.getArgs();
-			UC3_HazardCalcDriverMPJ driver = new UC3_HazardCalcDriverMPJ(cmd, args);
+			UC3_HazardCalcDriverMPJ2 driver = new UC3_HazardCalcDriverMPJ2(cmd, args);
 			driver.run();
 			finalizeMPJ();
 			System.exit(0);
