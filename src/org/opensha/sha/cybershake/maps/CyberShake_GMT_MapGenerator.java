@@ -333,7 +333,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (!map.isUseGMTSmoothing()) gmtSmoothOption=" -T ";
 			// generate the image depending on whether topo relief is desired
 			String topoOption = "";
-			if (shouldMakeTopo && mapType != InterpDiffMapType.DIFF) {
+			if (shouldMakeTopo) {
 				String topoResGRD = "topores_"+grdFile;
 				rmFiles.add(topoResGRD);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
@@ -341,7 +341,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				topoFile.resolution() + "c -Q "+region;
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
-				topoOption = " -I"+intenGRD;
+				if (mapType != InterpDiffMapType.DIFF)
+					topoOption = " -I"+intenGRD;
 			}
 			if (maskGRD != null) {
 				String unmaskedGRD = "unmasked_"+grdFile;
