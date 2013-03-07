@@ -36,18 +36,12 @@ import com.google.common.collect.Maps;
  * @author Ned Field
  * @author Peter Powers
  */
-public class UCERF3_GridSourceGenerator {
+public class UCERF3_GridSourceGenerator implements GridSourceProvider {
 
-	// TODO these probably shouldn't be static
-	private static final CaliforniaRegions.RELM_TESTING_GRIDDED region;
-	private static final WC1994_MagLengthRelationship magLenRel;
-	
-	static {
-		region = RELM_RegionUtils.getGriddedRegionInstance();
-		magLenRel = new WC1994_MagLengthRelationship();
-	}
+	private final CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
+	private final WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 
-	private InversionFaultSystemSolution fss;
+	private InversionFaultSystemSolution ifss;
 	private LogicTreeBranch branch;
 	private FaultPolyMgr polyMgr;
 	
@@ -56,13 +50,13 @@ public class UCERF3_GridSourceGenerator {
 	private double[] srcSpatialPDF;
 	private double[] revisedSpatialPDF;
 	
-	// foacl mechanism weights
+	// focal mechanism weights
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
 	private double totalMgt5_Rate;
 	private double ptSrcCutoff = 6.0;
 
-	// the sub-seismo fault section rupture removed
+	// total off-fault MFD (sub-seismo + background)
 	private IncrementalMagFreqDist realOffFaultMFD;
 
 	// the sub-seismogenic MFDs for those nodes that have them
@@ -79,26 +73,30 @@ public class UCERF3_GridSourceGenerator {
 	/**
 	 * Options:
 	 * 
-	 * 1) set a-values in fault-section polygons from moment-rate reduction or from smoothed seismicity
-	 * 2) focal mechanism options, and finite vs point sources (cross hair, random strike, etc)?
+	 * 1) set a-values in fault-section polygons from moment-rate reduction or
+	 * from smoothed seismicity
 	 * 
-	 * @param fss {@code InversionFaultSystemSolution} for which grided/background sources should be generated
+	 * 2) focal mechanism options, and finite vs point
+	 * sources (cross hair, random strike, etc)?
+	 * 
+	 * @param fss {@code InversionFaultSystemSolution} for which
+	 *        grided/background sources should be generated
 	 */
-	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution fss) {
+	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
 
-		this.fss = fss;
-		branch = fss.getBranch();
+		this.ifss = ifss;
+		branch = ifss.getBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 //		srcSpatialPDF = SpatialSeisPDF.AVG_DEF_MODEL_OFF.getPDF();
 		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		realOffFaultMFD = fss.getFinalTrulyOffFaultMFD();
+		realOffFaultMFD = ifss.getFinalTrulyOffFaultMFD();
 
 		mfdMin = realOffFaultMFD.getMinX();
 		mfdMax = realOffFaultMFD.getMaxX();
 		mfdNum = realOffFaultMFD.getNum();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		polyMgr = fss.getInversionMFDs().getGridSeisUtils().getPolyMgr();
+		polyMgr = ifss.getInversionMFDs().getGridSeisUtils().getPolyMgr();
 
 		System.out.println("   initFocalMechGrids() ...");
 		initFocalMechGrids();
@@ -117,10 +115,11 @@ public class UCERF3_GridSourceGenerator {
 	 */
 	private void initSectionMFDs() {
 
-		List<GutenbergRichterMagFreqDist> subSeisMFD_list = fss.getFinalSubSeismoOnFaultMFD_List();
+		List<GutenbergRichterMagFreqDist> subSeisMFD_list = 
+				ifss.getFinalSubSeismoOnFaultMFD_List();
 
 		sectSubSeisMFDs = Maps.newHashMap();
-		List<FaultSectionPrefData> faults = fss.getFaultSectionDataList();
+		List<FaultSectionPrefData> faults = ifss.getFaultSectionDataList();
 		for (int i = 0; i < faults.size(); i++) {
 			sectSubSeisMFDs.put(
 				faults.get(i).getSectionId(),
@@ -135,7 +134,7 @@ public class UCERF3_GridSourceGenerator {
 	 */
 	private void initNodeMFDs() {
 		nodeSubSeisMFDs = Maps.newHashMap();
-		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
+		for (FaultSectionPrefData sect : ifss.getFaultSectionDataList()) {
 			int id = sect.getSectionId();
 			IncrementalMagFreqDist sectSubSeisMFD = sectSubSeisMFDs.get(id);
 			Map<Integer, Double> nodeFractions = polyMgr.getNodeFractions(id);
@@ -181,11 +180,8 @@ public class UCERF3_GridSourceGenerator {
 	}
 
 
-	/**
-	 * Returns the number of sources in the model.
-	 * @return the source count
-	 */
-	public int getNumSources() {
+	@Override
+	public int size() {
 		return region.getNodeCount();
 	}
 
@@ -317,14 +313,15 @@ public class UCERF3_GridSourceGenerator {
 	 * @return the source
 	 * @see GardnerKnopoffAftershockFilter
 	 */
-	public ProbEqkSource getSource(int idx, double duration, boolean filterAftershocks, boolean isCrosshair) {
+	public ProbEqkSource getSource(int idx, double duration,
+			boolean filterAftershocks, boolean isCrosshair) {
 		Location loc = region.locationForIndex(idx);
 		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
 		if (filterAftershocks) scaleMFD(mfd);
 
 		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx], fracReverse[idx],
-			isCrosshair);
+			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
+			fracReverse[idx], isCrosshair);
 	}
 
 	/*
@@ -398,7 +395,7 @@ public class UCERF3_GridSourceGenerator {
 		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
 		
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(invFss);
-		int numSrcs = gridGen.getNumSources();
+		int numSrcs = gridGen.size();
 		int numRups = 0;
 		System.out.println("numSrcs: " + numSrcs);
 		for (int i=0; i<numSrcs; i++) {
