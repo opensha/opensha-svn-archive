@@ -35,6 +35,8 @@ import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
@@ -798,8 +800,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	public double getUpperMagForSubseismoRuptures(int sectIndex) {
 		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionMFDs.DELTA_MAG/2;
 	}
-
 	
+	@Override
+	public GridSourceProvider getGridSourceProvider() {
+		return new UCERF3_GridSourceGenerator(this);
+	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
 //		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(

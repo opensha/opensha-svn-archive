@@ -35,6 +35,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -289,6 +291,13 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		MatrixIO.doubleArrayToFile(getRateForAllRups(), ratesFile);
 		zipFileNames.add(ratesFile.getName());
 		
+		GridSourceProvider gridSources = getGridSourceProvider();
+		if (gridSources != null) {
+			File gridSourcesFile = new File(tempDir, "grid_sources.xml");
+			GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
+			zipFileNames.add(gridSourcesFile.getName());
+		}
+		
 		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);
 		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
 	}
@@ -371,6 +380,12 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		for (FaultSectionPrefData data : getFaultSectionDataForRupture(rupIndex))
 			len += data.getTraceLength()*1e3;
 		return len;
+	}
+
+	@Override
+	public GridSourceProvider getGridSourceProvider() {
+		// TODO load from file
+		return null;
 	}
 
 }

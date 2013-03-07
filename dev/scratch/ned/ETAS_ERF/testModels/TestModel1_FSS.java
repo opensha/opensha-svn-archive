@@ -27,6 +27,7 @@ import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
@@ -607,6 +608,12 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	@Override
 	public double getLengthForRup(int rupIndex) {
 		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
+	public GridSourceProvider getGridSourceProvider() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

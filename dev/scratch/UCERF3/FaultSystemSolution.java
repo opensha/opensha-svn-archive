@@ -37,6 +37,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
@@ -826,5 +827,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 			totalSolutionMoment += getRateForRup(rup)*MagUtils.magToMoment(getMagForRup(rup));
 		return totalSolutionMoment;
 	}
+	
+	public abstract GridSourceProvider getGridSourceProvider();
 
 }

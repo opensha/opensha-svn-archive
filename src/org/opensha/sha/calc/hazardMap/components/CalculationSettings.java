@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
 
@@ -103,7 +104,12 @@ public class CalculationSettings implements XMLSaveable {
 		HashMap<String, ArbitrarilyDiscretizedFunc> imtXValMap = new HashMap<String, ArbitrarilyDiscretizedFunc>();
 		while (funcElIt.hasNext()) {
 			Element funcEl = funcElIt.next();
-			ArbitrarilyDiscretizedFunc xValues = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+			ArbitrarilyDiscretizedFunc xValues;
+			AbstractDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+			if (func instanceof ArbitrarilyDiscretizedFunc)
+				xValues = (ArbitrarilyDiscretizedFunc)func;
+			else
+				xValues = new ArbitrarilyDiscretizedFunc(func);
 			imtXValMap.put(xValues.getXAxisName(), xValues);
 		}
 		

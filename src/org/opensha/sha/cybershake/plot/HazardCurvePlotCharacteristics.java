@@ -32,6 +32,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -564,9 +565,14 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		
 		Element funcEl = charsEl.element(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
 		
-		ArbitrarilyDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+		ArbitrarilyDiscretizedFunc arbDiscrFunc;
+		AbstractDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+		if (func instanceof ArbitrarilyDiscretizedFunc)
+			arbDiscrFunc = (ArbitrarilyDiscretizedFunc)func;
+		else
+			arbDiscrFunc = new ArbitrarilyDiscretizedFunc(func);
 		
-		chars.setHazardFunc(func);
+		chars.setHazardFunc(arbDiscrFunc);
 		
 		return chars;
 	}

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -159,8 +160,12 @@ Named,java.io.Serializable{
 	}
 
 	public Element toXMLMetadata(Element root) {
-		Element xml = root.addElement(AbstractDiscretizedFunc.XML_METADATA_NAME);
-
+		return toXMLMetadata(root, AbstractDiscretizedFunc.XML_METADATA_NAME);
+	}
+	
+	public Element toXMLMetadata(Element root, String elementName) {
+		Element xml = root.addElement(elementName);
+		
 		xml.addAttribute("info", this.getInfo());
 		xml.addAttribute("name", this.getName());
 
@@ -168,6 +173,11 @@ Named,java.io.Serializable{
 		xml.addAttribute("xAxisName", this.getXAxisName());
 		xml.addAttribute("yAxisName", this.getYAxisName());
 		xml.addAttribute("num", this.getNum() + "");
+		xml.addAttribute("minX", this.getMinX() + "");
+		xml.addAttribute("maxX", this.getMaxX() + "");
+		if (this instanceof EvenlyDiscretizedFunc) {
+			xml.addAttribute("delta", ((EvenlyDiscretizedFunc)this).getDelta()+"");
+		}
 
 		Element points = xml.addElement(AbstractDiscretizedFunc.XML_METADATA_POINTS_NAME);
 		for (int i=0; i<this.getNum(); i++) {
@@ -179,13 +189,22 @@ Named,java.io.Serializable{
 		return root;
 	}
 
-	public static ArbitrarilyDiscretizedFunc fromXMLMetadata(Element funcElem) {
-		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-
+	public static AbstractDiscretizedFunc fromXMLMetadata(Element funcElem) {
 		String info = funcElem.attributeValue("info");
 		String name = funcElem.attributeValue("name");
 		String xAxisName = funcElem.attributeValue("xAxisName");
 		String yAxisName = funcElem.attributeValue("yAxisName");
+		
+		AbstractDiscretizedFunc func;
+		Attribute deltaAtt = funcElem.attribute("delta");
+		if (deltaAtt == null) {
+			func = new ArbitrarilyDiscretizedFunc();
+		} else {
+			int num = Integer.parseInt(funcElem.attributeValue("num"));
+			double minX = Double.parseDouble(funcElem.attributeValue("minX"));
+			double delta = Double.parseDouble(deltaAtt.getStringValue());
+			func = new EvenlyDiscretizedFunc(minX, num, delta);
+		}
 
 		double tolerance = Double.parseDouble(funcElem.attributeValue("tolerance"));
 

@@ -456,13 +456,15 @@ public class HardCodedInterpDiffMapCreator {
 		CPT polar = GMT_CPT_Files.GMT_POLAR.instance();
 		CPT diffCPT = polar.rescale(-0.8, 0.8);
 		CPT ratioCPT = polar.rescale(0, 2);
+//		CPT diffCPT = polar.rescale(-0.4, 0.4);
+//		CPT ratioCPT = polar.rescale(0.5, 1.5);
 		
 		AbstractGeoDataSet diffData = ProbGainCalc.calcProbDiff(scatterData2, scatterData1);
 		AbstractGeoDataSet ratioData = ProbGainCalc.calcProbGain(scatterData2, scatterData1);
 		
 		InterpDiffMap map = new InterpDiffMap(region, null, 0.005, diffCPT, diffData, interpSettings, mapTypes);
 		map.setCustomLabel("Difference, "+customLabel);
-		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+		map.setTopoResolution(null);
 		map.setLogPlot(logPlot);
 		map.setDpi(300);
 		map.setXyzFileName("diff_map.xyz");
@@ -478,7 +480,7 @@ public class HardCodedInterpDiffMapCreator {
 		
 		map = new InterpDiffMap(region, null, 0.005, ratioCPT, ratioData, interpSettings, mapTypes);
 		map.setCustomLabel("Ratio, "+customLabel);
-		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+		map.setTopoResolution(null);
 		map.setLogPlot(logPlot);
 		map.setDpi(300);
 		map.setXyzFileName("ratio_map.xyz");

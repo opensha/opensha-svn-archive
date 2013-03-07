@@ -20,7 +20,9 @@
 package org.opensha.commons.param.impl;
 
 import org.dom4j.Element;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
@@ -208,8 +210,11 @@ implements java.io.Serializable{
 		try {
 			Element valEl = el.element(XML_COMPLEX_VAL_EL_NAME);
 			Element funcEl = valEl.element(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
-			ArbitrarilyDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
-			this.setValue(func);
+			AbstractDiscretizedFunc func = ArbitrarilyDiscretizedFunc.fromXMLMetadata(funcEl);
+			if (func instanceof ArbitrarilyDiscretizedFunc)
+				this.setValue((ArbitrarilyDiscretizedFunc)func);
+			else
+				this.setValue(new ArbitrarilyDiscretizedFunc(func));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
