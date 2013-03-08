@@ -2864,8 +2864,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 						weightsMap.put(fm, new ArrayList<Double>());
 						nodeSubSeisMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
 						nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+						ratesMap.put(fm, new double[o.ratesMap.get(fm).length]);
+						magsMap.put(fm, new double[o.magsMap.get(fm).length]);
 					}
-					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
 					Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = o.nodeSubSeisMFDsMap.get(fm);
 					Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = o.nodeUnassociatedMFDsMap.get(fm);
 					Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
