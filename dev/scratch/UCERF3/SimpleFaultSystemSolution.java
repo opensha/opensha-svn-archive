@@ -56,6 +56,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	
 	protected FaultSystemRupSet rupSet;
 	protected double[] rupRateSolution;
+	private GridSourceProvider gridSources;
 	
 	/**
 	 * Creates a SimpleFaultSystemSolution from any solution.
@@ -63,7 +64,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	 * @param solution
 	 */
 	public SimpleFaultSystemSolution(FaultSystemSolution solution) {
-		this(solution, solution.getRateForAllRups());
+		this(solution, solution.getRateForAllRups(), solution.getGridSourceProvider());
 	}
 	
 	/**
@@ -73,12 +74,18 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 	 * @param rupRateSolution
 	 */
 	public SimpleFaultSystemSolution(FaultSystemRupSet rupSet, double[] rupRateSolution) {
+		this(rupSet, rupRateSolution, null);
+	}
+	
+	public SimpleFaultSystemSolution(FaultSystemRupSet rupSet, double[] rupRateSolution,
+			GridSourceProvider gridSources) {
 		Preconditions.checkNotNull(rupSet, "FaultSystemRupSet passed in cannot be null!");
 		this.rupSet = rupSet;
 		Preconditions.checkState(
 				rupRateSolution == null || rupRateSolution.length == rupSet.getNumRuptures(),
 				"solution must either be null, or the correct size!");
 		this.rupRateSolution = rupRateSolution;
+		this.gridSources = gridSources;
 	}
 	
 	public FaultSystemRupSet getRupSet() {
@@ -320,7 +327,12 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 		double[] rates = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
 		
-		return new SimpleFaultSystemSolution(rupSet, rates);
+		ZipEntry gridSourcesEntry = zip.getEntry("grid_sources.xml");
+		GridSourceProvider gridSources = null;
+		if (gridSourcesEntry != null)
+			gridSources = GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry));
+		
+		return new SimpleFaultSystemSolution(rupSet, rates, gridSources);
 	}
 
 	@Override
@@ -384,8 +396,7 @@ public class SimpleFaultSystemSolution extends FaultSystemSolution implements XM
 
 	@Override
 	public GridSourceProvider getGridSourceProvider() {
-		// TODO load from file
-		return null;
+		return gridSources;
 	}
 
 }

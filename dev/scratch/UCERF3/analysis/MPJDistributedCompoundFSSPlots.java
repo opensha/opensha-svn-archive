@@ -21,6 +21,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MeanFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
@@ -306,6 +307,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		misfitOption.setRequired(false);
 		options.addOption(misfitOption);
 		
+		Option meanOption = new Option("mean", "build-mean", false,
+				"Flag for building mean FSS");
+		meanOption.setRequired(false);
+		options.addOption(meanOption);
+		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
 		options.addOption(plotAllOption);
@@ -444,6 +450,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("misfit")) {
 				MisfitTable misfit = new MisfitTable();
 				plots.add(misfit);
+			}
+			
+			if (plotAll || cmd.hasOption("mean")) {
+				MeanFSSBuilder builder = new MeanFSSBuilder(weightProvider);
+				plots.add(builder);
 			}
 			
 			if (cmd.hasOption("noerf")) {

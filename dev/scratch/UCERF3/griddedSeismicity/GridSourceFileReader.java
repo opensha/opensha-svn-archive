@@ -68,7 +68,7 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 			nodeEl.addAttribute("index", i+"");
 			
 			IncrementalMagFreqDist subSeisMFD = nodeSubSeisMFDs.get(i);
-			IncrementalMagFreqDist unassociatedMFD = nodeSubSeisMFDs.get(i);
+			IncrementalMagFreqDist unassociatedMFD = nodeUnassociatedMFDs.get(i);
 			
 			if (subSeisMFD != null)
 				subSeisMFD.toXMLMetadata(nodeEl, SUB_SIZE_MFD_EL_NAME);
@@ -168,8 +168,8 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 			
 			int index = Integer.parseInt(nodeEl.attributeValue("index"));
 			
-			nodeSubSeisMFDs.put(index, loadMFD(root.element(SUB_SIZE_MFD_EL_NAME)));
-			nodeUnassociatedMFDs.put(index, loadMFD(root.element(UNASSOCIATED_MFD_EL_NAME)));
+			nodeSubSeisMFDs.put(index, loadMFD(nodeEl.element(SUB_SIZE_MFD_EL_NAME)));
+			nodeUnassociatedMFDs.put(index, loadMFD(nodeEl.element(UNASSOCIATED_MFD_EL_NAME)));
 		}
 		
 		Preconditions.checkState(nodeSubSeisMFDs.size() == numNodes, "Num MFDs inconsistant with number listed in XML file");
@@ -214,8 +214,24 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 		writeGriddedSeisFile(gridSourcesFile, srcGen);
 		
 		System.out.println("Loading");
-		fromFile(gridSourcesFile);
+		GridSourceFileReader reader = fromFile(gridSourcesFile);
 		System.out.println("DONE");
+		
+		for (int i=0; i<region.getNumLocations(); i++) {
+			IncrementalMagFreqDist nodeSubSeisMFD = nodeSubSeisMFDs.get(i);
+			IncrementalMagFreqDist nodeUnassociatedMFD = nodeUnassociatedMFDs.get(i);
+			
+			if (nodeSubSeisMFD == null)
+				Preconditions.checkState(reader.getNodeSubSeisMFD(i) == null);
+			else
+				Preconditions.checkState((float)nodeSubSeisMFD.getTotalIncrRate() ==
+						(float)reader.getNodeSubSeisMFD(i).getTotalIncrRate());
+			if (nodeUnassociatedMFD == null)
+				Preconditions.checkState(reader.getNodeUnassociatedMFD(i) == null);
+			else
+				Preconditions.checkState((float)nodeUnassociatedMFD.getTotalIncrRate() ==
+						(float)reader.getNodeUnassociatedMFD(i).getTotalIncrRate());
+		}
 	}
 
 }

@@ -86,6 +86,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -97,6 +98,8 @@ import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -104,6 +107,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionMFDs;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -2693,6 +2697,226 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
+	public static void writeMeanSolutions(FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider, File dir, String prefix)
+			throws IOException {
+		MeanFSSBuilder plot = new MeanFSSBuilder(weightProvider);
+		plot.buildPlot(fetch);
+
+		writeMeanSolutions(plot, dir, prefix);
+	}
+
+	public static void writeMeanSolutions(MeanFSSBuilder plot, File dir,
+			String prefix) throws IOException {
+		System.out.println("Making mean solutions!");
+		
+		LaughTestFilter laughTest = LaughTestFilter.getDefault();
+		
+		GriddedRegion region = plot.region;
+
+		boolean multiFM = plot.weightsMap.keySet().size()>1;
+		for (FaultModels fm : plot.weightsMap.keySet()) {
+			String myPrefix = prefix;
+			if (multiFM)
+				myPrefix += "_"+fm.getShortName();
+			File outputFile = new File(dir, myPrefix+"_MEAN_BRANCH_AVG_SOL.zip");
+			
+			double[] rates = plot.ratesMap.get(fm);
+			double[] mags = plot.magsMap.get(fm);
+			
+			if (rates.length == 229104 || rates.length == 249656) {
+				System.err.println("WARNING: Using UCERF3.2 laugh test filter!");
+				laughTest = LaughTestFilter.getUCERF3p2Filter();
+			}
+			
+			FaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
+					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(fm));
+			
+			String info = reference.getInfoString();
+			
+			info = "****** BRANCH AVERAGED SOLUTION FOR "+plot.weightsMap.get(fm).size()+" SOLUTIONS ******\n\n"+info;
+			
+			List<List<Integer>> clusterRups = Lists.newArrayList();
+			List<List<Integer>> clusterSects = Lists.newArrayList();
+			for (int i=0; i<reference.getNumClusters(); i++) {
+				clusterRups.add(reference.getRupturesForCluster(i));
+				clusterSects.add(reference.getSectionsForCluster(i));
+			}
+			
+			SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
+					reference.getFaultSectionDataList(), mags, reference.getAveSlipForAllRups(),
+					reference.getSlipOnSectionsForAllRups(), reference.getSlipAlongRuptureModel(),
+					reference.getSlipRateForAllSections(), reference.getSlipRateStdDevForAllSections(),
+					reference.getAveRakeForAllRups(), reference.getAreaForAllRups(),
+					reference.getAreaForAllSections(), reference.getSectionIndicesForAllRups(),
+					info, reference.getCloseSectionsListList(), fm, reference.getDeformationModel(),
+					clusterRups, clusterSects);
+			
+			GridSourceProvider gridSources = new GridSourceFileReader(region,
+					plot.nodeSubSeisMFDsMap.get(fm), plot.nodeUnassociatedMFDsMap.get(fm));
+			
+			new SimpleFaultSystemSolution(rupSet, rates, gridSources).toZipFile(outputFile);
+		}
+	}
+	
+	public static class MeanFSSBuilder extends CompoundFSSPlots {
+		
+		private transient BranchWeightProvider weightProvider;
+		
+		private GriddedRegion region;
+		private Map<FaultModels, Map<Integer, IncrementalMagFreqDist>> nodeSubSeisMFDsMap = Maps.newHashMap();
+		private Map<FaultModels, Map<Integer, IncrementalMagFreqDist>> nodeUnassociatedMFDsMap = Maps.newHashMap();
+		
+		private Map<FaultModels, double[]> ratesMap = Maps.newConcurrentMap();
+		private Map<FaultModels, double[]> magsMap = Maps.newConcurrentMap();
+		private Map<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
+		
+		public MeanFSSBuilder(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				FaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getFaultModel();
+			
+			int numRups = sol.getNumRuptures();
+			
+			InversionFaultSystemSolution invSol;
+			if (sol instanceof InversionFaultSystemSolution)
+				invSol = (InversionFaultSystemSolution)sol;
+			else
+				invSol = new InversionFaultSystemSolution(sol);
+			
+			double weight = weightProvider.getWeight(branch);
+			
+			GridSourceProvider gridSources = invSol.getGridSourceProvider();
+			
+			Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = Maps.newHashMap();
+			Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = Maps.newHashMap();
+			
+			if (region == null)
+				region = gridSources.getGriddedRegion();
+			
+			for (int i=0; i<region.getNumLocations(); i++) {
+				nodeSubSeisMFDs.put(i, gridSources.getNodeSubSeisMFD(i));
+				nodeUnassociatedMFDs.put(i, gridSources.getNodeUnassociatedMFD(i));
+			}
+			
+			synchronized (fm) {
+				List<Double> weightsList = weightsMap.get(fm);
+				if (weightsList == null) {
+					weightsList = Lists.newArrayList();
+					weightsMap.put(fm, weightsList);
+					
+					nodeSubSeisMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+					nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+					ratesMap.put(fm, new double[numRups]);
+					magsMap.put(fm, new double[numRups]);
+				}
+				weightsList.add(weight);
+				Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
+				Map<Integer, IncrementalMagFreqDist> runningNodeUnassociatedMFDs = nodeUnassociatedMFDsMap.get(fm);
+				
+				for (int i=0; i<region.getNumLocations(); i++) {
+					addWeighted(runningNodeSubSeisMFDs, i, nodeSubSeisMFDs.get(i), weight);
+					addWeighted(runningNodeUnassociatedMFDs, i, nodeUnassociatedMFDs.get(i), weight);
+				}
+				
+				addWeighted(ratesMap.get(fm), sol.getRateForAllRups(), weight);
+				addWeighted(magsMap.get(fm), sol.getMagForAllRups(), weight);
+			}
+		}
+		
+		private void addWeighted(Map<Integer, IncrementalMagFreqDist> mfdMap, int index,
+				IncrementalMagFreqDist newMFD, double weight) {
+			if (newMFD == null)
+				// simple case
+				return;
+			IncrementalMagFreqDist runningMFD = mfdMap.get(index);
+			if (runningMFD == null) {
+				runningMFD = new IncrementalMagFreqDist(newMFD.getMinX(), newMFD.getNum(), newMFD.getDelta());
+				mfdMap.put(index, runningMFD);
+			} else {
+				Preconditions.checkState(runningMFD.getNum() == newMFD.getNum(), "MFD sizes inconsistent");
+				Preconditions.checkState((float)runningMFD.getMinX() == (float)newMFD.getMinX(), "MFD min x inconsistent");
+				Preconditions.checkState((float)runningMFD.getDelta() == (float)newMFD.getDelta(), "MFD delta inconsistent");
+			}
+			for (int i=0; i<runningMFD.getNum(); i++)
+				runningMFD.add(i, newMFD.getY(i)*weight);
+		}
+		
+		private void addWeighted(double[] running, double[] vals, double weight) {
+			Preconditions.checkState(running.length == vals.length);
+			for (int i=0; i<running.length; i++)
+				running[i] += vals[i]*weight;
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				MeanFSSBuilder o = (MeanFSSBuilder) otherCalc;
+				if (region == null)
+					region = o.region;
+				for (FaultModels fm : o.weightsMap.keySet()) {
+					if (!weightsMap.containsKey(fm)) {
+						weightsMap.put(fm, new ArrayList<Double>());
+						nodeSubSeisMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+						nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+					}
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+					Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = o.nodeSubSeisMFDsMap.get(fm);
+					Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = o.nodeUnassociatedMFDsMap.get(fm);
+					Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
+					Map<Integer, IncrementalMagFreqDist> runningNodeUnassociatedMFDs = nodeUnassociatedMFDsMap.get(fm);
+					for (int i=0; i<region.getNumLocations(); i++) {
+						// weight is one because these have already been scaled
+						addWeighted(runningNodeSubSeisMFDs, i, nodeSubSeisMFDs.get(i), 1d);
+						addWeighted(runningNodeUnassociatedMFDs, i, nodeUnassociatedMFDs.get(i), 1d);
+					}
+					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+					
+					addWeighted(ratesMap.get(fm), o.ratesMap.get(fm), 1d);
+					addWeighted(magsMap.get(fm), o.magsMap.get(fm), 1d);
+				}
+			}
+		}
+
+		@Override
+		protected void finalizePlot() {
+			// scale everything by total weight
+			
+			for (FaultModels fm : weightsMap.keySet()) {
+				double sum = 0d;
+				for (double weight : weightsMap.get(fm))
+					sum += weight;
+				
+				double scale = 1d/sum;
+				
+				for (IncrementalMagFreqDist mfd : nodeSubSeisMFDsMap.get(fm).values())
+					mfd.scale(scale);
+				
+				for (IncrementalMagFreqDist mfd : nodeUnassociatedMFDsMap.get(fm).values())
+					mfd.scale(scale);
+				
+				double[] rates = ratesMap.get(fm);
+				double[] mags = magsMap.get(fm);
+				
+				for (int i=0; i<rates.length; i++) {
+					rates[i] *= scale;
+					mags[i] *= scale;
+				}
+			}
+		}
+
+		@Override
+		protected boolean usesInversionFSS() {
+			return true;
+		}
+		
+	}
+
 	private static List<DiscretizedFunc> getFractiles(XY_DataSetList data,
 			List<Double> weights, String name, double[] fractiles) {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -4824,6 +5048,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof MisfitTable) {
 				MisfitTable table = (MisfitTable) plot;
 				BatchPlotGen.writeMisfitsCSV(dir, prefix, table.misfitsMap);
+			} else if (plot instanceof MeanFSSBuilder) {
+				MeanFSSBuilder builder = (MeanFSSBuilder) plot;
+				writeMeanSolutions(builder, dir, prefix);
 			} else if (plot instanceof MapBasedPlot) {
 				MapBasedPlot faultPlot = (MapBasedPlot) plot;
 				faultPlot.writePlotData(dir);
@@ -4879,8 +5106,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 20,
-				FaultModels.FM3_1);
+//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5,
+//				FaultModels.FM3_1);
 
 		new DeadlockDetectionThread(3000).start();
 
@@ -4913,7 +5140,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 		// plots.add(new RupJumpPlot(weightProvider));
-		 plots.add(new SlipRatePlots(weightProvider));
+//		 plots.add(new SlipRatePlots(weightProvider));
 		// plots.add(new ParticipationMapPlot(weightProvider));
 //		 plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		 plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
@@ -4921,8 +5148,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// plots.add(new PaleoRatesTable(weightProvider));
 		// plots.add(new AveSlipPlot(weightProvider));
 		// plots.add(new MultiFaultParticPlot(weightProvider));
+		plots.add(new MeanFSSBuilder(weightProvider));
 
-		batchPlot(plots, fetch, 1);
+		batchPlot(plots, fetch, 4);
 
 		// for (CompoundFSSPlots plot : plots)
 		// FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);
