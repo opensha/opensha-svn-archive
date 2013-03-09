@@ -299,11 +299,10 @@ public class InversionConfiguration {
 				initialRupModel = Arrays.copyOf(aPrioriRupConstraint, aPrioriRupConstraint.length); 
 				minimumRuptureRateFraction = 0.01;
 				minimumRuptureRateBasis = adjustStartingModel(getSmoothStartingSolution(rupSet,targetOnFaultMFD), mfdConstraints, rupSet, true);
-				initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
-				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
-				initialRupModel = adjustParkfield(rupSet, initialRupModel);
-				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
-				
+//				initialRupModel = adjustIsolatedSections(rupSet, initialRupModel);
+//				if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+//				initialRupModel = adjustParkfield(rupSet, initialRupModel);
+//				initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
 				initialRupModel = new double[initialRupModel.length];
 			} else if (model == InversionModels.GR_CONSTRAINED) {
 				participationSmoothnessConstraintWt = 1000;
