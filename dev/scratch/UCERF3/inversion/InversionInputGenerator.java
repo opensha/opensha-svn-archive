@@ -221,31 +221,23 @@ public class InversionInputGenerator {
 		
 		List<Integer> smoothingConstraintRups1 = new ArrayList<Integer>();
 		List<Integer> smoothingConstraintRups2 = new ArrayList<Integer>();
-		double rupRateSmoothingConstraintWt = 0; // TODO move this to config, edit InversionConfiguration to include it
-		if (rupRateSmoothingConstraintWt > 0) { 
+		if (config.getRupRateSmoothingConstraintWt() > 0) { 
 			int numRupRateSmoothingRows = 0;
-			Stopwatch watch = new Stopwatch();
-			watch.start();
 			
-			System.out.println("Building HashSets/Maps");
-			// Kevin's hashmaps for speed!
-			
-			// this is a list of each rupture as a HashSet for quick contains(...) operations
+			// This is a list of each rupture as a HashSet for quick contains(...) operations
 			List<HashSet<Integer>> rupHashList = Lists.newArrayList();
-			// this is a list of the parent sections for each rupture as a HashSet
+			// This is a list of the parent sections for each rupture as a HashSet
 			List<HashSet<Integer>> rupParentsHashList = Lists.newArrayList();
-			// this is a mapping from each unique set of parent sections, to the ruptures which
-			// involve all/only those parent sections
+			// This is a mapping from each unique set of parent sections, to the ruptures which involve all/only those parent sections
 			Map<HashSet<Integer>, List<Integer>> parentsToRupsMap = Maps.newHashMap();
 			for (int r=0; r<numRuptures; r++) {
-				// create the hashset for the rupture
+				// create the hashSet for the rupture
 				rupHashList.add(new HashSet<Integer>(rupSet.getSectionsIndicesForRup(r)));
-				// build the hashset of parents
+				// build the hashSet of parents
 				HashSet<Integer> parentIDs = new HashSet<Integer>();
 				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(r))
 					parentIDs.add(sect.getParentSectionId());	// this won't have duplicates since it's a hash set
 				rupParentsHashList.add(parentIDs);
-				
 				// now add this rupture to the list of ruptures that involve this set of parents
 				List<Integer> rupsForParents = parentsToRupsMap.get(parentIDs);
 				if (rupsForParents == null) {
@@ -254,46 +246,33 @@ public class InversionInputGenerator {
 				}
 				rupsForParents.add(r);
 			}
-			System.out.println(parentsToRupsMap.size()+" unique parent set combinations");
+			if (D) System.out.println("Rupture rate smoothing constraint: "+parentsToRupsMap.size()+" unique parent set combinations");
 			
-			System.out.println("Searching for pairs");
 			// Find set of rupture pairs for smoothing
 			for(int rup1=0; rup1<numRuptures; rup1++) {
-				if (rup1 % 50000 == 0)
-					System.out.println("Rup "+rup1);
 				List<Integer> sects = rupSet.getSectionsIndicesForRup(rup1);
 				HashSet<Integer> rup1Parents = rupParentsHashList.get(rup1);
 				ruptureLoop:
-				// we only loop over ruptures that involve the same set of parents
-				for(Integer rup2 : parentsToRupsMap.get(rup1Parents)) {
-					// skip if we've already dealt with this rupture, or if it is the same as rup1
-					if (rup2 <= rup1)
+				for(Integer rup2 : parentsToRupsMap.get(rup1Parents)) { // We only loop over ruptures that involve the same set of parents
+					// Only keep pair if rup1 < rup2 (don't need to include pair in each direction)
+					if (rup2 <= rup1) // Only keep pair if rup1 < rup2 (don't need to include pair in each direction)
 						continue;
 					HashSet<Integer> sects2 = rupHashList.get(rup2);
-					
 					// Check that ruptures are same size
 					if (sects.size() != sects2.size()) continue ruptureLoop;
-					
 					// Check that ruptures differ by at most one subsection
 					int numSectsDifferent = 0;
 					for(int i=0; i<sects.size(); i++) {
 						if (!sects2.contains(sects.get(i))) numSectsDifferent++;
 						if (numSectsDifferent > 1) continue ruptureLoop;
 					}
-					
-					// Check that ruptures contain same parent fault sections
-					// no longer needed by nature of using parent lists to find ruptures
-					
-					// It passes!
+					// The pair passes!
 					smoothingConstraintRups1.add(rup1);
 					smoothingConstraintRups2.add(rup2);
 					numRupRateSmoothingRows++;
-					
 				}
 			}
-			watch.stop();
 			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateSmoothingRows);
-			if(D) System.out.println("That took an amazingly quick"+watch.elapsed(TimeUnit.SECONDS)+" seconds!");
 			numRows += numRupRateSmoothingRows;
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Rupture Rate Smoothing");
@@ -656,7 +635,8 @@ public class InversionInputGenerator {
 		
 		// Rupture rate smoothness constraint
 		// This constrains rates of ruptures that differ by only 1 subsection
-		if (rupRateSmoothingConstraintWt > 0) {	// TODO move this variable to config
+		if (config.getRupRateSmoothingConstraintWt() > 0) {
+			double rupRateSmoothingConstraintWt = config.getRupRateSmoothingConstraintWt();
 			if(D) System.out.println("\nAdding rupture rate smoothing constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for (int i=0; i<smoothingConstraintRups1.size(); i++) {

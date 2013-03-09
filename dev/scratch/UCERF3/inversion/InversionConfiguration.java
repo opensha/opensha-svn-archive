@@ -60,6 +60,7 @@ public class InversionConfiguration {
 	private double nucleationMFDConstraintWt;
 	private double mfdSmoothnessConstraintWt;
 	private double mfdSmoothnessConstraintWtForPaleoParents;
+	private double rupRateSmoothingConstraintWt;
 	private double minimizationConstraintWt;
 	private double momentConstraintWt;
 	private double parkfieldConstraintWt;
@@ -91,6 +92,7 @@ public class InversionConfiguration {
 			double nucleationMFDConstraintWt,
 			double mfdSmoothnessConstraintWt,
 			double mfdSmoothnessConstraintWtForPaleoParents,
+			double rupRateSmoothingConstraintWt,
 			double minimizationConstraintWt,
 			double momentConstraintWt,
 			double parkfieldConstraintWt,
@@ -131,6 +133,8 @@ public class InversionConfiguration {
 		metadata += "\nmfdSmoothnessConstraintWt: "+mfdSmoothnessConstraintWt;
 		this.mfdSmoothnessConstraintWtForPaleoParents = mfdSmoothnessConstraintWtForPaleoParents;
 		metadata += "\nmfdSmoothnessConstraintWtForPaleoParents: "+mfdSmoothnessConstraintWtForPaleoParents;
+		this.rupRateSmoothingConstraintWt = rupRateSmoothingConstraintWt;
+		metadata += "\nrupRateSmoothingConstraintWt: "+rupRateSmoothingConstraintWt;
 		this.minimizationConstraintWt = minimizationConstraintWt;
 		metadata += "\nminimizationConstraintWt: "+minimizationConstraintWt;
 		this.momentConstraintWt = momentConstraintWt;
@@ -230,6 +234,9 @@ public class InversionConfiguration {
 		
 		// magnitude-bin size for MFD participation smoothness constraint
 		double participationConstraintMagBinSize = 0.1;
+		
+		// weight of rupture-rate smoothing constraint 
+		double rupRateSmoothingConstraintWt = 0;
 		
 		// weight of rupture-rate minimization constraint weights relative to slip-rate constraint (recommended: 10,000)
 		// (currently used to minimization rates of rups below sectMinMag)
@@ -427,6 +434,7 @@ public class InversionConfiguration {
 				nucleationMFDConstraintWt,
 				mfdSmoothnessConstraintWt,
 				mfdSmoothnessConstraintWtForPaleoParents,
+				rupRateSmoothingConstraintWt,
 				minimizationConstraintWt,
 				momentConstraintWt,
 				parkfieldConstraintWt,
@@ -1069,9 +1077,16 @@ public class InversionConfiguration {
 		return eventRateSmoothnessWt;
 	}
 
-	public void setEventRateSmoothnessWt(double relativeEventRateSmoothnessWt) {
-		this.eventRateSmoothnessWt = relativeEventRateSmoothnessWt;
+	public void setEventRateSmoothnessWt(double eventRateSmoothnessWt) {
+		this.eventRateSmoothnessWt = eventRateSmoothnessWt;
 	}
 	
+	public double getRupRateSmoothingConstraintWt() {
+		return rupRateSmoothingConstraintWt;
+	}
+
+	public void setRupRateSmoothingConstraintWt(double rupRateSmoothingConstraintWt) {
+		this.rupRateSmoothingConstraintWt = rupRateSmoothingConstraintWt;
+	}
 
 }
