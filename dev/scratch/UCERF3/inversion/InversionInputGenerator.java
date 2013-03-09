@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.eq.MagUtils;
@@ -217,6 +218,67 @@ public class InversionInputGenerator {
 			rangeEndRows.add(numRows-1);
 			rangeNames.add("Rupture Rates");
 		}
+		
+		List<Integer> smoothingConstraintRups1 = new ArrayList<Integer>();
+		List<Integer> smoothingConstraintRups2 = new ArrayList<Integer>();
+		double rupRateSmoothingConstraintWt = 0; // TODO move this to config, edit InversionConfiguration to include it
+		if (rupRateSmoothingConstraintWt > 0) { 
+			int numRupRateSmoothingRows = 0;
+			Stopwatch watch = new Stopwatch();
+			watch.start();
+			
+			// Kevin's hashmaps for speed!
+			List<HashSet<Integer>> rupHashList = Lists.newArrayList();
+			for (List<Integer> rup : rupSet.getSectionIndicesForAllRups())
+				rupHashList.add(new HashSet<Integer>(rup));
+			List<HashSet<Integer>> rupParentsHashList = Lists.newArrayList();
+			for (int r=0; r<numRuptures; r++) {
+				rupHashList.add(new HashSet<Integer>(rupSet.getSectionsIndicesForRup(r)));
+				HashSet<Integer> parentIDs = new HashSet<Integer>();
+				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(r))
+					parentIDs.add(sect.getParentSectionId());	// this won't have duplicates since it's a hash set
+				rupParentsHashList.add(parentIDs);
+			}
+			
+			// Find set of rupture pairs for smoothing
+			for(int rup1=0; rup1<numRuptures; rup1++) {
+				ArrayList<Integer> sects = rupSet.getSectionsIndicesForRup(rup1);
+				ruptureLoop:
+				for(int rup2=rup1+1; rup2<numRuptures; rup2++) {
+					HashSet<Integer> sects2 = rupHashList.get(rup2);
+					
+					// Check that ruptures are same size
+					if (sects.size() != sects2.size()) continue ruptureLoop;
+					
+					// Check that ruptures differ by at most one subsection
+					int numSectsDifferent = 0;
+					for(int i=0; i<sects.size(); i++) {
+						if (!sects2.contains(sects.get(i))) numSectsDifferent++;
+						if (numSectsDifferent > 1) continue ruptureLoop;
+					}
+					
+					// Check that ruptures contain same parent fault sections
+					if (!rupParentsHashList.get(rup1).equals(rupParentsHashList.get(rup2))) {
+						System.out.println("Different parent sections.  Rupture #1: "+rup1+", Rupture #2: "+rup2);
+						continue;
+					}
+					
+					// It passes!
+					smoothingConstraintRups1.add(rup1);
+					smoothingConstraintRups2.add(rup2);
+					numRupRateSmoothingRows++;
+					
+				}
+			}
+			watch.stop();
+			if(D) System.out.println("Number of rupture-rate constraints: "+numRupRateSmoothingRows);
+			if(D) System.out.println("That took an agonizing "+watch.elapsed(TimeUnit.MINUTES)+" minutes!");
+			numRows += numRupRateSmoothingRows;
+			rangeEndRows.add(numRows-1);
+			rangeNames.add("Rupture Rate Smoothing");
+		}
+		
+		
 		
 //		int numMinimizationRows = (int)Math.signum(config.getMinimizationConstraintWt())*numRuptures;	// For Coulomb Improbability Constraint (not currently used)
 		int numMinimizationRows = 0;
@@ -569,6 +631,30 @@ public class InversionInputGenerator {
 				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 			}
 		}
+		
+		
+		// Rupture rate smoothness constraint
+		// This constrains rates of ruptures that differ by only 1 subsection
+		if (rupRateSmoothingConstraintWt > 0) {	// TODO move this variable to config
+			if(D) System.out.println("\nAdding rupture rate smoothing constraints to A matrix ...");
+			numNonZeroElements = 0;
+			for (int i=0; i<smoothingConstraintRups1.size(); i++) {
+				if (QUICK_GETS_SETS) 
+					A.setQuick(rowIndex,smoothingConstraintRups1.get(i),rupRateSmoothingConstraintWt); 
+				else
+					A.set(rowIndex,smoothingConstraintRups2.get(i),rupRateSmoothingConstraintWt);
+				d[rowIndex]=0;
+				rowIndex++;
+				numNonZeroElements++;
+			}		
+			if (D) {
+				System.out.println("Adding rupture rate smoothness constraint took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+				System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
+			}
+		}
+		
 		
 		// Rupture rate minimization constraint
 		// Minimize the rates of ruptures below SectMinMag (strongly so that they have zero rates)
