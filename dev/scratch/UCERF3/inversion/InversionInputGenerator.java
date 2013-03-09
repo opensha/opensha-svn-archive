@@ -260,7 +260,7 @@ public class InversionInputGenerator {
 					// Check that ruptures contain same parent fault sections
 					if (!rupParentsHashList.get(rup1).equals(rupParentsHashList.get(rup2))) {
 						System.out.println("Different parent sections.  Rupture #1: "+rup1+", Rupture #2: "+rup2);
-						continue;
+						continue ruptureLoop;
 					}
 					
 					// It passes!
