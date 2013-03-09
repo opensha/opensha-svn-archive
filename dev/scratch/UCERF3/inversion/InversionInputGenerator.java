@@ -393,8 +393,8 @@ public class InversionInputGenerator {
 					SectionMFD_constraint sectMFDConstraint = MFDConstraints.get(sect2);
 					if (sectMFDConstraint == null) continue; // Parent sections with Mmax<6 have no MFD constraint; skip these
 					int numMagBins = sectMFDConstraint.getNumMags();
-					// Only add rows if this parent section will be included; it won't if it's not a paleo parent sect & relativeSmoothnessConstraintWt = 0
-					// CASE WHERE relativeSmoothnessConstraintWt != 0 & relativeMFDSmoothnessConstraintWtForPaleoParents 0 IS NOT SUPPORTED
+					// Only add rows if this parent section will be included; it won't if it's not a paleo parent sect & MFDSmoothnessConstraintWt = 0
+					// CASE WHERE MFDSmoothnessConstraintWt != 0 & MFDSmoothnessConstraintWtForPaleoParents 0 IS NOT SUPPORTED
 					if (config.getMFDSmoothnessConstraintWt()>0.0 || paleoParents.indexOf(parentID) != -1) {
 						totalNumMFDSmoothnessConstraints+=numMagBins;
 						numRows+=numMagBins;
@@ -527,17 +527,17 @@ public class InversionInputGenerator {
 		
 		// Make sparse matrix of paleo event probs for each rupture & data vector of mean event rates
 		if (config.getPaleoRateConstraintWt() > 0.0) {
-			double relativePaleoRateWt = config.getPaleoRateConstraintWt();
+			double paleoRateConstraintWt = config.getPaleoRateConstraintWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding event rates to A matrix ...");
 			for (int i=numSlipRateConstraints; i<numSlipRateConstraints+paleoRateConstraints.size(); i++) {
 				PaleoRateConstraint constraint = paleoRateConstraints.get(i-numSlipRateConstraints);
-				d[i]=relativePaleoRateWt * constraint.getMeanRate() / constraint.getStdDevOfMeanRate();
+				d[i]=paleoRateConstraintWt * constraint.getMeanRate() / constraint.getStdDevOfMeanRate();
 				List<Integer> rupsForSect = rupSet.getRupturesForSection(constraint.getSectionIndex());
 				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
 					int rup = rupsForSect.get(rupIndex);
 					double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, constraint.getSectionIndex());	
-					double setVal = (relativePaleoRateWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
+					double setVal = (paleoRateConstraintWt * probPaleoVisible / constraint.getStdDevOfMeanRate());
 					if (QUICK_GETS_SETS)
 						A.setQuick(i, rup, setVal);
 					else
@@ -557,7 +557,7 @@ public class InversionInputGenerator {
 		// Mean paleo slip at a point
 		int rowIndex = numSlipRateConstraints + numPaleoRows;  // current A matrix row index - number of rows used for slip-rate and paleo-rate constraints (previous 2 constraints)
 		if (config.getPaleoSlipConstraintWt() > 0.0) {
-			double relativePaleoSlipWt = config.getPaleoSlipConstraintWt();
+			double paleoSlipConstraintWt = config.getPaleoSlipConstraintWt();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding paleo mean slip constraints to A matrix ...");
 			for (int i=0; i<aveSlipConstraints.size(); i++) {
@@ -567,14 +567,14 @@ public class InversionInputGenerator {
 				double lowRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getUpperUncertaintyBound();
 				double highRateBound = sectSlipRateReduced[subsectionIndex] / constraint.getLowerUncertaintyBound();
 				double constraintError = highRateBound - lowRateBound;
-				d[rowIndex]=relativePaleoSlipWt * meanRate / constraintError;
+				d[rowIndex]=paleoSlipConstraintWt * meanRate / constraintError;
 				List<Integer> rupsForSect = rupSet.getRupturesForSection(subsectionIndex);
 				for (int rupIndex=0; rupIndex<rupsForSect.size(); rupIndex++) {
 					int rup = rupsForSect.get(rupIndex);
 					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rup).indexOf(subsectionIndex);
 					double slipOnSect = rupSet.getSlipOnSectionsForRup(rup)[sectIndexInRup]; 
 					double probVisible = AveSlipConstraint.getProbabilityOfObservedSlip(slipOnSect);
-					double setVal = (relativePaleoSlipWt * probVisible / constraintError);
+					double setVal = (paleoSlipConstraintWt * probVisible / constraintError);
 					if (QUICK_GETS_SETS)
 						A.setQuick(rowIndex, rup, setVal);
 					else
@@ -594,7 +594,7 @@ public class InversionInputGenerator {
 		
 		// Rupture-Rate Constraint - close to UCERF2 rates
 		if (config.getRupRateConstraintWt() > 0.0) {
-			double relativeRupRateConstraintWt = config.getRupRateConstraintWt();
+			double rupRateConstraintWt = config.getRupRateConstraintWt();
 			double zeroRupRateConstraintWt = config.getRupRateConstraintWt()*aPrioriConstraintForZeroRatesWtFactor;  // This is the RupRateConstraintWt for ruptures not in UCERF2 
 			if(D) System.out.println("\nAdding rupture-rate constraint to A matrix ...");
 			double[] aPrioriRupConstraint = config.getA_PrioriRupConstraint();
@@ -603,10 +603,10 @@ public class InversionInputGenerator {
 				// If aPrioriConstrintforZeroRates=false, Only apply if rupture-rate is greater than 0, this will keep ruptures on faults not in UCERF2 from being minimized
 				if (aPrioriRupConstraint[rup]>0) { 
 					if (QUICK_GETS_SETS)
-						A.setQuick(rowIndex,rup,relativeRupRateConstraintWt);
+						A.setQuick(rowIndex,rup,rupRateConstraintWt);
 					else
-						A.set(rowIndex,rup,relativeRupRateConstraintWt);
-					d[rowIndex]=aPrioriRupConstraint[rup]*relativeRupRateConstraintWt;
+						A.set(rowIndex,rup,rupRateConstraintWt);
+					d[rowIndex]=aPrioriRupConstraint[rup]*rupRateConstraintWt;
 					numNonZeroElements++; rowIndex++;
 				}
 			}
@@ -660,15 +660,15 @@ public class InversionInputGenerator {
 		// Rupture rate minimization constraint
 		// Minimize the rates of ruptures below SectMinMag (strongly so that they have zero rates)
 		if (config.getMinimizationConstraintWt() > 0.0) {
-			double relativeRupRateMinimizationWt = config.getMinimizationConstraintWt();
+			double minimizationConstraintWt = config.getMinimizationConstraintWt();
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
 				if (rupSet.isRuptureBelowSectMinMag(rup) == true) { 
 					if (QUICK_GETS_SETS)
-						A.setQuick(rowIndex,rup,relativeRupRateMinimizationWt);
+						A.setQuick(rowIndex,rup,minimizationConstraintWt);
 					else
-						A.set(rowIndex,rup,relativeRupRateMinimizationWt);
+						A.set(rowIndex,rup,minimizationConstraintWt);
 					d[rowIndex] = 0;
 					numNonZeroElements++; rowIndex++;
 				}
@@ -684,14 +684,14 @@ public class InversionInputGenerator {
 /*		// Rupture rate minimization constraint
 		// Penalize Ruptures with small Coulomb weights (Improbability constraint)
 		if (config.getMinimizationConstraintWt() > 0.0) {
-			double relativeMinimizationConstraintWt = config.getMinimizationConstraintWt();
+			double minimizationConstraintWt = config.getMinimizationConstraintWt();
 			if(D) System.out.println("\nAdding minimization constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for(int rup=0; rup<numRuptures; rup++) {
 				if (QUICK_GETS_SETS)
-					A.setQuick(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
+					A.setQuick(rowIndex,rup,minimizationConstraintWt*improbabilityConstraint[rup]);
 				else
-					A.set(rowIndex,rup,relativeMinimizationConstraintWt*improbabilityConstraint[rup]);
+					A.set(rowIndex,rup,minimizationConstraintWt*improbabilityConstraint[rup]);
 				d[rowIndex]=0;
 				numNonZeroElements++; rowIndex++;
 			}
@@ -708,7 +708,7 @@ public class InversionInputGenerator {
 		// This is for equality constraints only -- inequality constraints must be
 		// encoded into the A_ineq matrix instead since they are nonlinear
 		if (config.getMagnitudeEqualityConstraintWt() > 0.0) {
-			double relativeMagnitudeEqualityConstraintWt = config.getMagnitudeEqualityConstraintWt();
+			double magnitudeEqualityConstraintWt = config.getMagnitudeEqualityConstraintWt();
 			List<MFD_InversionConstraint> mfdEqualityConstraints = config.getMfdEqualityConstraints();
 			numNonZeroElements = 0;
 			if(D) System.out.println("\nAdding " + mfdEqualityConstraints.size()
@@ -744,21 +744,21 @@ public class InversionInputGenerator {
 					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 						if (excludeParkfieldRupsFromMfdEqualityConstraints==false || !parkfieldRups.contains(rup)) {		
-//							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside);
+//							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeEqualityConstraintWt * fractRupInside);
 							if (QUICK_GETS_SETS){
-								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 								if (targetMagFreqDist.getClosestY(mag)==0) 
 									A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,0);
 							}
 							else
-								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 							numNonZeroElements++;
 						}
 					}
 				}		
 				for (int xIndex=targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()); xIndex<=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag()); xIndex++) {
-//					d[rowIndex]=targetMagFreqDist.getY(xIndex)*relativeMagnitudeEqualityConstraintWt;
-					d[rowIndex]=relativeMagnitudeEqualityConstraintWt;
+//					d[rowIndex]=targetMagFreqDist.getY(xIndex)*magnitudeEqualityConstraintWt;
+					d[rowIndex]=magnitudeEqualityConstraintWt;
 					if (targetMagFreqDist.getY(xIndex)==0) d[rowIndex]=0;
 					rowIndex++; 
 				}	
@@ -774,7 +774,7 @@ public class InversionInputGenerator {
 		
 		// Prepare MFD Inequality Constraint (not added to A matrix directly since it's nonlinear)
 		if (config.getMagnitudeInequalityConstraintWt() > 0.0) {	
-			double relativeMagnitudeInequalityConstraintWt = config.getMagnitudeInequalityConstraintWt();
+			double magnitudeInequalityConstraintWt = config.getMagnitudeInequalityConstraintWt();
 			List<MFD_InversionConstraint> mfdInequalityConstraints = config.getMfdInequalityConstraints();
 			int rowIndex_ineq = 0; 
 			if(D) System.out.println("\nPreparing " + mfdInequalityConstraints.size()
@@ -788,19 +788,19 @@ public class InversionInputGenerator {
 					double mag = rupMeanMag[rup];
 					double fractRupInside = fractRupsInside[rup];
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
-//						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside);
+//						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS) {
-							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 							if (targetMagFreqDist.getClosestY(mag)==0) 
 								A.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,0);
 						}
 						else
-							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,relativeMagnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
 					}
 				}		
 				for (int xIndex=targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()); xIndex<=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag()); xIndex++) {
-//					d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(xIndex)*relativeMagnitudeInequalityConstraintWt;
-					d_ineq[rowIndex_ineq]=relativeMagnitudeInequalityConstraintWt;
+//					d_ineq[rowIndex_ineq]=targetMagFreqDist.getY(xIndex)*magnitudeInequalityConstraintWt;
+					d_ineq[rowIndex_ineq]=magnitudeInequalityConstraintWt;
 					if (targetMagFreqDist.getY(xIndex)==0) d_ineq[rowIndex_ineq]=0;
 					rowIndex_ineq++; 
 				}	
@@ -815,8 +815,7 @@ public class InversionInputGenerator {
 		
 		// MFD Smoothness Constraint - Constrain participation MFD to be uniform for each fault subsection
 		if (config.getParticipationSmoothnessConstraintWt() > 0.0) {
-			double relativeParticipationSmoothnessConstraintWt =
-				config.getParticipationSmoothnessConstraintWt();
+			double participationSmoothnessConstraintWt = config.getParticipationSmoothnessConstraintWt();
 			if(D) System.out.println("\nAdding MFD participation smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			ArrayList<Integer> numRupsForMagBin = new ArrayList<Integer>();
@@ -861,14 +860,14 @@ public class InversionInputGenerator {
 						for (int rupIndex=0; rupIndex<rupturesForSection.size(); rupIndex++) {
 							// Average rate per magnitude bin for this section
 							int col = rupturesForSection.get(rupIndex);
-							double val = relativeParticipationSmoothnessConstraintWt/numNonzeroMagBins;	
+							double val = participationSmoothnessConstraintWt/numNonzeroMagBins;	
 							numNonZeroElements++;
 							if (rupMeanMag[rupturesForSection.get(rupIndex)]>=m
 									&& rupMeanMag[rupturesForSection.get(rupIndex)]
 									              <m+participationConstraintMagBinSize) {
 								// Subtract off rate for this mag bin (difference between average rate per mag bin
 								// & rate for this mag bin is set to 0)
-								val -= relativeParticipationSmoothnessConstraintWt;
+								val -= participationSmoothnessConstraintWt;
 							}
 							if (QUICK_GETS_SETS)
 								A.setQuick(rowIndex, col, val);
@@ -893,7 +892,7 @@ public class InversionInputGenerator {
 		
 		// MFD Subsection nucleation MFD constraint
 		if (config.getNucleationMFDConstraintWt() > 0.0) {
-			double relativeNucleationMFDConstraintWt = config.getNucleationMFDConstraintWt();
+			double nucleationMFDConstraintWt = config.getNucleationMFDConstraintWt();
 			if(D) System.out.println("\nAdding Subsection Nucleation MFD constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
@@ -926,12 +925,12 @@ public class InversionInputGenerator {
 							double rupArea = rupSet.getAreaForRup(rup);
 							double sectArea = rupSet.getAreaForSection(sect);
 							if (QUICK_GETS_SETS)
-								A.setQuick(rowIndex,rup,relativeNucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
+								A.setQuick(rowIndex,rup,nucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
 							else
-								A.set(rowIndex,rup,relativeNucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
+								A.set(rowIndex,rup,nucleationMFDConstraintWt * (sectArea / rupArea) / sectMFDConstraint.getRate(magBin));
 							numNonZeroElements++;	
 						}
-						d[rowIndex]=relativeNucleationMFDConstraintWt;
+						d[rowIndex]=nucleationMFDConstraintWt;
 						rowIndex++;
 					}
 				}
@@ -947,8 +946,8 @@ public class InversionInputGenerator {
 		
 		// MFD Smoothing constraint - MFDs spatially smooth along adjacent subsections on a parent section (Laplacian smoothing)
 		if (config.getMFDSmoothnessConstraintWt() > 0.0 || config.getMFDSmoothnessConstraintWtForPaleoParents() > 0.0) {  
-			double relativeMFDSmoothingConstraintWt = config.getMFDSmoothnessConstraintWt();
-			double relativeMFDSmoothingConstraintWtForPaleoParents = config.getMFDSmoothnessConstraintWtForPaleoParents();
+			double MFDSmoothingConstraintWt = config.getMFDSmoothnessConstraintWt();
+			double MFDSmoothingConstraintWtForPaleoParents = config.getMFDSmoothnessConstraintWtForPaleoParents();
 			if(D) System.out.println("\nAdding MFD spatial smoothness constraints to A matrix ...");
 			numNonZeroElements = 0;
 			
@@ -991,8 +990,8 @@ public class InversionInputGenerator {
 				int parentID = rupSet.getFaultSectionDataList().get(sectsForParent.get(0).getSectionId()).getParentSectionId();
 				if (paleoParents.contains(parentID)) parentSectIsPaleo = true; 
 				// Use correct weight for this parent section depending whether it has paleo constraint or not
-				double constraintWeight = relativeMFDSmoothingConstraintWt;
-				if (parentSectIsPaleo) constraintWeight = relativeMFDSmoothingConstraintWtForPaleoParents;
+				double constraintWeight = MFDSmoothingConstraintWt;
+				if (parentSectIsPaleo) constraintWeight = MFDSmoothingConstraintWtForPaleoParents;
 				if (constraintWeight==0) continue;
 				
 				// Laplacian smoothing of event rates: r[i+1]-2*r[i]+r[i-1]=0 (minimize curvature of event rates)
@@ -1093,17 +1092,17 @@ public class InversionInputGenerator {
 		
 		// Constraint solution moment to equal deformation-model moment
 		if (config.getMomentConstraintWt() > 0.0) {
-			double relativeMomentConstraintWt = config.getMomentConstraintWt();
+			double momentConstraintWt = config.getMomentConstraintWt();
 			double totalMomentTarget = rupSet.getTotalReducedMomentRate();
 			numNonZeroElements = 0;
 			for (int rup=0; rup<numRuptures; rup++)  {
 				if (QUICK_GETS_SETS)
-					A.setQuick(rowIndex,rup,relativeMomentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
+					A.setQuick(rowIndex,rup,momentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
 				else
-					A.set(rowIndex,rup,relativeMomentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
+					A.set(rowIndex,rup,momentConstraintWt * MagUtils.magToMoment(rupMeanMag[rup]));
 				numNonZeroElements++;
 			}
-			d[rowIndex]=relativeMomentConstraintWt * totalMomentTarget;
+			d[rowIndex]=momentConstraintWt * totalMomentTarget;
 			rowIndex++;
 			System.out.println("Adding Moment Constraint took "+getTimeStr(watch)+".");
 			watch.reset();
@@ -1117,7 +1116,7 @@ public class InversionInputGenerator {
 		// THIS CONSTRAINT WILL NOT WORK IF SUBSECTIONS DRASTICALLY CHANGE IN SIZE OR IF PARENT-SECT-IDS CHANGE!
 		if (config.getParkfieldConstraintWt() > 0.0) {
 			if(D) System.out.println("\nAdding Parkfield rupture-rate constraints to A matrix ...");
-			double relativeParkfieldConstraintWt = config.getParkfieldConstraintWt();
+			double ParkfieldConstraintWt = config.getParkfieldConstraintWt();
 			double ParkfieldMeanRate = 1.0/25.0; // Bakun et al. (2005)
 			
 			// Find Parkfield M~6 ruptures
@@ -1128,12 +1127,12 @@ public class InversionInputGenerator {
 			for (int r=0; r<parkfieldRups.size(); r++)  {
 				int rup = parkfieldRups.get(r);
 				if (QUICK_GETS_SETS) 
-					A.setQuick(rowIndex,rup,relativeParkfieldConstraintWt);
+					A.setQuick(rowIndex,rup,ParkfieldConstraintWt);
 				else
-					A.set(rowIndex,rup,relativeParkfieldConstraintWt);
+					A.set(rowIndex,rup,ParkfieldConstraintWt);
 				numNonZeroElements++;
 			}
-			d[rowIndex]=relativeParkfieldConstraintWt * ParkfieldMeanRate;
+			d[rowIndex]=ParkfieldConstraintWt * ParkfieldMeanRate;
 			rowIndex++;
 			System.out.println("Adding Parkfield Constraint took "+getTimeStr(watch)+".");
 			watch.reset();
@@ -1145,7 +1144,7 @@ public class InversionInputGenerator {
 		// Constrain paleoseismically-visible event rates along parent sections to be smooth
 		if (config.getEventRateSmoothnessWt() > 0.0) {
 			if(D) System.out.println("\nAdding Event Rate Smoothness Constraint for Each Parent Section ...");
-			double relativeEventRateSmoothnessWt = config.getEventRateSmoothnessWt();
+			double eventRateSmoothnessWt = config.getEventRateSmoothnessWt();
 			numNonZeroElements = 0;
 			
 			// Get list of parent IDs
@@ -1176,17 +1175,17 @@ public class InversionInputGenerator {
 					for (int rup: sect1Rups) { 
 						double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, sect1);	
 						if (QUICK_GETS_SETS) 
-							A.setQuick(rowIndex,rup,probPaleoVisible*relativeEventRateSmoothnessWt); 
+							A.setQuick(rowIndex,rup,probPaleoVisible*eventRateSmoothnessWt); 
 						else
-							A.set(rowIndex,rup,probPaleoVisible*relativeEventRateSmoothnessWt);
+							A.set(rowIndex,rup,probPaleoVisible*eventRateSmoothnessWt);
 						numNonZeroElements++;
 					}
 					for (int rup: sect2Rups) {
 						double probPaleoVisible = paleoProbabilityModel.getProbPaleoVisible(rupSet, rup, sect2);
 						if (QUICK_GETS_SETS) 
-							A.setQuick(rowIndex,rup,-probPaleoVisible*relativeEventRateSmoothnessWt);
+							A.setQuick(rowIndex,rup,-probPaleoVisible*eventRateSmoothnessWt);
 						else
-							A.set(rowIndex,rup,-probPaleoVisible*relativeEventRateSmoothnessWt);
+							A.set(rowIndex,rup,-probPaleoVisible*eventRateSmoothnessWt);
 						numNonZeroElements++;
 					}
 					d[rowIndex] = 0;
