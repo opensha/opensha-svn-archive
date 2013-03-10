@@ -59,8 +59,8 @@ public class UC3_CalcUtils {
 		
 		FaultSystemSolution fss = getSolution(solPath);
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
-		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		erf.setName(nameFromPath(solPath));
+		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
 	}
 	
@@ -82,24 +82,9 @@ public class UC3_CalcUtils {
 			boolean filterAftShk,
 			double duration) {
 		
-		FaultSystemSolution fss = null;
-		String erfName = null;
-		boolean compoundSol = solPath.contains("COMPOUND_SOL");
-		
-		if (compoundSol) {
-			checkArgument(idx != -1, "Index cannot be -1 for compound sol.");
-			CompoundFaultSystemSolution cfss = getCompoundSolution(solPath);
-			List<LogicTreeBranch> branches = Lists.newArrayList(cfss
-				.getBranches());
-			LogicTreeBranch branch = branches.get(idx);
-			fss = cfss.getSolution(branch);
-			erfName = branch.buildFileName();
-		} else {
-			AverageFaultSystemSolution afss = getAvgSolution(solPath);
-			fss = (idx == -1) ? afss : afss.getSolution(idx);
-			erfName = nameFromPath(solPath) + "_" + idx;
-		}
-
+		AverageFaultSystemSolution afss = getAvgSolution(solPath);
+		FaultSystemSolution fss = (idx == -1) ? afss : afss.getSolution(idx);
+		String erfName = nameFromPath(solPath) + "_" + idx;
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(erfName);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
