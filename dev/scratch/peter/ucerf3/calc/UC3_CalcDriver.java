@@ -85,7 +85,7 @@ public class UC3_CalcDriver {
 		int erfIdx = Integer.parseInt(args[2]);
 		String outDir = args[3];
 		
-		Period[] periods = { GM0P00, GM0P20, GM1P00 };
+		Period[] periods = { GM0P00, GM0P20, GM1P00, GM4P00 };
 		Set<NEHRP_TestCity> cities = NEHRP_TestCity.getCA(); // EnumSet.of(LOS_ANGELES);
 		boolean epiUnc = false;
 
