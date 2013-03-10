@@ -148,12 +148,12 @@ public class CurveUtils {
 //		File locFile = new File(treePath + "/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 
-//		String treePath = UC3_ROOT + "tree/UC32tree1440";
-//		File srcDir = new File(treePath + "/src");
-//		File outDir = new File(treePath + "/reduce");
-//		File locFile = new File(treePath + "/all.txt");
-//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
-//		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
+		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+		File srcDir = new File(treePath + "NEHRP-PBR-SRP/UC3.2/");
+		File locFile = new File(treePath + "/test.txt");
+		generateBranchSummaries2(locFile.getPath(), srcDir.getPath(), true);
+		
+		
 
 //		String srcPath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
 //		String locFile = srcPath + "sites.txt";
@@ -166,11 +166,11 @@ public class CurveUtils {
 //		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
 //		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
 
-		File srcDir = new File(UC3_ROOT + "UC3.2-vars-src");
-		File outDir = new File(UC3_ROOT + "UC3.2-vars");
-		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt");
-		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
-		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
+//		File srcDir = new File(UC3_ROOT + "UC3.2-vars-src");
+//		File outDir = new File(UC3_ROOT + "UC3.2-vars");
+//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt");
+//		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
+//		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
 
 //		File srcDir = new File(UC3_ROOT + "tree_src/PalmdaleTree");
 //		File outDir = new File(UC3_ROOT + "PalmdaleTree");
@@ -214,7 +214,7 @@ public class CurveUtils {
 			String locPath, boolean ignoreWts) throws IOException {
 		
 		// convert solutions grouped by branch to solutions grouped by city
-		Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		Set<Period> periods = EnumSet.of(GM4P00); //GM0P00, GM0P20, GM1P00);
 		
 		// create location list
 		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locPath);
@@ -260,12 +260,10 @@ public class CurveUtils {
 		Map<Period, Table<Integer, String, String>> curveMap = Maps
 			.newHashMap();
 		Table<Integer, String, String> table = null;
-		table = ArrayTable.create(indexMap.values(), locNames);
-		curveMap.put(GM0P00, table);
-		table = ArrayTable.create(indexMap.values(), locNames);
-		curveMap.put(GM0P20, table);
-		table = ArrayTable.create(indexMap.values(), locNames);
-		curveMap.put(GM1P00, table);
+		for (Period period : periods) {
+			table = ArrayTable.create(indexMap.values(), locNames);
+			curveMap.put(period, table);
+		}
 
 		for (File branch : branchDirs) {
 			if (!branch.isDirectory()) continue;
@@ -456,7 +454,7 @@ public class CurveUtils {
 	public static void generateBranchSummaries2(String locPath, String curveDir,
 			boolean tornado) throws IOException {
 		
-		Iterable<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00);
+		Iterable<Period> periods = EnumSet.of(GM0P00); //GM0P00, GM0P20, GM1P00);
 		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locPath);
 		String imrID = NSHMP08_WUS.SHORT_NAME;
 		try {
@@ -904,7 +902,7 @@ public class CurveUtils {
 			double fssRupMag = fss.getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.toUC3(fss);
+			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 			erf.updateForecast();
 			int srcIdx = -1;
