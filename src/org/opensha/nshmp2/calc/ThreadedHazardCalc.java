@@ -62,6 +62,23 @@ public class ThreadedHazardCalc {
 	}
 	
 	/**
+	 * Initializes a new threaded hazard calculation for the specified UC3 
+	 * (averaged) solution.
+	 */
+	@SuppressWarnings("javadoc")
+	public ThreadedHazardCalc(String solPath, LocationList locs,
+		Period period, boolean epiUncert, HazardResultWriter writer) {
+		this.locs = locs;
+		this.period = period;
+		this.writer = writer;
+		this.epiUncert = epiUncert;
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
+			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		erfList = ERF_ID.wrapInList(erf);
+		erfList.updateForecast();
+	}
+
+	/**
 	 * Initializes a new threaded hazard calculation for the specified UC3 logic
 	 * tree branch.
 	 */
@@ -79,17 +96,17 @@ public class ThreadedHazardCalc {
 	}
 
 	/**
-	 * Initializes a new threaded hazard calculation for the specified UC3 
-	 * (averaged) solution.
+	 * Initializes a new threaded hazard calculation for the specified UC3 logic
+	 * tree branch.
 	 */
 	@SuppressWarnings("javadoc")
-	public ThreadedHazardCalc(String solPath, LocationList locs,
+	public ThreadedHazardCalc(String solPath, int solIdx, LocationList locs,
 		Period period, boolean epiUncert, HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
 		this.writer = writer;
 		this.epiUncert = epiUncert;
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath, -1,
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath, solIdx,
 			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erfList = ERF_ID.wrapInList(erf);
 		erfList.updateForecast();
