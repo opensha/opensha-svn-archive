@@ -61,6 +61,10 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	 */
 	public IncrementalMagFreqDist getNodeMFD(int idx, double minMag) {
 		return trimMFD(getNodeMFD(idx), minMag);
+		
+		// NOTE trimMFD clones the MFD returned by getNodeMFD so its safe for
+		// subsequent modification; if this changes, then we need to review if
+		// MFD is safe from alteration.
 	}
 	
 	/**
