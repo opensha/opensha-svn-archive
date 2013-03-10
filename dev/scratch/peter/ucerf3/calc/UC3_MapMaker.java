@@ -78,8 +78,8 @@ public class UC3_MapMaker {
 //		generateBranchList();
 //		buildMaps();
 //		makeMultiBranchMap();
-		buildMapsUC32();
-		
+//		buildMapsUC32();
+		makeCoulombTestMaps();
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -445,6 +445,45 @@ public class UC3_MapMaker {
 		
 	}
 	
+	// creates ratios maps of coulomb variants to reference branch
+	private static void makeCoulombTestMaps() {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+	
+		// load single refBranch
+//		String refBrSrc = "UC32/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
+//		GeoDataSet xyzRef = loadSingle(refBrSrc, pe, grid, p);
+		
+		String name = null;
+		String cID = null;
+		String dlDir = null;
+		GeoDataSet xyz = null;
+		GeoDataSet xyzRatio = null;
+		
+		name = "coulomb0.0";
+		cID = "UC32coulombTest/" + name;
+		dlDir = ROOT + "mapsUC32b/coulombTest/" + name;
+		GeoDataSet xyzRef = loadSingle(cID, pe, grid, p);
+//		xyzRatio = GeoDataSetMath.divide(xyz, xyzRef);
+//		makeRatioPlot(xyzRatio, grid.bounds(), dlDir, "hazard ratio", true, true);
+		
+		name = "coulomb0.1";
+		cID = "UC32coulombTest/" + name;
+		dlDir = ROOT + "mapsUC32b/coulombTest/" + name + "_sup_0.0";
+		xyz = loadSingle(cID, pe, grid, p);
+		xyzRatio = GeoDataSetMath.divide(xyz, xyzRef);
+		makeRatioPlot(xyzRatio, grid.bounds(), dlDir, "hazard ratio", true, true);
+		
+		name ="coulomb0.05";
+		cID = "UC32coulombTest/" + name;
+		dlDir = ROOT + "mapsUC32b/coulombTest/" + name + "_sup_0.0";
+		xyz = loadSingle(cID, pe, grid, p);
+		xyzRatio = GeoDataSetMath.divide(xyz, xyzRef);
+		makeRatioPlot(xyzRatio, grid.bounds(), dlDir, "hazard ratio", true, true);
+
+	}
+	
 	private static GeoDataSet UC32xyz;
 	
 	// UCERF3.2 node ratio maps
@@ -751,7 +790,7 @@ public class UC3_MapMaker {
 		
 	private static void makeRatioPlot(GeoDataSet xyz, double[] bounds,
 			String dlDir, String title, boolean log, boolean smooth) {
-		double scale = log ? 0.3 : 0.2;
+		double scale = log ? 0.1 : 0.2;
 		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
 		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, log ? -scale : 1-scale);
 		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, log ? scale : 1+scale);
