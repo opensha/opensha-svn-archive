@@ -738,8 +738,40 @@ public class DataUtils {
         }
         return values;
     }
+    
+    /**
+     * Returns the index of the minimum value in {@code data}.
+     * @param data
+     * @return the index of the minimum value
+     */
+    public static int minIndex(double... data) {
+        int idx = -1;
+        double d = Double.POSITIVE_INFINITY;
+        for(int i = 0; i < data.length; i++)
+            if(data[i] < d) {
+                d = data[i];
+                idx = i;
+            }
+        return idx;
+    }
 
-	/**
+    /**
+     * Returns the index of the maximum value in {@code data}.
+     * @param data
+     * @return the index of the maximum value
+     */
+    public static int maxIndex(double... data) {
+        int idx = -1;
+        double d = Double.NEGATIVE_INFINITY;
+        for(int i = 0; i < data.length; i++)
+            if(data[i] > d) {
+                d = data[i];
+                idx = i;
+            }
+        return idx;
+    }
+
+    /**
 	 * Nearest neighbor binning algorithm after Silverman, B. W. (1986),
 	 * <em>Density Estimation for Statistics and Data Analysis</em>, Chapman
 	 * &amp; Hall, New York. This method is a density estimator that uses
