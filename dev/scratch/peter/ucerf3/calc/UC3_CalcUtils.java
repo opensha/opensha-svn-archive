@@ -58,7 +58,7 @@ public class UC3_CalcUtils {
 			double duration) {
 		
 		FaultSystemSolution fss = getSolution(solPath);
-		UCERF3_FaultSysSol_ERF erf = toUC3(fss);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		erf.setName(nameFromPath(solPath));
 		return erf;
@@ -100,7 +100,7 @@ public class UC3_CalcUtils {
 			erfName = nameFromPath(solPath) + "_" + idx;
 		}
 
-		UCERF3_FaultSysSol_ERF erf = toUC3(fss);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(erfName);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
@@ -127,7 +127,7 @@ public class UC3_CalcUtils {
 		CompoundFaultSystemSolution cfss = getCompoundSolution(solPath);
 		LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchID);
 		FaultSystemSolution fss = cfss.getSolution(branch);
-		UCERF3_FaultSysSol_ERF erf = toUC3(fss);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(branchID);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
@@ -138,11 +138,11 @@ public class UC3_CalcUtils {
 	 * @param fss
 	 * @return a UC3 fss
 	 */
-	public static UCERF3_FaultSysSol_ERF toUC3(FaultSystemSolution fss) {
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-		fss);
-		return new UCERF3_FaultSysSol_ERF(invFss);
-	}
+//	public static UCERF3_FaultSysSol_ERF toUC3(FaultSystemSolution fss) {
+//		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
+//		fss);
+//		return new UCERF3_FaultSysSol_ERF(invFss);
+//	}
 	
 	private static String nameFromPath(String solPath) {
 		int ssIdx1 = StringUtils.lastIndexOf(solPath, "/");
