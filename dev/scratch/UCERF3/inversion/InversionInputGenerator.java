@@ -640,10 +640,14 @@ public class InversionInputGenerator {
 			if(D) System.out.println("\nAdding rupture rate smoothing constraints to A matrix ...");
 			numNonZeroElements = 0;
 			for (int i=0; i<smoothingConstraintRups1.size(); i++) {
-				if (QUICK_GETS_SETS) 
+				if (QUICK_GETS_SETS) {
 					A.setQuick(rowIndex,smoothingConstraintRups1.get(i),rupRateSmoothingConstraintWt); 
-				else
-					A.set(rowIndex,smoothingConstraintRups2.get(i),rupRateSmoothingConstraintWt);
+					A.setQuick(rowIndex,smoothingConstraintRups2.get(i),-rupRateSmoothingConstraintWt); 
+				}
+				else {
+					A.set(rowIndex,smoothingConstraintRups1.get(i),rupRateSmoothingConstraintWt);
+					A.set(rowIndex,smoothingConstraintRups2.get(i),-rupRateSmoothingConstraintWt);
+				}
 				d[rowIndex]=0;
 				rowIndex++;
 				numNonZeroElements++;
