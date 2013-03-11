@@ -118,7 +118,8 @@ public class CommandLineInversionRunner {
 		COULOMB("coulomb", "coulomb-threshold", "Coulomb", true, "Set coulomb filter threshold"),
 		COULOMB_EXCLUDE("coulombex", "coulomb-exclude-threshold", "CoulombExclusion", true,
 				"Set coulomb filter exclusion DCFF threshold"),
-		UCERF3p2("u3p2", "ucerf3p2", "U3p2", false, "Flag for reverting to UCERF3.2 rup set/data");
+		UCERF3p2("u3p2", "ucerf3p2", "U3p2", false, "Flag for reverting to UCERF3.2 rup set/data"),
+		RUP_SMOOTH_WT("rupsm", "rup-rate-smoothing-wt", "RupSmth", true, "Rupture rate smoothing constraint weight");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -632,6 +633,12 @@ public class CommandLineInversionRunner {
 						writePaleoFaultPlots(
 								paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
 										PALEO_FAULT_BASED_DIR_NAME));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					try {
+						writeRupPairingSmoothnessPlot(sol, prefix, subDir);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -1548,6 +1555,73 @@ public class CommandLineInversionRunner {
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
 			}
 		}
+	}
+	
+	public static void writeRupPairingSmoothnessPlot(FaultSystemSolution sol, String prefix, File dir)
+			throws IOException {
+		List<IDPairing> pairings = InversionInputGenerator.getRupSmoothingPairings(sol);
+		
+		double[] diffs = new double[pairings.size()];
+		double[] fracts = new double[pairings.size()];
+		
+		for (int i=0; i<diffs.length; i++) {
+			IDPairing pair = pairings.get(i);
+			double r1 = sol.getRateForRup(pair.getID1());
+			double r2 = sol.getRateForRup(pair.getID2());
+			double diff = Math.abs(r1 - r2);
+			double meanRate = 0.5*(r1+r2);
+			diffs[i] = diff;
+			if (meanRate > 0)
+				fracts[i] = diff / meanRate;
+		}
+		
+		// now sorted ascending
+		Arrays.sort(diffs);
+		Arrays.sort(fracts);
+		
+		EvenlyDiscretizedFunc diffVsRankFunc = new EvenlyDiscretizedFunc(0d, pairings.size(), 1d);
+		EvenlyDiscretizedFunc fractVsRankFunc = new EvenlyDiscretizedFunc(0d, pairings.size(), 1d);
+		
+		// we want to plot descending
+		int index = 0;
+		for (int i=diffs.length; --i>=0;) {
+			diffVsRankFunc.set(index, diffs[i]);
+			fractVsRankFunc.set(index++, fracts[i]);
+		}
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(diffVsRankFunc);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setYLog(true);
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars, false,
+				"Rupture Pairing Smoothness");
+		File file = new File(dir, prefix+"_rup_smooth_pairings");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		
+		funcs.clear();
+		funcs.add(fractVsRankFunc);
+		
+		gp = new HeadlessGraphPanel();
+		setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setYLog(true);
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars, false,
+				"Rupture Pairing Smoothness Fractions");
+		file = new File(dir, prefix+"_rup_smooth_pairings_fract");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+	}
+	
+	public static boolean doRupPairingSmoothnessPlotsExist(File dir, String prefix) {
+		return new File(dir, prefix+"_rup_smooth_pairings.png").exists();
 	}
 	
 	public static void setFontSizes(HeadlessGraphPanel gp) {

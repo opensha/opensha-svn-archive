@@ -445,9 +445,12 @@ public class BatchPlotGen {
 		boolean hasPaleoCorrelationPlots = new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME).exists();
 		boolean hasParentMFDPlots = new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME).exists();
 		boolean hasPaleoFaultBasedPlots = new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME).exists();
+		boolean hasSmoothnessPlots = CommandLineInversionRunner.doRupPairingSmoothnessPlotsExist(
+				dir, prefix);
 //		boolean hasMFDPlots = 
 		if (hasMapPlots && hasMFDPlots && hasJumpPlots && hasJumpPlots && hasPaleoPlots
-				&& hasSAFSegPlots && hasPaleoCorrelationPlots && hasParentMFDPlots && hasPaleoFaultBasedPlots) {
+				&& hasSAFSegPlots && hasPaleoCorrelationPlots && hasParentMFDPlots
+				&& hasPaleoFaultBasedPlots && hasSmoothnessPlots) {
 			// we've already done this one, skip!
 			System.out.println("Skipping (already done): "+prefix);
 			return;
@@ -522,6 +525,13 @@ public class BatchPlotGen {
 			try {
 				CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, sol,
 						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (!hasSmoothnessPlots) {
+			try {
+				CommandLineInversionRunner.writeRupPairingSmoothnessPlot(sol, prefix, dir);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

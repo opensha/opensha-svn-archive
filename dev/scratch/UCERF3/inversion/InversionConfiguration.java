@@ -404,6 +404,12 @@ public class InversionConfiguration {
 			weightSlipRates = false;
 		}
 		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.RUP_SMOOTH_WT.getArgName())) {
+			rupRateSmoothingConstraintWt = Double.parseDouble(
+					modifiers.getOptionValue(InversionOptions.RUP_SMOOTH_WT.getArgName()));
+			System.out.println("Rupture rate smoothness constraint wt: "+rupRateSmoothingConstraintWt);
+		}
+		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		
