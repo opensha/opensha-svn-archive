@@ -11,12 +11,12 @@ import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
+import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.peter.ucerf3.DistCalcTest;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -44,7 +44,8 @@ public class TestCalc {
 			sw.reset().start();
 			Site site = new Site(loc);
 			HazardCalc hc = HazardCalc.create(wrappedERF, site, period, epi);
-			hc.call();
+			HazardResult result = hc.call();
+			System.out.println(result.curve());
 			System.out.println("Compute time: " + sw.stop().elapsed(TimeUnit.SECONDS));
 		}
 	}
