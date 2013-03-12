@@ -568,7 +568,7 @@ public class BatchPlotGen {
 			if (!run0Dir.exists())
 				continue;
 			sol0NoMinsFile = new File(run0Dir, myPrefix+"_noMinRates.bin");
-			sol0RatesFile = new File(run0Dir, myPrefix+"_noMinRates.bin");
+			sol0RatesFile = new File(run0Dir, myPrefix+".bin");
 			if (sol0NoMinsFile.exists() && sol0RatesFile.exists())
 				break;
 		}
