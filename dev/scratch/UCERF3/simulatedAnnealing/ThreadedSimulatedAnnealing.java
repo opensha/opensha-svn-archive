@@ -849,18 +849,19 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 	}
 	
 	private void writeRateVsRankPlot(File prefix) throws IOException {
-		double[] solutionRates = getSorted(getBestSolution());
+		double[] solutionRates = getBestSolution();
 		double[] adjustedRates = null;
 		if (minimumRuptureRates != null) {
 			adjustedRates =
 				InversionInputGenerator.adjustSolutionForMinimumRates(getBestSolution(), minimumRuptureRates);
-			adjustedRates = getSorted(adjustedRates);
 		}
 		writeRateVsRankPlot(prefix, solutionRates, adjustedRates, initialState);
 	}
 	
 	public static void writeRateVsRankPlot(File prefix, double[] ratesNoMin, double[] rates, double[] initialState)
 			throws IOException {
+		ratesNoMin = getSorted(ratesNoMin);
+		rates = getSorted(rates);
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, ratesNoMin.length, 1d);
 		int cnt = 0;
 		for (int i=ratesNoMin.length; --i >= 0;)
