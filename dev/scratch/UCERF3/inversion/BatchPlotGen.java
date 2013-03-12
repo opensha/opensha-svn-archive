@@ -540,7 +540,7 @@ public class BatchPlotGen {
 	}
 	
 	private static boolean doAvgPlotsExist(File dir, String prefix) {
-		return new File(dir, prefix+"_partic_rates_8.0+.png").exists();
+		return new File(dir, prefix+"_partic_rates_8.0+.png").exists() || new File(dir, prefix+"_rate_dist.png").exists();
 	}
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
