@@ -676,16 +676,16 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "rup-smooth-tests-short";
+		String runName = "rup-smooth-high-tests-long";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-		int constrained_run_mins = 300; // 5 hours
+//		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
-//		int constrained_run_mins = 60 * 10;	// 10 hours
+		int constrained_run_mins = 60 * 10;	// 10 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
@@ -715,7 +715,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 1;
+		int numRuns = 5;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -828,14 +828,11 @@ public class LogicTreePBSWriter {
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 		InversionOptions[] ops = { 	InversionOptions.RUP_SMOOTH_WT };
 		
-		variationBranches.add(buildVariationBranch(ops, toArray("0.000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("0.001")));
-		variationBranches.add(buildVariationBranch(ops, toArray("0.010")));
-		variationBranches.add(buildVariationBranch(ops, toArray("0.100")));
-		variationBranches.add(buildVariationBranch(ops, toArray("1.000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("10")));
-		variationBranches.add(buildVariationBranch(ops, toArray("100")));
 		variationBranches.add(buildVariationBranch(ops, toArray("1000")));
+		variationBranches.add(buildVariationBranch(ops, toArray("10000")));
+		variationBranches.add(buildVariationBranch(ops, toArray("100000")));
+		variationBranches.add(buildVariationBranch(ops, toArray("1000000")));
+		variationBranches.add(buildVariationBranch(ops, toArray("10000000")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };

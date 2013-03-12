@@ -70,6 +70,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private double magnitudeEqualityConstraintWt = Double.NaN;
 	private double magnitudeInequalityConstraintWt = Double.NaN;
 	private double rupRateConstraintWt = Double.NaN;
+	private double rupRateSmoothingConstraintWt = Double.NaN;
 	private double participationSmoothnessConstraintWt = Double.NaN;
 	private double participationConstraintMagBinSize = Double.NaN;
 	private double nucleationMFDConstraintWt = Double.NaN;
@@ -252,6 +253,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			magnitudeInequalityConstraintWt = Double.parseDouble(props.get("magnitudeInequalityConstraintWt"));
 		if (props.containsKey("rupRateConstraintWt"))
 			rupRateConstraintWt = Double.parseDouble(props.get("rupRateConstraintWt"));
+		if (props.containsKey("rupRateSmoothingConstraintWt"))
+			rupRateSmoothingConstraintWt = Double.parseDouble(props.get("rupRateSmoothingConstraintWt"));
 		if (props.containsKey("participationSmoothnessConstraintWt"))
 			participationSmoothnessConstraintWt = Double.parseDouble(props.get("participationSmoothnessConstraintWt"));
 		if (props.containsKey("participationConstraintMagBinSize"))
@@ -314,6 +317,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 					wt = paleoSlipConstraintWt;
 				else if (energyStr.equals("Rupture Rates"))
 					wt = rupRateConstraintWt;
+				else if (energyStr.equals("Rupture Rate Smoothing"))
+					wt = rupRateSmoothingConstraintWt;
 				else if (energyStr.equals("Minimization"))
 					wt = minimizationConstraintWt;
 				else if (energyStr.equals("MFD Equality"))
