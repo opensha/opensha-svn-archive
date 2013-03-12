@@ -43,6 +43,7 @@ import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
@@ -544,9 +545,9 @@ public class BatchPlotGen {
 	
 	public static void writeAvgSolPlots(AverageFaultSystemSolution avgSol, File dir, String prefix) throws GMT_MapException, RuntimeException, IOException, InterruptedException {
 		CommandLineInversionRunner.writeParentSectionMFDPlots(avgSol, new File(dir, "parent_sect_mfds"));
-		CommandLineInversionRunner.writePaleoCorrelationPlots(
-				avgSol, new File(dir, "paleo_correlation"), UCERF3_PaleoProbabilityModel.load());
-		Region region = RELM_RegionUtils.getGriddedRegionInstance();
+//		CommandLineInversionRunner.writePaleoCorrelationPlots(
+//				avgSol, new File(dir, "paleo_correlation"), UCERF3_PaleoProbabilityModel.load());
+//		Region region = RELM_RegionUtils.getGriddedRegionInstance();
 //		if (avgSol.getNumSolutions() <= 10)
 //			FaultBasedMapGen.plotSolutionSlipRateStdDevs(avgSol, avgSol.calcSlipRates(), region, dir, prefix, false);
 //		if (avgSol.getNumSolutions() <= 60) {
@@ -554,6 +555,38 @@ public class BatchPlotGen {
 //			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(7, 8), region, dir, prefix, false, 7, 8);
 //			FaultBasedMapGen.plotParticipationStdDevs(avgSol, avgSol.calcParticRates(8, 10), region, dir, prefix, false, 8, 10);
 //		}
+		// try write rup dist plots. we do this by finding the min rates from solution 0
+		String noMeanPrefix = prefix.substring(0, prefix.indexOf("_mean"));
+		File sol0NoMinsFile = null;
+		File sol0RatesFile = null;
+		File parentDir = dir.getParentFile();
+		for (int i=1; i<5; i++) {
+			String myPrefix = noMeanPrefix+"_run";
+			for (int j=0; j<i; j++)
+				myPrefix += "0";
+			File run0Dir = new File(parentDir, myPrefix);
+			if (!run0Dir.exists())
+				continue;
+			sol0NoMinsFile = new File(run0Dir, myPrefix+"_noMinRates.bin");
+			sol0RatesFile = new File(run0Dir, myPrefix+"_noMinRates.bin");
+			if (sol0NoMinsFile.exists() && sol0RatesFile.exists())
+				break;
+		}
+		if (sol0NoMinsFile.exists() && sol0RatesFile.exists()) {
+			double[] sol0NoMins = MatrixIO.doubleArrayFromFile(sol0NoMinsFile);
+			double[] sol0Rates = MatrixIO.doubleArrayFromFile(sol0RatesFile);
+			
+			double[] minRates = new double[sol0Rates.length];
+			for (int r=0; r<sol0Rates.length; r++)
+				minRates[r] = sol0Rates[r] - sol0NoMins[r];
+			
+			double[] rates = avgSol.getRateForAllRups();
+			double[] ratesNoMin = new double[minRates.length];
+			for (int r=0; r<rates.length; r++)
+				ratesNoMin[r] = rates[r] - minRates[r];
+			
+			ThreadedSimulatedAnnealing.writeRateVsRankPlot(new File(dir, prefix), ratesNoMin, rates, new double[minRates.length]);
+		}
 	}
 	
 	static File lockFile;

@@ -856,10 +856,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				InversionInputGenerator.adjustSolutionForMinimumRates(getBestSolution(), minimumRuptureRates);
 			adjustedRates = getSorted(adjustedRates);
 		}
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, solutionRates.length, 1d);
+		writeRateVsRankPlot(prefix, solutionRates, adjustedRates, initialState);
+	}
+	
+	public static void writeRateVsRankPlot(File prefix, double[] ratesNoMin, double[] rates, double[] initialState)
+			throws IOException {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, ratesNoMin.length, 1d);
 		int cnt = 0;
-		for (int i=solutionRates.length; --i >= 0;)
-			func.set(cnt++, solutionRates[i]);
+		for (int i=ratesNoMin.length; --i >= 0;)
+			func.set(cnt++, ratesNoMin[i]);
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList(
@@ -874,11 +879,11 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		funcs.add(0, initialFunc);
 		chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN));
 		
-		if (adjustedRates != null) {
-			EvenlyDiscretizedFunc adjFunc = new EvenlyDiscretizedFunc(0d, solutionRates.length, 1d);
+		if (rates != null) {
+			EvenlyDiscretizedFunc adjFunc = new EvenlyDiscretizedFunc(0d, ratesNoMin.length, 1d);
 			cnt = 0;
-			for (int i=adjustedRates.length; --i >= 0;)
-				adjFunc.set(cnt++, adjustedRates[i]);
+			for (int i=rates.length; --i >= 0;)
+				adjFunc.set(cnt++, rates[i]);
 			funcs.add(0, adjFunc);
 			chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
