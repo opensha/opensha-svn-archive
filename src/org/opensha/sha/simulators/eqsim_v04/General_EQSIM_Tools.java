@@ -480,7 +480,7 @@ public class General_EQSIM_Tools {
 	 * @param magThresh - set as Double.NaN to use down-dip-width
 	 * @return
 	 */
-	private boolean isEventSupraSeismogenic(EQSIM_Event event, double magThresh) {
+	public boolean isEventSupraSeismogenic(EQSIM_Event event, double magThresh) {
 		boolean supraSeis = false;
 		if(Double.isNaN(magThresh)) {	// apply sqrt(area) > aveDDW
 			// compute average ddw of faults involved (assumes all of each section is used)

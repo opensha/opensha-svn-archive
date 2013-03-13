@@ -1,6 +1,7 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Event records are ordered such that the first is where the event nucleated
@@ -82,6 +83,17 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	public boolean doesEventIncludeSection(int sectId) {
 		for(EventRecord eventRecord: this)
 			if(eventRecord.getSectionID() == sectId)
+				return true;
+		return false;
+	}
+	
+	/**
+	 * @param sectId
+	 * @return
+	 */
+	public boolean doesEventIncludeFault(HashSet<Integer> sectsForFault) {
+		for(EventRecord eventRecord: this)
+			if(sectsForFault.contains(eventRecord.sectionID))
 				return true;
 		return false;
 	}
