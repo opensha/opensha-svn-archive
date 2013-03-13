@@ -524,6 +524,9 @@ public class General_EQSIM_Tools {
 	}
 	
 	
+	/**
+	 * This tests whether element areas agree between gridded surface and that computed by RectangularElement
+	 */
 	public void testElementAreas() {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
@@ -1891,7 +1894,6 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				double moment =0;
 				double[] slips = event.getAllElementSlips();
 				int[] elemIDs = event.getAllElementIDs();
-				// get average date of last event and average predicted date of next
 				int numElements = slips.length;
 				for(int e=0;e<numElements;e++) {
 					int index = elemIDs[e]-1;
