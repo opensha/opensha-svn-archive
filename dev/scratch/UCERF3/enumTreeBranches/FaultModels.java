@@ -98,14 +98,14 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		}
 	}
 	
-	private static ArrayList<FaultSectionPrefData> loadStoredFaultSections(File fmStoreFile)
+	public static ArrayList<FaultSectionPrefData> loadStoredFaultSections(File fmStoreFile)
 			throws MalformedURLException, DocumentException {
 		System.out.println("Loading fault model from: "+fmStoreFile.getAbsolutePath());
 		Document doc = XMLUtils.loadDocument(fmStoreFile);
 		return loadStoredFaultSections(doc);
 	}
 	
-	private static ArrayList<FaultSectionPrefData> loadStoredFaultSections(Document doc) {
+	public static ArrayList<FaultSectionPrefData> loadStoredFaultSections(Document doc) {
 		Element root = doc.getRootElement();
 		return SimpleFaultSystemRupSet.fsDataFromXML(root.element("FaultModel"));
 	}
