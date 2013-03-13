@@ -78,8 +78,8 @@ public class UC3_MapMaker {
 //		generateBranchList();
 //		buildMaps();
 //		makeMultiBranchMap();
-//		buildMapsUC32();
-		makeCoulombTestMaps();
+		buildMapsUC32();
+//		makeCoulombTestMaps();
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -427,9 +427,9 @@ public class UC3_MapMaker {
 //		makeRatioMapsNoFLT(srcDir, outDir, brOverList);
 		
 		
-		// ratio map UC32 over NSMP (1440 branches)
-		branches = "all";
-		makeRatioMap(srcDir, outDir, branches);
+//		// ratio map UC32 over NSMP (1440 branches)
+//		branches = "all";
+//		makeRatioMap(srcDir, outDir, branches);
 
 //		branches = "UC3";
 //		makeRatioMap(srcDir, outDir, branches);
@@ -441,8 +441,13 @@ public class UC3_MapMaker {
 //		brOverList = Lists.newArrayList(branchesFile);
 //		make1secRatioMap(
 //			ROOT + "src/UC32-FM-DM-MS-U2-1sec/", outDir, brOverList);		
-//		makeRatioMap(srcDir, outDir, branchesFile);
+//		makeRatioMap(srcDir, outDir, brnchesFile);
 		
+		// ratio branchAvg over FM31 and FM32
+		branches = "FM32"; //"testSingle"; //"FM31";
+		String brAvgSrcDir = "UC32branchAvg/FM32";
+		
+		makeBrAvgRatioMap(brAvgSrcDir, srcDir, outDir, branches);
 	}
 	
 	// creates ratios maps of coulomb variants to reference branch
@@ -484,9 +489,32 @@ public class UC3_MapMaker {
 
 	}
 	
+	// UCERF3.2 branchAvg over branches
+	private static void makeBrAvgRatioMap(String srcDirForAvg,
+			String SrcDirForTree, String outDir, String brUnder)
+			throws IOException {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		String suffix = "";
+		
+		GeoDataSet xyzOver = loadSingle(srcDirForAvg, pe, grid, p);
+	
+		File brUnderFile = new File(ROOT + "branchsetsUC32", brUnder + ".txt");
+		GeoDataSet xyzUnder = loadMulti(SrcDirForTree, brUnderFile, pe, grid, p, suffix);
+
+		GeoDataSet xyz = GeoDataSetMath.divide(xyzOver, xyzUnder);
+
+		String dlDir = outDir + srcDirForAvg;
+		File dlFile = new File(dlDir);
+		dlFile.mkdirs();
+		makeRatioPlot(xyz, grid.bounds(), dlDir, "hazard ratio", true, true);
+	}
+
+	
 	private static GeoDataSet UC32xyz;
 	
-	// UCERF3.2 node ratio maps
+	// UCERF3.2 node ratio maps multithreaded
 	private static void makeRatioMap(String srcDir, String outDir,
 			List<String> brOverList) throws IOException {
 		TestGrid grid = CA_RELM;
