@@ -148,10 +148,10 @@ public class CurveUtils {
 //		File locFile = new File(treePath + "/PBRsites.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
 
-		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
-		File srcDir = new File(treePath + "NEHRP-PBR-SRP/UC3.2/");
-		File locFile = new File(treePath + "/test.txt");
-		generateBranchSummaries2(locFile.getPath(), srcDir.getPath(), true);
+//		String treePath = "/Users/pmpowers/projects/OpenSHA/tmp/hazard/";
+//		File srcDir = new File(treePath + "NEHRP-PBR-SRP/UC3.2/");
+//		File locFile = new File(treePath + "/test.txt");
+//		generateBranchSummaries2(locFile.getPath(), srcDir.getPath(), true);
 		
 		
 
@@ -160,7 +160,7 @@ public class CurveUtils {
 //		String curveDir = srcPath + "NEHRP-PBR-SRP/UC3.2-bg";
 //		generateBranchSummaries2(locFile, curveDir, true);
 
-//		File srcDir = new File(UC3_ROOT + "UC3.2-conv-src");
+//		File srcDir = new File(UC3_ROOT + "UC3.2-conv-src2");
 //		File outDir = new File(UC3_ROOT + "UC3.2-conv");
 //		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt");
 //		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
@@ -454,7 +454,7 @@ public class CurveUtils {
 	public static void generateBranchSummaries2(String locPath, String curveDir,
 			boolean tornado) throws IOException {
 		
-		Iterable<Period> periods = EnumSet.of(GM0P00); //GM0P00, GM0P20, GM1P00);
+		Iterable<Period> periods = EnumSet.of(GM4P00); //GM0P00, GM0P20, GM1P00);
 		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locPath);
 		String imrID = NSHMP08_WUS.SHORT_NAME;
 		try {
@@ -466,7 +466,6 @@ public class CurveUtils {
 	}
 	
 	/*
-	 * Create summaries of logic tree branch hazard curves.
 	 */
 	private static void runBranchSummaries2(String dir, String imrID,
 			Iterable<Period> periods, Iterable<String> locNames,
