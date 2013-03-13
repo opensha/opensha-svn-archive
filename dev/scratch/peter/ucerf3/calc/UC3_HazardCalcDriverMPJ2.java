@@ -23,6 +23,7 @@ import org.opensha.nshmp2.calc.HazardResultWriterMPJ;
 import org.opensha.nshmp2.calc.ThreadedHazardCalc;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
@@ -50,9 +51,10 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
-		if (args.length != 6) {
+		if (args.length != 7) {
 			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] " +
-					"<solPath> <mapID> <grid> <spacing> <period> <outPath>");
+					"<solPath> <mapID> <grid> <spacing> <period> <outPath> " +
+					"<bgInclude>");
 			abortAndExit(2);
 		}
 
@@ -67,12 +69,13 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 		locs = grid.grid(spacing).getNodeList();
 		period = Period.valueOf(args[4]);
 		String outPath = args[5];
+		IncludeBackgroundOption bg = IncludeBackgroundOption.valueOf(args[6]);
 
 		outDir = new File(outPath + S + mapID + S + grid + S + period);
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(solPath, locs, period, false, writer);
+		calc = new ThreadedHazardCalc(solPath, locs, period, false, bg, writer);
 	}
 	
 	@Override

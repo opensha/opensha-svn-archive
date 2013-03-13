@@ -67,13 +67,14 @@ public class ThreadedHazardCalc {
 	 */
 	@SuppressWarnings("javadoc")
 	public ThreadedHazardCalc(String solPath, LocationList locs,
-		Period period, boolean epiUncert, HazardResultWriter writer) {
+		Period period, boolean epiUncert, IncludeBackgroundOption bg, 
+		HazardResultWriter writer) {
 		this.locs = locs;
 		this.period = period;
 		this.writer = writer;
 		this.epiUncert = epiUncert;
 		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
-			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+			bg, false, true, 1.0);
 		erfList = ERF_ID.wrapInList(erf);
 		erfList.updateForecast();
 	}
