@@ -73,6 +73,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		return tracker;
 	}
 	
+	public static CPT getRatioCPT() throws IOException {
+		CPT ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		ratioCPT = ratioCPT.rescale(0, 2);
+		return ratioCPT;
+	}
+	
+	public static CPT getDiffCPT() throws IOException {
+		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		diffCPT = diffCPT.rescale(-0.8, 0.8);
+		return diffCPT;
+	}
+	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {
 		System.out.println("Generating map script for dir: " + dir);
 		
@@ -278,8 +290,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			if (mapType == InterpDiffMapType.DIFF) {
 				try {
 //					diffCPT = GMT_CPT_Files.GMT_POLAR.instance();
-					diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
-					diffCPT = diffCPT.rescale(-0.8, 0.8);
+					diffCPT = getDiffCPT();
 					diffCPTfile = "cptFile_diff.cpt";
 					diffCPT.writeCPTFile(dir+diffCPTfile);
 				} catch (IOException e) {
@@ -288,8 +299,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			} else if (mapType == InterpDiffMapType.RATIO) {
 				try {
 //					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
-					ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
-					ratioCPT = ratioCPT.rescale(0, 2);
+					ratioCPT = getRatioCPT();
 					ratioCPTfile = "cptFile_ratio.cpt";
 					ratioCPT.writeCPTFile(dir+ratioCPTfile);
 				} catch (IOException e) {
