@@ -48,10 +48,6 @@ public class SectionCluster extends ArrayList<Integer> {
 	Map<IDPairing, Double> subSectionDistances;
 	CoulombRates coulombRates;
 	
-	// This will change the sign of azimuths for 2 left-lateral faults Garlock and Pinto Mtn, to allow then to rupture with SAF to the south (and similarly, forming acute angles with other right-lateral faults)
-	// THIS IS HARD CODED TO THE PARENT SECTION IDs FOR GARLOCK & PINTO MTN
-	boolean applyGarlockPintoMtnFix = true;  
-	
 	private static final boolean OLD_ADD_RUPS = false;
 	
 	/**
@@ -334,6 +330,8 @@ public class SectionCluster extends ArrayList<Integer> {
 		if(list.size()>1)
 			secToLastIndex = list.get(list.size()-2);
 		
+		boolean applyGarlockPintoMtnFix = true;
+		
 		CoulombRatesTester coulombFilter = laughTestFilter.getCoulombFilter();
 		
 		if (forwardRates == null && coulombFilter != null) {
@@ -572,10 +570,6 @@ public class SectionCluster extends ArrayList<Integer> {
 		//		System.out.print("% Done:\t");
 		// loop over every section as the first in the rupture
 		List<AbstractLaughTest> laughTests = laughTestFilter.getLaughTests();
-		if (laughTests == null)
-			laughTests = laughTestFilter.buildLaughTests(
-				sectionAzimuths, subSectionDistances, rakesMap, coulombRates,
-				applyGarlockPintoMtnFix, sectionConnectionsListList, sectionDataList);
 		for(int s=0;s<size();s++) {
 			//		for(int s=0;s<1;s++) {	// Debugging: only compute ruptures from first section
 			// show progress

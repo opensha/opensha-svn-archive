@@ -102,6 +102,7 @@ public class CommandLineInversionRunner {
 		//				"Flag to turn off subseimogenic reductions"),
 		MFD_WT("mfd", "mfd-wt", "MFDWt", true, "MFD constraint weight"),
 		INITIAL_ZERO("zeros", "initial-zeros", "Zeros", false, "Force initial state to zeros"),
+		INITIAL_GR("inigr", "initial-gr", "SartGR", false, "GR starting model"),
 		INITIAL_RANDOM("random", "initial-random", "RandStart", false, "Force initial state to random distribution"),
 		EVENT_SMOOTH_WT("eventsm", "event-smooth-wt", "EventSmoothWt", true, "Relative Event Rate Smoothness weight"),
 		SECTION_NUCLEATION_MFD_WT("nuclwt", "sect-nucl-mfd-wt", "SectNuclMFDWt", true,

@@ -1275,37 +1275,7 @@ public class DeformationModelFetcher {
 			else {// Calculate new distance matrix & save to a file
 				System.out.println("Calculating data and will save to file: "+file.getAbsolutePath());
 
-				distances = new HashMap<IDPairing, Double>();
-
-				int progress = 0, progressInterval=10;  // for progress report
-				System.out.print("Dist Calc % Done:");
-				for(int a=0;a<numSubSections;a++) {
-					if (100*a/numSubSections > progress) {
-						System.out.print("\t"+progress);
-						progress += progressInterval;
-					}
-					//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
-					FaultSectionPrefData data1 = faultSubSectPrefDataList.get(a);
-					StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, false);
-					//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
-
-					for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
-						//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
-						FaultSectionPrefData data2 = faultSubSectPrefDataList.get(b);
-						//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
-						StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, false);
-						//					double minDist = surf1.getMinDistance(surf2);
-						//					subSectionDistances[a][b] = minDist;
-						//					subSectionDistances[b][a] = minDist;
-						double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, maxDistance*3);
-						if (minDist < maxDistance) {
-							IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
-							Preconditions.checkState(!distances.containsKey(ind), "distances already computed for given sections!" +
-									" duplicate sub section ids?");
-							distances.put(ind, minDist);
-						}
-					}
-				}
+				distances = calculateDistances(maxDistance, faultSubSectPrefDataList);
 				// Now save to a binary file
 				try {
 					writeMapFile(distances, file);
@@ -1343,12 +1313,54 @@ public class DeformationModelFetcher {
 		return distances;
 	}
 
+	public static Map<IDPairing, Double> calculateDistances(
+			double maxDistance, List<FaultSectionPrefData> subSections) {
+		Map<IDPairing, Double> distances = new HashMap<IDPairing, Double>();
+		
+		int numSubSections = subSections.size();
+
+		int progress = 0, progressInterval=10;  // for progress report
+		System.out.print("Dist Calc % Done:");
+		for(int a=0;a<numSubSections;a++) {
+			if (100*a/numSubSections > progress) {
+				System.out.print("\t"+progress);
+				progress += progressInterval;
+			}
+			//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(subSectionPrefDataList.get(a).getSimpleFaultData(false), 2.0);
+			FaultSectionPrefData data1 = subSections.get(a);
+			StirlingGriddedSurface surf1 = data1.getStirlingGriddedSurface(1.0, false, false);
+			//				StirlingGriddedSurface surf1 = new StirlingGriddedSurface(data1.getSimpleFaultData(false), 1.0, 1.0);
+
+			for(int b=a+1;b<numSubSections;b++) { // a+1 because array is initialized to zero
+				//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(subSectionPrefDataList.get(b).getSimpleFaultData(false), 2.0);
+				FaultSectionPrefData data2 = subSections.get(b);
+				//					StirlingGriddedSurface surf2 = new StirlingGriddedSurface(data2.getSimpleFaultData(false), 1.0, 1.0);
+				StirlingGriddedSurface surf2 = data2.getStirlingGriddedSurface(1.0, false, false);
+				//					double minDist = surf1.getMinDistance(surf2);
+				//					subSectionDistances[a][b] = minDist;
+				//					subSectionDistances[b][a] = minDist;
+				double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, maxDistance*3);
+				if (minDist < maxDistance) {
+					IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
+					Preconditions.checkState(!distances.containsKey(ind), "distances already computed for given sections!" +
+							" duplicate sub section ids?");
+					distances.put(ind, minDist);
+				}
+			}
+		}
+		return distances;
+	}
+
 
 	/**
 	 * This creates (or reads) a matrix giving the azimuth between the midpoint of each subSection.
 	 * @return
 	 */
 	public Map<IDPairing, Double> getSubSectionAzimuthMap(Set<IDPairing> indices) {
+		return getSubSectionAzimuthMap(indices, faultSectPrefDataList);
+	}
+	
+	public static Map<IDPairing, Double> getSubSectionAzimuthMap(Set<IDPairing> indices, List<FaultSectionPrefData> subSections) {
 
 		Map<IDPairing, Double> azimuths;
 
@@ -1383,10 +1395,10 @@ public class DeformationModelFetcher {
 				progress += progressInterval;
 			}
 			cnt++;
-			FaultSectionPrefData data1 = faultSubSectPrefDataIDMap.get(ind.getID1());
+			FaultSectionPrefData data1 = subSections.get(ind.getID1());
 			StirlingGriddedSurface surf1 =  data1.getStirlingGriddedSurface(1.0, false, false);
 			Location loc1 = surf1.getLocation(surf1.getNumRows()/2, surf1.getNumCols()/2);
-			FaultSectionPrefData data2 = faultSubSectPrefDataIDMap.get(ind.getID2());
+			FaultSectionPrefData data2 = subSections.get(ind.getID2());
 			StirlingGriddedSurface surf2 =  data2.getStirlingGriddedSurface(1.0, false, false);
 			Location loc2 = surf2.getLocation((int)(surf2.getNumRows()/2), (int)(surf2.getNumCols()/2));
 			azimuths.put(ind, LocationUtils.azimuth(loc1, loc2));

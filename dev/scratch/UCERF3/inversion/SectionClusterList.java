@@ -88,6 +88,10 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 		// (each represents a set of nearby sections and computes the possible
 		//  "ruptures", each defined as a list of sections in that rupture)
 		makeClusterList(subSectionAzimuths,subSectionDistances, rakesMap);
+		
+		filter.buildLaughTests(
+				subSectionAzimuths, subSectionDistances, rakesMap, coulombRates,
+				true, sectionConnectionsListList, faultSectionData);
 	}
 	
 	private void makeClusterList(

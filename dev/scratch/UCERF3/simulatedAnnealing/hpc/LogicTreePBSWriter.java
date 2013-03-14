@@ -676,7 +676,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "rup-smooth-high-tests-long";
+		String runName = "rup-smooth-start-gr-long";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -826,13 +826,14 @@ public class LogicTreePBSWriter {
 		
 		// this is for varying each weight one at a time for testing rup smoothness
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { 	InversionOptions.RUP_SMOOTH_WT };
+		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR, InversionOptions.RUP_SMOOTH_WT };
 		
-		variationBranches.add(buildVariationBranch(ops, toArray("1000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("10000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("100000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("1000000")));
-		variationBranches.add(buildVariationBranch(ops, toArray("10000000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "0")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000000")));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000000")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };

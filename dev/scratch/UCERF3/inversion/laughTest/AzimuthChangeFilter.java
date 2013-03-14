@@ -25,6 +25,9 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 	private HashSet<Integer> leftLateralFixParents;
 	private Map<IDPairing, Double> sectionAzimuths;
 	
+	/** this was a bug in UCERF3.2 where the total azimuth change was only checked after junctions */
+	private boolean totAzChangeAtJunctionsOnly = false;
+	
 	private double maxAzimuthChange;
 	private double maxTotAzimuthChange;
 	
@@ -60,45 +63,65 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 		if (rupture.size() < 4 || junctionIndexes.isEmpty())
 			return true;
 		
-		// this makes sure that a junction happened last time, so 2 sections
-		// from the new parent have been added to this rupture
 		int lastIndexInRup = rupture.size()-1;
-		if (!junctionIndexes.contains(lastIndexInRup-1))
-//		if (junctionIndexes.get(junctionIndexes.size()-1) != lastIndexInRup-1)
+		
+		// test the last junction if a junction happened last time, so 2 sections
+		// from the new parent have been added to this rupture
+		boolean testLast = junctionIndexes.contains(lastIndexInRup-1);
+		// test total if we're testing the last one, or 
+		boolean testTotal = testLast || !totAzChangeAtJunctionsOnly;
+		// don't test total if we've only added one section of a parent, we'll check it next time
+		if (junctionIndexes.get(junctionIndexes.size()-1) == lastIndexInRup)
+			testTotal = false;
+		
+		if (!testLast && !testTotal)
+			// if we're not testing anything, go ahead and pass
 			return true;
 		
-		IDPairing newSectPairing = pairings.get(pairings.size()-1);
+		// this is the first section, used for total azimuth change checks
+		IDPairing firstPairing = pairings.get(0);
+		int firstSectParent = rupture.get(0).getParentSectionId();
+		// this is the previous parent section, used for last section checks
 		// we go 2 pairings back because we want the azimuth of the last two subsections on the
 		// previous parent
 		IDPairing prevSectPairing = pairings.get(pairings.size()-3);
-		if (applyGarlockPintoMtnFix) {
-			int newSectParent = rupture.get(lastIndexInRup-1).getParentSectionId();
-			int prevSectParent = rupture.get(lastIndexInRup-2).getParentSectionId();
-			Preconditions.checkState(newSectParent != prevSectParent);
-			
-			if (leftLateralFixParents.contains(newSectParent))
-				newSectPairing = newSectPairing.getReversed();
-			
-			if (leftLateralFixParents.contains(prevSectParent))
-				prevSectPairing = prevSectPairing.getReversed();
-		}
+		int prevSectParent = rupture.get(lastIndexInRup-2).getParentSectionId();
+		// this is our newest section, used for both tests
+		IDPairing newSectPairing = pairings.get(pairings.size()-1);
+		int newSectParent = rupture.get(lastIndexInRup).getParentSectionId();
 		
-		// make sure there are enough points to compute an azimuth change
-		double newAzimuth = sectionAzimuths.get(newSectPairing);
-		double prevAzimuth = sectionAzimuths.get(prevSectPairing);
+//		if (firstSectParent == newSectParent) {
+//			for (FaultSectionPrefData data : rupture)
+//				System.out.println(data.getSectionId()+" ("+data.getParentSectionId()+")");
+//			System.out.flush();
+//		}
 		
-		// check change
-		double azimuthChange = Math.abs(getAzimuthDifference(prevAzimuth,newAzimuth));
-		if (azimuthChange>maxAzimuthChange)
-			return false;	// don't add rupture
-
-		// check total change
-		double firstAzimuth = sectionAzimuths.get(pairings.get(0));
-		double totAzimuthChange = Math.abs(getAzimuthDifference(firstAzimuth,newAzimuth));
-		if (totAzimuthChange>maxTotAzimuthChange)
-			return false;	// don't add rupture
+		if (testLast && !testAzimuth(prevSectPairing, prevSectParent, newSectPairing, newSectParent, maxAzimuthChange))
+			return false;
+		
+		if (totAzChangeAtJunctionsOnly && leftLateralFixParents.contains(firstSectParent)) // this keeps UCERF3.2 compatability
+			firstPairing = firstPairing.getReversed();
+		if (testTotal && !testAzimuth(firstPairing, firstSectParent, newSectPairing, newSectParent, maxTotAzimuthChange))
+			return false;
 		
 		return true;
+	}
+	
+	private boolean testAzimuth(IDPairing pairing1, int parent1, IDPairing pairing2, int parent2, double threshold) {
+		// we don't need this check anymore, a rupture can 
+//		Preconditions.checkState(parent1 != parent2, "Makes no sense to check azimuths on the same parent");
+		if (applyGarlockPintoMtnFix) {
+			if (leftLateralFixParents.contains(parent1))
+				pairing1 = pairing1.getReversed();
+			
+			if (leftLateralFixParents.contains(parent2))
+				pairing2 = pairing2.getReversed();
+		}
+		
+		double az1 = sectionAzimuths.get(pairing1);
+		double az2 = sectionAzimuths.get(pairing2);
+		
+		return Math.abs(getAzimuthDifference(az1, az2)) <= threshold;
 	}
 
 	@Override
@@ -125,6 +148,14 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 			return diff+360;
 		else
 			return diff;
+	}
+
+	public boolean isTotAzChangeAtJunctionsOnly() {
+		return totAzChangeAtJunctionsOnly;
+	}
+
+	public void setTotAzChangeAtJunctionsOnly(boolean totAzChangeAtJunctionsOnly) {
+		this.totAzChangeAtJunctionsOnly = totAzChangeAtJunctionsOnly;
 	}
 
 }

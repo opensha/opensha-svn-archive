@@ -64,7 +64,6 @@ public class RupSetDiffMaker {
 //		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
 //		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = true;
 		laughTest.setAllowSingleSectDuringJumps(true);
-		laughTest.getCoulombFilter().setAllowAnyWay(true);
 //		laughTest.getCoulombFilter().setMinIndividualProb(0.1);
 //		laughTest.getCoulombFilter().setMinAverageProb(0.1);
 //		laughTest.getCoulombFilter().setMinimumStressExclusionCeiling(1.5);
@@ -75,12 +74,13 @@ public class RupSetDiffMaker {
 		new SimpleFaultSystemRupSet(rupSet1).toZipFile(new File("/tmp/rupSet1.zip"));
 		double secsNew = watch.elapsedMillis() / 1000d;
 		rupSet1.setInfoString("");
+		laughTest = LaughTestFilter.getUCERF3p2Filter();
 //		LaughTestFilter.USE_BUGGY_COULOMB = false;
 //		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 //		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
 //		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
-		laughTest.setAllowSingleSectDuringJumps(true);
-		laughTest.getCoulombFilter().setAllowAnyWay(false);
+//		laughTest.setAllowSingleSectDuringJumps(true);
+//		laughTest.getLaughTest(AzimuthChangeFilter.class).setTotAzChangeAtJunctionsOnly(true);
 //		SectionCluster.NEW_ADD_RUPS = false;
 //		CoulombRatesTester.BUGGY_MIN_STRESS = true;
 //		laughTest.setAllowSingleSectDuringJumps(false);

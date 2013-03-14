@@ -410,6 +410,16 @@ public class InversionConfiguration {
 			System.out.println("Rupture rate smoothness constraint wt: "+rupRateSmoothingConstraintWt);
 		}
 		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.INITIAL_GR.getArgName())) {
+			System.out.println("Setting initial rup model to GR model");
+			initialRupModel = getSmoothStartingSolution(rupSet,targetOnFaultMFD);
+			minimumRuptureRateFraction = 0.01;
+			minimumRuptureRateBasis = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true);
+			if (mfdInequalityConstraintWt>0.0 || mfdEqualityConstraintWt>0.0) initialRupModel = adjustStartingModel(initialRupModel, mfdConstraints, rupSet, true); 
+			initialRupModel = adjustParkfield(rupSet, initialRupModel);
+			initialRupModel = removeRupsBelowMinMag(rupSet, initialRupModel);
+		}
+		
 		List<MFD_InversionConstraint> mfdInequalityConstraints = new ArrayList<MFD_InversionConstraint>();
 		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
 		

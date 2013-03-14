@@ -154,38 +154,49 @@ public class PeriodicityPlotter {
 		ArrayList<EvenlyDiscretizedFunc> slidingWindows = null;
 		ArrayList<EvenlyDiscretizedFunc> randomizedSlidingWindows = null;
 		
+		List<EQSIM_Event> randomResampledCatalog = null;
+		for (boolean randomized : randoms)
+			if (randomized)
+				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
+		
 		for (boolean randomized : randoms) {
-			if (randomized) {
-				List<EQSIM_Event> randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
+			if (randomized)
 				events = randomResampledCatalog;
-			}
 			
-			plotPeriodsAndEvents(events, display, displayEventTimes, writeDir,
+			File myWriteDir;
+			if (randomized)
+				myWriteDir = new File(writeDir, "randomized");
+			else
+				myWriteDir = writeDir;
+			if (!myWriteDir.exists())
+				myWriteDir.mkdir();
+			
+			plotPeriodsAndEvents(events, display, displayEventTimes, myWriteDir,
 					rupIdensSubset, rupIdenNamesSubset, colorsSubset, randomized);
-			plotPeriodsAndEvents(events, display, displayEventTimes, writeDir,
+			plotPeriodsAndEvents(events, display, displayEventTimes, myWriteDir,
 					rupIdensNoCholame, rupIdenNamesNoCholame, colorsNoCholame, randomized);
 			
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
 					rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
 					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
 					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(cholameIndex), rupIdenNames.get(cholameIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(cholameIndex), rupIdenNames.get(cholameIndex),
 					rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(carrizoIndex), rupIdenNames.get(carrizoIndex),
 					rupIdens.get(cholameIndex), rupIdenNames.get(cholameIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(garlockIndex), rupIdenNames.get(garlockIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(garlockIndex), rupIdenNames.get(garlockIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(garlockIndex), rupIdenNames.get(garlockIndex),
 					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(sanJacintoIndex), rupIdenNames.get(sanJacintoIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(sanJacintoIndex), rupIdenNames.get(sanJacintoIndex),
 					rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex));
-			plotTimeBetweenIdens(writeDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
 			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
@@ -196,19 +207,44 @@ public class PeriodicityPlotter {
 			
 			if (randomized)
 				randomizedSlidingWindows =
-					plotSlidingWindowCounts(writeDir, display, randomized, windowLengths, xInc, events, elemRupIdens);
+					plotSlidingWindowCounts(myWriteDir, display, randomized, windowLengths, xInc, events, elemRupIdens);
 			else
 				slidingWindows =
-					plotSlidingWindowCounts(writeDir, display, randomized, windowLengths, xInc, events, elemRupIdens);
+					plotSlidingWindowCounts(myWriteDir, display, randomized, windowLengths, xInc, events, elemRupIdens);
 			
-			plotInterEventBetweenAllDist(writeDir, display, randomized, events, elemRupIdens);
+			plotInterEventBetweenAllDist(myWriteDir, display, randomized, events, elemRupIdens);
+			
+			boolean[] initials = {true, false};
+			double cumulativePlotYears = 100d;
+			if (!randomized) {
+				if (randomResampledCatalog == null)
+					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
+				
+				for (boolean includeInitialCorupture : initials) {
+					plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+							// target
+							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+							// given
+							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex), cumulativePlotYears, includeInitialCorupture);
+					plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+							// target
+							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+							// given
+							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex), cumulativePlotYears, includeInitialCorupture);
+//					plotConditionalProbs(myWriteDir, display, randomized, events,
+//							// target
+//							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+//							// given
+//							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex), 5d, includeInitialCorupture);
+				}
+			}
 			
 			if (!randomized) {
 				double[] omoris = { 6d, 6.5d, 7d, 7.5d };
 				
 				for (int i=0; i<elemRupIdens.size(); i++) {
 					RuptureIdentifier rupIden = elemRupIdens.get(i);
-					plotOmoriDecay(writeDir, display, randomized, events, rupIden, rupIdenNames.get(i), omoris, 365);
+					plotOmoriDecay(myWriteDir, display, randomized, events, rupIden, rupIdenNames.get(i), omoris, 365);
 				}
 			}
 		}
@@ -1072,6 +1108,117 @@ public class PeriodicityPlotter {
 		
 		makePlot(dir, prefix, display, false, funcs, chars, title, xAxisLabel, yAxisLabel,
 				null, null);
+	}
+	
+	private static void plotConditionalProbs(File dir, boolean display,
+			List<EQSIM_Event> events, List<EQSIM_Event> randomizedEvents, RuptureIdentifier targetIden, String targetName,
+			RuptureIdentifier givenIden, String givenName, double maxTimeYears, boolean includeInitialCorupture)
+					throws IOException {
+		ArbitrarilyDiscretizedFunc cumulativeFunc = getCumulativeProbDist(
+				events, targetIden, givenIden, maxTimeYears,
+				includeInitialCorupture);
+		cumulativeFunc.setName("Cumulative Probabilities");
+		ArbitrarilyDiscretizedFunc randCumulativeFunc = getCumulativeProbDist(
+				randomizedEvents, targetIden, givenIden, maxTimeYears,
+				includeInitialCorupture);
+		randCumulativeFunc.setName("Cumulative Probabilities (Randomized Catalog)");
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(cumulativeFunc);
+		funcs.add(randCumulativeFunc);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY));
+		
+		String title;
+		if (includeInitialCorupture)
+			title = "Prob("+targetName+"|"+givenName+") incl Initial Co-rupture";
+		else
+			title = "Prob("+targetName+"|"+givenName+") excl Initial Co-rupture";
+		String xAxisLabel = "Time (years)";
+		String yAxisLabel = "Cumulative Probability";
+		
+		String prefix;
+		if (includeInitialCorupture)
+			prefix = "cumulative_prob_"+getFileSafeString(targetName)+"_given_"+getFileSafeString(givenName);
+		else
+			prefix = "cumulative_prob_no_initial_"+getFileSafeString(targetName)+"_given_"+getFileSafeString(givenName);
+		
+		double[][] ranges = new double[2][2];
+		ranges[0][0] = 0d;
+		ranges[0][1] = maxTimeYears;
+		if (maxTimeYears <= 20) {
+			ranges[1][0] = 0d;
+			ranges[1][1] = 0.25;
+		} else {
+			ranges[1][0] = 0d;
+			ranges[1][1] = 1d;
+		}
+		
+		makePlot(dir, prefix, display, false, funcs, chars, title, xAxisLabel, yAxisLabel,
+				ranges, null);
+	}
+
+	public static ArbitrarilyDiscretizedFunc getCumulativeProbDist(
+			List<EQSIM_Event> events, RuptureIdentifier targetIden,
+			RuptureIdentifier givenIden, double maxTimeYears,
+			boolean includeInitialCorupture) {
+		List<EQSIM_Event> targetMatches = targetIden.getMatches(events);
+		List<EQSIM_Event> givenMatches = givenIden.getMatches(events);
+		
+		HashSet<Integer> coruptures = null;
+		if (!includeInitialCorupture) {
+			coruptures = new HashSet<Integer>();
+			for (EQSIM_Event e1 : targetMatches)
+				for (EQSIM_Event e2 : givenMatches)
+					if (e1.getID() == e2.getID())
+						coruptures.add(e1.getID());
+		}
+		
+		ArbitrarilyDiscretizedFunc timeFunc = new ArbitrarilyDiscretizedFunc();
+		
+		int targetStartIndex = 0;
+		
+		double yVal;
+		if (includeInitialCorupture)
+			yVal = 1d/(double)givenMatches.size();
+		else
+			yVal = 1d/(double)(givenMatches.size() - coruptures.size());
+		
+		for (EQSIM_Event given : givenMatches) {
+			double givenTime = given.getTimeInYears();
+			double targetMaxTime = givenTime + maxTimeYears;
+			if (!includeInitialCorupture && coruptures.contains(given.getID()))
+				continue;
+			for (int i=targetStartIndex; i<targetMatches.size(); i++) {
+				EQSIM_Event target = targetMatches.get(i);
+				double targetTime = target.getTimeInYears();
+				if (targetTime < givenTime) {
+					targetStartIndex = i;
+					continue;
+				}
+				if (targetTime > targetMaxTime)
+					break;
+				double deltaTime = targetTime - givenTime;
+				int xIndex = timeFunc.getXIndex(deltaTime);
+				if (xIndex < 0)
+					timeFunc.set(deltaTime, yVal);
+				else
+					timeFunc.set(xIndex, yVal+timeFunc.getY(xIndex));
+				// we only want the first occurrence as we're doing cumulative probabilities
+				break;
+			}
+		}
+		
+		ArbitrarilyDiscretizedFunc cumulativeFunc = new ArbitrarilyDiscretizedFunc();
+		
+		double cumulativeRate = 0;
+		for (int i=0; i<timeFunc.getNum(); i++) {
+			double x = timeFunc.getX(i);
+			cumulativeRate += timeFunc.getY(i);
+			cumulativeFunc.set(x, cumulativeRate);
+		}
+		return cumulativeFunc;
 	}
 	
 	private static void makePlot(File dir, String prefix, boolean display, boolean randomized,
