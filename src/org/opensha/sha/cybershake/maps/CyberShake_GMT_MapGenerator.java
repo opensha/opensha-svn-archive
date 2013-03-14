@@ -90,17 +90,17 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			mapTypes = InterpDiffMapType.values();
 		
 		boolean shouldInterp = false;
-		boolean shouldMakeTopo = false;
+		boolean shouldMakeTopo = true;
 		boolean shouldMakeRatio = false;
 		for (InterpDiffMapType type : mapTypes) {
 			if (type != InterpDiffMapType.BASEMAP) {
 				// if it's anything but a basemap, we need to do the interpolation
 				shouldInterp = true;
 			}
-			if (type != InterpDiffMapType.DIFF && type != InterpDiffMapType.RATIO) {
-				// if it's anything but a diff map, we need to prepare the topo
-				shouldMakeTopo = map.getTopoResolution() != null;
-			}
+//			if (type != InterpDiffMapType.DIFF && type != InterpDiffMapType.RATIO) {
+//				// if it's anything but a diff map, we need to prepare the topo
+//				shouldMakeTopo = map.getTopoResolution() != null;
+//			}
 			if (type == InterpDiffMapType.RATIO && map.getGriddedData() != null) {
 				shouldMakeRatio = true;
 			}
@@ -277,7 +277,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		for (InterpDiffMapType mapType : mapTypes) {
 			if (mapType == InterpDiffMapType.DIFF) {
 				try {
-					diffCPT = GMT_CPT_Files.GMT_POLAR.instance();
+//					diffCPT = GMT_CPT_Files.GMT_POLAR.instance();
+					diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 					diffCPT = diffCPT.rescale(-0.8, 0.8);
 					diffCPTfile = "cptFile_diff.cpt";
 					diffCPT.writeCPTFile(dir+diffCPTfile);
@@ -286,7 +287,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				}
 			} else if (mapType == InterpDiffMapType.RATIO) {
 				try {
-					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
+//					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
+					diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 					ratioCPT = ratioCPT.rescale(0, 2);
 					ratioCPTfile = "cptFile_ratio.cpt";
 					ratioCPT.writeCPTFile(dir+ratioCPTfile);
@@ -439,7 +441,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				topoFile.resolution() + "c -Q "+region;
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
-				if (mapType != InterpDiffMapType.DIFF && mapType != InterpDiffMapType.RATIO)
+//				if (mapType != InterpDiffMapType.DIFF && mapType != InterpDiffMapType.RATIO)
 					topoOption = " -I"+intenGRD;
 			}
 			if (maskGRD != null) {
