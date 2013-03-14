@@ -288,7 +288,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			} else if (mapType == InterpDiffMapType.RATIO) {
 				try {
 //					ratioCPT = GMT_CPT_Files.GMT_POLAR.instance();
-					diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+					ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 					ratioCPT = ratioCPT.rescale(0, 2);
 					ratioCPTfile = "cptFile_ratio.cpt";
 					ratioCPT.writeCPTFile(dir+ratioCPTfile);
