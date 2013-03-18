@@ -44,12 +44,17 @@ public class EventRecord {
     double[] elementSlips = new double[0];
     int[] elementIDs = new int[0];
     
+    ArrayList<RectangularElement> rectElementsList;
+    
     /**
      * No arg constructor
      */
-    public EventRecord() {}
+    public EventRecord(ArrayList<RectangularElement> rectElementsList) {
+    	this.rectElementsList=rectElementsList; 
+    }
 
-	public EventRecord(String fileLine) {
+	public EventRecord(String fileLine, ArrayList<RectangularElement> rectElementsList) {
+    	this.rectElementsList=rectElementsList; 
 		StringTokenizer tok = new StringTokenizer(fileLine);
 		int kindOfLine = Integer.parseInt(tok.nextToken());
 		if(kindOfLine != 200) throw new RuntimeException("wrong line type");
@@ -244,6 +249,76 @@ public class EventRecord {
 	
 	public double getMoment() {
 		return moment;
+	}
+	
+	/**
+	 * 
+	 * @return min DAS in meters
+	 */
+	public double getMinDAS() { return das_lo;}
+	
+	/**
+	 * 
+	 * @return max DAS in meters
+	 */
+	public double getMaxDAS() { return das_hi;}
+	
+	
+	/**
+	 * This returns a vertex corresponding to the minimum DAS
+	 * (although there may be more than one with the same DAS)
+	 * @return
+	 */
+	public Vertex getVertxForMinDAS() {
+		Vertex minVertex = null;
+		double minDAS = Double.MAX_VALUE;
+		for(int elemID : getElementIDs()) {
+			RectangularElement elem = rectElementsList.get(elemID-1);	// index is ID-1
+			double elemMinDAS = elem.getMinDAS();
+			if(elemMinDAS < minDAS) {
+				minDAS = elemMinDAS;
+				minVertex = elem.getVertexForMinDAS();
+			}
+		}
+		
+		// TEST
+		double testDiffDAS = Math.abs(minVertex.getDAS() - getMinDAS()/1000);	// km
+		if(testDiffDAS>1)
+			throw new RuntimeException("testDiffMinDAS>5:  "+testDiffDAS);
+		
+		
+		return minVertex;
+	}
+	
+	
+	/**
+	 * This returns a vertex corresponding to the maximum DAS
+	 * (although there may be more than one with the same DAS)
+	 * @return
+	 */
+	public Vertex getVertxForMaxDAS() {
+		Vertex maxVertex = null;
+		double maxDAS = Double.NEGATIVE_INFINITY;
+		for(int elemID : elementIDs) {
+			RectangularElement elem = rectElementsList.get(elemID-1);	// index is ID-1
+			double elemMaxDAS = elem.getMaxDAS();
+			if(elemMaxDAS > maxDAS)
+				maxDAS=elemMaxDAS;
+				maxVertex = elem.getVertexForMaxDAS();
+		}
+		// TEST
+		double testDiffDAS = Math.abs(maxVertex.getDAS() - getMaxDAS()/1000);	// km
+		if(testDiffDAS>0.0)
+			throw new RuntimeException("testDiffMaxDAS>5:  "+testDiffDAS);
+		
+		return maxVertex;
+	}
+	
+	public ArrayList<RectangularElement> getRectangularElements() {
+		ArrayList<RectangularElement> re_list = new ArrayList<RectangularElement>();
+		for(int elemID:getElementIDs())
+			re_list.add(rectElementsList.get(elemID-1));	// index is ID-1
+		return re_list;
 	}
 
 	public String toString() {

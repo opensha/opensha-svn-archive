@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -30,7 +31,9 @@ import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
@@ -71,6 +74,8 @@ import com.google.common.primitives.Ints;
  * in the input file may not be included (e.g., if Mag = -Inf, which occurs)
  * 
  * All units in EQSIM files are SI
+ * 
+ * Note that DAS values are unique only within a fault section (values can start over on the next section)
  * 
  * Note that slip rates in EQSIM files are in units of m/s, whereas we convert these to m/yr internally here.
  * 
@@ -236,7 +241,7 @@ public class General_EQSIM_Tools {
 
 		eventList = new ArrayList<EQSIM_Event>();
 		EQSIM_Event currEvent = null;
-		EventRecord evRec = new EventRecord(); // this one never used, but created to compile
+		EventRecord evRec = new EventRecord(rectElementsList); // this one never used, but created to compile
 		int numEventRecs=0;
 		line = buffRead.readLine();
 		while (line != null) {
@@ -244,7 +249,7 @@ public class General_EQSIM_Tools {
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {	// event record
 				try {
-					evRec = new EventRecord(line);
+					evRec = new EventRecord(line, rectElementsList);
 				} catch (Exception e) {
 					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
 					line = buffRead.readLine();
@@ -543,6 +548,41 @@ public class General_EQSIM_Tools {
 		}
 		System.out.println("min element area (km) = "+(float)(min*1e-6));
 		System.out.println("max element area (km) = "+(float)(max*1e-6));
+	}
+	
+	
+	
+	
+	/**
+	 * This tests the EQSIM_Event.getDistAlongRupForElements() for a few ruptures, and assuming the
+	 * "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall" input file is used (event indices are set by hand).
+	 * The data file was loaded into Igor and plotted to confirm the distance along rupture looked good.
+	 */
+	public void testDistanceAlong() {
+		
+//		int testEventIndex = 161911 - 1;	// NSAF
+//		int testEventIndex = 168-1;			// SSAF
+		int testEventIndex = 192778-1;		// Calaveras and others
+		EQSIM_Event testEvent = eventList.get(testEventIndex);
+		int numSect = testEvent.size();
+		System.out.println("numSect="+numSect);
+		
+		ArrayList<RectangularElement> elementList = testEvent.getAllElements();
+		double[] distAlongArray = testEvent.getNormDistAlongRupForElements();
+		FileWriter fw;
+		try {
+			fw = new FileWriter("tempDistAlongTest.txt");
+			System.out.println("numElem="+distAlongArray.length);
+			for(int i=0;i<distAlongArray.length;i++) {
+				Location loc = elementList.get(i).getCenterLocation();
+				fw.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth()+"\t"+(float)distAlongArray[i]+"\n");
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 
@@ -1920,7 +1960,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				double mag = Math.round(event.getMagnitude()*100.0)/100.0;
 				System.out.print("\t"+num+"\t"+event.getID()+"\t"+event.size()+"\t"+mag);
 				for(EventRecord rec:event)
-					System.out.print("\t"+this.namesOfSections.get(rec.getSectionID()-1));
+					System.out.print("\t"+this.namesOfSections.get(rec.getSectionID()-1)+"_"+rec.getSectionID());
 				System.out.print("\n");
 			}
 		}
@@ -2039,6 +2079,77 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 	}
 	
+	public void plotAveNormSlipAlongRupture(Double magThresh, boolean savePlot) {
+		double startX = 0.0125;
+		double deltaX = 0.025;
+		int numX = 40;
+		HistogramFunction normSlipAlongHist = new HistogramFunction(startX, numX, deltaX);
+		for(EQSIM_Event event:eventList) {
+			if(isEventSupraSeismogenic(event, magThresh) && event.hasElementSlipsAndIDs()) {
+				double[] slipArray = event.getAllElementSlips();
+				double[] normDistAlong = event.getNormDistAlongRupForElements();
+				
+				HistogramFunction normSlipHistForRup = new HistogramFunction(startX, numX, deltaX);
+				HistogramFunction totSlipHist = new HistogramFunction(startX, numX, deltaX);
+				HistogramFunction numSlip = new HistogramFunction(startX, numX, deltaX);
+				for(int i=0;i<slipArray.length;i++) {
+					totSlipHist.add(normDistAlong[i], slipArray[i]);
+					numSlip.add(normDistAlong[i], 1);
+				}
+				// compute ave slip in each bin
+				for(int i=0;i<numX;i++) {
+					if(numSlip.getY(i)>0)
+						normSlipHistForRup.set(i,totSlipHist.getY(i)/numSlip.getY(i));
+				}
+				normSlipHistForRup.normalizeBySumOfY_Vals();
+				
+				// now add to total hist
+				for(int i=0;i<numX;i++)
+					normSlipAlongHist.add(i, normSlipHistForRup.getY(i));
+			}
+		}
+		normSlipAlongHist.normalizeBySumOfY_Vals();
+		
+		// make it symmetric
+		HistogramFunction symNormSlipAlongHist = new HistogramFunction(startX, numX, deltaX);
+		for(int i=0;i<Math.floor((float)numX/2.0);i++) {
+			int i2 = numX-1-i;
+			double val = (normSlipAlongHist.getY(i)+normSlipAlongHist.getY(i2))/2.0;
+			symNormSlipAlongHist.add(i,val);
+			symNormSlipAlongHist.add(i2,val);
+		}
+
+		HistogramFunction sqrtSineHist = new HistogramFunction(startX, numX, deltaX);
+		for(int i=0;i<numX;i++) {
+			double xVal = sqrtSineHist.getX(i)*Math.PI;
+			sqrtSineHist.set(i,Math.sqrt(Math.sin(xVal)));
+		}
+		sqrtSineHist.normalizeBySumOfY_Vals();
+		
+		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
+		funcList.add(symNormSlipAlongHist);
+		funcList.add(sqrtSineHist);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Ave Normalized Slip Along Rupture"); 
+		graph.setX_AxisLabel("Normalized Distance Along Rupture");
+		graph.setY_AxisLabel("Normalized Slip");
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		graph.setPlottingFeatures(curveCharacteristics);
+		if(savePlot) {
+			try {
+				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		
+		System.out.println(symNormSlipAlongHist);
+
+	}
+	
 	
 	/**
 	 * This plots slip versus length, mag versus area, and mag versus length.
@@ -2152,6 +2263,57 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	}
 	
 	
+	public void writeRI_COV_forAllSurfaceEvlemets(double magThresh, String fileName) {
+		FileWriter fw;
+		try {
+			fw = new FileWriter(fileName);
+			fw.write("elemID\tCOV\tfaultName\tNumRIs\n");
+			// Loop over elements
+			for(RectangularElement elem:rectElementsList) {
+				// check whether it's a surface element
+				if(elem.getVertices()[0].getTraceFlag() != 0) {
+//					System.out.println("trace vertex found");
+					double[] recurInts = getRecurIntervalsForElement(elem.getID(), magThresh);
+					if(recurInts==null) 
+						continue;
+					DescriptiveStatistics stats = new DescriptiveStatistics();
+					for(double val:recurInts) {
+						stats.addValue(Math.log10(val));
+					}
+					double cov = stats.getStandardDeviation()/stats.getMean();
+					fw.write(elem.getID()+"\t"+cov+"\t"+elem.getName()+"\t"+recurInts.length+"\n");
+				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	public void writeDAS_ForVertices() {
+		FileWriter fw;
+		try {
+			fw = new FileWriter("tempDAS_forVertices.txt");
+			for(Vertex vert:vertexList) {
+				// check whether it's a surface element
+//				if(vert.getTraceFlag() != 0) {
+					String sectName = namesOfSections.get(getSectionIndexForVertex(vert));
+					fw.write(vert.getID()+"\t"+vert.getDAS()+"\t"+sectName+"\n");
+//				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
+	
 	/**
 	 * This plots a histogram of normalized recurrence intervals for all surface elements
 	 * (normalized by the average interval at each  element).
@@ -2160,12 +2322,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	public void plotNormRecurIntsForAllSurfaceElements(double magThresh, boolean savePlot) {
 
 		ArrayList<Double> vals = new ArrayList<Double>();
-		// Loop over elements
+		// Loop over elements rather than vertices because using the zeroeth vertex of the 
+		// element will avoid possibly overlapping vertices
 		for(RectangularElement elem:rectElementsList) {
 			// check whether it's a surface element
 			if(elem.getVertices()[0].getTraceFlag() != 0) {
-//				System.out.println("trace vertex found");
-				double[] recurInts = getRecurIntervalsForElement(elem.getID(), magThresh);
+				Vertex vert = elem.getVertices()[0];
+				double das = vert.getDAS()*1000;
+				int sectID = getSectionIndexForVertex(vert)+1;
+				double[] recurInts = getRecurIntervalsForDAS_and_FaultID(das, sectID, magThresh);
+//				double[] recurInts = getRecurIntervalsForElement(elem.getID(), magThresh);
 				if(recurInts != null) {
 					double mean=0;
 					for(int i=0;i<recurInts.length; i++) 
@@ -2189,124 +2355,114 @@ if(norm_tpInterval1 < 0  && goodSample) {
 
 	
 	/**
-	 * This one only includes events that utilize the nearest rectangular element (presumably the 
-	 * one at the surface), which means non-surface rupturing events will not be included.  This quits
-	 * and returns null if the loc is not within 5 km of an element.
-	 * @param lat
-	 * @param lon
+	 * This quits and returns false if the loc is not within 5 km of a vertex.
+	 * @param loc
 	 * @param magThresh
-	 * @param makePlot
-	 * @return info string
+	 * @param savePlot
+	 * @param locName
+	 * @param infoString
 	 */
-	public String plotRecurIntervalsForNearestLoc(Location loc, double magThresh, boolean makePlot, 
-			boolean savePlot, String locName) {
-		String infoString = new String();
-		double minDist= Double.MAX_VALUE;
-		int elementIndex=-1;
-		//Find nearest Element
-		for(int i=0; i<rectElementsList.size(); i++) {
-			double dist = DistanceRupParameter.getDistance(loc, rectElementsList.get(i).getGriddedSurface());
-			if(dist<minDist){
-				minDist=dist;
-				elementIndex= i;
-			}
-		}
+	public boolean plotRecurIntervalsForNearestLoc(Location loc, double magThresh, boolean savePlot, String locName, String infoString) {
+		// find the nearest vertex
+		Vertex vert = getClosestVertex(loc);
+		double dist = vert.getLinearDistance(loc);
 		
 		// quit and return null if not near element
-		if(minDist>5.0) {
-			System.out.println("No element found near the site "+locName);
-			return null;
+		if(dist>5.0) {
+			System.out.println("No vertex found near the site "+locName);
+			return false;
 		}
 		
-		Integer elemID = rectElementsList.get(elementIndex).getID();
-		String str = "\nClosest Element to location "+locName+" is rect elem ID "+elemID+" on "+
-			rectElementsList.get(elementIndex).getSectionName()+" ("+minDist+" km away)";
-		System.out.println(str);
-		infoString += str+"\n";;
+		double das = vert.getDAS()*1000;
+		int sectID = getSectionIndexForVertex(vert)+1;
 		
-		double[] intervals = getRecurIntervalsForElement(elemID, magThresh);
-		double maxInterval=0;
-		for(int i=1;i<intervals.length;i++) {
-			if(intervals[i]>maxInterval) maxInterval = intervals[i];
-		}
-		String str2 = "\tnumber of RIs for loc is "+intervals.length+" for Mag>="+magThresh;
-		System.out.println(str2);
-		infoString += str2+"\n";;
 		
-		// calc num bins at 10-year intervals
-		int numBins = (int)Math.ceil(maxInterval/10.0);
-		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(5.0, numBins, 10.0);
-		riHist.setTolerance(20.0);  // anything more than 10 should do it
-		
-		double mean=0;
-		for(int i=0; i<intervals.length;i++) {
-			riHist.add(intervals[i], 1.0/intervals.length);
-			mean += intervals[i]/intervals.length;
-			System.out.println(intervals[i]);
-		}
+System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+namesOfSections.get(sectID-1));
 
 		
-		// now compute stdDevOfMean in log10 space
+		double[] intervals = getRecurIntervalsForDAS_and_FaultID(das, sectID, magThresh);
+		
+		if(intervals == null) {
+			System.out.println("Not more than two events at "+locName);
+			return false;
+		}
+		
+		if(infoString== null)
+			infoString = new String();
+		infoString += "Closest Vertex is ID="+vert.getID()+" on "+namesOfSections.get(sectID-1)+" ("+(float)dist+" km away)\n";
+		plotRecurIntervalsForElement(intervals, savePlot, locName, infoString);
+		return true;
+	}
+		
+		
+		
+		
+	public void plotRecurIntervalsForElement(double[] intervals, boolean savePlot, String locName, String infoString) {
+				
+		double maxInterval=0;
+		double meanInterval=0;
+		for(int i=1;i<intervals.length;i++) {
+			if(intervals[i]>maxInterval) maxInterval = intervals[i];
+			meanInterval += intervals[i];
+		}
+		meanInterval /= intervals.length;
+		
+		if(infoString == null)
+			infoString = new String();
+		infoString += "Num RIs = "+intervals.length+"\n";
+		
+		double binWidth = Math.round(meanInterval/10.0);
+		int numBins = (int)Math.ceil(maxInterval/binWidth)+1;
+		HistogramFunction riHist = new HistogramFunction(binWidth/2.0, numBins, binWidth);	
+		for(int i=0; i<intervals.length;i++) {
+			int testIndex = riHist.getXIndex(intervals[i]);
+			if(testIndex == -1) {
+				System.out.println(intervals[i]+"\t"+binWidth+"\t"+numBins);
+			}
+			
+			riHist.add(intervals[i], 1.0);
+		}
+
+		// now compute stdDevOfMean & 95% conf
 		double stdDevOfMean=0;
 		for(int i=0; i<intervals.length;i++) {
-			stdDevOfMean += (intervals[i]-mean)*(intervals[i]-mean);
+			stdDevOfMean += (intervals[i]-meanInterval)*(intervals[i]-meanInterval);
 		}
 		stdDevOfMean = Math.sqrt(stdDevOfMean/(intervals.length-1)); // this is the standard deviation
 		stdDevOfMean /= Math.sqrt(intervals.length); // this is the standard deviation of mean
+		double upper95 = meanInterval+1.96*stdDevOfMean;
+		double lower95 = meanInterval-1.96*stdDevOfMean;
 		
-		double firstBin = 10*Math.round(0.1*(mean-1.96*stdDevOfMean));
-		double lastBin = 10*Math.round(0.1*(mean+1.96*stdDevOfMean));
-		double meanBin = 10*Math.round(0.1*mean);
-		int numBin = (int)Math.round((lastBin-firstBin)/10) +1;
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(firstBin, lastBin, numBin);
-		func.set(firstBin,0.05);
-		func.set(lastBin,0.05);
-		func.set(meanBin,0.2);
-		func.setName("Mean and 95% confidence bounds on the mean simulator RI for "+locName);
-		func.setInfo("  ");
+		infoString += "meanRI="+Math.round(meanInterval)+"\tlower95="+Math.round(lower95)+"\tupper95="+Math.round(upper95)+"\n";
 
-		riHist.setName("RI histogram for "+locName+" (& Mag>="+magThresh+")");
-		riHist.setInfo("Lat="+loc.getLatitude()+"; lon="+loc.getLongitude()+ " for "+locName);
+		riHist.setName(locName+" RI histogram");
+		riHist.setInfo(infoString);
 		
-		if(makePlot){
-			// funcs added first plot on top
-			ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
-			funcList.add(func);
-			EvenlyDiscretizedFunc parsFunc = ucerf2_dataFetcher.getParsons95PercentPoisFunction(loc);
-			if(parsFunc != null)
-				funcList.add(parsFunc);  
-			funcList.add(riHist);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for "+locName+" (& Mag>="+magThresh+")"); 
-			graph.setX_AxisLabel("RI (yrs)");
-			graph.setY_AxisLabel("Number of Observations");
-			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-			if(parsFunc != null) curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.LIGHT_GRAY));
-			graph.setPlottingFeatures(curveCharacteristics);
-			if(savePlot)
-				try {
-					graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		}
-
-		return infoString;
+		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
+		funcList.add(riHist);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for "+locName); 
+		graph.setX_AxisLabel("RI (yrs)");
+		graph.setY_AxisLabel("Number of Observations");
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		graph.setPlottingFeatures(curveCharacteristics);
+		if(savePlot)
+			try {
+				graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 	
 	
 	/**
-	 * This version includes events that pass anywhere below the site (by using DAS values the way Keith Richards-Dinger does it)
-	 * @param lat
-	 * @param lon
-	 * @param magThresh
-	 * @param makePlot
+	 * This returns the vertex that is closest to the given location
+	 * (although this might not be very close)
+	 * @param loc
 	 * @return
 	 */
-	public double[] getRecurIntervalsForNearestLoc2(double lat, double lon, double magThresh, boolean makePlot) {
-		Location loc = new Location(lat,lon);
+	public Vertex getClosestVertex(Location loc) {
 		double minDist= Double.MAX_VALUE;
 		int vertexIndex=-1;
 		//Find nearest Element
@@ -2317,67 +2473,63 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				vertexIndex= i;
 			}
 		}
-		Vertex closestVertex = vertexList.get(vertexIndex);
-		// Find 2nd closest vertex
-		double secondMinDist= Double.MAX_VALUE;
-		int secondClosestVertexIndex=-1;
-		//Find nearest Element
-		for(int i=0; i<vertexList.size(); i++) {
-			double dist = LocationUtils.linearDistance(loc, vertexList.get(i));
-			if(dist<secondMinDist && i != vertexIndex){
-				secondMinDist=dist;
-				secondClosestVertexIndex= i;
-			}
-		}
-		Vertex secondClosestVertex = vertexList.get(secondClosestVertexIndex);
+		return vertexList.get(vertexIndex);
+	}
+	
+	
+	/**
+	 * This returns the section index (not ID) for the given vertex, assuming
+	 * there is only one section for each vertex (exception is thrown if not)
+	 * (not efficient)
+	 * @param vertex
+	 * @return
+	 */
+	public int getSectionIndexForVertex(Vertex vertex) {
 
-		double das = 1000*(closestVertex.getDAS()*minDist+secondClosestVertex.getDAS()*secondMinDist)/(minDist+secondMinDist); // convert to meters for comparisons below
 		int sectIndex = -1;
-		// find the section index for the closest vertex
+		boolean alreadyGotOne = false;
+		// find the section index for the closest vertex (not efficient)
 		for(int i=0; i<vertexListForSections.size(); i++)
-			if(vertexListForSections.get(i).contains(closestVertex))
-				sectIndex = i;
-		int sectID = sectIndex+1;
-				
-		System.out.println("RI PDF at site ("+lat+","+lon+"):\n\tClosest vertex ID is "+closestVertex.getID()+" & second closest vertex ID "+secondClosestVertex.getID()+
-				", on section "+namesOfSections.get(sectIndex)+" at average DAS of "+(float)das+"; site is "+(float)minDist+" km away from closest vertex.");
-
+			if(vertexListForSections.get(i).contains(vertex))
+				if(alreadyGotOne == true)
+					throw new RuntimeException("more than one section associated to vertex");
+				else {
+					sectIndex = i;
+					alreadyGotOne=true;
+				}
+		return sectIndex;
+	}
+	
+	
+	/**
+	 * This get the RI for all events that pass below the given DAS & sectID
+	 * (the way Keith Richards Dinger does it).
+	 * 
+	 * This returns null if there are not more than two event times
+	 * 
+	 * @param das - in meters!
+	 * @param sectID - id of fault section (not index!)
+	 * @param magThresh
+	 * @return
+	 */
+	public double[] getRecurIntervalsForDAS_and_FaultID(double das, int sectID, double magThresh) {
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
 		for(EQSIM_Event event:eventList) {
-			if(event.getMagnitude() >= magThresh && event.doesEventIncludeSectionAndDAS(sectID,das)) {
+			if(isEventSupraSeismogenic(event, magThresh) && event.doesEventIncludeSectionAndDAS(sectID,das)) {
 						eventTimes.add(event.getTimeInYears());
 			}
 		}
+		if(eventTimes.size() <=1)
+			return null;
 		double[] intervals = new double[eventTimes.size()-1];
 		double maxInterval=0;
 		for(int i=1;i<eventTimes.size();i++) {
 			intervals[i-1] = (eventTimes.get(i)-eventTimes.get(i-1));
 			if(intervals[i-1]>maxInterval) maxInterval = intervals[i-1];
 		}
-		
-		System.out.println("\tnumber of RIs for loc is "+intervals.length);
-		
-		// calc num bins at 10-year intervals
-		int numBins = (int)Math.ceil(maxInterval/10.0);
-		EvenlyDiscretizedFunc riHist = new EvenlyDiscretizedFunc(5.0, numBins, 10.0);
-		riHist.setTolerance(20.0);  // anything more than 10 should do it
-		
-		for(int i=0; i<intervals.length;i++)
-			riHist.add(intervals[i], 1.0);
-		
-		if(makePlot){
-			ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
-			funcList.add(riHist);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals"); 
-			graph.setX_AxisLabel("RI (yrs)");
-			graph.setY_AxisLabel("Number Observed");
-			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
-			graph.setPlottingFeatures(curveCharacteristics);
-		}
-
 		return intervals;
 	}
+
 	
 	
 	/**
@@ -2516,8 +2668,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
 		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
-		String info = plotRecurIntervalsForNearestLoc(loc, 6.5, true, true,"RI_distAt_NSAF_ElementID497");
-		infoStrings.add(info);
+		plotRecurIntervalsForNearestLoc(loc, 6.5, true,"RI_distAt_NSAF_ElementID497", "");
 		
 		Integer testElementID = new Integer(661); // not sure how this was chosen
 //testElementID = null; 

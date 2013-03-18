@@ -177,6 +177,91 @@ public class UCERF3_PaleoRateConstraintFetcher {
 		return paleoRateConstraints;
 	}
 	
+	
+	
+	
+	
+	/**
+	 * This returns all PaleoRateConstraint objects without any association to
+	 * fault sections.
+	 * @TODO code here is redundant with that in private method (replace code in latter with
+	 * call to this method?)
+	 * @return
+	 * @throws IOException
+	 */
+	public static ArrayList<PaleoRateConstraint> getConstraints() throws IOException {
+		ArrayList<PaleoRateConstraint> paleoRateConstraints   = new ArrayList<PaleoRateConstraint>();
+		if(D) System.out.println("Reading Paleo Seg Rate Data from "+PALEO_DATA_FILE_NAME);
+		POIFSFileSystem fs;
+		InputStream is = UCERF3_DataUtils.locateResourceAsStream(PALEO_DATA_SUB_DIR, PALEO_DATA_FILE_NAME);
+		fs = new POIFSFileSystem(is);
+		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		HSSFSheet sheet = wb.getSheetAt(0);
+		
+		// this determines if it is a new UCERF3.3+ (Biasi) file verses the old UCERF3.2 (Parsons) file
+		boolean hasQuantiles = sheet.getRow(0).getCell(4).getStringCellValue().startsWith("2.5%");
+		
+		int lastRowIndex = sheet.getLastRowNum();
+		double lat, lon, meanRate, lower68Conf, upper68Conf, lower95Conf, upper95Conf;
+		String siteName;
+		for(int r=1; r<=lastRowIndex; ++r) {	
+			HSSFRow row = sheet.getRow(r);
+			if(row==null) continue;
+			HSSFCell cell = row.getCell(1);
+			if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+			HSSFCell nameCell = row.getCell(0);
+			if (nameCell == null || nameCell.getCellType()!=HSSFCell.CELL_TYPE_STRING
+					|| nameCell.getStringCellValue().trim().isEmpty())
+				continue;
+			lat = cell.getNumericCellValue();
+			siteName = nameCell.getStringCellValue().trim();
+			lon = row.getCell(2).getNumericCellValue();
+			// skipping MRI cells
+			if (hasQuantiles) {
+				meanRate = row.getCell(8).getNumericCellValue();
+				lower68Conf = row.getCell(10).getNumericCellValue();
+				upper68Conf =  row.getCell(11).getNumericCellValue();
+				lower95Conf = row.getCell(9).getNumericCellValue();
+				upper95Conf =  row.getCell(12).getNumericCellValue();
+			} else {
+				meanRate = row.getCell(6).getNumericCellValue();
+				lower68Conf = row.getCell(8).getNumericCellValue();	// note the labels are swapped in the *_v1 file
+				upper68Conf =  row.getCell(7).getNumericCellValue();
+				lower95Conf = Double.NaN;
+				upper95Conf = Double.NaN;
+			}
+			
+			if (lower68Conf == upper68Conf) {
+				// TODO we don't want any of these
+				System.out.println("Skipping value at "+siteName+" because upper and lower " +
+						"values are equal: meanRate="+(float)meanRate+
+					"\tlower68="+(float)lower68Conf+"\tupper68="+(float)upper68Conf);
+				continue;
+			}
+				
+			Location loc = new Location(lat,lon);
+			PaleoRateConstraint paleoRateConstraint;
+			if (hasQuantiles) {
+				paleoRateConstraint = new PaleoRateConstraint(null, loc, -1, 
+						meanRate, lower68Conf, upper68Conf, lower95Conf, upper95Conf);
+			} else {
+				paleoRateConstraint = new PaleoRateConstraint(null, loc, -1, 
+						meanRate, lower68Conf, upper68Conf);
+			}
+			paleoRateConstraint.setPaleoSiteName(siteName);
+			paleoRateConstraints.add(paleoRateConstraint);
+		}
+		
+		return paleoRateConstraints;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	public static void main(String args[]) throws IOException, DocumentException {
 		int mappingCol = 16; // 14 for parsons, 16 for biasi
 		for (FaultModels fm : FaultModels.values()) {

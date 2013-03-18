@@ -9,15 +9,15 @@ import org.opensha.commons.geo.Location;
 
 
 /**
- * This class is used to represent the paloe rate data from Tom Parsons
+ * This class is used to represent the paloe rate data from Tom Parsons or Glen Biasi
  * @author field
  *
  */
 public class PaleoRateConstraint  implements java.io.Serializable {
 	
 	private String faultSectionName; 	// fault section name
-	private int sectionIndex; 			// segment index
-	private double meanRate=Double.NaN; 			// mean Segment rate
+	private int sectionIndex; 			// section index
+	private double meanRate=Double.NaN; 			// mean section rate
 	private double stdDevOfMeanRate=Double.NaN; 		// Std dev to mean
 	private double lower95ConfOfRate=Double.NaN; 		// Lower 95% confidence
 	private double upper95ConfOfRate=Double.NaN; 		// Upper 95% confidence

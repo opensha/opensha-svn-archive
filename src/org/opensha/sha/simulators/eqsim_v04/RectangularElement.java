@@ -146,6 +146,80 @@ public class RectangularElement {
 	public int getNumDownDip() {
 		return numDownDip;
 	}
+	
+	/**
+	 * This returns the average DAS (in km) of all four vertices
+	 * @return
+	 */
+	public double getAveDAS() {
+		return (vertices[0].getDAS()+vertices[1].getDAS()+vertices[2].getDAS()+vertices[3].getDAS())/4.0;
+	}
+	
+	/**
+	 * This returns the average/center location defined by averaging lats, 
+	 * lons, and depths of the four vertices
+	 * @return
+	 */
+	public Location getCenterLocation() {
+		double aveLat = (vertices[0].getLatitude()+vertices[1].getLatitude()+vertices[2].getLatitude()+vertices[3].getLatitude())/4.0;
+		double aveLon = (vertices[0].getLongitude()+vertices[1].getLongitude()+vertices[2].getLongitude()+vertices[3].getLongitude())/4.0;
+		double aveDep = (vertices[0].getDepth()+vertices[1].getDepth()+vertices[2].getDepth()+vertices[3].getDepth())/4.0;
+		return new Location(aveLat,aveLon,aveDep);
+	}
+	
+	/**
+	 * This returns the minimum DAS (in km) among all vertices
+	 * @return
+	 */
+	public double getMinDAS() {
+		double min1 = Math.min(vertices[0].getDAS(),vertices[1].getDAS());
+		double min2 = Math.min(vertices[2].getDAS(),vertices[3].getDAS());
+		return Math.min(min1,min2);
+	}
+	
+	/**
+	 * This returns the maximum DAS (in km) among all vertices
+	 * @return
+	 */
+	public double getMaxDAS() {
+		double max1 = Math.max(vertices[0].getDAS(),vertices[1].getDAS());
+		double max2 = Math.max(vertices[2].getDAS(),vertices[3].getDAS());
+		return Math.max(max1,max2);
+	}
+
+	
+	
+	/**
+	 * This returns the vertex corresponding to the minimum DAS
+	 * @return
+	 */
+	public Vertex getVertexForMinDAS() {
+		int minIndex=0;
+		if(vertices[1].getDAS()<vertices[minIndex].getDAS())
+			minIndex=1;
+		if(vertices[2].getDAS()<vertices[minIndex].getDAS())
+			minIndex=2;
+		if(vertices[3].getDAS()<vertices[minIndex].getDAS())
+			minIndex=3;
+		return vertices[minIndex];
+	}
+	
+	/**
+	 * This returns the vertex corresponding to the maximum DAS
+	 * @return
+	 */
+	public Vertex getVertexForMaxDAS() {
+		int maxIndex=0;
+		if(vertices[1].getDAS()>vertices[maxIndex].getDAS())
+			maxIndex=1;
+		if(vertices[2].getDAS()>vertices[maxIndex].getDAS())
+			maxIndex=2;
+		if(vertices[3].getDAS()>vertices[maxIndex].getDAS())
+			maxIndex=3;
+		return vertices[maxIndex];
+	}
+
+	
 
 	
 	public String toWardFormatLine() {

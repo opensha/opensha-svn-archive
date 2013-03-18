@@ -4,6 +4,7 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 
 /**
  * This class represents a Vertex as defined by the EQSIM v04 specification, except that depth and 
@@ -95,5 +96,29 @@ public class Vertex extends Location {
 	 * @return
 	 */
 	public int getTraceFlag() {return traceFlag;}
+	
+	/**
+	 * This returns the linear distance (km) of this vertex to the given location
+	 * @param loc
+	 * @return
+	 */
+	public double getLinearDistance(Location loc) {
+		return LocationUtils.linearDistance(loc, this);
+	}
+	
+	@Override
+	/**
+	 * This returns true if the IDs are equale
+	 */
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof Vertex)) return false;
+		Vertex vert = (Vertex) obj;
+		if(vert.getID() == this.getID())
+			return true;
+		else
+			return false;
+	}
+
 	
 }

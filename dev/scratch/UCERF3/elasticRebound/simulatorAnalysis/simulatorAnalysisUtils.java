@@ -13,6 +13,9 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+
 public class simulatorAnalysisUtils {
 	
 	
@@ -22,18 +25,19 @@ public class simulatorAnalysisUtils {
 	public static void test() {
 		
 		// Set the simulator Geometry file
-//		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
-		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-//		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
-		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		File eventFile = new File(simEventFileDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
-//		File eventFile = new File(simEventFileDir, "ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat");
+//		File eventFile = new File(simEventFileDir, "ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat");
 //		File eventFile = new File(simEventFileDir, "ALLCAL2-30k-output[3-24-11].converted");
 //		File eventFile = new File(simEventFileDir, "Fred-allcal2-7june11.txt");
+// OLD/SRL FILE:		File eventFile = new File(simEventFileDir, "ALLCAL2_1-7-11_no-creep_dyn-05_st-20_108764-277803_Events_slip-map-5.5.dat");
 
 				String dirNameForSavingFiles = "tempSimTest";
 
@@ -46,12 +50,22 @@ public class simulatorAnalysisUtils {
 					
 //					tools.testElementAreas();
 //					tools.printMinAndMaxElementArea();
+
 //					tools.checkElementSlipRates(null, true);
 //					tools.checkEventMagnitudes();
 //					tools.checkFullDDW_rupturing();
-					tools.plotNormRecurIntsForAllSurfaceElements(Double.NaN, true);
+//					tools.testDistanceAlong();
+					tools.plotAveNormSlipAlongRupture(7.8, false);
+//					tools.writeEventsThatInvolveMultSections();
+//					tools.plotNormRecurIntsForAllSurfaceElements(Double.NaN, true);
+//					tools.writeRI_COV_forAllSurfaceEvlemets(Double.NaN, "testSimSurfElemCOVs.txt");
+//					tools.plotRecurIntervalsForElement(1041, Double.NaN, false, "testCarrizo","");
+//					tools.writeDAS_ForVertices();
 //					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, false);
 //					tools.plotNormRecurIntsForAllSurfaceElements(6.0, true);
+					
+					
+					
 					
 //					ArrayList<String> infoStrings = new ArrayList<String>();
 //					infoStrings.add("UCERF3.elasticRebound.simulatorAnalysis.simulatorAnalysisUtils.runAll()\n");
@@ -153,14 +167,57 @@ public class simulatorAnalysisUtils {
 			}
 		}
 	}
+	
+	
+	public static void plotRI_DistsAtObsPaleoRateSites(File geomFile, File eventFile, String dirNameForSavingFiles) {
+		
+		try {
+			System.out.println("Loading geometry...");
+			General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+			System.out.println("Loading events...");
+			tools.read_EQSIMv04_EventsFile(eventFile);
+			tools.setDirNameForSavingFiles(dirNameForSavingFiles);
+
+			ArrayList<PaleoRateConstraint> paleoConstrList = UCERF3_PaleoRateConstraintFetcher.getConstraints();
+			for(PaleoRateConstraint constr:paleoConstrList) {
+				System.out.println("\n"+constr.getPaleoSiteName()+"\t"+(float)constr.getPaleoSiteLoction().getLatitude() +"\t"+
+						(float)constr.getPaleoSiteLoction().getLongitude() +"\t"+(float)constr.getMeanRate());
+				double meanRI = Math.round(1.0/constr.getMeanRate());
+				double low95 = Math.round(1.0/constr.getUpper95ConfOfRate());
+				double up95 = Math.round(1.0/constr.getLower95ConfOfRate());
+				String infoString = "PaleoRates site "+constr.getPaleoSiteName()+" (Biasi Mean RI="+meanRI+"  & 95% Conf: "+low95+" to "+up95+")\n";
+				tools.plotRecurIntervalsForNearestLoc(constr.getPaleoSiteLoction(), Double.NaN, false, constr.getPaleoSiteName(),infoString);
+			}
+
+			System.out.println("Done");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {	
+	public static void main(String[] args) {
 		
-//		test();
-		runAll();
+		test();
+//		runAll();
+		
+
+		
+		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
+		
+		// Set the dir for simulator event files 
+		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File eventFile = new File(simEventFileDir, "ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat");
+
+		String dirNameForSavingFiles = "tempSimTest";
+		
+//		plotRI_DistsAtObsPaleoRateSites(geomFile,eventFile,dirNameForSavingFiles);
 		
 	}
 
