@@ -185,6 +185,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		this.applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
 		this.spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
 		this.subSectionDistances = clusters.getSubSectionDistances();
+		this.sectionConnectionsListList = clusters.getSectionConnectionsListList();
 		
 		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
 		infoString += "\tfaultModel = " +faultModel+ "\n";
