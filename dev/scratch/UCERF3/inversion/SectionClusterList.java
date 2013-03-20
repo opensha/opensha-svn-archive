@@ -56,24 +56,43 @@ public class SectionClusterList extends ArrayList<SectionCluster> {
 		init(faultModel, defModel, filter, faultSectionData,
 				subSectionDistances, subSectionAzimuths);
 	}
+	
+	public SectionClusterList(FaultModels faultModel, DeformationModels defModel, LaughTestFilter filter, CoulombRates coulombRates,
+			List<FaultSectionPrefData> faultSectionData, Map<IDPairing, Double> subSectionDistances, Map<IDPairing, Double> subSectionAzimuths) {
+		init(faultModel, defModel, filter, coulombRates, faultSectionData,
+				subSectionDistances, subSectionAzimuths);
+	}
 
 	private void init(FaultModels faultModel, DeformationModels defModel,
 			LaughTestFilter filter,
 			List<FaultSectionPrefData> faultSectionData,
 			Map<IDPairing, Double> subSectionDistances,
 			Map<IDPairing, Double> subSectionAzimuths) {
-		this.faultModel = faultModel;
-		this.defModel = defModel;
-		this.filter = filter;
-		this.subSectionDistances = subSectionDistances;
 		
+		CoulombRates coulombRates = null;
 		if (filter.getCoulombFilter() != null) {
 			try {
-				this.coulombRates = CoulombRates.loadUCERF3CoulombRates(faultModel);
+				coulombRates = CoulombRates.loadUCERF3CoulombRates(faultModel);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
+		
+		init(faultModel, defModel, filter, coulombRates, faultSectionData, subSectionDistances, subSectionAzimuths);
+	}
+
+	private void init(FaultModels faultModel, DeformationModels defModel,
+			LaughTestFilter filter,
+			CoulombRates coulombRates,
+			List<FaultSectionPrefData> faultSectionData,
+			Map<IDPairing, Double> subSectionDistances,
+			Map<IDPairing, Double> subSectionAzimuths) {
+		this.faultModel = faultModel;
+		this.defModel = defModel;
+		this.filter = filter;
+		this.coulombRates = coulombRates;
+		this.subSectionDistances = subSectionDistances;
+		
 		this.faultSectionData = faultSectionData;
 		Map<Integer, Double> rakesMap = new HashMap<Integer, Double>();
 		for (FaultSectionPrefData data : faultSectionData)

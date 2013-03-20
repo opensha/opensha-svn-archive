@@ -13,6 +13,7 @@ import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -22,12 +23,16 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.inversion.SectionClusterList;
+import scratch.UCERF3.inversion.coulomb.CoulombRates;
+import scratch.UCERF3.inversion.coulomb.CoulombRatesRecord;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class StandaloneSubSectRupGen {
 
@@ -45,9 +50,25 @@ public class StandaloneSubSectRupGen {
 		double maxSubSectionLength = 0.5;
 		// max distance for linking multi fault ruptures, km
 		double maxDistance = 5d;
+		boolean coulombFilter = true;
+		FaultModels fm = FaultModels.FM3_1;
+		// this is a list of parent fault sections to remove. can be empty or null
+		// currently set to remove Garlock to test Coulomb remapping.
+		List<Integer> sectsToRemove = Lists.newArrayList(49, 341);
+		
+		Preconditions.checkState(!coulombFilter || fm == FaultModels.FM3_1 || fm == FaultModels.FM3_2);
 		
 		// load in the fault section data ("parent sections")
 		List<FaultSectionPrefData> fsd = FaultModels.loadStoredFaultSections(fsdFile);
+		
+		if (sectsToRemove != null && !sectsToRemove.isEmpty()) {
+			System.out.println("Removing these parent fault sections: "+Joiner.on(",").join(sectsToRemove));
+			// iterate backwards as we will be removing from the list
+			for (int i=fsd.size(); --i>=0;)
+				if (sectsToRemove.contains(fsd.get(i).getSectionId()))
+					fsd.remove(i);
+		}
+		
 		
 		// this list will store our subsections
 		List<FaultSectionPrefData> subSections = Lists.newArrayList();
@@ -56,6 +77,11 @@ public class StandaloneSubSectRupGen {
 		int sectIndex = 0;
 		for (FaultSectionPrefData parentSect : fsd) {
 			double ddw = parentSect.getOrigDownDipWidth();
+			if (parentSect.getSectionId() == 97) {
+				// TODO remove hack when coulomb file is updated
+				System.err.println("*** WARNING: USING OLD IMPERIAL DDW FOR SUBSECTIONING! HACK HACK HACK!!! ***");
+				ddw = (14.600000381469727)/Math.sin(parentSect.getAveDip()*Math.PI/ 180);
+			}
 			double maxSectLength = ddw*maxSubSectionLength;
 			// the "2" here sets a minimum number of sub sections
 			List<FaultSectionPrefData> newSubSects = parentSect.getSubSectionsList(maxSectLength, sectIndex, 2);
@@ -72,7 +98,13 @@ public class StandaloneSubSectRupGen {
 		// instantiate our laugh test filter
 		LaughTestFilter laughTest = LaughTestFilter.getDefault();
 		// you will have to disable our coulomb filter as it uses a data file specific to our subsections
-		laughTest.setCoulombFilter(null);
+		CoulombRates coulombRates;
+		if (coulombFilter) {
+			coulombRates = remapCoulombRates(subSections, fm);
+		} else {
+			laughTest.setCoulombFilter(null);
+			coulombRates = null;
+		}
 		
 		// calculate distances between each subsection
 		Map<IDPairing, Double> subSectionDistances = DeformationModelFetcher.calculateDistances(maxDistance, subSections);
@@ -90,7 +122,7 @@ public class StandaloneSubSectRupGen {
 		// fault model and deformation model here are needed by InversionFaultSystemRuptSet later, just to create a rup set
 		// zip file
 		SectionClusterList clusters = new SectionClusterList(
-				FaultModels.FM3_1, DeformationModels.GEOLOGIC, laughTest, subSections, subSectionDistances, subSectionAzimuths);
+				fm, DeformationModels.GEOLOGIC, laughTest, coulombRates, subSections, subSectionDistances, subSectionAzimuths);
 		
 		List<List<Integer>> ruptures = Lists.newArrayList();
 		for (SectionCluster cluster : clusters) {
@@ -110,12 +142,54 @@ public class StandaloneSubSectRupGen {
 		fw.close();
 		
 		// build actual rupture set for magnitudes and such
-		LogicTreeBranch branch = LogicTreeBranch.fromValues(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+		LogicTreeBranch branch = LogicTreeBranch.fromValues(fm, DeformationModels.GEOLOGIC,
 				ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED);
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(branch, clusters, subSections);
 		
 		File zipFile = new File(outputDir, "rupSet.zip");
 		new SimpleFaultSystemRupSet(rupSet).toZipFile(zipFile);
+	}
+	
+	public static CoulombRates remapCoulombRates(List<FaultSectionPrefData> subSections, FaultModels fm) throws IOException {
+		// original coulomb rates
+		CoulombRates origRates = CoulombRates.loadUCERF3CoulombRates(fm);
+		
+		// now load the original subsections
+		List<FaultSectionPrefData> origSubSects = new DeformationModelFetcher(
+				fm, DeformationModels.GEOLOGIC, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR,
+				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE).getSubSectionList();
+		
+		Map<IDPairing, CoulombRatesRecord> rates = Maps.newHashMap();
+		
+		Map<FaultSectionPrefData, FaultSectionPrefData> remappings = Maps.newHashMap();
+		for (FaultSectionPrefData sect : origSubSects)
+			remappings.put(sect, getRemappedSubSect(sect, subSections));
+		
+		for (IDPairing pair : origRates.keySet()) {
+			FaultSectionPrefData subSect1 = origSubSects.get(pair.getID1());
+			FaultSectionPrefData subSect2 = origSubSects.get(pair.getID2());
+			
+			FaultSectionPrefData mapped1 = remappings.get(subSect1);
+			FaultSectionPrefData mapped2 = remappings.get(subSect2);
+			
+			if (mapped1 != null && mapped2 != null) {
+				CoulombRatesRecord origRec = origRates.get(pair);
+				rates.put(new IDPairing(mapped1.getSectionId(), mapped2.getSectionId()), origRec);
+			}
+		}
+		
+		return new CoulombRates(rates);
+	}
+	
+	private static FaultSectionPrefData getRemappedSubSect(FaultSectionPrefData origSubSect,
+			List<FaultSectionPrefData> newSubSects) {
+		for (FaultSectionPrefData newSect : newSubSects) {
+			if (newSect.getParentSectionId() != origSubSect.getParentSectionId())
+				continue;
+			if (newSect.getSectionName().equals(origSubSect.getSectionName()))
+				return newSect;
+		}
+		return null;
 	}
 
 }
