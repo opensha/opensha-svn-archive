@@ -6,7 +6,8 @@ public enum ProbOfExceed {
 
 	PE2IN50(0.000404),
 	PE5IN50(0.001026),
-	PE10IN50(0.002107);
+	PE10IN50(0.002107),
+	PE40IN50(0.010217);
 	
 	private double annualRate;
 	private ProbOfExceed(double annualRate) {
