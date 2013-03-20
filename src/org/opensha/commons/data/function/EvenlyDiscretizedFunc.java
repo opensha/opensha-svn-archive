@@ -290,10 +290,12 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * Returns the index of the supplied value (ignoring tolerance). It should
 	 * be noted that this method uses a very small internal scale factor to
 	 * provide accurate results. Double precision errors can result in x-values
-	 * that fall on the boundary between adjacent values in the function to be
-	 * placed in the lower bin, when a value equivalent to a bin edge should
-	 * always be placed in the higher bin. This is the convention followed in
-	 * other data analysis software (e.g. Matlab).
+	 * that fall on the boundary between adjacent function values. This may
+	 * cause the value to be associated with the index below, when in fact
+	 * boundary values should be associated with the index above. This is the
+	 * convention followed in other data analysis software (e.g. Matlab). Values
+	 * well outside the range spanned by the function are associated with index
+	 * of the min or max function value as appropriate.
 	 */
 	public int getClosestXIndex( double x) throws Point2DException {
 		double iVal = PRECISION_SCALE * (x - minX) / delta;
