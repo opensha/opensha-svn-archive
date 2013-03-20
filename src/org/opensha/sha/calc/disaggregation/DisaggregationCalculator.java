@@ -473,11 +473,15 @@ implements DisaggregationCalculatorAPI{
 							mag = myMag;
 					}
 					
-					RuptureSurface surf = source.getSourceSurface();
-					sourceDisaggInfo += "\t" + f2.format(surf.getDistanceRup(site.getLocation()))
-							+ "\t" + f2.format(surf.getDistanceX(site.getLocation()))
-							+ "\t" + f2.format(surf.getDistanceSeis(site.getLocation()))
-							+ "\t" + f2.format(surf.getDistanceJB(site.getLocation()));
+					try {
+						RuptureSurface surf = source.getSourceSurface();
+						sourceDisaggInfo += "\t" + f2.format(surf.getDistanceRup(site.getLocation()))
+								+ "\t" + f2.format(surf.getDistanceX(site.getLocation()))
+								+ "\t" + f2.format(surf.getDistanceSeis(site.getLocation()))
+								+ "\t" + f2.format(surf.getDistanceJB(site.getLocation()));
+					} catch (Exception e) {
+						sourceDisaggInfo += "\t(no source surface information available, likely a background source)";
+					}
 
 				}
 				
