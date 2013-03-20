@@ -357,11 +357,13 @@ public class NSHMP_PlotUtils {
 	}
 	
 	public static GMT_CPT_Files getCPT(Period p) {
-		return (p == GM1P00) ? GMT_CPT_Files.NSHMP_1hz : GMT_CPT_Files.NSHMP_5hz;
+		return (p == GM0P20) ? GMT_CPT_Files.NSHMP_5hz : GMT_CPT_Files.NSHMP_1hz;
+//		return (p == GM1P00) ? GMT_CPT_Files.NSHMP_1hz : GMT_CPT_Files.NSHMP_5hz;
 	}
 	
 	public static double[] getRange(Period p) {
-		return (p == GM1P00) ? new double[] {0.0, 1.0} : new double[] {0.0, 3.0};
+		return (p == GM0P20) ? new double[] {0.0, 3.0} : new double[] {0.0, 1.0};
+//		return (p == GM1P00) ? new double[] {0.0, 1.0} : new double[] {0.0, 3.0};
 	}
 	
 	private static void makeMapPlot(GeoDataSet xyz, double[] bounds,
