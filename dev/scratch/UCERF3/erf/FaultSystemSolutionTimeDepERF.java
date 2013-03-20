@@ -1009,7 +1009,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		
 		
-		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rate fit
+		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rates for parkfield
 		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
 		for(int i=0;i<correctionMFD.getNum();i++)
 			correctionMFD.set(i,1.0);
@@ -1018,13 +1018,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		correctionMFD.set(5.75,0.790005*0.9);
 		correctionMFD.set(5.85,0.837815*0.9);
 		correctionMFD.set(5.95,0.871158*0.9);
-		correctionMFD.set(6.05,0.837409*0.9);
-		correctionMFD.set(6.15,0.817532*0.9);
-		correctionMFD.set(6.25,0.794629*0.9);
-		correctionMFD.set(6.35,0.819054*0.9);
-		correctionMFD.set(6.45,0.857520*0.9);
-		correctionMFD.set(6.55,0.866264*0.9);
-		correctionMFD.set(6.65,0.886100*0.9);
+		correctionMFD.set(6.05,0.837409*0.8);
+		correctionMFD.set(6.15,0.817532*0.8);
+		correctionMFD.set(6.25,0.794629*0.8);
+		correctionMFD.set(6.35,0.819054*0.8);
+		correctionMFD.set(6.45,0.857520*0.8);
+		correctionMFD.set(6.55,0.866264*0.8);
+		correctionMFD.set(6.65,0.886100*0.8);
 		correctionMFD.set(6.75,0.925039*0.9);
 		correctionMFD.set(6.85,0.910973*0.9);
 		correctionMFD.set(6.95,0.948021*0.9);
