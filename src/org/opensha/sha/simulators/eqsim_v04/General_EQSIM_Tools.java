@@ -1449,6 +1449,13 @@ public class General_EQSIM_Tools {
 						"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\tnorm_aveElementInterval\t"+
 						"aveLastSlip\taveSlip\tnorm_lastEventSlip\tnorm_nextEventSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n";
 			
+		// for ave norm RI along rupture
+		double startX = 0.0125;
+		double deltaX = 0.025;
+		int numX = 40;
+		HistogramFunction aveNormRI_AlongRup = new HistogramFunction(startX, numX, deltaX);
+		HistogramFunction numRIsAlongHist = new HistogramFunction(startX, numX, deltaX);
+		
 		// loop over all events
 		for(EQSIM_Event event:eventList) {
 			double eventTime = event.getTime();
@@ -1460,6 +1467,8 @@ public class General_EQSIM_Tools {
 				String sectionsInEventString = new String();
 				double[] slips = event.getAllElementSlips();
 				int[] elemIDs = event.getAllElementIDs();
+				double[] normDistAlong = event.getNormDistAlongRupForElements();
+				
 				// compile list of sections involved
 				for(EventRecord evRec: event) {
 					if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
@@ -1493,7 +1502,15 @@ public class General_EQSIM_Tools {
 						aveElementInterval += aveRI_ForElement[index];
 						aveSlipOverElements += aveSlipForElement[index];
 						numElementsUsed += 1;
+						
+						// for ave norm RI along rupture
+						if(lastTime != -1) {
+							double normRI_forElement = ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[index];
+							aveNormRI_AlongRup.add(normDistAlong[e],normRI_forElement);
+							numRIsAlongHist.add(normDistAlong[e],1.0);
+						}
 					}
+					
 					// mark as bad sample if  lastTime is -1
 					if(lastTime==-1){
 						goodSample=false;
@@ -1794,6 +1811,29 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			}
 		}
 
+		
+		// Plot aver norm RI along rupture
+		for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
+			aveNormRI_AlongRup.set(i, aveNormRI_AlongRup.getY(i)/numRIsAlongHist.getY(i));
+		}
+		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
+		funcList.add(aveNormRI_AlongRup);
+		GraphiWindowAPI_Impl graph9 = new GraphiWindowAPI_Impl(funcList, "Ave Normalized RI Along Rupture"); 
+		graph9.setX_AxisLabel("Normalized Distance Along Rupture");
+		graph9.setY_AxisLabel("Normalized Ave RI");
+		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		graph9.setPlottingFeatures(curveCharacteristics);
+//		if(savePlot) {
+//			try {
+//				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+
+		
 
 		// print and plot the test element correlations
 		if(testElementID != null) {
@@ -1844,12 +1884,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
 					ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
 					tempList.add(normObs_vs_normLastSlip_funcsMap.get(s));
-					ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
-					curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
+					ArrayList<PlotCurveCharacterstics> curveCharacteristics2 = new ArrayList<PlotCurveCharacterstics>();
+					curveCharacteristics2.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
 					//						plot7.setUserBounds(10, 10000, 10, 10000);
 					plot7.setXLog(true);
 					plot7.setYLog(true);
-					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics, true, plotTitle7);
+					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, true, plotTitle7);
 					plot7.getCartPanel().setSize(1000, 800);
 					if(saveStuff) {
 						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
@@ -2079,6 +2119,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 	}
 	
+	
+	/**
+	 * This plot the average normalized slip along ruptures
+	 * @param magThresh - Double.NaN for supra seismogenic
+	 * @param savePlot
+	 */
 	public void plotAveNormSlipAlongRupture(Double magThresh, boolean savePlot) {
 		double startX = 0.0125;
 		double deltaX = 0.025;

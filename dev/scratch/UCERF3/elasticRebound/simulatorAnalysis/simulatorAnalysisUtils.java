@@ -55,7 +55,7 @@ public class simulatorAnalysisUtils {
 //					tools.checkEventMagnitudes();
 //					tools.checkFullDDW_rupturing();
 //					tools.testDistanceAlong();
-					tools.plotAveNormSlipAlongRupture(7.8, false);
+//					tools.plotAveNormSlipAlongRupture(7.8, false);
 //					tools.writeEventsThatInvolveMultSections();
 //					tools.plotNormRecurIntsForAllSurfaceElements(Double.NaN, true);
 //					tools.writeRI_COV_forAllSurfaceEvlemets(Double.NaN, "testSimSurfElemCOVs.txt");
@@ -72,7 +72,7 @@ public class simulatorAnalysisUtils {
 //					infoStrings.add(dirNameForSavingFiles+"\tusing file "+fileName+"\n");
 //					infoStrings.add("Simulation Duration is "+(float)tools.getSimulationDurationYears()+" years\n");
 //					
-//					String info = tools.testTimePredictability(magThresh, true, null, true);
+					String info = tools.testTimePredictability(Double.NaN, false, null, false);
 //					infoStrings.add(info);
 //
 //					try {
