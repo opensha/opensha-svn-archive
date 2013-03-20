@@ -151,7 +151,7 @@ public class LaughTestFilter {
 		if (ucerf3p2Filter) {
 			getLaughTest(AzimuthChangeFilter.class).setUCERF3p2LL_List();
 			getLaughTest(AzimuthChangeFilter.class).setTotAzChangeAtJunctionsOnly(true);
-			if (!isNaNInfinite(maxCmlRakeChange))
+			if (!isNaNInfinite(maxCmlAzimuthChange))
 				getLaughTest(CumulativeAzimuthChangeFilter.class).setBuggyAzChange(true);
 		}
 		
