@@ -140,19 +140,19 @@ public class CurveContainer implements Iterable<Location> {
 		return curves;
 	}
 	
-	
 	/**
-	 * Creates a curve container for a localized area from supplied data file
-	 * and region. The data locations should match the nodes in the gridded
-	 * region. Results are unspecified if the two do not agree. The suplied
-	 * file is assumed to be in an OpenSHA csv format.
+	 * Creates a curve container for a localized area from supplied data file,
+	 * region, and grid spacing. The data locations should match the nodes in
+	 * the gridded region. Results are unspecified if the two do not agree. The
+	 * supplied file is assumed to be in an OpenSHA csv format.
 	 * 
 	 * @param f file
 	 * @param tg grid for file
+	 * @param spacing of curves in grid
 	 * @return a new curve container object
 	 */
-	public static CurveContainer create(File f, TestGrid tg) {
-		CurveFileProcessor_SHA cfp = new CurveFileProcessor_SHA(tg.grid(0.1));
+	public static CurveContainer create(File f, TestGrid tg, double spacing) {
+		CurveFileProcessor_SHA cfp = new CurveFileProcessor_SHA(tg.grid(spacing));
 		CurveContainer curves = null;
 		try {
 			curves = Files.readLines(f, Charsets.US_ASCII, cfp);
@@ -161,7 +161,6 @@ public class CurveContainer implements Iterable<Location> {
 		}
 		return curves;
 	}
-	
 	
 
 

@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.collections.MultiMap;
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
@@ -55,8 +56,10 @@ import scratch.peter.nshmp.CurveContainer;
 import scratch.peter.nshmp.NSHMP_DataUtils;
 import scratch.peter.nshmp.NSHMP_PlotUtils;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
@@ -190,7 +193,7 @@ public class UC3_MapMaker {
 	private static GeoDataSet loadSingle(String src, ProbOfExceed pe, 
 			TestGrid grid, Period p) {
 		File nshmp = new File(ROOT + "src" + S + src + S + grid + S + p + S + "curves.csv");
-		CurveContainer nshmpcc = CurveContainer.create(nshmp, grid);
+		CurveContainer nshmpcc = CurveContainer.create(nshmp, grid, 0.1);
 		GriddedRegion gr = grid.grid(0.1);
 		return NSHMP_DataUtils.extractPE(nshmpcc, gr, pe);
 	}
@@ -233,7 +236,7 @@ public class UC3_MapMaker {
 			File brFile = new File(brPath);
 			// catch when referencing UC3.1 branches which use ZENG, not ZENGBB
 			if (!brFile.exists()) brFile = new File(replaceZeng(brPath));
-			CurveContainer cc = CurveContainer.create(brFile, grid);
+			CurveContainer cc = CurveContainer.create(brFile, grid, 0.1);
 			cc.scale(wtList.get(idx++));
 
 			if (mapcc == null) {
@@ -276,8 +279,8 @@ public class UC3_MapMaker {
 			String bgBrPath = bgSrcDir + S + brID + S + cPath;
 			File totBrFile = new File(totBrPath);
 			File bgBrFile = new File(bgBrPath);
-			CurveContainer ccTot = CurveContainer.create(totBrFile, grid);
-			CurveContainer ccBg = CurveContainer.create(bgBrFile, grid);
+			CurveContainer ccTot = CurveContainer.create(totBrFile, grid, 0.1);
+			CurveContainer ccBg = CurveContainer.create(bgBrFile, grid, 0.1);
 			ccTot.scale(wtList.get(idx));
 			ccBg.scale(wtList.get(idx++));
 			ccTot.subtract(ccBg);
@@ -294,9 +297,9 @@ public class UC3_MapMaker {
 	
 	private static GeoDataSet loadNSHMPnoFlt(ProbOfExceed pe, TestGrid grid, Period p) {
 		File nshmpTotal = new File(ROOT + "src" + S + "nshmp_ca" + S + grid + S + p + S + "curves.csv");
-		CurveContainer nshmpTotCC = CurveContainer.create(nshmpTotal, grid);
+		CurveContainer nshmpTotCC = CurveContainer.create(nshmpTotal, grid, 0.1);
 		File nshmpFlt = new File(ROOT + "src" + S + "nshmp_ca_nobg" + S + grid + S + p + S + "curves.csv");
-		CurveContainer nshmpFltCC = CurveContainer.create(nshmpFlt, grid);
+		CurveContainer nshmpFltCC = CurveContainer.create(nshmpFlt, grid, 0.1);
 		nshmpTotCC.subtract(nshmpFltCC);
 		GeoDataSet xyz = NSHMP_DataUtils.extractPE(nshmpTotCC, grid.grid(0.1), pe);
 		return xyz;
@@ -448,6 +451,47 @@ public class UC3_MapMaker {
 		String brAvgSrcDir = "UC32branchAvg/FM32";
 		
 		makeBrAvgRatioMap(brAvgSrcDir, srcDir, outDir, branches);
+	}
+	
+	// creates hi-res hazard maps of the SF and LA regions
+	private static void makeLocalHazardMaps() {
+		TestGrid grid = SAN_FRANCISCO;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		
+		String srcDir = ROOT + "src/UC32/";
+		String outDir = ROOT + "mapsUC32local/";
+		
+		List<Period> allPeriods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		Multimap<ProbOfExceed, Period> pePeriodMap = ArrayListMultimap.create();
+		pePeriodMap.putAll(PE2IN50, allPeriods);
+		pePeriodMap.putAll(PE10IN50, allPeriods);
+		pePeriodMap.put(PE40IN50, GM0P00);
+		
+		makeLocalHazardMap(SAN_FRANCISCO, PE2IN50, GM0P00, "all");
+	}
+	
+	private static void makeLocalHazardMap(TestGrid grid, ProbOfExceed pe, Period p, String srcType) {
+		File fm31src = new File(ROOT + "SF-LA-0p02/UC32brAvg-FM31-" + srcType + S + grid + S + p + S + "curves.csv");
+		File fm32src = new File(ROOT + "SF-LA-0p02/UC32brAvg-FM32-" + srcType + S + grid + S + p + S + "curves.csv");
+		
+		// merge two fault models
+//		CurveContainer fm31cc = CurveContainer.create(fm31src, grid, 0.1);
+//		CurveContainer fm32cc = CurveContainer.create(fm32src, grid, 0.1);
+//		fm31cc.add(fm32cc);
+//		fm31cc.scale(0.5);
+//		GeoDataSet xyz = 
+//		CUrveCon
+//		GeoDataSet fm31data = loadSingle(FM31src, pe, grid, p);
+//		GeoDataSet fm32data = loadSingle(FM31src, pe, grid, p);
+//		
+//		fm31data.scale(0.5)
+//		GeoDataSet combinedData = GeoDataSetMath.add(map1, map2)
+	}
+	
+	// creates hi-res hazard ratio maps of the SF and LA regions
+	private  static void makeLocalRatioMaps() {
+		
 	}
 	
 	// creates ratios maps of coulomb variants to reference branch
@@ -807,9 +851,9 @@ public class UC3_MapMaker {
 		
 		GriddedRegion gr = grid.grid(0.1);
 		CurveContainer cc = null;
-		cc = CurveContainer.create(fOver, grid);
+		cc = CurveContainer.create(fOver, grid, 0.1);
 		GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(cc, gr, pe);
-		cc = CurveContainer.create(fUnder, grid);
+		cc = CurveContainer.create(fUnder, grid, 0.1);
 		GeoDataSet xyzUnder = NSHMP_DataUtils.extractPE(cc, gr, pe);
 		
 		GeoDataSet xyz = GeoDataSetMath.divide(xyzOver, xyzUnder);

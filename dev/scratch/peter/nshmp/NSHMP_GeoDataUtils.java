@@ -105,7 +105,7 @@ public class NSHMP_GeoDataUtils {
 	public static GeoDataSet getPE_SHA(String dir, String group, TestGrid tg, Period p, ProbOfExceed pe) {
 		File f = new File(SHA_SRC_DIR + dir + "/" + group + SEP + tg + SEP + p + SEP + CURVE_CSV);
 		GriddedRegion gr = tg.grid(0.1);
-		CurveContainer cc = CurveContainer.create(f, tg);
+		CurveContainer cc = CurveContainer.create(f, tg, 0.1);
 		GeoDataSet xyz = NSHMP_DataUtils.extractPE(cc, gr, pe);
 		return xyz;
 	}
@@ -126,7 +126,7 @@ public class NSHMP_GeoDataUtils {
 		GriddedRegion gr = tg.grid(0.1);
 		
 		CurveContainer cc = null;
-		cc = CurveContainer.create(f1, tg);
+		cc = CurveContainer.create(f1, tg, 0.1);
 		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, gr, pe);
 //		System.out.println(xyz1.getValueList());
 //		System.out.println(xyz1.get(new Location(35.6, -90.4)));
@@ -148,12 +148,12 @@ public class NSHMP_GeoDataUtils {
 		GriddedRegion gr = tg.grid(0.1);
 		
 		CurveContainer cc = null;
-		cc = CurveContainer.create(f1, tg);
+		cc = CurveContainer.create(f1, tg, 0.1);
 		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, gr, pe);
 //		System.out.println(xyz1.getValueList());
 //		System.out.println(xyz1.get(new Location(42.0, -124.5)));
 		
-		cc = CurveContainer.create(f2, tg);
+		cc = CurveContainer.create(f2, tg, 0.1);
 		GeoDataSet xyz2 = NSHMP_DataUtils.extractPE(cc, gr, pe);
 //		System.out.println(xyz2.getValueList());
 //		System.out.println(xyz2.get(new Location(42.0, -124.5)));
@@ -170,10 +170,10 @@ public class NSHMP_GeoDataUtils {
 		
 		
 		CurveContainer cc = null;
-		cc = CurveContainer.create(f1, tg1);
+		cc = CurveContainer.create(f1, tg1, 0.1);
 		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 		
-		cc = CurveContainer.create(f2, tg2);
+		cc = CurveContainer.create(f2, tg2, 0.1);
 		GeoDataSet xyz2 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 
 		GeoDataSet xyz3 = GeoDataSetMath.divide(xyz1, xyz2);
@@ -200,7 +200,7 @@ public class NSHMP_GeoDataUtils {
 	public static GeoDataSet tmpScalePEratio(String shaDir1, String dir1, TestGrid tg1, Period p, ProbOfExceed pe) {
 		File f1 = new File(SHA_SRC_DIR + shaDir1 + SEP + dir1 + SEP + tg1 + SEP + p + SEP + CURVE_CSV);
 		CurveContainer cc = null;
-		cc = CurveContainer.create(f1, tg1);
+		cc = CurveContainer.create(f1, tg1, 0.1);
 		GeoDataSet xyz1 = NSHMP_DataUtils.extractPE(cc, tg1.grid(0.1), pe);
 		GeoDataSet xyz2 = xyz1.copy();
 		xyz2.add(0.005);

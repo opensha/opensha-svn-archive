@@ -115,11 +115,11 @@ public class NSHMP_DataUtils {
 		GriddedRegion gr = tg.grid(0.1);
 
 		System.out.println("Processing 1hz...");
-		CurveContainer cc_1hz = CurveContainer.create(f1hz, tg);
+		CurveContainer cc_1hz = CurveContainer.create(f1hz, tg, 0.1);
 		Map<Integer, Double> rtgmMap1hz = calcRTGM(gr, cc_1hz, SA_1P00, DEF_GM_1HZ);
 
 		System.out.println("Processing 5hz...");
-		CurveContainer cc_5hz = CurveContainer.create(f5hz, tg);
+		CurveContainer cc_5hz = CurveContainer.create(f5hz, tg, 0.1);
 		Map<Integer, Double> rtgmMap5hz = calcRTGM(gr, cc_5hz, SA_0P20, DEF_GM_5HZ);
 		
 		System.out.println("Writing output...");
