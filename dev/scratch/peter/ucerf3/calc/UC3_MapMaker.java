@@ -81,8 +81,9 @@ public class UC3_MapMaker {
 //		generateBranchList();
 //		buildMaps();
 //		makeMultiBranchMap();
-		buildMapsUC32();
+//		buildMapsUC32();
 //		makeCoulombTestMaps();
+		makeLocalHazardMaps();
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -468,26 +469,44 @@ public class UC3_MapMaker {
 		pePeriodMap.putAll(PE10IN50, allPeriods);
 		pePeriodMap.put(PE40IN50, GM0P00);
 		
-		makeLocalHazardMap(SAN_FRANCISCO, PE2IN50, GM0P00, "all");
+		makeLocalHazardMap(outDir, SAN_FRANCISCO, PE2IN50, GM0P00, "all");
 	}
-	
-	private static void makeLocalHazardMap(TestGrid grid, ProbOfExceed pe, Period p, String srcType) {
-		File fm31src = new File(ROOT + "SF-LA-0p02/UC32brAvg-FM31-" + srcType + S + grid + S + p + S + "curves.csv");
-		File fm32src = new File(ROOT + "SF-LA-0p02/UC32brAvg-FM32-" + srcType + S + grid + S + p + S + "curves.csv");
+		
+	private static void makeLocalHazardMap(String dlDir, TestGrid grid, ProbOfExceed pe, Period p, String srcType) {
+		File fm31src = new File(ROOT + "src/SF-LA-0p02/UC32brAvg-FM31-" + srcType + S + grid + S + p + S + "curves.csv");
+		File fm32src = new File(ROOT + "src/SF-LA-0p02/UC32brAvg-FM32-" + srcType + S + grid + S + p + S + "curves.csv");
 		
 		// merge two fault models
-//		CurveContainer fm31cc = CurveContainer.create(fm31src, grid, 0.1);
-//		CurveContainer fm32cc = CurveContainer.create(fm32src, grid, 0.1);
-//		fm31cc.add(fm32cc);
-//		fm31cc.scale(0.5);
-//		GeoDataSet xyz = 
-//		CUrveCon
-//		GeoDataSet fm31data = loadSingle(FM31src, pe, grid, p);
-//		GeoDataSet fm32data = loadSingle(FM31src, pe, grid, p);
-//		
-//		fm31data.scale(0.5)
-//		GeoDataSet combinedData = GeoDataSetMath.add(map1, map2)
+		CurveContainer fm31cc = CurveContainer.create(fm31src, grid, 0.02);
+		CurveContainer fm32cc = CurveContainer.create(fm32src, grid, 0.02);
+		fm31cc.add(fm32cc);
+		fm31cc.scale(0.5);
+		
+		// data
+		GriddedRegion gr = grid.grid(0.02);
+		GeoDataSet xyz = NSHMP_DataUtils.extractPE(fm31cc, gr, pe);
+
+		// map
+		double[] minmax = NSHMP_PlotUtils.getRange(GM0P00);
+		GMT_CPT_Files cpt = NSHMP_PlotUtils.getCPT(GM0P00);
+		String label = pe + " " + p;
+		dlDir += dlDirName(grid, pe, p, srcType) + S;
+		makeMapPlot(xyz, grid.bounds(), dlDir, "2% in 50 PGA (g)", minmax[0], minmax[1], cpt, true);
+		
 	}
+	
+	private static String dlDirName(TestGrid tg, ProbOfExceed pe, Period p, String src) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(tg == SAN_FRANCISCO ? "SF" : "LA");
+		sb.append("-");
+		sb.append(pe == PE2IN50 ? "2in50" : pe == PE10IN50 ? "10in50" : "40in50");
+		sb.append("-");
+		sb.append(p == GM0P00 ? "PGA" : p == GM0P20 ? "5Hz" : "1Hz");
+		sb.append("-");
+		sb.append(src);
+		return sb.toString();
+	}
+
 	
 	// creates hi-res hazard ratio maps of the SF and LA regions
 	private  static void makeLocalRatioMaps() {
