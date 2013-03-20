@@ -1317,6 +1317,12 @@ public class DeformationModelFetcher {
 			double maxDistance, List<FaultSectionPrefData> subSections) {
 		Map<IDPairing, Double> distances = new HashMap<IDPairing, Double>();
 		
+		// this is the threshold for which if the corners/midpoints of the section aren't within this distance, we don't
+		// bother doing a full 3D distance calculation
+		double quickSurfDistThreshold = maxDistance*3;
+		if (quickSurfDistThreshold < 15)
+			quickSurfDistThreshold = 15;
+		
 		int numSubSections = subSections.size();
 
 		int progress = 0, progressInterval=10;  // for progress report
@@ -1339,7 +1345,7 @@ public class DeformationModelFetcher {
 				//					double minDist = surf1.getMinDistance(surf2);
 				//					subSectionDistances[a][b] = minDist;
 				//					subSectionDistances[b][a] = minDist;
-				double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, maxDistance*3);
+				double minDist = QuickSurfaceDistanceCalculator.calcMinDistance(surf1, surf2, quickSurfDistThreshold);
 				if (minDist < maxDistance) {
 					IDPairing ind = new IDPairing(data1.getSectionId(), data2.getSectionId());
 					Preconditions.checkState(!distances.containsKey(ind), "distances already computed for given sections!" +
