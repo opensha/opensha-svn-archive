@@ -1357,7 +1357,7 @@ public class DeformationModelFetcher {
 	 * @return
 	 */
 	public Map<IDPairing, Double> getSubSectionAzimuthMap(Set<IDPairing> indices) {
-		return getSubSectionAzimuthMap(indices, faultSectPrefDataList);
+		return getSubSectionAzimuthMap(indices, faultSubSectPrefDataList);
 	}
 	
 	public static Map<IDPairing, Double> getSubSectionAzimuthMap(Set<IDPairing> indices, List<FaultSectionPrefData> subSections) {
