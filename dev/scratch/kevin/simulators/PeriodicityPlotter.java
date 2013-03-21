@@ -215,7 +215,7 @@ public class PeriodicityPlotter {
 			plotInterEventBetweenAllDist(myWriteDir, display, randomized, events, elemRupIdens);
 			
 			boolean[] initials = {true, false};
-			double cumulativePlotYears = 100d;
+			double cumulativePlotYears = 1000d;
 			if (!randomized) {
 				if (randomResampledCatalog == null)
 					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);

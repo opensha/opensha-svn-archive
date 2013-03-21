@@ -254,10 +254,14 @@ public class InversionFaultSystemRupSetFactory {
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1);
 			
-			LaughTestFilter filter = LaughTestFilter.getDefault();
-//			LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();
+//			LaughTestFilter filter = LaughTestFilter.getDefault();
+			LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();
 //			filter.setCoulombFilter(new CoulombRatesTester(TestType.COULOMB_STRESS, 0.05, 0.05, 1.25, true));
 			FaultSystemRupSet rupSet = forBranch(filter, DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(FaultModels.FM3_1));
+			System.out.println("FM3.1: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
+			rupSet = forBranch(filter, DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(FaultModels.FM3_2));
+			System.out.println("FM3.2: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
+			System.exit(0);
 			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/mean_rupSet.zip"));
 //			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/rup_set_0.05_1.25.zip"));
 //			filter.setAllowSingleSectDuringJumps(false);
