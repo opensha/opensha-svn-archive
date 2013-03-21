@@ -99,7 +99,8 @@ public class AzimuthChangeFilter extends AbstractLaughTest {
 		if (testLast && !testAzimuth(prevSectPairing, prevSectParent, newSectPairing, newSectParent, maxAzimuthChange))
 			return false;
 		
-		if (totAzChangeAtJunctionsOnly && leftLateralFixParents.contains(firstSectParent)) // this keeps UCERF3.2 compatability
+		if (totAzChangeAtJunctionsOnly && leftLateralFixParents != null
+				&& leftLateralFixParents.contains(firstSectParent)) // this keeps UCERF3.2 compatability
 			firstPairing = firstPairing.getReversed();
 		if (testTotal && !testAzimuth(firstPairing, firstSectParent, newSectPairing, newSectParent, maxTotAzimuthChange))
 			return false;
