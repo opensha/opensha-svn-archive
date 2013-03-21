@@ -21,33 +21,35 @@ import com.google.common.primitives.Doubles;
 public enum Period {
 
 	/** Ground motions for PGA. */
-	GM0P00(0.00, Values.per0p00),
+	GM0P00(0.00, Values.per0p00, "PGA"),
 	/** Ground motions for SA at 0.1 sec. */
-	GM0P10(0.10, Values.per0p10),
+	GM0P10(0.10, Values.per0p10, "10Hz"),
 	/** Ground motions for SA at 0.2 sec. */
-	GM0P20(0.20, Values.per0p20),
+	GM0P20(0.20, Values.per0p20, "5Hz"),
 	/** Ground motions for SA at 0.3 sec. */
-	GM0P30(0.30, Values.per0p30),
+	GM0P30(0.30, Values.per0p30, "3.3Hz"),
 	/** Ground motions for SA at 0.5 sec. */
-	GM0P50(0.50, Values.per0p50),
+	GM0P50(0.50, Values.per0p50, "2Hz"),
 	/** Ground motions for SA at 0.75 sec. */
-	GM0P75(0.75, Values.per0p75),
+	GM0P75(0.75, Values.per0p75, "1.5Hz"),
 	/** Ground motions for SA at 1.0 sec. */
-	GM1P00(1.00, Values.per1p00),
+	GM1P00(1.00, Values.per1p00, "1sec"),
 	/** Ground motions for SA at 2.0 sec. */
-	GM2P00(2.00, Values.per2p00),
+	GM2P00(2.00, Values.per2p00, "2sec"),
 	/** Ground motions for SA at 3.0 sec. */
-	GM3P00(3.00, Values.per3p00),
+	GM3P00(3.00, Values.per3p00, "3sec"),
 	/** Ground motions for SA at 4.0 sec. */
-	GM4P00(4.00, Values.per4p00),
+	GM4P00(4.00, Values.per4p00, "4sec"),
 	/** Ground motions for SA at 5.0 sec. */
-	GM5P00(5.00, Values.per5p00);
+	GM5P00(5.00, Values.per5p00, "5sec");
 
 	private List<Double> imls;
 	private double period;
+	private String label;
 
-	private Period(double period, double[] valueArray) {
+	private Period(double period, double[] valueArray, String label) {
 		this.period = period;
+		this.label = label;
 		imls = ImmutableList.copyOf(Doubles.asList(valueArray));
 	}
 
@@ -65,6 +67,14 @@ public enum Period {
 	 */
 	public double getValue() {
 		return period;
+	}
+	
+	/**
+	 * Returns the human readable label for this period.
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
 	}
 
 	/**
