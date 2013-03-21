@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
@@ -676,7 +677,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "rup-smooth-start-gr-long";
+		String runName = "initial-gr-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -685,7 +686,8 @@ public class LogicTreePBSWriter {
 //		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
-		int constrained_run_mins = 60 * 10;	// 10 hours
+//		int constrained_run_mins = 60 * 10;	// 10 hours
+		int constrained_run_mins = 60 * 16;	// 16 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
@@ -693,19 +695,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
-		int batchSize = 0;
-		int jobsPerNode = 1;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+//		int jobsPerNode = 1;
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-//		RunSites site = RunSites.STAMPEDE;
-//		int batchSize = 128;
-//		int jobsPerNode = 3;
-//		String threads = "5"; // *2 = 16 (out of 16 possible)
+		RunSites site = RunSites.STAMPEDE;
+		int batchSize = 128;
+		int jobsPerNode = 3;
+		String threads = "5"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -715,9 +717,9 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 5;
+		int numRuns = 1;
 		int runStart = 0;
-		boolean forcePlots = false;
+		boolean forcePlots = true;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
 		boolean noPlots = batchSize > 1;
@@ -824,16 +826,23 @@ public class LogicTreePBSWriter {
 //					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
 		
 		
-		// this is for varying each weight one at a time for testing rup smoothness
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR, InversionOptions.RUP_SMOOTH_WT };
+//		// this is for varying each weight one at a time for testing rup smoothness
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR, InversionOptions.RUP_SMOOTH_WT };
+//		
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "0")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100000")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000000")));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000000")));
 		
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "0")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "1000000")));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000000")));
+		
+		// this is for doing the GR starting model
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR };
+		
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
@@ -899,6 +908,34 @@ public class LogicTreePBSWriter {
 		List<InversionArg[]> saOptions = null;
 		
 //		saOptions = Lists.newArrayList();
+//		
+//		InversionArg[] invOps = { new InversionArg(
+//				"--nonnegativity-const PREVENT_ZERO_RATES", "PreventZer") };
+//		saOptions.add(invOps);
+		
+		saOptions = Lists.newArrayList();
+		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
+				CoolingScheduleType.FAST_SA.name() };
+		String[] nonnegTypes = { NonnegativityConstraintType.PREVENT_ZERO_RATES.name(),
+				NonnegativityConstraintType.LIMIT_ZERO_RATES.name(), NonnegativityConstraintType.TRY_ZERO_RATES_OFTEN.name() };
+		String[] coolingSlowdowns = { "1", "10" };
+		
+		for (String coolingFunc : coolingFuncs) {
+			for (String nonneg : nonnegTypes) {
+				String nnVarStr = StringUtils.capitalize(nonneg.split("_")[0].toLowerCase());
+				for (String coolingSlow : coolingSlowdowns) {
+					InversionArg[] invOps = {
+							new InversionArg("--cooling-schedule "+coolingFunc,
+									"Cool"+coolingFunc.replaceAll("_", "")),
+							new InversionArg("--nonnegativity-const "+nonneg,
+									"NN"+nnVarStr),
+							new InversionArg("--slower-cooling "+coolingSlow,
+									"SlowCool"+coolingSlow)};
+					saOptions.add(invOps);
+				}
+			}
+		}
+		
 //		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
 //				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };
 //		String[] perturbFuncs = { GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE.name(),
@@ -1053,6 +1090,18 @@ public class LogicTreePBSWriter {
 				}
 			}
 		}
+		boolean noNonNeg = false;
+		if (saOptions != null) {
+			cancelLoop:
+			for (InversionArg[] saOps : saOptions) {
+				for (InversionArg op : saOps) {
+					if (op.arg.startsWith("--nonnegativity")) {
+						noNonNeg = true;
+						break cancelLoop;
+					}
+				}
+			}
+		}
 		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1) };
 //		CompletionCriteria[] subCompletions = { TimeCompletionCriteria.getInSeconds(1),
 //				TimeCompletionCriteria.getInSeconds(2), TimeCompletionCriteria.getInSeconds(5),
@@ -1153,6 +1202,8 @@ public class LogicTreePBSWriter {
 							nonNeg = NonnegativityConstraintType.LIMIT_ZERO_RATES;
 							checkPointCriteria = null;
 						}
+						if (noNonNeg)
+							nonNeg = null;
 						int ppn = site.getPPN(branch); // minimum number of cpus
 						CompletionCriteria criteria = TimeCompletionCriteria.getInMinutes(mins);
 						javaWriter.setMaxHeapSizeMB(site.getMaxHeapSizeMB(branch));
@@ -1194,7 +1245,8 @@ public class LogicTreePBSWriter {
 								classArgs += " --cur-as-best";
 							if (cool != null)
 								classArgs += " --cool "+cool.name();
-							classArgs += " --nonneg "+nonNeg.name();
+							if (nonNeg != null)
+								classArgs += " --nonneg "+nonNeg.name();
 							classArgs += " --num-threads "+threads;
 							if (checkPointCriteria != null)
 								classArgs += " --checkpoint "+checkPointCriteria.getTimeStr();
