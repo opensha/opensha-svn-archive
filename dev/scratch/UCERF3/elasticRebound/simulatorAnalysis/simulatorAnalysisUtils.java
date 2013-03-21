@@ -25,13 +25,13 @@ public class simulatorAnalysisUtils {
 	public static void test() {
 		
 		// Set the simulator Geometry file
-		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
-//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+//		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
-//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		File eventFile = new File(simEventFileDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 //		File eventFile = new File(simEventFileDir, "ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat");
@@ -44,6 +44,9 @@ public class simulatorAnalysisUtils {
 				try {
 					System.out.println("Loading geometry...");
 					General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+					
+//					tools.writeSectionNamesEtc();
+					
 					System.out.println("Loading events...");
 					tools.read_EQSIMv04_EventsFile(eventFile);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
@@ -72,7 +75,8 @@ public class simulatorAnalysisUtils {
 //					infoStrings.add(dirNameForSavingFiles+"\tusing file "+fileName+"\n");
 //					infoStrings.add("Simulation Duration is "+(float)tools.getSimulationDurationYears()+" years\n");
 //					
-					String info = tools.testTimePredictability(Double.NaN, false, null, false);
+					tools.plotSAF_EventsAlongStrikeVsTime(Double.NaN, 1000);
+	//				String info = tools.testTimePredictability(Double.NaN, false, null, false);
 //					infoStrings.add(info);
 //
 //					try {

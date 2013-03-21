@@ -28,6 +28,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.data.NamedComparator;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
@@ -94,7 +95,8 @@ public class General_EQSIM_Tools {
 	ArrayList<Vertex> vertexList;
 	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
 	ArrayList<ArrayList<Vertex>> vertexListForSections;
-	ArrayList<String> namesOfSections;
+	ArrayList<String> sectionNamesList;
+	ArrayList<Integer> sectionIDs_List;
 	ArrayList<Integer> faultIDs_ForSections;
 	ArrayList<Double> depthLoForSections;	// meters (negative below surface)
 	ArrayList<Double> depthHiForSections;	// meters (negative below surface)
@@ -201,7 +203,7 @@ public class General_EQSIM_Tools {
 	
 	
 	public ArrayList<String> getSectionsNameList() {
-		return namesOfSections;
+		return sectionNamesList;
 	}
 	
 
@@ -310,12 +312,13 @@ public class General_EQSIM_Tools {
 	 */
 	private void loadFromEQSIMv04_GeometryLines(ArrayList<String> lines) {
 		
-		// note that the following lists have indices that start from 0
+		// note that the following lists have indices that start from 0 (index = sectionID-1)
 		rectElementsList = new ArrayList<RectangularElement>();
 		vertexList = new ArrayList<Vertex>();
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		namesOfSections = new ArrayList<String>();
+		sectionNamesList = new ArrayList<String>();
+		sectionIDs_List = new ArrayList<Integer>();
 		faultIDs_ForSections = new ArrayList<Integer>();
 		depthLoForSections = new ArrayList<Double>();
 		depthHiForSections = new ArrayList<Double>();
@@ -374,7 +377,8 @@ public class General_EQSIM_Tools {
 				// check for triangular elements
 				if(n_sect_triangle>0) throw new RuntimeException("Don't yet support triangles");
 				
-				namesOfSections.add(name);
+				sectionNamesList.add(name);
+				sectionIDs_List.add(sid);
 				faultIDs_ForSections.add(fault_id);
 				depthLoForSections.add(depth_lo);
 				depthHiForSections.add(depth_hi);
@@ -456,14 +460,14 @@ public class General_EQSIM_Tools {
 		}
 		
 		// check the numbers of things:  n_sction, n_vertex, n_triangle, n_rectangle
-		if(n_section != namesOfSections.size())
+		if(n_section != sectionNamesList.size())
 			throw new RuntimeException("something wrong with number of sections");
 		if(n_vertex != vertexList.size())
 			throw new RuntimeException("something wrong with number of vertices");
 		if(n_rectangle != rectElementsList.size())
 			throw new RuntimeException("something wrong with number of eleents");
 		
-		System.out.println("namesOfSections.size()="+namesOfSections.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
+		System.out.println("namesOfSections.size()="+sectionNamesList.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
 		
 		// check that indices are in order, and that index is one minus the ID:
 		for(int i=0;i<vertexList.size();i++) {
@@ -600,7 +604,7 @@ public class General_EQSIM_Tools {
 		vertexList = new ArrayList<Vertex>();
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		namesOfSections = new ArrayList<String>();
+		sectionNamesList = new ArrayList<String>();
 		faultIDs_ForSections = null;	// no info for this
 
 		
@@ -758,7 +762,7 @@ public class General_EQSIM_Tools {
 			}
 			rectElementsListForSections.add(sectionElementsList);
 			vertexListForSections.add(sectionVertexList);
-			namesOfSections.add(faultSectionPrefData.getName());
+			sectionNamesList.add(faultSectionPrefData.getName());
 		}
 		System.out.println("rectElementsList.size()="+rectElementsList.size());
 		System.out.println("vertexList.size()="+vertexList.size());
@@ -799,7 +803,7 @@ public class General_EQSIM_Tools {
 		vertexList = new ArrayList<Vertex>();
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		namesOfSections = new ArrayList<String>();
+		sectionNamesList = new ArrayList<String>();
 		faultIDs_ForSections = new ArrayList<Integer>();
 
 		int lastSectionID = -1;
@@ -875,7 +879,7 @@ public class General_EQSIM_Tools {
 				currVertexListForSection = new ArrayList<Vertex>();
 				rectElementsListForSections.add(currentRectElForSection);
 				vertexListForSections.add(currVertexListForSection);
-				namesOfSections.add(sectionName);
+				sectionNamesList.add(sectionName);
 				faultIDs_ForSections.add(faultID);
 			}
 			currentRectElForSection.add(rectElem);
@@ -894,7 +898,7 @@ public class General_EQSIM_Tools {
 			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
 		}
 
-		System.out.println("namesOfSections.size()="+namesOfSections.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
+		System.out.println("namesOfSections.size()="+sectionNamesList.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
 
 
 	}
@@ -950,11 +954,11 @@ public class General_EQSIM_Tools {
 			
 			// Fault System Summary Record:
 			// 200 n_section n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
-			efw.write("200 "+namesOfSections.size()+" "+vertexList.size()+" 0 "+rectElementsList.size()+" "+
+			efw.write("200 "+sectionNamesList.size()+" "+vertexList.size()+" 0 "+rectElementsList.size()+" "+
 							getMinMaxFileString(vertexList, false)+"\n");
 
 			// loop over sections
-			for(int i=0;i<namesOfSections.size();i++) {
+			for(int i=0;i<sectionNamesList.size();i++) {
 				ArrayList<Vertex> vertListForSect = vertexListForSections.get(i);
 				ArrayList<RectangularElement> rectElemForSect = rectElementsListForSections.get(i);
 				String fault_id;
@@ -964,7 +968,7 @@ public class General_EQSIM_Tools {
 					fault_id = faultIDs_ForSections.get(i).toString();
 				// Fault Section Information Record:
 				// 201 sid name n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi das_lo das_hi fault_id comment_text
-				efw.write("201 "+(i+1)+" "+namesOfSections.get(i)+" "+vertListForSect.size()+" 0 "+
+				efw.write("201 "+(i+1)+" "+sectionNamesList.get(i)+" "+vertListForSect.size()+" 0 "+
 						rectElemForSect.size()+" "+getMinMaxFileString(vertListForSect, true)+" "+fault_id+"\n");
 				for(int v=0; v<vertListForSect.size(); v++) {
 					Vertex vert = vertListForSect.get(v);
@@ -1100,9 +1104,9 @@ public class General_EQSIM_Tools {
 			boolean makeOnePlotWithAll, boolean makeSeparatePlots, boolean savePlots) {
 		
 		ArrayList<ArbIncrementalMagFreqDist> mfdList = new ArrayList<ArbIncrementalMagFreqDist>();
-		for(int s=0; s<namesOfSections.size(); s++) {
+		for(int s=0; s<sectionNamesList.size(); s++) {
 			ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-			mfd.setName(namesOfSections.get(s)+" Incremental MFD");
+			mfd.setName(sectionNamesList.get(s)+" Incremental MFD");
 			mfd.setInfo(" ");
 			mfdList.add(mfd);
 		}
@@ -1141,9 +1145,9 @@ public class General_EQSIM_Tools {
 				ArrayList<EvenlyDiscretizedFunc> mfdList2 = new ArrayList<EvenlyDiscretizedFunc>();
 				mfdList2.add(mfd);
 				mfdList2.add(mfd.getCumRateDistWithOffset());
-				mfdList2.get(1).setName(namesOfSections.get(sectNum)+" Cumulative MFD");
+				mfdList2.get(1).setName(sectionNamesList.get(sectNum)+" Cumulative MFD");
 				mfdList2.get(1).setInfo(" ");
-				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList2, namesOfSections.get(sectNum)+" MFD"); 
+				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList2, sectionNamesList.get(sectNum)+" MFD"); 
 				graph.setX_AxisLabel("Magnitude");
 				graph.setY_AxisLabel("Rate (per yr)");
 				graph.setX_AxisRange(4.5, 8.5);
@@ -1154,7 +1158,7 @@ public class General_EQSIM_Tools {
 				}
 				if(savePlots)
 					try {
-						graph.saveAsPDF(dirNameForSavingFiles+"/MagFreqDistFor"+namesOfSections.get(sectNum)+".pdf");
+						graph.saveAsPDF(dirNameForSavingFiles+"/MagFreqDistFor"+sectionNamesList.get(sectNum)+".pdf");
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1234,6 +1238,40 @@ public class General_EQSIM_Tools {
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Num Events Per Year"); 
 		graph.setX_AxisLabel("Year");
 		graph.setY_AxisLabel("Number");
+	}
+	
+	
+	public void plotSAF_EventsAlongStrikeVsTime(double magThresh, int maxNumEvents) {
+		ArrayList<ArbitrarilyDiscretizedFunc> funcList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+
+		int numSAF_Events=0;
+		for(EQSIM_Event event: eventList) {
+			if(isEventSupraSeismogenic(event, magThresh) && doesEventUtilizedFault(event, 1)) {
+				numSAF_Events += 1;
+				if(numSAF_Events > maxNumEvents)
+					break;
+				// compute min and max das on SAF
+				double minDAS = Double.MAX_VALUE;
+				double maxDAS = Double.NEGATIVE_INFINITY;
+				for(EventRecord rec:event) {
+					int sectIndex = rec.getSectionID()-1;
+					if(faultIDs_ForSections.get(sectIndex) == 1) {
+						if(rec.getMinDAS() < minDAS) 
+							minDAS = rec.getMinDAS();
+						if(rec.getMaxDAS() > maxDAS) 
+							maxDAS = rec.getMaxDAS();
+					}
+				}
+				ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+				func.set(minDAS/1000,event.getTimeInYears());
+				func.set(maxDAS/1000,event.getTimeInYears());
+				funcList.add(func);
+			}
+		}
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "SAF Events"); 
+		graph.setX_AxisLabel("Distance Along Strike (km)");
+		graph.setY_AxisLabel("Number");
+
 	}
 	
 	
@@ -1449,12 +1487,18 @@ public class General_EQSIM_Tools {
 						"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\tnorm_aveElementInterval\t"+
 						"aveLastSlip\taveSlip\tnorm_lastEventSlip\tnorm_nextEventSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n";
 			
-		// for ave norm RI along rupture
-		double startX = 0.0125;
-		double deltaX = 0.025;
-		int numX = 40;
-		HistogramFunction aveNormRI_AlongRup = new HistogramFunction(startX, numX, deltaX);
-		HistogramFunction numRIsAlongHist = new HistogramFunction(startX, numX, deltaX);
+		// for norm RI along rupture
+		double startNormDistAlong = 0.0125;
+		double deltaNormDistAlong = 0.025;
+		int numDistAlong = 20;
+		HistogramFunction aveNormRI_AlongRup = new HistogramFunction(startNormDistAlong, numDistAlong,deltaNormDistAlong);
+		HistogramFunction numRIsAlongHist = new HistogramFunction(startNormDistAlong, numDistAlong,deltaNormDistAlong);
+		// for the full distributions along rupture
+		HistogramFunction[] riDistsAlongAlongRup = new HistogramFunction[numDistAlong];
+		for(int i=0;i<numDistAlong;i++)
+//			riDistsAlongAlongRup[i] = new HistogramFunction(-1, 31, 0.1);	// log10 space
+			riDistsAlongAlongRup[i] = new HistogramFunction(0.05, 50, 0.1);
+
 		
 		// loop over all events
 		for(EQSIM_Event event:eventList) {
@@ -1472,7 +1516,7 @@ public class General_EQSIM_Tools {
 				// compile list of sections involved
 				for(EventRecord evRec: event) {
 					if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
-					sectionsInEventString += namesOfSections.get(evRec.getSectionID()-1) + " + ";
+					sectionsInEventString += sectionNamesList.get(evRec.getSectionID()-1) + " + ";
 				}
 				// get average date of last event and average predicted date of next
 				double aveLastEvTime=0;
@@ -1504,10 +1548,21 @@ public class General_EQSIM_Tools {
 						numElementsUsed += 1;
 						
 						// for ave norm RI along rupture
-						if(lastTime != -1) {
+						if(lastTime != -1 && doesEventUtilizedFault(event, 1)) {	// 1 is for SAF sections
 							double normRI_forElement = ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[index];
-							aveNormRI_AlongRup.add(normDistAlong[e],normRI_forElement);
-							numRIsAlongHist.add(normDistAlong[e],1.0);
+							double distFromEnd = normDistAlong[e];
+							if(distFromEnd>0.5) distFromEnd = 1.0-distFromEnd;
+							int distAlongIndex = aveNormRI_AlongRup.getXIndex(distFromEnd); // those beyond limits are placed at ends
+							HistogramFunction hist = riDistsAlongAlongRup[distAlongIndex];
+							int xIndexForHist = hist.getClosestXIndex(normRI_forElement);
+//							int xIndexForHist = hist.getClosestXIndex(Math.log10(normRI_forElement));
+//							if(xIndexForHist  != -1)
+								hist.add(xIndexForHist, 1.0);
+//							else
+//								System.out.println("normRI_forElement excluded: "+normRI_forElement);
+							
+							aveNormRI_AlongRup.add(distFromEnd,normRI_forElement);
+							numRIsAlongHist.add(distFromEnd,1.0);
 						}
 					}
 					
@@ -1732,7 +1787,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<DefaultXY_DataSet> normObs_vs_normLastSlip_funcs = new ArrayList<DefaultXY_DataSet>();
 		HashMap<Integer,DefaultXY_DataSet> normObs_vs_normLastSlip_funcsMap = new HashMap<Integer,DefaultXY_DataSet>();
 		
-		for(int s=0;s<namesOfSections.size();s++) {
+		for(int s=0;s<sectionNamesList.size();s++) {
 			ArrayList<Double> obsVals = new ArrayList<Double>();
 			ArrayList<Double> tpVals = new ArrayList<Double>();
 			ArrayList<Double> spVals = new ArrayList<Double>();
@@ -1762,24 +1817,24 @@ if(norm_tpInterval1 < 0  && goodSample) {
 											  (float)result2[0]+"\t"+(float)result2[1]+"\t"+
 											  (float)result3[0]+"\t"+(float)result3[1]+"\t"+
 											  (float)result4[0]+"\t"+(float)result4[1]+"\t"+
-											  namesOfSections.get(s)+"\t"+(s+1)+"\t"+obsVals.size()+"\n";
+											  sectionNamesList.get(s)+"\t"+(s+1)+"\t"+obsVals.size()+"\n";
 				tempInfoString +=info;
 				
 				// make XY data for plot
 				DefaultXY_DataSet xy_data0 = new DefaultXY_DataSet(aveElVals,obsVals);
-				xy_data0.setName(namesOfSections.get(s));
+				xy_data0.setName(sectionNamesList.get(s));
 				xy_data0.setInfo("sectID = "+(s+1)+"\tcorr = "+(float)result0[0]+"\t("+(float)result0[1]+")\t");
 				obs_aveElement_funcs.add(xy_data0);
 				obs_aveElement_funcsMap.put(s, xy_data0);
 				
 				DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpVals,obsVals);
-				xy_data.setName(namesOfSections.get(s));
+				xy_data.setName(sectionNamesList.get(s));
 				xy_data.setInfo("sectID = "+(s+1)+"\tcorr = "+(float)result1[0]+"\t("+(float)result1[1]+")\t");
 				obs_tp2_funcs.add(xy_data);
 				obs_tp2_funcsMap.put(s, xy_data);
 				
 				DefaultXY_DataSet xy_data5 = new DefaultXY_DataSet(normLastSlipVals,normObsVals);
-				xy_data5.setName(namesOfSections.get(s));
+				xy_data5.setName(sectionNamesList.get(s));
 				xy_data5.setInfo("sectID = "+(s+1)+"\tcorr = "+(float)result3[0]+"\t("+(float)result3[1]+")\t");
 				normObs_vs_normLastSlip_funcs.add(xy_data5);
 				normObs_vs_normLastSlip_funcsMap.put(s, xy_data5);
@@ -1787,7 +1842,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			}
 			else
 				tempInfoString +="\t"+(s+1)+"\tNaN\t\t\t\t\t\t\t\t"+
-				namesOfSections.get(s)+" (num points = "+obsVals.size()+")\n";
+				sectionNamesList.get(s)+" (num points = "+obsVals.size()+")\n";
 		}
 		GraphiWindowAPI_Impl graph0 = new GraphiWindowAPI_Impl(obs_aveElement_funcs, "Obs vs Ave Element RI");   
 		graph0.setX_AxisLabel("Ave Element RI (aveElementInteral) (years)");
@@ -1812,14 +1867,14 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 
 		
-		// Plot aver norm RI along rupture
+		// Plot ave norm RI along rupture
 		for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
 			aveNormRI_AlongRup.set(i, aveNormRI_AlongRup.getY(i)/numRIsAlongHist.getY(i));
 		}
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(aveNormRI_AlongRup);
 		GraphiWindowAPI_Impl graph9 = new GraphiWindowAPI_Impl(funcList, "Ave Normalized RI Along Rupture"); 
-		graph9.setX_AxisLabel("Normalized Distance Along Rupture");
+		graph9.setX_AxisLabel("Normalized Distance From End of Rupture");
 		graph9.setY_AxisLabel("Normalized Ave RI");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
@@ -1832,6 +1887,31 @@ if(norm_tpInterval1 < 0  && goodSample) {
 //				e.printStackTrace();
 //			}
 //		}
+		
+		// write full distributions values to file
+		FileWriter fw;
+		try {
+			fw = new FileWriter("riDistsAlongStrikeXYZ.txt");
+			fw.write("normDistAlong\tnormRI\tfraction\n");
+			ArrayList<DiscretizedFunc> normRI_AlongRupFuncList = new ArrayList<DiscretizedFunc>();
+			for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
+				double distAlong = aveNormRI_AlongRup.getX(i);
+				HistogramFunction hist = riDistsAlongAlongRup[i];
+				hist.normalizeBySumOfY_Vals();
+				hist.setName("Dist Along "+(float)distAlong);
+				normRI_AlongRupFuncList.add(hist);
+				for(int j=0;j<hist.getNum();j++)
+					fw.write((float)distAlong+"\t"+(float)hist.getX(j)+"\t"+(float)hist.getY(j)+"\n");
+//				}
+			}
+			GraphiWindowAPI_Impl graph10 = new GraphiWindowAPI_Impl(normRI_AlongRupFuncList, "Normalized RI Along Rupture"); 
+			graph10.setX_AxisLabel("Normalized RI");
+			graph10.setY_AxisLabel("Franction");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 
 		
 
@@ -1866,7 +1946,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			File file1 = new File(dirNameForSavingFiles,subDir);
 			file1.mkdirs();
 
-			for(int s=0;s<namesOfSections.size();s++) {
+			for(int s=0;s<sectionNamesList.size();s++) {
 //				System.out.println("Working on "+s+"\t"+namesOfSections.get(s));
 				ArrayList<Double> sectNormObsIntervalList = new ArrayList<Double>();
 				for(int i=0; i<norm_aveElementIntervalList.size();i++) {
@@ -1876,11 +1956,11 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 				if(sectNormObsIntervalList.size()>2){	// only do it if there are more than 2  data points
 					// Plot RI PDF
-					String plotTitle8 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+namesOfSections.get(s);
+					String plotTitle8 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+sectionNamesList.get(s);
 					HeadlessGraphPanel plot8 = getNormRI_DistributionGraphPanel(sectNormObsIntervalList, plotTitle8);
 
 					// plot obs vs predicted scatter plot
-					String plotTitle7 = "Norm Obs RI vs Norm Last Slip for "+namesOfSections.get(s);
+					String plotTitle7 = "Norm Obs RI vs Norm Last Slip for "+sectionNamesList.get(s);
 					HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
 					ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
 					tempList.add(normObs_vs_normLastSlip_funcsMap.get(s));
@@ -2000,7 +2080,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				double mag = Math.round(event.getMagnitude()*100.0)/100.0;
 				System.out.print("\t"+num+"\t"+event.getID()+"\t"+event.size()+"\t"+mag);
 				for(EventRecord rec:event)
-					System.out.print("\t"+this.namesOfSections.get(rec.getSectionID()-1)+"_"+rec.getSectionID());
+					System.out.print("\t"+this.sectionNamesList.get(rec.getSectionID()-1)+"_"+rec.getSectionID());
 				System.out.print("\n");
 			}
 		}
@@ -2347,7 +2427,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			for(Vertex vert:vertexList) {
 				// check whether it's a surface element
 //				if(vert.getTraceFlag() != 0) {
-					String sectName = namesOfSections.get(getSectionIndexForVertex(vert));
+					String sectName = sectionNamesList.get(getSectionIndexForVertex(vert));
 					fw.write(vert.getID()+"\t"+vert.getDAS()+"\t"+sectName+"\n");
 //				}
 			}
@@ -2358,7 +2438,25 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 	}
 
-	
+	/**
+	 * This writes out the section index, ID (index+1), name, and fault 
+	 * ID to a file called "simulatorSectionNamesEtc.txt"
+	 */
+	public void writeSectionNamesEtc() {
+		FileWriter fw;
+		try {
+			fw = new FileWriter("simulatorSectionNamesEtc.txt");
+			fw.write("index\tsectID\tsectName\tfaultID");
+			for(int i=0;i<sectionNamesList.size();i++) {
+					fw.write(i+"\t"+sectionIDs_List.get(i)+"\t"+
+							sectionNamesList.get(i)+"\t"+faultIDs_ForSections.get(i)+"\n");
+			}
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	
 	/**
 	 * This plots a histogram of normalized recurrence intervals for all surface elements
@@ -2423,7 +2521,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		int sectID = getSectionIndexForVertex(vert)+1;
 		
 		
-System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+namesOfSections.get(sectID-1));
+System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+sectionNamesList.get(sectID-1));
 
 		
 		double[] intervals = getRecurIntervalsForDAS_and_FaultID(das, sectID, magThresh);
@@ -2435,7 +2533,7 @@ System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sect
 		
 		if(infoString== null)
 			infoString = new String();
-		infoString += "Closest Vertex is ID="+vert.getID()+" on "+namesOfSections.get(sectID-1)+" ("+(float)dist+" km away)\n";
+		infoString += "Closest Vertex is ID="+vert.getID()+" on "+sectionNamesList.get(sectID-1)+" ("+(float)dist+" km away)\n";
 		plotRecurIntervalsForElement(intervals, savePlot, locName, infoString);
 		return true;
 	}
@@ -2735,6 +2833,24 @@ System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sect
 		}
 
 	}
+	
+	/**
+	 * This tells whether the event utilizes any section with the given faultID
+	 * @param faultID
+	 * @return
+	 */
+	public boolean doesEventUtilizedFault(EQSIM_Event event, int faultID) {
+		boolean answer = false;
+		for(EventRecord eventRecord: event) {
+			int sectIndex = eventRecord.getSectionID()-1;
+			if(faultIDs_ForSections.get(sectIndex) == faultID) {
+				answer = true;
+				break;
+			}
+		}
+		return answer;	
+	}
+
 
 	
 	/**

@@ -96,6 +96,8 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	}
 	
 	/**
+	 * This returns true if any one section ID (from the event records) is contained in
+	 * the list passed in (e.g., used in SCEC VDO).
 	 * @param sectId
 	 * @return
 	 */
@@ -105,7 +107,6 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 				return true;
 		return false;
 	}
-
 	
 	public int getID() { return event_id;}
 	
