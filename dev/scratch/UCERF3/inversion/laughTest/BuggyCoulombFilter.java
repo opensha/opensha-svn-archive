@@ -58,6 +58,8 @@ public class BuggyCoulombFilter extends AbstractLaughTest {
 				IDPairing pair = new IDPairing(rupIndexes.get(i-1), rupIndexes.get(i));
 				forwardRates.add(rates.get(pair));
 				backwardRates.add(0, rates.get(pair.getReversed()));
+				if (rates.get(pair) == null)
+					System.out.println("Weird...missing: "+pair);
 //				if (minEqualsAvg)
 //					// we don't need to go any further
 //					break;

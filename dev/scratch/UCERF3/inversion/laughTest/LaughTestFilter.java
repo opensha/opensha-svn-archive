@@ -110,6 +110,10 @@ public class LaughTestFilter {
 		this.coulombFilter = coulombFilter;
 	}
 	
+	public void clearLaughTests() {
+		this.laughTests = null;
+	}
+	
 	public synchronized List<AbstractLaughTest> buildLaughTests(
 			Map<IDPairing, Double> azimuths,
 			Map<IDPairing, Double> distances,
