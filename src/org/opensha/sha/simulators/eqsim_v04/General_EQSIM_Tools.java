@@ -520,7 +520,7 @@ public class General_EQSIM_Tools {
 	public ArrayList<RectangularElement> getElementsList() { return rectElementsList; }
 	
 	
-	public void printMinAndMaxElementArea() {
+	public String printMinAndMaxElementArea() {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		for(RectangularElement re:getElementsList()) {
@@ -528,8 +528,9 @@ public class General_EQSIM_Tools {
 			if(area<min) min=area;
 			if(area>max) max=area;
 		}
-		System.out.println("min element area (km) = "+(float)(min*1e-6));
-		System.out.println("max element area (km) = "+(float)(max*1e-6));
+		String info = "min element area (km) = "+(float)(min*1e-6)+"; max element area (km) = "+(float)(max*1e-6)+"\n";
+		System.out.println(info);
+		return info;
 	}
 	
 	
@@ -560,7 +561,8 @@ public class General_EQSIM_Tools {
 	/**
 	 * This tests the EQSIM_Event.getDistAlongRupForElements() for a few ruptures, and assuming the
 	 * "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall" input file is used (event indices are set by hand).
-	 * The data file was loaded into Igor and plotted to confirm the distance along rupture looked good.
+	 * The data file was loaded into Igor and plotted to confirm the distance along rupture looked good
+	 * (but note ambiguities when ruptures fork).
 	 */
 	public void testDistanceAlong() {
 		
@@ -1692,7 +1694,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		HeadlessGraphPanel plot3 = getNormRI_DistributionGraphPanel(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
 		HeadlessGraphPanel plot4 = getNormRI_DistributionGraphPanel(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
 		HeadlessGraphPanel plot5 = getNormRI_DistributionGraphPanel(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
-		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");			
+		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");	// both lists are the same(?)		
 		if(saveStuff) {
 			try {
 				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
@@ -1711,7 +1713,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		double[] result;
 		tempInfoString +="\nCorrelations (and chance it's random) between all Observed and Predicted Intervals:\n\n";
 		result = this.getCorrelationAndP_Value(aveElementIntervalList, obsIntervalList);
-		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for aveElementInteral (num pts ="+tpInterval1List.size()+")\n";
+		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for aveElementInterval (num pts ="+tpInterval1List.size()+")\n";
 		result = this.getCorrelationAndP_Value(tpInterval1List, obsIntervalList);
 		tempInfoString +="\t"+(float)result[0]+"\t("+result[1]+") for tpInterval1 (num pts ="+tpInterval1List.size()+")\n";
 		result = this.getCorrelationAndP_Value(tpInterval2List, obsIntervalList);
@@ -1867,7 +1869,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 
 		
-		// Plot ave norm RI along rupture
+		// Plot average norm RI along rupture
 		for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
 			aveNormRI_AlongRup.set(i, aveNormRI_AlongRup.getY(i)/numRIsAlongHist.getY(i));
 		}
@@ -1879,14 +1881,14 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
 		graph9.setPlottingFeatures(curveCharacteristics);
-//		if(savePlot) {
-//			try {
-//				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+		if(saveStuff) {
+			try {
+				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		// write full distributions values to file
 		FileWriter fw;
@@ -2042,7 +2044,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 * This compares all the computed magnitudes to those given on the input files 
 	 * and writes out the maximum absolute difference.
 	 */
-	public void checkEventMagnitudes() {
+	public String checkEventMagnitudes() {
 
 		double maxMagDiff = 0;
 
@@ -2066,7 +2068,9 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				if(diff> maxMagDiff) maxMagDiff = diff;
 			}
 		}
-		System.out.println("maximum abs(eventMag-computedMag) ="+maxMagDiff);
+		String info = "maximum abs(eventMag-computedMag) ="+maxMagDiff+"\n";
+		System.out.println(info);
+		return info;
 	}
 	
 	
@@ -2173,7 +2177,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			if(fileNamePrefix != null) {
 				String plotFileName = fileNamePrefix +".pdf";
 				try {
-					graph.saveAsPDF(plotFileName);
+					graph.saveAsPDF(dirNameForSavingFiles+"/"+plotFileName);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -2184,7 +2188,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		// write file if name is non null
 		if(fileNamePrefix != null) {
 			try {
-				String dataFileName = fileNamePrefix+".txt";
+				String dataFileName = dirNameForSavingFiles+"/"+fileNamePrefix+".txt";
 				fw_slipRates = new FileWriter(dataFileName);
 				fw_slipRates.write("obsSlipRate\timposedSlipRate\tdiff\tnumEvents\n");
 				//				System.out.println(endTime+"\t"+startTime);
@@ -2389,7 +2393,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	}
 	
 	
-	public void writeRI_COV_forAllSurfaceEvlemets(double magThresh, String fileName) {
+	public void writeRI_COV_forAllSurfaceElements(double magThresh, String fileName) {
 		FileWriter fw;
 		try {
 			fw = new FileWriter(fileName);
@@ -2520,9 +2524,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		double das = vert.getDAS()*1000;
 		int sectID = getSectionIndexForVertex(vert)+1;
 		
-		
-System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+sectionNamesList.get(sectID-1));
-
+//System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+namesOfSections.get(sectID-1));
 		
 		double[] intervals = getRecurIntervalsForDAS_and_FaultID(das, sectID, magThresh);
 		
@@ -2733,8 +2735,9 @@ System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sect
 	
 	/**
 	 * This looks at what ruptures do and do not rupture all the way down dip
+	 * (as defined by the isEventSupraSeismogenic(event, Double.NaN) method)
 	 */
-	public void checkFullDDW_rupturing() {
+	public String checkFullDDW_rupturing(boolean plotResult, boolean savePlot) {
 		double minMagThatDoes=10;
 		double maxMagThatDoesnt=0;
 		int eventID_forMin=-1;
@@ -2775,19 +2778,27 @@ System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sect
 				mfd_doesNot.add(mag, 1.0);
 			}
 		}
-		System.out.println("minMagThatDoes="+minMagThatDoes+"\teventID="+eventID_forMin+"\t"+eventInfoForMin);
-		System.out.println("maxMaxThatDoesnt="+maxMagThatDoesnt+"\teventID="+eventID_forMax+"\t"+eventInfoForMax);
-		System.out.println(mfd_does);
-		System.out.println(mfd_doesNot);
+		String info = "min full seismogenic mag = "+minMagThatDoes+"\teventID="+eventID_forMin+"\t"+eventInfoForMin+"\n";
+		info += "max non full seismogenic mag = "+maxMagThatDoesnt+"\teventID="+eventID_forMax+"\t"+eventInfoForMax+"\n";
+		System.out.println(info);
 		
-		ArrayList<ArbIncrementalMagFreqDist> funcs = new ArrayList<ArbIncrementalMagFreqDist>();
-		funcs.add(mfd_does);
-		funcs.add(mfd_doesNot);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Full Rup Mags (and not)"); 
-		graph.setX_AxisLabel("Mag");
-		graph.setY_AxisLabel("Number of Observations");
+		if(plotResult) {
+			ArrayList<ArbIncrementalMagFreqDist> funcs = new ArrayList<ArbIncrementalMagFreqDist>();
+			funcs.add(mfd_does);
+			funcs.add(mfd_doesNot);
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Full Rup Mags (and not)"); 
+			graph.setX_AxisLabel("Mag");
+			graph.setY_AxisLabel("Number of Observations");
+			if(savePlot) {
+				try {
+					graph.saveAsPDF(dirNameForSavingFiles+"/fullDDW_MFDs.pdf");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
-		
+		return info;
 	}
 	
 	/**
