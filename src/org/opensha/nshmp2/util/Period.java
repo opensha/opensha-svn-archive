@@ -33,7 +33,7 @@ public enum Period {
 	/** Ground motions for SA at 0.75 sec. */
 	GM0P75(0.75, Values.per0p75, "1.5Hz"),
 	/** Ground motions for SA at 1.0 sec. */
-	GM1P00(1.00, Values.per1p00, "1sec"),
+	GM1P00(1.00, Values.per1p00, "1Hz"),
 	/** Ground motions for SA at 2.0 sec. */
 	GM2P00(2.00, Values.per2p00, "2sec"),
 	/** Ground motions for SA at 3.0 sec. */
