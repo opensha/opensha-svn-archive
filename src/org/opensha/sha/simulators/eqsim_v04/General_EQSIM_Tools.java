@@ -55,7 +55,10 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
+
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 
 import com.google.common.primitives.Ints;
 
@@ -482,9 +485,8 @@ public class General_EQSIM_Tools {
 	/**
 	 * This tells whether the given event is a supra-seismogenic rupture.
 	 * If magThresh is not NaN, this returns true if event mag is >= magThresh
-	 * If magThresh is NaN, this returns true sqrt(rupArea) >= aveDownDipWidth of fault
-	 * sections involved (latter may be biased is relatively little of one section
-	 * is utilized)
+	 * If magThresh is NaN, this returns true sqrt(rupArea) >= (aveFaultDownDipWidth-1.5 km),
+	 * where the 1.5 km buffer is half an element width.
 	 * @param event
 	 * @param magThresh - set as Double.NaN to use down-dip-width
 	 * @return
@@ -492,17 +494,21 @@ public class General_EQSIM_Tools {
 	public boolean isEventSupraSeismogenic(EQSIM_Event event, double magThresh) {
 		boolean supraSeis = false;
 		if(Double.isNaN(magThresh)) {	// apply sqrt(area) > aveDDW
-			// compute average ddw of faults involved (assumes all of each section is used)
-			double totFltArea = 0;
-			double totFltLength = 0;
+			double totArea = 0;
+			double totLength = 0;
 			for(EventRecord evRec:event) {
 				int sectIndex = evRec.getSectionID()-1;
-				totFltLength += lengthForSections.get(sectIndex);
-				totFltArea += areaForSections.get(sectIndex);
+				double ddwForSect = areaForSections.get(sectIndex)/lengthForSections.get(sectIndex);
+				double lengthOnRec = evRec.getLength();	// length of rup on section
+				totLength += lengthOnRec;
+				totArea += lengthOnRec*ddwForSect;
+//System.out.println("\tsectIndex="+sectIndex+"\tlengthOnRec="+(float)lengthOnRec+"\tddwForSect="+(float)ddwForSect);
 			}
-			double aveFltDDW = totFltArea/totFltLength;
+			double aveFltDDW = totArea/totLength;
+//System.out.println("aveFltDDW="+(float)aveFltDDW+"\tevent.getArea()="+(float)event.getArea()+"\tsqrt(event.getArea())="+(float)Math.sqrt(event.getArea()));
+//System.out.println(event.toString());
 
-			if(Math.sqrt(event.getArea()) >= aveFltDDW)
+			if(Math.sqrt(event.getArea()) >= (aveFltDDW-1500.0))	// subtract 1.5 km (half element length) from the latter
 				supraSeis = true;
 		}
 		else {
@@ -566,10 +572,10 @@ public class General_EQSIM_Tools {
 	 */
 	public void testDistanceAlong() {
 		
-//		int testEventIndex = 161911 - 1;	// NSAF
-//		int testEventIndex = 168-1;			// SSAF
-		int testEventIndex = 192778-1;		// Calaveras and others
-		EQSIM_Event testEvent = eventList.get(testEventIndex);
+//		int testEventID = 161911;	// NSAF
+//		int testEventID = 168;			// SSAF
+		int testEventID = 192778;		// Calaveras and others
+		EQSIM_Event testEvent = getEventsHashMap().get(testEventID);
 		int numSect = testEvent.size();
 		System.out.println("numSect="+numSect);
 		
@@ -1049,28 +1055,32 @@ public class General_EQSIM_Tools {
 			mfdList.get(1).setName("Total Simulator Cumulative Mag Freq Dist");
 			mfdList.get(1).setInfo(" ");
 			
-			// get observed MFDs from UCERF2	
-			mfdList.add(UCERF2_DataForComparisonFetcher.getHalf_UCERF2_ObsIncrMFDs(true));
-			mfdList.addAll(UCERF2_DataForComparisonFetcher.getHalf_UCERF2_ObsCumMFDs(true));
+			double totRate = TotalMag5Rate.RATE_8p7.getRateMag5();
+			GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, totRate, 5.05, 9.95, 50);
+			EvenlyDiscretizedFunc cumGR = grDist.getCumRateDistWithOffset();
+			cumGR.setName("Perfect GR with total rate = "+totRate);
+			cumGR.setInfo("");
+			mfdList.add(cumGR);
+//			// get observed MFDs from UCERF2	
+//			mfdList.add(UCERF2_DataForComparisonFetcher.getHalf_UCERF2_ObsIncrMFDs(true));
+//			mfdList.addAll(UCERF2_DataForComparisonFetcher.getHalf_UCERF2_ObsCumMFDs(true));
 			ArrayList<PlotCurveCharacterstics> curveChar = new ArrayList<PlotCurveCharacterstics>();
-			Color pink = new Color(255, 127, 127);
+//			Color pink = new Color(255, 127, 127);
 			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.RED));
-			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GRAY));
-			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
-			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
-			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+//			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
+//			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
+//			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Total Mag Freq Dist"); 
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
-			double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationYears())));
-			double yMax = graph.getY_AxisMax();
-			if(yMin<yMax) {
-				graph.setY_AxisRange(yMin,yMax);
-				graph.setYLog(true);
-			}
+			double yMin = 1e-6;
+			double yMax = 2e1;
+			graph.setY_AxisRange(yMin,yMax);
+			graph.setYLog(true);
 			graph.setPlottingFeatures(curveChar);
 
 			if(savePlot)
@@ -1530,6 +1540,7 @@ public class General_EQSIM_Tools {
 				double aveSlipOverElements=0;	// the average of long-term ave slips
 				double aveElementInterval=0;			// the long-term RI averaged over all elements
 				int numElementsUsed = 0;
+				int numNormDistProblems = 0;
 				for(int e=0;e<slips.length;e++) {
 					int index = elemIDs[e]-1;  // index = ID-1
 					double lastTime = lastTimeForElement[index];
@@ -1550,11 +1561,17 @@ public class General_EQSIM_Tools {
 						numElementsUsed += 1;
 						
 						// for ave norm RI along rupture
-						if(lastTime != -1 && doesEventUtilizedFault(event, 1)) {	// 1 is for SAF sections
+//						if(lastTime != -1 && doesEventUtilizedFault(event, 1)) {	// 1 is for SAF sections
+						if(lastTime != -1 && normDistAlong != null) {	// latter avoids Ward events where some records are missing slips
 							double normRI_forElement = ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[index];
 							double distFromEnd = normDistAlong[e];
 							if(distFromEnd>0.5) distFromEnd = 1.0-distFromEnd;
-							int distAlongIndex = aveNormRI_AlongRup.getXIndex(distFromEnd); // those beyond limits are placed at ends
+							int distAlongIndex = aveNormRI_AlongRup.getXIndex(distFromEnd);
+							if(distAlongIndex == -1) {
+								numNormDistProblems+=1;
+								break;
+							}
+								
 							HistogramFunction hist = riDistsAlongAlongRup[distAlongIndex];
 							int xIndexForHist = hist.getClosestXIndex(normRI_forElement);
 //							int xIndexForHist = hist.getClosestXIndex(Math.log10(normRI_forElement));
@@ -1574,6 +1591,10 @@ public class General_EQSIM_Tools {
 						//							System.out.println("time=0 for element"+e+" of event"+eventNum);
 					}
 				}
+				
+				
+				if(numNormDistProblems>0) tempInfoString += "WARNING! - Problem with NormalizedSlipAlongRup.pdf (norm distance outside bounds for "+numNormDistProblems+" events)\n";
+
 				aveLastEvTime /= numElementsUsed;
 				ave_tpNextEvTime /= numElementsUsed;
 				ave_spNextEvTime /= numElementsUsed;
@@ -1694,7 +1715,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		HeadlessGraphPanel plot3 = getNormRI_DistributionGraphPanel(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
 		HeadlessGraphPanel plot4 = getNormRI_DistributionGraphPanel(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
 		HeadlessGraphPanel plot5 = getNormRI_DistributionGraphPanel(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
-		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (norm_lastEventSlipList or norm_nextEventSlipList)");	// both lists are the same(?)		
+		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)");	// both lists are the same(?)		
 		if(saveStuff) {
 			try {
 				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
@@ -1847,7 +1868,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				sectionNamesList.get(s)+" (num points = "+obsVals.size()+")\n";
 		}
 		GraphiWindowAPI_Impl graph0 = new GraphiWindowAPI_Impl(obs_aveElement_funcs, "Obs vs Ave Element RI");   
-		graph0.setX_AxisLabel("Ave Element RI (aveElementInteral) (years)");
+		graph0.setX_AxisLabel("Ave Element RI (aveElementInterval) (years)");
 		graph0.setY_AxisLabel("Observed RI (years)");
 		graph0.setAllLineTypes(null, PlotSymbol.CROSS);
 		graph0.setYLog(true);
@@ -1883,7 +1904,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		graph9.setPlottingFeatures(curveCharacteristics);
 		if(saveStuff) {
 			try {
-				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
+				graph9.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1906,9 +1927,9 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					fw.write((float)distAlong+"\t"+(float)hist.getX(j)+"\t"+(float)hist.getY(j)+"\n");
 //				}
 			}
-			GraphiWindowAPI_Impl graph10 = new GraphiWindowAPI_Impl(normRI_AlongRupFuncList, "Normalized RI Along Rupture"); 
-			graph10.setX_AxisLabel("Normalized RI");
-			graph10.setY_AxisLabel("Franction");
+//			GraphiWindowAPI_Impl graph10 = new GraphiWindowAPI_Impl(normRI_AlongRupFuncList, "Normalized RI Along Rupture"); 
+//			graph10.setX_AxisLabel("Normalized RI");
+//			graph10.setY_AxisLabel("Franction");
 			fw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -2038,6 +2059,21 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		return result;
 	}
 
+	
+	public void checkThatAllEventRecordsHaveSlips() {
+		System.out.println("checkThatAllEventRecordsHaveSlips");
+		for(EQSIM_Event event:eventList) {
+			if(event.hasElementSlipsAndIDs()) {
+				for(int i=0; i<event.size();i++) {
+					EventRecord er = event.get(i);
+					if(!er.hasElementSlipsAndIDs()) {
+						System.out.println("Event ID "+event.getID()+" has missing slips and IDs on record index "+i);
+					}
+				}
+			}
+		}
+
+	}
 	
 	
 	/**
@@ -2207,15 +2243,17 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	/**
 	 * This plot the average normalized slip along ruptures
 	 * @param magThresh - Double.NaN for supra seismogenic
+	 * This returns false if the plot can't be made (e.g., ViscoSim has  
+	 * some problem with event.getNormDistAlongRupForElements())
 	 * @param savePlot
 	 */
-	public void plotAveNormSlipAlongRupture(Double magThresh, boolean savePlot) {
+	public boolean plotAveNormSlipAlongRupture(Double magThresh, boolean savePlot) {
 		double startX = 0.0125;
 		double deltaX = 0.025;
 		int numX = 40;
 		HistogramFunction normSlipAlongHist = new HistogramFunction(startX, numX, deltaX);
 		for(EQSIM_Event event:eventList) {
-			if(isEventSupraSeismogenic(event, magThresh) && event.hasElementSlipsAndIDs()) {
+			if(isEventSupraSeismogenic(event, magThresh) && event.hasElementSlipsAndIDsOnAllRecords()) {	// the latter will skip a few in the Ward file
 				double[] slipArray = event.getAllElementSlips();
 				double[] normDistAlong = event.getNormDistAlongRupForElements();
 				
@@ -2223,8 +2261,11 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				HistogramFunction totSlipHist = new HistogramFunction(startX, numX, deltaX);
 				HistogramFunction numSlip = new HistogramFunction(startX, numX, deltaX);
 				for(int i=0;i<slipArray.length;i++) {
-					totSlipHist.add(normDistAlong[i], slipArray[i]);
-					numSlip.add(normDistAlong[i], 1);
+					int index = totSlipHist.getXIndex(normDistAlong[i]);
+					if(index == -1)
+						return false;
+					totSlipHist.add(index, slipArray[i]);
+					numSlip.add(index, 1);
 				}
 				// compute ave slip in each bin
 				for(int i=0;i<numX;i++) {
@@ -2275,8 +2316,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			}
 		}
 
-		
-		System.out.println(symNormSlipAlongHist);
+		return true;
+//		System.out.println(symNormSlipAlongHist);
 
 	}
 	
@@ -2301,14 +2342,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		/**/
 		
 		// SLIP VS LENGTH PLOT
-		DefaultXY_DataSet s_vs_l_data = new DefaultXY_DataSet(slip,length);
+		// Adding Bruce's slip-length models for comparisons would require getting the physical parameters right 
+		// (e.g., his default "w" is 15 km; which seems high compared to the simulator fault model)
+		DefaultXY_DataSet s_vs_l_data = new DefaultXY_DataSet(length,slip);
 		s_vs_l_data.setName("Mean Slip vs Length");
 		s_vs_l_data.setInfo(" ");
 		ArrayList s_vs_l_funcs = new ArrayList();
 		s_vs_l_funcs.add(s_vs_l_data);
 		GraphiWindowAPI_Impl s_vs_l_graph = new GraphiWindowAPI_Impl(s_vs_l_funcs, "Mean Slip vs Length");   
-		s_vs_l_graph.setX_AxisLabel("Mean Slip (m)");
-		s_vs_l_graph.setY_AxisLabel("Length (km)");
+		s_vs_l_graph.setY_AxisLabel("Mean Slip (m)");
+		s_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.BLUE));
 		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
@@ -2320,23 +2363,23 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList m_vs_a_funcs = new ArrayList();
 		Ellsworth_B_WG02_MagAreaRel elB = new Ellsworth_B_WG02_MagAreaRel();
 		HanksBakun2002_MagAreaRel hb = new HanksBakun2002_MagAreaRel();
-		WC1994_MagAreaRelationship wc = new WC1994_MagAreaRelationship();
-		wc.setRake(0);
+	//	WC1994_MagAreaRelationship wc = new WC1994_MagAreaRelationship();
+	//	wc.setRake(0);
 		Shaw_2007_MagAreaRel sh = new Shaw_2007_MagAreaRel();
+		m_vs_a_funcs.add(m_vs_a_data);	// do this first so it plots underneath
 		m_vs_a_funcs.add(elB.getMagAreaFunction(1, 10000, 101));
 		m_vs_a_funcs.add(hb.getMagAreaFunction(1, 10000, 101));
-		m_vs_a_funcs.add(wc.getMagAreaFunction(1, 10000, 101));
+	//	m_vs_a_funcs.add(wc.getMagAreaFunction(1, 10000, 101));
 		m_vs_a_funcs.add(sh.getMagAreaFunction(1, 10000, 101));
-		m_vs_a_funcs.add(m_vs_a_data);	// do this after the above so it plots underneath
 		GraphiWindowAPI_Impl m_vs_a_graph = new GraphiWindowAPI_Impl(m_vs_a_funcs, "Mag vs Area");   
 		m_vs_a_graph.setY_AxisLabel("Magnitude (Mw)");
 		m_vs_a_graph.setX_AxisLabel("Area (km-sq)");
 		ArrayList<PlotCurveCharacterstics> m_vs_a_curveChar = new ArrayList<PlotCurveCharacterstics>();
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.BLACK));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.RED));
 		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.MAGENTA));
-		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.RED));
+		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+//		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.MAGENTA));
 		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
 		m_vs_a_graph.setXLog(true);
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
@@ -2464,7 +2507,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	
 	/**
 	 * This plots a histogram of normalized recurrence intervals for all surface elements
-	 * (normalized by the average interval at each  element).
+	 * (normalized by the average interval at each  element).  Note that the surface element
+	 * doesn't need to slip, but rather any element below it.
 	 * @param magThresh
 	 */
 	public void plotNormRecurIntsForAllSurfaceElements(double magThresh, boolean savePlot) {
@@ -2499,6 +2543,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				e.printStackTrace();
 			}
 	}
+
 
 
 	
@@ -2547,7 +2592,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				
 		double maxInterval=0;
 		double meanInterval=0;
-		for(int i=1;i<intervals.length;i++) {
+		for(int i=0;i<intervals.length;i++) {
 			if(intervals[i]>maxInterval) maxInterval = intervals[i];
 			meanInterval += intervals[i];
 		}
@@ -2563,7 +2608,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		for(int i=0; i<intervals.length;i++) {
 			int testIndex = riHist.getXIndex(intervals[i]);
 			if(testIndex == -1) {
-				System.out.println(intervals[i]+"\t"+binWidth+"\t"+numBins);
+				System.out.println(i+"\t"+intervals[i]+"\t"+binWidth+"\t"+numBins+"\t"+meanInterval+"\t"+maxInterval+"\t"+intervals.length);
 			}
 			
 			riHist.add(intervals[i], 1.0);
@@ -2760,8 +2805,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					double area = Math.round(event.getArea()*1e-6);
 					double length = Math.round(event.getLength()*1e-3);
 					double ddw = Math.round(1e-3*event.getArea()/event.getLength());
-					eventInfoForMin = "area="+area+"; length="+length+"; ddw="+ddw+"; time(yrs)="+event.getTimeInYears();
-					eventInfoForMin += "\ntoString():\n"+event.toString();
+					eventInfoForMin = "area="+area+"; length="+length+"; area/length="+ddw+"; time(yrs)="+event.getTimeInYears();
+//					eventInfoForMin += "\ntoString():\n"+event.toString();
 				}
 				mfd_does.add(mag, 1.0);
 			}
@@ -2772,8 +2817,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					double area = Math.round(event.getArea()*1e-6);
 					double length = Math.round(event.getLength()*1e-3);
 					double ddw = Math.round(1e-3*event.getArea()/event.getLength());
-					eventInfoForMax = "area="+area+"; length="+length+"; ddw="+ddw+"; time(yrs)="+event.getTimeInYears();
-					eventInfoForMax += "\ntoString():\n"+event.toString();
+					eventInfoForMax = "area="+area+"; length="+length+"; area/length="+ddw+"; time(yrs)="+event.getTimeInYears();
+//					eventInfoForMax += "\ntoString():\n"+event.toString();
 				}
 				mfd_doesNot.add(mag, 1.0);
 			}
@@ -2786,9 +2831,14 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			ArrayList<ArbIncrementalMagFreqDist> funcs = new ArrayList<ArbIncrementalMagFreqDist>();
 			funcs.add(mfd_does);
 			funcs.add(mfd_doesNot);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Full Rup Mags (and not)"); 
+			ArrayList<PlotCurveCharacterstics> curveChar = new ArrayList<PlotCurveCharacterstics>();
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GRAY));
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Full Rup Mags (and not)",curveChar); 
 			graph.setX_AxisLabel("Mag");
 			graph.setY_AxisLabel("Number of Observations");
+			graph.setY_AxisRange(0.1, Math.ceil(mfd_doesNot.getMaxY()));
+			graph.setYLog(true);
 			if(savePlot) {
 				try {
 					graph.saveAsPDF(dirNameForSavingFiles+"/fullDDW_MFDs.pdf");

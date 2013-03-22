@@ -140,20 +140,30 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 
 	
 	/**
-	 * This tells whether the event has data for slip on each element
+	 * This tells whether the event has element slips on at least one event record
+	 * (the Ward event file has some records with no slips; were these moved to other 
+	 * records because the mags are OK?) 
 	 * @return
 	 */
-//	public boolean hasElementSlipsAndIDs() {	// CHANGED BECAUSE WARD HAS SOME RECORDS THAT HAVE NO SLIPS (MOVED TO OTHER RECORDS?)
-//		boolean hasThem = true;
-//		for (EventRecord evRec : this) {
-//			if(!evRec.hasElementSlipsAndIDs()) hasThem = false;  // false is any event record lacks slips and IDs
-//		}
-//		return hasThem;
-//	}
 	public boolean hasElementSlipsAndIDs() {
 		boolean hasThem = false;
 		for (EventRecord evRec : this) {
 			if(evRec.hasElementSlipsAndIDs()) hasThem = true;  // true if any event record has slips and IDs
+		}
+		return hasThem;
+	}
+	
+
+	/**
+	 * This tells whether the event has element slips on all event records
+	 * (the Ward event file has some records with no slips; were these moved to other 
+	 * records because the mags are OK?) 
+	 * @return
+	 */
+	public boolean hasElementSlipsAndIDsOnAllRecords() {
+		boolean hasThem = true;
+		for (EventRecord evRec : this) {
+			if(!evRec.hasElementSlipsAndIDs()) hasThem = false;  // false is any event record lacks slips and IDs
 		}
 		return hasThem;
 	}
@@ -272,7 +282,7 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	 * @return
 	 */
 	public double[] getNormDistAlongRupForElements() {
-		if(hasElementSlipsAndIDs()) {
+		if(hasElementSlipsAndIDsOnAllRecords()) {
 			
 			// there are two tricky issues here 1) the ordering of of EventRecords is by 
 			// occurrence, not position along rupture, and 2) DAS values may need to be
