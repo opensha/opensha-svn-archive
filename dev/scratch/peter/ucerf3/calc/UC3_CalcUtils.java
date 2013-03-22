@@ -42,12 +42,17 @@ public class UC3_CalcUtils {
 	private static final Splitter SPLIT = Splitter.on(',');
 
 	/**
-	 * Loads a single solution at solPath.
+	 * Loads a single solution. This could be an 'averaged' solution (e.g. as
+	 * used for inversion convergence analyses) assuming you you want averaged
+	 * rupture rates (for a single solution from the averaged one use the
+	 * constructor that takes and index argument). This could also be a solution
+	 * for a single logic tree branch or a 'branch averaged' solution.
+	 * 
 	 * @param solPath
-	 * @param bgOpt 
-	 * @param aleatoryMagArea 
-	 * @param filterAftShk 
-	 * @param duration 
+	 * @param bgOpt
+	 * @param aleatoryMagArea
+	 * @param filterAftShk
+	 * @param duration
 	 * @return a UC3 erf
 	 */
 	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
@@ -65,13 +70,17 @@ public class UC3_CalcUtils {
 	}
 	
 	/**
-	 * Assumes solPath points to either an 'average' fss or a COMPOUND_SOL. 
+	 * Loads one solution of an 'averaged' or mean solution. An average solution
+	 * represents multiple runs of the same logic tree branch. If the supplied
+	 * index is -1, then the supplied solution (with mean rupture rates) is used
+	 * to initialize the ERF.
+	 * 
 	 * @param solPath
 	 * @param idx
-	 * @param bgOpt 
-	 * @param aleatoryMagArea 
-	 * @param filterAftShk 
-	 * @param duration 
+	 * @param bgOpt
+	 * @param aleatoryMagArea
+	 * @param filterAftShk
+	 * @param duration
 	 * @return a UC3 erf
 	 */
 	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
@@ -92,13 +101,17 @@ public class UC3_CalcUtils {
 	}
 
 	/**
-	 * Assumes solPath points to a COMPOUND_SOL
+	 * Loads a 'compound' solution. Such a solution generally has 'COMPOUND_SOL'
+	 * included in its name and represents multiple logic tree branches wrapped
+	 * up together. {@code branchID} is a {@code String} that is the file name
+	 * used to identify a branch (see {@link LogicTreeBranch#buildFileName()}.
+	 * 
 	 * @param solPath
 	 * @param branchID
-	 * @param bgOpt 
-	 * @param aleatoryMagArea 
-	 * @param filterAftShk 
-	 * @param duration 
+	 * @param bgOpt
+	 * @param aleatoryMagArea
+	 * @param filterAftShk
+	 * @param duration
 	 * @return a UC3 erf
 	 */
 	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
