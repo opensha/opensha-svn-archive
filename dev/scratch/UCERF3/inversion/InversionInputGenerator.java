@@ -1511,6 +1511,10 @@ public class InversionInputGenerator {
 		// Find Parkfield M~6 ruptures
 		List<Integer> potentialRups = rupSet.getRupturesForParentSection(parkfieldParentSectID);
 		List<Integer> parkfieldRups = new ArrayList<Integer>();
+		if (potentialRups == null) {
+			System.out.println("Warning: parkfield not found...removed?");
+			return parkfieldRups;
+		}
 		rupLoop:
 			for (int i=0; i<potentialRups.size(); i++) {
 				List<Integer> sects = rupSet.getSectionsIndicesForRup(potentialRups.get(i));
