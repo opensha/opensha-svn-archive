@@ -55,6 +55,9 @@ public class StandaloneSubSectRupGen {
 		// this is a list of parent fault sections to remove. can be empty or null
 		// currently set to remove Garlock to test Coulomb remapping.
 		List<Integer> sectsToRemove = Lists.newArrayList(49, 341);
+		// this is a list of sections to keep. if non null and non empty, only these
+		// ids will be kept
+		List<Integer> sectsToKeep = Lists.newArrayList(32);
 		
 		Preconditions.checkState(!coulombFilter || fm == FaultModels.FM3_1 || fm == FaultModels.FM3_2);
 		
@@ -62,13 +65,24 @@ public class StandaloneSubSectRupGen {
 		List<FaultSectionPrefData> fsd = FaultModels.loadStoredFaultSections(fsdFile);
 		
 		if (sectsToRemove != null && !sectsToRemove.isEmpty()) {
-			System.out.println("Removing these parent fault sections: "+Joiner.on(",").join(sectsToRemove));
+			System.out.println("Removing these parent fault sections: "
+					+Joiner.on(",").join(sectsToRemove));
 			// iterate backwards as we will be removing from the list
 			for (int i=fsd.size(); --i>=0;)
 				if (sectsToRemove.contains(fsd.get(i).getSectionId()))
 					fsd.remove(i);
 		}
 		
+		if (sectsToKeep != null && !sectsToKeep.isEmpty()) {
+			System.out.println("Only keeping these parent fault sections: "
+					+Joiner.on(",").join(sectsToKeep));
+			// iterate backwards as we will be removing from the list
+			for (int i=fsd.size(); --i>=0;)
+				if (!sectsToKeep.contains(fsd.get(i).getSectionId()))
+					fsd.remove(i);
+		}
+		
+		System.out.println(fsd.size()+" Parent Fault Sections");
 		
 		// this list will store our subsections
 		List<FaultSectionPrefData> subSections = Lists.newArrayList();
@@ -88,6 +102,8 @@ public class StandaloneSubSectRupGen {
 			subSections.addAll(newSubSects);
 			sectIndex += newSubSects.size();
 		}
+		
+		System.out.println(subSections.size()+" Sub Sections");
 		
 		// write subsection data to file
 		File subSectDataFile = new File(outputDir, "sub_sections.xml");
