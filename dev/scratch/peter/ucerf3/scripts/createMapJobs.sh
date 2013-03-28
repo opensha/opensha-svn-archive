@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOBGROUP=UC32-FM-DM-MS-U2-1sec
+JOBGROUP=UC32-DMspatialTest
 
 # Local config for script
 SHA_LOCAL=/Users/pmpowers/projects/OpenSHA
@@ -21,9 +21,9 @@ OUTDIR=$BASEDIR/UC3/maps/$JOBGROUP
 SOL_FILE=$SRCDIR/2013_01_14-UC32-COMPOUND_SOL.zip
 GRID='CA_RELM'
 SPACING='0.1'
-PERIOD='GM1P00'
+PERIOD='GM0P00'
 HRS=3
-NODES=16
+NODES=24
 QUEUE=nbns
 
 mkdir $SCRIPT_DIR
