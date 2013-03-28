@@ -62,7 +62,11 @@ public enum TestGrid {
 		new double[] {-125.0, -100.0}),
 	GRID_TEST2(
 		new double[] {35.0, 45.0},
-		new double[] {-116.0, -111.0});
+		new double[] {-116.0, -111.0}),
+	LITTLE_SALMON(
+		new double[] {40.0, 41.5},
+		new double[] {-125.0, -123.4});
+	
 	// @formatter:on
 
 	private static final double BOUNDS_OFFSET = 0.0;
