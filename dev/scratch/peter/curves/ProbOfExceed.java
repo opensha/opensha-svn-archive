@@ -4,6 +4,8 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 
 public enum ProbOfExceed {
 
+	PE1IN100(0.000101),
+	PE1IN50(0.000201),
 	PE2IN50(0.000404),
 	PE5IN50(0.001026),
 	PE10IN50(0.002107),
