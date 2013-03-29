@@ -496,7 +496,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * This also initializes longTermPartRateForSectArray.
 	 * @return
 	 */
-	public void initAveCondRecurIntervalForFltSysRups() {
+	private void initAveCondRecurIntervalForFltSysRups() {
 //		System.out.println("starting getRenewalRatesForFaultSysRups()");
 		aveCondRecurIntervalForFltSysRups = new double[faultSysSolution.getNumRuptures()];
 		longTermPartRateForSectArray = faultSysSolution.calcTotParticRateForAllSects();
@@ -507,9 +507,12 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				int sectID = data.getSectionId();
 				double area = data.getTraceLength()*data.getReducedDownDipWidth();
 				totArea += area;
-				aveRate += longTermPartRateForSectArray[sectID]*area;  // weight averaged by area
+				// TEST HERE AND BELOW
+//				aveRate += longTermPartRateForSectArray[sectID]*area;  // weight averaged by area
+				aveRate += area/longTermPartRateForSectArray[sectID];  // this one averages RIs
 			}
-			aveCondRecurIntervalForFltSysRups[r] = 1/(aveRate/totArea);
+//			aveCondRecurIntervalForFltSysRups[r] = 1/(aveRate/totArea);
+			aveCondRecurIntervalForFltSysRups[r] = aveRate/totArea;	// this one averages RIs
 		}
 //		System.out.println("done with getRenewalRatesForFaultSysRups()");
 	}
@@ -757,7 +760,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * This averages the normalized times since last event for each section 
 	 * (normalized by long-term section RI), weighted by section area.
 	 * If no date of last event is available for a section, it uses the normalized
-	 * time since last that corresponds to the Poisson probability.
+	 * time since last that corresponds to the Poisson probability (which is why the
+	 * duration is needed).
 	 * @param fltSystRupIndex
 	 * @param startTimeMillis
 	 * @param durationYears
@@ -832,6 +836,46 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			return Long.MIN_VALUE;
 	}
 
+
+	/**
+	 * This method returns the normalized, weight-averaged years since last event for the given rupture 
+	 * (normalized by mean RIs of each section before averaging).  The weights in the average are section area.
+	 * This uses cached arrays to for section area, date of last event, and sections in rupture.
+	 * Fault sections that have no date of last event are ignored, and Long.MIN_VALUE is returned if no sections have a 
+	 * date of last event.  Users can determine how much of the total area had date of last event by comparing the following 
+	 * global variables after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionHadDateOfLast
+	 * 
+	 * @param fltSystRupIndex
+	 * @param presentTimeMillis
+	 * @return
+	 */
+	public double getAveNormTimeSinceLastEventFast(int fltSystRupIndex, long presentTimeMillis) {
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumYrsSinceLast = 0;
+		for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
+			long dateOfLast = dateOfLastForSect[sect];
+			double area = areaForSect[sect];
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				double yearsSinceLast = ((double)(presentTimeMillis-dateOfLast))/MILLISEC_PER_YEAR;
+				sumYrsSinceLast += yearsSinceLast*area*longTermPartRateForSectArray[sect];
+			}
+			else {
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		if(totRupAreaWithDateOfLast>0.0)
+			return sumYrsSinceLast/totRupArea;
+		else
+			return Long.MIN_VALUE;
+	}
 
 	
 	
@@ -1003,44 +1047,44 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * 
 	 * add progress bar
 	 * 
-	 * @param durationInYears
+	 * @param dirNameForSavingFiles - leave null if you don't want plots saved
 	 */
-	public void testER_Simulation(int probType, String inputDateOfLastFileName, String outputDateOfLastFileName) {
+	public void testER_Simulation(int probType, String inputDateOfLastFileName, String outputDateOfLastFileName, String dirNameForSavingFiles) {
 		
 		
 		
 		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rates for parkfield
-		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
-		for(int i=0;i<correctionMFD.getNum();i++)
-			correctionMFD.set(i,1.0);
-		correctionMFD.set(5.55,0.68401*0.9);
-		correctionMFD.set(5.65,0.514048*0.9);
-		correctionMFD.set(5.75,0.790005*0.9);
-		correctionMFD.set(5.85,0.837815*0.9);
-		correctionMFD.set(5.95,0.871158*0.9);
-		correctionMFD.set(6.05,0.837409*0.8);
-		correctionMFD.set(6.15,0.817532*0.8);
-		correctionMFD.set(6.25,0.794629*0.8);
-		correctionMFD.set(6.35,0.819054*0.8);
-		correctionMFD.set(6.45,0.857520*0.8);
-		correctionMFD.set(6.55,0.866264*0.8);
-		correctionMFD.set(6.65,0.886100*0.8);
-		correctionMFD.set(6.75,0.925039*0.9);
-		correctionMFD.set(6.85,0.910973*0.9);
-		correctionMFD.set(6.95,0.948021*0.9);
-		correctionMFD.set(7.05,0.974252);
-		correctionMFD.set(7.15,0.9974);
-		correctionMFD.set(7.25,1.00688);
-		correctionMFD.set(7.35,1.0623);
-		correctionMFD.set(7.45,1.09672);
-		correctionMFD.set(7.55,0.991633);
-		correctionMFD.set(7.65,1.04239);
-		correctionMFD.set(7.75,1.05267);
-		correctionMFD.set(7.85,1.0803);
-		correctionMFD.set(7.95,1.34756);
-		correctionMFD.set(8.05,1.11993);
-		correctionMFD.set(8.15,1.43739);
-		correctionMFD.set(8.25,1.82691);
+//		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
+//		for(int i=0;i<correctionMFD.getNum();i++)
+//			correctionMFD.set(i,1.0);
+//		correctionMFD.set(5.55,0.68401*0.9);
+//		correctionMFD.set(5.65,0.514048*0.9);
+//		correctionMFD.set(5.75,0.790005*0.9);
+//		correctionMFD.set(5.85,0.837815*0.9);
+//		correctionMFD.set(5.95,0.871158*0.9);
+//		correctionMFD.set(6.05,0.837409*0.8);
+//		correctionMFD.set(6.15,0.817532*0.8);
+//		correctionMFD.set(6.25,0.794629*0.8);
+//		correctionMFD.set(6.35,0.819054*0.8);
+//		correctionMFD.set(6.45,0.857520*0.8);
+//		correctionMFD.set(6.55,0.866264*0.8);
+//		correctionMFD.set(6.65,0.886100*0.8);
+//		correctionMFD.set(6.75,0.925039*0.9);
+//		correctionMFD.set(6.85,0.910973*0.9);
+//		correctionMFD.set(6.95,0.948021*0.9);
+//		correctionMFD.set(7.05,0.974252);
+//		correctionMFD.set(7.15,0.9974);
+//		correctionMFD.set(7.25,1.00688);
+//		correctionMFD.set(7.35,1.0623);
+//		correctionMFD.set(7.45,1.09672);
+//		correctionMFD.set(7.55,0.991633);
+//		correctionMFD.set(7.65,1.04239);
+//		correctionMFD.set(7.75,1.05267);
+//		correctionMFD.set(7.85,1.0803);
+//		correctionMFD.set(7.95,1.34756);
+//		correctionMFD.set(8.05,1.11993);
+//		correctionMFD.set(8.15,1.43739);
+//		correctionMFD.set(8.25,1.82691);
 
 		
 		
@@ -1160,6 +1204,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			// set that fault system event has occurred (and save normalized RI)
 			if(nthRup < totNumRupsFromFaultSystem) {	// ignore subseimo ruptures
 				int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
+				
+				
+				// TEST HEERE:
 
 				// compute and save the normalize recurrence interval if all sections had date of last
 				long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
@@ -1167,6 +1214,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 					normalizedRupRecurIntervals.add(timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex]);
 				}
+				// Alternative to the calculation above:
+//				double aveNormYearsSinceLast = getAveNormTimeSinceLastEventFast(fltSystRupIndex, eventTimeMillis);
+//				if(allSectionsHadDateOfLast) {
+//					normalizedRupRecurIntervals.add(aveNormYearsSinceLast);
+//				}
+				
+				
 				
 				// save normalized fault sections recurrence intervals
 				for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
@@ -1177,7 +1231,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					}
 				}
 				
-				// reset last event time and increment rate on sections
+				// reset last event time and increment simulated/obs rate on sections
 				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
 					dateOfLastForSect[sect] = eventTimeMillis;
 					obsSectRateArray[sect] += 1.0; // add the event
@@ -1200,8 +1254,11 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //			long millis = System.currentTimeMillis();
 			
 			// nothing is done if probType=0;
-			if(probType==1) 
-				computeU3_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
+			if(probType==1) {
+				// TEST HERE:
+//				computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
+				computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+			}
 			else if(probType==2)
 				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
 			
@@ -1212,8 +1269,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// now update totalRate and ruptureSampler (for all rups since start time changed)
 			for(int n=0; n<totNumRupsFromFaultSystem;n++) {
-				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
-//				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
+//				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
+				double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]];
 				spontaneousRupSampler.set(n, newRate);
 			}
 			totalRate = spontaneousRupSampler.getSumOfY_vals();
@@ -1229,8 +1286,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("numRups="+numRups);
 		System.out.println("normalizedRecurIntervals.size()="+normalizedRupRecurIntervals.size());
 		
-		General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+probTypeString);
-		General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+probTypeString);
+		GraphiWindowAPI_Impl grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+probTypeString);
+		GraphiWindowAPI_Impl graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+probTypeString);
 		
 //		System.out.println(obsMFD);
 
@@ -1275,8 +1332,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		graph2.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph2.setY_AxisLabel("Simulated Section Participation Rate (per yr)");
 		
-		
-		
 		// write out test section rates
 		ArrayList<String> outStringList = new ArrayList<String>();
 		int numSect=faultSysSolution.getNumSections();
@@ -1301,8 +1356,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					obsSectRateArrayM7pt95to8pt25[s]+"\t"+
 					faultSysSolution.getFaultSectionData(s).getName()+"\n");
 		}
-		if(!dataDir.exists()) dataDir.mkdir();
-		File dataFile = new File(dataDir,File.separator+"testSectRates");
+//		if(!dataDir.exists()) dataDir.mkdir();
+		File resultsDir = new File(dirNameForSavingFiles);
+		if(!resultsDir.exists()) resultsDir.mkdir();
+		File dataFile = new File(resultsDir,File.separator+"testSectRates");
 		try {
 			FileWriter fileWriter = new FileWriter(dataFile);
 			for(String line:outStringList) {
@@ -1332,6 +1389,19 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+probTypeString, plotChars2); 
 		graph3.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph3.setY_AxisLabel("Ratio of Observed to Imposed");
+		
+		if(dirNameForSavingFiles != null) {
+			try {
+				grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
+				graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
+				graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
+				graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
+				graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
 	
@@ -1452,9 +1522,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	/**
 	 * This fills out probGainForFaultSystemSource array using the UCERF3 methodology
-	 * That it's "Fast" means it uses cached arrays.
+	 * That it's "Fast" means it uses cached arrays.  This version uses the average
+	 * normalized data of lasted event on each section.
 	 */
-	private void computeU3_ProbGainsForRupsFast(long startTimeMillis, double durationYears) {
+	private void computeU3_ProbGainsForRupsFast1(long startTimeMillis, double durationYears) {
 		for(int s=0;s<numNonZeroFaultSystemSources;s++) {
 			int fltSysRupIndex = fltSysRupIndexForSource[s];
 			// norm time since last
@@ -1469,6 +1540,31 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				}
 				double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups[fltSysRupIndex];
 				probGainForFaultSystemSource[s] = computeBPT_ProbGainFast(aveCondRecurInterval, aveNormTimeSinceLast*aveCondRecurInterval, durationYears);					
+			}
+		}
+	}
+
+	
+	/**
+	 * This fills out probGainForFaultSystemSource array using the UCERF3 methodology
+	 * That it's "Fast" means it uses cached arrays.  This version uses the average
+	 * date of lasted event on each section (non normalized).
+	 */
+	private void computeU3_ProbGainsForRupsFast2(long startTimeMillis, double durationYears) {
+		for(int s=0;s<numNonZeroFaultSystemSources;s++) {
+			int fltSysRupIndex = fltSysRupIndexForSource[s];
+			long aveTimeOfLastMillis = getAveDateOfLastEventCorrectedFast(fltSysRupIndex, startTimeMillis, durationYears);
+			double timeSinceLastYears = (double)(startTimeMillis-aveTimeOfLastMillis)/MILLISEC_PER_YEAR;
+			// now compute and set gain
+			if(totRupAreaWithDateOfLast == 0.0) {	// this should not be necessary, but faster?
+				probGainForFaultSystemSource[s] = 1;
+			}
+			else {
+				if(timeSinceLastYears < 0) {
+					throw new RuntimeException("timeSinceLastYears cannot be negative (timeSinceLastYears="+timeSinceLastYears+")");
+				}
+				double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups[fltSysRupIndex];
+				probGainForFaultSystemSource[s] = computeBPT_ProbGainFast(aveCondRecurInterval, timeSinceLastYears, durationYears);					
 			}
 		}
 	}

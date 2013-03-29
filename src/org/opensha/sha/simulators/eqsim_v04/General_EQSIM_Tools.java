@@ -1539,6 +1539,7 @@ public class General_EQSIM_Tools {
 				double aveEventSlip=0;
 				double aveSlipOverElements=0;	// the average of long-term ave slips
 				double aveElementInterval=0;			// the long-term RI averaged over all elements
+				double aveNormTimeSinceLast=0;
 				int numElementsUsed = 0;
 				int numNormDistProblems = 0;
 				for(int e=0;e<slips.length;e++) {
@@ -1557,7 +1558,9 @@ public class General_EQSIM_Tools {
 						aveLastSlip += lastSlip;
 						aveEventSlip += slips[e];
 						aveElementInterval += aveRI_ForElement[index];
+//						aveElementInterval += 1.0/aveRI_ForElement[index];
 						aveSlipOverElements += aveSlipForElement[index];
+						aveNormTimeSinceLast += ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[index];
 						numElementsUsed += 1;
 						
 						// for ave norm RI along rupture
@@ -1602,7 +1605,9 @@ public class General_EQSIM_Tools {
 				aveLastSlip /= numElementsUsed;
 				aveEventSlip /= numElementsUsed;
 				aveElementInterval /= numElementsUsed;
+//				aveElementInterval = numElementsUsed/aveElementInterval;
 				aveSlipOverElements /= numElementsUsed;
+				aveNormTimeSinceLast /= numElementsUsed;
 				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval1 = (ave_tpNextEvTime-aveLastEvTime)/SECONDS_PER_YEAR;
 				double tpInterval2 = (aveLastSlip/aveSlipRate)/SECONDS_PER_YEAR;
@@ -1613,6 +1618,7 @@ public class General_EQSIM_Tools {
 				double norm_spInterval1 = obsInterval/spInterval1;
 				double norm_spInterval2 = obsInterval/spInterval2;
 				double norm_aveElementInterval = obsInterval/aveElementInterval;
+//				double norm_aveElementInterval = aveNormTimeSinceLast;
 				double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
 				double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
 				
