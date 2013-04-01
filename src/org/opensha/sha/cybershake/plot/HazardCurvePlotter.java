@@ -487,6 +487,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 //		System.out.println("optStr");
 		
 		for (CybershakeIM im : ims) {
+			// reset the cs curve color index so coloring is consistent among different IM type plots of the same curves
+			csColorIndex = 0;
 			if (im == null) {
 				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
 				return false;
