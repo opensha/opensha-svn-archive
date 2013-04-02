@@ -53,9 +53,9 @@ public class TestFaultSysSolTimeDepERF {
 		
 		long runtime = System.currentTimeMillis();
 		
-		String dirName = "UCCERF3_ER_Test5";
+		String dirName = "UCERF3_ER_WG02method";
 		
-		invERF.testER_Simulation(1, "From100k_PoisRun.txt", null, dirName);
+		invERF.testER_Simulation(2, "From100k_PoisRun.txt", null, dirName);
 //		invERF.testER_Simulation();
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");

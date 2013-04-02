@@ -1411,6 +1411,11 @@ public class General_EQSIM_Tools {
 		return graph;
 		
 	}
+	
+	
+	public void testTemp() {
+		 System.out.println(isEventSupraSeismogenic(eventList.get(314951), Double.NaN));
+	}
 
 	
 	
@@ -2086,13 +2091,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 * This compares all the computed magnitudes to those given on the input files 
 	 * and writes out the maximum absolute difference.
 	 */
-	public String checkEventMagnitudes() {
+	public String checkEventMagnitudes(double magThresh) {
 
 		double maxMagDiff = 0;
+		int maxDiffIndex = -1;
 
 		// loop over all events
+		int i=-1;
 		for(EQSIM_Event event:eventList) {
-			if(event.hasElementSlipsAndIDs()) {
+			i++;
+			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, magThresh)) {
 
 				double eventMag = event.getMagnitude();
 				double moment =0;
@@ -2107,11 +2115,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 				double computedMag = MagUtils.momentToMag(moment);
 				double diff = Math.abs(eventMag-computedMag);
-				if(diff> maxMagDiff) maxMagDiff = diff;
+				if(diff> maxMagDiff) {
+					maxMagDiff = diff;
+					maxDiffIndex = i;
+				}
 			}
 		}
-		String info = "maximum abs(eventMag-computedMag) ="+maxMagDiff+"\n";
+		String info = "maximum abs(eventMag-computedMag) ="+maxMagDiff+"; for eventList index "+
+						maxDiffIndex+" (ID="+eventList.get(maxDiffIndex).getID()+")\n";
 		System.out.println(info);
+		System.out.println(eventList.get(maxDiffIndex).toString());
 		return info;
 	}
 	
@@ -2402,7 +2415,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<PlotCurveCharacterstics> m_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.GREEN));
 		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
-		m_vs_l_graph.setXLog(true);
+//		m_vs_l_graph.setXLog(true);
 		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
 		
 		if(savePlotsToFile) {
