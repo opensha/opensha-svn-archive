@@ -38,8 +38,8 @@ public class CoulombFilterThresholdTest {
 		
 		File outputFile = new File("/tmp/coulomb_thresholds.csv");
 		
-		double[] minStresses = { 0.5, 0.75, 1, 1.25, 1.5 };
-		double[] pdcffs = { 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1 };
+		double[] minStresses = { 0.5, 0.75, 1, 1.25, 1.5, Double.POSITIVE_INFINITY };
+		double[] pdcffs = { 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 1 };
 		
 		LaughTestFilter filter = LaughTestFilter.getDefault();
 		filter.setAllowSingleSectDuringJumps(true);

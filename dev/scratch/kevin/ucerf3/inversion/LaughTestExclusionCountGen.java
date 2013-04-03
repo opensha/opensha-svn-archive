@@ -1,9 +1,16 @@
 package scratch.kevin.ucerf3.inversion;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
@@ -61,8 +68,8 @@ public class LaughTestExclusionCountGen {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();
-//		LaughTestFilter filter = LaughTestFilter.getDefault();
+//		LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();
+		LaughTestFilter filter = LaughTestFilter.getDefault();
 		
 		int[] origRups = getRupCount(filter);
 		
@@ -74,6 +81,7 @@ public class LaughTestExclusionCountGen {
 			jumpDistCounts.add(getRupCount(filter));
 			filter.clearLaughTests();
 		}
+		filter.setMaxJumpDist(orig);
 		
 		orig = filter.getMaxAzimuthChange();
 		filter.setMaxAzimuthChange(Double.POSITIVE_INFINITY);
@@ -106,20 +114,42 @@ public class LaughTestExclusionCountGen {
 		filter.clearLaughTests();
 		
 		// now test some coulomb values
-		double[] mins = { 0.025, 0.05, 0.075, 0.1 };
+		double[] mins = { 0.025, 0.0375, 0.05, 0.0625, 0.075, 0.0875, 0.1 };
 		double[] excls = { 1.0, 1.25, 1.5, Double.POSITIVE_INFINITY };
 		List<String> strs = Lists.newArrayList();
 		List<int[]> counts = Lists.newArrayList();
-		for (double min : mins) {
-			for (double excl : excls) {
+		for (double excl : excls) {
+			DiscretizedFunc rupCountsFunc = new ArbitrarilyDiscretizedFunc();
+			DiscretizedFunc junctionsFunc = new ArbitrarilyDiscretizedFunc();
+			for (double min : mins) {
 				origCoulomb.setMinAverageProb(min);
 				origCoulomb.setMinIndividualProb(min);
 				origCoulomb.setMinimumStressExclusionCeiling(excl);
 				
 				strs.add("PDCFF: "+(float)min+"; DCFF: "+(float)excl);
-				counts.add(getRupCount(filter));
+				int[] count = getRupCount(filter);
+				
+				double fractRupsExcluded = (double)(totCoulombRups[0] - count[0])
+						/ (double)totCoulombRups[0];
+				double fractJunctionsExcluded = (double)(totCoulombRups[1] - count[1])
+						/ (double)totCoulombRups[1];
+				
+				rupCountsFunc.set(min, fractRupsExcluded);
+				junctionsFunc.set(min, fractJunctionsExcluded);
+				
+				counts.add(count);
 				filter.clearLaughTests();
 			}
+			ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+			funcs.add(rupCountsFunc);
+			funcs.add(junctionsFunc);
+			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(
+					funcs, "Fraction of Junctions/Ruptures Excluded", chars);
+			gw.setX_AxisLabel("PΔCFF Threshold");
+			gw.setY_AxisLabel("Fraction Excluded");
 		}
 		
 		System.out.println("Orig Num Rups: "+origRups);

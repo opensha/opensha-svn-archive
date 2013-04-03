@@ -259,6 +259,8 @@ public class SectionCluster extends ArrayList<Integer> {
 			candidateIDSet.add(candidateIndex);
 			
 			if (pass) {
+//				if (!(Double.isInfinite(laughTestFilter.getMaxCmlAzimuthChange()) && Math.random() > 0.001
+//						&& candidateRupture.size() > 10))
 				rupListIndices.add(candidateIDList);
 				if (numRupsAdded > 1000000) {
 					System.out.println("WARNING: Bailing on a cluster after 1 million ruptures!");

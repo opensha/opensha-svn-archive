@@ -10,6 +10,8 @@ import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.analysis.MPJDistributedCompoundFSSPlots;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -30,8 +32,10 @@ public class BulkCompoundScriptWrite {
 				LogicTreePBSWriter.getNonZeroChoices(FaultModels.class, InversionModels.CHAR_CONSTRAINED);
 		List<LogicTreeBranchNode<?>> dmBranches =
 				LogicTreePBSWriter.getNonZeroChoices(DeformationModels.class, InversionModels.CHAR_CONSTRAINED);
-		List<LogicTreeBranchNode<?>> scaleBranches =
-				LogicTreePBSWriter.getNonZeroChoices(ScalingRelationships.class, InversionModels.CHAR_CONSTRAINED);
+//		List<LogicTreeBranchNode<?>> scaleBranches =
+//				LogicTreePBSWriter.getNonZeroChoices(ScalingRelationships.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> scaleBranches = Lists.newArrayList();
+		scaleBranches.add(null);
 		
 //		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
 //				"2013_01_14-stampede_3p2_production_runs_sub_plots");
@@ -40,10 +44,17 @@ public class BulkCompoundScriptWrite {
 //				"2013_01_14-stampede_3p2_production_runs_combined/" +
 //				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		
-		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/" +
-				"2013_01_14-stampede_3p2_production_runs_sub_plots");
+//		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/" +
+//				"2013_01_14-stampede_3p2_production_runs_sub_plots");
 		
-		File compoundFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/" +
+//		File compoundFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/" +
+//				"2013_01_14-stampede_3p2_production_runs_combined/" +
+//				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+		
+		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
+				"2013_01_14-stampede_3p2_production_runs_dm_means");
+		
+		File compoundFile = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
 				"2013_01_14-stampede_3p2_production_runs_combined/" +
 				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		
@@ -54,7 +65,7 @@ public class BulkCompoundScriptWrite {
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-		RunSites site = RunSites.STAMPEDE;
+		RunSites site = RunSites.HPCC;
 		int nodes = 10;
 //		int bundleSize = 30; // TODO, must be >0
 //		int jobMins = 6*60; // TODO
@@ -78,14 +89,19 @@ public class BulkCompoundScriptWrite {
 		for (LogicTreeBranchNode<?> fm : fmBranches) {
 			for (LogicTreeBranchNode<?> dm : dmBranches) {
 				for (LogicTreeBranchNode<?> scale : scaleBranches) {
-					File remoteJobDir = new File(remoteMainDir, fm.getShortName()+"_"+dm.getShortName()+"_"+scale.getShortName());
-					String argVal = fm.getShortName()+"_,_"+dm.getShortName()+"_,_"+scale.getShortName()+"_";
+					String dirName = fm.getShortName()+"_"+dm.getShortName();
+					if (scale != null)
+						dirName += "_"+scale.getShortName();
+					File remoteJobDir = new File(remoteMainDir, dirName);
+					String argVal = fm.getShortName()+"_,_"+dm.getShortName()+"_";
+					if (scale != null)
+						argVal += ",_"+scale.getShortName()+"_";
 					
 //					String argss = "--threads 2 --min-dispatch 2 --plot-paleo-faults --plot-parent-mfds" +
 //							" --plot-slip-misfits --plot-participations --plot-mini-sect-ris --plot-ave-slips" +
 //							" --name-grep "+argVal+" "+compoundFile.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 					
-					String argss = "--threads 4 --min-dispatch 4 --plot-paleo-faults" +
+					String argss = "--threads 4 --min-dispatch 4 --build-mean" +
 							" --name-grep "+argVal+" "+compoundFile.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 					
 					List<String> script = mpjWrite.buildScript(MPJDistributedCompoundFSSPlots.class.getName(), argss);

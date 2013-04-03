@@ -107,7 +107,7 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, USC_HPCC_ScriptWriter.MPJ_HOME, false) {
+				null, USC_HPCC_ScriptWriter.FMPJ_HOME, true) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch != null && branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
@@ -625,8 +625,8 @@ public class LogicTreePBSWriter {
 		limitations.add(scaling);
 
 //		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class);
-//		List<LogicTreeBranchNode<?>> slipAlongs = toList(SlipAlongRuptureModels.UNIFORM);
-		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class, InversionModels.CHAR_CONSTRAINED);
+		List<LogicTreeBranchNode<?>> slipAlongs = toList(SlipAlongRuptureModels.UNIFORM);
+//		List<LogicTreeBranchNode<?>> slipAlongs = getNonZeroChoices(SlipAlongRuptureModels.class, InversionModels.CHAR_CONSTRAINED);
 		limitations.add(slipAlongs);
 
 //		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
@@ -677,17 +677,17 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "initial-gr-tests";
+		String runName = "new-paleo-weights-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-//		int constrained_run_mins = 300; // 5 hours
+		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 60 * 10;	// 10 hours
-		int constrained_run_mins = 60 * 16;	// 16 hours
+//		int constrained_run_mins = 60 * 16;	// 16 hours
 //		int constrained_run_mins = 60 * 40;	// 40 hours
 //		int constrained_run_mins = 10;
 		runName = df.format(new Date())+"-"+runName;
@@ -695,19 +695,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-//		int jobsPerNode = 1;
-//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-		RunSites site = RunSites.STAMPEDE;
-		int batchSize = 128;
-		int jobsPerNode = 3;
-		String threads = "5"; // *2 = 16 (out of 16 possible)
+//		RunSites site = RunSites.STAMPEDE;
+//		int batchSize = 128;
+//		int jobsPerNode = 3;
+//		String threads = "5"; // *2 = 16 (out of 16 possible)
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -731,13 +731,13 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-//		TreeTrimmer trimmer = getCustomTrimmer();
+		TreeTrimmer trimmer = getCustomTrimmer();
 //		TreeTrimmer trimmer = getFullBranchSpan();
 //		TreeTrimmer trimmer = getMiniBranchSpan();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 //				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
 //				MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
-		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
+//		TreeTrimmer trimmer = getNonZeroOrUCERF2Trimmer();
 //		TreeTrimmer trimmer = getUCERF2Trimmer();
 //		TreeTrimmer trimmer = getDiscreteCustomTrimmer();
 		
@@ -763,11 +763,11 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, new SingleValsTreeTrimmer(ScalingRelationships.ELLSWORTH_B));
 		
 		
-		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
-		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
+//		TreeTrimmer defaultBranchesTrimmer = getUCERF3RefBranches();
+//		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, getZengOnlyTrimmer());
 //		defaultBranchesTrimmer = new LogicalAndTrimmer(defaultBranchesTrimmer, new SingleValsTreeTrimmer(DeformationModels.UCERF2_ALL));
 //		TreeTrimmer defaultBranchesTrimmer = getCustomTrimmer();
-//		TreeTrimmer defaultBranchesTrimmer = null;
+		TreeTrimmer defaultBranchesTrimmer = null;
 		
 		// do all branch choices relative to these:
 		HashMap<InversionModels, Integer> maxAway = Maps.newHashMap();
@@ -838,11 +838,11 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "10000000")));
 		
 		
-		// this is for doing the GR starting model
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR };
-		
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+//		// this is for doing the GR starting model
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { 	InversionOptions.INITIAL_GR };
+//		
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO };
@@ -852,12 +852,11 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
-//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
-//		variationBranches.add(buildVariationBranch(ops, toArray("4")));
-//		variationBranches.add(buildVariationBranch(ops, toArray("6")));
-//		variationBranches.add(buildVariationBranch(ops, toArray("8")));
-//		variationBranches.add(buildVariationBranch(ops, toArray("10")));
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray("0.5")));
+		variationBranches.add(buildVariationBranch(ops, toArray("1")));
+		variationBranches.add(buildVariationBranch(ops, toArray("2")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.COULOMB };
@@ -913,28 +912,31 @@ public class LogicTreePBSWriter {
 //				"--nonnegativity-const PREVENT_ZERO_RATES", "PreventZer") };
 //		saOptions.add(invOps);
 		
-		saOptions = Lists.newArrayList();
-		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
-				CoolingScheduleType.FAST_SA.name() };
-		String[] nonnegTypes = { NonnegativityConstraintType.PREVENT_ZERO_RATES.name(),
-				NonnegativityConstraintType.LIMIT_ZERO_RATES.name(), NonnegativityConstraintType.TRY_ZERO_RATES_OFTEN.name() };
-		String[] coolingSlowdowns = { "1", "10" };
-		
-		for (String coolingFunc : coolingFuncs) {
-			for (String nonneg : nonnegTypes) {
-				String nnVarStr = StringUtils.capitalize(nonneg.split("_")[0].toLowerCase());
-				for (String coolingSlow : coolingSlowdowns) {
-					InversionArg[] invOps = {
-							new InversionArg("--cooling-schedule "+coolingFunc,
-									"Cool"+coolingFunc.replaceAll("_", "")),
-							new InversionArg("--nonnegativity-const "+nonneg,
-									"NN"+nnVarStr),
-							new InversionArg("--slower-cooling "+coolingSlow,
-									"SlowCool"+coolingSlow)};
-					saOptions.add(invOps);
-				}
-			}
-		}
+//		saOptions = Lists.newArrayList();
+//		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
+//				CoolingScheduleType.FAST_SA.name() };
+//		String[] nonnegTypes = { NonnegativityConstraintType.PREVENT_ZERO_RATES.name(),
+//				NonnegativityConstraintType.LIMIT_ZERO_RATES.name(), NonnegativityConstraintType.TRY_ZERO_RATES_OFTEN.name() };
+//		String[] coolingSlowdowns = { "1", "10" };
+//		String[] coolingFuncs = { CoolingScheduleType.FAST_SA.name() };
+//		String[] nonnegTypes = { NonnegativityConstraintType.PREVENT_ZERO_RATES.name() };
+//		String[] coolingSlowdowns = { "1", "10" };
+//		
+////		for (String coolingFunc : coolingFuncs) {
+//			for (String nonneg : nonnegTypes) {
+//				String nnVarStr = StringUtils.capitalize(nonneg.split("_")[0].toLowerCase());
+//				for (String coolingSlow : coolingSlowdowns) {
+//					InversionArg[] invOps = {
+////							new InversionArg("--cooling-schedule "+coolingFunc,
+////									"Cool"+coolingFunc.replaceAll("_", "")),
+//							new InversionArg("--nonnegativity-const "+nonneg,
+//									"NN"+nnVarStr),
+//							new InversionArg("--slower-cooling "+coolingSlow,
+//									"SlowCool"+coolingSlow)};
+//					saOptions.add(invOps);
+//				}
+//			}
+////		}
 		
 //		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
 //				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };

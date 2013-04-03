@@ -113,6 +113,12 @@ public class PeriodicityPlotter {
 		rupIdenNames.add("San Jacinto 7+");
 		colors.add(Color.CYAN);
 		
+		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
+				6d, 10d, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
+		String mojaveCoachellCoruptureName = "SAF Mojave/Coachella Corupture";
+		
+		double quietAftershockBuffer = 1;
+		
 //		rupIdens.add(new MagRangeRuptureIdentifier(7d, 10d));
 //		rupIdenNames.add("All 7+");
 //		colors.add(Color.GRAY);
@@ -221,22 +227,64 @@ public class PeriodicityPlotter {
 					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
 				
 				for (boolean includeInitialCorupture : initials) {
-					plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
-							// target
-							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
-							// given
-							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex), cumulativePlotYears, includeInitialCorupture);
-					plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
-							// target
-							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
-							// given
-							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex), cumulativePlotYears, includeInitialCorupture);
-//					plotConditionalProbs(myWriteDir, display, randomized, events,
-//							// target
-//							rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
-//							// given
-//							rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex), 5d, includeInitialCorupture);
+					
+					double[] quiets;
+					if (includeInitialCorupture)
+						quiets = toDoubleArray(-1d);
+					else
+						quiets = toDoubleArray(-1d, 156);
+					for (double quiet : quiets) {
+						if (quiet > 0) {
+							RuptureIdentifier quietIden = new QuietPeriodIdenMatcher(rupIdens.get(mojaveIndex), quietAftershockBuffer, quiet, rupIdens);
+							String quiteNameAdd = " (Quiet "+(int)quiet+"yrs)";
+							plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+									// target
+									rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+									// given
+									quietIden, rupIdenNames.get(mojaveIndex)+quiteNameAdd,
+									cumulativePlotYears, includeInitialCorupture);
+							quietIden = new QuietPeriodIdenMatcher(rupIdens.get(coachellaIndex), quietAftershockBuffer, quiet, rupIdens);
+							plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+									// target
+									rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+									// given
+									rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex)+quiteNameAdd,
+									cumulativePlotYears, includeInitialCorupture);
+						} else {
+							plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+									// target
+									rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+									// given
+									rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+									cumulativePlotYears, includeInitialCorupture);
+							plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+									// target
+									rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+									// given
+									rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+									cumulativePlotYears, includeInitialCorupture);
+						}
+						
+//						plotConditionalProbs(myWriteDir, display, randomized, events,
+//								// target
+//								rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+//								// given
+//								rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex), quiet, 5d, includeInitialCorupture);
+					}
 				}
+				RuptureIdentifier quietIden = new QuietPeriodIdenMatcher(mojaveCoachellCorupture, quietAftershockBuffer, 156, rupIdens);
+				plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+						// target
+						rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
+						// given
+						quietIden, mojaveCoachellCoruptureName+" (Quiet 156yrs)",
+						cumulativePlotYears, true);
+				plotConditionalProbs(myWriteDir, display, events, randomResampledCatalog,
+						// target
+						rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex),
+						// given
+						quietIden, mojaveCoachellCoruptureName+" (Quiet 156yrs)",
+						cumulativePlotYears, true);
 			}
 			
 			if (!randomized) {
@@ -1161,10 +1209,12 @@ public class PeriodicityPlotter {
 
 	public static ArbitrarilyDiscretizedFunc getCumulativeProbDist(
 			List<EQSIM_Event> events, RuptureIdentifier targetIden,
-			RuptureIdentifier givenIden, double maxTimeYears,
+			RuptureIdentifier givenIden,double maxTimeYears,
 			boolean includeInitialCorupture) {
 		List<EQSIM_Event> targetMatches = targetIden.getMatches(events);
 		List<EQSIM_Event> givenMatches = givenIden.getMatches(events);
+		System.out.println("Target matches: "+targetMatches.size());
+		System.out.println("Given matches: "+givenMatches.size());
 		
 		HashSet<Integer> coruptures = null;
 		if (!includeInitialCorupture) {
@@ -1200,11 +1250,15 @@ public class PeriodicityPlotter {
 				if (targetTime > targetMaxTime)
 					break;
 				double deltaTime = targetTime - givenTime;
+				if (givenIden instanceof QuietPeriodIdenMatcher && deltaTime < ((QuietPeriodIdenMatcher)givenIden).getQuietYears())
+					continue;
 				int xIndex = timeFunc.getXIndex(deltaTime);
 				if (xIndex < 0)
 					timeFunc.set(deltaTime, yVal);
 				else
 					timeFunc.set(xIndex, yVal+timeFunc.getY(xIndex));
+//				if (givenIden instanceof QuietPeriodIdenMatcher)
+//					System.out.println("Got a hit after "+deltaTime+" years");
 				// we only want the first occurrence as we're doing cumulative probabilities
 				break;
 			}
@@ -1300,6 +1354,14 @@ public class PeriodicityPlotter {
 	
 	public static int[] toIntArray(int... ints) {
 		return ints;
+	}
+	
+	public static double[] toDoubleArray(double... vals) {
+		return vals;
+	}
+	
+	public static <E> E[] toArray(E... vals) {
+		return vals;
 	}
 
 }

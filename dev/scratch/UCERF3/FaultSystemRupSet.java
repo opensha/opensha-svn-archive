@@ -21,6 +21,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.CompoundGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -521,14 +522,18 @@ public abstract class FaultSystemRupSet {
 	 * @param gridSpacing
 	 * @return
 	 */
-	public CompoundGriddedSurface getCompoundGriddedSurfaceForRupupture(int rupIndex, double gridSpacing) {
-		ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
-		for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-			// TODO: should aseis be false instead of true?
-			surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
+	public RuptureSurface getSurfaceForRupupture(int rupIndex, double gridSpacing) {
+		List<FaultSectionPrefData> fsdList = getFaultSectionDataForRupture(rupIndex);
+		if (fsdList.size() > 1) {
+			ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
+			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
+				// TODO: should aseis be false instead of true?
+				surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
+			}
+			return new CompoundGriddedSurface(surfaces);
 		}
-		return new CompoundGriddedSurface(surfaces);
-		
+		// just return an evenly gridded surface
+		return fsdList.get(0).getStirlingGriddedSurface(gridSpacing, false, true);
 	}
 	
 	/**

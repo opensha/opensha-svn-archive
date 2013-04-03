@@ -455,7 +455,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			boolean isPoisson = true;
 			double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
 			src = new FaultRuptureSource(mag, 
-										  faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing), 
+										  faultSysSolution.getSurfaceForRupupture(invRupIndex, faultGridSpacing), 
 										  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
 		}
 		else {
@@ -463,7 +463,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
-					faultSysSolution.getCompoundGriddedSurfaceForRupupture(invRupIndex, faultGridSpacing),
+					faultSysSolution.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
 					faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
 		}
 

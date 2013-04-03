@@ -34,6 +34,10 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		this(Lists.newArrayList(elementID), minMag, maxMag);
 	}
 	
+	public ElementMagRangeDescription(double minMag, double maxMag, int... elementIDs) {
+		this(Ints.asList(elementIDs), minMag, maxMag);
+	}
+	
 	public ElementMagRangeDescription(List<Integer> elementIDs, double minMag, double maxMag) {
 		this.elementIDs = elementIDs;
 		this.minMag = minMag;

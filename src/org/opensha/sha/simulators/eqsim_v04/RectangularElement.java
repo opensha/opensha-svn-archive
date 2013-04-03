@@ -139,8 +139,16 @@ public class RectangularElement {
 		return faultID;
 	}
 	
+	public void setNumAlongStrike(int numAlongStrike) {
+		this.numAlongStrike = numAlongStrike;
+	}
+	
 	public int getNumAlongStrike() {
 		return numAlongStrike;
+	}
+	
+	public void setNumDownDip(int numDownDip) {
+		this.numDownDip = numDownDip;
 	}
 
 	public int getNumDownDip() {
