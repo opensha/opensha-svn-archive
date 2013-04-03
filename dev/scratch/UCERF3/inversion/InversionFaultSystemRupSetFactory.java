@@ -5,33 +5,22 @@ import java.io.IOException;
 import java.util.List;
 
 import org.dom4j.DocumentException;
-import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
-import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
-import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
-import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesTester.TestType;
-import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This class serves as a factory for loading/building FaultSystemRupSet's for each branch of the UCERF3 logic tree.<br>
