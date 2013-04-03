@@ -2729,8 +2729,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 				laughTest = LaughTestFilter.getUCERF3p2Filter();
 			}
 			
+			DeformationModels dm;
+			if (plot.defModelsMap.get(fm).size() == 1)
+				// for single dm, use that one
+				dm = plot.defModelsMap.get(fm).iterator().next();
+			else
+				// mutiple dms, use mean
+				dm = DeformationModels.MEAN_UCERF3;
+			
 			FaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
-					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(fm));
+					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(fm, dm));
 			
 			String info = reference.getInfoString();
 			
@@ -2770,6 +2778,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<FaultModels, double[]> ratesMap = Maps.newConcurrentMap();
 		private Map<FaultModels, double[]> magsMap = Maps.newConcurrentMap();
 		private Map<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
+		
+		private Map<FaultModels, HashSet<DeformationModels>> defModelsMap = Maps.newHashMap();
 		
 		public MeanFSSBuilder(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
@@ -2813,6 +2823,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
 					ratesMap.put(fm, new double[numRups]);
 					magsMap.put(fm, new double[numRups]);
+					defModelsMap.put(fm, new HashSet<DeformationModels>());
 				}
 				weightsList.add(weight);
 				Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
@@ -2825,6 +2836,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				addWeighted(ratesMap.get(fm), sol.getRateForAllRups(), weight);
 				addWeighted(magsMap.get(fm), sol.getMagForAllRups(), weight);
+				
+				synchronized (defModelsMap) {
+					defModelsMap.get(fm).add(branch.getValue(DeformationModels.class));
+				}
 			}
 		}
 		
@@ -2866,6 +2881,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
 						ratesMap.put(fm, new double[o.ratesMap.get(fm).length]);
 						magsMap.put(fm, new double[o.magsMap.get(fm).length]);
+						defModelsMap.put(fm, new HashSet<DeformationModels>());
 					}
 					Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = o.nodeSubSeisMFDsMap.get(fm);
 					Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = o.nodeUnassociatedMFDsMap.get(fm);
@@ -2880,6 +2896,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					
 					addWeighted(ratesMap.get(fm), o.ratesMap.get(fm), 1d);
 					addWeighted(magsMap.get(fm), o.magsMap.get(fm), 1d);
+					defModelsMap.get(fm).addAll(o.defModelsMap.get(fm));
 				}
 			}
 		}
