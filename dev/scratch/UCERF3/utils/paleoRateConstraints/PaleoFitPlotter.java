@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -942,6 +943,155 @@ public class PaleoFitPlotter {
 		}
 		
 		return specs;
+	}
+	
+	public static void writeTables(File dir,
+			FaultSystemSolution sol,
+			List<AveSlipConstraint> aveSlipConstraints,
+			List<PaleoRateConstraint> paleoRateConstraints,
+			FaultSystemSolution ucerf2Sol,
+			List<AveSlipConstraint> ucerf2AveSlipConstraints,
+			List<PaleoRateConstraint> ucerf2PaleoRateConstraints,
+			PaleoProbabilityModel paleoProbModel) throws IOException {
+		CSVFile<String> aveSlipTable = buildAveSlipTable(sol, aveSlipConstraints,
+				ucerf2Sol, ucerf2AveSlipConstraints);
+		CSVFile<String> paleoTable = buildPaleoRateTable(sol, paleoRateConstraints,
+				ucerf2Sol, ucerf2PaleoRateConstraints, paleoProbModel);
+		
+		File aveSlipFile = new File(dir, "ave_slip_rates.csv");
+		File paleoFile = new File(dir, "paleo_rates.csv");
+		
+		aveSlipTable.writeToFile(aveSlipFile);
+		paleoTable.writeToFile(paleoFile);
+	}
+	
+	public static CSVFile<String> buildAveSlipTable(
+			FaultSystemSolution sol, List<AveSlipConstraint> constraints,
+			FaultSystemSolution ucerf2Sol, List<AveSlipConstraint> ucerf2AveSlipConstraints) {
+		CSVFile<String> csv = new CSVFile<String>(true);
+
+		List<String> header = Lists.newArrayList(sol.getFaultModel().getShortName()
+				+ " Mapping", "Latitude", "Longitude",
+				"Weighted Mean Slip", "UCERF2 Reduced Slip Rate",
+				"UCERF2 Proxy Event Rate",
+				"UCERF3 Reduced Slip Rate",
+				"UCERF3 Proxy Event Rate",
+				"UCERF3 Paleo Visible Rate");
+
+		csv.addLine(header);
+
+		for (int i = 0; i < constraints.size(); i++) {
+			AveSlipConstraint constr = constraints.get(i);
+
+			// find matching UCERF2 constraint
+			AveSlipConstraint ucerf2Constraint = null;
+			for (AveSlipConstraint u2Constr : ucerf2AveSlipConstraints) {
+				if (u2Constr.getSiteLocation().equals(
+						constr.getSiteLocation())) {
+					ucerf2Constraint = u2Constr;
+					break;
+				}
+			}
+			
+			int subsectionIndex = constr.getSubSectionIndex();
+
+			double slip = sol.getSlipRateForSection(subsectionIndex);
+			double proxyRate = slip / constr.getWeightedMean();
+			double obsRate = 0d;
+			for (int rupID : sol.getRupturesForSection(constr
+					.getSubSectionIndex())) {
+				int sectIndexInRup = sol.getSectionsIndicesForRup(rupID)
+						.indexOf(subsectionIndex);
+				double slipOnSect = sol.getSlipOnSectionsForRup(rupID)[sectIndexInRup];
+				double probVisible = AveSlipConstraint
+						.getProbabilityOfObservedSlip(slipOnSect);
+				obsRate += sol.getRateForRup(rupID) * probVisible;
+			}
+
+			List<String> line = Lists.newArrayList();
+			line.add(constr.getSubSectionName());
+			line.add(constr.getSiteLocation().getLatitude() + "");
+			line.add(constr.getSiteLocation().getLongitude() + "");
+			line.add(constr.getWeightedMean() + "");
+			if (ucerf2Constraint == null) {
+				line.add("");
+				line.add("");
+			} else {
+				double ucerf2SlipRate = ucerf2Sol
+						.getSlipRateForSection(ucerf2Constraint
+								.getSubSectionIndex());
+				line.add(ucerf2SlipRate + "");
+				double ucerf2ProxyRate = ucerf2SlipRate
+						/ constr.getWeightedMean();
+				line.add(ucerf2ProxyRate + "");
+			}
+
+			line.add(slip + "");
+			line.add(proxyRate + "");
+			line.add(obsRate + "");
+
+			csv.addLine(line);
+		}
+		
+		return csv;
+	}
+	
+	public static CSVFile<String> buildPaleoRateTable(
+			FaultSystemSolution sol, List<PaleoRateConstraint> constraints,
+			FaultSystemSolution ucerf2Sol, List<PaleoRateConstraint> ucerf2PaleoConstraints,
+			PaleoProbabilityModel paleoProbModel) {
+		CSVFile<String> csv = new CSVFile<String>(true);
+
+		List<String> header = Lists.newArrayList(sol.getFaultModel().getShortName()
+				+ " Mapping", "Latitude", "Longitude",
+				"Paleo Observed Rate", "Paleo Observed Lower Bound",
+				"Paleo Observed Upper Bound",
+				"UCERF2 Proxy Event Rate",
+				"UCERF3 Paleo Visible Rate");
+
+		csv.addLine(header);
+
+		for (int i = 0; i < constraints.size(); i++) {
+			PaleoRateConstraint constr = constraints.get(i);
+
+			// find matching UCERF2 constraint
+			PaleoRateConstraint ucerf2Constraint = null;
+			for (PaleoRateConstraint u2Constr : ucerf2PaleoConstraints) {
+				if (u2Constr.getPaleoSiteLoction().equals(
+						constr.getPaleoSiteLoction())) {
+					ucerf2Constraint = u2Constr;
+					break;
+				}
+			}
+
+			List<String> line = Lists.newArrayList();
+			line.add(constr.getFaultSectionName());
+			line.add(constr.getPaleoSiteLoction().getLatitude() + "");
+			line.add(constr.getPaleoSiteLoction().getLongitude() + "");
+			line.add(constr.getMeanRate() + "");
+			line.add(constr.getLower95ConfOfRate() + "");
+			line.add(constr.getUpper95ConfOfRate() + "");
+			if (ucerf2Constraint == null) {
+				line.add("");
+			} else {
+				line.add(PaleoFitPlotter.getPaleoRateForSect(ucerf2Sol,
+						ucerf2Constraint.getSectionIndex(),
+						paleoProbModel)
+						+ "");
+			}
+			double obsRate = 0d;
+			for (int rupID : sol.getRupturesForSection(constr.getSectionIndex())) {
+				obsRate += sol.getRateForRup(rupID)
+						* paleoProbModel.getProbPaleoVisible(sol, rupID,
+								constr.getSectionIndex());
+			}
+
+			line.add(obsRate + "");
+
+			csv.addLine(line);
+		}
+		
+		return csv;
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
