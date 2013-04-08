@@ -677,7 +677,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-paleo-weights-tests";
+		String runName = "new-paleo-weights-tests-no-nucl-mfd";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -852,11 +852,17 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.NO_WEIGHT_SLIP_RATES, InversionOptions.SLIP_WT };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, "100")));
 		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.PALEO_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray("1")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("1.5")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("2")));
+		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.PALEO_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray("0.5")));
-		variationBranches.add(buildVariationBranch(ops, toArray("1")));
-		variationBranches.add(buildVariationBranch(ops, toArray("2")));
+		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
+		variationBranches.add(buildVariationBranch(ops, toArray("1", "0")));
+		variationBranches.add(buildVariationBranch(ops, toArray("1.5", "0")));
+		variationBranches.add(buildVariationBranch(ops, toArray("2", "0")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.COULOMB };

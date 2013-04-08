@@ -26,6 +26,10 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.IDPairing;
+import scratch.kevin.simulators.ElementMagRangeDescription;
+import scratch.kevin.simulators.EventsInWindowsMatcher;
+import scratch.kevin.simulators.QuietPeriodIdenMatcher;
+import scratch.kevin.simulators.RuptureIdentifier;
 
 public class SimulatorFaultSystemSolution extends SimpleFaultSystemSolution {
 	
@@ -343,10 +347,39 @@ public class SimulatorFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
+//		RuptureIdentifier rupIden = null;
+		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d);
+		ElementMagRangeDescription carrizoIden = new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
+		ElementMagRangeDescription mojaveIden = new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
+		ElementMagRangeDescription coachellaIden = new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
+		
+		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
+				6d, 10d, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
+		
+		double quietYears = 156;
+		double forecastYears = 30;
+		
+//		RuptureIdentifier rupIden = new QuietPeriodIdenMatcher(mojaveIden, 5, quietYears,
+//				cholameIden, carrizoIden, mojaveIden, coachellaIden);
+		RuptureIdentifier rupIden = null;
+		
+		if (rupIden != null) {
+			EventsInWindowsMatcher matcher = new EventsInWindowsMatcher(events, rupIden, quietYears, quietYears+forecastYears, false);
+			events = matcher.getEventsInWindows();
+			durationYears = matcher.getTotalWindowDurationYears();
+			System.out.println("New duration: "+durationYears+" ("+events.size()
+					+" events in "+matcher.getMatchIDs().size()+" matches)");
+		}
+		
 		SimulatorFaultSystemSolution fss = new SimulatorFaultSystemSolution(tools.getElementsList(), events, durationYears, 6);
 		System.out.println(fss.getInfoString());
 		
-		fss.toZipFile(new File("/tmp/simulators_long_sol_6.zip"));
+//		fss.toZipFile(new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
+		fss.toZipFile(new File("/tmp/simulators_long_sol.zip"));
 	}
 
 }

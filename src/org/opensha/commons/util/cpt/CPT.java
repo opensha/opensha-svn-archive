@@ -420,7 +420,11 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 	}
 	
 	public void writeCPTFile(String fileName) throws IOException {
-		FileWriter fw = new FileWriter(fileName);
+		writeCPTFile(new File(fileName));
+	}
+	
+	public void writeCPTFile(File file) throws IOException {
+		FileWriter fw = new FileWriter(file);
 		fw.write(this.toString());
 		fw.close();
 	}

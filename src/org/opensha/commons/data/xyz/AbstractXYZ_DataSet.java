@@ -1,6 +1,7 @@
 package org.opensha.commons.data.xyz;
 
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,8 +94,12 @@ public abstract class AbstractXYZ_DataSet implements XYZ_DataSet {
 	}
 	
 	public static void writeXYZFile(XYZ_DataSet xyz, String fileName) throws IOException {
+		writeXYZFile(xyz, new File(fileName));
+	}
+	
+	public static void writeXYZFile(XYZ_DataSet xyz, File file) throws IOException {
 		
-		FileWriter fw = new FileWriter(fileName);
+		FileWriter fw = new FileWriter(file);
 		for (int i=0; i<xyz.size(); i++) {
 			Point2D point = xyz.getPoint(i);
 			double z = xyz.get(i);

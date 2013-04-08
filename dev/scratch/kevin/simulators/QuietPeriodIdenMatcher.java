@@ -1,11 +1,16 @@
 package scratch.kevin.simulators;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 public class QuietPeriodIdenMatcher implements RuptureIdentifier {
@@ -80,6 +85,87 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 
 	public double getQuietYears() {
 		return quietYears;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		File dir = new File("/home/kevin/Simulators");
+		File geomFile = new File(dir, "ALLCAL2_1-7-11_Geometry.dat");
+		System.out.println("Loading geometry...");
+		General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+//		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
+		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
+		System.out.println("Loading events...");
+		tools.read_EQSIMv04_EventsFile(eventFile);
+		List<EQSIM_Event> events = tools.getEventsList();
+		
+		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
+				6d, 10d, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
+		String mojaveCoachellCoruptureName = "SAF Mojave/Coachella Corupture";
+		
+		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
+		List<String> rupIdenNames = Lists.newArrayList();
+		List<Color> colors = Lists.newArrayList();
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Cholame 7+");
+		colors.add(Color.RED);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Carrizo 7+");
+		colors.add(Color.BLUE);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("Garlock 7+");
+		colors.add(Color.GREEN);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Mojave 7+");
+		colors.add(Color.BLACK);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("SAF Coachella 7+");
+		colors.add(Color.RED);
+		
+		rupIdens.add(new ElementMagRangeDescription(
+				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
+		rupIdenNames.add("San Jacinto 7+");
+		colors.add(Color.CYAN);
+		
+//		List<RuptureIdentifier> quietIdens = rupIdens;
+		List<RuptureIdentifier> quietIdens = Lists.newArrayList(rupIdens.get(0), rupIdens.get(1), rupIdens.get(3), rupIdens.get(4));
+		
+		RuptureIdentifier quietIden = new QuietPeriodIdenMatcher(mojaveCoachellCorupture,
+				5, 150, quietIdens);
+		
+		List<EQSIM_Event> matches = quietIden.getMatches(events);
+		
+		for (EQSIM_Event e : matches)  {
+			System.out.println(e.getID()+": "+e.getTimeInYears()+" ("+e.getMagnitude()+")");
+			double time = e.getTimeInYears();
+			for (EQSIM_Event e1 : events) {
+				if (e1.getMagnitude() < 7)
+					continue;
+				double time2 = e1.getTimeInYears();
+				if (time2 <= time)
+					continue;
+				double timeDiff = time2 - time;
+				if (timeDiff > 200)
+					break;
+				
+				List<String> idenMatches = Lists.newArrayList();
+				for (int i=0; i<rupIdens.size(); i++)
+					if (rupIdens.get(i).isMatch(e1))
+						idenMatches.add(rupIdenNames.get(i));
+				
+				System.out.println("\t"+timeDiff+": "+e1.getMagnitude()
+						+" (matches: "+Joiner.on(",").join(idenMatches)+")");
+			}
+		}
 	}
 
 }

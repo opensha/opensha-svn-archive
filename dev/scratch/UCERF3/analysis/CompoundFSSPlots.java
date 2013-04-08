@@ -4549,6 +4549,22 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public String getLabel() {
 			return label;
 		}
+
+		public CPT getCPT() {
+			return cpt;
+		}
+
+		public Region getRegion() {
+			return region;
+		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public String getSubDirName() {
+			return subDirName;
+		}
 	}
 
 	public static abstract class MapBasedPlot extends CompoundFSSPlots {
@@ -5095,9 +5111,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// File("/tmp/2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL");
 		// File file = new File(dir,
 		// "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
-		File dir = new File("/tmp/comp_plots");
-		File file = new File(dir,
-				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+//		File dir = new File("/tmp/comp_plots");
+//		File file = new File(dir,
+//				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+		File dir = new File("/tmp/paleo_comp_plots/Paleo1.5");
+		File file = new File(dir, "2013_04_02-new-paleo-weights-tests_VarPaleo1.5_COMPOUND_SOL.zip");
 		// File file = new File(dir, "zeng_convergence_compound.zip");
 		// File file = new
 		// File("/tmp/2012_10_10-fm3-logic-tree-sample_COMPOUND_SOL.zip");
@@ -5138,7 +5156,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 		// plots.add(new RegionalMFDPlot(weightProvider, regions));
-		// plots.add(new PaleoFaultPlot(weightProvider));
+		 plots.add(new PaleoFaultPlot(weightProvider));
 		// plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 		// plots.add(new RupJumpPlot(weightProvider));
@@ -5150,7 +5168,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// plots.add(new PaleoRatesTable(weightProvider));
 		// plots.add(new AveSlipPlot(weightProvider));
 		// plots.add(new MultiFaultParticPlot(weightProvider));
-		plots.add(new MeanFSSBuilder(weightProvider));
+//		plots.add(new MeanFSSBuilder(weightProvider));
 
 		batchPlot(plots, fetch, 4);
 
