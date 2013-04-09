@@ -21,27 +21,27 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	
 	// UCERF3
 	// AVERAGE BLOCK MODEL
-	ABM(					"Average Block Model",	"ABM",		0.10d,	FaultModels.FM3_1,	"ABM_slip_rake_fm_3_1_2013_04_08.csv",
-																		FaultModels.FM3_2,	"ABM_slip_rake_fm_3_2_2013_04_08.csv"),
+	ABM(					"Average Block Model",	"ABM",		0.10d,	FaultModels.FM3_1,	"ABM_slip_rake_fm_3_1_2013_04_09.csv",
+																		FaultModels.FM3_2,	"ABM_slip_rake_fm_3_2_2013_04_09.csv"),
 	// GEOBOUNDED INVERSION
 	GEOBOUND(				"Geobounded",			"GEOB",		0d,		FaultModels.FM3_1,	"geobound_slip_rake__MAPPED_2012_06_05.csv"),
 	// NEOKINEMA
-	NEOKINEMA(				"Neokinema",			"NEOK",		0.30d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2013_04_08.csv",
-																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2013_04_08.csv"),
+	NEOKINEMA(				"Neokinema",			"NEOK",		0.30d,	FaultModels.FM3_1,	"neokinema_slip_rake_fm_3_1_2013_04_09.csv",
+																		FaultModels.FM3_2,	"neokinema_slip_rake_fm_3_2_2013_04_09.csv"),
 	// ZENG
 	ZENG(					"Zeng Unbounded",		"ZENG",		0.00d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_2012_10_11.csv",
 																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_2012_10_11.csv"),
 	ZENGAB(					"Zeng All Bounded",		"ZENGAB",	0.00d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_all_bounded_2013_01_10.csv",
 																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_all_bounded_2013_01_10.csv"),
-	ZENGBB(					"Zeng B-Fault Bounded",	"ZENGBB",	0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_b_bounded_2013_04_08.csv",
-																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_b_bounded_2013_04_08.csv"),
+	ZENGBB(					"Zeng B-Fault Bounded",	"ZENGBB",	0.30d,	FaultModels.FM3_1,	"zeng_slip_rake_fm_3_1_b_bounded_2013_04_09.csv",
+																		FaultModels.FM3_2,	"zeng_slip_rake_fm_3_2_b_bounded_2013_04_09.csv"),
 	// GEOLOGIC
-	GEOLOGIC(				"Geologic",				"GEOL", 	0.30d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2013_04_08.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2013_04_08.csv"),
-	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound_2013_04_08.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound_2013_04_08.csv"),
-	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_lowerbound_2013_04_08.csv",
-																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_lowerbound_2013_04_08.csv"),
+	GEOLOGIC(				"Geologic",				"GEOL", 	0.30d,	FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_2013_04_09.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_2013_04_09.csv"),
+	GEOLOGIC_UPPER(			"Geologic Upper Bound",	"GLUP", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_upperbound_2013_04_09.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_upperbound_2013_04_09.csv"),
+	GEOLOGIC_LOWER(			"Geologic Lower Bound",	"GLLOW", 	0d,		FaultModels.FM3_1,	"geologic_slip_rake_fm_3_1_lowerbound_2013_04_09.csv",
+																		FaultModels.FM3_2,	"geologic_slip_rake_fm_3_2_lowerbound_2013_04_09.csv"),
 	// GEOLOGIC + ABM
 	GEOLOGIC_PLUS_ABM(		"Geologic + ABM",		"GLpABM",	0d,		FaultModels.FM3_1,	"geologic_plus_ABM_slip_rake_fm_3_1_2012_06_08.csv",
 																		FaultModels.FM3_2,	"geologic_plus_ABM_slip_rake_fm_3_2_2012_06_08.csv"),

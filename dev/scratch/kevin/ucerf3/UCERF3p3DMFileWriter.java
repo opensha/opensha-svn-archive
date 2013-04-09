@@ -25,10 +25,10 @@ public class UCERF3p3DMFileWriter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		String date_str = "2013_04_08";
-		String fm_str = "fm_3_2";
+		String date_str = "2013_04_09";
+		String fm_str = "fm_3_1";
 		File dmDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR.getParentFile(), "DeformationModels");
-		File csvFile = new File(dmDir, "ucerf3p3_fm3p2_dms.csv");
+		File csvFile = new File(dmDir, "ucerf3p3_fm3p1_dms.csv");
 		
 		CSVFile<String> csv = CSVFile.readFile(csvFile, false);
 		
