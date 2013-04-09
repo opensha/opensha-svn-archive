@@ -91,11 +91,6 @@ public class StandaloneSubSectRupGen {
 		int sectIndex = 0;
 		for (FaultSectionPrefData parentSect : fsd) {
 			double ddw = parentSect.getOrigDownDipWidth();
-			if (parentSect.getSectionId() == 97) {
-				// TODO remove hack when coulomb file is updated
-				System.err.println("*** WARNING: USING OLD IMPERIAL DDW FOR SUBSECTIONING! HACK HACK HACK!!! ***");
-				ddw = (14.600000381469727)/Math.sin(parentSect.getAveDip()*Math.PI/ 180);
-			}
 			double maxSectLength = ddw*maxSubSectionLength;
 			// the "2" here sets a minimum number of sub sections
 			List<FaultSectionPrefData> newSubSects = parentSect.getSubSectionsList(maxSectLength, sectIndex, 2);
