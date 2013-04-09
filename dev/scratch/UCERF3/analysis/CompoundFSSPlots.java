@@ -5156,7 +5156,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 		// plots.add(new RegionalMFDPlot(weightProvider, regions));
-		 plots.add(new PaleoFaultPlot(weightProvider));
+//		 plots.add(new PaleoFaultPlot(weightProvider));
 		// plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 		// plots.add(new RupJumpPlot(weightProvider));
@@ -5165,7 +5165,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		 plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		 plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
 		// plots.add(new MiniSectRIPlot(weightProvider));
-		// plots.add(new PaleoRatesTable(weightProvider));
+		 plots.add(new PaleoRatesTable(weightProvider));
 		// plots.add(new AveSlipPlot(weightProvider));
 		// plots.add(new MultiFaultParticPlot(weightProvider));
 //		plots.add(new MeanFSSBuilder(weightProvider));

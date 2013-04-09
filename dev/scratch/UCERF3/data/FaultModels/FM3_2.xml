@@ -8824,46 +8824,7 @@
         <Location Latitude="36.71052" Longitude="-117.54048" Depth="0.0"/>
       </FaultTrace>
     </i306>
-    <i307 sectionId="761" sectionName="Tolay 2011" aveLongTermSlipRate="0.38999998569488525" slipRateStdDev="0.0" aveDip="90.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="11.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="30.664392" parentSectionId="-1" connector="false">
-      <ZonePolygon name="Unnamed Region">
-        <LocationList>
-          <Location Latitude="38.400094" Longitude="-122.99418400000002" Depth="0.0"/>
-          <Location Latitude="38.311507" Longitude="-122.75933600000002" Depth="0.0"/>
-          <Location Latitude="38.321108" Longitude="-122.75275100000002" Depth="0.0"/>
-          <Location Latitude="38.318387" Longitude="-122.69118700000001" Depth="0.0"/>
-          <Location Latitude="38.285127" Longitude="-122.639008" Depth="0.0"/>
-          <Location Latitude="38.269864" Longitude="-122.632083" Depth="0.0"/>
-          <Location Latitude="38.251474" Longitude="-122.57393899999998" Depth="0.0"/>
-          <Location Latitude="38.208507" Longitude="-122.507" Depth="0.0"/>
-          <Location Latitude="38.139244" Longitude="-122.430939" Depth="0.0"/>
-          <Location Latitude="38.125955" Longitude="-122.44306" Depth="0.0"/>
-          <Location Latitude="38.168488" Longitude="-122.489669" Depth="0.0"/>
-          <Location Latitude="38.170935" Longitude="-122.50250300000002" Depth="0.0"/>
-          <Location Latitude="38.220969" Longitude="-122.56556199999999" Depth="0.0"/>
-          <Location Latitude="38.222827" Longitude="-122.56251600000002" Depth="0.0"/>
-          <Location Latitude="38.235181" Longitude="-122.581746" Depth="0.0"/>
-          <Location Latitude="38.282062" Longitude="-122.73108399999998" Depth="0.0"/>
-          <Location Latitude="38.255885" Longitude="-122.75230100000002" Depth="0.0"/>
-          <Location Latitude="38.276628" Longitude="-122.81057600000001" Depth="0.0"/>
-          <Location Latitude="38.261938" Longitude="-122.82374299999998" Depth="0.0"/>
-          <Location Latitude="38.29193" Longitude="-122.880441" Depth="0.0"/>
-          <Location Latitude="38.312785" Longitude="-122.86751700000002" Depth="0.0"/>
-          <Location Latitude="38.330984" Longitude="-122.861719" Depth="0.0"/>
-          <Location Latitude="38.356683000000004" Longitude="-122.929877" Depth="0.0"/>
-          <Location Latitude="38.350428" Longitude="-122.96774899999998" Depth="0.0"/>
-          <Location Latitude="38.36394" Longitude="-123.00296700000001" Depth="0.0"/>
-          <Location Latitude="38.383266" Longitude="-123.000534" Depth="0.0"/>
-        </LocationList>
-      </ZonePolygon>
-      <FaultTrace name="Tolay 2011">
-        <Location Latitude="38.1326" Longitude="-122.43700000000001" Depth="0.0"/>
-        <Location Latitude="38.2011" Longitude="-122.51209999999999" Depth="0.0"/>
-        <Location Latitude="38.2434" Longitude="-122.5779" Depth="0.0"/>
-        <Location Latitude="38.2929" Longitude="-122.7356" Depth="0.0"/>
-        <Location Latitude="38.39168" Longitude="-122.99736" Depth="0.0"/>
-      </FaultTrace>
-    </i307>
-    <i308 sectionId="886" sectionName="Towne Pass" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="50.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="285.3208" parentSectionId="-1" connector="false">
+    <i307 sectionId="886" sectionName="Towne Pass" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="50.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="285.3208" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="36.389833" Longitude="-117.260295" Depth="0.0"/>
@@ -8905,8 +8866,8 @@
         <Location Latitude="36.25892000000001" Longitude="-117.22290999999998" Depth="0.0"/>
         <Location Latitude="36.23879" Longitude="-117.2326" Depth="0.0"/>
       </FaultTrace>
-    </i308>
-    <i309 sectionId="117" sectionName="Ventura-Pitas Point" aveLongTermSlipRate="1.600000023841858" slipRateStdDev="0.0" aveDip="64.0" aveRake="60.0" aveUpperDepth="1.0" aveLowerDepth="15.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="346.90884" parentSectionId="-1" connector="false">
+    </i307>
+    <i308 sectionId="117" sectionName="Ventura-Pitas Point" aveLongTermSlipRate="1.600000023841858" slipRateStdDev="0.0" aveDip="64.0" aveRake="60.0" aveUpperDepth="1.0" aveLowerDepth="15.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="346.90884" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="34.368763" Longitude="-119.06813699999998" Depth="0.0"/>
@@ -8935,8 +8896,8 @@
         <Location Latitude="34.3027" Longitude="-119.46300000000001" Depth="1.0"/>
         <Location Latitude="34.2974" Longitude="-119.59299999999999" Depth="1.0"/>
       </FaultTrace>
-    </i309>
-    <i310 sectionId="112" sectionName="Verdugo" aveLongTermSlipRate="0.38999998569488525" slipRateStdDev="0.0" aveDip="55.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="14.5" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="30.71566" parentSectionId="-1" connector="false">
+    </i308>
+    <i309 sectionId="112" sectionName="Verdugo" aveLongTermSlipRate="0.38999998569488525" slipRateStdDev="0.0" aveDip="55.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="14.5" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="30.71566" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="34.126185" Longitude="-118.12549600000001" Depth="0.0"/>
@@ -8964,8 +8925,8 @@
         <Location Latitude="34.25383" Longitude="-118.40775" Depth="0.0"/>
         <Location Latitude="34.26115" Longitude="-118.42055" Depth="0.0"/>
       </FaultTrace>
-    </i310>
-    <i311 sectionId="696" sectionName="Walker Spring 2011 CFM" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="90.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="10.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="79.25684" parentSectionId="-1" connector="false">
+    </i309>
+    <i310 sectionId="696" sectionName="Walker Spring 2011 CFM" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="90.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="10.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="79.25684" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="40.23089" Longitude="-121.012355" Depth="0.0"/>
@@ -8990,8 +8951,8 @@
         <Location Latitude="40.42177" Longitude="-121.06688000000001" Depth="0.0"/>
         <Location Latitude="40.49447" Longitude="-121.08739000000001" Depth="0.0"/>
       </FaultTrace>
-    </i311>
-    <i312 sectionId="665" sectionName="West Napa 2011 CFM" aveLongTermSlipRate="1.0" slipRateStdDev="0.0" aveDip="75.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="13.199999809265137" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="241.33464" parentSectionId="-1" connector="false">
+    </i310>
+    <i311 sectionId="665" sectionName="West Napa 2011 CFM" aveLongTermSlipRate="1.0" slipRateStdDev="0.0" aveDip="75.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="13.199999809265137" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="241.33464" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="38.512355" Longitude="-122.47533200000001" Depth="0.0"/>
@@ -9020,8 +8981,8 @@
         <Location Latitude="38.21706" Longitude="-122.28249999999998" Depth="0.0"/>
         <Location Latitude="38.164410000000004" Longitude="-122.24451" Depth="0.0"/>
       </FaultTrace>
-    </i312>
-    <i313 sectionId="321" sectionName="West Tahoe" aveLongTermSlipRate="0.6000000238418579" slipRateStdDev="0.0" aveDip="50.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="80.26729" parentSectionId="-1" connector="false">
+    </i311>
+    <i312 sectionId="321" sectionName="West Tahoe" aveLongTermSlipRate="0.6000000238418579" slipRateStdDev="0.0" aveDip="50.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="80.26729" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="38.750231" Longitude="-119.997693" Depth="0.0"/>
@@ -9061,8 +9022,8 @@
         <Location Latitude="39.23432" Longitude="-120.108951" Depth="0.0"/>
         <Location Latitude="39.262087" Longitude="-120.120306" Depth="0.0"/>
       </FaultTrace>
-    </i313>
-    <i314 sectionId="44" sectionName="White Mountains" aveLongTermSlipRate="0.6000000238418579" slipRateStdDev="0.0" aveDip="90.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="81.84475" parentSectionId="-1" connector="false">
+    </i312>
+    <i313 sectionId="44" sectionName="White Mountains" aveLongTermSlipRate="0.6000000238418579" slipRateStdDev="0.0" aveDip="90.0" aveRake="180.0" aveUpperDepth="0.0" aveLowerDepth="13.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="81.84475" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="37.788148" Longitude="-118.404288" Depth="0.0"/>
@@ -9128,8 +9089,8 @@
         <Location Latitude="37.942973" Longitude="-118.34588599999998" Depth="0.0"/>
         <Location Latitude="37.964371" Longitude="-118.33755300000001" Depth="0.0"/>
       </FaultTrace>
-    </i314>
-    <i315 sectionId="253" sectionName="White Wolf" aveLongTermSlipRate="0.38999998569488525" slipRateStdDev="0.0" aveDip="75.0" aveRake="60.0" aveUpperDepth="0.0" aveLowerDepth="14.600000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="140.72427" parentSectionId="-1" connector="false">
+    </i313>
+    <i314 sectionId="253" sectionName="White Wolf" aveLongTermSlipRate="0.38999998569488525" slipRateStdDev="0.0" aveDip="75.0" aveRake="60.0" aveUpperDepth="0.0" aveLowerDepth="14.600000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="140.72427" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="35.138756" Longitude="-118.80718399999999" Depth="0.0"/>
@@ -9163,14 +9124,14 @@
         <Location Latitude="35.3711" Longitude="-118.48700000000001" Depth="0.0"/>
         <Location Latitude="35.383905000000006" Longitude="-118.47082900000001" Depth="0.0"/>
       </FaultTrace>
-    </i315>
-    <i316 sectionId="254" sectionName="White Wolf (Extension)" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="75.0" aveRake="60.0" aveUpperDepth="0.0" aveLowerDepth="14.600000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="135.67906" parentSectionId="-1" connector="false">
+    </i314>
+    <i315 sectionId="254" sectionName="White Wolf (Extension)" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="75.0" aveRake="60.0" aveUpperDepth="0.0" aveLowerDepth="14.600000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="135.67906" parentSectionId="-1" connector="false">
       <FaultTrace name="White Wolf (Extension)">
         <Location Latitude="35.383905000000006" Longitude="-118.47082900000001" Depth="0.0"/>
         <Location Latitude="35.672" Longitude="-118.107" Depth="0.0"/>
       </FaultTrace>
-    </i316>
-    <i317 sectionId="237" sectionName="Whittier alt 2" aveLongTermSlipRate="2.5" slipRateStdDev="0.0" aveDip="75.0" aveRake="150.0" aveUpperDepth="0.0" aveLowerDepth="14.100000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="23.732927" parentSectionId="-1" connector="false">
+    </i315>
+    <i316 sectionId="237" sectionName="Whittier alt 2" aveLongTermSlipRate="2.5" slipRateStdDev="0.0" aveDip="75.0" aveRake="150.0" aveUpperDepth="0.0" aveLowerDepth="14.100000381469727" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="23.732927" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="33.837036" Longitude="-117.587004" Depth="0.0"/>
@@ -9198,8 +9159,8 @@
         <Location Latitude="33.9712" Longitude="-117.992" Depth="0.0"/>
         <Location Latitude="33.995" Longitude="-118.04800000000002" Depth="0.0"/>
       </FaultTrace>
-    </i317>
-    <i318 sectionId="697" sectionName="Wight Way 2011 CFM" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="69.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="15.899999618530273" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="353.51126" parentSectionId="-1" connector="false">
+    </i316>
+    <i317 sectionId="697" sectionName="Wight Way 2011 CFM" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="69.0" aveRake="270.0" aveUpperDepth="0.0" aveLowerDepth="15.899999618530273" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="353.51126" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="38.94421" Longitude="-122.84239900000001" Depth="0.0"/>
@@ -9215,14 +9176,14 @@
         <Location Latitude="38.91723" Longitude="-122.96637000000001" Depth="0.0"/>
         <Location Latitude="38.9356" Longitude="-123.03800000000001" Depth="0.0"/>
       </FaultTrace>
-    </i318>
-    <i319 sectionId="206" sectionName="Yorba Linda" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="90.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="13.300000190734863" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="152.69308" parentSectionId="-1" connector="false">
+    </i317>
+    <i318 sectionId="206" sectionName="Yorba Linda" aveLongTermSlipRate="0.009999999776482582" slipRateStdDev="0.0" aveDip="90.0" aveRake="90.0" aveUpperDepth="0.0" aveLowerDepth="13.300000190734863" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="152.69308" parentSectionId="-1" connector="false">
       <FaultTrace name="Yorba Linda">
         <Location Latitude="33.85845700000001" Longitude="-117.88859" Depth="0.0"/>
         <Location Latitude="33.930896" Longitude="-117.71921700000001" Depth="0.0"/>
       </FaultTrace>
-    </i319>
-    <i320 sectionId="53" sectionName="Zayante-Vergeles" aveLongTermSlipRate="0.10000000149011612" slipRateStdDev="0.0" aveDip="90.0" aveRake="150.0" aveUpperDepth="0.0" aveLowerDepth="12.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="36.164307" parentSectionId="-1" connector="false">
+    </i318>
+    <i319 sectionId="53" sectionName="Zayante-Vergeles" aveLongTermSlipRate="0.10000000149011612" slipRateStdDev="0.0" aveDip="90.0" aveRake="150.0" aveUpperDepth="0.0" aveLowerDepth="12.0" aseismicSlipFactor="0.0" couplingCoeff="1.0" dipDirection="36.164307" parentSectionId="-1" connector="false">
       <ZonePolygon name="Unnamed Region">
         <LocationList>
           <Location Latitude="36.80159" Longitude="-121.46362099999999" Depth="0.0"/>
@@ -9243,6 +9204,6 @@
         <Location Latitude="36.93775" Longitude="-121.74194" Depth="0.0"/>
         <Location Latitude="37.08872" Longitude="-121.9734" Depth="0.0"/>
       </FaultTrace>
-    </i320>
+    </i319>
   </FaultModel>
 </OpenSHA>

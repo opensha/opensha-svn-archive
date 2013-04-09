@@ -550,11 +550,13 @@ public class DeformationModelFetcher {
 	private static ArrayList<FaultSectionPrefData> buildSubSections(
 			FaultSectionPrefData section, double maxSubSectionLength, int subSectIndex) {
 		double ddw = section.getOrigDownDipWidth();
-		if (section.getSectionId() == 97) {
-			// TODO fix this
-			System.err.println("*** WARNING: USING OLD IMPERIAL DDW FOR SUBSECTIONING! HACK HACK HACK!!! ***");
-			ddw = (14.600000381469727)/Math.sin(section.getAveDip()*Math.PI/ 180);
-		}
+//		if (section.getSectionId() == 97) {
+//			// TODO fix this
+//			System.err.println("*** WARNING: USING OLD IMPERIAL DDW FOR SUBSECTIONING! HACK HACK HACK!!! ***");
+//			ddw = (14.600000381469727)/Math.sin(section.getAveDip()*Math.PI/ 180);
+//			System.out.println("OLD SECTIONING HAS: "+section.getSubSectionsList(ddw*maxSubSectionLength, subSectIndex, 2).size());
+//			System.out.println("NEW SECTIONING HAS: "+section.getSubSectionsList(section.getOrigDownDipWidth()*maxSubSectionLength, subSectIndex, 2).size());
+//		}
 		double maxSectLength = ddw*maxSubSectionLength;
 		// the "2" here sets a minimum number of sub sections
 		return section.getSubSectionsList(maxSectLength, subSectIndex, 2);

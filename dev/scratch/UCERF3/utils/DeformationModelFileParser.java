@@ -57,7 +57,13 @@ public class DeformationModelFileParser {
 	}
 	
 	public static Map<Integer, DeformationSection> load(URL url) throws IOException {
-		CSVFile<String> csv = CSVFile.readURL(url, true);
+		CSVFile<String> csv;
+		try {
+			csv = CSVFile.readURL(url, true);
+		} catch (RuntimeException e1) {
+			System.out.println("Couldn't load: "+url);
+			throw e1;
+		}
 		
 		HashMap<Integer, DeformationSection>  defs = new HashMap<Integer, DeformationModelFileParser.DeformationSection>();
 		
@@ -882,6 +888,8 @@ public class DeformationModelFileParser {
 		for (FaultModels fm : fms) {
 			ArrayList<Integer> fmSects = fm2db.getFaultSectionIdList(fm.getID());
 			for (DeformationModels dm : DeformationModels.forFaultModel(fm)) {
+				if (dm.getRelativeWeight(null) == 0)
+					continue;
 				Map<Integer, DeformationSection> sects = load(dm.getDataFileURL(fm));
 //				for (DeformationSection sect : sects.values()) {
 //					if (sect.slips.size() == 1) {
@@ -900,15 +908,20 @@ public class DeformationModelFileParser {
 				System.out.println("VALIDATED??? "+success);
 				int nanSlips = 0;
 				int nanRakes = 0;
+				int zeroSlips = 0;
 				for (DeformationSection sect : sects.values()) {
 					for (double slip : sect.getSlips())
 						if (Double.isNaN(slip))
 							nanSlips++;
+					for (double slip : sect.getSlips())
+						if (slip == 0)
+							zeroSlips++;
 					for (double rake : sect.getRakes())
 						if (Double.isNaN(rake))
 							nanRakes++;
 				}
 				System.out.println("NaNs: "+nanSlips+" slips, "+nanRakes+" rakes");
+				System.out.println("Zeros Slips: "+zeroSlips);
 				try {
 					new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
 				} catch (Exception e) {

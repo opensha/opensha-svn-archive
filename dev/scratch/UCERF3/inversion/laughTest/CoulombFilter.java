@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.inversion.coulomb.CoulombRates;
@@ -51,6 +52,8 @@ public class CoulombFilter extends AbstractLaughTest {
 				// junctionIndex-1 here  because junctions point forwards, but pairings start one back
 				IDPairing pair = pairings.get(junctionIndex-1);
 				forwardRates.add(rates.get(pair));
+				Preconditions.checkNotNull(rates.get(pair), "No coulomb for: "+pair);
+				Preconditions.checkNotNull(rates.get(pair.getReversed()), "No coulomb for: "+pair.getReversed());
 				backwardRates.add(0, rates.get(pair.getReversed()));
 			}
 		} else {
