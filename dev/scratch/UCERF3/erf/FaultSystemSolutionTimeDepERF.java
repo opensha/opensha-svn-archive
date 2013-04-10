@@ -1206,7 +1206,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
 				
 				
-				// TEST HEERE:
+				// TEST HERE:
 
 				// compute and save the normalize recurrence interval if all sections had date of last
 				long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
