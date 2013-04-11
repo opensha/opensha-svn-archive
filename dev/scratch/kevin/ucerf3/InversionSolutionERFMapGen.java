@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -53,8 +55,8 @@ public class InversionSolutionERFMapGen {
 		imr.setIntensityMeasure(SA_Param.NAME);
 		SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), 1.0);
 		
-		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps =
-			new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		List<Map<TectonicRegionType, ScalarIMR>> imrMaps =
+			new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 		HashMap<TectonicRegionType, ScalarIMR> imrMap = new HashMap<TectonicRegionType, ScalarIMR>();
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, imr);
 		imrMaps.add(imrMap);

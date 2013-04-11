@@ -20,12 +20,15 @@
 package org.opensha.commons.data.function;
 
 import java.awt.geom.Point2D;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import org.dom4j.Attribute;
@@ -252,6 +255,30 @@ Named,java.io.Serializable{
 			double y= Double.parseDouble(st.nextToken());
 			func.set(x, y);
 		}
+		return func;
+	}
+
+	public static ArbitrarilyDiscretizedFunc loadFuncFromSimpleFile(InputStream is) throws FileNotFoundException, IOException {
+	    if (!(is instanceof BufferedInputStream))
+	    	is = new BufferedInputStream(is);
+	    Scanner scanner = new Scanner(is);
+	    
+		StringTokenizer st;
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		
+	    try {
+	    	while (scanner.hasNextLine()){
+	    		st=new StringTokenizer(scanner.nextLine());
+				//using the currentIML and currentProb we interpolate the iml or prob
+				//value entered by the user.
+				double x = Double.parseDouble(st.nextToken());
+				double y = Double.parseDouble(st.nextToken());
+				func.set(x, y);
+	    	}
+	    }
+	    finally{
+	    	scanner.close();
+	    }
 		return func;
 	}
 	

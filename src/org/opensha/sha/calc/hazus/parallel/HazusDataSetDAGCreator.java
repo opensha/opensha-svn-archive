@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
@@ -72,7 +73,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @throws InvocationTargetException 
 	 */
 	public HazusDataSetDAGCreator(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver,
@@ -99,7 +100,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	 * @throws InvocationTargetException 
 	 */
 	public HazusDataSetDAGCreator(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			List<Site> sites,
 			CalculationSettings calcSettings,
@@ -135,21 +136,21 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		}
 	}
 	
-	public static List<HashMap<TectonicRegionType, ScalarIMR>> getHAZUSMaps(
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps) throws InvocationTargetException {
+	public static List<Map<TectonicRegionType, ScalarIMR>> getHAZUSMaps(
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps) throws InvocationTargetException {
 		if (imrMaps.size() == 1) {
-			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> newIMRMaps =
-				new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+			ArrayList<Map<TectonicRegionType, ScalarIMR>> newIMRMaps =
+				new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 			
-			HashMap<TectonicRegionType, ScalarIMR> origMap = imrMaps.get(0);
+			Map<TectonicRegionType, ScalarIMR> origMap = imrMaps.get(0);
 			
-			HashMap<TectonicRegionType, ScalarIMR> pgaMap =
+			Map<TectonicRegionType, ScalarIMR> pgaMap =
 				new HashMap<TectonicRegionType, ScalarIMR>();
-			HashMap<TectonicRegionType, ScalarIMR> pgvMap =
+			Map<TectonicRegionType, ScalarIMR> pgvMap =
 				new HashMap<TectonicRegionType, ScalarIMR>();
-			HashMap<TectonicRegionType, ScalarIMR> sa03Map =
+			Map<TectonicRegionType, ScalarIMR> sa03Map =
 				new HashMap<TectonicRegionType, ScalarIMR>();
-			HashMap<TectonicRegionType, ScalarIMR> sa10Map =
+			Map<TectonicRegionType, ScalarIMR> sa10Map =
 				new HashMap<TectonicRegionType, ScalarIMR>();
 			
 			for (TectonicRegionType trt : origMap.keySet()) {
@@ -176,7 +177,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	}
 	
 	protected static void validateHAZUSMap(
-				List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps) {
+				List<Map<TectonicRegionType, ScalarIMR>> imrMaps) {
 		if (imrMaps.size() != 4)
 			throw new RuntimeException("imrMaps must contain exactly 4 elements");
 	}
@@ -218,8 +219,8 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	}
 	
 	public static ArrayList<Parameter<Double>> getIMTList(
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps) {
-		HashMap<TectonicRegionType, ScalarIMR> map0 = imrMaps.get(0);
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps) {
+		Map<TectonicRegionType, ScalarIMR> map0 = imrMaps.get(0);
 		ScalarIMR testIMR = map0.get(map0.keySet().iterator().next());
 		
 		ArrayList<Parameter<Double>> imts = new ArrayList<Parameter<Double>>();
@@ -251,7 +252,7 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	private String getIMRMetadata() {
 		String meta = null;
 		
-		HashMap<TectonicRegionType, ScalarIMR> imrMap1 = this.imrMaps.get(0);
+		Map<TectonicRegionType, ScalarIMR> imrMap1 = this.imrMaps.get(0);
 		if (imrMap1.size() == 1) {
 			ScalarIMR imr = imrMap1.values().iterator().next();
 			meta = "IMR = " + imr.getName() + "; " + imr.getOtherParams().getParameterListMetadataString();

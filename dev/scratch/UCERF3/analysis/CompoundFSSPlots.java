@@ -430,64 +430,69 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
-	public static List<PlotSpec> writeERFBasedRegionalMFDPlotSpecs(
+	public static void writeERFBasedRegionalMFDPlots(
 			FaultSystemSolutionFetcher fetch,
-			BranchWeightProvider weightProvider, List<Region> regions) {
+			BranchWeightProvider weightProvider, List<Region> regions,
+			File dir, String prefix) throws IOException {
 		ERFBasedRegionalMFDPlot plot = new ERFBasedRegionalMFDPlot(
 				weightProvider, regions,
 				ERFBasedRegionalMFDPlot.getDefaultFractiles());
 
 		plot.buildPlot(fetch);
 
-		return plot.specs;
+		writeERFBasedRegionalMFDPlots(plot.specs, plot.cumulative_specs, regions, dir, prefix);
 	}
 
-	public static void writeERFBasedRegionalMFDPlots(
-			FaultSystemSolutionFetcher fetch,
-			BranchWeightProvider weightProvider, List<Region> regions,
-			File dir, String prefix) throws IOException {
-		List<PlotSpec> specs = writeERFBasedRegionalMFDPlotSpecs(fetch,
-				weightProvider, regions);
-
-		writeERFBasedRegionalMFDPlots(specs, regions, dir, prefix);
-	}
-
-	public static void writeERFBasedRegionalMFDPlots(List<PlotSpec> specs,
+	public static void writeERFBasedRegionalMFDPlots(List<PlotSpec> specs, List<PlotSpec> cumulative_specs,
 			List<Region> regions, File dir, String prefix) throws IOException {
 
 		int unnamedRegionCnt = 0;
+		
+		boolean[] cumulatives = { false, true };
 
 		for (int i = 0; i < regions.size(); i++) {
-			PlotSpec spec = specs.get(i);
-			Region region = regions.get(i);
+			for (boolean cumulative : cumulatives) {
+				PlotSpec spec;
+				if (cumulative)
+					spec = cumulative_specs.get(i);
+				else
+					spec = specs.get(i);
+				Region region = regions.get(i);
 
-			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			CommandLineInversionRunner.setFontSizes(gp);
-			gp.setYLog(true);
-//			gp.setUserBounds(5d, 9d, 1e-6, 1e0);
-			gp.setUserBounds(5d, 9d, 1e-5, 1e1);
+				HeadlessGraphPanel gp = new HeadlessGraphPanel();
+				CommandLineInversionRunner.setFontSizes(gp);
+				gp.setYLog(true);
+//				gp.setUserBounds(5d, 9d, 1e-6, 1e0);
+				if (cumulative)
+					gp.setUserBounds(5d, 9d, 1e-5, 1e1);
+				else
+					gp.setUserBounds(5d, 9d, 1e-5, 1e1);
 
-			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
+						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 
-			String fname = prefix + "_MFD_ERF";
-			if (region.getName() != null && !region.getName().isEmpty())
-				fname += "_" + region.getName().replaceAll("\\W+", "_");
-			else
-				fname += "_UNNAMED_REGION_" + (++unnamedRegionCnt);
+				String fname = prefix + "_MFD_ERF";
+				if (region.getName() != null && !region.getName().isEmpty())
+					fname += "_" + region.getName().replaceAll("\\W+", "_");
+				else
+					fname += "_UNNAMED_REGION_" + (++unnamedRegionCnt);
+				
+				if (cumulative)
+					fname += "_cumulative";
 
-			File file = new File(dir, fname);
-			gp.getCartPanel().setSize(1000, 800);
-			gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
-			gp.saveAsPNG(file.getAbsolutePath() + ".png");
-			gp.saveAsTXT(file.getAbsolutePath() + ".txt");
-			File smallDir = new File(dir, "small_MFD_plots");
-			if (!smallDir.exists())
-				smallDir.mkdir();
-			file = new File(smallDir, fname + "_small");
-			gp.getCartPanel().setSize(500, 400);
-			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			gp.saveAsPNG(file.getAbsolutePath()+".png");
+				File file = new File(dir, fname);
+				gp.getCartPanel().setSize(1000, 800);
+				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
+				gp.saveAsPNG(file.getAbsolutePath() + ".png");
+				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
+				File smallDir = new File(dir, "small_MFD_plots");
+				if (!smallDir.exists())
+					smallDir.mkdir();
+				file = new File(smallDir, fname + "_small");
+				gp.getCartPanel().setSize(500, 400);
+				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+			}
 		}
 	}
 
@@ -497,6 +502,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		
+		private static boolean SKIP_UCERF2_END_CALCS = false;
 
 		public static List<Region> getDefaultRegions() {
 			List<Region> regions = Lists.newArrayList();
@@ -535,6 +542,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private static final int num = (int) ((maxX - minX) / delta + 1);
 
 		private List<PlotSpec> specs;
+		private List<PlotSpec> cumulative_specs;
 
 		private int numUCEF2_ERFs;
 
@@ -656,6 +664,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		private void checkCalcAllUCERF2MFDs() {
+			if (SKIP_UCERF2_END_CALCS)
+				return;
 			for (int erfIndex = 0; erfIndex < numUCEF2_ERFs; erfIndex++) {
 				if (ucerf2MFDs.get(0)[erfIndex] == null)
 					calcUCERF2MFDs(erfIndex);
@@ -833,6 +843,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected void finalizePlot() {
 			specs = Lists.newArrayList();
+			cumulative_specs = Lists.newArrayList();
 
 			checkCalcAllUCERF2MFDs();
 
@@ -846,6 +857,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					UCERF2.BACK_SEIS_RUP_POINT);
 //			erf.getTimeSpan().setDuration(1d);
 //			erf.updateForecast();
+			
+			// this order is IMPORTANT
+			boolean[] cumulatives = { false, true };
 
 			for (int r = 0; r < regions.size(); r++) {
 				Region region = regions.get(r);
@@ -863,54 +877,103 @@ public abstract class CompoundFSSPlots implements Serializable {
 						ucerf2Weights.add(this.ucerf2Weights[e]);
 					}
 				}
-
-				ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-				ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 				
-				funcs.addAll(getFractiles(ucerf2OnFuncs, ucerf2Weights,
-						"UCERF2 Epistemic List On Fault MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.GREEN, fractiles.length));
-				
-				funcs.addAll(getFractiles(ucerf2OffFuncs, ucerf2Weights,
-						"UCERF2 Epistemic List Off Fault MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.MAGENTA, fractiles.length));
-				
-				funcs.addAll(getFractiles(solOnMFDs.get(r), weights,
-						"UCERF3 On Fault MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.ORANGE, fractiles.length));
-				
-				funcs.addAll(getFractiles(solOffMFDs.get(r), weights,
-						"UCERF3 Off Fault MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
+				for (boolean cumulative : cumulatives) {
+					XY_DataSetList solOnFuncs = solOnMFDs.get(r);
+					XY_DataSetList solOffFuncs = solOffMFDs.get(r);
+					XY_DataSetList solFuncs = solMFDs.get(r);
+					if (cumulative) {
+						ucerf2Funcs = getCumulatives(ucerf2Funcs);
+						ucerf2OnFuncs = getCumulatives(ucerf2OnFuncs);
+						ucerf2OffFuncs = getCumulatives(ucerf2OffFuncs);
+						solOnFuncs = getCumulatives(solOnFuncs);
+						solOffFuncs = getCumulatives(solOffFuncs);
+						solFuncs = getCumulatives(solFuncs);
+					}
+					
+					ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+					ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+					
+					funcs.addAll(getFractiles(ucerf2OnFuncs, ucerf2Weights,
+							"UCERF2 Epistemic List On Fault MFDs", fractiles));
+					chars.addAll(getFractileChars(Color.GREEN, fractiles.length));
+					
+					funcs.addAll(getFractiles(ucerf2OffFuncs, ucerf2Weights,
+							"UCERF2 Epistemic List Off Fault MFDs", fractiles));
+					chars.addAll(getFractileChars(Color.MAGENTA, fractiles.length));
+					
+					funcs.addAll(getFractiles(solOnFuncs, weights,
+							"UCERF3 On Fault MFDs", fractiles));
+					chars.addAll(getFractileChars(Color.ORANGE, fractiles.length));
+					
+					funcs.addAll(getFractiles(solOffFuncs, weights,
+							"UCERF3 Off Fault MFDs", fractiles));
+					chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
 
-				funcs.addAll(getFractiles(ucerf2Funcs, ucerf2Weights,
-						"UCERF2 Epistemic List", fractiles));
-				chars.addAll(getFractileChars(Color.RED, fractiles.length));
+					funcs.addAll(getFractiles(ucerf2Funcs, ucerf2Weights,
+							"UCERF2 Epistemic List", fractiles));
+					chars.addAll(getFractileChars(Color.RED, fractiles.length));
 
-//				SummedMagFreqDist meanU2Part = ERF_Calculator
-//						.getParticipationMagFreqDistInRegion(erf, region, minX,
-//								num, delta, true);
-//				meanU2Part.setName("MFD for MeanUCERF2");
-//				meanU2Part.setInfo(" ");
-//				funcs.add(meanU2Part.getCumRateDistWithOffset());
-//				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f,
-//						Color.BLUE));
+//					SummedMagFreqDist meanU2Part = ERF_Calculator
+//							.getParticipationMagFreqDistInRegion(erf, region, minX,
+//									num, delta, true);
+//					meanU2Part.setName("MFD for MeanUCERF2");
+//					meanU2Part.setInfo(" ");
+//					funcs.add(meanU2Part.getCumRateDistWithOffset());
+//					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f,
+//							Color.BLUE));
 
-				funcs.addAll(getFractiles(solMFDs.get(r), weights,
-						"UCERF3 MFDs", fractiles));
-				chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
+					funcs.addAll(getFractiles(solFuncs, weights,
+							"UCERF3 MFDs", fractiles));
+					chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
 
-				String title = region.getName();
-				if (title == null || title.isEmpty())
-					title = "Unnamed Region";
+					String title = region.getName();
+					if (title == null || title.isEmpty())
+						title = "Unnamed Region";
 
-				String xAxisLabel = "Magnitude";
-				String yAxisLabel = "Incremental Rate (per yr)";
+					String xAxisLabel = "Magnitude";
+					String yAxisLabel;
+					if (cumulative)
+						yAxisLabel = "Cumulative Rate (per yr)";
+					else
+						yAxisLabel = "Incremental Rate (per yr)";
 
-				PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel,
-						yAxisLabel);
-				specs.add(spec);
+					PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel,
+							yAxisLabel);
+					if (cumulative)
+						cumulative_specs.add(spec);
+					else
+						specs.add(spec);
+				}
 			}
+		}
+		
+		private static XY_DataSetList getCumulatives(XY_DataSetList xyList) {
+			XY_DataSetList cmlFuncs = new XY_DataSetList();
+			
+			for (XY_DataSet func : xyList)
+				cmlFuncs.add(getCumulativeFunc(func));
+			
+			return cmlFuncs;
+		}
+		
+		private static EvenlyDiscretizedFunc getCumulativeFunc(XY_DataSet func) {
+			EvenlyDiscretizedFunc cmlFunc;
+			if (func instanceof IncrementalMagFreqDist) {
+				cmlFunc = ((IncrementalMagFreqDist)func).getCumRateDist();
+			} else {
+				Preconditions.checkState(func instanceof EvenlyDiscretizedFunc, "Not an EvenlyDiscretizedFunc?");
+				EvenlyDiscretizedFunc efunc = (EvenlyDiscretizedFunc)func;
+				cmlFunc = new EvenlyDiscretizedFunc(efunc.getMinX(), efunc.getMaxX(), efunc.getNum());
+				double cmlVal = 0;
+				for (int j=cmlFunc.getNum(); --j>=0;) {
+					cmlVal += efunc.getY(j);
+					cmlFunc.set(j, cmlVal);
+				}
+			}
+			cmlFunc.setName(func.getName().replaceAll("Incremental", "Cumulative"));
+			cmlFunc.setInfo(func.getInfo().replaceAll("Incremental", "Cumulative"));
+			return cmlFunc;
 		}
 
 		@Override
@@ -5028,7 +5091,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						mfd.getRegions(), dir, prefix);
 			} else if (plot instanceof ERFBasedRegionalMFDPlot) {
 				ERFBasedRegionalMFDPlot mfd = (ERFBasedRegionalMFDPlot) plot;
-				writeERFBasedRegionalMFDPlots(mfd.specs, mfd.regions, dir,
+				writeERFBasedRegionalMFDPlots(mfd.specs, mfd.cumulative_specs, mfd.regions, dir,
 						prefix);
 			} else if (plot instanceof PaleoFaultPlot) {
 				PaleoFaultPlot paleo = (PaleoFaultPlot) plot;
@@ -5126,8 +5189,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 5,
-//				FaultModels.FM3_1);
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8,
+				FaultModels.FM3_1);
 
 		new DeadlockDetectionThread(3000).start();
 
@@ -5137,6 +5200,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		List<Region> regions = RegionalMFDPlot.getDefaultRegions()
 				.subList(0, 1);
 		regions = Lists.newArrayList(regions);
+		
+		ERFBasedRegionalMFDPlot.SKIP_UCERF2_END_CALCS = true;
 
 		// File dir = new File("/tmp");
 		// String prefix = "2012_10_10-fm3-logic-tree-sample-first-247";
@@ -5163,9 +5228,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		 plots.add(new SlipRatePlots(weightProvider));
 		// plots.add(new ParticipationMapPlot(weightProvider));
 //		 plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
-//		 plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
+		 plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
 		// plots.add(new MiniSectRIPlot(weightProvider));
-		 plots.add(new PaleoRatesTable(weightProvider));
+//		 plots.add(new PaleoRatesTable(weightProvider));
 		// plots.add(new AveSlipPlot(weightProvider));
 		// plots.add(new MultiFaultParticPlot(weightProvider));
 //		plots.add(new MeanFSSBuilder(weightProvider));

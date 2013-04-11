@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,7 +43,7 @@ import org.opensha.sha.util.TectonicRegionType;
 public class TestHazardDataSetDAGCreator {
 	
 	protected static ERF erf;
-	protected static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+	protected static List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
 	protected static ArrayList<Site> sites;
 	protected static CalculationSettings calcSettings;
 	protected static CurveResultsArchiver archiver;
@@ -61,7 +63,7 @@ public class TestHazardDataSetDAGCreator {
 		cb08.setIntensityMeasure(SA_Param.NAME);
 		SA_Param.setPeriodInSA_Param(cb08.getIntensityMeasure(), 3.0);
 		
-		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		imrMaps = new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 		HashMap<TectonicRegionType,ScalarIMR> imrMap =
 			new HashMap<TectonicRegionType, ScalarIMR>();
 		imrMap.put(TectonicRegionType.ACTIVE_SHALLOW, cb08);

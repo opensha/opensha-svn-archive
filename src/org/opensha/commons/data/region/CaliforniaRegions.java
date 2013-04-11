@@ -216,8 +216,12 @@ public class CaliforniaRegions {
 			GriddedRegion {
 		/** New instance of region. */
 		public LA_BOX_GRIDDED() {
+			this(0.1);
+		}
+		
+		public LA_BOX_GRIDDED(double spacing) {
 			super(readCoords("WG07.coords"), 
-					BorderType.MERCATOR_LINEAR, 0.1,
+					BorderType.MERCATOR_LINEAR, spacing,
 					new Location(34,-118));
 		}
 	}

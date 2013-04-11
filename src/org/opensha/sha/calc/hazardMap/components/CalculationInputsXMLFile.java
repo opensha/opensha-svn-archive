@@ -37,7 +37,7 @@ import com.google.common.base.Preconditions;
 public class CalculationInputsXMLFile implements XMLSaveable {
 	
 	private ERF erf;
-	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+	private List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Site> sites;
 	private List<Parameter<Double>> imts;
 	private CalculationSettings calcSettings;
@@ -47,7 +47,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	private String serializedERFFile;
 	
 	public CalculationInputsXMLFile(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Site> sites,
 			CalculationSettings calcSettings,
 			CurveResultsArchiver archiver) {
@@ -55,7 +55,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 	}
 	
 	public CalculationInputsXMLFile(ERF erf,
-		List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+		List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 		List<Parameter<Double>> imts,
 		List<Site> sites,
 		CalculationSettings calcSettings,
@@ -84,7 +84,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		this.serializedERFFile = serializedERFFile;
 	}
 
-	public List<HashMap<TectonicRegionType, ScalarIMR>> getIMRMaps() {
+	public List<Map<TectonicRegionType, ScalarIMR>> getIMRMaps() {
 		return imrMaps;
 	}
 	
@@ -132,7 +132,7 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			new ArrayList<ScalarIMR>();
 		ArrayList<Map<TectonicRegionType, ScalarIMR>> newList =
 			new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
-		for (HashMap<TectonicRegionType,ScalarIMR> map : imrMaps) {
+		for (Map<TectonicRegionType,ScalarIMR> map : imrMaps) {
 			newList.add(map);
 			for (TectonicRegionType tect : map.keySet()) {
 				ScalarIMR imr = map.get(tect);
@@ -211,8 +211,8 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		
 		/* Load the IMR Maps						*/
 		Element imrMapsEl = root.element(XML_IMR_MAP_LIST_NAME);
-		ArrayList<ArrayList<HashMap<TectonicRegionType, ScalarIMR>>> imrMapsList =
-			new  ArrayList<ArrayList<HashMap<TectonicRegionType, ScalarIMR>>>();
+		ArrayList<List<Map<TectonicRegionType, ScalarIMR>>> imrMapsList =
+			new  ArrayList<List<Map<TectonicRegionType, ScalarIMR>>>();
 		for (int i=0; i<threads; i++) {
 			imrMapsList.add(imrMapsFromXML(imrsList.get(i), imrMapsEl));
 		}
@@ -351,8 +351,8 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return imts;
 	}
 	
-	public static HashMap<TectonicRegionType, ScalarIMR> imrMapFromXML(
-			ArrayList<ScalarIMR> imrs, Element imrMapEl) {
+	public static Map<TectonicRegionType, ScalarIMR> imrMapFromXML(
+			List<ScalarIMR> imrs, Element imrMapEl) {
 		HashMap<TectonicRegionType, ScalarIMR> map =
 			new HashMap<TectonicRegionType, ScalarIMR>();
 		
@@ -395,21 +395,21 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		return root;
 	}
 	
-	public static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMapsFromXML(
-			ArrayList<ScalarIMR> imrs,
+	public static List<Map<TectonicRegionType, ScalarIMR>> imrMapsFromXML(
+			List<ScalarIMR> imrs,
 			Element imrMapsEl) {
-		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> maps =
-			new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		ArrayList<Map<TectonicRegionType, ScalarIMR>> maps =
+			new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 		
 		Iterator<Element> it = imrMapsEl.elementIterator(XML_IMR_MAP_NAME);
 		
 		// this makes sure they get loaded in correct order
-		HashMap<Integer, HashMap<TectonicRegionType,ScalarIMR>> mapsMap = 
-			new HashMap<Integer, HashMap<TectonicRegionType,ScalarIMR>>();
+		Map<Integer, Map<TectonicRegionType,ScalarIMR>> mapsMap = 
+			new HashMap<Integer, Map<TectonicRegionType,ScalarIMR>>();
 		while (it.hasNext()) {
 			Element imrMapEl = it.next();
 			int index = Integer.parseInt(imrMapEl.attributeValue("index"));
-			HashMap<TectonicRegionType, ScalarIMR> map = imrMapFromXML(imrs, imrMapEl);
+			Map<TectonicRegionType, ScalarIMR> map = imrMapFromXML(imrs, imrMapEl);
 			mapsMap.put(new Integer(index), map);
 		}
 		for (int i=0; i<mapsMap.size(); i++) {

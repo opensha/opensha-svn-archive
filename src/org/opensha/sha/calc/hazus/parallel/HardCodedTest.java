@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
@@ -325,10 +326,10 @@ public class HardCodedTest {
 		
 		double sigmaTrunc = 3;
 		ScalarIMR imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
-		HashMap<TectonicRegionType, ScalarIMR> imrMap =
+		Map<TectonicRegionType, ScalarIMR> imrMap =
 			TRTUtils.wrapInHashMap(imr);
-		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps = 
-			new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+		List<Map<TectonicRegionType, ScalarIMR>> imrMaps = 
+			new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 		imrMaps.add(imrMap);
 		
 		Iterator<Parameter<?>> imrSiteParamsIt = imr.getSiteParamsIterator();

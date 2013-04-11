@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -37,16 +39,16 @@ import org.opensha.sha.util.TectonicRegionType;
 public class TestHazardCurveSetCalculator extends TestCase {
 	
 	private ERF erf;
-	private ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+	private List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
 	private ArrayList<Site> sites;
 	private CalculationSettings calcSettings;
 	private CurveResultsArchiver archiver;
 	
 	private String xmlFile;
 
-	public static ArrayList<HashMap<TectonicRegionType, ScalarIMR>> getIMRMaps() {
-		ArrayList<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
-		imrMaps = new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+	public static List<Map<TectonicRegionType, ScalarIMR>> getIMRMaps() {
+		List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
+		imrMaps = new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 		HashMap<TectonicRegionType, ScalarIMR> map1 =
 			new HashMap<TectonicRegionType, ScalarIMR>();
 		HashMap<TectonicRegionType, ScalarIMR> map2 =

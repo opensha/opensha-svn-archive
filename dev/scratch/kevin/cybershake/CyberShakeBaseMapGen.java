@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -121,7 +122,7 @@ public class CyberShakeBaseMapGen {
 				USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		
 		for (ScalarIMR imr : imrs) {
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();
 			
 			HashMap<TectonicRegionType, ScalarIMR> map = Maps.newHashMap();
 			map.put(TectonicRegionType.ACTIVE_SHALLOW, imr);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -33,14 +34,14 @@ public class HazardCurveSetCalculator {
 	private static final boolean D = false;
 	
 	private ERF erf;
-	private List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+	private List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Parameter<Double>> imts;
 	private CurveResultsArchiver archiver;
 	private CalculationSettings calcSettings;
 	private HazardCurveCalculator calc;
 	
 	public HazardCurveSetCalculator(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
 		this(erf, imrMaps, null, archiver, calcSettings);
@@ -51,7 +52,7 @@ public class HazardCurveSetCalculator {
 	}
 	
 	public HazardCurveSetCalculator(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			CurveResultsArchiver archiver,
 			CalculationSettings calcSettings) {
@@ -91,7 +92,7 @@ public class HazardCurveSetCalculator {
 	
 	public void calculateCurves(Site site) throws IOException {
 		int imrMapCount = 0;
-		for (HashMap<TectonicRegionType, ScalarIMR> imrMap : imrMaps) {
+		for (Map<TectonicRegionType, ScalarIMR> imrMap : imrMaps) {
 			if (imts != null) {
 				// if a different IMT has been specified for each imr map then we must set it
 				Parameter<Double> newIMT = imts.get(imrMapCount);

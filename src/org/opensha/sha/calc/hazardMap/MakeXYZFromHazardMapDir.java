@@ -24,14 +24,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.Collator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.geo.Location;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class makes a single hazard map file (GMT format) from a directory structure containing
@@ -71,8 +79,6 @@ public class MakeXYZFromHazardMapDir {
 			boolean forceLoad) throws IOException {
 		// get and list the dir
 		System.out.println("Generating XYZ dataset for dir: " + dirName);
-		File masterDir = new File(dirName);
-		File[] dirList=masterDir.listFiles();
 		
 		BufferedWriter out = null;
 		ArbDiscrGeoDataSet xyz = null;
@@ -91,61 +97,123 @@ public class MakeXYZFromHazardMapDir {
 		double maxLat = Double.MIN_VALUE;
 		double maxLon = -9999;
 		
-		if (sort)
-			Arrays.sort(dirList, new FileComparator());
-
-		// for each file in the list
-		for(File dir : dirList){
-			// make sure it's a subdirectory
-			if (dir.isDirectory() && !dir.getName().endsWith(".")) {
-				File[] subDirList=dir.listFiles();
-				for(File file : subDirList) {
-					//only taking the files into consideration
-					if(file.isFile()){
-						String curveFileName = file.getName();
-						//files that ends with ".txt"
-						if(curveFileName.endsWith(".txt")){
-							Location loc = HazardDataSetLoader.decodeFileName(curveFileName);
-							if (loc != null) {
-								double latVal = loc.getLatitude();
-								double lonVal = loc.getLongitude();
-								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
-								// handle the file
-								double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, level);
-//								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
-								if (latFirst) {
-									if (out != null)
-										out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
-									if (xyz != null)
-										xyz.set(loc, writeVal);
-								} else {
-									if (out != null)
-										out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
-									if (xyz != null)
-										xyz.set(loc, writeVal);
-								}
-								
-								if (latVal < minLat)
-									minLat = latVal;
-								else if (latVal > maxLat)
-									maxLat = latVal;
-								if (lonVal < minLon)
-									minLon = lonVal;
-								else if (lonVal > maxLon)
-									maxLon = lonVal;
-								
-								if (out != null && count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
-									System.out.println("Processed " + count + " curves");
-									out.flush();
-								}
-							}
-						}
+		if (dirName.toLowerCase().trim().endsWith(".zip")) {
+			// zip file
+			ZipFile zip = new ZipFile(dirName);
+			
+			List<ZipEntry> entriesList = Lists.newArrayList();
+			Enumeration<? extends ZipEntry> entriesEnum = zip.entries();
+			while (entriesEnum.hasMoreElements())
+				entriesList.add(entriesEnum.nextElement());
+			
+			System.out.println("Found "+entriesList.size()+" entries");
+			
+			if (sort)
+				Collections.sort(entriesList, new ZipEntryComparator());
+			
+			for (ZipEntry entry : entriesList) {
+				String curveFileName = entry.getName();
+//				System.out.println(curveFileName);
+				if (!curveFileName.endsWith(".txt"))
+					continue;
+				
+				String locNamePart = new File(curveFileName).getName();
+				Location loc = HazardDataSetLoader.decodeFileName(locNamePart);
+				if (loc != null) {
+					double latVal = loc.getLatitude();
+					double lonVal = loc.getLongitude();
+					//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
+					// handle the file
+					double writeVal = handleFile(zip.getInputStream(entry), isProbAt_IML, level);
+//					out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
+					if (latFirst) {
+						if (out != null)
+							out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
+						if (xyz != null)
+							xyz.set(loc, writeVal);
+					} else {
+						if (out != null)
+							out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+						if (xyz != null)
+							xyz.set(loc, writeVal);
+					}
+					
+					if (latVal < minLat)
+						minLat = latVal;
+					else if (latVal > maxLat)
+						maxLat = latVal;
+					if (lonVal < minLon)
+						minLon = lonVal;
+					else if (lonVal > maxLon)
+						maxLon = lonVal;
+					
+					if (out != null && count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
+						System.out.println("Processed " + count + " curves");
+						out.flush();
 					}
 					count++;
 				}
 			}
+		} else {
+			File masterDir = new File(dirName);
+			File[] dirList=masterDir.listFiles();
 			
-			
+			if (sort)
+				Arrays.sort(dirList, new FileComparator());
+
+			// for each file in the list
+			for(File dir : dirList){
+				// make sure it's a subdirectory
+				if (dir.isDirectory() && !dir.getName().endsWith(".")) {
+					File[] subDirList=dir.listFiles();
+					for(File file : subDirList) {
+						//only taking the files into consideration
+						if(file.isFile()){
+							String curveFileName = file.getName();
+							//files that ends with ".txt"
+							if(curveFileName.endsWith(".txt")){
+								Location loc = HazardDataSetLoader.decodeFileName(curveFileName);
+								if (loc != null) {
+									double latVal = loc.getLatitude();
+									double lonVal = loc.getLongitude();
+									//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
+									// handle the file
+									double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, level);
+//									out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
+									if (latFirst) {
+										if (out != null)
+											out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
+										if (xyz != null)
+											xyz.set(loc, writeVal);
+									} else {
+										if (out != null)
+											out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+										if (xyz != null)
+											xyz.set(loc, writeVal);
+									}
+									
+									if (latVal < minLat)
+										minLat = latVal;
+									else if (latVal > maxLat)
+										maxLat = latVal;
+									if (lonVal < minLon)
+										minLon = lonVal;
+									else if (lonVal > maxLon)
+										maxLon = lonVal;
+									
+									if (out != null && count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
+										System.out.println("Processed " + count + " curves");
+										out.flush();
+									}
+								}
+							}
+						}
+						count++;
+					}
+				}
+				
+				
+			}
 		}
 		
 		if (out != null)
@@ -170,25 +238,50 @@ public class MakeXYZFromHazardMapDir {
 		return Double.NaN;
 	}
 	
-	private static class FileComparator implements Comparator {
-		private Collator c = Collator.getInstance();
+	public double handleFile(InputStream is, boolean isProbAt_IML, double val) {
+		try {
+			ArbitrarilyDiscretizedFunc func = AbstractDiscretizedFunc.loadFuncFromSimpleFile(is);
+			
+			return HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Double.NaN;
+	}
+	
+	private static class FileComparator implements Comparator<File> {
+		
+		FileNameComparator c = new FileNameComparator();
 
-		public int compare(Object o1, Object o2) {
-			if(o1 == o2)
+		public int compare(File f1, File f2) {
+			if(f1 == f2)
 				return 0;
-
-			File f1 = (File) o1;
-			File f2 = (File) o2;
 
 			if(f1.isDirectory() && f2.isFile())
 				return -1;
 			if(f1.isFile() && f2.isDirectory())
 				return 1;
 			
-			
-
-			return c.compare(invertFileName(f1.getName()), invertFileName(f2.getName()));
+			return c.compare(f1.getName(), f2.getName());
 		}
+	}
+	
+	private static class ZipEntryComparator implements Comparator<ZipEntry> {
+		
+		FileNameComparator c = new FileNameComparator();
+
+		public int compare(ZipEntry f1, ZipEntry f2) {
+			if(f1 == f2)
+				return 0;
+			
+			return c.compare(f1.getName(), f2.getName());
+		}
+	}
+	
+	private static class FileNameComparator implements Comparator<String> {
+		private static Collator c = Collator.getInstance();
 		
 		public String invertFileName(String fileName) {
 			int index = fileName.indexOf("_");
@@ -206,6 +299,11 @@ public class MakeXYZFromHazardMapDir {
 			}
 			return fileName;
 		}
+
+		@Override
+		public int compare(String o1, String o2) {
+			return c.compare(invertFileName(o1), invertFileName(o2));
+		}
 	}
 	
 	public static void main(String args[]) {
@@ -217,16 +315,25 @@ public class MakeXYZFromHazardMapDir {
 //			String curveDir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
 //			String curveDir = "/home/kevin/OpenSHA/gem/ceus/curves_0.1/imrs2";
 //			String curveDir = "/home/kevin/OpenSHA/UCERF3/test_inversion/maps/ucerf3_inv_state_run_1/imrs1";
-			String curveDir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/CB2008"; 
+//			String curveDir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/CB2008"; 
 //			String outfile = "xyzCurves.txt";
 //			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
 //			String outfile = "/home/kevin/CyberShake/baseMaps/ave2008/xyzCurves.txt";
 //			String outfile = "/home/kevin/OpenSHA/gem/ceus/curves_0.1/imrs2.txt";
-			String outfile = "/tmp/xyzCurves.txt";
+//			String outfile = "/tmp/xyzCurves.txt";
+			String curveDir = "/home/kevin/Simulators/maps/2013_04_10-rsqsim-long-la-box-0.05" +
+					"-pga-cb2008-30yrs/2013_04_10-rsqsim-long-la-box-0.05-pga-cb2008-30yrs_curves.zip";
+			String outfile = "/home/kevin/Simulators/maps/2013_04_10-rsqsim-long-la-box-0.05" +
+					"-pga-cb2008-30yrs/2percent_in_30.txt";
+//			String curveDir = "/home/kevin/Simulators/maps/2013_04_10-rsqsim-long-la-box-0.05" +
+//					"-pga-cb2008-30yrs-quietmojave156/2013_04_10-rsqsim-long-la-box-0.05-pga-cb2008-30yrs-quietmojave156_curves.zip";
+//			String outfile = "/home/kevin/Simulators/maps/2013_04_10-rsqsim-long-la-box-0.05" +
+//					"-pga-cb2008-30yrs-quietmojave156/10percent_in_30.txt";
 //			boolean isProbAt_IML = true;
 //			double level = 0.2;
 			boolean isProbAt_IML = false;
 			double level = 0.02;
+//			double level = 0.1;
 //			double level = 0.002;		// 10% in 50
 //			double level = 0.0004;		// 	2% in 50
 			boolean latFirst = true;

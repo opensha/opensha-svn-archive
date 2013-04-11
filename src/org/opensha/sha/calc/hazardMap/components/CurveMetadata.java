@@ -5,6 +5,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.util.TectonicRegionType;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Metadata for the curves that's necessary for archiving them such as the location and
@@ -16,11 +17,11 @@ import java.util.HashMap;
 public class CurveMetadata {
 	
 	private Site site;
-	private HashMap<TectonicRegionType, ScalarIMR> imrMap;
+	private Map<TectonicRegionType, ScalarIMR> imrMap;
 	private String shortLabel;
 	
 	public CurveMetadata(Site site,
-			HashMap<TectonicRegionType, ScalarIMR> imrMap,
+			Map<TectonicRegionType, ScalarIMR> imrMap,
 			String shortLabel) {
 		this.site = site;
 		this.imrMap = imrMap;
@@ -35,7 +36,7 @@ public class CurveMetadata {
 		this.site = site;
 	}
 
-	public HashMap<TectonicRegionType, ScalarIMR> getImrMap() {
+	public Map<TectonicRegionType, ScalarIMR> getImrMap() {
 		return imrMap;
 	}
 

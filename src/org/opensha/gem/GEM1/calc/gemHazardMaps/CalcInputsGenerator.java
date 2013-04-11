@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
@@ -32,8 +34,8 @@ public class CalcInputsGenerator {
 			/*			GMPEs				 */
 			GemLogicTree<HashMap<TectonicRegionType, ScalarIMR>> gmpeTree
 			= new GemGmpe().getGemLogicTree();
-			ArrayList<HashMap<TectonicRegionType, ScalarIMR>> maps =
-				new ArrayList<HashMap<TectonicRegionType,ScalarIMR>>();
+			List<Map<TectonicRegionType, ScalarIMR>> maps =
+				new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 			maps.add(gmpeTree.getEBMap().get("1"));
 			maps.add(gmpeTree.getEBMap().get("2"));
 			org.opensha.gem.GEM1.commons.CalculationSettings calcSet =
@@ -73,7 +75,7 @@ public class CalcInputsGenerator {
 			for (Location loc : region.getNodeList()) {
 				Site site = new Site(loc);
 				// USE DEFAULT SITE VALUES!
-				for (HashMap<TectonicRegionType, ScalarIMR> map : maps) {
+				for (Map<TectonicRegionType, ScalarIMR> map : maps) {
 					for (TectonicRegionType tect : map.keySet()) {
 						ScalarIMR imr = map.get(tect);
 						ListIterator<Parameter<?>> it = imr.getSiteParamsIterator();

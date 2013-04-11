@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -44,7 +45,7 @@ public class HazardDataSetDAGCreator {
 	public static final String ERF_SERIALIZED_FILE_NAME = "erf.obj";
 
 	protected ERF erf;
-	protected List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps;
+	protected List<Map<TectonicRegionType, ScalarIMR>> imrMaps;
 	private List<Parameter<Double>> imts;
 
 	protected List<Site> sites;
@@ -91,7 +92,7 @@ public class HazardDataSetDAGCreator {
 	 * @param jarFile - The path to the jar file used for calculation.
 	 */
 	public HazardDataSetDAGCreator(ERF erf,
-			List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps,
+			List<Map<TectonicRegionType, ScalarIMR>> imrMaps,
 			List<Parameter<Double>> imts,
 			List<Site> sites,
 			CalculationSettings calcSettings,

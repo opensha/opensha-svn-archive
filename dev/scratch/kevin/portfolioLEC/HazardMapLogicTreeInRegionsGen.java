@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -130,7 +131,7 @@ public class HazardMapLogicTreeInRegionsGen {
 		
 		// TODO order?
 		AttenRelRef[] imrRefs = { AttenRelRef.CB_2008, AttenRelRef.BA_2008, AttenRelRef.CY_2008, AttenRelRef.AS_2008 };
-		List<HashMap<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();
+		List<Map<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();
 		ParameterList siteParams = new ParameterList();
 		for (AttenRelRef imrRef : imrRefs) {
 			for (int i=0; i<4; i++) {

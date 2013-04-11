@@ -8,8 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
@@ -347,6 +349,9 @@ public class SimulatorFaultSystemSolution extends SimpleFaultSystemSolution {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
+//		Region region = null;
+		Region region = new CaliforniaRegions.RELM_SOCAL();
+		
 //		RuptureIdentifier rupIden = null;
 		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription(
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d);
@@ -375,7 +380,28 @@ public class SimulatorFaultSystemSolution extends SimpleFaultSystemSolution {
 					+" events in "+matcher.getMatchIDs().size()+" matches)");
 		}
 		
-		SimulatorFaultSystemSolution fss = new SimulatorFaultSystemSolution(tools.getElementsList(), events, durationYears, 6);
+		if (region != null) {
+			Map<Integer, Boolean> elementsInRegionsCache = Maps.newHashMap();
+			
+			// just uese centers since they're small enough elements
+			for (RectangularElement elem : tools.getElementsList())
+				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
+			
+			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();
+			for (EQSIM_Event e : events) {
+				for (int elemID : e.getAllElementIDs()) {
+					if (elementsInRegionsCache.get(elemID)) {
+						eventsInRegion.add(e);
+						break;
+					}
+				}
+			}
+			
+			System.out.println(eventsInRegion.size()+"/"+events.size()+" events in region: "+region.getName());
+			events = eventsInRegion;
+		}
+		
+		SimulatorFaultSystemSolution fss = new SimulatorFaultSystemSolution(tools.getElementsList(), events, durationYears, 5.5);
 		System.out.println(fss.getInfoString());
 		
 //		fss.toZipFile(new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
