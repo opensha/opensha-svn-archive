@@ -94,7 +94,7 @@ import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.inversion.InversionMFDs;
+import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
@@ -354,17 +354,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				if (!solOffMFDsForRegion.isEmpty()) {
 					// now add target GRs
-					funcs.add(InversionMFDs
+					funcs.add(InversionTargetMFDs
 							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_10p0
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							1f, Color.BLACK));
-					funcs.add(InversionMFDs
+					funcs.add(InversionTargetMFDs
 							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_8p7
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							2f, Color.BLACK));
-					funcs.add(InversionMFDs
+					funcs.add(InversionTargetMFDs
 							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p6
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
@@ -1916,14 +1916,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 				IncrementalMagFreqDist mfd2 = (IncrementalMagFreqDist) list2
 						.get(i);
 				SummedMagFreqDist sum = new SummedMagFreqDist(
-						InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG,
-						InversionMFDs.DELTA_MAG);
+						InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG,
+						InversionTargetMFDs.DELTA_MAG);
 				sum.addIncrementalMagFreqDist(resizeToDimensions(mfd1,
-						InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG,
-						InversionMFDs.DELTA_MAG));
+						InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG,
+						InversionTargetMFDs.DELTA_MAG));
 				sum.addIncrementalMagFreqDist(resizeToDimensions(mfd2,
-						InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG,
-						InversionMFDs.DELTA_MAG));
+						InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG,
+						InversionTargetMFDs.DELTA_MAG));
 
 				sumList.add(sum);
 			}

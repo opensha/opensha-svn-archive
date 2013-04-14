@@ -3,6 +3,8 @@
  */
 package scratch.UCERF3.inversion;
 
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+
 
 /**
  * This interface contains methods needed by both InversionFaultSystemRupSet and
@@ -37,6 +39,15 @@ public interface InversionFaultSystemSolutionInterface {
 	 * @return
 	 */
 	public double getUpperMagForSubseismoRuptures(int sectIndex);
-
+	
+	
+	/**
+	 * This returns the InversionTargetMFDs object
+	 * @return
+	 */
+	public InversionTargetMFDs getInversionTargetMFDs();
+	
+	
+	public LogicTreeBranch getLogicTreeBranch();
 
 }

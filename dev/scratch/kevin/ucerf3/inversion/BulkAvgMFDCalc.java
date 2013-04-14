@@ -44,8 +44,8 @@ public class BulkAvgMFDCalc {
 			while (numStr.length() < digits)
 				numStr = "0"+numStr;
 			String indPrefix = prefix+"_run"+numStr;
-			IncrementalMagFreqDist totalMFD = sol.getInversionMFDs().getTotalTargetGR();
-			IncrementalMagFreqDist targetMFD = sol.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
+			IncrementalMagFreqDist totalMFD = sol.getInversionTargetMFDs().getTotalTargetGR();
+			IncrementalMagFreqDist targetMFD = sol.getInversionTargetMFDs().getOnFaultSupraSeisMFD();
 			IncrementalMagFreqDist solutionMFD = sol.calcNucleationMFD_forRegion(null, // null since we want everything
 					totalMFD.getMinX(), 9.05, 0.1, true);
 			double minMag = sol.getMinMag();

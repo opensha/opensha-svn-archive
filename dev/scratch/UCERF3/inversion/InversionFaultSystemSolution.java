@@ -83,7 +83,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private double eventRateSmoothnessWt = Double.NaN;
 	private double minimumRuptureRateFraction = Double.NaN;
 	
-	private InversionMFDs inversionMFDs;
+	private InversionTargetMFDs inversionTargetMFDs;
 	
 	double[] minMagForSectArray;
 	boolean[] isRupBelowMinMagsForSects;
@@ -115,11 +115,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			loadInvParams(invProps);
 			loadEnergies(saProps);
 			
-			double totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
-			double mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
-			boolean applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
-			SpatialSeisPDF spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
-			inversionMFDs = new InversionMFDs(solution, this, totalRegionRateMgt5, mMaxOffFault, applyImpliedCouplingCoeff, spatialSeisPDF, invModel);
+			inversionTargetMFDs = new InversionTargetMFDs(solution, this);
 		} catch (RuntimeException e) {
 			// can be uncommented for debugging string parse errors
 //			System.out.println("******* EXCEPTION CAUGHT INSTANTIATING IFSS - PRINTING METADATA *********");
@@ -357,7 +353,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return invModel;
 	}
 
-	public LogicTreeBranch getBranch() {
+	public LogicTreeBranch getLogicTreeBranch() {
 		return branch;
 	}
 
@@ -401,8 +397,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return minimumRuptureRateFraction;
 	}
 	
-	public InversionMFDs getInversionMFDs() {
-		return inversionMFDs;
+	public InversionTargetMFDs getInversionTargetMFDs() {
+		return inversionTargetMFDs;
 	}
 	
 	public double getSlipRateConstraintWt() {
@@ -450,15 +446,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
 		// Statewide
-		GraphiWindowAPI_Impl gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR(), inversionMFDs.getTargetOnFaultSupraSeisMFD(),
+		GraphiWindowAPI_Impl gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR(), inversionTargetMFDs.getOnFaultSupraSeisMFD(),
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 		
-		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_NoCal(), inversionMFDs.noCalTargetSupraMFD,
+		gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR_NoCal(), inversionTargetMFDs.noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 		
-		gw = getMFDPlotWindow(inversionMFDs.getTotalTargetGR_SoCal(), inversionMFDs.soCalTargetSupraMFD,
+		gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR_SoCal(), inversionTargetMFDs.soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 	}
@@ -562,7 +558,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		IncrementalMagFreqDist solOffFaultMFD = null;
 		// this could be cleaner :-/
 		if (statewide) {
-			solOffFaultMFD = inversionMFDs.getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD();
+			solOffFaultMFD = inversionTargetMFDs.getTotalGriddedSeisMFD();
 			solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 			funcs.add(solOffFaultMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
@@ -623,7 +619,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	/**
 	 * This returns the list of final sub-seismo MFDs for each fault section (e.g., for use in an ERF).  
 	 * What's returned is getInversionMFDs().getTargetSubSeismoOnFaultMFD_List() unless
-	 * it's a noFix GR branch, in which case it returns getImpliedSubSeisGR_MFD_List() to
+	 * it's a noFix/GR branch, in which case it returns getImpliedSubSeisGR_MFD_List() to
 	 * account for any inversion imposed slip-rate changes.
 	 * @return
 	 */
@@ -634,16 +630,31 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		boolean gr = branch.getValue(InversionModels.class).isGR();
 		// get post-inversion MFDs
 		if (noFix && gr) {
-			subSeisMFD_list = getImpliedSubSeisGR_MFD_List();
+			subSeisMFD_list = getImpliedSubSeisGR_MFD_List();	// calculate from final slip rates
 		} else {
-			subSeisMFD_list = getInversionMFDs().getTargetSubSeismoOnFaultMFD_List();
+			subSeisMFD_list = getInversionTargetMFDs().getSubSeismoOnFaultMFD_List();
 		}
 		return subSeisMFD_list;
 	}
 	
+	
+	/**
+	 * This returns the final total sub-seismo on-fault MFD
+	 * @return
+	 */
+	public SummedMagFreqDist getFinalTotalSubSeismoOnFaultMFD() {
+		SummedMagFreqDist totalSubSeismoOnFaultMFD = new SummedMagFreqDist(InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG, InversionTargetMFDs.DELTA_MAG);
+		for(GutenbergRichterMagFreqDist mfd: getFinalSubSeismoOnFaultMFD_List()) {
+			totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(mfd);
+		}
+		return totalSubSeismoOnFaultMFD;
+	}
+	
+	
+	
 	public SummedMagFreqDist getFinalSubSeismoOnFaultMFDForParent(int parentSectionID) {
 		
-		SummedMagFreqDist mfd = new SummedMagFreqDist(InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
+		SummedMagFreqDist mfd = new SummedMagFreqDist(InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG, InversionTargetMFDs.DELTA_MAG);
 		
 		List<GutenbergRichterMagFreqDist> subSeismoMFDs = getFinalSubSeismoOnFaultMFD_List();
 		
@@ -655,71 +666,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		
 		return mfd;
 	}
-
-	
-	/**
-	 * This returns the final truly off-fault MFD (not including subseismo on-fault ruptures).
-	 * This currently returns inversionMFDs.getTargetTrulyOffFaultMFD(), but could return 
-	 * getImpliedTrulyOffFaultMFD() if the latter is deemed more appropriate.
-	 * 
-	 * @return
-	 */
-	public IncrementalMagFreqDist getFinalTrulyOffFaultMFD() {
-		return inversionMFDs.getTargetTrulyOffFaultMFD();
-	}
-
-	
-	/**
-	 * This returns the final total gridded seismicity MFD (subseismo on-fault plus truly off fault).
-	 * This currently returns inversionMFDs.getTotalGriddedSeisMFD() unless it's a noFix GR branch
-	 * (in which case the subseismo parts come from getImpliedSubSeisGR_MFD_List()).
-	 * @return
-	 */
-	public IncrementalMagFreqDist getFinalTotalGriddedSeisMFD() {
-		
-		// make sure we deal with special case for GR noFix branch
-		boolean noFix = branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE;
-		boolean gr = branch.getValue(InversionModels.class).isGR();
-		if (noFix && gr) { // get post-inversion MFDs
-			SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(InversionMFDs.MIN_MAG, InversionMFDs.NUM_MAG, InversionMFDs.DELTA_MAG);
-			totGridSeisMFD.addIncrementalMagFreqDist(getFinalTrulyOffFaultMFD());
-			for(GutenbergRichterMagFreqDist subSeisGR : getImpliedSubSeisGR_MFD_List())
-				totGridSeisMFD.addIncrementalMagFreqDist(subSeisGR);
-			return totGridSeisMFD;
-
-		} else {
-			return getInversionMFDs().getTotalGriddedSeisMFD();
-		}
- 	}
-	
-	/**
-	 * This calculates the difference between the total target MFD and the FSS nucleation MFD inside the RELM region,
-	 * which is the total gridded seismicity MFD implied by the final solution.  This differs from 
-	 * getFinalTotalGriddedSeisMFD() to the extent the final FSS MFD differs from the original target, and that rupture
-	 * outside the RELM region are filtered out here.
-	 * @return
-	 */
-	public IncrementalMagFreqDist getImpliedTotalGriddedSeisMFD() {
-		
-		GutenbergRichterMagFreqDist regionTarget = inversionMFDs.getTotalTargetGR();
-		
-		IncrementalMagFreqDist nuclMFD = calcNucleationMFD_forRegion(RELM_RegionUtils.getGriddedRegionInstance(), regionTarget.getMinX(),
-				regionTarget.getMaxX(), regionTarget.getNum(), false);
-
-		double maxOffFaultMag = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
-		
-		IncrementalMagFreqDist offFaultMFD = newSameRange(regionTarget);
-		offFaultMFD.setTolerance(0.2);
-		for (double m=offFaultMFD.getMinX(); m<=offFaultMFD.getMaxX()&&m<=maxOffFaultMag; m+=offFaultMFD.getDelta()) {
-			double tVal = regionTarget.getClosestY(m);
-			double myVal = nuclMFD.getClosestY(m);
-//			System.out.println("implied off fault: "+m+": "+tVal+" - "+myVal+" = "+(tVal - myVal));
-			offFaultMFD.set(m, tVal - myVal);
-		}
-		return offFaultMFD;
-	}
-
-	
 	
 	/**
 	 * This computes the subseismogenic MFD for each section using the final (post-inversion) slip rates
@@ -727,11 +673,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	 * getMinMagForSection(s) are set to zero).
 	 * @return
 	 */
-	public ArrayList<GutenbergRichterMagFreqDist> getImpliedSubSeisGR_MFD_List() {
+	private ArrayList<GutenbergRichterMagFreqDist> getImpliedSubSeisGR_MFD_List() {
 		
-		double minMag = InversionMFDs.MIN_MAG;
-		double deltaMag = InversionMFDs.DELTA_MAG;
-		int numMag = InversionMFDs.NUM_MAG;
+		double minMag = InversionTargetMFDs.MIN_MAG;
+		double deltaMag = InversionTargetMFDs.DELTA_MAG;
+		int numMag = InversionTargetMFDs.NUM_MAG;
 		ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
 		GutenbergRichterMagFreqDist tempGR = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag);
 		for(int s=0; s<this.getNumSections(); s++) {
@@ -755,6 +701,47 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		}
 		return grNuclMFD_List;
 	}
+
+	
+	/**
+	 * This returns the total target minus total on-fault MFD (supra- and sub-seismo) if MomentRateFixes.NONE 
+	 * or MomentRateFixes.APPLY_IMPLIED_CC (to make a perfect match with the total target), otherwise
+	 * this returns inversionTargetMFDs.getTrulyOffFaultMFD() since we're on a branch that allows a
+	 * bulge (we don't match total regional target)
+	 * 
+	 * @return
+	 */
+	public IncrementalMagFreqDist getFinalTrulyOffFaultMFD() {
+		
+		if(branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE ||
+				branch.getValue(MomentRateFixes.class) == MomentRateFixes.APPLY_IMPLIED_CC ) {
+					
+			SummedMagFreqDist finalTrulyOffMFD = new SummedMagFreqDist(inversionTargetMFDs.MIN_MAG, inversionTargetMFDs.NUM_MAG, inversionTargetMFDs.DELTA_MAG);
+			finalTrulyOffMFD.addIncrementalMagFreqDist(inversionTargetMFDs.getTotalTargetGR());
+			finalTrulyOffMFD.subtractIncrementalMagFreqDist(calcNucleationMFD_forRegion(RELM_RegionUtils.getGriddedRegionInstance(), inversionTargetMFDs.MIN_MAG, inversionTargetMFDs.MAX_MAG, inversionTargetMFDs.DELTA_MAG, true));
+			finalTrulyOffMFD.subtractIncrementalMagFreqDist(getFinalTotalSubSeismoOnFaultMFD());
+			return finalTrulyOffMFD;
+		}
+		else {
+			return inversionTargetMFDs.getTrulyOffFaultMFD();
+		}
+	}
+
+	
+	
+	/**
+	 * This returns the sum of getFinalTrulyOffFaultMFD() and getFinalTotalSubSeismoOnFaultMFD().
+	 * @return
+	 */
+	public IncrementalMagFreqDist getFinalTotalGriddedSeisMFD() {
+		SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG, InversionTargetMFDs.DELTA_MAG);
+		totGridSeisMFD.addIncrementalMagFreqDist(getFinalTrulyOffFaultMFD());
+		totGridSeisMFD.addIncrementalMagFreqDist(getFinalTotalSubSeismoOnFaultMFD());
+		return totGridSeisMFD;
+ 	}
+	
+	
+
 	
 	// Methods from InversionFaultSystemSolutionInterface:
 	
@@ -803,7 +790,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	 * @return
 	 */
 	public double getUpperMagForSubseismoRuptures(int sectIndex) {
-		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionMFDs.DELTA_MAG/2;
+		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionTargetMFDs.DELTA_MAG/2;
 	}
 	
 	@Override

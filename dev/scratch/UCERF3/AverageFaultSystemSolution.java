@@ -403,7 +403,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	public void writePaleoPlots(File dir) throws IOException {
-		String prefix = new InversionFaultSystemSolution(this).getBranch().buildFileName();
+		String prefix = new InversionFaultSystemSolution(this).getLogicTreeBranch().buildFileName();
 		int digits = ((getNumSolutions()-1)+"").length();
 		
 		ArrayList<PaleoRateConstraint> paleoRateConstraints =
@@ -430,7 +430,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	public static void writePaleoBoundsPlot(File dir, AverageFaultSystemSolution avgSol) throws IOException {
-		String prefix = new InversionFaultSystemSolution(avgSol).getBranch().buildFileName();
+		String prefix = new InversionFaultSystemSolution(avgSol).getLogicTreeBranch().buildFileName();
 		writePaleoBoundsPlot(dir, prefix, avgSol);
 	}
 	

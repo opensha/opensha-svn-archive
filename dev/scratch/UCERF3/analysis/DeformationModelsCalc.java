@@ -2327,9 +2327,15 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 		
+		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		
+		
+		
+		// Pre April 2013:
+		
 //		writeParentSectionsNearSite(new Location(37.7,-122.4),10);
 		
-		writeDefModelFaultModelFilesForWebsite(new File("/tmp/dm_files"));
+//		writeDefModelFaultModelFilesForWebsite(new File("/tmp/dm_files"));
 		
 //		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
 		
@@ -2340,9 +2346,7 @@ public class DeformationModelsCalc {
 		
 		
 
-		
-//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
-		
+				
 //		writeMoRateOfParentSectionsForAllDefAndFaultModels();
 		
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);

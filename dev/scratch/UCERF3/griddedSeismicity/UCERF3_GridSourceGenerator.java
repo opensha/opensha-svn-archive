@@ -73,17 +73,17 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
 
 		this.ifss = ifss;
-		branch = ifss.getBranch();
+		branch = ifss.getLogicTreeBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		realOffFaultMFD = ifss.getFinalTrulyOffFaultMFD();
+		realOffFaultMFD = ifss.getFinalTotalGriddedSeisMFD();
 
 		mfdMin = realOffFaultMFD.getMinX();
 		mfdMax = realOffFaultMFD.getMaxX();
 		mfdNum = realOffFaultMFD.getNum();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		polyMgr = ifss.getInversionMFDs().getGridSeisUtils().getPolyMgr();
+		polyMgr = ifss.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
 
 		System.out.println("   initSectionMFDs() ...");
 		initSectionMFDs();
@@ -264,8 +264,9 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		System.out.println("numRups: " + numRups);
 
 		// gr nofix error test
-				List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
-				System.out.println(list.size());
+// Commented out by ned because method turned private for safety
+//				List<GutenbergRichterMagFreqDist> list = invFss.getImpliedSubSeisGR_MFD_List();
+//				System.out.println(list.size());
 		
 		//		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(
 		//			invFss, null, SpatialSeisPDF.UCERF3, 8.54, SmallMagScaling.MO_REDUCTION);

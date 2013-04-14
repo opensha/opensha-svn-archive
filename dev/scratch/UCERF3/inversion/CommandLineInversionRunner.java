@@ -516,7 +516,7 @@ public class CommandLineInversionRunner {
 					//							+(totalOffFaultMomentRate-momRed);
 					//					info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
 					//							+totalOffFaultMomentRate;
-					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getImpliedTotalGriddedSeisMFD().getTotalMomentRate();
+					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getFinalTotalGriddedSeisMFD().getTotalMomentRate();
 					//					info += "\nTotal Model Seis Moment Rate: "
 					//							+(totalOffFaultMomentRate+totalSolutionMoment);
 				} catch (Exception e1) {
@@ -830,15 +830,15 @@ public class CommandLineInversionRunner {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 
 		// no cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_NoCal(), invSol.getInversionMFDs().noCalTargetSupraMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionTargetMFDs().getTotalTargetGR_NoCal(), invSol.getInversionTargetMFDs().noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
 
 		// so cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionMFDs().getTotalTargetGR_SoCal(), invSol.getInversionMFDs().soCalTargetSupraMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getInversionTargetMFDs().getTotalTargetGR_SoCal(), invSol.getInversionTargetMFDs().soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
 		
 		// statewide
-		return writeMFDPlot(invSol, dir, prefix, invSol.getInversionMFDs().getTotalTargetGR(), invSol.getInversionMFDs().getTargetOnFaultSupraSeisMFD(),
+		return writeMFDPlot(invSol, dir, prefix, invSol.getInversionTargetMFDs().getTotalTargetGR(), invSol.getInversionTargetMFDs().getOnFaultSupraSeisMFD(),
 						RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 	}
 

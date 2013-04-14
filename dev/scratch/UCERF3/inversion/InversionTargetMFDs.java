@@ -16,22 +16,85 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
-import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
-import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 
 /**
- * This class constructs and stores the various pre-inversion MFDs.
+ * This class constructs and stores the various pre-inversion MFD Targets.  
+ * 
+ * Details on what's returned are:
+ * 
+ * getTotalTargetGR() returns: 
+ * 
+ * 		The total regional target GR (Same for both GR and Char branches)
+ * 
+ * getTotalGriddedSeisMFD() returns:
+ * 
+ * 		getTrulyOffFaultMFD()+getTotalSubSeismoOnFaultMFD()
+ * 
+ * getTotalOnFaultMFD() returns:
+ * 
+ * getTotalSubSeismoOnFaultMFD() + getOnFaultSupraSeisMFD();
+ * 
+ * The rest are branch specific:
+ * 
+ * if(inversionModel.isCharacteristic())
+ * 
+ * 		getTrulyOffFaultMFD() returns:  
+ * 
+ * 			MFD implied by tri-linear total-on-fault model
+ * 
+ * 		getSubSeismoOnFaultMFD_List() returns:
+ * 
+ * 			GR up to max subseismo mag on each subsection, with rate from smoothed seismicity inside fault polygon
+ * 
+ * 		getTotalSubSeismoOnFaultMFD() returns:
+ * 
+ *  		The sum of getSubSeismoOnFaultMFD_List() 
+ *  
+ *  	getOnFaultSupraSeisMFD() returns:
+ * 
+ * 			getTotalTargetGR() - getTrulyOffFaultMFD() - getTotalSubSeismoOnFaultMFD()
+ * 
+ * 
+ * if(inversionModel.isGR())
+ * 
+ * 		getTrulyOffFaultMFD() returns:  
+ * 
+ * 			GR from obs off-fault rate and off-fault Mmax (optionally using a tapered GR with same total moment rate)
+ * 
+ * 		getSubSeismoOnFaultMFD_List() returns:
+ * 
+ * 			GR implied by slip rate on each section (reduced if applyImpliedCouplingCoeff = true), with rates set to zero at supra-seis mags
+ * 
+ * 			Note that on the NoFix/GR branch the sum of these does not equal what's returned by getTotalSubSeismoOnFaultMFD() because
+ *			the latter gets reduced by implied on-fault coupling coefficient to match total MFD target (so inversion will reduce final 
+ *			slip rates to match the target).
+ * 
+ * 		getTotalSubSeismoOnFaultMFD() returns:
+ * 
+ *  		Sum of getSubSeismoOnFaultMFD_List(), but on NoFix/GR also reduced by implied on-fault 
+ *  		coupling coefficient (so inversion will reduce final slip rates to match the target)
+ *  
+ *  	getOnFaultSupraSeisMFD() returns:
+ * 
+ * 			Sum of section GR distributions implied by slip rates (reduced if applyImpliedCouplingCoeff = true), 
+ * 			and with rates set to zero at subseismo mags; on NoFix/GR this is also reduced by implied on-fault 
+ *  		coupling coefficient (so inversion will reduce final slip rates to match the target)
+ * 
+ *
  * @author field
  *
  */
-public class InversionMFDs {
+public class InversionTargetMFDs {
 	
 	// debugging flag
 	final static boolean D = false;
@@ -68,33 +131,32 @@ public class InversionMFDs {
 
 	// discretization parameters for MFDs
 	public final static double MIN_MAG = 0.05;
+	public final static double MAX_MAG = 8.95;
 	public final static int NUM_MAG = 90;
 	public final static double DELTA_MAG = 0.1;
 
 
 	/**
-	 * TODO All the values after fltSysRupSet could be obtained from the LogicTreeBranch
-	 * 		object within fltSysRupSet (if the latter is an InversionFaultSystemRupSet)
+	 * 
 	 * @param fltSysRupSet
-	 * @param totalRegionRateMgt5
-	 * @param mMaxOffFault - this should be the upper edge of the mag bin
-	 * @param applyImpliedCouplingCoeff
-	 * @param spatialSeisPDF
-	 * @param inversionModel
+	 * @param invRupSet
 	 */
-	public InversionMFDs(FaultSystemRupSet fltSysRupSet, InversionFaultSystemSolutionInterface invRupSet, double totalRegionRateMgt5, double mMaxOffFault, 
-			boolean applyImpliedCouplingCoeff, SpatialSeisPDF spatialSeisPDF, InversionModels inversionModel) {
+	public InversionTargetMFDs(FaultSystemRupSet fltSysRupSet, InversionFaultSystemSolutionInterface invRupSet) {
 		
 		// convert mMaxOffFault to bin center
 		mMaxOffFault -= DELTA_MAG/2;
 		
 		this.fltSysRupSet=fltSysRupSet;
 		this.invRupSet=invRupSet;
-		this.totalRegionRateMgt5 = totalRegionRateMgt5;
-		this.mMaxOffFault = mMaxOffFault;
-		this.applyImpliedCouplingCoeff = applyImpliedCouplingCoeff;
-		this.spatialSeisPDF=spatialSeisPDF;
-		this.inversionModel=inversionModel;
+		
+		LogicTreeBranch logicTreeBranch = invRupSet.getLogicTreeBranch();
+		this.inversionModel = logicTreeBranch.getValue(InversionModels.class);
+		this.totalRegionRateMgt5 = logicTreeBranch.getValue(TotalMag5Rate.class).getRateMag5();
+		this.mMaxOffFault = logicTreeBranch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
+		this.applyImpliedCouplingCoeff = logicTreeBranch.getValue(MomentRateFixes.class).isApplyCC();	// true if MomentRateFixes = APPLY_IMPLIED_CC or APPLY_CC_AND_RELAX_MFD
+		this.spatialSeisPDF = logicTreeBranch.getValue(SpatialSeisPDF.class);
+		
+		boolean noMoRateFix = (logicTreeBranch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE);
 		
 		// this prevents using any non smoothed seismicity PDF for computing rates on fault (def mod PDF doesn't make sense)
 		if(spatialSeisPDF == SpatialSeisPDF.UCERF2 || spatialSeisPDF == SpatialSeisPDF.UCERF3)
@@ -200,7 +262,7 @@ public class InversionMFDs {
 		} else {
 			// GR
 			
-			// get the total GR nucleation MFD for all fault section
+			// get the total GR nucleation MFD for all fault sections based on their slip rates and max mags
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(fltSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 
 			// compute coupling coefficient
@@ -243,11 +305,11 @@ public class InversionMFDs {
 			}
 			
 			// If on the NoFix branch, we need to reduce totalSubSeismoOnFaultMFD and targetOnFaultSupraSeisMFD so
-			// that they sum with trulyOffFaultMFD to match the regional target (where we let the inversion reduce the slip
-			// rates); Note that we are not reducing subSeismoOnFaultMFD_List because these are used elsewhere in reducing final
-			// target slip rates; Note that subSeismoOnFaultMFD_List needs to be recomputed on this GR NoFix branch
+			// that they sum with trulyOffFaultMFD to match the regional target (because we want the inversion to reduce the slip
+			// rates to match targets); Note that we are not reducing subSeismoOnFaultMFD_List because these are used elsewhere in reducing final
+			// target slip rates; Therefore subSeismoOnFaultMFD_List needs to be recomputed on this GR NoFix branch
 			// since final slip rates will vary (and we need the subseismo GR to be consistent with the supra-seismo GR)
-			if(!applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff < 1.0) {
+			if(noMoRateFix && impliedOnFaultCouplingCoeff < 1.0) {
 				totalSubSeismoOnFaultMFD.scale(impliedOnFaultCouplingCoeff);
 				targetOnFaultSupraSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 				targetOnFaultSupraSeisMFD.addIncrementalMagFreqDist(totalTargetGR);
@@ -296,18 +358,6 @@ public class InversionMFDs {
 
 	}
 
-	/**
-	 * This returns the sum of the truly off-fault and total sub-seismo MFDs
-	 * @return
-	 */
-	public SummedMagFreqDist getTotalTargetSubSeismoOnPlusTrulyOffFaultMFD() {
-		SummedMagFreqDist mfd =new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);		
-		mfd.addIncrementalMagFreqDist(getTargetTrulyOffFaultMFD());
-		mfd.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
-		return mfd;
-	}
- 
-	
 	public double getTotalRegionRateMgt5() {return totalRegionRateMgt5;}
 	
 	public double getMmaxOffFault() {return mMaxOffFault;}
@@ -324,26 +374,47 @@ public class InversionMFDs {
 	
 	public double getFinalOffFaultCouplingCoeff() {return finalOffFaultCouplingCoeff;}
 	
-	public SummedMagFreqDist getTargetOnFaultSupraSeisMFD() {return targetOnFaultSupraSeisMFD;}
+	public SummedMagFreqDist getOnFaultSupraSeisMFD() {return targetOnFaultSupraSeisMFD;}
 	
-	public IncrementalMagFreqDist getTargetTrulyOffFaultMFD() {return trulyOffFaultMFD;}
+	public IncrementalMagFreqDist getTrulyOffFaultMFD() {return trulyOffFaultMFD;}
 	
-	public ArrayList<GutenbergRichterMagFreqDist> getTargetSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
+	/**
+	 * See class description above for details on what this returns in different situations
+	 * @return
+	 */
+	public ArrayList<GutenbergRichterMagFreqDist> getSubSeismoOnFaultMFD_List() {return subSeismoOnFaultMFD_List;}
 	
+	/**
+	 * See class description above for details on what this returns in different situations
+	 * @return
+	 */
 	public SummedMagFreqDist getTotalSubSeismoOnFaultMFD() {return totalSubSeismoOnFaultMFD;}
 
 	/**
-	 * This returns the sum of totalSubSeismoOnFaultMFD and trulyOffFaultMFD
+	 * This returns the sum of getTotalSubSeismoOnFaultMFD() and getTrulyOffFaultMFD()
 	 * @return
 	 */
 	public SummedMagFreqDist getTotalGriddedSeisMFD() {
 		SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		totGridSeisMFD.addIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
-		totGridSeisMFD.addIncrementalMagFreqDist(trulyOffFaultMFD);
+		totGridSeisMFD.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
+		totGridSeisMFD.addIncrementalMagFreqDist(getTrulyOffFaultMFD());
 		totGridSeisMFD.setName("InversionMFDs.getTotalGriddedSeisMFD()");
 		return totGridSeisMFD;
 	}
 
+	/**
+	 * This returns the sum of getTotalSubSeismoOnFaultMFD() and getOnFaultSupraSeisMFD()
+	 * @return
+	 */
+	public SummedMagFreqDist getTotalOnFaultMFD() {
+		SummedMagFreqDist totOnMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totOnMFD.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
+		totOnMFD.addIncrementalMagFreqDist(getOnFaultSupraSeisMFD());
+		totOnMFD.setName("InversionMFDs.getTotalOnFaultMFD()");
+		return totOnMFD;
+	}
+
+	
 	public GutenbergRichterMagFreqDist getTotalTargetGR() {return totalTargetGR;}
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR_NoCal() {return totalTargetGR_NoCal;}

@@ -112,7 +112,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	
 	// this holds the various MFDs implied by the inversion fault system rupture set 
 	// (e.g., we need to know the sub-seismo on-fault moment rates to reduce slip rates accordingly)
-	InversionMFDs inversionMFDs;
+	InversionTargetMFDs inversionMFDs;
 	
 	
 	// general info about this instance
@@ -308,11 +308,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 			}
 		}
 		
+		inversionMFDs = new InversionTargetMFDs(this, this);	
 		
-		inversionMFDs = new InversionMFDs(this, this, totalRegionRateMgt5,  mMaxOffFault, 
-				 applyImpliedCouplingCoeff,  spatialSeisPDF,  inversionModel);	
-		
-		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getTargetSubSeismoOnFaultMFD_List();
+		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();
 		double impliedOnFaultCouplingCoeff = inversionMFDs.getImpliedOnFaultCouplingCoeff();
 
 		// compute sectSlipRateReduced
@@ -657,7 +655,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		return maxMag; 
 	}
 
-	public InversionMFDs getInversionMFDs() {
+	public InversionTargetMFDs getInversionTargetMFDs() {
 		return inversionMFDs;
 	}
 
@@ -729,7 +727,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	 * @return
 	 */
 	public double getUpperMagForSubseismoRuptures(int sectIndex) {
-		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionMFDs.DELTA_MAG/2;
+		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionTargetMFDs.DELTA_MAG/2;
 	}
 
 	

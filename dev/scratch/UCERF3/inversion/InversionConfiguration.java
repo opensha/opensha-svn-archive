@@ -252,7 +252,7 @@ public class InversionConfiguration {
 		double parkfieldConstraintWt = 1000;
 		
 		// get MFD constraints
-		List<MFD_InversionConstraint> mfdConstraints = rupSet.getInversionMFDs().getMFD_ConstraintsForNoAndSoCal();
+		List<MFD_InversionConstraint> mfdConstraints = rupSet.getInversionTargetMFDs().getMFD_ConstraintsForNoAndSoCal();
 		
 		double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
 		
@@ -289,7 +289,7 @@ public class InversionConfiguration {
 		double[] initialRupModel;
 		double[] minimumRuptureRateBasis;
 		
-		SummedMagFreqDist targetOnFaultMFD =  rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD();
+		SummedMagFreqDist targetOnFaultMFD =  rupSet.getInversionTargetMFDs().getOnFaultSupraSeisMFD();
 //		System.out.println("SUPRA SEIS MFD = ");
 //		System.out.println(rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD());
 		

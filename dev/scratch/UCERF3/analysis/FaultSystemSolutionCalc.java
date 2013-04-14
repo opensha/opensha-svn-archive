@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
@@ -17,6 +18,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -25,6 +27,7 @@ import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
@@ -191,7 +194,32 @@ public class FaultSystemSolutionCalc {
 		}
 
 	}
+	
+	
+	public static void checkSubseisOnFaultRates(SimpleFaultSystemSolution fltSysSol) {
+		
+		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(fltSysSol);
 
+		System.out.println("Starting check");
+
+		if(invSol instanceof InversionFaultSystemSolution) {
+			List<GutenbergRichterMagFreqDist>  grList = invSol.getFinalSubSeismoOnFaultMFD_List();
+			for(int s=0;s<grList.size();s++) {
+				double rate = grList.get(s).getTotalIncrRate();
+				System.out.println(s+"\t"+(float)rate+"\t"+invSol.getFaultSectionData(s).getName());
+				if(rate < 1e-10) {
+					System.out.println(invSol.getFaultSectionData(s).getName());
+				}
+			}
+		}
+		else
+			System.out.println("Not instance of InversionFaultSystemSolution");
+			
+		System.out.println("Done with check");
+
+	}
+
+	
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -199,15 +227,20 @@ public class FaultSystemSolutionCalc {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		
+		String f = "/Users/field/workspace/OpenSHA/classes/scratch/UCERF3/data/scratch/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+		File fssFile = new File(f);
+
+		
 		// some U3.1 file:
-		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
+//		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		
 		// U3.2 files
 //		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 ////		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip");
 //
 		try {
-			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+			checkSubseisOnFaultRates(SimpleFaultSystemSolution.fromFile(fssFile));
+//			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
 //			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
 //			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
 		} catch (DocumentException e) {
