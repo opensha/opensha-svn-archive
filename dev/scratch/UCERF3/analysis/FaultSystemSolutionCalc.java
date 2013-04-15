@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 public class FaultSystemSolutionCalc {
 	
@@ -227,10 +228,9 @@ public class FaultSystemSolutionCalc {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		
-		String f = "/Users/field/workspace/OpenSHA/classes/scratch/UCERF3/data/scratch/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
-		File fssFile = new File(f);
+		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
+		String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
 
-		
 		// some U3.1 file:
 //		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		
@@ -239,11 +239,19 @@ public class FaultSystemSolutionCalc {
 ////		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip");
 //
 		try {
-			checkSubseisOnFaultRates(SimpleFaultSystemSolution.fromFile(fssFile));
+			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);
+			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
+			FaultSystemSolution fss = cfss.getSolution(ltb);
+			SimpleFaultSystemSolution sfss = new SimpleFaultSystemSolution(fss);
+			checkSubseisOnFaultRates(sfss);
+			
+			
+			
+//			checkSubseisOnFaultRates(SimpleFaultSystemSolution.fromFile(fssFile));
 //			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
 //			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
 //			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
-		} catch (DocumentException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
