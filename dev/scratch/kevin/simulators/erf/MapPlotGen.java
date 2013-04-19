@@ -31,10 +31,22 @@ public class MapPlotGen {
 //		
 //		File writeDir = new File("/home/kevin/Simulators/maps/2013_04_10-plots");
 		
-		File timeIndepDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-compare-time-indep");
-		File timeDepDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-compare-time-dep-empirical");
+//		File timeIndepDir = new File("/home/kevin/Simulators/maps/2013_04_11-rsqsim-long-la-box-0.05" +
+//					"-1sec-cb2008-30yrs/");
+//		File timeDepDir = new File("/home/kevin/Simulators/maps/2013_04_11-rsqsim-long-la-box-0.05" +
+//					"-1sec-cb2008-30yrs-quietmojave156/");
+//
+//		File writeDir = new File("/home/kevin/Simulators/maps/2013_04_11-1sec-plots");
+		
+//		File timeIndepDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-compare-time-indep");
+//		File timeDepDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-compare-time-dep-empirical");
+//	
+//		File writeDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-plots-empirical");
+		
+		File timeIndepDir = new File("/home/kevin/Simulators/maps/2013_04_11-ucerf2-compare-time-1sec-indep");
+		File timeDepDir = new File("/home/kevin/Simulators/maps/2013_04_11-ucerf2-compare-time-1sec-dep");
 	
-		File writeDir = new File("/home/kevin/Simulators/maps/2013_04_10-ucerf2-plots-empirical");
+		File writeDir = new File("/home/kevin/Simulators/maps/2013_04_11-ucerf2-plots-1sec");
 	
 		if (!writeDir.exists())
 			writeDir.mkdir();
@@ -44,7 +56,8 @@ public class MapPlotGen {
 		
 		double spacing = 0.01;
 		
-		String imt = "PGA";
+//		String imt = "PGA";
+		String imt = "1sec SA";
 		
 		double duration = 30;
 		
@@ -70,7 +83,7 @@ public class MapPlotGen {
 					timeDepZip.getAbsolutePath(), true, true).getXYZDataset(false, prob);
 			
 			String probStr = imt+" (G), "+(int)(prob*100)+"% in "+(int)duration+" yrs";
-			String fileName = imt.toLowerCase()+"_"+(int)(prob*100)+"in"+(int)duration;
+			String fileName = imt.toLowerCase().replaceAll(" ", "_")+"_"+(int)(prob*100)+"in"+(int)duration;
 			
 			GMT_Map indepMap = new GMT_Map(region, indepData, spacing, cpt);
 			
@@ -100,7 +113,7 @@ public class MapPlotGen {
 				Location refLoc = indepData.getLocation(refInd);
 				double refZ = indepData.get(refInd);
 				// if they're both sorted the same this should work
-				if (refLoc.equals(depData.getLocation(refInd))) {
+				if (depData.size() > refInd && refLoc.equals(depData.getLocation(refInd))) {
 					double modZ = depData.get(refInd);
 					double gain = modZ / refZ;
 

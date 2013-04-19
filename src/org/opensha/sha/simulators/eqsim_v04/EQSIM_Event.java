@@ -108,6 +108,10 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		return false;
 	}
 	
+	public void setID(int event_id) {
+		this.event_id = event_id;
+	}
+	
 	public int getID() { return event_id;}
 	
 	public double getMagnitude() { return magnitude;}

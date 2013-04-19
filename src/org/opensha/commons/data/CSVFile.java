@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -306,6 +307,38 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	public void addColumn() {
 		for (List<E> line : values) {
 			line.add(null);
+		}
+	}
+	
+	public void printPretty(String delim) {
+		// assemble column lengths
+		List<Integer> colSizes = Lists.newArrayList();
+		
+		for (int row=0; row<getNumRows(); row++) {
+			List<E> line = getLine(row);
+			for (int col=0; col<line.size(); col++) {
+				int len = line.get(col).toString().length();
+				if (colSizes.size() == col)
+					colSizes.add(len);
+				else if (len > colSizes.get(col))
+					colSizes.set(col, len);
+			}
+		}
+		
+		Joiner j = Joiner.on(delim);
+		
+		// now print
+		for (List<E> line : this) {
+			List<String> paddedLine = Lists.newArrayList();
+			for (int col=0; col<line.size(); col++) {
+				E e = line.get(col);
+				int len = colSizes.get(col);
+				String str = e.toString();
+				while (str.length() < len)
+					str = str+" ";
+				paddedLine.add(str);
+			}
+			System.out.println(j.join(paddedLine));
 		}
 	}
 

@@ -1,13 +1,21 @@
 package scratch.kevin.simulators;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+
+import com.google.common.collect.Lists;
 
 public class MomentRateVariation {
 
@@ -27,6 +35,7 @@ public class MomentRateVariation {
 		ArrayList<EQSIM_Event> events = tools.getEventsList();
 		
 		int years = (int)General_EQSIM_Tools.getSimulationDurationYears(events);
+		double minTime = events.get(0).getTimeInYears();
 		
 		double[] yearlyMoRates = new double[years];
 		
@@ -50,7 +59,7 @@ public class MomentRateVariation {
 		
 		System.out.println("Long term: mean="+meanMoRate+"\tmax="+maxMoRate+"\tmin="+minMoRate);
 		
-		int windowLen = 150;
+		int windowLen = 100;
 		double[] windows = new double[years-windowLen];
 		
 		for (int i=0; (i+windowLen)<yearlyMoRates.length; i++) {
@@ -66,6 +75,25 @@ public class MomentRateVariation {
 		
 		System.out.println("Max window / mean = "+(StatUtils.max(windows) / meanMoRate));
 		System.out.println("mean / min window = "+(meanMoRate / StatUtils.min(windows)));
+		
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minTime+((double)windowLen*0.5), windows.length, 1d);
+		for (int i=0; i<windows.length; i++)
+			func.set(i, windows[i]);
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(func);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
+		
+		String title = windowLen+"yr Moving Average of Seismic Moment Release";
+		
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+		gw.setX_AxisLabel("Years");
+		gw.setY_AxisLabel("Moment Rate (N-m/yr)");
+		gw.setYLog(true);
+		gw.setPlotLabelFontSize(24);
+		gw.setAxisLabelFontSize(18);
+		gw.setTickLabelFontSize(16);
 	}
 
 }

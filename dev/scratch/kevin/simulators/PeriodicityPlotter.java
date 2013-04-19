@@ -28,11 +28,13 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
@@ -58,6 +60,7 @@ public class PeriodicityPlotter {
 		boolean display = false;
 		boolean displayEventTimes = false;
 		boolean randomNormDist = false;
+		boolean randSplitMults = true;
 		
 		File writeDir = new File(dir, "period_plots");
 		if (!writeDir.exists())
@@ -163,7 +166,7 @@ public class PeriodicityPlotter {
 		List<EQSIM_Event> randomResampledCatalog = null;
 		for (boolean randomized : randoms)
 			if (randomized)
-				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
+				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist, randSplitMults);
 		
 		for (boolean randomized : randoms) {
 			if (randomized)
@@ -224,7 +227,7 @@ public class PeriodicityPlotter {
 			double cumulativePlotYears = 1000d;
 			if (!randomized) {
 				if (randomResampledCatalog == null)
-					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist);
+					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist, randSplitMults);
 				
 				for (boolean includeInitialCorupture : initials) {
 					
@@ -578,6 +581,7 @@ public class PeriodicityPlotter {
 		HashSet<EQSIM_Event> matches2set = new HashSet<EQSIM_Event>(matches2);
 		
 		int numWithin5years = 0;
+		int numAfterWithin5years = 0;
 		int totalNum = 0;
 		int numCoruptures = 0;
 		
@@ -783,27 +787,52 @@ public class PeriodicityPlotter {
 	 * by using the recurrence intervals of all events using that same set of rup idens.
 	 * @param events
 	 * @param rupIDens
-	 * @param splitMultiples
+	 * @param normDist use normal distribution instead of actual exact distribution
+	 * @param splitMultis split coruptures into individual events. This maintains the RI distribution perfectly for each
+	 * identifier but creates duplicate events. Magnitudes are maintained for each event so this would also throw off MFDs.
+	 * Use this option carefully.
 	 * @return
 	 */
-	private static List<EQSIM_Event> getRandomResampledCatalog(
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens, boolean normDist) {
+	static List<EQSIM_Event> getRandomResampledCatalog(
+			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens, boolean normDist, boolean splitMultis) {
+		System.out.println("Generating randomized catalog.");
+		
 		int numRupIdens = rupIdens.size();
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 		List<HashSet<EQSIM_Event>> matchesSets = Lists.newArrayList();
 		HashSet<EQSIM_Event> allEventsSet = new HashSet<EQSIM_Event>();
+		Map<RuptureIdentifier, Integer> idenIndexMap = Maps.newHashMap();
 		
-		for (RuptureIdentifier rupIden : rupIdens) {
+		for (int i=0; i<rupIdens.size(); i++) {
+			RuptureIdentifier rupIden = rupIdens.get(i);
 			List<EQSIM_Event> matches = rupIden.getMatches(events);
 			matchesLists.add(matches);
 			matchesSets.add(new HashSet<EQSIM_Event>(matches));
 			allEventsSet.addAll(matches);
+			idenIndexMap.put(rupIden, i);
 		}
+		
+		System.out.println("All matches size: "+allEventsSet.size());
 		
 		// now remove events involving multiple rup idens
 		List<HashSet<RuptureIdentifier>> multiSets = Lists.newArrayList();
 		List<List<EQSIM_Event>> multiEvents = Lists.newArrayList();
 		HashSet<EQSIM_Event> multiEventsSet = new HashSet<EQSIM_Event>();
+		
+		Map<RuptureIdentifier, List<Integer>> idenElemsListMap = null;
+		
+		int lastID = events.get(events.size()-1).getID();
+		if (splitMultis) {
+			idenElemsListMap = Maps.newHashMap();
+			for (int i=0; i<rupIdens.size(); i++) {
+				RuptureIdentifier iden = rupIdens.get(i);
+				Preconditions.checkState(iden instanceof ElementMagRangeDescription,
+						"Can only split for element based rup idens.");
+				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)iden;
+				List<Integer> elemIDs = elemIden.getElementIDs();
+				idenElemsListMap.put(iden, elemIDs);
+			}
+		}
 		
 		for (EQSIM_Event e : allEventsSet) {
 			HashSet<RuptureIdentifier> eventRupIdens = new HashSet<RuptureIdentifier>();
@@ -813,29 +842,77 @@ public class PeriodicityPlotter {
 			
 			if (eventRupIdens.size() > 1) {
 				// we have multiple identifiers here
-				// look for a matching set already
-				int match = -1;
-				setLoop:
-				for (int i=0; i<multiSets.size(); i++) {
-					HashSet<RuptureIdentifier> set = multiSets.get(i);
-					if (set.size() != eventRupIdens.size())
-						continue;
-					for (RuptureIdentifier rupIden : eventRupIdens)
-						if (!set.contains(rupIden))
-							continue setLoop;
-					// if we're here then it's a match
-					match = i;
-					break;
-				}
-				if (match < 0) {
-					multiSets.add(eventRupIdens);
-					List<EQSIM_Event> eList = Lists.newArrayList();
-					eList.add(e);
-					multiEvents.add(eList);
+//				if (splitMultis)
+//					throw new IllegalStateException("Doesn't currently work.");
+				if (splitMultis) {
+					for (RuptureIdentifier rupIden : eventRupIdens) {
+						int idenIndex = idenIndexMap.get(rupIden);
+						
+						// remove duplicate event from this iden's list
+						Preconditions.checkState(matchesLists.get(idenIndex).remove(e)); // assert removal correct
+						
+						List<Integer> elemIDsToRemove = Lists.newArrayList();
+						
+						// remove element ids
+						for (RuptureIdentifier oIden : eventRupIdens) {
+							// for each other rup identifier
+							if (oIden == rupIden)
+								continue;
+							
+							elemIDsToRemove.addAll(idenElemsListMap.get(oIden));
+						}
+						
+						// now find the event record which is a match
+						EQSIM_Event newEvent = null;
+						for (EventRecord testRec : e) {
+							EQSIM_Event testEvent = new EQSIM_Event(testRec);
+							if (rupIden.isMatch(testEvent)) {
+								newEvent = testEvent;
+								break;
+							}
+						}
+						Preconditions.checkNotNull(newEvent, "Splitting only works for idens for single faults");
+						
+						// now ensure that this new event isn't a match for any other Idens
+						for (RuptureIdentifier oIden : eventRupIdens) {
+							// for each other rup identifier
+							if (oIden == rupIden)
+								continue;
+							
+							Preconditions.checkState(!oIden.isMatch(newEvent),
+									"Another identifier must be on the same fault section, can't split");
+						}
+						
+						// ensure unique ID
+						newEvent.setID(++lastID);
+						
+						matchesLists.get(idenIndex).add(newEvent);
+					}
 				} else {
-					multiEvents.get(match).add(e);
+					// look for a matching set already
+					int match = -1;
+					setLoop:
+					for (int i=0; i<multiSets.size(); i++) {
+						HashSet<RuptureIdentifier> set = multiSets.get(i);
+						if (set.size() != eventRupIdens.size())
+							continue;
+						for (RuptureIdentifier rupIden : eventRupIdens)
+							if (!set.contains(rupIden))
+								continue setLoop;
+						// if we're here then it's a match
+						match = i;
+						break;
+					}
+					if (match < 0) {
+						multiSets.add(eventRupIdens);
+						List<EQSIM_Event> eList = Lists.newArrayList();
+						eList.add(e);
+						multiEvents.add(eList);
+					} else {
+						multiEvents.get(match).add(e);
+					}
+					multiEventsSet.add(e);
 				}
-				multiEventsSet.add(e);
 			}
 		}
 		
@@ -849,6 +926,7 @@ public class PeriodicityPlotter {
 		
 		for (int i=0; i<rupIdens.size(); i++) {
 			List<EQSIM_Event> eventsToResample = Lists.newArrayList(matchesLists.get(i));
+			Collections.sort(eventsToResample);
 			eventsToResample.removeAll(multiEventsSet);
 			eventListsToResample.add(eventsToResample);
 			double[] rps = getRPs(eventsToResample);
@@ -868,7 +946,7 @@ public class PeriodicityPlotter {
 		for (int i=0; i<eventListsToResample.size(); i++) {
 			RandomReturnPeriodProvider randomRP = randomRPsList.get(i);
 			// start at a random interval through the first RP
-			double time = Math.random() * randomRP.getReturnPeriod();
+			double time = events.get(0).getTimeInYears()+Math.random() * randomRP.getReturnPeriod();
 			for (EQSIM_Event e : eventListsToResample.get(i)) {
 				double timeSecs = time * General_EQSIM_Tools.SECONDS_PER_YEAR;
 				EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs);
@@ -881,6 +959,23 @@ public class PeriodicityPlotter {
 		
 		// now sort to make it in order
 		Collections.sort(newList);
+		System.out.println("New matches size: "+newList.size());
+		int origListSize = newList.size();
+		
+		double oldLastTime = events.get(events.size()-1).getTimeInYears();
+		
+		int numRemoved = 0;
+		for (int i=newList.size(); --i>=0;) {
+			if (newList.get(i).getTimeInYears() > oldLastTime) {
+				numRemoved++;
+				newList.remove(i);
+			}
+		}
+		
+		System.out.println("Removed "+numRemoved+"/"+origListSize+" at tail of random catalog");
+		
+		System.out.println("Orig start="+events.get(0).getTimeInYears()+", end="+events.get(events.size()-1).getTimeInYears());
+		System.out.println("Rand start="+newList.get(0).getTimeInYears()+", end="+newList.get(newList.size()-1).getTimeInYears());
 		
 		return newList;
 	}

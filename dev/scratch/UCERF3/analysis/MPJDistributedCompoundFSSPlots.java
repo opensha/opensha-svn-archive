@@ -206,11 +206,18 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 					if (sendbuf[p] != null)
 						otherPlotsList.get(p).add(sendbuf[p]);
 			}
-			for (int p=0; p<numPlots; p++)
-				plots.get(p).combineDistributedCalcs(otherPlotsList.get(p));
+			for (int p=0; p<numPlots; p++) {
+				CompoundFSSPlots plot = plots.get(p);
+				List<CompoundFSSPlots> oPlots = otherPlotsList.get(p);
+				plot.combineDistributedCalcs(oPlots);
+				for (CompoundFSSPlots oPlot : oPlots)
+					plot.addToComputeTimeCount(oPlot.getComputeTimeCount());
+			}
 			
 			for (CompoundFSSPlots plot : plots)
 				plot.finalizePlot();
+			
+			CompoundFSSPlots.printComputeTimes(plots);
 		} else {
 			MPI.COMM_WORLD.Send(sendbuf, 0, sendbuf.length, MPI.OBJECT, 0, 0);
 		}

@@ -7,25 +7,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
-import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.FaultTrace;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFileParser;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class MiniSectRecurrenceGen {
 
@@ -129,6 +125,15 @@ public class MiniSectRecurrenceGen {
 				sectsMap.put(parentID, sects);
 			}
 			sects.add(sect);
+		}
+		
+		// make sure parents are consistent
+		subSectsList = Lists.newArrayList(subSectsList);
+		for (Integer parentID : sectsMap.keySet()) {
+			if (!origDM.containsKey(parentID)) {
+				for (FaultSectionPrefData sect : sectsMap.get(parentID))
+					subSectsList.remove(sect);
+			}
 		}
 		
 		Map<Integer, List<List<Integer>>> mappings = Maps.newHashMap();
