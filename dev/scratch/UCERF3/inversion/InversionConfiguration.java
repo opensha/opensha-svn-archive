@@ -69,6 +69,7 @@ public class InversionConfiguration {
 	// these are the rates that should be used for water level computation. this will
 	// often be set equal to initial rup model or a priori rup constraint
 	private double[] minimumRuptureRateBasis;
+	private double MFDTransitionMag;
 	private List<MFD_InversionConstraint> mfdEqualityConstraints;
 	private List<MFD_InversionConstraint> mfdInequalityConstraints;
 	private double minimumRuptureRateFraction;
@@ -101,6 +102,7 @@ public class InversionConfiguration {
 			double[] minimumRuptureRateBasis, 
 			double smoothnessWt,
 			double eventRateSmoothnessWt,
+			double MFDTransitionMag,
 			List<MFD_InversionConstraint> mfdEqualityConstraints,
 			List<MFD_InversionConstraint> mfdInequalityConstraints,
 			double minimumRuptureRateFraction,
@@ -150,6 +152,7 @@ public class InversionConfiguration {
 		metadata += "\neventRateSmoothnessWt: "+eventRateSmoothnessWt;
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
+		this.MFDTransitionMag = MFDTransitionMag;
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
 		metadata += "\nminimumRuptureRateFraction: "+minimumRuptureRateFraction;
 		
@@ -458,6 +461,7 @@ public class InversionConfiguration {
 				initialRupModel,
 				minimumRuptureRateBasis,
 				smoothnessWt, eventRateSmoothnessWt,
+				MFDTransitionMag,
 				mfdEqualityConstraints,
 				mfdInequalityConstraints,
 				minimumRuptureRateFraction,
@@ -1103,6 +1107,14 @@ public class InversionConfiguration {
 
 	public void setRupRateSmoothingConstraintWt(double rupRateSmoothingConstraintWt) {
 		this.rupRateSmoothingConstraintWt = rupRateSmoothingConstraintWt;
+	}
+
+	public double getMFDTransitionMag() {
+		return MFDTransitionMag;
+	}
+
+	public void setMFDTransitionMag(double mFDTransitionMag) {
+		MFDTransitionMag = mFDTransitionMag;
 	}
 
 }

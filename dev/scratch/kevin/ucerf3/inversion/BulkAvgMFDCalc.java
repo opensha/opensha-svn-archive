@@ -49,7 +49,7 @@ public class BulkAvgMFDCalc {
 			IncrementalMagFreqDist solutionMFD = sol.calcNucleationMFD_forRegion(null, // null since we want everything
 					totalMFD.getMinX(), 9.05, 0.1, true);
 			double minMag = sol.getMinMag();
-			double maxMag = sol.getMFDTransitionMag();
+			double maxMag = sol.getInversionConfiguration().getMFDTransitionMag();
 			double e = 0;
 			for (int j=0; j<targetMFD.getNum(); j++) {
 				double x = targetMFD.getX(j);

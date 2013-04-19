@@ -62,26 +62,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private InversionModels invModel;
 	private LogicTreeBranch branch;
 	
-	private double MFDTransitionMag = Double.NaN;
-	private double slipRateConstraintWt = Double.NaN;
-	private boolean weightSlipRates = true;
-	private double paleoRateConstraintWt = Double.NaN;
-	private double paleoSlipConstraintWt = Double.NaN;
-	private double magnitudeEqualityConstraintWt = Double.NaN;
-	private double magnitudeInequalityConstraintWt = Double.NaN;
-	private double rupRateConstraintWt = Double.NaN;
-	private double rupRateSmoothingConstraintWt = Double.NaN;
-	private double participationSmoothnessConstraintWt = Double.NaN;
-	private double participationConstraintMagBinSize = Double.NaN;
-	private double nucleationMFDConstraintWt = Double.NaN;
-	private double mfdSmoothnessConstraintWt = Double.NaN;
-	private double mfdSmoothnessConstraintWtForPaleoParents = Double.NaN;
-	private double minimizationConstraintWt = Double.NaN;
-	private double momentConstraintWt = Double.NaN;
-	private double parkfieldConstraintWt = Double.NaN;
-	private double smoothnessWt = Double.NaN;
-	private double eventRateSmoothnessWt = Double.NaN;
-	private double minimumRuptureRateFraction = Double.NaN;		// water level parameter
+	/**
+	 * Inversion constraint weights and such. Note that this won't include the initial rup model or
+	 * target MFDs and cannot be used as input to InversionInputGenerator.
+	 */
+	private InversionConfiguration inversionConfiguration;
 	
 	private InversionTargetMFDs inversionTargetMFDs;
 	
@@ -227,6 +212,27 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 //	private double minimumRuptureRateFraction = Double.NaN;
 	
 	private void loadInvParams(Map<String, String> props) {
+		double MFDTransitionMag = Double.NaN;
+		double slipRateConstraintWt = Double.NaN;
+		boolean weightSlipRates = true;
+		double paleoRateConstraintWt = Double.NaN;
+		double paleoSlipConstraintWt = Double.NaN;
+		double magnitudeEqualityConstraintWt = Double.NaN;
+		double magnitudeInequalityConstraintWt = Double.NaN;
+		double rupRateConstraintWt = Double.NaN;
+		double rupRateSmoothingConstraintWt = Double.NaN;
+		double participationSmoothnessConstraintWt = Double.NaN;
+		double participationConstraintMagBinSize = Double.NaN;
+		double nucleationMFDConstraintWt = Double.NaN;
+		double mfdSmoothnessConstraintWt = Double.NaN;
+		double mfdSmoothnessConstraintWtForPaleoParents = Double.NaN;
+		double minimizationConstraintWt = Double.NaN;
+		double momentConstraintWt = Double.NaN;
+		double parkfieldConstraintWt = Double.NaN;
+		double smoothnessWt = Double.NaN;
+		double eventRateSmoothnessWt = Double.NaN;
+		double minimumRuptureRateFraction = Double.NaN;		// water level parameter
+		
 		if (props.containsKey("MFDTransitionMag"))
 			MFDTransitionMag = Double.parseDouble(props.get("MFDTransitionMag"));
 		if (props.containsKey("weightSlipRates"))
@@ -273,6 +279,15 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			eventRateSmoothnessWt = Double.parseDouble(props.get("eventRateSmoothnessWt"));
 		if (props.containsKey("minimumRuptureRateFraction"))
 			minimumRuptureRateFraction = Double.parseDouble(props.get("minimumRuptureRateFraction"));
+		
+		inversionConfiguration = new InversionConfiguration(
+				slipRateConstraintWt, weightSlipRates, paleoRateConstraintWt, paleoSlipConstraintWt,
+				magnitudeEqualityConstraintWt, magnitudeInequalityConstraintWt, rupRateConstraintWt,
+				participationSmoothnessConstraintWt, participationConstraintMagBinSize, nucleationMFDConstraintWt,
+				mfdSmoothnessConstraintWt, mfdSmoothnessConstraintWtForPaleoParents, rupRateSmoothingConstraintWt,
+				minimizationConstraintWt, momentConstraintWt, parkfieldConstraintWt, null,
+				null, null, smoothnessWt, eventRateSmoothnessWt, MFDTransitionMag,
+				null, null, minimumRuptureRateFraction, null);
 	}
 	
 	private void loadEnergies(Map<String, String> props) {
@@ -306,38 +321,39 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 				double wt;
 				energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
 				if (energyStr.equals("Slip Rate"))
-					wt = slipRateConstraintWt;
+					wt = inversionConfiguration.getSlipRateConstraintWt();
 				else if (energyStr.equals("Paleo Event Rates"))
-					wt = paleoRateConstraintWt;
+					wt = inversionConfiguration.getPaleoRateConstraintWt();
 				else if (energyStr.equals("Paleo Slips"))
-					wt = paleoSlipConstraintWt;
+					wt = inversionConfiguration.getPaleoSlipConstraintWt();
 				else if (energyStr.equals("Rupture Rates"))
-					wt = rupRateConstraintWt;
+					wt = inversionConfiguration.getRupRateConstraintWt();
 				else if (energyStr.equals("Rupture Rate Smoothing"))
-					wt = rupRateSmoothingConstraintWt;
+					wt = inversionConfiguration.getRupRateSmoothingConstraintWt();
 				else if (energyStr.equals("Minimization"))
-					wt = minimizationConstraintWt;
+					wt = inversionConfiguration.getMinimizationConstraintWt();
 				else if (energyStr.equals("MFD Equality"))
-					wt = magnitudeEqualityConstraintWt;
+					wt = inversionConfiguration.getMagnitudeEqualityConstraintWt();
 				else if (energyStr.equals("MFD Participation"))
-					wt = participationSmoothnessConstraintWt;
+					wt = inversionConfiguration.getParticipationSmoothnessConstraintWt();
 				else if (energyStr.equals("MFD Nucleation"))
-					wt = nucleationMFDConstraintWt;
+					wt = inversionConfiguration.getNucleationMFDConstraintWt();
 				else if (energyStr.equals("MFD Smoothness")) {
-					if (mfdSmoothnessConstraintWt > 0 && mfdSmoothnessConstraintWtForPaleoParents > 0)
+					if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0
+							&& inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
 						wt = Double.NaN; // impossible to make a fair comparison here when both weights are mixed
-					else if (mfdSmoothnessConstraintWt > 0)
-						wt = mfdSmoothnessConstraintWt;
-					else if (mfdSmoothnessConstraintWtForPaleoParents > 0)
-						wt = mfdSmoothnessConstraintWtForPaleoParents;
+					else if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0)
+						wt = inversionConfiguration.getMFDSmoothnessConstraintWt();
+					else if (inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
+						wt = inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents();
 					else
 						wt = 0d;
 				} else if (energyStr.equals("Moment"))
-					wt = momentConstraintWt;
+					wt = inversionConfiguration.getMomentConstraintWt();
 				else if (energyStr.equals("Parkfield"))
-					wt = parkfieldConstraintWt;
+					wt = inversionConfiguration.getParkfieldConstraintWt();
 				else if (energyStr.equals("Event-Rate Smoothness"))
-					wt = eventRateSmoothnessWt;
+					wt = inversionConfiguration.getEventRateSmoothnessWt();
 				else
 					throw new IllegalStateException("Unknown Energy Type: "+energyStr);
 				double misfit = eVal / (wt*wt);
@@ -356,85 +372,18 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	public LogicTreeBranch getLogicTreeBranch() {
 		return branch;
 	}
-
-	public double getMFDTransitionMag() {
-		return MFDTransitionMag;
-	}
-
-	public boolean isWeightSlipRates() {
-		return weightSlipRates;
-	}
-
-	public double getPaleoRateConstraintWt() {
-		return paleoRateConstraintWt;
-	}
-
-	public double getPaleoSlipConstraintWt() {
-		return paleoSlipConstraintWt;
-	}
-
-	public double getMagnitudeEqualityConstraintWt() {
-		return magnitudeEqualityConstraintWt;
-	}
-
-	public double getMagnitudeInequalityConstraintWt() {
-		return magnitudeInequalityConstraintWt;
-	}
-
-	public double getRupRateConstraintWt() {
-		return rupRateConstraintWt;
-	}
-
-	public double getParticipationSmoothnessConstraintWt() {
-		return participationSmoothnessConstraintWt;
-	}
-	
-	public double getParticipationConstraintMagBinSize() {
-		return participationConstraintMagBinSize;
-	}
-
-	public double getMinimumRuptureRateFraction() {
-		return minimumRuptureRateFraction;
-	}
 	
 	public InversionTargetMFDs getInversionTargetMFDs() {
 		return inversionTargetMFDs;
 	}
-	
-	public double getSlipRateConstraintWt() {
-		return slipRateConstraintWt;
-	}
-	
-	public double getNucleationMFDConstraintWt() {
-		return nucleationMFDConstraintWt;
-	}
 
-	public double getMfdSmoothnessConstraintWt() {
-		return mfdSmoothnessConstraintWt;
-	}
-
-	public double getMfdSmoothnessConstraintWtForPaleoParents() {
-		return mfdSmoothnessConstraintWtForPaleoParents;
-	}
-
-	public double getMinimizationConstraintWt() {
-		return minimizationConstraintWt;
-	}
-
-	public double getMomentConstraintWt() {
-		return momentConstraintWt;
-	}
-
-	public double getParkfieldConstraintWt() {
-		return parkfieldConstraintWt;
-	}
-
-	public double getSmoothnessWt() {
-		return smoothnessWt;
-	}
-
-	public double getEventRateSmoothnessWt() {
-		return eventRateSmoothnessWt;
+	/**
+	 * Inversion constraint weights and such. Note that this won't include the initial rup model or
+	 * target MFDs and cannot be used as input to InversionInputGenerator.
+	 * @return
+	 */
+	public InversionConfiguration getInversionConfiguration() {
+		return inversionConfiguration;
 	}
 
 	/**
