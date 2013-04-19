@@ -81,7 +81,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	private double parkfieldConstraintWt = Double.NaN;
 	private double smoothnessWt = Double.NaN;
 	private double eventRateSmoothnessWt = Double.NaN;
-	private double minimumRuptureRateFraction = Double.NaN;
+	private double minimumRuptureRateFraction = Double.NaN;		// water level parameter
 	
 	private InversionTargetMFDs inversionTargetMFDs;
 	
