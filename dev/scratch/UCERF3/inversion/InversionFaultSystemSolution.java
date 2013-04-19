@@ -437,12 +437,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return gw;
 	}
 	
-	public HeadlessGraphPanel getHeadlessMFDPlot(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
-			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
-		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
-		return getHeadlessMFDPlot(spec, totalMFD);
-	}
-	
 	public HeadlessGraphPanel getHeadlessMFDPlot(PlotSpec spec, IncrementalMagFreqDist totalMFD) {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
