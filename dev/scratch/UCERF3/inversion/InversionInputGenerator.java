@@ -168,14 +168,13 @@ public class InversionInputGenerator {
 		rangeEndRows = new ArrayList<Integer>();
 		rangeNames = new ArrayList<String>();
 		
-		// Compute number of slip-rate constraints
-		/* int numSlipRateConstraints = 0;
-		for(int i=0; i<sectSlipRateReduced.length;i++)
-			if(!Double.isNaN(sectSlipRateReduced[i]))
-				numSlipRateConstraints+=1; */
-		// We have decided to treat NaN slip rates the same as 0 slip rates:
-		// 		Minimize the model slip rates on these sections
+		// CURRENTLY, EVERY SUBSECTION IS INCLUDED IN SLIP-RATE CONSTRAINT - CONSTRAINT CANNOT BE DISABLED
+		// NORMALIZED (minimize ratio of model to target), UNNORMALIZED (minimize difference), 
+		// or BOTH (NORMALIZED & UNNORMALIZED both included - twice as many constraints) can be specified in SlipRateConstraintWeightingType
+		// NaN slip rates are treated as 0 slip rates: We minimize the model slip rates on these sections
 		int numSlipRateConstraints = numSections;
+		if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) 
+			numSlipRateConstraints+=numSections;
 		
 		// Find number of rows in A matrix (equals the total number of constraints)
 		if(D) System.out.println("\nNumber of slip-rate constraints:    " + numSlipRateConstraints);
@@ -426,7 +425,8 @@ public class InversionInputGenerator {
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates
 		int numNonZeroElements = 0;  
 		if(D) System.out.println("\nAdding slip per rup to A matrix ...");
-		double slipRateConstraintWt = config.getSlipRateConstraintWt();
+		double slipRateConstraintWt_normalized = config.getSlipRateConstraintWt_normalized();
+		double slipRateConstraintWt_unnormalized = config.getSlipRateConstraintWt_unnormalized();
 		// A matrix component of slip-rate constraint 
 		for (int rup=0; rup<numRuptures; rup++) {
 			double[] slips = rupSet.getSlipOnSectionsForRup(rup);
@@ -435,34 +435,42 @@ public class InversionInputGenerator {
 				int row = sects.get(i);
 				int col = rup;
 				double val;
-				if (!config.isWeightSlipRates()) 
-					val = slips[i];
-				else {  // Normalize by slip rate
+				if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.UNNORMALIZED || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) {
+					if (QUICK_GETS_SETS)
+						A.setQuick(row, col, slipRateConstraintWt_unnormalized * slips[i]);
+					else
+						A.set(row, col, slipRateConstraintWt_unnormalized * slips[i]);
+					if(D) numNonZeroElements++;		
+				}
+				if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) {  
+					if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH)
+						row += numSections;
 					// Note that constraints for sections w/ slip rate < 0.1 mm/yr is not normalized by slip rate -- otherwise misfit will be huge (GEOBOUND model has 10e-13 slip rates that will dominate misfit otherwise)
-					if (sectSlipRateReduced[row] < 1E-4 || Double.isNaN(sectSlipRateReduced[row]))  
+					if (sectSlipRateReduced[sects.get(i)] < 1E-4 || Double.isNaN(sectSlipRateReduced[sects.get(i)]))  
 						val = slips[i]/0.0001;  
 					else {
-						val = slips[i]/sectSlipRateReduced[row]; 
+						val = slips[i]/sectSlipRateReduced[sects.get(i)]; 
 					}
+					if (QUICK_GETS_SETS)
+						A.setQuick(row, col, slipRateConstraintWt_normalized * val);
+					else
+						A.set(row, col, slipRateConstraintWt_normalized * val);
+					if(D) numNonZeroElements++;
 				}
-				if (Double.isNaN(val))
-					throw new IllegalStateException("A["+row+"]["+col+"] = "+val+"! sectSlipRateReduced["+row+"] = "+sectSlipRateReduced[row]+" and slips["+i+"] = "+slips[i]);
-				if (QUICK_GETS_SETS)
-					A.setQuick(row, col, slipRateConstraintWt* val);
-				else
-					A.set(row, col, slipRateConstraintWt* val);
-				if(D) numNonZeroElements++;
 			}
-		}
+		}  
 		// d vector component of slip-rate constraint
 		for (int sect=0; sect<numSections; sect++) {
-			if (!config.isWeightSlipRates() || sectSlipRateReduced[sect]==0) 
-				d[sect] = slipRateConstraintWt * sectSlipRateReduced[sect];			
-			else {
+			int row = sect;
+			if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.UNNORMALIZED || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) 
+				d[row] = 0.01*slipRateConstraintWt_unnormalized * sectSlipRateReduced[sect];			
+			if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) {
+				if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH)
+					row += numSections;
 				if (sectSlipRateReduced[sect]<1E-4)  // For very small slip rates, do not normalize by slip rate (normalize by 0.0001 instead) so they don't dominate misfit
-					d[sect] = slipRateConstraintWt * sectSlipRateReduced[sect]/0.0001;
+					d[row] = slipRateConstraintWt_normalized * sectSlipRateReduced[sect]/0.0001;
 				else  // Normalize by slip rate
-					d[sect] = slipRateConstraintWt;
+					d[row] = slipRateConstraintWt_normalized;
 			}
 			if (Double.isNaN(sectSlipRateReduced[sect]))  // Treat NaN slip rates as 0 (minimize)
 				d[sect] = 0;

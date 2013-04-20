@@ -48,8 +48,9 @@ import com.google.common.base.Preconditions;
  */
 public class InversionConfiguration {
 	
-	private double slipRateConstraintWt;
-	private boolean weightSlipRates;
+	private double slipRateConstraintWt_normalized;
+	private double slipRateConstraintWt_unnormalized;
+	private SlipRateConstraintWeightingType slipRateWeighting;
 	private double paleoRateConstraintWt; 
 	private double paleoSlipConstraintWt;
 	private double magnitudeEqualityConstraintWt;
@@ -81,8 +82,9 @@ public class InversionConfiguration {
 	private String metadata;
 	
 	public InversionConfiguration(
-			double slipRateConstraintWt,
-			boolean weightSlipRates,
+			double slipRateConstraintWt_normalized,
+			double slipRateConstraintWt_unnormalized,
+			SlipRateConstraintWeightingType slipRateWeighting,
 			double paleoRateConstraintWt,
 			double paleoSlipConstraintWt,
 			double magnitudeEqualityConstraintWt,
@@ -111,10 +113,12 @@ public class InversionConfiguration {
 			metadata = "";
 		else
 			metadata += "\n";
-		this.slipRateConstraintWt = slipRateConstraintWt;
-		metadata += "slipRateConstraintWt: "+slipRateConstraintWt;
-		this.weightSlipRates = weightSlipRates;
-		metadata += "\nweightSlipRates: "+weightSlipRates;
+		this.slipRateConstraintWt_normalized = slipRateConstraintWt_normalized;
+		metadata += "slipRateConstraintWt_normalized: "+slipRateConstraintWt_normalized;
+		this.slipRateConstraintWt_unnormalized = slipRateConstraintWt_unnormalized;
+		metadata += "slipRateConstraintWt_unnormalized: "+slipRateConstraintWt_unnormalized;
+		this.slipRateWeighting = slipRateWeighting;
+		metadata += "\nslipRateWeighting: "+slipRateWeighting;
 		this.paleoRateConstraintWt = paleoRateConstraintWt;
 		metadata += "\npaleoRateConstraintWt: "+paleoRateConstraintWt;
 		this.paleoSlipConstraintWt = paleoSlipConstraintWt;
@@ -213,13 +217,16 @@ public class InversionConfiguration {
 		/* *******************************************
 		 * COMMON TO ALL MODELS
 		 * ******************************************* */
-		// If true, slip rate misfit is % difference for each section (recommended since
-		// it helps fit slow-moving faults).  If false, misfit is absolute difference.
-		double slipRateConstraintWt = 1;
-		boolean weightSlipRates = true;
+		// Setting slip-rate constraint weights to 0 does not disable them! To disable one or the other (both cannot be), use slipConstraintRateWeightingType Below
+		double slipRateConstraintWt_normalized = 1; // For SlipRateConstraintWeightingType.NORMALIZED (also used for SlipRateConstraintWeightingType.BOTH) -- NOT USED if UNNORMALIZED!
+		double slipRateConstraintWt_unnormalized = 0.01; // For SlipRateConstraintWeightingType.UNNORMALIZED (also used for SlipRateConstraintWeightingType.BOTH) -- NOT USED if NORMALIZED!
+		// If normalized, slip rate misfit is % difference for each section (recommended since
+		// it helps fit slow-moving faults).  If unnormalized, misfit is absolute difference.
+		// Both includes both normalized and unnormalized constraints.
+		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE;
 		
 		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double paleoRateConstraintWt = 2;
+		double paleoRateConstraintWt = 1;
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
 			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
@@ -399,12 +406,12 @@ public class InversionConfiguration {
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT.getArgName())) {
-			slipRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT.getArgName()));
-			System.out.println("Setting slip rate constraint wt: "+slipRateConstraintWt);
+			slipRateConstraintWt_normalized = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT.getArgName()));
+			System.out.println("Setting normalized slip rate constraint wt: "+slipRateConstraintWt_normalized);
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.NO_WEIGHT_SLIP_RATES.getArgName())) {
-			weightSlipRates = false;
+			slipRateWeighting = SlipRateConstraintWeightingType.UNNORMALIZED;
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.RUP_SMOOTH_WT.getArgName())) {
@@ -441,8 +448,9 @@ public class InversionConfiguration {
 		}
 		
 		return new InversionConfiguration(
-				slipRateConstraintWt,
-				weightSlipRates,
+				slipRateConstraintWt_normalized,
+				slipRateConstraintWt_unnormalized,
+				slipRateWeighting,
 				paleoRateConstraintWt,
 				paleoSlipConstraintWt,
 				mfdEqualityConstraintWt,
@@ -895,20 +903,28 @@ public class InversionConfiguration {
 		
 	}
 
-	public double getSlipRateConstraintWt() {
-		return slipRateConstraintWt;
+	public double getSlipRateConstraintWt_normalized() {
+		return slipRateConstraintWt_normalized;
 	}
 	
-	public void setSlipRateConstraintWt(double slipRateConstraintWt) {
-		this.slipRateConstraintWt = slipRateConstraintWt;
+	public void setSlipRateConstraintWt_normalized(double slipRateConstraintWt_normalized) {
+		this.slipRateConstraintWt_normalized = slipRateConstraintWt_normalized;
 	}
 	
-	public boolean isWeightSlipRates() {
-		return weightSlipRates;
+	public double getSlipRateConstraintWt_unnormalized() {
+		return slipRateConstraintWt_unnormalized;
+	}
+	
+	public void setSlipRateConstraintWt_unnormalized(double slipRateConstraintWt_unnormalized) {
+		this.slipRateConstraintWt_unnormalized = slipRateConstraintWt_unnormalized;
+	}
+	
+	public SlipRateConstraintWeightingType getSlipRateWeightingType() {
+		return slipRateWeighting;
 	}
 
-	public void setWeightSlipRates(boolean weightSlipRates) {
-		this.weightSlipRates = weightSlipRates;
+	public void setSlipRateWeightingType(SlipRateConstraintWeightingType slipRateWeighting) {
+		this.slipRateWeighting = slipRateWeighting;
 	}
 
 	public double getPaleoRateConstraintWt() {
@@ -1107,6 +1123,18 @@ public class InversionConfiguration {
 
 	public void setRupRateSmoothingConstraintWt(double rupRateSmoothingConstraintWt) {
 		this.rupRateSmoothingConstraintWt = rupRateSmoothingConstraintWt;
+	}
+	
+	public enum SlipRateConstraintWeightingType {
+		NORMALIZED_BY_SLIP_RATE,  // Normalize each slip-rate constraint by the slip-rate target (So the inversion tries to minimize ratio of model to target)
+		/**
+		 * fast SA cooling schedule (Szu and Hartley, 1987)
+		 */
+		UNNORMALIZED, // Do not normalize slip-rate constraint (inversion will minimize difference of model to target, effectively fitting fast faults better than slow faults on a ratio basis)
+		/**
+		 * very fast SA cooling schedule (Ingber, 1989) (recommended)
+		 */
+		BOTH;  // Include both normalized and unnormalized constraints.  This doubles the number of slip-rate constraints, and is a compromise between normalized (which fits slow faults better on a difference basis) and the unnormalized constraint (which fits fast faults better on a ratio basis)
 	}
 
 	public double getMFDTransitionMag() {
