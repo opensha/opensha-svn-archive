@@ -43,8 +43,12 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	}
 	
 	
+	/*
+	 * Updated to return the UCERF3pt3_SHALLOW model. The prior model is now
+	 * deprecated.
+	 */
 	public static GriddedGeoDataSet getUCERF3_PDF() {
-		return readPDF_Data(FILENAME_UCERF3);
+		return readPDF_Data(FILENAME_UCERF3pt3_SHALLOW);
 	}
 	
 	public static GriddedGeoDataSet getUCERF3pt3_PDF() {
