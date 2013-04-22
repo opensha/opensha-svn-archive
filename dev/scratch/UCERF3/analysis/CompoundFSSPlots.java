@@ -360,17 +360,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if (!solOffMFDsForRegion.isEmpty()) {
 					// now add target GRs
 					funcs.add(InversionTargetMFDs
-							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_10p0
+							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							1f, Color.BLACK));
 					funcs.add(InversionTargetMFDs
-							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_8p7
+							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p88
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							2f, Color.BLACK));
 					funcs.add(InversionTargetMFDs
-							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p6
+							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							1f, Color.BLACK));

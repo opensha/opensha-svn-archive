@@ -1142,7 +1142,7 @@ public class UC3_MapMaker {
 		Set<InversionModels> invModels = EnumSet.of(
 			CHAR_CONSTRAINED);
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_10p0); //RATE_7p6, RATE_8p7, RATE_10p0);
+			RATE_9p6); //RATE_7p6, RATE_8p7, RATE_10p0);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
 			MAG_7p2, MAG_7p6, MAG_8p0); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(

@@ -230,7 +230,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			} else if (velModelID == 2) {
+			} else if (velModelID == 2 || velModelID == 4) {
 				/*		CVMH Depth to 2.5					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));

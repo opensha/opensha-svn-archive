@@ -374,7 +374,7 @@ public class FaultSystemRupSetCalc {
 		
 		GutenbergRichterMagFreqDist totTargetRateMatched = new GutenbergRichterMagFreqDist(InversionTargetMFDs.MIN_MAG,InversionTargetMFDs.NUM_MAG, 
 				InversionTargetMFDs.DELTA_MAG, InversionTargetMFDs.MIN_MAG, mMaxRounded, 1.0, 1.0);
-		TotalMag5Rate rate = TotalMag5Rate.RATE_8p7;
+		TotalMag5Rate rate = TotalMag5Rate.RATE_7p88;
 		totTargetRateMatched.scaleToCumRate(0, rate.getRateMag5()*1e5);
 		totTargetRateMatched.setName("Perfect GR, matching regional rate");
 		totTargetRateMatched.setInfo("(up to mag of largest event in fault system; MoRate ="+(float)totTargetRateMatched.getTotalMomentRate()+"; Rate ge M5 = "+(float)totTargetRateMatched.getCumRate(5.05)+")");
@@ -969,9 +969,9 @@ public class FaultSystemRupSetCalc {
 		invModList.add(InversionModels.GR_CONSTRAINED);
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
-		mag5RateList.add(TotalMag5Rate.RATE_8p7);
+		mag5RateList.add(TotalMag5Rate.RATE_7p88);
 //		mag5RateList.add(TotalMag5Rate.RATE_7p1);
-		mag5RateList.add(TotalMag5Rate.RATE_10p0);
+		mag5RateList.add(TotalMag5Rate.RATE_9p6);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
 //		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
@@ -1070,7 +1070,7 @@ public class FaultSystemRupSetCalc {
 		for(DeformationModels dm :defModList) {
 			for(ScalingRelationships sr:scalingRelList) {
 				for(MaxMagOffFault mMaxOff : mMaxOffList) {
-					LogicTreeBranch ltb = LogicTreeBranch.fromValues(FaultModels.FM3_1,dm,sr,InversionModels.CHAR_CONSTRAINED,TotalMag5Rate.RATE_8p7,mMaxOff,MomentRateFixes.NONE,SpatialSeisPDF.UCERF3);
+					LogicTreeBranch ltb = LogicTreeBranch.fromValues(FaultModels.FM3_1,dm,sr,InversionModels.CHAR_CONSTRAINED,TotalMag5Rate.RATE_7p88,mMaxOff,MomentRateFixes.NONE,SpatialSeisPDF.UCERF3);
 					InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(ltb);
 					double offFltDefModMoRate = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(FaultModels.FM3_1, dm);
 					SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(faultSysRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
@@ -2280,7 +2280,7 @@ if(mMax<5.85)
 				
 				InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, defMod, 
 						InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
-						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+						TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 				
 				List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
 				
@@ -2337,7 +2337,7 @@ if(mMax<5.85)
 			
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
 					InversionModels.CHAR_CONSTRAINED, scaleRel, SlipAlongRuptureModels.TAPERED, 
-					TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+					TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 
 			List<Integer> parkfileRupIndexList = InversionInputGenerator.findParkfieldRups(rupSet);
 			
@@ -2451,7 +2451,7 @@ if(mMax<5.85)
 		// create one and make the list of parent sections names
 		InversionFaultSystemRupSet fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, DeformationModels.ZENG, 
 				InversionModels.CHAR_CONSTRAINED, ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, 
-				TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+				TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 		HashMap<Integer,String> parNameFromID_Map = new HashMap<Integer,String>();
 		for(FaultSectionPrefData subSectData : fltSystRupSet.getFaultSectionDataList())
 			if(!parNameFromID_Map.keySet().contains(subSectData.getParentSectionId()))
@@ -2472,7 +2472,7 @@ if(mMax<5.85)
 				System.out.println("Working on "+dm+" & "+sr);
 				fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
 						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
-						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+						TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 				
 				HashMap<Integer, SummedMagFreqDist> sumOfSubSectMFD_ConstraintMap = new HashMap<Integer, SummedMagFreqDist>();
 				for(Integer parID: parNameFromID_Map.keySet()) {
@@ -2626,7 +2626,7 @@ if(mMax<5.85)
 				System.out.println("Working on "+dm+" & "+sr);
 				InversionFaultSystemRupSet fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
 						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
-						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+						TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 				SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, numMag, deltaMag);
 				ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
 				for(int i=0; i<constraints.size(); i++) {
@@ -2702,7 +2702,7 @@ if(mMax<5.85)
 				numBranches +=1;
 				fltSystRupSet = InversionFaultSystemRupSetFactory.forBranch(FaultModels.FM3_1, dm, 
 						InversionModels.CHAR_CONSTRAINED, sr, SlipAlongRuptureModels.TAPERED, 
-						TotalMag5Rate.RATE_8p7, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
+						TotalMag5Rate.RATE_7p88, MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 				// sum all the char MFD constraints
 				ArrayList<SectionMFD_constraint> constraints = getCharInversionSectMFD_Constraints(fltSystRupSet);
 				for(SectionMFD_constraint mfdConstr : constraints) {
