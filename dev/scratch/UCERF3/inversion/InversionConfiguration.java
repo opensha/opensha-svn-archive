@@ -118,7 +118,7 @@ public class InversionConfiguration {
 		this.slipRateConstraintWt_unnormalized = slipRateConstraintWt_unnormalized;
 		metadata += "slipRateConstraintWt_unnormalized: "+slipRateConstraintWt_unnormalized;
 		this.slipRateWeighting = slipRateWeighting;
-		metadata += "\nslipRateWeighting: "+slipRateWeighting;
+		metadata += "\nslipRateWeighting: "+slipRateWeighting.name();
 		this.paleoRateConstraintWt = paleoRateConstraintWt;
 		metadata += "\npaleoRateConstraintWt: "+paleoRateConstraintWt;
 		this.paleoSlipConstraintWt = paleoSlipConstraintWt;
@@ -405,13 +405,27 @@ public class InversionConfiguration {
 			System.out.println("Setting MFD smoothness for paleo sects wt: "+MFDTransitionMag);
 		}
 		
-		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT.getArgName())) {
-			slipRateConstraintWt_normalized = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT.getArgName()));
+		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT_NORM.getArgName())) {
+			slipRateConstraintWt_normalized = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT_NORM.getArgName()));
 			System.out.println("Setting normalized slip rate constraint wt: "+slipRateConstraintWt_normalized);
 		}
 		
-		if (modifiers != null && modifiers.hasOption(InversionOptions.NO_WEIGHT_SLIP_RATES.getArgName())) {
-			slipRateWeighting = SlipRateConstraintWeightingType.UNNORMALIZED;
+		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT_UNNORM.getArgName())) {
+			slipRateConstraintWt_unnormalized = Double.parseDouble(modifiers.getOptionValue(InversionOptions.SLIP_WT_UNNORM.getArgName()));
+			System.out.println("Setting unnormalized slip rate constraint wt: "+slipRateConstraintWt_normalized);
+		}
+		
+		if (modifiers != null && modifiers.hasOption(InversionOptions.SLIP_WT_TYPE.getArgName())) {
+			String opt = modifiers.getOptionValue(InversionOptions.SLIP_WT_TYPE.getArgName()).toUpperCase();
+			if (opt.startsWith("NORM"))
+				slipRateWeighting = SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE;
+			else if (opt.startsWith("UNNORM"))
+				slipRateWeighting = SlipRateConstraintWeightingType.UNNORMALIZED;
+			else if (opt.startsWith("BOTH"))
+				slipRateWeighting = SlipRateConstraintWeightingType.BOTH;
+			else
+				throw new IllegalArgumentException("Unkown norm type: "+opt);
+			System.out.println("Setting slip rate constraint weighting type: "+slipRateWeighting);
 		}
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.RUP_SMOOTH_WT.getArgName())) {
@@ -1127,13 +1141,7 @@ public class InversionConfiguration {
 	
 	public enum SlipRateConstraintWeightingType {
 		NORMALIZED_BY_SLIP_RATE,  // Normalize each slip-rate constraint by the slip-rate target (So the inversion tries to minimize ratio of model to target)
-		/**
-		 * fast SA cooling schedule (Szu and Hartley, 1987)
-		 */
 		UNNORMALIZED, // Do not normalize slip-rate constraint (inversion will minimize difference of model to target, effectively fitting fast faults better than slow faults on a ratio basis)
-		/**
-		 * very fast SA cooling schedule (Ingber, 1989) (recommended)
-		 */
 		BOTH;  // Include both normalized and unnormalized constraints.  This doubles the number of slip-rate constraints, and is a compromise between normalized (which fits slow faults better on a difference basis) and the unnormalized constraint (which fits fast faults better on a ratio basis)
 	}
 

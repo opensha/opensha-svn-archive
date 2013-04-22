@@ -57,6 +57,8 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 				
 				for (int j=targetStartIndex; j<quietMatches.size(); j++) {
 					double targetTime = quietMatches.get(j).getTimeInYears();
+					if (targetTime  == matchTime)
+						continue;
 					if (targetTime <= targetWindowStart) {
 						targetStartIndex = j;
 						continue;
