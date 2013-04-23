@@ -116,7 +116,7 @@ public class InversionConfiguration {
 		this.slipRateConstraintWt_normalized = slipRateConstraintWt_normalized;
 		metadata += "slipRateConstraintWt_normalized: "+slipRateConstraintWt_normalized;
 		this.slipRateConstraintWt_unnormalized = slipRateConstraintWt_unnormalized;
-		metadata += "slipRateConstraintWt_unnormalized: "+slipRateConstraintWt_unnormalized;
+		metadata += "\nslipRateConstraintWt_unnormalized: "+slipRateConstraintWt_unnormalized;
 		this.slipRateWeighting = slipRateWeighting;
 		metadata += "\nslipRateWeighting: "+slipRateWeighting.name();
 		this.paleoRateConstraintWt = paleoRateConstraintWt;
