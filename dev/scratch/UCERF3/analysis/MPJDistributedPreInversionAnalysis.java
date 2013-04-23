@@ -154,9 +154,21 @@ public class MPJDistributedPreInversionAnalysis extends MPJTaskCalculator {
 			for (int index : batch) {
 				LogicTreeBranch branch = branches.get(index);
 
-				InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(branch);
+				InversionFaultSystemRupSet faultSysRupSet;
+				try {
+					faultSysRupSet = InversionFaultSystemRupSetFactory.forBranch(branch);
+				} catch (RuntimeException e) {
+					System.out.println("Error instantiating IFSRS for: "+branch);
+					throw e;
+				}
 
-				String str = faultSysRupSet.getPreInversionAnalysisData(index == 0);
+				String str;
+				try {
+					str = faultSysRupSet.getPreInversionAnalysisData(index == 0);
+				} catch (RuntimeException e) {
+					System.out.println("Error getting PreInversionAnalysys for: "+branch);
+					throw e;
+				}
 
 				map.put(index, str);
 			}
