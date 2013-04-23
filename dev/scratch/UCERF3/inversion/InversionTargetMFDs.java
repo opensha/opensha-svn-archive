@@ -143,9 +143,6 @@ public class InversionTargetMFDs {
 	 */
 	public InversionTargetMFDs(FaultSystemRupSet fltSysRupSet, InversionFaultSystemSolutionInterface invRupSet) {
 		
-		// convert mMaxOffFault to bin center
-		mMaxOffFault -= DELTA_MAG/2;
-		
 		this.fltSysRupSet=fltSysRupSet;
 		this.invRupSet=invRupSet;
 		
@@ -155,6 +152,9 @@ public class InversionTargetMFDs {
 		this.mMaxOffFault = logicTreeBranch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
 		this.applyImpliedCouplingCoeff = logicTreeBranch.getValue(MomentRateFixes.class).isApplyCC();	// true if MomentRateFixes = APPLY_IMPLIED_CC or APPLY_CC_AND_RELAX_MFD
 		this.spatialSeisPDF = logicTreeBranch.getValue(SpatialSeisPDF.class);
+		
+		// convert mMaxOffFault to bin center
+		mMaxOffFault -= DELTA_MAG/2;
 		
 		boolean noMoRateFix = (logicTreeBranch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE);
 		
@@ -323,7 +323,7 @@ public class InversionTargetMFDs {
 					soCalTargetSupraMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
 				}
 			}
-			
+// System.out.println(MIN_MAG+"\t"+NUM_MAG+"\t"+DELTA_MAG+"\t"+MIN_MAG+"\t"+mMaxOffFault);
 			trulyOffFaultMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, MIN_MAG, mMaxOffFault, 1.0, 1.0);
 			trulyOffFaultMFD.scaleToCumRate(0, offFaultRegionRateMgt5*1e5);
 			if(GR_OFF_FAULT_IS_TAPERED) {
