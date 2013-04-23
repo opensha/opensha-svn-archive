@@ -13,6 +13,12 @@ import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
@@ -242,6 +248,10 @@ public class InversionFaultSystemRupSetFactory {
 //			cachedForBranch(DeformationModels.GEOLOGIC, true);
 //			forBranch(DeformationModels.ABM);
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM3_1);
+			
+			forBranch(FaultModels.FM3_1, DeformationModels.ABM,
+			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED, TotalMag5Rate.RATE_9p6,
+			MaxMagOffFault.MAG_7p2, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
 			
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 //			LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();

@@ -32,7 +32,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	 * This is the default reference branch
 	 */
 	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.ZENGBB,
-			ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p88,
+			ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p9,
 			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
 	/**

@@ -1055,7 +1055,7 @@ public class General_EQSIM_Tools {
 			mfdList.get(1).setName("Total Simulator Cumulative Mag Freq Dist");
 			mfdList.get(1).setInfo(" ");
 			
-			double totRate = TotalMag5Rate.RATE_7p88.getRateMag5();
+			double totRate = TotalMag5Rate.RATE_7p9.getRateMag5();
 			GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, totRate, 5.05, 9.95, 50);
 			EvenlyDiscretizedFunc cumGR = grDist.getCumRateDistWithOffset();
 			cumGR.setName("Perfect GR with total rate = "+totRate);

@@ -400,7 +400,7 @@ public class LogicTreePBSWriter {
 //				else
 //					momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 				branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM3_1, dm, im,
-						ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_7p88,
+						ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_7p9,
 						MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF3));
 			}
 		}
@@ -414,7 +414,7 @@ public class LogicTreePBSWriter {
 //			else
 //				momFix = MomentRateFixes.APPLY_IMPLIED_CC;
 			branches.add(LogicTreeBranch.fromValues(false, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, im,
-					ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_7p88,
+					ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, TotalMag5Rate.RATE_7p9,
 					MaxMagOffFault.MAG_7p6, momFix, SpatialSeisPDF.UCERF3));
 		}
 		
@@ -506,10 +506,10 @@ public class LogicTreePBSWriter {
 			for (SlipAlongRuptureModels dsr : dsrs) {
 				for (DeformationModels dm : dms) {
 					if (dm == DeformationModels.UCERF2_ALL)
-						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p88,
+						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM2_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p9,
 								MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2, scale, dsr));
 					else
-						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p88,
+						branches.add(LogicTreeBranch.fromValues(true, FaultModels.FM3_1, dm, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p9,
 								MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3, scale, dsr));
 				}
 			}
@@ -573,7 +573,7 @@ public class LogicTreePBSWriter {
 		limitations.add(slipAlongs);
 
 //		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
-		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p88);
+		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p9);
 		limitations.add(mag5s);
 
 //		List<LogicTreeBranchNode<?>> maxMags = getNonZeroChoices(MaxMagOffFault.class, InversionModels.CHAR_CONSTRAINED);
@@ -630,7 +630,7 @@ public class LogicTreePBSWriter {
 		limitations.add(slipAlongs);
 
 //		List<LogicTreeBranchNode<?>> mag5s = getNonZeroChoices(TotalMag5Rate.class, InversionModels.CHAR_CONSTRAINED);
-		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p88);
+		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_7p9);
 //		List<LogicTreeBranchNode<?>> mag5s = toList(TotalMag5Rate.RATE_10p6, TotalMag5Rate.RATE_8p7);
 		limitations.add(mag5s);
 
@@ -677,7 +677,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "new-m5-rates-test-slip-wts-both";
+		String runName = "slip-wt-unnorm-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -708,6 +708,10 @@ public class LogicTreePBSWriter {
 //		int batchSize = 128;
 //		int jobsPerNode = 3;
 //		String threads = "5"; // *2 = 16 (out of 16 possible)
+		
+//		LogicTreeBranch prescribedBranch = null;
+		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
+//		prescribedBranch.setValue(TotalMag5Rate.RATE_6p5);
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -864,16 +868,25 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray("1.5", "0")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("2", "0")));
 		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.SLIP_WT_TYPE };
+////		variationBranches.add(buildVariationBranch(ops, toArray("NORM")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("BOTH")));
+		
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.SLIP_WT_TYPE };
+		InversionOptions[] ops = { InversionOptions.SLIP_WT_TYPE, InversionOptions.SLIP_WT_UNNORM };
 //		variationBranches.add(buildVariationBranch(ops, toArray("NORM")));
-		variationBranches.add(buildVariationBranch(ops, toArray("BOTH")));
+		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.01")));
+		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.02")));
+		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.05")));
+		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "1")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.COULOMB };
-//		variationBranches.add(buildVariationBranch(ops, toArray("0")));
+//		InversionOptions[] ops = { InversionOptions.SLIP_WT_UNNORM };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.01")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0.02")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.05")));
-//		variationBranches.add(buildVariationBranch(ops, toArray("0.1")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("1")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
@@ -1133,7 +1146,14 @@ public class LogicTreePBSWriter {
 		int cnt = 0;
 		int ignoreCnt = 0;
 
-		LogicTreeBranchIterator it = new LogicTreeBranchIterator(trimmer);
+		Iterable<LogicTreeBranch> it;
+		if (prescribedBranch != null) {
+			it = Lists.newArrayList();
+			((List<LogicTreeBranch>)it).add(prescribedBranch);
+			System.out.println("Using prescribed/hardcoded branch! "+prescribedBranch);
+		} else {
+			it = new LogicTreeBranchIterator(trimmer);
+		}
 		
 		if (saOptions == null)
 			saOptions = Lists.newArrayList();

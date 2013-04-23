@@ -164,7 +164,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		enumParams.addParameter(buildEnumParam(ScalingRelationships.class, ScalingRelationships.SHAW_2009_MOD));
 		enumParams.addParameter(buildEnumParam(SlipAlongRuptureModels.class, SlipAlongRuptureModels.TAPERED));
 		enumParams.addParameter(buildEnumParam(InversionModels.class, InversionModels.CHAR_CONSTRAINED));
-		enumParams.addParameter(buildEnumParam(TotalMag5Rate.class, TotalMag5Rate.RATE_7p88));
+		enumParams.addParameter(buildEnumParam(TotalMag5Rate.class, TotalMag5Rate.RATE_7p9));
 		enumParams.addParameter(buildEnumParam(MaxMagOffFault.class, MaxMagOffFault.MAG_7p6));
 		enumParams.addParameter(buildEnumParam(MomentRateFixes.class, MomentRateFixes.NONE));
 		enumParams.addParameter(buildEnumParam(SpatialSeisPDF.class, SpatialSeisPDF.UCERF3));

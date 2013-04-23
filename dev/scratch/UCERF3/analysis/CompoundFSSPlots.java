@@ -365,7 +365,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							1f, Color.BLACK));
 					funcs.add(InversionTargetMFDs
-							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p88
+							.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
 									.getRateMag5()));
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 							2f, Color.BLACK));
