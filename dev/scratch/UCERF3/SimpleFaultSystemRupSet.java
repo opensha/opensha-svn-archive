@@ -296,6 +296,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return rupAveSlips[rupIndex];
 	}
 	
+	@Override
 	public double[] getAveRakeForAllRups() {
 		return rakes;
 	}
@@ -386,6 +387,7 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		return closeSections;
 	}
 	
+	@Override
 	public boolean isClusterBased() {
 		return getNumClusters() > 0;
 	}

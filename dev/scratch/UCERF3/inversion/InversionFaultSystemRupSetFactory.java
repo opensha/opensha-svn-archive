@@ -277,10 +277,10 @@ public class InversionFaultSystemRupSetFactory {
 //			FaultSystemRupSet rupSet = forBranch(FaultModels.FM2_1, DeformationModels.UCERF2_ALL, InversionModels.CHAR);
 			UCERF3_PaleoRateConstraintFetcher.getConstraints(rupSet.getFaultSectionDataList());
 			
-			System.out.println("Total Orig Mo Rate: "+rupSet.getTotalOrigMomentRate());
-			System.out.println("Total Reduced Mo Rate: "+rupSet.getTotalReducedMomentRate());
-			System.out.println("Total Mo Rate Reduction: "+rupSet.getTotalMomentRateReduction());
-			System.out.println("Total Mo Rate Reduction Fraction: "+rupSet.getTotalMomentRateReductionFraction());
+			System.out.println("Total Orig Mo Rate (including creep reductions): "+rupSet.getTotalOrigMomentRate());
+			System.out.println("Total Reduced Mo Rate (subseis and creep): "+rupSet.getTotalReducedMomentRate());
+			System.out.println("Total Mo Rate Reduction (for subseis only): "+rupSet.getTotalMomentRateReduction());
+			System.out.println("Total Mo Rate Reduction Fraction (for subseis, relative to creep reduced): "+rupSet.getTotalMomentRateReductionFraction());
 			
 			System.out.println("\n"+rupSet.getInfoString());
 			

@@ -323,7 +323,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		
 		// now compute reduced slip rates and their std
 		for(int s=0; s<numSections; s++) {
-			double origMoRate = getOrigMomentRate(s);
+			double origMoRate = getOrigMomentRate(s);	// this is reduced by creep
 			double subSeismoMoRateReduced;
 			if(inversionModel.isCharacteristic())
 				subSeismoMoRateReduced = origMoRate*aveSubSeismoMoRateFraction;	// apply same average value to all sections to avoid wild changes in fractional reduction

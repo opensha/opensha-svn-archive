@@ -292,9 +292,8 @@ public class FaultSystemRupSetCalc {
 	}
 	
 	/**
-	 * Note that this now uses faultSystemRupSet.getFinalMinMagForSection(i) rather than 
-	 * faultSystemRupSet.getOrigMinMagForSection(i); the distinction was added after this
-	 * method was created and we haven't studied which is more appropriate here
+	 * This plots a histogram of moment rate reductions for subseismogenic ruptures
+	 * (not including creep reductions, which have already been applied)
 	 * 
 	 * 
 	 * @param faultSystemRupSet
@@ -2047,7 +2046,7 @@ if(mMax<5.85)
 			FaultSectionPrefData data = fltSystRupSet.getFaultSectionData(s);
 			double minMag = fltSystRupSet.getFinalMinMagForSection(s);
 			double maxMag = fltSystRupSet.getMaxMagForSection(s);
-			double moRate = fltSystRupSet.getReducedMomentRate(s); 	//data.calcMomentRate(true);
+			double moRate = fltSystRupSet.getReducedMomentRate(s); 	// reduced for creep and subseismo ruptures
 			double lowerEdgeOfFirstBin = SectionMFD_constraint.getLowerEdgeOfFirstBin(minMag);
 				
 			// check for too low maxMag
@@ -2151,7 +2150,7 @@ if(mMax<5.85)
 				totalLength=0;
 			}
 			numSubSec += 1;
-			totalMomentRate += fltSystRupSet.getReducedMomentRate(s);	//data.calcMomentRate(true);
+			totalMomentRate += fltSystRupSet.getReducedMomentRate(s);	// reduced for both creep and subseismo ruptures
 			double length = data.getTraceLength();
 			totalArea += data.getReducedDownDipWidth()*length;	// km-sq
 			totalLength += length;	// km

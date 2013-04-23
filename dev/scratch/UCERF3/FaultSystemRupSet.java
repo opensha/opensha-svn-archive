@@ -108,7 +108,7 @@ public abstract class FaultSystemRupSet {
 	/**
 	 * This returns the magnitude of the smallest rupture involving this section or NaN
 	 * if no ruptures involve this section.  This is called "Orig" because subclasses
-	 * may filter the minimum magnitudes further (e.g., so the don't fall below some
+	 * may filter the minimum magnitudes further (e.g., so they don't fall below some
 	 * threshold).
 	 * @param sectIndex
 	 * @return
@@ -148,18 +148,15 @@ public abstract class FaultSystemRupSet {
 	
 	
 	/**
-	 * This computes the fractional moment-rate taken away for subseismogenic ruptures and
-	 * and any coupling coefficient that was applied.
-	 * <br>
-	 * This is computed as: <code>moRateReduction = 1 - (reducedSlipRate / origSlipRate)</code>
-	 * where origSlipRate is first converted to meters/yr.
+	 * This computes the fractional slip rate (or moment rate) taken away for sub-seismogenic ruptures
+	 * (relative to creep reduced moment rate).
 	 * @param sectIndex
 	 * @return
 	 */
 	public double getMomentRateReductionFraction(int sectIndex) {
 		double origSlipRate = getFaultSectionData(sectIndex).getReducedAveSlipRate() * 1e-3; // convert to meters
-		double moReducedSlipRate = getSlipRateForSection(sectIndex);
-		return 1d - moReducedSlipRate/origSlipRate;
+		double reducedSlipRate = getSlipRateForSection(sectIndex);
+		return 1d - reducedSlipRate/origSlipRate;
 	}
 	
 	/**
@@ -173,8 +170,7 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures
-	 * and any coupling coefficient applied 
+	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures 
 	 * 
 	 * (getTotalMomentRateReduction()/getTotalOrigMomentRate()).
 	 */
@@ -195,8 +191,8 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the moment rate for the given rupSet without taking into account any
-	 * moment rate reductions for subseismogenic ruptures (note: this includes creep reductions).<br>
+	 * This returns the total moment rate for the given rupSet without taking into account any
+	 * moment rate reductions for subseismogenic ruptures (but does include all creep reductions).<br>
 	 * <br>
 	 * This simply calls <code>DeformationModelsCalc.calculateTotalMomentRate(sectData, true)</code> 
 	 * 
@@ -208,9 +204,9 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the moment rate after removing that for subseimogenic ruptures and
-	 * any applied coupling coefficient. This simply returns the original moment rate (which is already
-	 * creep reduced) multiplied by <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
+	 * This returns the moment rate after removing that for subseimogenic ruptures. 
+	 * This simply returns the original, creep-reduced moment rate multiplied by 
+	 * <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
 	 * 
 	 * @param sectIndex
 	 * @return
@@ -221,7 +217,7 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This returns the total moment rate after removing that for subseismogenic  
-	 * ruptures and any coupling coefficient applied.
+	 * ruptures (and creep influences).
 	 * @return
 	 */
 	public double getTotalReducedMomentRate() {
@@ -294,8 +290,8 @@ public abstract class FaultSystemRupSet {
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
 	/**
-	 * This represents the total moment rate available to the rupture, assuming it is the only
-	 * event to occur along the sections it uses.
+	 * This represents the total moment rate available to the rupture (with creep and 
+	 * subseis ruptures removed), assuming it is the only event to occur along the sections it uses.
 	 * @param rupIndex
 	 * @return
 	 */
@@ -566,8 +562,8 @@ public abstract class FaultSystemRupSet {
 	
 	
 	/**
-	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
-	 * where there has been a modification (i.e., moment rate reductions for smaller events).
+	 * This returns the section slip rate after reductions for subseismogenic ruptures
+	 * (it differs from what is returned by getFaultSectionData(int).getReducedAveSlipRate())
 	 * @return
 	 */
 	public abstract double getSlipRateForSection(int sectIndex);

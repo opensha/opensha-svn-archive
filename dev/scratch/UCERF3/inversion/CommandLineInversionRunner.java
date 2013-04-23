@@ -501,9 +501,9 @@ public class CommandLineInversionRunner {
 				info += "\nNum Non-Zero Rups: "+numNonZeros+"/"+loadedRupSet.getNumRuptures()+" ("+percent+" %)";
 				info += "\nOrig (creep reduced) Fault Moment Rate: "+loadedRupSet.getTotalOrigMomentRate();
 				double momRed = loadedRupSet.getTotalMomentRateReduction();
-				info += "\nMoment Reduction (subseismogenic & coupling coefficient): "+momRed;
-				info += "\nMoment Reduction Fraction: "+loadedRupSet.getTotalMomentRateReductionFraction();
-				info += "\nFault Moment Rate: "
+				info += "\nMoment Reduction (for subseismogenic ruptures only): "+momRed;
+				info += "\nSubseismo Moment Reduction Fraction (relative to creep reduced): "+loadedRupSet.getTotalMomentRateReductionFraction();
+				info += "\nReduced Moment Rate (subseismo and creep): "
 					+loadedRupSet.getTotalReducedMomentRate();
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
 				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
