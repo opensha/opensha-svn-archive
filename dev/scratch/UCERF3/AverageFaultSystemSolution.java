@@ -35,6 +35,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
@@ -51,13 +52,13 @@ import com.google.common.collect.Lists;
  * @author kevin
  *
  */
-public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implements Iterable<FaultSystemSolution> {
+public class AverageFaultSystemSolution extends InversionFaultSystemSolution implements Iterable<FaultSystemSolution> {
 	
 	private int numSols;
 	private double[][] ratesByRup;
 	private double[][] ratesBySol;
 	
-	private HashMap<Integer, SimpleFaultSystemSolution> solsMap = new HashMap<Integer, SimpleFaultSystemSolution>();
+	private HashMap<Integer, InversionFaultSystemSolution> solsMap = new HashMap<Integer, InversionFaultSystemSolution>();
 	
 	private static double[][] toArrays(List<double[]> ratesList) {
 		int numRups = ratesList.get(0).length;
@@ -76,7 +77,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	
 	@Override
 	public void clearCache() {
-		for (SimpleFaultSystemSolution sol : solsMap.values())
+		for (InversionFaultSystemSolution sol : solsMap.values())
 			sol.clearCache();
 		super.clearCache();
 	}
@@ -90,7 +91,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		return mean;
 	}
 
-	public AverageFaultSystemSolution(FaultSystemRupSet rupSet,
+	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
 			List<double[]> ratesList) {
 		this(rupSet, toArrays(ratesList));
 	}
@@ -99,16 +100,16 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	 * @param rupSet
 	 * @param rates 2 dimensional array of rates ordered by rupture index [numRups][numSols]
 	 */
-	public AverageFaultSystemSolution(FaultSystemRupSet rupSet,
+	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
 			double[][] rates) {
 		super(rupSet, getMeanRates(rates));
 		
 		this.ratesByRup = rates;
 		
-		String info = getInfoString();
+		String info = rupSet.getInfoString();
 		
 		numSols = ratesByRup[0].length;
-		int numRups = getNumRuptures();
+		int numRups = rupSet.getNumRuptures();
 		ratesBySol = new double[numSols][numRups];
 		
 		String newInfo = "";
@@ -118,7 +119,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		
 		info = newInfo+"\n\n"+info;
 		
-		setInfoString(info);
+		rupSet.setInfoString(info);
 		
 		for (int s=0; s<numSols; s++) {
 			for (int r=0; r<numRups; r++) {
@@ -199,15 +200,15 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	 * @param solIndex
 	 * @return
 	 */
-	public synchronized SimpleFaultSystemSolution getSolution(int solIndex) {
+	public synchronized InversionFaultSystemSolution getSolution(int solIndex) {
 		Preconditions.checkArgument(solIndex >= 0 && solIndex < numSols, "");
-		SimpleFaultSystemSolution sol = solsMap.get(solIndex);
+		InversionFaultSystemSolution sol = solsMap.get(solIndex);
 		if (sol == null) {
 			// make room in the cache
 			while (solsMap.keySet().size() > 3)
 				solsMap.remove(solsMap.keySet().iterator().next());
-			sol = new SimpleFaultSystemSolution(this, ratesBySol[solIndex]);
-			sol.copyCacheFrom(this);
+			sol = new InversionFaultSystemSolution(getRupSet(), ratesBySol[solIndex]);
+			sol.getRupSet().copyCacheFrom(this.getRupSet());
 			solsMap.put(solIndex, sol);
 		}
 		return sol;
@@ -217,7 +218,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		solsMap.clear();
 	}
 
-	@Override
+	// TODO move
 	public void toZipFile(File file) throws IOException {
 		File tempDir = FileUtils.createTempDir();
 		
@@ -238,28 +239,31 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			zipFileNames.add(rateSubFile.getName());
 		}
 		
-		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);
-		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
+		// TODO
+//		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);
+//		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
 	}
 	
 	public double[][] calcParticRates(double magLow, double magHigh) throws InterruptedException {
-		double[][] particRates = new double[getNumSections()][getNumSolutions()];
+		double[][] particRates = new double[getRupSet().getNumSections()][getNumSolutions()];
 		
-		calcThreaded(ratesByRup, particRates, true, magLow, magHigh, rupSet);
+		calcThreaded(ratesByRup, particRates, true, magLow, magHigh, getRupSet());
 		
 		return particRates;
 	}
 	
 	public double[][] calcSlipRates() throws InterruptedException {
-		double[][] particRates = new double[getNumSections()][getNumSolutions()];
+		double[][] particRates = new double[getRupSet().getNumSections()][getNumSolutions()];
 		
-		calcThreaded(ratesByRup, particRates, false, 0d, 10d, rupSet);
+		calcThreaded(ratesByRup, particRates, false, 0d, 10d, getRupSet());
 		
 		return particRates;
 	}
 	
-	public static void calcThreaded(double[][] rates, double[][] output, boolean partic, double magLow, double magHigh, FaultSystemRupSet rupSet) throws InterruptedException {
-		ArrayList<AverageFaultSystemSolution.ParticipationComputeTask> tasks = new ArrayList<AverageFaultSystemSolution.ParticipationComputeTask>();
+	public static void calcThreaded(double[][] rates, double[][] output, boolean partic, double magLow, double magHigh,
+			InversionFaultSystemRupSet rupSet) throws InterruptedException {
+		ArrayList<AverageFaultSystemSolution.ParticipationComputeTask> tasks =
+				new ArrayList<AverageFaultSystemSolution.ParticipationComputeTask>();
 		for (int i=0; i<output[0].length; i++)
 			tasks.add(new AverageFaultSystemSolution.ParticipationComputeTask(rates, output, i, partic, magLow, magHigh, rupSet));
 		
@@ -284,9 +288,9 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	private IncrementalMagFreqDist[] calcMFDs(final boolean parent, final boolean nucleation, final int id) {
-		final FaultSystemRupSet rupSet = this.rupSet;
-		final double minMag = getMinMag();
-		final double maxMag = getMaxMag();
+		final FaultSystemRupSet rupSet = getRupSet();
+		final double minMag = getRupSet().getMinMag();
+		final double maxMag = getRupSet().getMaxMag();
 		final int numMag = (int)((maxMag - minMag) / 0.1d)+1;
 		
 		List<Task> tasks = Lists.newArrayList();
@@ -300,7 +304,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 				@Override
 				public void compute() {
 					FaultSystemSolution mySol = getSolution(solIndex);
-					mySol.copyCacheFrom(rupSet);
+					mySol.getRupSet().copyCacheFrom(rupSet);
 					IncrementalMagFreqDist mfd;
 					if (nucleation) {
 						if (parent)
@@ -403,14 +407,14 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	public void writePaleoPlots(File dir) throws IOException {
-		String prefix = new InversionFaultSystemSolution(this).getLogicTreeBranch().buildFileName();
+		String prefix = getRupSet().getLogicTreeBranch().buildFileName();
 		int digits = ((getNumSolutions()-1)+"").length();
 		
 		ArrayList<PaleoRateConstraint> paleoRateConstraints =
-				UCERF3_PaleoRateConstraintFetcher.getConstraints(getFaultSectionDataList());
+				UCERF3_PaleoRateConstraintFetcher.getConstraints(getRupSet().getFaultSectionDataList());
 		
 		for (int i=0; i<getNumSolutions(); i++) {
-			SimpleFaultSystemSolution sol = getSolution(i);
+			InversionFaultSystemSolution sol = getSolution(i);
 			
 			String runStr = i+"";
 			while (runStr.length() < digits)
@@ -430,7 +434,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 	}
 	
 	public static void writePaleoBoundsPlot(File dir, AverageFaultSystemSolution avgSol) throws IOException {
-		String prefix = new InversionFaultSystemSolution(avgSol).getLogicTreeBranch().buildFileName();
+		String prefix = avgSol.getRupSet().getLogicTreeBranch().buildFileName();
 		writePaleoBoundsPlot(dir, prefix, avgSol);
 	}
 	
@@ -450,7 +454,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			numSols++;
 			
 			if (paleoRateConstraints == null)
-				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
+				paleoRateConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(sol.getRupSet().getFaultSectionDataList());
 			
 			PlotSpec spec = PaleoFitPlotter.getSegRateComparisonSpec(
 					paleoRateConstraints, null, sol);
@@ -540,7 +544,8 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 
 	public static AverageFaultSystemSolution fromZipFile(File zipFile)
 	throws ZipException, IOException, DocumentException {
-		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
+//		SimpleFaultSystemRupSet invRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
+		InversionFaultSystemRupSet invRupSet = null; // TODO FIXME!
 		ZipFile zip = new ZipFile(zipFile);
 		
 		List<double[]> rates = Lists.newArrayList();
@@ -560,7 +565,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		Preconditions.checkState(numSols == entries.size(), "Number of solutions incosistant, expected="+numSols
 				+", actual="+entries.size()+" (inferred from last filename: "+lastName+")");
 		
-		int numRups = simpleRupSet.getNumRuptures();
+		int numRups = invRupSet.getNumRuptures();
 		
 		for (ZipEntry entry : entries) {
 			double[] solRates = MatrixIO.doubleArrayFromInputStream(
@@ -571,7 +576,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			rates.add(solRates);
 		}
 		
-		return new AverageFaultSystemSolution(simpleRupSet, rates);
+		return new AverageFaultSystemSolution(invRupSet, rates);
 	}
 	
 	private static class SolRatesEntryComparator implements Comparator<ZipEntry> {
@@ -594,11 +599,11 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		private double[][] output;
 		private int i;
 		private boolean partic;
-		private FaultSystemRupSet rupSet;
+		private InversionFaultSystemRupSet rupSet;
 		private double magLow, magHigh;
 	
 		public ParticipationComputeTask(double[][] rates, double[][] output, int i, boolean partic, double magLow, double magHigh,
-				FaultSystemRupSet rupSet) {
+				InversionFaultSystemRupSet rupSet) {
 			super();
 			this.rates = rates;
 			this.output = output;
@@ -614,8 +619,8 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 			double[] myRates = new double[rupSet.getNumRuptures()];
 			for (int r=0; r<rupSet.getNumRuptures(); r++)
 				myRates[r] = rates[r][i];
-			FaultSystemSolution mySol = new SimpleFaultSystemSolution(rupSet, myRates);
-			mySol.copyCacheFrom(rupSet);
+			InversionFaultSystemSolution mySol = new InversionFaultSystemSolution(rupSet, myRates);
+			mySol.getRupSet().copyCacheFrom(rupSet);
 			double[] myAnswer;
 			if (partic)
 				myAnswer = mySol.calcParticRateForAllSects(magLow, magHigh);
@@ -630,7 +635,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 		
 	}
 
-	public static AverageFaultSystemSolution fromDirectory(FaultSystemRupSet rupSet, File dir, String prefix) throws IOException {
+	public static AverageFaultSystemSolution fromDirectory(InversionFaultSystemRupSet rupSet, File dir, String prefix) throws IOException {
 		ArrayList<File> files = new ArrayList<File>();
 		
 		System.out.println("Loading average solution from: "+dir.getAbsolutePath());
@@ -691,7 +696,7 @@ public class AverageFaultSystemSolution extends SimpleFaultSystemSolution implem
 //		avg.writePaleoPlots(dir);
 //		avg.writePaleoBoundsPlot(dir);
 		
-		System.out.println(avg.getDeformationModel());
+		System.out.println(avg.getRupSet().getDeformationModel());
 		System.exit(0);
 		
 		IncrementalMagFreqDist[] mfds = avg.calcParentSectionNucleationMFDs(301);

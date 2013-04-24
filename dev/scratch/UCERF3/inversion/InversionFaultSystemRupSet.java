@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -26,6 +27,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
@@ -73,75 +76,54 @@ import scratch.UCERF3.utils.SectionMFD_constraint;
  * @author Field, Milner, Page, & Powers
  *
  */
-public class InversionFaultSystemRupSet extends FaultSystemRupSet implements InversionFaultSystemSolutionInterface {
-	
+public class InversionFaultSystemRupSet extends FaultSystemRupSet {
+
 	protected final static boolean D = false;  // for debugging
-//	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
-	
+	//	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
+
 	// following are defined in constructor
-	DeformationModels defModName;
-	FaultModels faultModel;
-	String deformationModelString;
-	SlipAlongRuptureModels slipModelType;
-	ScalingRelationships scalingRelationship;
-	InversionModels inversionModel;
-	double totalRegionRateMgt5;
-	double mMaxOffFault;
-	boolean applyImpliedCouplingCoeff;
-	SpatialSeisPDF spatialSeisPDF;
-	
-	LogicTreeBranch logicTreeBranch;
-	
-	List<FaultSectionPrefData> faultSectionData;
-	int numSections;
-	
-	SectionClusterList sectionClusterList;
-	
-	// section attributes (all in SI units)
-	double[] sectSlipRateReduced;	// this gets reduced by moRateReduction (if non zero)
-	double[] sectSlipRateStdDevReduced;	// this gets reduced by moRateReduction (if non zero)
-	
+	private DeformationModels defModName;
+	private FaultModels faultModel;
+	private String deformationModelString;
+	private SlipAlongRuptureModels slipModelType;
+	private ScalingRelationships scalingRelationship;
+	private InversionModels inversionModel;
+	private double totalRegionRateMgt5;
+	private double mMaxOffFault;
+	private boolean applyImpliedCouplingCoeff;
+	private SpatialSeisPDF spatialSeisPDF;
+
+	private LogicTreeBranch logicTreeBranch;
+
+	private LaughTestFilter filter;
+
 	// rupture attributes (all in SI units)
-	double[] rupMeanMag, rupMeanMoment, rupTotMoRateAvail, rupArea, rupLength, rupOrigDDW, rupMeanSlip, rupRake;
-	int[] clusterIndexForRup, rupIndexInClusterForRup;
-	ArrayList<ArrayList<Integer>> clusterRupIndexList;
-	int numRuptures=0;
-	double maxMag;	// this is the maximum magnitude in the rupture set
 	final static double MIN_MO_RATE_REDUCTION = 0.1;
-//	double seisMoRateAdded;	// this is the moment added subseismo MFD MoRate exceeds fault section MoRate
-	
+	double[] rupMeanSlip;
+
+	// cluster information
+	private List<List<Integer>> clusterRups;
+	private List<List<Integer>> clusterSects;
+
 	// this holds the various MFDs implied by the inversion fault system rupture set 
 	// (e.g., we need to know the sub-seismo on-fault moment rates to reduce slip rates accordingly)
-	InversionTargetMFDs inversionMFDs;
-	
-	
-	// general info about this instance
-	String infoString;
-	
+	private InversionTargetMFDs inversionMFDs;
+
 	private List<List<Integer>> sectionConnectionsListList;
-	
+
 	private Map<IDPairing, Double> subSectionDistances;
-	
+
 	public final static double MIN_MAG_FOR_SEISMOGENIC_RUPS = 6.0;
-	double[] minMagForSectArray;
-	boolean[] isRupBelowMinMagsForSects;
-	
+	private double[] minMagForSectArray;
+	private boolean[] isRupBelowMinMagsForSects;
+
 	/**
 	 * This generates a new InversionFaultSystemRupSet for the given fault/deformation mode and all other branch
 	 * parameters.
 	 * 
-	 * @param faultModel
-	 * @param defModel
-	 * @param magAreaRelList
-	 * @param moRateReduction
-	 * @param slipModelType
-	 * @param aveSlipForRupModel
+	 * @param branch
 	 * @param precomputedDataDir
 	 * @param filter
-	 * @param totalRegionRateMgt5
-	 * @param mMaxOffFault
-	 * @param applyImpliedCouplingCoeff
-	 * @param spatialSeisPDF
 	 */
 	public InversionFaultSystemRupSet(LogicTreeBranch branch, File precomputedDataDir, LaughTestFilter filter) {
 		this(branch, new SectionClusterList(branch.getValue(FaultModels.class),
@@ -152,80 +134,101 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	 * This creates a new InversionFaultSystemRupSet for the given cluster list, which may or may have been
 	 * generated with this deformation model (but needs to be generated with this fault model!).
 	 * 
-	 * @param clusters
-	 * @param defModel
+	 * @param branch
+	 * @param sectionClusterList
 	 * @param faultSectionData
-	 * @param magAreaRelList
-	 * @param moRateReduction
-	 * @param slipModelType
-	 * @param aveSlipForRupModel
-	 * @param totalRegionRateMgt5
-	 * @param mMaxOffFault
-	 * @param applyImpliedCouplingCoeff
-	 * @param spatialSeisPDF
-
 	 */
-	public InversionFaultSystemRupSet(LogicTreeBranch branch, SectionClusterList clusters,
+	public InversionFaultSystemRupSet(LogicTreeBranch branch, SectionClusterList sectionClusterList,
 			List<FaultSectionPrefData> faultSectionData) {
-		
+
+		Preconditions.checkNotNull(branch, "LogicTreeBranch cannot be null!");
+		Preconditions.checkArgument(branch.isFullySpecified(), "LogicTreeBranch must be fully specified.");
+
 		if (faultSectionData == null)
 			// default to using the fault section data from the clusters
-			faultSectionData = clusters.getFaultSectionData();
-		
-		this.logicTreeBranch = branch;
-		this.faultModel = clusters.getFaultModel();
-		this.defModName = branch.getValue(DeformationModels.class);
-		this.scalingRelationship = branch.getValue(ScalingRelationships.class);
-		this.slipModelType = branch.getValue(SlipAlongRuptureModels.class);
-		this.sectionClusterList = clusters;
-		this.faultSectionData = faultSectionData;
-		this.inversionModel = branch.getValue(InversionModels.class);
-		this.totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		this.mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
-		this.applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
-		this.spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
-		this.subSectionDistances = clusters.getSubSectionDistances();
-		this.sectionConnectionsListList = clusters.getSectionConnectionsListList();
-		
-		infoString = "FaultSystemRupSet Parameter Settings:\n\n";
-		infoString += "\tfaultModel = " +faultModel+ "\n";
-		infoString += "\tdefModName = " +defModName+ "\n";
-		infoString += "\tdefMod filter basis = " +clusters.getDefModel()+ "\n";
-		infoString += "\t" +clusters.getFilter()+ "\n";
-		infoString += "\tscalingRelationship = " +scalingRelationship+ "\n";
-		infoString += "\tinversionModel = " +inversionModel+ "\n";
-		infoString += "\tslipModelType = " +slipModelType+ "\n";
+			faultSectionData = sectionClusterList.getFaultSectionData();
 
-		if(D) System.out.println(infoString);
-		
+		this.logicTreeBranch = branch;
+		setParamsFromBranch(branch);
+		this.filter = sectionClusterList.getFilter();
+		this.subSectionDistances = sectionClusterList.getSubSectionDistances();
+		this.sectionConnectionsListList = sectionClusterList.getSectionConnectionsListList();
+
 		// check that indices are same as sectionIDs (this is assumed here)
 		for(int i=0; i<faultSectionData.size();i++)
 			Preconditions.checkState(faultSectionData.get(i).getSectionId() == i,
-				"RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
+					"RupsInFaultSystemInversion: Error - indices of faultSectionData don't match IDs");
 
-		numSections = faultSectionData.size();
-		
 		// calculate rupture magnitude and other attributes
-		calcRuptureAttributes();
+		calcRuptureAttributes(faultSectionData, sectionClusterList);
 	}
 	
+	/**
+	 * Constructor with everything already computed, mostly to be used for rup sets loaded from files
+	 * 
+	 * @param rupSet
+	 * @param branch
+	 * @param filter
+	 * @param sectionConnectionsListList
+	 * @param clusterRups
+	 * @param clusterSects
+	 */
+	public InversionFaultSystemRupSet(
+			FaultSystemRupSet rupSet,
+			LogicTreeBranch branch,
+			LaughTestFilter filter,
+			List<List<Integer>> sectionConnectionsListList,
+			List<List<Integer>> clusterRups,
+			List<List<Integer>> clusterSects) {
+		setParamsFromBranch(branch);
+		init(rupSet);
+		
+		this.logicTreeBranch = branch;
+		this.filter = filter;
+		
+		this.sectionConnectionsListList = sectionConnectionsListList;
+	}
+	
+	private void setParamsFromBranch(LogicTreeBranch branch) {
+		if (branch.hasNonNullValue(FaultModels.class))
+			this.faultModel = branch.getValue(FaultModels.class);
+		if (branch.hasNonNullValue(DeformationModels.class))
+			this.defModName = branch.getValue(DeformationModels.class);
+		if (branch.hasNonNullValue(ScalingRelationships.class))
+			this.scalingRelationship = branch.getValue(ScalingRelationships.class);
+		if (branch.hasNonNullValue(SlipAlongRuptureModels.class))
+			this.slipModelType = branch.getValue(SlipAlongRuptureModels.class);
+		if (branch.hasNonNullValue(InversionModels.class))
+			this.inversionModel = branch.getValue(InversionModels.class);
+		if (branch.hasNonNullValue(TotalMag5Rate.class))
+			this.totalRegionRateMgt5 = branch.getValue(TotalMag5Rate.class).getRateMag5();
+		if (branch.hasNonNullValue(MaxMagOffFault.class))
+			this.mMaxOffFault = branch.getValue(MaxMagOffFault.class).getMaxMagOffFault();
+		if (branch.hasNonNullValue(MomentRateFixes.class))
+			this.applyImpliedCouplingCoeff = branch.getValue(MomentRateFixes.class).isApplyCC();
+		if (branch.hasNonNullValue(SpatialSeisPDF.class))
+			this.spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
+	}
+
+	// TODO [re]move
 	public static Vector3D getSlipVector(FaultSectionPrefData section) {
 		double[] strikeDipRake = { section.getFaultTrace().getAveStrike(), section.getAveDip(), section.getAveRake() };
 		double[] vect = FaultUtils.getSlipVector(strikeDipRake);
-		
+
 		return new Vector3D(vect[0], vect[1], vect[2]);
 	}
-	
-	
+
+
 	/**
 	 * Plot magnitude histogram for the inversion ruptures (how many rups at each mag)
+	 * TODO move/remove
 	 */
 	public void plotMagHistogram() {
 		//IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);  // This doesn't go high enough if creeping section is left in for All-California
 		IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,40,0.1);
 		magHist.setTolerance(0.2);	// this makes it a histogram
 		for(int r=0; r<getNumRuptures();r++)
-			magHist.add(rupMeanMag[r], 1.0);
+			magHist.add(getMagForRup(r), 1.0);
 		ArrayList funcs = new ArrayList();
 		funcs.add(magHist);
 		magHist.setName("Histogram of Inversion ruptures");
@@ -238,47 +241,74 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	/**
 	 * This computes mag and various other attributes of the ruptures
 	 */
-	private void calcRuptureAttributes() {
-		
-		if(numRuptures == 0) // make sure this has been computed
-			getNumRuptures();
-		rupMeanMag = new double[numRuptures];
-		rupMeanMoment = new double[numRuptures];
+	private void calcRuptureAttributes(List<FaultSectionPrefData> faultSectionData, SectionClusterList sectionClusterList) {
+
+		String infoString = "FaultSystemRupSet Parameter Settings:\n\n";
+		infoString += "\tfaultModel = " +faultModel+ "\n";
+		infoString += "\tdefModName = " +defModName+ "\n";
+		infoString += "\tdefMod filter basis = " +sectionClusterList.getDefModel()+ "\n";
+		infoString += "\t" +sectionClusterList.getFilter()+ "\n";
+		infoString += "\tscalingRelationship = " +scalingRelationship+ "\n";
+		infoString += "\tinversionModel = " +inversionModel+ "\n";
+		infoString += "\tslipModelType = " +slipModelType+ "\n";
+
+		if(D) System.out.println(infoString);
+
+		int numSections = faultSectionData.size();
+		double[] sectAreasReduced = new double[numSections];
+		double[] sectAreasOrig = new double[numSections];
+		for (int sectIndex=0; sectIndex<numSections; sectIndex++) {
+			FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
+			// aseismicity reduces area; km --> m on length & DDW
+			sectAreasReduced[sectIndex] = sectData.getTraceLength()*1e3*sectData.getReducedDownDipWidth()*1e3;
+			// km --> m on length & DDW
+			sectAreasOrig[sectIndex] = sectData.getTraceLength()*1e3*sectData.getOrigDownDipWidth()*1e3;
+		}
+
+		int numRuptures = 0;
+		for(int c=0; c<sectionClusterList.size();c++)
+			numRuptures += sectionClusterList.get(c).getNumRuptures();
+		List<List<Integer>> sectionsForRups = Lists.newArrayList();
+		double[] rupMeanMag = new double[numRuptures];
+		double[] rupMeanMoment = new double[numRuptures];
 		rupMeanSlip = new double[numRuptures];
-		rupTotMoRateAvail = new double[numRuptures];
-		rupArea = new double[numRuptures];
-		rupLength = new double[numRuptures];
-		rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
-		rupRake = new double[numRuptures];
-		clusterIndexForRup = new int[numRuptures];
-		rupIndexInClusterForRup = new int[numRuptures];
-		clusterRupIndexList = new ArrayList<ArrayList<Integer>>(sectionClusterList.size());
-		
-		maxMag=0;
-				
+		double[] rupTotMoRateAvail = new double[numRuptures];
+		double[] rupArea = new double[numRuptures];
+		double[] rupLength = new double[numRuptures];
+		double[] rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
+		double[] rupRake = new double[numRuptures];
+
+		// cluster stuff
+		clusterRups = Lists.newArrayList();
+		clusterSects = Lists.newArrayList();
+		//		int[] clusterIndexForRup = new int[numRuptures];
+		//		int[] rupIndexInClusterForRup = new int[numRuptures];
+
 		int rupIndex=-1;
 		for(int c=0;c<sectionClusterList.size();c++) {
 			SectionCluster cluster = sectionClusterList.get(c);
-			ArrayList<ArrayList<Integer>> clusterRups = cluster.getSectionIndicesForRuptures();
+			ArrayList<ArrayList<Integer>> clusterRupSects = cluster.getSectionIndicesForRuptures();
 			ArrayList<Integer> clusterRupIndexes = new ArrayList<Integer>(clusterRups.size());
-			clusterRupIndexList.add(clusterRupIndexes);
-			for(int r=0;r<clusterRups.size();r++) {
+			this.clusterRups.add(clusterRupIndexes);
+			this.clusterSects.add(cluster.getAllSectionsIdList());
+			for(int r=0;r<clusterRupSects.size();r++) {
 				rupIndex+=1;
-				clusterIndexForRup[rupIndex] = c;
-				rupIndexInClusterForRup[rupIndex] = r;
-				clusterRupIndexes.add(r);
+				//				clusterIndexForRup[rupIndex] = c;
+				//				rupIndexInClusterForRup[rupIndex] = r;
+				clusterRupIndexes.add(rupIndex);
 				double totArea=0;
 				double totOrigArea=0;
 				double totLength=0;
-				ArrayList<Integer> sectsInRup = clusterRups.get(r);
+				ArrayList<Integer> sectsInRup = clusterRupSects.get(r);
+				sectionsForRups.add(sectsInRup);
 				ArrayList<Double> areas = new ArrayList<Double>();
 				ArrayList<Double> rakes = new ArrayList<Double>();
 				for(Integer sectID:sectsInRup) {
 					double length = faultSectionData.get(sectID).getTraceLength()*1e3;	// km --> m
 					totLength += length;
-					double area = getAreaForSection(sectID);	// sq-m
+					double area = sectAreasReduced[sectID];	// sq-m
 					totArea += area;
-					totOrigArea += getOrigAreaForSection(sectID);	// sq-m
+					totOrigArea += sectAreasOrig[sectID];	// sq-m
 					areas.add(area);
 					rakes.add(faultSectionData.get(sectID).getAveRake());
 				}
@@ -287,43 +317,43 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
 				double origDDW = totOrigArea/totLength;
 				double mag = scalingRelationship.getMag(totArea, origDDW);
-//				for(MagAreaRelationship magArea: magAreaRelList) {
-//					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
-//						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
-////						System.out.println("YES!");
-//					} else {
-//						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
-//					}
-//				}
+				//				for(MagAreaRelationship magArea: magAreaRelList) {
+				//					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
+				//						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
+				////						System.out.println("YES!");
+				//					} else {
+				//						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
+				//					}
+				//				}
 				rupMeanMag[rupIndex] = mag;
-				if(mag>maxMag)
-					maxMag = mag;
 				rupMeanMoment[rupIndex] = MagUtils.magToMoment(rupMeanMag[rupIndex]);
 				// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed elsewhere); 
 				// the above will have to be corrected accordingly as in SoSAF_SubSectionInversion
 				// (mean moment != moment of mean mag if aleatory uncertainty included)
 				// rupMeanMoment[rupIndex] = MomentMagCalc.getMoment(rupMeanMag[rupIndex])* gaussMFD_slipCorr; // increased if magSigma >0
-//				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
+				//				rupMeanSlip[rupIndex] = rupMeanMoment[rupIndex]/(rupArea[rupIndex]*FaultMomentCalc.SHEAR_MODULUS);
 				rupMeanSlip[rupIndex] = scalingRelationship.getAveSlip(totArea, totLength, origDDW);
 			}
 		}
-		
-		inversionMFDs = new InversionTargetMFDs(this, this);	
-		
+
+		inversionMFDs = new InversionTargetMFDs(this);
+
 		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();
 		double impliedOnFaultCouplingCoeff = inversionMFDs.getImpliedOnFaultCouplingCoeff();
 
 		// compute sectSlipRateReduced
-		sectSlipRateReduced = new double[numSections];
-		sectSlipRateStdDevReduced = new double[numSections];
-		
+		double[] sectSlipRateReduced = new double[numSections];
+		double[] sectSlipRateStdDevReduced = new double[numSections];
+
 		// compute the average moment rate fraction for sub-seismo ruptures
 		// Note the numerator is reduced if desired, but the denominator (original total moment rate is not reduced) 
 		double aveSubSeismoMoRateFraction = inversionMFDs.getTotalSubSeismoOnFaultMFD().getTotalMomentRate()/inversionMFDs.getOrigOnFltDefModMoRate();
-		
+
 		// now compute reduced slip rates and their std
 		for(int s=0; s<numSections; s++) {
-			double origMoRate = getOrigMomentRate(s);	// this is reduced by creep
+			double origMoRate = faultSectionData.get(s).calcMomentRate(true);
+			if (Double.isNaN(origMoRate))
+				origMoRate = 0;
 			double subSeismoMoRateReduced;
 			if(inversionModel.isCharacteristic())
 				subSeismoMoRateReduced = origMoRate*aveSubSeismoMoRateFraction;	// apply same average value to all sections to avoid wild changes in fractional reduction
@@ -337,18 +367,18 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 				else
 					fractionalMoRateReduction = (origMoRate-subSeismoMoRateReduced)/origMoRate;
 			}
-			
+
 			// FOLLOWING NO LONGER NEEDED:
-//			else {
-//				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
-//						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
-//			}
+			//			else {
+			//				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
+			//						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
+			//			}
 			// apply water level of 10% (to avoid negative slip rates)
-//			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
-//				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
-//				fractionalMoRateReduction=0.1;
-////				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
-//			}
+			//			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
+			//				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
+			//				fractionalMoRateReduction=0.1;
+			////				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
+			//			}
 			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}
@@ -361,124 +391,125 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 			rupTotMoRateAvail[rupIndex]=totMoRate;
 		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
+
+		init(faultSectionData, sectSlipRateReduced, sectSlipRateStdDevReduced, sectAreasReduced, sectionsForRups, rupMeanMag, rupRake, rupArea, rupLength, infoString);
 	}
-	
-	
-
-	
 
 	/**
-	   * This writes the rupture sections to an ASCII file
-	   * @param filePathAndName
-	   */
-	  public void writeRupsToFiles(String filePathAndName) {
-		  FileWriter fw;
-		  try {
-			  fw = new FileWriter(filePathAndName);
-			  fw.write("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
-			  int rupIndex = 0;
-			  
-			  for(int c=0;c<sectionClusterList.size();c++) {
-				  ArrayList<ArrayList<Integer>>  rups = sectionClusterList.get(c).getSectionIndicesForRuptures();
-				  for(int r=0; r<rups.size();r++) {
-					  ArrayList<Integer> rup = rups.get(r);
-					  String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r)+"\t"+
-					  				(float)rupMeanMag[rupIndex]+"\t"+rup.size();
-					  for(Integer sectID: rup) {
-						  line += "\t"+sectID;
-					  }
-					  line += "\n";
-					  fw.write(line);
-					  rupIndex+=1;
-				  }				  
-			  }
-			  fw.close();
-		  } catch (IOException e) {
-			  e.printStackTrace();
-		  }
-	  }
-	  
-	  
-	  /**
-	   * This writes the section data to an ASCII file
-	 * @throws IOException 
-	   */
-	  public void writeSectionsToFile(String filePathAndName) throws IOException {
-		  ArrayList<String> metaData = new ArrayList<String>();
-		  metaData.add("defModName = "+defModName);
-		  FaultSectionDataWriter.writeSectionsToFile(faultSectionData, metaData, filePathAndName);
-	  }
-	  
-	  
-
-	  
-	/**
-	 * This returns the total number of ruptures
-	 * @return
+	 * This writes the rupture sections to an ASCII file
+	 * 
+	 * TODO [re]move
+	 * @param filePathAndName
 	 */
-	public int getNumRuptures() {
-		if(numRuptures ==0) {
-			for(int c=0; c<sectionClusterList.size();c++)
-				numRuptures += sectionClusterList.get(c).getNumRuptures();
+	public void writeRupsToFiles(String filePathAndName) {
+		FileWriter fw;
+		try {
+			fw = new FileWriter(filePathAndName);
+			fw.write("rupID\tclusterID\trupInClustID\tmag\tnumSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
+			int rupIndex = 0;
+
+			for(int c=0;c<getNumClusters();c++) {
+				List<Integer> clusterRupIndexes = clusterRups.get(c);
+				for(int r=0; r<clusterRupIndexes.size();r++) {
+					List<Integer> rup = getSectionsIndicesForRup(clusterRupIndexes.get(r));
+					String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(r)+"\t"+
+							(float)getMagForRup(rupIndex)+"\t"+rup.size();
+					for(Integer sectID: rup) {
+						line += "\t"+sectID;
+					}
+					line += "\n";
+					fw.write(line);
+					rupIndex+=1;
+				}				  
+			}
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return numRuptures;
 	}
-	
-	public int getNumSections() {
-		return faultSectionData.size();
+
+
+	/**
+	 * This writes the section data to an ASCII file
+	 * 
+	 * TODO: [re]move?
+	 * @throws IOException 
+	 */
+	public void writeSectionsToFile(String filePathAndName) throws IOException {
+		ArrayList<String> metaData = new ArrayList<String>();
+		metaData.add("defModName = "+defModName);
+		FaultSectionDataWriter.writeSectionsToFile(getFaultSectionDataList(), metaData, filePathAndName);
 	}
-	
-	public List<FaultSectionPrefData> getFaultSectionDataList() {
-		return faultSectionData;
-	}
-	
-	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
-		return faultSectionData.get(sectIndex);
-	}
+
+	// Ave Slip and Slip On Sections Methods
 	
 	@Override
-	public List<FaultSectionPrefData> getFaultSectionDataForRupture(int rupIndex) {
-		List<Integer> inds = getSectionsIndicesForRup(rupIndex);
-		ArrayList<FaultSectionPrefData> datas = new ArrayList<FaultSectionPrefData>();
-		for (int ind : inds)
-			datas.add(getFaultSectionData(ind));
-		return datas;
+	public void clearCache() {
+		super.clearCache();
+		rupSectionSlipsCache.clear();
 	}
-	
-	public List<List<Integer>> getSectionIndicesForAllRups() {
-		List<List<Integer>> sectInRupList = new ArrayList<List<Integer>>();
-		for(int i=0; i<sectionClusterList.size();i++) {
-//			if(D) System.out.println("Working on rupture list for cluster "+i);
-			sectInRupList.addAll(sectionClusterList.get(i).getSectionIndicesForRuptures());
+
+	@Override
+	public void copyCacheFrom(FaultSystemRupSet rupSet) {
+		super.copyCacheFrom(rupSet);
+		if (rupSet instanceof InversionFaultSystemRupSet) {
+			InversionFaultSystemRupSet invRupSet = (InversionFaultSystemRupSet)rupSet;
+			if (invRupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel()
+					&& invRupSet.getDeformationModel() == getDeformationModel())
+				rupSectionSlipsCache = invRupSet.rupSectionSlipsCache;
 		}
-		return sectInRupList;
 	}
 	
-	public ArrayList<Integer> getSectionsIndicesForRup(int rupIndex) {
-		return sectionClusterList.get(clusterIndexForRup[rupIndex]).getSectionIndicesForRupture(rupIndexInClusterForRup[rupIndex]);
-	}
-
-	public double[] getMagForAllRups() {
-		return rupMeanMag;
-	}
-
-	public double getMagForRup(int rupIndex) {
-		return rupMeanMag[rupIndex];
-	}
-
-	public double[] getAveSlipForAllRups() {
-		return rupMeanSlip;
-	}
-	
+	/**
+	 * This gives average slip (SI units: m) for the given rupture
+	 * @param rupIndex
+	 * @return
+	 */
 	public double getAveSlipForRup(int rupIndex) {
 		return rupMeanSlip[rupIndex];
 	}
-	
-	@Override
-	protected double calcTotalAvailableMomentRate(int rupIndex) {
-		return rupTotMoRateAvail[rupIndex];
+
+	/**
+	 * This gives average slip (SI units: m) for the each rupture
+	 * @return
+	 */
+	public double[] getAveSlipForAllRups() {
+		return rupMeanSlip;
 	}
-	
+
+	/**
+	 * This gives the average slip (SI untis: m) on each section for all ruptures
+	 * @return
+	 */
+	public List<double[]> getSlipOnSectionsForAllRups() {
+		ArrayList<double[]> slips = new ArrayList<double[]>();
+		for (int rupIndex=0; rupIndex<getNumRuptures(); rupIndex++)
+			slips.add(getSlipOnSectionsForRup(rupIndex));
+		return slips;
+	}
+
+	protected ConcurrentMap<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
+
+	/**
+	 * This gives the slip (SI untis: m) on each section for the rth rupture
+	 * @return
+	 */
+	public double[] getSlipOnSectionsForRup(int rthRup) {
+		double[] slips = rupSectionSlipsCache.get(rthRup);
+		if (slips == null) {
+			synchronized (rupSectionSlipsCache) {
+				slips = rupSectionSlipsCache.get(rthRup);
+				if (slips != null)
+					return slips;
+				slips = calcSlipOnSectionsForRup(rthRup);
+				rupSectionSlipsCache.putIfAbsent(rthRup, slips);
+			}
+		}
+		return slips;
+	}
+
+	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
+
 	/**
 	 * This gets the slip on each section based on the value of slipModelType.
 	 * The slips are in meters.  Note that taper slipped model wts slips by area
@@ -490,198 +521,243 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	 * This has been spot checked, but needs a formal test.
 	 *
 	 */
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		return calcSlipOnSectionsForRup(rthRup);
-	}
-	
-	public double[] getAveRakeForAllRups() {
-		return rupRake;
-	}
-	
-	public double getAveRakeForRup(int rupIndex) {
-		return rupRake[rupIndex];
+	protected double[] calcSlipOnSectionsForRup(int rthRup) {
+
+		SlipAlongRuptureModels slipModelType = getSlipAlongRuptureModel();
+		Preconditions.checkNotNull(slipModelType);
+
+		List<Integer> sectionIndices = getSectionsIndicesForRup(rthRup);
+		int numSects = sectionIndices.size();
+
+		// compute rupture area
+		double[] sectArea = new double[numSects];
+		double[] sectMoRate = new double[numSects];
+		int index=0;
+		for(Integer sectID: sectionIndices) {	
+			//				FaultSectionPrefData sectData = getFaultSectionData(sectID);
+			//				sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
+			sectArea[index] = getAreaForSection(sectID);
+			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], getSlipRateForSection(sectID));
+			index += 1;
+		}
+
+		double aveSlip = getAveSlipForRup(rthRup);  // in meters
+
+		if (slipModelType == SlipAlongRuptureModels.MEAN_UCERF3) {
+			// get mean weights
+			List<Double> meanWeights = Lists.newArrayList();
+			List<SlipAlongRuptureModels> meanSALs = Lists.newArrayList();
+
+			double sum = 0;
+			for (SlipAlongRuptureModels sal : SlipAlongRuptureModels.values()) {
+				double weight = sal.getRelativeWeight(null);
+				if (weight > 0) {
+					meanWeights.add(weight);
+					meanSALs.add(sal);
+					sum += weight;
+				}
+			}
+			if (sum != 0)
+				for (int i=0; i<meanWeights.size(); i++)
+					meanWeights.set(i, meanWeights.get(i)/sum);
+
+			// calculate mean
+			double[] slipsForRup = new double[numSects];
+
+			for (int i=0; i<meanSALs.size(); i++) {
+				double weight = meanWeights.get(i);
+				double[] subSlips = calcSlipOnSectionsForRup(rthRup, meanSALs.get(i), sectArea,
+						sectMoRate, aveSlip);
+
+				for (int j=0; j<numSects; j++)
+					slipsForRup[j] += weight*subSlips[j];
+			}
+
+			return slipsForRup;
+		}
+
+		return calcSlipOnSectionsForRup(rthRup, slipModelType, sectArea,
+				sectMoRate, aveSlip);
 	}
 
-	public double[] getAreaForAllRups() {
-		return rupArea;
-	}
-	/**
-	 * Area is in sq-m (SI units)
-	 */
-	public double getAreaForRup(int rupIndex) {
-		return rupArea[rupIndex];
-	}
-	
-	@Override
-	public double[] getAreaForAllSections() {
-		double[] areas = new double[numSections];
-		for (int i=0; i<numSections; i++)
-			areas[i] = getAreaForSection(i);
-		return areas;
-	}
-	
-	/**
-	 * Area is in sq-m (SI units), reduced by aseismicity
-	 */
-	@Override
-	public double getAreaForSection(int sectIndex) {
-		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
-		return sectData.getTraceLength()*1e3*sectData.getReducedDownDipWidth()*1e3;	// aseismicity reduces area; km --> m on length & DDW
-	}
-	
-	
-	/**
-	 * Original area (unreduced by aseismicity) is in sq-m (SI units) 
-	 */
-	public double getOrigAreaForSection(int sectIndex) {
-		FaultSectionPrefData sectData = faultSectionData.get(sectIndex);
-		return sectData.getTraceLength()*1e3*sectData.getOrigDownDipWidth()*1e3;	// ; km --> m on length & DDW
+	public double[] calcSlipOnSectionsForRup(int rthRup,
+			SlipAlongRuptureModels slipModelType,
+			double[] sectArea, double[] sectMoRate, double aveSlip) {
+		double[] slipsForRup = new double[sectArea.length];
+
+		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
+		if(slipModelType == SlipAlongRuptureModels.CHAR) {
+			throw new RuntimeException("SlipModelType.CHAR_SLIP_MODEL not yet supported");
+		}
+		// for case where ave slip computed from mag & area, and is same on all segments 
+		else if (slipModelType == SlipAlongRuptureModels.UNIFORM) {
+			for(int s=0; s<slipsForRup.length; s++)
+				slipsForRup[s] = aveSlip;
+		}
+		// this is the model where section slip is proportional to section slip rate 
+		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
+		else if (slipModelType == SlipAlongRuptureModels.WG02) {
+			// TODO if we revive this, we need to change the cache copying due to moment changes
+			double totMoRateForRup = calcTotalAvailableMomentRate(rthRup);
+			for(int s=0; s<slipsForRup.length; s++) {
+				slipsForRup[s] = aveSlip*sectMoRate[s]*getAreaForRup(rthRup)/(totMoRateForRup*sectArea[s]);
+			}
+		}
+		else if (slipModelType == SlipAlongRuptureModels.TAPERED) {
+			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
+
+			// make the taper function if hasn't been done yet
+			if(taperedSlipCDF == null) {
+				synchronized (FaultSystemRupSet.class) {
+					if (taperedSlipCDF == null) {
+						EvenlyDiscretizedFunc taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						EvenlyDiscretizedFunc taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
+						double x,y, sum=0;
+						int num = taperedSlipPDF.getNum();
+						for(int i=0; i<num;i++) {
+							x = taperedSlipPDF.getX(i);
+							y = Math.pow(Math.sin(x*Math.PI), 0.5);
+							taperedSlipPDF.set(i,y);
+							sum += y;
+						}
+						// now make final PDF & CDF
+						y=0;
+						for(int i=0; i<num;i++) {
+							y += taperedSlipPDF.getY(i);
+							taperedSlipCDF.set(i,y/sum);
+							taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
+							//									System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
+						}
+						InversionFaultSystemRupSet.taperedSlipCDF = taperedSlipCDF;
+						InversionFaultSystemRupSet.taperedSlipPDF = taperedSlipPDF;
+					}
+				}
+			}
+			double normBegin=0, normEnd, scaleFactor;
+			for(int s=0; s<slipsForRup.length; s++) {
+				normEnd = normBegin + sectArea[s]/getAreaForRup(rthRup);
+				// fix normEnd values that are just past 1.0
+				//					if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
+				if(normEnd > 1 && normEnd < 1.01) normEnd = 1.0;
+				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
+				scaleFactor /= (normEnd-normBegin);
+				Preconditions.checkState(normEnd>=normBegin, "End is before beginning!");
+				Preconditions.checkState(aveSlip >= 0, "Negative ave slip: "+aveSlip);
+				slipsForRup[s] = aveSlip*scaleFactor;
+				normBegin = normEnd;
+			}
+		}
+
+		return slipsForRup;
 	}
 
-	
 	/**
-	 * Area is in m (SI units)
+	 * 
+	 * @return the number of clusters
 	 */
-	@Override
-	public double getLengthForRup(int rupIndex) {
-		return rupLength[rupIndex];
-	}
-
-
-	public String getInfoString() {
-		return infoString;
-	}
-	
-	public void setInfoString(String info) {
-		this.infoString = info;
-	}
-	
-	/**
-	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
-	 * because of the moment rate reduction (e.g., for smaller events).
-	 * @return
-	 */
-	public double getSlipRateForSection(int sectIndex) {
-		return sectSlipRateReduced[sectIndex];
-	}
-	
-	/**
-	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
-	 * because of the moment rate reduction (e.g., for smaller events).
-	 * @return
-	 */
-	public double[] getSlipRateForAllSections() {
-		return sectSlipRateReduced;
-	}
-	
-	/**
-	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
-	 * because of the moment rate reduction (e.g., for smaller events).
-	 * @return
-	 */
-	public double getSlipRateStdDevForSection(int sectIndex) {
-		return sectSlipRateStdDevReduced[sectIndex];
-	}
-	
-	/**
-	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
-	 * because of the moment rate reduction (e.g., for smaller events).
-	 * @return
-	 */
-	public double[] getSlipRateStdDevForAllSections() {
-		return sectSlipRateStdDevReduced;
-	}
-	
-	
-	@Override
-	public boolean isClusterBased() {
-		return true;
-	}
-
-	@Override
 	public int getNumClusters() {
-		return sectionClusterList.size();
+		return clusterRups.size();
 	}
 
-
-	@Override
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return number of ruptures in the given cluster
+	 */
 	public int getNumRupturesForCluster(int index) {
-		return sectionClusterList.get(index).getNumRuptures();
+		return clusterRups.get(index).size();
 	}
 
-
-	@Override
-	public ArrayList<Integer> getRupturesForCluster(int index)
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return list of rupture indexes for the cluster at the given index
+	 * @throws IndexOutOfBoundsException if the index is invalid
+	 */
+	public List<Integer> getRupturesForCluster(int index)
 			throws IndexOutOfBoundsException {
-		return clusterRupIndexList.get(index);
+		return clusterRups.get(index);
 	}
 
-
-	@Override
+	/**
+	 * 
+	 * @param index index of the cluster to get
+	 * @return list of section IDs in the cluster at the given index
+	 */
 	public List<Integer> getSectionsForCluster(int index) {
-		return sectionClusterList.get(index);
+		return clusterSects.get(index);
 	}
 
-
-	@Override
+	/**
+	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
+	 * @param sectIndex index of the section to retrieve
+	 * @return close sections
+	 */
 	public List<Integer> getCloseSectionsList(int sectIndex) {
 		return sectionConnectionsListList.get(sectIndex);
 	}
 
-
-	@Override
+	/**
+	 * This fetches a list of all of the close sections to each section, as defined by the rupture set.
+	 * @return close sections
+	 */
 	public List<List<Integer>> getCloseSectionsListList() {
 		return sectionConnectionsListList;
 	}
 
+	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }
 
-	@Override
+	// convenience methods for FM and DM, Dsr
+
 	public DeformationModels getDeformationModel() {
 		return defModName;
 	}
-	
-	@Override
+
 	public FaultModels getFaultModel() {
 		return faultModel;
 	}
 
-	@Override
 	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
 		return slipModelType;
 	}
-	
-	@Override
-	public double getMaxMag() { 
-		return maxMag; 
-	}
 
 	public InversionTargetMFDs getInversionTargetMFDs() {
+		if (inversionMFDs == null)
+			inversionMFDs = new InversionTargetMFDs(this);
 		return inversionMFDs;
 	}
 
-	public Map<IDPairing, Double> getSubSectionDistances() {
+	/**
+	 * Returns distances between each sub section, either cached or calculated on demand.
+	 * @return
+	 */
+	public synchronized Map<IDPairing, Double> getSubSectionDistances() {
+		if (subSectionDistances == null) {
+			subSectionDistances = DeformationModelFetcher.calculateDistances(filter.getMaxJumpDist(), getFaultSectionDataList());
+			// now add the reverse distances
+			// wrap keySet in list to avoid concurrent modification exception
+			for (IDPairing pair : Lists.newArrayList(subSectionDistances.keySet())) {
+				subSectionDistances.put(pair.getReversed(), subSectionDistances.get(pair));
+			}
+		}
 		return subSectionDistances;
 	}
-	
-	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }
-	
+
+	// TODO: move?
 	public String getPreInversionAnalysisData(boolean includeHeader) {
-		
+
 
 		String str = "";
- 
+
 		if(includeHeader)
-			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+inversionMFDs.getPreInversionAnalysisDataHeader()+
-				"\t"+"targetOnFaultMoRate\tMMaxOffFaultIfDefModMoRateSatisfied\n";
-		
-		str += logicTreeBranch.getTabSepValString()+"\t"+inversionMFDs.getPreInversionAnalysisData()+
-			"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)inversionMFDs.getOffFaultMmaxIfOrigMoRateSatisfied();
+			str += logicTreeBranch.getTabSepValStringHeader()+"\t"+getInversionTargetMFDs().getPreInversionAnalysisDataHeader()+
+			"\t"+"targetOnFaultMoRate\tMMaxOffFaultIfDefModMoRateSatisfied\n";
+
+		str += logicTreeBranch.getTabSepValString()+"\t"+getInversionTargetMFDs().getPreInversionAnalysisData()+
+				"\t"+(float)getTotalReducedMomentRate()+"\t"+(float)getInversionTargetMFDs().getOffFaultMmaxIfOrigMoRateSatisfied();
 		return str;
 	}
-	
-	
-	// Methods from InversionFaultSystemSolutionInterface:
-	
+
 	/**
 	 * This returns the final minimum mag for a given fault section.
 	 * See doc for computeMinSeismoMagForSections() for details.
@@ -694,8 +770,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		}
 		return minMagForSectArray[sectIndex];
 	}
-	
-	
+
+
 	/**
 	 * This tells whether the given rup is below any of the final minimum magnitudes 
 	 * of the sections utilized by the rup.  Actually, the test is really whether the
@@ -705,7 +781,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 	 * @return
 	 */
 	public boolean isRuptureBelowSectMinMag(int rupIndex) {
-		
+
 		// see if it needs to be computed
 		if(isRupBelowMinMagsForSects == null) {
 			if(minMagForSectArray == null) {
@@ -713,12 +789,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 			}
 			isRupBelowMinMagsForSects = FaultSystemRupSetCalc.computeWhichRupsFallBelowSectionMinMags(this, minMagForSectArray);
 		}
-		
+
 		return isRupBelowMinMagsForSects[rupIndex];
 
 	}
-	
-	
+
+
 	/**
 	 * This returns the upper magnitude of sub-seismogenic ruptures
 	 * (at the bin center).  This is the lower bin edge of the minimum
@@ -730,6 +806,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet implements Inv
 		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionTargetMFDs.DELTA_MAG/2;
 	}
 
-	
+
 
 }

@@ -99,6 +99,10 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return getValue(clazz, branch);
 	}
 	
+	public boolean hasNonNullValue(Class<? extends LogicTreeBranchNode<?>> clazz) {
+		return getValueUnchecked(clazz) !=  null;
+	}
+	
 	public LogicTreeBranchNode<?> getValueUnchecked(Class<? extends LogicTreeBranchNode<?>> clazz) {
 		return getValueUnchecked(clazz, branch);
 	}

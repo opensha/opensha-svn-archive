@@ -11,13 +11,16 @@ import java.util.Map;
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -26,6 +29,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
@@ -44,6 +48,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.SectionMFD_constraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 
@@ -58,7 +63,9 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public class InversionFaultSystemSolution extends SimpleFaultSystemSolution implements InversionFaultSystemSolutionInterface {
+public class InversionFaultSystemSolution extends FaultSystemSolution {
+	
+	private InversionFaultSystemRupSet rupSet;
 	
 	private InversionModels invModel;
 	private LogicTreeBranch branch;
@@ -69,8 +76,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	 */
 	private InversionConfiguration inversionConfiguration;
 	
-	private InversionTargetMFDs inversionTargetMFDs;
-	
 	double[] minMagForSectArray;
 	boolean[] isRupBelowMinMagsForSects;
 	
@@ -80,12 +85,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	/**
 	 * Parses the info string for inversion parameters
 	 * 
-	 * @param solution
+	 * @param rupSet
+	 * @param rates
 	 */
-	public InversionFaultSystemSolution(FaultSystemSolution solution) {
-		super(solution);
+	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates) {
+		super(rupSet, rates);
+		this.rupSet = rupSet;
 		
-		String info = getInfoString();
+		String info = rupSet.getInfoString();
 		
 		ArrayList<String> infoLines = Lists.newArrayList(Splitter.on("\n").split(info));
 		
@@ -100,8 +107,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 			invModel = branch.getValue(InversionModels.class);
 			loadInvParams(invProps);
 			loadEnergies(saProps);
-			
-			inversionTargetMFDs = new InversionTargetMFDs(solution, this);
 		} catch (RuntimeException e) {
 			// can be uncommented for debugging string parse errors
 //			System.out.println("******* EXCEPTION CAUGHT INSTANTIATING IFSS - PRINTING METADATA *********");
@@ -112,6 +117,11 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		}
 	}
 	
+	@Override
+	public InversionFaultSystemRupSet getRupSet() {
+		return rupSet;
+	}
+
 	private Map<String, String> loadProperties(ArrayList<String> section) {
 		Map<String, String> props = Maps.newHashMap();
 		
@@ -414,10 +424,6 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	public LogicTreeBranch getLogicTreeBranch() {
 		return branch;
 	}
-	
-	public InversionTargetMFDs getInversionTargetMFDs() {
-		return inversionTargetMFDs;
-	}
 
 	/**
 	 * Inversion constraint weights and such. Note that this won't include the initial rup model or
@@ -436,6 +442,9 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	public void plotMFDs() {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 		
+		// make sure it's instantiated
+		InversionTargetMFDs inversionTargetMFDs = rupSet.getInversionTargetMFDs();
+		
 		// Statewide
 		GraphiWindowAPI_Impl gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR(), inversionTargetMFDs.getOnFaultSupraSeisMFD(),
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
@@ -451,7 +460,8 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	}
 	
 	private boolean isStatewideDM() {
-		return getDeformationModel() != DeformationModels.UCERF2_BAYAREA && getDeformationModel() != DeformationModels.UCERF2_NCAL;
+		return rupSet.getDeformationModel() != DeformationModels.UCERF2_BAYAREA
+				&& rupSet.getDeformationModel() != DeformationModels.UCERF2_NCAL;
 	}
 	
 	// TODO this should be put in a more general location so others can use (MFD_Utils class?)
@@ -543,7 +553,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		IncrementalMagFreqDist solOffFaultMFD = null;
 		// this could be cleaner :-/
 		if (statewide) {
-			solOffFaultMFD = inversionTargetMFDs.getTotalGriddedSeisMFD();
+			solOffFaultMFD = rupSet.getInversionTargetMFDs().getTotalGriddedSeisMFD();
 			solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
 			funcs.add(solOffFaultMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
@@ -617,7 +627,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		if (noFix && gr) {
 			subSeisMFD_list = getImpliedSubSeisGR_MFD_List();	// calculate from final slip rates
 		} else {
-			subSeisMFD_list = getInversionTargetMFDs().getSubSeismoOnFaultMFD_List();
+			subSeisMFD_list = rupSet.getInversionTargetMFDs().getSubSeismoOnFaultMFD_List();
 		}
 		return subSeisMFD_list;
 	}
@@ -635,16 +645,14 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return totalSubSeismoOnFaultMFD;
 	}
 	
-	
-	
 	public SummedMagFreqDist getFinalSubSeismoOnFaultMFDForParent(int parentSectionID) {
 		
 		SummedMagFreqDist mfd = new SummedMagFreqDist(InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG, InversionTargetMFDs.DELTA_MAG);
 		
 		List<GutenbergRichterMagFreqDist> subSeismoMFDs = getFinalSubSeismoOnFaultMFD_List();
 		
-		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
-			if (getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			if (rupSet.getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
 				continue;
 			mfd.addIncrementalMagFreqDist(subSeismoMFDs.get(sectIndex));
 		}
@@ -665,17 +673,17 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		int numMag = InversionTargetMFDs.NUM_MAG;
 		ArrayList<GutenbergRichterMagFreqDist> grNuclMFD_List = new ArrayList<GutenbergRichterMagFreqDist>();
 		GutenbergRichterMagFreqDist tempGR = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag);
-		for(int s=0; s<this.getNumSections(); s++) {
+		for(int s=0; s<rupSet.getNumSections(); s++) {
 			
-			double area = getAreaForSection(s); // SI units
+			double area = rupSet.getAreaForSection(s); // SI units
 			double slipRate = calcSlipRateForSect(s); // SI units
 			double newMoRate = FaultMomentCalc.getMoment(area, slipRate);
 			if(Double.isNaN(newMoRate)) newMoRate = 0;
-			int mMaxIndex = tempGR.getClosestXIndex(getMaxMagForSection(s));
+			int mMaxIndex = tempGR.getClosestXIndex(rupSet.getMaxMagForSection(s));
 			double mMax = tempGR.getX(mMaxIndex);
 			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(minMag, numMag, deltaMag, minMag, mMax, newMoRate, 1.0);
 //			double minSeismoMag = getMinMagForSection(s);
-			double minSeismoMag = getUpperMagForSubseismoRuptures(s)+deltaMag/2;
+			double minSeismoMag = rupSet.getUpperMagForSubseismoRuptures(s)+deltaMag/2;
 			if(Double.isNaN(minSeismoMag))
 				gr.scaleToCumRate(0, 0d);
 			else {
@@ -697,6 +705,7 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 	 * @return
 	 */
 	public IncrementalMagFreqDist getFinalTrulyOffFaultMFD() {
+		InversionTargetMFDs inversionTargetMFDs = rupSet.getInversionTargetMFDs();
 		
 		if(branch.getValue(MomentRateFixes.class) == MomentRateFixes.NONE ||
 				branch.getValue(MomentRateFixes.class) == MomentRateFixes.APPLY_IMPLIED_CC ) {
@@ -725,62 +734,205 @@ public class InversionFaultSystemSolution extends SimpleFaultSystemSolution impl
 		return totGridSeisMFD;
  	}
 	
-	
-
-	
-	// Methods from InversionFaultSystemSolutionInterface:
-	
 	/**
-	 * This returns the final minimum mag for a given fault section.
-	 * See doc for computeMinSeismoMagForSections() for details.
-	 * @param sectIndex
+	 * Returns GridSourceProvider
 	 * @return
 	 */
-	public double getFinalMinMagForSection(int sectIndex) {
-		if(minMagForSectArray == null) {
-			minMagForSectArray = FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
-		}
-		return minMagForSectArray[sectIndex];
-	}
-	
-	
-	/**
-	 * This tells whether the given rup is below any of the final minimum magnitudes 
-	 * of the sections utilized by the rup.  Actually, the test is really whether the
-	 * mag falls below the lower bin edge implied by the section min mags; see doc for
-	 * computeWhichRupsFallBelowSectionMinMags()).
-	 * @param rupIndex
-	 * @return
-	 */
-	public boolean isRuptureBelowSectMinMag(int rupIndex) {
-		
-		// see if it needs to be computed
-		if(isRupBelowMinMagsForSects == null) {
-			if(minMagForSectArray == null) {
-				minMagForSectArray = FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,InversionFaultSystemRupSet.MIN_MAG_FOR_SEISMOGENIC_RUPS);
-			}
-			isRupBelowMinMagsForSects = FaultSystemRupSetCalc.computeWhichRupsFallBelowSectionMinMags(this, minMagForSectArray);
-		}
-		
-		return isRupBelowMinMagsForSects[rupIndex];
-
-	}
-	
-	
-	/**
-	 * This returns the upper magnitude of sub-seismogenic ruptures
-	 * (at the bin center).  This is the lower bin edge of the minimum
-	 * seismogenic rupture minus half the MFD discretization.
-	 * @param sectIndex
-	 * @return
-	 */
-	public double getUpperMagForSubseismoRuptures(int sectIndex) {
-		return SectionMFD_constraint.getLowerEdgeOfFirstBin(getFinalMinMagForSection(sectIndex)) - InversionTargetMFDs.DELTA_MAG/2;
-	}
-	
-	@Override
 	public GridSourceProvider getGridSourceProvider() {
 		return new UCERF3_GridSourceGenerator(this);
+	}
+	
+	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
+		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
+	
+	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPaleoObsPDFMap =
+		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
+	
+	@Override
+	public void clearCache() {
+		super.clearCache();
+		slipPDFMap.clear();
+		slipPaleoObsPDFMap.clear();
+		slipRatesCache = null;
+	}
+
+	/**
+	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of slips for the 
+	 * specified section index, where the rate of each rupture is taken into account.
+	 * You can get the mean, standard deviation, or COV by calling the associated method
+	 * in the returned object.
+	 * @param sectIndex
+	 * @return
+	 * TODO move to IVFSS
+	 */
+	public synchronized ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
+		ArbDiscrEmpiricalDistFunc slipPDF = slipPDFMap.get(sectIndex);
+		if (slipPDF != null)
+			return slipPDF;
+		slipPDF = new ArbDiscrEmpiricalDistFunc();
+		for (int r : rupSet.getRupturesForSection(sectIndex)) {
+			List<Integer> sectIndices = rupSet.getSectionsIndicesForRup(r);
+			double[] slips = rupSet.getSlipOnSectionsForRup(r);
+			for(int s=0; s<sectIndices.size(); s++) {
+				if(sectIndices.get(s) == sectIndex) {
+					slipPDF.set(slips[s], getRateForRup(r));
+					break;
+				}
+			}
+		}
+		slipPDFMap.put(sectIndex, slipPDF);
+		return slipPDF;
+	}
+	
+
+	/**
+	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of paleo observable slips for the 
+	 * specified section index, where the rate of each rupture and probability of observance is taken 
+	 * into account (using the model in AveSlipConstraint.getProbabilityOfObservedSlip(slip)).
+	 * You can get the mean, standard deviation, or COV by calling the associated method
+	 * in the returned object.
+	 * @param sectIndex
+	 * @return
+	 * TODO move to IVFSS
+	 */
+	public synchronized ArbDiscrEmpiricalDistFunc calcPaleoObsSlipPFD_ForSect(int sectIndex) {
+		ArbDiscrEmpiricalDistFunc slipPDF = slipPaleoObsPDFMap.get(sectIndex);
+		if (slipPDF != null)
+			return slipPDF;
+		slipPDF = new ArbDiscrEmpiricalDistFunc();
+		for (int r : rupSet.getRupturesForSection(sectIndex)) {
+			List<Integer> sectIndices = rupSet.getSectionsIndicesForRup(r);
+			double[] slips = rupSet.getSlipOnSectionsForRup(r);
+			for(int s=0; s<sectIndices.size(); s++) {
+				if(sectIndices.get(s) == sectIndex) {
+					slipPDF.set(slips[s], getRateForRup(r)*AveSlipConstraint.getProbabilityOfObservedSlip(slips[s]));
+					break;
+				}
+			}
+		}
+		slipPaleoObsPDFMap.put(sectIndex, slipPDF);
+		return slipPDF;
+	}
+	
+	private double[] slipRatesCache;
+	
+	/**
+	 * This computes the slip rate of the sth section (meters/year))
+	 * 
+	 * @param sectIndex
+	 * @return
+	 * TODO move to IVFSS
+	 */
+	public double calcSlipRateForSect(int sectIndex) {
+		return calcSlipRateForAllSects()[sectIndex];
+	}
+	
+	private double doCalcSlipRateForSect(int sectIndex) {
+		double slipRate=0;
+		for (int r : rupSet.getRupturesForSection(sectIndex)) {
+			int ind = rupSet.getSectionsIndicesForRup(r).indexOf(sectIndex);
+//			slipRate += getRateForRup(r)*getAveSlipForRup(r);
+			slipRate += getRateForRup(r)*rupSet.getSlipOnSectionsForRup(r)[ind];
+		}
+		return slipRate;
+	}
+	
+	/**
+	 * This computes the slip rate of all sections (meters/year))
+	 * 
+	 * @return
+	 */
+	public synchronized double[] calcSlipRateForAllSects() {
+		if (slipRatesCache == null) {
+			double[] slipRatesCache = new double[rupSet.getNumSections()];
+			CalcProgressBar p = null;
+			if (rupSet.isShowProgress()) {
+				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
+			}
+			for (int i=0; i<slipRatesCache.length; i++) {
+				if (p != null) p.updateProgress(i, slipRatesCache.length);
+				slipRatesCache[i] = doCalcSlipRateForSect(i);
+			}
+			if (p != null) p.dispose();
+			this.slipRatesCache = slipRatesCache;
+		}
+		return slipRatesCache;
+	}
+	
+	/**
+	 * This plots original and final slip rates versus section index.
+	 * This also plot these averaged over parent sections.
+	 * 
+	 * TODO [re]move
+	 */
+	public void plotSlipRates() {
+		int numSections = rupSet.getNumSections();
+		int numRuptures = rupSet.getNumRuptures();
+		List<FaultSectionPrefData> faultSectionData = rupSet.getFaultSectionDataList();
+
+		ArrayList funcs2 = new ArrayList();		
+		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
+		for (int i=0; i<numSections; i++) {
+			data.set(i, rupSet.getSlipRateForSection(i));
+			syn.set(i,0);
+		}
+		for (int rup=0; rup<numRuptures; rup++) {
+			double[] slips = rupSet.getSlipOnSectionsForRup(rup);
+			List<Integer> sects = rupSet.getSectionsIndicesForRup(rup);
+			for (int i=0; i < slips.length; i++) {
+				int row = sects.get(i);
+				syn.add(row,slips[i]*getRateForRup(rup));
+			}
+		}
+		for (int i=0; i<numSections; i++) data.set(i, rupSet.getSlipRateForSection(i));
+		funcs2.add(syn);
+		funcs2.add(data);
+		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
+		graph2.setX_AxisLabel("Fault Section Index");
+		graph2.setY_AxisLabel("Slip Rate");
+		
+		String info = "index\tratio\tpredSR\tdataSR\tParentSectionName\n";
+		String parentSectName = "";
+		double aveData=0, aveSyn=0, numSubSect=0;
+		ArrayList<Double> aveDataList = new ArrayList<Double>();
+		ArrayList<Double> aveSynList = new ArrayList<Double>();
+		for (int i = 0; i < numSections; i++) {
+			if(!faultSectionData.get(i).getParentSectionName().equals(parentSectName)) {
+				if(i != 0) {
+					double ratio  = aveSyn/aveData;
+					aveSyn /= numSubSect;
+					aveData /= numSubSect;
+					info += aveSynList.size()+"\t"+(float)ratio+"\t"+(float)aveSyn+"\t"+(float)aveData+"\t"+faultSectionData.get(i-1).getParentSectionName()+"\n";
+//					System.out.println(ratio+"\t"+aveSyn+"\t"+aveData+"\t"+faultSectionData.get(i-1).getParentSectionName());
+					aveSynList.add(aveSyn);
+					aveDataList.add(aveData);
+				}
+				aveSyn=0;
+				aveData=0;
+				numSubSect=0;
+				parentSectName = faultSectionData.get(i).getParentSectionName();
+			}
+			aveSyn +=  syn.getY(i);
+			aveData +=  data.getY(i);
+			numSubSect += 1;
+		}
+		ArrayList funcs5 = new ArrayList();		
+		EvenlyDiscretizedFunc aveSynFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		EvenlyDiscretizedFunc aveDataFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
+		for(int i=0; i<aveSynList.size(); i++ ) {
+			aveSynFunc.set(i, aveSynList.get(i));
+			aveDataFunc.set(i, aveDataList.get(i));
+		}
+		aveSynFunc.setName("Predicted ave slip rates on parent section");
+		aveDataFunc.setName("Original (Data) ave slip rates on parent section");
+		aveSynFunc.setInfo(info);
+		funcs5.add(aveSynFunc);
+		funcs5.add(aveDataFunc);
+		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
+		graph5.setX_AxisLabel("Parent Section Index");
+		graph5.setY_AxisLabel("Slip Rate");
+
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {

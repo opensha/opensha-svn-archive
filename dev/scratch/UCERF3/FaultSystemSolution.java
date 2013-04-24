@@ -66,21 +66,41 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
  * @author Field, Milner, Page, and Powers
  *
  */
-public abstract class FaultSystemSolution extends FaultSystemRupSet {
+public class FaultSystemSolution {
+	
+	private FaultSystemRupSet rupSet;
+	private double[] rates;
+	
+	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates) {
+		this.rupSet = rupSet;
+		this.rates = rates;
+	}
+	
+	/**
+	 * Returns the rupture set for this solution
+	 * @return
+	 */
+	public FaultSystemRupSet getRupSet() {
+		return rupSet;
+	}
 	
 	/**
 	 * These gives the long-term rate (events/yr) of the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract double getRateForRup(int rupIndex);
+	public double getRateForRup(int rupIndex) {
+		return rates[rupIndex];
+	}
 	
 	/**
 	 * This gives the long-term rate (events/yr) of all ruptures
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract double[] getRateForAllRups();
+	public double[] getRateForAllRups() {
+		return rates;
+	}
 	
 	/**
 	 * This returns the total long-term rate (events/yr) of all fault-based ruptures
@@ -100,84 +120,19 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * @param showProgress
 	 */
 	public void setShowProgress(boolean showProgress) {
-		this.showProgress = showProgress;
+		rupSet.setShowProgress(showProgress);
 	}
 	
 	public void clearCache() {
-		super.clearCache();
+		rupSet.clearCache();
 		clearSolutionCacheOnly();
 	}
 	
 	public void clearSolutionCacheOnly() {
-		slipPDFMap.clear();
 		particRatesCache.clear();
 		nucleationRatesCache.clear();
 		totParticRatesCache = null;
 		paleoVisibleRatesCache = null;
-		slipRatesCache = null;
-	}
-	
-	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
-		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
-	
-	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPaleoObsPDFMap =
-		new HashMap<Integer, ArbDiscrEmpiricalDistFunc>();
-
-	
-	/**
-	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of slips for the 
-	 * specified section index, where the rate of each rupture is taken into account.
-	 * You can get the mean, standard deviation, or COV by calling the associated method
-	 * in the returned object.
-	 * @param sectIndex
-	 * @return
-	 */
-	public synchronized ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
-		ArbDiscrEmpiricalDistFunc slipPDF = slipPDFMap.get(sectIndex);
-		if (slipPDF != null)
-			return slipPDF;
-		slipPDF = new ArbDiscrEmpiricalDistFunc();
-		for (int r : getRupturesForSection(sectIndex)) {
-			List<Integer> sectIndices = getSectionsIndicesForRup(r);
-			double[] slips = this.getSlipOnSectionsForRup(r);
-			for(int s=0; s<sectIndices.size(); s++) {
-				if(sectIndices.get(s) == sectIndex) {
-					slipPDF.set(slips[s], getRateForRup(r));
-					break;
-				}
-			}
-		}
-		slipPDFMap.put(sectIndex, slipPDF);
-		return slipPDF;
-	}
-	
-
-	/**
-	 * This creates an empirical PDF (ArbDiscrEmpiricalDistFunc) of paleo observable slips for the 
-	 * specified section index, where the rate of each rupture and probability of observance is taken 
-	 * into account (using the model in AveSlipConstraint.getProbabilityOfObservedSlip(slip)).
-	 * You can get the mean, standard deviation, or COV by calling the associated method
-	 * in the returned object.
-	 * @param sectIndex
-	 * @return
-	 */
-	public synchronized ArbDiscrEmpiricalDistFunc calcPaleoObsSlipPFD_ForSect(int sectIndex) {
-		ArbDiscrEmpiricalDistFunc slipPDF = slipPaleoObsPDFMap.get(sectIndex);
-		if (slipPDF != null)
-			return slipPDF;
-		slipPDF = new ArbDiscrEmpiricalDistFunc();
-		for (int r : getRupturesForSection(sectIndex)) {
-			List<Integer> sectIndices = getSectionsIndicesForRup(r);
-			double[] slips = this.getSlipOnSectionsForRup(r);
-			for(int s=0; s<sectIndices.size(); s++) {
-				if(sectIndices.get(s) == sectIndex) {
-					slipPDF.set(slips[s], getRateForRup(r)*AveSlipConstraint.getProbabilityOfObservedSlip(slips[s]));
-					break;
-				}
-			}
-		}
-		slipPaleoObsPDFMap.put(sectIndex, slipPDF);
-		return slipPDF;
 	}
 
 	/**
@@ -185,11 +140,12 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 * Most entries are zero because the sections are far from each other, 
 	 * so a sparse matrix might be in order if this bloats memory.
 	 * @return
+	 * TODO move?
 	 */
 	public double[][] getSectionPairRupRates() {
-		double[][] rates = new double[getNumSections()][getNumSections()];
-		for(int r=0; r< getNumRuptures(); r++) {
-			List<Integer> indices = getSectionsIndicesForRup(r);
+		double[][] rates = new double[rupSet.getNumSections()][rupSet.getNumSections()];
+		for(int r=0; r<rupSet.getNumRuptures(); r++) {
+			List<Integer> indices = rupSet.getSectionsIndicesForRup(r);
 			double rate = getRateForRup(r);
 			if (rate == 0)
 				continue;
@@ -217,14 +173,13 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		
 	private double doCalcParticRateForSect(int sectIndex, double magLow, double magHigh) {
 		double partRate=0;
-		for (int r : getRupturesForSection(sectIndex)) {
-			double mag = this.getMagForRup(r);
+		for (int r : rupSet.getRupturesForSection(sectIndex)) {
+			double mag = rupSet.getMagForRup(r);
 			if(mag>=magLow && mag<magHigh)
 				partRate += getRateForRup(r);
 		}
 		return partRate;
 	}
-	
 	
 	/**
 	 * This computes the participation rate (events/yr) of all sections for magnitudes 
@@ -237,9 +192,9 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	public synchronized double[] calcParticRateForAllSects(double magLow, double magHigh) {
 		String key = (float)magLow+"_"+(float)magHigh;
 		if (!particRatesCache.containsKey(key)) {
-			double[] particRates = new double[getNumSections()];
+			double[] particRates = new double[rupSet.getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) {
+			if (rupSet.isShowProgress()) {
 				p = new CalcProgressBar("Calculating Participation Rates", "Calculating Participation Rates");
 			}
 			for (int i=0; i<particRates.length; i++) {
@@ -268,12 +223,12 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		
 	private double doCalcNucleationRateForSect(int sectIndex, double magLow, double magHigh) {
 		double nucleationRate=0;
-		for (int r : getRupturesForSection(sectIndex)) {
-			double mag = this.getMagForRup(r);
+		for (int r : rupSet.getRupturesForSection(sectIndex)) {
+			double mag = rupSet.getMagForRup(r);
 			if(mag>=magLow && mag<magHigh) {
 				double rate = getRateForRup(r);
-				double sectArea = getAreaForSection(sectIndex);
-				double rupArea = getAreaForRup(r);
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				double rupArea = rupSet.getAreaForRup(r);
 				nucleationRate += rate * (sectArea / rupArea);
 			}
 		}
@@ -292,9 +247,9 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	public synchronized double[] calcNucleationRateForAllSects(double magLow, double magHigh) {
 		String key = (float)magLow+"_"+(float)magHigh;
 		if (!nucleationRatesCache.containsKey(key)) {
-			double[] nucleationRates = new double[getNumSections()];
+			double[] nucleationRates = new double[rupSet.getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) {
+			if (rupSet.isShowProgress()) {
 				p = new CalcProgressBar("Calculating Nucleation Rates", "Calculating Participation Rates");
 			}
 			for (int i=0; i<nucleationRates.length; i++) {
@@ -321,7 +276,7 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	
 	private double doCalcTotParticRateForSect(int sectIndex) {
 		double partRate=0;
-		for (int r : getRupturesForSection(sectIndex))
+		for (int r : rupSet.getRupturesForSection(sectIndex))
 			partRate += getRateForRup(r);
 		return partRate;
 	}
@@ -334,9 +289,9 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public synchronized double[] calcTotParticRateForAllSects() {
 		if (totParticRatesCache == null) {
-			totParticRatesCache = new double[getNumSections()];
+			totParticRatesCache = new double[rupSet.getNumSections()];
 			CalcProgressBar p = null;
-			if (showProgress) {
+			if (rupSet.isShowProgress()) {
 				p = new CalcProgressBar("Calculating Total Participation Rates", "Calculating Total Participation Rates");
 			}
 			for (int i=0; i<totParticRatesCache.length; i++) {
@@ -364,8 +319,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	
 	public double doCalcTotPaleoVisibleRateForSect(int sectIndex, PaleoProbabilityModel paleoProbModel) {
 		double partRate=0;
-		for (int r : getRupturesForSection(sectIndex))
-			partRate += getRateForRup(r)*paleoProbModel.getProbPaleoVisible(this, r, sectIndex);
+		for (int r : rupSet.getRupturesForSection(sectIndex))
+			partRate += getRateForRup(r)*paleoProbModel.getProbPaleoVisible(rupSet, r, sectIndex);
 		return partRate;
 	}
 
@@ -385,10 +340,10 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		double[] paleoRates = paleoVisibleRatesCache.get(paleoProbModel);
 		
 		if (paleoRates == null) {
-			paleoRates = new double[getNumSections()];
+			paleoRates = new double[rupSet.getNumSections()];
 			paleoVisibleRatesCache.put(paleoProbModel, paleoRates);
 			CalcProgressBar p = null;
-			if (showProgress) {
+			if (rupSet.isShowProgress()) {
 				p = new CalcProgressBar("Calculating Paleo Visible Rates", "Calculating Paleo Visible Rates");
 			}
 			for (int i=0; i<paleoRates.length; i++) {
@@ -400,55 +355,11 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		return paleoRates;
 	}
 	
-	private double[] slipRatesCache;
-	
-	/**
-	 * This computes the slip rate of the sth section (meters/year))
-	 * 
-	 * @param sectIndex
-	 * @return
-	 */
-	public double calcSlipRateForSect(int sectIndex) {
-		return calcSlipRateForAllSects()[sectIndex];
-	}
-	
-	private double doCalcSlipRateForSect(int sectIndex) {
-		double slipRate=0;
-		for (int r : getRupturesForSection(sectIndex)) {
-			int ind = getSectionsIndicesForRup(r).indexOf(sectIndex);
-//			slipRate += getRateForRup(r)*getAveSlipForRup(r);
-			slipRate += getRateForRup(r)*getSlipOnSectionsForRup(r)[ind];
-		}
-		return slipRate;
-	}
-	
-	/**
-	 * This computes the slip rate of all sections (meters/year))
-	 * 
-	 * @return
-	 */
-	public synchronized double[] calcSlipRateForAllSects() {
-		if (slipRatesCache == null) {
-			double[] slipRatesCache = new double[getNumSections()];
-			CalcProgressBar p = null;
-			if (showProgress) {
-				p = new CalcProgressBar("Calculating Slip Rates", "Calculating Slip Rates");
-			}
-			for (int i=0; i<slipRatesCache.length; i++) {
-				if (p != null) p.updateProgress(i, slipRatesCache.length);
-				slipRatesCache[i] = doCalcSlipRateForSect(i);
-			}
-			if (p != null) p.dispose();
-			this.slipRatesCache = slipRatesCache;
-		}
-		return slipRatesCache;
-	}
-	
 	public SummedMagFreqDist calcNucleationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
 		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, maxMag, numMag);
 		
-		for (int sectIndex=0; sectIndex<getNumSections(); sectIndex++) {
-			if (getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			if (rupSet.getFaultSectionData(sectIndex).getParentSectionId() != parentSectionID)
 				continue;
 			IncrementalMagFreqDist subMFD = calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag);
 			mfd.addIncrementalMagFreqDist(subMFD);
@@ -469,11 +380,11 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public  IncrementalMagFreqDist calcNucleationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		List<Integer> rups = getRupturesForSection(sectIndex);
+		List<Integer> rups = rupSet.getRupturesForSection(sectIndex);
 		if (rups != null) {
 			for (int r : rups) {
-				double nucleationRate = getRateForRup(r)*getAreaForSection(sectIndex)/getAreaForRup(r);
-				mfd.addResampledMagRate(getMagForRup(r), nucleationRate, true);
+				double nucleationRate = getRateForRup(r)*rupSet.getAreaForSection(sectIndex)/rupSet.getAreaForRup(r);
+				mfd.addResampledMagRate(rupSet.getMagForRup(r), nucleationRate, true);
 			}
 		}
 		return mfd;
@@ -491,10 +402,10 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public IncrementalMagFreqDist calcParticipationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		List<Integer> rups = getRupturesForParentSection(parentSectionID);
+		List<Integer> rups = rupSet.getRupturesForParentSection(parentSectionID);
 		if (rups != null) {
 			for (int r : rups)
-				mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+				mfd.addResampledMagRate(rupSet.getMagForRup(r), getRateForRup(r), true);
 		}
 		return mfd;
 	}
@@ -511,10 +422,10 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	 */
 	public IncrementalMagFreqDist calcParticipationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
-		List<Integer> rups = getRupturesForSection(sectIndex);
+		List<Integer> rups = rupSet.getRupturesForSection(sectIndex);
 		if (rups != null) {
 			for (int r : rups)
-				mfd.addResampledMagRate(getMagForRup(r), getRateForRup(r), true);
+				mfd.addResampledMagRate(rupSet.getMagForRup(r), getRateForRup(r), true);
 		}
 		return mfd;
 	}
@@ -564,15 +475,15 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		double[] fractRupsInside = null;
 		if (region != null)
-			fractRupsInside = getFractRupsInsideRegion(region, traceOnly);
-		for(int r=0;r<getNumRuptures();r++) {
+			fractRupsInside = rupSet.getFractRupsInsideRegion(region, traceOnly);
+		for(int r=0;r<rupSet.getNumRuptures();r++) {
 			double fractInside = 1;
 			if (region != null)
 				fractInside = fractRupsInside[r];
 			double rateInside=getRateForRup(r)*fractInside;
 //			if (fractInside < 1)
 //				System.out.println("inside: "+fractInside+"\trate: "+rateInside+"\tID: "+r);
-			mfd.addResampledMagRate(getMagForRup(r), rateInside, true);
+			mfd.addResampledMagRate(rupSet.getMagForRup(r), rateInside, true);
 		}
 		return mfd;
 	}
@@ -583,8 +494,8 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	public void plotRuptureRates() {
 		// Plot the rupture rates
 		ArrayList funcs = new ArrayList();		
-		EvenlyDiscretizedFunc ruprates = new EvenlyDiscretizedFunc(0,(double)getNumRuptures()-1,getNumRuptures());
-		for(int i=0; i<getNumRuptures(); i++)
+		EvenlyDiscretizedFunc ruprates = new EvenlyDiscretizedFunc(0,(double)rupSet.getNumRuptures()-1,rupSet.getNumRuptures());
+		for(int i=0; i<rupSet.getNumRuptures(); i++)
 			ruprates.set(i,getRateForRup(i));
 		funcs.add(ruprates); 	
 		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Inverted Rupture Rates"); 
@@ -594,100 +505,26 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	}
 	
 	/**
-	 * This plots original and final slip rates versus section index.
-	 * This also plot these averaged over parent sections.
-	 */
-	public void plotSlipRates() {
-		int numSections = this.getNumSections();
-		int numRuptures = this.getNumRuptures();
-		List<FaultSectionPrefData> faultSectionData = this.getFaultSectionDataList();
-
-		ArrayList funcs2 = new ArrayList();		
-		EvenlyDiscretizedFunc syn = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
-		EvenlyDiscretizedFunc data = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
-		for (int i=0; i<numSections; i++) {
-			data.set(i, this.getSlipRateForSection(i));
-			syn.set(i,0);
-		}
-		for (int rup=0; rup<numRuptures; rup++) {
-			double[] slips = getSlipOnSectionsForRup(rup);
-			List<Integer> sects = getSectionsIndicesForRup(rup);
-			for (int i=0; i < slips.length; i++) {
-				int row = sects.get(i);
-				syn.add(row,slips[i]*getRateForRup(rup));
-			}
-		}
-		for (int i=0; i<numSections; i++) data.set(i, this.getSlipRateForSection(i));
-		funcs2.add(syn);
-		funcs2.add(data);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
-		graph2.setX_AxisLabel("Fault Section Index");
-		graph2.setY_AxisLabel("Slip Rate");
-		
-		String info = "index\tratio\tpredSR\tdataSR\tParentSectionName\n";
-		String parentSectName = "";
-		double aveData=0, aveSyn=0, numSubSect=0;
-		ArrayList<Double> aveDataList = new ArrayList<Double>();
-		ArrayList<Double> aveSynList = new ArrayList<Double>();
-		for (int i = 0; i < numSections; i++) {
-			if(!faultSectionData.get(i).getParentSectionName().equals(parentSectName)) {
-				if(i != 0) {
-					double ratio  = aveSyn/aveData;
-					aveSyn /= numSubSect;
-					aveData /= numSubSect;
-					info += aveSynList.size()+"\t"+(float)ratio+"\t"+(float)aveSyn+"\t"+(float)aveData+"\t"+faultSectionData.get(i-1).getParentSectionName()+"\n";
-//					System.out.println(ratio+"\t"+aveSyn+"\t"+aveData+"\t"+faultSectionData.get(i-1).getParentSectionName());
-					aveSynList.add(aveSyn);
-					aveDataList.add(aveData);
-				}
-				aveSyn=0;
-				aveData=0;
-				numSubSect=0;
-				parentSectName = faultSectionData.get(i).getParentSectionName();
-			}
-			aveSyn +=  syn.getY(i);
-			aveData +=  data.getY(i);
-			numSubSect += 1;
-		}
-		ArrayList funcs5 = new ArrayList();		
-		EvenlyDiscretizedFunc aveSynFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
-		EvenlyDiscretizedFunc aveDataFunc = new EvenlyDiscretizedFunc(0,(double)aveSynList.size()-1,aveSynList.size());
-		for(int i=0; i<aveSynList.size(); i++ ) {
-			aveSynFunc.set(i, aveSynList.get(i));
-			aveDataFunc.set(i, aveDataList.get(i));
-		}
-		aveSynFunc.setName("Predicted ave slip rates on parent section");
-		aveDataFunc.setName("Original (Data) ave slip rates on parent section");
-		aveSynFunc.setInfo(info);
-		funcs5.add(aveSynFunc);
-		funcs5.add(aveDataFunc);
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
-		graph5.setX_AxisLabel("Parent Section Index");
-		graph5.setY_AxisLabel("Slip Rate");
-
-	}
-	
-	/**
 	 * This compares observed section rates (supplied) with those implied by the
 	 * Fault System Solution.
 	 * 
 	 */
 	public void plotPaleoObsAndPredPaleoEventRates(List<PaleoRateConstraint> paleoRateConstraints, PaleoProbabilityModel paleoProbModel, InversionFaultSystemRupSet rupSet) {
-		int numSections = this.getNumSections();
-		int numRuptures = this.getNumRuptures();
+		int numSections = rupSet.getNumSections();
+		int numRuptures = rupSet.getNumRuptures();
 		ArrayList funcs3 = new ArrayList();		
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);
 		EvenlyDiscretizedFunc finalPaleoVisibleEventRateFunc = new EvenlyDiscretizedFunc(0,(double)numSections-1,numSections);	
 		for (int r=0; r<numRuptures; r++) {
-			List<Integer> sectsInRup= getSectionsIndicesForRup(r);
+			List<Integer> sectsInRup= rupSet.getSectionsIndicesForRup(r);
 			for (int i=0; i<sectsInRup.size(); i++) {			
 				finalEventRateFunc.add(sectsInRup.get(i),getRateForRup(r));  
 				
 				// UCERF2 Paleo Prob Model
-//				finalPaleoVisibleEventRateFunc.add(rup.get(i),this.getProbPaleoVisible(this.getMagForRup(r))*getRateForRup(r));  
+//				finalPaleoVisibleEventRateFunc.add(rup.get(i),rupSet.getProbPaleoVisible(rupSet.getMagForRup(r))*getRateForRup(r));  
 				
 				// UCERF3 Paleo Prob Model
-				double paleoProb = paleoProbModel.getProbPaleoVisible(this, r, sectsInRup.get(i));
+				double paleoProb = paleoProbModel.getProbPaleoVisible(rupSet, r, sectsInRup.get(i));
 				finalPaleoVisibleEventRateFunc.add(sectsInRup.get(i),paleoProb*getRateForRup(r));  
 				
 			}
@@ -823,11 +660,9 @@ public abstract class FaultSystemSolution extends FaultSystemRupSet {
 	public double getTotalFaultSolutionMomentRate() {
 		// calculate the moment
 		double totalSolutionMoment = 0;
-		for (int rup=0; rup<getNumRuptures(); rup++) 
-			totalSolutionMoment += getRateForRup(rup)*MagUtils.magToMoment(getMagForRup(rup));
+		for (int rup=0; rup<rupSet.getNumRuptures(); rup++) 
+			totalSolutionMoment += getRateForRup(rup)*MagUtils.magToMoment(rupSet.getMagForRup(rup));
 		return totalSolutionMoment;
 	}
-	
-	public abstract GridSourceProvider getGridSourceProvider();
 
 }

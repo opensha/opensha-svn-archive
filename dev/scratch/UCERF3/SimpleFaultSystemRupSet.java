@@ -375,24 +375,29 @@ public class SimpleFaultSystemRupSet extends FaultSystemRupSet implements XMLSav
 		this.info = info;
 	}
 	
-	@Override
+	/**
+	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
+	 * @param sectIndex index of the section to retrieve
+	 * @return close sections, or null if not defined
+	 */
 	public List<Integer> getCloseSectionsList(int sectIndex) {
 		if (closeSections == null)
 			return null;
 		return closeSections.get(sectIndex);
 	}
 
-	@Override
+	/**
+	 * This returns a list of lists of close sections for each section.
+	 * @return list of all close sections, or null if not defined
+	 */
 	public List<List<Integer>> getCloseSectionsListList() {
 		return closeSections;
 	}
 	
-	@Override
-	public boolean isClusterBased() {
-		return getNumClusters() > 0;
-	}
-	
-	@Override
+	/**
+	 * 
+	 * @return the number of clusters, or 0 if not a cluster based model
+	 */
 	public int getNumClusters() {
 		if (clusterRups == null)
 			return 0;
