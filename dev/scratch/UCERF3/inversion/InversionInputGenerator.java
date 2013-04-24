@@ -463,7 +463,7 @@ public class InversionInputGenerator {
 		for (int sect=0; sect<numSections; sect++) {
 			int row = sect;
 			if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.UNNORMALIZED || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) 
-				d[row] = 0.01*slipRateConstraintWt_unnormalized * sectSlipRateReduced[sect];			
+				d[row] = slipRateConstraintWt_unnormalized * sectSlipRateReduced[sect];			
 			if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE || config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH) {
 				if (config.getSlipRateWeightingType() == InversionConfiguration.SlipRateConstraintWeightingType.BOTH)
 					row += numSections;
