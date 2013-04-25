@@ -54,7 +54,7 @@ import com.google.common.collect.Lists;
  * @author kevin
  *
  */
-public class AverageFaultSystemSolution extends InversionFaultSystemSolution implements Iterable<FaultSystemSolution> {
+public class AverageFaultSystemSolution extends InversionFaultSystemSolution implements Iterable<InversionFaultSystemSolution> {
 	
 	private int numSols;
 	private double[][] ratesByRup;
@@ -91,6 +91,11 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			mean[r] = StatUtils.mean(rates[r]);
 		
 		return mean;
+	}
+	
+	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
+			List<double[]> ratesList) {
+		this(rupSet, ratesList, null, null);
 	}
 
 	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
@@ -440,7 +445,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		writePaleoBoundsPlot(dir, prefix, avgSol);
 	}
 	
-	public static void writePaleoBoundsPlot(File dir, String prefix, Iterable<? extends FaultSystemSolution> sols) throws IOException {
+	public static void writePaleoBoundsPlot(File dir, String prefix, Iterable<? extends InversionFaultSystemSolution> sols) throws IOException {
 		ArrayList<PaleoRateConstraint> paleoRateConstraints = null;
 		
 		ArrayList<DiscretizedFunc> otherFuncs = Lists.newArrayList();
@@ -452,7 +457,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		ArrayList<Integer> solFuncIndexes = Lists.newArrayList();
 		
 		int numSols = 0;
-		for (FaultSystemSolution sol : sols) {
+		for (InversionFaultSystemSolution sol : sols) {
 			numSols++;
 			
 			if (paleoRateConstraints == null)
@@ -731,8 +736,8 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 	}
 
 	@Override
-	public Iterator<FaultSystemSolution> iterator() {
-		return new Iterator<FaultSystemSolution>() {
+	public Iterator<InversionFaultSystemSolution> iterator() {
+		return new Iterator<InversionFaultSystemSolution>() {
 			private int index = 0;
 
 			@Override
@@ -741,7 +746,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			}
 
 			@Override
-			public FaultSystemSolution next() {
+			public InversionFaultSystemSolution next() {
 				return getSolution(index++);
 			}
 

@@ -14,7 +14,6 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;

@@ -30,16 +30,16 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class HazardBenchmark {
 	
 	private static void makeSubSectArticulationsHist(FaultSystemSolution fss) {
 		HistogramFunction hist = new HistogramFunction(0d, 10, 1d);
 		
-		for (FaultSectionPrefData sect : fss.getFaultSectionDataList()) {
+		for (FaultSectionPrefData sect : fss.getRupSet().getFaultSectionDataList()) {
 			int num = sect.getFaultTrace().size()-2;
 			hist.add((double)num, 1d);
 		}
@@ -66,14 +66,14 @@ public class HazardBenchmark {
 		
 		imr.setIntensityMeasure(PGA_Param.NAME);
 		
-		FaultSystemSolution fss = SimpleFaultSystemSolution.fromFile(
+		InversionFaultSystemSolution fss = FaultSystemIO.loadInvSol(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/" +
 						"scratch/InversionSolutions/FM3_1_ZENG_Shaw09Mod_DsrTap_" +
 						"CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip"));
 		
 		makeSubSectArticulationsHist(fss);
 		
-		ERF erf = new UCERF3_FaultSysSol_ERF(new InversionFaultSystemSolution(fss));
+		ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
 		erf.updateForecast();
 		

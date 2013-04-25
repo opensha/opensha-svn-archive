@@ -46,7 +46,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
-import scratch.UCERF3.utils.RupSetIO;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
@@ -100,11 +100,11 @@ public class BatchPlotGen {
 		InversionFaultSystemSolution sol;
 		if (cachedFile.exists()) {
 			System.out.println("Loading UCERF2 comparison from: "+cachedFile.getName());
-			sol = RupSetIO.loadInvSol(cachedFile);
+			sol = FaultSystemIO.loadInvSol(cachedFile);
 		} else {
 			sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
 			try {
-				RupSetIO.writeSol(sol, cachedFile);
+				FaultSystemIO.writeSol(sol, cachedFile);
 			} catch (Exception e) {
 				// don't fail on a cache attempt
 				e.printStackTrace();
@@ -345,7 +345,7 @@ public class BatchPlotGen {
 					continue;
 				}
 				// this is an average of many runs
-				InversionFaultSystemRupSet rupSet = RupSetIO.loadInvRupSet(file);
+				InversionFaultSystemRupSet rupSet = FaultSystemIO.loadInvRupSet(file);
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
 				if (!doAvgPlotsExist(meanSolDir, meanPrefix))
 					try {
@@ -450,7 +450,7 @@ public class BatchPlotGen {
 		System.out.println("Processing: "+prefix);
 		
 		if (sol == null)
-			sol = RupSetIO.loadInvSol(file);
+			sol = FaultSystemIO.loadInvSol(file);
 		
 		if (!hasMapPlots) {
 			makeMapPlots(sol, dir, prefix);

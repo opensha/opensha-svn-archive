@@ -9,7 +9,6 @@ import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileNameComparator;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 
 public class SolutionMomentCalc {
 

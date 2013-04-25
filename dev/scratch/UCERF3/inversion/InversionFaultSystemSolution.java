@@ -31,7 +31,6 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -44,6 +43,7 @@ import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionConfiguration.SlipRateConstraintWeightingType;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.SectionMFD_constraint;
@@ -78,6 +78,8 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	private Map<String, Double> energies;
 	private Map<String, Double> misfits;
+	
+	private GridSourceProvider gridSourceProvider;
 	
 	/**
 	 * Can be used on the fly for when InversionConfiguration/energies are not available/relevant
@@ -768,7 +770,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * @return
 	 */
 	public GridSourceProvider getGridSourceProvider() {
-		return new UCERF3_GridSourceGenerator(this);
+		if (gridSourceProvider == null)
+			gridSourceProvider = new UCERF3_GridSourceGenerator(this);
+		return gridSourceProvider;
+	}
+	
+	public void setGridSourceProvider(GridSourceProvider gridSourceProvider) {
+		this.gridSourceProvider = gridSourceProvider;
 	}
 	
 	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =
@@ -972,11 +980,10 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //						"/tmp/ucerf2_fm2_compare.zip"));
 //		simple.plotMFDs(Lists.newArrayList(OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850)));
 		
-		SimpleFaultSystemSolution simple = SimpleFaultSystemSolution.fromFile(new File(
+		InversionFaultSystemSolution inv = FaultSystemIO.loadInvSol(new File(
 				"/tmp/FM2_1_UC2ALL_ShConStrDrp_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_" +
 				"SpatSeisU2_VarPaleo0.1_VarSectNuclMFDWt0.01_VarParkfield10000_sol.zip"));
 		
-		InversionFaultSystemSolution inv = new InversionFaultSystemSolution(simple);
 		Map<String, Double> misfits = inv.getMisfits();
 		for (String name : misfits.keySet()) {
 			System.out.println(name+": "+misfits.get(name));

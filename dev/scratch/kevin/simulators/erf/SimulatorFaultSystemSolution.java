@@ -25,9 +25,8 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.simulators.ElementMagRangeDescription;
 import scratch.kevin.simulators.EventsInWindowsMatcher;
@@ -67,9 +66,9 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		
 		// for each rup
 		double[] mags = new double[events.size()];
-		double[] aveSlips = new double[events.size()];
 		double[] rupRakes = new double[events.size()];
 		double[] rupAreas = new double[events.size()];
+		double[] rupLengths = new double[events.size()];
 		List<List<Integer>> sectionForRups = Lists.newArrayList();
 		
 		Comparator<FaultSectionPrefData> fsdIndexSorter = new Comparator<FaultSectionPrefData>() {
@@ -108,8 +107,8 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		for (int i=0; i<events.size(); i++) {
 			EQSIM_Event e = events.get(i);
 			mags[i] = e.getMagnitude();
-			aveSlips[i] = e.getMeanSlip();
 			rupAreas[i] = e.getArea();
+			rupLengths[i] = e.getLength();
 			
 			// build rupture sections list
 			List<List<FaultSectionPrefData>> subSectsForFaults = Lists.newArrayList();
@@ -160,19 +159,15 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 			sectAreas[s] = sect.getReducedDownDipWidth()*sect.getTraceLength()*1e6; // in meters
 		}
 		
-		// general
-		// TODO allow actual distribution
-		SlipAlongRuptureModels slipModel = SlipAlongRuptureModels.TAPERED;
 		String info = "Fault Simulators Solution\n"
 				+ "# Elements: "+elements.size()+"\n"
 				+ "# Sub Sections: "+fsd.size()+"\n"
 				+ "# Events/Rups: "+events.size()+"\n"
 				+ "Duration: "+durationYears+"\n"
 				+ "Indv. Rup Rate: "+(1d/durationYears);
-		List<List<Integer>> closeSections = null;
 		
-		return new SimpleFaultSystemRupSet(fsd, mags, aveSlips, null, slipModel, sectSlipRates, sectSlipRateStdDevs,
-				rupRakes, rupAreas, sectAreas, sectionForRups, info, closeSections, null, null);
+		return new FaultSystemRupSet(fsd, sectSlipRates, sectSlipRateStdDevs, sectAreas,
+				sectionForRups,mags, rupRakes, rupAreas, rupLengths, info);
 	}
 	
 	private static double[] buildRates(int num, double durationYears) {
@@ -405,8 +400,8 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		SimulatorFaultSystemSolution fss = new SimulatorFaultSystemSolution(tools.getElementsList(), events, durationYears, 5.5);
 		System.out.println(fss.getInfoString());
 		
-//		fss.toZipFile(new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
-		fss.toZipFile(new File("/tmp/simulators_long_sol.zip"));
+		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
+		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol.zip"));
 	}
 
 }

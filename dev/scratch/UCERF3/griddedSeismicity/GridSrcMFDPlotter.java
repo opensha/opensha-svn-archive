@@ -3,27 +3,21 @@ package scratch.UCERF3.griddedSeismicity;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import scratch.UCERF3.SimpleFaultSystemSolution;
-import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 
 /**
  * Add comments here
@@ -47,8 +41,7 @@ public class GridSrcMFDPlotter {
 		// init fss
 		try {
 			File f = new File(fName);
-			SimpleFaultSystemSolution tmp = SimpleFaultSystemSolution.fromFile(f);
-			fss = new InversionFaultSystemSolution(tmp);
+			fss = FaultSystemIO.loadInvSol(f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -81,7 +74,7 @@ public class GridSrcMFDPlotter {
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
 
-		String name = fss.getFaultSectionData(idx).getName();
+		String name = fss.getRupSet().getFaultSectionData(idx).getName();
 		
 		
 		IncrementalMagFreqDist fSubSeisIncr = gridGen.getSectSubSeisMFD(idx);

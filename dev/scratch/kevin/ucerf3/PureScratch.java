@@ -37,7 +37,6 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class PureScratch {

@@ -30,10 +30,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultSpecificSegmentationPlotGen {
@@ -63,12 +65,13 @@ public class FaultSpecificSegmentationPlotGen {
 	}
 	
 	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
+		FaultSystemRupSet rupSet = sol.getRupSet();
 		// first assemble subsections by parent
 		Map<Integer, List<FaultSectionPrefData>> subSectsByParent = Maps.newHashMap();
 		int prevParentID = -2;
 		List<FaultSectionPrefData> curSects = null;
-		for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
-			FaultSectionPrefData sect = sol.getFaultSectionData(sectIndex);
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
 			int parent = sect.getParentSectionId();
 			if (parent != prevParentID) {
 				prevParentID = parent;
@@ -233,16 +236,16 @@ public class FaultSpecificSegmentationPlotGen {
 			
 			HashSet<Integer> alreadyCounted = new HashSet<Integer>();
 			for (int sectIndex : sects) {
-				for (int rupIndex : sol.getRupturesForSection(sectIndex)) {
+				for (int rupIndex : rupSet.getRupturesForSection(sectIndex)) {
 					if (alreadyCounted.contains(rupIndex))
 						continue;
 					
-					if (sol.getMagForRup(rupIndex) < minMag)
+					if (rupSet.getMagForRup(rupIndex) < minMag)
 						continue;
 					
 					double rate = sol.getRateForRup(rupIndex);
 					
-					List<Integer> sectsForRup = sol.getSectionsIndicesForRup(rupIndex);
+					List<Integer> sectsForRup = rupSet.getSectionsIndicesForRup(rupIndex);
 					boolean stoppingPoint = false;
 					
 					if (sectIndex == sectsForRup.get(0) && !sects.contains(sectsForRup.get(1)))
@@ -298,7 +301,7 @@ public class FaultSpecificSegmentationPlotGen {
 					info += "\n";
 				String parents = null;
 				for (int sectID : sects) {
-					String parentName = sol.getFaultSectionData(sectID).getParentSectionName();
+					String parentName = rupSet.getFaultSectionData(sectID).getParentSectionName();
 					if (parents == null)
 						parents = "";
 					else
@@ -382,7 +385,7 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
+		InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(solFile);
 		
 		CommandLineInversionRunner.writeSAFSegPlots(sol, new File("/tmp/branch_avg"), "branch_avg");
 		

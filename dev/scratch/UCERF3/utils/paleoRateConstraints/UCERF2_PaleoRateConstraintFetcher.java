@@ -29,7 +29,6 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class UCERF2_PaleoRateConstraintFetcher {

@@ -9,7 +9,6 @@ import org.opensha.commons.util.FaultUtils;
 
 import com.google.common.base.Preconditions;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class RakeFixer {

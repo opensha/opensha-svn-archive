@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
  * @author Field, Milner, Page, & Powers
  *
  */
-public class FaultSystemRupSet {
+public class FaultSystemRupSet implements Serializable {
 	
 	// data arrays/lists
 	private List<FaultSectionPrefData> faultSectionData;

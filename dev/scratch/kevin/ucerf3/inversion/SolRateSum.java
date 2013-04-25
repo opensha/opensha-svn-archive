@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.dom4j.DocumentException;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 
 public class SolRateSum {
 

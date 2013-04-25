@@ -1,7 +1,6 @@
 package scratch.kevin.ucerf3.inversion;
 
 import java.awt.Color;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,25 +19,20 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
-import com.google.common.base.Preconditions;
+import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.MatrixIO;
+import scratch.kevin.magDepth.NoCollissionFunc;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import scratch.UCERF3.AverageFaultSystemSolution;
-import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.CompoundFaultSystemSolution.ZipFileSolutionFetcher;
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.inversion.CommandLineInversionRunner;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.UCERF3.utils.MatrixIO;
-import scratch.kevin.magDepth.NoCollissionFunc;
 
 public class InversionConvergencePlotGen {
 
@@ -68,11 +62,12 @@ public class InversionConvergencePlotGen {
 		File avgSol0NoMins = new File(solDir, "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_" +
 				"M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run00_noMinRates.bin");
 		double[] waterlevels = loadWaterlevels(avgSol0rates, avgSol0NoMins);
-		writeWaterlevelResults(outputDir, "ref_branch", loadNonWaterlevelsForAvg(avgSol, waterlevels), avgSol.getNumRuptures());
+		writeWaterlevelResults(outputDir, "ref_branch",
+				loadNonWaterlevelsForAvg(avgSol, waterlevels), avgSol.getRupSet().getNumRuptures());
 		
 		// these are for branch averages
 		// now non waterlevel plots
-		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(
+		InversionFaultSystemRupSet rupSet = FaultSystemIO.loadInvRupSet(
 				new File(compoundSol.getParentFile(),
 						"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		File fm3_1_bins = new File(solDir,
@@ -86,7 +81,7 @@ public class InversionConvergencePlotGen {
 		writeResults(loadBranchRuns(zip, FaultModels.FM3_1, null),
 				outputDir, "branch_runs_fm3_1_mean", rupSet);
 		
-		rupSet = SimpleFaultSystemRupSet.fromFile(
+		rupSet = FaultSystemIO.loadInvRupSet(
 				new File(compoundSol.getParentFile(),
 						"2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
 		writeResults(loadBranchAverages(zip, FaultModels.FM3_2, rupSet.getNumRuptures()),
@@ -96,7 +91,7 @@ public class InversionConvergencePlotGen {
 		writeResults(loadBranchRuns(zip, FaultModels.FM3_2, null),
 				outputDir, "branch_runs_fm3_2_mean", rupSet);
 		
-		writeResults(avgSol.getRatesForAllSols(), outputDir, "ref_branch", avgSol);
+		writeResults(avgSol.getRatesForAllSols(), outputDir, "ref_branch", avgSol.getRupSet());
 	}
 	
 	private static List<double[]> loadBranchAverages(ZipFile file, FaultModels fm, int numRups)
@@ -172,7 +167,7 @@ public class InversionConvergencePlotGen {
 		return retList;
 	}
 	
-	private static void writeResults(List<double[]> ratesList, File dir, String prefix, FaultSystemRupSet rupSet)
+	private static void writeResults(List<double[]> ratesList, File dir, String prefix, InversionFaultSystemRupSet rupSet)
 			throws IOException {
 		int numRates = ratesList.get(0).length;
 		int numLists = ratesList.size();

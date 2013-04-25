@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.dom4j.DocumentException;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 
 public class RupSmoothnessPlotTest {

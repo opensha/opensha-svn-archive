@@ -20,7 +20,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
-import scratch.UCERF3.utils.RupSetIO;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 
@@ -95,7 +95,7 @@ public class UCERF2_ComparisonSolutionFetcher {
 		
 		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 //		BatchPlotGen.makeMapPlots(sol, dir, prefix);
-		RupSetIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
+		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
 		
 //		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);

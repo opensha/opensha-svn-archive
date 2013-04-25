@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -14,6 +15,7 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -24,12 +26,12 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 public class FaultSysSolutionERF_Calc {
@@ -43,13 +45,11 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static UCERF3_FaultSysSol_ERF getUCERF3_ERF_Instance(File faultSysSolZipFile) {
 		InversionFaultSystemSolution invFss;
-		SimpleFaultSystemSolution tmp = null;
 		try {
-			tmp =  SimpleFaultSystemSolution.fromFile(faultSysSolZipFile);
+			invFss = FaultSystemIO.loadInvSol(faultSysSolZipFile);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw ExceptionUtils.asRuntimeException(e);
 		}
-		invFss = new InversionFaultSystemSolution(tmp);
 
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
 

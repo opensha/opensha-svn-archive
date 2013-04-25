@@ -26,20 +26,17 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	// this is for copying caches from previous rup sets of the same fault model
 	private Map<FaultModels, FaultSystemRupSet> rupSetCacheMap = Maps.newHashMap();
 	
-	private Map<LogicTreeBranch, Map<String, Double>> misfitsCache = Maps.newHashMap();
-	
 	public abstract Collection<LogicTreeBranch> getBranches();
 	
-	protected abstract FaultSystemSolution fetchSolution(LogicTreeBranch branch);
+	protected abstract InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch);
 	
-	public FaultSystemSolution getSolution(LogicTreeBranch branch) {
-		FaultSystemSolution sol = fetchSolution(branch);
-		if (cacheCopying && sol instanceof InversionFaultSystemSolution) {
-			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
+	public InversionFaultSystemSolution getSolution(LogicTreeBranch branch) {
+		InversionFaultSystemSolution sol = fetchSolution(branch);
+		if (cacheCopying) {
 			synchronized (this) {
-				FaultModels fm = invSol.getRupSet().getFaultModel();
+				FaultModels fm = sol.getRupSet().getFaultModel();
 				if (rupSetCacheMap.containsKey(fm)) {
-					invSol.getRupSet().copyCacheFrom(rupSetCacheMap.get(fm));
+					sol.getRupSet().copyCacheFrom(rupSetCacheMap.get(fm));
 				} else {
 					rupSetCacheMap.put(fm, sol.getRupSet());
 				}
@@ -54,24 +51,6 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	
 	public double[] getMags(LogicTreeBranch branch) {
 		return getSolution(branch).getRupSet().getMagForAllRups();
-	}
-	
-	protected abstract Map<String, Double> fetchMisfits(LogicTreeBranch branch);
-	
-	/**
-	 * Returns a map of misfit values, if available, else null
-	 * 
-	 * @param branch
-	 * @return
-	 */
-	public synchronized Map<String, Double> getMisfits(LogicTreeBranch branch) {
-		Map<String, Double> misfits = misfitsCache.get(branch);
-		if (misfits == null) {
-			misfits = fetchMisfits(branch);
-			if (misfits != null)
-				misfitsCache.put(branch, misfits);
-		}
-		return misfits;
 	}
 
 	public boolean isCacheCopyingEnabled() {
@@ -152,13 +131,8 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			}
 			
 			@Override
-			protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 				return fetch.fetchSolution(branch);
-			}
-			
-			@Override
-			protected Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-				return fetch.fetchMisfits(branch);
 			}
 		};
 	}

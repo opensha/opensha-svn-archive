@@ -41,7 +41,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
-public class RupSetIO {
+public class FaultSystemIO {
 	
 	private static final boolean D = true;
 	
@@ -174,7 +174,7 @@ public class RupSetIO {
 	 * @throws IOException 
 	 * @throws DocumentException 
 	 */
-	protected static FaultSystemRupSet loadRupSetAsApplicable(ZipFile zip, Map<String, String> nameRemappings) throws IOException, DocumentException {
+	private static FaultSystemRupSet loadRupSetAsApplicable(ZipFile zip, Map<String, String> nameRemappings) throws IOException, DocumentException {
 		ZipEntry magEntry = zip.getEntry(getRemappedName("mags.bin", nameRemappings));
 		double[] mags = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(magEntry)), magEntry.getSize());
@@ -436,7 +436,20 @@ public class RupSetIO {
 	private static FaultSystemSolution loadSolAsApplicable(File file, Map<String, String> nameRemappings)
 			throws IOException, DocumentException {
 		ZipFile zip = new ZipFile(file);
-		
+		return loadSolAsApplicable(zip, nameRemappings);
+	}
+	
+	/**
+	 * Loads a solution from the given zip file as the deepest possible subclass
+	 * 
+	 * @param zip
+	 * @param nameRemappings
+	 * @return
+	 * @throws IOException
+	 * @throws DocumentException
+	 */
+	public static FaultSystemSolution loadSolAsApplicable(ZipFile zip, Map<String, String> nameRemappings)
+			throws IOException, DocumentException {
 		// first load the rupture set
 		FaultSystemRupSet rupSet = loadRupSetAsApplicable(zip, nameRemappings);
 		
@@ -533,7 +546,7 @@ public class RupSetIO {
 	 * 		FILE WRITING UTIL METHODS
 	 *	******************************************/
 	
-	protected static void toZipFile(FaultSystemRupSet rupSet, File file, File tempDir, HashSet<String> zipFileNames) throws IOException {
+	private static void toZipFile(FaultSystemRupSet rupSet, File file, File tempDir, HashSet<String> zipFileNames) throws IOException {
 		final boolean D = true;
 		if (D) System.out.println("Saving rup set with "+rupSet.getNumRuptures()+" rups to: "+file.getAbsolutePath());
 		writeRupSetFilesForZip(rupSet, tempDir, zipFileNames, null);
@@ -547,7 +560,7 @@ public class RupSetIO {
 		if (D) System.out.println("Done saving!");
 	}
 	
-	protected static void writeRupSetFilesForZip(FaultSystemRupSet rupSet, File tempDir,
+	public static void writeRupSetFilesForZip(FaultSystemRupSet rupSet, File tempDir,
 			HashSet<String> zipFileNames, Map<String, String> nameRemappings) throws IOException {
 		// first save fault section data as XML
 		if (D) System.out.println("Saving fault section xml");
@@ -716,25 +729,32 @@ public class RupSetIO {
 	}
 	
 	public static void fsDataToXML(Element parent, String elName, FaultSystemRupSet rupSet) {
-		Element el = parent.addElement(elName);
+		FaultModels fm = null;
+		DeformationModels dm = null;
 		if (rupSet instanceof InversionFaultSystemRupSet) {
 			InversionFaultSystemRupSet invRupSet = (InversionFaultSystemRupSet)rupSet;
-			FaultModels fm = invRupSet.getFaultModel();
-			DeformationModels dm = invRupSet.getDeformationModel();
-			if (dm != null)
-				el.addAttribute("defModName", dm.name());
-			if (fm != null)
-				el.addAttribute("faultModName", fm.name());
+			fm = invRupSet.getFaultModel();
+			dm = invRupSet.getDeformationModel();
 		}
+		fsDataToXML(parent, elName, fm, dm, rupSet.getFaultSectionDataList());
+	}
+	
+	public static void fsDataToXML(Element parent, String elName,
+			FaultModels fm, DeformationModels dm, List<FaultSectionPrefData> fsd) {
+		Element el = parent.addElement(elName);
 		
-		List<FaultSectionPrefData> list = rupSet.getFaultSectionDataList();
-		for (int i=0; i<list.size(); i++) {
-			FaultSectionPrefData data = list.get(i);
+		if (dm != null)
+			el.addAttribute("defModName", dm.name());
+		if (fm != null)
+			el.addAttribute("faultModName", fm.name());
+		
+		for (int i=0; i<fsd.size(); i++) {
+			FaultSectionPrefData data = fsd.get(i);
 			data.toXMLMetadata(el, "i"+i);
 		}
 	}
 	
-	public static void invRupSetDataToXML(Element root, InversionFaultSystemRupSet invRupSet) {
+	private static void invRupSetDataToXML(Element root, InversionFaultSystemRupSet invRupSet) {
 		Element el = root.addElement("InversionFaultSystemRupSet");
 		
 		// add LogicTreeBranch
@@ -754,7 +774,7 @@ public class RupSetIO {
 		return nameRemappings.get(name);
 	}
 	
-	protected static void toZipFile(FaultSystemSolution sol, File file, File tempDir, HashSet<String> zipFileNames) throws IOException {
+	private static void toZipFile(FaultSystemSolution sol, File file, File tempDir, HashSet<String> zipFileNames) throws IOException {
 		final boolean D = true;
 		if (D) System.out.println("Saving solution with "+sol.getRupSet().getNumRuptures()+" rups to: "+file.getAbsolutePath());
 		writeSolFilesForZip(sol, tempDir, zipFileNames, null);
@@ -768,7 +788,7 @@ public class RupSetIO {
 		if (D) System.out.println("Done saving!");
 	}
 	
-	protected static void writeSolFilesForZip(FaultSystemSolution sol, File tempDir,
+	public static void writeSolFilesForZip(FaultSystemSolution sol, File tempDir,
 			HashSet<String> zipFileNames, Map<String, String> nameRemappings) throws IOException {
 		// first save rup set files
 		writeRupSetFilesForZip(sol.getRupSet(), tempDir, zipFileNames, nameRemappings);
@@ -797,6 +817,7 @@ public class RupSetIO {
 			if (D) System.out.println("Saving InversionFaultSystemSolution specific data");
 			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
 			
+			// TODO always save grid sources?
 			GridSourceProvider gridSources = invSol.getGridSourceProvider();
 			if (gridSources != null) {
 				if (D) System.out.println("Saving grid sources to xml");
@@ -838,7 +859,7 @@ public class RupSetIO {
 		}
 	}
 	
-	public static void invSolDataToXML(Element root, InversionFaultSystemSolution invSol) {
+	private static void invSolDataToXML(Element root, InversionFaultSystemSolution invSol) {
 		Element el = root.addElement("InversionFaultSystemSolution");
 		
 		// add InversionConfiguration

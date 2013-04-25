@@ -7,6 +7,7 @@ package scratch.UCERF3;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
@@ -67,7 +69,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
  * @author Field, Milner, Page, and Powers
  *
  */
-public class FaultSystemSolution {
+public class FaultSystemSolution implements Serializable {
 	
 	private FaultSystemRupSet rupSet;
 	private double[] rates;
@@ -81,6 +83,19 @@ public class FaultSystemSolution {
 	 */
 	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates) {
 		init(rupSet, rates, null);
+	}
+	
+	/**
+	 * Builds a solution from the given rupSet/rates. If the rupSet is an InversionFaultSystemRupSet,
+	 * an InversionFaultSystemSolution will be returned (else a normal FaultSystemSolution).
+	 * @param rupSet
+	 * @param rates
+	 * @return
+	 */
+	public static FaultSystemSolution buildSolAsApplicable(FaultSystemRupSet rupSet, double[] rates) {
+		if (rupSet instanceof InversionFaultSystemRupSet)
+			return new InversionFaultSystemSolution((InversionFaultSystemRupSet)rupSet, rates);
+		return new FaultSystemSolution(rupSet, rates);
 	}
 	
 	/**

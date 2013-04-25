@@ -10,8 +10,9 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class NonZeroCalc {
 	
@@ -19,8 +20,8 @@ public class NonZeroCalc {
 		ArrayList<Integer> parents = new ArrayList<Integer>();
 		ArrayList<Integer> minIDs = new ArrayList<Integer>();
 		ArrayList<Integer> maxIDs = new ArrayList<Integer>();
-		for (int secID : sol.getSectionsIndicesForRup(id)) {
-			int parent = sol.getFaultSectionData(secID).getParentSectionId();
+		for (int secID : sol.getRupSet().getSectionsIndicesForRup(id)) {
+			int parent = sol.getRupSet().getFaultSectionData(secID).getParentSectionId();
 			int parentIndex = parents.indexOf(parent);
 			if (parentIndex < 0) {
 				parents.add(parent);
@@ -40,7 +41,7 @@ public class NonZeroCalc {
 			for (int j=0; j<parents.size(); j++) {
 				if (i == j)
 					continue;
-				if (!isNexTo(sol, minIDs.get(i), maxIDs.get(i), minIDs.get(j), maxIDs.get(j), id))
+				if (!isNexTo(sol.getRupSet(), minIDs.get(i), maxIDs.get(i), minIDs.get(j), maxIDs.get(j), id))
 					return true;
 			}
 		}
@@ -48,14 +49,14 @@ public class NonZeroCalc {
 		return false;
 	}
 	
-	private static boolean isNexTo(FaultSystemSolution sol, int minID1, int maxID1, int minID2, int maxID2, int rupID) {
-		if (calcDist(sol.getFaultSectionData(minID1), sol.getFaultSectionData(minID2), rupID) < 0.1)
+	private static boolean isNexTo(FaultSystemRupSet rupSet, int minID1, int maxID1, int minID2, int maxID2, int rupID) {
+		if (calcDist(rupSet.getFaultSectionData(minID1), rupSet.getFaultSectionData(minID2), rupID) < 0.1)
 			return true;
-		if (calcDist(sol.getFaultSectionData(minID1), sol.getFaultSectionData(maxID2), rupID) < 0.1)
+		if (calcDist(rupSet.getFaultSectionData(minID1), rupSet.getFaultSectionData(maxID2), rupID) < 0.1)
 			return true;
-		if (calcDist(sol.getFaultSectionData(maxID1), sol.getFaultSectionData(minID2), rupID) < 0.1)
+		if (calcDist(rupSet.getFaultSectionData(maxID1), rupSet.getFaultSectionData(minID2), rupID) < 0.1)
 			return true;
-		if (calcDist(sol.getFaultSectionData(maxID1), sol.getFaultSectionData(maxID2), rupID) < 0.1)
+		if (calcDist(rupSet.getFaultSectionData(maxID1), rupSet.getFaultSectionData(maxID2), rupID) < 0.1)
 			return true;
 		return false;
 	}
@@ -85,14 +86,14 @@ public class NonZeroCalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
 				new File("dev/scratch/UCERF3/preComputedData/InversionSolutions/2011_10_19-morgan-ALLCAL_Model1.zip"));
 //				new File("dev/scratch/UCERF3/preComputedData/InversionSolutions/Model2.xml"));
 		int numMultFaults = 0;
 		int numMultFaultNonZeros = 0;
 		int numNonZeros = 0;
 		
-		for (int i=0; i<sol.getNumRuptures(); i++) {
+		for (int i=0; i<sol.getRupSet().getNumRuptures(); i++) {
 			boolean multi = isMultiFault(sol, i);
 			boolean nonZero = sol.getRateForRup(i) > 0;
 			
@@ -106,10 +107,10 @@ public class NonZeroCalc {
 				numNonZeros++;
 		}
 		
-		System.out.println("Non zero: "+getStr(numNonZeros, sol.getNumRuptures()));
+		System.out.println("Non zero: "+getStr(numNonZeros, sol.getRupSet().getNumRuptures()));
 		System.out.println("Multi non zero: "+getStr(numMultFaultNonZeros, numMultFaults));
 		System.out.println("Single non zero: "+getStr(numNonZeros-numMultFaultNonZeros,
-				sol.getNumRuptures()-numMultFaults));
+				sol.getRupSet().getNumRuptures()-numMultFaults));
 	}
 	
 	private static String getStr(int num, int tot) {

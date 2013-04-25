@@ -8,8 +8,8 @@ import org.dom4j.Document;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class FaultModelCacher {
 
@@ -23,7 +23,7 @@ public class FaultModelCacher {
 		for (FaultModels fm : FaultModels.values()) {
 			ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections(true);
 			Document doc = XMLUtils.createDocumentWithRoot();
-			SimpleFaultSystemRupSet.fsDataToXML(doc.getRootElement(), datas, FaultModels.XML_ELEMENT_NAME, fm, null);
+			FaultSystemIO.fsDataToXML(doc.getRootElement(), FaultModels.XML_ELEMENT_NAME, fm, null, datas);
 			XMLUtils.writeDocumentToFile(new File(dir, fm.getShortName()+".xml"), doc);
 		}
 		System.exit(0);

@@ -43,7 +43,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;

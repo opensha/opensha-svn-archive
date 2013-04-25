@@ -17,7 +17,6 @@ import org.opensha.sha.faultSurface.FaultTrace;
 
 import com.google.common.base.Joiner;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 
 public class SolOutlierSearch {

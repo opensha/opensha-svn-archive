@@ -9,6 +9,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
@@ -47,7 +49,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	 * Constructs a new ERF using an {@code FaultSystemSolution}.
 	 * @param faultSysSolution
 	 */
-	public UCERF3_FaultSysSol_ERF(FaultSystemSolution faultSysSolution) {
+	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
 		super(faultSysSolution);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
 	}
@@ -61,18 +63,15 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	@Override
 	protected void initOtherSources() {
 			System.out.println("Initing other sources...");
-
-			// assume we can get GridSourceProvider from solution; in this case
-			// we will get grid sources from stored branch-averaged MFDs
-			gridSources = faultSysSolution.getGridSourceProvider();
 			
-			// but if not, go the IVFSS route; in this case a
-			// UC3_GridSourceGenerator will be returned.
-			if (gridSources == null) {
-				faultSysSolution = new InversionFaultSystemSolution(
-					faultSysSolution);
-				gridSources = faultSysSolution.getGridSourceProvider();
-			}
+			Preconditions.checkState(faultSysSolution instanceof InversionFaultSystemSolution,
+					"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
+			
+			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)faultSysSolution;
+
+			// fetch grid sources from solution. By default this will be a UC3_GridSourceGenerator
+			// unless the grid sources have been cached or averaged (for a mean solution).
+			gridSources = invSol.getGridSourceProvider();
 			
 			if (bgRupType.equals(BackgroundRupType.POINT)) {
 				// default is false; gridGen will create point sources for those

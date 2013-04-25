@@ -57,7 +57,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCr
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
-import scratch.UCERF3.utils.RupSetIO;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
@@ -327,7 +327,7 @@ public class CommandLineInversionRunner {
 			
 
 			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
-			RupSetIO.writeRupSet(rupSet, rupSetFile);
+			FaultSystemIO.writeRupSet(rupSet, rupSetFile);
 			// now clear it out of memory
 			rupSet = null;
 			gen.setRupSet(null);
@@ -470,7 +470,7 @@ public class CommandLineInversionRunner {
 
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
-				InversionFaultSystemRupSet loadedRupSet = RupSetIO.loadInvRupSet(rupSetFile);
+				InversionFaultSystemRupSet loadedRupSet = FaultSystemIO.loadInvRupSet(rupSetFile);
 				loadedRupSet.setInfoString(info);
 				double[] rupRateSolution = tsa.getBestSolution();
 				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
@@ -567,7 +567,7 @@ public class CommandLineInversionRunner {
 				sol.setInfoString(info);
 
 				System.out.println("Writing solution");
-				RupSetIO.writeSol(sol, solutionFile);
+				FaultSystemIO.writeSol(sol, solutionFile);
 				
 				if (!noPlots) {
 					CSVFile<String> moRateCSV = new CSVFile<String>(true);

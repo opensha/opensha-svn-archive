@@ -10,10 +10,11 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.util.ExceptionUtils;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
@@ -37,15 +38,15 @@ public class BatchPaleoTableWriter {
 		Preconditions.checkArgument(dir.exists() && dir.isDirectory(),
 				"Directory doesn't exist or isn't directory.");
 		
-		SimpleFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher
+		InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher
 				.getUCERF2Solution(FaultModels.FM2_1);
 		List<AveSlipConstraint> ucerf2AveSlipConstraints;
 		List<PaleoRateConstraint> ucerf2PaleoConstraints;
 		try {
-			ucerf2AveSlipConstraints = AveSlipConstraint.load(ucerf2Sol
-					.getFaultSectionDataList());
+			ucerf2AveSlipConstraints = AveSlipConstraint.load(
+					ucerf2Sol.getRupSet().getFaultSectionDataList());
 			ucerf2PaleoConstraints = UCERF3_PaleoRateConstraintFetcher
-					.getConstraints(ucerf2Sol.getFaultSectionDataList());
+					.getConstraints(ucerf2Sol.getRupSet().getFaultSectionDataList());
 		} catch (IOException e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
@@ -79,13 +80,14 @@ public class BatchPaleoTableWriter {
 			if (!paleoDir.exists())
 				paleoDir.mkdir();
 			
-			FaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(file);
+			InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(file);
 			
 			List<AveSlipConstraint> aveSlipConstraints =
-					AveSlipConstraint.load(sol.getFaultSectionDataList());
+					AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
 			
 			List<PaleoRateConstraint> paleoRateConstraints =
-					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
+					CommandLineInversionRunner.getPaleoConstraints(
+							sol.getRupSet().getFaultModel(), sol.getRupSet());
 			
 			PaleoFitPlotter.writeTables(paleoDir, sol, aveSlipConstraints, paleoRateConstraints,
 					ucerf2Sol, ucerf2AveSlipConstraints, ucerf2PaleoRateConstraints, paleoProbModel);

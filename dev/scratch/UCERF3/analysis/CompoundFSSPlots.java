@@ -80,11 +80,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
@@ -93,6 +90,7 @@ import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionTargetMFDs;
@@ -105,9 +103,9 @@ import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFileParser;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
@@ -266,13 +264,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
 			double wt = weightProvider.getWeight(branch);
-
-			InversionFaultSystemSolution invSol = null;
-
-			if (sol instanceof InversionFaultSystemSolution)
-				invSol = (InversionFaultSystemSolution) sol;
 
 			List<DiscretizedFunc> onMFDs = Lists.newArrayList();
 			List<DiscretizedFunc> offMFDs = Lists.newArrayList();
@@ -287,10 +280,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				onMFDs.add(onMFD);
 				if (isStatewide(region)) {
 					// we only have off fault for statewide right now
-					if (invSol == null)
-						invSol = new InversionFaultSystemSolution(sol);
-					IncrementalMagFreqDist offMFD = invSol
-							.getFinalTotalGriddedSeisMFD();
+					IncrementalMagFreqDist offMFD = sol.getFinalTotalGriddedSeisMFD();
 					EvenlyDiscretizedFunc trimmedOffMFD = new EvenlyDiscretizedFunc(
 							onMFD.getMinX(), onMFD.getMaxX(), onMFD.getNum());
 					EvenlyDiscretizedFunc totMFD = new EvenlyDiscretizedFunc(
@@ -401,14 +391,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 						yAxisLabel);
 				specs.add(spec);
 			}
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			for (Region region : regions)
-				if (isStatewide(region))
-					return true;
-			return false;
 		}
 
 		@Override
@@ -673,7 +655,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
 			throw new IllegalStateException("Should not be called, ERF plot!");
 		}
 		
@@ -923,11 +905,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		@Override
-		protected boolean usesInversionFSS() {
-			return true;
-		}
-
-		@Override
 		protected boolean usesERFs() {
 			return true;
 		}
@@ -1051,8 +1028,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
+			FaultModels fm = rupSet.getFaultModel();
 
 			try {
 				debug(solIndex, "Preparing...");
@@ -1066,15 +1044,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 									.println("I'm in the synchronized block! "
 											+ fm);
 							// do a bunch of FM specific stuff
-							paleoRateConstraints = CommandLineInversionRunner
-									.getPaleoConstraints(fm, sol);
-							slipConstraintMaps.put(fm, AveSlipConstraint
-									.load(sol.getFaultSectionDataList()));
-							allParentsMaps.put(fm, PaleoFitPlotter
-									.getAllParentsMap(sol
-											.getFaultSectionDataList()));
+							paleoRateConstraints = CommandLineInversionRunner.getPaleoConstraints(
+									fm, rupSet);
+							slipConstraintMaps.put(fm,
+									AveSlipConstraint.load(rupSet.getFaultSectionDataList()));
+							allParentsMaps.put(fm, PaleoFitPlotter.getAllParentsMap(
+									rupSet.getFaultSectionDataList()));
 							namedFaultsMaps.put(fm, fm.getNamedFaultsMapAlt());
-							fsdsMap.put(fm, sol.getFaultSectionDataList());
+							fsdsMap.put(fm, rupSet.getFaultSectionDataList());
 							paleoConstraintMaps.put(fm, paleoRateConstraints);
 						}
 					}
@@ -1085,10 +1062,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<AveSlipConstraint> aveSlipConstraints = slipConstraintMaps
 						.get(fm);
 				for (AveSlipConstraint aveSlip : aveSlipConstraints) {
-					double slip = sol.getSlipRateForSection(aveSlip
-							.getSubSectionIndex());
-					paleoRateConstraints
-							.add(new PaleoFitPlotter.AveSlipFakePaleoConstraint(
+					double slip = rupSet.getSlipRateForSection(aveSlip.getSubSectionIndex());
+					paleoRateConstraints.add(new PaleoFitPlotter.AveSlipFakePaleoConstraint(
 									aveSlip, aveSlip.getSubSectionIndex(), slip));
 					slipsForConstraints.add(slip);
 				}
@@ -1098,7 +1073,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap = PaleoFitPlotter
 						.getNamedFaultConstraintsMap(paleoRateConstraints,
-								sol.getFaultSectionDataList(), namedFaultsMap);
+								rupSet.getFaultSectionDataList(), namedFaultsMap);
 
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap = allParentsMaps
 						.get(fm);
@@ -1194,11 +1169,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				plotsMap.put(fm, specsMap);
 			}
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return false;
 		}
 
 		@Override
@@ -1301,8 +1271,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			try {
 				debug(solIndex, "Preparing...");
@@ -1430,11 +1400,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				plotsMap.put(faultName, spec);
 			}
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return false;
 		}
 
 		public Map<String, PlotSpec> getPlotsMap() {
@@ -1696,22 +1661,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
-
-			InversionFaultSystemSolution invSol;
-			if (sol instanceof InversionFaultSystemSolution)
-				invSol = (InversionFaultSystemSolution) sol;
-			else
-				invSol = new InversionFaultSystemSolution(sol);
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
+			FaultModels fm = rupSet.getFaultModel();
 
 			debug(solIndex, "cache fetching");
 			HashSet<Integer> parentIDs = parentMapsCache.get(fm);
 			if (parentIDs == null) {
 				parentIDs = new HashSet<Integer>();
-				for (int sectIndex = 0; sectIndex < sol.getNumSections(); sectIndex++) {
-					FaultSectionPrefData sect = sol
-							.getFaultSectionData(sectIndex);
+				for (int sectIndex = 0; sectIndex < rupSet.getNumSections(); sectIndex++) {
+					FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
 					Integer parentID = sect.getParentSectionId();
 					if (!parentIDs.contains(parentID)) {
 						parentIDs.add(parentID);
@@ -1729,10 +1688,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				SummedMagFreqDist nuclMFD = sol
 						.calcNucleationMFD_forParentSect(parentID, minX, maxX,
 								num);
-				SummedMagFreqDist nuclSubSeismoMFD = invSol
-						.getFinalSubSeismoOnFaultMFDForParent(parentID);
-				IncrementalMagFreqDist partMFD = sol
-						.calcParticipationMFD_forParentSect(parentID, minX,
+				SummedMagFreqDist nuclSubSeismoMFD = sol.getFinalSubSeismoOnFaultMFDForParent(parentID);
+				IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentID, minX,
 								maxX, num);
 
 				synchronized (this) {
@@ -1892,11 +1849,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return resized;
 		}
 
-		@Override
-		protected boolean usesInversionFSS() {
-			return true;
-		}
-
 	}
 
 	public static void writeJumpPlots(FaultSystemSolutionFetcher fetch,
@@ -1974,8 +1926,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			Map<IDPairing, Double> distances = distancesCache.get(fm);
 			debug(solIndex, "cache fetching");
@@ -1983,7 +1935,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				synchronized (this) {
 					distances = distancesCache.get(fm);
 					if (distances == null) {
-						distances = DeformationModelFetcher.calculateDistances(5d, sol.getFaultSectionDataList());
+						distances = DeformationModelFetcher.calculateDistances(
+								5d, sol.getRupSet().getFaultSectionDataList());
 						for (IDPairing pairing : Lists.newArrayList(distances.keySet()))
 								distances.put(pairing.getReversed(), distances.get(pairing));
 						distancesCache.putIfAbsent(fm, distances);
@@ -2044,11 +1997,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 				plotSolFuncs.add(toArray(solFractiles));
 				plotRupSetFuncs.add(toArray(rupSetFractiles));
 			}
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return false;
 		}
 
 	}
@@ -2130,8 +2078,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			Map<Integer, DeformationSection> dm = loadDM(fm);
 
@@ -2142,7 +2090,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					mappings = fmMappingsMap.get(fm);
 					if (mappings == null) {
 						mappings = MiniSectRecurrenceGen.buildSubSectMappings(
-								dm, sol.getFaultSectionDataList());
+								dm, sol.getRupSet().getFaultSectionDataList());
 						fmMappingsMap.putIfAbsent(fm, mappings);
 					}
 				}
@@ -2240,11 +2188,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 
-		@Override
-		protected boolean usesInversionFSS() {
-			return false;
-		}
-
 	}
 
 	public static void writeMisfitTables(FaultSystemSolutionFetcher fetch,
@@ -2279,20 +2222,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
 			VariableLogicTreeBranch vbr = new VariableLogicTreeBranch(branch,
 					null);
-			FaultModels fm = sol.getFaultModel();
-
-			InversionFaultSystemSolution invSol = null;
-
-			if (sol instanceof InversionFaultSystemSolution)
-				invSol = (InversionFaultSystemSolution) sol;
-			else
-				invSol = new InversionFaultSystemSolution(sol);
+			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			debug(solIndex, "calc/archiving");
-			misfitsMap.putIfAbsent(vbr, invSol.getMisfits());
+			misfitsMap.putIfAbsent(vbr, sol.getMisfits());
 			debug(solIndex, "done");
 		}
 
@@ -2308,11 +2244,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected void doFinalizePlot() {
 
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return true;
 		}
 
 	}
@@ -2383,8 +2314,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
+			FaultModels fm = rupSet.getFaultModel();
 
 			debug(solIndex, "cache fetching");
 			List<AveSlipConstraint> aveSlipConstraints = aveSlipConstraintsMap
@@ -2395,11 +2327,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					List<PaleoRateConstraint> paleoConstraints = null;
 					if (aveSlipConstraints == null) {
 						try {
-							aveSlipConstraints = AveSlipConstraint.load(sol
+							aveSlipConstraints = AveSlipConstraint.load(rupSet
 									.getFaultSectionDataList());
 							paleoConstraints = UCERF3_PaleoRateConstraintFetcher
-									.getConstraints(sol
-											.getFaultSectionDataList());
+									.getConstraints(rupSet.getFaultSectionDataList());
 						} catch (IOException e) {
 							ExceptionUtils.throwAsRuntimeException(e);
 						}
@@ -2408,14 +2339,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 								.newConcurrentMap();
 						for (AveSlipConstraint constr : aveSlipConstraints)
 							rupsForSectsLists.putIfAbsent(constr
-									.getSubSectionIndex(), sol
-									.getRupturesForSection(constr
-											.getSubSectionIndex()));
+									.getSubSectionIndex(), rupSet.getRupturesForSection(
+											constr.getSubSectionIndex()));
 						for (PaleoRateConstraint constr : paleoConstraints)
-							rupsForSectsLists.putIfAbsent(constr
-									.getSectionIndex(), sol
-									.getRupturesForSection(constr
-											.getSectionIndex()));
+							rupsForSectsLists.putIfAbsent(constr.getSectionIndex(),
+									rupSet.getRupturesForSection(constr.getSectionIndex()));
 						rupsForSectsMap.putIfAbsent(fm, rupsForSectsLists);
 						List<double[]> slipsList = Lists.newArrayList();
 						reducedSlipsMap.putIfAbsent(fm, slipsList);
@@ -2448,14 +2376,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 				AveSlipConstraint constr = aveSlipConstraints.get(i);
 				int subsectionIndex = constr.getSubSectionIndex();
 
-				slips[i] = sol.getSlipRateForSection(subsectionIndex);
+				slips[i] = rupSet.getSlipRateForSection(subsectionIndex);
 				proxyRates[i] = slips[i] / constr.getWeightedMean();
 				double obsRate = 0d;
 				for (int rupID : rupsForSectsLists.get(constr
 						.getSubSectionIndex())) {
-					int sectIndexInRup = sol.getSectionsIndicesForRup(rupID)
+					int sectIndexInRup = rupSet.getSectionsIndicesForRup(rupID)
 							.indexOf(subsectionIndex);
-					double slipOnSect = sol.getSlipOnSectionsForRup(rupID)[sectIndexInRup];
+					double slipOnSect = rupSet.getSlipOnSectionsForRup(rupID)[sectIndexInRup];
 					double probVisible = AveSlipConstraint
 							.getProbabilityOfObservedSlip(slipOnSect);
 					obsRate += sol.getRateForRup(rupID) * probVisible;
@@ -2475,7 +2403,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (int rupID : rupsForSectsLists
 						.get(constr.getSectionIndex())) {
 					obsRate += sol.getRateForRup(rupID)
-							* paleoProbModel.getProbPaleoVisible(sol, rupID,
+							* paleoProbModel.getProbPaleoVisible(rupSet, rupID,
 									constr.getSectionIndex());
 				}
 				paleoRates[i] = obsRate;
@@ -2524,15 +2452,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
-			SimpleFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher
+			InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher
 					.getUCERF2Solution(FaultModels.FM2_1);
 			List<AveSlipConstraint> ucerf2AveSlipConstraints;
 			List<PaleoRateConstraint> ucerf2PaleoConstraints;
 			try {
-				ucerf2AveSlipConstraints = AveSlipConstraint.load(ucerf2Sol
-						.getFaultSectionDataList());
+				ucerf2AveSlipConstraints = AveSlipConstraint.load(
+						ucerf2Sol.getRupSet().getFaultSectionDataList());
 				ucerf2PaleoConstraints = UCERF3_PaleoRateConstraintFetcher
-						.getConstraints(ucerf2Sol.getFaultSectionDataList());
+						.getConstraints(ucerf2Sol.getRupSet().getFaultSectionDataList());
 			} catch (IOException e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
@@ -2578,9 +2506,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 						line.add("");
 						line.add("");
 					} else {
-						double ucerf2SlipRate = ucerf2Sol
-								.getSlipRateForSection(ucerf2Constraint
-										.getSubSectionIndex());
+						double ucerf2SlipRate = ucerf2Sol.getRupSet().getSlipRateForSection(
+								ucerf2Constraint.getSubSectionIndex());
 						line.add(ucerf2SlipRate + "");
 						double ucerf2ProxyRate = ucerf2SlipRate
 								/ constr.getWeightedMean();
@@ -2685,12 +2612,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 
-		@Override
-		protected boolean usesInversionFSS() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
 	}
 
 	public static void writeMeanSolutions(FaultSystemSolutionFetcher fetch,
@@ -2733,7 +2654,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				// mutiple dms, use mean
 				dm = DeformationModels.MEAN_UCERF3;
 			
-			FaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
+			InversionFaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
 					InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(fm, dm));
 			
 			String info = reference.getInfoString();
@@ -2747,19 +2668,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				clusterSects.add(reference.getSectionsForCluster(i));
 			}
 			
-			SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-					reference.getFaultSectionDataList(), mags, reference.getAveSlipForAllRups(),
-					reference.getSlipOnSectionsForAllRups(), reference.getSlipAlongRuptureModel(),
-					reference.getSlipRateForAllSections(), reference.getSlipRateStdDevForAllSections(),
-					reference.getAveRakeForAllRups(), reference.getAreaForAllRups(),
-					reference.getAreaForAllSections(), reference.getSectionIndicesForAllRups(),
-					info, reference.getCloseSectionsListList(), fm, reference.getDeformationModel(),
-					clusterRups, clusterSects);
+			// first build the rup set
+			InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
+					reference, reference.getLogicTreeBranch(), laughTest,
+					reference.getAveRakeForAllRups(), reference.getCloseSectionsListList(),
+					reference.getRupturesForClusters(), reference.getSectionsForClusters());
+			rupSet.setMagForallRups(mags);
 			
 			GridSourceProvider gridSources = new GridSourceFileReader(region,
 					plot.nodeSubSeisMFDsMap.get(fm), plot.nodeUnassociatedMFDsMap.get(fm));
+			InversionFaultSystemSolution sol = new InversionFaultSystemSolution(rupSet, rates);
+			sol.setGridSourceProvider(gridSources);
 			
-			new SimpleFaultSystemSolution(rupSet, rates, gridSources).toZipFile(outputFile);
+			FaultSystemIO.writeSol(sol, outputFile);
 		}
 	}
 	
@@ -2783,20 +2704,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			FaultModels fm = sol.getFaultModel();
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
+			FaultModels fm = rupSet.getFaultModel();
 			
-			int numRups = sol.getNumRuptures();
-			
-			InversionFaultSystemSolution invSol;
-			if (sol instanceof InversionFaultSystemSolution)
-				invSol = (InversionFaultSystemSolution)sol;
-			else
-				invSol = new InversionFaultSystemSolution(sol);
+			int numRups = rupSet.getNumRuptures();
 			
 			double weight = weightProvider.getWeight(branch);
 			
-			GridSourceProvider gridSources = invSol.getGridSourceProvider();
+			GridSourceProvider gridSources = sol.getGridSourceProvider();
 			
 			Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = Maps.newHashMap();
 			Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = Maps.newHashMap();
@@ -2831,7 +2747,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 				
 				addWeighted(ratesMap.get(fm), sol.getRateForAllRups(), weight);
-				addWeighted(magsMap.get(fm), sol.getMagForAllRups(), weight);
+				addWeighted(magsMap.get(fm), rupSet.getMagForAllRups(), weight);
 				
 				synchronized (defModelsMap) {
 					defModelsMap.get(fm).add(branch.getValue(DeformationModels.class));
@@ -2923,11 +2839,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 			}
 		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return true;
-		}
 		
 	}
 
@@ -2988,7 +2899,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
 			int myCnt = cnt++;
 			debug(solIndex, "Processing solution " + myCnt);
 
@@ -2997,7 +2909,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				return;
 
 			double[] solSlips = sol.calcSlipRateForAllSects();
-			double[] targetSlips = sol.getSlipRateForAllSections();
+			double[] targetSlips = rupSet.getSlipRateForAllSections();
 //			double[] ratios = new double[solSlips.length];
 //			double[] fractDiffs = new double[solSlips.length];
 //			for (int i = 0; i < solSlips.length; i++) {
@@ -3014,18 +2926,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 //				}
 //			}
 
-			FaultModels fm = sol.getFaultModel();
+			FaultModels fm = rupSet.getFaultModel();
 
 			if (!sectDatasMap.containsKey(fm)) {
-				sectDatasMap.putIfAbsent(fm, sol.getFaultSectionDataList());
+				sectDatasMap.putIfAbsent(fm, rupSet.getFaultSectionDataList());
 			}
 			
 			if (!parentSectsMap.containsKey(fm)) {
 				Map<String, List<Integer>> parentsMap = Maps.newHashMap();
 				List<Integer> sects = Lists.newArrayList();
-				String prevParentName = sol.getFaultSectionData(0).getParentSectionName();
-				for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
-					String parentName = sol.getFaultSectionData(sectIndex).getParentSectionName();
+				String prevParentName =rupSet.getFaultSectionData(0).getParentSectionName();
+				for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+					String parentName = rupSet.getFaultSectionData(sectIndex).getParentSectionName();
 					if (!parentName.equals(prevParentName)) {
 						parentsMap.put(prevParentName, sects);
 						prevParentName = parentName;
@@ -3215,11 +3127,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		@Override
-		protected boolean usesInversionFSS() {
-			return false;
-		}
-
-		@Override
 		protected List<MapPlotData> getPlotData() {
 			return plots;
 		}
@@ -3262,7 +3169,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
 			int myCnt = cnt++;
 			debug(solIndex, "Processing solution " + myCnt);
 
@@ -3270,18 +3178,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 			if (weight == 0)
 				return;
 
-			FaultModels fm = sol.getFaultModel();
+			FaultModels fm = rupSet.getFaultModel();
 
-			double[] aveSlips = new double[sol.getNumSections()];
-			double[] avePaleoSlips = new double[sol.getNumSections()];
+			double[] aveSlips = new double[rupSet.getNumSections()];
+			double[] avePaleoSlips = new double[rupSet.getNumSections()];
 			for (int i = 0; i < aveSlips.length; i++) {
 				aveSlips[i] = sol.calcSlipPFD_ForSect(i).getMean();
 				avePaleoSlips[i] = sol.calcPaleoObsSlipPFD_ForSect(i).getMean();
 			}
 
 			if (!faultsMap.containsKey(fm)) {
-				List<LocationList> faults = FaultBasedMapGen.getTraces(sol
-						.getFaultSectionDataList());
+				List<LocationList> faults = FaultBasedMapGen.getTraces(rupSet.getFaultSectionDataList());
 				faultsMap.putIfAbsent(fm, faults);
 			}
 
@@ -3386,11 +3293,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		@Override
-		protected boolean usesInversionFSS() {
-			return false;
-		}
-
-		@Override
 		protected List<MapPlotData> getPlotData() {
 			return plots;
 		}
@@ -3442,11 +3344,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
 			int myCnt = cnt++;
 			debug(solIndex, "Processing solution " + myCnt);
+			
+			InversionFaultSystemRupSet rupSet = sol.getRupSet();
 
-			FaultModels fm = sol.getFaultModel();
+			FaultModels fm = rupSet.getFaultModel();
 
 			debug(solIndex, "cache fetching");
 			Map<Integer, int[]> sectsByParents = sectsByParentsMap.get(fm);
@@ -3457,8 +3361,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 						sectsByParents = Maps.newHashMap();
 						HashSet<Integer> parentsSet = new HashSet<Integer>();
-						for (FaultSectionPrefData sect : sol
-								.getFaultSectionDataList()) {
+						for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
 							parentsSet.add(sect.getParentSectionId());
 							parentNamesMap.putIfAbsent(
 									sect.getParentSectionId(),
@@ -3477,17 +3380,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 							// use hashset to avoid duplicates
 							HashSet<Integer> parentsByParentsSet = new HashSet<Integer>();
 
-							List<Integer> rups = sol
-									.getRupturesForParentSection(parentID);
+							List<Integer> rups = rupSet.getRupturesForParentSection(parentID);
 							rupsForParents.put(parentID, rups);
 
 							for (Integer rupID : rups) {
-								for (Integer sectIndex : sol
-										.getSectionsIndicesForRup(rupID)) {
+								for (Integer sectIndex : rupSet.getSectionsIndicesForRup(rupID)) {
 									subSectsSet.add(sectIndex);
-									parentsByParentsSet.add(sol
-											.getFaultSectionData(sectIndex)
-											.getParentSectionId());
+									parentsByParentsSet.add(
+											rupSet.getFaultSectionData(sectIndex).getParentSectionId());
 								}
 							}
 
@@ -3534,10 +3434,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 				int[] sectsInvolved = sectsByParents.get(parentID);
 				double[] parentRates = new double[sectsInvolved.length];
 				for (Integer rupID : rupsMap.get(parentID)) {
-					if (sol.getMagForRup(rupID) < minMag)
+					if (rupSet.getMagForRup(rupID) < minMag)
 						continue;
 					double rate = sol.getRateForRup(rupID);
-					for (int sectID : sol.getSectionsIndicesForRup(rupID)) {
+					for (int sectID : rupSet.getSectionsIndicesForRup(rupID)) {
 						int sectIndexInArray = Arrays.binarySearch(
 								sectsInvolved, sectID);
 						parentRates[sectIndexInArray] += rate;
@@ -3547,8 +3447,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 
 			if (!faultsMap.containsKey(fm)) {
-				List<LocationList> faults = FaultBasedMapGen.getTraces(sol
-						.getFaultSectionDataList());
+				List<LocationList> faults = FaultBasedMapGen.getTraces(
+						rupSet.getFaultSectionDataList());
 				faultsMap.putIfAbsent(fm, faults);
 			}
 
@@ -3711,11 +3611,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		@Override
-		protected boolean usesInversionFSS() {
-			return false;
-		}
-
-		@Override
 		protected List<MapPlotData> getPlotData() {
 			return plots;
 		}
@@ -3767,7 +3662,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
+				InversionFaultSystemSolution sol, int solIndex) {
 			double weight = weightProvider.getWeight(branch);
 			if (weight == 0)
 				return;
@@ -3779,12 +3674,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				myValues.add(sol.calcParticRateForAllSects(range[0], range[1]));
 			}
 
-			FaultModels fm = sol.getFaultModel();
+			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			debug(solIndex, "trace building");
 			if (!faultsMap.containsKey(fm)) {
-				List<LocationList> faults = FaultBasedMapGen.getTraces(sol
-						.getFaultSectionDataList());
+				List<LocationList> faults = FaultBasedMapGen.getTraces(
+						sol.getRupSet().getFaultSectionDataList());
 				faultsMap.putIfAbsent(fm, faults);
 			}
 
@@ -3957,11 +3852,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 		@Override
-		protected boolean usesInversionFSS() {
-			return false;
-		}
-
-		@Override
 		protected List<MapPlotData> getPlotData() {
 			return plots;
 		}
@@ -4032,9 +3922,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
-				FaultSystemSolution sol, int solIndex) {
-			processERF(branch, new UCERF3_FaultSysSol_ERF(
-					(InversionFaultSystemSolution) sol), 0);
+				InversionFaultSystemSolution sol, int solIndex) {
+			processERF(branch, new UCERF3_FaultSysSol_ERF(sol), 0);
 		}
 
 		@Override
@@ -4317,11 +4206,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected List<MapPlotData> getPlotData() {
 			return plots;
-		}
-
-		@Override
-		protected boolean usesInversionFSS() {
-			return true;
 		}
 
 		@Override
@@ -4773,7 +4657,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 *            TODO
 	 */
 	protected abstract void processSolution(LogicTreeBranch branch,
-			FaultSystemSolution sol, int solIndex);
+			InversionFaultSystemSolution sol, int solIndex);
 
 	/**
 	 * This is used when doing distributed calculations. This method will be
@@ -4800,11 +4684,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		watch.stop();
 		addToFinalizeTimeCount(watch.elapsed(TimeUnit.MILLISECONDS));
 	}
-
-	/**
-	 * @return true if this plotter uses InversionFaultSystemSolution objects
-	 */
-	protected abstract boolean usesInversionFSS();
 
 	protected boolean usesERFs() {
 		return false;
@@ -4947,7 +4826,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Collection<CompoundFSSPlots> plots;
 		private FaultSystemSolutionFetcher fetcher;
 		private LogicTreeBranch branch;
-		private boolean invFSS;
 		private boolean mpj;
 		private UCERF3_FaultSysSol_ERF erf;
 		private int index;
@@ -4956,17 +4834,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		public PlotSolComputeTask(Collection<CompoundFSSPlots> plots,
 				FaultSystemSolutionFetcher fetcher, LogicTreeBranch branch,
-				boolean invFSS, int index) {
-			this(plots, fetcher, branch, invFSS, false, index);
+				int index) {
+			this(plots, fetcher, branch, false, index);
 		}
 
 		public PlotSolComputeTask(Collection<CompoundFSSPlots> plots,
 				FaultSystemSolutionFetcher fetcher, LogicTreeBranch branch,
-				boolean invFSS, boolean mpj, int index) {
+				boolean mpj, int index) {
 			this.plots = plots;
 			this.fetcher = fetcher;
 			this.branch = branch;
-			this.invFSS = invFSS;
 			this.mpj = mpj;
 			this.index = index;
 		}
@@ -4992,12 +4869,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				overheadWatch.start();
 				debug("Fetching solution");
-				FaultSystemSolution sol = fetcher.getSolution(branch);
+				InversionFaultSystemSolution sol = fetcher.getSolution(branch);
 
-				if (invFSS) {
-					debug("Building IFSS");
-					sol = new InversionFaultSystemSolution(sol);
-				}
 				overheadWatch.stop();
 
 				for (CompoundFSSPlots plot : plots) {
@@ -5047,27 +4920,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	public static void batchPlot(Collection<CompoundFSSPlots> plots,
 			FaultSystemSolutionFetcher fetcher, int threads) {
-		boolean invFSS = false;
-		for (CompoundFSSPlots plot : plots) {
-			if (plot.usesInversionFSS() || plot.usesERFs()) {
-				invFSS = true;
-				break;
-			}
-		}
 
 		List<Task> tasks = Lists.newArrayList();
 		int index = 0;
 		for (LogicTreeBranch branch : fetcher.getBranches()) {
-			tasks.add(new PlotSolComputeTask(plots, fetcher, branch, invFSS,
+			tasks.add(new PlotSolComputeTask(plots, fetcher, branch,
 					index++));
 		}
 
 		System.out.println("Making " + plots.size() + " plot(s) with "
 				+ tasks.size() + " branches");
-
-		// InvFSS objects use tons of memory
-		if (invFSS && threads > 4)
-			threads = 4;
 
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
 		try {

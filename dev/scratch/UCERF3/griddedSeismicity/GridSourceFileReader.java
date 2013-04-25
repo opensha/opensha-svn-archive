@@ -17,8 +17,8 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -198,7 +198,7 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 	public static void main(String[] args) throws IOException, DocumentException {
 		File fssFile = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_" +
 				"NoFix_SpatSeisU3_VarPaleo0.6_VarSmoothPaleoSect1000_VarSectNuclMFDWt0.01_sol.zip");
-		InversionFaultSystemSolution ivfss = new InversionFaultSystemSolution(SimpleFaultSystemSolution.fromFile(fssFile));
+		InversionFaultSystemSolution ivfss = FaultSystemIO.loadInvSol(fssFile);
 		UCERF3_GridSourceGenerator srcGen = new UCERF3_GridSourceGenerator(ivfss);
 		
 		GriddedRegion region = srcGen.getGriddedRegion();
