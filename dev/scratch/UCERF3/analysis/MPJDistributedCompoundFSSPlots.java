@@ -52,8 +52,6 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 	private List<LogicTreeBranch> branches;
 	private List<CompoundFSSPlots> plots;
 	
-	private boolean invFSS;
-	
 	private int threads;
 	
 	private int myCalcs = 0;
@@ -102,21 +100,9 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			branches = filtered;
 		}
 		
-		invFSS = false;
-		for (CompoundFSSPlots plot : plots) {
-			if (plot.usesInversionFSS() || plot.usesERFs()) {
-				invFSS = true;
-				break;
-			}
-		}
-		
 		this.fetcher = fetcher;
 		this.plots = plots;
 		this.threads = getNumThreads();
-		
-		// InvFSS objects use tons of memory
-		if (invFSS && threads > 4)
-			threads = 4;
 	}
 
 	@Override
@@ -132,7 +118,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			LogicTreeBranch branch = branches.get(index);
 			List<CompoundFSSPlots> myPlots = Lists.newArrayList(plots);
 			Collections.shuffle(myPlots);
-			tasks.add(new PlotSolComputeTask(myPlots, fetcher, branch, invFSS, true, index));
+			tasks.add(new PlotSolComputeTask(myPlots, fetcher, branch, true, index));
 		}
 		
 		debug("Making "+plots.size()+" plot(s) with "+tasks.size()+" branches");

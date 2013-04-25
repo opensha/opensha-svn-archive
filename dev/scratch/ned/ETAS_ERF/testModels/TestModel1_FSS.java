@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -37,7 +38,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * @author field
  *
  */
-public class TestModel1_FSS extends FaultSystemSolution {
+public class TestModel1_FSS extends InversionFaultSystemSolution {
 	
 	final static boolean D = false;	// debug flag
 	

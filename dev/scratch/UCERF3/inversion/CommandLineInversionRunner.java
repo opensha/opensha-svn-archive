@@ -862,7 +862,7 @@ public class CommandLineInversionRunner {
 	}
 
 	public static void writePaleoPlots(ArrayList<PaleoRateConstraint> paleoRateConstraints,
-			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol,
+			List<AveSlipConstraint> aveSlipConstraints, InversionFaultSystemSolution sol,
 			File dir, String prefix)
 	throws IOException {
 		HeadlessGraphPanel gp = PaleoFitPlotter.getHeadlessSegRateComparison(
@@ -1432,7 +1432,7 @@ public class CommandLineInversionRunner {
 	}
 
 	public static void writePaleoCorrelationPlots(
-			FaultSystemSolution sol, File dir, PaleoProbabilityModel paleoProb) throws IOException {
+			InversionFaultSystemSolution sol, File dir, PaleoProbabilityModel paleoProb) throws IOException {
 		Map<String, Table<String, String, PaleoSiteCorrelationData>> tables =
 				PaleoSiteCorrelationData.loadPaleoCorrelationData(sol);
 		
@@ -1481,7 +1481,7 @@ public class CommandLineInversionRunner {
 
 	public static void writePaleoFaultPlots(
 			List<PaleoRateConstraint> paleoRateConstraints,
-			List<AveSlipConstraint> aveSlipConstraints, FaultSystemSolution sol, File dir)
+			List<AveSlipConstraint> aveSlipConstraints, InversionFaultSystemSolution sol, File dir)
 					throws IOException {
 		Map<String, PlotSpec[]> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
 				paleoRateConstraints, aveSlipConstraints, sol);

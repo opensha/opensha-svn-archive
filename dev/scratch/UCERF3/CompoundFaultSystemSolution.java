@@ -31,6 +31,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.BatchPlotGen;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
@@ -80,14 +81,16 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 
 	@Override
-	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+	protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 		try {
 			Map<String, String> nameRemappings = getRemappings(branch);
 			FaultSystemSolution sol = FaultSystemIO.loadSolAsApplicable(zip, nameRemappings);
+			Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
+					"Non IVFSS in Compound Sol?");
 			
 			// TODO cache all of the values?
 			
-			return sol;
+			return (InversionFaultSystemSolution)sol;
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
@@ -150,17 +153,18 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * rakes.bin					FM, DM
 	 * rates.bin					ALL
 	 * rup_areas.bin				FM, DM
+	 * rup_lengths.bin				FM
 	 * rup_avg_slips.bin			FM, DM, Scale
 	 * rup_sec_slip_type.txt		N/A
 	 * rup_sections.bin				FM
 	 * sect_areas.bin				FM, DM
 	 * sect_slips.bin				ALL BUT Dsr
 	 * sect_slips_std_dev.bin		ALL BUT Dsr
+	 * inv_rup_set_metadata.xml		ALL
+	 * inversion_metadata.xml		ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
-	// TODO ADD rup_lengths.bin
-	// TODO ADD inversion_metadata.xml
 	private static Map<String, List<Class<? extends LogicTreeBranchNode<?>>>> dependencyMap;
 	static {
 		dependencyMap = Maps.newHashMap();
@@ -174,8 +178,9 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("rates.bin", null);
 		dependencyMap.put("rup_areas.bin", buildList(FaultModels.class, DeformationModels.class));
+		dependencyMap.put("rup_lengths.bin", buildList(FaultModels.class));
 		dependencyMap.put("rup_avg_slips.bin", buildList(FaultModels.class, DeformationModels.class, ScalingRelationships.class));
-		dependencyMap.put("rup_sec_slip_type.txt", null);
+		dependencyMap.put("rup_sec_slip_type.txt", null); // kept for backwards compatibility
 		dependencyMap.put("rup_sections.bin", buildList(FaultModels.class));
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("sect_areas.bin", buildList(FaultModels.class, DeformationModels.class));
@@ -185,6 +190,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("sect_slips_std_dev.bin", buildList(FaultModels.class, DeformationModels.class,
 				ScalingRelationships.class, InversionModels.class, TotalMag5Rate.class,
 				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
+		dependencyMap.put("inv_rup_set_metadata.xml", null);
+		dependencyMap.put("inversion_metadata.xml", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(

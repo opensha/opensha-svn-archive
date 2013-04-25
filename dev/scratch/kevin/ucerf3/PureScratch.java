@@ -95,13 +95,6 @@ public class PureScratch {
 		System.exit(0);
 		
 		
-		File zipFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/" +
-				"InversionSolutions/NCAL_Model1.zip");
-		SimpleFaultSystemSolution.fromZipFile(zipFile).toXMLFile(
-				new File(zipFile.getAbsolutePath().replaceAll(".zip", ".xml")));
-		System.exit(0);
-		
-		
 		// this get's the DB accessor (version 3)
 		DB_AccessAPI db = DB_ConnectionPool.getDB3ReadOnlyConn();
 

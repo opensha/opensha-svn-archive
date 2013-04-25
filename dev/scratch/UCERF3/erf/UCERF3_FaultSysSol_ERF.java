@@ -61,13 +61,20 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	}
 
 	@Override
+	protected void setSolution(FaultSystemSolution sol) {
+		// ensure it's an IFSS
+		Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
+				"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
+		super.setSolution(sol);
+	}
+
+	@Override
 	protected void initOtherSources() {
 			System.out.println("Initing other sources...");
 			
-			Preconditions.checkState(faultSysSolution instanceof InversionFaultSystemSolution,
-					"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
 			
-			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)faultSysSolution;
+			// guarenteed to already be an IFSS as we checked earlier
+			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)getSolution();
 
 			// fetch grid sources from solution. By default this will be a UC3_GridSourceGenerator
 			// unless the grid sources have been cached or averaged (for a mean solution).

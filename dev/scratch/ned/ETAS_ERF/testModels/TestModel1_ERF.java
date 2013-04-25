@@ -88,7 +88,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		magLengthRel = new WC1994_MagLengthRelationship();
 		
 		// get the point sources that are on the fault
-		LocationList pointLocsOnFault = ((TestModel1_FSS)faultSysSolution).getPointLocsOnFault();
+		LocationList pointLocsOnFault = ((TestModel1_FSS)invSol).getPointLocsOnFault();
 		locIndicesOnFault = new ArrayList<Integer>();
 		for(Location loc : pointLocsOnFault){
 			int index = griddedRegion.indexForLocation(loc);
@@ -99,9 +99,9 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 
 		// the following is the target MFD (down to M 2.5)
-		GutenbergRichterMagFreqDist  targetFaultGR = ((TestModel1_FSS)faultSysSolution).getTargetFaultGR();
+		GutenbergRichterMagFreqDist  targetFaultGR = ((TestModel1_FSS)invSol).getTargetFaultGR();
 		// the following is the MFD for the fault (seismogenic and larger)
-		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)faultSysSolution).getFaultGR();
+		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)invSol).getFaultGR();
 		
 		double offFaultSeisReductionFactor = 1;
 //		double offFaultSeisReductionFactor = 10;
@@ -257,7 +257,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		double[] srcTrigProb = etas_PrimEventSampler.getTriggerProbOfEachSource(mainShock);
 		
 		System.out.println("getting rupsThatOverlap");
-		List<Integer> rupsThatOverlap = ((TestModel1_FSS)faultSysSolution).getRupsThatOverlapGivenRup(rthRup, 11);
+		List<Integer> rupsThatOverlap = ((TestModel1_FSS)invSol).getRupsThatOverlapGivenRup(rthRup, 11);
 		
 		System.out.println("rupsThatOverlap.size()="+rupsThatOverlap.size());
 		

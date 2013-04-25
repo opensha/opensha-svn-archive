@@ -28,7 +28,9 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class UCERF2_PaleoRateConstraintFetcher {
@@ -100,12 +102,12 @@ public class UCERF2_PaleoRateConstraintFetcher {
 		int numSolSects = -1;
 		for (FaultSystemSolution sol : solutions) {
 			if (numSolSects < 0)
-				numSolSects = sol.getNumSections();
-			Preconditions.checkArgument(sol.getNumSections() == numSolSects,
+				numSolSects = sol.getRupSet().getNumSections();
+			Preconditions.checkArgument(sol.getRupSet().getNumSections() == numSolSects,
 			"num sections is inconsistant between solutions!");
 		}
 
-		List<FaultSectionPrefData> datas = solutions.get(0).getFaultSectionDataList();
+		List<FaultSectionPrefData> datas = solutions.get(0).getRupSet().getFaultSectionDataList();
 
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
@@ -175,6 +177,7 @@ public class UCERF2_PaleoRateConstraintFetcher {
 
 				for (int i=0; i<solutions.size(); i++) {
 					FaultSystemSolution sol = solutions.get(i);
+					FaultSystemRupSet rupSet = sol.getRupSet();
 					Color color = GraphPanel.defaultColor[i % GraphPanel.defaultColor.length];
 
 					EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc((double)x, numSects, 1d);
@@ -182,9 +185,10 @@ public class UCERF2_PaleoRateConstraintFetcher {
 					for (int j=0; j<numSects; j++) {
 						double rate = 0;
 						int mySectID = minSect + j;
-						for (int rupID : sol.getRupturesForSection(mySectID))
+						for (int rupID : rupSet.getRupturesForSection(mySectID))
 							// TODO is this the right value here?
-							rate += sol.getRateForRup(rupID) * paleoProbModel.getProbPaleoVisible(sol.getMagForRup(rupID), Double.NaN);
+							rate += sol.getRateForRup(rupID) * paleoProbModel.getProbPaleoVisible(
+									rupSet.getMagForRup(rupID), Double.NaN);
 						func.set(j, rate);
 					}
 					funcs.add(func);
@@ -211,9 +215,9 @@ public class UCERF2_PaleoRateConstraintFetcher {
 		File precomp = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		File rupSetsDir = new File(precomp, "FaultSystemRupSets");
 		ArrayList<FaultSystemSolution> sols = new ArrayList<FaultSystemSolution>();
-		sols.add(SimpleFaultSystemSolution.fromFile(new File(rupSetsDir, "UCERF2.xml")));
-		sols.add(SimpleFaultSystemSolution.fromFile(new File(rupSetsDir, "Model1.xml")));
+		sols.add(FaultSystemIO.loadSol(new File(rupSetsDir, "UCERF2.xml")));
+		sols.add(FaultSystemIO.loadSol(new File(rupSetsDir, "Model1.xml")));
 
-		showSegRateComparison(getConstraints(sols.get(0).getFaultSectionDataList()), sols);
+		showSegRateComparison(getConstraints(sols.get(0).getRupSet().getFaultSectionDataList()), sols);
 	}
 }

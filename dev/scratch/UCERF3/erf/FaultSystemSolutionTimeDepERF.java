@@ -61,6 +61,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 
 import scratch.UCERF3.FaultSystemSolution;
@@ -69,6 +70,8 @@ import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSamplerAlt;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSampler;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
@@ -104,6 +107,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	public final static double MILLISEC_PER_YEAR = 1000*60*60*24*365.25;
 	public final static long MILLISEC_PER_DAY = 1000*60*60*24;
+	
+	protected InversionFaultSystemRupSet invRupSet;
+	protected InversionFaultSystemSolution invSol;
 	
 	// this is the probability gain for each fault system source
 	double[] probGainForFaultSystemSource;
@@ -150,10 +156,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
 	 * from the adjustable parameter list (to prevent changes after instantiation).
-	 * @param faultSysSolution
+	 * @param invSol
 	 */
-	public FaultSystemSolutionTimeDepERF(FaultSystemSolution faultSysSolution) {
-		super(faultSysSolution);
+	public FaultSystemSolutionTimeDepERF(FaultSystemSolution invSol) {
+		super(invSol);
 		initAdjustableParams();
 		initiateTimeSpan();
 		aleatoryMagAreaStdDevChanged = true;	// set so everything is updated in updateForecast()
@@ -182,6 +188,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		initiateTimeSpan();
 	}
 	
+	@Override
+	protected void setSolution(FaultSystemSolution sol) {
+		Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
+				"Only Inversion Fault System Solutions can be used with Time Dependent FSS ERF");
+		this.invSol = (InversionFaultSystemSolution)sol;
+		if (invSol != null)
+			invRupSet = invSol.getRupSet();
+		super.setSolution(sol);
+	}
+
+
 	/**
 	 * This initializes the reference BPT calculator & bptTimeToPoisCondProbFunc.
 	 */
@@ -193,17 +210,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		bptTimeToPoisCondProbFunc = getBPT_TimeToPoisCondProbFunc(bpt_Aperiodicity);
 		
 		// TODO the following could be created only in simulation mode (to reduce memory)
-		areaForSect = new double[faultSysSolution.getNumSections()];
-		for(int s=0; s<faultSysSolution.getNumSections();s++) {
-			double ddw = faultSysSolution.getFaultSectionData(s).getReducedDownDipWidth();
-			double length = faultSysSolution.getFaultSectionData(s).getFaultTrace().getTraceLength();
+		areaForSect = new double[invSol.getRupSet().getNumSections()];
+		for(int s=0; s<invSol.getRupSet().getNumSections();s++) {
+			double ddw = invSol.getRupSet().getFaultSectionData(s).getReducedDownDipWidth();
+			double length = invSol.getRupSet().getFaultSectionData(s).getFaultTrace().getTraceLength();
 			areaForSect[s] = ddw*length;
 		}
 		
 		// Make local sectIndexArrayForSrcList for faster simulations
 		sectIndexArrayForSrcList = new ArrayList<int[]>();
 		for(int s=0; s<numNonZeroFaultSystemSources;s++) {
-			List<Integer> indexList = faultSysSolution.getSectionsIndicesForRup(fltSysRupIndexForSource[s]);
+			List<Integer> indexList = invSol.getRupSet().getSectionsIndicesForRup(fltSysRupIndexForSource[s]);
 			int[] indexArray = new int[indexList.size()];
 			for(int i=0;i<indexList.size();i++)
 				indexArray[i] = indexList.get(i);
@@ -212,8 +229,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// Make date of last event for section array for faster simulations 
 		// TODO = note that any actual values in the fault section data objects are not mapped in)
-		dateOfLastForSect = new long[faultSysSolution.getNumSections()];
-		for(int s=0; s<faultSysSolution.getNumSections();s++) {
+		dateOfLastForSect = new long[invSol.getRupSet().getNumSections()];
+		for(int s=0; s<invSol.getRupSet().getNumSections();s++) {
 			dateOfLastForSect[s]=Long.MIN_VALUE;
 		}
 
@@ -409,8 +426,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 			// reset slip and date of last event in fault section data
 			int fltSysIndex = fltSysRupIndexForNthRup[nthRup];
-			List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSysIndex);
-			double[] slipArray = faultSysSolution.getSlipOnSectionsForRup(fltSysIndex);
+			List<FaultSectionPrefData> fltData = invSol.getRupSet().getFaultSectionDataForRupture(fltSysIndex);
+			double[] slipArray = invSol.getRupSet().getSlipOnSectionsForRup(fltSysIndex);
 			for(int i=0; i< fltData.size(); i++) {
 				FaultSectionPrefData data = fltData.get(i);
 				data.setDateOfLastEvent(eventTimeInMillis);
@@ -431,7 +448,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @return
 	 */
 	protected double computeTimePredProbGainForFaultSysRup(int faultSysRupIndex) {
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(faultSysRupIndex);
+		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(faultSysRupIndex);
 		double aveExpRI=0, totArea=0, usedArea=0;
 		long sumDateOfLast = 0;
 		for(FaultSectionPrefData data: fltData) {
@@ -498,10 +515,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 */
 	private void initAveCondRecurIntervalForFltSysRups() {
 //		System.out.println("starting getRenewalRatesForFaultSysRups()");
-		aveCondRecurIntervalForFltSysRups = new double[faultSysSolution.getNumRuptures()];
-		longTermPartRateForSectArray = faultSysSolution.calcTotParticRateForAllSects();
-		for(int r=0;r<faultSysSolution.getNumRuptures(); r++) {
-			List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(r);
+		aveCondRecurIntervalForFltSysRups = new double[invRupSet.getNumRuptures()];
+		longTermPartRateForSectArray = invSol.calcTotParticRateForAllSects();
+		for(int r=0;r<invRupSet.getNumRuptures(); r++) {
+			List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(r);
 			double aveRate=0, totArea=0;
 			for(FaultSectionPrefData data:fltData) {
 				int sectID = data.getSectionId();
@@ -549,7 +566,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @return
 	 */
 	private double getNormalizedRecurIntervalTimePred(int nthRup, long eventTimeInMillis) {
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSysRupIndexForNthRup[nthRup]);
+		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(fltSysRupIndexForNthRup[nthRup]);
 		double aveExpRI=0, totArea=0;
 		long aveDateOfLast = 0;
 		for(FaultSectionPrefData data: fltData) {
@@ -621,7 +638,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
 		double defaultAveDateOfLast =  (double)startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
 
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSystRupIndex);
+		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
 		allSectionsHadDateOfLast = true;
@@ -658,7 +675,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @return
 	 */
 	public long getAveDateOfLastEvent(int fltSystRupIndex) {
-		List<FaultSectionPrefData> fltData = faultSysSolution.getFaultSectionDataForRupture(fltSystRupIndex);
+		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
 		allSectionsHadDateOfLast = true;
@@ -895,7 +912,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 		int fltSysRupId = fltSysRupIndexForNthRup[nthRup];
 		
-		List<Integer> sectionIndices = faultSysSolution.getSectionsIndicesForRup(fltSysRupId);
+		List<Integer> sectionIndices = invRupSet.getSectionsIndicesForRup(fltSysRupId);
 
 //		long runtime = System.currentTimeMillis();
 		
@@ -904,7 +921,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 		// the following was a huge bottleneck
 //		for(Integer sectIndex: sectionIndices) {
-//			for(Integer rup:faultSysSolution.getRupturesForSection(sectIndex)) {
+//			for(Integer rup:invSol.getRupturesForSection(sectIndex)) {
 //				if(!fltSysRups.contains(rup)) // filter duplicates
 //					fltSysRups.add(rup);  				
 //			}
@@ -912,7 +929,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// this is much faster, but there still may be a faster way (use HashSet in first place?)
 		for(Integer sectIndex: sectionIndices) {
-			fltSysRups.addAll(faultSysSolution.getRupturesForSection(sectIndex));  				
+			fltSysRups.addAll(invRupSet.getRupturesForSection(sectIndex));  				
 		}
 		
 //		runtime -= System.currentTimeMillis();
@@ -986,7 +1003,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// list section properties
 		System.out.println("Section data:\n\tindex\tnormYrsSinceLast\ttimeOfLastMillis\tlongTermPartRate\tarea\tcurrentTimeMillis\tname\tflag");
-		List<FaultSectionPrefData> sectList = faultSysSolution.getFaultSectionDataForRupture(maxGainIndex);
+		List<FaultSectionPrefData> sectList = invRupSet.getFaultSectionDataForRupture(maxGainIndex);
 		
 		// compute default date of last event
 		double aveExpRI = aveCondRecurIntervalForFltSysRups[maxGainIndex];
@@ -1123,17 +1140,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		updateForecast();
 		
 		
-//		System.out.println("1918: "+faultSysSolution.getFaultSectionData(1918).getName());
-//		System.out.println("1923: "+faultSysSolution.getFaultSectionData(1923).getName());
-//		System.out.println("1817: "+faultSysSolution.getFaultSectionData(1817).getName());
-//		System.out.println("1827: "+faultSysSolution.getFaultSectionData(1827).getName());
+//		System.out.println("1918: "+invSol.getFaultSectionData(1918).getName());
+//		System.out.println("1923: "+invSol.getFaultSectionData(1923).getName());
+//		System.out.println("1817: "+invSol.getFaultSectionData(1817).getName());
+//		System.out.println("1827: "+invSol.getFaultSectionData(1827).getName());
 //		System.exit(0);
 
 		
 		// this is for storing the simulated rate of events for each section
-		double[] obsSectRateArray = new double[faultSysSolution.getNumSections()];
-		double[] obsSectRateArrayM6pt05to6pt65 = new double[faultSysSolution.getNumSections()];
-		double[] obsSectRateArrayM7pt95to8pt25 = new double[faultSysSolution.getNumSections()];
+		double[] obsSectRateArray = new double[invRupSet.getNumSections()];
+		double[] obsSectRateArrayM6pt05to6pt65 = new double[invRupSet.getNumSections()];
+		double[] obsSectRateArrayM7pt95to8pt25 = new double[invRupSet.getNumSections()];
 
 		
 		// make the target MFD
@@ -1334,18 +1351,18 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// write out test section rates
 		ArrayList<String> outStringList = new ArrayList<String>();
-		int numSect=faultSysSolution.getNumSections();
+		int numSect=invRupSet.getNumSections();
 		double[] predSectRateArrayM6pt05to6pt65 = new double[numSect];
 		double[] predSectRateArrayM7pt95to8pt25 = new double[numSect];
 		for(int s=0;s<numSect;s++) {
 			double partRateMlow=0;
 			double partRateMhigh=0;
-			for (int r : faultSysSolution.getRupturesForSection(s)) {
-				double mag = faultSysSolution.getMagForRup(r);
+			for (int r : invRupSet.getRupturesForSection(s)) {
+				double mag = invRupSet.getMagForRup(r);
 				if(mag>6 && mag<6.7)
-					partRateMlow += faultSysSolution.getRateForRup(r);
+					partRateMlow += invSol.getRateForRup(r);
 				else if (mag>7.9 && mag<8.3)
-					partRateMhigh = faultSysSolution.getRateForRup(r);
+					partRateMhigh = invSol.getRateForRup(r);
 			}
 			predSectRateArrayM6pt05to6pt65[s]=partRateMlow;
 			predSectRateArrayM7pt95to8pt25[s]=partRateMhigh;
@@ -1354,7 +1371,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					obsSectRateArrayM6pt05to6pt65[s]+"\t"+
 					predSectRateArrayM7pt95to8pt25[s]+"\t"+
 					obsSectRateArrayM7pt95to8pt25[s]+"\t"+
-					faultSysSolution.getFaultSectionData(s).getName()+"\n");
+					invRupSet.getFaultSectionData(s).getName()+"\n");
 		}
 //		if(!dataDir.exists()) dataDir.mkdir();
 		File resultsDir = new File(dirNameForSavingFiles);

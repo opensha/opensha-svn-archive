@@ -14,10 +14,12 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
 import com.google.common.collect.Maps;
@@ -82,7 +84,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		mfdNum = realOffFaultMFD.getNum();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
-		polyMgr = ifss.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
 
 		System.out.println("   initSectionMFDs() ...");
 		initSectionMFDs();
@@ -103,7 +105,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 				ifss.getFinalSubSeismoOnFaultMFD_List();
 
 		sectSubSeisMFDs = Maps.newHashMap();
-		List<FaultSectionPrefData> faults = ifss.getFaultSectionDataList();
+		List<FaultSectionPrefData> faults = ifss.getRupSet().getFaultSectionDataList();
 		for (int i = 0; i < faults.size(); i++) {
 			sectSubSeisMFDs.put(
 				faults.get(i).getSectionId(),
@@ -118,7 +120,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	 */
 	private void initNodeMFDs() {
 		nodeSubSeisMFDs = Maps.newHashMap();
-		for (FaultSectionPrefData sect : ifss.getFaultSectionDataList()) {
+		for (FaultSectionPrefData sect : ifss.getRupSet().getFaultSectionDataList()) {
 			int id = sect.getSectionId();
 			IncrementalMagFreqDist sectSubSeisMFD = sectSubSeisMFDs.get(id);
 			Map<Integer, Double> nodeFractions = polyMgr.getNodeFractions(id);
@@ -241,17 +243,16 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		//		scaleMFD(grMFD);
 		//		System.out.println(grMFD);
 
-		SimpleFaultSystemSolution tmp = null;
+		InversionFaultSystemSolution invFss = null;
 		try {
 			//			File f = new File("tmp/invSols/reference_ch_sol2.zip");
 //			File f = new File("/Users/pmpowers/projects/OpenSHA/tmp/invSols/refCH/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 			File f = new File("/Users/pmpowers/projects/OpenSHA/tmp/invSols/refGR/FM3_1_NEOK_EllB_DsrUni_GRUnconst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 			System.out.println(f.exists());
-			tmp = SimpleFaultSystemSolution.fromFile(f);
+			invFss = FaultSystemIO.loadInvSol(f);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(tmp);
 		
 		UCERF3_GridSourceGenerator gridGen = new UCERF3_GridSourceGenerator(invFss);
 		int numSrcs = gridGen.size();

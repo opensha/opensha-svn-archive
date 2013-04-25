@@ -30,6 +30,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.collect.Lists;
@@ -88,8 +89,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //	int lastSrcRequested = -1;
 //	ProbEqkSource currentSrc=null;
 
-	
-	protected FaultSystemSolution faultSysSolution;
+	// leave as a FaultSystemSolution for use with Simulator/other FSS
+	private FaultSystemSolution faultSysSolution;
 	protected int numNonZeroFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
 	int totNumRupsFromFaultSystem;					// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
@@ -115,7 +116,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 */
 	public FaultSystemSolutionPoissonERF(FaultSystemSolution faultSysSolution) {
 		this();
-		this.faultSysSolution=faultSysSolution;
+		setSolution(faultSysSolution);
 		// remove the fileParam from the adjustable parameter list
 		adjustableParams.removeParameter(fileParam);
 		aleatoryMagAreaStdDevChanged = true;	// set so everything is updated in updateForecast()
@@ -398,7 +399,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
 			long runTime = System.currentTimeMillis();
 			try {
-				faultSysSolution = FaultSystemIO.loadSol(file);
+				setSolution(FaultSystemIO.loadSol(file));
 				prevFile = file;
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -411,6 +412,17 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		}
 	}
 	
+	/**
+	 * Set the current solution. Can overridden to ensure it is a particular subclass.
+	 * @param sol
+	 */
+	protected void setSolution(FaultSystemSolution sol) {
+		this.faultSysSolution = sol;
+	}
+	
+	protected FaultSystemSolution getSolution() {
+		return faultSysSolution;
+	}
 
 	@Override
 	public String getName() {

@@ -101,14 +101,17 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 */
 	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates,
 			InversionConfiguration config, Map<String, Double> energies) {
-		super(rupSet, rates);
-		this.rupSet = rupSet;
-		this.branch = rupSet.getLogicTreeBranch();
-		this.invModel = branch.getValue(InversionModels.class);
+		super();
 		
-		// these can all be null
-		this.inversionConfiguration = config;
-		this.energies = energies;
+		init(rupSet, rates, config, energies);
+	}
+	
+	/**
+	 * Empty constructor, can be used by subclasses when needed.
+	 * Make sure to call init(...)!
+	 */
+	protected InversionFaultSystemSolution() {
+		
 	}
 
 	/**
@@ -143,6 +146,17 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //			System.out.flush();
 			throw e;
 		}
+	}
+	
+	protected void init(InversionFaultSystemRupSet rupSet, double[] rates,
+			InversionConfiguration config, Map<String, Double> energies) {
+		super.init(rupSet, rates, rupSet.getInfoString());
+		this.branch = rupSet.getLogicTreeBranch();
+		this.invModel = branch.getValue(InversionModels.class);
+		
+		// these can all be null
+		this.inversionConfiguration = config;
+		this.energies = energies;
 	}
 	
 	@Override

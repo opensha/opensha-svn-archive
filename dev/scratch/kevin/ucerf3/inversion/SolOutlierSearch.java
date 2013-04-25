@@ -17,7 +17,9 @@ import org.opensha.sha.faultSurface.FaultTrace;
 
 import com.google.common.base.Joiner;
 
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class SolOutlierSearch {
 
@@ -32,7 +34,7 @@ public class SolOutlierSearch {
 		File dir = new File(args[0]);
 		File saveDir = new File(args[1]);
 		File referenceSolFile = new File(args[2]);
-		SimpleFaultSystemSolution referenceSol = SimpleFaultSystemSolution.fromFile(referenceSolFile);
+		FaultSystemSolution referenceSol = FaultSystemIO.loadSol(referenceSolFile);
 		Region region = new CaliforniaRegions.RELM_TESTING();
 		
 		Region bayRegion = new CaliforniaRegions.SF_BOX_GRIDDED();
@@ -51,7 +53,7 @@ public class SolOutlierSearch {
 			if (!file.getName().endsWith("_sol.zip"))
 				continue;
 			System.out.println("Working on: "+file.getName());
-			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
+			FaultSystemSolution sol = FaultSystemIO.loadSol(file);
 			String prefix = file.getName().substring(0, file.getName().indexOf("_sol.zip"));
 			
 			double[] newVals = sol.calcParticRateForAllSects(minMag, maxMag);
@@ -69,7 +71,7 @@ public class SolOutlierSearch {
 			double[] diffs = new double[3];
 			diffs[0] = diff;
 			for (int i=0; i<newVals.length; i++) {
-				FaultTrace trace = sol.getFaultSectionData(i).getFaultTrace();
+				FaultTrace trace = sol.getRupSet().getFaultSectionData(i).getFaultTrace();
 				trace = FaultUtils.resampleTrace(trace, 10);
 				double myDiff = newVals[i] - refVals[i];
 				diffs[1] += myDiff * RegionUtils.getFractionInside(bayRegion, trace);

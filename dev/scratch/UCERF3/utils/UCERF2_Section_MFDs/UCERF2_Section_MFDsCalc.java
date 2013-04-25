@@ -46,6 +46,7 @@ import com.google.common.collect.Maps;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -341,11 +342,12 @@ public class UCERF2_Section_MFDsCalc {
 			makeMeanUCERF2_MFD_List();
 		
 		// get the UCERF2 mapped fault system solution
-		SimpleFaultSystemSolution fltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		InversionFaultSystemSolution fltSysSol =
+				UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		
 		// get list of parent section IDs
 		ArrayList<Integer> u2_parIds = new ArrayList<Integer>();
-		for(FaultSectionPrefData data : fltSysSol.getFaultSectionDataList()) {
+		for(FaultSectionPrefData data : fltSysSol.getRupSet().getFaultSectionDataList()) {
 			int parID = data.getParentSectionId();
 			if(!u2_parIds.contains(parID)) {
 				// check that we have this one here

@@ -37,7 +37,7 @@ public class ERFInsideSpeedTest {
 		File file = new File(dir, "2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip");
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution.fromZipFile(file);
 		
-		InversionFaultSystemSolution sol = new InversionFaultSystemSolution(fetch.iterator().next());
+		InversionFaultSystemSolution sol = fetch.iterator().next();
 		
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(sol);
 		

@@ -18,8 +18,10 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 
 /**
@@ -114,16 +116,17 @@ public class SectionMFD_constraint {
 	 * @param subSectIndex
 	 */
 	public SectionMFD_constraint(FaultSystemSolution fltSysSol, int subSectIndex) {
+		FaultSystemRupSet rupSet = fltSysSol.getRupSet();
 		origMinMag = 100;
 		maxMag = 0;
 		ArrayList<Double> rupMags = new ArrayList<Double>();
 		ArrayList<Double> rupNuclRates = new ArrayList<Double>();
 		
-		for (int r : fltSysSol.getRupturesForSection(subSectIndex)) {
+		for (int r : rupSet.getRupturesForSection(subSectIndex)) {
 			double rate = fltSysSol.getRateForRup(r);
 			if(rate>0) {
-				rupNuclRates.add(rate*fltSysSol.getAreaForSection(subSectIndex)/fltSysSol.getAreaForRup(r));
-				double mag = fltSysSol.getMagForRup(r);
+				rupNuclRates.add(rate*rupSet.getAreaForSection(subSectIndex)/rupSet.getAreaForRup(r));
+				double mag = rupSet.getMagForRup(r);
 //				System.out.println(rate+"\t"+mag);
 				rupMags.add(mag);
 				if(origMinMag>mag) 
@@ -203,18 +206,19 @@ public class SectionMFD_constraint {
 	 */
 
 	public SectionMFD_constraint(double minMag, FaultSystemSolution fltSysSol, int subSectIndex) {
+		FaultSystemRupSet rupSet = fltSysSol.getRupSet();
 		this.origMinMag=minMag;
 		this.maxMag=0; // computed below
 		
 		ArrayList<Integer> allSubsectIndicesForParent = new ArrayList<Integer>();
-		List<FaultSectionPrefData> sectDataList = fltSysSol.getFaultSectionDataList();
+		List<FaultSectionPrefData> sectDataList = rupSet.getFaultSectionDataList();
 		int parIndex = sectDataList.get(subSectIndex).getParentSectionId();
 		double totParSectArea = 0;
 		for(FaultSectionPrefData sectData : sectDataList) {
 			if(sectData.getParentSectionId() == parIndex) {
 				allSubsectIndicesForParent.add(sectData.getSectionId());
 				totParSectArea += sectData.getReducedDownDipWidth()*sectData.getTraceLength();
-				double mMax = fltSysSol.getMaxMagForSection(sectData.getSectionId());
+				double mMax = rupSet.getMaxMagForSection(sectData.getSectionId());
 				if(maxMag<mMax) maxMag=mMax;
 			}
 		}
@@ -228,11 +232,11 @@ public class SectionMFD_constraint {
 		ArrayList<Double> rupNuclRates = new ArrayList<Double>();
 
 		for(int sthSubSectIndex:allSubsectIndicesForParent) {
-			for (int r : fltSysSol.getRupturesForSection(sthSubSectIndex)) {
+			for (int r : rupSet.getRupturesForSection(sthSubSectIndex)) {
 				double rate = fltSysSol.getRateForRup(r);
 				if(rate>0) {
-					double rupNuclRate = rate*fltSysSol.getAreaForSection(subSectIndex)/fltSysSol.getAreaForRup(r);
-					double mag = fltSysSol.getMagForRup(r);
+					double rupNuclRate = rate*rupSet.getAreaForSection(subSectIndex)/rupSet.getAreaForRup(r);
+					double mag = rupSet.getMagForRup(r);
 					rupMags.add(mag);
 					rupNuclRates.add(rupNuclRate);
 					for(int i=0;i<mags.size();i++) {	// loop over mag bins
@@ -739,7 +743,8 @@ public class SectionMFD_constraint {
 		// TODO Auto-generated method stub
 		
 		
-		SimpleFaultSystemSolution testFltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		InversionFaultSystemSolution testFltSysSol =
+				UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		
 		// list the parent names
 //		ArrayList<String> parSectNames = new ArrayList<String>();

@@ -1596,12 +1596,12 @@ if(mMax<5.85)
 	 */
 	public static double calcTotRateMultiplyNamedFaults(InversionFaultSystemSolution sol, double minMag, PaleoProbabilityModel paleoProbModel) {
 		double rate = 0;
-		
-		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
-			double mag = sol.getMagForRup(rupIndex);
+		InversionFaultSystemRupSet rupSet = sol.getRupSet();
+		for (int rupIndex=0; rupIndex<rupSet.getNumRuptures(); rupIndex++) {
+			double mag = rupSet.getMagForRup(rupIndex);
 			if (mag < minMag)
 				continue;
-			if (isRupMultiplyNamed(sol, rupIndex)) {
+			if (isRupMultiplyNamed(rupSet, rupIndex)) {
 				double rupRate = sol.getRateForRup(rupIndex);
 				if (paleoProbModel != null)
 					rupRate *= paleoProbModel.getProbPaleoVisible(mag, 0.5);
@@ -1621,9 +1621,10 @@ if(mMax<5.85)
 	 * @return
 	 */
 	public static double calcTotRateAboveMag(FaultSystemSolution sol, double minMag, PaleoProbabilityModel paleoProbModel) {
+		FaultSystemRupSet rupSet = sol.getRupSet();
 		double rate = 0;
-		for (int rupIndex=0; rupIndex<sol.getNumRuptures(); rupIndex++) {
-			double mag = sol.getMagForRup(rupIndex);
+		for (int rupIndex=0; rupIndex<rupSet.getNumRuptures(); rupIndex++) {
+			double mag = rupSet.getMagForRup(rupIndex);
 			if (mag < minMag)
 				continue;
 			double rupRate = sol.getRateForRup(rupIndex);
@@ -2088,7 +2089,8 @@ if(mMax<5.85)
 
 		ArrayList<SectionMFD_constraint> mfdConstraintList = new ArrayList<SectionMFD_constraint>();
 				
-		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet);
+		InversionFaultSystemSolution UCERF2_FltSysSol =
+				UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet);
 		
 
 		// first compute momentRate and number of sub-sections for each parent section
@@ -2099,7 +2101,7 @@ if(mMax<5.85)
 			
 			// check that subsection names are the same
 			String name1 = fltSystRupSet.getFaultSectionData(s).getSectionName();
-			String name2 = UCERF2_FltSysSol.getFaultSectionData(s).getSectionName();
+			String name2 = UCERF2_FltSysSol.getRupSet().getFaultSectionData(s).getSectionName();
 			if(!name1.equals(name2)) {
 				throw new RuntimeException("Problem - names differ");
 			}
@@ -2490,10 +2492,11 @@ if(mMax<5.85)
 		}
 
 		// get mapped MFD - Note that the IDs are for UCERF2 parent section IDs (OR ARE THEY?)
-		SimpleFaultSystemSolution UCERF2_FltSysSol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
+		InversionFaultSystemSolution UCERF2_FltSysSol =
+				UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fltSystRupSet.getFaultModel());
 		HashMap<Integer, SummedMagFreqDist> mappedUCERF2_FSS_ParSectMFD_Map = new HashMap<Integer, SummedMagFreqDist>();
-		for(int s=0; s<UCERF2_FltSysSol.getNumSections(); s++) {
-			int parSectID = UCERF2_FltSysSol.getFaultSectionData(s).getParentSectionId();
+		for(int s=0; s<UCERF2_FltSysSol.getRupSet().getNumSections(); s++) {
+			int parSectID = UCERF2_FltSysSol.getRupSet().getFaultSectionData(s).getParentSectionId();
 			if(!mappedUCERF2_FSS_ParSectMFD_Map.keySet().contains(parSectID)) {
 				mappedUCERF2_FSS_ParSectMFD_Map.put(parSectID, new SummedMagFreqDist(minMag, numMag, deltaMag));
 			}

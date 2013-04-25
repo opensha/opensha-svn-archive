@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystemSolution> {
+public abstract class FaultSystemSolutionFetcher implements Iterable<InversionFaultSystemSolution> {
 	
 	private boolean cacheCopying = true;
 	// this is for copying caches from previous rup sets of the same fault model
@@ -62,8 +62,8 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	}
 
 	@Override
-	public Iterator<FaultSystemSolution> iterator() {
-		return new Iterator<FaultSystemSolution>() {
+	public Iterator<InversionFaultSystemSolution> iterator() {
+		return new Iterator<InversionFaultSystemSolution>() {
 			
 			private Iterator<LogicTreeBranch> branchIt = getBranches().iterator();
 
@@ -73,7 +73,7 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			}
 
 			@Override
-			public FaultSystemSolution next() {
+			public InversionFaultSystemSolution next() {
 				return getSolution(branchIt.next());
 			}
 

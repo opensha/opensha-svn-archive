@@ -13,6 +13,7 @@ import org.opensha.nshmp2.util.Period;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.peter.ucerf3.calc.UC3_CalcDriver;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
@@ -80,8 +81,8 @@ public class test {
 //			}
 			
 			AverageFaultSystemSolution afss = UC3_CalcUtils.getAvgSolution(solSetPath);
-			FaultSystemSolution fss = afss.getSolution(8);
-			System.out.println(fss.getDeformationModel());
+			InversionFaultSystemSolution fss = afss.getSolution(8);
+			System.out.println(fss.getRupSet().getDeformationModel());
 			
 			
 		} catch (Exception e) {

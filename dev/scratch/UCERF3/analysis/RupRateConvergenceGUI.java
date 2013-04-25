@@ -2,15 +2,12 @@ package scratch.UCERF3.analysis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -18,8 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import org.dom4j.DocumentException;
-import org.jfree.chart.plot.Plot;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -37,12 +32,8 @@ import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -51,6 +42,9 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM2pt1_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Ruptures;
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public class RupRateConvergenceGUI extends JFrame implements ParameterChangeListener {
 	
@@ -99,8 +93,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 
 					@Override
 					public int compare(Integer o1, Integer o2) {
-						double m1 = sol.getMagForRup(o1);
-						double m2 = sol.getMagForRup(o2);
+						double m1 = sol.getRupSet().getMagForRup(o1);
+						double m2 = sol.getRupSet().getMagForRup(o2);
 						return Double.compare(m1, m2);
 					}
 					
@@ -114,8 +108,8 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 
 					@Override
 					public int compare(Integer o1, Integer o2) {
-						double m1 = sol.getMagForRup(o1);
-						double m2 = sol.getMagForRup(o2);
+						double m1 = sol.getRupSet().getMagForRup(o1);
+						double m2 = sol.getRupSet().getMagForRup(o2);
 						return -Double.compare(m1, m2);
 					}
 					
@@ -299,7 +293,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			meanMinusStdDevOfMeanFunc = null;
 			stdDevs = null;
 		} else {
-			int numRups = sol.getNumRuptures();
+			int numRups = sol.getRupSet().getNumRuptures();
 			stdDevs = new double[numRups];
 			meanFunc = new EvenlyDiscretizedFunc(0, numRups, 1d);
 			meanFunc.setName("Mean Rate");
@@ -321,7 +315,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			sdomNParam.setValue(sol.getNumSolutions());
 			sdomNParam.getEditor().refreshParamEditor();
 			
-			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(sol);
+			ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(sol.getRupSet());
 			
 			for (int r=0; r<numRups; r++) {
 				double mean = sol.getRateForRup(r);
@@ -346,7 +340,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		parentIDs = Lists.newArrayList(-1);
 		if (sol != null) {
 			int prevParentID = -2;
-			for (FaultSectionPrefData sect : sol.getFaultSectionDataList()) {
+			for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList()) {
 				int parentID = sect.getParentSectionId();
 				
 				if (parentID != prevParentID) {
@@ -369,7 +363,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		if (sol == null)
 			return;
 		int n = sdomNParam.getValue();
-		for (int i=0; i<sol.getNumRuptures(); i++) {
+		for (int i=0; i<sol.getRupSet().getNumRuptures(); i++) {
 			double stdDev = stdDevs[i];
 			double mean = meanFunc.getY(i);
 			double sdom = stdDev / Math.sqrt(n);
@@ -415,12 +409,12 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			if (sol != null && ucerf2Param.getValue()) {
 				System.out.println("Using UCERF2 Rups!");
 				if (ucerf2Rups == null) {
-					if (sol.getFaultModel() == FaultModels.FM2_1)
+					if (sol.getRupSet().getFaultModel() == FaultModels.FM2_1)
 						ucerf2Rups = new FindEquivUCERF2_FM2pt1_Ruptures(
-								sol, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
+								sol.getRupSet(), UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR);
 					else
 						ucerf2Rups = new FindEquivUCERF2_FM3_Ruptures(
-								sol, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, sol.getFaultModel());
+								sol.getRupSet(), UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, sol.getRupSet().getFaultModel());
 				}
 				
 				curRups = Lists.newArrayList();
@@ -434,7 +428,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				}
 			} else {
 				curRups = Lists.newArrayList();
-				for (int i=0; i<sol.getNumRuptures(); i++)
+				for (int i=0; i<sol.getRupSet().getNumRuptures(); i++)
 					curRups.add(i);
 			}
 			
@@ -445,7 +439,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 				List<Integer> subSet = Lists.newArrayList();
 				
 				for (int r : curRups) {
-					List<Integer> parents = sol.getParentSectionsForRup(r);
+					List<Integer> parents = sol.getRupSet().getParentSectionsForRup(r);
 					if (parents.contains(parentID))
 						subSet.add(r);
 				}
@@ -594,13 +588,13 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	}
 	
 	private String getLabelForRup(int rupIndex) {
-		List<Integer> inds = sol.getSectionsIndicesForRup(rupIndex);
+		List<Integer> inds = sol.getRupSet().getSectionsIndicesForRup(rupIndex);
 		
 		List<String> parentNames = Lists.newArrayList();
 		int lastParentID = -2;
 		
 		for (int ind : inds) {
-			FaultSectionPrefData sect = sol.getFaultSectionData(ind);
+			FaultSectionPrefData sect = sol.getRupSet().getFaultSectionData(ind);
 			int parent = sect.getParentSectionId();
 			if (parent != lastParentID) {
 				parentNames.add(sect.getParentSectionName());
@@ -608,7 +602,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 			}
 		}
 		
-		return "Mag: "+(float)sol.getMagForRup(rupIndex)+"\tParent Sects: "+Joiner.on("; ").join(parentNames);
+		return "Mag: "+(float)sol.getRupSet().getMagForRup(rupIndex)+"\tParent Sects: "+Joiner.on("; ").join(parentNames);
 	}
 	
 	private int[] getCurrentBounds() {

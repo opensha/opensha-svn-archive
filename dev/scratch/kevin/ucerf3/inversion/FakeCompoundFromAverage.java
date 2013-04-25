@@ -16,6 +16,7 @@ import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 
@@ -59,7 +60,7 @@ public class FakeCompoundFromAverage {
 			}
 			
 			@Override
-			protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 				String var = ((VariableLogicTreeBranch)branch).getVariations().get(0);
 				int s = Integer.parseInt(var.substring(3));
 				if (bundle <= 1)
@@ -69,12 +70,7 @@ public class FakeCompoundFromAverage {
 				List<double[]> ratesList = Lists.newArrayList();
 				for (int i=bundleStart; i<bundleStart+bundle; i++)
 					ratesList.add(avgSol.getRates(i));
-				return new AverageFaultSystemSolution(avgSol, ratesList);
-			}
-			
-			@Override
-			protected Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-				return null;
+				return new AverageFaultSystemSolution(avgSol.getRupSet(), ratesList);
 			}
 		};
 		
