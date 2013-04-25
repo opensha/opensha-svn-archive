@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.dom4j.Element;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -37,6 +40,7 @@ import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_FM3_Rupture
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * This represents all of the inversion configuration parameters specific to an individual model
@@ -46,7 +50,9 @@ import com.google.common.base.Preconditions;
  * @author Kevin
  *
  */
-public class InversionConfiguration {
+public class InversionConfiguration implements XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "InversionConfiguration";
 	
 	private double slipRateConstraintWt_normalized;
 	private double slipRateConstraintWt_unnormalized;
@@ -569,7 +575,7 @@ public class InversionConfiguration {
 	 * @param initialRupModel
 	 * @return initialRupModel
 	 */
-	public static double[] adjustIsolatedSections(FaultSystemRupSet rupSet, double[] initialRupModel) {
+	public static double[] adjustIsolatedSections(InversionFaultSystemRupSet rupSet, double[] initialRupModel) {
 		
 		List<Integer> isolatedParents = new ArrayList<Integer>();
 		List<String> isolatedParentNames = new ArrayList<String>();
@@ -789,9 +795,12 @@ public class InversionConfiguration {
 	 * @param faultSystemRupSet
 	 * @return
 	 */
-	public static ArrayList<double[]> getUCERF2MagsAndrates(FaultSystemRupSet faultSystemRupSet) {
+	public static ArrayList<double[]> getUCERF2MagsAndrates(InversionFaultSystemRupSet faultSystemRupSet) {
+		return getUCERF2MagsAndrates(faultSystemRupSet, faultSystemRupSet.getFaultModel());
+	}
+	
+	public static ArrayList<double[]> getUCERF2MagsAndrates(FaultSystemRupSet faultSystemRupSet, FaultModels fm) {
 		Preconditions.checkNotNull(faultSystemRupSet, "No rupture set supplied!");
-		FaultModels fm = faultSystemRupSet.getFaultModel();
 		Preconditions.checkNotNull(fm, "A fault model must be specified by the rupture set in order" +
 				" to get a UCERF2 solution. It's possible that you're using an old rupture set that doesn't have this data" +
 				" embedded. In that case, regenerate your rupture set (or beg Kevin to modify it for you)");
@@ -813,7 +822,7 @@ public class InversionConfiguration {
 	 * @param faultSystemRupSet
 	 * @return
 	 */
-	public static double[] getUCERF2Solution(FaultSystemRupSet faultSystemRupSet) {
+	public static double[] getUCERF2Solution(InversionFaultSystemRupSet faultSystemRupSet) {
 		ArrayList<double[]> ucerf2_magsAndRates = getUCERF2MagsAndrates(faultSystemRupSet);
 		int numRuptures=faultSystemRupSet.getNumRuptures();
 		double[] initial_state = new double[numRuptures];
@@ -1151,6 +1160,97 @@ public class InversionConfiguration {
 
 	public void setMFDTransitionMag(double mFDTransitionMag) {
 		MFDTransitionMag = mFDTransitionMag;
+	}
+	
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("slipRateConstraintWt_normalized", slipRateConstraintWt_normalized+"");
+		el.addAttribute("slipRateConstraintWt_unnormalized", slipRateConstraintWt_unnormalized+"");
+		el.addAttribute("slipRateWeighting", slipRateWeighting.name()+"");
+		el.addAttribute("paleoRateConstraintWt", paleoRateConstraintWt+"");
+		el.addAttribute("paleoSlipConstraintWt", paleoSlipConstraintWt+"");
+		el.addAttribute("magnitudeEqualityConstraintWt", magnitudeEqualityConstraintWt+"");
+		el.addAttribute("magnitudeInequalityConstraintWt", magnitudeInequalityConstraintWt+"");
+		el.addAttribute("rupRateConstraintWt", rupRateConstraintWt+"");
+		el.addAttribute("participationSmoothnessConstraintWt", participationSmoothnessConstraintWt+"");
+		el.addAttribute("participationConstraintMagBinSize", participationConstraintMagBinSize+"");
+		el.addAttribute("nucleationMFDConstraintWt", nucleationMFDConstraintWt+"");
+		el.addAttribute("mfdSmoothnessConstraintWt", mfdSmoothnessConstraintWt+"");
+		el.addAttribute("mfdSmoothnessConstraintWtForPaleoParents", mfdSmoothnessConstraintWtForPaleoParents+"");
+		el.addAttribute("rupRateSmoothingConstraintWt", rupRateSmoothingConstraintWt+"");
+		el.addAttribute("minimizationConstraintWt", minimizationConstraintWt+"");
+		el.addAttribute("momentConstraintWt", momentConstraintWt+"");
+		el.addAttribute("parkfieldConstraintWt", parkfieldConstraintWt+"");
+		el.addAttribute("MFDTransitionMag", MFDTransitionMag+"");
+		el.addAttribute("minimumRuptureRateFraction", minimumRuptureRateFraction+"");
+		el.addAttribute("smoothnessWt", smoothnessWt+"");
+		el.addAttribute("eventRateSmoothnessWt", eventRateSmoothnessWt+"");
+		
+		// write MFDs
+		Element equalMFDsEl = el.element("MFD_EqualityConstraints");
+		mfdsToXML(equalMFDsEl, mfdEqualityConstraints);
+		Element inequalMFDsEl = el.element("MFD_InequalityConstraints");
+		mfdsToXML(inequalMFDsEl, mfdInequalityConstraints);
+		
+		return null;
+	}
+	
+	private static void mfdsToXML(Element el, List<MFD_InversionConstraint> constraints) {
+		for (int i=0; i<constraints.size(); i++) {
+			MFD_InversionConstraint constr = constraints.get(i);
+			
+			constr.toXMLMetadata(el);
+			el.element(MFD_InversionConstraint.XML_METADATA_NAME).addAttribute("index", i+"");
+		}
+	}
+	
+	public static InversionConfiguration fromXMLMetadata(Element confEl) {
+		double slipRateConstraintWt_normalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_normalized"));
+		double slipRateConstraintWt_unnormalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_unnormalized"));
+		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.valueOf(confEl.attributeValue("slipRateConstraintWt_normalized"));
+		double paleoRateConstraintWt = Double.parseDouble(confEl.attributeValue("paleoRateConstraintWt"));
+		double paleoSlipConstraintWt = Double.parseDouble(confEl.attributeValue("paleoSlipConstraintWt"));
+		double magnitudeEqualityConstraintWt = Double.parseDouble(confEl.attributeValue("magnitudeEqualityConstraintWt"));
+		double magnitudeInequalityConstraintWt = Double.parseDouble(confEl.attributeValue("magnitudeInequalityConstraintWt"));
+		double rupRateConstraintWt = Double.parseDouble(confEl.attributeValue("rupRateConstraintWt"));
+		double participationSmoothnessConstraintWt = Double.parseDouble(confEl.attributeValue("participationSmoothnessConstraintWt"));
+		double participationConstraintMagBinSize = Double.parseDouble(confEl.attributeValue("participationConstraintMagBinSize"));
+		double nucleationMFDConstraintWt = Double.parseDouble(confEl.attributeValue("nucleationMFDConstraintWt"));
+		double mfdSmoothnessConstraintWt = Double.parseDouble(confEl.attributeValue("mfdSmoothnessConstraintWt"));
+		double mfdSmoothnessConstraintWtForPaleoParents = Double.parseDouble(confEl.attributeValue("mfdSmoothnessConstraintWtForPaleoParents"));
+		double rupRateSmoothingConstraintWt = Double.parseDouble(confEl.attributeValue("rupRateSmoothingConstraintWt"));
+		double minimizationConstraintWt = Double.parseDouble(confEl.attributeValue("minimizationConstraintWt"));
+		double momentConstraintWt = Double.parseDouble(confEl.attributeValue("momentConstraintWt"));
+		double parkfieldConstraintWt = Double.parseDouble(confEl.attributeValue("parkfieldConstraintWt"));
+		double MFDTransitionMag = Double.parseDouble(confEl.attributeValue("MFDTransitionMag"));
+		double minimumRuptureRateFraction = Double.parseDouble(confEl.attributeValue("minimumRuptureRateFraction"));
+		double smoothnessWt = Double.parseDouble(confEl.attributeValue("smoothnessWt"));
+		double eventRateSmoothnessWt = Double.parseDouble(confEl.attributeValue("eventRateSmoothnessWt"));
+		
+		List<MFD_InversionConstraint> mfdEqualityConstraints = mfdsFromXML(confEl.element("MFD_EqualityConstraints"));
+		List<MFD_InversionConstraint> mfdInequalityConstraints = mfdsFromXML(confEl.element("MFD_InequalityConstraints"));
+		
+		return new InversionConfiguration(slipRateConstraintWt_normalized, slipRateConstraintWt_unnormalized, slipRateWeighting, paleoRateConstraintWt,
+				paleoSlipConstraintWt, magnitudeEqualityConstraintWt, magnitudeInequalityConstraintWt, rupRateConstraintWt,
+				participationSmoothnessConstraintWt, participationConstraintMagBinSize, nucleationMFDConstraintWt,
+				mfdSmoothnessConstraintWt, mfdSmoothnessConstraintWtForPaleoParents, rupRateSmoothingConstraintWt,
+				minimizationConstraintWt, momentConstraintWt, parkfieldConstraintWt, null, null, null, smoothnessWt,
+				eventRateSmoothnessWt, MFDTransitionMag, mfdEqualityConstraints, mfdInequalityConstraints, minimumRuptureRateFraction, null);
+	}
+	
+	private static List<MFD_InversionConstraint> mfdsFromXML(Element mfdsEl) {
+		List<Element> mfdElList = XMLUtils.getSortedChildElements(mfdsEl, null, "index");
+		
+		List<MFD_InversionConstraint> mfds = Lists.newArrayList();
+		
+		for (Element mfdEl : mfdElList) {
+			MFD_InversionConstraint constr = MFD_InversionConstraint.fromXMLMetadata(mfdEl);
+			mfds.add(constr);
+		}
+		
+		return mfds;
 	}
 
 }

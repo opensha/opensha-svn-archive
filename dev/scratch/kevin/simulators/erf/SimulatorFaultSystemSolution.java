@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
@@ -33,7 +34,7 @@ import scratch.kevin.simulators.EventsInWindowsMatcher;
 import scratch.kevin.simulators.QuietPeriodIdenMatcher;
 import scratch.kevin.simulators.RuptureIdentifier;
 
-public class SimulatorFaultSystemSolution extends SimpleFaultSystemSolution {
+public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	
 	public SimulatorFaultSystemSolution(List<RectangularElement> elements, List<EQSIM_Event> events, double durationYears) {
 		this(elements, events, durationYears, 0d);

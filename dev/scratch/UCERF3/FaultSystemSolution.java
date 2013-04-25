@@ -34,6 +34,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -70,10 +71,14 @@ public class FaultSystemSolution {
 	
 	private FaultSystemRupSet rupSet;
 	private double[] rates;
+	// this is separate from the rupSet info string as you can have multiple solutions with one rupSet
+	private String infoString;
 	
 	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates) {
 		this.rupSet = rupSet;
 		this.rates = rates;
+		Preconditions.checkArgument(rates.length == rupSet.getNumRuptures(), "# rates and ruptures is inconsistent!");
+		this.infoString = rupSet.getInfoString();
 	}
 	
 	/**
@@ -114,6 +119,14 @@ public class FaultSystemSolution {
 		return totRate;
 	}
 	
+	public String getInfoString() {
+		return infoString;
+	}
+
+	public void setInfoString(String infoString) {
+		this.infoString = infoString;
+	}
+
 	/**
 	 * This enables/disables visible progress bars for long calculations
 	 * 

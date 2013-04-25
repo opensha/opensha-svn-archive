@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -35,6 +36,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
@@ -92,8 +94,8 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 	}
 
 	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
-			List<double[]> ratesList) {
-		this(rupSet, toArrays(ratesList));
+			List<double[]> ratesList, InversionConfiguration config, Map<String, Double> energies) {
+		this(rupSet, toArrays(ratesList), config, energies);
 	}
 	
 	/**
@@ -101,8 +103,8 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 	 * @param rates 2 dimensional array of rates ordered by rupture index [numRups][numSols]
 	 */
 	public AverageFaultSystemSolution(InversionFaultSystemRupSet rupSet,
-			double[][] rates) {
-		super(rupSet, getMeanRates(rates));
+			double[][] rates, InversionConfiguration config, Map<String, Double> energies) {
+		super(rupSet, getMeanRates(rates), config, energies);
 		
 		this.ratesByRup = rates;
 		
@@ -119,7 +121,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		info = newInfo+"\n\n"+info;
 		
-		rupSet.setInfoString(info);
+		setInfoString(info);
 		
 		for (int s=0; s<numSols; s++) {
 			for (int r=0; r<numRups; r++) {
@@ -679,7 +681,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			rates.add(runRates);
 		}
 		
-		return new AverageFaultSystemSolution(rupSet, rates);
+		return new AverageFaultSystemSolution(rupSet, rates, null, null);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {

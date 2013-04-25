@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.ClassUtils;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -23,10 +25,13 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
 public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>,
-	Cloneable, Serializable, Comparable<LogicTreeBranch> {
+	Cloneable, Serializable, Comparable<LogicTreeBranch>, XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "LogicTreeBranch";
 	
 	/**
 	 * This is the default reference branch
@@ -467,6 +472,123 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 				return cmp;
 		}
 		return 0;
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		Element nodesEl = el.addElement("Nodes");
+		
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : getLogicTreeNodeClasses()) {
+			LogicTreeBranchNode<?> val = getValueUnchecked(clazz);
+			if (val == null)
+				continue;
+			
+			String className = ClassUtils.getClassNameWithoutPackage(clazz);
+			
+			Element nodeEl = nodesEl.addElement("Node");
+			
+			nodeEl.addAttribute("className", className);
+			nodeEl.addAttribute("enumName", val.name());
+			nodeEl.addAttribute("longName", val.getName());
+			nodeEl.addAttribute("shortName", val.getShortName());
+		}
+		
+		if (this instanceof VariableLogicTreeBranch) {
+			VariableLogicTreeBranch variable = (VariableLogicTreeBranch)this;
+			
+			Element varsEl = el.addElement("Variations");
+			
+			for (int i=0; i<variable.getVariations().size(); i++) {
+				String variation = variable.getVariations().get(i);
+				
+				Element varEl = varsEl.addElement("Variation");
+				
+				varEl.addAttribute("index", i+"");
+				varEl.addAttribute("variation", variation);
+			}
+		}
+		
+		return root;
+	}
+	
+	public static LogicTreeBranch fromXMLMetadata(Element branchEl) {
+		Element nodesEl = branchEl.element("Nodes");
+		
+		// first load in names
+		Map<String, String> nodeValMap = Maps.newHashMap();
+		Map<String, String> nodeShortNameMap = Maps.newHashMap();
+		
+		Iterator<Element> nodesIt = nodesEl.elementIterator();
+		while (nodesIt.hasNext()) {
+			Element nodeEl = nodesIt.next();
+			String className = nodeEl.attributeValue("className");
+			String enumName = nodeEl.attributeValue("enumName");
+			String shortName = nodeEl.attributeValue("shortName");
+			
+			nodeValMap.put(className, enumName);
+			nodeShortNameMap.put(className, shortName);
+		}
+		
+		// now populate branch
+		List<Class<? extends LogicTreeBranchNode<?>>> classes = getLogicTreeNodeClasses();
+		List<LogicTreeBranchNode<? extends Enum<?>>> branchList = Lists.newArrayList();
+		
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : classes) {
+			String className = ClassUtils.getClassNameWithoutPackage(clazz);
+			
+			String enumName = nodeValMap.get(className);
+			String shortName = nodeShortNameMap.get(className);
+			
+			if (enumName == null) {
+				System.err.println("Warning: Couldn't load "+className+" from logic tree branch XML, no value set");
+				branchList.add(null);
+				continue;
+			}
+			
+			LogicTreeBranchNode<?> value = null;
+			LogicTreeBranchNode<?>[] options = clazz.getEnumConstants();
+			for (LogicTreeBranchNode<?> option : options) {
+				if (option.name().equals(enumName) || option.getShortName().equals(shortName)) {
+					value = option;
+					break;
+				}
+			}
+			if (value == null) {
+				System.err.println("Warning: Couldn't load "+className+" from logic tree branch XML, " +
+						"enum value unknown/changed: "+enumName+" ("+shortName+")");
+			}
+			branchList.add(value);
+		}
+		
+		LogicTreeBranch branch = new LogicTreeBranch(branchList);
+		
+		// now look for Variations
+		Element varsEl = branchEl.element("Variations");
+		if (varsEl != null) {
+			Iterator<Element> varsIt = varsEl.elementIterator();
+			Map<Integer, String> varIndexMap = Maps.newHashMap();
+			
+			while (varsIt.hasNext()) {
+				Element varEl = varsIt.next();
+				Integer index = Integer.parseInt(varEl.attributeValue("index"));
+				String variation = varEl.attributeValue("variation");
+				varIndexMap.put(index, variation);
+			}
+			
+			if (!varIndexMap.isEmpty()) {
+				List<String> variations = Lists.newArrayList();
+				for (int i=0; i<varIndexMap.size(); i++) {
+					String variation = varIndexMap.get(i);
+					Preconditions.checkNotNull(variation, "No variation for index: "+i);
+					variations.add(variation);
+				}
+				branch = new VariableLogicTreeBranch(branch, variations);
+			}
+		}
+		
+		return branch;
 	}
 
 }

@@ -75,7 +75,7 @@ public class FaultSystemRupSet {
 	 * @param sectionForRups list of fault section indexes for each rupture (CANNOT be null)
 	 * @param mags magnitudes for each rupture (CANNOT be null)
 	 * @param rakes rakes for each rupture (CANNOT be null)
-	 * @param rupAreas areas for each rupture (CAN be null)
+	 * @param rupAreas areas for each rupture (CANNOT be null)
 	 * @param rupLengths lengths for each rupture (CAN be null)
 	 * @param info metadata string
 	 */
@@ -124,7 +124,7 @@ public class FaultSystemRupSet {
 	 * @param sectionForRups list of fault section indexes for each rupture (CANNOT be null)
 	 * @param mags magnitudes for each rupture (CANNOT be null)
 	 * @param rakes rakes for each rupture (CANNOT be null)
-	 * @param rupAreas areas for each rupture (CAN be null)
+	 * @param rupAreas areas for each rupture (CANNOT be null)
 	 * @param rupLengths lengths for each rupture (CAN be null)
 	 * @param info metadata string
 	 */
@@ -139,15 +139,40 @@ public class FaultSystemRupSet {
 			double[] rupAreas,
 			double[] rupLengths,
 			String info) {
+		Preconditions.checkNotNull(faultSectionData, "Fault Section Data cannot be null");
 		this.faultSectionData = faultSectionData;
+		Preconditions.checkNotNull(faultSectionData, "Magnitudes cannot be null");
 		this.mags = mags;
+		
+		int numRups = mags.length;
+		int numSects = faultSectionData.size();
+		
+		Preconditions.checkArgument(sectSlipRates == null
+				|| sectSlipRates.length == numSects, "array sizes inconsistent!");
 		this.sectSlipRates = sectSlipRates;
+		
+		Preconditions.checkArgument(sectSlipRateStdDevs == null
+				|| sectSlipRateStdDevs.length == numSects, "array sizes inconsistent!");
 		this.sectSlipRateStdDevs = sectSlipRateStdDevs;
+		
+		Preconditions.checkArgument(rakes.length == numRups, "array sizes inconsistent!");
 		this.rakes = rakes;
+		
+		Preconditions.checkArgument(rupAreas == null ||
+				rupAreas.length == numRups, "array sizes inconsistent!");
 		this.rupAreas = rupAreas;
+		
+		Preconditions.checkArgument(rupLengths == null ||
+				rupLengths.length == numRups, "array sizes inconsistent!");
 		this.rupLengths = rupLengths;
+		
+		Preconditions.checkArgument(sectAreas == null ||
+				sectAreas.length == numSects, "array sizes inconsistent!");
 		this.sectAreas = sectAreas;
+		
+		Preconditions.checkArgument(sectionForRups.size() == numRups, "array sizes inconsistent!");
 		this.sectionForRups = sectionForRups;
+		
 		this.info = info;
 	}
 	

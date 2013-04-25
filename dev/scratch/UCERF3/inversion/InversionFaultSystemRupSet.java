@@ -169,6 +169,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param rupSet
 	 * @param branch
 	 * @param filter
+	 * @param rupAveSlips
 	 * @param sectionConnectionsListList
 	 * @param clusterRups
 	 * @param clusterSects
@@ -177,16 +178,38 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			FaultSystemRupSet rupSet,
 			LogicTreeBranch branch,
 			LaughTestFilter filter,
+			double[] rupAveSlips,
 			List<List<Integer>> sectionConnectionsListList,
 			List<List<Integer>> clusterRups,
 			List<List<Integer>> clusterSects) {
 		setParamsFromBranch(branch);
 		init(rupSet);
 		
+		int numSects = rupSet.getNumSections();
+		int numRups = rupSet.getNumRuptures();
+		
+		Preconditions.checkArgument(rupAveSlips == null
+				|| rupAveSlips.length == getNumRuptures(), "rupAveSlips sizes inconsistent!");
+		this.rupMeanSlip = rupAveSlips;
+		
+		// can partially empty but we at least need FM/DM/Scale
+		Preconditions.checkNotNull(branch, "LogicTreeBranch cannot be null");
+		if (!branch.isFullySpecified())
+			System.err.println("WARNING: LogicTreeBranch not fully specified");
 		this.logicTreeBranch = branch;
+		
+		// can be null
 		this.filter = filter;
 		
+		Preconditions.checkArgument(sectionConnectionsListList == null || sectionConnectionsListList.size() == numSects,
+				"close sub section size doesn't match number of sections!");
 		this.sectionConnectionsListList = sectionConnectionsListList;
+		
+		// can be null
+		this.clusterRups = clusterRups;
+		
+		// can be null
+		this.clusterSects = clusterSects;
 	}
 	
 	private void setParamsFromBranch(LogicTreeBranch branch) {
@@ -703,6 +726,15 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 */
 	public List<List<Integer>> getCloseSectionsListList() {
 		return sectionConnectionsListList;
+	}
+	
+	/**
+	 * Returns the laugh test filter, or null if not available
+	 * 
+	 * @return
+	 */
+	public LaughTestFilter getLaughTestFilter() {
+		return filter;
 	}
 
 	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }

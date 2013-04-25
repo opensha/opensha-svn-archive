@@ -76,25 +76,41 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 */
 	private InversionConfiguration inversionConfiguration;
 	
-	double[] minMagForSectArray;
-	boolean[] isRupBelowMinMagsForSects;
-	
 	private Map<String, Double> energies;
 	private Map<String, Double> misfits;
+	
+	/**
+	 * Default constructor, for post inversion or file loading.
+	 * 
+	 * @param rupSet
+	 * @param rates
+	 * @param config can be null
+	 * @param energies can be null
+	 */
+	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates,
+			InversionConfiguration config, Map<String, Double> energies) {
+		super(rupSet, rates);
+		this.rupSet = rupSet;
+		this.branch = rupSet.getLogicTreeBranch();
+		this.invModel = branch.getValue(InversionModels.class);
+		
+		// these can all be null
+		this.inversionConfiguration = config;
+		this.energies = energies;
+	}
 
 	/**
-	 * Parses the info string for inversion parameters
+	 * Parses the info string for inversion parameters (depricated)
 	 * 
 	 * @param rupSet
 	 * @param rates
 	 */
-	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates) {
+	@Deprecated
+	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, String infoString, double[] rates) {
 		super(rupSet, rates);
 		this.rupSet = rupSet;
 		
-		String info = rupSet.getInfoString();
-		
-		ArrayList<String> infoLines = Lists.newArrayList(Splitter.on("\n").split(info));
+		ArrayList<String> infoLines = Lists.newArrayList(Splitter.on("\n").split(infoString));
 		
 		try {
 			Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
@@ -348,6 +364,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	public synchronized Map<String, Double> getMisfits() {
 		if (misfits == null) {
 			misfits = Maps.newHashMap();
+			
+			if (energies == null)
+				return misfits;
 			
 			for (String energyStr : energies.keySet()) {
 				double eVal = energies.get(energyStr);

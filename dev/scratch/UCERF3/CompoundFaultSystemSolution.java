@@ -94,6 +94,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * 
 	 * null entry in map means ALL!
 	 */
+	// TODO ADD rup_lengths.bin
+	// TODO ADD inversion_metadata.xml
 	private static Map<String, List<Class<? extends LogicTreeBranchNode<?>>>> dependencyMap;
 	static {
 		dependencyMap = Maps.newHashMap();
@@ -228,7 +230,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			branches = Lists.newArrayList();
 			
 			Enumeration<? extends ZipEntry> zipEnum = zip.entries();
-			// need to sort to ensure consistant iteration order for parallel runs
+			// need to sort to ensure consistent iteration order for parallel runs
 			List<ZipEntry> entriesList = Lists.newArrayList();
 			while (zipEnum.hasMoreElements())
 				entriesList.add(zipEnum.nextElement());
