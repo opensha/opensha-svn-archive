@@ -120,6 +120,8 @@ public class DeformationModelFetcher {
 			File precomputedDataDir, double defaultAseismicityValue) {
 		double maxSubSectionLength = 0.5; // in units of DDW
 		this.precomputedDataDir = new File(precomputedDataDir, SUB_DIR_NAME);
+		if (!this.precomputedDataDir.exists())
+			this.precomputedDataDir.mkdir();
 		Preconditions.checkArgument(deformationModel.isApplicableTo(faultModel), "Deformation model and fault model aren't compatible!");
 		chosenDefModName = deformationModel;
 		this.faultModel = faultModel;

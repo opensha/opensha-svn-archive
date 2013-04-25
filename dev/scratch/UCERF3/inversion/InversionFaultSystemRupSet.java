@@ -357,7 +357,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				rupMeanSlip[rupIndex] = scalingRelationship.getAveSlip(totArea, totLength, origDDW);
 			}
 		}
-
+		
+		// set with what he have now before inversionMFDs instantiation (we'll set again with slips later)
+		init(faultSectionData, null, null, sectAreasReduced, sectionsForRups, rupMeanMag, rupRake, rupArea, rupLength, infoString);
+		
 		inversionMFDs = new InversionTargetMFDs(this);
 
 		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();

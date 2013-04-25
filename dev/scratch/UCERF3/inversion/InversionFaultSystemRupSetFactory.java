@@ -260,8 +260,12 @@ public class InversionFaultSystemRupSetFactory {
 			System.out.println("FM3.1: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
 			rupSet = forBranch(filter, DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(FaultModels.FM3_2));
 			System.out.println("FM3.2: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
-			System.exit(0);
 			FaultSystemIO.writeRupSet(rupSet, new File("/tmp/mean_rupSet.zip"));
+			// test loading
+			InversionFaultSystemRupSet invRupSet = FaultSystemIO.loadInvRupSet(new File("/tmp/mean_rupSet.zip"));
+			System.out.println(invRupSet.getLogicTreeBranch());
+			System.out.println(invRupSet.getLaughTestFilter());
+			System.exit(0);
 //			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/rup_set_0.05_1.25.zip"));
 //			filter.setAllowSingleSectDuringJumps(false);
 //			List<Integer> counts = Lists.newArrayList();

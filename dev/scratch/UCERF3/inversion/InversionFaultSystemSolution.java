@@ -151,6 +151,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	protected void init(InversionFaultSystemRupSet rupSet, double[] rates,
 			InversionConfiguration config, Map<String, Double> energies) {
 		super.init(rupSet, rates, rupSet.getInfoString());
+		this.rupSet = rupSet;
 		this.branch = rupSet.getLogicTreeBranch();
 		this.invModel = branch.getValue(InversionModels.class);
 		
