@@ -34,8 +34,6 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FileBasedFSSIterator;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -48,6 +46,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.RupSetIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
@@ -66,11 +65,11 @@ public class BatchPlotGen {
 		return vals;
 	}
 	
-	public static void makeMapPlots(FaultSystemSolution sol, File dir, String prefix)
+	public static void makeMapPlots(InversionFaultSystemSolution sol, File dir, String prefix)
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		Region region;
-		if (sol.getDeformationModel() == DeformationModels.UCERF2_NCAL
-				|| sol.getDeformationModel() == DeformationModels.UCERF2_BAYAREA)
+		if (sol.getRupSet().getDeformationModel() == DeformationModels.UCERF2_NCAL
+				|| sol.getRupSet().getDeformationModel() == DeformationModels.UCERF2_BAYAREA)
 			region = new CaliforniaRegions.RELM_NOCAL();
 		else
 			region = new CaliforniaRegions.RELM_TESTING();
@@ -81,7 +80,7 @@ public class BatchPlotGen {
 		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
 		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
-		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getFaultModel(), dir);
+		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getRupSet().getFaultModel(), dir);
 		for (double[] range : partic_mag_ranges) {
 			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
 			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
@@ -92,20 +91,20 @@ public class BatchPlotGen {
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7.5, 10);
 	}
 	
-	private static HashMap<FaultModels, FaultSystemSolution> ucerf2SolutionCache = Maps.newHashMap();
+	private static HashMap<FaultModels, InversionFaultSystemSolution> ucerf2SolutionCache = Maps.newHashMap();
 	
-	private static FaultSystemSolution getUCERF2Comparision(FaultModels fm, File dir) throws IOException, DocumentException {
+	private static InversionFaultSystemSolution getUCERF2Comparision(FaultModels fm, File dir) throws IOException, DocumentException {
 		if (ucerf2SolutionCache.containsKey(fm))
 			return ucerf2SolutionCache.get(fm);
 		File cachedFile = new File(dir, fm.getShortName()+"_UCERF2_COMPARISON_SOL.zip");
-		SimpleFaultSystemSolution sol;
+		InversionFaultSystemSolution sol;
 		if (cachedFile.exists()) {
 			System.out.println("Loading UCERF2 comparison from: "+cachedFile.getName());
-			sol = SimpleFaultSystemSolution.fromFile(cachedFile);
+			sol = RupSetIO.loadInvSol(cachedFile);
 		} else {
 			sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(fm);
 			try {
-				sol.toZipFile(cachedFile);
+				RupSetIO.writeSol(sol, cachedFile);
 			} catch (Exception e) {
 				// don't fail on a cache attempt
 				e.printStackTrace();
@@ -346,7 +345,7 @@ public class BatchPlotGen {
 					continue;
 				}
 				// this is an average of many runs
-				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(file);
+				InversionFaultSystemRupSet rupSet = RupSetIO.loadInvRupSet(file);
 				AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromDirectory(rupSet, myDir, prefix);
 				if (!doAvgPlotsExist(meanSolDir, meanPrefix))
 					try {
@@ -394,14 +393,13 @@ public class BatchPlotGen {
 		fw.close();
 	}
 	
-	public static void handleSolutionFile(File file, String prefix, FaultSystemSolution sol,
+	public static void handleSolutionFile(File file, String prefix, InversionFaultSystemSolution sol,
 			Map<VariableLogicTreeBranch, Map<String, Double>> misfitsMap)
 			throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		File dir = file.getParentFile();
 		
 //		System.out.println("Handling solution file: "+file.getAbsolutePath());
 		
-		InversionFaultSystemSolution invSol = null;
 		if (misfitsMap != null) {
 			VariableLogicTreeBranch branch = null;
 			try {
@@ -419,14 +417,7 @@ public class BatchPlotGen {
 					misfitsMap.put(branch, loadMisfitsFile(misfitsFile));
 				} else {
 					try {
-						if (sol == null) {
-							if (file.getName().contains("mean"))
-								sol = AverageFaultSystemSolution.fromZipFile(file);
-							if (sol == null)
-								sol = SimpleFaultSystemSolution.fromFile(file);
-						}
-						invSol = new InversionFaultSystemSolution(sol);
-						Map<String, Double> misfits = invSol.getMisfits();
+						Map<String, Double> misfits = sol.getMisfits();
 						writeMisfitsFile(misfits, misfitsFile);
 						misfitsMap.put(branch, misfits);
 					} catch (Exception e) {
@@ -458,28 +449,23 @@ public class BatchPlotGen {
 		}
 		System.out.println("Processing: "+prefix);
 		
-		if (sol == null) {
-			if (file.getName().contains("mean"))
-				sol = AverageFaultSystemSolution.fromZipFile(file);
-			if (sol == null)
-				sol = SimpleFaultSystemSolution.fromFile(file);
-		}
+		if (sol == null)
+			sol = RupSetIO.loadInvSol(file);
 		
 		if (!hasMapPlots) {
 			makeMapPlots(sol, dir, prefix);
 		}
 		if (!hasMFDPlots) {
 			try {
-				if (invSol == null)
-					invSol = new InversionFaultSystemSolution(sol);
-				CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+				CommandLineInversionRunner.writeMFDPlots(sol, dir, prefix);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		if (!hasJumpPlots) {
 			try {
-				Map<IDPairing, Double> distsMap = new DeformationModelFetcher(sol.getFaultModel(), sol.getDeformationModel(),
+				Map<IDPairing, Double> distsMap = new DeformationModelFetcher(
+						sol.getRupSet().getFaultModel(), sol.getRupSet().getDeformationModel(),
 						UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getSubSectionDistanceMap(
 								LaughTestFilter.getDefault().getMaxJumpDist());
 				CommandLineInversionRunner.writeJumpPlots(sol, distsMap, dir, prefix);
@@ -491,8 +477,8 @@ public class BatchPlotGen {
 		List<AveSlipConstraint> aveSlipConstraints = null;
 		if (!hasPaleoPlots || !hasPaleoFaultBasedPlots) {
 			paleoRateConstraints =
-					CommandLineInversionRunner.getPaleoConstraints(sol.getFaultModel(), sol);
-			aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+					CommandLineInversionRunner.getPaleoConstraints(sol.getRupSet().getFaultModel(), sol.getRupSet());
+			aveSlipConstraints = AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
 		}
 		if (!hasPaleoPlots) {
 			CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, dir, prefix);
@@ -514,9 +500,7 @@ public class BatchPlotGen {
 		}
 		if (!hasParentMFDPlots) {
 			try {
-				if (invSol == null)
-					invSol = new InversionFaultSystemSolution(sol);
-				CommandLineInversionRunner.writeParentSectionMFDPlots(invSol,
+				CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
 						new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME));
 			} catch (Exception e) {
 				e.printStackTrace();

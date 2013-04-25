@@ -31,7 +31,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -99,7 +98,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 	// rupture attributes (all in SI units)
 	final static double MIN_MO_RATE_REDUCTION = 0.1;
-	double[] rupMeanSlip;
+	private double[] rupMeanSlip;
 
 	// cluster information
 	private List<List<Integer>> clusterRups;
@@ -701,6 +700,14 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			throws IndexOutOfBoundsException {
 		return clusterRups.get(index);
 	}
+	
+	/**
+	 * 
+	 * @return list of rupture indexes for each cluster
+	 */
+	public List<List<Integer>> getRupturesForClusters() {
+		return clusterRups;
+	}
 
 	/**
 	 * 
@@ -709,6 +716,14 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 */
 	public List<Integer> getSectionsForCluster(int index) {
 		return clusterSects.get(index);
+	}
+	
+	/**
+	 * 
+	 * @return list of section indexes for each cluster
+	 */
+	public List<List<Integer>> getSectionsForClusters() {
+		return clusterSects;
 	}
 
 	/**

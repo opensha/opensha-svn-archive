@@ -80,6 +80,16 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	private Map<String, Double> misfits;
 	
 	/**
+	 * Can be used on the fly for when InversionConfiguration/energies are not available/relevant
+	 * 
+	 * @param rupSet
+	 * @param rates
+	 */
+	public InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates) {
+		this(rupSet, rates, null, null);
+	}
+	
+	/**
 	 * Default constructor, for post inversion or file loading.
 	 * 
 	 * @param rupSet

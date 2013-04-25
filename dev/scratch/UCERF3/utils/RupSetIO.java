@@ -482,7 +482,12 @@ public class RupSetIO {
 			}
 			
 			// now see if it's an average fault system solution
-			List<double[]> ratesList = loadIndSolRates(zip, nameRemappings);
+			String ratesPrefix = getRemappedRatesPrefix(nameRemappings);
+			
+			List<double[]> ratesList = loadIndSolRates(ratesPrefix, zip, nameRemappings);
+			if (ratesList == null)
+				// try legacy format
+				ratesList = loadIndSolRates("sol_rates", zip, nameRemappings);
 			if (ratesList != null)
 				// it's an AverageFSS
 				return new AverageFaultSystemSolution(invRupSet, ratesList, conf, energies);
@@ -493,10 +498,8 @@ public class RupSetIO {
 		return new FaultSystemSolution(rupSet, rates);
 	}
 	
-	private static List<double[]> loadIndSolRates(ZipFile zip, Map<String, String> nameRemappings) throws IOException {
+	private static List<double[]> loadIndSolRates(String ratesPrefix, ZipFile zip, Map<String, String> nameRemappings) throws IOException {
 		int max_digits = 10;
-		
-		String ratesPrefix = getRemappedRatesPrefix(nameRemappings);
 		
 		for (int digits=1; digits<=max_digits; digits++) {
 			int c = 0;

@@ -13,8 +13,11 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 
 /**
  * @author Ned Field
@@ -145,32 +148,41 @@ public class FaultSectionDataWriter {
 	 * @param filePathAndName
 	 */
 	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet) {
-		return getRupsASCII(rupSet, false);
+		return getRupsASCII(rupSet, null);
 	}
 
 	/**
 	 * This writes the rupture sections to an ASCII file
 	 * @param filePathAndName
 	 */
-	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet, boolean includeRates) {
-		FaultSystemSolution sol = null;
-		if (includeRates) {
-			if (rupSet instanceof FaultSystemSolution)
-				sol = (FaultSystemSolution)rupSet;
-			else
-				throw new IllegalArgumentException("IndludeRates=true but only a rupture set was supplied");
-		}
+	public static StringBuffer getRupsASCII(FaultSystemRupSet rupSet, FaultSystemSolution sol) {
 		StringBuffer buff = new StringBuffer();
 		buff.append("rupID\tclusterID\trupInClustID\tmag\t");
 		if (sol != null)
 			buff.append("rate\t");
 		buff.append("numSectIDs\tsect1_ID\tsect2_ID\t...\n");	// header
-		int rupIndex = 0;
-		for(int c=0;c<rupSet.getNumClusters();c++) {
-			List<Integer> rups = rupSet.getRupturesForCluster(c);
+		
+		List<List<Integer>> rupsForClusters = Lists.newArrayList();
+		
+		if (rupSet instanceof InversionFaultSystemRupSet) {
+			InversionFaultSystemRupSet invRupSet = (InversionFaultSystemRupSet)rupSet;
+			// cluster based
+			for(int c=0;c<invRupSet.getNumClusters();c++)
+				rupsForClusters.add(invRupSet.getRupturesForCluster(c));
+		} else {
+			// treat it as one cluster
+			List<Integer> rups = Lists.newArrayList();
+			for (int r=0; r<rupSet.getNumRuptures(); r++)
+				rups.add(r);
+			rupsForClusters.add(rups);
+		}
+		
+		for(int c=0;c<rupsForClusters.size();c++) {
+			List<Integer> rups = rupsForClusters.get(c);
 			//				  ArrayList<ArrayList<Integer>>  rups = rupSet.getCluster(c).getSectionIndicesForRuptures();
 			for(int i=0; i<rups.size(); i++) {
 				//					  ArrayList<Integer> rup = rups.get(r);
+				int rupIndex = rups.get(i);
 				List<Integer> sections = rupSet.getSectionsIndicesForRup(rupIndex);
 				String line = Integer.toString(rupIndex)+"\t"+Integer.toString(c)+"\t"+Integer.toString(rupIndex)+"\t"+
 						+(float)rupSet.getMagForRup(rupIndex);

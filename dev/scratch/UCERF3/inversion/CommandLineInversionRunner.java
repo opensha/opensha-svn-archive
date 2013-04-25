@@ -28,15 +28,12 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.PlotSpec;
@@ -46,27 +43,22 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.analysis.CompoundFSSPlots;
 import scratch.UCERF3.analysis.FaultSpecificSegmentationPlotGen;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
-import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.utils.IDPairing;
-import scratch.UCERF3.utils.MFD_InversionConstraint;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.RupSetIO;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
-import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
@@ -75,9 +67,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
-import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
-
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
@@ -337,7 +327,7 @@ public class CommandLineInversionRunner {
 			
 
 			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
-			new SimpleFaultSystemRupSet(rupSet).toZipFile(rupSetFile);
+			RupSetIO.writeRupSet(rupSet, rupSetFile);
 			// now clear it out of memory
 			rupSet = null;
 			gen.setRupSet(null);
@@ -480,12 +470,13 @@ public class CommandLineInversionRunner {
 
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
-				FaultSystemRupSet loadedRupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
+				InversionFaultSystemRupSet loadedRupSet = RupSetIO.loadInvRupSet(rupSetFile);
 				loadedRupSet.setInfoString(info);
 				double[] rupRateSolution = tsa.getBestSolution();
 				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
 						rupRateSolution, minimumRuptureRates);
-				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(loadedRupSet, rupRateSolution);
+				InversionFaultSystemSolution sol = new InversionFaultSystemSolution(
+						loadedRupSet, rupRateSolution, config, tsa.getEnergies());
 
 				File solutionFile = new File(subDir, prefix+"_sol.zip");
 
@@ -508,21 +499,17 @@ public class CommandLineInversionRunner {
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
 				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
 
-				InversionFaultSystemSolution invSol;
 				try {
-					invSol = new InversionFaultSystemSolution(sol);
-
 					//					double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate(); // TODO replace - what is off fault moment rate now?
 					//					info += "\nTotal Off Fault Seis Moment Rate (excluding subseismogenic): "
 					//							+(totalOffFaultMomentRate-momRed);
 					//					info += "\nTotal Off Fault Seis Moment Rate (inluding subseismogenic): "
 					//							+totalOffFaultMomentRate;
-					info += "\nTotal Moment Rate From Off Fault MFD: "+invSol.getFinalTotalGriddedSeisMFD().getTotalMomentRate();
+					info += "\nTotal Moment Rate From Off Fault MFD: "+sol.getFinalTotalGriddedSeisMFD().getTotalMomentRate();
 					//					info += "\nTotal Model Seis Moment Rate: "
 					//							+(totalOffFaultMomentRate+totalSolutionMoment);
 				} catch (Exception e1) {
 					e1.printStackTrace();
-					invSol = null;
 					System.out.println("WARNING: InversionFaultSystemSolution could not be instantiated!");
 				}
 
@@ -557,7 +544,7 @@ public class CommandLineInversionRunner {
 				if (!noPlots) {
 					// MFD plots
 					try {
-						ArrayList<? extends DiscretizedFunc> funcs = writeMFDPlots(invSol, subDir, prefix);
+						ArrayList<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
 						
 						if (!funcs.isEmpty()) {
 							info += "\n\n****** MFD Cumulative M5 Rates ******";
@@ -580,7 +567,7 @@ public class CommandLineInversionRunner {
 				sol.setInfoString(info);
 
 				System.out.println("Writing solution");
-				sol.toZipFile(solutionFile);
+				RupSetIO.writeSol(sol, solutionFile);
 				
 				if (!noPlots) {
 					CSVFile<String> moRateCSV = new CSVFile<String>(true);
@@ -603,7 +590,7 @@ public class CommandLineInversionRunner {
 					List<AveSlipConstraint> aveSlipConstraints = null;
 					try {
 						if (config.getPaleoSlipConstraintWt() > 0d)
-							aveSlipConstraints = AveSlipConstraint.load(sol.getFaultSectionDataList());
+							aveSlipConstraints = AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
 						else
 							aveSlipConstraints = null;
 						writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, subDir, prefix);
@@ -618,10 +605,7 @@ public class CommandLineInversionRunner {
 					}
 					
 					try {
-						if (invSol == null)
-							writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
-						else
-							writeParentSectionMFDPlots(invSol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
+						writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -706,22 +690,24 @@ public class CommandLineInversionRunner {
 		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		int maxX = solFunc.getNum()-1;
+		
+		FaultSystemRupSet rupSet = sol.getRupSet();
 
-		for (int r=0; r<sol.getNumRuptures(); r++) {
-			double mag = sol.getMagForRup(r);
+		for (int r=0; r<rupSet.getNumRuptures(); r++) {
+			double mag = rupSet.getMagForRup(r);
 
 			if (mag < minMag)
 				continue;
 
-			List<Integer> sects = sol.getSectionsIndicesForRup(r);
+			List<Integer> sects = rupSet.getSectionsIndicesForRup(r);
 			
 			int jumpsOverDist = 0;
 			for (int i=1; i<sects.size(); i++) {
 				int sect1 = sects.get(i-1);
 				int sect2 = sects.get(i);
 
-				int parent1 = sol.getFaultSectionData(sect1).getParentSectionId();
-				int parent2 = sol.getFaultSectionData(sect2).getParentSectionId();
+				int parent1 = rupSet.getFaultSectionData(sect1).getParentSectionId();
+				int parent2 = rupSet.getFaultSectionData(sect2).getParentSectionId();
 
 				if (parent1 != parent2) {
 					double dist = distsMap.get(new IDPairing(sect1, sect2));
@@ -830,16 +816,17 @@ public class CommandLineInversionRunner {
 	public static ArrayList<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 
+		// TODO switch to derrived value
 		// no cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionTargetMFDs().getTotalTargetGR_NoCal(), invSol.getInversionTargetMFDs().noCalTargetSupraMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getRupSet().getInversionTargetMFDs().getTotalTargetGR_NoCal(), invSol.getRupSet().getInversionTargetMFDs().noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
 
 		// so cal
-		writeMFDPlot(invSol, dir, prefix,invSol.getInversionTargetMFDs().getTotalTargetGR_SoCal(), invSol.getInversionTargetMFDs().soCalTargetSupraMFD,
+		writeMFDPlot(invSol, dir, prefix,invSol.getRupSet().getInversionTargetMFDs().getTotalTargetGR_SoCal(), invSol.getRupSet().getInversionTargetMFDs().soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
 		
 		// statewide
-		return writeMFDPlot(invSol, dir, prefix, invSol.getInversionTargetMFDs().getTotalTargetGR(), invSol.getInversionTargetMFDs().getOnFaultSupraSeisMFD(),
+		return writeMFDPlot(invSol, dir, prefix, invSol.getRupSet().getInversionTargetMFDs().getTotalTargetGR(), invSol.getRupSet().getInversionTargetMFDs().getOnFaultSupraSeisMFD(),
 						RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 	}
 
@@ -892,8 +879,8 @@ public class CommandLineInversionRunner {
 		return new File(dir, prefix+"_paleo_fit.png").exists();
 	}
 
-	public static void writeSAFSegPlots(FaultSystemSolution sol, File dir, String prefix) throws IOException {
-		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(sol.getFaultModel());
+	public static void writeSAFSegPlots(InversionFaultSystemSolution sol, File dir, String prefix) throws IOException {
+		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(sol.getRupSet().getFaultModel());
 
 		writeSAFSegPlot(sol, dir, prefix, parentSects, 0, false);
 		writeSAFSegPlot(sol, dir, prefix, parentSects, 7, false);
@@ -927,11 +914,13 @@ public class CommandLineInversionRunner {
 		return new File(dir, getSAFSegPrefix(prefix, 7.5, false)+".png").exists();
 	}
 
-	private static ArrayList<ParentMomentRecord> getSectionMoments(FaultSystemSolution sol) {
+	private static ArrayList<ParentMomentRecord> getSectionMoments(InversionFaultSystemSolution sol) {
 		HashMap<Integer, ParentMomentRecord> map = Maps.newHashMap();
+		
+		InversionFaultSystemRupSet rupSet = sol.getRupSet();
 
-		for (int sectIndex=0; sectIndex<sol.getNumSections(); sectIndex++) {
-			FaultSectionPrefData sect = sol.getFaultSectionData(sectIndex);
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
 			int parent = sect.getParentSectionId();
 			if (!map.containsKey(parent)) {
 				String name = sect.getName();
@@ -940,9 +929,9 @@ public class CommandLineInversionRunner {
 				map.put(parent, new ParentMomentRecord(parent, name, 0, 0));
 			}
 			ParentMomentRecord rec = map.get(parent);
-			double targetMo = sol.getReducedMomentRate(sectIndex);
+			double targetMo = rupSet.getReducedMomentRate(sectIndex);
 			double solSlip = sol.calcSlipRateForSect(sectIndex);
-			double solMo = FaultMomentCalc.getMoment(sol.getAreaForSection(sectIndex), solSlip);
+			double solMo = FaultMomentCalc.getMoment(rupSet.getAreaForSection(sectIndex), solSlip);
 			if (!Double.isNaN(targetMo))
 				rec.targetMoment += targetMo;
 			if (!Double.isNaN(solMo))
@@ -984,7 +973,7 @@ public class CommandLineInversionRunner {
 		if (!dir.exists())
 			dir.mkdir();
 
-		for (FaultSectionPrefData sect : sol.getFaultSectionDataList())
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
 			if (!parentSects.containsKey(sect.getParentSectionId()))
 				parentSects.put(sect.getParentSectionId(), sect.getParentSectionName());
 
@@ -1563,7 +1552,7 @@ public class CommandLineInversionRunner {
 	
 	public static void writeRupPairingSmoothnessPlot(FaultSystemSolution sol, String prefix, File dir)
 			throws IOException {
-		List<IDPairing> pairings = InversionInputGenerator.getRupSmoothingPairings(sol);
+		List<IDPairing> pairings = InversionInputGenerator.getRupSmoothingPairings(sol.getRupSet());
 		
 		double[] diffs = new double[pairings.size()];
 		double[] fracts = new double[pairings.size()];

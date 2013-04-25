@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
@@ -33,16 +34,14 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	
 	public FaultSystemSolution getSolution(LogicTreeBranch branch) {
 		FaultSystemSolution sol = fetchSolution(branch);
-		if (cacheCopying) {
+		if (cacheCopying && sol instanceof InversionFaultSystemSolution) {
+			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
 			synchronized (this) {
-				FaultModels fm = sol.getFaultModel();
+				FaultModels fm = invSol.getRupSet().getFaultModel();
 				if (rupSetCacheMap.containsKey(fm)) {
-					sol.copyCacheFrom(rupSetCacheMap.get(fm));
+					invSol.getRupSet().copyCacheFrom(rupSetCacheMap.get(fm));
 				} else {
-					if (sol instanceof SimpleFaultSystemSolution)
-						rupSetCacheMap.put(fm, ((SimpleFaultSystemSolution)sol).getRupSet());
-					else
-						rupSetCacheMap.put(fm, sol);
+					rupSetCacheMap.put(fm, sol.getRupSet());
 				}
 			}
 		}
@@ -54,7 +53,7 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	}
 	
 	public double[] getMags(LogicTreeBranch branch) {
-		return getSolution(branch).getMagForAllRups();
+		return getSolution(branch).getRupSet().getMagForAllRups();
 	}
 	
 	protected abstract Map<String, Double> fetchMisfits(LogicTreeBranch branch);

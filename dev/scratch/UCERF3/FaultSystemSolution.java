@@ -74,11 +74,30 @@ public class FaultSystemSolution {
 	// this is separate from the rupSet info string as you can have multiple solutions with one rupSet
 	private String infoString;
 	
+	/**
+	 * Default constructor, validates inputs
+	 * @param rupSet
+	 * @param rates
+	 */
 	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates) {
+		init(rupSet, rates, null);
+	}
+	
+	/**
+	 * Not recommended, must call init
+	 */
+	protected FaultSystemSolution() {
+		
+	}
+	
+	protected void init(FaultSystemRupSet rupSet, double[] rates, String infoString) {
 		this.rupSet = rupSet;
 		this.rates = rates;
 		Preconditions.checkArgument(rates.length == rupSet.getNumRuptures(), "# rates and ruptures is inconsistent!");
-		this.infoString = rupSet.getInfoString();
+		if (infoString == null)
+			this.infoString = rupSet.getInfoString();
+		else
+			this.infoString = infoString;
 	}
 	
 	/**
