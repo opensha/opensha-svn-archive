@@ -294,7 +294,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		double[] rupMeanMag = new double[numRuptures];
 		double[] rupMeanMoment = new double[numRuptures];
 		rupMeanSlip = new double[numRuptures];
-		double[] rupTotMoRateAvail = new double[numRuptures];
 		double[] rupArea = new double[numRuptures];
 		double[] rupLength = new double[numRuptures];
 //		double[] rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
@@ -382,8 +381,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			
 			double impliedCC_reducedSectMoRate = origSectMoRate*impliedCC_reduction;
 
-			double fractionalSlipRateReduction=1.0;
-			
+			double fractionalSlipRateReduction=1.0;	// default if next is false
 			if(origSectMoRate > 0) { // avoid division by zero
 				if(inversionModel.isCharacteristic()) {
 					fractionalSlipRateReduction = impliedCC_reducedSectMoRate*(1.0-aveCharSubSeismoMoRateFraction)/origSectMoRate;	// reduced by subseismo and any implied CC
@@ -397,15 +395,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			targetSlipRateStdDev[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalSlipRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}
 		
-		// compute rupTotMoRateAvail[rupIndex]
-		for (int r=0; r<numRuptures; r++) {
-			double totMoRate=0;
-			for (int sectID : getSectionsIndicesForRup(r)) {
-				double area = getAreaForSection(sectID);
-				totMoRate += FaultMomentCalc.getMoment(area, targetSlipRate[sectID]);
-			}
-			rupTotMoRateAvail[rupIndex]=totMoRate;
-		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
 
 		init(faultSectionData, targetSlipRate, targetSlipRateStdDev, sectAreasReduced, sectionsForRups, rupMeanMag, rupRake, rupArea, rupLength, infoString);

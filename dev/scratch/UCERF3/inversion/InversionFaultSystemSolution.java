@@ -708,7 +708,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	
 	/**
-	 * This returns the final total sub-seismo on-fault MFD
+	 * This returns the final total sub-seismo on-fault MFD (the sum of what's returned by getFinalSubSeismoOnFaultMFD_List())
 	 * @return
 	 */
 	public SummedMagFreqDist getFinalTotalSubSeismoOnFaultMFD() {
