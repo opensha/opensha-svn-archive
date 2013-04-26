@@ -42,7 +42,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * 
  * getTotalOnFaultMFD() returns:
  * 
- * getTotalSubSeismoOnFaultMFD() + getOnFaultSupraSeisMFD();
+ * 		getTotalSubSeismoOnFaultMFD() + getOnFaultSupraSeisMFD();
  * 
  * The rest are branch specific:
  * 
@@ -260,7 +260,7 @@ public class InversionTargetMFDs {
 		} else {
 			// GR
 			
-			// get the total GR nucleation MFD for all fault sections based on their slip rates and max mags
+			// get the total GR nucleation MFD for all fault sections based on their orig (creep reduced) slip rates and max mags
 			SummedMagFreqDist impliedOnFault_GR_NuclMFD = FaultSystemRupSetCalc.calcImpliedGR_NucleationMFD(invRupSet, MIN_MAG, NUM_MAG, DELTA_MAG);
 
 			// compute coupling coefficient
@@ -419,6 +419,11 @@ public class InversionTargetMFDs {
 	
 	public GutenbergRichterMagFreqDist getTotalTargetGR_SoCal() {return totalTargetGR_SoCal;}
 	
+	/**
+	 * This has been reduced by creep (aseismicity and coupling coefficient in FaultSectionPrefData),
+	 * but not by subseismo rupture or any implied coupling coefficients.
+	 * @return
+	 */
 	public double getOrigOnFltDefModMoRate() {return origOnFltDefModMoRate; }
 	
 	

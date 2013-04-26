@@ -456,17 +456,10 @@ public class FaultSystemRupSetCalc {
 	 * @return
 	 */
 	public static SummedMagFreqDist calcImpliedGR_NucleationMFD(InversionFaultSystemRupSet faultSysRupSet, double minMag, int numMag, double deltaMag) {
-		
 		ArrayList<GutenbergRichterMagFreqDist> gr_mfds = calcImpliedGR_NuclMFD_ForEachSection(faultSysRupSet, minMag, numMag, deltaMag);
 		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, numMag, deltaMag);
-		double totMoRate=0;
-		double mMaxInRegion=0;
-		int index = 0;
 		for(GutenbergRichterMagFreqDist gr : gr_mfds) {
-			if(gr.getMagUpper()>mMaxInRegion) mMaxInRegion= gr.getMagUpper();
-			totMoRate += gr.getTotalMomentRate();
 			mfd.addIncrementalMagFreqDist(gr);
-			index +=1;
 		}
 		mfd.setName(faultSysRupSet.getDeformationModel()+ " Target GR MFD");
 		mfd.setInfo("Rate ge M5 = "+(float)mfd.getCumRate(5.05 )+"; totMoRate = "+(float)mfd.getTotalMomentRate());

@@ -116,7 +116,7 @@ public class FaultSystemSolution implements Serializable {
 	}
 	
 	/**
-	 * Returns the rupture set for this solution
+	 * Returns the fault system rupture set for this solution
 	 * @return
 	 */
 	public FaultSystemRupSet getRupSet() {
@@ -258,7 +258,8 @@ public class FaultSystemSolution implements Serializable {
 	
 	/**
 	 * This computes the nucleation rate (events/yr) of the sth section for magnitudes 
-	 * greater and equal to magLow and less than magHigh.
+	 * greater and equal to magLow and less than magHigh. This assumes a uniform distribution
+	 * of possible hypocenters over the rupture surface.
 	 * @param sectIndex
 	 * @param magLow
 	 * @param magHigh
@@ -285,7 +286,8 @@ public class FaultSystemSolution implements Serializable {
 	
 	/**
 	 * This computes the nucleation rate (events/yr) of all sections for magnitudes 
-	 * greater and equal to magLow and less than magHigh.
+	 * greater and equal to magLow and less than magHigh.   This assumes a uniform distribution
+	 * of possible hypocenters over the rupture surface.
 	 * @param sectIndex
 	 * @param magLow
 	 * @param magHigh
@@ -402,6 +404,14 @@ public class FaultSystemSolution implements Serializable {
 		return paleoRates;
 	}
 	
+	/**
+	 * This assumes a uniform probability of hypocenter location over the rupture surface
+	 * @param parentSectionID
+	 * @param minMag
+	 * @param maxMag
+	 * @param numMag
+	 * @return
+	 */
 	public SummedMagFreqDist calcNucleationMFD_forParentSect(int parentSectionID, double minMag, double maxMag, int numMag) {
 		SummedMagFreqDist mfd = new SummedMagFreqDist(minMag, maxMag, numMag);
 		
@@ -545,14 +555,14 @@ public class FaultSystemSolution implements Serializable {
 		for(int i=0; i<rupSet.getNumRuptures(); i++)
 			ruprates.set(i,getRateForRup(i));
 		funcs.add(ruprates); 	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Inverted Rupture Rates"); 
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Solution Rupture Rates"); 
 		graph.setX_AxisLabel("Rupture Index");
 		graph.setY_AxisLabel("Rate");
 
 	}
 	
 	/**
-	 * This compares observed section rates (supplied) with those implied by the
+	 * This compares observed paleo event rates (supplied) with those implied by the
 	 * Fault System Solution.
 	 * 
 	 */

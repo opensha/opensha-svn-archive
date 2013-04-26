@@ -232,7 +232,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 			this.spatialSeisPDF = branch.getValue(SpatialSeisPDF.class);
 	}
 
-	// TODO [re]move
+	// TODO [re]move (put in FaultSectionPrefData class?)
 	public static Vector3D getSlipVector(FaultSectionPrefData section) {
 		double[] strikeDipRake = { section.getFaultTrace().getAveStrike(), section.getAveDip(), section.getAveRake() };
 		double[] vect = FaultUtils.getSlipVector(strikeDipRake);
@@ -243,7 +243,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 
 	/**
 	 * Plot magnitude histogram for the inversion ruptures (how many rups at each mag)
-	 * TODO move/remove
+	 * TODO move to parent or analysis class?
 	 */
 	public void plotMagHistogram() {
 		//IncrementalMagFreqDist magHist = new IncrementalMagFreqDist(5.05,35,0.1);  // This doesn't go high enough if creeping section is left in for All-California
@@ -297,7 +297,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		double[] rupTotMoRateAvail = new double[numRuptures];
 		double[] rupArea = new double[numRuptures];
 		double[] rupLength = new double[numRuptures];
-		double[] rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
+//		double[] rupOrigDDW = new double[numRuptures];	// down-dip width before aseismicity reduction
 		double[] rupRake = new double[numRuptures];
 
 		// cluster stuff
@@ -339,14 +339,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				rupRake[rupIndex] = FaultUtils.getInRakeRange(FaultUtils.getScaledAngleAverage(areas, rakes));
 				double origDDW = totOrigArea/totLength;
 				double mag = scalingRelationship.getMag(totArea, origDDW);
-				//				for(MagAreaRelationship magArea: magAreaRelList) {
-				//					if(magArea.getName().equals(Shaw_2009_ModifiedMagAreaRel.NAME)) {
-				//						mag += ((MagAreaRelDepthDep)magArea).getWidthDepMedianMag(totArea*1e-6, (totArea/totLength)*1e-3)/magAreaRelList.size();
-				////						System.out.println("YES!");
-				//					} else {
-				//						mag += magArea.getMedianMag(totArea*1e-6)/magAreaRelList.size();
-				//					}
-				//				}
 				rupMeanMag[rupIndex] = mag;
 				rupMeanMoment[rupIndex] = MagUtils.magToMoment(rupMeanMag[rupIndex]);
 				// the above is meanMoment in case we add aleatory uncertainty later (aveMoment needed elsewhere); 
@@ -366,58 +358,57 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List = inversionMFDs.getSubSeismoOnFaultMFD_List();
 		double impliedOnFaultCouplingCoeff = inversionMFDs.getImpliedOnFaultCouplingCoeff();
 
-		// compute sectSlipRateReduced
-		double[] sectSlipRateReduced = new double[numSections];
-		double[] sectSlipRateStdDevReduced = new double[numSections];
+		// compute target slip rate and stdDev (reduced for subseismo ruptures)
+		double[] targetSlipRate = new double[numSections];
+		double[] targetSlipRateStdDev = new double[numSections];
 
-		// compute the average moment rate fraction for sub-seismo ruptures
-		// Note the numerator is reduced if desired, but the denominator (original total moment rate is not reduced) 
-		double aveSubSeismoMoRateFraction = inversionMFDs.getTotalSubSeismoOnFaultMFD().getTotalMomentRate()/inversionMFDs.getOrigOnFltDefModMoRate();
+		// first get the implied coupling coeff reduction factor
+		double impliedCC_reduction = 1.0;
+		if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
+			impliedCC_reduction = impliedOnFaultCouplingCoeff;
+	
+		
+		double totalOrigOnFaultMoRate = inversionMFDs.getOrigOnFltDefModMoRate();
+		double totalFinalOnFaultMoRate = totalOrigOnFaultMoRate*impliedCC_reduction;
+		double aveCharSubSeismoMoRateFraction = inversionMFDs.getTotalSubSeismoOnFaultMFD().getTotalMomentRate()/totalFinalOnFaultMoRate;	// denomintor reduces by any implied CC
 
 		// now compute reduced slip rates and their std
 		for(int s=0; s<numSections; s++) {
-			double origMoRate = faultSectionData.get(s).calcMomentRate(true);
-			if (Double.isNaN(origMoRate))
-				origMoRate = 0;
-			double subSeismoMoRateReduced;
-			if(inversionModel.isCharacteristic())
-				subSeismoMoRateReduced = origMoRate*aveSubSeismoMoRateFraction;	// apply same average value to all sections to avoid wild changes in fractional reduction
-			else	// GR branch
-				subSeismoMoRateReduced = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate(); 	// apply section-specific value; this is already reduced if desired
+			
+			// get original (creep reduced) section moment rate
+			double origSectMoRate = faultSectionData.get(s).calcMomentRate(true);	// this is creep reduced
+			if (Double.isNaN(origSectMoRate))
+				origSectMoRate = 0;
+			
+			double impliedCC_reducedSectMoRate = origSectMoRate*impliedCC_reduction;
 
-			double fractionalMoRateReduction=1;
-			if(origMoRate > 0) { // avoid division by zero
-				if(applyImpliedCouplingCoeff && impliedOnFaultCouplingCoeff<1)
-					fractionalMoRateReduction = (origMoRate*impliedOnFaultCouplingCoeff-subSeismoMoRateReduced)/origMoRate;
-				else
-					fractionalMoRateReduction = (origMoRate-subSeismoMoRateReduced)/origMoRate;
+			double fractionalSlipRateReduction=1.0;
+			
+			if(origSectMoRate > 0) { // avoid division by zero
+				if(inversionModel.isCharacteristic()) {
+					fractionalSlipRateReduction = impliedCC_reducedSectMoRate*(1.0-aveCharSubSeismoMoRateFraction)/origSectMoRate;	// reduced by subseismo and any implied CC
+				}
+				else {
+					double subSeismoMoRate = subSeismoOnFaultMFD_List.get(s).getTotalMomentRate(); 	// implied CC already applied if applicable
+					fractionalSlipRateReduction = (impliedCC_reducedSectMoRate-subSeismoMoRate)/origSectMoRate;	// reduced by subseismo and any implied CC
+				}				
 			}
-
-			// FOLLOWING NO LONGER NEEDED:
-			//			else {
-			//				System.out.println("Zero MoRate for section (name. DDW, slipRate:\t"+getFaultSectionData(s).getName()+
-			//						"\t"+getFaultSectionData(s).getReducedDownDipWidth()+"\t"+getFaultSectionData(s).getReducedAveSlipRate());
-			//			}
-			// apply water level of 10% (to avoid negative slip rates)
-			//			if(fractionalMoRateReduction<MIN_MO_RATE_REDUCTION) {
-			//				seisMoRateAdded += (MIN_MO_RATE_REDUCTION-fractionalMoRateReduction)*origMoRate;
-			//				fractionalMoRateReduction=0.1;
-			////				System.out.println("Negative Slip Rate:\t"+this.getFaultSectionData(s).getName()+"\t"+this.getMinMagForSection(s)+"\t"+this.getMaxMagForSection(s));
-			//			}
-			sectSlipRateReduced[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
-			sectSlipRateStdDevReduced[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalMoRateReduction; // mm/yr --> m/yr; includes moRateReduction
+			targetSlipRate[s] = faultSectionData.get(s).getReducedAveSlipRate()*1e-3*fractionalSlipRateReduction; // mm/yr --> m/yr; includes moRateReduction
+			targetSlipRateStdDev[s] = faultSectionData.get(s).getReducedSlipRateStdDev()*1e-3*fractionalSlipRateReduction; // mm/yr --> m/yr; includes moRateReduction
 		}
+		
+		// compute rupTotMoRateAvail[rupIndex]
 		for (int r=0; r<numRuptures; r++) {
 			double totMoRate=0;
 			for (int sectID : getSectionsIndicesForRup(r)) {
 				double area = getAreaForSection(sectID);
-				totMoRate += FaultMomentCalc.getMoment(area, sectSlipRateReduced[sectID]);
+				totMoRate += FaultMomentCalc.getMoment(area, targetSlipRate[sectID]);
 			}
 			rupTotMoRateAvail[rupIndex]=totMoRate;
 		}
 		if (D) System.out.println("DONE creating "+getNumRuptures()+" ruptures!");
 
-		init(faultSectionData, sectSlipRateReduced, sectSlipRateStdDevReduced, sectAreasReduced, sectionsForRups, rupMeanMag, rupRake, rupArea, rupLength, infoString);
+		init(faultSectionData, targetSlipRate, targetSlipRateStdDev, sectAreasReduced, sectionsForRups, rupMeanMag, rupRake, rupArea, rupLength, infoString);
 	}
 
 	/**

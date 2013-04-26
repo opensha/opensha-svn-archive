@@ -497,7 +497,6 @@ public class FaultSystemRupSet implements Serializable {
 		if (fsdList.size() > 1) {
 			ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
 			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-				// TODO: should aseis be false instead of true?
 				surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
 			}
 			return new CompoundGriddedSurface(surfaces);
@@ -531,15 +530,6 @@ public class FaultSystemRupSet implements Serializable {
 	 */
 	public double getAveWidthForRup(int rupIndex) {
 		return getAreaForRup(rupIndex)/getLengthForRup(rupIndex);
-//		double sum =0;
-//		double totArea =0;
-//		for(FaultSectionPrefData data : getFaultSectionDataForRupture(rupIndex)) {
-//			double width = data.getReducedDownDipWidth();
-//			double area = width*data.getTraceLength();
-//			sum += width*area;
-//			totArea += area;
-//		}
-//		return sum/totArea;
 	}
 
 	
