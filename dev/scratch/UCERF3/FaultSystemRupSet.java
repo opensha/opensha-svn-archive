@@ -282,7 +282,9 @@ public class FaultSystemRupSet implements Serializable {
 	
 	/**
 	 * This computes the fractional slip rate (or moment rate) taken away for sub-seismogenic ruptures
-	 * (relative to creep reduced moment rate).
+	 * (relative to creep reduced moment rate).  Actually, this will also include any additional coupling
+	 * coefficient reductions applied by subclasses (e.g., InversionFaultSystemRuptureSet has the option
+	 * of also applying an implied coupling coefficient that will be reflected in getSlipRateForSection(sectIndex))
 	 * @param sectIndex
 	 * @return
 	 */
@@ -294,7 +296,11 @@ public class FaultSystemRupSet implements Serializable {
 	
 	/**
 	 * This returns the total reduction in moment rate for subseimogenic ruptures
-	 * and any coupling coefficient applied (the amount removed)
+	 * and any coupling coefficient applied (the amount removed).  Actually, this 
+	 * reduction also includes any additional coupling coefficient reductions applied 
+	 * by subclasses (e.g., InversionFaultSystemRuptureSet has the option of also 
+	 * applying an implied coupling coefficient that will be reflected in 
+	 * getSlipRateForSection(sectIndex))
 	 * 
 	 * @return
 	 */
@@ -303,9 +309,12 @@ public class FaultSystemRupSet implements Serializable {
 	}
 	
 	/**
-	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures 
+	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures.
+	 * Actually, this reduction also includes any additional coupling coefficient reductions  
+	 * applied by subclasses (e.g., InversionFaultSystemRuptureSet has the option of also 
+	 * applying an implied coupling coefficient that will be reflected in 
+	 * getSlipRateForSection(sectIndex))
 	 * 
-	 * (getTotalMomentRateReduction()/getTotalOrigMomentRate()).
 	 */
 	public double getTotalMomentRateReductionFraction() {
 		return getTotalMomentRateReduction() / getTotalOrigMomentRate();
@@ -325,7 +334,7 @@ public class FaultSystemRupSet implements Serializable {
 	
 	/**
 	 * This returns the total moment rate for the given rupSet without taking into account any
-	 * moment rate reductions for subseismogenic ruptures (but does include all creep reductions).<br>
+	 * moment rate reductions for subseismogenic ruptures (but does include all default creep reductions).<br>
 	 * <br>
 	 * This simply calls <code>DeformationModelsCalc.calculateTotalMomentRate(sectData, true)</code> 
 	 * 
@@ -337,9 +346,11 @@ public class FaultSystemRupSet implements Serializable {
 	}
 	
 	/**
-	 * This returns the moment rate after removing that for subseimogenic ruptures. 
-	 * This simply returns the original, creep-reduced moment rate multiplied by 
-	 * <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
+	 * This returns the moment rate after removing that for subseimogenic ruptures 
+	 * (and default creep effects). This also include any additional
+	 * coupling coefficients applied by subclasses (e.g., InversionFaultSystemRuptureSet 
+	 * has the option of also applying an implied coupling coefficient that will be 
+	 * reflected in getSlipRateForSection(sectIndex)).
 	 * 
 	 * @param sectIndex
 	 * @return
@@ -350,7 +361,10 @@ public class FaultSystemRupSet implements Serializable {
 	
 	/**
 	 * This returns the total moment rate after removing that for subseismogenic  
-	 * ruptures (and creep influences).
+	 * ruptures (and default creep influences).  This also include any additional
+	 * coupling coefficients applied by subclasses; e.g., InversionFaultSystemRuptureSet 
+	 * has the option of also applying an implied coupling coefficient that will be 
+	 * reflected in getSlipRateForSection(sectIndex)).
 	 * @return
 	 */
 	public double getTotalReducedMomentRate() {
