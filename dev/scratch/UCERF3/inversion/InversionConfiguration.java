@@ -219,14 +219,13 @@ public class InversionConfiguration {
 		 * ******************************************* */
 		// Setting slip-rate constraint weights to 0 does not disable them! To disable one or the other (both cannot be), use slipConstraintRateWeightingType Below
 		double slipRateConstraintWt_normalized = 1; // For SlipRateConstraintWeightingType.NORMALIZED (also used for SlipRateConstraintWeightingType.BOTH) -- NOT USED if UNNORMALIZED!
-		double slipRateConstraintWt_unnormalized = 0.01; // For SlipRateConstraintWeightingType.UNNORMALIZED (also used for SlipRateConstraintWeightingType.BOTH) -- NOT USED if NORMALIZED!
-		// If normalized, slip rate misfit is % difference for each section (recommended since
-		// it helps fit slow-moving faults).  If unnormalized, misfit is absolute difference.
-		// Both includes both normalized and unnormalized constraints.
-		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.NORMALIZED_BY_SLIP_RATE;
+		double slipRateConstraintWt_unnormalized = 100; // For SlipRateConstraintWeightingType.UNNORMALIZED (also used for SlipRateConstraintWeightingType.BOTH) -- NOT USED if NORMALIZED!
+		// If normalized, slip rate misfit is % difference for each section (recommended since it helps fit slow-moving faults).  If unnormalized, misfit is absolute difference.
+		// BOTH includes both normalized and unnormalized constraints.
+		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.BOTH; // (recommended: BOTH)
 		
-		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.0 if weightSlipRates=true, 0.01 otherwise)
-		double paleoRateConstraintWt = 1;
+		// weight of paleo-rate constraint relative to slip-rate constraint (recommended: 1.2)
+		double paleoRateConstraintWt = 1.2;
 		
 		if (modifiers != null && modifiers.hasOption(InversionOptions.PALEO_WT.getArgName())) {
 			paleoRateConstraintWt = Double.parseDouble(modifiers.getOptionValue(InversionOptions.PALEO_WT.getArgName()));
