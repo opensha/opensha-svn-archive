@@ -353,7 +353,7 @@ public class BatchPlotGen {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				avgSol.toZipFile(avgSolFile);
+				FaultSystemIO.writeSol(avgSol, avgSolFile);
 				// write bin file as well
 				MatrixIO.doubleArrayToFile(avgSol.getRateForAllRups(), new File(meanSolDir, meanPrefix+".bin"));
 				handleSolutionFile(avgSolFile, meanPrefix, avgSol, null);
@@ -466,8 +466,11 @@ public class BatchPlotGen {
 		}
 		if (!hasJumpPlots) {
 			try {
+				DeformationModels dm = sol.getRupSet().getFaultModel().getFilterBasis();
+				if (dm == null)
+					dm = sol.getRupSet().getDeformationModel();
 				Map<IDPairing, Double> distsMap = new DeformationModelFetcher(
-						sol.getRupSet().getFaultModel(), sol.getRupSet().getDeformationModel(),
+						sol.getRupSet().getFaultModel(), dm,
 						UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getSubSectionDistanceMap(
 								LaughTestFilter.getDefault().getMaxJumpDist());
 				CommandLineInversionRunner.writeJumpPlots(sol, distsMap, dir, prefix);

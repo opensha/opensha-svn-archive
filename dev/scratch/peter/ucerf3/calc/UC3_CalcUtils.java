@@ -195,7 +195,7 @@ public class UC3_CalcUtils {
 	public static AverageFaultSystemSolution getAvgSolution(String path) {
 		try {
 			File file = new File(path);
-			return AverageFaultSystemSolution.fromZipFile(file);
+			return FaultSystemIO.loadAvgInvSol(file);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

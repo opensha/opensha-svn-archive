@@ -55,7 +55,7 @@ public class InversionConvergencePlotGen {
 		
 		File avgFile = new File(solDir, "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_" +
 				"NoFix_SpatSeisU3_mean_sol.zip");
-		AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromZipFile(avgFile);
+		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(avgFile);
 		
 		File avgSol0rates = new File(solDir, "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_" +
 				"M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run00.bin");

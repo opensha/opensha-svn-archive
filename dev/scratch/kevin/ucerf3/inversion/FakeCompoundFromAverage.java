@@ -19,6 +19,7 @@ import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class FakeCompoundFromAverage {
 
@@ -35,7 +36,7 @@ public class FakeCompoundFromAverage {
 				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 		File outFile = new File(dir, "zeng_convergence_compound.zip");
 		
-		final AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromZipFile(inFile);
+		final AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(inFile);
 		final LogicTreeBranch branch = LogicTreeBranch.fromFileName(inFile.getName());
 		
 		final int bundle = 1;

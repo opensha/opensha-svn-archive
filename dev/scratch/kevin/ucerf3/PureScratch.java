@@ -37,6 +37,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
@@ -73,6 +74,11 @@ public class PureScratch {
 		System.out.println(invSol.getInversionConfiguration());
 		System.out.println(invSol.getInvModel());
 		System.out.println(invSol.getMisfits().size());
+		
+		// loading in AVFSS
+		f = new File("/tmp/compound_tests_data/subset/FM3_1_NEOK_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean/FM3_1_NEOK_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(f);
+		System.out.println("Average sol with "+avgSol.getNumSolutions()+" sols");
 		System.exit(0);
 		
 		double a1 = 8.62552e32;

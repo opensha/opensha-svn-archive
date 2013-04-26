@@ -39,6 +39,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
@@ -223,32 +224,6 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 	
 	public void clearSolCache() {
 		solsMap.clear();
-	}
-
-	// TODO move
-	public void toZipFile(File file) throws IOException {
-		File tempDir = FileUtils.createTempDir();
-		
-		HashSet<String> zipFileNames = new HashSet<String>();
-		
-		File ratesFile = new File(tempDir, "rates.bin"); // mean rates
-		MatrixIO.doubleArrayToFile(getRateForAllRups(), ratesFile);
-		zipFileNames.add(ratesFile.getName());
-		
-		int digits = new String(""+(numSols-1)).length();
-		for (int s=0; s<numSols; s++) {
-			double[] rates = getRates(s);
-			String rateStr = s+"";
-			while (rateStr.length()<digits)
-				rateStr = "0"+rateStr;
-			File rateSubFile = new File(tempDir, "sol_rates_"+rateStr+".bin");
-			MatrixIO.doubleArrayToFile(rates, rateSubFile);
-			zipFileNames.add(rateSubFile.getName());
-		}
-		
-		// TODO
-//		SimpleFaultSystemRupSet simpleRupSet = SimpleFaultSystemRupSet.toSimple(rupSet);
-//		simpleRupSet.toZipFile(file, tempDir, zipFileNames);
 	}
 	
 	public double[][] calcParticRates(double magLow, double magHigh) throws InterruptedException {
@@ -548,43 +523,6 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
-
-	public static AverageFaultSystemSolution fromZipFile(File zipFile)
-	throws ZipException, IOException, DocumentException {
-//		SimpleFaultSystemRupSet invRupSet = SimpleFaultSystemRupSet.fromZipFile(zipFile);
-		InversionFaultSystemRupSet invRupSet = null; // TODO FIXME!
-		ZipFile zip = new ZipFile(zipFile);
-		
-		List<double[]> rates = Lists.newArrayList();
-		
-		ArrayList<? extends ZipEntry> entries = Collections.list(zip.entries());
-		for (int i=entries.size(); --i>=0;)
-			if (!entries.get(i).getName().startsWith("sol_rates_"))
-				entries.remove(i);
-		
-		Collections.sort(entries, new SolRatesEntryComparator());
-		
-		// check the numbering
-		String lastName = entries.get(entries.size()-1).getName();
-		String lastNum = lastName.substring("sol_rates_".length());
-		lastNum = lastNum.substring(0, lastNum.indexOf(".bin"));
-		int numSols = Integer.parseInt(lastNum)+1;
-		Preconditions.checkState(numSols == entries.size(), "Number of solutions incosistant, expected="+numSols
-				+", actual="+entries.size()+" (inferred from last filename: "+lastName+")");
-		
-		int numRups = invRupSet.getNumRuptures();
-		
-		for (ZipEntry entry : entries) {
-			double[] solRates = MatrixIO.doubleArrayFromInputStream(
-					new BufferedInputStream(zip.getInputStream(entry)), entry.getSize());
-			Preconditions.checkState(solRates.length == numRups,
-					"Rate file is wrong size: "+solRates.length+" != "+numRups
-					+" ("+entry.getName()+")");
-			rates.add(solRates);
-		}
-		
-		return new AverageFaultSystemSolution(invRupSet, rates);
-	}
 	
 	private static class SolRatesEntryComparator implements Comparator<ZipEntry> {
 		
@@ -693,7 +631,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 //		File file = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 		File file = new File("/tmp/asdf/file.zip");
 		
-		AverageFaultSystemSolution avg = fromZipFile(file);
+		AverageFaultSystemSolution avg = FaultSystemIO.loadAvgInvSol(file);
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_21-zeng-ref-lowpaleo-100runs/paleo");
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_07_31-zeng-ref-char-unconst-lowpaleo-100runs/results");
 //		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromFile(new File(dir,
