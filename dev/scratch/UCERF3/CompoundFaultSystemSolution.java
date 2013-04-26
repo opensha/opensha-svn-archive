@@ -161,7 +161,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * sect_slips.bin				ALL BUT Dsr
 	 * sect_slips_std_dev.bin		ALL BUT Dsr
 	 * inv_rup_set_metadata.xml		ALL
-	 * inversion_metadata.xml		ALL
+	 * inv_sol_metadata.xml			ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -191,7 +191,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 				ScalingRelationships.class, InversionModels.class, TotalMag5Rate.class,
 				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
 		dependencyMap.put("inv_rup_set_metadata.xml", null);
-		dependencyMap.put("inversion_metadata.xml", null);
+		dependencyMap.put("inv_sol_metadata.xml", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
@@ -304,10 +304,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			BatchPlotGen.writeCombinedFSS(dir, nameGreps);
 			System.exit(0);
 		}
-		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File dir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
+		File dir = new File("/tmp/compound_tests_data/subset/");
 //		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
-		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+//		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();
 //		watch.start();
 //		toZipFile(compoundFile, it);
@@ -317,12 +320,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		watch.reset();
 		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
-		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
-		System.exit(0);
+//		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
+//		System.exit(0);
 		
 		for (LogicTreeBranch branch : compoundSol.getBranches()) {
 			System.out.println("Loading "+branch);
-			compoundSol.getSolution(branch);
+			System.out.println(ClassUtils.getClassNameWithoutPackage(
+					compoundSol.getSolution(branch).getClass()));
 		}
 		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to load");
 	}

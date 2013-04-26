@@ -10,8 +10,11 @@ public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
 	
 	// old rates kept for compatibility (for now)
 	// TODO: remove
+	@Deprecated
 	RATE_7p6(7.6,	0d),
+	@Deprecated
 	RATE_8p7(8.7,	0d),
+	@Deprecated
 	RATE_10p0(10.0,	0d);
 	
 	private double rate;
