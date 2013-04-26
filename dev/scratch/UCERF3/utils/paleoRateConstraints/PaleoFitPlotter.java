@@ -497,18 +497,19 @@ public class PaleoFitPlotter {
 			getAllParentsMap(rupSet.getFaultSectionDataList());
 		
 		List<DataForPaleoFaultPlots> datas = Lists.newArrayList();
-		if (sol instanceof AverageFaultSystemSolution && 
-				((AverageFaultSystemSolution)sol).getNumSolutions() <= 10) {
-			int cnt = 0;
-			for (InversionFaultSystemSolution s : (AverageFaultSystemSolution)sol) {
-				System.out.println("Building paleo data for solution: "+(++cnt));
-				datas.add(DataForPaleoFaultPlots.build(s, namedFaultsMap, namedFaultConstraintsMap,
-						allParentsMap, paleoProbModel, 1d));
-			}
-		} else {
+		// just takes forever and no one looks at them. disable
+//		if (sol instanceof AverageFaultSystemSolution && 
+//				((AverageFaultSystemSolution)sol).getNumSolutions() <= 10) {
+//			int cnt = 0;
+//			for (InversionFaultSystemSolution s : (AverageFaultSystemSolution)sol) {
+//				System.out.println("Building paleo data for solution: "+(++cnt));
+//				datas.add(DataForPaleoFaultPlots.build(s, namedFaultsMap, namedFaultConstraintsMap,
+//						allParentsMap, paleoProbModel, 1d));
+//			}
+//		} else {
 			datas.add(DataForPaleoFaultPlots.build(sol, namedFaultsMap, namedFaultConstraintsMap,
 					allParentsMap, paleoProbModel, 1d));
-		}
+//		}
 		return getFaultSpecificPaleoPlotSpecs(namedFaultsMap, namedFaultConstraintsMap, datas, allParentsMap);
 	}
 	

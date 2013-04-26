@@ -401,6 +401,8 @@ public class BatchPlotGen {
 //		System.out.println("Handling solution file: "+file.getAbsolutePath());
 		
 		if (misfitsMap != null) {
+			if (sol == null)
+				sol = FaultSystemIO.loadInvSol(file);
 			VariableLogicTreeBranch branch = null;
 			try {
 //				System.out.println("Prefix: "+prefix);
@@ -421,7 +423,7 @@ public class BatchPlotGen {
 						writeMisfitsFile(misfits, misfitsFile);
 						misfitsMap.put(branch, misfits);
 					} catch (Exception e) {
-						System.err.println("WARNING: Couldn't load InversionFaultSystemSolution for: "+prefix);
+						System.err.println("WARNING: Couldn't load InversionFaultSystemSolution Misfits for: "+prefix);
 						e.printStackTrace();
 					}
 				}

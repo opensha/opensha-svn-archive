@@ -676,13 +676,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "slip-wt-unnorm-tests";
+		String runName = "refactored-new-tests";
 		if (args.length > 1)
 			runName = args[1];
-//		int constrained_run_mins = 60;	// 1 hour
+		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-		int constrained_run_mins = 300; // 5 hours
+//		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 60 * 10;	// 10 hours
@@ -708,8 +708,8 @@ public class LogicTreePBSWriter {
 //		int jobsPerNode = 3;
 //		String threads = "5"; // *2 = 16 (out of 16 possible)
 		
-//		LogicTreeBranch prescribedBranch = null;
-		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
+		LogicTreeBranch prescribedBranch = null;
+//		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
 //		prescribedBranch.setValue(TotalMag5Rate.RATE_6p5);
 
 		//		String nameAdd = "VarSub5_0.3";
@@ -720,7 +720,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 1;
+		int numRuns = 3;
 		int runStart = 0;
 		boolean forcePlots = true;
 
@@ -872,13 +872,13 @@ public class LogicTreePBSWriter {
 ////		variationBranches.add(buildVariationBranch(ops, toArray("NORM")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("BOTH")));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.SLIP_WT_TYPE, InversionOptions.SLIP_WT_UNNORM };
-//		variationBranches.add(buildVariationBranch(ops, toArray("NORM")));
-		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.01")));
-		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.02")));
-		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.05")));
-		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "1")));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.SLIP_WT_TYPE, InversionOptions.SLIP_WT_UNNORM };
+////		variationBranches.add(buildVariationBranch(ops, toArray("NORM")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.01")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.02")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "0.05")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("BOTH", "1")));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.SLIP_WT_UNNORM };
