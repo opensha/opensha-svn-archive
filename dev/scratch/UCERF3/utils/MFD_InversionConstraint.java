@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -77,7 +78,8 @@ public class MFD_InversionConstraint implements XMLSaveable {
 	public Element toXMLMetadata(Element root) {
 		Element el = root.addElement(XML_METADATA_NAME);
 		
-		region.toXMLMetadata(el);
+		// must call this way to make sure we get the regular region, not a gridded
+		region.toXMLMetadata(el, Region.XML_METADATA_NAME);
 		mfd.toXMLMetadata(el);
 		
 		return root;

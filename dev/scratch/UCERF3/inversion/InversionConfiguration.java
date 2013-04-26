@@ -1202,14 +1202,17 @@ public class InversionConfiguration implements XMLSaveable {
 			MFD_InversionConstraint constr = constraints.get(i);
 			
 			constr.toXMLMetadata(el);
-			el.element(MFD_InversionConstraint.XML_METADATA_NAME).addAttribute("index", i+"");
 		}
+		// now set indexes
+		List<Element> subEls = XMLUtils.getSubElementsList(el);
+		for (int i=0; i<subEls.size(); i++)
+			subEls.get(i).addAttribute("index", i+"");
 	}
 	
 	public static InversionConfiguration fromXMLMetadata(Element confEl) {
 		double slipRateConstraintWt_normalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_normalized"));
 		double slipRateConstraintWt_unnormalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_unnormalized"));
-		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.valueOf(confEl.attributeValue("slipRateConstraintWt_normalized"));
+		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.valueOf(confEl.attributeValue("slipRateWeighting"));
 		double paleoRateConstraintWt = Double.parseDouble(confEl.attributeValue("paleoRateConstraintWt"));
 		double paleoSlipConstraintWt = Double.parseDouble(confEl.attributeValue("paleoSlipConstraintWt"));
 		double magnitudeEqualityConstraintWt = Double.parseDouble(confEl.attributeValue("magnitudeEqualityConstraintWt"));

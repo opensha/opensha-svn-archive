@@ -127,24 +127,45 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		ArrayList<String> infoLines = Lists.newArrayList(Splitter.on("\n").split(infoString));
 		
+		// load inversion properties
 		try {
 			Map<String, String> invProps = loadProperties(getMetedataSection(infoLines, "Inversion Configuration Metadata"));
+			loadInvParams(invProps);
+		} catch (Exception e1) {
+			System.err.println("Couldn't load in Legacy Inversion Properties: "+e1);
+		}
+		
+		// load branch
+		try {
 			Map<String, String> branchProps = loadProperties(getMetedataSection(infoLines, "Logic Tree Branch"));
+			branch = loadBranch(branchProps);
+		} catch (Exception e1) {
+			System.err.println("Couldn't load in Legacy Inversion Logic Tree: "+e1);
+		} finally {
+			if (branch == null) {
+				// use logic tree branch if couldn't parse, or isn't fully specified
+				branch = rupSet.getLogicTreeBranch();
+			} else {
+				// see if we can fill anything in from the rupSet
+				LogicTreeBranch rBranch = rupSet.getLogicTreeBranch();
+				for (int i=0; i<branch.size(); i++) {
+					if (branch.getValue(i) == null && rBranch.getValue(i) != null)
+						branch.setValue(rBranch.getValue(i));
+				}
+			}
+		}
+		invModel = branch.getValue(InversionModels.class);
+		
+		// load SA properties
+		try {
 			ArrayList<String> saMetadata = getMetedataSection(infoLines, "Simulated Annealing Metadata");
 			if (saMetadata == null)
 				saMetadata = Lists.newArrayList();
 			Map<String, String> saProps = loadProperties(saMetadata);
-			branch = loadBranch(branchProps);
-			invModel = branch.getValue(InversionModels.class);
-			loadInvParams(invProps);
+			
 			loadEnergies(saProps);
-		} catch (RuntimeException e) {
-			// can be uncommented for debugging string parse errors
-//			System.out.println("******* EXCEPTION CAUGHT INSTANTIATING IFSS - PRINTING METADATA *********");
-//			System.out.println(info);
-//			System.out.println("*************************************************************************");
-//			System.out.flush();
-			throw e;
+		} catch (Exception e1) {
+			System.err.println("Couldn't load in Legacy SA Properties: "+e1);
 		}
 	}
 	
@@ -215,6 +236,11 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		return section;
 	}
 	
+	/**
+	 * Legacy solutions use this
+	 * @param props
+	 * @return
+	 */
 	private LogicTreeBranch loadBranch(Map<String, String> props) {
 		List<Class<? extends LogicTreeBranchNode<?>>> classes = LogicTreeBranch.getLogicTreeNodeClasses();
 		
@@ -398,7 +424,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			for (String energyStr : energies.keySet()) {
 				double eVal = energies.get(energyStr);
 				double wt;
-				energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
+				if (energyStr.contains("energy"))
+					// legacy text parsing will have this
+					energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
 				if (energyStr.equals("Slip Rate")) {
 					switch (inversionConfiguration.getSlipRateWeightingType()) {
 					case NORMALIZED_BY_SLIP_RATE:

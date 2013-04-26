@@ -756,6 +756,10 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	}
 
 	public LogicTreeBranch getLogicTreeBranch() { return logicTreeBranch; }
+	
+	public void setLogicTreeBranch(LogicTreeBranch logicTreeBranch) {
+		this.logicTreeBranch = logicTreeBranch;
+	}
 
 	// convenience methods for FM and DM, Dsr
 

@@ -490,6 +490,7 @@ public class FaultSystemIO {
 			} else {
 				// legacy, do string parsing
 				InversionFaultSystemSolution legacySol = new InversionFaultSystemSolution(invRupSet, infoString, rates);
+				invRupSet.setLogicTreeBranch(legacySol.getLogicTreeBranch());
 				conf = legacySol.getInversionConfiguration();
 				energies = legacySol.getEnergies();
 			}
