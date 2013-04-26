@@ -1742,11 +1742,11 @@ public class DeformationModelsCalc {
 		double totAveMomentRate=0;
 		for(int i=0; i<aveDefModTotal.size();i++)
 			totAveMomentRate+=aveDefModTotal.get(i);
-		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
+		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2pdfAsGeoData();
 		for(int i=0;i< ucerf2_SmSeisDist.size();i++)
 			ucerf2_SmSeisDist.set(i, totAveMomentRate*ucerf2_SmSeisDist.get(i));
 		
-		GriddedGeoDataSet ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		GriddedGeoDataSet ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3pdfAsGeoData();
 		for(int i=0;i< ucerf3_SmSeisDist.size();i++)
 			ucerf3_SmSeisDist.set(i, totAveMomentRate*ucerf3_SmSeisDist.get(i));
 		System.out.println("totAveMomentRate="+totAveMomentRate);
@@ -1780,7 +1780,7 @@ public class DeformationModelsCalc {
 		// now make Mmax map plot
 		double totObsRate = TotalMag5Rate.RATE_7p9.getRateMag5();
 		GriddedGeoDataSet mMaxData = RELM_RegionUtils.getRELM_RegionGeoDataSetInstance();
-		ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3pdfAsGeoData();
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 3000, 0.01);
 		for(int i=0;i< ucerf3_SmSeisDist.size();i++) {
 			double rate = totObsRate*ucerf3_SmSeisDist.get(i)*1e5;		// increase by 1e5 for rate at zero mag
@@ -1930,8 +1930,8 @@ public class DeformationModelsCalc {
 		double totRateMgt5 = TotalMag5Rate.RATE_7p9.getRateMag5();
 		
 		double[] nodeFracs = FaultPolyMgr.getNodeFractions(FaultModels.FM3_1, null, null);
-		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2_PDF();
-		GriddedGeoDataSet ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3_PDF();
+		GriddedGeoDataSet ucerf2_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF2pdfAsGeoData();
+		GriddedGeoDataSet ucerf3_SmSeisDist = SmoothSeismicitySpatialPDF_Fetcher.getUCERF3pdfAsGeoData();
 		double sum = 0;
 		double totRateInsideU2=0, totRateInsideU3=0;
 		for(int i=0;i<nodeFracs.length;i++) {

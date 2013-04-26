@@ -16,6 +16,7 @@ import scratch.UCERF3.griddedSeismicity.GridReader;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelOffFaultMoRateData;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.SmoothSeismicitySpatialPDF_Fetcher;
 
 /**
  * UCERF spatial seismicity pdfs.
@@ -28,13 +29,13 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 	
 	UCERF2("UCERF2",												"U2",		0.5d,	0.25d) {
 		@Override public double[] getPDF() {
-			return new GridReader("SmoothSeis_UCERF2.txt").getValues();
+			return SmoothSeismicitySpatialPDF_Fetcher.getUCERF2();
 		}
 	},
 	
 	UCERF3("UCERF3",												"U3",		0.5d,	0.25d) {
 		@Override public double[] getPDF() {
-			return new GridReader("SmoothSeis_KF_5-5-2012.txt").getValues();
+			return SmoothSeismicitySpatialPDF_Fetcher.getUCERF3();
 		}
 	},
 	
