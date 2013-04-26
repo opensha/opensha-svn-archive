@@ -1189,9 +1189,9 @@ public class InversionConfiguration implements XMLSaveable {
 		el.addAttribute("eventRateSmoothnessWt", eventRateSmoothnessWt+"");
 		
 		// write MFDs
-		Element equalMFDsEl = el.element("MFD_EqualityConstraints");
+		Element equalMFDsEl = el.addElement("MFD_EqualityConstraints");
 		mfdsToXML(equalMFDsEl, mfdEqualityConstraints);
-		Element inequalMFDsEl = el.element("MFD_InequalityConstraints");
+		Element inequalMFDsEl = el.addElement("MFD_InequalityConstraints");
 		mfdsToXML(inequalMFDsEl, mfdInequalityConstraints);
 		
 		return null;

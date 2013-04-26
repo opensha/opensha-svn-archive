@@ -128,60 +128,58 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
 
    /**
-    * this function adds the new magnitude frequency distribution
-    * the min, num and delta(or max) of new distribution should match min, max
-    * and num as specified in the constructor
-    * @param magFreqDist new Magnitude Frequency distribution to be added
+    * This function adds the given magnitude frequency distribution to the present one.
+    * The deltas must be within tolerance of each other, and values outside the
+    * range of this distribution are ignored.
+    * @param magFreqDist the Magnitude Frequency distribution to be added
     */
-
    public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-               throws XY_DataSetException,Point2DException {
+   throws XY_DataSetException,Point2DException {
 
-     /* check whether mun,num and delta of new distribution matches
-        the min, num and delta in  the constructor */
+	   // check that deltas are within tolorance
+	   if(Math.abs(getDelta()-magFreqDist.getDelta()) > tolerance)
+		   throw new XY_DataSetException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
+		   "deltas differ by more then tolerance");
 
-     if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
-                                    || magFreqDist.getNum()!=num)
-        throw new XY_DataSetException("addIncrementalMagFreqDist "+
-                  "invalid value of min, num or delta of new distribution");
+	   // loop over points of the given dist and add those that are within range
+	   for (int i=0;i<magFreqDist.getNum();++i) {
+		   double xVal = magFreqDist.getX(i);
+		   if(getMinX()-tolerance<xVal && xVal<getMaxX()+tolerance) {
+			   super.set(xVal, getY(xVal)+magFreqDist.getY(i));
+		   }
+	   }
 
-
-     for (int i=0;i<num;++i)      // add the y values from this new distribution
-       super.set(i,this.getY(i)+ magFreqDist.getY(i));
-
-    if(saveMagFreqDists)         // save this distribution in the list
-       savedMagFreqDists.add(magFreqDist);
-    else if(saveAllInfo)         // if only info is desired to be saved
-       savedInfoList.add(magFreqDist.getInfo());
+	   if(saveMagFreqDists)         // save this distribution in the list
+		   savedMagFreqDists.add(magFreqDist);
+	   else if(saveAllInfo)         // if only info is desired to be saved
+		   savedInfoList.add(magFreqDist.getInfo());
    }
    
    /**
     * This function subtracts the given magnitude frequency distribution, setting
     * the value to zero is it turns out negative.
-    * The min, num and delta(or max) of new distribution should match min, max
-    * and num as specified in the constructor
+    * The deltas must be within tolerance of each other, and values outside the
+    * range of this distribution are ignored.
     * @param magFreqDist new Magnitude Frequency distribution to be subtracted
     */
 
    public void subtractIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
                throws XY_DataSetException,Point2DException {
+	   
+	   // check that deltas are within tolorance
+	   if(Math.abs(getDelta()-magFreqDist.getDelta()) > tolerance)
+		   throw new XY_DataSetException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
+		   "deltas differ by more then tolerance");
 
-     /* check whether mun,num and delta of new distribution matches
-        the min, num and delta in  the constructor */
-
-     if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
-                                    || magFreqDist.getNum()!=num)
-        throw new XY_DataSetException("subtractIncrementalMagFreqDist "+
-                  "invalid value of min, num or delta of new distribution");
-
-
-     for (int i=0;i<num;++i)  {
-    	 double val = this.getY(i) - magFreqDist.getY(i);
-    	 if(val > 0)
-    		 super.set(i,val);
-    	else
-    		super.set(i,0.0);
-      }
+	   // loop over points of the given dist and add those that are within range
+	   for (int i=0;i<magFreqDist.getNum();++i) {
+		   double xVal = magFreqDist.getX(i);
+		   if(getMinX()-tolerance<xVal && xVal<getMaxX()+tolerance) {
+			   double newY = getY(xVal)-magFreqDist.getY(i);
+			   if(newY<0) newY = 0.0;
+			   super.set(xVal, newY);
+		   }
+	   }
  
     if(saveMagFreqDists)         // save this distribution in the list
        savedMagFreqDists.add(magFreqDist);
