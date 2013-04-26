@@ -35,33 +35,21 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	
 	final static CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion  = new CaliforniaRegions.RELM_TESTING_GRIDDED();
 	
-	GriddedGeoDataSet ucerf2_pdfData, ucerf3_pdfData;
+	public static double[] getUCERF2() {
+		return new GridReader(FILENAME_UCERF2).getValues();
+	}
 	
-	
-	public static GriddedGeoDataSet getUCERF2_PDF() {
+	public static double[] getUCERF3() {
+		return new GridReader(FILENAME_UCERF3pt3_SHALLOW).getValues();
+	}
+
+	public static GriddedGeoDataSet getUCERF2pdfAsGeoData() {
 		return readPDF_Data(FILENAME_UCERF2);
 	}
 	
-	
-	/*
-	 * Updated to return the UCERF3pt3_SHALLOW model. The prior model is now
-	 * deprecated.
-	 */
-	public static GriddedGeoDataSet getUCERF3_PDF() {
+	public static GriddedGeoDataSet getUCERF3pdfAsGeoData() {
 		return readPDF_Data(FILENAME_UCERF3pt3_SHALLOW);
 	}
-	
-	public static GriddedGeoDataSet getUCERF3pt3_PDF() {
-		return readPDF_Data(FILENAME_UCERF3pt3);
-	}
-	public static GriddedGeoDataSet getUCERF3pt3shallow_PDF() {
-		return readPDF_Data(FILENAME_UCERF3pt3_SHALLOW);
-	}
-	public static GriddedGeoDataSet getUCERF3pt3deep_PDF() {
-		return readPDF_Data(FILENAME_UCERF3pt3_DEEP);
-	}
-	
-	
 	
 
 	private static GriddedGeoDataSet readPDF_Data(String filename) {
@@ -113,11 +101,11 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	 */
 	private static void plotMaps() {
 		try {
-			GriddedGeoDataSet u2pdf = getUCERF2_PDF();
-			GriddedGeoDataSet u3pdf = getUCERF3_PDF();
-			GriddedGeoDataSet u33pdf = getUCERF3pt3_PDF();
-			GriddedGeoDataSet u33pdfShallow = getUCERF3pt3shallow_PDF();
-			GriddedGeoDataSet u33pdfDeep = getUCERF3pt3deep_PDF();
+			GriddedGeoDataSet u2pdf = readPDF_Data(FILENAME_UCERF2);
+			GriddedGeoDataSet u3pdf = readPDF_Data(FILENAME_UCERF3);
+			GriddedGeoDataSet u33pdf = readPDF_Data(FILENAME_UCERF3pt3);
+			GriddedGeoDataSet u33pdfShallow = readPDF_Data(FILENAME_UCERF3pt3_SHALLOW);
+			GriddedGeoDataSet u33pdfDeep = readPDF_Data(FILENAME_UCERF3pt3_DEEP);
 			
 //			GriddedGeoDataSet avePDF = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
 //			for(int i=0; i<u2pdf.size(); i++) {
