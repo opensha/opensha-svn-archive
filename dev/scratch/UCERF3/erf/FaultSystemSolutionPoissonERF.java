@@ -1,11 +1,11 @@
 package scratch.UCERF3.erf;
 
-import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.*;
+import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.EXCLUDE;
+import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.ONLY;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,15 +25,15 @@ import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
-import com.google.common.collect.Lists;
-
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
+import scratch.UCERF3.utils.FaultSystemIO;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class creates a Poisson ERF from a given FaultSystemSolution.  Each "rupture" in the FaultSystemSolution
@@ -89,8 +89,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //	int lastSrcRequested = -1;
 //	ProbEqkSource currentSrc=null;
 
-	
-	protected FaultSystemSolution faultSysSolution;
+	// leave as a FaultSystemSolution for use with Simulator/other FSS
+	private FaultSystemSolution faultSysSolution;
 	protected int numNonZeroFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
 	int totNumRupsFromFaultSystem;					// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
@@ -116,7 +116,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 */
 	public FaultSystemSolutionPoissonERF(FaultSystemSolution faultSysSolution) {
 		this();
-		this.faultSysSolution=faultSysSolution;
+		setSolution(faultSysSolution);
 		// remove the fileParam from the adjustable parameter list
 		adjustableParams.removeParameter(fileParam);
 		aleatoryMagAreaStdDevChanged = true;	// set so everything is updated in updateForecast()
@@ -264,20 +264,22 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * This method sets a bunch of fields, arrays, and ArrayLists.
 	 */
 	private void setupArraysAndLists() {
+		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
 				
 		if(D) {
 			System.out.println("Running setupArraysAndLists() ...");
 			System.out.println("   aleatoryMagAreaStdDev = "+aleatoryMagAreaStdDev);
 			System.out.println("   faultGridSpacing = "+faultGridSpacing);
-			System.out.println("   faultSysSolution.getNumRuptures() = "+faultSysSolution.getNumRuptures());
+			System.out.println("   faultSysSolution.getNumRuptures() = "
+					+rupSet.getNumRuptures());
 		}
 		
 		// count number of non-zero rate inversion ruptures (each will be a source)
 		numNonZeroFaultSystemSources =0;
-		for(int r=0; r< faultSysSolution.getNumRuptures();r++){
+		for(int r=0; r< rupSet.getNumRuptures();r++){
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
-			if(faultSysSolution instanceof InversionFaultSystemSolution)
-				rupTooSmall = ((InversionFaultSystemSolution)faultSysSolution).isRuptureBelowSectMinMag(r);
+			if(rupSet instanceof InversionFaultSystemRupSet)
+				rupTooSmall = ((InversionFaultSystemRupSet)rupSet).isRuptureBelowSectMinMag(r);
 //			System.out.println("rate="+faultSysSolution.getRateForRup(r));
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall)
 				numNonZeroFaultSystemSources +=1;			
@@ -285,20 +287,20 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		if(D) {
 			System.out.println("   " + numNonZeroFaultSystemSources+" of "+
-					faultSysSolution.getNumRuptures()+ 
+					rupSet.getNumRuptures()+ 
 					" fault system sources had non-zero rates");
 		}
 		
 		// make fltSysRupIndexForSource & srcIndexForFltSysRup
-		srcIndexForFltSysRup = new int[faultSysSolution.getNumRuptures()];
+		srcIndexForFltSysRup = new int[rupSet.getNumRuptures()];
 		for(int i=0; i<srcIndexForFltSysRup.length;i++)
 			srcIndexForFltSysRup[i] = -1;				// initialize values to -1 (no mapping due to zero rate)
 		fltSysRupIndexForSource = new int[numNonZeroFaultSystemSources];
 		int srcIndex = 0;
-		for(int r=0; r< faultSysSolution.getNumRuptures();r++) {
+		for(int r=0; r< rupSet.getNumRuptures();r++) {
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
-			if(faultSysSolution instanceof InversionFaultSystemSolution)
-				rupTooSmall = ((InversionFaultSystemSolution)faultSysSolution).isRuptureBelowSectMinMag(r);
+			if(rupSet instanceof InversionFaultSystemRupSet)
+				rupTooSmall = ((InversionFaultSystemRupSet)rupSet).isRuptureBelowSectMinMag(r);
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall) {
 				fltSysRupIndexForSource[srcIndex] = r;
 				srcIndexForFltSysRup[r] = srcIndex;
@@ -397,7 +399,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
 			long runTime = System.currentTimeMillis();
 			try {
-				faultSysSolution = SimpleFaultSystemSolution.fromFile(file);
+				setSolution(FaultSystemIO.loadSol(file));
 				prevFile = file;
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -410,6 +412,17 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		}
 	}
 	
+	/**
+	 * Set the current solution. Can overridden to ensure it is a particular subclass.
+	 * @param sol
+	 */
+	protected void setSolution(FaultSystemSolution sol) {
+		this.faultSysSolution = sol;
+	}
+	
+	protected FaultSystemSolution getSolution() {
+		return faultSysSolution;
+	}
 
 	@Override
 	public String getName() {
@@ -443,11 +456,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * @return
 	 */
 	protected ProbEqkSource makeFaultSystemSource(int iSource) {
-		
+		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
 		int invRupIndex= fltSysRupIndexForSource[iSource];
 		FaultRuptureSource src;
 		
-		double mag = faultSysSolution.getMagForRup(invRupIndex);
+		double mag = rupSet.getMagForRup(invRupIndex);
 		double aftRateCorr = 1d;
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
@@ -455,19 +468,19 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			boolean isPoisson = true;
 			double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
 			src = new FaultRuptureSource(mag, 
-										  faultSysSolution.getSurfaceForRupupture(invRupIndex, faultGridSpacing), 
-										  faultSysSolution.getAveRakeForRup(invRupIndex), prob, isPoisson);
+					rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing), 
+					rupSet.getAveRakeForRup(invRupIndex), prob, isPoisson);
 		}
 		else {
 
 			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
-					faultSysSolution.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
-					faultSysSolution.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
+					rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
+					rupSet.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
 		}
 
-		List<FaultSectionPrefData> data = faultSysSolution.getFaultSectionDataForRupture(invRupIndex);
+		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(invRupIndex);
 		String name = data.size()+" SECTIONS BETWEEN "+data.get(0).getName()+" AND "+data.get(data.size()-1).getName();
 		src.setName("Inversion Src #"+invRupIndex+"; "+name);
 		return src;

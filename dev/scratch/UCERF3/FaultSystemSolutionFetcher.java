@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
@@ -19,30 +20,25 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystemSolution> {
+public abstract class FaultSystemSolutionFetcher implements Iterable<InversionFaultSystemSolution> {
 	
 	private boolean cacheCopying = true;
 	// this is for copying caches from previous rup sets of the same fault model
 	private Map<FaultModels, FaultSystemRupSet> rupSetCacheMap = Maps.newHashMap();
 	
-	private Map<LogicTreeBranch, Map<String, Double>> misfitsCache = Maps.newHashMap();
-	
 	public abstract Collection<LogicTreeBranch> getBranches();
 	
-	protected abstract FaultSystemSolution fetchSolution(LogicTreeBranch branch);
+	protected abstract InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch);
 	
-	public FaultSystemSolution getSolution(LogicTreeBranch branch) {
-		FaultSystemSolution sol = fetchSolution(branch);
+	public InversionFaultSystemSolution getSolution(LogicTreeBranch branch) {
+		InversionFaultSystemSolution sol = fetchSolution(branch);
 		if (cacheCopying) {
 			synchronized (this) {
-				FaultModels fm = sol.getFaultModel();
+				FaultModels fm = sol.getRupSet().getFaultModel();
 				if (rupSetCacheMap.containsKey(fm)) {
-					sol.copyCacheFrom(rupSetCacheMap.get(fm));
+					sol.getRupSet().copyCacheFrom(rupSetCacheMap.get(fm));
 				} else {
-					if (sol instanceof SimpleFaultSystemSolution)
-						rupSetCacheMap.put(fm, ((SimpleFaultSystemSolution)sol).getRupSet());
-					else
-						rupSetCacheMap.put(fm, sol);
+					rupSetCacheMap.put(fm, sol.getRupSet());
 				}
 			}
 		}
@@ -54,25 +50,7 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	}
 	
 	public double[] getMags(LogicTreeBranch branch) {
-		return getSolution(branch).getMagForAllRups();
-	}
-	
-	protected abstract Map<String, Double> fetchMisfits(LogicTreeBranch branch);
-	
-	/**
-	 * Returns a map of misfit values, if available, else null
-	 * 
-	 * @param branch
-	 * @return
-	 */
-	public synchronized Map<String, Double> getMisfits(LogicTreeBranch branch) {
-		Map<String, Double> misfits = misfitsCache.get(branch);
-		if (misfits == null) {
-			misfits = fetchMisfits(branch);
-			if (misfits != null)
-				misfitsCache.put(branch, misfits);
-		}
-		return misfits;
+		return getSolution(branch).getRupSet().getMagForAllRups();
 	}
 
 	public boolean isCacheCopyingEnabled() {
@@ -84,8 +62,8 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 	}
 
 	@Override
-	public Iterator<FaultSystemSolution> iterator() {
-		return new Iterator<FaultSystemSolution>() {
+	public Iterator<InversionFaultSystemSolution> iterator() {
+		return new Iterator<InversionFaultSystemSolution>() {
 			
 			private Iterator<LogicTreeBranch> branchIt = getBranches().iterator();
 
@@ -95,7 +73,7 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			}
 
 			@Override
-			public FaultSystemSolution next() {
+			public InversionFaultSystemSolution next() {
 				return getSolution(branchIt.next());
 			}
 
@@ -153,13 +131,8 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<FaultSystem
 			}
 			
 			@Override
-			protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 				return fetch.fetchSolution(branch);
-			}
-			
-			@Override
-			protected Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-				return fetch.fetchMisfits(branch);
 			}
 		};
 	}

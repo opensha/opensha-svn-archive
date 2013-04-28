@@ -28,6 +28,10 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dom4j.Document;
@@ -40,6 +44,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.commons.metadata.XMLSaveable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * Static XML utility functions for creating XML documents, parsing XML files,
@@ -261,6 +266,62 @@ public class XMLUtils {
 		String str = byteArrayEl.getText().trim();
 		byte[] data = Base64.decodeBase64(str);
 		return data;
+	}
+	
+	/**
+	 * Returns a list of sub elements sorted by the numerical value of the given attribute
+	 * 
+	 * @param parentEl
+	 * @param sortAttributeName
+	 * @return
+	 */
+	public List<Element> getSortedChildElements(Element parentEl, String sortAttributeName) {
+		return getSortedChildElements(parentEl, null, sortAttributeName);
+	}
+	
+	/**
+	 * Returns a list of sub elements sorted by the numerical value of the given attribute
+	 * 
+	 * @param parentEl
+	 * @param subElName name of sub elements, or null to consider any subelements
+	 * @param sortAttributeName
+	 * @return
+	 */
+	public static List<Element> getSortedChildElements(Element parentEl, String subElName, final String sortAttributeName) {
+		Iterator<Element> it;
+		if (subElName != null && !subElName.isEmpty())
+			it = parentEl.elementIterator(subElName);
+		else
+			it = parentEl.elementIterator();
+		
+		List<Element> elems = Lists.newArrayList(it);
+		
+		// now sort
+		Collections.sort(elems, new Comparator<Element>() {
+			
+			@Override
+			public int compare(Element e1, Element e2) {
+				double d1 = Double.parseDouble(e1.attributeValue(sortAttributeName));
+				double d2 = Double.parseDouble(e2.attributeValue(sortAttributeName));
+				return Double.compare(d1, d2);
+			}
+		});
+		
+		return elems;
+	}
+	
+	public static List<Element> getSubElementsList(Element parentEl) {
+		return getSubElementsList(parentEl, null);
+	}
+	
+	public static List<Element> getSubElementsList(Element parentEl, String subElName) {
+		Iterator<Element> it;
+		if (subElName != null && !subElName.isEmpty())
+			it = parentEl.elementIterator(subElName);
+		else
+			it = parentEl.elementIterator();
+		
+		return Lists.newArrayList(it);
 	}
 
 }

@@ -2,6 +2,9 @@ package scratch.UCERF3.inversion.coulomb;
 
 import java.util.List;
 
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -16,7 +19,9 @@ import com.google.common.collect.Lists;
  * @author kevin
  *
  */
-public class CoulombRatesTester {
+public class CoulombRatesTester implements XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "CoulombRatesTester";
 	
 	private boolean BUGGY_MIN_STRESS = false;
 	
@@ -267,6 +272,36 @@ public class CoulombRatesTester {
 
 	public void setAllowAnyWay(boolean allowAnyWay) {
 		this.allowAnyWay = allowAnyWay;
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("minAverageProb", minAverageProb+"");
+		el.addAttribute("minIndividualProb", minIndividualProb+"");
+		el.addAttribute("minimumStressExclusionCeiling", minimumStressExclusionCeiling+"");
+		el.addAttribute("testType", testType.name()+"");
+		el.addAttribute("applyBranchesOnly", applyBranchesOnly+"");
+		el.addAttribute("allowAnyWay", allowAnyWay+"");
+		if (BUGGY_MIN_STRESS)
+			el.addAttribute("buggyMinStress", "true");
+		
+		return root;
+	}
+	
+	public static CoulombRatesTester fromXMLMetadata(Element coulombEl) {
+		double minAverageProb = Double.parseDouble(coulombEl.attributeValue("minAverageProb"));
+		double minIndividualProb = Double.parseDouble(coulombEl.attributeValue("minIndividualProb"));
+		double minimumStressExclusionCeiling = Double.parseDouble(coulombEl.attributeValue("minimumStressExclusionCeiling"));
+		TestType testType = TestType.valueOf(coulombEl.attributeValue("testType"));
+		boolean applyBranchesOnly = Boolean.parseBoolean(coulombEl.attributeValue("applyBranchesOnly"));
+		boolean allowAnyWay = Boolean.parseBoolean(coulombEl.attributeValue("allowAnyWay"));
+		CoulombRatesTester tester = new CoulombRatesTester(testType, minAverageProb, minIndividualProb,
+				minimumStressExclusionCeiling, applyBranchesOnly, allowAnyWay);
+		if (coulombEl.attribute("buggyMinStress") != null && Boolean.parseBoolean(coulombEl.attributeValue("buggyMinStress")))
+			tester.BUGGY_MIN_STRESS = true;
+		return tester;
 	}
 
 }

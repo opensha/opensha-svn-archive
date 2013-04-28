@@ -174,7 +174,7 @@ public class TablesAndPlotsGen {
 	
 	public static void makeParentSectConvergenceTable(
 			File csvOutputFile, AverageFaultSystemSolution aveSol, int parentSectionID) throws IOException {
-		List<Integer> rups = aveSol.getRupturesForParentSection(parentSectionID);
+		List<Integer> rups = aveSol.getRupSet().getRupturesForParentSection(parentSectionID);
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
@@ -198,13 +198,13 @@ public class TablesAndPlotsGen {
 		for (int rup : rups) {
 			List<String> line = Lists.newArrayList();
 			
-			List<FaultSectionPrefData> sects = aveSol.getFaultSectionDataForRupture(rup);
+			List<FaultSectionPrefData> sects = aveSol.getRupSet().getFaultSectionDataForRupture(rup);
 			
 			double[] rates = aveSol.getRatesForAllSols(rup);
 			
 			line.add(rup+"");
-			line.add(aveSol.getMagForRup(rup)+"");
-			line.add(aveSol.getLengthForRup(rup)/1000d+""); // m => km
+			line.add(aveSol.getRupSet().getMagForRup(rup)+"");
+			line.add(aveSol.getRupSet().getLengthForRup(rup)/1000d+""); // m => km
 			line.add(sects.get(0).getSectionName());
 			line.add(sects.get(sects.size()-1).getSectionName());
 			line.add(aveSol.getRateForRup(rup)+"");

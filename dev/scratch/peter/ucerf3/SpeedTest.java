@@ -56,7 +56,7 @@ public class SpeedTest {
 				.getBranches());
 			LogicTreeBranch branch = branches.get(0);
 			System.out.println("*** GET FSS getSol START" + timeFmt.format(System.currentTimeMillis()));
-			FaultSystemSolution fss = cfss.getSolution(branch);
+			InversionFaultSystemSolution fss = cfss.getSolution(branch);
 			System.out.println("*** POST GET FSS " + timeFmt.format(System.currentTimeMillis()));
 
 
@@ -103,10 +103,7 @@ public class SpeedTest {
 	}
 	
 	
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF(FaultSystemSolution fss) {
-		System.out.println("********* GET ERF inv fss " + timeFmt.format(System.currentTimeMillis()));
-		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-			fss);
+	public static UCERF3_FaultSysSol_ERF getUC3_ERF(InversionFaultSystemSolution invFss) {
 		System.out.println("********* GET ERF uc3 erf " + timeFmt.format(System.currentTimeMillis()));
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
 		System.out.println("********* GET ERF uc3 params " + timeFmt.format(System.currentTimeMillis()));

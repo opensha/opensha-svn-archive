@@ -16,8 +16,10 @@ import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class FakeCompoundFromAverage {
 
@@ -34,7 +36,7 @@ public class FakeCompoundFromAverage {
 				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 		File outFile = new File(dir, "zeng_convergence_compound.zip");
 		
-		final AverageFaultSystemSolution avgSol = AverageFaultSystemSolution.fromZipFile(inFile);
+		final AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(inFile);
 		final LogicTreeBranch branch = LogicTreeBranch.fromFileName(inFile.getName());
 		
 		final int bundle = 1;
@@ -59,7 +61,7 @@ public class FakeCompoundFromAverage {
 			}
 			
 			@Override
-			protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 				String var = ((VariableLogicTreeBranch)branch).getVariations().get(0);
 				int s = Integer.parseInt(var.substring(3));
 				if (bundle <= 1)
@@ -69,12 +71,7 @@ public class FakeCompoundFromAverage {
 				List<double[]> ratesList = Lists.newArrayList();
 				for (int i=bundleStart; i<bundleStart+bundle; i++)
 					ratesList.add(avgSol.getRates(i));
-				return new AverageFaultSystemSolution(avgSol, ratesList);
-			}
-			
-			@Override
-			protected Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-				return null;
+				return new AverageFaultSystemSolution(avgSol.getRupSet(), ratesList);
 			}
 		};
 		

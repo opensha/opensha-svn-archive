@@ -25,10 +25,10 @@ import com.google.common.io.Files;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
  * Add comments here
@@ -62,7 +62,7 @@ public class UC3_CalcUtils {
 			boolean filterAftShk,
 			double duration) {
 		
-		FaultSystemSolution fss = getSolution(solPath);
+		InversionFaultSystemSolution fss = getSolution(solPath);
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(nameFromPath(solPath));
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
@@ -92,7 +92,7 @@ public class UC3_CalcUtils {
 			double duration) {
 		
 		AverageFaultSystemSolution afss = getAvgSolution(solPath);
-		FaultSystemSolution fss = (idx == -1) ? afss : afss.getSolution(idx);
+		InversionFaultSystemSolution fss = (idx == -1) ? afss : afss.getSolution(idx);
 		String erfName = nameFromPath(solPath) + "_" + idx;
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(erfName);
@@ -124,7 +124,7 @@ public class UC3_CalcUtils {
 		
 		CompoundFaultSystemSolution cfss = getCompoundSolution(solPath);
 		LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchID);
-		FaultSystemSolution fss = cfss.getSolution(branch);
+		InversionFaultSystemSolution fss = cfss.getSolution(branch);
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(branchID);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
@@ -177,10 +177,10 @@ public class UC3_CalcUtils {
 	 * @param path
 	 * @return an AFSS
 	 */
-	public static SimpleFaultSystemSolution getSolution(String path) {
+	public static InversionFaultSystemSolution getSolution(String path) {
 		try {
 			File file = new File(path);
-			return SimpleFaultSystemSolution.fromZipFile(file);
+			return FaultSystemIO.loadInvSol(file);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -195,7 +195,7 @@ public class UC3_CalcUtils {
 	public static AverageFaultSystemSolution getAvgSolution(String path) {
 		try {
 			File file = new File(path);
-			return AverageFaultSystemSolution.fromZipFile(file);
+			return FaultSystemIO.loadAvgInvSol(file);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

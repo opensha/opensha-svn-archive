@@ -42,6 +42,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 
 /**
@@ -62,7 +63,7 @@ public class GridSources {
 	public static void main(String[] args) {
 		// plotNodePolyParticipCat(FM3_1, 6.5, 7d, true);
 
-		FaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
+		InversionFaultSystemRupSet faultSysRupSet = InversionFaultSystemRupSetFactory
 			.forBranch(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 				ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED);
 

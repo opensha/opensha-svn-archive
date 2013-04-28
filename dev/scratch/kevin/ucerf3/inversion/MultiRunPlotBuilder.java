@@ -8,9 +8,9 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.util.FileNameComparator;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.BatchPlotGen;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class MultiRunPlotBuilder {
 		File rupSetFile = new File(args[2]);
 		int num = Integer.parseInt(args[3]);
 		
-		FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(rupSetFile);
 		
 		File[] files = mainDir.listFiles();
 		Arrays.sort(files, new FileNameComparator());
@@ -59,9 +59,9 @@ public class MultiRunPlotBuilder {
 				File ratesFile = new File(dir, dir.getName()+".bin");
 				
 				double[] rates = MatrixIO.doubleArrayFromFile(ratesFile);
-				SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rates);
+				FaultSystemSolution sol = FaultSystemSolution.buildSolAsApplicable(rupSet, rates);
 				
-				sol.toZipFile(solFile);
+				FaultSystemIO.writeSol(sol, solFile);
 			}
 			
 			BatchPlotGen.handleDir(dir, null, 1);

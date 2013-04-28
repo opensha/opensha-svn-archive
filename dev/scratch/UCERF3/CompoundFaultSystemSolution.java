@@ -31,10 +31,12 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.BatchPlotGen;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.Preconditions;
@@ -47,30 +49,96 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	
 	// TODO add weight support
 	
-	private FaultSystemSolutionFetcher fetcher;
+	private ZipFile zip;
+	private List<LogicTreeBranch> branches;
 	
-	public CompoundFaultSystemSolution(FaultSystemSolutionFetcher fetcher) {
-		this.fetcher = fetcher;
-	}
-	
-	@Override
-	public Collection<LogicTreeBranch> getBranches() {
-		return fetcher.getBranches();
-	}
-	
-	@Override
-	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
-		return fetcher.fetchSolution(branch);
+	public CompoundFaultSystemSolution(ZipFile zip) {
+		this.zip = zip;
+		branches = Lists.newArrayList();
+		
+		Enumeration<? extends ZipEntry> zipEnum = zip.entries();
+		// need to sort to ensure consistent iteration order for parallel runs
+		List<ZipEntry> entriesList = Lists.newArrayList();
+		while (zipEnum.hasMoreElements())
+			entriesList.add(zipEnum.nextElement());
+		Collections.sort(entriesList, new Comparator<ZipEntry>() {
+
+			@Override
+			public int compare(ZipEntry o1, ZipEntry o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		for (ZipEntry entry : entriesList)
+			if (entry.getName().endsWith("_rates.bin"))
+				branches.add(VariableLogicTreeBranch.fromFileName(entry.getName()));
+		
+		System.out.println("Detected "+branches.size()+" branches in zip file!");
 	}
 
 	@Override
-	public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-		return fetcher.fetchMisfits(branch);
+	public Collection<LogicTreeBranch> getBranches() {
+		return branches;
+	}
+
+	@Override
+	protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+		try {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			FaultSystemSolution sol = FaultSystemIO.loadSolAsApplicable(zip, nameRemappings);
+			Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
+					"Non IVFSS in Compound Sol?");
+			
+			// TODO cache all of the values?
+			
+			return (InversionFaultSystemSolution)sol;
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
 	}
 	
-	/* *******************************************
-	 * Zip file methods
-	 * ******************************************* */
+	public double[] getRates(LogicTreeBranch branch) {
+		try {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
+			return MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
+	
+	public String getInfo(LogicTreeBranch branch) {
+		try {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry infoEntry = zip.getEntry(nameRemappings.get("info.txt"));
+			StringBuilder text = new StringBuilder();
+		    String NL = System.getProperty("line.separator");
+		    Scanner scanner = new Scanner(
+					new BufferedInputStream(zip.getInputStream(infoEntry)));
+		    try {
+		      while (scanner.hasNextLine()){
+		        text.append(scanner.nextLine() + NL);
+		      }
+		    }
+		    finally{
+		      scanner.close();
+		    }
+		    return text.toString();
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
+	
+	public double[] getMags(LogicTreeBranch branch) {
+		try {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
+			return MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
 	
 	/**
 	 * *********************************************
@@ -85,12 +153,15 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * rakes.bin					FM, DM
 	 * rates.bin					ALL
 	 * rup_areas.bin				FM, DM
+	 * rup_lengths.bin				FM
 	 * rup_avg_slips.bin			FM, DM, Scale
 	 * rup_sec_slip_type.txt		N/A
 	 * rup_sections.bin				FM
 	 * sect_areas.bin				FM, DM
 	 * sect_slips.bin				ALL BUT Dsr
 	 * sect_slips_std_dev.bin		ALL BUT Dsr
+	 * inv_rup_set_metadata.xml		ALL
+	 * inv_sol_metadata.xml			ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -107,8 +178,9 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("rates.bin", null);
 		dependencyMap.put("rup_areas.bin", buildList(FaultModels.class, DeformationModels.class));
+		dependencyMap.put("rup_lengths.bin", buildList(FaultModels.class));
 		dependencyMap.put("rup_avg_slips.bin", buildList(FaultModels.class, DeformationModels.class, ScalingRelationships.class));
-		dependencyMap.put("rup_sec_slip_type.txt", null);
+		dependencyMap.put("rup_sec_slip_type.txt", null); // kept for backwards compatibility
 		dependencyMap.put("rup_sections.bin", buildList(FaultModels.class));
 		dependencyMap.put("rakes.bin", buildList(FaultModels.class, DeformationModels.class));
 		dependencyMap.put("sect_areas.bin", buildList(FaultModels.class, DeformationModels.class));
@@ -118,6 +190,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("sect_slips_std_dev.bin", buildList(FaultModels.class, DeformationModels.class,
 				ScalingRelationships.class, InversionModels.class, TotalMag5Rate.class,
 				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
+		dependencyMap.put("inv_rup_set_metadata.xml", null);
+		dependencyMap.put("inv_sol_metadata.xml", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
@@ -129,7 +203,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public void toZipFile(File file) throws IOException {
-		toZipFile(file, fetcher);
+		toZipFile(file, this);
 	}
 	
 	public static void toZipFile(File file, FaultSystemSolutionFetcher fetcher) throws IOException {
@@ -143,36 +217,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			
 			Map<String, String> remappings = getRemappings(branch);
 			
-			SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.toSimple(sol);
-			rupSet.writeFilesForZip(tempDir, zipFileNames, remappings);
-			
-			// now write solution
-			File ratesFile = new File(tempDir, remappings.get("rates.bin"));
-			MatrixIO.doubleArrayToFile(sol.getRateForAllRups(), ratesFile);
-			zipFileNames.add(ratesFile.getName());
-			if (sol instanceof AverageFaultSystemSolution) {
-				String ratesPrefix = ratesFile.getName();
-				ratesPrefix = ratesPrefix.substring(0, ratesPrefix.indexOf(".bin"));
-				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
-				int num = avgSol.getNumSolutions();
-				int digits = ((num-1)+"").length();
-				for (int i=0; i<num; i++) {
-					String numStr = i+"";
-					while (numStr.length() < digits)
-						numStr = "0"+numStr;
-					File ithRatesFile = new File(tempDir, ratesPrefix+"_"+numStr+".bin");
-					MatrixIO.doubleArrayToFile(avgSol.getRates(i), ithRatesFile);
-					zipFileNames.add(ithRatesFile.getName());
-				}
-			}
-			
-			// now write misfits, if applicable
-			Map<String, Double> misfits = fetcher.getMisfits(branch);
-			if (misfits != null && !misfits.isEmpty()) {
-				File misfitsFile = new File(tempDir, branch.buildFileName()+".misfits");
-				BatchPlotGen.writeMisfitsFile(misfits, misfitsFile);
-				zipFileNames.add(misfitsFile.getName());
-			}
+			FaultSystemIO.writeSolFilesForZip(sol, tempDir, zipFileNames, remappings);
 		}
 		
 		FileUtils.createZipFile(file.getAbsolutePath(), tempDir.getAbsolutePath(), zipFileNames);
@@ -205,136 +250,10 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	
 	public static CompoundFaultSystemSolution fromZipFile(File file) throws ZipException, IOException {
 		ZipFile zip = new ZipFile(file);
-		return new CompoundFaultSystemSolution(new ZipFileSolutionFetcher(zip));
-	}
-	
-	@Override
-	public double[] getRates(LogicTreeBranch branch) {
-		return fetcher.getRates(branch);
-	}
-
-	@Override
-	public double[] getMags(LogicTreeBranch branch) {
-		return fetcher.getMags(branch);
-	}
-
-	public static class ZipFileSolutionFetcher extends FaultSystemSolutionFetcher {
-		
-		private ZipFile zip;
-		private List<LogicTreeBranch> branches;
-		
-		public ZipFileSolutionFetcher(ZipFile zip) {
-			this.zip = zip;
-			branches = Lists.newArrayList();
-			
-			Enumeration<? extends ZipEntry> zipEnum = zip.entries();
-			// need to sort to ensure consistant iteration order for parallel runs
-			List<ZipEntry> entriesList = Lists.newArrayList();
-			while (zipEnum.hasMoreElements())
-				entriesList.add(zipEnum.nextElement());
-			Collections.sort(entriesList, new Comparator<ZipEntry>() {
-
-				@Override
-				public int compare(ZipEntry o1, ZipEntry o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-			});
-			for (ZipEntry entry : entriesList)
-				if (entry.getName().endsWith("_rates.bin"))
-					branches.add(VariableLogicTreeBranch.fromFileName(entry.getName()));
-			
-			System.out.println("Detected "+branches.size()+" branches in zip file!");
-		}
-
-		@Override
-		public Collection<LogicTreeBranch> getBranches() {
-			return branches;
-		}
-
-		@Override
-		protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
-			try {
-				Map<String, String> nameRemappings = getRemappings(branch);
-				SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(zip, nameRemappings);
-				
-				// TODO cache all of the values?
-				
-				ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
-				double[] rates = MatrixIO.doubleArrayFromInputStream(
-						new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
-				
-				return new SimpleFaultSystemSolution(rupSet, rates);
-			} catch (Exception e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-		}
-		
-		public double[] getRates(LogicTreeBranch branch) {
-			try {
-				Map<String, String> nameRemappings = getRemappings(branch);
-				ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
-				return MatrixIO.doubleArrayFromInputStream(
-						new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
-			} catch (IOException e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-		}
-		
-		public String getInfo(LogicTreeBranch branch) {
-			try {
-				Map<String, String> nameRemappings = getRemappings(branch);
-				ZipEntry infoEntry = zip.getEntry(nameRemappings.get("info.txt"));
-				StringBuilder text = new StringBuilder();
-			    String NL = System.getProperty("line.separator");
-			    Scanner scanner = new Scanner(
-						new BufferedInputStream(zip.getInputStream(infoEntry)));
-			    try {
-			      while (scanner.hasNextLine()){
-			        text.append(scanner.nextLine() + NL);
-			      }
-			    }
-			    finally{
-			      scanner.close();
-			    }
-			    return text.toString();
-			} catch (IOException e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-		}
-		
-		public double[] getMags(LogicTreeBranch branch) {
-			try {
-				Map<String, String> nameRemappings = getRemappings(branch);
-				ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
-				return MatrixIO.doubleArrayFromInputStream(
-						new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
-			} catch (IOException e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-		}
-
-		@Override
-		public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-			String fName = branch.buildFileName()+".misfits";
-			ZipEntry entry = zip.getEntry(fName);
-			if (entry != null) {
-				try {
-					return BatchPlotGen.loadMisfitsFile(zip.getInputStream(entry));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			}
-			return null;
-		}
-		
+		return new CompoundFaultSystemSolution(zip);
 	}
 	
 	protected void writeMomentRatesTable(File file) throws IOException {
-		Preconditions.checkState(fetcher instanceof ZipFileSolutionFetcher,
-				"Only works for ZipFileSolutionFetcher");
-		
-		ZipFileSolutionFetcher zfetch = (ZipFileSolutionFetcher)fetcher;
-		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		List<String> header = Lists.newArrayList();
@@ -354,7 +273,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			List<String> line = Lists.newArrayList();
 			for (int i=0; i<LogicTreeBranch.getLogicTreeNodeClasses().size(); i++)
 				line.add(branch.getValue(i).getShortName());
-			List<String> info = Lists.newArrayList(sp.split(zfetch.getInfo(branch)));
+			List<String> info = Lists.newArrayList(sp.split(getInfo(branch)));
 			double target = 0d;
 			double sol = 0d;
 			for (String infoLine : info) {
@@ -385,10 +304,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			BatchPlotGen.writeCombinedFSS(dir, nameGreps);
 			System.exit(0);
 		}
-		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File dir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
+		File dir = new File("/tmp/compound_tests_data/subset/");
 //		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
-		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+//		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();
 //		watch.start();
 //		toZipFile(compoundFile, it);
@@ -398,12 +320,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		watch.reset();
 		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
-		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
-		System.exit(0);
+//		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
+//		System.exit(0);
 		
 		for (LogicTreeBranch branch : compoundSol.getBranches()) {
 			System.out.println("Loading "+branch);
-			compoundSol.getSolution(branch);
+			System.out.println(ClassUtils.getClassNameWithoutPackage(
+					compoundSol.getSolution(branch).getClass()));
 		}
 		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to load");
 	}

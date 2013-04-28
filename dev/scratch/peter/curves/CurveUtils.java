@@ -54,6 +54,7 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
@@ -896,9 +897,9 @@ public class CurveUtils {
 		String convSolPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
 		AverageFaultSystemSolution afss = UC3_CalcUtils.getAvgSolution(convSolPath);
 		for (int i=0; i<maxIdx; i++) {
-			FaultSystemSolution fss = afss.getSolution(i);
+			InversionFaultSystemSolution fss = afss.getSolution(i);
 			double fssRupRate = fss.getRateForRup(fssRupIdx);
-			double fssRupMag = fss.getMagForRup(fssRupIdx);
+			double fssRupMag = fss.getRupSet().getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
 			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);

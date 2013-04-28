@@ -14,9 +14,9 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.io.Files;
@@ -93,8 +93,6 @@ public class scratch {
 		String avgFssPath = srcDir + "FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
 		String sol83Path = srcDir + "FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_run83_sol.zip";
 		AverageFaultSystemSolution avgFss = UC3_CalcUtils.getAvgSolution(avgFssPath);
-		SimpleFaultSystemSolution fss = new SimpleFaultSystemSolution(avgFss.getSolution(83));
-		File solZip = new File(sol83Path);
-		fss.toZipFile(solZip);
+		FaultSystemIO.writeSol(avgFss.getSolution(83), new File(sol83Path));
 	}
 }

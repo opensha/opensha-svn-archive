@@ -10,6 +10,7 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
@@ -17,10 +18,11 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class RupLengthHistogramGenerator {
@@ -33,7 +35,8 @@ public class RupLengthHistogramGenerator {
 	public static void main(String[] args) throws IOException, DocumentException {
 		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		File solFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(solFile);
+		FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
+		FaultSystemRupSet rupSet = sol.getRupSet();
 		
 //		double scaleToTotal = 246;
 		double scaleToTotal = 1;
@@ -56,11 +59,11 @@ public class RupLengthHistogramGenerator {
 		if (scaleToTotal != 1)
 			rateScale = scaleToTotal / totRate;
 		
-		for (int r=0; r<sol.getNumRuptures(); r++) {
+		for (int r=0; r<rupSet.getNumRuptures(); r++) {
 			double rate = sol.getRateForRup(r);
-			double moment = FaultMomentCalc.getMoment(sol.getAreaForRup(r), sol.getAveSlipForRup(r));
+			double moment = MagUtils.momentToMag(rupSet.getMagForRup(r));
 			double scaledRate = rate*rateScale;
-			double length = sol.getLengthForRup(r)/1000d; // m to km
+			double length = rupSet.getLengthForRup(r)/1000d; // m to km
 			
 			if (length < maxLen) {
 				hist.add(length, scaledRate);
@@ -71,15 +74,16 @@ public class RupLengthHistogramGenerator {
 //		asDisrHist.scale(1d/totRate);
 		
 		if (doU2) {
+			FaultSystemRupSet u2rupSet = u2sol.getRupSet();
 			totRate = StatUtils.sum(u2sol.getRateForAllRups());
 			if (scaleToTotal != 1)
 				rateScale = scaleToTotal / totRate;
 			
-			for (int r=0; r<u2sol.getNumRuptures(); r++) {
+			for (int r=0; r<u2rupSet.getNumRuptures(); r++) {
 				double rate = u2sol.getRateForRup(r);
-				double moment = FaultMomentCalc.getMoment(u2sol.getAreaForRup(r), u2sol.getAveSlipForRup(r));
+				double moment = MagUtils.momentToMag(u2rupSet.getMagForRup(r));
 				double scaledRate = rate*rateScale;
-				double length = u2sol.getLengthForRup(r)/1000d; // m to km
+				double length = u2rupSet.getLengthForRup(r)/1000d; // m to km
 				
 				if (length < maxLen) {
 					u2hist.add(length, scaledRate);

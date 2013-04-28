@@ -22,9 +22,9 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -39,12 +39,13 @@ public class FaultSystemSolutionCalc {
 	 * This was for looking for transitions to water level rates, but Kevin has a better way of getting exact numbers
 	 * @param fltSysSol
 	 */
-	public static void writeRupRatesToFile(SimpleFaultSystemSolution fltSysSol) {
+	public static void writeRupRatesToFile(FaultSystemSolution fltSysSol) {
+		FaultSystemRupSet rupSet = fltSysSol.getRupSet();
 		File dataFile = new File("tempFSS_Rates.txt");
 		try {
 			FileWriter fw = new FileWriter(dataFile);
-			for(int r=0;r<fltSysSol.getNumRuptures();r++) {
-				double mag =fltSysSol.getMagForRup(r);
+			for(int r=0;r<rupSet.getNumRuptures();r++) {
+				double mag =rupSet.getMagForRup(r);
 				double rate = fltSysSol.getRateForRup(r);
 				if(rate == 0)
 					System.out.println("rup "+r+" has zero rate");
@@ -58,24 +59,24 @@ public class FaultSystemSolutionCalc {
 		}
 	}
 	
-	public static void plotPaleoObsSlipCOV_Histogram(FaultSystemSolution fltSysSol) {
+	public static void plotPaleoObsSlipCOV_Histogram(InversionFaultSystemSolution fltSysSol) {
 		plotPaleoObsSlipCOV_Histogram(fltSysSol, null);
 	}
 	
-	public static void plotPaleoObsSlipCOV_Histogram(FaultSystemSolution fltSysSol, File outputFile) {
+	public static void plotPaleoObsSlipCOV_Histogram(InversionFaultSystemSolution fltSysSol, File outputFile) {
 		
 		double delta = 0.02;
 		int num = (int)Math.round(100.0/0.025);
 		
 		HistogramFunction covHist = new HistogramFunction(delta/2, num, delta);
 		double aveCOV = 0;
-		for(int s=0;s<fltSysSol.getNumSections();s++) {
+		for(int s=0;s<fltSysSol.getRupSet().getNumSections();s++) {
 			double cov = fltSysSol.calcPaleoObsSlipPFD_ForSect(s).getCOV();
 			aveCOV += cov;
 //			System.out.println("COV: "+cov+" MAX: "+covHist.getMaxX());
 			covHist.add(cov, 1.0);
 		}
-		aveCOV /= fltSysSol.getNumSections();
+		aveCOV /= fltSysSol.getRupSet().getNumSections();
 		
 		covHist.setName("COV Histogram");
 		covHist.setInfo("(mean COV = "+(float)aveCOV+")");
@@ -124,7 +125,7 @@ public class FaultSystemSolutionCalc {
 			if (scale.getRelativeWeight(null) == 0)
 				continue;
 			ref.setValue(scale);
-			FaultSystemSolution sol = fetcher.getSolution(ref);
+			InversionFaultSystemSolution sol = fetcher.getSolution(ref);
 			
 			File file;
 			if (outputDir == null)
@@ -138,7 +139,7 @@ public class FaultSystemSolutionCalc {
 	
 	
 	
-	public static void plotRupLengthRateHistogram(SimpleFaultSystemSolution fss) {
+	public static void plotRupLengthRateHistogram(FaultSystemSolution fss) {
 		
 //		double minLength=Double.MAX_VALUE;
 //		double maxLength=Double.MIN_VALUE;
@@ -151,8 +152,8 @@ public class FaultSystemSolutionCalc {
 //		System.out.println("maxLength="+maxLength);
 		
 		HistogramFunction hist = new HistogramFunction(5.0,1235.0,124);
-		for(int r=0;r<fss.getNumRuptures();r++) {
-			double length = fss.getLengthForRup(r)/1000;;
+		for(int r=0;r<fss.getRupSet().getNumRuptures();r++) {
+			double length = fss.getRupSet().getLengthForRup(r)/1000;;
 			hist.add(length, fss.getRateForRup(r));
 		}
 
@@ -168,7 +169,7 @@ public class FaultSystemSolutionCalc {
 	
 	
 	
-	public static void testHeadlessMFD_Plot(SimpleFaultSystemSolution fss) {
+	public static void testHeadlessMFD_Plot(FaultSystemSolution fss) {
 		IncrementalMagFreqDist mfd = fss.calcNucleationMFD_forRegion(RELM_RegionUtils.getGriddedRegionInstance(), 5.05, 8.95, 0.1, true);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);
@@ -197,9 +198,7 @@ public class FaultSystemSolutionCalc {
 	}
 	
 	
-	public static void checkSubseisOnFaultRates(SimpleFaultSystemSolution fltSysSol) {
-		
-		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(fltSysSol);
+	public static void checkSubseisOnFaultRates(InversionFaultSystemSolution invSol) {
 
 		System.out.println("Starting check");
 
@@ -207,9 +206,9 @@ public class FaultSystemSolutionCalc {
 			List<GutenbergRichterMagFreqDist>  grList = invSol.getFinalSubSeismoOnFaultMFD_List();
 			for(int s=0;s<grList.size();s++) {
 				double rate = grList.get(s).getTotalIncrRate();
-				System.out.println(s+"\t"+(float)rate+"\t"+invSol.getFaultSectionData(s).getName());
+				System.out.println(s+"\t"+(float)rate+"\t"+invSol.getRupSet().getFaultSectionData(s).getName());
 				if(rate < 1e-10) {
-					System.out.println(invSol.getFaultSectionData(s).getName());
+					System.out.println(invSol.getRupSet().getFaultSectionData(s).getName());
 				}
 			}
 		}
@@ -241,9 +240,8 @@ public class FaultSystemSolutionCalc {
 		try {
 			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);
 			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
-			FaultSystemSolution fss = cfss.getSolution(ltb);
-			SimpleFaultSystemSolution sfss = new SimpleFaultSystemSolution(fss);
-			checkSubseisOnFaultRates(sfss);
+			InversionFaultSystemSolution fss = cfss.getSolution(ltb);
+			checkSubseisOnFaultRates(fss);
 			
 			
 			

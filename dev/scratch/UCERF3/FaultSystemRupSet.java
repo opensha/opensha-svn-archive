@@ -3,6 +3,7 @@
  */
 package scratch.UCERF3;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,16 +42,140 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
 
 
 /**
- * This abstract class represents the attributes of ruptures in a fault system, 
+ * This class represents the attributes of ruptures in a fault system, 
  * where the latter is composed of some number of fault sections.
  * 
  * @author Field, Milner, Page, & Powers
  *
  */
-public abstract class FaultSystemRupSet {
+public class FaultSystemRupSet implements Serializable {
+	
+	// data arrays/lists
+	private List<FaultSectionPrefData> faultSectionData;
+	private double[] mags;
+	private double[] sectSlipRates;
+	private double[] sectSlipRateStdDevs;
+	private double[] rakes;
+	private double[] rupAreas;
+	private double[] rupLengths; // TODO add to file loading
+	private double[] sectAreas;
+	private List<List<Integer>> sectionForRups;
+	private String info;
 	
 	// for caching
 	protected boolean showProgress = false;
+	
+	// NOTE: copy param documentation to init() method if you make any changes below
+	/**
+	 * Constructor for precomputed data where everything is passed in.
+	 * 
+	 * @param faultSectionData fault section data list (CANNOT be null)
+	 * @param sectSlipRates slip rates for each fault section with any reductions applied (CAN be null)
+	 * @param sectSlipRateStdDevs slip rate std deviations for each fault section (CAN be null)
+	 * @param sectAreas areas for each fault section (CAN be null)
+	 * @param sectionForRups list of fault section indexes for each rupture (CANNOT be null)
+	 * @param mags magnitudes for each rupture (CANNOT be null)
+	 * @param rakes rakes for each rupture (CANNOT be null)
+	 * @param rupAreas areas for each rupture (CANNOT be null)
+	 * @param rupLengths lengths for each rupture (CAN be null)
+	 * @param info metadata string
+	 */
+	public FaultSystemRupSet(
+			List<FaultSectionPrefData> faultSectionData,
+			double[] sectSlipRates,
+			double[] sectSlipRateStdDevs,
+			double[] sectAreas,
+			List<List<Integer>> sectionForRups,
+			double[] mags,
+			double[] rakes,
+			double[] rupAreas,
+			double[] rupLengths,
+			String info) {
+		init(faultSectionData, sectSlipRates, sectSlipRateStdDevs, sectAreas,
+				sectionForRups, mags, rakes, rupAreas, rupLengths, info);
+	}
+	
+	/**
+	 * Default constructor for subclasses which will call init on their own.
+	 * 
+	 * Protected so it can only be invoked by subclasses.
+	 */
+	protected FaultSystemRupSet() {
+		// do nothing, it's up to subclass to call init.
+	}
+	
+	/**
+	 * Initialize from another rupSet
+	 * @param rupSet
+	 */
+	protected void init(FaultSystemRupSet rupSet) {
+		init(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),
+				rupSet.getSlipRateStdDevForAllSections(), rupSet.getAreaForAllSections(),
+				rupSet.getSectionIndicesForAllRups(), rupSet.getMagForAllRups(), rupSet.getAveRakeForAllRups(),
+				rupSet.getAreaForAllRups(), rupSet.getLengthForAllRups(), rupSet.getInfoString());
+	}
+	
+	/**
+	 * Sets all parameters
+	 * 
+	 * @param faultSectionData fault section data list (CANNOT be null)
+	 * @param sectSlipRates slip rates for each fault section with any reductions applied (CAN be null)
+	 * @param sectSlipRateStdDevs slip rate std deviations for each fault section (CAN be null)
+	 * @param sectAreas areas for each fault section (CAN be null)
+	 * @param sectionForRups list of fault section indexes for each rupture (CANNOT be null)
+	 * @param mags magnitudes for each rupture (CANNOT be null)
+	 * @param rakes rakes for each rupture (CANNOT be null)
+	 * @param rupAreas areas for each rupture (CANNOT be null)
+	 * @param rupLengths lengths for each rupture (CAN be null)
+	 * @param info metadata string
+	 */
+	protected void init(
+			List<FaultSectionPrefData> faultSectionData,
+			double[] sectSlipRates,
+			double[] sectSlipRateStdDevs,
+			double[] sectAreas,
+			List<List<Integer>> sectionForRups,
+			double[] mags,
+			double[] rakes,
+			double[] rupAreas,
+			double[] rupLengths,
+			String info) {
+		Preconditions.checkNotNull(faultSectionData, "Fault Section Data cannot be null");
+		this.faultSectionData = faultSectionData;
+		Preconditions.checkNotNull(faultSectionData, "Magnitudes cannot be null");
+		this.mags = mags;
+		
+		int numRups = mags.length;
+		int numSects = faultSectionData.size();
+		
+		Preconditions.checkArgument(sectSlipRates == null
+				|| sectSlipRates.length == numSects, "array sizes inconsistent!");
+		this.sectSlipRates = sectSlipRates;
+		
+		Preconditions.checkArgument(sectSlipRateStdDevs == null
+				|| sectSlipRateStdDevs.length == numSects, "array sizes inconsistent!");
+		this.sectSlipRateStdDevs = sectSlipRateStdDevs;
+		
+		Preconditions.checkArgument(rakes.length == numRups, "array sizes inconsistent!");
+		this.rakes = rakes;
+		
+		Preconditions.checkArgument(rupAreas == null ||
+				rupAreas.length == numRups, "array sizes inconsistent!");
+		this.rupAreas = rupAreas;
+		
+		Preconditions.checkArgument(rupLengths == null ||
+				rupLengths.length == numRups, "array sizes inconsistent!");
+		this.rupLengths = rupLengths;
+		
+		Preconditions.checkArgument(sectAreas == null ||
+				sectAreas.length == numSects, "array sizes inconsistent!");
+		this.sectAreas = sectAreas;
+		
+		Preconditions.checkArgument(sectionForRups.size() == numRups, "array sizes inconsistent!");
+		this.sectionForRups = sectionForRups;
+		
+		this.info = info;
+	}
 	
 	/**
 	 * This enables/disables visible progress bars for long calculations
@@ -61,10 +186,13 @@ public abstract class FaultSystemRupSet {
 		this.showProgress = showProgress;
 	}
 	
+	public boolean isShowProgress() {
+		return showProgress;
+	}
+	
 	public void clearCache() {
 		rupturesForSectionCache.clear();
 		rupturesForParentSectionCache.clear();
-		rupSectionSlipsCache.clear();
 		fractRupsInsideRegions.clear();
 	}
 	
@@ -73,9 +201,6 @@ public abstract class FaultSystemRupSet {
 			return;
 		rupturesForSectionCache = rupSet.rupturesForSectionCache;
 		rupturesForParentSectionCache = rupSet.rupturesForParentSectionCache;
-		if (rupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel()
-				&& rupSet.getDeformationModel() == getDeformationModel())
-			rupSectionSlipsCache = rupSet.rupSectionSlipsCache;
 		fractRupsInsideRegions = rupSet.fractRupsInsideRegions;
 	}
 	
@@ -83,27 +208,35 @@ public abstract class FaultSystemRupSet {
 	 * The total number of ruptures in the fault system
 	 * @return
 	 */
-	public abstract int getNumRuptures();
+	public int getNumRuptures() {
+		return mags.length;
+	}
 	
 	/**
 	 * The total number of ruptures in the fault system
 	 * @return
 	 */
-	public abstract int getNumSections();
+	public int getNumSections() {
+		return faultSectionData.size();
+	}
 	
 	/**
 	 * This returns which sections are used by the each rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract List<List<Integer>> getSectionIndicesForAllRups();
+	public List<List<Integer>> getSectionIndicesForAllRups() {
+		return sectionForRups;
+	}
 	
 	/**
 	 * This returns which sections are used by the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract List<Integer> getSectionsIndicesForRup(int rupIndex);
+	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
+		return sectionForRups.get(rupIndex);
+	}
 	
 	/**
 	 * This returns the magnitude of the smallest rupture involving this section or NaN
@@ -149,7 +282,9 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This computes the fractional slip rate (or moment rate) taken away for sub-seismogenic ruptures
-	 * (relative to creep reduced moment rate).
+	 * (relative to creep reduced moment rate).  Actually, this will also include any additional coupling
+	 * coefficient reductions applied by subclasses (e.g., InversionFaultSystemRuptureSet has the option
+	 * of also applying an implied coupling coefficient that will be reflected in getSlipRateForSection(sectIndex))
 	 * @param sectIndex
 	 * @return
 	 */
@@ -161,7 +296,11 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This returns the total reduction in moment rate for subseimogenic ruptures
-	 * and any coupling coefficient applied (the amount removed)
+	 * and any coupling coefficient applied (the amount removed).  Actually, this 
+	 * reduction also includes any additional coupling coefficient reductions applied 
+	 * by subclasses (e.g., InversionFaultSystemRuptureSet has the option of also 
+	 * applying an implied coupling coefficient that will be reflected in 
+	 * getSlipRateForSection(sectIndex))
 	 * 
 	 * @return
 	 */
@@ -170,9 +309,12 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures 
+	 * This returns the total fraction of moment that is reduced by subseismogenic ruptures.
+	 * Actually, this reduction also includes any additional coupling coefficient reductions  
+	 * applied by subclasses (e.g., InversionFaultSystemRuptureSet has the option of also 
+	 * applying an implied coupling coefficient that will be reflected in 
+	 * getSlipRateForSection(sectIndex))
 	 * 
-	 * (getTotalMomentRateReduction()/getTotalOrigMomentRate()).
 	 */
 	public double getTotalMomentRateReductionFraction() {
 		return getTotalMomentRateReduction() / getTotalOrigMomentRate();
@@ -192,7 +334,7 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This returns the total moment rate for the given rupSet without taking into account any
-	 * moment rate reductions for subseismogenic ruptures (but does include all creep reductions).<br>
+	 * moment rate reductions for subseismogenic ruptures (but does include all default creep reductions).<br>
 	 * <br>
 	 * This simply calls <code>DeformationModelsCalc.calculateTotalMomentRate(sectData, true)</code> 
 	 * 
@@ -204,9 +346,11 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the moment rate after removing that for subseimogenic ruptures. 
-	 * This simply returns the original, creep-reduced moment rate multiplied by 
-	 * <code>(1 -getMomentRateReductionForSection(sectIndex))</code>
+	 * This returns the moment rate after removing that for subseimogenic ruptures 
+	 * (and default creep effects). This also include any additional
+	 * coupling coefficients applied by subclasses (e.g., InversionFaultSystemRuptureSet 
+	 * has the option of also applying an implied coupling coefficient that will be 
+	 * reflected in getSlipRateForSection(sectIndex)).
 	 * 
 	 * @param sectIndex
 	 * @return
@@ -217,7 +361,10 @@ public abstract class FaultSystemRupSet {
 	
 	/**
 	 * This returns the total moment rate after removing that for subseismogenic  
-	 * ruptures (and creep influences).
+	 * ruptures (and default creep influences).  This also include any additional
+	 * coupling coefficients applied by subclasses; e.g., InversionFaultSystemRuptureSet 
+	 * has the option of also applying an implied coupling coefficient that will be 
+	 * reflected in getSlipRateForSection(sectIndex)).
 	 * @return
 	 */
 	public double getTotalReducedMomentRate() {
@@ -230,64 +377,32 @@ public abstract class FaultSystemRupSet {
 		return totMoRate;
 	}
 	
+	/**
+	 * This sets the magnitudes for each rupture. This is needed for special cases where magnitudes are
+	 * overridden, for example UCERF2 comparison solutions.
+	 * @param mags
+	 */
+	public void setMagForallRups(double[] mags) {
+		Preconditions.checkArgument(mags.length == getNumRuptures());
+		this.mags = mags;
+	}
 	
 	/**
 	 * This gives the magnitude for each rth rupture
 	 * @return
 	 */
-	public abstract double[] getMagForAllRups();
+	public double[] getMagForAllRups() {
+		return mags;
+	}
 
 	/**
 	 * This gives the magnitude for the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract double getMagForRup(int rupIndex);
-
-	/**
-	 * This gives the average slip (meters) for all ruptures
-	 * @return
-	 */
-	public abstract double[] getAveSlipForAllRups();
-	
-	/**
-	 * This gives the average slip (meters) for the rth rupture
-	 * @return
-	 */
-	public abstract double getAveSlipForRup(int rupIndex);
-	
-	/**
-	 * This gives the average slip (SI untis: m) on each section for all ruptures
-	 * @return
-	 */
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		ArrayList<double[]> slips = new ArrayList<double[]>();
-		for (int rupIndex=0; rupIndex<getNumRuptures(); rupIndex++)
-			slips.add(getSlipOnSectionsForRup(rupIndex));
-		return slips;
+	public double getMagForRup(int rupIndex) {
+		return mags[rupIndex];
 	}
-	
-	protected ConcurrentMap<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
-	
-	/**
-	 * This gives the slip (SI untis: m) on each section for the rth rupture
-	 * @return
-	 */
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		double[] slips = rupSectionSlipsCache.get(rthRup);
-		if (slips == null) {
-			synchronized (rupSectionSlipsCache) {
-				slips = rupSectionSlipsCache.get(rthRup);
-				if (slips != null)
-					return slips;
-				slips = calcSlipOnSectionsForRup(rthRup);
-				rupSectionSlipsCache.putIfAbsent(rthRup, slips);
-			}
-		}
-		return slips;
-	}
-	
-	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
 	/**
 	 * This represents the total moment rate available to the rupture (with creep and 
@@ -305,196 +420,69 @@ public abstract class FaultSystemRupSet {
 		return totMoRate;
 	}
 	
-	public abstract SlipAlongRuptureModels getSlipAlongRuptureModel();
-	
-	/**
-	 * This gets the slip on each section based on the value of slipModelType.
-	 * The slips are in meters.  Note that taper slipped model wts slips by area
-	 * to maintain moment balance (so it doesn't plot perfectly); do something about this?
-	 * 
-	 * Note that for two parallel faults that have some overlap, the slip won't be reduced
-	 * along the overlap the way things are implemented here.
-	 * 
-	 * This has been spot checked, but needs a formal test.
-	 *
-	 */
-	protected double[] calcSlipOnSectionsForRup(int rthRup) {
-		
-		SlipAlongRuptureModels slipModelType = getSlipAlongRuptureModel();
-		Preconditions.checkNotNull(slipModelType);
-		
-		List<Integer> sectionIndices = getSectionsIndicesForRup(rthRup);
-		int numSects = sectionIndices.size();
-		
-		// compute rupture area
-		double[] sectArea = new double[numSects];
-		double[] sectMoRate = new double[numSects];
-		int index=0;
-		for(Integer sectID: sectionIndices) {	
-//			FaultSectionPrefData sectData = getFaultSectionData(sectID);
-//			sectArea[index] = sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// aseismicity reduces area; 1e6 for sq-km --> sq-m
-			sectArea[index] = getAreaForSection(sectID);
-			sectMoRate[index] = FaultMomentCalc.getMoment(sectArea[index], getSlipRateForSection(sectID));
-			index += 1;
-		}
-			 		
-		double aveSlip = getAveSlipForRup(rthRup);  // in meters
-		
-		if (slipModelType == SlipAlongRuptureModels.MEAN_UCERF3) {
-			// get mean weights
-			List<Double> meanWeights = Lists.newArrayList();
-			List<SlipAlongRuptureModels> meanSALs = Lists.newArrayList();
-			
-			double sum = 0;
-			for (SlipAlongRuptureModels sal : SlipAlongRuptureModels.values()) {
-				double weight = sal.getRelativeWeight(null);
-				if (weight > 0) {
-					meanWeights.add(weight);
-					meanSALs.add(sal);
-					sum += weight;
-				}
-			}
-			if (sum != 0)
-				for (int i=0; i<meanWeights.size(); i++)
-					meanWeights.set(i, meanWeights.get(i)/sum);
-			
-			// calculate mean
-			double[] slipsForRup = new double[numSects];
-			
-			for (int i=0; i<meanSALs.size(); i++) {
-				double weight = meanWeights.get(i);
-				double[] subSlips = calcSlipOnSectionsForRup(rthRup, meanSALs.get(i), sectArea,
-						sectMoRate, aveSlip);
-				
-				for (int j=0; j<numSects; j++)
-					slipsForRup[j] += weight*subSlips[j];
-			}
-			
-			return slipsForRup;
-		}
-		
-		return calcSlipOnSectionsForRup(rthRup, slipModelType, sectArea,
-				sectMoRate, aveSlip);
-	}
-
-	public double[] calcSlipOnSectionsForRup(int rthRup,
-			SlipAlongRuptureModels slipModelType,
-			double[] sectArea, double[] sectMoRate, double aveSlip) {
-		double[] slipsForRup = new double[sectArea.length];
-		
-		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
-		if(slipModelType == SlipAlongRuptureModels.CHAR) {
-			throw new RuntimeException("SlipModelType.CHAR_SLIP_MODEL not yet supported");
-		}
-		// for case where ave slip computed from mag & area, and is same on all segments 
-		else if (slipModelType == SlipAlongRuptureModels.UNIFORM) {
-			for(int s=0; s<slipsForRup.length; s++)
-				slipsForRup[s] = aveSlip;
-		}
-		// this is the model where section slip is proportional to section slip rate 
-		// (bumped up or down based on ratio of seg slip rate over wt-ave slip rate (where wts are seg areas)
-		else if (slipModelType == SlipAlongRuptureModels.WG02) {
-			// TODO if we revive this, we need to change the cache copying due to moment changes
-			double totMoRateForRup = calcTotalAvailableMomentRate(rthRup);
-			for(int s=0; s<slipsForRup.length; s++) {
-				slipsForRup[s] = aveSlip*sectMoRate[s]*getAreaForRup(rthRup)/(totMoRateForRup*sectArea[s]);
-			}
-		}
-		else if (slipModelType == SlipAlongRuptureModels.TAPERED) {
-			// note that the ave slip is partitioned by area, not length; this is so the final model is moment balanced.
-
-			// make the taper function if hasn't been done yet
-			if(taperedSlipCDF == null) {
-				synchronized (FaultSystemRupSet.class) {
-					if (taperedSlipCDF == null) {
-						EvenlyDiscretizedFunc taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-						EvenlyDiscretizedFunc taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
-						double x,y, sum=0;
-						int num = taperedSlipPDF.getNum();
-						for(int i=0; i<num;i++) {
-							x = taperedSlipPDF.getX(i);
-							y = Math.pow(Math.sin(x*Math.PI), 0.5);
-							taperedSlipPDF.set(i,y);
-							sum += y;
-						}
-						// now make final PDF & CDF
-						y=0;
-						for(int i=0; i<num;i++) {
-								y += taperedSlipPDF.getY(i);
-								taperedSlipCDF.set(i,y/sum);
-								taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
-//								System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
-						}
-						FaultSystemRupSet.taperedSlipCDF = taperedSlipCDF;
-						FaultSystemRupSet.taperedSlipPDF = taperedSlipPDF;
-					}
-				}
-			}
-			double normBegin=0, normEnd, scaleFactor;
-			for(int s=0; s<slipsForRup.length; s++) {
-				normEnd = normBegin + sectArea[s]/getAreaForRup(rthRup);
-				// fix normEnd values that are just past 1.0
-//				if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
-				if(normEnd > 1 && normEnd < 1.01) normEnd = 1.0;
-				scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
-				scaleFactor /= (normEnd-normBegin);
-				Preconditions.checkState(normEnd>=normBegin, "End is before beginning!");
-				Preconditions.checkState(aveSlip >= 0, "Negative ave slip: "+aveSlip);
-				slipsForRup[s] = aveSlip*scaleFactor;
-				normBegin = normEnd;
-			}
-		}
-		
-		return slipsForRup;
-	}
-	
 	/**
 	 * This gives the average rake for all ruptures
 	 * @return
 	 */
-	public abstract double[] getAveRakeForAllRups();
+	public double[] getAveRakeForAllRups() {
+		return rakes;
+	}
 	
 	/**
 	 * This gives the average rake for the rth rupture
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract double getAveRakeForRup(int rupIndex);
+	public double getAveRakeForRup(int rupIndex) {
+		return rakes[rupIndex];
+	}
 	
 	/**
 	 * @return Area (SI units: sq-m)
 	 */
-	public abstract double[] getAreaForAllRups();
+	public double[] getAreaForAllRups() {
+		return rupAreas;
+	}
 	
 	/**
 	 * @param rupIndex
 	 * @return Area (SI units: sq-m)
 	 */
-	public abstract double getAreaForRup(int rupIndex);
+	public double getAreaForRup(int rupIndex) {
+		return rupAreas[rupIndex];
+	}
 	
 	/**
 	 * @return Area (SI units: sq-m)
 	 */
-	public abstract double[] getAreaForAllSections();
+	public double[] getAreaForAllSections() {
+		return sectAreas;
+	}
 	
 	/**
 	 * @param sectIndex
 	 * @return Area (SI units: sq-m)
 	 */
-	public abstract double getAreaForSection(int sectIndex);
+	public double getAreaForSection(int sectIndex) {
+		return sectAreas[sectIndex];
+	}
 	
 	/**
 	 * This returns a list of all fault-section data
 	 * @return
 	 */
-	public abstract List<FaultSectionPrefData> getFaultSectionDataList();
+	public List<FaultSectionPrefData> getFaultSectionDataList() {
+		return faultSectionData;
+	}
 	
 	/**
 	 * The returns the fault-section data for the sth section
 	 * @param sectIndex
 	 * @return
 	 */
-	public abstract FaultSectionPrefData getFaultSectionData(int sectIndex);
+	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
+		return faultSectionData.get(sectIndex);
+	}
 	
 	/**
 	 * This gets a list of fault-section data for the specified rupture
@@ -523,7 +511,6 @@ public abstract class FaultSystemRupSet {
 		if (fsdList.size() > 1) {
 			ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
 			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-				// TODO: should aseis be false instead of true?
 				surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
 			}
 			return new CompoundGriddedSurface(surfaces);
@@ -533,12 +520,21 @@ public abstract class FaultSystemRupSet {
 	}
 	
 	/**
-	 * This returns the length (SI units: m) of the specified rupture (abstract in case the rupture 
-	 * length is not exactly the total length of sections (e.g., if from simulator)).
+	 * This returns the length (SI units: m) of each rupture.
+	 * @return
+	 */
+	public double[] getLengthForAllRups() {
+		return rupLengths;
+	}
+	
+	/**
+	 * This returns the length (SI units: m) of the specified rupture.
 	 * @param rupIndex
 	 * @return
 	 */
-	public abstract double getLengthForRup(int rupIndex);
+	public double getLengthForRup(int rupIndex) {
+		return rupLengths[rupIndex];
+	}
 	
 	/**
 	 * This returns the width (SI units: m) of the specified rupture 
@@ -548,15 +544,6 @@ public abstract class FaultSystemRupSet {
 	 */
 	public double getAveWidthForRup(int rupIndex) {
 		return getAreaForRup(rupIndex)/getLengthForRup(rupIndex);
-//		double sum =0;
-//		double totArea =0;
-//		for(FaultSectionPrefData data : getFaultSectionDataForRupture(rupIndex)) {
-//			double width = data.getReducedDownDipWidth();
-//			double area = width*data.getTraceLength();
-//			sum += width*area;
-//			totArea += area;
-//		}
-//		return sum/totArea;
 	}
 
 	
@@ -566,97 +553,104 @@ public abstract class FaultSystemRupSet {
 	 * (it differs from what is returned by getFaultSectionData(int).getReducedAveSlipRate())
 	 * @return
 	 */
-	public abstract double getSlipRateForSection(int sectIndex);
+	public double getSlipRateForSection(int sectIndex) {
+		return sectSlipRates[sectIndex];
+	}
 	
 	/**
 	 * This differs from what is returned by getFaultSectionData(int).getAveLongTermSlipRate()
 	 * where there has been a modification (i.e., moment rate reductions for smaller events).
 	 * @return
 	 */
-	public abstract double[] getSlipRateForAllSections();
+	public double[] getSlipRateForAllSections() {
+		return sectSlipRates;
+	}
 	
 	/**
 	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
 	 * where there has been a modification (i.e., moment rate reductions for smaller events).
 	 * @return
 	 */
-	public abstract double getSlipRateStdDevForSection(int sectIndex);
+	public double getSlipRateStdDevForSection(int sectIndex) {
+		return sectSlipRateStdDevs[sectIndex];
+	}
 	
 	/**
 	 * This differs from what is returned by getFaultSectionData(int).getSlipRateStdDev()
 	 * where there has been a modification (i.e., moment rate reductions for smaller events).
 	 * @return
 	 */
-	public abstract double[] getSlipRateStdDevForAllSections();
+	public double[] getSlipRateStdDevForAllSections() {
+		return sectSlipRateStdDevs;
+	}
 
 	/**
 	 * This is a general info String
 	 * @return
 	 */
-	public abstract String getInfoString();
+	public String getInfoString() {
+		return info;
+	}
 	
-	public abstract void setInfoString(String info);
+	public void setInfoString(String info) {
+		this.info = info;
+	}
 	
-	/**
-	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
-	 * @param sectIndex index of the section to retrieve
-	 * @return close sections, or null if not defined
-	 */
-	public abstract List<Integer> getCloseSectionsList(int sectIndex);
-	
-	/**
-	 * This returns a list of lists of close sections for each section.
-	 * @return list of all close sections, or null if not defined
-	 */
-	public abstract List<List<Integer>> getCloseSectionsListList();
-	
-	/*		CLUSTER RELATED METHODS		*/
-	
-	/**
-	 * 
-	 * @return the number of clusters, or 0 if not a cluster based model
-	 */
-	public abstract int getNumClusters();
-	
-	/**
-	 * 
-	 * @return true if the rup set is cluster based, false otherwise
-	 */
-	public abstract boolean isClusterBased();
-	
-	/**
-	 * 
-	 * @param index index of the cluster to get
-	 * @return number of ruptures in the given cluster
-	 */
-	public abstract int getNumRupturesForCluster(int index);
-	
-	/**
-	 * 
-	 * @param index index of the cluster to get
-	 * @return list of section IDs in the cluster at the given index
-	 */
-	public abstract List<Integer> getSectionsForCluster(int index);
-	
-	/**
-	 * 
-	 * @param index index of the cluster to get
-	 * @return list of rupture indexes for the cluster at the given index
-	 * @throws IndexOutOfBoundsException if the index is invalid
-	 */
-	public abstract List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
-	
-	/**
-	* This returns the deformation model
-	* @return
-	*/
-	public abstract DeformationModels getDeformationModel();
-	
-	/**
-	* This returns the fault model
-	* @return
-	*/
-	public abstract FaultModels getFaultModel();
+	// TODO move to IVFSRS
+//	/**
+//	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
+//	 * @param sectIndex index of the section to retrieve
+//	 * @return close sections, or null if not defined
+//	 */
+//	public abstract List<Integer> getCloseSectionsList(int sectIndex);
+//	
+//	/**
+//	 * This returns a list of lists of close sections for each section.
+//	 * @return list of all close sections, or null if not defined
+//	 */
+//	public abstract List<List<Integer>> getCloseSectionsListList();
+//	
+//	/*		CLUSTER RELATED METHODS		*/
+//	
+//	/**
+//	 * 
+//	 * @return the number of clusters, or 0 if not a cluster based model
+//	 */
+//	public abstract int getNumClusters();
+//	
+//	/**
+//	 * 
+//	 * @param index index of the cluster to get
+//	 * @return number of ruptures in the given cluster
+//	 */
+//	public abstract int getNumRupturesForCluster(int index);
+//	
+//	/**
+//	 * 
+//	 * @param index index of the cluster to get
+//	 * @return list of section IDs in the cluster at the given index
+//	 */
+//	public abstract List<Integer> getSectionsForCluster(int index);
+//	
+//	/**
+//	 * 
+//	 * @param index index of the cluster to get
+//	 * @return list of rupture indexes for the cluster at the given index
+//	 * @throws IndexOutOfBoundsException if the index is invalid
+//	 */
+//	public abstract List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
+//	
+//	/**
+//	* This returns the deformation model
+//	* @return
+//	*/
+//	public abstract DeformationModels getDeformationModel();
+//	
+//	/**
+//	* This returns the fault model
+//	* @return
+//	*/
+//	public abstract FaultModels getFaultModel();
 	
 	private Table<Region, Boolean, double[]> fractRupsInsideRegions = HashBasedTable.create();
 	

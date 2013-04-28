@@ -312,9 +312,7 @@ public class IML_Calculator {
 			CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(cfssFile);
 			// configure logic tree branch request and fetch solution
 			LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchName);
-			FaultSystemSolution fss = cfss.getSolution(branch);
-			InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-				fss);
+			InversionFaultSystemSolution invFss = cfss.getSolution(branch);
 			// create and configure ERF
 			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
 			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);

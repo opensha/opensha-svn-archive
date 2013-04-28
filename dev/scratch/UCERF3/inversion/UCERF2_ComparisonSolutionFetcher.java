@@ -13,8 +13,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -22,6 +20,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 
@@ -29,7 +28,7 @@ public class UCERF2_ComparisonSolutionFetcher {
 	
 //	private static Map<FaultModels, SimpleFaultSystemSolution> cache = Maps.newHashMap();
 	private static Table<FaultModels, SlipAlongRuptureModels,
-			SimpleFaultSystemSolution> cache= HashBasedTable.create();
+			InversionFaultSystemSolution> cache= HashBasedTable.create();
 	
 	/**
 	 * This creates a UCERF2 reference solution for the given Fault Model. It uses
@@ -41,19 +40,19 @@ public class UCERF2_ComparisonSolutionFetcher {
 	 * @param fm
 	 * @return
 	 */
-	public static SimpleFaultSystemSolution getUCERF2Solution(FaultModels fm) {
+	public static InversionFaultSystemSolution getUCERF2Solution(FaultModels fm) {
 		return getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 	}
 	
-	public static SimpleFaultSystemSolution getUCERF2Solution(FaultModels fm, SlipAlongRuptureModels slipModel) {
-		SimpleFaultSystemSolution sol = cache.get(fm, slipModel);
+	public static InversionFaultSystemSolution getUCERF2Solution(FaultModels fm, SlipAlongRuptureModels slipModel) {
+		InversionFaultSystemSolution sol = cache.get(fm, slipModel);
 		if (sol == null) {
 			DeformationModels dm;
 			if (fm == FaultModels.FM2_1)
 				dm = DeformationModels.UCERF2_ALL;
 			else
 				dm = DeformationModels.GEOLOGIC;
-			FaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
+			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					LaughTestFilter.getDefault(), 0, fm, dm, ScalingRelationships.AVE_UCERF2,
 					slipModel, InversionModels.CHAR_CONSTRAINED, SpatialSeisPDF.UCERF2);
 
@@ -64,10 +63,12 @@ public class UCERF2_ComparisonSolutionFetcher {
 		return sol;
 	}
 	
-	public static SimpleFaultSystemSolution getUCERF2Solution(FaultSystemRupSet rupSet) {
+	public static InversionFaultSystemSolution getUCERF2Solution(InversionFaultSystemRupSet rupSet) {
 		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
 
-		SimpleFaultSystemRupSet modRupSet = new SimpleFaultSystemRupSet(rupSet);
+		InversionFaultSystemRupSet modRupSet = new InversionFaultSystemRupSet(rupSet, rupSet.getLogicTreeBranch(),
+				rupSet.getLaughTestFilter(), rupSet.getAveSlipForAllRups(), rupSet.getCloseSectionsListList(),
+				rupSet.getRupturesForClusters(), rupSet.getSectionsForClusters());
 
 		double[] mags = new double[ucerf2_magsAndRates.size()];
 		double[] rates = new double[ucerf2_magsAndRates.size()];
@@ -84,7 +85,7 @@ public class UCERF2_ComparisonSolutionFetcher {
 
 		modRupSet.setMagForallRups(mags);
 
-		return new SimpleFaultSystemSolution(modRupSet, rates);
+		return new InversionFaultSystemSolution(modRupSet, rates, null, null);
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
@@ -92,9 +93,9 @@ public class UCERF2_ComparisonSolutionFetcher {
 		String prefix = "FM3_1_UCERF2_DsrTap_CharConst_COMPARE";
 		File dir = new File("/tmp");
 		
-		SimpleFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
+		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 //		BatchPlotGen.makeMapPlots(sol, dir, prefix);
-		sol.toZipFile(new File(dir, prefix+"_sol.zip"));
+		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
 		
 //		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);

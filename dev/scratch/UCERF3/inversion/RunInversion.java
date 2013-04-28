@@ -9,7 +9,6 @@ import org.opensha.commons.eq.MagUtils;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotSpec;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -27,6 +26,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
@@ -186,12 +186,16 @@ public class RunInversion {
 		
 		// adjust for minimum rates if applicable
 		double[] solution_adjusted = gen.adjustSolutionForMinimumRates(solution_raw);
-		SimpleFaultSystemSolution solution = new SimpleFaultSystemSolution(rupSet, solution_adjusted);
+		Map<String, Double> energies = null;
+		if (sa instanceof ThreadedSimulatedAnnealing)
+			energies = ((ThreadedSimulatedAnnealing)sa).getEnergies();
+		InversionFaultSystemSolution solution = new InversionFaultSystemSolution(
+				rupSet, solution_adjusted, config, energies);
 		
 		// lets save this solution...we just worked so hard for it, after all! (optional)
 		if (writeSolutionZipFile) {
 			try {
-				solution.toZipFile(new File(precomputedDataDir, fileName+"_solution.zip"));
+				FaultSystemIO.writeSol(solution, new File(precomputedDataDir, fileName+"_solution.zip"));
 			} catch (IOException e) {
 				// a failure here is OK. who needs a solution anyway?
 				e.printStackTrace();
@@ -203,8 +207,8 @@ public class RunInversion {
 		
 		// Calculate total moment of solution
 		double totalSolutionMoment = 0;
-		for (int rup=0; rup<solution.getNumRuptures(); rup++) 
-			totalSolutionMoment += solution.getRateForRup(rup)*MagUtils.magToMoment(solution.getMagForRup(rup));
+		for (int rup=0; rup<rupSet.getNumRuptures(); rup++) 
+			totalSolutionMoment += solution.getRateForRup(rup)*MagUtils.magToMoment(rupSet.getMagForRup(rup));
 		if (D) System.out.println("Total moment of solution = "+totalSolutionMoment);
 		
 		// Make plots
@@ -213,11 +217,10 @@ public class RunInversion {
 		solution.plotRuptureRates();
 		solution.plotSlipRates();
 		solution.plotPaleoObsAndPredPaleoEventRates(paleoRateConstraints, paleoProbabilityModel, rupSet);
-		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(solution);
-		invSol.plotMFDs();
+		solution.plotMFDs();
 		List<AveSlipConstraint> aveSlipConstraints;
 		try {
-			aveSlipConstraints = AveSlipConstraint.load(solution.getFaultSectionDataList());
+			aveSlipConstraints = AveSlipConstraint.load(rupSet.getFaultSectionDataList());
 			Map<String, PlotSpec[]> plotSpecs =
 					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, solution);
 			// display SAF plots

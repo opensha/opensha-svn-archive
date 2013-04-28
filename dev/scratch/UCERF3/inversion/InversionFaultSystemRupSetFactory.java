@@ -9,7 +9,6 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -23,6 +22,7 @@ import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 
@@ -55,7 +55,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static FaultSystemRupSet cachedForBranch(LogicTreeBranchNode<?>... branchNodes) throws IOException {
+	public static InversionFaultSystemRupSet cachedForBranch(LogicTreeBranchNode<?>... branchNodes) throws IOException {
 		return cachedForBranch(false, branchNodes);
 	}
 	
@@ -71,7 +71,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static FaultSystemRupSet cachedForBranch(boolean forceRebuild, LogicTreeBranchNode<?>... branchNodes) throws IOException {
+	public static InversionFaultSystemRupSet cachedForBranch(boolean forceRebuild, LogicTreeBranchNode<?>... branchNodes) throws IOException {
 		return cachedForBranch(rup_set_store_dir, forceRebuild, branchNodes);
 	}
 	
@@ -87,7 +87,7 @@ public class InversionFaultSystemRupSetFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static FaultSystemRupSet cachedForBranch(
+	public static InversionFaultSystemRupSet cachedForBranch(
 			File directory, boolean forceRebuild, LogicTreeBranchNode<?>... branchNodes)
 			throws IOException {
 		LogicTreeBranch branch = LogicTreeBranch.fromValues(branchNodes);
@@ -100,7 +100,7 @@ public class InversionFaultSystemRupSetFactory {
 			System.out.println("Loading cached rup set from file: "+file.getAbsolutePath());
 			
 			try {
-				FaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(file);
+				InversionFaultSystemRupSet rupSet = FaultSystemIO.loadInvRupSet(file);
 				
 				return rupSet;
 			} catch (Exception e) {
@@ -113,7 +113,7 @@ public class InversionFaultSystemRupSetFactory {
 		System.out.println("Caching rup set to file: "+file.getAbsolutePath());
 		if (!directory.exists())
 			directory.mkdir();
-		new SimpleFaultSystemRupSet(rupSet).toZipFile(file);
+		FaultSystemIO.writeRupSet(rupSet, file);
 		return rupSet;
 	}
 	
@@ -260,8 +260,12 @@ public class InversionFaultSystemRupSetFactory {
 			System.out.println("FM3.1: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
 			rupSet = forBranch(filter, DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(FaultModels.FM3_2));
 			System.out.println("FM3.2: "+rupSet.getNumRuptures()+" rups, "+rupSet.getNumSections()+" sects");
+			FaultSystemIO.writeRupSet(rupSet, new File("/tmp/mean_rupSet.zip"));
+			// test loading
+			InversionFaultSystemRupSet invRupSet = FaultSystemIO.loadInvRupSet(new File("/tmp/mean_rupSet.zip"));
+			System.out.println(invRupSet.getLogicTreeBranch());
+			System.out.println(invRupSet.getLaughTestFilter());
 			System.exit(0);
-			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/mean_rupSet.zip"));
 //			new SimpleFaultSystemRupSet(rupSet).toZipFile(new File("/tmp/rup_set_0.05_1.25.zip"));
 //			filter.setAllowSingleSectDuringJumps(false);
 //			List<Integer> counts = Lists.newArrayList();

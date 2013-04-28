@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -34,6 +35,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -1060,6 +1062,19 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		writeRateVsRankPlot(prefix);
 		if (criteria instanceof ProgressTrackingCompletionCriteria)
 			writeProgressPlots((ProgressTrackingCompletionCriteria)criteria, prefix);
+	}
+	
+	public Map<String, Double> getEnergies() {
+		if (rangeNames == null)
+			return null;
+		Map<String, Double> energies = Maps.newHashMap();
+		
+		double[] e = getBestEnergy();
+		for (int i=4; i<e.length && (i-4)<rangeNames.size(); i++) {
+			energies.put(rangeNames.get(i-4), e[i]);
+		}
+		
+		return energies;
 	}
 	
 	public String getMetadata(String[] args, CompletionCriteria criteria) {

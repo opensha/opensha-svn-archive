@@ -3,7 +3,6 @@ package scratch.kevin.ucerf3;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
@@ -31,6 +29,7 @@ import scratch.UCERF3.inversion.coulomb.CoulombRatesRecord;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -103,7 +102,7 @@ public class StandaloneSubSectRupGen {
 		// write subsection data to file
 		File subSectDataFile = new File(outputDir, "sub_sections.xml");
 		Document doc = XMLUtils.createDocumentWithRoot();
-		SimpleFaultSystemRupSet.fsDataToXML(doc.getRootElement(), subSections, FaultModels.XML_ELEMENT_NAME, null, null);
+		FaultSystemIO.fsDataToXML(doc.getRootElement(), FaultModels.XML_ELEMENT_NAME, null, null, subSections);
 		XMLUtils.writeDocumentToFile(subSectDataFile, doc);
 		
 		// instantiate our laugh test filter
@@ -158,7 +157,7 @@ public class StandaloneSubSectRupGen {
 		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(branch, clusters, subSections);
 		
 		File zipFile = new File(outputDir, "rupSet.zip");
-		new SimpleFaultSystemRupSet(rupSet).toZipFile(zipFile);
+		FaultSystemIO.writeRupSet(rupSet, zipFile);
 	}
 	
 	public static CoulombRates remapCoulombRates(List<FaultSectionPrefData> subSections, FaultModels fm) throws IOException {

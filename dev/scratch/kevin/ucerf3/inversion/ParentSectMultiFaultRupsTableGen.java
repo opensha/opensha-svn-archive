@@ -9,10 +9,12 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
 
 public class ParentSectMultiFaultRupsTableGen {
 
@@ -25,13 +27,13 @@ public class ParentSectMultiFaultRupsTableGen {
 		File file = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/" +
 				"2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		
-		SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
+		FaultSystemSolution sol = FaultSystemIO.loadSol(file);
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		int targetParent = 638;
 		
-		List<Integer> rups = sol.getRupturesForParentSection(targetParent);
+		List<Integer> rups = sol.getRupSet().getRupturesForParentSection(targetParent);
 		
 		List<String> header = Lists.newArrayList("Rupture Index", "Parent Sections", "Rate", "Magnitude");
 		csv.addLine(header);
@@ -40,7 +42,7 @@ public class ParentSectMultiFaultRupsTableGen {
 			HashSet<Integer> parentsForRup = new HashSet<Integer>();
 			List<String> parentNames = Lists.newArrayList();
 			
-			for (FaultSectionPrefData sect : sol.getFaultSectionDataForRupture(r)) {
+			for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataForRupture(r)) {
 				Integer parentID = sect.getParentSectionId();
 				if (!parentsForRup.contains(parentID)) {
 					parentsForRup.add(parentID);
@@ -55,7 +57,7 @@ public class ParentSectMultiFaultRupsTableGen {
 			line.add(r+"");
 			line.add(parents);
 			line.add(sol.getRateForRup(r)+"");
-			line.add(sol.getMagForRup(r)+"");
+			line.add(sol.getRupSet().getMagForRup(r)+"");
 			
 			csv.addLine(line);
 		}

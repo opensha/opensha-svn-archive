@@ -22,19 +22,23 @@ import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
+import com.google.common.collect.Lists;
+
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
  * @author field
  *
  */
-public class TestModel1_FSS extends FaultSystemSolution {
+public class TestModel1_FSS extends InversionFaultSystemSolution {
 	
 	final static boolean D = false;	// debug flag
 	
@@ -63,6 +67,7 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	
 	
 	public TestModel1_FSS() {
+		super();
 		
 		FaultTrace trace = new FaultTrace(null);
 		trace.add(faultEndLoc1);
@@ -194,6 +199,21 @@ public class TestModel1_FSS extends FaultSystemSolution {
 			System.out.println("MomentRates: "+totMoRate+"\t"+faultGR.getTotalMomentRate()
 					+"\t"+targetFaultGR.getTotalMomentRate());
 		}
+		
+		List<List<Integer>> sectionForRups = Lists.newArrayList();
+		for (int r=0; r<totNumRups; r++) {
+			ArrayList<Integer> indices = new ArrayList<Integer>();
+			for(int i=firstSubSectForRup[rupIndex]; i<=lastSubSectForRup[rupIndex]; i++)
+				indices.add(i);
+			sectionForRups.add(indices);
+		}
+		
+		double[] rakes = new double[totNumRups];
+		
+		FaultSystemRupSet rupSet = new FaultSystemRupSet(subSectionData, null, null, areaForRup, sectionForRups, magForRup,
+				rakes, areaForRup, null, null);
+		
+		init(rupSet, rateForRup, null);
 	}
 	
 	/**
@@ -228,292 +248,6 @@ public class TestModel1_FSS extends FaultSystemSolution {
 	public double getRateForRup(int rupIndex) {
 		return rateForRup[rupIndex];
 	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAreaForAllRups()
-	 */
-	@Override
-	public double[] getAreaForAllRups() {
-		return areaForRup;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAreaForAllSections()
-	 */
-	@Override
-	public double[] getAreaForAllSections() {
-		double[] sectAreas = new double[subSectionData.size()];
-		for(int s=0;s<subSectionData.size();s++)
-			sectAreas[s]= getAreaForSection(s);
-		return sectAreas;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAreaForRup(int)
-	 */
-	@Override
-	public double getAreaForRup(int rupIndex) {
-		return areaForRup[rupIndex];
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAreaForSection(int)
-	 */
-	@Override
-	public double getAreaForSection(int sectIndex) {
-		FaultSectionPrefData sectData = subSectionData.get(sectIndex);
-		return sectData.getTraceLength()*sectData.getReducedDownDipWidth()*1e6;	// converted to sq-meters
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAveRakeForAllRups()
-	 */
-	@Override
-	public double[] getAveRakeForAllRups() {
-		double[] rakes = new double[totNumRups];
-		for(int r=0; r<totNumRups;r++)
-			rakes[r]=rake;
-		return rakes;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAveRakeForRup(int)
-	 */
-	@Override
-	public double getAveRakeForRup(int rupIndex) {
-		return rake;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAveSlipForAllRups()
-	 */
-	@Override
-	public double[] getAveSlipForAllRups() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getAveSlipForRup(int)
-	 */
-	@Override
-	public double getAveSlipForRup(int rupIndex) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getCloseSectionsList(int)
-	 */
-	@Override
-	public List<Integer> getCloseSectionsList(int sectIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getCloseSectionsListList()
-	 */
-	@Override
-	public List<List<Integer>> getCloseSectionsListList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getDeformationModelName()
-	 */
-	@Override
-	public DeformationModels getDeformationModel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getDeformationModelName()
-	 */
-	@Override
-	public FaultModels getFaultModel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getFaultSectionData(int)
-	 */
-	@Override
-	public FaultSectionPrefData getFaultSectionData(int sectIndex) {
-		// TODO Auto-generated method stub
-		return subSectionData.get(sectIndex);
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getFaultSectionDataList()
-	 */
-	@Override
-	public List<FaultSectionPrefData> getFaultSectionDataList() {
-		return subSectionData;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getInfoString()
-	 */
-	@Override
-	public String getInfoString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public void setInfoString(String info) {
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getMagForAllRups()
-	 */
-	@Override
-	public double[] getMagForAllRups() {
-		return magForRup;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getMagForRup(int)
-	 */
-	@Override
-	public double getMagForRup(int rupIndex) {
-		return magForRup[rupIndex];
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getNumClusters()
-	 */
-	@Override
-	public int getNumClusters() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getNumRuptures()
-	 */
-	@Override
-	public int getNumRuptures() {
-		return totNumRups;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getNumRupturesForCluster(int)
-	 */
-	@Override
-	public int getNumRupturesForCluster(int index) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getNumSections()
-	 */
-	@Override
-	public int getNumSections() {
-		return subSectionData.size();
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getRupturesForCluster(int)
-	 */
-	@Override
-	public List<Integer> getRupturesForCluster(int index)
-			throws IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSectionIndicesForAllRups()
-	 */
-	@Override
-	public List<List<Integer>> getSectionIndicesForAllRups() {
-		ArrayList<List<Integer>> indicesList = new ArrayList<List<Integer>>();
-		for(int r=0;r<totNumRups;r++)
-			indicesList.add(getSectionsIndicesForRup(r));
-		return indicesList;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSectionsForCluster(int)
-	 */
-	@Override
-	public List<Integer> getSectionsForCluster(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSectionsIndicesForRup(int)
-	 */
-	@Override
-	public List<Integer> getSectionsIndicesForRup(int rupIndex) {
-		ArrayList<Integer> indices = new ArrayList<Integer>();
-		for(int i=firstSubSectForRup[rupIndex]; i<=lastSubSectForRup[rupIndex]; i++)
-			indices.add(i);
-		return indices;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipOnSectionsForRup(int)
-	 */
-	@Override
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		double[] slips = new double[getSectionsIndicesForRup(rthRup).size()];
-		for(int i=0;i<slips.length;i++)
-			slips[i] = this.aveSlipForRup[rthRup];
-		return slips;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipRateForAllSections()
-	 */
-	@Override
-	public double[] getSlipRateForAllSections() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipRateForSection(int)
-	 */
-	@Override
-	public double getSlipRateForSection(int sectIndex) {
-		// TODO Auto-generated method stub
-		return subSectionData.get(sectIndex).getReducedAveSlipRate();
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipRateStdDevForAllSections()
-	 */
-	@Override
-	public double[] getSlipRateStdDevForAllSections() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#getSlipRateStdDevForSection(int)
-	 */
-	@Override
-	public double getSlipRateStdDevForSection(int sectIndex) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see scratch.UCERF3.FaultSystemRupSet#isClusterBased()
-	 */
-	@Override
-	public boolean isClusterBased() {
-		return false;
-	}
-	
 	
 	/**
 	 * This returns all ruptures that are: 1) completely inside the given rupture surface, 
@@ -527,15 +261,15 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		
 		ArrayList<Integer> rupsWithOverlap = new ArrayList<Integer> ();
 		
-		List<Integer>  rupSects = getSectionsIndicesForRup(rthRup);
+		List<Integer>  rupSects = getRupSet().getSectionsIndicesForRup(rthRup);
 
 		int firstRupSect = rupSects.get(0);
 		int lastRupSect = rupSects.get(rupSects.size()-1);
 // System.out.println("TARGET: "+rthRup+"\t"+firstRupSect+"\t"+lastRupSect);
 
 				
-		for(int i=0; i<getNumRuptures(); i++) {
-			List<Integer>  sects = getSectionsIndicesForRup(i);
+		for(int i=0; i<getRupSet().getNumRuptures(); i++) {
+			List<Integer>  sects = getRupSet().getSectionsIndicesForRup(i);
 			int first = sects.get(0);
 			int last = sects.get(sects.size()-1);
 			
@@ -579,15 +313,14 @@ public class TestModel1_FSS extends FaultSystemSolution {
 		
 		TestModel1_FSS test = new TestModel1_FSS();
 		
-		System.out.println(test.getNumRuptures());
+		System.out.println(test.getRupSet().getNumRuptures());
 
 //		test.getRupsThatOverlapGivenRup(892, 10);
 		
 		File file = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR,"/TestModel1_FSS.zip");
 		
 		try {
-			SimpleFaultSystemSolution simpSol = new SimpleFaultSystemSolution(test);
-			SimpleFaultSystemSolution.toZipFile(simpSol, file);
+			FaultSystemIO.writeSol(test, file);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -598,22 +331,6 @@ public class TestModel1_FSS extends FaultSystemSolution {
 //			System.out.println(i+"\t"+sects.get(0)+"\t"+sects.get(sects.size()-1));
 //		}
 
-	}
-
-	@Override
-	public SlipAlongRuptureModels getSlipAlongRuptureModel() {
-		return null;
-	}
-
-	@Override
-	public double getLengthForRup(int rupIndex) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	@Override
-	public GridSourceProvider getGridSourceProvider() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

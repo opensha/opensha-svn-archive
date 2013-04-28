@@ -53,13 +53,14 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.kevin.magDepth.NoCollissionFunc;
@@ -880,7 +881,7 @@ public class ManyRunCompilation {
 		
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_05_02-fm2-cooling-tests/results");
 		File rupSetFile = new File(dir, "rupSet.zip");
-		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(rupSetFile);
+		InversionFaultSystemRupSet rupSet = FaultSystemIO.loadInvRupSet(rupSetFile);
 		int numRups = rupSet.getNumRuptures();
 		System.out.println("Loaded rupSet with "+numRups+" ruptures");
 //		int numRuns = 460;
@@ -1010,12 +1011,12 @@ public class ManyRunCompilation {
 		gp.saveAsPDF(rankFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(rankFile.getAbsolutePath()+".png");
 		
-		SimpleFaultSystemSolution meanSol = new SimpleFaultSystemSolution(rupSet, meanRates);
-		meanSol.toZipFile(new File(dir, prefix+"_mean_sol.zip"));
-		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(meanSol);
-		CommandLineInversionRunner.writeMFDPlots(invSol, dir, prefix);
+		InversionFaultSystemSolution meanSol = new InversionFaultSystemSolution(rupSet, meanRates);
+		FaultSystemIO.writeSol(meanSol, new File(dir, prefix+"_mean_sol.zip"));
+		CommandLineInversionRunner.writeMFDPlots(meanSol, dir, prefix);
 		
-		ArrayList<PaleoRateConstraint> paleoConstraints = CommandLineInversionRunner.getPaleoConstraints(meanSol.getFaultModel(), meanSol);
+		ArrayList<PaleoRateConstraint> paleoConstraints = CommandLineInversionRunner.getPaleoConstraints(
+				meanSol.getRupSet().getFaultModel(), meanSol.getRupSet());
 		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, meanSol, dir, prefix+"_mean");
 		
 		BatchPlotGen.makeMapPlots(meanSol, dir, prefix+"_mean");

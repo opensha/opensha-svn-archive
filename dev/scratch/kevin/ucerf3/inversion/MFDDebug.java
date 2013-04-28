@@ -55,7 +55,7 @@ public class MFDDebug {
 			List<Integer> rupList = rupsListMap.get(fm);
 			if (rupList == null) {
 				FaultSystemSolution sol = fss.getSolution(branch);
-				rupList = sol.getRupturesForParentSection(parentID);
+				rupList = sol.getRupSet().getRupturesForParentSection(parentID);
 				rupsListMap.put(fm, rupList);
 			}
 			

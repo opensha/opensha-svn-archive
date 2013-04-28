@@ -3,7 +3,10 @@ package scratch.UCERF3.logicTree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.Element;
+
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 
 
 public class VariableLogicTreeBranch extends LogicTreeBranch {
@@ -110,6 +113,12 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		VariableLogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
 		for (String var : branch.getVariations())
 			System.out.println(var);
+	}
+	
+	public static VariableLogicTreeBranch fromXMLMetadata(Element branchEl) {
+		LogicTreeBranch branch = LogicTreeBranch.fromXMLMetadata(branchEl);
+		Preconditions.checkState(branch instanceof VariableLogicTreeBranch, "Has no variations!");
+		return (VariableLogicTreeBranch)branch;
 	}
 	
 }

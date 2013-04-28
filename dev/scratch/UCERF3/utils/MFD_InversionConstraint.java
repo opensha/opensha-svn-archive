@@ -2,8 +2,12 @@ package scratch.UCERF3.utils;
 
 import java.util.List;
 
+import org.dom4j.Element;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
@@ -14,7 +18,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author field
  *
  */
-public class MFD_InversionConstraint {
+public class MFD_InversionConstraint implements XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "MFD_InversionConstraint";
 	
 	IncrementalMagFreqDist mfd;
 	Region region;
@@ -65,6 +71,32 @@ public class MFD_InversionConstraint {
 			data.getSimpleFaultData(true);
 		}
 		return numInside/totNum;
+	}
+
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		// must call this way to make sure we get the regular region, not a gridded
+		region.toXMLMetadata(el, Region.XML_METADATA_NAME);
+		mfd.toXMLMetadata(el);
+		
+		return root;
+	}
+	
+	public static MFD_InversionConstraint fromXMLMetadata(Element constrEl) {
+		Element regionEl = constrEl.element(Region.XML_METADATA_NAME);
+		Region region = Region.fromXMLMetadata(regionEl);
+		
+		Element mfdEl = constrEl.element(IncrementalMagFreqDist.XML_METADATA_NAME);
+		EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc) EvenlyDiscretizedFunc.fromXMLMetadata(mfdEl);
+		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(func.getMinX(), func.getNum(), func.getDelta());
+		for (int i=0; i<func.getNum(); i++) {
+			mfd.set(i, func.getY(i));
+		}
+		
+		return new MFD_InversionConstraint(mfd, region);
 	}
 
 }

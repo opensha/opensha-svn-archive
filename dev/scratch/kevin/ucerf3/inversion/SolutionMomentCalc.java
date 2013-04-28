@@ -8,8 +8,9 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FileNameComparator;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class SolutionMomentCalc {
 
@@ -33,18 +34,19 @@ public class SolutionMomentCalc {
 			if (!name.endsWith("_sol.zip") && !name.endsWith("BRANCH_AVG_SOL.zip"))
 					continue;
 			// we have a solution
-			FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(file);
+			FaultSystemSolution sol = FaultSystemIO.loadSol(file);
+			FaultSystemRupSet rupSet = sol.getRupSet();
 			
 			// calculate the moment
 			double totalSolutionMoment = 0;
 			double totalSolutionRate = 0;
 			double meanMag = 0;
-			for (int rup=0; rup<sol.getNumRuptures(); rup++) { 
-				totalSolutionMoment += sol.getRateForRup(rup)*MagUtils.magToMoment(sol.getMagForRup(rup));
+			for (int rup=0; rup<rupSet.getNumRuptures(); rup++) { 
+				totalSolutionMoment += sol.getRateForRup(rup)*MagUtils.magToMoment(rupSet.getMagForRup(rup));
 				totalSolutionRate += sol.getRateForRup(rup);
-				meanMag += sol.getMagForRup(rup);
+				meanMag += rupSet.getMagForRup(rup);
 			}
-			meanMag /= (double)sol.getNumRuptures();
+			meanMag /= (double)rupSet.getNumRuptures();
 			System.out.println(name);
 			System.out.println("Total moment rate of solution = "+totalSolutionMoment);
 			System.out.println("Total rate of solution = "+totalSolutionRate);

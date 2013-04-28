@@ -10,17 +10,18 @@ import org.dom4j.DocumentException;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class VarsPaleoBoundsPlot {
 	
 	public static void main(String[] args) throws ZipException, IOException, DocumentException {
 		File dir = new File("/tmp/zeng_ref_vars_paleo");
 		
-		SimpleFaultSystemRupSet rupSet = null;
+		InversionFaultSystemRupSet rupSet = null;
 		
-		List<SimpleFaultSystemSolution> sols = Lists.newArrayList();
+		List<InversionFaultSystemSolution> sols = Lists.newArrayList();
 		
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory())
@@ -34,8 +35,8 @@ public class VarsPaleoBoundsPlot {
 			System.out.println("Loading..."+file.getName());
 			
 			if (rupSet == null)
-				rupSet = SimpleFaultSystemRupSet.fromFile(file);
-			SimpleFaultSystemSolution sol = SimpleFaultSystemSolution.fromZipFile(file, rupSet);
+				rupSet = FaultSystemIO.loadInvRupSet(file);
+			InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(file);
 			
 			sols.add(sol);
 		}

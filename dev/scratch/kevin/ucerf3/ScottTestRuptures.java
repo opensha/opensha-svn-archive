@@ -12,14 +12,13 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class ScottTestRuptures {
 	
@@ -131,7 +130,7 @@ public class ScottTestRuptures {
 	 */
 	public static void main(String[] args) throws ZipException, IOException, DocumentException {
 		// TODO Auto-generated method stub
-		SimpleFaultSystemRupSet rupSet = SimpleFaultSystemRupSet.fromZipFile(
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/FaultSystemRupSets/UCERF3_GEOLOGIC.zip"));
 		double gridSpacing = 1d;
 		writeRupture(rupSet, 137768, new File("/tmp/rupture_137768.txt"), gridSpacing);

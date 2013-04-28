@@ -10,15 +10,17 @@ import java.util.zip.ZipFile;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 
-import scratch.UCERF3.CompoundFaultSystemSolution.ZipFileSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -26,12 +28,12 @@ import com.google.common.primitives.Doubles;
 
 public class BranchAveragedFSSBuilder {
 	
-	public static SimpleFaultSystemSolution build(FaultSystemSolutionFetcher fetch,
+	public static InversionFaultSystemSolution build(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, FaultModels fm, List<String> branchNames) {
 		return build(fetch, LaughTestFilter.getDefault(), weightProvider, fm, branchNames);
 	}
 	
-	public static SimpleFaultSystemSolution build(FaultSystemSolutionFetcher fetch, LaughTestFilter laughTest,
+	public static InversionFaultSystemSolution build(FaultSystemSolutionFetcher fetch, LaughTestFilter laughTest,
 			BranchWeightProvider weightProvider, FaultModels fm, List<String> branchNames) {
 		
 		Preconditions.checkState(weightProvider instanceof APrioriBranchWeightProvider, "Currenlty only a priori branch weights" +
@@ -108,7 +110,7 @@ public class BranchAveragedFSSBuilder {
 //		FaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(
 //				fm, DeformationModels.GEOLOGIC);
 		
-		FaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
+		InversionFaultSystemRupSet reference = InversionFaultSystemRupSetFactory.forBranch(laughTest,
 				InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE, LogicTreeBranch.getMEAN_UCERF3(fm));
 		
 		Preconditions.checkState(reference.getNumRuptures() == rates.length,
@@ -133,16 +135,13 @@ public class BranchAveragedFSSBuilder {
 		}
 		
 		// first build the rup set
-		SimpleFaultSystemRupSet rupSet = new SimpleFaultSystemRupSet(
-				reference.getFaultSectionDataList(), mags, reference.getAveSlipForAllRups(),
-				reference.getSlipOnSectionsForAllRups(), reference.getSlipAlongRuptureModel(),
-				reference.getSlipRateForAllSections(), reference.getSlipRateStdDevForAllSections(),
-				reference.getAveRakeForAllRups(), reference.getAreaForAllRups(),
-				reference.getAreaForAllSections(), reference.getSectionIndicesForAllRups(),
-				info, reference.getCloseSectionsListList(), fm, reference.getDeformationModel(),
-				clusterRups, clusterSects);
+		InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
+				reference, reference.getLogicTreeBranch(), laughTest,
+				reference.getAveRakeForAllRups(), reference.getCloseSectionsListList(),
+				reference.getRupturesForClusters(), reference.getSectionsForClusters());
+		rupSet.setMagForallRups(mags);
 		
-		SimpleFaultSystemSolution sol = new SimpleFaultSystemSolution(rupSet, rates);
+		InversionFaultSystemSolution sol = new InversionFaultSystemSolution(rupSet, rates);
 		
 		return sol;
 	}
@@ -170,8 +169,8 @@ public class BranchAveragedFSSBuilder {
 		}
 		System.out.println("Loading: "+file.getAbsolutePath());
 		System.out.println("Will save to: "+outputFile.getAbsolutePath());
-//		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
-		FaultSystemSolutionFetcher fetcher = new ZipFileSolutionFetcher(new ZipFile(file));
+		FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(file);
+//		FaultSystemSolutionFetcher fetcher = new Compou(new ZipFile(file));
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		LaughTestFilter laughTest = LaughTestFilter.getUCERF3p2Filter(); // TODO will need to switch eventually
 		FaultModels fm = null;
@@ -186,9 +185,9 @@ public class BranchAveragedFSSBuilder {
 		if (fm == null)
 			fm = FaultModels.FM3_1;
 		
-		SimpleFaultSystemSolution sol = build(fetcher, laughTest, weightProvider, fm, branchNames);
+		InversionFaultSystemSolution sol = build(fetcher, laughTest, weightProvider, fm, branchNames);
 		
-		sol.toZipFile(outputFile);
+		FaultSystemIO.writeSol(sol, outputFile);
 	}
 
 }

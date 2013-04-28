@@ -9,7 +9,6 @@ import java.util.zip.ZipFile;
 import org.opensha.commons.util.FileUtils;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.CompoundFaultSystemSolution.ZipFileSolutionFetcher;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -35,8 +34,8 @@ public class CompoundAddToMean {
 		Preconditions.checkArgument(numOrig > 0, "numOrig must be > 0");
 		File outFile = new File(args[3]);
 		
-		ZipFileSolutionFetcher meanSol = new ZipFileSolutionFetcher(new ZipFile(meanFile));
-		ZipFileSolutionFetcher newSol = new ZipFileSolutionFetcher(new ZipFile(newFile));
+		CompoundFaultSystemSolution meanSol = new CompoundFaultSystemSolution(new ZipFile(meanFile));
+		CompoundFaultSystemSolution newSol = new CompoundFaultSystemSolution(new ZipFile(newFile));
 		
 		File tempDir = FileUtils.createTempDir();
 		FileUtils.unzipFile(meanFile, tempDir);

@@ -27,8 +27,9 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
  * This is a relatively simple ERF constructed from a SimpleFaultSystemSolution file. Rates are converted
@@ -142,11 +143,12 @@ public class OldInversionSolutionERF extends AbstractERF {
 			if (isNewSolution) {
 				if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
 				try {
-					solution = SimpleFaultSystemSolution.fromFile(file);
+					solution = FaultSystemIO.loadSol(file);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
-				if (D) System.out.println("Loaded solution with "+solution.getNumRuptures()+" ruptures.");
+				if (D) System.out.println("Loaded solution with "
+						+solution.getRupSet().getNumRuptures()+" ruptures.");
 				rebuildSources = true;
 			}
 			
@@ -171,14 +173,16 @@ public class OldInversionSolutionERF extends AbstractERF {
 				sources.clear();
 				surfMap.clear();
 				
+				FaultSystemRupSet rupSet = solution.getRupSet();
+				
 				int totRups = 0;
-				for (int rupID=0; rupID<solution.getNumRuptures(); rupID++) {
+				for (int rupID=0; rupID<rupSet.getNumRuptures(); rupID++) {
 					double rate = solution.getRateForRup(rupID);
 					
 					if (rate <= 0)
 						continue;
 					
-					List<FaultSectionPrefData> datas = solution.getFaultSectionDataForRupture(rupID);
+					List<FaultSectionPrefData> datas = rupSet.getFaultSectionDataForRupture(rupID);
 					
 					String sourceName = getRuptureSourceName(datas);
 					if (!sourceNameMap.containsKey(sourceName)) {
@@ -190,8 +194,8 @@ public class OldInversionSolutionERF extends AbstractERF {
 					
 					SimpleSource source = sourceNameMap.get(sourceName);
 					
-					double mag = solution.getMagForRup(rupID);
-					double rake = solution.getAveRakeForRup(rupID);
+					double mag = rupSet.getMagForRup(rupID);
+					double rake = rupSet.getAveRakeForRup(rupID);
 					double prob = calcProb(rate, years);
 					
 					ProbEqkRupture rup = buildRupture(datas, mag, rake, prob);

@@ -25,8 +25,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
@@ -107,7 +107,7 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 	
 	public static ArrayList<FaultSectionPrefData> loadStoredFaultSections(Document doc) {
 		Element root = doc.getRootElement();
-		return SimpleFaultSystemRupSet.fsDataFromXML(root.element("FaultModel"));
+		return FaultSystemIO.fsDataFromXML(root.element("FaultModel"));
 	}
 	
 	public Map<Integer, FaultSectionPrefData> fetchFaultSectionsMap() {

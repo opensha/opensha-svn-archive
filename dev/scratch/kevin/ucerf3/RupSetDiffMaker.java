@@ -9,19 +9,15 @@ import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
 
+import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
+import scratch.UCERF3.utils.FaultSystemIO;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.SimpleFaultSystemRupSet;
-import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
-import scratch.UCERF3.inversion.SectionCluster;
-import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
-import scratch.UCERF3.inversion.laughTest.AzimuthChangeFilter;
-import scratch.UCERF3.inversion.laughTest.CumulativeAzimuthChangeFilter;
-import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 
 public class RupSetDiffMaker {
 
@@ -69,9 +65,9 @@ public class RupSetDiffMaker {
 //		laughTest.getCoulombFilter().setMinimumStressExclusionCeiling(1.5);
 		Stopwatch watch = new Stopwatch();
 		watch.start();
-		FaultSystemRupSet rupSet1 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
+		InversionFaultSystemRupSet rupSet1 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
 		watch.stop();
-		new SimpleFaultSystemRupSet(rupSet1).toZipFile(new File("/tmp/rupSet1.zip"));
+		FaultSystemIO.writeRupSet(rupSet1, new File("/tmp/rupSet1.zip"));
 		double secsNew = watch.elapsedMillis() / 1000d;
 		rupSet1.setInfoString("");
 		laughTest.clearLaughTests();
@@ -90,7 +86,7 @@ public class RupSetDiffMaker {
 //		laughTest.setAllowSingleSectDuringJumps(false);
 		watch.reset();
 		watch.start();
-		FaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
+		InversionFaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
 		watch.stop();
 		double secsOld = watch.elapsedMillis() / 1000d;
 		
@@ -101,7 +97,7 @@ public class RupSetDiffMaker {
 		writeDiffs(new File("/tmp/new_rups_out.zip"), rupSet2, rupSet1);
 	}
 
-	public static void writeDiffs(File diffFile, FaultSystemRupSet rupSet1,
+	public static void writeDiffs(File diffFile, InversionFaultSystemRupSet rupSet1,
 			FaultSystemRupSet rupSet2) throws IOException {
 		HashSet<Rup> rups2 = new HashSet<Rup>();
 		for (int r=0; r<rupSet2.getNumRuptures(); r++) {
@@ -156,15 +152,16 @@ public class RupSetDiffMaker {
 			sectionForRups.add(rupSet1.getSectionsIndicesForRup(r));
 		}
 		
-		SimpleFaultSystemRupSet diffSet = new SimpleFaultSystemRupSet(
-				rupSet1.getFaultSectionDataList(), mags, rupAveSlips, null,
-				rupSet1.getSlipAlongRuptureModel(), rupSet1.getSlipRateForAllSections(),
-				rupSet1.getSlipRateStdDevForAllSections(), rakes, rupAreas,
-				rupSet1.getAreaForAllSections(), sectionForRups, rupSet1.getInfoString(),
-				rupSet1.getCloseSectionsListList(), rupSet1.getFaultModel(),
-				rupSet1.getDeformationModel());
+		FaultSystemRupSet diffSet = new FaultSystemRupSet(
+				rupSet1.getFaultSectionDataList(), rupSet1.getSlipRateForAllSections(),
+				rupSet1.getSlipRateStdDevForAllSections(), rupSet1.getAreaForAllSections(),
+				sectionForRups, mags, rakes, rupAreas, rupSet1.getLengthForAllRups(),
+				rupSet1.getInfoString());
+		diffSet = new InversionFaultSystemRupSet(diffSet, rupSet1.getLogicTreeBranch(),
+				null, rupAveSlips, rupSet1.getCloseSectionsListList(),
+				rupSet1.getRupturesForClusters(), rupSet1.getSectionsForClusters());
 		
-		diffSet.toZipFile(diffFile);
+		FaultSystemIO.writeRupSet(diffSet, diffFile);
 	}
 	
 	private static class Rup {

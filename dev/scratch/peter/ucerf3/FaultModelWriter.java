@@ -17,8 +17,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import scratch.UCERF3.SimpleFaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 /*
  * Used to write out fault models for local caching
@@ -31,8 +31,8 @@ class FaultModelWriter {
 			FaultModels fm = FaultModels.FM3_1;
 			ArrayList<FaultSectionPrefData> datas = fm.fetchFaultSections();
 			Document doc = XMLUtils.createDocumentWithRoot();
-			SimpleFaultSystemRupSet.fsDataToXML(doc.getRootElement(), datas,
-				FaultModels.XML_ELEMENT_NAME, fm, null);
+			FaultSystemIO.fsDataToXML(doc.getRootElement(),
+				FaultModels.XML_ELEMENT_NAME, fm, null, datas);
 			XMLUtils.writeDocumentToFile(new File(dir, fm.getShortName() +
 				".xml"), doc);
 			System.exit(0);

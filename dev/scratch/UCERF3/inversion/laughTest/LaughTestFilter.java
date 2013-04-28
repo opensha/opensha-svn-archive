@@ -1,9 +1,12 @@
 package scratch.UCERF3.inversion.laughTest;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.collect.Lists;
@@ -14,7 +17,9 @@ import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester.TestType;
 import scratch.UCERF3.utils.IDPairing;
 
-public class LaughTestFilter {
+public class LaughTestFilter implements XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "LaughTestFilter";
 	
 	private double maxJumpDist, maxAzimuthChange, maxTotAzimuthChange,
 	maxCmlJumpDist, maxCmlRakeChange, maxCmlAzimuthChange;
@@ -287,6 +292,72 @@ public class LaughTestFilter {
 				+ ", maxCmlAzimuthChange=" + maxCmlAzimuthChange
 				+ ", minNumSectInRup=" + minNumSectInRup
 				+ ", coulombFilter=" + coulombFilter+ "]";
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("maxJumpDist", maxJumpDist+"");
+		el.addAttribute("maxAzimuthChange", maxAzimuthChange+"");
+		el.addAttribute("maxTotAzimuthChange", maxTotAzimuthChange+"");
+		el.addAttribute("maxCmlJumpDist", maxCmlJumpDist+"");
+		el.addAttribute("maxCmlRakeChange", maxCmlRakeChange+"");
+		el.addAttribute("maxCmlAzimuthChange", maxCmlAzimuthChange+"");
+		el.addAttribute("minNumSectInRup", minNumSectInRup+"");
+		el.addAttribute("allowSingleSectDuringJumps", allowSingleSectDuringJumps+"");
+		if (ucerf3p2Filter)
+			el.addAttribute("ucerf3p2Filter", ucerf3p2Filter+"");
+		
+		// coulomb
+		if (coulombFilter != null) {
+			coulombFilter.toXMLMetadata(el);
+		}
+		
+		// parent sects to ignore
+		if (parentSectsToIgnore != null && !parentSectsToIgnore.isEmpty()) {
+			Element ignoresEl = el.addElement("IgnoredParents");
+			for (Integer parentSect : parentSectsToIgnore) {
+				Element ignoreEl = ignoresEl.addElement("Parent");
+				ignoreEl.addAttribute("id", parentSect+"");
+			}
+		}
+		
+		return root;
+	}
+	
+	public static LaughTestFilter fromXMLMetadata(Element laughEl) {
+		double maxJumpDist = Double.parseDouble(laughEl.attributeValue("maxJumpDist"));
+		double maxAzimuthChange = Double.parseDouble(laughEl.attributeValue("maxAzimuthChange"));
+		double maxTotAzimuthChange = Double.parseDouble(laughEl.attributeValue("maxTotAzimuthChange"));
+		double maxCmlJumpDist = Double.parseDouble(laughEl.attributeValue("maxCmlJumpDist"));
+		double maxCmlRakeChange = Double.parseDouble(laughEl.attributeValue("maxCmlRakeChange"));
+		double maxCmlAzimuthChange = Double.parseDouble(laughEl.attributeValue("maxCmlAzimuthChange"));
+		int minNumSectInRup = Integer.parseInt(laughEl.attributeValue("minNumSectInRup"));
+		boolean allowSingleSectDuringJumps = Boolean.parseBoolean(laughEl.attributeValue("allowSingleSectDuringJumps"));
+		
+		// coulomb filter
+		CoulombRatesTester coulombFilter = null;
+		Element coulombEl = laughEl.element(CoulombRatesTester.XML_METADATA_NAME);
+		if (coulombEl != null)
+			coulombFilter = CoulombRatesTester.fromXMLMetadata(coulombEl);
+		
+		LaughTestFilter filter = new LaughTestFilter(maxJumpDist, maxAzimuthChange, maxTotAzimuthChange,
+				maxCmlJumpDist, maxCmlRakeChange, maxCmlAzimuthChange, minNumSectInRup, allowSingleSectDuringJumps, coulombFilter);
+		
+		// sections to ignore
+		Element ignoresEl = laughEl.element("IgnoredParents");
+		if (ignoresEl != null) {
+			HashSet<Integer> ignores = new HashSet<Integer>();
+			
+			Iterator<Element> ignoresIt = laughEl.elementIterator();
+			while (ignoresIt.hasNext())
+				ignores.add(Integer.parseInt(ignoresIt.next().attributeValue("id")));
+			
+			filter.setParentSectsToIgnore(ignores);
+		}
+		
+		return filter;
 	}
 
 }

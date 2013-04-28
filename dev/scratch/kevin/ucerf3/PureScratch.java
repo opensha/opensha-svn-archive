@@ -37,7 +37,9 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
-import scratch.UCERF3.SimpleFaultSystemSolution;
+import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class PureScratch {
@@ -48,10 +50,35 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		Vector3D v1 = new Vector3D(1, 0, 0);
-		Vector3D v2 = new Vector3D(-1, -1, 0);
+		File f = new File("/tmp/inv_test/FM3_1_ZENGBB_ShConStrDrp_DsrUni_CharConst" +
+				"_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3/FM3_1_ZENGBB_ShConStrDrp_DsrUni" +
+				"_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+		InversionFaultSystemSolution invSol = FaultSystemIO.loadInvSol(f);
+		System.out.println(invSol.getLogicTreeBranch());
+		System.out.println(invSol.getInversionConfiguration());
+		System.out.println(invSol.getInvModel());
+		System.out.println(invSol.getMisfits().size());
 		
-		System.out.println(Vector3D.angle(v1, v2));
+		System.out.println("LEGACY MEAN SOLUTION");
+		f = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+		invSol = FaultSystemIO.loadInvSol(f);
+		System.out.println(invSol.getLogicTreeBranch());
+		System.out.println(invSol.getInversionConfiguration());
+		System.out.println(invSol.getInvModel());
+		System.out.println(invSol.getMisfits().size());
+		
+		System.out.println("LEGACY NORMAL SOLUTION");
+		f = new File("/tmp/FM3_1_ZENGBB_EllB_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipTypeBOTH_VarSlipWtUnNorm100_sol.zip.1");
+		invSol = FaultSystemIO.loadInvSol(f);
+		System.out.println(invSol.getLogicTreeBranch());
+		System.out.println(invSol.getInversionConfiguration());
+		System.out.println(invSol.getInvModel());
+		System.out.println(invSol.getMisfits().size());
+		
+		// loading in AVFSS
+		f = new File("/tmp/compound_tests_data/subset/FM3_1_NEOK_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean/FM3_1_NEOK_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(f);
+		System.out.println("Average sol with "+avgSol.getNumSolutions()+" sols");
 		System.exit(0);
 		
 		double a1 = 8.62552e32;
@@ -93,13 +120,6 @@ public class PureScratch {
 		System.out.println(ti_ep.getNumERFs());
 		System.out.println(td_ep.getNumERFs());
 		
-		System.exit(0);
-		
-		
-		File zipFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/preComputedData/" +
-				"InversionSolutions/NCAL_Model1.zip");
-		SimpleFaultSystemSolution.fromZipFile(zipFile).toXMLFile(
-				new File(zipFile.getAbsolutePath().replaceAll(".zip", ".xml")));
 		System.exit(0);
 		
 		

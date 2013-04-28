@@ -15,8 +15,10 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileNameComparator;
 
 import scratch.UCERF3.inversion.BatchPlotGen;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
@@ -148,11 +150,11 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 	}
 
 	@Override
-	protected FaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+	protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
 		try {
 			File[] files = filesMap.get(branch);
 			Arrays.sort(files, new FileNameComparator());
-			FaultSystemSolution sol = SimpleFaultSystemSolution.fromFile(files[0]);
+			InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(files[0]);
 			if (files.length > 1) {
 				List<double[]> ratesList = Lists.newArrayList(sol.getRateForAllRups());
 				for (int i=1; i<files.length; i++) {
@@ -168,7 +170,7 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 						throw new RuntimeException("Wrong file type for solution: "+files[i].getName());
 					ratesList.add(rates);
 				}
-				sol = new AverageFaultSystemSolution(sol, ratesList);
+				sol = new AverageFaultSystemSolution(sol.getRupSet(), ratesList);
 				System.out.println("Built mean with "+ratesList.size()+" sols");
 			}
 			
@@ -190,34 +192,6 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 			}
 			throw ExceptionUtils.asRuntimeException(e);
 		}
-	}
-
-	@Override
-	public Map<String, Double> fetchMisfits(LogicTreeBranch branch) {
-		List<Map<String, Double>> misfits = Lists.newArrayList();
-		for (File file : filesMap.get(branch)) {
-			File misfitsFile = new File(file.getAbsolutePath()+".misfits");
-			if (misfitsFile.exists()) {
-				try {
-					misfits.add(BatchPlotGen.loadMisfitsFile(misfitsFile));
-				} catch (Exception e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			}
-		}
-		if (misfits.size() > 0) {
-			if (misfits.size() == 1)
-				return misfits.get(0);
-			Map<String, Double> avgMisfits = Maps.newHashMap();
-			for (String key : misfits.get(0).keySet()) {
-				double[] vals = new double[misfits.size()];
-				for (int i=0; i<misfits.size(); i++)
-					vals[i] = misfits.get(i).get(key);
-				avgMisfits.put(key, StatUtils.mean(vals));
-			}
-			return avgMisfits;
-		}
-		return null;
 	}
 
 }

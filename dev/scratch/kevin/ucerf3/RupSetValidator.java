@@ -17,12 +17,14 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.SectionCluster;
 import scratch.UCERF3.inversion.SectionClusterList;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester.TestType;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -94,7 +96,7 @@ public class RupSetValidator {
 		return false;
 	}
 	
-	private static boolean doMultiFaultParentChecks(FaultSystemRupSet rupSet) {
+	private static boolean doMultiFaultParentChecks(InversionFaultSystemRupSet rupSet) {
 		FaultModels fm = rupSet.getFaultModel();
 		
 		// now check to make sure some faults rupture together
@@ -156,7 +158,7 @@ public class RupSetValidator {
 		return true;
 	}
 	
-	private static boolean doMultiFaultSubSectChecks(FaultSystemRupSet rupSet) {
+	private static boolean doMultiFaultSubSectChecks(InversionFaultSystemRupSet rupSet) {
 		ArrayList<ArrayList<Integer>> subSectChecks = new ArrayList<ArrayList<Integer>>();
 		
 		switch (rupSet.getFaultModel()) {
@@ -220,7 +222,7 @@ public class RupSetValidator {
 		return true;
 	}
 	
-	private static boolean validateRupSet(FaultSystemRupSet rupSet) {
+	private static boolean validateRupSet(InversionFaultSystemRupSet rupSet) {
 		// first do the single parent rup purmutations check
 		if (!checkAllSingleParentRups(rupSet))
 			return false;
@@ -341,7 +343,7 @@ public class RupSetValidator {
 			System.out.println("Building a rup set.");
 			SectionClusterList clusters = new SectionClusterList(faultModel, defModel, filter,
 					faultSectionData, subSectionDistances, subSectionAzimuths);
-			FaultSystemRupSet rupSet = new FakeRupSet(clusters);
+			InversionFaultSystemRupSet rupSet = new FakeRupSet(clusters);
 			numRups = rupSet.getNumRuptures();
 			System.out.println("Done building a rup set.");
 			if (numRups < currentMin) {
@@ -435,7 +437,7 @@ public class RupSetValidator {
 		System.exit(0);
 	}
 	
-	private static class FakeRupSet extends FaultSystemRupSet {
+	private static class FakeRupSet extends InversionFaultSystemRupSet {
 		
 		private List<FaultSectionPrefData> data;
 		private List<List<Integer>> rups;
@@ -443,6 +445,7 @@ public class RupSetValidator {
 		private FaultModels fm;
 		
 		public FakeRupSet(SectionClusterList clusters) {
+			super(LogicTreeBranch.fromValues(false, clusters.getFaultModel()), clusters, clusters.getFaultSectionData());
 			this.data = clusters.getFaultSectionData();
 			rups = new ArrayList<List<Integer>>();
 			for (SectionCluster c : clusters) {
@@ -612,12 +615,6 @@ public class RupSetValidator {
 		public int getNumClusters() {
 			// TODO Auto-generated method stub
 			return 0;
-		}
-
-		@Override
-		public boolean isClusterBased() {
-			// TODO Auto-generated method stub
-			return false;
 		}
 
 		@Override
