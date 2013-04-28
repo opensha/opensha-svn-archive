@@ -676,13 +676,13 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "refactored-new-tests";
+		String runName = "refactored-test-runs";
 		if (args.length > 1)
 			runName = args[1];
-		int constrained_run_mins = 60;	// 1 hour
+//		int constrained_run_mins = 60;	// 1 hour
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
-//		int constrained_run_mins = 300; // 5 hours
+		int constrained_run_mins = 300; // 5 hours
 //		int constrained_run_mins = 360;	// 6 hours
 //		int constrained_run_mins = 480;	// 8 hours
 //		int constrained_run_mins = 60 * 10;	// 10 hours
@@ -720,7 +720,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 3;
+		int numRuns = 1;
 		int runStart = 0;
 		boolean forcePlots = true;
 
