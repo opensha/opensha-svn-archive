@@ -438,7 +438,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 					case BOTH:
 						System.out.println("WARNING: misfits inaccurate for slip rate since both weights used");
 						if (inversionConfiguration.getSlipRateConstraintWt_normalized() >
-						inversionConfiguration.getSlipRateConstraintWt_unnormalized())
+							inversionConfiguration.getSlipRateConstraintWt_unnormalized())
 							wt = inversionConfiguration.getSlipRateConstraintWt_normalized();
 						else
 							wt = inversionConfiguration.getSlipRateConstraintWt_unnormalized();
@@ -538,11 +538,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				&& rupSet.getDeformationModel() != DeformationModels.UCERF2_NCAL;
 	}
 	
-	// TODO this should be put in a more general location so others can use (MFD_Utils class?)
-	private static IncrementalMagFreqDist newSameRange(IncrementalMagFreqDist other) {
-		return new IncrementalMagFreqDist(other.getMinX(), other.getMaxX(), other.getNum());
-	}
-	
 	public GraphiWindowAPI_Impl getMFDPlotWindow(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		
@@ -595,7 +590,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //		else
 			solMFD = calcNucleationMFD_forRegion(region,
 					totalMFD.getMinX(), 9.05, 0.1, true);
-		solMFD.setName("Solution MFD");
+		solMFD.setName("Solution Supra-Seis MFD");
 		solMFD.setInfo("Inversion Solution MFD");
 		funcs.add(solMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
@@ -606,7 +601,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
 		
 		// Inversion Target
-		targetMFD.setName("Inversion Modified Target MFD");
+		targetMFD.setName("Inversion Supra-Seis Target MFD");
 		funcs.add(targetMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.CYAN));
 		
@@ -624,12 +619,12 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //		}
 		
 		// Implied Off Fault TODO: use off fault from InversionMFDs - need methods for so/no cal
-		IncrementalMagFreqDist solOffFaultMFD = null;
+		IncrementalMagFreqDist solGriddedMFD = null;
 		// this could be cleaner :-/
 		if (statewide) {
-			solOffFaultMFD = rupSet.getInversionTargetMFDs().getTotalGriddedSeisMFD();
-			solOffFaultMFD.setName("Implied Off-fault MFD for Solution");
-			funcs.add(solOffFaultMFD);
+			solGriddedMFD = getFinalTotalGriddedSeisMFD();
+			solGriddedMFD.setName("Implied Gridded Seis MFD for Solution");
+			funcs.add(solGriddedMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
 		}
 //		} else
@@ -648,13 +643,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		funcs.add(0, ucerf2_OffFaultMFD);
 		chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
 		
-		if (solOffFaultMFD != null) {
+		if (solGriddedMFD != null) {
 			// total sum
 			SummedMagFreqDist totalModelMFD = new SummedMagFreqDist(solMFD.getMinX(), solMFD.getMaxX(), solMFD.getNum());
 //			System.out.println(solMFD.getMinX()+"\t"+solMFD.getMaxX()+"\t"+solMFD.getNum());
 //			System.out.println(solOffFaultMFD.getMinX()+"\t"+solOffFaultMFD.getMaxX()+"\t"+solOffFaultMFD.getNum());
 			totalModelMFD.addIncrementalMagFreqDist(solMFD);
-			totalModelMFD.addIncrementalMagFreqDist(resizeMFD(solOffFaultMFD, solMFD));
+			totalModelMFD.addIncrementalMagFreqDist(solGriddedMFD);
 			totalModelMFD.setName("Total Model Solution MFD");
 			funcs.add(totalModelMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
@@ -666,24 +661,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		return new PlotSpec(funcs, chars, plotTitle, "Magnitude", "Incremental Rate (per yr)");
 	}
-	
-	private static IncrementalMagFreqDist resizeMFD(IncrementalMagFreqDist smaller, IncrementalMagFreqDist target) {
-		if (smaller.getMinX() == target.getMinX() && smaller.getMaxX() == target.getMaxX())
-			return smaller;
-		IncrementalMagFreqDist newSmall = newSameRange(target);
-		for (int i=0; i<newSmall.getNum(); i++) {
-			double x = newSmall.getX(i);
-			double y;
-			try {
-				y = smaller.getY(x);
-			} catch (Exception e) {
-				y = 0d;
-			}
-			newSmall.set(i, y);
-		}
-		return newSmall;
-	}
-	
 	
 	/**
 	 * This returns the list of final sub-seismo MFDs for each fault section (e.g., for use in an ERF).  
