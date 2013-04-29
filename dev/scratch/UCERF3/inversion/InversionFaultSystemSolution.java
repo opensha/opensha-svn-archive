@@ -765,6 +765,14 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			finalTrulyOffMFD.addIncrementalMagFreqDist(inversionTargetMFDs.getTotalTargetGR());
 			finalTrulyOffMFD.subtractIncrementalMagFreqDist(calcNucleationMFD_forRegion(RELM_RegionUtils.getGriddedRegionInstance(), inversionTargetMFDs.MIN_MAG, inversionTargetMFDs.MAX_MAG, inversionTargetMFDs.DELTA_MAG, true));
 			finalTrulyOffMFD.subtractIncrementalMagFreqDist(getFinalTotalSubSeismoOnFaultMFD());
+			
+			// zero out values above mMaxOffFault
+			double mMaxOffFault = getLogicTreeBranch().getValue(MaxMagOffFault.class).getMaxMagOffFault();
+			mMaxOffFault -= InversionTargetMFDs.DELTA_MAG/2;
+			int startZeroIndex = finalTrulyOffMFD.getClosestXIndex(mMaxOffFault) + 1;	// plus 1
+			for(int i=startZeroIndex; i<finalTrulyOffMFD.getNum();i++)
+				finalTrulyOffMFD.set(i,0);
+
 			return finalTrulyOffMFD;
 		}
 		else {
