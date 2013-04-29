@@ -769,9 +769,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			// zero out values above mMaxOffFault
 			double mMaxOffFault = getLogicTreeBranch().getValue(MaxMagOffFault.class).getMaxMagOffFault();
 			mMaxOffFault -= InversionTargetMFDs.DELTA_MAG/2;
+			
+			// SummedMagFreqDist doesn't allow set, so put it in a new one
+			IncrementalMagFreqDist truncatedMFD = new IncrementalMagFreqDist(
+					finalTrulyOffMFD.getMinX(), finalTrulyOffMFD.getNum(), finalTrulyOffMFD.getDelta());
 			int startZeroIndex = finalTrulyOffMFD.getClosestXIndex(mMaxOffFault) + 1;	// plus 1
-			for(int i=startZeroIndex; i<finalTrulyOffMFD.getNum();i++)
-				finalTrulyOffMFD.set(i,0);
+			for (int i=0; i<startZeroIndex && i<finalTrulyOffMFD.getNum(); i++)
+				truncatedMFD.set(i, finalTrulyOffMFD.getY(i));
 
 			return finalTrulyOffMFD;
 		}

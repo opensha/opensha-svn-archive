@@ -2727,7 +2727,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			// first build the rup set
 			InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
 					reference, reference.getLogicTreeBranch(), laughTest,
-					reference.getAveRakeForAllRups(), reference.getCloseSectionsListList(),
+					reference.getAveSlipForAllRups(), reference.getCloseSectionsListList(),
 					reference.getRupturesForClusters(), reference.getSectionsForClusters());
 			rupSet.setMagForallRups(mags);
 			
@@ -2755,6 +2755,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
 		
 		private Map<FaultModels, HashSet<DeformationModels>> defModelsMap = Maps.newHashMap();
+		
+		// should only be used for old solutions
+		private Map<FaultModels, InversionFaultSystemRupSet> rupSetCache = Maps.newHashMap();
 		
 		public MeanFSSBuilder(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
@@ -2794,6 +2797,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 					ratesMap.put(fm, new double[numRups]);
 					magsMap.put(fm, new double[numRups]);
 					defModelsMap.put(fm, new HashSet<DeformationModels>());
+					if (numRups == 229104 || numRups == 249656) {
+						rupSetCache.put(fm, sol.getRupSet());
+					}
 				}
 				weightsList.add(weight);
 				Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
