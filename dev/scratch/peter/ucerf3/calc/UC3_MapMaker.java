@@ -1144,7 +1144,7 @@ public class UC3_MapMaker {
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
 			RATE_9p6); //RATE_7p6, RATE_8p7, RATE_10p0);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
-			MAG_7p2, MAG_7p6, MAG_8p0); // MAG_7p2, MAG_7p6, MAG_8p0);
+			MAG_7p3, MAG_7p6, MAG_7p9); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(
 			NONE);
 		Set<SpatialSeisPDF> spatialSeis = EnumSet.of(

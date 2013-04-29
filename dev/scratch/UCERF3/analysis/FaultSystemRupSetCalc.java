@@ -1037,9 +1037,9 @@ public class FaultSystemRupSetCalc {
 		scalingRelList.add(ScalingRelationships.SHAW_2009_MOD);
 
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
-		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p3);
 		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
-		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p9);
 
 		long startTime = System.currentTimeMillis();
 		double MIN_MAG = 0.05;

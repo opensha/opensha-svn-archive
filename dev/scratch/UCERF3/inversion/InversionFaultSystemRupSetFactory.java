@@ -251,7 +251,7 @@ public class InversionFaultSystemRupSetFactory {
 			
 			forBranch(FaultModels.FM3_1, DeformationModels.ABM,
 			ScalingRelationships.ELLSWORTH_B, SlipAlongRuptureModels.TAPERED, InversionModels.GR_CONSTRAINED, TotalMag5Rate.RATE_9p6,
-			MaxMagOffFault.MAG_7p2, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
+			MaxMagOffFault.MAG_7p3, MomentRateFixes.NONE, SpatialSeisPDF.UCERF2);
 			
 			LaughTestFilter filter = LaughTestFilter.getDefault();
 //			LaughTestFilter filter = LaughTestFilter.getUCERF3p2Filter();
