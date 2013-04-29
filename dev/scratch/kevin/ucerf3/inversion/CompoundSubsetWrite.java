@@ -25,6 +25,7 @@ import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.UCERF3p2BranchWeightProvider;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 
 public class CompoundSubsetWrite {
 
@@ -33,6 +34,8 @@ public class CompoundSubsetWrite {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		// YOU WILL NEED TO REVERT THE COULOMB FILES FOR THIS TO WORK!!!
+		
 		File origCompoundFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/" +
 				"scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		File newCompoundFile = new File("/tmp/2013_01_14-stampede_3p2_production_runs_fm3p1_dm_scale_subset_COMPOUND_SOL.zip");
@@ -72,6 +75,8 @@ public class CompoundSubsetWrite {
 				return origCompound.getSolution(branch);
 			}
 		};
+		
+		DeformationModelFetcher.IMPERIAL_DDW_HACK = true;
 		
 		CompoundFaultSystemSolution.toZipFile(newCompoundFile, fetch);
 		
