@@ -73,6 +73,8 @@ public class CompoundSubsetWrite {
 			}
 		};
 		
+		CompoundFaultSystemSolution.toZipFile(newCompoundFile, fetch);
+		
 		MeanFSSBuilder builder = new MeanFSSBuilder(weightProv);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 		plots.add(builder);

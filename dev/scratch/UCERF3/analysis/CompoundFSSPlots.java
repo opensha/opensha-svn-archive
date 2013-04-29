@@ -167,16 +167,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				CommandLineInversionRunner.setFontSizes(gp);
 				gp.setYLog(true);
-				gp.setUserBounds(5d, 9d, 1e-6, 1e0);
+				if (cumulative)
+					gp.setUserBounds(5d, 9d, 1e-5, 1e1);
+				else
+					gp.setUserBounds(5d, 9d, 1e-6, 1e0);
 
 				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 
 				String fname = prefix;
 				if (cumulative)
-					prefix += "_CUMULATIVE_MFD";
+					fname += "_CUMULATIVE_MFD";
 				else
-					prefix += "_MFD";
+					fname += "_MFD";
 				if (region.getName() != null && !region.getName().isEmpty())
 					fname += "_" + region.getName().replaceAll("\\W+", "_");
 				else
@@ -381,19 +384,31 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 					if (!solOffMFDsForRegion.isEmpty()) {
 						// now add target GRs
-						funcs.add(InversionTargetMFDs
-								.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
-										.getRateMag5()));
+						if (cumulative) {
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
+											.getRateMag5()));
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
+											.getRateMag5()));
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
+											.getRateMag5()));
+						} else {
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
+											.getRateMag5()).getCumRateDistWithOffset());
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
+											.getRateMag5()).getCumRateDistWithOffset());
+							funcs.add(InversionTargetMFDs
+									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
+											.getRateMag5()).getCumRateDistWithOffset());
+						}
 						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 								1f, Color.BLACK));
-						funcs.add(InversionTargetMFDs
-								.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
-										.getRateMag5()));
 						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 								2f, Color.BLACK));
-						funcs.add(InversionTargetMFDs
-								.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
-										.getRateMag5()));
 						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 								1f, Color.BLACK));
 
@@ -2684,6 +2699,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			if (rates.length == 229104 || rates.length == 249656) {
 				System.err.println("WARNING: Using UCERF3.2 laugh test filter!");
 				laughTest = LaughTestFilter.getUCERF3p2Filter();
+				DeformationModelFetcher.IMPERIAL_DDW_HACK = true;
 			}
 			
 			DeformationModels dm;
@@ -2721,6 +2737,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			sol.setGridSourceProvider(gridSources);
 			
 			FaultSystemIO.writeSol(sol, outputFile);
+			
+			DeformationModelFetcher.IMPERIAL_DDW_HACK = false;
 		}
 	}
 	
@@ -3117,8 +3135,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				label = "Log10(" + label + ")";
 				double[] log10Values = FaultBasedMapGen.log10(ratios);
-				plots.add(new MapPlotData(logCPT, faults, log10Values, region,
-						skipNans, label, prefix + "slip_rate_misfit_log"));
+				plot = new MapPlotData(logCPT, faults, log10Values, region,
+						skipNans, label, prefix + "slip_rate_misfit_log");
+				plot.subDirName = "slip_rate_plots";
+				plots.add(plot);
 
 //				List<double[]> fractDiffList = fractDiffMap.get(fm);
 //				double[] fractDiffs = getWeightedAvg(faults.size(),
@@ -3131,8 +3151,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					label = fm.getShortName() + " " + label;
 				}
 
-				plots.add(new MapPlotData(slipRateCPT, faults, FaultBasedMapGen.scale(solSlips, 1e3), region,
-						skipNans, label, prefix + "sol_slip_rate"));
+				plot = new MapPlotData(slipRateCPT, faults, FaultBasedMapGen.scale(solSlips, 1e3), region,
+						skipNans, label, prefix + "sol_slip_rate");
+				plot.subDirName = "slip_rate_plots";
+				plots.add(plot);
 
 				label = "Mean Target Slip Rate (mm/yr)";
 				prefix = "";
@@ -3141,8 +3163,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					label = fm.getShortName() + " " + label;
 				}
 
-				plots.add(new MapPlotData(slipRateCPT, faults, FaultBasedMapGen.scale(targets, 1e3), region,
-						skipNans, label, prefix + "target_slip_rate"));
+				plot = new MapPlotData(slipRateCPT, faults, FaultBasedMapGen.scale(targets, 1e3), region,
+						skipNans, label, prefix + "target_slip_rate");
+				plot.subDirName = "slip_rate_plots";
+				plots.add(plot);
 			}
 		}
 		
@@ -3311,8 +3335,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					label = fm.getShortName() + " " + label;
 				}
 
-				plots.add(new MapPlotData(cpt, faults, ratios, region,
-						skipNans, label, prefix + "ave_slip"));
+				MapPlotData plot = new MapPlotData(cpt, faults, ratios, region,
+						skipNans, label, prefix + "ave_slip");
+				plot.subDirName = "ave_slip_plots";
+				plots.add(plot);
 
 				List<double[]> avePaleoSlipsList = avePaleoSlipsMap.get(fm);
 				double[] fractDiffs = getWeightedAvg(faults.size(),
@@ -3325,7 +3351,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					label = fm.getShortName() + " " + label;
 				}
 
-				MapPlotData plot = new MapPlotData(cpt, faults, fractDiffs, region,
+				plot = new MapPlotData(cpt, faults, fractDiffs, region,
 						skipNans, label, prefix + "ave_paleo_obs_slip");
 				plot.subDirName = "ave_slip_plots";
 				plots.add(plot);
@@ -3824,8 +3850,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						title = fm.getShortName() + " " + title;
 					}
 
-					plots.add(new MapPlotData(participationCPT, faults,
-							logValues, region, skipNans, title, name));
+					MapPlotData plot = new MapPlotData(participationCPT, faults,
+							logValues, region, skipNans, title, name);
+					plot.subDirName = "fault_participation_plots";
+					plots.add(plot);
 
 					double[] ucerf2Vals = ucerf2.calcParticRateForAllSects(
 							minMag, maxMag);
@@ -3854,8 +3882,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						title = fm.getShortName() + " " + title;
 					}
 
-					plots.add(new MapPlotData(logCPT, faults, ratios, region,
-							skipNans, title, name));
+					plot = new MapPlotData(logCPT, faults, ratios, region,
+							skipNans, title, name);
+					plot.subDirName = "fault_participation_plots";
+					plots.add(plot);
 
 					double[] stdNormVals = new double[values.length];
 
@@ -3883,7 +3913,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						title = fm.getShortName() + " " + title;
 					}
 
-					MapPlotData plot = new MapPlotData(logCPT, faults, stdNormVals,
+					plot = new MapPlotData(logCPT, faults, stdNormVals,
 							region, skipNans, title, name);
 					plot.subDirName = "fault_participation_plots";
 					plots.add(plot);
@@ -4183,8 +4213,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 				title += ")";
 
-				plots.add(new MapPlotData(cpt, ucerf2LogVals,
-						spacing, griddedRegion, true, title, name));
+				plot = new MapPlotData(cpt, ucerf2LogVals,
+						spacing, griddedRegion, true, title, name);
+				plot.subDirName = "gridded_participation_plots";
+				plots.add(plot);
 
 				// now plot ratios
 				GeoDataSet ratios = GeoDataSetMath.divide(data, ucerf2Vals);
@@ -4208,8 +4240,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 				title += ")";
 
-				plots.add(new MapPlotData(ratioCPT, ratios, spacing,
-						griddedRegion, true, title, name));
+				plot = new MapPlotData(ratioCPT, ratios, spacing,
+						griddedRegion, true, title, name);
+				plot.subDirName = "gridded_participation_plots";
+				plots.add(plot);
 
 				// double[] stdNormVals = new double[values.length];
 				//

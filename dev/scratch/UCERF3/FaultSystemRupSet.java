@@ -383,7 +383,8 @@ public class FaultSystemRupSet implements Serializable {
 	 * @param mags
 	 */
 	public void setMagForallRups(double[] mags) {
-		Preconditions.checkArgument(mags.length == getNumRuptures());
+		Preconditions.checkArgument(mags.length == getNumRuptures(),
+				"Called setMag for "+mags.length+" rups but rup set has "+getNumRuptures()+" rups!");
 		this.mags = mags;
 	}
 	
