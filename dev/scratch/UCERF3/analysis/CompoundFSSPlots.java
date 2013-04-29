@@ -349,14 +349,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 						XY_DataSetList cml_solOffMFDsForRegion = new XY_DataSetList();
 						XY_DataSetList cml_totalMFDsForRegion = new XY_DataSetList();
 						
-						for (int j=0; j<solMFDsForRegion.size(); j++) {
+						for (int j=0; j<solMFDsForRegion.size(); j++)
 							cml_solMFDsForRegion.add(
 									((IncrementalMagFreqDist)solMFDsForRegion.get(j)).getCumRateDistWithOffset());
+						
+						for (int j=0; j<solOffMFDsForRegion.size(); j++)
 							cml_solOffMFDsForRegion.add(
 									((IncrementalMagFreqDist)solOffMFDsForRegion.get(j)).getCumRateDistWithOffset());
+						
+						for (int j=0; j<totalMFDsForRegion.size(); j++)
 							cml_totalMFDsForRegion.add(
 									((IncrementalMagFreqDist)totalMFDsForRegion.get(j)).getCumRateDistWithOffset());
-						}
 						
 						solMFDsForRegion = cml_solMFDsForRegion;
 						solOffMFDsForRegion = cml_solOffMFDsForRegion;

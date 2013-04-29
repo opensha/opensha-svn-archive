@@ -436,7 +436,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return wt;
 	}
 	
-	private static double getNormalizedWt(
+	static double getNormalizedWt(
 			LogicTreeBranchNode<? extends Enum<?>> node, InversionModels im) {
 		if (classWeightTotals == null) {
 			synchronized(LogicTreeBranch.class) {
