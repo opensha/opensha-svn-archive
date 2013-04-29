@@ -77,7 +77,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		branch = ifss.getLogicTreeBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
 		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
-		realOffFaultMFD = ifss.getFinalTotalGriddedSeisMFD();
+		realOffFaultMFD = ifss.getFinalTrulyOffFaultMFD();
 
 		mfdMin = realOffFaultMFD.getMinX();
 		mfdMax = realOffFaultMFD.getMaxX();
