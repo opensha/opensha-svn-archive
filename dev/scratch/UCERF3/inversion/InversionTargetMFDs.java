@@ -198,6 +198,18 @@ public class InversionTargetMFDs {
 		
 		// get ave min seismo mag for region
 		double tempMag = FaultSystemRupSetCalc.getMeanMinMag(invRupSet, true);
+		
+		// This is a test of applying the minimum rather than average among section min mags in the tri-linear target
+		// (increases on fault target by up to 11% (at mean mag) by doing this for case tested; not a big diff, and will make implied off-fault CC worse)
+//		double tempMag = 100;
+//		for(int s=0;s<invRupSet.getNumSections();s++) {
+//			double minMag = invRupSet.getFinalMinMagForSection(s);
+//			if(minMag<tempMag) tempMag = minMag;
+//			if(minMag<6.301)
+//				System.out.println("\t"+(float)minMag+"\t"+invRupSet.getFaultSectionData(s).getParentSectionName());
+//		}
+//		System.out.println("\ntempMag="+tempMag+"\n");
+		
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
 
 
