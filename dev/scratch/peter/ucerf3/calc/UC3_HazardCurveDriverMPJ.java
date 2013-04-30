@@ -1,0 +1,183 @@
+package scratch.peter.ucerf3.calc;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
+import org.opensha.nshmp2.calc.ERF_ID;
+import org.opensha.nshmp2.calc.HazardCalc;
+import org.opensha.nshmp2.calc.HazardResult;
+import org.opensha.nshmp2.calc.HazardResultWriter;
+import org.opensha.nshmp2.calc.HazardResultWriterSites;
+import org.opensha.nshmp2.util.Period;
+import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+
+import com.google.common.base.Enums;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
+/**
+ * Updated calculator of UC3 hazard curves at sites. Calculator spreads batches
+ * of logic tree branches across multiple nodes. Each node loops ERFs, Periods,
+ * and locations of interest.
+ * 
+ * @author Peter Powers
+ * @version $Id:$
+ */
+public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
+
+	private static final String S = File.separator;
+	private static final Splitter SPLIT = Splitter.on(',');
+
+	private String solPath;
+	private Map<String, Location> locMap;
+	private LocationList locs;
+	private List<String> branches;
+	private List<Period> periods;
+	private String outDir;
+
+	private boolean epiUncert = false;
+
+	private ExecutorService ex;
+	private ExecutorCompletionService<HazardResult> ecs;
+
+	public UC3_HazardCurveDriverMPJ(CommandLine cmd, String[] args)
+			throws IOException, InvocationTargetException,
+			FileNotFoundException {
+
+		super(cmd);
+		if (args.length != 5) {
+			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] "
+				+ "<solfile> <sitefile> <branchfile> <periods> <outDir>");
+			abortAndExit(2);
+		}
+
+		Preconditions.checkArgument(getNumThreads() >= 1,
+			"threads must be >= 1. you supplied: " + getNumThreads());
+		debug(rank, null, "setup for " + getNumThreads() + " threads");
+
+		// read args
+		solPath = args[0];
+		locMap = UC3_CalcUtils.readSiteFile(args[1]);
+		locs = new LocationList();
+		for (Location loc : locMap.values()) {
+			locs.add(loc);
+		}
+		branches = UC3_CalcUtils.readBranchFile(args[2]);
+		periods = readArgAsList(args[3], Period.class);
+		outDir = args[4];
+
+		// init executor
+		int numProc = Runtime.getRuntime().availableProcessors();
+		ex = Executors.newFixedThreadPool(numProc);
+		ecs = new ExecutorCompletionService<HazardResult>(ex);
+	}
+
+	@Override
+	public int getNumTasks() {
+		return branches.size();
+	}
+
+	@Override
+	public void calculateBatch(int[] indices) throws InterruptedException,
+			ExecutionException, IOException {
+
+		for (int brIdx : indices) {
+
+			// init erf for branch
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
+				branches.get(brIdx), IncludeBackgroundOption.INCLUDE, false,
+				true, 1.0);
+			erf.updateForecast();
+			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
+
+			String erfOutDir = outDir + S + erf.getName();
+			HazardResultWriterSites writer = new HazardResultWriterSites(
+				erfOutDir, locMap);
+
+			// loop periods and locations
+			for (Period period : periods) {
+				writer.writeHeader(period);
+				for (Location loc : locs) {
+					Site site = new Site(loc);
+					HazardCalc hc = HazardCalc.create(wrappedERF, site, period,
+						epiUncert);
+					ecs.submit(hc);
+				}
+			}
+
+			// collect period-location pair results
+			int resultCount = locs.size() * periods.size();
+			for (int j = 0; j < resultCount; j++) {
+				writer.write(ecs.take().get());
+			}
+
+		}
+		System.out.println("Batch complete");
+	}
+
+	@Override
+	protected void doFinalAssembly() throws Exception {
+		if (ex != null) ex.shutdown();
+	}
+
+	private static <T extends Enum<T>> List<T> readArgAsList(String arg,
+			Class<T> clazz) {
+		Iterable<T> it = Iterables.transform(SPLIT.split(arg),
+			Enums.valueOfFunction(clazz));
+		return Lists.newArrayList(it);
+	}
+
+	
+	
+
+	// overridden for testing
+	public static Options createOptions() {
+		Options ops = MPJTaskCalculator.createOptions();
+
+		Option erfOp = new Option("e", "mult-erfs", false,
+			"If set, a copy of the ERF will be instantiated for each thread.");
+		erfOp.setRequired(false);
+		ops.addOption(erfOp);
+
+		return ops;
+	}
+
+	public static void main(String[] args) {
+		args = MPJTaskCalculator.initMPJ(args);
+
+		try {
+			Options options = createOptions();
+			CommandLine cmd = parse(options, args,
+				UC3_HazardCalcDriverMPJ.class);
+			args = cmd.getArgs();
+			UC3_HazardCalcDriverMPJ driver = new UC3_HazardCalcDriverMPJ(cmd,
+				args);
+			driver.run();
+			finalizeMPJ();
+			System.exit(0);
+		} catch (Throwable t) {
+			abortAndExit(t);
+		}
+	}
+
+}

@@ -82,8 +82,11 @@ import com.google.common.io.Files;
 public class UC3_DeaggWrapper {
 
 	static final String COMP_SOL = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2012_10_29-tree-fm31_x7-fm32_x1_COMPOUND_SOL.zip";
-	static final String SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
-	static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/deaggTmp";
+//	static final String SOL_PATH = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip";
+	static final String SOL_PATH = "tmp/invSols/tree/2013_01_14-UC32-MEAN_BRANCH_AVG_SOL_FM31.zip";
+//	static final String OUT_DIR = "/Users/pmpowers/Documents/OpenSHA/RTGM/deaggTmp";
+	static final String OUT_DIR = "/Users/pmpowers/Documents/work/_talks/PVNGS_SSHAC_2013/deagg";
+	
 	static final String S = File.separator;
 
 	// updateForecast should have been called by here
@@ -106,6 +109,11 @@ public class UC3_DeaggWrapper {
 				// hazard calc
 				EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 				HazardCalc hc = HazardCalc.create(wrappedERF, s, period, epiUncert);
+				
+				// NOTE
+//				hc.distanceCutoff = 400; // this was done temporarily for Palo
+				// Verde, which is >200km away
+				
 				HazardResult hr = hc.call();
 	//			System.out.println(hr.curve());
 	//			double iml = hr.curve().getFirstInterpolatedX_inLogXLogYDomain(0.0202);
@@ -142,6 +150,7 @@ public class UC3_DeaggWrapper {
 		ParameterList pList = new ParameterList();
 		
 		MaxDistanceParam maxDistParam = new MaxDistanceParam();
+		maxDistParam.setValue(400);
 		pList.addParameter(maxDistParam);
 		
 		MagDistCutoffParam magDistCutoffParam = new MagDistCutoffParam();
@@ -152,6 +161,7 @@ public class UC3_DeaggWrapper {
 		pList.addParameter(ptSrcParam);
 		
 		IncludeMagDistFilterParam magDistParam = new IncludeMagDistFilterParam();
+		magDistParam.setValue(false);
 		pList.addParameter(magDistParam);
 		
 		SetTRTinIMR_FromSourceParam setTrtParam = new SetTRTinIMR_FromSourceParam();
@@ -170,10 +180,10 @@ public class UC3_DeaggWrapper {
 	public static void main(String[] args) throws IOException {
 
 		// SONGS
-		Location loc = new Location(33.4, -117.55);
-		
-		Period[] periods = { GM0P00 }; //, GM0P20, GM1P00 };
-		ProbOfExceed[] PEs = { PE2IN50 }; //, PE10IN50};
+//		Location loc = new Location(33.4, -117.55);
+				
+		Period[] periods = { GM0P00, GM0P20, GM1P00, GM4P00};
+		ProbOfExceed[] PEs = { PE2IN50, PE1IN1000 }; //, PE10IN50};
 		String solSetPath = SOL_PATH;
 		int idx = 0;
 		boolean epiUnc = false;
@@ -195,23 +205,32 @@ public class UC3_DeaggWrapper {
 //			false, true, 1.0);
 //		erf.updateForecast();
 		
+		// PVNGS
+//		String outPath = OUT_DIR + "/SONGS/UC3FM3P1/";
+//		AbstractERF erf = getUC3_ERF(solSetPath, idx);
 
-		String outPath = OUT_DIR + "/TMP/UC3FM3P1/";
-		String sitePath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/AFsites.txt";
+		String outPath = OUT_DIR + S;
+		String sitePath = "tmp/curves/sites/palo-verde.txt";
 		Map<String,Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
-		for (int i=0; i<100; i++) {
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
-				solSetPath, i, IncludeBackgroundOption.EXCLUDE,
-				false, true, 1.0);
-			erf.updateForecast();
-//			try {
-			new UC3_DeaggWrapper(erf, outPath, siteMap, Integer.toString(i),
-				periods, epiUnc, PEs);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-
-		}
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+			solSetPath, IncludeBackgroundOption.EXCLUDE,
+			false, true, 1.0);
+		erf.updateForecast();
+		new UC3_DeaggWrapper(erf, outPath, siteMap, "", periods, epiUnc, PEs);
+		
+//		for (int i=0; i<100; i++) {
+//			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+//				solSetPath, i, IncludeBackgroundOption.EXCLUDE,
+//				false, true, 1.0);
+//			erf.updateForecast();
+////			try {
+//			new UC3_DeaggWrapper(erf, outPath, siteMap, Integer.toString(i),
+//				periods, epiUnc, PEs);
+////			} catch (Exception e) {
+////				e.printStackTrace();
+////			}
+//
+//		}
 
 //		String outPath = OUT_DIR + "/SONGS/NSHMP_CA/";
 //		AbstractERF erf = NSHMP2008.createCalifornia();

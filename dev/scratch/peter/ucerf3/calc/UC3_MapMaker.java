@@ -89,9 +89,13 @@ public class UC3_MapMaker {
 //		buildMapsUC32();
 //		makeCoulombTestMaps();
 //		makeLocalHazardMaps();
-		makeLocalRatioMaps();
+//		makeLocalRatioMaps();
 //		makeLocalMapsLoRes();
 //		makeDefModelSpatialSeisMap();
+//		makeLittleSalmonPlots();
+//		makeLittleSalmonMultiPlots();
+//		makeAleatoryMagScalingaRatio();
+		makeBrAvgFMDMratioMap();
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -201,12 +205,17 @@ public class UC3_MapMaker {
 	
 	private static GeoDataSet loadSingle(String src, ProbOfExceed pe, 
 			TestGrid grid, Period p) {
+		return loadSingle( src, pe, grid, p, 0.1);
+	}
+
+	private static GeoDataSet loadSingle(String src, ProbOfExceed pe, 
+			TestGrid grid, Period p, double spacing) {
 		File nshmp = new File(ROOT + "src" + S + src + S + grid + S + p + S + "curves.csv");
-		CurveContainer nshmpcc = CurveContainer.create(nshmp, grid, 0.1);
-		GriddedRegion gr = grid.grid(0.1);
+		CurveContainer nshmpcc = CurveContainer.create(nshmp, grid, spacing);
+		GriddedRegion gr = grid.grid(spacing);
 		return NSHMP_DataUtils.extractPE(nshmpcc, gr, pe);
 	}
-	
+
 	/*
 	 * Creates a geo data set by combining multiple weighted curve sets.
 	 * 
@@ -469,7 +478,7 @@ public class UC3_MapMaker {
 	
 		double spacing = 0.02;
 		String srcDir = ROOT + "src/SF-LA-0p02/";
-		String outDir = ROOT + "mapsUC32localRatioTest/";
+		String outDir = ROOT + "mapsUC32local/ratiosWithFaults/";
 				
 		List<Period> allPeriods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
 		Multimap<ProbOfExceed, Period> pePeriodMap = ArrayListMultimap.create();
@@ -489,7 +498,7 @@ public class UC3_MapMaker {
 //				}
 //			}
 //		}
-		makeLocalRatioMap(srcDir, "all", SAN_FRANCISCO, spacing, PE2IN50, GM1P00, outDir, true);
+		makeLocalRatioMap(srcDir, "all", LOS_ANGELES, spacing, PE2IN50, GM0P00, outDir, true);
 
 	}
 	
@@ -701,6 +710,99 @@ public class UC3_MapMaker {
 		makeRatioPlot(xyzRatio, 0.1, grid.bounds(), dlDir, "hazard ratio", true, true, false);
 	}
 	
+	// Ratio of two conv run ground motion maps for Little Salmon onshore.
+	// First pass at this used run01 (low rate) and run83 (high rate) for
+	// rupture 73204. Second pass expanded to run00 to run22 in the
+	// numerator. These tests used UC31 conv runs.
+	private static void makeLittleSalmonPlots() {
+		TestGrid grid = LITTLE_SALMON;
+		Period p = GM0P00;
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50, PE1IN100);
+		String srcRoot = "UC32convLittleSalmonSingle" + S;
+		String srcUnder = srcRoot + "sol83";
+		for (ProbOfExceed pe : PEs) {
+			GeoDataSet xyzUnder = loadSingle(srcUnder, pe, grid, p, 0.02);
+			for (int i=0; i<23; i++) {
+				String solNum = String.format("%02d", i);
+				String id  = "sol" + solNum + "_sup_sol83";
+				String dlDir = ROOT + "mapsUC32b/UC32littleSalmon/single-UC31/" + pe + S +
+					id + S;
+				String srcOver = srcRoot + "sol" + solNum;
+				GeoDataSet xyzOver = loadSingle(srcOver, pe, grid, p, 0.02);
+				GeoDataSet xyzRatio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+				makeRatioPlot(xyzRatio, 0.02, grid.bounds(), dlDir,
+					pe.toString() + " ratio " + solNum + "/83", true, true,
+					true);
+			}
+		}
+	}
+
+	// Similar to above but using sets of 5 runs (i.e. run0 = average of
+	// run00 to run04).  These tests used UC32 conv runs.
+	private static void makeLittleSalmonMultiPlots() {
+		TestGrid grid = LITTLE_SALMON;
+		Period p = GM0P00;
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50, PE1IN100);
+		String srcRoot = "UC32convLittleSalmonMulti" + S;
+		String srcUnder = srcRoot + "sol9";
+		int[] indices = new int[] {0,3,6,12,15,18};
+		for (ProbOfExceed pe : PEs) {
+			GeoDataSet xyzUnder = loadSingle(srcUnder, pe, grid, p, 0.02);
+			for (int index : indices) {
+				String id  = "sol" + index + "_sup_sol9";
+				String dlDir = ROOT + "mapsUC32b/UC32littleSalmon/multi-UC32/" + pe + S +
+					id + S;
+				String srcOver = srcRoot + "sol" + index;
+				GeoDataSet xyzOver = loadSingle(srcOver, pe, grid, p, 0.02);
+				GeoDataSet xyzRatio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+				makeRatioPlot(xyzRatio, 0.02, grid.bounds(), dlDir,
+					pe.toString() + " ratio sol" + index + "/sol9", true, true,
+					true);
+			}
+		}
+	}
+	
+	// Creates a ratio plot of branch averaged UC32 with aleatory uncertainty
+	// on magnitude enabled over disabled; both fault models
+	private static void makeAleatoryMagScalingaRatio() {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE10IN50;
+		Period p = GM0P00;
+		double spacing = 0.1;
+		String root = ROOT + "src/UC32branchAvg/";
+		String dlDir = ROOT + "mapsUC32b/UC32aleaMagTest";
+
+		// load +alea sources
+		String fm31on = root + "FM31alea/" + grid + S + p + S + "curves.csv";
+		String fm32on = root + "FM32alea/" + grid + S + p + S + "curves.csv";
+		String fm31off = root + "FM31/" + grid + S + p + S + "curves.csv";
+		String fm32off = root + "FM32/" + grid + S + p + S + "curves.csv";
+
+		File fm31onSrc = new File(fm31on);
+		File fm32onSrc = new File(fm32on);
+		File fm31offSrc = new File(fm31off);
+		File fm32offSrc = new File(fm32off);
+
+		CurveContainer fm31ccOn = CurveContainer.create(fm31onSrc, grid, spacing);
+		CurveContainer fm32ccOn = CurveContainer.create(fm32onSrc, grid, spacing);
+		CurveContainer fm31ccOff = CurveContainer.create(fm31offSrc, grid, spacing);
+		CurveContainer fm32ccOff = CurveContainer.create(fm32offSrc, grid, spacing);
+
+		fm32ccOn.add(fm31ccOn);
+		fm32ccOn.scale(0.5);
+		fm32ccOff.add(fm31ccOff);
+		fm32ccOff.scale(0.5);
+
+		GriddedRegion gr = grid.grid(spacing);
+		GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(fm32ccOn, gr, pe);
+		GeoDataSet xyzUnder = NSHMP_DataUtils.extractPE(fm32ccOff, gr, pe);
+		GeoDataSet xyzRatio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+		
+		makeRatioPlot(xyzRatio, 0.1, grid.bounds(), dlDir, "aleaOn/aleaOff", 
+			true, true, false);
+	}
+		
+		
 	// creates ratios maps of coulomb variants to reference branch
 	private static void makeCoulombTestMaps() {
 		TestGrid grid = CA_RELM;
@@ -763,6 +865,55 @@ public class UC3_MapMaker {
 	}
 
 	
+	// UCERF3.2 branchAvg (DM and FM variants combined) over all branches
+	private static void makeBrAvgFMDMratioMap() throws IOException {
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		String suffix = "";
+		double spacing = 0.1;
+		String dlDir = ROOT + "mapsUC32b/UC32branchAvg/allFM/";
+
+		
+		// load Dm-FM branch avg solutions
+		CurveContainer brAvgCC = null;
+		String root = ROOT + "src/UC32branchAvg/";
+		Set<DeformationModels> DMs = EnumSet.of(ABM, GEOLOGIC, NEOKINEMA, ZENGBB);
+//		for (DeformationModels dm : DMs) {
+					
+			// load sources
+//			String fm31 = root + "FM31-" + dm.getShortName() + S + grid + S + p + S + "curves.csv";
+//			String fm32 = root + "FM32-" + dm.getShortName() + S + grid + S + p + S + "curves.csv";
+			String fm31 = root + "FM31" + S + grid + S + p + S + "curves.csv";
+			String fm32 = root + "FM32" + S + grid + S + p + S + "curves.csv";
+			File fm31src = new File(fm31);
+			File fm32src = new File(fm32);
+			CurveContainer fm31cc = CurveContainer.create(fm31src, grid, spacing);
+			CurveContainer fm32cc = CurveContainer.create(fm32src, grid, spacing);
+
+			// sum, scale (FM), and scale (DM)
+			fm32cc.add(fm31cc);
+			fm32cc.scale(0.5); // * dm.getRelativeWeight(null));
+			
+//			if (brAvgCC == null) {
+//				brAvgCC = fm32cc;
+//			} else {
+//				brAvgCC.add(fm32cc);
+//			}
+//		}
+		GriddedRegion gr = grid.grid(spacing);
+		GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(fm32cc, gr, pe);
+		
+		// full logic tree
+		File underFile = new File(ROOT + "branchsetsUC32", "all.txt");
+		GeoDataSet xyzUnder = loadMulti(ROOT + "src/UC32/", underFile, pe, grid, p, suffix);
+
+		GeoDataSet xyzRatio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+		File dlFile = new File(dlDir);
+		dlFile.mkdirs();
+		makeRatioPlot(xyzRatio, spacing, grid.bounds(), dlDir, "brAvg/fullTree", true, true, false);
+	}
+
 	private static GeoDataSet UC32xyz;
 	
 	// UCERF3.2 node ratio maps multithreaded
@@ -1070,7 +1221,7 @@ public class UC3_MapMaker {
 		
 	private static void makeRatioPlot(GeoDataSet xyz, double spacing, double[] bounds,
 			String dlDir, String title, boolean log, boolean smooth, boolean showFaults) {
-		double scale = log ? 0.1 : 0.2;
+		double scale = log ? 0.05 : 0.2;
 		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
 		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, log ? -scale : 1-scale);
 		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, log ? scale : 1+scale);
@@ -1086,9 +1237,9 @@ public class UC3_MapMaker {
 			map.setCustomLabel(title);
 			map.setRescaleCPT(smooth);
 			if (showFaults) {
-				addFaultTraces(FaultModels.FM2_1, map, Color.BLUE);
+//				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
 				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
 		} catch (IOException ioe) {

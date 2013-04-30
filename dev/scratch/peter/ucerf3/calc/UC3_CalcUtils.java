@@ -101,6 +101,41 @@ public class UC3_CalcUtils {
 	}
 
 	/**
+	 * Loads one solution of an 'averaged' or mean solution. An average solution
+	 * represents multiple runs of the same logic tree branch. If the supplied
+	 * index is -1, then the supplied solution (with mean rupture rates) is used
+	 * to initialize the ERF.
+	 * 
+	 * @param solPath
+	 * @param idx
+	 * @param bgOpt
+	 * @param aleatoryMagArea
+	 * @param filterAftShk
+	 * @param duration
+	 * @return a UC3 erf
+	 */
+	public static UCERF3_FaultSysSol_ERF getUC3_ERF_Compound(
+			String solPath,
+			int idx,
+			IncludeBackgroundOption bgOpt,
+			boolean aleatoryMagArea,
+			boolean filterAftShk,
+			double duration) {
+		
+		checkArgument(idx != -1, "Index cannot be -1 for compound sol.");
+		CompoundFaultSystemSolution cfss = getCompoundSolution(solPath);
+		List<LogicTreeBranch> branches = Lists.newArrayList(cfss
+			.getBranches());
+		LogicTreeBranch branch = branches.get(idx);
+		InversionFaultSystemSolution ifss = cfss.getSolution(branch);
+		String erfName = branch.buildFileName();
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(ifss);
+		erf.setName(erfName);
+		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
+		return erf;
+	}
+
+	/**
 	 * Loads a 'compound' solution. Such a solution generally has 'COMPOUND_SOL'
 	 * included in its name and represents multiple logic tree branches wrapped
 	 * up together. {@code branchID} is a {@code String} that is the file name
@@ -130,18 +165,7 @@ public class UC3_CalcUtils {
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
 	}
-	
-	/**
-	 * Convert FSS to UC3_FSS
-	 * @param fss
-	 * @return a UC3 fss
-	 */
-//	public static UCERF3_FaultSysSol_ERF toUC3(FaultSystemSolution fss) {
-//		InversionFaultSystemSolution invFss = new InversionFaultSystemSolution(
-//		fss);
-//		return new UCERF3_FaultSysSol_ERF(invFss);
-//	}
-	
+		
 	private static String nameFromPath(String solPath) {
 		int ssIdx1 = StringUtils.lastIndexOf(solPath, "/");
 		int ssIdx2 = StringUtils.lastIndexOf(solPath, ".");
@@ -238,6 +262,11 @@ public class UC3_CalcUtils {
 			siteMap.put(name, new Location(lat, lon));
 		}
 		return ImmutableMap.copyOf(siteMap);
+	}
+	
+	public static List<String> readBranchFile(String path) throws IOException {
+		File f = new File(path);
+		return Files.readLines(f, US_ASCII);
 	}
 
 

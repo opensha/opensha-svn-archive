@@ -46,8 +46,14 @@ public class UC3_CalcDriver {
 		Period[] periods, boolean epiUncert)
 			throws IOException, InterruptedException, ExecutionException {
 
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
-			solSetPath, solIdx, IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		UCERF3_FaultSysSol_ERF erf = null;
+		if (solSetPath.contains("COMPOUND_SOL")) {
+			erf = UC3_CalcUtils.getUC3_ERF_Compound(solSetPath, solIdx,
+				IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		} else {
+			erf = UC3_CalcUtils.getUC3_ERF(solSetPath, solIdx,
+				IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+		}
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 		Map<String, Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
@@ -57,11 +63,11 @@ public class UC3_CalcDriver {
 		}
 		
 		for (Period period : periods) {
-			String outPath = outDir + S + erf.getName() + S + period + S;
+			String outPath = outDir + S + erf.getName();
 			System.out.println(outPath);
-			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-			HazardResultWriter writer = new HazardResultWriterSites(outFile,
-				period, siteMap);
+			HazardResultWriterSites writer = new HazardResultWriterSites(outPath,
+				siteMap);
+			writer.writeHeader(period);
 			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
 				period, epiUncert, writer);
 			thc.calculate(null);

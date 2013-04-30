@@ -73,11 +73,11 @@ public class UC3_LocalCalc {
 			String outPath = outDir + S + period + S;
 			System.out.println(outPath);
 			File outFile = new File(outPath + "NSHMP08_WUS_curves.csv");
-			HazardResultWriter writer = new HazardResultWriterSites(outFile,
-				period, siteMap);
-			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
-				period, epi, writer);
-			thc.calculate(null);
+//			HazardResultWriter writer = new HazardResultWriterSites(outFile,
+//				period, siteMap);
+//			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
+//				period, epi, writer);
+//			thc.calculate(null);
 		}
 	}
 

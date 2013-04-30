@@ -16,7 +16,10 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -64,9 +67,19 @@ public class TestCalc {
 			);
 
 		try {
-			new TestCalc(solSetPath, locs, period, epi);
+//			new TestCalc(solSetPath, locs, period, epi);
+			mendoTest(solSetPath);
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
+		}
+	}
+	
+	private static void mendoTest(String path) throws Exception {
+		
+		File file = new File(path);
+		FaultSystemSolution fss = FaultSystemIO.loadSol(file);
+		for(int s=0; s<fss.getRupSet().getNumSections(); s++) {
+			System.out.println(fss.getRupSet().getFaultSectionData(s).getName());
 		}
 	}
 
