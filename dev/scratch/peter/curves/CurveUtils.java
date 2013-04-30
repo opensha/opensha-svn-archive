@@ -173,10 +173,11 @@ public class CurveUtils {
 //		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), true);
 //		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), false);
 
-//		File srcDir = new File(UC3_ROOT + "tree_src/PalmdaleTree");
-//		File outDir = new File(UC3_ROOT + "PalmdaleTree");
-//		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palm.txt");
-//		reorganizeUC3branchResults(srcDir, outDir, locFile, false);
+		File srcDir = new File("/Users/pmpowers/projects/OpenSHA/tmp/hazard/PALO_VERDE/minitree");
+		File outDir = new File("/Users/pmpowers/projects/OpenSHA/tmp/hazard/PALO_VERDE/minitreeOut");
+		File locFile = new File("/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/palo-verde.txt");
+		reorganizeUC3branchResults(srcDir, outDir, locFile.getPath(), false);
+		generateBranchSummaries2(locFile.getPath(), outDir.getPath(), true);
 
 		
 //		generateBranchList();
@@ -215,7 +216,7 @@ public class CurveUtils {
 			String locPath, boolean ignoreWts) throws IOException {
 		
 		// convert solutions grouped by branch to solutions grouped by city
-		Set<Period> periods = EnumSet.of(GM4P00); //GM0P00, GM0P20, GM1P00);
+		Set<Period> periods = EnumSet.of(GM0P00, GM1P00); //GM0P00, GM0P20, GM1P00);
 		
 		// create location list
 		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locPath);
@@ -278,11 +279,12 @@ public class CurveUtils {
 				List<String> lines = Files.readLines(curveFile, US_ASCII);
 				for (String line : Iterables.skip(lines, 1)) {
 					String locStr = StringUtils.substringBefore(line, ",");
-					String curveStr = StringUtils.substringAfter(StringUtils
-						.substringAfter(
-							StringUtils.substringAfter(
-								StringUtils.substringAfter(line, ","), ","),
-							","), ",");
+//					String curveStr = StringUtils.substringAfter(StringUtils
+//						.substringAfter(
+//							StringUtils.substringAfter(
+//								StringUtils.substringAfter(line, ","), ","),
+//							","), ",");
+					String curveStr = StringUtils.substringAfter(line, ",");
 					String curveStrOut = branchIdx + "," + branchWt + "," +
 						curveStr;
 					table.put(branchIdx, locStr, curveStrOut);
@@ -455,7 +457,7 @@ public class CurveUtils {
 	public static void generateBranchSummaries2(String locPath, String curveDir,
 			boolean tornado) throws IOException {
 		
-		Iterable<Period> periods = EnumSet.of(GM4P00); //GM0P00, GM0P20, GM1P00);
+		Iterable<Period> periods = EnumSet.of(GM0P00, GM1P00); //GM0P00, GM0P20, GM1P00);
 		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locPath);
 		String imrID = NSHMP08_WUS.SHORT_NAME;
 		try {
