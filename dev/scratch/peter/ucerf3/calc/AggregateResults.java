@@ -19,7 +19,7 @@ public class AggregateResults {
 	public static void main(String[] args) {
 		File dir = new File(args[0]);
 		Period period = Period.valueOf(Period.class, args[1]);
-		UC3_HazardCalcDriverMPJ.aggregateResults(dir, period);
+		UC3_CalcMPJ_MapCompound.aggregateResults(dir, period);
 	}
 
 }

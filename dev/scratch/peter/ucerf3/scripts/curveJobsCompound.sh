@@ -20,15 +20,10 @@ JAVA_LIB=$BASEDIR/lib
 SITEFILE=$BASEDIR/UC3/curvejobs/sites/test.txt
 BRANCHFILE=$BASEDIR/UC3/curvejobs/branches/test.txt
 
-# Convergence runs need to be called by index
-#OUTDIR=$BASEDIR/UC3/curves/conv/$JOBGROUP
-#FILENAME=/conv/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip
-#ERF_COUNT=100
-
 # Equation set wewight runs need to be called by branchID
 #OUTDIR=$BASEDIR/UC3/curves/vars/$JOBGROUP
 #FILENAME=/vars/2013_02_01-ucerf3p2-weights_COMPOUND_SOL.zip
-#ERF_COUNT=10
+#BRANCHFILE=$BASEDIR/UC3/curvejobs/branches/test.txt
 
 OUTDIR=$BASEDIR/UC3/curves/tree/$JOBGROUP
 FILENAME=/tree/2013_01_14-UC32-COMPOUND_SOL.zip
@@ -36,6 +31,6 @@ SOLFILE=$SRCDIR$FILENAME
 
 # build pbs
 java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
-	scratch.peter.ucerf3.scripts.ScriptGenCurves2 \
+	scratch.peter.ucerf3.scripts.CurvesFromCompound \
 	$QUEUE $NODES $HOURS $JAVA_LIB \
 	$SCRIPT $SOLFILE $SITEFILE $BRANCHFILE $PERIODS $OUTDIR

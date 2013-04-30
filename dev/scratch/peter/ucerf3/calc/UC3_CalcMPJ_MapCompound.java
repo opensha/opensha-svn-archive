@@ -32,7 +32,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Flushables;
 
-public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
+public class UC3_CalcMPJ_MapCompound extends MPJTaskCalculator {
 	
 	private static final String S = File.separator;
 	private ThreadedHazardCalc calc;
@@ -43,7 +43,7 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 	private File outDir;
 	private Period period;
 	
-	public UC3_HazardCalcDriverMPJ(CommandLine cmd, String[] args)
+	public UC3_CalcMPJ_MapCompound(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
@@ -83,12 +83,10 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 		System.out.println("Batch complete");
 	}
 	
-
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		if (rank == 0) aggregateResults(outDir, period);
 	}
-	
 	
 	// overridden for testing
 	public static Options createOptions() {
@@ -107,9 +105,9 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			CommandLine cmd = parse(options, args, UC3_HazardCalcDriverMPJ.class);
+			CommandLine cmd = parse(options, args, UC3_CalcMPJ_MapCompound.class);
 			args = cmd.getArgs();
-			UC3_HazardCalcDriverMPJ driver = new UC3_HazardCalcDriverMPJ(cmd, args);
+			UC3_CalcMPJ_MapCompound driver = new UC3_CalcMPJ_MapCompound(cmd, args);
 			driver.run();
 			finalizeMPJ();
 			System.exit(0);

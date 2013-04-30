@@ -11,7 +11,7 @@ import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.util.ClassUtils;
 
-import scratch.peter.ucerf3.calc.UC3_CalcDriver;
+import scratch.peter.ucerf3.calc.UC3_CalcCurve;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -19,7 +19,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-public class ScriptGenCurves {
+public class CurvesFromSolution {
 
 	private static final String NEWLINE = IOUtils.LINE_SEPARATOR;
 	private static final Joiner J = Joiner.on(NEWLINE);
@@ -30,17 +30,10 @@ public class ScriptGenCurves {
 		JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 	}
 
-	/**
-	 * @param args
-	 * @throws IOException java -cp
-	 *         $JAVA_LIB/OpenSHA_complete.jar:$JAVA_LIB/commons-cli-1.2.jar
-	 *         org.opensha.nshmp2.calc.ScriptGen $NAME $GRIDS $PERIODS $ERFID
-	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
-	 */
 	public static void main(String[] args) throws IOException {
 		if (args.length != 6) {
 			System.out.println("USAGE: " +
-				ClassUtils.getClassNameWithoutPackage(ScriptGenCurves.class) +
+				ClassUtils.getClassNameWithoutPackage(CurvesFromSolution.class) +
 				" <script> <filepath> <sitefile> <erfIndex> <javaLib> <outDir>");
 			System.exit(1);
 		}
@@ -72,7 +65,7 @@ public class ScriptGenCurves {
 
 			String cliArgs = filepath + " " + sitefile + " " + erfIdx + " " + outDir;
 			List<String> script = jssw.buildScript(
-				UC3_CalcDriver.class.getName(), cliArgs);
+				UC3_CalcCurve.class.getName(), cliArgs);
 			script.add(NEWLINE);
 			HPCC_ScriptWriter writer = new HPCC_ScriptWriter();
 			script = writer.buildScript(script, hrs, nodes, 0, queue);

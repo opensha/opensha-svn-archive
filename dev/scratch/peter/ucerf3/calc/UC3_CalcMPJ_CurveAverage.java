@@ -35,14 +35,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 /**
- * Updated calculator of UC3 hazard curves at sites. Calculator spreads batches
- * of logic tree branches across multiple nodes. Each node loops ERFs, Periods,
- * and locations of interest.
+ * Curves at sites for an average solution.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
+public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 
 	private static final String S = File.separator;
 	private static final Splitter SPLIT = Splitter.on(',');
@@ -50,7 +48,7 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 	private String solPath;
 	private Map<String, Location> locMap;
 	private LocationList locs;
-	private List<String> branches;
+	private int solCount;
 	private List<Period> periods;
 	private String outDir;
 
@@ -59,14 +57,14 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 	private ExecutorService ex;
 	private ExecutorCompletionService<HazardResult> ecs;
 
-	public UC3_HazardCurveDriverMPJ(CommandLine cmd, String[] args)
+	public UC3_CalcMPJ_CurveAverage(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException,
 			FileNotFoundException {
 
 		super(cmd);
 		if (args.length != 5) {
 			System.err.println("USAGE: UC3_HazardCurveDriverMPJ [<options>] "
-				+ "<solfile> <sitefile> <branchfile> <periods> <outDir>");
+				+ "<solfile> <sitefile> <solCount> <periods> <outDir>");
 			abortAndExit(2);
 		}
 
@@ -81,7 +79,7 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 		for (Location loc : locMap.values()) {
 			locs.add(loc);
 		}
-		branches = UC3_CalcUtils.readBranchFile(args[2]);
+		solCount = Integer.parseInt(args[2]);
 		periods = readArgAsList(args[3], Period.class);
 		outDir = args[4];
 
@@ -93,23 +91,23 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 
 	@Override
 	public int getNumTasks() {
-		return branches.size();
+		return solCount;
 	}
 
 	@Override
 	public void calculateBatch(int[] indices) throws InterruptedException,
 			ExecutionException, IOException {
 
-		for (int brIdx : indices) {
+		for (int idx : indices) {
 
 			// init erf for branch
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
-				branches.get(brIdx), IncludeBackgroundOption.INCLUDE, false,
+				idx, IncludeBackgroundOption.INCLUDE, false,
 				true, 1.0);
 			erf.updateForecast();
 			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 
-			String erfOutDir = outDir + S + erf.getName();
+			String erfOutDir = outDir + S + erf.getName() + "_" + idx;
 			HazardResultWriterSites writer = new HazardResultWriterSites(
 				erfOutDir, locMap);
 
@@ -167,9 +165,9 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 		try {
 			Options options = createOptions();
 			CommandLine cmd = parse(options, args,
-				UC3_HazardCurveDriverMPJ.class);
+				UC3_CalcMPJ_CurveCompound.class);
 			args = cmd.getArgs();
-			UC3_HazardCurveDriverMPJ driver = new UC3_HazardCurveDriverMPJ(cmd,
+			UC3_CalcMPJ_CurveCompound driver = new UC3_CalcMPJ_CurveCompound(cmd,
 				args);
 			driver.run();
 			finalizeMPJ();

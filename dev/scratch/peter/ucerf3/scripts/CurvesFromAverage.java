@@ -7,47 +7,38 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
+import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.util.ClassUtils;
 
-import scratch.peter.ucerf3.calc.UC3_HazardCalcDriverMPJ;
+import scratch.peter.ucerf3.calc.UC3_CalcMPJ_CurveAverage;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-public class ScriptGenMaps {
+public class CurvesFromAverage {
 
 	private static final String NEWLINE = IOUtils.LINE_SEPARATOR;
 	private static final Joiner J_NL = Joiner.on(NEWLINE);
 	private static final Joiner J_SPACE = Joiner.on(" ");
-	private static final Splitter S = Splitter.on(',');
 	private static final File MPJ_HOME;
 	private static final File JAVA_BIN;
 
 	static {
-		MPJ_HOME = new File("/home/rcf-40/pmpowers/mpj-v0_38");
+		MPJ_HOME = new File("/home/rcf-40/pmpowers/FastMPJ");
 		JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 	}
 
-	/**
-	 * @param args
-	 * @throws IOException java -cp
-	 *         $JAVA_LIB/OpenSHA_complete.jar:$JAVA_LIB/commons-cli-1.2.jar
-	 *         org.opensha.nshmp2.calc.ScriptGen $NAME $GRIDS $PERIODS $ERFID
-	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
-	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 11) {
+		if (args.length != 10) {
 			System.out
 				.println("USAGE: " +
-					ClassUtils.getClassNameWithoutPackage(ScriptGenMaps.class) +
+					ClassUtils.getClassNameWithoutPackage(CurvesFromAverage.class) +
 					" <queue> <nodes> <hours> <libDir> <scriptPath>" +
-					" <solPath> <branchID> <grid> <spacing> <period> <outDir>");
+					" <solfile> <sitefile> <solCount> <periods> <outDir>");
 			System.exit(1);
 		}
 
@@ -56,7 +47,7 @@ public class ScriptGenMaps {
 		int hours = Integer.parseInt(args[2]);
 		String libDir = args[3];
 		String scriptPath = args[4];
-
+		
 		Iterable<String> otherArgs = Iterables.skip(Arrays.asList(args), 5);
 		String scriptArgs = J_SPACE.join(otherArgs);
 
@@ -69,11 +60,11 @@ public class ScriptGenMaps {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(
+			FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(
 				JAVA_BIN, 4096, classpath, MPJ_HOME, false);
 
 			List<String> script = mpj.buildScript(
-				UC3_HazardCalcDriverMPJ.class.getName(), args);
+				UC3_CalcMPJ_CurveAverage.class.getName(), args);
 			script.add(NEWLINE);
 			HPCC_ScriptWriter writer = new HPCC_ScriptWriter();
 			script = writer.buildScript(script, hrs, nodes, 0, queue);

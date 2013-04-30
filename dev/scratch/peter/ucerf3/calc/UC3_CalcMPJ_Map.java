@@ -33,7 +33,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Flushables;
 
-public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
+public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 	
 	private static final String S = File.separator;
 	private ThreadedHazardCalc calc;
@@ -47,12 +47,12 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 	// FOR USE WITH SINGLE SOLUTIONS: DOES NOT EXPECT A BRANCH IDENTIFIER BUT
 	// TAKES A NAME INSTEAD THAT IS USED FOR OUTPUT
 	
-	public UC3_HazardCalcDriverMPJ2(CommandLine cmd, String[] args)
+	public UC3_CalcMPJ_Map(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
 		if (args.length != 7) {
-			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] " +
+			System.err.println("USAGE: UC3_CalcMPJ_Map [<options>] " +
 					"<solPath> <mapID> <grid> <spacing> <period> <outPath> " +
 					"<bgInclude>");
 			abortAndExit(2);
@@ -100,7 +100,8 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 	public static Options createOptions() {
 		Options ops = MPJTaskCalculator.createOptions();
 		
-		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
+		Option erfOp = new Option("e", "mult-erfs", false,
+			"If set, a copy of the ERF will be instantiated for each thread.");
 		erfOp.setRequired(false);
 		ops.addOption(erfOp);
 		
@@ -112,9 +113,9 @@ public class UC3_HazardCalcDriverMPJ2 extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			CommandLine cmd = parse(options, args, UC3_HazardCalcDriverMPJ2.class);
+			CommandLine cmd = parse(options, args, UC3_CalcMPJ_Map.class);
 			args = cmd.getArgs();
-			UC3_HazardCalcDriverMPJ2 driver = new UC3_HazardCalcDriverMPJ2(cmd, args);
+			UC3_CalcMPJ_Map driver = new UC3_CalcMPJ_Map(cmd, args);
 			driver.run();
 			finalizeMPJ();
 			System.exit(0);
