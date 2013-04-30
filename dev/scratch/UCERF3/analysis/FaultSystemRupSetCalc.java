@@ -936,7 +936,7 @@ public class FaultSystemRupSetCalc {
 		defModList.add(DeformationModels.GEOLOGIC);
 //		defModList.add(DeformationModels.ABM);
 //		defModList.add(DeformationModels.NEOKINEMA);
-//		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.ZENGBB);
 		
 		ArrayList<ScalingRelationships> scalingRelList = new ArrayList<ScalingRelationships>();
 		scalingRelList.add(ScalingRelationships.ELLSWORTH_B);
@@ -949,13 +949,13 @@ public class FaultSystemRupSetCalc {
 		
 		ArrayList<TotalMag5Rate> mag5RateList = new ArrayList<TotalMag5Rate>();
 		mag5RateList.add(TotalMag5Rate.RATE_7p9);
-//		mag5RateList.add(TotalMag5Rate.RATE_7p1);
+		mag5RateList.add(TotalMag5Rate.RATE_6p5);
 		mag5RateList.add(TotalMag5Rate.RATE_9p6);
 		
 		ArrayList<MaxMagOffFault> mMaxOffList = new ArrayList<MaxMagOffFault>();
-//		mMaxOffList.add(MaxMagOffFault.MAG_7p2);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p3);
 		mMaxOffList.add(MaxMagOffFault.MAG_7p6);
-//		mMaxOffList.add(MaxMagOffFault.MAG_8p0);
+		mMaxOffList.add(MaxMagOffFault.MAG_7p9);
 		
 		ArrayList<MomentRateFixes> moRateFixList = new ArrayList<MomentRateFixes>();
 		moRateFixList.add(MomentRateFixes.NONE);
@@ -1324,11 +1324,9 @@ if(mMax<5.85)
 		InversionTargetMFDs inversionMFDs = invFltSysRupSet.getInversionTargetMFDs();
 		
 		SummedMagFreqDist targetOnFaultSupraSeisMFD  =inversionMFDs.getOnFaultSupraSeisMFD();
-		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
 		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(5.05)+"\tMoRate="+(float)targetOnFaultSupraSeisMFD.getTotalMomentRate());
 		
 		IncrementalMagFreqDist trulyOffFaultMFD = inversionMFDs.getTrulyOffFaultMFD();
-		trulyOffFaultMFD.setName("trulyOffFaultMFD");
 		String infoString = "Rate(M>=5)="+(float)trulyOffFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)trulyOffFaultMFD.getTotalMomentRate();
 		if(trulyOffFaultMFD instanceof TaperedGR_MagFreqDist) {
 			infoString += "\tCornerMag="+(float)((TaperedGR_MagFreqDist)trulyOffFaultMFD).getMagCorner();
@@ -1336,11 +1334,9 @@ if(mMax<5.85)
 		trulyOffFaultMFD.setInfo(infoString);
 				
 		SummedMagFreqDist totalSubSeismoOnFaultMFD = inversionMFDs.getTotalSubSeismoOnFaultMFD();
-		totalSubSeismoOnFaultMFD.setName("totalSubSeismoOnFaultMFD");
 		totalSubSeismoOnFaultMFD.setInfo("Rate(M>=5)="+(float)totalSubSeismoOnFaultMFD.getCumRate(5.05)+"\tMoRate="+(float)totalSubSeismoOnFaultMFD.getTotalMomentRate());
 		
 		GutenbergRichterMagFreqDist totalTargetGR = inversionMFDs.getTotalTargetGR();
-		totalTargetGR.setName("totalTargetGR");
 		totalTargetGR.setInfo("Rate(M>=5)="+(float)totalTargetGR.getCumRate(5.05)+"\tMoRate="+(float)totalTargetGR.getTotalMomentRate());
 		
 		SummedMagFreqDist totalGridSeis = new SummedMagFreqDist(totalTargetGR.getX(0),totalTargetGR.getNum(),totalTargetGR.getDelta());
@@ -2330,7 +2326,6 @@ if(mMax<5.85)
 
 		// make range of target GRs
 		GutenbergRichterMagFreqDist totalTargetGR = fltSystRupSet.getInversionTargetMFDs().getTotalTargetGR();
-		totalTargetGR.setName("totalTargetGR");
 		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
 
 		// make range of target GRs
@@ -2339,7 +2334,6 @@ if(mMax<5.85)
 //		subSeisAndOffFaultTarget.setInfo("Rate(M>=6.5)="+(float)subSeisAndOffFaultTarget.getCumRate(6.55));
 		
 		SummedMagFreqDist targetOnFaultSupraSeisMFD = fltSystRupSet.getInversionTargetMFDs().getOnFaultSupraSeisMFD();
-		targetOnFaultSupraSeisMFD.setName("targetOnFaultSupraSeisMFD");
 		targetOnFaultSupraSeisMFD.setInfo("Rate(M>=6.5)="+(float)targetOnFaultSupraSeisMFD.getCumRate(6.55));
 
 
@@ -2771,7 +2765,6 @@ if(mMax<5.85)
 
 		// add target GR
 		GutenbergRichterMagFreqDist totalTargetGR = fltSystRupSet.getInversionTargetMFDs().getTotalTargetGR();
-		totalTargetGR.setName("totalTargetGR");
 		totalTargetGR.setInfo("Rate(M>=6.5)="+(float)totalTargetGR.getCumRate(6.55));
 
 		// add what's returned by calcImpliedGR_NucleationMFD(*)

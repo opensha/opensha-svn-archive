@@ -596,12 +596,10 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
 		
 		// Overall Target
-		totalMFD.setName("Total Target MFD");
 		funcs.add(totalMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
 		
 		// Inversion Target
-		targetMFD.setName("Inversion Supra-Seis Target MFD");
 		funcs.add(targetMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.CYAN));
 		
@@ -623,7 +621,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		// this could be cleaner :-/
 		if (statewide) {
 			solGriddedMFD = getFinalTotalGriddedSeisMFD();
-			solGriddedMFD.setName("Implied Gridded Seis MFD for Solution");
 			funcs.add(solGriddedMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GRAY));
 		}
@@ -693,6 +690,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		for(GutenbergRichterMagFreqDist mfd: getFinalSubSeismoOnFaultMFD_List()) {
 			totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(mfd);
 		}
+		totalSubSeismoOnFaultMFD.setName("InversionFaultSystemSolution.getFinalTotalSubSeismoOnFaultMFD()");
 		return totalSubSeismoOnFaultMFD;
 	}
 	
@@ -776,11 +774,15 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			int startZeroIndex = finalTrulyOffMFD.getClosestXIndex(mMaxOffFault) + 1;	// plus 1
 			for (int i=0; i<startZeroIndex && i<finalTrulyOffMFD.getNum(); i++)
 				truncatedMFD.set(i, finalTrulyOffMFD.getY(i));
+			finalTrulyOffMFD.setName("InversionFaultSystemSolution.getFinalTrulyOffFaultMFD()");
 
 			return finalTrulyOffMFD;
 		}
 		else {
-			return inversionTargetMFDs.getTrulyOffFaultMFD();
+			IncrementalMagFreqDist finalTrulyOffMFD = inversionTargetMFDs.getTrulyOffFaultMFD().deepClone();
+			finalTrulyOffMFD.setName("InversionFaultSystemSolution.getFinalTrulyOffFaultMFD()");
+			finalTrulyOffMFD.setInfo("identical to inversionTargetMFDs.getTrulyOffFaultMFD() in this case");
+			return finalTrulyOffMFD;
 		}
 	}
 
@@ -794,6 +796,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(InversionTargetMFDs.MIN_MAG, InversionTargetMFDs.NUM_MAG, InversionTargetMFDs.DELTA_MAG);
 		totGridSeisMFD.addIncrementalMagFreqDist(getFinalTrulyOffFaultMFD());
 		totGridSeisMFD.addIncrementalMagFreqDist(getFinalTotalSubSeismoOnFaultMFD());
+		totGridSeisMFD.setName("InversionFaultSystemSolution.getFinalTotalGriddedSeisMFD()");
 		return totGridSeisMFD;
  	}
 	

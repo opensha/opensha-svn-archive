@@ -181,6 +181,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getNodeUnassociatedMFD() {
+		realOffFaultMFD.setInfo("Same as "+realOffFaultMFD.getName());
 		realOffFaultMFD.setName("Unassociated MFD for all nodes");
 		return realOffFaultMFD;
 	}

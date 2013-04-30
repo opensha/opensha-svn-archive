@@ -362,6 +362,19 @@ public class InversionTargetMFDs {
 			System.out.println(debugString);
 		}
 		
+		// set the names
+		totalTargetGR.setName("InversionTargetMFDs.totalTargetGR");
+		totalTargetGR_NoCal.setName("InversionTargetMFDs.totalTargetGR_NoCal");
+		totalTargetGR_SoCal.setName("InversionTargetMFDs.totalTargetGR_SoCal");
+		targetOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetOnFaultSupraSeisMFD");
+		targetNoCalOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetNoCalOnFaultSupraSeisMFD");
+		targetSoCalOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetSoCalOnFaultSupraSeisMFD");
+		trulyOffFaultMFD.setName("InversionTargetMFDs.trulyOffFaultMFD");
+		totalSubSeismoOnFaultMFD.setName("InversionTargetMFDs.totalSubSeismoOnFaultMFD");
+		noCalTargetSupraMFD.setName("InversionTargetMFDs.noCalTargetSupraMFD");
+		soCalTargetSupraMFD.setName("InversionTargetMFDs.soCalTargetSupraMFD");
+
+		
 		mfdConstraintsForNoAndSoCal = new ArrayList<MFD_InversionConstraint>();
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(noCalTargetSupraMFD, noCalGrid));
 		mfdConstraintsForNoAndSoCal.add(new MFD_InversionConstraint(soCalTargetSupraMFD, soCalGrid));
@@ -408,7 +421,7 @@ public class InversionTargetMFDs {
 		SummedMagFreqDist totGridSeisMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		totGridSeisMFD.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
 		totGridSeisMFD.addIncrementalMagFreqDist(getTrulyOffFaultMFD());
-		totGridSeisMFD.setName("InversionMFDs.getTotalGriddedSeisMFD()");
+		totGridSeisMFD.setName("InversionTargetMFDs.getTotalGriddedSeisMFD()");
 		return totGridSeisMFD;
 	}
 
@@ -420,7 +433,7 @@ public class InversionTargetMFDs {
 		SummedMagFreqDist totOnMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		totOnMFD.addIncrementalMagFreqDist(getTotalSubSeismoOnFaultMFD());
 		totOnMFD.addIncrementalMagFreqDist(getOnFaultSupraSeisMFD());
-		totOnMFD.setName("InversionMFDs.getTotalOnFaultMFD()");
+		totOnMFD.setName("InversionTargetMFDs.getTotalOnFaultMFD()");
 		return totOnMFD;
 	}
 

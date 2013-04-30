@@ -198,7 +198,7 @@ public class FaultSystemSolutionCalc {
 	}
 	
 	
-	public static void checkSubseisOnFaultRates(InversionFaultSystemSolution invSol) {
+	public static void checkFinalSubseisOnFaultRates(InversionFaultSystemSolution invSol) {
 
 		System.out.println("Starting check");
 
@@ -241,7 +241,7 @@ public class FaultSystemSolutionCalc {
 			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);
 			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
 			InversionFaultSystemSolution fss = cfss.getSolution(ltb);
-			checkSubseisOnFaultRates(fss);
+			checkFinalSubseisOnFaultRates(fss);
 			
 			
 			
