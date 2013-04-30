@@ -339,7 +339,10 @@ public class CSEP_Forecast {
 	public static IncrementalMagFreqDist getOffsetGridMFD(GridERF erf,
 			Location loc, double spacing) {
 		// skip locations outside area of grid with non-zero a-values
-		if (!erf.getBorder().contains(loc)) return null;
+//		if (!erf.getBorder().contains(loc)) return null;
+		// Update 4/29/2013: the above line causes some edge cases to be skipped
+		// and has been commented out in favor of just grabbing 0-rate mfds by
+		// processing every gridERF at every location of interest.
 		double w = spacing / 2;
 		double lat = loc.getLatitude();
 		double lon = loc.getLongitude();
@@ -350,16 +353,27 @@ public class CSEP_Forecast {
 		for (Location cLoc : locs) {
 			IncrementalMagFreqDist mfd = erf.getMFD(cLoc);
 			// bail if all four surrounding nodes are not available
-			if (mfd == null) return null;
+			// Update 4/29/2013: this is creating some cells with mfds that
+			// are truncated at 6.5 because cells in the larger grids (e.g.
+			// EXTmap) are masked to accomodate 6.5+ fixed-strike grid sources
+			// but the fixed-strike sources are not getting fully apportioned
+			// at the edges. Now we use fractional mfds if available.
+			if (mfd == null) continue; //return null;
 			// no need to clone original as resample does not alter src
 			IncrementalMagFreqDist mfdResamp = resample(mfd,
 				newIncrForecastMFD(), false, true);
 			sum.addIncrementalMagFreqDist(mfdResamp);
+//			if (LocationUtils.areSimilar(loc, tmpLoc)) {
+//				System.out.println(erf.getName() + " " + tmpLoc);
+//				System.out.println(mfdResamp);
+//			}
 		}
 		sum.scale(0.25); // 4 mfds were used so scale to 1/4
 		sum.scale(erf.getSourceWeight()); // scale again by the erf wt
 		return sum;
 	}
+	
+	private static final Location tmpLoc = new Location(39.85,-120.05);
 
 	/**
 	 * Returns a CSEP forecast MFD with all rates initialized to 0.
