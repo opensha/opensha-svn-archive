@@ -57,7 +57,7 @@ public class FaultSystemRupSet implements Serializable {
 	private double[] sectSlipRateStdDevs;
 	private double[] rakes;
 	private double[] rupAreas;
-	private double[] rupLengths; // TODO add to file loading
+	private double[] rupLengths;
 	private double[] sectAreas;
 	private List<List<Integer>> sectionForRups;
 	private String info;
@@ -596,62 +596,6 @@ public class FaultSystemRupSet implements Serializable {
 	public void setInfoString(String info) {
 		this.info = info;
 	}
-	
-	// TODO move to IVFSRS
-//	/**
-//	 * This fetches a list of all of the close sections to this section, as defined by the rupture set.
-//	 * @param sectIndex index of the section to retrieve
-//	 * @return close sections, or null if not defined
-//	 */
-//	public abstract List<Integer> getCloseSectionsList(int sectIndex);
-//	
-//	/**
-//	 * This returns a list of lists of close sections for each section.
-//	 * @return list of all close sections, or null if not defined
-//	 */
-//	public abstract List<List<Integer>> getCloseSectionsListList();
-//	
-//	/*		CLUSTER RELATED METHODS		*/
-//	
-//	/**
-//	 * 
-//	 * @return the number of clusters, or 0 if not a cluster based model
-//	 */
-//	public abstract int getNumClusters();
-//	
-//	/**
-//	 * 
-//	 * @param index index of the cluster to get
-//	 * @return number of ruptures in the given cluster
-//	 */
-//	public abstract int getNumRupturesForCluster(int index);
-//	
-//	/**
-//	 * 
-//	 * @param index index of the cluster to get
-//	 * @return list of section IDs in the cluster at the given index
-//	 */
-//	public abstract List<Integer> getSectionsForCluster(int index);
-//	
-//	/**
-//	 * 
-//	 * @param index index of the cluster to get
-//	 * @return list of rupture indexes for the cluster at the given index
-//	 * @throws IndexOutOfBoundsException if the index is invalid
-//	 */
-//	public abstract List<Integer> getRupturesForCluster(int index) throws IndexOutOfBoundsException;
-//	
-//	/**
-//	* This returns the deformation model
-//	* @return
-//	*/
-//	public abstract DeformationModels getDeformationModel();
-//	
-//	/**
-//	* This returns the fault model
-//	* @return
-//	*/
-//	public abstract FaultModels getFaultModel();
 	
 	private Table<Region, Boolean, double[]> fractRupsInsideRegions = HashBasedTable.create();
 	

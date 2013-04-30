@@ -22,8 +22,6 @@ public class CumulativeRakeChangeFilter extends AbstractLaughTest {
 	public CumulativeRakeChangeFilter(Map<Integer, Double> rakesMap, double maxCmlRakeChange) {
 		this.rakesMap = rakesMap;
 		this.maxCmlRakeChange = maxCmlRakeChange;
-		
-		// TODO do we want to apply this at branches only?
 	}
 
 	@Override
@@ -58,7 +56,7 @@ public class CumulativeRakeChangeFilter extends AbstractLaughTest {
 
 	@Override
 	public boolean isApplyJunctionsOnly() {
-		return false;
+		return true;
 	}
 
 }

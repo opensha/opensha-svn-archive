@@ -41,7 +41,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			MaxMagOffFault.MAG_7p6, MomentRateFixes.NONE, SpatialSeisPDF.UCERF3);
 	
 	/**
-	 * This is the default UCERF2 reference branch // TODO confirm
+	 * This is the default UCERF2 reference branch
 	 */
 	public static final LogicTreeBranch UCERF2 = fromValues(FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
 			ScalingRelationships.AVE_UCERF2, SlipAlongRuptureModels.UNIFORM, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_6p5,

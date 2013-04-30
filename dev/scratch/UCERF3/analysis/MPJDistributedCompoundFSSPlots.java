@@ -207,25 +207,6 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		} else {
 			MPI.COMM_WORLD.Send(sendbuf, 0, sendbuf.length, MPI.OBJECT, 0, 0);
 		}
-		
-//		if (rank == 0) {
-////			for (int i=0; i<recvbuf.length; i++)
-////				System.out.println(i+": "+recvbuf[i]);
-////			abortAndExit(0);
-//			for (int p=0; p<numPlots; p++) {
-//				Collection<CompoundFSSPlots> otherPlots = Lists.newArrayList();
-//				for (int i=0; i<size; i++) {
-//					// TODO uncomment
-//					CompoundFSSPlots otherPlot = recvbuf[i*numPlots+p];
-//					if (otherPlot != null)
-//						otherPlots.add(otherPlot);
-//				}
-//				plots.get(p).combineDistributedCalcs(otherPlots);
-//			}
-//			
-//			for (CompoundFSSPlots plot : plots)
-//				plot.finalizePlot();
-//		}
 	}
 	
 	protected static Options createOptions() {

@@ -818,7 +818,6 @@ public class FaultSystemIO {
 			if (D) System.out.println("Saving InversionFaultSystemSolution specific data");
 			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
 			
-			// TODO always save grid sources?
 			GridSourceProvider gridSources = invSol.getGridSourceProvider();
 			if (gridSources != null) {
 				if (D) System.out.println("Saving grid sources to xml");

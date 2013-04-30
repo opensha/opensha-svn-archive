@@ -517,10 +517,8 @@ public class CommandLineInversionRunner {
 				double totalMultiplyNamedPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateMultiplyNamedFaults(sol, 0d, paleoProbabilityModel);
 
 				double totalM7Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 7d, null);
-//				double totalM5Rate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 5d, null); // TODO
 				double totalPaleoVisibleRate = FaultSystemRupSetCalc.calcTotRateAboveMag(sol, 0d, paleoProbabilityModel);
 
-//				info += "\n\nTotal rupture rate (M5+): "+totalM5Rate;
 				info += "\n\nTotal rupture rate (M7+): "+totalM7Rate;
 				info += "\nTotal multiply named rupture rate (M7+): "+totalMultiplyNamedM7Rate;
 				info += "\n% of M7+ rate that are multiply named: "

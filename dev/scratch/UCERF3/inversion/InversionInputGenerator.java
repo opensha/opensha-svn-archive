@@ -66,7 +66,7 @@ public class InversionInputGenerator {
 	private InversionFaultSystemRupSet rupSet;
 	private InversionConfiguration config;
 	private List<PaleoRateConstraint> paleoRateConstraints;
-	private double[] improbabilityConstraint; // TODO may become an object of some sort
+	private double[] improbabilityConstraint;
 	private PaleoProbabilityModel paleoProbabilityModel;
 	
 	// outputs

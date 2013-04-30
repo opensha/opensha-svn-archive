@@ -9,7 +9,7 @@ public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
 	RATE_9p6(9.6,	0.3d),
 	
 	// old rates kept for compatibility (for now)
-	// TODO: remove
+	// TODO: remove when UCERF3.2 or solutions no longer need plotting/loading
 	@Deprecated
 	RATE_7p6(7.6,	0d),
 	@Deprecated

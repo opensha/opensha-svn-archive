@@ -17,6 +17,8 @@ import scratch.UCERF3.inversion.coulomb.CoulombRates;
 import scratch.UCERF3.inversion.coulomb.CoulombRatesTester;
 import scratch.UCERF3.inversion.laughTest.AbstractLaughTest;
 import scratch.UCERF3.inversion.laughTest.AzimuthChangeFilter;
+import scratch.UCERF3.inversion.laughTest.BuggyCoulombFilter;
+import scratch.UCERF3.inversion.laughTest.CoulombFilter;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.IDPairing;
@@ -30,7 +32,8 @@ public class LaughTestRupExclusionDebugger {
 	 */
 	public static void main(String[] args) throws IOException {
 //		int[] sects = {612, 613, 1495, 1496};
-		int[] sects = {2343, 2342, 1962, 1925, 1926};
+//		int[] sects = {2343, 2342, 1962, 1925, 1926};
+		int[] sects = {1137, 1136, 503, 502};
 		
 		boolean applyGarlockPintoMtnFix = true;
 		
@@ -70,9 +73,32 @@ public class LaughTestRupExclusionDebugger {
 			}
 		}
 		
+		boolean failedCoulomb = false;
 		for (AbstractLaughTest test : laughTests) {
 			if (!test.doesRupturePass(rupture)) {
 				System.out.println("FAILED: "+ClassUtils.getClassNameWithoutPackage(test.getClass()));
+				if (test instanceof CoulombFilter || test instanceof BuggyCoulombFilter)
+					failedCoulomb = true;
+			}
+		}
+		
+		if (failedCoulomb) {
+			System.out.println("Debugging coulomb");
+			// print out coulomb at junctions
+			int prevID = -1;
+			int prevParent = -1;
+			for (FaultSectionPrefData sect : rupture) {
+				int id = sect.getSectionId();
+				int parent = sect.getParentSectionId();
+				if (prevParent != -1 && prevParent != parent) {
+					// junction
+					IDPairing pair = new IDPairing(id, prevID);
+					System.out.println("Junction: "+pair.getReversed());
+					System.out.println("\t"+coulombRates.get(pair.getReversed()));
+					System.out.println("\t"+coulombRates.get(pair));
+				}
+				prevParent = parent;
+				prevID = id;
 			}
 		}
 	}

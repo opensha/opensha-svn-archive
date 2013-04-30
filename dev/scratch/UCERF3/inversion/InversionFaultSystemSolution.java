@@ -580,7 +580,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
-		// Solution TODO: region issues for statewide/mendocino
 		boolean statewide = region.getName().startsWith("RELM_TESTING");
 		
 		IncrementalMagFreqDist solMFD;
@@ -616,7 +615,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.BLACK));
 //		}
 		
-		// Implied Off Fault TODO: use off fault from InversionMFDs - need methods for so/no cal
+		// this data is only available for the Statewide case
 		IncrementalMagFreqDist solGriddedMFD = null;
 		// this could be cleaner :-/
 		if (statewide) {
@@ -776,7 +775,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				truncatedMFD.set(i, finalTrulyOffMFD.getY(i));
 			finalTrulyOffMFD.setName("InversionFaultSystemSolution.getFinalTrulyOffFaultMFD()");
 
-			return finalTrulyOffMFD;
+			return truncatedMFD;
 		}
 		else {
 			IncrementalMagFreqDist finalTrulyOffMFD = inversionTargetMFDs.getTrulyOffFaultMFD().deepClone();
@@ -835,7 +834,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * in the returned object.
 	 * @param sectIndex
 	 * @return
-	 * TODO move to IVFSS
 	 */
 	public synchronized ArbDiscrEmpiricalDistFunc calcSlipPFD_ForSect(int sectIndex) {
 		ArbDiscrEmpiricalDistFunc slipPDF = slipPDFMap.get(sectIndex);
@@ -865,7 +863,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * in the returned object.
 	 * @param sectIndex
 	 * @return
-	 * TODO move to IVFSS
 	 */
 	public synchronized ArbDiscrEmpiricalDistFunc calcPaleoObsSlipPFD_ForSect(int sectIndex) {
 		ArbDiscrEmpiricalDistFunc slipPDF = slipPaleoObsPDFMap.get(sectIndex);
@@ -893,7 +890,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 * 
 	 * @param sectIndex
 	 * @return
-	 * TODO move to IVFSS
 	 */
 	public double calcSlipRateForSect(int sectIndex) {
 		return calcSlipRateForAllSects()[sectIndex];

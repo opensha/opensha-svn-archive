@@ -170,7 +170,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if (cumulative)
 					gp.setUserBounds(5d, 9d, 1e-5, 1e1);
 				else
-					gp.setUserBounds(5d, 9d, 1e-6, 1e0);
+					gp.setUserBounds(5d, 9d, 3e-6, 3e0);
 
 				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
@@ -387,23 +387,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 						if (cumulative) {
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
-											.getRateMag5()));
+											.getRateMag5()).getCumRateDistWithOffset());
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
-											.getRateMag5()));
+											.getRateMag5()).getCumRateDistWithOffset());
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
-											.getRateMag5()));
+											.getRateMag5()).getCumRateDistWithOffset());
 						} else {
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_9p6
-											.getRateMag5()).getCumRateDistWithOffset());
+											.getRateMag5()));
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_7p9
-											.getRateMag5()).getCumRateDistWithOffset());
+											.getRateMag5()));
 							funcs.add(InversionTargetMFDs
 									.getTotalTargetGR_upToM9(TotalMag5Rate.RATE_6p5
-											.getRateMag5()).getCumRateDistWithOffset());
+											.getRateMag5()));
 						}
 						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,
 								1f, Color.BLACK));
@@ -1903,6 +1903,37 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			return resized;
 		}
+		
+		public void addAsComparison(Integer parentID,
+				IncrementalMagFreqDist nuclIncrMFD, EvenlyDiscretizedFunc nuclCmlMFD,
+				IncrementalMagFreqDist partIncrMFD, EvenlyDiscretizedFunc partCmlMFD) {
+			nuclIncrMFD.setName(nuclIncrMFD.getName()+" (COMPARISON!)");
+			Preconditions.checkState(nuclIncrMFD.getMaxY() > 0);
+			nuclCmlMFD.setName(nuclCmlMFD.getName()+" (COMPARISON!)");
+			partIncrMFD.setName(partIncrMFD.getName()+" (COMPARISON!)");
+			partCmlMFD.setName(partCmlMFD.getName()+" (COMPARISON!)");
+			plotNuclIncrMFDs.get(parentID).add(0, nuclIncrMFD);
+			plotNuclCmlMFDs.get(parentID).add(0, nuclCmlMFD);
+			plotPartIncrMFDs.get(parentID).add(0, partIncrMFD);
+			plotPartCmlMFDs.get(parentID).add(0, partCmlMFD);
+		}
+		
+		/**
+		 * This is used for generating comparisons on a single fault. The mean curve from the other
+		 * plot will be added and plotted with medium thickness (same color)
+		 * @param other
+		 */
+		public void addMeanFromExternalAsFractile(ParentSectMFDsPlot other) {
+			for (Integer parentID : other.plotNuclIncrMFDs.keySet()) {
+				if (!plotNuclCmlMFDs.containsKey(parentID))
+					continue;
+				addAsComparison(parentID,
+						other.plotNuclIncrMFDs.get(parentID).get(0),
+						other.plotNuclCmlMFDs.get(parentID).get(0),
+						other.plotPartIncrMFDs.get(parentID).get(0),
+						other.plotPartCmlMFDs.get(parentID).get(0));
+			}
+		}
 
 	}
 
@@ -3150,7 +3181,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //				double[] fractDiffs = getWeightedAvg(faults.size(),
 //						fractDiffList, weightsList);
 
-				label = "Mean((Solution Slip Rate - Target Slip Rate) / Target)";
+				label = "Mean Solution Slip Rate";
 				prefix = "";
 				if (multipleFMs) {
 					prefix += fm.getShortName() + "_";
@@ -4734,7 +4765,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @param branch
 	 * @param sol
 	 * @param solIndex
-	 *            TODO
 	 */
 	protected abstract void processSolution(LogicTreeBranch branch,
 			InversionFaultSystemSolution sol, int solIndex);

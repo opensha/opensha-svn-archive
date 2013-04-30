@@ -278,7 +278,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			double sol = 0d;
 			for (String infoLine : info) {
 				infoLine = infoLine.trim();
-				if (infoLine.startsWith("Fault Moment Rate"))
+				if (infoLine.startsWith("Fault Moment Rate") || infoLine.startsWith("Orig (creep reduced) Fault Moment Rate"))
 					target = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
 				if (infoLine.startsWith("Fault Solution Moment Rate"))
 					sol = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
@@ -320,7 +320,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		watch.reset();
 		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
-//		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
+		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
 //		System.exit(0);
 		
 		for (LogicTreeBranch branch : compoundSol.getBranches()) {

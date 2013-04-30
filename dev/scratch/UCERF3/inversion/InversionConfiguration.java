@@ -757,33 +757,33 @@ public class InversionConfiguration implements XMLSaveable {
 	
 	
 
-	/**
-	 * @deprecated
-	 */
-	public static List<MFD_InversionConstraint> getGriddedConstraints(
-			UCERF2_MFD_ConstraintFetcher UCERF2Constraints, Region region,
-			double latBoxSize, double lonBoxSize) {
-		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
-		// UCERF2 MFD constraints for subregions - 1-degree boxes
-		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
-		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
-		for (double lat=minLat; lat<maxLat; lat+=latBoxSize){
-			for (double lon=minLon; lon<maxLon; lon+=lonBoxSize){
-				Region currentSubRegion = new Region(new Location(lat,lon),new Location(lat+latBoxSize,lon+lonBoxSize));
-				LocationList border = currentSubRegion.getBorder();
-				boolean currentSubRegionInRegion = true;
-				// SubRegion is in the region if all 4 border points are in the region
-				// TODO: (should work for now -- change later!)
-				for (int i=0; i<border.size(); i++)
-					if (region.contains(border.get(i)) == false) currentSubRegionInRegion = false; 
-				if (currentSubRegionInRegion == true) {
-					UCERF2Constraints.setRegion(currentSubRegion);
-					mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
-				}
-			}
-		}
-		return mfdEqualityConstraints;
-	}
+//	/**
+//	 * @deprecated
+//	 */
+//	public static List<MFD_InversionConstraint> getGriddedConstraints(
+//			UCERF2_MFD_ConstraintFetcher UCERF2Constraints, Region region,
+//			double latBoxSize, double lonBoxSize) {
+//		List<MFD_InversionConstraint> mfdEqualityConstraints = new ArrayList<MFD_InversionConstraint>();
+//		// UCERF2 MFD constraints for subregions - 1-degree boxes
+//		double minLat = region.getMinLat(); double maxLat = region.getMaxLat();
+//		double minLon = region.getMinLon(); double maxLon = region.getMaxLon();
+//		for (double lat=minLat; lat<maxLat; lat+=latBoxSize){
+//			for (double lon=minLon; lon<maxLon; lon+=lonBoxSize){
+//				Region currentSubRegion = new Region(new Location(lat,lon),new Location(lat+latBoxSize,lon+lonBoxSize));
+//				LocationList border = currentSubRegion.getBorder();
+//				boolean currentSubRegionInRegion = true;
+//				// SubRegion is in the region if all 4 border points are in the region
+//				// TODO: (should work for now -- change later!)
+//				for (int i=0; i<border.size(); i++)
+//					if (region.contains(border.get(i)) == false) currentSubRegionInRegion = false; 
+//				if (currentSubRegionInRegion == true) {
+//					UCERF2Constraints.setRegion(currentSubRegion);
+//					mfdEqualityConstraints.add(UCERF2Constraints.getTargetMinusBackgrMFD_Constraint());
+//				}
+//			}
+//		}
+//		return mfdEqualityConstraints;
+//	}
 	
 	
 	

@@ -35,14 +35,13 @@ public class AveSlipConstraint implements Serializable {
 	
 	public static final String DIR_NAME = "aveSlip";
 	public static final String TABLE_5_FILE_NAME = "Table R5v4_withMappings.xls";
-	// TODO switch back to new version when ready for 3.2 runs
 	public static final String TABLE_6_FILE_NAME = "Table R6v5_withMappings.xls";
 	
 	private static ArbitrarilyDiscretizedFunc probObsSlipModel;
 	static {
 		probObsSlipModel = new ArbitrarilyDiscretizedFunc();
 		// meters, probability
-		// TODO this is different from Ramon's proposed values, maxes out at 90%
+		// this is different from Ramon's original proposed values, maxes out at 90%. Approved by Ramon
 		probObsSlipModel.set(0d, 0.0d);
 		probObsSlipModel.set(0.25d, 0.1d);
 		probObsSlipModel.set(2d, 0.90d);

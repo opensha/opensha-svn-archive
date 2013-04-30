@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.utils.IDPairing;
 
 /**
@@ -42,7 +44,6 @@ public class CumulativeAzimuthChangeFilter extends AbstractLaughTest {
 		for (int i=1; i<pairings.size(); i++) {
 			double prevAzimuth = azimuths.get(pairings.get(i-1));
 			double newAzimuth = azimuths.get(pairings.get(i));
-			// TODO should use getAzimuthDifference(...)
 			if (USE_BUGGY_AZ_CHANGE)
 				cmlAzimuthChange += Math.abs(newAzimuth - prevAzimuth);
 			else

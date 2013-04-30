@@ -74,8 +74,9 @@ public class RupSetDiffMaker {
 //		laughTest = LaughTestFilter.getUCERF3p2Filter();
 //		laughTest.setMaxCmlAzimuthChange(Double.POSITIVE_INFINITY);
 //		LaughTestFilter.USE_BUGGY_COULOMB = false;
-//		laughTest.getCoulombFilter().setMinAverageProb(1d);
-		laughTest.setMaxAzimuthChange(Double.POSITIVE_INFINITY);
+		laughTest.getCoulombFilter().setMinAverageProb(0.04d);
+		laughTest.getCoulombFilter().setMinIndividualProb(0.04d);
+//		laughTest.setMaxAzimuthChange(Double.POSITIVE_INFINITY);
 //		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 //		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
 //		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
