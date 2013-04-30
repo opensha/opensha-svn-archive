@@ -4,9 +4,9 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 public enum MaxMagOffFault implements LogicTreeBranchNode<MaxMagOffFault> {
 	
-	MAG_7p3(7.2, 0.1d, 0.1d),
+	MAG_7p3(7.3, 0.1d, 0.1d),
 	MAG_7p6(7.6, 0.8d, 0.8d),
-	MAG_7p9(8.0, 0.1d, 0.1d),
+	MAG_7p9(7.9, 0.1d, 0.1d),
 	
 	
 	// old mags kept for compatibility (for now)
