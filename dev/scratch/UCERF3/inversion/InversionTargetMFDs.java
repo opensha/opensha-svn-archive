@@ -118,8 +118,6 @@ public class InversionTargetMFDs {
 	double finalOffFaultCouplingCoeff;
 	GutenbergRichterMagFreqDist totalTargetGR, totalTargetGR_NoCal, totalTargetGR_SoCal;
 	SummedMagFreqDist targetOnFaultSupraSeisMFD;
-	SummedMagFreqDist targetNoCalOnFaultSupraSeisMFD;
-	SummedMagFreqDist targetSoCalOnFaultSupraSeisMFD;
 	IncrementalMagFreqDist trulyOffFaultMFD;
 	ArrayList<GutenbergRichterMagFreqDist> subSeismoOnFaultMFD_List;
 	SummedMagFreqDist totalSubSeismoOnFaultMFD;		// this is a sum of the MFDs in subSeismoOnFaultMFD_List
@@ -367,8 +365,6 @@ public class InversionTargetMFDs {
 		totalTargetGR_NoCal.setName("InversionTargetMFDs.totalTargetGR_NoCal");
 		totalTargetGR_SoCal.setName("InversionTargetMFDs.totalTargetGR_SoCal");
 		targetOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetOnFaultSupraSeisMFD");
-		targetNoCalOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetNoCalOnFaultSupraSeisMFD");
-		targetSoCalOnFaultSupraSeisMFD.setName("InversionTargetMFDs.targetSoCalOnFaultSupraSeisMFD");
 		trulyOffFaultMFD.setName("InversionTargetMFDs.trulyOffFaultMFD");
 		totalSubSeismoOnFaultMFD.setName("InversionTargetMFDs.totalSubSeismoOnFaultMFD");
 		noCalTargetSupraMFD.setName("InversionTargetMFDs.noCalTargetSupraMFD");
