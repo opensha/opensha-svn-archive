@@ -494,10 +494,18 @@ public class CommandLineInversionRunner {
 				double momRed = loadedRupSet.getTotalMomentRateReduction();
 				info += "\nMoment Reduction (for subseismogenic ruptures only): "+momRed;
 				info += "\nSubseismo Moment Reduction Fraction (relative to creep reduced): "+loadedRupSet.getTotalMomentRateReductionFraction();
-				info += "\nReduced Moment Rate (subseismo and creep): "
+				info += "\nFault Target Supra Seis Moment Rate (subseismo and creep reduced): "
 					+loadedRupSet.getTotalReducedMomentRate();
 				double totalSolutionMoment = sol.getTotalFaultSolutionMomentRate();
-				info += "\nFault Solution Moment Rate: "+totalSolutionMoment;
+				info += "\nFault Solution Supra Seis Moment Rate: "+totalSolutionMoment;
+				info += "\nFault Target Sub Seis Moment Rate: "
+						+loadedRupSet.getInversionTargetMFDs().getTotalSubSeismoOnFaultMFD().getTotalMomentRate();
+				info += "\nFault Solution Sub Seis Moment Rate: "
+						+sol.getFinalTotalSubSeismoOnFaultMFD().getTotalMomentRate();
+				info += "\nTruly Off Fault Target Moment Rate: "
+						+loadedRupSet.getInversionTargetMFDs().getTrulyOffFaultMFD().getTotalMomentRate();
+				info += "\nTruly Off Fault Solution Moment Rate: "
+						+sol.getFinalTrulyOffFaultMFD().getTotalMomentRate();
 
 				try {
 					//					double totalOffFaultMomentRate = invSol.getTotalOffFaultSeisMomentRate(); // TODO replace - what is off fault moment rate now?
