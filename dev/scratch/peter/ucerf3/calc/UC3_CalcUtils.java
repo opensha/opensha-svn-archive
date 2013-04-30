@@ -270,4 +270,13 @@ public class UC3_CalcUtils {
 	}
 
 
+	public static void main(String[] args) {
+		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
+		String branch = "FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2";
+		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
+			branch, IncludeBackgroundOption.INCLUDE, false,
+			true, 1.0);
+		erf.updateForecast();
+
+	}
 }

@@ -21,7 +21,6 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
-import org.opensha.nshmp2.calc.HazardResultWriter;
 import org.opensha.nshmp2.calc.HazardResultWriterSites;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
@@ -66,7 +65,7 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 
 		super(cmd);
 		if (args.length != 5) {
-			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] "
+			System.err.println("USAGE: UC3_HazardCurveDriverMPJ [<options>] "
 				+ "<solfile> <sitefile> <branchfile> <periods> <outDir>");
 			abortAndExit(2);
 		}
@@ -168,9 +167,9 @@ public class UC3_HazardCurveDriverMPJ extends MPJTaskCalculator {
 		try {
 			Options options = createOptions();
 			CommandLine cmd = parse(options, args,
-				UC3_HazardCalcDriverMPJ.class);
+				UC3_HazardCurveDriverMPJ.class);
 			args = cmd.getArgs();
-			UC3_HazardCalcDriverMPJ driver = new UC3_HazardCalcDriverMPJ(cmd,
+			UC3_HazardCurveDriverMPJ driver = new UC3_HazardCurveDriverMPJ(cmd,
 				args);
 			driver.run();
 			finalizeMPJ();

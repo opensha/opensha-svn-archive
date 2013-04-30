@@ -94,7 +94,8 @@ public class UC3_HazardCalcDriverMPJ extends MPJTaskCalculator {
 	public static Options createOptions() {
 		Options ops = MPJTaskCalculator.createOptions();
 		
-		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
+		Option erfOp = new Option("e", "mult-erfs", false, 
+			"If set, a copy of the ERF will be instantiated for each thread.");
 		erfOp.setRequired(false);
 		ops.addOption(erfOp);
 		
