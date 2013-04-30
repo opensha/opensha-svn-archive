@@ -150,7 +150,7 @@ public class ThreadedHazardCalc {
 //			if (i % 10 == 0) System.out.println("Jobs completed: " + i);
 		}
 		
-		writer.close();
+//		writer.close(); // not needed for sites writer
 	}
 	
 	private int[] makeIndices(int size) {

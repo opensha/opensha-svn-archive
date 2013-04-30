@@ -1,6 +1,5 @@
 package org.opensha.nshmp2.calc;
 
-import static org.opensha.nshmp2.util.Period.GM0P00;
 import static org.opensha.nshmp2.util.SourceType.CLUSTER;
 import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
@@ -13,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.NSHMP_ListERF;
@@ -38,12 +36,9 @@ import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
-import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -107,7 +102,7 @@ public class HazardCalc implements Callable<HazardResult> {
 			callCalc();
 		}
 
-		return new HazardResult(curve, site.getLocation());
+		return new HazardResult(period, site.getLocation(), curve);
 	}
 	
 	private void callCalc() {
