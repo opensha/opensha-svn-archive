@@ -33,7 +33,6 @@ import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.UpdatedUCERF2.GridSources;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
-import scratch.peter.ucerf3.calc.UC3_CalcDriver;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.base.Charsets;
