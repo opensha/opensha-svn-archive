@@ -51,10 +51,10 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
-		if (args.length != 7) {
+		if (args.length != 6) {
 			System.err.println("USAGE: UC3_CalcMPJ_Map [<options>] " +
-					"<solPath> <mapID> <grid> <spacing> <period> <outPath> " +
-					"<bgInclude>");
+					"<solPath> <grid> <spacing> <period> <bgInclude> " +
+					"<outPath>");
 			abortAndExit(2);
 		}
 
@@ -63,15 +63,15 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 		debug(rank, null, "setup for "+getNumThreads()+" threads");
 		
 		String solPath = args[0];
-		String mapID = args[1];
-		TestGrid grid = TestGrid.valueOf(args[2]);
-		double spacing = Double.parseDouble(args[3]);
+		String solName = nameFromPath(args[0]);
+		TestGrid grid = TestGrid.valueOf(args[1]);
+		double spacing = Double.parseDouble(args[2]);
 		locs = grid.grid(spacing).getNodeList();
-		period = Period.valueOf(args[4]);
+		period = Period.valueOf(args[3]);
+		IncludeBackgroundOption bg = IncludeBackgroundOption.valueOf(args[4]);
 		String outPath = args[5];
-		IncludeBackgroundOption bg = IncludeBackgroundOption.valueOf(args[6]);
 
-		outDir = new File(outPath + S + mapID + S + grid + S + period);
+		outDir = new File(outPath + S + solName + S + grid + S + period);
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
@@ -155,5 +155,10 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 		}
 	}
 	
+	private static String nameFromPath(String solPath) {
+		int ssIdx1 = StringUtils.lastIndexOf(solPath, "/");
+		int ssIdx2 = StringUtils.lastIndexOf(solPath, ".");
+		return solPath.substring(ssIdx1, ssIdx2);
+	}
 
 }
