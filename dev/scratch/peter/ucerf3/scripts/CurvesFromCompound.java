@@ -28,7 +28,7 @@ public class CurvesFromCompound {
 	private static final File JAVA_BIN;
 
 	static {
-		MPJ_HOME = new File("/home/rcf-40/pmpowers/FastMPJ");
+		MPJ_HOME = new File("/home/scec-00/pmpowers/lib/FastMPJ");
 		JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 	}
 
