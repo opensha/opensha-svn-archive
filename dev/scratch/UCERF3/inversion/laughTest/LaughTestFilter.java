@@ -83,8 +83,8 @@ public class LaughTestFilter implements XMLSaveable {
 		double maxCmlRakeChange = 180;
 		double maxCmlAzimuthChange = 560;
 		boolean allowSingleSectDuringJumps = true;
-		double minAverageProb = 0.05;
-		double minIndividualProb = 0.05;
+		double minAverageProb = 0.04;
+		double minIndividualProb = 0.04;
 		double minimumStressExclusionCeiling = 1.25d;
 		// if true the coulomb filter will only be applied at branch points
 		boolean applyBranchesOnly = true;
