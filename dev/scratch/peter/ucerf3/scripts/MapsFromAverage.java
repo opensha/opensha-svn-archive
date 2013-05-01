@@ -30,7 +30,7 @@ public class MapsFromAverage {
 	private static final File JAVA_BIN;
 	
 	static {
-		MPJ_HOME = new File("/home/rcf-40/pmpowers/FastMP");
+		MPJ_HOME = new File("/home/rcf-40/pmpowers/FastMPJ");
 		JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 	}
 

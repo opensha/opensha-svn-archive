@@ -2,7 +2,6 @@ package org.opensha.nshmp2.calc;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,19 +9,14 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensha.commons.hpc.JavaShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
+import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
-import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
-import cern.colt.Arrays;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Enums;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -30,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Flushables;
-import com.google.common.io.OutputSupplier;
 
 public class ScriptGen {
 
@@ -41,7 +34,7 @@ public class ScriptGen {
 	private static final File JAVA_BIN;
 
 	static {
-		MPJ_HOME = new File("/home/rcf-40/pmpowers/mpj-v0_38");
+		MPJ_HOME = new File("/home/rcf-40/pmpowers/FastMPJ");
 		JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
 	}
 
@@ -160,8 +153,8 @@ public class ScriptGen {
 			File shaJAR = new File(libDir, "OpenSHA_complete.jar");
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
-			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(JAVA_BIN, 9216,
-				classpath, MPJ_HOME, false);
+			FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(
+				JAVA_BIN, 6144, classpath, MPJ_HOME, false);
 
 			String cliArgs = config.getAbsolutePath();
 			List<String> script = mpj.buildScript(

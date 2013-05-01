@@ -99,8 +99,8 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 	// overridden for testing
 	public static Options createOptions() {
 		Options ops = MPJTaskCalculator.createOptions();
-		
-		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
+		Option erfOp = new Option("e", "mult-erfs", false, 
+			"If set, a copy of the ERF will be instantiated for each thread.");
 		erfOp.setRequired(false);
 		ops.addOption(erfOp);
 		
@@ -139,7 +139,8 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 			HazardResultWriterLocal.writeCurveHeader(br, period);
 			for (File file : files) {
 				StringBuilder sb = new StringBuilder();
-				String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
+				String latlon = StringUtils.replaceChars(
+					StringUtils.substringBeforeLast(
 					file.getName(), "."), '_', ',');
 				sb.append(latlon).append(",");
 				Files.copy(file, Charsets.US_ASCII, sb);
