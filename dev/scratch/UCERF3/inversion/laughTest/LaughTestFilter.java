@@ -83,9 +83,6 @@ public class LaughTestFilter implements XMLSaveable {
 		double maxCmlRakeChange = 180;
 		double maxCmlAzimuthChange = 560;
 		boolean allowSingleSectDuringJumps = true;
-		// TODO WHAT ARE THE FINAL VALUES???
-		for (int i=0; i<100; i++)
-			System.out.println("FILL IN COULOMB!!!!!!!!!! DO NOT FORGET THIS BEFORE 3.3 RUNS");
 		double minAverageProb = 0.05;
 		double minIndividualProb = 0.05;
 		double minimumStressExclusionCeiling = 1.25d;

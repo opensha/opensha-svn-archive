@@ -34,7 +34,7 @@ public class UCERF3_PaleoRateConstraintFetcher {
 	
 	private final static String PALEO_DATA_SUB_DIR = "paleoRateData";
 //	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_v08_withMappings.xls";
-	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_BIASI_v01_withMappings.xls";
+	private final static String PALEO_DATA_FILE_NAME = "UCERF3_PaleoRateData_BIASI_v02_withMappings.xls";
 	
 	protected final static boolean D = true;  // for debugging
 	

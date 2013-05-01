@@ -654,9 +654,11 @@ public class DeformationModelFileParser {
 		for (int i=0; i<dms.size(); i++) {
 			DeformationModels dm = dms.get(i);
 			
-			if (dm == DeformationModels.GEOLOGIC_PLUS_ABM || dm == DeformationModels.GEOL_P_ABM_OLD_MAPPED
-					|| dm == DeformationModels.GEOBOUND)
+			if (dm.getRelativeWeight(null) == 0 && !(dm == DeformationModels.GEOLOGIC_LOWER || dm == DeformationModels.GEOLOGIC_UPPER))
 				continue;
+//			if (dm == DeformationModels.GEOLOGIC_PLUS_ABM || dm == DeformationModels.GEOL_P_ABM_OLD_MAPPED
+//					|| dm == DeformationModels.GEOBOUND)
+//				continue;
 			
 			header.add(dm.getName());
 			
@@ -683,11 +685,13 @@ public class DeformationModelFileParser {
 			List<Double> creepVals = creepMap.get(id);
 			if (creepVals == null) {
 				creepVals = Lists.newArrayList();
+				for (int i=0; i<sectsList.get(0).get(id).getSlips().size(); i++)
+					creepVals.add(0d);
 				creepMap.put(id, creepVals);
 			}
 			
-			while (creepVals.size() <= sect)
-				creepVals.add(0d);
+//			while (creepVals.size() <= sect)
+//				creepVals.add(0d);
 			
 			creepVals.set(sect-1, creepData.get(key));
 		}
@@ -872,9 +876,9 @@ public class DeformationModelFileParser {
 //		writeFromDatabase(FaultModels.FM3_2, new File("/tmp/fm_3_2_revised_minisections_with_names.csv"), true);
 //		System.exit(0);
 		
-//		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
+		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
 //		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
-//		System.exit(0);
+		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
 		
