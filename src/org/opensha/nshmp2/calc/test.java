@@ -14,7 +14,6 @@ import org.opensha.nshmp2.util.Period;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.peter.ucerf3.calc.UC3_CalcDriver;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.io.Files;
