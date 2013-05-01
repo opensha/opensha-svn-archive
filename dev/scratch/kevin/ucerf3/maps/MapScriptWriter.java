@@ -23,7 +23,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.hpc.LogicTreePBSWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.LogicTreePBSWriter.RunSites;
-import scratch.peter.ucerf3.calc.UC3_HazardCalcDriverMPJ;
+import scratch.peter.ucerf3.calc.UC3_CalcMPJ_MapCompound;
 
 public class MapScriptWriter {
 
@@ -112,7 +112,7 @@ public class MapScriptWriter {
 			List<String> argss = Lists.newArrayList();
 			
 			for (LogicTreeBranch branch : branches) {
-				classNames.add(UC3_HazardCalcDriverMPJ.class.getName());
+				classNames.add(UC3_CalcMPJ_MapCompound.class.getName());
 				argss.add(remoteCompoundfile.getAbsolutePath()+" "+branch.buildFileName()
 						+" "+regionCode+" "+resCode+" "+imtCode+" "+remoteDir.getAbsolutePath());
 			}
