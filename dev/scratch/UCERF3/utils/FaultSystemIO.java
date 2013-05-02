@@ -495,6 +495,8 @@ public class FaultSystemIO {
 				energies = legacySol.getEnergies();
 			}
 			
+			InversionFaultSystemSolution sol;
+			
 			// now see if it's an average fault system solution
 			String ratesPrefix = getRemappedRatesPrefix(nameRemappings);
 			
@@ -504,10 +506,18 @@ public class FaultSystemIO {
 				ratesList = loadIndSolRates("sol_rates", zip, nameRemappings);
 			if (ratesList != null)
 				// it's an AverageFSS
-				return new AverageFaultSystemSolution(invRupSet, ratesList, conf, energies);
+				sol =  new AverageFaultSystemSolution(invRupSet, ratesList, conf, energies);
 			else
 				// it's a regular IFSS
-				return new InversionFaultSystemSolution(invRupSet, rates, conf, energies);
+				sol = new InversionFaultSystemSolution(invRupSet, rates, conf, energies);
+			
+			// finally look for grid sources
+			ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
+			GridSourceProvider gridSources = null;
+			if (gridSourcesEntry != null)
+				sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
+			
+			return sol;
 		}
 		return new FaultSystemSolution(rupSet, rates);
 	}
