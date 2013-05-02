@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -10,14 +11,17 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -29,6 +33,8 @@ import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
@@ -221,7 +227,66 @@ public class TablesAndPlotsGen {
 		csv.writeToFile(csvOutputFile);
 	}
 	
+	private static final String FAULT_SUPRA_TARGET = "Fault Target Supra Seis Moment Rate";
+	private static final String FAULT_SUPRA_SOLUTION = "Fault Solution Supra Seis Moment Rate";
+	private static final String FAULT_SUB_TARGET = "Fault Target Sub Seis Moment Rate";
+	private static final String FAULT_SUB_SOLUTION = "Fault Solution Sub Seis Moment Rate";
+	private static final String TRULY_OFF_TARGET = "Truly Off Fault Target Moment Rate";
+	private static final String TRULY_OFF_SOLUTION = "Truly Off Fault Solution Moment Rate";
 	
+	/**
+	 * This writes the moment rates table to a CSV file for the given CompoundFaultSystemSolution
+	 * @param cfss
+	 * @param csvFile
+	 * @throws IOException
+	 */
+	public static void makeCompoundFSSMomentRatesTable(CompoundFaultSystemSolution cfss, File csvFile)
+			throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList();
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
+			header.add(ClassUtils.getClassNameWithoutPackage(clazz));
+		header.add(FAULT_SUPRA_TARGET);
+		header.add(FAULT_SUPRA_SOLUTION);
+		header.add(FAULT_SUB_TARGET);
+		header.add(FAULT_SUB_SOLUTION);
+		header.add(TRULY_OFF_TARGET);
+		header.add(TRULY_OFF_SOLUTION);
+		
+		csv.addLine(header);
+		
+		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
+		Collections.sort(branches);
+		
+		Splitter sp = Splitter.on("\n");
+		
+		for (LogicTreeBranch branch : branches) {
+			List<String> line = Lists.newArrayList();
+			for (int i=0; i<LogicTreeBranch.getLogicTreeNodeClasses().size(); i++)
+				line.add(branch.getValue(i).getShortName());
+			List<String> info = Lists.newArrayList(sp.split(cfss.getInfo(branch)));
+			line.add(getField(info, FAULT_SUPRA_TARGET)+"");
+			line.add(getField(info, FAULT_SUPRA_SOLUTION)+"");
+			line.add(getField(info, FAULT_SUB_TARGET)+"");
+			line.add(getField(info, FAULT_SUB_SOLUTION)+"");
+			line.add(getField(info, TRULY_OFF_TARGET)+"");
+			line.add(getField(info, TRULY_OFF_SOLUTION)+"");
+			
+			csv.addLine(line);
+		}
+		
+		csv.writeToFile(csvFile);
+	}
+	
+	private static double getField(List<String> infoLines, String fieldStart) {
+		for (String infoLine : infoLines) {
+			infoLine = infoLine.trim();
+			if (infoLine.startsWith(fieldStart))
+				return Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
+		}
+		return Double.NaN;
+	}
 
 	/**
 	 * @param args
@@ -231,8 +296,14 @@ public class TablesAndPlotsGen {
 	public static void main(String[] args) throws IOException, DocumentException {
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
-		makePreInversionMFDsFig();
+//		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
+		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File compoundFile = new File(invDir,
+				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+		makeCompoundFSSMomentRatesTable(cfss,
+				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 		
 		
 //		int mojaveParentID = 301;

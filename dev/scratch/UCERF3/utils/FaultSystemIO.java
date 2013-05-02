@@ -804,12 +804,11 @@ public class FaultSystemIO {
 		if (info != null && !info.isEmpty()) {
 			if (D) System.out.println("Saving info");
 			File infoFile = new File(tempDir, getRemappedName("info.txt", nameRemappings));
-			if (!zipFileNames.contains(infoFile.getName())) {
-				FileWriter fw = new FileWriter(infoFile);
-				fw.write(info+"\n");
-				fw.close();
-				zipFileNames.add(infoFile.getName());
-			}
+			// always overwrite info from rupSet
+			FileWriter fw = new FileWriter(infoFile);
+			fw.write(info+"\n");
+			fw.close();
+			zipFileNames.add(infoFile.getName());
 		}
 		
 		// InversionFaultSystemSolution specific

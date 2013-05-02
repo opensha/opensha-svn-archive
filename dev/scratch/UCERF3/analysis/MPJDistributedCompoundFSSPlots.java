@@ -21,6 +21,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MeanFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
@@ -300,6 +301,16 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		onlyERFOption.setRequired(false);
 		options.addOption(onlyERFOption);
 		
+		Option noMapOption = new Option("nomap", "no-map-plots", false, "Flag for disabling Map " +
+				"based plots (can be used with --plot-all");
+		noMapOption.setRequired(false);
+		options.addOption(noMapOption);
+		
+		Option onlyMapOption = new Option("onlymap", "only-map-plots", false, "Flag for only Map " +
+				"based plots (when used with --plot-all");
+		onlyMapOption.setRequired(false);
+		options.addOption(onlyMapOption);
+		
 		Option randomSampleOption = new Option("rand", "random-sample", true,
 				"If supplied, a random sample of the given size will be used.");
 		randomSampleOption.setRequired(false);
@@ -440,6 +451,18 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (cmd.hasOption("onlyerf")) {
 				for (int i=plots.size(); --i>=0;)
 					if (!plots.get(i).usesERFs())
+						plots.remove(i);
+			}
+			
+			if (cmd.hasOption("nomap")) {
+				for (int i=plots.size(); --i>=0;)
+					if (plots.get(i) instanceof MapBasedPlot)
+						plots.remove(i);
+			}
+			
+			if (cmd.hasOption("onlymap")) {
+				for (int i=plots.size(); --i>=0;)
+					if (!(plots.get(i) instanceof MapBasedPlot))
 						plots.remove(i);
 			}
 			

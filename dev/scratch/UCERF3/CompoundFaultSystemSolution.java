@@ -162,6 +162,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * sect_slips_std_dev.bin		ALL BUT Dsr
 	 * inv_rup_set_metadata.xml		ALL
 	 * inv_sol_metadata.xml			ALL
+	 * grid_sources.xml				ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -192,6 +193,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 				MaxMagOffFault.class, MomentRateFixes.class, SpatialSeisPDF.class));
 		dependencyMap.put("inv_rup_set_metadata.xml", null);
 		dependencyMap.put("inv_sol_metadata.xml", null);
+		dependencyMap.put("grid_sources.xml", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
@@ -253,47 +255,6 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return new CompoundFaultSystemSolution(zip);
 	}
 	
-	protected void writeMomentRatesTable(File file) throws IOException {
-		CSVFile<String> csv = new CSVFile<String>(true);
-		
-		List<String> header = Lists.newArrayList();
-		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
-			header.add(ClassUtils.getClassNameWithoutPackage(clazz));
-		header.add("Target On Fault Moment Rate");
-		header.add("Solution On Fault Moment Rate");
-		
-		csv.addLine(header);
-		
-		List<LogicTreeBranch> branches = Lists.newArrayList(getBranches());
-		Collections.sort(branches);
-		
-		Splitter sp = Splitter.on("\n");
-		
-		for (LogicTreeBranch branch : branches) {
-			List<String> line = Lists.newArrayList();
-			for (int i=0; i<LogicTreeBranch.getLogicTreeNodeClasses().size(); i++)
-				line.add(branch.getValue(i).getShortName());
-			List<String> info = Lists.newArrayList(sp.split(getInfo(branch)));
-			double target = 0d;
-			double sol = 0d;
-			for (String infoLine : info) {
-				infoLine = infoLine.trim();
-				if (infoLine.startsWith("Fault Moment Rate") || infoLine.startsWith("Orig (creep reduced) Fault Moment Rate"))
-					target = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
-				if (infoLine.startsWith("Fault Solution Moment Rate"))
-					sol = Double.parseDouble(infoLine.substring(infoLine.lastIndexOf(" ")+1));
-			}
-			Preconditions.checkState(target > 0);
-			Preconditions.checkState(sol > 0);
-			line.add(target+"");
-			line.add(sol+"");
-			
-			csv.addLine(line);
-		}
-		
-		csv.writeToFile(file);
-	}
-	
 	public static void main(String[] args) throws IOException {
 		if (args.length >= 1) {
 			// command line run
@@ -320,7 +281,6 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		watch.reset();
 		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
-		compoundSol.writeMomentRatesTable(new File("/tmp/mo_rates.csv"));
 //		System.exit(0);
 		
 		for (LogicTreeBranch branch : compoundSol.getBranches()) {
