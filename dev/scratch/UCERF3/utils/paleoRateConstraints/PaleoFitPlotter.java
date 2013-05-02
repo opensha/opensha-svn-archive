@@ -18,9 +18,11 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.StatUtil;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
@@ -815,11 +817,40 @@ public class PaleoFitPlotter {
 				Preconditions.checkNotNull(constr, "Paleo Constraint NULL!");
 				Preconditions.checkNotNull(constr.getPaleoSiteLoction(),
 						"Paleo Constraint Location NULL!");
+				
+				// we want to map the constraint to the closest part on the fault trace as we're plotting traces
+				// first find the FaultSectionPrefData for the subSect
+				FaultSectionPrefData mappedSect = null;
+				for (Integer parentID : namedFaults) {
+					for (FaultSectionPrefData sect : allParentsMap.get(parentID)) {
+						if (sect.getSectionId() == constr.getSectionIndex()) {
+							mappedSect = sect;
+							break;
+						}
+					}
+				}
+				Preconditions.checkNotNull(mappedSect, "Couldn't find mapped sub section: "+constr.getSectionIndex());
+				FaultTrace mappedTrace = mappedSect.getFaultTrace();
+				// discretize the trace for more accurate mapping
+				mappedTrace = FaultUtils.resampleTrace(mappedTrace, 20);
+				// now find closest
+				Location origPaleoLocation = constr.getPaleoSiteLoction();
+				Location paleoLocation = null;
+				double paleoLocDist = Double.POSITIVE_INFINITY;
+				for (Location traceLoc : mappedTrace) {
+					double dist = LocationUtils.horzDistanceFast(origPaleoLocation, traceLoc);
+					if (dist < paleoLocDist) {
+						paleoLocDist = dist;
+						paleoLocation = traceLoc;
+					}
+				}
+				
 				double paleoRateX;
 				if (latitudeX)
-					paleoRateX = constr.getPaleoSiteLoction().getLatitude();
+					paleoRateX = paleoLocation.getLatitude();
 				else
-					paleoRateX = constr.getPaleoSiteLoction().getLongitude();
+					paleoRateX = paleoLocation.getLongitude();
+				
 				if (constr instanceof PaleoFitPlotter.AveSlipFakePaleoConstraint) {
 					aveSlipRateMean.set(paleoRateX, constr.getMeanRate());
 					aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
