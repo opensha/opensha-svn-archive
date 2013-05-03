@@ -274,7 +274,7 @@ public class FaultSystemIO {
 				branch = LogicTreeBranch.fromXMLMetadata(branchEl);
 			
 			Element filterEl = invRoot.element(LaughTestFilter.XML_METADATA_NAME);
-			if (branchEl != null)
+			if (filterEl != null)
 				filter = LaughTestFilter.fromXMLMetadata(filterEl);
 		}
 		
