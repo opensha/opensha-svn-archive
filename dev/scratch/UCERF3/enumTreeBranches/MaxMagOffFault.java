@@ -12,9 +12,9 @@ public enum MaxMagOffFault implements LogicTreeBranchNode<MaxMagOffFault> {
 	// old mags kept for compatibility (for now)
 	// TODO: remove when UCERF3.2 or solutions no longer need plotting/loading
 	@Deprecated
-	MAG_7p2(7.2, 0.3d, 0.0d),
+	MAG_7p2(7.2, 0.0d, 0.0d),
 	@Deprecated
-	MAG_8p0(8.0, 0.1d, 0.0d);
+	MAG_8p0(8.0, 0.0d, 0.0d);
 
 	private double mmax;
 	private double charWeight, grWeight;
