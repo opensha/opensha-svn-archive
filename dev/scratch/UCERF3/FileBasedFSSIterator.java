@@ -171,6 +171,7 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 					ratesList.add(rates);
 				}
 				sol = new AverageFaultSystemSolution(sol.getRupSet(), ratesList);
+				sol.setInfoString(sol.getInfoString());
 				System.out.println("Built mean with "+ratesList.size()+" sols");
 			}
 			

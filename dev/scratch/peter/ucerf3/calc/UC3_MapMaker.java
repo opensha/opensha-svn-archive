@@ -95,7 +95,28 @@ public class UC3_MapMaker {
 //		makeLittleSalmonPlots();
 //		makeLittleSalmonMultiPlots();
 //		makeAleatoryMagScalingaRatio();
-		makeBrAvgFMDMratioMap();
+//		makeBrAvgFMDMratioMap();
+		
+		TestGrid grid = CA_RELM;
+		ProbOfExceed pe = PE2IN50;
+		Period p = GM0P00;
+		String suffix = "";
+		double spacing = 0.1;
+		
+		
+		CurveContainer u3p2cc = CurveContainer.create(new File("/tmp/curves.csv"), grid, spacing);
+		
+		GriddedRegion gr = grid.grid(spacing);
+		GeoDataSet xyz = NSHMP_DataUtils.extractPE(u3p2cc, gr, pe);
+
+		String outDir = "/tmp/peter";
+//		makeMapPlot(xyz, spacing, grid.bounds(), dlFile.getAbsolutePath(), "U3.2 Br AVg", false, true, false);
+		double[] minmax = NSHMP_PlotUtils.getRange(p);
+		GMT_CPT_Files cpt = NSHMP_PlotUtils.getCPT(p);
+		String label = pe + " " + p.getLabel() + " (g)";
+		String dlDir = outDir + "map-" + dlDirNameRatio(grid, pe, p, "all");
+		makeMapPlot(xyz, spacing, grid.bounds(), dlDir, label,
+			minmax[0], minmax[1], cpt, false, false);
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {

@@ -25,6 +25,7 @@ import org.opensha.commons.hpc.pbs.EpicenterScriptWriter;
 import org.opensha.commons.hpc.pbs.RangerScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
+import org.opensha.commons.util.ClassUtils;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -58,6 +59,7 @@ import scratch.UCERF3.simulatedAnnealing.params.GenerationFunctionType;
 import scratch.UCERF3.simulatedAnnealing.params.NonnegativityConstraintType;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -550,6 +552,18 @@ public class LogicTreePBSWriter {
 //		List<LogicTreeBranchNode<?>> spatialSeis = toList(SpatialSeisPDF.UCERF3);
 		limitations.add(spatialSeis);
 		
+		int tally = 1;
+		System.out.println("FULL BRANCH SPAN. Allowed:");
+		for (List<LogicTreeBranchNode<?>> allowed : limitations) {
+			List<String> names = Lists.newArrayList();
+			for (LogicTreeBranchNode<?> a : allowed)
+				names.add(a.name());
+			System.out.println("\t"+ClassUtils.getClassNameWithoutPackage(allowed.get(0).getClass())
+					+" ("+names.size()+"): "+Joiner.on(", ").join(names));
+			tally *= names.size();
+		}
+		System.out.println("TOTAL TALLY: "+tally);
+		
 		return new ListBasedTreeTrimmer(limitations);
 	}
 	
@@ -641,6 +655,7 @@ public class LogicTreePBSWriter {
 //		List<LogicTreeBranchNode<?>> momentFixes = getNonZeroChoices(MomentRateFixes.class);
 //		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE, MomentRateFixes.APPLY_IMPLIED_CC);
 		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.NONE);
+//		List<LogicTreeBranchNode<?>> momentFixes = toList(MomentRateFixes.RELAX_MFD);
 		limitations.add(momentFixes);
 
 //		List<LogicTreeBranchNode<?>> spatialSeis = getNonZeroChoices(SpatialSeisPDF.class, InversionModels.CHAR_CONSTRAINED);
@@ -676,10 +691,11 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-proposed-subset-without-mfd";
+		String runName = "ucerf3p3-production-first-five";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
+//		int constrained_run_mins = 120;	// 2 hours
 //		int constrained_run_mins = 180;	// 3 hours
 //		int constrained_run_mins = 240;	// 4 hours
 		int constrained_run_mins = 300; // 5 hours
@@ -694,19 +710,19 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-		RunSites site = RunSites.HPCC;
-		int batchSize = 0;
-		int jobsPerNode = 1;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+//		int jobsPerNode = 1;
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-//		RunSites site = RunSites.STAMPEDE;
-//		int batchSize = 128;
-//		int jobsPerNode = 3;
-//		String threads = "5"; // *2 = 16 (out of 16 possible)
+		RunSites site = RunSites.STAMPEDE;
+		int batchSize = 128;
+		int jobsPerNode = 3;
+		String threads = "5"; // *2 = 16 (out of 16 possible)
 		
 		LogicTreeBranch prescribedBranch = null;
 //		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
@@ -720,9 +736,9 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 1;
+		int numRuns = 5;
 		int runStart = 0;
-		boolean forcePlots = true;
+		boolean forcePlots = false;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
 		boolean noPlots = batchSize > 1;
@@ -734,8 +750,8 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
-//		TreeTrimmer trimmer = getFullBranchSpan();
+//		TreeTrimmer trimmer = getCustomTrimmer();
+		TreeTrimmer trimmer = getFullBranchSpan();
 //		TreeTrimmer trimmer = getMiniBranchSpan();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 //				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
@@ -897,9 +913,9 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON)));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON)));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.MFD_WT };
-		variationBranches.add(buildVariationBranch(ops, toArray("0")));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.MFD_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0.1")));
 		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,

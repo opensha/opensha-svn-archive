@@ -13,6 +13,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.inversion.laughTest.AzimuthChangeFilter;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.utils.FaultSystemIO;
 
@@ -70,13 +71,13 @@ public class RupSetDiffMaker {
 		FaultSystemIO.writeRupSet(rupSet1, new File("/tmp/rupSet1.zip"));
 		double secsNew = watch.elapsedMillis() / 1000d;
 		rupSet1.setInfoString("");
-		laughTest.clearLaughTests();
+//		laughTest.clearLaughTests();
 //		laughTest = LaughTestFilter.getUCERF3p2Filter();
 //		laughTest.setMaxCmlAzimuthChange(Double.POSITIVE_INFINITY);
 //		LaughTestFilter.USE_BUGGY_COULOMB = false;
-		laughTest.getCoulombFilter().setMinAverageProb(0.04d);
-		laughTest.getCoulombFilter().setMinIndividualProb(0.04d);
-//		laughTest.setMaxAzimuthChange(Double.POSITIVE_INFINITY);
+//		laughTest.getCoulombFilter().setMinAverageProb(0.04d);
+//		laughTest.getCoulombFilter().setMinIndividualProb(0.04d);
+//		laughTest.setMaxAzimuthChange(90d);
 //		CoulombRatesTester.BUGGY_MIN_STRESS = false;
 //		CumulativeAzimuthChangeFilter.USE_BUGGY_AZ_CHANGE = false;
 //		AzimuthChangeFilter.INCLUDE_UCERF3p3_NEW_LL = false;
@@ -142,6 +143,7 @@ public class RupSetDiffMaker {
 		double[] rupAveSlips = new double[newRups.size()];
 		double[] rakes = new double[newRups.size()];
 		double[] rupAreas = new double[newRups.size()];
+		double[] rupLenghts = new double[newRups.size()];
 		List<List<Integer>> sectionForRups = Lists.newArrayList();
 		
 		for (int i=0; i<newRups.size(); i++) {
@@ -150,13 +152,14 @@ public class RupSetDiffMaker {
 			rupAveSlips[i] = rupSet1.getAveSlipForRup(r);
 			rakes[i] = rupSet1.getAveRakeForRup(r);
 			rupAreas[i] = rupSet1.getAreaForRup(r);
+			rupLenghts[i] = rupSet1.getLengthForRup(r);
 			sectionForRups.add(rupSet1.getSectionsIndicesForRup(r));
 		}
 		
 		FaultSystemRupSet diffSet = new FaultSystemRupSet(
 				rupSet1.getFaultSectionDataList(), rupSet1.getSlipRateForAllSections(),
 				rupSet1.getSlipRateStdDevForAllSections(), rupSet1.getAreaForAllSections(),
-				sectionForRups, mags, rakes, rupAreas, rupSet1.getLengthForAllRups(),
+				sectionForRups, mags, rakes, rupAreas, rupLenghts,
 				rupSet1.getInfoString());
 		diffSet = new InversionFaultSystemRupSet(diffSet, rupSet1.getLogicTreeBranch(),
 				null, rupAveSlips, rupSet1.getCloseSectionsListList(),
