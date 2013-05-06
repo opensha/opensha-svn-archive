@@ -4979,7 +4979,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				Stopwatch overheadWatch = new Stopwatch();
 				
 				overheadWatch.start();
-				debug("Fetching solution");
+				debug("Fetching solution for branch: "+branch);
 				InversionFaultSystemSolution sol = fetcher.getSolution(branch);
 
 				overheadWatch.stop();
