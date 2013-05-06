@@ -516,8 +516,6 @@ public class FaultSystemIO {
 			GridSourceProvider gridSources = null;
 			if (gridSourcesEntry != null) {
 				sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
-				System.out.println("LOADED GRID SOURCES!");
-				System.exit(0);
 			}
 			
 			return sol;
