@@ -37,6 +37,7 @@ public abstract class MPJTaskCalculator {
 	private int exactDispatch;
 	private boolean rootDispatchOnly;
 	private int numThreads;
+	protected boolean shuffle = true;
 	
 	private DispatcherThread dispatcher;
 	
@@ -115,7 +116,7 @@ public abstract class MPJTaskCalculator {
 		if (rank == 0) {
 			// launch the dispatcher
 			dispatcher = new DispatcherThread(size, getNumTasks(),
-					minDispatch, maxDispatch, exactDispatch);
+					minDispatch, maxDispatch, exactDispatch, shuffle);
 			if (rootDispatchOnly) {
 				debug("starting dispatcher serially");
 				dispatcher.run();

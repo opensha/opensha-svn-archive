@@ -28,7 +28,7 @@ public class DispatcherThread extends Thread {
 	private Deque<Integer> stack;
 	
 	public DispatcherThread(int size, int numTasks, int minPerDispatch, int maxPerDispatch,
-			int exactDispatch) {
+			int exactDispatch, boolean shuffle) {
 		this.size = size;
 		this.minPerDispatch = minPerDispatch;
 		this.maxPerDispatch = maxPerDispatch;
@@ -45,8 +45,10 @@ public class DispatcherThread extends Thread {
 		for (int i=0; i<numTasks; i++)
 			list.add(i);
 		
-		debug("shuffling stack");
-		Collections.shuffle(list);
+		if (shuffle) {
+			debug("shuffling stack");
+			Collections.shuffle(list);
+		}
 		stack = new ArrayDeque<Integer>(list);
 	}
 	

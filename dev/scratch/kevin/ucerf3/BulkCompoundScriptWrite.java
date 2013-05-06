@@ -51,12 +51,19 @@ public class BulkCompoundScriptWrite {
 //				"2013_01_14-stampede_3p2_production_runs_combined/" +
 //				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		
-		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
-				"2013_01_14-stampede_3p2_production_runs_dm_means");
+//		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
+//				"2013_01_14-stampede_3p2_production_runs_dm_means");
+//		
+//		File compoundFile = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
+//				"2013_01_14-stampede_3p2_production_runs_combined/" +
+//				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
 		
-		File compoundFile = new File("/auto/scec-02/kmilner/ucerf3/inversion_compound_plots/" +
-				"2013_01_14-stampede_3p2_production_runs_combined/" +
-				"2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
+		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/" +
+				"2013_05_03-ucerf3p3-production-first-five_sub_plots");
+		
+		File compoundFile = new File("/work/00950/kevinm/ucerf3/inversion/" +
+				"2013_05_03-ucerf3p3-production-first-five/" +
+				"2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip");
 		
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/comp_bulk");
 		if (!localMainDir.exists())
@@ -65,8 +72,9 @@ public class BulkCompoundScriptWrite {
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-		RunSites site = RunSites.HPCC;
-		int nodes = 10;
+//		RunSites site = RunSites.HPCC;
+		RunSites site = RunSites.STAMPEDE;
+		int nodes = 40;
 //		int bundleSize = 30; // TODO, must be >0
 //		int jobMins = 6*60; // TODO
 		int jobMins = 2*60; // TODO
@@ -101,7 +109,8 @@ public class BulkCompoundScriptWrite {
 //							" --plot-slip-misfits --plot-participations --plot-mini-sect-ris --plot-ave-slips" +
 //							" --name-grep "+argVal+" "+compoundFile.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 					
-					String argss = "--threads 4 --min-dispatch 4 --build-mean" +
+//					String argss = "--threads 4 --min-dispatch 4 --build-mean" +
+					String argss = "--threads 4 --min-dispatch 4 --plot-all --no-erf-plots" +
 							" --name-grep "+argVal+" "+compoundFile.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 					
 					List<String> script = mpjWrite.buildScript(MPJDistributedCompoundFSSPlots.class.getName(), argss);

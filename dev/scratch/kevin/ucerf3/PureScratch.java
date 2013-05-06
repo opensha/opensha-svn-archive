@@ -50,14 +50,14 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		File f = new File("/tmp/inv_test/FM3_1_ZENGBB_ShConStrDrp_DsrUni_CharConst" +
-				"_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3/FM3_1_ZENGBB_ShConStrDrp_DsrUni" +
-				"_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
+		File f = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_run0_sol.zip");
 		InversionFaultSystemSolution invSol = FaultSystemIO.loadInvSol(f);
+		System.out.println(invSol.getClass());
 		System.out.println(invSol.getLogicTreeBranch());
 		System.out.println(invSol.getInversionConfiguration());
 		System.out.println(invSol.getInvModel());
 		System.out.println(invSol.getMisfits().size());
+		System.exit(0);
 		
 		System.out.println("LEGACY MEAN SOLUTION");
 		f = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");

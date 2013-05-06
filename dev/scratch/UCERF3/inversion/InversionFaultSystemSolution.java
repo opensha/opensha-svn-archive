@@ -416,76 +416,82 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	 */
 	public synchronized Map<String, Double> getMisfits() {
 		if (misfits == null) {
-			misfits = Maps.newHashMap();
-			
-			if (energies == null)
-				return misfits;
-			
-			for (String energyStr : energies.keySet()) {
-				double eVal = energies.get(energyStr);
-				double wt;
-				if (energyStr.contains("energy"))
-					// legacy text parsing will have this
-					energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
-				if (energyStr.equals("Slip Rate")) {
-					switch (inversionConfiguration.getSlipRateWeightingType()) {
-					case NORMALIZED_BY_SLIP_RATE:
+			misfits = getMisfits(energies, inversionConfiguration);
+		}
+		return misfits;
+	}
+	
+	public static Map<String, Double> getMisfits(
+			Map<String, Double> energies, InversionConfiguration inversionConfiguration) {
+		Map<String, Double> misfits = Maps.newHashMap();
+		
+		if (energies == null)
+			return misfits;
+		
+		for (String energyStr : energies.keySet()) {
+			double eVal = energies.get(energyStr);
+			double wt;
+			if (energyStr.contains("energy"))
+				// legacy text parsing will have this
+				energyStr = energyStr.substring(0, energyStr.indexOf("energy")).trim();
+			if (energyStr.equals("Slip Rate")) {
+				switch (inversionConfiguration.getSlipRateWeightingType()) {
+				case NORMALIZED_BY_SLIP_RATE:
+					wt = inversionConfiguration.getSlipRateConstraintWt_normalized();
+					break;
+				case UNNORMALIZED:
+					wt = inversionConfiguration.getSlipRateConstraintWt_unnormalized();
+					break;
+				case BOTH:
+					System.out.println("WARNING: misfits inaccurate for slip rate since both weights used");
+					if (inversionConfiguration.getSlipRateConstraintWt_normalized() >
+						inversionConfiguration.getSlipRateConstraintWt_unnormalized())
 						wt = inversionConfiguration.getSlipRateConstraintWt_normalized();
-						break;
-					case UNNORMALIZED:
-						wt = inversionConfiguration.getSlipRateConstraintWt_unnormalized();
-						break;
-					case BOTH:
-						System.out.println("WARNING: misfits inaccurate for slip rate since both weights used");
-						if (inversionConfiguration.getSlipRateConstraintWt_normalized() >
-							inversionConfiguration.getSlipRateConstraintWt_unnormalized())
-							wt = inversionConfiguration.getSlipRateConstraintWt_normalized();
-						else
-							wt = inversionConfiguration.getSlipRateConstraintWt_unnormalized();
-						break;
-
-					default:
-						throw new IllegalStateException("Can't get here");
-					}
-					
-				} else if (energyStr.equals("Paleo Event Rates"))
-					wt = inversionConfiguration.getPaleoRateConstraintWt();
-				else if (energyStr.equals("Paleo Slips"))
-					wt = inversionConfiguration.getPaleoSlipConstraintWt();
-				else if (energyStr.equals("Rupture Rates"))
-					wt = inversionConfiguration.getRupRateConstraintWt();
-				else if (energyStr.equals("Rupture Rate Smoothing"))
-					wt = inversionConfiguration.getRupRateSmoothingConstraintWt();
-				else if (energyStr.equals("Minimization"))
-					wt = inversionConfiguration.getMinimizationConstraintWt();
-				else if (energyStr.equals("MFD Equality"))
-					wt = inversionConfiguration.getMagnitudeEqualityConstraintWt();
-				else if (energyStr.equals("MFD Participation"))
-					wt = inversionConfiguration.getParticipationSmoothnessConstraintWt();
-				else if (energyStr.equals("MFD Nucleation"))
-					wt = inversionConfiguration.getNucleationMFDConstraintWt();
-				else if (energyStr.equals("MFD Smoothness")) {
-					if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0
-							&& inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
-						wt = Double.NaN; // impossible to make a fair comparison here when both weights are mixed
-					else if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0)
-						wt = inversionConfiguration.getMFDSmoothnessConstraintWt();
-					else if (inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
-						wt = inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents();
 					else
-						wt = 0d;
-				} else if (energyStr.equals("Moment"))
-					wt = inversionConfiguration.getMomentConstraintWt();
-				else if (energyStr.equals("Parkfield"))
-					wt = inversionConfiguration.getParkfieldConstraintWt();
-				else if (energyStr.equals("Event-Rate Smoothness"))
-					wt = inversionConfiguration.getEventRateSmoothnessWt();
+						wt = inversionConfiguration.getSlipRateConstraintWt_unnormalized();
+					break;
+
+				default:
+					throw new IllegalStateException("Can't get here");
+				}
+				
+			} else if (energyStr.equals("Paleo Event Rates"))
+				wt = inversionConfiguration.getPaleoRateConstraintWt();
+			else if (energyStr.equals("Paleo Slips"))
+				wt = inversionConfiguration.getPaleoSlipConstraintWt();
+			else if (energyStr.equals("Rupture Rates"))
+				wt = inversionConfiguration.getRupRateConstraintWt();
+			else if (energyStr.equals("Rupture Rate Smoothing"))
+				wt = inversionConfiguration.getRupRateSmoothingConstraintWt();
+			else if (energyStr.equals("Minimization"))
+				wt = inversionConfiguration.getMinimizationConstraintWt();
+			else if (energyStr.equals("MFD Equality"))
+				wt = inversionConfiguration.getMagnitudeEqualityConstraintWt();
+			else if (energyStr.equals("MFD Participation"))
+				wt = inversionConfiguration.getParticipationSmoothnessConstraintWt();
+			else if (energyStr.equals("MFD Nucleation"))
+				wt = inversionConfiguration.getNucleationMFDConstraintWt();
+			else if (energyStr.equals("MFD Smoothness")) {
+				if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0
+						&& inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
+					wt = Double.NaN; // impossible to make a fair comparison here when both weights are mixed
+				else if (inversionConfiguration.getMFDSmoothnessConstraintWt() > 0)
+					wt = inversionConfiguration.getMFDSmoothnessConstraintWt();
+				else if (inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents() > 0)
+					wt = inversionConfiguration.getMFDSmoothnessConstraintWtForPaleoParents();
 				else
-					throw new IllegalStateException("Unknown Energy Type: "+energyStr);
-				double misfit = eVal / (wt*wt);
-				System.out.println(energyStr+": "+eVal+" / ("+wt+")^2 = "+misfit);
-				misfits.put(energyStr, misfit);
-			}
+					wt = 0d;
+			} else if (energyStr.equals("Moment"))
+				wt = inversionConfiguration.getMomentConstraintWt();
+			else if (energyStr.equals("Parkfield"))
+				wt = inversionConfiguration.getParkfieldConstraintWt();
+			else if (energyStr.equals("Event-Rate Smoothness"))
+				wt = inversionConfiguration.getEventRateSmoothnessWt();
+			else
+				throw new IllegalStateException("Unknown Energy Type: "+energyStr);
+			double misfit = eVal / (wt*wt);
+			System.out.println(energyStr+": "+eVal+" / ("+wt+")^2 = "+misfit);
+			misfits.put(energyStr, misfit);
 		}
 		
 		return misfits;
@@ -902,6 +908,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //			slipRate += getRateForRup(r)*getAveSlipForRup(r);
 			slipRate += getRateForRup(r)*rupSet.getSlipOnSectionsForRup(r)[ind];
 		}
+		if (slipRate > 0.06)
+			System.out.println("HIGH SLIP: ind="+sectIndex+"\tslip="+slipRate
+					+"\tbranch="+getLogicTreeBranch().buildFileName());
 		return slipRate;
 	}
 	

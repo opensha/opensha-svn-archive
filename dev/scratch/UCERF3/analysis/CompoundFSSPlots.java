@@ -2313,7 +2313,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 				InversionFaultSystemSolution sol, int solIndex) {
 			VariableLogicTreeBranch vbr = new VariableLogicTreeBranch(branch,
 					null);
-			FaultModels fm = sol.getRupSet().getFaultModel();
 
 			debug(solIndex, "calc/archiving");
 			misfitsMap.putIfAbsent(vbr, sol.getMisfits());

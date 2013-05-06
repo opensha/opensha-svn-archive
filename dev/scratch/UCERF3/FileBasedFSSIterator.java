@@ -170,7 +170,8 @@ public class FileBasedFSSIterator extends FaultSystemSolutionFetcher {
 						throw new RuntimeException("Wrong file type for solution: "+files[i].getName());
 					ratesList.add(rates);
 				}
-				sol = new AverageFaultSystemSolution(sol.getRupSet(), ratesList);
+				sol = new AverageFaultSystemSolution(sol.getRupSet(), ratesList,
+						sol.getInversionConfiguration(), sol.getMisfits());
 				sol.setInfoString(sol.getInfoString());
 				System.out.println("Built mean with "+ratesList.size()+" sols");
 			}
