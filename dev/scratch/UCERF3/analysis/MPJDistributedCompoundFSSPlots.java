@@ -41,6 +41,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.UCERF3p2BranchWeightProvider;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
@@ -328,6 +329,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		nameExcludeOption.setRequired(false);
 		options.addOption(nameExcludeOption);
 		
+		Option u3p2WeightsOption = new Option("u3p2weight", "ucerf3p2-weights", true,
+				"If supplied, UCERF3.2 weights will be used.");
+		u3p2WeightsOption.setRequired(false);
+		options.addOption(u3p2WeightsOption);
+		
 		return options;
 	}
 
@@ -361,6 +367,8 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			}
 			
 			BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
+			if (cmd.hasOption("ucerf3p2-weights"))
+				weightProvider = new UCERF3p2BranchWeightProvider();
 			
 			List<CompoundFSSPlots> plots = Lists.newArrayList();
 			
