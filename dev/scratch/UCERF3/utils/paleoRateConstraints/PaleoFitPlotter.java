@@ -630,8 +630,18 @@ public class PaleoFitPlotter {
 				double min = StatUtils.min(array);
 				double max = StatUtils.max(array);
 				if (arrayIndex == 2 && parentID == 301 && max > 50d) {
+					LogicTreeBranch bigBranch = null;
+					for (int d=0; d<array.length; d++)
+						if (array[d] == max)
+							bigBranch = datas.get(d).branch;
+					String bigBranchName;
+					if (bigBranch == null)
+						bigBranchName = "null?";
+					else
+						bigBranchName = bigBranch.buildFileName();
 					System.out.println("Big Mojave Slip Max: "+max
-							+"\tSlips Array: "+Joiner.on(",").join(Doubles.asList(array)));
+							+"\tSlips Array: "+Joiner.on(",").join(Doubles.asList(array))
+							+"\tBranch: "+bigBranchName);
 				}
 				for (double x : myXvals) {
 					minFunc.set(x, min);
