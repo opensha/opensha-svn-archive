@@ -5200,9 +5200,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// File file = new File(dir,
 		// "2012_10_12-fm3-ref-branch-weight-vars-zengfix_COMPOUND_SOL.zip");
 		File dir = new File("/tmp/comp_plots");
-		File file = new File(dir,
-				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
+//		File file = new File(dir,
+//				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
 //		File dir = new File("/tmp/paleo_comp_plots/Paleo1.5");
+		File file = new File(dir, "2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip");
 //		File file = new File(dir, "2013_04_02-new-paleo-weights-tests_VarPaleo1.5_COMPOUND_SOL.zip");
 		// File file = new File(dir, "zeng_convergence_compound.zip");
 		// File file = new
@@ -5243,22 +5244,22 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeParentSectionMFDPlots(fetch, weightProvider, parentSectMFDsDir);
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
-//		plots.add(new RegionalMFDPlot(weightProvider, regions));
+		plots.add(new RegionalMFDPlot(weightProvider, regions));
 		plots.add(new PaleoFaultPlot(weightProvider));
-//		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
-//		plots.add(new ParentSectMFDsPlot(weightProvider));
-//		plots.add(new RupJumpPlot(weightProvider));
-//		plots.add(new SlipRatePlots(weightProvider));
-//		plots.add(new ParticipationMapPlot(weightProvider));
+		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
+		plots.add(new ParentSectMFDsPlot(weightProvider));
+		plots.add(new RupJumpPlot(weightProvider));
+		plots.add(new SlipRatePlots(weightProvider));
+		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
-//		plots.add(new MiniSectRIPlot(weightProvider));
-//		plots.add(new PaleoRatesTable(weightProvider));
-//		plots.add(new AveSlipMapPlot(weightProvider));
-//		plots.add(new MultiFaultParticPlot(weightProvider));
-//		plots.add(new MeanFSSBuilder(weightProvider));
+		plots.add(new MiniSectRIPlot(weightProvider));
+		plots.add(new PaleoRatesTable(weightProvider));
+		plots.add(new AveSlipMapPlot(weightProvider));
+		plots.add(new MultiFaultParticPlot(weightProvider));
+		plots.add(new MeanFSSBuilder(weightProvider));
 
-		batchPlot(plots, fetch, 2);
+		batchPlot(plots, fetch, 4);
 
 		// for (CompoundFSSPlots plot : plots)
 		// FileUtils.saveObjectInFile("/tmp/asdf.obj", plot);

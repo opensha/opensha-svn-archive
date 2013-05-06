@@ -800,7 +800,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param sectIndex
 	 * @return
 	 */
-	public double getFinalMinMagForSection(int sectIndex) {
+	public synchronized double getFinalMinMagForSection(int sectIndex) {
 		if(minMagForSectArray == null) {
 			minMagForSectArray = FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,MIN_MAG_FOR_SEISMOGENIC_RUPS);
 		}

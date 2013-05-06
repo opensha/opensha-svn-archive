@@ -1289,10 +1289,13 @@ public class FaultSystemRupSetCalc {
 			double sectRate = gridSeisUtils.pdfValForSection(s)*totMgt5_rate;
 //			int mMaxIndex = totalTargetGR.getClosestXIndex(fltSysRupSet.getMinMagForSection(s))-1;	// subtract 1 to avoid overlap
 			int mMaxIndex = totalTargetGR.getXIndex(invRupSet.getUpperMagForSubseismoRuptures(s));
-			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "+invRupSet.getUpperMagForSubseismoRuptures(s));
+			if(mMaxIndex == -1) throw new RuntimeException("Problem Mmax: "
+					+invRupSet.getUpperMagForSubseismoRuptures(s)
+					+"\t"+invRupSet.getFaultSectionData(s).getName()+"\tBRANCH: "+invRupSet.getLogicTreeBranch());
 			double mMax = totalTargetGR.getX(mMaxIndex); // rounded to nearest MFD value
 if(mMax<5.85)
-	System.out.println("PROBLEM SubSesMmax=\t"+mMax+"\tMinSeismoRupMag=\t"+invRupSet.getFinalMinMagForSection(s)+"\t"+invRupSet.getFaultSectionData(s).getName());
+	System.out.println("PROBLEM SubSesMmax=\t"+mMax+"\tMinSeismoRupMag=\t"
+			+invRupSet.getFinalMinMagForSection(s)+"\t"+invRupSet.getFaultSectionData(s).getName());
 			GutenbergRichterMagFreqDist tempOnFaultGR = new GutenbergRichterMagFreqDist(totalTargetGR.getMinX(), totalTargetGR.getNum(), 
 					totalTargetGR.getDelta(), totalTargetGR.getMagLower(), mMax, 1.0, 1.0);
 			tempOnFaultGR.scaleToCumRate(0, sectRate);

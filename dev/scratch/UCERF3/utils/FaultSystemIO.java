@@ -514,8 +514,11 @@ public class FaultSystemIO {
 			// finally look for grid sources
 			ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
 			GridSourceProvider gridSources = null;
-			if (gridSourcesEntry != null)
+			if (gridSourcesEntry != null) {
 				sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
+				System.out.println("LOADED GRID SOURCES!");
+				System.exit(0);
+			}
 			
 			return sol;
 		}
@@ -830,7 +833,7 @@ public class FaultSystemIO {
 			GridSourceProvider gridSources = invSol.getGridSourceProvider();
 			if (gridSources != null) {
 				if (D) System.out.println("Saving grid sources to xml");
-				File gridSourcesFile = new File(tempDir, "grid_sources.xml");
+				File gridSourcesFile = new File(tempDir, getRemappedName("grid_sources.xml", nameRemappings));
 				if (!zipFileNames.contains(gridSourcesFile.getName())) {
 					GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
 					zipFileNames.add(gridSourcesFile.getName());
