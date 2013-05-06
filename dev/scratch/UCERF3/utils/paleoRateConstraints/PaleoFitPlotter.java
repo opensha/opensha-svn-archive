@@ -40,6 +40,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
@@ -330,12 +331,13 @@ public class PaleoFitPlotter {
 		private Map<Integer, double[]> aveSlipRatesMap;
 		private Map<Integer, double[]> aveSlipsMap;
 		private Map<Integer, double[]> avePaleoSlipsMap;
+		private LogicTreeBranch branch;
 		
 		private List<Map<Integer, double[]>> allArraysList;
 		
 		private double weight;
 		
-		private DataForPaleoFaultPlots(double weight) {
+		private DataForPaleoFaultPlots(double weight, LogicTreeBranch branch) {
 			origSlipsMap = Maps.newHashMap();
 			targetSlipsMap = Maps.newHashMap();
 			solSlipsMap = Maps.newHashMap();
@@ -356,6 +358,7 @@ public class PaleoFitPlotter {
 			allArraysList.add(avePaleoSlipsMap);
 			
 			this.weight = weight;
+			this.branch = branch;
 		}
 		
 		public static DataForPaleoFaultPlots build(
@@ -386,7 +389,7 @@ public class PaleoFitPlotter {
 				double[] aveSlipsData,
 				double[] aveSlipsPaleoObsData) {
 			
-			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight);
+			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight, sol.getLogicTreeBranch());
 			
 			Stopwatch watch = new Stopwatch();
 			Stopwatch paleoWatch = new Stopwatch();
@@ -626,6 +629,10 @@ public class PaleoFitPlotter {
 							+"], weights=["+Joiner.on(",").join(Doubles.asList(weights)));
 				double min = StatUtils.min(array);
 				double max = StatUtils.max(array);
+				if (arrayIndex == 2 && parentID == 301 && max > 50d) {
+					System.out.println("Big Mojave Slip Max: "+max
+							+"\tSlips Array: "+Joiner.on(",").join(Doubles.asList(array)));
+				}
 				for (double x : myXvals) {
 					minFunc.set(x, min);
 					maxFunc.set(x, max);

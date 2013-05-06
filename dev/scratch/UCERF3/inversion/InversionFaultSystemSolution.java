@@ -908,9 +908,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 //			slipRate += getRateForRup(r)*getAveSlipForRup(r);
 			slipRate += getRateForRup(r)*rupSet.getSlipOnSectionsForRup(r)[ind];
 		}
-		if (slipRate > 0.06)
-			System.out.println("HIGH SLIP: ind="+sectIndex+"\tslip="+slipRate
-					+"\tbranch="+getLogicTreeBranch().buildFileName());
 		return slipRate;
 	}
 	
