@@ -329,7 +329,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		nameExcludeOption.setRequired(false);
 		options.addOption(nameExcludeOption);
 		
-		Option u3p2WeightsOption = new Option("u3p2weight", "ucerf3p2-weights", true,
+		Option u3p2WeightsOption = new Option("u3p2weight", "ucerf3p2-weights", false,
 				"If supplied, UCERF3.2 weights will be used.");
 		u3p2WeightsOption.setRequired(false);
 		options.addOption(u3p2WeightsOption);
