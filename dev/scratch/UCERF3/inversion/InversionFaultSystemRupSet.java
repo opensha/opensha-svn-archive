@@ -460,7 +460,9 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		if (rupSet instanceof InversionFaultSystemRupSet) {
 			InversionFaultSystemRupSet invRupSet = (InversionFaultSystemRupSet)rupSet;
 			if (invRupSet.getSlipAlongRuptureModel() == getSlipAlongRuptureModel()
-					&& invRupSet.getDeformationModel() == getDeformationModel())
+					&& invRupSet.getDeformationModel() == getDeformationModel()
+					&& invRupSet.getLogicTreeBranch().getValue(ScalingRelationships.class)
+						== getLogicTreeBranch().getValue(ScalingRelationships.class))
 				rupSectionSlipsCache = invRupSet.rupSectionSlipsCache;
 		}
 	}
