@@ -1089,7 +1089,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add the basemap
 		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
-		double kmScaleXoffset = plotWdth/4;
+		double kmScaleXoffset = plotWdth/4; 
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
 		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
@@ -1434,7 +1434,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add the basemap
 		double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
-		double kmScaleXoffset = plotWdth/2;
+		double kmScaleXoffset = plotWdth/4;
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		gmtCommandLines.add("# Map frame and KM scale label");
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
