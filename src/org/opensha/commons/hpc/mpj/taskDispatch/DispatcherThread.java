@@ -90,7 +90,7 @@ public class DispatcherThread extends Thread {
 			// this keeps track of if each process has finished once all batches have been sent out;
 			boolean[] dones = new boolean[size];
 			for (int i=0; i<size; i++)
-				dones[i] = true;
+				dones[i] = false;
 			
 			int[] single_int_buf = new int[1];
 			while (true) {
