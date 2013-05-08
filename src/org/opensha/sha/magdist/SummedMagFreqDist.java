@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.InvalidRangeException;
@@ -133,7 +134,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * range of this distribution are ignored.
     * @param magFreqDist the Magnitude Frequency distribution to be added
     */
-   public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
+   public void addIncrementalMagFreqDist(EvenlyDiscretizedFunc magFreqDist)
    throws XY_DataSetException,Point2DException {
 
 	   // check that deltas are within tolorance

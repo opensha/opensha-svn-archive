@@ -573,9 +573,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private List<XY_DataSetList> solMFDs;
 		private List<XY_DataSetList> solOnMFDs;
 		private List<XY_DataSetList> solOffMFDs;
-		private List<DiscretizedFunc[]> ucerf2MFDs;
-		private List<DiscretizedFunc[]> ucerf2OnMFDs;
-		private List<DiscretizedFunc[]> ucerf2OffMFDs;
+		private List<EvenlyDiscretizedFunc[]> ucerf2MFDs;
+		private List<EvenlyDiscretizedFunc[]> ucerf2OnMFDs;
+		private List<EvenlyDiscretizedFunc[]> ucerf2OffMFDs;
 
 		private transient Deque<UCERF2_TimeIndependentEpistemicList> ucerf2_erf_lists = new ArrayDeque<UCERF2_TimeIndependentEpistemicList>();
 		// private transient UCERF2_TimeIndependentEpistemicList
@@ -634,9 +634,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 				solMFDs.add(new XY_DataSetList());
 				solOnMFDs.add(new XY_DataSetList());
 				solOffMFDs.add(new XY_DataSetList());
-				ucerf2MFDs.add(new DiscretizedFunc[numUCEF2_ERFs]);
-				ucerf2OnMFDs.add(new DiscretizedFunc[numUCEF2_ERFs]);
-				ucerf2OffMFDs.add(new DiscretizedFunc[numUCEF2_ERFs]);
+				ucerf2MFDs.add(new EvenlyDiscretizedFunc[numUCEF2_ERFs]);
+				ucerf2OnMFDs.add(new EvenlyDiscretizedFunc[numUCEF2_ERFs]);
+				ucerf2OffMFDs.add(new EvenlyDiscretizedFunc[numUCEF2_ERFs]);
 			}
 		}
 
@@ -718,10 +718,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					+ erfIndex + ", "+regions.size()+" regions");
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				SummedMagFreqDist summedMFD = new SummedMagFreqDist(minX,num, delta);
-				DiscretizedFunc onMFD = ucerf2OnMFDs.get(regionIndex)[erfIndex];
-				DiscretizedFunc offMFD = ucerf2OffMFDs.get(regionIndex)[erfIndex];
-				for(int i=0;i<summedMFD.getNum();i++)	// have to do it this way because MFDs are DiscretizedFunc objects
-					summedMFD.set(i,onMFD.getY(i)+offMFD.getY(i));
+				summedMFD.addIncrementalMagFreqDist(ucerf2OnMFDs.get(regionIndex)[erfIndex]);
+				summedMFD.addIncrementalMagFreqDist(ucerf2OffMFDs.get(regionIndex)[erfIndex]);
 				ucerf2MFDs.get(regionIndex)[erfIndex] = summedMFD;
 			}
 			
