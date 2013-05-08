@@ -1,10 +1,12 @@
 package scratch.UCERF3.analysis;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipException;
 
 import mpi.MPI;
 
@@ -57,6 +59,8 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 	private int threads;
 	
 	private int myCalcs = 0;
+	
+	private MPJDistributedCompoundFSSPlots parentMFDCompare;
 
 	public MPJDistributedCompoundFSSPlots(CommandLine cmd, FaultSystemSolutionFetcher fetcher,
 			List<CompoundFSSPlots> plots) {
@@ -105,6 +109,25 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		this.fetcher = fetcher;
 		this.plots = plots;
 		this.threads = getNumThreads();
+		
+		if (cmd.hasOption("plot-parent-mfd-compare")) {
+			// make sure we're not the subplot - subplot will have a plot list with the MFD plot and null
+			if (plots.get(0) == null) {
+				plots.remove(0);
+			} else {
+				File compFile = new File(cmd.getOptionValue("plot-parent-mfd-compare"));
+				List<CompoundFSSPlots> subPlots = Lists.newArrayList();
+				subPlots.add(null); // hack for identification
+				// TODO don't hardcode?
+				subPlots.add(new ParentSectMFDsPlot(new UCERF3p2BranchWeightProvider()));
+				try {
+					CompoundFaultSystemSolution subFetch = CompoundFaultSystemSolution.fromZipFile(compFile);
+					parentMFDCompare = new MPJDistributedCompoundFSSPlots(cmd, subFetch, subPlots);
+				} catch (Exception e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -183,6 +206,12 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 //		System.out.println("Reczbuf size: "+recvcount);
 		
 //		MPI.COMM_WORLD.Gather(sendbuf, 0, numPlots, MPI.OBJECT, recvbuf, 0, numPlots, MPI.OBJECT, 0);
+		
+		// see if we have comparison MFD plots
+		if (parentMFDCompare != null) {
+			parentMFDCompare.run();
+		}
+		
 		List<List<CompoundFSSPlots>> otherPlotsList = Lists.newArrayList();
 		for (int p=0; p<numPlots; p++)
 			otherPlotsList.add(new ArrayList<CompoundFSSPlots>());
@@ -202,8 +231,14 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 					plot.addToComputeTimeCount(oPlot.getComputeTimeCount());
 			}
 			
-			for (CompoundFSSPlots plot : plots)
+			for (CompoundFSSPlots plot : plots) {
+				if (parentMFDCompare != null && plot instanceof ParentSectMFDsPlot) {
+					ParentSectMFDsPlot mainPlot = (ParentSectMFDsPlot)plot;
+					ParentSectMFDsPlot oPlot = (ParentSectMFDsPlot)parentMFDCompare.plots.get(0);
+					mainPlot.addMeanFromExternalAsFractile(oPlot);
+				}
 				plot.finalizePlot();
+			}
 			
 			CompoundFSSPlots.printComputeTimes(plots);
 		} else {
@@ -232,6 +267,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				"Flag for plotting parent section MFDs");
 		parentMFDsOption.setRequired(false);
 		options.addOption(parentMFDsOption);
+		
+		Option parentMFDCompareOption = new Option("parentmfdcompare", "plot-parent-mfd-compare", true,
+				"Flag for plotting parent section MFDs");
+		parentMFDCompareOption.setRequired(false);
+		options.addOption(parentMFDCompareOption);
 		
 		Option jumpsOption = new Option("jumps", "plot-rup-jumps", false,
 				"Flag for plotting rupture jumps");

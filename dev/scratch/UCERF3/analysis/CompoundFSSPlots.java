@@ -52,6 +52,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
@@ -990,6 +991,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected boolean usesERFs() {
 			return true;
+		}
+
+		@Override
+		protected boolean isApplyAftershockFilter() {
+			return !INCLUDE_AFTERSHOCKS;
 		}
 
 		protected List<PlotSpec> getSpecs() {
@@ -4351,6 +4357,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return true;
 		}
 
+		@Override
+		protected boolean isApplyAftershockFilter() {
+			return true;
+		}
+
 	}
 	
 	public static class FSSRupNodesCache implements RupNodesCache {
@@ -4825,6 +4836,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 	protected boolean usesERFs() {
 		return false;
 	}
+	
+	/**
+	 * If true, gardner knopoff filter will be applied to ERF before passing in to plot
+	 * @return
+	 */
+	protected boolean isApplyAftershockFilter() {
+		return false;
+	}
 
 	protected void processERF(LogicTreeBranch branch,
 			UCERF3_FaultSysSol_ERF erf, int solIndex) {
@@ -5013,17 +5032,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (CompoundFSSPlots plot : plots) {
 					Stopwatch computeWatch = new Stopwatch();
 					if (plot.usesERFs()) {
+						boolean update = false;
+						overheadWatch.start();
 						if (erf == null) {
-							overheadWatch.start();
 							debug("Building ERF");
 							erf = new UCERF3_FaultSysSol_ERF(
 									(InversionFaultSystemSolution) sol);
-							erf.getParameter(
-									ApplyGardnerKnopoffAftershockFilterParam.NAME)
-									.setValue(!ERFBasedRegionalMFDPlot.INCLUDE_AFTERSHOCKS);
-							erf.updateForecast();
-							overheadWatch.stop();
+							update = true;
 						}
+						boolean shouldApplyFilter = plot.isApplyAftershockFilter();
+						BooleanParameter applyFilterParam = (BooleanParameter)erf.getParameter(
+								ApplyGardnerKnopoffAftershockFilterParam.NAME);
+						if (applyFilterParam.getValue().booleanValue() != shouldApplyFilter) {
+							update = true;
+							applyFilterParam.setValue(shouldApplyFilter);
+						}
+						if (update)
+							erf.updateForecast();
+						overheadWatch.stop();
 						debug("Processing ERF plot: "
 								+ ClassUtils.getClassNameWithoutPackage(plot
 										.getClass()));

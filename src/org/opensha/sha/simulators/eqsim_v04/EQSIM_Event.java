@@ -150,11 +150,11 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	 * @return
 	 */
 	public boolean hasElementSlipsAndIDs() {
-		boolean hasThem = false;
 		for (EventRecord evRec : this) {
-			if(evRec.hasElementSlipsAndIDs()) hasThem = true;  // true if any event record has slips and IDs
+			if(evRec.hasElementSlipsAndIDs())
+				return true;  // true if any event record has slips and IDs
 		}
-		return hasThem;
+		return false;
 	}
 	
 

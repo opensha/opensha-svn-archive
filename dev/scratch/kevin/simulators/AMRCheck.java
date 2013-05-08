@@ -4,24 +4,34 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
 
 import scratch.UCERF3.utils.IDPairing;
+import scratch.kevin.simulators.erf.SubSectionBiulder;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public class AMRCheck {
 
@@ -39,9 +49,8 @@ public class AMRCheck {
 		System.out.println("Loading events...");
 		tools.read_EQSIMv04_EventsFile(eventFile);
 		List<EQSIM_Event> events = tools.getEventsList();
+		ArrayList<RectangularElement> elements = tools.getElementsList();
 		System.out.println("Done loading events.");
-		
-		Map<IDPairing, Double> elemDistsMap = Maps.newHashMap();
 		
 		MagRangeRuptureIdentifier sevenPlusIden = new MagRangeRuptureIdentifier(7, 10);
 		
@@ -56,10 +65,52 @@ public class AMRCheck {
 		int daysBefore = 100;
 		double distThresh = 100d;
 		
+		SubSectionBiulder subSectBuild = new SubSectionBiulder(elements);
+		Map<Integer, Integer> elemToSubSectsMap = subSectBuild.getElemIDToSubSectsMap();
+		List<FaultSectionPrefData> subSects = subSectBuild.getSubSectsList();
+		
 		EvenlyDiscretizedFunc beforeFunc = new EvenlyDiscretizedFunc(-100, daysBefore, 1d);
-		Map<Integer, Location> centerLocsMap = Maps.newHashMap();
-		for (RectangularElement elem : tools.getElementsList())
-			centerLocsMap.put(elem.getID(), elem.getCenterLocation());
+		
+		List<List<LocationList>> tracesForEvents = Lists.newArrayList();
+		for (int i=0; i<events.size(); i++) {
+			EQSIM_Event event = events.get(i);
+			List<LocationList> tracesForEvent = Lists.newArrayList();
+			for (EventRecord rec : event) {
+				HashSet<Integer> ssIDs = new HashSet<Integer>();
+				for (RectangularElement e : rec.getRectangularElements()) {
+					ssIDs.add(elemToSubSectsMap.get(e.getID()));
+				}
+				List<Integer> ssIDsList = Lists.newArrayList(ssIDs);
+				Collections.sort(ssIDsList);
+				LocationList ll = new LocationList();
+				for (int ssID : ssIDsList)
+					ll.add(subSects.get(ssID).getFaultTrace().get(0));
+				ll.add(subSects.get(ssIDsList.get(ssIDsList.size()-1)).getFaultTrace().get(1));
+				tracesForEvent.add(ll);
+			}
+			Preconditions.checkState(!tracesForEvent.isEmpty());
+			tracesForEvents.add(tracesForEvent);
+		}
+		
+//		List<List<List<Location>>> centerLocsCache = Lists.newArrayList();
+//		for (int i=0; i<events.size(); i++) {
+//			List<List<Location>> locsList = Lists.newArrayList();
+//			EQSIM_Event event = events.get(i);
+//			for (EventRecord rec : event) {
+//				List<Location> locs = Lists.newArrayList();
+//				for (RectangularElement e : rec.getRectangularElements()) {
+////					Preconditions.checkState(e.getNumDownDip() >= 0);
+////					if (e.getNumDownDip() == 0)
+//						locs.add(e.getCenterLocation());
+//				}
+//				Preconditions.checkState(!locs.isEmpty());
+//				locsList.add(locs);
+//			}
+//			Preconditions.checkState(!locsList.isEmpty());
+//			centerLocsCache.add(locsList);
+//		}
+		
+		Table<Location, Location, Double> distsTable = HashBasedTable.create();
 		
 		int startInd = 0;
 		
@@ -70,6 +121,20 @@ public class AMRCheck {
 			double eventTime = e.getTimeInYears();
 			double startTime = eventTime - (double)daysBefore * BatchPlotGen.DAYS_PER_YEAR;
 			
+//			List<Region> regions = Lists.newArrayList();
+//			for (List<Location> centerLocsList1 : centerLocsCache.get(j)) {
+//				LocationList ll = new LocationList();
+//				ll.addAll(centerLocsList1);
+//				Region sub = new Region(ll, distThresh);
+//				regions.add(sub);
+//			}
+			
+			List<Region> regions = Lists.newArrayList();
+			for (LocationList traceForEvent : tracesForEvents.get(j)) {
+				Region sub = new Region(traceForEvent, distThresh);
+				regions.add(sub);
+			}
+			
 			for (int i=startInd; i<events.size(); i++) {
 				EQSIM_Event o = events.get(i);
 				double oTime = o.getTimeInYears();
@@ -79,34 +144,63 @@ public class AMRCheck {
 				} else if (oTime >= eventTime) {
 					break;
 				}
+				double mag = o.getMagnitude();
+				double distForSkip;
+				if (mag < 6)
+					distForSkip = distThresh * 1.2;
+				else if (mag < 7)
+					distForSkip = distThresh * 2;
+				else
+					distForSkip = Double.POSITIVE_INFINITY;
+				
 				// see if it's within the distance cutoff
 				boolean within = false;
-				outsideLoop:
-				for (RectangularElement elem1 : e.getAllElements()) {
-					int id1 = elem1.getID();
-					for (RectangularElement elem2 : o.getAllElements()) {
-						int id2 = elem2.getID();
-						if (id1 == id2) {
-							within = true;
-							break outsideLoop;
-						}
-						IDPairing pair;
-						if (id1 < id2)
-							pair = new IDPairing(id1, id2);
-						else
-							pair = new IDPairing(id2, id1);
-						Double dist = elemDistsMap.get(pair);
-						if (dist == null) {
-							dist = LocationUtils.horzDistanceFast(
-									centerLocsMap.get(id1), centerLocsMap.get(id2));
-							elemDistsMap.put(pair, dist);
-						}
-						if (dist <= distThresh) {
-							within = true;
-							break outsideLoop;
+//				for (List<Location> centerLocs2 : centerLocsCache.get(i)) {
+//					for (Region r : regions) {
+//						for (Location loc2 : centerLocs2) {
+//							if (r.contains(loc2)) {
+//								within = true;
+//								break;
+//							}
+//						}
+//					}
+//				}
+				// see if we can skip
+				if (regions.get(0).distanceToLocation(tracesForEvents.get(i).get(0).get(0)) < distForSkip) {
+					for (LocationList traceForEvent : tracesForEvents.get(i)) {
+						for (Region r : regions) {
+							for (Location loc : traceForEvent) {
+								if (r.contains(loc)) {
+									within = true;
+									break;
+								}
+							}
 						}
 					}
 				}
+//				outsideLoop:
+//				for (Location loc1 : centerLocs1) {
+//					for (Location loc2 : centerLocs2) {
+//						if (loc1 == loc2) {
+//							within = true;
+//							break outsideLoop;
+//						}
+//						Double dist;
+////						Double dist = distsTable.get(loc1, loc2);
+////						if (dist == null) {
+////							dist = distsTable.get(loc2, loc1);
+////							if (dist == null) {
+//								dist = LocationUtils.horzDistanceFast(
+//										loc1, loc2);
+////								distsTable.put(loc1, loc2, dist);
+////							}
+////						}
+//						if (dist <= distThresh) {
+//							within = true;
+//							break outsideLoop;
+//						}
+//					}
+//				}
 				if (within) {
 					int dayBin = (int)((oTime - startTime) / BatchPlotGen.DAYS_PER_YEAR);
 					beforeFunc.add(dayBin, 1d);

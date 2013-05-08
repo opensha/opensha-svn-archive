@@ -38,6 +38,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
+import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
@@ -50,13 +51,19 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		File f = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrUni_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_run0_sol.zip");
+		File f = new File("/tmp/FM3_2_ZENGBB_EllBsqrtLen_DsrTap_CharConst_M5Rate9.6_MMaxOff7.6_NoFix_SpatSeisU2_run0_sol.zip");
 		InversionFaultSystemSolution invSol = FaultSystemIO.loadInvSol(f);
 		System.out.println(invSol.getClass());
 		System.out.println(invSol.getLogicTreeBranch());
 		System.out.println(invSol.getInversionConfiguration());
 		System.out.println(invSol.getInvModel());
 		System.out.println(invSol.getMisfits().size());
+		invSol.getGridSourceProvider();
+		
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip"));
+		invSol = cfss.getSolution(invSol.getLogicTreeBranch());
+		invSol.getGridSourceProvider();
+		System.out.println("Got it from a grid source provider");
 		System.exit(0);
 		
 		System.out.println("LEGACY MEAN SOLUTION");
