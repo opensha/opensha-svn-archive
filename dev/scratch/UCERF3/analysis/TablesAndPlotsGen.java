@@ -294,16 +294,20 @@ public class TablesAndPlotsGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		
+		makeDefModSlipRateMaps();
+
+		
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 //		makePreInversionMFDsFig();
-//		makeDefModSlipRateMaps();
-		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File compoundFile = new File(invDir,
-				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-		makeCompoundFSSMomentRatesTable(cfss,
-				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+		
+//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File compoundFile = new File(invDir,
+//				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//		makeCompoundFSSMomentRatesTable(cfss,
+//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 		
 		
 //		int mojaveParentID = 301;

@@ -34,6 +34,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -2320,6 +2321,53 @@ public class DeformationModelsCalc {
 		}
 	}
 	
+	
+	/**
+	 * This loops over all the deformation models and makes a histogram of mini-section
+	 * slip rates (log10 values)
+	 */
+	public static void plotSectSlipRateHistForAllDeformationModels() {
+
+	HistogramFunction histogram = new HistogramFunction(-4.9, 36, 0.2);
+	
+	FaultModels[] fm_list = {FaultModels.FM3_1, FaultModels.FM3_2};
+	DeformationModels[] dm_list = {DeformationModels.GEOLOGIC,DeformationModels.ABM,DeformationModels.NEOKINEMA,DeformationModels.ZENGBB, };
+		
+	for(FaultModels fm : fm_list) {
+		for(DeformationModels dm : dm_list) {
+			if (fm == FaultModels.FM2_1) {
+				DeformationModelFetcher dmFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1);
+				for (FaultSectionPrefData fault : dmFetch.getSubSectionList()) {
+					histogram.add(Math.log10(fault.getOrigAveSlipRate()), 1.0);
+				}
+			} else {
+				Map<Integer, DeformationSection> sects;
+				try {
+					sects = DeformationModelFileParser.load(dm.getDataFileURL(fm));
+					for (DeformationSection sect : sects.values()) {
+						for (int i=0; i<sect.getLocs1().size(); i++) {
+							double log10_SlipRate = Math.log10(sect.getSlips().get(i));
+							int index = histogram.getXIndex(log10_SlipRate);
+							if(index != -1)
+								histogram.add(index, 1.0);
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}			
+			}
+		}
+	}
+		
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(histogram.getCumulativeDistFunction(), "Histogram of mini-section slip rates"); 
+		graph.setX_AxisLabel("Number");
+		graph.setY_AxisLabel("Log10 Slip Rate");
+
+		
+	}
+
+	
 
 	/**
 	 * @param args
@@ -2327,12 +2375,16 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		plotSectSlipRateHistForAllDeformationModels();
 		
+//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+	
+//		calcMoRateAndMmaxDataForDefModels();
+
 		
+		// Pre May 2013:
 		
-		// Pre April 2013:
-		
+
 //		writeParentSectionsNearSite(new Location(37.7,-122.4),10);
 		
 //		writeDefModelFaultModelFilesForWebsite(new File("/tmp/dm_files"));
@@ -2351,7 +2403,6 @@ public class DeformationModelsCalc {
 		
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
-//		calcMoRateAndMmaxDataForDefModels();
 
 
 			

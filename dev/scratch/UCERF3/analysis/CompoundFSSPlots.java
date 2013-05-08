@@ -85,6 +85,7 @@ import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -104,6 +105,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFileParser;
 import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
@@ -556,6 +558,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 		
 		private static final boolean infer_off_fault = false;
+		private static final boolean INCLUDE_AFTERSHOCKS = false;
 
 		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
@@ -660,18 +663,22 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private void calcUCERF2MFDs(int erfIndex) {
 			UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = checkOutUCERF2_ERF();
 			ERF erf = ucerf2_erf_list.getERF(erfIndex);
-			System.out.println("Calculating UCERF2 MFDs for branch "
-					+ erfIndex + ", "+regions.size()+" regions");
-			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
-				Region region = regions.get(regionIndex);
-				SummedMagFreqDist mfdPart = ERF_Calculator
-						.getParticipationMagFreqDistInRegion(erf, region, minX,
-								num, delta, true);
-				ucerf2MFDs.get(regionIndex)[erfIndex] = mfdPart
-						.getCumRateDistWithOffset();
-				ucerf2Weights[erfIndex] = ucerf2_erf_list
-						.getERF_RelativeWeight(erfIndex);
-			}
+			
+			ucerf2Weights[erfIndex] = ucerf2_erf_list
+					.getERF_RelativeWeight(erfIndex);
+			
+			// replace following as sum of on- and off-fault MFDs below
+//			System.out.println("Calculating UCERF2 MFDs for branch "
+//					+ erfIndex + ", "+regions.size()+" regions");
+//			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+//				Region region = regions.get(regionIndex);
+//				SummedMagFreqDist mfdPart = ERF_Calculator
+//						.getParticipationMagFreqDistInRegion(erf, region, minX,
+//								num, delta, true);
+//				ucerf2MFDs.get(regionIndex)[erfIndex] = mfdPart
+//						.getCumRateDistWithOffset();
+//			}
+			
 			System.out.println("Calculating UCERF2 On Fault MFDs for branch "
 					+ erfIndex + ", "+regions.size()+" regions");
 			// on fault
@@ -680,8 +687,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
 				SummedMagFreqDist mfdPart = ERF_Calculator
-						.getParticipationMagFreqDistInRegion(erf, region, minX,
-								num, delta, true);
+						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
+				if(INCLUDE_AFTERSHOCKS)
+					mfdPart.scale(1.0/FaultSystemSolutionPoissonERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
 				ucerf2OnMFDs.get(regionIndex)[erfIndex] = mfdPart
 						.getCumRateDistWithOffset();
 			}
@@ -693,11 +701,29 @@ public abstract class CompoundFSSPlots implements Serializable {
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
 				SummedMagFreqDist mfdPart = ERF_Calculator
-						.getParticipationMagFreqDistInRegion(erf, region, minX,
-								num, delta, true);
+						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
+				if(INCLUDE_AFTERSHOCKS) {
+					for(int i=0;i<mfdPart.getNum();i++) {
+						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
+						mfdPart.set(i,mfdPart.getY(i)/scale);	// divide to add aftershocks back in
+					}
+				}
 				ucerf2OffMFDs.get(regionIndex)[erfIndex] = mfdPart
 						.getCumRateDistWithOffset();
 			}
+
+			// sum the above on and off MFDs to get the total
+			System.out.println("Calculating UCERF2 MFDs for branch "
+					+ erfIndex + ", "+regions.size()+" regions");
+			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+				SummedMagFreqDist summedMFD = new SummedMagFreqDist(minX,num, delta);
+				DiscretizedFunc onMFD = ucerf2OnMFDs.get(regionIndex)[erfIndex];
+				DiscretizedFunc offMFD = ucerf2OffMFDs.get(regionIndex)[erfIndex];
+				for(int i=0;i<summedMFD.getNum();i++)	// have to do it this way because MFDs are DiscretizedFunc objects
+					summedMFD.set(i,onMFD.getY(i)+offMFD.getY(i));
+				ucerf2MFDs.get(regionIndex)[erfIndex] = summedMFD;
+			}
+			
 			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
 			
 			returnUCERF2_ERF(ucerf2_erf_list);
@@ -4994,7 +5020,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 									(InversionFaultSystemSolution) sol);
 							erf.getParameter(
 									ApplyGardnerKnopoffAftershockFilterParam.NAME)
-									.setValue(true);
+									.setValue(!ERFBasedRegionalMFDPlot.INCLUDE_AFTERSHOCKS);
 							erf.updateForecast();
 							overheadWatch.stop();
 						}

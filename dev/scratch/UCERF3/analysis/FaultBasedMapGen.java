@@ -84,6 +84,31 @@ public class FaultBasedMapGen {
 		return slipCPT;
 	}
 	
+	/**
+	 * This is a good cpt for log10(slipRate) values from UCERF3
+	 */
+	private static CPT log10_slipCPT = null;
+	public static CPT getLog10_SlipRateCPT() {
+		if (log10_slipCPT == null) {
+			log10_slipCPT = new CPT();
+			
+			Color lightBlue = new Color(200,200,255);
+			Color darkBlue = new Color(75,75,255);
+			Color altOrange = new Color(255, 128, 0);
+			log10_slipCPT.setNanColor(Color.GRAY);
+			log10_slipCPT.setBelowMinColor(lightBlue);
+			log10_slipCPT.add(new CPTVal(-3f, lightBlue, -2f, darkBlue));
+			log10_slipCPT.add(new CPTVal(-2f, darkBlue, -1f, Color.GREEN));
+			log10_slipCPT.add(new CPTVal(-1f, Color.GREEN, 0f, Color.YELLOW));
+			log10_slipCPT.add(new CPTVal(0f, Color.YELLOW, 1f, altOrange));
+			log10_slipCPT.add(new CPTVal(1f, altOrange, 1.4f, Color.RED));			// 1.4 corresponds to ~25 mm/yr
+			log10_slipCPT.add(new CPTVal(1.4f, Color.RED, 1.6f, Color.MAGENTA));	// 1.6 corresponds to ~40 mm/yr
+			log10_slipCPT.setAboveMaxColor(Color.MAGENTA);
+		}
+		return log10_slipCPT;
+	}
+
+	
 	private static CPT participationCPT = null;
 	public static CPT getParticipationCPT() {
 		if (participationCPT == null) {
@@ -545,20 +570,20 @@ public class FaultBasedMapGen {
 			throws IOException, GMT_MapException, RuntimeException {
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM2_1, DeformationModels.UCERF2_ALL, "fm2_1_ucerf2");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC, "fm3_1_geol");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_UPPER, "fm3_1_geol_upper");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_LOWER, "fm3_1_geol_lower");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_UPPER, "fm3_1_geol_upper");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.GEOLOGIC_LOWER, "fm3_1_geol_lower");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ABM, "fm3_1_abm");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.NEOKINEMA, "fm3_1_neok");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_1, DeformationModels.ZENGBB, "fm3_1_zengbb");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC, "fm3_2_geol");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, "fm3_2_geol_upper");
-		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_LOWER, "fm3_2_geol_lower");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_UPPER, "fm3_2_geol_upper");
+//		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.GEOLOGIC_LOWER, "fm3_2_geol_lower");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ABM, "fm3_2_abm");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.NEOKINEMA, "fm3_2_neok");
 		plotDeformationModelSlip(region, saveDir, display, FaultModels.FM3_2, DeformationModels.ZENGBB, "fm3_2_zengbb");
 		
 		// now make geologic pts plot
-		CPT cpt = getSlipRateCPT();
+		CPT cpt = getLog10_SlipRateCPT();
 		List<GeologicSlipRate> geoRates = GeologicSlipRateLoader.loadExcelFile(
 				new URL("http://www.wgcep.org/sites/wgcep.org/files/UCERF3_Geologic_Slip%20Rates_version%203_2012_11_01.xls"));
 		ArrayList<PSXYSymbol> symbols = Lists.newArrayList();
@@ -571,14 +596,14 @@ public class FaultBasedMapGen {
 			Symbol symbol = Symbol.CIRCLE;
 //			if (geoRate.isRange())
 			symbols.add(new PSXYSymbol(pt, symbol, 0.1d));
-			vals.add(rate);
+			vals.add(Math.log10(rate));
 		}
 		
 		double penWidth = 1d;
 		Color penColor = Color.BLACK;
 		PSXYSymbolSet symbolSet = new PSXYSymbolSet(cpt, symbols, vals, penWidth, penColor, null);
 		
-		GMT_Map map = buildMap(cpt, new ArrayList<LocationList>(), new double[0], null, 1, region, true, "Slip Rate (mm/yr)");
+		GMT_Map map = buildMap(cpt, new ArrayList<LocationList>(), new double[0], null, 1, region, true, "Log10 Slip Rate (mm/yr)");
 		
 		map.setSymbolSet(symbolSet);
 		
@@ -588,7 +613,7 @@ public class FaultBasedMapGen {
 	public static void plotDeformationModelSlip(
 			Region region, File saveDir, boolean display, FaultModels fm, DeformationModels dm, String prefix)
 			throws IOException, GMT_MapException, RuntimeException {
-		CPT cpt = getSlipRateCPT();
+		CPT cpt = getLog10_SlipRateCPT();
 		
 		List<LocationList> faults = Lists.newArrayList();
 		List<Double> valsList = Lists.newArrayList();
@@ -614,8 +639,11 @@ public class FaultBasedMapGen {
 		}
 		
 		double[] values = Doubles.toArray(valsList);
+		// convert to log10 values
+		for(int i=0;i<values.length;i++)
+			values[i] = Math.log10(values[i]);
 		
-		makeFaultPlot(cpt, faults, values, region, saveDir, prefix, display, false, "Slip Rate (mm/yr)");
+		makeFaultPlot(cpt, faults, values, region, saveDir, prefix, display, false, "Log10 Slip Rate (mm/yr)");
 	}
 	
 	public static void plotDeformationModelSlipRatiosToGeol(Region region, File saveDir, boolean display)
