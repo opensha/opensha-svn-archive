@@ -97,26 +97,26 @@ public class UC3_MapMaker {
 //		makeAleatoryMagScalingaRatio();
 //		makeBrAvgFMDMratioMap();
 		
-		TestGrid grid = CA_RELM;
-		ProbOfExceed pe = PE2IN50;
-		Period p = GM0P00;
-		String suffix = "";
-		double spacing = 0.1;
-		
-		
-		CurveContainer u3p2cc = CurveContainer.create(new File("/tmp/curves.csv"), grid, spacing);
-		
-		GriddedRegion gr = grid.grid(spacing);
-		GeoDataSet xyz = NSHMP_DataUtils.extractPE(u3p2cc, gr, pe);
-
-		String outDir = "/tmp/peter";
-//		makeMapPlot(xyz, spacing, grid.bounds(), dlFile.getAbsolutePath(), "U3.2 Br AVg", false, true, false);
-		double[] minmax = NSHMP_PlotUtils.getRange(p);
-		GMT_CPT_Files cpt = NSHMP_PlotUtils.getCPT(p);
-		String label = pe + " " + p.getLabel() + " (g)";
-		String dlDir = outDir + "map-" + dlDirNameRatio(grid, pe, p, "all");
-		makeMapPlot(xyz, spacing, grid.bounds(), dlDir, label,
-			minmax[0], minmax[1], cpt, false, false);
+//		TestGrid grid = CA_RELM;
+//		ProbOfExceed pe = PE2IN50;
+//		Period p = GM0P00;
+//		String suffix = "";
+//		double spacing = 0.1;
+//		
+//		
+//		CurveContainer u3p2cc = CurveContainer.create(new File("/tmp/curves.csv"), grid, spacing);
+//		
+//		GriddedRegion gr = grid.grid(spacing);
+//		GeoDataSet xyz = NSHMP_DataUtils.extractPE(u3p2cc, gr, pe);
+//
+//		String outDir = "/tmp/peter";
+////		makeMapPlot(xyz, spacing, grid.bounds(), dlFile.getAbsolutePath(), "U3.2 Br AVg", false, true, false);
+//		double[] minmax = NSHMP_PlotUtils.getRange(p);
+//		GMT_CPT_Files cpt = NSHMP_PlotUtils.getCPT(p);
+//		String label = pe + " " + p.getLabel() + " (g)";
+//		String dlDir = outDir + "map-" + dlDirNameRatio(grid, pe, p, "all");
+//		makeMapPlot(xyz, spacing, grid.bounds(), dlDir, label,
+//			minmax[0], minmax[1], cpt, false, false);
 	}
 	
 	private static void makeMultiBranchMap() throws IOException {
@@ -684,7 +684,7 @@ public class UC3_MapMaker {
 		for (FaultSectionPrefData fspd : faults) {
 			PSXYPolygon poly = new PSXYPolygon(fspd.getFaultTrace());
 			poly.setPenColor(c);
-			poly.setPenWidth(6);
+			poly.setPenWidth(2);
 			map.addPolys(poly);
 		}
 	}
@@ -1240,9 +1240,9 @@ public class UC3_MapMaker {
 		makeRatioPlot(xyz, spacing, grid.bounds(), dlDir, title, log, smooth, showFaults);
 	}
 		
-	private static void makeRatioPlot(GeoDataSet xyz, double spacing, double[] bounds,
+	public static void makeRatioPlot(GeoDataSet xyz, double spacing, double[] bounds,
 			String dlDir, String title, boolean log, boolean smooth, boolean showFaults) {
-		double scale = log ? 0.05 : 0.2;
+		double scale = log ? 0.1 : 0.2;
 		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
 		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, log ? -scale : 1-scale);
 		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, log ? scale : 1+scale);
@@ -1268,7 +1268,7 @@ public class UC3_MapMaker {
 		}
 	}
 	
-	private static void makeMapPlot(GeoDataSet xyz, double spacing, double[] bounds,
+	public static void makeMapPlot(GeoDataSet xyz, double spacing, double[] bounds,
 			String dlDir, String title, double scaleMin, double scaleMax,
 			GMT_CPT_Files cpt, boolean smooth, boolean showFaults) {
 		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
@@ -1285,9 +1285,9 @@ public class UC3_MapMaker {
 			map.setCustomLabel(title);
 			map.setRescaleCPT(smooth);
 			if (showFaults) {
-				addFaultTraces(FaultModels.FM2_1, map, Color.BLUE);
+//				addFaultTraces(FaultModels.FM2_1, map, Color.BLUE);
 				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
 		} catch (IOException ioe) {

@@ -38,7 +38,7 @@ public class TestCalc {
 	TestCalc(String solSetPath, List<Location> locs,
 		Period period, boolean epi) {
 		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
-			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
+			IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 		Stopwatch sw = new Stopwatch();
@@ -58,7 +58,7 @@ public class TestCalc {
 	 */
 	public static void main(String[] args) {
 		Period period = GM0P00;
-		String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-MEAN_BRANCH_AVG_SOL_FM31.zip";
+		String solSetPath = "/Users/pmpowers/projects/OpenSHA/tmp/UC33/src/bravg/2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 
 		boolean epi = false;
 
@@ -67,8 +67,8 @@ public class TestCalc {
 			);
 
 		try {
-//			new TestCalc(solSetPath, locs, period, epi);
-			mendoTest(solSetPath);
+			new TestCalc(solSetPath, locs, period, epi);
+//			mendoTest(solSetPath);
 		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
