@@ -39,8 +39,10 @@ public class scratch {
 
 //		tmp();
 		
-		String dir = "/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/mapsUC32b/UC32littleSalmon/multi-UC32/PE1IN100-sol9";
-		consolidateMaps(dir);
+		double pp = 6. * (4. / 3.);
+		System.out.println(pp);
+//		String dir = "/Users/pmpowers/projects/OpenSHA/tmp/UC3maps/mapsUC32b/UC32littleSalmon/multi-UC32/PE1IN100-sol9";
+//		consolidateMaps(dir);
 		
 //		for (NEHRP_TestCity city : NEHRP_TestCity.values()) {
 //			System.out.println(city);
