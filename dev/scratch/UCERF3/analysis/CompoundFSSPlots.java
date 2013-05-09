@@ -1631,17 +1631,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 			// nucleation
 			// incremental
 			writeParentSectionMFDPlot(nuclIncrSubDir, nuclMFDs, ucerf2NuclMFDs,
-					subSeismoMFDs, subPlusSupraSeismoNuclMFDs, parentID, name, true);
+					subSeismoMFDs, subPlusSupraSeismoNuclMFDs, parentID, name, true, false);
 			// cumulative
 			writeParentSectionMFDPlot(nuclCmlSubDir, nuclCmlMFDs, ucerf2NuclCmlMFDs,
-					subSeismoCmlMFDs, subPlusSupraSeismoNuclCmlMFDs, parentID, name, true);
+					subSeismoCmlMFDs, subPlusSupraSeismoNuclCmlMFDs, parentID, name, true, true);
 			
 			// participation
 			writeParentSectionMFDPlot(particIncrSubDir, partMFDs, ucerf2PartMFDs,
-					subSeismoMFDs, subPlusSupraSeismoParticMFDs, parentID, name, false);
+					subSeismoMFDs, subPlusSupraSeismoParticMFDs, parentID, name, false, false);
 			// cumulative
 			writeParentSectionMFDPlot(particCmlSubDir, partCmlMFDs, ucerf2PartCmlMFDs,
-					subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, parentID, name, true);
+					subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, parentID, name, true, true);
 			
 //			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
 //					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, subSeismoMFDs,
@@ -1714,9 +1714,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<? extends EvenlyDiscretizedFunc> ucerf2MFDs,
 			List<? extends EvenlyDiscretizedFunc> subSeismoMFDs,
 			List<? extends EvenlyDiscretizedFunc> subPlusSupraSeismoMFDs, int id,
-			String name, boolean nucleation) throws IOException {
+			String name, boolean nucleation, boolean cumulative) throws IOException {
 		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds,
-				subSeismoMFDs, subPlusSupraSeismoMFDs, ucerf2MFDs, false, id, name, nucleation);
+				subSeismoMFDs, subPlusSupraSeismoMFDs, ucerf2MFDs, false, id, name, nucleation, cumulative);
 	}
 
 	public static class ParentSectMFDsPlot extends CompoundFSSPlots {
@@ -5313,7 +5313,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 4,
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8,
 				FaultModels.FM3_1);
 
 		new DeadlockDetectionThread(3000).start();

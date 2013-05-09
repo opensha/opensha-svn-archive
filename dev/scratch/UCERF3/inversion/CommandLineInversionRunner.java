@@ -1109,17 +1109,17 @@ public class CommandLineInversionRunner {
 			// nucleation
 			// incremental
 			writeParentSectMFDPlot(nuclIncrSubDir, nuclMFDs, subSeismoMFDs, subPlusSupraSeismoNuclMFDs, ucerf2NuclMFDs,
-					isAVG, parentSectionID, parentSectName, true);
+					isAVG, parentSectionID, parentSectName, true, false);
 			// cumulative
 			writeParentSectMFDPlot(nuclCmlSubDir, nuclCmlMFDs, subSeismoCmlMFDs, subPlusSupraSeismoNuclCmlMFDs, ucerf2NuclCmlMFDs,
-					isAVG, parentSectionID, parentSectName, true);
+					isAVG, parentSectionID, parentSectName, true, true);
 			// participation
 			// incremental
 			writeParentSectMFDPlot(particIncrSubDir, partMFDs, subSeismoMFDs, subPlusSupraSeismoParticMFDs, ucerf2PartMFDs,
-					isAVG, parentSectionID, parentSectName, false);
+					isAVG, parentSectionID, parentSectName, false, false);
 			// cumulative
 			writeParentSectMFDPlot(particCmlSubDir, partCmlMFDs, subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, ucerf2PartCmlMFDs,
-					isAVG, parentSectionID, parentSectName, false);
+					isAVG, parentSectionID, parentSectName, false, true);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -1258,7 +1258,7 @@ public class CommandLineInversionRunner {
 			List<? extends EvenlyDiscretizedFunc> subSeismoMFDs,
 			List<? extends EvenlyDiscretizedFunc> subPlusSupraSeismoMFDs,
 			List<? extends EvenlyDiscretizedFunc> ucerf2MFDs,
-			boolean avgColoring, int id, String name, boolean nucleation) throws IOException {
+			boolean avgColoring, int id, String name, boolean nucleation, boolean cumulative) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
 		gp.setYLog(true);
@@ -1341,6 +1341,9 @@ public class CommandLineInversionRunner {
 		String yAxisLabel;
 		
 		String fname = name.replaceAll("\\W+", "_");
+		
+		if (cumulative)
+			fname += "_cumulative";
 		
 		if (nucleation) {
 			yAxisLabel = "Nucleation Rate";
