@@ -145,9 +145,14 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 	   // loop over points of the given dist and add those that are within range
 	   for (int i=0;i<magFreqDist.getNum();++i) {
 		   double xVal = magFreqDist.getX(i);
-		   if(getMinX()-tolerance<xVal && xVal<getMaxX()+tolerance) {
-			   super.set(xVal, getY(xVal)+magFreqDist.getY(i));
+		   int indexHere = getXIndex(xVal);
+		   if(indexHere != -1) {
+			   super.set(xVal, getY(indexHere)+magFreqDist.getY(i));
 		   }
+//		   else {
+//			   System.out.println(xVal+"\t"+getMinX()+"\t"+getMaxX()+"\t"+getDelta());
+//			   throw new RuntimeException("Problem");
+//		   }
 	   }
 
 	   if(saveMagFreqDists)         // save this distribution in the list

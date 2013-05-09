@@ -717,7 +717,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			System.out.println("Calculating UCERF2 MFDs for branch "
 					+ erfIndex + ", "+regions.size()+" regions");
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
-				SummedMagFreqDist summedMFD = new SummedMagFreqDist(minX,num, delta);
+				SummedMagFreqDist summedMFD = new SummedMagFreqDist(minX-delta/2,num, delta);	// note offset minX because it's cumulative
 				summedMFD.addIncrementalMagFreqDist(ucerf2OnMFDs.get(regionIndex)[erfIndex]);
 				summedMFD.addIncrementalMagFreqDist(ucerf2OffMFDs.get(regionIndex)[erfIndex]);
 				ucerf2MFDs.get(regionIndex)[erfIndex] = summedMFD;
