@@ -12,7 +12,7 @@ SCRIPT=$TMP_LOCAL/$JOBGROUP.pbs
 
 # Remote config for jobs
 BASEDIR=/home/scec-00/pmpowers
-SRCDIR=$BASEDIR/UC3/src
+SRCDIR=$BASEDIR/UC33/src
 JAVA_LIB=$BASEDIR/lib
 SITEFILE=$BASEDIR/UC33/curvejobs/sites/test.txt
 
@@ -25,6 +25,8 @@ java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	scratch.peter.ucerf3.scripts.CurvesFromSolution \
 	$JAVA_LIB $SCRIPT $SOLFILE $SITEFILE $PERIODS $OUTDIR
 
-echo 'PBS script is here:'
-echo $SCRIPT
+if [[ $? == 0 ]] ; then
+	echo 'PBS script is here:'
+	echo $SCRIPT
+fi
 	

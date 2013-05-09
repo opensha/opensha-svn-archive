@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOBGROUP=UC33test
+JOBGROUP=UC33compSolTest
 
 # Local config for script
 SHA_LOCAL=/Users/pmpowers/projects/OpenSHA
@@ -14,7 +14,7 @@ SCRIPT=$TMP_LOCAL/$JOBGROUP.pbs
 BASEDIR=/home/scec-00/pmpowers
 JAVADIR=$BASEDIR/lib
 SRCDIR=$BASEDIR/UC3/src/tree
-OUTDIR=$BASEDIR/UC3/maps/$JOBGROUP
+OUTDIR=$BASEDIR/UC33/maps/$JOBGROUP
 
 # Calc config
 SOL_FILE=$SRCDIR/2013_01_14-UC32-COMPOUND_SOL.zip
@@ -22,7 +22,7 @@ GRID='CA_RELM'
 SPACING='0.1'
 PERIOD='GM0P00'
 HRS=3
-NODES=24
+NODES=36
 QUEUE=nbns
 
 java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
@@ -30,5 +30,7 @@ java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	$QUEUE $NODES $HRS $JAVADIR $SCRIPT $BRANCHFILE \
 	$SOL_FILE $GRID $SPACING $PERIOD $OUTDIR
 	
-echo 'PBS script is here:'
-echo $SCRIPT
+if [[ $? == 0 ]] ; then
+	echo 'PBS script is here:'
+	echo $SCRIPT
+fi

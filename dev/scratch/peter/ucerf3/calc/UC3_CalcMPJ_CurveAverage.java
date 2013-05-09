@@ -107,7 +107,7 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 			erf.updateForecast();
 			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
 
-			String erfOutDir = outDir + S + erf.getName() + "_" + idx;
+			String erfOutDir = outDir + S + erf.getName();
 			HazardResultWriterSites writer = new HazardResultWriterSites(
 				erfOutDir, locMap);
 

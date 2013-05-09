@@ -26,6 +26,7 @@ BRANCHFILE=$JOBDIR/branches/test.txt
 #FILENAME=/vars/2013_02_01-ucerf3p2-weights_COMPOUND_SOL.zip
 #BRANCHFILE=$BASEDIR/UC3/curvejobs/branches/test.txt
 
+# !!!!! UPDATE FILENAME FOR ACUTAL UC33 RUNS !!!!!
 OUTDIR=$BASEDIR/UC33/curves/tree/$JOBGROUP
 FILENAME=/tree/2013_01_14-UC32-COMPOUND_SOL.zip
 SOLFILE=/home/scec-00/pmpowers/UC3/src$FILENAME
@@ -36,6 +37,8 @@ java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	$QUEUE $NODES $HOURS $JAVA_LIB \
 	$SCRIPT $SOLFILE $SITEFILE $BRANCHFILE $PERIODS $OUTDIR
 
-echo 'PBS script is here:'
-echo $SCRIPT
+if [[ $? == 0 ]] ; then
+	echo 'PBS script is here:'
+	echo $SCRIPT
+fi
 	
