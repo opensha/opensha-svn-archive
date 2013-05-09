@@ -106,9 +106,9 @@ public class UC3_CalcMPJ_MapAverage extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			CommandLine cmd = parse(options, args, UC3_CalcMPJ_MapCompound.class);
+			CommandLine cmd = parse(options, args, UC3_CalcMPJ_MapAverage.class);
 			args = cmd.getArgs();
-			UC3_CalcMPJ_MapCompound driver = new UC3_CalcMPJ_MapCompound(cmd, args);
+			UC3_CalcMPJ_MapAverage driver = new UC3_CalcMPJ_MapAverage(cmd, args);
 			driver.run();
 			finalizeMPJ();
 			System.exit(0);

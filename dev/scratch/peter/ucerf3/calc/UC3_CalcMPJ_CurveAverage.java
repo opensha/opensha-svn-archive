@@ -165,9 +165,9 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 		try {
 			Options options = createOptions();
 			CommandLine cmd = parse(options, args,
-				UC3_CalcMPJ_CurveCompound.class);
+				UC3_CalcMPJ_CurveAverage.class);
 			args = cmd.getArgs();
-			UC3_CalcMPJ_CurveCompound driver = new UC3_CalcMPJ_CurveCompound(cmd,
+			UC3_CalcMPJ_CurveAverage driver = new UC3_CalcMPJ_CurveAverage(cmd,
 				args);
 			driver.run();
 			finalizeMPJ();
