@@ -978,6 +978,19 @@ public class CommandLineInversionRunner {
 		
 		if (!dir.exists())
 			dir.mkdir();
+		
+		File particIncrSubDir = new File(dir, "participation_incremental");
+		if (!particIncrSubDir.exists())
+			particIncrSubDir.mkdir();
+		File particCmlSubDir = new File(dir, "participation_cumulative");
+		if (!particCmlSubDir.exists())
+			particCmlSubDir.mkdir();
+		File nuclIncrSubDir = new File(dir, "nucleation_incremental");
+		if (!nuclIncrSubDir.exists())
+			nuclIncrSubDir.mkdir();
+		File nuclCmlSubDir = new File(dir, "nucleation_cumulative");
+		if (!nuclCmlSubDir.exists())
+			nuclCmlSubDir.mkdir();
 
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
 			if (!parentSects.containsKey(sect.getParentSectionId()))
@@ -1003,9 +1016,9 @@ public class CommandLineInversionRunner {
 			partMFDs.add(partMFD);
 			
 			List<EvenlyDiscretizedFunc> nuclCmlMFDs = Lists.newArrayList();
-			nuclCmlMFDs.add(nuclMFD.getCumRateDist());
+			nuclCmlMFDs.add(nuclMFD.getCumRateDistWithOffset());
 			List<EvenlyDiscretizedFunc> partCmlMFDs = Lists.newArrayList();
-			partCmlMFDs.add(partMFD.getCumRateDist());
+			partCmlMFDs.add(partMFD.getCumRateDistWithOffset());
 			
 			if (isAVG) {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
@@ -1040,34 +1053,73 @@ public class CommandLineInversionRunner {
 			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, true);
 			
-			List<IncrementalMagFreqDist> subSeismoMFDs;
-			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs;
-			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs;
+			List<EvenlyDiscretizedFunc> subSeismoMFDs;
+			List<EvenlyDiscretizedFunc> subSeismoCmlMFDs;
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoNuclMFDs;
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoNuclCmlMFDs;
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoParticMFDs;
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoParticCmlMFDs;
 			if (sol instanceof InversionFaultSystemSolution) {
 				InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
 				subSeismoMFDs = Lists.newArrayList();
-				subPlusSupraSeismoMFDs = Lists.newArrayList();
-				subPlusSupraSeismoCmlMFDs = Lists.newArrayList();
+				subSeismoCmlMFDs = Lists.newArrayList();
 				SummedMagFreqDist subSeismoMFD = invSol.getFinalSubSeismoOnFaultMFDForParent(parentSectionID);
-				SummedMagFreqDist subPlusSupraSeismoMFD = new SummedMagFreqDist(
-						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
-				subPlusSupraSeismoMFD.addIncrementalMagFreqDist(subSeismoMFD);
-				subPlusSupraSeismoMFD.addIncrementalMagFreqDist(resizeToDimensions(
-						nuclMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
-				EvenlyDiscretizedFunc subPlusSupraSeismoCmlMFD = subPlusSupraSeismoMFD.getCumRateDist();
 				subSeismoMFDs.add(subSeismoMFD);
-				subPlusSupraSeismoMFDs.add(subPlusSupraSeismoMFD);
-				subPlusSupraSeismoCmlMFDs.add(subPlusSupraSeismoCmlMFD);
+				subSeismoCmlMFDs.add(subSeismoMFD.getCumRateDistWithOffset());
+				
+				// nucleation sum
+				SummedMagFreqDist subPlusSupraSeismoNuclMFD = new SummedMagFreqDist(
+						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
+				subPlusSupraSeismoNuclMFD.addIncrementalMagFreqDist(subSeismoMFD);
+				subPlusSupraSeismoNuclMFD.addIncrementalMagFreqDist(resizeToDimensions(
+						nuclMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
+				EvenlyDiscretizedFunc subPlusSupraSeismoNuclCmlMFD = subPlusSupraSeismoNuclMFD.getCumRateDistWithOffset();
+				subPlusSupraSeismoNuclMFDs = Lists.newArrayList();
+				subPlusSupraSeismoNuclCmlMFDs = Lists.newArrayList();
+				subPlusSupraSeismoNuclMFDs.add(subPlusSupraSeismoNuclMFD);
+				subPlusSupraSeismoNuclCmlMFDs.add(subPlusSupraSeismoNuclCmlMFD);
+				
+				// participation sum
+				SummedMagFreqDist subPlusSupraSeismoParticMFD = new SummedMagFreqDist(
+						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
+				subPlusSupraSeismoParticMFD.addIncrementalMagFreqDist(subSeismoMFD);
+				subPlusSupraSeismoParticMFD.addIncrementalMagFreqDist(resizeToDimensions(
+						partMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
+				EvenlyDiscretizedFunc subPlusSupraSeismoParticCmlMFD = subPlusSupraSeismoParticMFD.getCumRateDistWithOffset();
+				subPlusSupraSeismoParticMFDs = Lists.newArrayList();
+				subPlusSupraSeismoParticCmlMFDs = Lists.newArrayList();
+				subPlusSupraSeismoParticMFDs.add(subPlusSupraSeismoParticMFD);
+				subPlusSupraSeismoParticCmlMFDs.add(subPlusSupraSeismoParticCmlMFD);
 			} else {
 				subSeismoMFDs = null;
-				subPlusSupraSeismoMFDs = null;
-				subPlusSupraSeismoCmlMFDs = null;
+				subSeismoCmlMFDs = null;
+				subPlusSupraSeismoNuclMFDs = null;
+				subPlusSupraSeismoNuclCmlMFDs = null;
+				subPlusSupraSeismoParticMFDs = null;
+				subPlusSupraSeismoParticCmlMFDs = null;
 			}
+			
+//			public static void writeParentSectMFDPlot(File dir,
+//					List<EvenlyDiscretizedFunc> supraSeismoMFDs,
+//					List<EvenlyDiscretizedFunc> subSeismoMFDs,
+//					List<EvenlyDiscretizedFunc> subPlusSupraSeismoMFDs,
+//					List<EvenlyDiscretizedFunc> ucerf2MFDs,
+//					boolean avgColoring, int id, String name, boolean nucleation) throws IOException {
 
-			writeParentSectMFDPlot(dir, nuclMFDs, nuclCmlMFDs, isAVG, ucerf2NuclMFDs, ucerf2NuclCmlMFDs,
-					subSeismoMFDs, subPlusSupraSeismoMFDs, subPlusSupraSeismoCmlMFDs, parentSectionID, parentSectName, true);
-			writeParentSectMFDPlot(dir, partMFDs, partCmlMFDs, isAVG, ucerf2PartMFDs, ucerf2PartCmlMFDs,
-					null, null, null, parentSectionID, parentSectName, false);
+			// nucleation
+			// incremental
+			writeParentSectMFDPlot(nuclIncrSubDir, nuclMFDs, subSeismoMFDs, subPlusSupraSeismoNuclMFDs, ucerf2NuclMFDs,
+					isAVG, parentSectionID, parentSectName, true);
+			// cumulative
+			writeParentSectMFDPlot(nuclCmlSubDir, nuclCmlMFDs, subSeismoCmlMFDs, subPlusSupraSeismoNuclCmlMFDs, ucerf2NuclCmlMFDs,
+					isAVG, parentSectionID, parentSectName, true);
+			// participation
+			// incremental
+			writeParentSectMFDPlot(particIncrSubDir, partMFDs, subSeismoMFDs, subPlusSupraSeismoParticMFDs, ucerf2PartMFDs,
+					isAVG, parentSectionID, parentSectName, false);
+			// cumulative
+			writeParentSectMFDPlot(particCmlSubDir, partCmlMFDs, subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, ucerf2PartCmlMFDs,
+					isAVG, parentSectionID, parentSectName, false);
 		}
 		
 		if (sdomOverMeansCSV != null) {
@@ -1201,15 +1253,12 @@ public class CommandLineInversionRunner {
 		return riCmlFunc;
 	}
 
-	public static void writeParentSectMFDPlot(File dir, List<IncrementalMagFreqDist> mfds,
-			List<EvenlyDiscretizedFunc> cmlMFDs,
-			boolean avgColoring, List<IncrementalMagFreqDist> ucerf2MFDs,
-			List<IncrementalMagFreqDist> ucerf2CmlMFDs,
-			// these 3 are for nucleation only
-			List<IncrementalMagFreqDist> subSeismoMFDs,
-			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs,
-			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs,
-			int id, String name, boolean nucleation) throws IOException {
+	public static void writeParentSectMFDPlot(File dir,
+			List<? extends EvenlyDiscretizedFunc> supraSeismoMFDs,
+			List<? extends EvenlyDiscretizedFunc> subSeismoMFDs,
+			List<? extends EvenlyDiscretizedFunc> subPlusSupraSeismoMFDs,
+			List<? extends EvenlyDiscretizedFunc> ucerf2MFDs,
+			boolean avgColoring, int id, String name, boolean nucleation) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
 		gp.setYLog(true);
@@ -1218,114 +1267,70 @@ public class CommandLineInversionRunner {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		ArrayList<DiscretizedFunc> riFuncs = Lists.newArrayList();
-		ArrayList<PlotCurveCharacterstics> riChars = Lists.newArrayList();
-		
-		IncrementalMagFreqDist mfd;
-		if (mfds.size() ==  1 || avgColoring) {
-			mfd = mfds.get(0);
+		EvenlyDiscretizedFunc mfd;
+		if (supraSeismoMFDs.size() ==  1 || avgColoring) {
+			mfd = supraSeismoMFDs.get(0);
 			mfd.setName("Incremental MFD");
 			funcs.add(mfd);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-			EvenlyDiscretizedFunc cmlFunc = cmlMFDs.get(0);
-			cmlFunc.setName("Cumulative MFD");
-			funcs.add(cmlFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-			
-			if (!nucleation) {
-				riFuncs.add(getRIFunc(cmlFunc, "Recurrence Interval (RI) for "+name));
-				riChars.add(chars.get(chars.size()-1));
+			if (subSeismoMFDs != null) {
+				funcs.add(subSeismoMFDs.get(0));
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
+				funcs.add(subPlusSupraSeismoMFDs.get(0));
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
 			}
 			
 			if (avgColoring) {
 				// this is an average fault system solution
 				
 				// mean +/- SDOM
-				funcs.add(mfds.get(1));
-				funcs.add(mfds.get(2));
+				funcs.add(supraSeismoMFDs.get(1));
+				funcs.add(supraSeismoMFDs.get(2));
 				PlotCurveCharacterstics pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE);
 				chars.add(pchar);
 				chars.add(pchar);
 				
 				// mean +/- Std Dev
-				funcs.add(mfds.get(3));
-				funcs.add(mfds.get(4));
+				funcs.add(supraSeismoMFDs.get(3));
+				funcs.add(supraSeismoMFDs.get(4));
 				pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN);
 				chars.add(pchar);
 				chars.add(pchar);
 				
 				// min/max
-				funcs.add(mfds.get(5));
-				funcs.add(mfds.get(6));
+				funcs.add(supraSeismoMFDs.get(5));
+				funcs.add(supraSeismoMFDs.get(6));
 				pchar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY);
 				chars.add(pchar);
 				chars.add(pchar);
 			}
 		} else {
-			int numFractils = cmlMFDs.size()-3;
-			funcs.addAll(cmlMFDs);
-			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, Color.MAGENTA, numFractils));
-			if (!nucleation) {
-				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-3),
-						"Recurrence Interval (RI) for "+name));
-				riChars.add(chars.get(chars.size()-3));
-				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-1),
-						"Recurrence Interval (RI) for "+name+" (minimum)"));
-				riChars.add(chars.get(chars.size()-1));
-				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-2),
-						"Recurrence Interval (RI) for "+name+" (maximum)"));
-				riChars.add(chars.get(chars.size()-2));
-			}
-			numFractils = mfds.size()-3;
-			mfd = mfds.get(mfds.size()-3);
-			funcs.addAll(mfds);
-			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), Color.MAGENTA, numFractils));
-			// little hack to remove min/max from incremental plots
-			funcs.remove(funcs.size()-1);
-			funcs.remove(funcs.size()-1);
-			chars.remove(chars.size()-1);
-			chars.remove(chars.size()-1);
+			int numFractiles = supraSeismoMFDs.size()-3;
+			mfd = supraSeismoMFDs.get(supraSeismoMFDs.size()-3);
+			funcs.addAll(supraSeismoMFDs);
+			// used to be: new Color(0, 126, 255)
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, Color.MAGENTA, numFractiles));
+			numFractiles = subSeismoMFDs.size()-3;
+			funcs.addAll(subSeismoMFDs);
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, Color.MAGENTA, numFractiles));
+			funcs.addAll(subPlusSupraSeismoMFDs);
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, Color.MAGENTA, numFractiles));
 		}
 		
 		if (ucerf2MFDs != null) {
-			Color lightRed = new Color (255, 128, 128);
+//			Color lightRed = new Color (255, 128, 128);
 			
-			for (IncrementalMagFreqDist ucerf2MFD : ucerf2MFDs)
+			for (EvenlyDiscretizedFunc ucerf2MFD : ucerf2MFDs)
 				ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
-			IncrementalMagFreqDist meanMFD = ucerf2MFDs.get(0);
+			EvenlyDiscretizedFunc meanMFD = ucerf2MFDs.get(0);
 			funcs.add(meanMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, lightRed));
-//			IncrementalMagFreqDist minMFD = ucerf2MFDs.get(1);
-//			funcs.add(minMFD);
-//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
-//			IncrementalMagFreqDist maxMFD = ucerf2MFDs.get(2);
-//			funcs.add(maxMFD);
-//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, lightRed));
-			if (ucerf2CmlMFDs != null) {
-				EvenlyDiscretizedFunc cmlMeanMFD = ucerf2CmlMFDs.get(0);
-				for (IncrementalMagFreqDist ucerf2MFD : ucerf2CmlMFDs)
-					ucerf2MFD.setName("UCERF2 "+ucerf2MFD.getName());
-				funcs.add(cmlMeanMFD);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
-				IncrementalMagFreqDist cmlMinMFD = ucerf2CmlMFDs.get(1);
-				funcs.add(cmlMinMFD);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-				IncrementalMagFreqDist cmlMaxMFD = ucerf2CmlMFDs.get(2);
-				funcs.add(cmlMaxMFD);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-				if (!nucleation) {
-					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(0),
-							"UCERF2 Recurrence Interval (RI) for "+name));
-					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
-					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(2),
-							"UCERF2 Recurrence Interval (RI) for "+name+" (minimum)"));
-					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-					riFuncs.add(getRIFunc(ucerf2CmlMFDs.get(1),
-							"UCERF2 Recurrence Interval (RI) for "+name+" (maximum)"));
-					riChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
-				}
-			}
-			
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
+			EvenlyDiscretizedFunc minMFD = ucerf2MFDs.get(1);
+			funcs.add(minMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+			EvenlyDiscretizedFunc maxMFD = ucerf2MFDs.get(2);
+			funcs.add(maxMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));			
 		}
 
 		double minX = mfd.getMinX();
@@ -1363,78 +1368,6 @@ public class CommandLineInversionRunner {
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.getCartPanel().setSize(1000, 800);
-		
-		
-		if (nucleation) {
-			if (subSeismoMFDs != null) {
-				// make off fault nucleation MFDs
-				funcs = Lists.newArrayList();
-				chars = Lists.newArrayList();
-				
-				if (subSeismoMFDs.size() == 1 || avgColoring) {
-					funcs.add(subSeismoMFDs.get(0));
-					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
-					funcs.add(subPlusSupraSeismoMFDs.get(0));
-					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLUE));
-					funcs.add(subPlusSupraSeismoCmlMFDs.get(0));
-					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
-				} else {
-					int numFractiles = subSeismoMFDs.size()-3;
-					funcs.addAll(subSeismoMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, Color.MAGENTA, numFractiles));
-					// little hack to remove min/max from incremental plots
-					funcs.remove(funcs.size()-1);
-					funcs.remove(funcs.size()-1);
-					chars.remove(chars.size()-1);
-					chars.remove(chars.size()-1);
-					funcs.addAll(subPlusSupraSeismoMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), Color.MAGENTA, numFractiles));
-					// little hack to remove min/max from incremental plots
-					funcs.remove(funcs.size()-1);
-					funcs.remove(funcs.size()-1);
-					chars.remove(chars.size()-1);
-					chars.remove(chars.size()-1);
-					funcs.addAll(subPlusSupraSeismoCmlMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, Color.MAGENTA, numFractiles));
-				}
-				
-				gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
-				
-				fname += "_sub_seismo";
-				File subDir = new File(dir, "sub_seismogenic_plots");
-				if (!subDir.exists())
-					subDir.mkdir();
-				file = new File(subDir, fname);
-				gp.getCartPanel().setSize(1000, 800);
-				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-				gp.saveAsPNG(file.getAbsolutePath()+".png");
-				gp.saveAsTXT(file.getAbsolutePath()+".txt");
-				file = new File(smallDir, fname+"_small");
-				gp.getCartPanel().setSize(500, 400);
-				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-				gp.saveAsPNG(file.getAbsolutePath()+".png");
-			}
-		} else {
-			// make participation cumulative RI plots
-			gp.setUserBounds(5d, 9d, 10, 1e9);
-			
-			title = "Participation Recurrence Interval for "+name+" ("+id+")";
-			gp.drawGraphPanel("Magnitude", "Recurrence Interval", riFuncs, riChars, true, title);
-			
-			fname = name.replaceAll("\\W+", "_")+"_cmlRI_participation";
-			File subDir = new File(dir, "cumulative_recurrence_plots");
-			if (!subDir.exists())
-				subDir.mkdir();
-			file = new File(subDir, fname);
-			gp.getCartPanel().setSize(1000, 800);
-			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			gp.saveAsPNG(file.getAbsolutePath()+".png");
-			gp.saveAsTXT(file.getAbsolutePath()+".txt");
-			file = new File(smallDir, fname+"_small");
-			gp.getCartPanel().setSize(500, 400);
-			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-			gp.saveAsPNG(file.getAbsolutePath()+".png");
-		}
 	}
 
 	public static void writePaleoCorrelationPlots(

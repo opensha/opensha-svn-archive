@@ -1510,6 +1510,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		if (!dir.exists())
 			dir.mkdir();
+		
+		File particIncrSubDir = new File(dir, "participation_incremental");
+		if (!particIncrSubDir.exists())
+			particIncrSubDir.mkdir();
+		File particCmlSubDir = new File(dir, "participation_cumulative");
+		if (!particCmlSubDir.exists())
+			particCmlSubDir.mkdir();
+		File nuclIncrSubDir = new File(dir, "nucleation_incremental");
+		if (!nuclIncrSubDir.exists())
+			nuclIncrSubDir.mkdir();
+		File nuclCmlSubDir = new File(dir, "nucleation_cumulative");
+		if (!nuclCmlSubDir.exists())
+			nuclCmlSubDir.mkdir();
 
 		CSVFile<String> nucleationCSV = new CSVFile<String>(true);
 		CSVFile<String> nucleationMinCSV = new CSVFile<String>(true);
@@ -1604,18 +1617,39 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			List<IncrementalMagFreqDist> subSeismoMFDs = plot.plotSubSeismoIncrMFDs
 					.get(parentID);
-			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs = plot.plotSubPlusSupraSeismoMFDs
+			List<EvenlyDiscretizedFunc> subSeismoCmlMFDs = plot.plotSubSeismoCmlMFDs
 					.get(parentID);
-			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs = plot.plotSubPlusSupraSeismoCmlMFDs
+			List<IncrementalMagFreqDist> subPlusSupraSeismoNuclMFDs = plot.plotSubPlusSupraSeismoNuclMFDs
+					.get(parentID);
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoNuclCmlMFDs = plot.plotSubPlusSupraSeismoNuclCmlMFDs
+					.get(parentID);
+			List<IncrementalMagFreqDist> subPlusSupraSeismoParticMFDs = plot.plotSubPlusSupraSeismoParticMFDs
+					.get(parentID);
+			List<EvenlyDiscretizedFunc> subPlusSupraSeismoParticCmlMFDs = plot.plotSubPlusSupraSeismoParticCmlMFDs
 					.get(parentID);
 
-			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
-					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, subSeismoMFDs,
-					subPlusSupraSeismoMFDs, subPlusSupraSeismoCmlMFDs,
-					parentID, name, true);
-			writeParentSectionMFDPlot(dir, partMFDs, partCmlMFDs,
-					ucerf2PartMFDs, ucerf2PartCmlMFDs, null, null, null,
-					parentID, name, false);
+			// nucleation
+			// incremental
+			writeParentSectionMFDPlot(nuclIncrSubDir, nuclMFDs, ucerf2NuclMFDs,
+					subSeismoMFDs, subPlusSupraSeismoNuclMFDs, parentID, name, true);
+			// cumulative
+			writeParentSectionMFDPlot(nuclCmlSubDir, nuclCmlMFDs, ucerf2NuclCmlMFDs,
+					subSeismoCmlMFDs, subPlusSupraSeismoNuclCmlMFDs, parentID, name, true);
+			
+			// participation
+			writeParentSectionMFDPlot(particIncrSubDir, partMFDs, ucerf2PartMFDs,
+					subSeismoMFDs, subPlusSupraSeismoParticMFDs, parentID, name, false);
+			// cumulative
+			writeParentSectionMFDPlot(particCmlSubDir, partCmlMFDs, ucerf2PartCmlMFDs,
+					subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, parentID, name, true);
+			
+//			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
+//					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, subSeismoMFDs,
+//					subPlusSupraSeismoMFDs, subPlusSupraSeismoCmlMFDs,
+//					parentID, name, true);
+//			writeParentSectionMFDPlot(dir, partMFDs, partCmlMFDs,
+//					ucerf2PartMFDs, ucerf2PartCmlMFDs, null, null, null,
+//					parentID, name, false);
 		}
 
 		nucleationCSV.writeToFile(new File(dir,
@@ -1676,18 +1710,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 	}
 
 	private static void writeParentSectionMFDPlot(File dir,
-			List<IncrementalMagFreqDist> mfds,
-			List<EvenlyDiscretizedFunc> cmlMFDs,
-			List<IncrementalMagFreqDist> ucerf2MFDs,
-			List<IncrementalMagFreqDist> ucerf2CmlMFDs,
-			List<IncrementalMagFreqDist> subSeismoMFDs,
-			List<IncrementalMagFreqDist> subPlusSupraSeismoMFDs,
-			List<EvenlyDiscretizedFunc> subPlusSupraSeismoCmlMFDs, int id,
+			List<? extends EvenlyDiscretizedFunc> mfds,
+			List<? extends EvenlyDiscretizedFunc> ucerf2MFDs,
+			List<? extends EvenlyDiscretizedFunc> subSeismoMFDs,
+			List<? extends EvenlyDiscretizedFunc> subPlusSupraSeismoMFDs, int id,
 			String name, boolean nucleation) throws IOException {
-		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds, cmlMFDs,
-				false, ucerf2MFDs, ucerf2CmlMFDs, subSeismoMFDs,
-				subPlusSupraSeismoMFDs, subPlusSupraSeismoCmlMFDs, id, name,
-				nucleation);
+		CommandLineInversionRunner.writeParentSectMFDPlot(dir, mfds,
+				subSeismoMFDs, subPlusSupraSeismoMFDs, ucerf2MFDs, false, id, name, nucleation);
 	}
 
 	public static class ParentSectMFDsPlot extends CompoundFSSPlots {
@@ -1715,20 +1744,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private static final double delta = 0.1d;
 		private static final int num = (int) ((maxX - minX) / delta) + 1;
 
-		private Map<Integer, List<IncrementalMagFreqDist>> plotNuclIncrMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<IncrementalMagFreqDist>> plotSubSeismoIncrMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<IncrementalMagFreqDist>> plotSubPlusSupraSeismoMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<EvenlyDiscretizedFunc>> plotSubPlusSupraSeismoCmlMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<IncrementalMagFreqDist>> plotPartIncrMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<EvenlyDiscretizedFunc>> plotNuclCmlMFDs = Maps
-				.newHashMap();
-		private Map<Integer, List<EvenlyDiscretizedFunc>> plotPartCmlMFDs = Maps
-				.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotNuclIncrMFDs = Maps.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotSubSeismoIncrMFDs = Maps.newHashMap();
+		private Map<Integer, List<EvenlyDiscretizedFunc>> plotSubSeismoCmlMFDs = Maps.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotSubPlusSupraSeismoNuclMFDs = Maps.newHashMap();
+		private Map<Integer, List<EvenlyDiscretizedFunc>> plotSubPlusSupraSeismoNuclCmlMFDs = Maps.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotSubPlusSupraSeismoParticMFDs = Maps.newHashMap();
+		private Map<Integer, List<EvenlyDiscretizedFunc>> plotSubPlusSupraSeismoParticCmlMFDs = Maps.newHashMap();
+		private Map<Integer, List<IncrementalMagFreqDist>> plotPartIncrMFDs = Maps.newHashMap();
+		private Map<Integer, List<EvenlyDiscretizedFunc>> plotNuclCmlMFDs = Maps.newHashMap();
+		private Map<Integer, List<EvenlyDiscretizedFunc>> plotPartCmlMFDs = Maps.newHashMap();
 
 		private static double[] getDefaultFractiles() {
 			// double[] ret = { 0.5 };
@@ -1853,22 +1878,41 @@ public abstract class CompoundFSSPlots implements Serializable {
 								weightsMap.get(parentID),
 								"Incremental Sub Seismogenic Nucleation MFD",
 								fractiles)));
-				XY_DataSetList subPlusSupraMFDs = getSummed(
+				plotSubSeismoCmlMFDs.put(
+						parentID,
+						asEvenly(getFractiles(asCml(nuclSubSeismoMFDs.get(parentID)),
+								weightsMap.get(parentID),
+								"Cumulative Sub Seismogenic Nucleation MFD",
+								fractiles)));
+				XY_DataSetList subPlusSupraNuclMFDs = getSummed(
 						nuclSubSeismoMFDs.get(parentID),
 						nuclIncrMFDs.get(parentID));
-				plotSubPlusSupraSeismoMFDs
-						.put(parentID,
+				XY_DataSetList subPlusSupraParticMFDs = getSummed(
+						nuclSubSeismoMFDs.get(parentID),
+						partIncrMFDs.get(parentID));
+				plotSubPlusSupraSeismoNuclMFDs.put(parentID,
 								asIncr(getFractiles(
-										subPlusSupraMFDs,
+										subPlusSupraNuclMFDs,
 										weightsMap.get(parentID),
 										"Incremental Sub+Supra Seismogenic Nucleation MFD",
 										fractiles)));
-				plotSubPlusSupraSeismoCmlMFDs
-						.put(parentID,
+				plotSubPlusSupraSeismoNuclCmlMFDs.put(parentID,
 								asEvenly(getFractiles(
-										asCml(subPlusSupraMFDs),
+										asCml(subPlusSupraNuclMFDs),
 										weightsMap.get(parentID),
 										"Cumulative Sub+Supra Seismogenic Nucleation MFD",
+										new double[0])));
+				plotSubPlusSupraSeismoParticMFDs.put(parentID,
+								asIncr(getFractiles(
+										subPlusSupraParticMFDs,
+										weightsMap.get(parentID),
+										"Incremental Sub+Supra Seismogenic Participation MFD",
+										fractiles)));
+				plotSubPlusSupraSeismoParticCmlMFDs.put(parentID,
+								asEvenly(getFractiles(
+										asCml(subPlusSupraParticMFDs),
+										weightsMap.get(parentID),
+										"Cumulative Sub+Supra Seismogenic Participation MFD",
 										new double[0])));
 			}
 		}
@@ -5238,7 +5282,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			System.exit(0);
 		}
-
 		UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = new UCERF2_TimeIndependentEpistemicList();
 		ucerf2_erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME,
 				UCERF2.FULL_DDW_FLOATER);
@@ -5299,20 +5342,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeParentSectionMFDPlots(fetch, weightProvider, parentSectMFDsDir);
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
-		plots.add(new RegionalMFDPlot(weightProvider, regions));
-		plots.add(new PaleoFaultPlot(weightProvider));
-		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
+//		plots.add(new RegionalMFDPlot(weightProvider, regions));
+//		plots.add(new PaleoFaultPlot(weightProvider));
+//		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 		plots.add(new ParentSectMFDsPlot(weightProvider));
-		plots.add(new RupJumpPlot(weightProvider));
-		plots.add(new SlipRatePlots(weightProvider));
-		plots.add(new ParticipationMapPlot(weightProvider));
+//		plots.add(new RupJumpPlot(weightProvider));
+//		plots.add(new SlipRatePlots(weightProvider));
+//		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
-		plots.add(new MiniSectRIPlot(weightProvider));
-		plots.add(new PaleoRatesTable(weightProvider));
-		plots.add(new AveSlipMapPlot(weightProvider));
-		plots.add(new MultiFaultParticPlot(weightProvider));
-		plots.add(new MeanFSSBuilder(weightProvider));
+//		plots.add(new MiniSectRIPlot(weightProvider));
+//		plots.add(new PaleoRatesTable(weightProvider));
+//		plots.add(new AveSlipMapPlot(weightProvider));
+//		plots.add(new MultiFaultParticPlot(weightProvider));
+//		plots.add(new MeanFSSBuilder(weightProvider));
 
 		batchPlot(plots, fetch, 4);
 

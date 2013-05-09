@@ -691,7 +691,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-production-first-five";
+		String runName = "ucerf3p3-production-second-five";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -736,8 +736,8 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 5;
-		int runStart = 0;
+		int numRuns = 10;
+		int runStart = 5;
 		boolean forcePlots = false;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
