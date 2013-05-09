@@ -1641,7 +1641,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					subSeismoMFDs, subPlusSupraSeismoParticMFDs, parentID, name, false, false);
 			// cumulative
 			writeParentSectionMFDPlot(particCmlSubDir, partCmlMFDs, ucerf2PartCmlMFDs,
-					subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, parentID, name, true, true);
+					subSeismoCmlMFDs, subPlusSupraSeismoParticCmlMFDs, parentID, name, false, true);
 			
 //			writeParentSectionMFDPlot(dir, nuclMFDs, nuclCmlMFDs,
 //					ucerf2NuclMFDs, ucerf2NuclCmlMFDs, subSeismoMFDs,

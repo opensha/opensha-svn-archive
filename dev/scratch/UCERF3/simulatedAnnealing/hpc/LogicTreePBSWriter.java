@@ -691,7 +691,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-production-second-five";
+		String runName = "ucerf3p3-subset-noMFD-nucl1";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -736,8 +736,8 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 10;
-		int runStart = 5;
+		int numRuns = 1;
+		int runStart = 0;
 		boolean forcePlots = false;
 
 		boolean lightweight = numRuns > 10 || batchSize > 1;
@@ -750,8 +750,8 @@ public class LogicTreePBSWriter {
 		
 		int overallMaxJobs = -1;
 
-//		TreeTrimmer trimmer = getCustomTrimmer();
-		TreeTrimmer trimmer = getFullBranchSpan();
+		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getFullBranchSpan();
 //		TreeTrimmer trimmer = getMiniBranchSpan();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
 //				ScalingRelationships.ELLB_SQRT_LENGTH, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_8p7,
@@ -802,14 +802,16 @@ public class LogicTreePBSWriter {
 		/*
 		// this is for varying each weight one at a time
 		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { 	InversionOptions.SLIP_WT,
+		InversionOptions[] ops = { 	InversionOptions.SLIP_WT_NORM,
+									InversionOptions.SLIP_WT_UNNORM,
 									InversionOptions.PALEO_WT,
 									InversionOptions.MFD_WT,
 									InversionOptions.SECTION_NUCLEATION_MFD_WT,
 									InversionOptions.PALEO_SECT_MFD_SMOOTH };
 		
-		String[] defaults_weights = {	"1", // slip
-										"2", // paleo
+		String[] defaults_weights = {	"1", // slip norm
+										"100", // slip unnorm
+										"1.2", // paleo
 										""+InversionConfiguration.DEFAULT_MFD_EQUALITY_WT, // MFD
 										"0.01", // section nucleation
 										"1000" }; // paleo sect smoothness
@@ -817,15 +819,22 @@ public class LogicTreePBSWriter {
 		// first add branch with defaults
 		variationBranches.add(buildVariationBranch(ops, defaults_weights));
 		// now add one offs
-		for (int i=0; i<defaults_weights.length; i++) {
+		for (int i=1; i<defaults_weights.length; i++) {
 			String[] myWeightsHigh = Arrays.copyOf(defaults_weights, defaults_weights.length);
 			String[] myWeightsLow = Arrays.copyOf(defaults_weights, defaults_weights.length);
 			double myWeight = Double.parseDouble(defaults_weights[i]);
 			myWeightsHigh[i] = ""+(float)(myWeight*10d);
 			myWeightsLow[i] = ""+(float)(myWeight*0.1d);
+			if (i == 1) {
+				// do slips together
+				double myWeight2 = Double.parseDouble(defaults_weights[0]);
+				myWeightsHigh[0] = ""+(float)(myWeight2*10d);
+				myWeightsLow[0] = ""+(float)(myWeight2*0.1d);
+			}
 			variationBranches.add(buildVariationBranch(ops, myWeightsHigh));
 			variationBranches.add(buildVariationBranch(ops, myWeightsLow));
-		} */
+		}
+		*/
 		
 		
 //		// this is for varying each weight one at a time for deciding on paleo weights
@@ -915,7 +924,7 @@ public class LogicTreePBSWriter {
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.MFD_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
-//		variationBranches.add(buildVariationBranch(ops, toArray("0", "0.1")));
+//		variationBranches.add(buildVariationBranch(ops, toArray("0", "1")));
 		
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
 //		InversionOptions[] ops = { InversionOptions.PALEO_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT,
