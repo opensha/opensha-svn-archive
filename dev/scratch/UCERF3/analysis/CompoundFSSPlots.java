@@ -4777,12 +4777,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	public static List<PlotCurveCharacterstics> getFractileChars(Color color,
 			int numFractiles) {
+		return getFractileChars(color, color, numFractiles);
+	}
+	
+	public static List<PlotCurveCharacterstics> getFractileChars(Color color, Color fractileColor,
+			int numFractiles) {
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 
 		PlotCurveCharacterstics thinChar = new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 1f, color);
 		PlotCurveCharacterstics medChar = new PlotCurveCharacterstics(
-				PlotLineType.SOLID, 2f, color);
+				PlotLineType.SOLID, 2f, fractileColor);
 		PlotCurveCharacterstics thickChar = new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 4f, color);
 

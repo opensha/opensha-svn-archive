@@ -121,7 +121,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				// TODO don't hardcode?
 				subPlots.add(new ParentSectMFDsPlot(new UCERF3p2BranchWeightProvider()));
 				try {
-					CompoundFaultSystemSolution subFetch = CompoundFaultSystemSolution.fromZipFile(compFile);
+					FaultSystemSolutionFetcher subFetch = CompoundFaultSystemSolution.fromZipFile(compFile);
+					if (cmd.hasOption("rand")) {
+						int num = Integer.parseInt(cmd.getOptionValue("rand"));
+						subFetch = FaultSystemSolutionFetcher.getRandomSample(subFetch, num);
+					}
 					parentMFDCompare = new MPJDistributedCompoundFSSPlots(cmd, subFetch, subPlots);
 				} catch (Exception e) {
 					ExceptionUtils.throwAsRuntimeException(e);
@@ -209,6 +213,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		// see if we have comparison MFD plots
 		if (parentMFDCompare != null) {
+			debug("Running MFD compare!");
 			parentMFDCompare.run();
 		}
 		
@@ -232,12 +237,13 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			}
 			
 			for (CompoundFSSPlots plot : plots) {
+				plot.finalizePlot();
 				if (parentMFDCompare != null && plot instanceof ParentSectMFDsPlot) {
+					debug("Merging in MFD compare");
 					ParentSectMFDsPlot mainPlot = (ParentSectMFDsPlot)plot;
 					ParentSectMFDsPlot oPlot = (ParentSectMFDsPlot)parentMFDCompare.plots.get(0);
 					mainPlot.addMeanFromExternalAsFractile(oPlot);
 				}
-				plot.finalizePlot();
 			}
 			
 			CompoundFSSPlots.printComputeTimes(plots);

@@ -1264,7 +1264,7 @@ public class CommandLineInversionRunner {
 		} else {
 			int numFractils = cmlMFDs.size()-3;
 			funcs.addAll(cmlMFDs);
-			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, numFractils));
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, Color.MAGENTA, numFractils));
 			if (!nucleation) {
 				riFuncs.add(getRIFunc(cmlMFDs.get(cmlMFDs.size()-3),
 						"Recurrence Interval (RI) for "+name));
@@ -1279,7 +1279,7 @@ public class CommandLineInversionRunner {
 			numFractils = mfds.size()-3;
 			mfd = mfds.get(mfds.size()-3);
 			funcs.addAll(mfds);
-			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractils));
+			chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), Color.MAGENTA, numFractils));
 			// little hack to remove min/max from incremental plots
 			funcs.remove(funcs.size()-1);
 			funcs.remove(funcs.size()-1);
@@ -1381,21 +1381,21 @@ public class CommandLineInversionRunner {
 				} else {
 					int numFractiles = subSeismoMFDs.size()-3;
 					funcs.addAll(subSeismoMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, numFractiles));
+					chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, Color.MAGENTA, numFractiles));
 					// little hack to remove min/max from incremental plots
 					funcs.remove(funcs.size()-1);
 					funcs.remove(funcs.size()-1);
 					chars.remove(chars.size()-1);
 					chars.remove(chars.size()-1);
 					funcs.addAll(subPlusSupraSeismoMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), numFractiles));
+					chars.addAll(CompoundFSSPlots.getFractileChars(new Color(0, 126, 255), Color.MAGENTA, numFractiles));
 					// little hack to remove min/max from incremental plots
 					funcs.remove(funcs.size()-1);
 					funcs.remove(funcs.size()-1);
 					chars.remove(chars.size()-1);
 					chars.remove(chars.size()-1);
 					funcs.addAll(subPlusSupraSeismoCmlMFDs);
-					chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, numFractiles));
+					chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, Color.MAGENTA, numFractiles));
 				}
 				
 				gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
