@@ -559,7 +559,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 		
 		private static final boolean infer_off_fault = false;
-		private static final boolean INCLUDE_AFTERSHOCKS = false;
+		private static final boolean INCLUDE_AFTERSHOCKS = true;
 
 		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
