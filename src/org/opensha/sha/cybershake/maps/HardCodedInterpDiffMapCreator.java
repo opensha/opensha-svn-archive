@@ -303,8 +303,13 @@ public class HardCodedInterpDiffMapCreator {
 			boolean logPlot = false;
 			int imTypeID = 21;
 			int velModelID = 1;
-			List<Integer> datasetIDs = Lists.newArrayList(12, 21);
-			List<Integer> compDatasetIDs = Lists.newArrayList(1);
+			// the main dataset(s) that we're plotting
+			List<Integer> datasetIDs = Lists.newArrayList(26);
+			// comparison dataset for ratio maps
+//			List<Integer> compDatasetIDs = Lists.newArrayList(1);
+			List<Integer> compDatasetIDs = null;
+			// color bar limits for hazard maps (can be null to auto scale)
+			// in G
 			Double customMin = 0d;
 			Double customMax = 1.4;
 			
@@ -326,13 +331,20 @@ public class HardCodedInterpDiffMapCreator {
 //				customMax = -2.5;
 //			}
 			
+			// probably always leave this null
 			ModProbConfig config = null;
+			// the point on the hazard curve we are plotting
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
+			// GMPE that we are using for the basemap
+			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
 			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+			// GMPE params
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);
+			// map label
 			String customLabel = "3sec SA, 2% in 50 yrs";
+			// always leave false, used for previous study
 			boolean probGain = false;
 			
 			
@@ -410,7 +422,7 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig timeIndepModProb = ModProbConfigFactory.getModProbConfig(1);
 			refScatter = getCustomScatter(timeIndepModProb, imTypeID, isProbAt_IML, val);
 			scatterData = ProbGainCalc.calcProbGain(refScatter, scatterData);
-			mapTypes = gainPlotTypes;;
+			mapTypes = gainPlotTypes;
 		}
 		
 		InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
