@@ -334,6 +334,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		meanOption.setRequired(false);
 		options.addOption(meanOption);
 		
+		Option meanIndOption = new Option("meanind", "mean-sol-ind", true,
+				"Index in average fault system solutions to use for mean (optional)");
+		meanIndOption.setRequired(false);
+		options.addOption(meanIndOption);
+		
 		Option plotAllOption = new Option("all", "plot-all", false, "Flag for making all plots");
 		plotAllOption.setRequired(false);
 		options.addOption(plotAllOption);
@@ -493,6 +498,10 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			
 			if (plotAll || cmd.hasOption("mean")) {
 				MeanFSSBuilder builder = new MeanFSSBuilder(weightProvider);
+				if (cmd.hasOption("meanind")) {
+					int meanInd = Integer.parseInt(cmd.getOptionValue("meanind"));
+					builder.setSolIndex(meanInd);
+				}
 				plots.add(builder);
 			}
 			

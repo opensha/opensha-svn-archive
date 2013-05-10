@@ -80,6 +80,7 @@ import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
@@ -2801,6 +2802,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			String myPrefix = prefix;
 			if (multiFM)
 				myPrefix += "_"+fm.getShortName();
+			if (plot.solIndex >= 0)
+				myPrefix += "_run"+plot.solIndex;
 			File outputFile = new File(dir, myPrefix+"_MEAN_BRANCH_AVG_SOL.zip");
 			
 			double[] rates = plot.ratesMap.get(fm);
@@ -2869,13 +2872,34 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// should only be used for old solutions
 		private Map<FaultModels, InversionFaultSystemRupSet> rupSetCache = Maps.newHashMap();
 		
+		// if specified, this index will be used to grab rates and such from individual soltions
+		// in an AFSS
+		private int solIndex = -1;
+		
 		public MeanFSSBuilder(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
+		}
+
+		public int getSolIndex() {
+			return solIndex;
+		}
+
+		public void setSolIndex(int solIndex) {
+			this.solIndex = solIndex;
 		}
 
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
 				InversionFaultSystemSolution sol, int solIndex) {
+			if (solIndex >= 0) {
+				Preconditions.checkState(sol instanceof AverageFaultSystemSolution,
+						"Sol index supplied but branch isn't an average!");
+				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
+				Preconditions.checkState(avgSol.getNumSolutions() > solIndex,
+						"Sol index="+solIndex+" but avg sol has "+avgSol.getNumSolutions()+" sols");
+				sol = avgSol.getSolution(solIndex);
+			}
+			
 			InversionFaultSystemRupSet rupSet = sol.getRupSet();
 			FaultModels fm = rupSet.getFaultModel();
 			
