@@ -701,13 +701,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 			erf = ucerf2_erf_list.getERF(erfIndex);
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
-				SummedMagFreqDist mfdPart = ERF_Calculator
+				IncrementalMagFreqDist mfdPart = ERF_Calculator
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS) {
+					// it's a summed, turn it into an incremental to allow set operation
+					IncrementalMagFreqDist scaled = new IncrementalMagFreqDist(
+							mfdPart.getMinX(), mfdPart.getNum(), mfdPart.getDelta());
 					for(int i=0;i<mfdPart.getNum();i++) {
 						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
-						mfdPart.set(i,mfdPart.getY(i)/scale);	// divide to add aftershocks back in
+						scaled.set(i, mfdPart.getY(i)/scale);	// divide to add aftershocks back in
 					}
+					mfdPart = scaled;
 				}
 				ucerf2OffMFDs.get(regionIndex)[erfIndex] = mfdPart
 						.getCumRateDistWithOffset();
