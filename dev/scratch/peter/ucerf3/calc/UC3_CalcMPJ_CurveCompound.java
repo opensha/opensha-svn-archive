@@ -62,8 +62,10 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 			FileNotFoundException {
 
 		super(cmd);
-		if (args.length != 5) {
-			System.err.println("USAGE: UC3_HazardCurveDriverMPJ [<options>] "
+		shuffle = false;
+		
+		if (args.length < 5) {
+			System.err.println("USAGE: UC3_CalcMPJ_CurveCompound [<options>] "
 				+ "<solfile> <sitefile> <branchfile> <periods> <outDir>");
 			abortAndExit(2);
 		}
@@ -142,21 +144,6 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 		Iterable<T> it = Iterables.transform(SPLIT.split(arg),
 			Enums.valueOfFunction(clazz));
 		return Lists.newArrayList(it);
-	}
-
-	
-	
-
-	// overridden for testing
-	public static Options createOptions() {
-		Options ops = MPJTaskCalculator.createOptions();
-
-		Option erfOp = new Option("e", "mult-erfs", false,
-			"If set, a copy of the ERF will be instantiated for each thread.");
-		erfOp.setRequired(false);
-		ops.addOption(erfOp);
-
-		return ops;
 	}
 
 	public static void main(String[] args) {

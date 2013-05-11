@@ -33,11 +33,11 @@ public class CurvesFromCompound {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length != 10) {
+		if (args.length < 10) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(CurvesFromCompound.class) +
-					" <queue> <nodes> <hours> <libDir> <scriptPath>" +
+					" <queue> <nodes> <hours> <libDir> <scriptPath> [<options>]" +
 					" <solfile> <sitefile> <branchfile> <periods> <outDir>");
 			System.exit(1);
 		}

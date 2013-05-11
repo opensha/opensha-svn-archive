@@ -67,7 +67,16 @@ public class TestCalc {
 			);
 
 		try {
-			new TestCalc(solSetPath, locs, period, epi);
+			String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
+			String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipWt0.1_VarSlipWtUnNorm10.0_VarPaleo1.2_VarMFDWt10.0_VarSectNuclMFDWt0.01_VarSmoothPaleoSect1000";
+			
+			// init erf for branch
+			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(path,
+				branch, IncludeBackgroundOption.INCLUDE, false,
+				true, 1.0);
+
+			
+//			new TestCalc(solSetPath, locs, period, epi);
 //			mendoTest(solSetPath);
 		} catch (Exception ioe) {
 			ioe.printStackTrace();

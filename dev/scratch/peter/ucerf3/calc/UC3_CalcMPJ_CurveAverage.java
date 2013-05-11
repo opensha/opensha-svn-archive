@@ -50,6 +50,7 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 	private LocationList locs;
 	private int solCount;
 	private List<Period> periods;
+	private IncludeBackgroundOption bg;
 	private String outDir;
 
 	private boolean epiUncert = false;
@@ -62,9 +63,9 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 			FileNotFoundException {
 
 		super(cmd);
-		if (args.length != 5) {
-			System.err.println("USAGE: UC3_HazardCurveDriverMPJ [<options>] "
-				+ "<solfile> <sitefile> <solCount> <periods> <outDir>");
+		if (args.length != 6) {
+			System.err.println("USAGE: UC3_CalcMPJ_CurveAverage [<options>] "
+				+ "<solfile> <sitefile> <solCount> <periods> <bgOption> <outDir>");
 			abortAndExit(2);
 		}
 
@@ -81,7 +82,8 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 		}
 		solCount = Integer.parseInt(args[2]);
 		periods = readArgAsList(args[3], Period.class);
-		outDir = args[4];
+		bg = IncludeBackgroundOption.valueOf(args[4]);
+		outDir = args[5];
 
 		// init executor
 		int numProc = Runtime.getRuntime().availableProcessors();
@@ -102,7 +104,7 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 
 			// init erf for branch
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
-				idx, IncludeBackgroundOption.INCLUDE, false,
+				idx, bg, false,
 				true, 1.0);
 			erf.updateForecast();
 			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);

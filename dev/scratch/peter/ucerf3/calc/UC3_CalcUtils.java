@@ -28,6 +28,7 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
@@ -158,8 +159,16 @@ public class UC3_CalcUtils {
 			double duration) {
 		
 		CompoundFaultSystemSolution cfss = getCompoundSolution(solPath);
-		LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchID);
-		InversionFaultSystemSolution fss = cfss.getSolution(branch);
+		InversionFaultSystemSolution fss = null;
+		LogicTreeBranch branch = null;
+		try {
+			branch = LogicTreeBranch.fromFileName(branchID);
+			fss = cfss.getSolution(branch);
+		} catch (Exception e) {
+			// try to handle as eqn set var logic tree brnach name instead
+			branch = VariableLogicTreeBranch.fromFileName(branchID);
+			fss = cfss.getSolution(branch);
+		}
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
 		erf.setName(branchID);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);

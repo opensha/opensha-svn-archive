@@ -33,12 +33,12 @@ public class CurvesFromAverage {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length != 10) {
+		if (args.length != 11) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(CurvesFromAverage.class) +
 					" <queue> <nodes> <hours> <libDir> <scriptPath>" +
-					" <solfile> <sitefile> <solCount> <periods> <outDir>");
+					" <solfile> <sitefile> <solCount> <periods> <bgOption> <outDir>");
 			System.exit(1);
 		}
 

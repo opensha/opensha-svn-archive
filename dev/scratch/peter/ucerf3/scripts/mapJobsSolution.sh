@@ -25,7 +25,7 @@ PERIOD='GM0P00'
 HRS=1
 NODES=84
 QUEUE=nbns
-BG=EXCLUDE
+BG=INCLUDE
 
 java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	scratch.peter.ucerf3.scripts.MapsFromSolution \

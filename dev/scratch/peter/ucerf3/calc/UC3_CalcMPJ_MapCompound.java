@@ -48,7 +48,7 @@ public class UC3_CalcMPJ_MapCompound extends MPJTaskCalculator {
 		
 		super(cmd);
 		if (args.length != 6) {
-			System.err.println("USAGE: UC3_HazardCalcDriverMPJ [<options>] " +
+			System.err.println("USAGE: UC3_CalcMPJ_MapCompound [<options>] " +
 					"<solPath> <branchID> <grid> <spacing> <period> <outPath>");
 			abortAndExit(2);
 		}

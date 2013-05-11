@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
+import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -30,6 +31,7 @@ import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -44,9 +46,10 @@ import com.google.common.io.Files;
  */
 public class Utils {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 //		generateFullTreeBranchList("UC32tree1440");
-		generateBranchList("UC32-FM-DM-MS-U2-1sec");
+//		generateBranchList("UC32-FM-DM-MS-U2-1sec");
+		buildEqnSetWtList();
 	}
 	
 
@@ -137,6 +140,17 @@ public class Utils {
 		}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		}
+	}
+	
+	private static void buildEqnSetWtList() throws IOException {
+		String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
+		CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(path);
+		File out = new File("tmp/invSolSets", "eqnSetWts.txt");
+		int count = 0;
+		for (LogicTreeBranch branch : cfss.getBranches()) {
+			Files.append(branch.buildFileName() + LF, out, US_ASCII);
+			System.out.println((count++) + " " + branch.buildFileName());
 		}
 	}
 
