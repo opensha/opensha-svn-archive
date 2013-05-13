@@ -30,6 +30,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 public class FaultSystemSolutionCalc {
@@ -237,33 +238,34 @@ public class FaultSystemSolutionCalc {
 //		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 ////		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip");
 //
-		try {
-			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);
-			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
-			InversionFaultSystemSolution fss = cfss.getSolution(ltb);
-			checkFinalSubseisOnFaultRates(fss);
-			
-			
-			
-//			checkSubseisOnFaultRates(SimpleFaultSystemSolution.fromFile(fssFile));
-//			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
-//			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
-//			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
+		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions
+		// download it from here: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip
+		String fileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
+		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File compoundFile = new File(invDir, fileName);
+		// output directory - you probably want to change this
+		File outputDir = new File("/tmp");
 		
-		// This is the COMPOUND_SOL.zip file, you can download it from here:
-		// http://opensha.usc.edu/ftp/kmilner/ucerf3/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1/2012_10_29-logic-tree-fm3_1_x7-fm3_2_x1_COMPOUND_SOL.zip
-		
-//		File compoundSolFile = new File("/tmp/comp_plots/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
-//		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
+		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
 //		
-//		// output dir
-//		File outputDir = new File("/tmp");
-//		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
+//		try {
+//			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);
+//			LogicTreeBranch ltb = LogicTreeBranch.fromFileName(branch);
+//			InversionFaultSystemSolution fss = cfss.getSolution(ltb);
+//			checkFinalSubseisOnFaultRates(fss);
+//			
+//			
+//			
+////			checkSubseisOnFaultRates(SimpleFaultSystemSolution.fromFile(fssFile));
+////			writeRupRatesToFile(SimpleFaultSystemSolution.fromFile(fssFile));
+////			testHeadlessMFD_Plot(SimpleFaultSystemSolution.fromFile(fssFile));
+////			plotRupLengthRateHistogram(SimpleFaultSystemSolution.fromFile(fssFile));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 }
