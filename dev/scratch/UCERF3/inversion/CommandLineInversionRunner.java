@@ -1,6 +1,9 @@
 package scratch.UCERF3.inversion;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,6 +15,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,6 +33,7 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -1459,36 +1465,100 @@ public class CommandLineInversionRunner {
 					xMax = myXMax;
 			}
 			
+			File slipPNGFile = null;
+			File paleoPNGFile = null;
+			
 			for (int i=0; i<specArray.length; i++) {
 				String fname_add = fname_adds[i];
 				PlotSpec spec = specArray[i];
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				setFontSizes(gp);
+				gp.setBackgroundColor(Color.WHITE);
 				if (i != 3)
 					gp.setYLog(true);
 				if (xMax > 0)
 					// only when latitudeX, this is a kludgy way of detecting this for CA
 					gp.setxAxisInverted(true);
 				System.out.println("X Range: "+xMin+"=>"+xMax);
-				if (i == 1)
-					// just slip
-					gp.setUserBounds(xMin, xMax, 1e-1, 5e1);
-				else if (i == 3)
-					// just ave slip data
-					gp.setUserBounds(xMin, xMax, 0, 10d);
-				else
-					// combined or just paleo
-					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
+				// now determine y scale
+				// divide x range into n equal length bins
+				int n = 20;
+				double xDelta = (xMax - xMin) / (double)(n-1);
+				HistogramFunction maxHist = new HistogramFunction(xMin+0.5*xDelta, n, xDelta);
+				HistogramFunction minHist = new HistogramFunction(xMin+0.5*xDelta, n, xDelta);
+				for (int j=0; j<n; j++)
+					minHist.set(j, Double.POSITIVE_INFINITY);
+				for (DiscretizedFunc func : spec.getFuncs()) {
+					if (func.getName().contains("separator"))
+						continue;
+					for (Point2D pt : func) {
+						int ind = maxHist.getClosestXIndex(pt.getX());
+						double curMax = maxHist.getY(ind);
+						double curMin = minHist.getY(ind);
+						if (pt.getY() > curMax)
+							maxHist.set(ind, pt.getY());
+						if (pt.getY() < curMin)
+							minHist.set(ind, pt.getY());
+					}
+				}
+				// now choose x/y such that all but one are inside
+				List<Double> maxList = Lists.newArrayList();
+				List<Double> minList = Lists.newArrayList();
+				for (int j=0; j<n; j++) {
+					double maxY = maxHist.getY(j);
+					double minY = maxHist.getY(j);
+					if (maxY > 0)
+						maxList.set(j, maxY);
+					if (!Double.isInfinite(minY))
+						minList.set(j, minY);
+				}
+				Collections.sort(maxList);
+				Collections.sort(minList);
+				double yMax = maxList.get(maxList.size()-1);
+				double yMin = minList.get(1);
+				// buffer by just a bit in log space
+				yMax = yMax + Math.pow(Math.log10(yMax)*0.05, 10);
+				yMin = yMin - Math.pow(Math.log10(yMin)*0.05, 10);
+				System.out.println("X Range: "+xMin+"=>"+xMax+", Y Range: "+yMin+"=>"+yMax);
+//				if (i == 1)
+//					// just slip
+//					gp.setUserBounds(xMin, xMax, 1e-1, 5e1);
+//				else if (i == 3)
+//					// just ave slip data
+//					gp.setUserBounds(xMin, xMax, 0, 10d);
+//				else
+//					// combined or just paleo
+//					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
+				gp.setUserBounds(xMin, xMax, yMin, yMax);
 				
 				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
 						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
 				
 				File file = new File(dir, fname+"_"+fname_add);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getCartPanel().setSize(1000, 500);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
+				
+				if (i == 0)
+					paleoPNGFile = new File(file.getAbsolutePath()+".png");
+				else if (i == 1)
+					slipPNGFile = new File(file.getAbsolutePath()+".png");
 			}
+			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
+			BufferedImage slipImage = ImageIO.read(slipPNGFile);
+			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
+			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
+			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
+			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
+					BufferedImage.TYPE_INT_ARGB);
+			// paint both images, preserving the alpha channels
+			Graphics g = combined.getGraphics();
+			g.drawImage(slipImage, 0, 0, null);
+			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
+
+			// Save as new image
+			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
 		}
 	}
 	

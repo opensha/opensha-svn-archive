@@ -677,20 +677,21 @@ public class PaleoFitPlotter {
 			paleoRateUpper.setName("Paleo Rate Constraint: Upper 95% Confidence");
 			ArbitrarilyDiscretizedFunc paleoRateLower = new ArbitrarilyDiscretizedFunc();
 			paleoRateLower.setName("Paleo Rate Constraint: Lower 95% Confidence");
+			List<ArbitrarilyDiscretizedFunc> paleoErrorBarFuncs = Lists.newArrayList();
 			
 			ArbitrarilyDiscretizedFunc aveSlipRateMean = new ArbitrarilyDiscretizedFunc();
 			aveSlipRateMean.setName("Ave Slip Rate Constraint: Mean");
-			ArbitrarilyDiscretizedFunc aveSlipRateUpper = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
-			ArbitrarilyDiscretizedFunc aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
+//			ArbitrarilyDiscretizedFunc aveSlipRateUpper = new ArbitrarilyDiscretizedFunc();
+//			aveSlipRateUpper.setName("Ave Slip Rate Constraint: Upper 95% Confidence");
+//			ArbitrarilyDiscretizedFunc aveSlipRateLower = new ArbitrarilyDiscretizedFunc();
+//			aveSlipRateLower.setName("Ave Slip Rate Constraint: Lower 95% Confidence");
 			
 			ArbitrarilyDiscretizedFunc aveSlipDataMean = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateMean.setName("Ave Slip Per Event Data: Mean");
+			aveSlipDataMean.setName("Ave Slip Per Event Data: Mean");
 			ArbitrarilyDiscretizedFunc aveSlipDataUpper = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateUpper.setName("Ave Slip Per Event Data: Upper 95% Confidence");
+			aveSlipDataUpper.setName("Ave Slip Per Event Data: Upper 95% Confidence");
 			ArbitrarilyDiscretizedFunc aveSlipDataLower = new ArbitrarilyDiscretizedFunc();
-			aveSlipRateLower.setName("Ave Slip Per Event Data: Lower 95% Confidence");
+			aveSlipDataLower.setName("Ave Slip Per Event Data: Lower 95% Confidence");
 			
 			// first create data lines
 			
@@ -856,8 +857,8 @@ public class PaleoFitPlotter {
 				
 				if (constr instanceof PaleoFitPlotter.AveSlipFakePaleoConstraint) {
 					aveSlipRateMean.set(paleoRateX, constr.getMeanRate());
-					aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
-					aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
+//					aveSlipRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
+//					aveSlipRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 					aveSlipDataMean.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlip);
 					aveSlipDataUpper.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlipUpper);
 					aveSlipDataLower.set(paleoRateX, ((AveSlipFakePaleoConstraint)constr).origAveSlipLower);
@@ -865,16 +866,21 @@ public class PaleoFitPlotter {
 					paleoRateMean.set(paleoRateX, constr.getMeanRate());
 					paleoRateUpper.set(paleoRateX, constr.getUpper95ConfOfRate());
 					paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
+					ArbitrarilyDiscretizedFunc errorBarFunc = new ArbitrarilyDiscretizedFunc();
+					errorBarFunc.setName("Paleo Rate Constraint: Error Bar");
+					errorBarFunc.set(paleoRateX-0.00005, constr.getUpper95ConfOfRate());
+					errorBarFunc.set(paleoRateX+0.00005, constr.getLower95ConfOfRate());
+					paleoErrorBarFuncs.add(errorBarFunc);
 				}
 			}
 			
 			if (aveSlipRateMean.getNum() > 0) {
 				rateFuncs.add(aveSlipRateMean);
 				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, aveSlipColor));
-				rateFuncs.add(aveSlipRateUpper);
-				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
-				rateFuncs.add(aveSlipRateLower);
-				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+//				rateFuncs.add(aveSlipRateUpper);
+//				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
+//				rateFuncs.add(aveSlipRateLower);
+//				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, aveSlipColor));
 			}
 			
 			if (paleoRateMean.getNum() > 0) {
@@ -884,6 +890,10 @@ public class PaleoFitPlotter {
 				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
 				rateFuncs.add(paleoRateLower);
 				rateChars.add(new PlotCurveCharacterstics(PlotSymbol.DASH, 5f, paleoProbColor));
+				for (ArbitrarilyDiscretizedFunc errorBarFunc : paleoErrorBarFuncs) {
+					rateFuncs.add(errorBarFunc);
+					rateChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, paleoProbColor));
+				}
 			}
 			
 			if (aveSlipDataMean.getNum() > 0) {
