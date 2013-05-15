@@ -40,7 +40,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class FaultSpecificSegmentationPlotGen {
 	
-	public static void plotSegmentation(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
+	public static void plotSegmentation(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
 		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), false);
@@ -50,7 +50,7 @@ public class FaultSpecificSegmentationPlotGen {
 		gw.getGraphWindow().setVisible(true);
 	}
 	
-	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, FaultSystemSolution sol,
+	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, InversionFaultSystemSolution sol,
 			double minMag, boolean endsOnly) throws IOException {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
@@ -64,7 +64,7 @@ public class FaultSpecificSegmentationPlotGen {
 		return gp;
 	}
 	
-	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
+	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		// first assemble subsections by parent
 		Map<Integer, List<FaultSectionPrefData>> subSectsByParent = Maps.newHashMap();
@@ -79,6 +79,47 @@ public class FaultSpecificSegmentationPlotGen {
 				subSectsByParent.put(parent, curSects);
 			}
 			curSects.add(sect);
+		}
+		
+		// now look for places where the conection point is elsewhere on the parent section (other than the end)
+		for (Integer parentID : subSectsByParent.keySet()) {
+			List<FaultSectionPrefData> subSects = subSectsByParent.get(parentID);
+			int num = subSects.size();
+			if (num % 2 > 0)
+				num--;
+			int numToCheck = num/2 - 1;
+			if (numToCheck > 0) {
+				// does the last sub section connect with another parent?
+				int checkNum = subSects.size();
+				int connectionIndex = -1;
+				for (int i=0; i<numToCheck; i++) {
+					if (hasConnectionOnOtherParent(parentSects, subSects.get(i), sol)) {
+						connectionIndex = i;
+						break;
+					}
+				}
+				if (connectionIndex > 0) {
+					subSects = subSects.subList(connectionIndex, subSects.size());
+					checkNum -= connectionIndex;
+					Preconditions.checkState(checkNum == subSects.size());
+					System.out.println("Trimming off "+connectionIndex+" sub sects for parent "+parentID);
+				}
+				// now the other way
+				connectionIndex = -1;
+				for (int i=0; i<numToCheck; i++) {
+					if (hasConnectionOnOtherParent(parentSects, subSects.get(subSects.size()-1-i), sol)) {
+						connectionIndex = i;
+						break;
+					}
+				}
+				if (connectionIndex > 0) {
+					subSects = subSects.subList(0, subSects.size()-connectionIndex);
+					checkNum -= connectionIndex;
+					Preconditions.checkState(checkNum == subSects.size(), checkNum+" != "+subSects.size());
+					System.out.println("Trimming off "+connectionIndex+" sub sects for parent "+parentID);
+				}
+				subSectsByParent.put(parentID, subSects);
+			}
 		}
 		
 		Map<Location, List<Integer>> stoppingPoints = Maps.newHashMap();
@@ -353,6 +394,21 @@ public class FaultSpecificSegmentationPlotGen {
 		return new PlotSpec(funcs, chars, title, "Latitude", "Rate Ratio");
 	}
 	
+	private static boolean hasConnectionOnOtherParent(List<Integer> parents,
+			FaultSectionPrefData subSect, InversionFaultSystemSolution sol) {
+		List<Integer> connections = sol.getRupSet().getCloseSectionsList(subSect.getSectionId());
+		int parentID = subSect.getParentSectionId();
+		for (int connection : connections) {
+			int connectionParent = sol.getRupSet().getFaultSectionData(connection).getParentSectionId();
+			if (connectionParent == parentID)
+				// same fault
+				continue;
+			if (parents.contains(connectionParent))
+				return true;
+		}
+		return false;
+	}
+	
 	private static Location searchForMatch(Location loc, Collection<Location> locs, double toleranceKM) {
 		double best = Double.MAX_VALUE;
 		Location bestLoc = null;
@@ -384,7 +440,7 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM2_1_UCERF2_COMPARISON_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-				"2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(solFile);
 		
 		CommandLineInversionRunner.writeSAFSegPlots(sol, new File("/tmp/branch_avg"), "branch_avg");
