@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
-import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
@@ -16,14 +15,14 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
-import com.google.common.collect.Lists;
-
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+
+import com.google.common.collect.Lists;
 
 public class RupLengthHistogramGenerator {
 
@@ -35,6 +34,10 @@ public class RupLengthHistogramGenerator {
 	public static void main(String[] args) throws IOException, DocumentException {
 		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		File solFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+		
+		// fraction of earthquakes
+		// rupture length
+		
 		FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		

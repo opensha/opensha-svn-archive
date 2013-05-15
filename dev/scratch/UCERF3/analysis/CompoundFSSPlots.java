@@ -3040,7 +3040,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 
-	private static List<DiscretizedFunc> getFractiles(XY_DataSetList data,
+	public static List<DiscretizedFunc> getFractiles(XY_DataSetList data,
 			List<Double> weights, String name, double[] fractiles) {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 

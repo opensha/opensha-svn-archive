@@ -140,6 +140,17 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		}
 	}
 	
+	public double[] getLengths(LogicTreeBranch branch) {
+		try {
+			Map<String, String> nameRemappings = getRemappings(branch);
+			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("rup_lengths.bin"));
+			return MatrixIO.doubleArrayFromInputStream(
+					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
+	
 	/**
 	 * *********************************************
 	 * Files						Dependencies
@@ -266,12 +277,12 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			System.exit(0);
 		}
 //		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-//		File dir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
-		File dir = new File("/tmp/compound_tests_data/subset/");
+		File dir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
+//		File dir = new File("/tmp/compound_tests_data/subset/");
 //		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
-//		File compoundFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip");
-		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
+		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();
 //		watch.start();
 //		toZipFile(compoundFile, it);

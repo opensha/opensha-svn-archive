@@ -1,5 +1,6 @@
 package scratch.UCERF3.analysis;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,12 +8,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.dom4j.DocumentException;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -31,8 +44,10 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
@@ -287,6 +302,91 @@ public class TablesAndPlotsGen {
 		}
 		return Double.NaN;
 	}
+	
+	private static HistogramFunction loadSurfaceRupData() throws IOException {
+		POIFSFileSystem fs = new POIFSFileSystem(
+				UCERF3_DataUtils.locateResourceAsStream("misc", "Surface_Rupture_Data_Wells_043013.xls"));
+		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		HSSFSheet sheet = wb.getSheetAt(0);
+		
+		int allSRL_col = 28;
+		
+		HistogramFunction hist = buildEmptyLengthHist();
+		int cnt = 0;
+		
+		for (int rowIndex=0; rowIndex<=sheet.getLastRowNum(); rowIndex++) {
+			HSSFRow row = sheet.getRow(rowIndex);
+			if (row == null)
+				continue;
+			HSSFCell cell = row.getCell(allSRL_col);
+			if (cell == null || cell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC)
+				continue;
+			double length = cell.getNumericCellValue();
+			hist.add(length, 1d);
+			cnt++;
+		}
+		System.out.println("Loaded "+cnt+" values from data file");
+		hist.normalizeBySumOfY_Vals();
+		return hist;
+	}
+	
+	private static HistogramFunction buildEmptyLengthHist() {
+		// should be big enough for all UCERF3 ruptures
+		return new HistogramFunction(25, 25, 50d);
+	}
+	
+	public static void buildRupLengthComparisonPlot(CompoundFaultSystemSolution cfss, File dir, String prefix) throws IOException {
+		List<HistogramFunction> hists = Lists.newArrayList();
+		
+		for (LogicTreeBranch branch : cfss.getBranches()) {
+			double[] lengths = cfss.getLengths(branch);
+			double[] rates = cfss.getRates(branch);
+			
+			HistogramFunction hist = buildEmptyLengthHist();
+			
+			for (int r=0; r<lengths.length; r++) {
+				hist.add(lengths[r]/1000d, rates[r]);
+			}
+			hist.normalizeBySumOfY_Vals();
+			
+			hists.add(hist);
+		}
+		
+		HistogramFunction data = loadSurfaceRupData();
+		
+		XY_DataSetList xyList = new XY_DataSetList();
+		for (HistogramFunction hist : hists) {
+			xyList.add(hist);
+		}
+		APrioriBranchWeightProvider weightProv = new APrioriBranchWeightProvider();
+		List<Double> weights = Lists.newArrayList();
+		for (LogicTreeBranch branch : cfss.getBranches())
+			weights.add(weightProv.getWeight(branch));
+		
+		List<DiscretizedFunc> solFuncs = CompoundFSSPlots.getFractiles(xyList, weights, "Surface Rupture Length", new double[0]);
+		List<PlotCurveCharacterstics> solChars = CompoundFSSPlots.getFractileChars(Color.RED, 0);
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		funcs.addAll(solFuncs);
+		chars.addAll(solChars);
+		
+		funcs.add(data);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setUserBounds(0d, 500d, 0d, 1d);
+		gp.drawGraphPanel("Rupture Length (km)", "Fraction of Earthquakes", funcs, chars, true,
+				"Rupture Length Distribution");
+		File outputFile = new File(dir, prefix+"_length_dists");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+	}
 
 	/**
 	 * @param args
@@ -295,19 +395,21 @@ public class TablesAndPlotsGen {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		
-		makePreInversionMFDsFig();
+//		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
 
 		
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 		
-//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-//		File compoundFile = new File(invDir,
-//				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
-//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-//		makeCompoundFSSMomentRatesTable(cfss,
-//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File compoundFile = new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+		makeCompoundFSSMomentRatesTable(cfss,
+				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+		
+		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		
 		
 //		int mojaveParentID = 301;
