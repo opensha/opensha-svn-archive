@@ -33,8 +33,9 @@ public class FakeCompoundFromAverage {
 		File dir = new File("/tmp");
 		File inFile = new File(dir,
 //				"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		File outFile = new File(dir, "zeng_convergence_compound.zip");
+//				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+		File outFile = new File(dir, "3p3_convergence_compound.zip");
 		
 		final AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(inFile);
 		final LogicTreeBranch branch = LogicTreeBranch.fromFileName(inFile.getName());

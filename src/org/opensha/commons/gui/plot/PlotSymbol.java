@@ -26,7 +26,8 @@ public enum PlotSymbol {
 	INV_TRIANGLE("Inv. Triangles", false),
 	FILLED_DIAMOND("Filled Diamonds", true),
 	DIAMOND("Diamonds", false),
-	DASH("Dash", false);
+	DASH("Dash", false),
+	BOLD_DASH("Bold Dash", false);
 	
 	private String desc;
 	private boolean filled;
@@ -74,6 +75,8 @@ public enum PlotSymbol {
 			return ShapeUtilities.createDiagonalCross(width,0.1f);
 		else if (this == DASH)
 			return ShapeUtilities.createLineRegion(new Line2D.Float(-width/2f, 0, width/2f, 0), 0.1f);
+		else if (this == BOLD_DASH)
+			return ShapeUtilities.createLineRegion(new Line2D.Float(-width/2f, 0, width/2f, 0), 0.5f);
 		else if (this == BOLD_X)
 			return ShapeUtilities.createDiagonalCross(width,width*0.25f);
 		else if (this == CROSS)

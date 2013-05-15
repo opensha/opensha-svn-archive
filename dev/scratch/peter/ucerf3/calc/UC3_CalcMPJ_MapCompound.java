@@ -79,7 +79,7 @@ public class UC3_CalcMPJ_MapCompound extends MPJTaskCalculator {
 	
 	@Override
 	public void calculateBatch(int[] batch) throws Exception, InterruptedException {
-		calc.calculate(batch);
+		calc.calculate(batch, getNumThreads());
 		System.out.println("Batch complete");
 	}
 	

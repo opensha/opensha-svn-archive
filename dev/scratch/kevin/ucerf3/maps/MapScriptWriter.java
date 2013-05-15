@@ -33,23 +33,26 @@ public class MapScriptWriter {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
-		String runName = "ucerf3p2-pga-maps-complete";
+		String runName = "ucerf3p3-pga-maps-complete";
 		if (args.length > 1)
 			runName = args[1];
 		
 		// it is assumed that this file is also stored locally in InversionSolutions!
-		String compoundFileName = "2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL.zip";
+		String compoundFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
 		
 		RunSites site = RunSites.STAMPEDE;
 		int nodes = 64;
 //		int bundleSize = 30; // TODO, must be >0
 //		int jobMins = 6*60; // TODO
-		int bundleSize = 10; // TODO, must be >0
-		int jobMins = 2*60; // TODO
+		int bundleSize = 5; // TODO, must be >0
+		int jobMins = 1*60; // TODO
 		
 		String regionCode = "CA_RELM";
 		String resCode = "0.1";
 		String imtCode = "GM0P00";
+//		String threadsArg = "";
+		// trailing space is important
+		String threadsArg = "--threads 12 ";
 		
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/maps");
 		File remoteMainDir = new File(site.getRUN_DIR().getParentFile(), "maps");
@@ -69,8 +72,10 @@ public class MapScriptWriter {
 		CompoundFaultSystemSolution fss = CompoundFaultSystemSolution.fromZipFile(localCompoundFile);
 		
 //		HashSet<LogicTreeBranch> ignores = null;
+//		HashSet<String> ignores = loadIgnoreBranchesFromList(new File(
+//				"/home/kevin/OpenSHA/UCERF3/maps/2013_01_18-ucerf3p2-pga-maps/results/curveList.txt"));
 		HashSet<String> ignores = loadIgnoreBranchesFromList(new File(
-				"/home/kevin/OpenSHA/UCERF3/maps/2013_01_18-ucerf3p2-pga-maps/results/curveList.txt"));
+				"/home/kevin/OpenSHA/UCERF3/maps/2013_05_14-ucerf3p3-pga-maps-complete/curveList.txt"));
 		
 		List<File> classpath = LogicTreePBSWriter.getClasspath(remoteMainDir, remoteDir);
 		
@@ -113,7 +118,7 @@ public class MapScriptWriter {
 			
 			for (LogicTreeBranch branch : branches) {
 				classNames.add(UC3_CalcMPJ_MapCompound.class.getName());
-				argss.add(remoteCompoundfile.getAbsolutePath()+" "+branch.buildFileName()
+				argss.add(threadsArg+" --deadlock "+remoteCompoundfile.getAbsolutePath()+" "+branch.buildFileName()
 						+" "+regionCode+" "+resCode+" "+imtCode+" "+remoteDir.getAbsolutePath());
 			}
 			

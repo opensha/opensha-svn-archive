@@ -2891,13 +2891,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected void processSolution(LogicTreeBranch branch,
 				InversionFaultSystemSolution sol, int solIndex) {
-			if (solIndex >= 0) {
+			if (this.solIndex >= 0) {
 				Preconditions.checkState(sol instanceof AverageFaultSystemSolution,
 						"Sol index supplied but branch isn't an average!");
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
-				Preconditions.checkState(avgSol.getNumSolutions() > solIndex,
-						"Sol index="+solIndex+" but avg sol has "+avgSol.getNumSolutions()+" sols");
-				sol = avgSol.getSolution(solIndex);
+				Preconditions.checkState(avgSol.getNumSolutions() > this.solIndex,
+						"Sol index="+this.solIndex+" but avg sol has "+avgSol.getNumSolutions()+" sols");
+				sol = avgSol.getSolution(this.solIndex);
 			}
 			
 			InversionFaultSystemRupSet rupSet = sol.getRupSet();
@@ -5329,7 +5329,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		File file = new File(dir,
 //				"2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip");
 //		File dir = new File("/tmp/paleo_comp_plots/Paleo1.5");
-		File file = new File(dir, "2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip");
+//		File file = new File(dir, "2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip");
+//		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_IND_RUNS.zip");
+		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
 //		File file = new File(dir, "2013_04_02-new-paleo-weights-tests_VarPaleo1.5_COMPOUND_SOL.zip");
 		// File file = new File(dir, "zeng_convergence_compound.zip");
 		// File file = new
@@ -5371,9 +5373,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
-//		plots.add(new PaleoFaultPlot(weightProvider));
+		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
-		plots.add(new ParentSectMFDsPlot(weightProvider));
+//		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
 //		plots.add(new SlipRatePlots(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
@@ -5383,7 +5385,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new PaleoRatesTable(weightProvider));
 //		plots.add(new AveSlipMapPlot(weightProvider));
 //		plots.add(new MultiFaultParticPlot(weightProvider));
-//		plots.add(new MeanFSSBuilder(weightProvider));
+//		MeanFSSBuilder meanBuild = new MeanFSSBuilder(weightProvider);
+//		meanBuild.setSolIndex(8);
+//		plots.add(meanBuild);
 
 		batchPlot(plots, fetch, 4);
 

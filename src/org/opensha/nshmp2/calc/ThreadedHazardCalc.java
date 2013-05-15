@@ -125,12 +125,27 @@ public class ThreadedHazardCalc {
 	 */
 	public void calculate(int[] indices) throws InterruptedException,
 			ExecutionException, IOException {
+		calculate(indices, Runtime.getRuntime().availableProcessors());
+	}
+	
+	/**
+	 * Calculates hazard curves for the specified indices. Presently no index
+	 * checking is performed. If {@code indices} is {@code null}, curves are
+	 * calculated at all locations.
+	 * 
+	 * @param indices of locations to calculate curves for
+	 * @param numProc number of threads to launch
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws IOException
+	 */
+	public void calculate(int[] indices, int numProc) throws InterruptedException,
+	ExecutionException, IOException {
 		
 		// set up to process all
 		if (indices == null) indices = makeIndices(locs.size());
 		
 		// init thread mgr
-		int numProc = Runtime.getRuntime().availableProcessors();
 		ExecutorService ex = Executors.newFixedThreadPool(numProc);
 		CompletionService<HazardResult> ecs = 
 				new ExecutorCompletionService<HazardResult>(ex);

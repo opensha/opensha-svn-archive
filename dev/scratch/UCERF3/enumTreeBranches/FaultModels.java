@@ -162,8 +162,6 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 
 		ArrayList<FaultSectionPrefData> faultModel = new ArrayList<FaultSectionPrefData>();
 		for (FaultSectionPrefData data : datas) {
-			if (data.getSectionId() == 97)
-				System.out.println(data.getAveLowerDepth());
 			if (!faultSectionIds.contains(data.getSectionId()))
 				continue;
 			faultModel.add(data);

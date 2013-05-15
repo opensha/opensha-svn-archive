@@ -771,19 +771,19 @@ public class CommandLineInversionRunner {
 	public static void writeJumpPlot(File dir, String prefix,
 			DiscretizedFunc[] solFuncs, DiscretizedFunc[] rupSetFuncs, double jumpDist, double minMag, boolean paleoProb) throws IOException {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-		
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		for (int i=0; i<solFuncs.length-1; i++) {
+		
+		funcs.add(solFuncs[0]);
+		funcs.add(rupSetFuncs[0]);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
+		
+		for (int i=1; i<solFuncs.length; i++) {
 			funcs.add(solFuncs[i]);
 			funcs.add(rupSetFuncs[i]);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
 		}
-
-		funcs.add(solFuncs[solFuncs.length-1]);
-		funcs.add(rupSetFuncs[rupSetFuncs.length-1]);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 5f, Color.BLACK));
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, PlotSymbol.CIRCLE, 3f, Color.RED));
 
 		String title = "Inversion Fault Jumps";
 
@@ -900,7 +900,7 @@ public class CommandLineInversionRunner {
 
 	}
 
-	public static void writeSAFSegPlot(FaultSystemSolution sol, File dir, String prefix,
+	public static void writeSAFSegPlot(InversionFaultSystemSolution sol, File dir, String prefix,
 			List<Integer> parentSects, double minMag, boolean endsOnly) throws IOException {
 		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly);
 		
@@ -1441,7 +1441,7 @@ public class CommandLineInversionRunner {
 			Map<String, PlotSpec[]> specs, String prefix, File dir)
 					throws IOException {
 		
-		String[] fname_adds = { "paleo", "slips", "combined", "ave_event_slip" };
+		String[] fname_adds = { "paleo_rate", "slip_rate", "combined", "ave_event_slip" };
 		
 		if (!dir.exists())
 			dir.mkdir();
@@ -1479,47 +1479,51 @@ public class CommandLineInversionRunner {
 				if (xMax > 0)
 					// only when latitudeX, this is a kludgy way of detecting this for CA
 					gp.setxAxisInverted(true);
-				System.out.println("X Range: "+xMin+"=>"+xMax);
 				// now determine y scale
-				// divide x range into n equal length bins
-				int n = 20;
-				double xDelta = (xMax - xMin) / (double)(n-1);
-				HistogramFunction maxHist = new HistogramFunction(xMin+0.5*xDelta, n, xDelta);
-				HistogramFunction minHist = new HistogramFunction(xMin+0.5*xDelta, n, xDelta);
-				for (int j=0; j<n; j++)
-					minHist.set(j, Double.POSITIVE_INFINITY);
+				List<Double> yValsList = Lists.newArrayList();
+				List<Double> confYValsList = Lists.newArrayList();
 				for (DiscretizedFunc func : spec.getFuncs()) {
 					if (func.getName().contains("separator"))
 						continue;
+					if (func.getName().contains("Confidence")) {
+						for (Point2D pt : func) {
+							confYValsList.add(pt.getY());
+						}
+					}
 					for (Point2D pt : func) {
-						int ind = maxHist.getClosestXIndex(pt.getX());
-						double curMax = maxHist.getY(ind);
-						double curMin = minHist.getY(ind);
-						if (pt.getY() > curMax)
-							maxHist.set(ind, pt.getY());
-						if (pt.getY() < curMin)
-							minHist.set(ind, pt.getY());
+						yValsList.add(pt.getY());
 					}
 				}
-				// now choose x/y such that all but one are inside
-				List<Double> maxList = Lists.newArrayList();
-				List<Double> minList = Lists.newArrayList();
-				for (int j=0; j<n; j++) {
-					double maxY = maxHist.getY(j);
-					double minY = maxHist.getY(j);
-					if (maxY > 0)
-						maxList.set(j, maxY);
-					if (!Double.isInfinite(minY))
-						minList.set(j, minY);
+				// now choose x/y such that most is inside
+				Collections.sort(yValsList);
+				Collections.sort(confYValsList);
+				double yMax = yValsList.get(yValsList.size()-1);
+				double yMin = yValsList.get((int)((double)yValsList.size()*0.005));
+				// make sure confidence vals are shown completely
+				// use index 1 (2nd one) to avoid a single outlier
+				if (confYValsList.size() > 0 && yMin > confYValsList.get(1))
+					yMin = confYValsList.get(1);
+				double origYMax = yMax;
+				double origYMin = yMin;
+				if (!gp.getYLog()) {
+					// buffer by just a bit in linear space
+					yMax = yMax + yMax*0.1;
+					yMin = yMin - yMin*0.1;
+				} else {
+					// buffer by just a bit in log space
+					yMax = Math.log10(yMax);
+					yMin = Math.log10(yMin);
+					yMax += Math.abs(yMax * 0.1);
+					yMin -= Math.abs(yMin * 0.1);
+					yMax = Math.pow(10, yMax);
+					yMin = Math.pow(10, yMin);
 				}
-				Collections.sort(maxList);
-				Collections.sort(minList);
-				double yMax = maxList.get(maxList.size()-1);
-				double yMin = minList.get(1);
-				// buffer by just a bit in log space
-				yMax = yMax + Math.pow(Math.log10(yMax)*0.05, 10);
-				yMin = yMin - Math.pow(Math.log10(yMin)*0.05, 10);
+				System.out.println(faultName);
+				System.out.println("Total Y Range: "+yValsList.get(0)+"=>"+yValsList.get(yValsList.size()-1));
+				System.out.println("Orig Y Range: "+origYMin+"=>"+origYMax);
 				System.out.println("X Range: "+xMin+"=>"+xMax+", Y Range: "+yMin+"=>"+yMax);
+				Preconditions.checkState(yMax >= origYMax);
+				Preconditions.checkState(yMin <= origYMin);
 //				if (i == 1)
 //					// just slip
 //					gp.setUserBounds(xMin, xMax, 1e-1, 5e1);

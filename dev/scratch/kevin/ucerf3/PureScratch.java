@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -37,10 +39,14 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -52,9 +58,20 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL.zip"));
-		InversionFaultSystemSolution sol = cfss.getSolution(cfss.getBranches().iterator().next());
-		CommandLineInversionRunner.writeParentSectionMFDPlots(sol, new File("/tmp/newmfd"));
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
+		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
+		Collections.shuffle(branches);
+		HashSet<FaultModels> models = new HashSet<FaultModels>();
+		for (int i=0; i<branches.size(); i++) {
+			LogicTreeBranch branch = branches.get(i);
+			FaultModels model = branch.getValue(FaultModels.class);
+			if (models.contains(model))
+				continue;
+			System.out.println(model.getShortName()+": "+cfss.getSolution(branch).getRupSet().getNumRuptures());
+			models.add(model);
+		}
+//		InversionFaultSystemSolution sol = cfss.getSolution(cfss.getBranches().iterator().next());
+//		CommandLineInversionRunner.writeParentSectionMFDPlots(sol, new File("/tmp/newmfd"));
 		System.exit(0);
 		File f = new File("/tmp/FM3_2_ZENGBB_EllBsqrtLen_DsrTap_CharConst_M5Rate9.6_MMaxOff7.6_NoFix_SpatSeisU2_run0_sol.zip");
 		InversionFaultSystemSolution invSol = FaultSystemIO.loadInvSol(f);

@@ -691,7 +691,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-subset-noMFD-nucl1";
+		String runName = "ucerf3p3-inversion-cool-perturb-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -710,23 +710,23 @@ public class LogicTreePBSWriter {
 
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
-//		RunSites site = RunSites.HPCC;
-//		int batchSize = 0;
-//		int jobsPerNode = 1;
-//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+		RunSites site = RunSites.HPCC;
+		int batchSize = 0;
+		int jobsPerNode = 1;
+		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
 //		int jobsPerNode = 2;
 //		String threads = "8"; // *2 = 16 (out of 16 possible)
-		RunSites site = RunSites.STAMPEDE;
-		int batchSize = 128;
-		int jobsPerNode = 3;
-		String threads = "5"; // *2 = 16 (out of 16 possible)
+//		RunSites site = RunSites.STAMPEDE;
+//		int batchSize = 128;
+//		int jobsPerNode = 3;
+//		String threads = "5"; // *2 = 16 (out of 16 possible)
 		
-		LogicTreeBranch prescribedBranch = null;
-//		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
-//		prescribedBranch.setValue(TotalMag5Rate.RATE_6p5);
+//		LogicTreeBranch prescribedBranch = null;
+		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
+			prescribedBranch.setValue(TotalMag5Rate.RATE_6p5);
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -916,11 +916,18 @@ public class LogicTreePBSWriter {
 //		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.SERIAL, InversionOptions.INITIAL_RANDOM };
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON)));
 //		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON)));
+		
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.SERIAL };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.MFD_WT, InversionOptions.SECTION_NUCLEATION_MFD_WT };
@@ -990,6 +997,7 @@ public class LogicTreePBSWriter {
 //			}
 ////		}
 		
+//		saOptions = Lists.newArrayList();
 //		String[] coolingFuncs = { CoolingScheduleType.CLASSICAL_SA.name(),
 //				CoolingScheduleType.FAST_SA.name(), CoolingScheduleType.VERYFAST_SA.name() };
 //		String[] perturbFuncs = { GenerationFunctionType.UNIFORM_NO_TEMP_DEPENDENCE.name(),
