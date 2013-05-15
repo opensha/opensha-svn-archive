@@ -2375,7 +2375,9 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		plotSectSlipRateHistForAllDeformationModels();
+		plotAllSpatialMoRateMaps();
+		
+//		plotSectSlipRateHistForAllDeformationModels();
 		
 //		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
 	
@@ -2392,11 +2394,6 @@ public class DeformationModelsCalc {
 //		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
 		
 //		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
-
-//		plotAllSpatialMoRateMaps();
-		
-		
-		
 
 				
 //		writeMoRateOfParentSectionsForAllDefAndFaultModels();

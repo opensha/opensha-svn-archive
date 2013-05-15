@@ -527,6 +527,10 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 	//public 
 	public static void main(String[] args) throws IOException {
 		
+		 makeSlipLengthPlot(11, 1000, true);
+		 makeMagAreaPlot(true);
+
+		
 //		ArrayList<ScalingRelationships> ScRelList = new ArrayList<ScalingRelationships>();
 //		ScRelList.add(ScalingRelationships.ELLSWORTH_B);
 //		ScRelList.add(ScalingRelationships.HANKS_BAKUN_08);
@@ -579,8 +583,6 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 
 		
 //		makeSlipMagPlot(15, 2000, true);
-		 makeSlipLengthPlot(11, 1000, true);
-//		 makeMagAreaPlot(true);
 		
 	//	testCreepingSectionSlips();
 		
