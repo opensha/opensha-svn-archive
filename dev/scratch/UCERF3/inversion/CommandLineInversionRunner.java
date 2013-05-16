@@ -1013,8 +1013,8 @@ public class CommandLineInversionRunner {
 		for (int parentSectionID : parentSects.keySet()) {
 			String parentSectName = parentSects.get(parentSectionID);
 
-			List<IncrementalMagFreqDist> nuclMFDs = Lists.newArrayList();
-			List<IncrementalMagFreqDist> partMFDs = Lists.newArrayList();
+			List<EvenlyDiscretizedFunc> nuclMFDs = Lists.newArrayList();
+			List<EvenlyDiscretizedFunc> partMFDs = Lists.newArrayList();
 			
 			SummedMagFreqDist nuclMFD = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			nuclMFDs.add(nuclMFD);
@@ -1028,8 +1028,10 @@ public class CommandLineInversionRunner {
 			
 			if (isAVG) {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
-				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
-				calcAveSolMFDs(avgSol, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
+				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, false, partMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, false, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, true, true, partCmlMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, false, true, nuclCmlMFDs, parentSectionID, minMag, maxMag, numMag);
 				
 				if (sdomOverMeansCSV == null) {
 					sdomOverMeansCSV = new CSVFile<String>(true);
@@ -1167,9 +1169,9 @@ public class CommandLineInversionRunner {
 	 * @param numMag
 	 * @returnist of SDOM/mean values for each mag bin.
 	 */
-	private static double[] calcAveSolMFDs(AverageFaultSystemSolution avgSol, boolean participation,
-			List<IncrementalMagFreqDist> mfds, int parentSectionID, double minMag, double maxMag, int numMag) {
-		IncrementalMagFreqDist meanMFD = mfds.get(0);
+	private static double[] calcAveSolMFDs(AverageFaultSystemSolution avgSol, boolean participation, boolean cumulative,
+			List<EvenlyDiscretizedFunc> mfds, int parentSectionID, double minMag, double maxMag, int numMag) {
+		EvenlyDiscretizedFunc meanMFD = mfds.get(0);
 		double[] means = new double[numMag];
 		for (int i=0; i<numMag; i++)
 			means[i] = meanMFD.getY(i);
@@ -1185,11 +1187,19 @@ public class CommandLineInversionRunner {
 				mfd = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			else
 				mfd = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
+			EvenlyDiscretizedFunc theMFD;
+			if (cumulative)
+				theMFD = mfd.getCumRateDistWithOffset();
+			else
+				theMFD = mfd;
 			for (int i=0; i<numMag; i++) {
-				mfdVals[i][cnt] = mfd.getY(i);
+				mfdVals[i][cnt] = theMFD.getY(i);
 			}
 			cnt++;
 		}
+		
+		minMag = meanMFD.getMinX();
+		maxMag = meanMFD.getMaxX();
 		
 		IncrementalMagFreqDist meanPlusSDOM = new IncrementalMagFreqDist(minMag, maxMag, numMag);
 		IncrementalMagFreqDist meanMinusSDOM = new IncrementalMagFreqDist(minMag, maxMag, numMag);

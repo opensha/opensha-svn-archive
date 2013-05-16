@@ -3,16 +3,21 @@ package scratch.UCERF3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.exceptions.GMT_MapException;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
+import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -20,6 +25,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
@@ -88,14 +94,40 @@ public class UCERF2_ComparisonSolutionFetcher {
 		return new InversionFaultSystemSolution(modRupSet, rates, null, null);
 	}
 	
+	public static void writeUCREF2_CompoundSol(File file, FaultModels fm) throws IOException {
+		InversionFaultSystemSolution tapered = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
+		InversionFaultSystemSolution uniform = getUCERF2Solution(fm, SlipAlongRuptureModels.UNIFORM);
+		
+		final Map<LogicTreeBranch, InversionFaultSystemSolution> solMap = Maps.newHashMap();
+		solMap.put(tapered.getLogicTreeBranch(), tapered);
+		solMap.put(uniform.getLogicTreeBranch(), uniform);
+		
+		FaultSystemSolutionFetcher fetch = new FaultSystemSolutionFetcher() {
+			
+			@Override
+			public Collection<LogicTreeBranch> getBranches() {
+				return solMap.keySet();
+			}
+			
+			@Override
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+				return solMap.get(branch);
+			}
+		};
+		
+		CompoundFaultSystemSolution.toZipFile(file, fetch);
+	}
+	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
 		FaultModels fm = FaultModels.FM3_1;
 		String prefix = "FM3_1_UCERF2_DsrTap_CharConst_COMPARE";
 		File dir = new File("/tmp");
 		
-		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
+//		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 //		BatchPlotGen.makeMapPlots(sol, dir, prefix);
-		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
+//		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
+		
+		writeUCREF2_CompoundSol(new File(dir, "UCERF2_MAPPED_COMPOUND_SOL.zip"), FaultModels.FM2_1);
 		
 //		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);

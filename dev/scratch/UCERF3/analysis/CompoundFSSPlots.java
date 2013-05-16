@@ -3838,6 +3838,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 			ranges.add(toArray(6.7d, 9d));
 			ranges.add(toArray(7.7d, 9d));
 			ranges.add(toArray(8d, 9d));
+			ranges.add(toArray(6.5d, 7d));
+			ranges.add(toArray(7d, 7.5));
+			ranges.add(toArray(7.5d, 8d));
+			ranges.add(toArray(8d, 9d));
 
 			return ranges;
 		}

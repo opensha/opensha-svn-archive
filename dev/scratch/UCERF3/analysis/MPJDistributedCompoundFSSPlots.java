@@ -44,6 +44,7 @@ import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.UCERF3p2BranchWeightProvider;
+import scratch.UCERF3.logicTree.UniformBranchWeightProvider;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
@@ -385,6 +386,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		u3p2WeightsOption.setRequired(false);
 		options.addOption(u3p2WeightsOption);
 		
+		Option uniformWeightsOption = new Option("uniwt", "uniform-weights", false,
+				"If supplied, equal weights for all branches will be used.");
+		uniformWeightsOption.setRequired(false);
+		options.addOption(uniformWeightsOption);
+		
 		return options;
 	}
 
@@ -420,6 +426,8 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 			if (cmd.hasOption("ucerf3p2-weights"))
 				weightProvider = new UCERF3p2BranchWeightProvider();
+			if (cmd.hasOption("uniform-weights"))
+				weightProvider = new UniformBranchWeightProvider();
 			
 			List<CompoundFSSPlots> plots = Lists.newArrayList();
 			
