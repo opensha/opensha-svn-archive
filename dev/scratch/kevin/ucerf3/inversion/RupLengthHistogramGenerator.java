@@ -33,7 +33,7 @@ public class RupLengthHistogramGenerator {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solFile = new File(dir, "2013_01_14-stampede_3p2_production_runs_combined_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+		File solFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		
 		// fraction of earthquakes
 		// rupture length
@@ -112,6 +112,7 @@ public class RupLengthHistogramGenerator {
 		else
 			title = "Length Histogram";
 		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		if (scaleToTotal != 1)
 			gw.setY_AxisLabel("Num");
@@ -123,6 +124,7 @@ public class RupLengthHistogramGenerator {
 		if (doU2)
 			funcs.add(asDisrU2Hist);
 		gw = new GraphiWindowAPI_Impl(funcs, "Length Histogram (as discretized)", chars);
+		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		gw.setY_AxisLabel("Num Ruptures");
 		

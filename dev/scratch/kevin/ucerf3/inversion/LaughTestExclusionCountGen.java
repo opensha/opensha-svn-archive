@@ -73,7 +73,8 @@ public class LaughTestExclusionCountGen {
 		
 		int[] origRups = getRupCount(filter);
 		
-		List<Double> jumpDists = Lists.newArrayList(5d, 3d, 1d, 0.1d, 1e-5);
+//		List<Double> jumpDists = Lists.newArrayList(5d, 3d, 1d, 0.1d, 1e-5);
+		List<Double> jumpDists = Lists.newArrayList();
 		List<int[]> jumpDistCounts = Lists.newArrayList();
 		double orig = filter.getMaxJumpDist();
 		for (double jumpDist : jumpDists) {
@@ -82,6 +83,7 @@ public class LaughTestExclusionCountGen {
 			filter.clearLaughTests();
 		}
 		filter.setMaxJumpDist(orig);
+		filter.clearLaughTests();
 		
 		orig = filter.getMaxAzimuthChange();
 		filter.setMaxAzimuthChange(Double.POSITIVE_INFINITY);
@@ -114,7 +116,7 @@ public class LaughTestExclusionCountGen {
 		filter.clearLaughTests();
 		
 		// now test some coulomb values
-		double[] mins = { 0.025, 0.0375, 0.05, 0.0625, 0.075, 0.0875, 0.1 };
+		double[] mins = { 0.02, 0.04, 0.06, 0.08, 0.1 };
 		double[] excls = { 1.0, 1.25, 1.5, Double.POSITIVE_INFINITY };
 		List<String> strs = Lists.newArrayList();
 		List<int[]> counts = Lists.newArrayList();
@@ -152,7 +154,7 @@ public class LaughTestExclusionCountGen {
 			gw.setY_AxisLabel("Fraction Excluded");
 		}
 		
-		System.out.println("Orig Num Rups: "+origRups);
+		System.out.println("Orig Num Rups: "+origRups[0]+" ("+origRups[1]+"/"+origRups[2]+" junctions)");
 		System.out.println("Az filtered: "+getCountsStr(origRups, azChangeRups));
 		System.out.println("Tot az filtered: "+getCountsStr(origRups, totAzChangeRups));
 		System.out.println("Cumulative az filtered: "+getCountsStr(origRups, totCmlAzChangeRups));

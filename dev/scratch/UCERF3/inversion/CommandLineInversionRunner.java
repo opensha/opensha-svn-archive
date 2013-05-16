@@ -1318,7 +1318,7 @@ public class CommandLineInversionRunner {
 			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLUE, Color.MAGENTA, numFractiles));
 			numFractiles = subSeismoMFDs.size()-3;
 			funcs.addAll(subSeismoMFDs);
-			chars.addAll(CompoundFSSPlots.getFractileChars(Color.GRAY, Color.MAGENTA, numFractiles));
+			chars.addAll(CompoundFSSPlots.getFractileChars(Color.CYAN, Color.MAGENTA, numFractiles));
 			funcs.addAll(subPlusSupraSeismoMFDs);
 			chars.addAll(CompoundFSSPlots.getFractileChars(Color.BLACK, Color.MAGENTA, numFractiles));
 		}

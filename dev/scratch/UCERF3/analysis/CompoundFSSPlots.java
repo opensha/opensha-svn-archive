@@ -4689,6 +4689,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public String getSubDirName() {
 			return subDirName;
 		}
+		
+		public List<LocationList> getFaults() {
+			return faults;
+		}
+		
+		public double[] getFaultValues() {
+			return faultValues;
+		}
 	}
 
 	public static abstract class MapBasedPlot extends CompoundFSSPlots {

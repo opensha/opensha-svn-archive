@@ -113,8 +113,8 @@ public class LogicTreePBSWriter {
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch != null && branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
-//				return new USC_HPCC_ScriptWriter("quadcore"); // TODO
-				return new USC_HPCC_ScriptWriter();
+				return new USC_HPCC_ScriptWriter("quadcore"); // TODO
+//				return new USC_HPCC_ScriptWriter();
 			}
 
 			@Override
@@ -691,7 +691,7 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-inversion-cool-perturb-tests";
+		String runName = "ucerf3p3-synthetic-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -726,7 +726,6 @@ public class LogicTreePBSWriter {
 		
 //		LogicTreeBranch prescribedBranch = null;
 		LogicTreeBranch prescribedBranch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
-			prescribedBranch.setValue(TotalMag5Rate.RATE_6p5);
 
 		//		String nameAdd = "VarSub5_0.3";
 		String nameAdd = null;
@@ -736,7 +735,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 1;
+		int numRuns = 5;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -912,12 +911,12 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.05")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("1")));
 		
-//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_ON)));
-//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_OFF)));
+		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_ON)));
+		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.SERIAL, InversionOptions.INITIAL_RANDOM };
