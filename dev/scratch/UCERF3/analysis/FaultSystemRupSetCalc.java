@@ -439,7 +439,7 @@ public class FaultSystemRupSetCalc {
 		String fileNameCum = "TargetGR_Cum_"+label + ".pdf";
 		if(fileName != null) {
 			try {
-				graph.saveAsPDF(fileNameCum);
+				graphCum.saveAsPDF(fileNameCum);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
@@ -514,7 +514,7 @@ public class FaultSystemRupSetCalc {
 		defModList.add(DeformationModels.ABM);
 		defModList.add(DeformationModels.GEOLOGIC);
 		defModList.add(DeformationModels.NEOKINEMA);
-		defModList.add(DeformationModels.ZENG);
+		defModList.add(DeformationModels.ZENGBB);
 		
 		// for UCERF3
 		for(DeformationModels dm :defModList) {
@@ -2817,7 +2817,9 @@ if(mMax<5.85)
 	 */
 	public static void main(String[] args) {
 		
-		plotSumOfCharInversionMFD_Constraints();
+		plotAllImpliedTotalSectGR_MFD();
+		
+//		plotSumOfCharInversionMFD_Constraints();
 
 		
 //		testParentCharInversionMFD_Constraint();

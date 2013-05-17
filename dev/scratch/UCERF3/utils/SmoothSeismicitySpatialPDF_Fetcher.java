@@ -96,6 +96,29 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 		return sum;
 	}
 	
+	
+	/**
+	 * This is for figures used in the report. The ratio here assumes equal weighting between U2 and U3 smoothed seis maps
+	 */
+	private static void plotMapsForReport() {
+		try {
+			GriddedGeoDataSet u2pdf = readPDF_Data(FILENAME_UCERF2);
+			GriddedGeoDataSet u3pdf = readPDF_Data(FILENAME_UCERF3pt3_SHALLOW);
+			
+			GriddedGeoDataSet avePDF = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+			for(int i=0; i<u2pdf.size(); i++) {
+				avePDF.set(i, 0.5*(u2pdf.get(i)+u3pdf.get(i)));
+			}
+
+			GMT_CA_Maps.plotSpatialPDF_Map(u2pdf.copy(), "UCERF2_SmoothSeisPDF", "test meta data", "UCERF2_SmoothSeisPDF_Map");
+			GMT_CA_Maps.plotSpatialPDF_Map(u3pdf, "UCERF3_SmoothSeisPDF", "test meta data", "UCERF3_SmoothSeisPFD_Map");
+			GMT_CA_Maps.plotRatioOfRateMaps(avePDF, u2pdf, "aveUCERF3vsUCERF2_SmoothSeisPDF_Ratio", "test meta data", "aveUCERF3vsUCERF2_SmoothSeisPDF_Ratio");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * The ratio here assumes equal weighting between U2 and U3 smoothed seis maps
 	 */
@@ -161,7 +184,10 @@ public class SmoothSeismicitySpatialPDF_Fetcher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		plotMaps();
+		
+		plotMapsForReport();
+		
+		// plotMaps();
 	}
 
 }
