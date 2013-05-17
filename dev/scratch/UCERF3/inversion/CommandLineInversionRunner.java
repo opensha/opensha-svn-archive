@@ -1159,6 +1159,18 @@ public class CommandLineInversionRunner {
 			
 			sdomOverMeanIncrParticCSV.writeToFile(new File(dir, "participation_sdom_over_means.csv"));
 		}
+		
+		if (stdDevOverMeanCmlParticCSV != null) {
+			stdDevOverMeanCmlParticCSV.sort(1, 1, new Comparator<String>() {
+				
+				@Override
+				public int compare(String o1, String o2) {
+					return o1.compareTo(o2);
+				}
+			});
+			
+			sdomOverMeanIncrParticCSV.writeToFile(new File(dir, "participation_cumulative_std_dev_over_means.csv"));
+		}
 	}
 	
 	private static IncrementalMagFreqDist resizeToDimensions(
