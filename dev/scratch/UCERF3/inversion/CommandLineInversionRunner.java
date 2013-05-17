@@ -1169,7 +1169,7 @@ public class CommandLineInversionRunner {
 				}
 			});
 			
-			sdomOverMeanIncrParticCSV.writeToFile(new File(dir, "participation_cumulative_std_dev_over_means.csv"));
+			stdDevOverMeanCmlParticCSV.writeToFile(new File(dir, "participation_cumulative_std_dev_over_means.csv"));
 		}
 	}
 	
