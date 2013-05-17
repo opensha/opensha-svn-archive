@@ -71,8 +71,8 @@ public class ARCurveInserter {
 	 */
 	public static void main(String[] args) throws IOException {
 //		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
-		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/CY2008";
-		ScalarIMR imr = AttenRelRef.CY_2008.instance(null);
+		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
+		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
@@ -81,7 +81,7 @@ public class ARCurveInserter {
 		int timeSpanID = 1;
 		int imTypeID = 21;
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2009, 9, 2);
+		cal.set(2012, 5, 22);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests

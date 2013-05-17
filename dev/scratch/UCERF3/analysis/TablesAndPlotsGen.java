@@ -1,6 +1,7 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -51,8 +53,10 @@ import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
+import scratch.kevin.magDepth.NoCollissionFunc;
 
 public class TablesAndPlotsGen {
 	
@@ -387,6 +391,58 @@ public class TablesAndPlotsGen {
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 	}
+	
+	public static void makeNumRunsForRateWithin10Plot(
+			AverageFaultSystemSolution avgSol, File outputDir, String prefix) throws IOException {
+		NoCollissionFunc scatter = new NoCollissionFunc();
+		
+		for (int r=0; r<avgSol.getRupSet().getNumRuptures(); r++) {
+			double s = avgSol.getRateStdDev(r);
+			double m = avgSol.getRateForRup(r);
+			
+			double n = Math.pow(19.6*s/m, 2);
+			
+			scatter.set(m, n);
+		}
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(scatter);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));
+		
+		// we want to skip the ones at 1e-16
+		double minX = Double.POSITIVE_INFINITY;
+		double minY = Double.POSITIVE_INFINITY;
+		for (Point2D pt : scatter) {
+			double x = pt.getX();
+			double y = pt.getY();
+			if (x < 1e-14 || y < 1e-14)
+				continue;
+			if (x < minX)
+				minX = x;
+			if (y < minY)
+				minY = y;
+		}
+		System.out.println("mins: "+minX+", "+minY);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setXLog(true);
+		gp.setYLog(true);
+		gp.setUserBounds(minX, scatter.getMaxX(), minY, scatter.getMaxY());
+		gp.drawGraphPanel("Mean Rupture Rate", "N for 95%-Conf within 10%", funcs, chars, true,
+				"");
+		File file = new File(outputDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		file = new File(outputDir, prefix+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+	}
 
 	/**
 	 * @param args
@@ -403,14 +459,22 @@ public class TablesAndPlotsGen {
 //		System.exit(0);
 		
 		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File compoundFile = new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-		makeCompoundFSSMomentRatesTable(cfss,
-				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+//		File compoundFile = new File(invDir,
+//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//		makeCompoundFSSMomentRatesTable(cfss,
+//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+//		
+//		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		
-		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
+		File avgSolFile = new File(invDir,
+				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
+		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "converge_n_within_10");
 		
+		avgSolFile = new File("/tmp/branch_avg_avg/mean.zip");
+		avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
+		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "branch_avg_n_within_10");
 		
 //		int mojaveParentID = 301;
 //		int littleSalmonParentID = 17;

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -149,6 +150,7 @@ public class CompoundSolAboveWaterlevelCalc {
 	}
 	
 	private static void plotAboves(List<int[]> abovesList, File dir) throws IOException {
+		System.out.println(abovesList.size()+" aboves");
 		ArrayList<DiscretizedFunc> hists = Lists.newArrayList();
 		for (int i=0; i<abovesList.size(); i++) {
 			int[] aboves = abovesList.get(i);
@@ -192,6 +194,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			String xAxisName = "# Solutions With Rup Above Waterlevel";
 			String yAxisName = "# Ruptures";
 			
+			gp.setBackgroundColor(Color.WHITE);
 			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, false, title);
 			
 			String nameAdd;
@@ -206,6 +209,10 @@ public class CompoundSolAboveWaterlevelCalc {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			file = new File(file.getAbsolutePath()+"_small");
+			gp.getCartPanel().setSize(500, 400);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
 		
 		if (abovesList.size() > 1) {
@@ -230,7 +237,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			}
 			
 			gp.setUserBounds(0d, 10d, 0d, maxY+10d);
-			
+			gp.setBackgroundColor(Color.WHITE);
 			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, true, title);
 			
 			File file = new File(dir, "rups_above_waterlevel_combined");
@@ -239,7 +246,51 @@ public class CompoundSolAboveWaterlevelCalc {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			file = new File(file.getAbsolutePath()+"_small");
+			gp.getCartPanel().setSize(500, 400);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
+		
+		// now number of above waterlevel as a function of the number of runs
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(1d, abovesList.size(), 1d);
+		
+		boolean[] aboves = null;
+		for (int i=0; i<abovesList.size(); i++) {
+			int[] runCounts = abovesList.get(i);
+			if (aboves == null)
+				aboves = new boolean[runCounts.length];
+			for (int r=0; r<runCounts.length; r++)
+				aboves[r] = aboves[r] || runCounts[r] > 0;
+			
+			int cnt = 0;
+			for (boolean above : aboves)
+				if (above)
+					cnt++;
+			
+			func.set(i, cnt);
+		}
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(func);
+//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Num Non Zeros");
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setUserBounds(0, func.getMaxX(), 0, aboves.length);
+		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars, true,
+				"Ruptures Above Waterlevel");
+		File file = new File("/tmp/compound_rups_above_waterlevel");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		file = new File(file.getAbsolutePath()+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {

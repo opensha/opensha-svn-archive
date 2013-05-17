@@ -816,7 +816,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @param rupIndex
 	 * @return
 	 */
-	public boolean isRuptureBelowSectMinMag(int rupIndex) {
+	public synchronized boolean isRuptureBelowSectMinMag(int rupIndex) {
 
 		// see if it needs to be computed
 		if(isRupBelowMinMagsForSects == null) {

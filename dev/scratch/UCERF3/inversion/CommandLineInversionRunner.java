@@ -1006,7 +1006,8 @@ public class CommandLineInversionRunner {
 		double maxMag = 9.05;
 		int numMag = (int)((maxMag - minMag) / 0.1d) + 1;
 		
-		CSVFile<String> sdomOverMeansCSV = null;
+		CSVFile<String> sdomOverMeanIncrParticCSV = null;
+		CSVFile<String> stdDevOverMeanCmlParticCSV = null;
 		
 		boolean isAVG = sol instanceof AverageFaultSystemSolution;
 
@@ -1030,16 +1031,24 @@ public class CommandLineInversionRunner {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
 				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, false, partMFDs, parentSectionID, minMag, maxMag, numMag);
 				calcAveSolMFDs(avgSol, false, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
-				calcAveSolMFDs(avgSol, true, true, partCmlMFDs, parentSectionID, minMag, maxMag, numMag);
+				double[] std_dev_over_means = calcAveSolMFDs(avgSol, true, true, partCmlMFDs, parentSectionID, minMag, maxMag, numMag);
 				calcAveSolMFDs(avgSol, false, true, nuclCmlMFDs, parentSectionID, minMag, maxMag, numMag);
 				
-				if (sdomOverMeansCSV == null) {
-					sdomOverMeansCSV = new CSVFile<String>(true);
+				if (sdomOverMeanIncrParticCSV == null) {
+					sdomOverMeanIncrParticCSV = new CSVFile<String>(true);
 					
 					List<String> header = Lists.newArrayList("Parent ID", "Parent Name");
 					for (int i=0; i<numMag; i++)
 						header.add((float)nuclMFD.getX(i)+"");
-					sdomOverMeansCSV.addLine(header);
+					sdomOverMeanIncrParticCSV.addLine(header);
+					
+					stdDevOverMeanCmlParticCSV = new CSVFile<String>(true);
+					
+					header = Lists.newArrayList("Parent ID", "Parent Name");
+					EvenlyDiscretizedFunc partCmlMFD = partCmlMFDs.get(0);
+					for (int i=0; i<numMag; i++)
+						header.add((float)partCmlMFD.getX(i)+"");
+					stdDevOverMeanCmlParticCSV.addLine(header);
 				}
 				
 				List<String> line = Lists.newArrayList();
@@ -1049,7 +1058,16 @@ public class CommandLineInversionRunner {
 				for (int i=0; i<numMag; i++) {
 					line.add(sdom_over_means[i]+"");
 				}
-				sdomOverMeansCSV.addLine(line);
+				sdomOverMeanIncrParticCSV.addLine(line);
+				
+				line = Lists.newArrayList();
+				line.add(parentSectionID+"");
+				line.add(parentSectName);
+				
+				for (int i=0; i<numMag; i++) {
+					line.add(std_dev_over_means[i]+"");
+				}
+				stdDevOverMeanCmlParticCSV.addLine(line);
 			}
 			
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
@@ -1130,8 +1148,8 @@ public class CommandLineInversionRunner {
 					isAVG, parentSectionID, parentSectName, false, true);
 		}
 		
-		if (sdomOverMeansCSV != null) {
-			sdomOverMeansCSV.sort(1, 1, new Comparator<String>() {
+		if (sdomOverMeanIncrParticCSV != null) {
+			sdomOverMeanIncrParticCSV.sort(1, 1, new Comparator<String>() {
 				
 				@Override
 				public int compare(String o1, String o2) {
@@ -1139,7 +1157,7 @@ public class CommandLineInversionRunner {
 				}
 			});
 			
-			sdomOverMeansCSV.writeToFile(new File(dir, "participation_sdom_over_means.csv"));
+			sdomOverMeanIncrParticCSV.writeToFile(new File(dir, "participation_sdom_over_means.csv"));
 		}
 	}
 	
