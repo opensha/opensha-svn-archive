@@ -1029,10 +1029,10 @@ public class CommandLineInversionRunner {
 			
 			if (isAVG) {
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
-				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, false, partMFDs, parentSectionID, minMag, maxMag, numMag);
-				calcAveSolMFDs(avgSol, false, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
-				double[] std_dev_over_means = calcAveSolMFDs(avgSol, true, true, partCmlMFDs, parentSectionID, minMag, maxMag, numMag);
-				calcAveSolMFDs(avgSol, false, true, nuclCmlMFDs, parentSectionID, minMag, maxMag, numMag);
+				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, false, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, false, false, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
+				double[] std_dev_over_means = calcAveSolMFDs(avgSol, true, true, false, partCmlMFDs, parentSectionID, minMag, maxMag, numMag);
+				calcAveSolMFDs(avgSol, false, true, false, nuclCmlMFDs, parentSectionID, minMag, maxMag, numMag);
 				
 				if (sdomOverMeanIncrParticCSV == null) {
 					sdomOverMeanIncrParticCSV = new CSVFile<String>(true);
@@ -1199,7 +1199,8 @@ public class CommandLineInversionRunner {
 	 * @param numMag
 	 * @returnist of SDOM/mean values for each mag bin.
 	 */
-	private static double[] calcAveSolMFDs(AverageFaultSystemSolution avgSol, boolean participation, boolean cumulative,
+	private static double[] calcAveSolMFDs(AverageFaultSystemSolution avgSol, boolean participation,
+			boolean cumulative, boolean ret_sdom,
 			List<EvenlyDiscretizedFunc> mfds, int parentSectionID, double minMag, double maxMag, int numMag) {
 		EvenlyDiscretizedFunc meanMFD = mfds.get(0);
 		double[] means = new double[numMag];
@@ -1253,7 +1254,10 @@ public class CommandLineInversionRunner {
 			minFunc.set(i, min);
 			maxFunc.set(i, max);
 			
-			sdom_over_means[i] = sdom / mean;
+			if (ret_sdom)
+				sdom_over_means[i] = sdom / mean;
+			else
+				sdom_over_means[i] = stdDev / mean;
 		}
 		
 		mfds.add(meanPlusSDOM);
