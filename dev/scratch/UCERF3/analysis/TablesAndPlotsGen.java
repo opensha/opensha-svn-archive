@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -25,9 +27,11 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -266,6 +270,7 @@ public class TablesAndPlotsGen {
 		List<String> header = Lists.newArrayList();
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
 			header.add(ClassUtils.getClassNameWithoutPackage(clazz));
+		header.add("A Priori Branch Weight");
 		header.add(FAULT_SUPRA_TARGET);
 		header.add(FAULT_SUPRA_SOLUTION);
 		header.add(FAULT_SUB_TARGET);
@@ -280,22 +285,222 @@ public class TablesAndPlotsGen {
 		
 		Splitter sp = Splitter.on("\n");
 		
+		APrioriBranchWeightProvider weightProv = new APrioriBranchWeightProvider();
+		Map<DeformationModels, List<Double>> dmWeightsMap = Maps.newHashMap();
+		double totWt = 0;
 		for (LogicTreeBranch branch : branches) {
+			double weight = weightProv.getWeight(branch);
+			totWt += weight;
+			DeformationModels dm = branch.getValue(DeformationModels.class);
+			List<Double> dmWeights = dmWeightsMap.get(dm);
+			if (dmWeights == null) {
+				dmWeights = Lists.newArrayList();
+				dmWeightsMap.put(dm, dmWeights);
+			}
+			dmWeights.add(weight);
+		}
+		Map<DeformationModels, Double> dmWeightTotsMap = Maps.newHashMap();
+		for (DeformationModels dm : dmWeightsMap.keySet()) {
+			double dmTotWt = 0;
+			for (double weight : dmWeightsMap.get(dm))
+				dmTotWt += weight;
+			dmWeightTotsMap.put(dm, dmTotWt);
+		}
+		
+		double hist_min = 1e18;
+		double hist_max = 3e19;
+		double hist_delta = 1e18;
+		int hist_num = (int)((hist_max-hist_min)/hist_delta+1);
+		
+		HistogramFunction totOffHist = new HistogramFunction(hist_min, hist_num, hist_delta);
+		Map<DeformationModels, HistogramFunction> dmOffHistMap = Maps.newHashMap();
+		for (DeformationModels dm : dmWeightTotsMap.keySet())
+			dmOffHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
+		
+		HistogramFunction totOnHist = new HistogramFunction(hist_min, hist_num, hist_delta);
+		Map<DeformationModels, HistogramFunction> dmOnHistMap = Maps.newHashMap();
+		for (DeformationModels dm : dmWeightTotsMap.keySet())
+			dmOnHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
+		
+		HistogramFunction totTotHist = new HistogramFunction(hist_min, hist_num, hist_delta);
+		Map<DeformationModels, HistogramFunction> dmTotHistMap = Maps.newHashMap();
+		for (DeformationModels dm : dmWeightTotsMap.keySet())
+			dmTotHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
+		
+		for (LogicTreeBranch branch : branches) {
+			DeformationModels dm = branch.getValue(DeformationModels.class);
 			List<String> line = Lists.newArrayList();
 			for (int i=0; i<LogicTreeBranch.getLogicTreeNodeClasses().size(); i++)
 				line.add(branch.getValue(i).getShortName());
 			List<String> info = Lists.newArrayList(sp.split(cfss.getInfo(branch)));
+			double origWt = weightProv.getWeight(branch);
+			double totScaledWt = origWt/totWt;
+			double dmScaledWt = origWt/dmWeightTotsMap.get(dm);
+			line.add(totScaledWt+"");
+			double supra = getField(info, FAULT_SUPRA_SOLUTION);
+			double sub = getField(info, FAULT_SUB_SOLUTION);
+			double off = getField(info, TRULY_OFF_SOLUTION);
 			line.add(getField(info, FAULT_SUPRA_TARGET)+"");
-			line.add(getField(info, FAULT_SUPRA_SOLUTION)+"");
+			line.add(supra+"");
 			line.add(getField(info, FAULT_SUB_TARGET)+"");
-			line.add(getField(info, FAULT_SUB_SOLUTION)+"");
+			line.add(sub+"");
 			line.add(getField(info, TRULY_OFF_TARGET)+"");
-			line.add(getField(info, TRULY_OFF_SOLUTION)+"");
+			line.add(off+"");
+			
+			double tot = supra+sub+off;
+			totTotHist.add(tot, totScaledWt);
+			dmTotHistMap.get(dm).add(tot, totScaledWt);
+			
+			totOnHist.add(sub+supra, totScaledWt);
+			dmOnHistMap.get(dm).add(sub+supra, totScaledWt);
+			
+			totOffHist.add(off, totScaledWt);
+			dmOffHistMap.get(dm).add(off, totScaledWt);
 			
 			csv.addLine(line);
 		}
 		
 		csv.writeToFile(csvFile);
+		
+		Color[] dmColors = { Color.RED, Color.BLUE, Color.GREEN, Color.MAGENTA };
+		List<DeformationModels> dms = Lists.newArrayList(dmTotHistMap.keySet());
+		Collections.sort(dms, new Comparator<DeformationModels>() {
+
+			@Override
+			public int compare(DeformationModels o1, DeformationModels o2) {
+				return o1.name().compareTo(o2.name());
+			}
+		});
+		
+		String name = csvFile.getName();
+		if (name.contains("_mo_rates.csv"))
+			name = name.substring(0, name.indexOf("_mo_rates"));
+		if (name.contains(".csv"))
+			name = name.substring(0, name.indexOf(".csv"));
+		
+		Map<DeformationModels, Double> dmTotTargets = Maps.newHashMap();
+		Map<DeformationModels, Double> dmOnTargets = Maps.newHashMap();
+		Map<DeformationModels, Double> dmOffTargets = Maps.newHashMap();
+		
+		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+		for (DeformationModels dm : dms) {
+			double dmTotTarget = 0;
+			double dmOnTarget = 0;
+			double dmOffTarget = 0;
+			
+			for (FaultModels fm : fms) {
+				DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+				double moRate = DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),true);
+//				System.out.println(fm.getName()+", "+dm.getName()+ " (reduced):\t"+(float)moRate);
+//				System.out.println(fm.getName()+", "+dm.getName()+ " (not reduced):\t"+(float)DeformationModelsCalc.calculateTotalMomentRate(defFetch.getSubSectionList(),false));
+				double moRateOffFaults = DeformationModelsCalc.calcMoRateOffFaultsForDefModel(fm, dm);
+				double totMoRate = moRate+moRateOffFaults;
+				
+				dmTotTarget += totMoRate;
+				dmOffTarget += moRateOffFaults;
+				dmOnTarget += moRate;
+			}
+			
+			dmTotTarget /= (double)fms.length;
+			dmOnTarget /= (double)fms.length;
+			dmOffTarget /= (double)fms.length;
+			
+			dmTotTargets.put(dm, dmTotTarget);
+			dmOnTargets.put(dm, dmOnTarget);
+			dmOffTargets.put(dm, dmOffTarget);
+		}
+		
+		writeMoRateHist(totTotHist, dmTotHistMap, dmTotTargets, dms, dmColors,
+				name+"_mo_rate_dist_tot", csvFile.getParentFile(), "Total");
+		writeMoRateHist(totOnHist, dmOnHistMap, dmOnTargets, dms, dmColors,
+				name+"_mo_rate_dist_on", csvFile.getParentFile(), "On Fault");
+		writeMoRateHist(totOffHist, dmOffHistMap, dmOffTargets, dms, dmColors,
+				name+"_mo_rate_dist_off", csvFile.getParentFile(), "Off Fault");
+	}
+	
+	private static void writeMoRateHist(
+			HistogramFunction totHist, Map<DeformationModels, HistogramFunction> dmHistMap,
+			Map<DeformationModels, Double> dmTargets, List<DeformationModels> dms,
+			Color[] dmColors, String fileName, File dir, String type)
+					throws IOException {
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		totHist.setName(type+" Histogram");
+		funcs.add(totHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		
+		double minX = Double.POSITIVE_INFINITY;
+		double maxX = 0d;
+		double maxY = 0d;
+		for (Point2D pt : totHist) {
+			if (pt.getY() > 0) {
+				if (pt.getX() < minX)
+					minX = pt.getX();
+				if (pt.getX() > maxX)
+					maxX = pt.getX();
+				if (pt.getY() > maxY)
+					maxY = pt.getY();
+			}
+		}
+		for (double target : dmTargets.values()) {
+			if (target > maxX)
+				maxX = target;
+			if (target < minX)
+				minX = target;
+		}
+		double xBuffer = 1e18;
+		minX -= xBuffer;
+		maxX += xBuffer;
+		maxY *= 1.1;
+		
+		for (int i=0; i<dms.size(); i++) {
+			DeformationModels dm = dms.get(i);
+			Color color = dmColors[i];
+			
+			HistogramFunction func = dmHistMap.get(dm);
+			func.setName(dm.getName());
+			funcs.add(func);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			
+			if (dm == DeformationModels.GEOLOGIC && !type.equals("On Fault"))
+				continue;
+			
+			double target = dmTargets.get(dm);
+			ArbitrarilyDiscretizedFunc targetLine = new ArbitrarilyDiscretizedFunc();
+			targetLine.set(target, 0d);
+			targetLine.set(target*1.0001, maxY);
+			targetLine.setName(dm.getName()+" "+type+" Target");
+			funcs.add(targetLine);
+			System.out.println(type+" Target ("+dm.name()+"): "+target);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+		}
+		
+		for (DiscretizedFunc func : funcs) {
+			double sumY = 0;
+			for (Point2D pt : func)
+				sumY += pt.getY();
+			System.out.println(sumY);
+		}
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+//		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setUserBounds(minX, maxX, 0d, maxY);
+		gp.drawGraphPanel(type+" Moment Rate (Nm/yr)", "Branch Weight", funcs, chars, true,
+				type+" Moment Rate Distribution");
+		
+		File outputFile = new File(dir, fileName);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+		outputFile = new File(outputFile.getAbsolutePath()+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 	}
 	
 	private static double getField(List<String> infoLines, String fieldStart) {
@@ -459,22 +664,22 @@ public class TablesAndPlotsGen {
 //		System.exit(0);
 		
 		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-//		File compoundFile = new File(invDir,
-//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
-//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-//		makeCompoundFSSMomentRatesTable(cfss,
-//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+		File compoundFile = new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+		makeCompoundFSSMomentRatesTable(cfss,
+				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 //		
 //		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		
-		File avgSolFile = new File(invDir,
-				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
-		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "converge_n_within_10");
-		
-		avgSolFile = new File("/tmp/branch_avg_avg/mean.zip");
-		avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
-		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "branch_avg_n_within_10");
+//		File avgSolFile = new File(invDir,
+//				"FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
+//		AverageFaultSystemSolution avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
+//		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "converge_n_within_10");
+//		
+//		avgSolFile = new File("/tmp/branch_avg_avg/mean.zip");
+//		avgSol = FaultSystemIO.loadAvgInvSol(avgSolFile);
+//		makeNumRunsForRateWithin10Plot(avgSol, new File("/tmp"), "branch_avg_n_within_10");
 		
 //		int mojaveParentID = 301;
 //		int littleSalmonParentID = 17;

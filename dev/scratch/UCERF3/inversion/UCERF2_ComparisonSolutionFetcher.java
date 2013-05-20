@@ -3,11 +3,13 @@ package scratch.UCERF3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.GMT_MapException;
 
 import com.google.common.collect.HashBasedTable;
@@ -71,13 +73,10 @@ public class UCERF2_ComparisonSolutionFetcher {
 	
 	public static InversionFaultSystemSolution getUCERF2Solution(InversionFaultSystemRupSet rupSet) {
 		ArrayList<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
-
-		InversionFaultSystemRupSet modRupSet = new InversionFaultSystemRupSet(rupSet, rupSet.getLogicTreeBranch(),
-				rupSet.getLaughTestFilter(), rupSet.getAveSlipForAllRups(), rupSet.getCloseSectionsListList(),
-				rupSet.getRupturesForClusters(), rupSet.getSectionsForClusters());
-
+		
 		double[] mags = new double[ucerf2_magsAndRates.size()];
 		double[] rates = new double[ucerf2_magsAndRates.size()];
+		double[] aveSlips = Arrays.copyOf(rupSet.getAveSlipForAllRups(), rupSet.getNumRuptures());
 		for (int i=0; i<ucerf2_magsAndRates.size(); i++) {
 			double[] ucerf2_vals = ucerf2_magsAndRates.get(i);
 			if (ucerf2_vals == null) {
@@ -86,8 +85,17 @@ public class UCERF2_ComparisonSolutionFetcher {
 			} else {
 				mags[i] = ucerf2_vals[0];
 				rates[i] = ucerf2_vals[1];
+				// Dr = Dr * Mo(M)/Mo(M(A))
+				// to account for assumptions made in Dr calculation (which uses mag from
+				// area and not the actual UCERF2 mag
+				aveSlips[i] = aveSlips[i] * MagUtils.magToMoment(mags[i])/
+						MagUtils.magToMoment(rupSet.getMagForRup(i));
 			}
 		}
+
+		InversionFaultSystemRupSet modRupSet = new InversionFaultSystemRupSet(rupSet, rupSet.getLogicTreeBranch(),
+				rupSet.getLaughTestFilter(), aveSlips, rupSet.getCloseSectionsListList(),
+				rupSet.getRupturesForClusters(), rupSet.getSectionsForClusters());
 
 		modRupSet.setMagForallRups(mags);
 

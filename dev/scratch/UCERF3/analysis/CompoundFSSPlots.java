@@ -54,6 +54,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
@@ -102,6 +103,7 @@ import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.DeformationModelFileParser;
@@ -2427,10 +2429,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			String prefix) throws IOException {
 		System.out.println("Making paleo/ave slip tables!");
 
+		File subDir = new File(dir, "paleo_fault_based");
+		if (!subDir.exists())
+			subDir.mkdir();
+		
 		for (FaultModels fm : plot.aveSlipCSVOutputMap.keySet()) {
-			File subDir = new File(dir, "paleo_fault_based");
-			if (!subDir.exists())
-				subDir.mkdir();
 			File aveSlipFile = new File(subDir, fm.getShortName()
 					+ "_ave_slip_rates.csv");
 			plot.aveSlipCSVOutputMap.get(fm).writeToFile(aveSlipFile);
@@ -2438,6 +2441,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					+ "_paleo_rates.csv");
 			plot.paleoCSVOutputMap.get(fm).writeToFile(paleoFile);
 		}
+		
+		plot.carrizoCSV.writeToFile(new File(subDir, "carrizo_paleo_obs_rates.csv"));
 	}
 
 	public static class PaleoRatesTable extends CompoundFSSPlots {
@@ -2459,14 +2464,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				.newConcurrentMap();
 		private ConcurrentMap<FaultModels, List<double[]>> paleoObsRatesMap = Maps
 				.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<Double>> carrizoPaleoObsRatesMap = Maps
+				.newConcurrentMap();
 
 		private ConcurrentMap<FaultModels, List<Double>> weightsMap = Maps
+				.newConcurrentMap();
+		private ConcurrentMap<FaultModels, List<LogicTreeBranch>> branchesMap = Maps
 				.newConcurrentMap();
 
 		private transient Map<FaultModels, CSVFile<String>> aveSlipCSVOutputMap = Maps
 				.newHashMap();
 		private transient Map<FaultModels, CSVFile<String>> paleoCSVOutputMap = Maps
 				.newHashMap();
+		private transient CSVFile<String> carrizoCSV;
 
 		public PaleoRatesTable(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
@@ -2519,8 +2529,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 						aveSlipObsRatesMap.putIfAbsent(fm, obsRatesList);
 						List<double[]> paleoObsRatesList = Lists.newArrayList();
 						paleoObsRatesMap.putIfAbsent(fm, paleoObsRatesList);
+						List<Double> carrizoList = Lists.newArrayList();
+						carrizoPaleoObsRatesMap.putIfAbsent(fm, carrizoList);
 						List<Double> weightsList = Lists.newArrayList();
 						weightsMap.putIfAbsent(fm, weightsList);
+						List<LogicTreeBranch> branchesList = Lists.newArrayList();
+						branchesMap.putIfAbsent(fm, branchesList);
 
 						// must be last
 						aveSlipConstraintsMap.putIfAbsent(fm,
@@ -2562,6 +2576,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			debug(solIndex, "calculating paleo rates");
 			double[] paleoRates = new double[paleoConstraints.size()];
+			double carrizoRate = 0d;
 			for (int i = 0; i < paleoConstraints.size(); i++) {
 				PaleoRateConstraint constr = paleoConstraints.get(i);
 
@@ -2572,16 +2587,21 @@ public abstract class CompoundFSSPlots implements Serializable {
 							* paleoProbModel.getProbPaleoVisible(rupSet, rupID,
 									constr.getSectionIndex());
 				}
+				if (sol.getRupSet().getFaultSectionData(constr.getSectionIndex())
+						.getParentSectionId() == 300) // carrizo
+					carrizoRate = obsRate;
 				paleoRates[i] = obsRate;
 			}
 
 			debug(solIndex, "archiving");
 			synchronized (this) {
 				weightsMap.get(fm).add(weightProvider.getWeight(branch));
+				branchesMap.get(fm).add(branch);
 				reducedSlipsMap.get(fm).add(slips);
 				proxyAveSlipRatesMap.get(fm).add(proxyRates);
 				aveSlipObsRatesMap.get(fm).add(obsRates);
 				paleoObsRatesMap.get(fm).add(paleoRates);
+				carrizoPaleoObsRatesMap.get(fm).add(carrizoRate);
 			}
 			debug(solIndex, "done");
 		}
@@ -2595,6 +2615,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (FaultModels fm : o.weightsMap.keySet()) {
 					if (!weightsMap.containsKey(fm)) {
 						weightsMap.put(fm, new ArrayList<Double>());
+						branchesMap.put(fm, new ArrayList<LogicTreeBranch>());
 						aveSlipConstraintsMap.put(fm,
 								o.aveSlipConstraintsMap.get(fm));
 						paleoConstraintsMap.put(fm,
@@ -2603,15 +2624,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 						proxyAveSlipRatesMap.put(fm, new ArrayList<double[]>());
 						aveSlipObsRatesMap.put(fm, new ArrayList<double[]>());
 						paleoObsRatesMap.put(fm, new ArrayList<double[]>());
+						carrizoPaleoObsRatesMap.put(fm, new ArrayList<Double>());
 					}
 
 					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
+					branchesMap.get(fm).addAll(o.branchesMap.get(fm));
 					reducedSlipsMap.get(fm).addAll(o.reducedSlipsMap.get(fm));
 					proxyAveSlipRatesMap.get(fm).addAll(
 							o.proxyAveSlipRatesMap.get(fm));
 					aveSlipObsRatesMap.get(fm).addAll(
 							o.aveSlipObsRatesMap.get(fm));
 					paleoObsRatesMap.get(fm).addAll(o.paleoObsRatesMap.get(fm));
+					carrizoPaleoObsRatesMap.get(fm).addAll(o.carrizoPaleoObsRatesMap.get(fm));
 				}
 			}
 		}
@@ -2719,7 +2743,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						+ " Mapping", "Latitude", "Longitude",
 						"Paleo Observed Rate", "Paleo Observed Lower Bound",
 						"Paleo Observed Upper Bound",
-						"UCERF2 Proxy Event Rate",
+						"UCERF2 Paleo Visible Rate",
 						"UCERF3 Mean Paleo Visible Rate",
 						"UCERF3 Min Paleo Visible Rate",
 						"UCERF3 Max Paleo Visible Rate");
@@ -2775,6 +2799,37 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 
 				paleoCSVOutputMap.put(fm, csv);
+			}
+			
+			// Carriso table
+			carrizoCSV = new CSVFile<String>(true);
+			List<String> header = Lists.newArrayList();
+			for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
+				header.add(ClassUtils.getClassNameWithoutPackage(clazz));
+			header.add("A Priori Branch Weight");
+			header.add("Carrizo Paleo Observable Rate");
+			carrizoCSV.addLine(header);
+			
+			double totWt = 0;
+			for (List<Double> weights : weightsMap.values())
+				for (double weight : weights)
+					totWt += weight;
+			
+			for (FaultModels fm : carrizoPaleoObsRatesMap.keySet()) {
+				List<LogicTreeBranch> branches = branchesMap.get(fm);
+				List<Double> weights = weightsMap.get(fm);
+				List<Double> rates = carrizoPaleoObsRatesMap.get(fm);
+				
+				for (int i=0; i<branches.size(); i++) {
+					List<String> line = Lists.newArrayList();
+					LogicTreeBranch branch = branches.get(i);
+					for (int j=0; j<LogicTreeBranch.getLogicTreeNodeClasses().size(); j++)
+						line.add(branch.getValue(j).getShortName());
+					double weight = weights.get(i);
+					line.add((weight / totWt)+"");
+					line.add(rates.get(i)+"");
+					carrizoCSV.addLine(line);
+				}
 			}
 		}
 
@@ -3197,11 +3252,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 		
-		private static double meanFromIndexes(double[] array, List<Integer> indexes) {
-			double sum = 0;
+		private static double[] meanFromIndexes(double[] array, List<Integer> indexes) {
+			MinMaxAveTracker track = new MinMaxAveTracker();
 			for (int index : indexes)
-				sum += array[index];
-			return sum / (double)indexes.size();
+				track.addValue(array[index]);
+			double[] ret = { track.getMin(), track.getMax(), track.getAverage() };
+			return ret;
 		}
 
 		@Override
@@ -3253,12 +3309,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<Integer> parentIDs = Lists.newArrayList(parentNamesMap.keySet());
 				Collections.sort(parentIDs);
 				parentSectCSV.addLine("Parent Section ID", "Parent Section Name",
-						"Mean Target Slip Rate (m/yr)", "Mean Solution Slip Rate (m/yr)", "Mean Slip Rate Misfit Ratio");
+						"Mean Target Slip Rate (m/yr)", "Min Target Slip Rate (m/yr)",
+						"Max Target Slip Rate (m/yr)", "Mean Solution Slip Rate (m/yr)",
+						"Min Solution Slip Rate (m/yr)", "Max Solution Slip Rate (m/yr)",
+						"Mean Slip Rate Misfit Ratio");
 				for (Integer parentID : parentIDs) {
 					String parentName = parentNamesMap.get(parentID);
 					List<Integer> indexes = parentSectsMap.get(fm).get(parentName);
-					parentSectCSV.addLine(parentID+"", parentName+"", meanFromIndexes(targets, indexes)+"",
-							meanFromIndexes(solSlips, indexes)+"", meanFromIndexes(ratios, indexes)+"");
+					double[] parentTargets = meanFromIndexes(targets, indexes);
+					double[] parentSolutions = meanFromIndexes(solSlips, indexes);
+					double[] parentRatios = meanFromIndexes(ratios, indexes);
+					parentSectCSV.addLine(parentID+"", parentName+"", parentTargets[2]+"",
+							parentTargets[0]+"", parentTargets[1]+"", parentSolutions[2]+"",
+							parentSolutions[0]+"", parentSolutions[1]+"", parentRatios[2]+"");
 				}
 				parentSectCSVs.put(fm, parentSectCSV);
 
