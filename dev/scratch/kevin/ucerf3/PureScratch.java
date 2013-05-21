@@ -58,7 +58,7 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/tmp/compound/2013_05_10-ucerf3p3-production-10runs_run0_COMPOUND_SOL.zip"));
 		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
 		Collections.shuffle(branches);
 		HashSet<FaultModels> models = new HashSet<FaultModels>();
@@ -67,7 +67,11 @@ public class PureScratch {
 			FaultModels model = branch.getValue(FaultModels.class);
 			if (models.contains(model))
 				continue;
-			System.out.println(model.getShortName()+": "+cfss.getSolution(branch).getRupSet().getNumRuptures());
+			InversionFaultSystemSolution sol = cfss.getSolution(branch);
+			System.out.println(model.getShortName()+": "+sol.getRupSet().getNumRuptures());
+			System.out.println(sol.getClass().getName());
+			if (sol instanceof AverageFaultSystemSolution)
+				System.out.println(((AverageFaultSystemSolution)sol).getNumSolutions()+" sols");
 			models.add(model);
 		}
 //		InversionFaultSystemSolution sol = cfss.getSolution(cfss.getBranches().iterator().next());

@@ -265,6 +265,7 @@ public class TablesAndPlotsGen {
 	 */
 	public static void makeCompoundFSSMomentRatesTable(CompoundFaultSystemSolution cfss, File csvFile)
 			throws IOException {
+		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		List<String> header = Lists.newArrayList();
@@ -307,23 +308,23 @@ public class TablesAndPlotsGen {
 			dmWeightTotsMap.put(dm, dmTotWt);
 		}
 		
-		double hist_min = 1e18;
-		double hist_max = 3e19;
-		double hist_delta = 1e18;
+		double hist_min = 0;
+		double hist_max = 3;
+		double hist_delta = 0.1;
 		int hist_num = (int)((hist_max-hist_min)/hist_delta+1);
 		
 		HistogramFunction totOffHist = new HistogramFunction(hist_min, hist_num, hist_delta);
-		Map<DeformationModels, HistogramFunction> dmOffHistMap = Maps.newHashMap();
+		Map<DeformationModels, DiscretizedFunc> dmOffHistMap = Maps.newHashMap();
 		for (DeformationModels dm : dmWeightTotsMap.keySet())
 			dmOffHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
 		
 		HistogramFunction totOnHist = new HistogramFunction(hist_min, hist_num, hist_delta);
-		Map<DeformationModels, HistogramFunction> dmOnHistMap = Maps.newHashMap();
+		Map<DeformationModels, DiscretizedFunc> dmOnHistMap = Maps.newHashMap();
 		for (DeformationModels dm : dmWeightTotsMap.keySet())
 			dmOnHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
 		
 		HistogramFunction totTotHist = new HistogramFunction(hist_min, hist_num, hist_delta);
-		Map<DeformationModels, HistogramFunction> dmTotHistMap = Maps.newHashMap();
+		Map<DeformationModels, DiscretizedFunc> dmTotHistMap = Maps.newHashMap();
 		for (DeformationModels dm : dmWeightTotsMap.keySet())
 			dmTotHistMap.put(dm, new HistogramFunction(hist_min, hist_num, hist_delta));
 		
@@ -348,21 +349,23 @@ public class TablesAndPlotsGen {
 			line.add(off+"");
 			
 			double tot = supra+sub+off;
-			totTotHist.add(tot, totScaledWt);
-			dmTotHistMap.get(dm).add(tot, totScaledWt);
+			double onTot = sub+supra;
 			
-			totOnHist.add(sub+supra, totScaledWt);
-			dmOnHistMap.get(dm).add(sub+supra, totScaledWt);
+			totTotHist.add(tot/1e19, totScaledWt);
+			((HistogramFunction)dmTotHistMap.get(dm)).add(tot/1e19, totScaledWt);
 			
-			totOffHist.add(off, totScaledWt);
-			dmOffHistMap.get(dm).add(off, totScaledWt);
+			totOnHist.add(onTot/1e19, totScaledWt);
+			((HistogramFunction)dmOnHistMap.get(dm)).add(onTot/1e19, totScaledWt);
+			
+			totOffHist.add(off/1e19, totScaledWt);
+			((HistogramFunction)dmOffHistMap.get(dm)).add(off/1e19, totScaledWt);
 			
 			csv.addLine(line);
 		}
 		
 		csv.writeToFile(csvFile);
 		
-		Color[] dmColors = { Color.RED, Color.BLUE, Color.GREEN, Color.MAGENTA };
+		Color[] dmColors = { Color.RED, Color.ORANGE, Color.GREEN, Color.MAGENTA };
 		List<DeformationModels> dms = Lists.newArrayList(dmTotHistMap.keySet());
 		Collections.sort(dms, new Comparator<DeformationModels>() {
 
@@ -405,93 +408,140 @@ public class TablesAndPlotsGen {
 			dmOnTarget /= (double)fms.length;
 			dmOffTarget /= (double)fms.length;
 			
-			dmTotTargets.put(dm, dmTotTarget);
-			dmOnTargets.put(dm, dmOnTarget);
-			dmOffTargets.put(dm, dmOffTarget);
+			dmTotTargets.put(dm, dmTotTarget/1e19);
+			dmOnTargets.put(dm, dmOnTarget/1e19);
+			dmOffTargets.put(dm, dmOffTarget/1e19);
 		}
 		
-		writeMoRateHist(totTotHist, dmTotHistMap, dmTotTargets, dms, dmColors,
-				name+"_mo_rate_dist_tot", csvFile.getParentFile(), "Total");
-		writeMoRateHist(totOnHist, dmOnHistMap, dmOnTargets, dms, dmColors,
-				name+"_mo_rate_dist_on", csvFile.getParentFile(), "On Fault");
-		writeMoRateHist(totOffHist, dmOffHistMap, dmOffTargets, dms, dmColors,
-				name+"_mo_rate_dist_off", csvFile.getParentFile(), "Off Fault");
-	}
-	
-	private static void writeMoRateHist(
-			HistogramFunction totHist, Map<DeformationModels, HistogramFunction> dmHistMap,
-			Map<DeformationModels, Double> dmTargets, List<DeformationModels> dms,
-			Color[] dmColors, String fileName, File dir, String type)
-					throws IOException {
+//		writeMoRateHist(totTotHist, dmTotHistMap, dmTotTargets, dms, dmColors,
+//				name+"_mo_rate_dist_tot", csvFile.getParentFile(), "Total", plotXLog);
+//		writeMoRateHist(totOnHist, dmOnHistMap, dmOnTargets, dms, dmColors,
+//				name+"_mo_rate_dist_on", csvFile.getParentFile(), "On Fault", plotXLog);
+//		writeMoRateHist(totOffHist, dmOffHistMap, dmOffTargets, dms, dmColors,
+//				name+"_mo_rate_dist_off", csvFile.getParentFile(), "Off Fault", plotXLog);
+		
+		File dir = csvFile.getParentFile();
+		
+		double minX = 0d;
+		double maxX = 3;
+		double minY = 0;
+		double maxY = 0.525;
+		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		totHist.setName(type+" Histogram");
-		funcs.add(totHist);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		// first make combined on/off hist
 		
-		double minX = Double.POSITIVE_INFINITY;
-		double maxX = 0d;
-		double maxY = 0d;
-		for (Point2D pt : totHist) {
-			if (pt.getY() > 0) {
-				if (pt.getX() < minX)
-					minX = pt.getX();
-				if (pt.getX() > maxX)
-					maxX = pt.getX();
-				if (pt.getY() > maxY)
-					maxY = pt.getY();
-			}
-		}
-		for (double target : dmTargets.values()) {
-			if (target > maxX)
-				maxX = target;
-			if (target < minX)
-				minX = target;
-		}
-		double xBuffer = 1e18;
-		minX -= xBuffer;
-		maxX += xBuffer;
-		maxY *= 1.1;
+		totOnHist.setName("On Fault Histogram");
+		funcs.add(totOnHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.BLUE));
 		
 		for (int i=0; i<dms.size(); i++) {
 			DeformationModels dm = dms.get(i);
 			Color color = dmColors[i];
 			
-			HistogramFunction func = dmHistMap.get(dm);
+			DiscretizedFunc func = dmOnHistMap.get(dm);
 			func.setName(dm.getName());
 			funcs.add(func);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
 			
-			if (dm == DeformationModels.GEOLOGIC && !type.equals("On Fault"))
-				continue;
+//			if (dm == DeformationModels.GEOLOGIC && !type.equals("On Fault"))
+//				continue;
 			
-			double target = dmTargets.get(dm);
+			double target = dmOnTargets.get(dm);
 			ArbitrarilyDiscretizedFunc targetLine = new ArbitrarilyDiscretizedFunc();
 			targetLine.set(target, 0d);
 			targetLine.set(target*1.0001, maxY);
-			targetLine.setName(dm.getName()+" "+type+" Target");
+			targetLine.setName(dm.getName()+" On Fault Target");
 			funcs.add(targetLine);
-			System.out.println(type+" Target ("+dm.name()+"): "+target);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			System.out.println("On Fault Target ("+dm.name()+"): "+target);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, color));
 		}
 		
-		for (DiscretizedFunc func : funcs) {
-			double sumY = 0;
-			for (Point2D pt : func)
-				sumY += pt.getY();
-			System.out.println(sumY);
+		totOffHist.setName("Off Fault Histogram");
+		funcs.add(totOffHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.GRAY));
+		
+		for (int i=0; i<dms.size(); i++) {
+			DeformationModels dm = dms.get(i);
+			Color color = dmColors[i];
+			
+			DiscretizedFunc func = dmOffHistMap.get(dm);
+			func.setName(dm.getName());
+			funcs.add(func);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			
+			if (dm == DeformationModels.GEOLOGIC)
+				continue;
+			
+			double target = dmOffTargets.get(dm);
+			ArbitrarilyDiscretizedFunc targetLine = new ArbitrarilyDiscretizedFunc();
+			targetLine.set(target, 0d);
+			targetLine.set(target*1.0001, maxY);
+			targetLine.setName(dm.getName()+" Off Fault Target");
+			funcs.add(targetLine);
+			System.out.println("Off Fault Target ("+dm.name()+"): "+target);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 2f, color));
 		}
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 //		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
-		gp.setUserBounds(minX, maxX, 0d, maxY);
-		gp.drawGraphPanel(type+" Moment Rate (Nm/yr)", "Branch Weight", funcs, chars, true,
-				type+" Moment Rate Distribution");
+		gp.setUserBounds(minX, maxX, minY, maxY);
+		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars, true,
+				"Moment Rate Distribution");
 		
-		File outputFile = new File(dir, fileName);
+		File outputFile = new File(dir, name+"_mo_rate_dist_on_off");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+		outputFile = new File(outputFile.getAbsolutePath()+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+		
+		// total
+		funcs = Lists.newArrayList();
+		chars = Lists.newArrayList();
+		
+		totTotHist.setName("Total Histogram");
+		funcs.add(totTotHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.BLACK));
+		
+		for (int i=0; i<dms.size(); i++) {
+			DeformationModels dm = dms.get(i);
+			Color color = dmColors[i];
+			
+			DiscretizedFunc func = dmTotHistMap.get(dm);
+			func.setName(dm.getName());
+			funcs.add(func);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+			
+			if (dm == DeformationModels.GEOLOGIC)
+				continue;
+			
+			double target = dmTotTargets.get(dm);
+			ArbitrarilyDiscretizedFunc targetLine = new ArbitrarilyDiscretizedFunc();
+			targetLine.set(target, 0d);
+			targetLine.set(target*1.0001, maxY);
+			targetLine.setName(dm.getName()+" Total Target");
+			funcs.add(targetLine);
+			System.out.println("Total Target ("+dm.name()+"): "+target);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
+		}
+		
+		gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+//		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setUserBounds(minX, maxX, minY, maxY);
+		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars, true,
+				"Moment Rate Distribution");
+		
+		outputFile = new File(dir, name+"_mo_rate_dist_total");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");

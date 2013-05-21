@@ -127,15 +127,15 @@ public class UCERF2_ComparisonSolutionFetcher {
 	}
 	
 	public static void main(String[] args) throws GMT_MapException, RuntimeException, IOException, DocumentException {
-		FaultModels fm = FaultModels.FM3_1;
-		String prefix = "FM3_1_UCERF2_DsrTap_CharConst_COMPARE";
+		FaultModels fm = FaultModels.FM2_1;
+		String prefix = "FM2_1_UCERF2_DsrTap_CharConst_COMPARE";
 		File dir = new File("/tmp");
 		
-//		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
+		InversionFaultSystemSolution sol = getUCERF2Solution(fm, SlipAlongRuptureModels.TAPERED);
 //		BatchPlotGen.makeMapPlots(sol, dir, prefix);
-//		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
+		FaultSystemIO.writeSol(sol, new File(dir, prefix+"_sol.zip"));
 		
-		writeUCREF2_CompoundSol(new File(dir, "UCERF2_MAPPED_COMPOUND_SOL.zip"), FaultModels.FM2_1);
+//		writeUCREF2_CompoundSol(new File(dir, "UCERF2_MAPPED_COMPOUND_SOL.zip"), FaultModels.FM2_1);
 		
 //		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF2_PaleoRateConstraintFetcher.getConstraints(sol.getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoConstraints, null, sol, dir, prefix);
