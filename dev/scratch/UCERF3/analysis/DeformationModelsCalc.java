@@ -2375,11 +2375,20 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		plotAllSpatialMoRateMaps();
+		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
+
+		
+//		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.NORTHRIDGE_BOX());
+
+		
+//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		
+//		writeMoRateOfParentSectionsForAllDefAndFaultModels();
+		
+//		plotAllSpatialMoRateMaps();
 		
 //		plotSectSlipRateHistForAllDeformationModels();
 		
-//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
 	
 //		calcMoRateAndMmaxDataForDefModels();
 
@@ -2391,13 +2400,9 @@ public class DeformationModelsCalc {
 		
 //		writeDefModelFaultModelFilesForWebsite(new File("/tmp/dm_files"));
 		
-//		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.SF_BOX());
 		
-//		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
 
-				
-//		writeMoRateOfParentSectionsForAllDefAndFaultModels();
-		
+						
 //		writeMoRateOfParentSections(FaultModels.FM3_1, DeformationModels.GEOLOGIC);
 		
 

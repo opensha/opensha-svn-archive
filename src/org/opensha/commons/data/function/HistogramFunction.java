@@ -54,4 +54,18 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		return cumHist;
 	}
 	
+	/**
+	 * This returns the x-axis value corresponding to the maximum y-axis value
+	 * @return
+	 */
+	public double getMode() {
+		double mode=Double.NaN, max=-1;;
+		for(int i=0;i<getNum();i++) {
+			if(getY(i)>max) {
+				max = getY(i);
+				mode = getX(i);
+			}
+		}
+		return mode;
+	}
 }

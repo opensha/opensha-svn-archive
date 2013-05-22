@@ -10,6 +10,7 @@ import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -66,25 +67,36 @@ public class FaultSystemSolutionCalc {
 	
 	public static void plotPaleoObsSlipCOV_Histogram(InversionFaultSystemSolution fltSysSol, File outputFile) {
 		
-		double delta = 0.02;
-		int num = (int)Math.round(100.0/0.025);
+		double delta = 0.05;
+		int num = (int)Math.round(10/delta);
 		
 		HistogramFunction covHist = new HistogramFunction(delta/2, num, delta);
 		double aveCOV = 0;
 		for(int s=0;s<fltSysSol.getRupSet().getNumSections();s++) {
-			double cov = fltSysSol.calcPaleoObsSlipPFD_ForSect(s).getCOV();
-			aveCOV += cov;
-//			System.out.println("COV: "+cov+" MAX: "+covHist.getMaxX());
+			ArbDiscrEmpiricalDistFunc func = fltSysSol.calcPaleoObsSlipPFD_ForSect(s);
+//			if(func.getNum()>10) {
+				double cov = func.getCOV();
+				aveCOV += cov;
+//				System.out.println("COV: "+cov+" MAX: "+covHist.getMaxX());
 			covHist.add(cov, 1.0);
+//			}
 		}
 		aveCOV /= fltSysSol.getRupSet().getNumSections();
 		
-		covHist.setName("COV Histogram");
-		covHist.setInfo("(mean COV = "+(float)aveCOV+")");
+		covHist.normalizeBySumOfY_Vals();
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(covHist, "COV Histogram");
+		covHist.setName("Slip COV Histogram");
+		covHist.setInfo("(mean COV = "+(float)aveCOV+"; mode = "+covHist.getMode()+")");
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.gray));
+		
+		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+		funcList.add(covHist);
+
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Slip COV Histogram", plotChars);
 		graph.setX_AxisRange(0, 2);
-		graph.setX_AxisLabel("COV");
+		graph.setX_AxisLabel("Slip COV");
 		graph.setY_AxisLabel("Fraction Per Bin");
 
 		graph.setTickLabelFontSize(14);
@@ -123,6 +135,7 @@ public class FaultSystemSolutionCalc {
 		LogicTreeBranch ref = LogicTreeBranch.DEFAULT;
 		
 		for (ScalingRelationships scale : ScalingRelationships.values()) {
+//		ScalingRelationships scale = ScalingRelationships.SHAW_2009_MOD;
 			if (scale.getRelativeWeight(null) == 0)
 				continue;
 			ref.setValue(scale);
@@ -228,8 +241,8 @@ public class FaultSystemSolutionCalc {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		
-		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
-		String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
+//		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
+//		String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
 
 		// some U3.1 file:
 //		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
@@ -245,7 +258,7 @@ public class FaultSystemSolutionCalc {
 		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		File compoundFile = new File(invDir, fileName);
 		// output directory - you probably want to change this
-		File outputDir = new File("/tmp");
+		File outputDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		
 		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
