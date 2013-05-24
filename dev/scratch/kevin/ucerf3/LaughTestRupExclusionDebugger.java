@@ -35,17 +35,17 @@ public class LaughTestRupExclusionDebugger {
 //		int[] sects = {612, 613, 1495, 1496};
 //		int[] sects = {2343, 2342, 1962, 1925, 1926};
 //		int[] sects = {1137, 1136, 503, 502};
-		List<Integer> sectsList = Lists.newArrayList();
-		for (int i=1502; i>=1498; i--)
-			sectsList.add(i);
-		for (int i=613; i>=594; i--)
-			sectsList.add(i);
-		for (int i=635; i>=622; i--)
-			sectsList.add(i);
-		for (int i=1832; i<=1836; i++)
-			sectsList.add(i);
-//		int[] sects = {1502, 1136, 503, 502};
-		int[] sects = Ints.toArray(sectsList);
+//		List<Integer> sectsList = Lists.newArrayList();
+//		for (int i=1502; i>=1498; i--)
+//			sectsList.add(i);
+//		for (int i=613; i>=594; i--)
+//			sectsList.add(i);
+//		for (int i=635; i>=622; i--)
+//			sectsList.add(i);
+//		for (int i=1832; i<=1836; i++)
+//			sectsList.add(i);
+//		int[] sects = Ints.toArray(sectsList);
+		int[] sects = {1399, 1398, 1949, 1950};
 		
 		boolean applyGarlockPintoMtnFix = true;
 		

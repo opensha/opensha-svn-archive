@@ -58,7 +58,7 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/tmp/compound/2013_05_10-ucerf3p3-production-10runs_run0_COMPOUND_SOL.zip"));
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/tmp/compound/2013_05_10-ucerf3p3-production-10runs_run1_COMPOUND_SOL.zip"));
 		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
 		Collections.shuffle(branches);
 		HashSet<FaultModels> models = new HashSet<FaultModels>();

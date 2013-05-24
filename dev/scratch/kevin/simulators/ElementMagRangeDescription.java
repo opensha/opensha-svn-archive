@@ -26,6 +26,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	public static final int SAF_CHOLAME_ELEMENT_ID = 966;
 	public static final int GARLOCK_WEST_ELEMENT_ID = 6036;
 	public static final int SAN_JACINTO__ELEMENT_ID = 1931;
+	public static final int ELSINORE_ELEMENT_ID = 2460;
 	
 	private List<Integer> elementIDs;
 	private double minMag, maxMag;

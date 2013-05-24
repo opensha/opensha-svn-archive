@@ -603,7 +603,7 @@ public class LogicTreePBSWriter {
 		return new ListBasedTreeTrimmer(limitations);
 	}
 	
-	private static TreeTrimmer getCustomTrimmer() {
+	public static TreeTrimmer getCustomTrimmer() {
 		List<List<LogicTreeBranchNode<?>>> limitations = Lists.newArrayList();
 
 		List<LogicTreeBranchNode<?>> faultModels = toList(FaultModels.FM3_1);
