@@ -124,6 +124,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 import scratch.kevin.DeadlockDetectionThread;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -3252,12 +3253,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 		
-		private static double[] meanFromIndexes(double[] array, List<Integer> indexes) {
+		private static double meanFromIndexes(double[] array, List<Integer> indexes) {
 			MinMaxAveTracker track = new MinMaxAveTracker();
 			for (int index : indexes)
 				track.addValue(array[index]);
-			double[] ret = { track.getMin(), track.getMax(), track.getAverage() };
-			return ret;
+			return track.getAverage();
 		}
 
 		@Override
@@ -3286,8 +3286,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 //						weightsList);
 				double[] solSlips = getWeightedAvg(faults.size(), solSlipsList,
 						weightsList);
+				double[] solSlipMins = getMins(faults.size(), solSlipsList);
+				double[] solSlipMaxs = getMaxs(faults.size(), solSlipsList);
 				double[] targets = getWeightedAvg(faults.size(), targetsList,
 						weightsList);
+				double[] targetMins = getMins(faults.size(), targetsList);
+				double[] targetMaxs = getMaxs(faults.size(), targetsList);
 				
 				double[] ratios = new double[solSlips.length];
 				for (int i=0; i<ratios.length; i++)
@@ -3316,12 +3320,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (Integer parentID : parentIDs) {
 					String parentName = parentNamesMap.get(parentID);
 					List<Integer> indexes = parentSectsMap.get(fm).get(parentName);
-					double[] parentTargets = meanFromIndexes(targets, indexes);
-					double[] parentSolutions = meanFromIndexes(solSlips, indexes);
-					double[] parentRatios = meanFromIndexes(ratios, indexes);
-					parentSectCSV.addLine(parentID+"", parentName+"", parentTargets[2]+"",
-							parentTargets[0]+"", parentTargets[1]+"", parentSolutions[2]+"",
-							parentSolutions[0]+"", parentSolutions[1]+"", parentRatios[2]+"");
+					double parentTarget = meanFromIndexes(targets, indexes);
+					double parentTargetMin = meanFromIndexes(targetMins , indexes);
+					double parentTargetMax = meanFromIndexes(targetMaxs, indexes);
+					if (parentID == 32) {
+						System.out.println(Joiner.on(",").join(indexes));
+						List<Double> vals = Lists.newArrayList();
+						for (int index : indexes)
+							vals.add(targets[index]);
+						System.out.println(Joiner.on(",").join(vals));
+						System.exit(0);
+					}
+					double parentSolution = meanFromIndexes(solSlips, indexes);
+					double parentSolutionMin = meanFromIndexes(solSlipMins, indexes);
+					double parentSolutionMax = meanFromIndexes(solSlipMaxs, indexes);
+					double parentRatio = meanFromIndexes(ratios, indexes);
+					parentSectCSV.addLine(parentID+"", parentName+"", parentTarget+"",
+							parentTargetMin+"", parentTargetMax+"", parentSolution+"",
+							parentSolutionMin+"", parentSolutionMax+"", parentRatio+"");
 				}
 				parentSectCSVs.put(fm, parentSectCSV);
 
@@ -4789,6 +4805,34 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return values;
 		}
 
+		protected double[] getMins(int numFaults,
+				List<double[]> valuesList) {
+			double[] values = new double[numFaults];
+			int numSols = valuesList.size();
+			for (int i = 0; i < numFaults; i++) {
+				double[] faultVals = new double[numSols];
+				for (int s = 0; s < numSols; s++)
+					faultVals[s] = valuesList.get(s)[i];
+				values[i] = StatUtils.min(faultVals);
+			}
+
+			return values;
+		}
+
+		protected double[] getMaxs(int numFaults,
+				List<double[]> valuesList) {
+			double[] values = new double[numFaults];
+			int numSols = valuesList.size();
+			for (int i = 0; i < numFaults; i++) {
+				double[] faultVals = new double[numSols];
+				for (int s = 0; s < numSols; s++)
+					faultVals[s] = valuesList.get(s)[i];
+				values[i] = StatUtils.max(faultVals);
+			}
+
+			return values;
+		}
+
 		protected double[] getStdDevs(int numFaults, List<double[]> valuesList) {
 
 			double[] stdDevs = new double[numFaults];
@@ -5448,11 +5492,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
-		plots.add(new PaleoFaultPlot(weightProvider));
+//		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
-//		plots.add(new SlipRatePlots(weightProvider));
+		plots.add(new SlipRatePlots(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));

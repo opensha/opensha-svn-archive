@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +30,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -41,6 +43,8 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MapPlotData;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -698,6 +702,72 @@ public class TablesAndPlotsGen {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 //		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
+	
+	public static void makeSlipMisfitHistograms(File u3XMLFile, File u2XMLFile, File outputDir)
+			throws DocumentException, IOException {
+		List<MapPlotData> u3Datas = MapBasedPlot.loadPlotData(u3XMLFile);
+		List<MapPlotData> u2Datas = MapBasedPlot.loadPlotData(u2XMLFile);
+		
+		MapPlotData u3Misfits = null;
+		for (MapPlotData data : u3Datas) {
+			String name = data.getFileName();
+			if (name.endsWith("slip_rate_misfit")) {
+				if (name.startsWith("FM") && !name.startsWith("FM3_1"))
+					continue;
+				u3Misfits = data;
+			}
+		}
+		Preconditions.checkNotNull(u3Misfits,
+				"Couldn't find slip misfit data in xml file: "+u3XMLFile.getAbsolutePath());
+		
+		MapPlotData u2Misfits = null;
+		for (MapPlotData data : u2Datas) {
+			String name = data.getFileName();
+			if (name.endsWith("slip_rate_misfit")) {
+				u2Misfits = data;
+			}
+		}
+		Preconditions.checkNotNull(u2Misfits,
+				"Couldn't find slip misfit data in xml file: "+u2XMLFile.getAbsolutePath());
+		
+		int numHist = 100;
+		double histDelta = 0.05;
+		
+		HistogramFunction u2Hist = new HistogramFunction(0d, numHist, histDelta);
+		HistogramFunction u3Hist = new HistogramFunction(0d, numHist, histDelta);
+		
+		for (double value : u2Misfits.getFaultValues()) {
+			u2Hist.add(Math.abs(value), 1d);
+		}
+		
+		for (double value : u3Misfits.getFaultValues()) {
+			u3Hist.add(Math.abs(value), 1d);
+		}
+		
+		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(u3Hist);
+		funcs.add(u2Hist);
+		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setXLog(false);
+		gp.setYLog(false);
+		gp.setUserBounds(0, 3d, 0, u3Hist.getMaxY()*1.1);
+		gp.drawGraphPanel("Subsection Slip Rate Misfit (mm)", "Number", funcs, chars, true,
+				"Slip Rate Misfits");
+		File file = new File(outputDir, "slip_misfit_hist");
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		file = new File(file.getAbsolutePath()+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
 
 	/**
 	 * @param args
@@ -705,6 +775,11 @@ public class TablesAndPlotsGen {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		
+		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
+				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
+//		System.exit(0);
 		
 //		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
@@ -713,12 +788,11 @@ public class TablesAndPlotsGen {
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 		
-		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File compoundFile = new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-		makeCompoundFSSMomentRatesTable(cfss,
-				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+//		File compoundFile = new File(invDir,
+//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//		makeCompoundFSSMomentRatesTable(cfss,
+//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 //		
 //		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		
