@@ -2819,7 +2819,7 @@ if(mMax<5.85)
 		
 		plotAllImpliedTotalSectGR_MFD();
 		
-//		plotSumOfCharInversionMFD_Constraints();
+		plotSumOfCharInversionMFD_Constraints();
 
 		
 //		testParentCharInversionMFD_Constraint();

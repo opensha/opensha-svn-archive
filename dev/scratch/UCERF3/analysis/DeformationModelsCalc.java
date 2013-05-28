@@ -1081,6 +1081,9 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	
+	
+	
 	/**
 	 * The math here was derived so that section averages would come out right.
 	 * @param fm
@@ -1089,45 +1092,16 @@ public class DeformationModelsCalc {
 	 */
 	private static Hashtable<Integer,Double> getParentSectAveCouplingCoeffHashtable(FaultModels fm, DeformationModels dm) {
 		
-		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
-
-		String lastName = "";
-		Integer lastID = -100;
-		double sumOrig=0;
-		double sumReduced=0;
-		double origAreaSum=0;
-		double reducedAreaSum=0;
-
-		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
-			if(data.getParentSectionName().equals(lastName)) {
-				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
-				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
-				origAreaSum+=origArea;
-				reducedAreaSum+=reducedArea;
-				sumOrig += data.getOrigAveSlipRate()*origArea;
-				sumReduced += data.getReducedAveSlipRate()*reducedArea;
-			}
-			else {
-				if(!lastName.equals("")) {
-						hashtable.put(lastID, (sumReduced*origAreaSum)/(sumOrig*reducedAreaSum));
-				}
-				// set first values for new parent section
-				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
-				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
-				origAreaSum=origArea;
-				reducedAreaSum=reducedArea;
-				sumOrig = data.getOrigAveSlipRate()*origArea;
-				sumReduced = data.getReducedAveSlipRate()*reducedArea;
-				lastName = data.getParentSectionName();
-				lastID = data.getParentSectionId();
-			}
+		Hashtable<Integer,Double> hashtableOrigSlipRate = getParentSectAveSlipRateHashtable(fm, dm, false);
+		Hashtable<Integer,Double> hashtableReducedSlipRate = getParentSectAveSlipRateHashtable(fm, dm, true);
+		for(int key:hashtableOrigSlipRate.keySet()) {
+			hashtable.put(key, hashtableReducedSlipRate.get(key)/hashtableOrigSlipRate.get(key));
 		}
-		// do the last one
-		hashtable.put(lastID, (sumReduced*origAreaSum)/(sumOrig*reducedAreaSum));
 
 		return hashtable;
 	}
+
 
 
 
@@ -2375,13 +2349,12 @@ public class DeformationModelsCalc {
 	 */
 	public static void main(String[] args) throws IOException {
 		
-		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
+//		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
 
 		
 //		writeAveMoRateOfParentSectionsInsideRegion(new CaliforniaRegions.NORTHRIDGE_BOX());
 
-		
-//		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
+		writeAveSlipRateEtcOfParentSectionsForAllDefAndFaultModels();
 		
 //		writeMoRateOfParentSectionsForAllDefAndFaultModels();
 		
