@@ -67,14 +67,17 @@ public class TestCalc {
 			);
 
 		try {
-			String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
-			String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipWt0.1_VarSlipWtUnNorm10.0_VarPaleo1.2_VarMFDWt10.0_VarSectNuclMFDWt0.01_VarSmoothPaleoSect1000";
+//			String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
+//			String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipWt0.1_VarSlipWtUnNorm10.0_VarPaleo1.2_VarMFDWt10.0_VarSectNuclMFDWt0.01_VarSmoothPaleoSect1000";
+			
+			String path = "tmp/UC33/src/bravg/FM-DM-MS/UC33brAvg_FM31_ABM_ELLB.zip";
+//			String branch="FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2";
 			
 			// init erf for branch
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(path,
-				branch, IncludeBackgroundOption.INCLUDE, false,
+				IncludeBackgroundOption.INCLUDE, false,
 				true, 1.0);
-
+			erf.updateForecast();
 			
 //			new TestCalc(solSetPath, locs, period, epi);
 //			mendoTest(solSetPath);

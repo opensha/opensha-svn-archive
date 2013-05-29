@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
@@ -50,7 +49,9 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 	private LocationList locs;
 	private List<String> branches;
 	private List<Period> periods;
+	private IncludeBackgroundOption bg;
 	private String outDir;
+	
 
 	private boolean epiUncert = false;
 
@@ -64,9 +65,9 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 		super(cmd);
 		shuffle = false;
 		
-		if (args.length < 5) {
+		if (args.length < 6) {
 			System.err.println("USAGE: UC3_CalcMPJ_CurveCompound [<options>] "
-				+ "<solfile> <sitefile> <branchfile> <periods> <outDir>");
+				+ "<solfile> <sitefile> <branchfile> <periods> <bgOption> <outDir>");
 			abortAndExit(2);
 		}
 
@@ -83,7 +84,8 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 		}
 		branches = UC3_CalcUtils.readBranchFile(args[2]);
 		periods = readArgAsList(args[3], Period.class);
-		outDir = args[4];
+		bg = IncludeBackgroundOption.valueOf(args[4]);
+		outDir = args[5];
 
 		// init executor
 		int numProc = Runtime.getRuntime().availableProcessors();
@@ -104,7 +106,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 
 			// init erf for branch
 			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
-				branches.get(brIdx), IncludeBackgroundOption.INCLUDE, false,
+				branches.get(brIdx), bg, false,
 				true, 1.0);
 			erf.updateForecast();
 			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);

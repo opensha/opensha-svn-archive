@@ -83,7 +83,7 @@ public class UC3_MapMaker {
 	private static final String SUFFIX = "_0p1";
 
 	public static void main(String[] args) throws IOException {
-//		generateBranchList();
+		generateBranchList();
 //		buildMaps();
 //		makeMultiBranchMap();
 //		buildMapsUC32();
@@ -408,12 +408,12 @@ public class UC3_MapMaker {
 		String outDir = ROOT + "mapsUC32b/";
 		
 		// Mmax and Mgt5 comparisons
-//		brOverList = Lists.newArrayList(
-//			"M576-MX72", "M587-MX72", "M510-MX72",
-//			"M576-MX76", "M587-MX76", "M510-MX76",
-//			"M576-MX80", "M587-MX80", "M510-MX80");
-//		brUnder = "M587-MX76";
-//		makeRatioMap(srcDir, outDir, brOverList, brUnder);
+		brOverList = Lists.newArrayList(
+			"M576-MX72", "M587-MX72", "M510-MX72",
+			"M576-MX76", "M587-MX76", "M510-MX76",
+			"M576-MX80", "M587-MX80", "M510-MX80");
+		brUnder = "M587-MX76";
+		makeRatioMap(srcDir, outDir, brOverList, brUnder);
 		
 		
 		// other branch node comparisons
@@ -1263,6 +1263,11 @@ public class UC3_MapMaker {
 //				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
+			
+			// copy map.pdf to dl dir
+			File pdfFrom = new File(dlDir, "map.pdf");
+			File pdfTo = new File(dlDir + ".pdf");
+			Files.copy(pdfFrom, pdfTo);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -1299,7 +1304,7 @@ public class UC3_MapMaker {
 
 	private static void generateBranchList() {
 		
-		String fileName = "M510";
+		String fileName = "tree1440";
 		Set<FaultModels> fltModels = EnumSet.of(
 			FM3_1, FM3_2); //FM3_2); // FM3_1, FM3_2);
 		Set<DeformationModels> defModels = EnumSet.of(
@@ -1314,7 +1319,7 @@ public class UC3_MapMaker {
 		Set<InversionModels> invModels = EnumSet.of(
 			CHAR_CONSTRAINED);
 		Set<TotalMag5Rate> totM5rate = EnumSet.of(
-			RATE_9p6); //RATE_7p6, RATE_8p7, RATE_10p0);
+			RATE_6p5, RATE_7p9, RATE_9p6);
 		Set<MaxMagOffFault> mMaxOff = EnumSet.of(
 			MAG_7p3, MAG_7p6, MAG_7p9); // MAG_7p2, MAG_7p6, MAG_8p0);
 		Set<MomentRateFixes> momentFix = EnumSet.of(
@@ -1336,7 +1341,7 @@ public class UC3_MapMaker {
 		int count = 0;
 		Set<List<LogicTreeBranchNode<?>>> branches = Sets.cartesianProduct(branchSets);
 		try {
-		File out = new File("tmp/UC3maps/branchsetsUC32", fileName + ".txt");
+		File out = new File("tmp/UC33/curvejobs/branches", fileName + ".txt");
 		Files.write("", out, US_ASCII);
 		for (List<LogicTreeBranchNode<?>> branch : branches) {
 			LogicTreeBranch ltb = LogicTreeBranch.fromValues(branch);
