@@ -43,7 +43,7 @@ public class PtSrcDistCorr {
 					// this was Peter's original correction, but it explodes if it's given say 6.449999999999999 (which converts to 6.39999999999999)
 //					double adjMagAlt = ((int) (mag*100) % 10 != 5) ? mag - 0.05 : mag;
 					double adjMag = ((double)Math.round(mag/0.05))*0.05;
-					if (adjMag > 7.6) adjMag = 8.55;
+					if (adjMag > 8.6) adjMag = 8.55;
 //					if(adjMagAlt != adjMag)
 //						System.out.println("mag,adj,alt:\t"+mag+"\t"+adjMag+"\t"+adjMagAlt);
 					if(horzDist==0)
