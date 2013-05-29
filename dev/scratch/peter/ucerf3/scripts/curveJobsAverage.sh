@@ -30,8 +30,8 @@ ERF_COUNT=200
 # build pbs
 java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	scratch.peter.ucerf3.scripts.CurvesFromAverage \
-	$QUEUE $NODES $HOURS $JAVA_LIB \
-	$SCRIPT $SOLFILE $SITEFILE $ERF_COUNT $PERIODS $BG $OUTDIR
+	$QUEUE $NODES $HOURS $JAVA_LIB $SCRIPT \
+	-exact=1 $SOLFILE $SITEFILE $ERF_COUNT $PERIODS $BG $OUTDIR
 
 if [[ $? == 0 ]] ; then
 	echo 'PBS script is here:'

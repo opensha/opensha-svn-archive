@@ -58,7 +58,7 @@ public class MapsFromSolution {
 		writeScript(libDir, hours, nodes, queue, scriptPath, otherArgs);
 	}
 
-	private static void writeScript(String libDir, int hrs,
+	public static void writeScript(String libDir, int hrs,
 			int nodes, String queue, String scriptPath, 
 			List<String> args) {
 		try {

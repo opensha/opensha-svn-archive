@@ -43,8 +43,8 @@ public class WebUtil {
 	 * Adds HEADER.html to each UCERF3 hazard analysis site directory
 	 */
 	public static void addHeaders() throws IOException {
-		String plotDir = "/Users/pmpowers/projects/UCERF3.2/HazardCurves/Sites/sites/";
-		String sitesPath = "/Users/pmpowers/projects/OpenSHA/tmp/curves/sites/all.txt";
+		String plotDir = "/Users/pmpowers/projects/UCERF3.3/HazardCurves/Sites/sites/";
+		String sitesPath = "tmp/UC33/curvejobs/sites/all.txt";
 		File readMe = new File(plotDir + "README.html");
 		File header = new File(plotDir + "HEADER.html");
 		String headerStr = Files.readFirstLine(header, US_ASCII);

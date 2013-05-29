@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JOBGROUP=UC32brAvg5x_fm31_nobg
+JOBGROUP=UC33-brAvg-test
 
 # Local config for script
 SHA_LOCAL=/Users/pmpowers/projects/OpenSHA
@@ -12,18 +12,16 @@ SCRIPT=$TMP_LOCAL/$JOBGROUP.pbs
 # Remote config for jobs
 BASEDIR=/home/scec-00/pmpowers
 JAVADIR=$BASEDIR/lib
-SRCDIR=$BASEDIR/UC33/src/bravg
+SRCDIR=$BASEDIR/UC33/src/bravg/FM-DM-MS
 OUTDIR=$BASEDIR/UC33/maps/$JOBGROUP
 
 # Calc config
-SOL_FILE=$SRCDIR/2013_01_14-UC32-MEAN_BRANCH_AVG_SOL_FM31.zip
-#SOL_FILE=$SRCDIR/2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
-#SOL_FILE=$SRCDIR/2013_05_01-ucerf3p3-proposed-subset-hpcc-salmonfix_COMPOUND_SOL_MEAN_BRANCH_AVG_SOL.zip
+SOL_FILE=$SRCDIR/UC33brAvg_FM31_ABM_ELLB.zip
 GRID='CA_RELM'
 SPACING='0.1'
 PERIOD='GM0P00'
 HRS=1
-NODES=84
+NODES=3
 QUEUE=nbns
 BG=INCLUDE
 
