@@ -3300,10 +3300,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 				// make CSV file
 				CSVFile<String> subSectCSV = new CSVFile<String>(true);
 				subSectCSV.addLine("Sub Section Index", "Parent Section ID",
-						"Mean Target Slip Rate (m/yr)", "Mean Solution Slip Rate (m/yr)", "Mean Slip Rate Misfit Ratio");
+						"Mean Target Slip Rate (m/yr)", "Min Target Slip Rate (m/yr)",
+						"Max Target Slip Rate (m/yr)", "Mean Solution Slip Rate (m/yr)",
+						"Min Solution Slip Rate (m/yr)", "Max Solution Slip Rate (m/yr)",
+						"Mean Slip Rate Misfit Ratio");
 				for (int sectIndex=0; sectIndex<solSlips.length; sectIndex++) {
 					subSectCSV.addLine(sectIndex+"", sectDatas.get(sectIndex).getParentSectionId()+"",
-							targets[sectIndex]+"", solSlips[sectIndex]+"", ratios[sectIndex]+"");
+							targets[sectIndex]+"", targetMins[sectIndex]+"", targetMaxs[sectIndex]+"",
+							solSlips[sectIndex]+"", solSlipMins[sectIndex]+"",
+							solSlipMaxs[sectIndex]+"", ratios[sectIndex]+"");
 				}
 				subSectCSVs.put(fm, subSectCSV);
 				CSVFile<String> parentSectCSV = new CSVFile<String>(true);
@@ -3323,14 +3328,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 					double parentTarget = meanFromIndexes(targets, indexes);
 					double parentTargetMin = meanFromIndexes(targetMins , indexes);
 					double parentTargetMax = meanFromIndexes(targetMaxs, indexes);
-					if (parentID == 32) {
-						System.out.println(Joiner.on(",").join(indexes));
-						List<Double> vals = Lists.newArrayList();
-						for (int index : indexes)
-							vals.add(targets[index]);
-						System.out.println(Joiner.on(",").join(vals));
-						System.exit(0);
-					}
 					double parentSolution = meanFromIndexes(solSlips, indexes);
 					double parentSolutionMin = meanFromIndexes(solSlipMins, indexes);
 					double parentSolutionMax = meanFromIndexes(solSlipMaxs, indexes);

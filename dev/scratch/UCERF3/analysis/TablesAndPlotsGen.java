@@ -24,6 +24,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -705,6 +706,8 @@ public class TablesAndPlotsGen {
 	
 	public static void makeSlipMisfitHistograms(File u3XMLFile, File u2XMLFile, File outputDir)
 			throws DocumentException, IOException {
+		boolean norm = true;
+		
 		List<MapPlotData> u3Datas = MapBasedPlot.loadPlotData(u3XMLFile);
 		List<MapPlotData> u2Datas = MapBasedPlot.loadPlotData(u2XMLFile);
 		
@@ -736,12 +739,49 @@ public class TablesAndPlotsGen {
 		HistogramFunction u2Hist = new HistogramFunction(0d, numHist, histDelta);
 		HistogramFunction u3Hist = new HistogramFunction(0d, numHist, histDelta);
 		
-		for (double value : u2Misfits.getFaultValues()) {
+		
+		List<LocationList> u2SkipTraces = null;
+		// for skipping San Gregorio and Little Salmon
+		List<Integer> u2SkipParentIDs = Lists.newArrayList(12, 29, 16, 17);
+//		List<Integer> u2SkipParentIDs = null;
+		
+		if (u2SkipParentIDs != null && !u2SkipParentIDs.isEmpty()) {
+			u2SkipTraces = Lists.newArrayList();
+			List<FaultSectionPrefData> u2SubSects = new DeformationModelFetcher(
+					FaultModels.FM2_1, DeformationModels.UCERF2_ALL,
+					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1).getSubSectionList();
+			for (FaultSectionPrefData subSect : u2SubSects) {
+				if (u2SkipParentIDs.contains(subSect.getParentSectionId()))
+					u2SkipTraces.add(subSect.getFaultTrace());
+			}
+		}
+		
+		mainLoop:
+		for (int f=0; f<u2Misfits.getFaults().size(); f++) {
+			double value = u2Misfits.getFaultValues()[f];
+			if (u2SkipTraces != null) {
+				LocationList trace = u2Misfits.getFaults().get(f);
+				traceLoop:
+				for (LocationList oTrace : u2SkipTraces) {
+					for (int i=0; i<trace.size(); i++) {
+						if (!oTrace.get(i).equals(trace.get(i)))
+							continue traceLoop;
+					}
+					System.out.println("Skipping a sub sect!");
+					// it's a match!
+					continue mainLoop;
+				}
+			}
 			u2Hist.add(Math.abs(value), 1d);
 		}
 		
 		for (double value : u3Misfits.getFaultValues()) {
 			u3Hist.add(Math.abs(value), 1d);
+		}
+		
+		if (norm) {
+			u3Hist.normalizeBySumOfY_Vals();
+			u2Hist.normalizeBySumOfY_Vals();
 		}
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -757,7 +797,12 @@ public class TablesAndPlotsGen {
 		gp.setXLog(false);
 		gp.setYLog(false);
 		gp.setUserBounds(0, 3d, 0, u3Hist.getMaxY()*1.1);
-		gp.drawGraphPanel("Subsection Slip Rate Misfit (mm)", "Number", funcs, chars, true,
+		String yAxisLabel;
+		if (norm)
+			yAxisLabel = "Fraction";
+		else
+			yAxisLabel = "Number";
+		gp.drawGraphPanel("Subsection Slip Rate Misfit (solution/target)", yAxisLabel, funcs, chars, true,
 				"Slip Rate Misfits");
 		File file = new File(outputDir, "slip_misfit_hist");
 		gp.getCartPanel().setSize(1000, 800);
