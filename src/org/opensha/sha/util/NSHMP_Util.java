@@ -119,7 +119,7 @@ public class NSHMP_Util {
 	 * @param D distance
 	 * @return the corrected distance or <code>D</code> if <code>D</code> ≥ 1000
 	 * @throws IllegalArgumentException if <code>M</code> is not one of [6.05,
-	 *         6.15, ... 7.55]
+	 *         6.15, ... 8.55]
 	 */
 	public static double getMeanRJB(double M, double D) {
 		int magKey = (int) Math.round(M * 100);
