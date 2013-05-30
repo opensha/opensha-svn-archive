@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -35,10 +36,13 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotPreferences;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
-import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
+
+import com.google.common.base.Preconditions;
 
 /**
  * <p>Title: ButtonControlPanel</p>
@@ -48,9 +52,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
  * @version 1.0
  */
 
-public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanelAPI,
-		PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI,
-		ActionListener {
+public class ButtonControlPanel extends JPanel implements ActionListener {
 
 //	JButton button = new JButton();
 //	  button.putClientProperty("JButton.buttonType", style);
@@ -62,10 +64,6 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	// when a plot doesn't yet exist
 	private final static String AXIS_RANGE_NOT_ALLOWED =
 		new String("First Choose Add Graph. Then choose Axis Scale option");
-
-
-	//stores the instance of the application using this ButtonControlPanel
-	ButtonControlPanelAPI application;
 	
 	private JPanel buttonPanel;
 	private JPanel checkboxPanel;
@@ -83,11 +81,15 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	private PlotColorAndLineTypeSelectorControlPanel plotControl;
 
 	//boolean to check if axis range is auto or custom
-	private boolean customAxis = false;
-	private int plotLabelFontSize=12, axisLabelFontSize=12, tickLabelFontSize=10;
+	private PlotPreferences plotPrefs;
+	
+	private GraphWidget gw;
 
-	public ButtonControlPanel(ButtonControlPanelAPI api) {
-		application = api;
+	public ButtonControlPanel(GraphWidget gw, PlotPreferences plotPrefs) {
+		Preconditions.checkNotNull(gw, "GraphWidget cannot be null");
+		Preconditions.checkNotNull(plotPrefs, "PlotPreferences cannot be null");
+		this.gw = gw;
+		this.plotPrefs = plotPrefs;
 		initUI();
 	}
 	
@@ -153,13 +155,13 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	public void actionPerformed(ActionEvent e) {
 		Object src = e.getSource();
 		if (src.equals(jCheckxlog)) {
-			application.setX_Log(jCheckxlog.isSelected());
+			gw.setX_Log(jCheckxlog.isSelected());
 		} else if (src.equals(jCheckylog)) {
-			application.setY_Log(jCheckylog.isSelected());
+			gw.setY_Log(jCheckylog.isSelected());
 		} else if (src.equals(setAxisButton)) {
 			setAxisAction();
 		} else if (src.equals(toggleButton)) {
-			application.togglePlot();
+			gw.togglePlot();
 		} else if (src.equals(plotPrefsButton)) {
 			plotPrefsAction();
 		}
@@ -193,8 +195,8 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
 	//Action method when the "Set Axis Range" button is pressed.
 	private void setAxisAction() {
-		Range xAxisRange = application.getX_AxisRange();
-		Range yAxisRange = application.getY_AxisRange();
+		Range xAxisRange = gw.getX_AxisRange();
+		Range yAxisRange = gw.getY_AxisRange();
 		if(xAxisRange==null || yAxisRange==null) {
 			JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
 			return;
@@ -204,56 +206,18 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 		double maxX=xAxisRange.getUpperBound();
 		double minY=yAxisRange.getLowerBound();
 		double maxY=yAxisRange.getUpperBound();
-		if(customAxis) { // select the custom scale in the control window
-			if(axisControlPanel == null) {
-				axisControlPanel=new AxisLimitsControlPanel(this, this,
-						AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-			} else  axisControlPanel.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-					minX,maxX,minY,maxY);
-
-		}
-		else { // select the auto scale in the control window
-			if(axisControlPanel == null)
-				axisControlPanel=new AxisLimitsControlPanel(this, this,
-						AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-			else  axisControlPanel.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-					minX,maxX,minY,maxY);
-		}
+		
+		Range customXRange = gw.getUserX_AxisRange();
+		Range customYRange = gw.getUserY_AxisRange();
+		
+		if(axisControlPanel == null)
+			axisControlPanel=new AxisLimitsControlPanel(gw, this);
+		else
+			axisControlPanel.updateParams();
 		if (!axisControlPanel.isInitialized())
 			axisControlPanel.init();
 		axisControlPanel.getComponent().pack();
 		axisControlPanel.getComponent().setVisible(true);
-	}
-
-
-	/**
-	 * plots the curves with defined color,line width and shape.
-	 *
-	 */
-	public void plotGraphUsingPlotPreferences(){
-		application.plotGraphUsingPlotPreferences();
-	}
-
-	/**
-	 * sets the range for X and Y axis
-	 * @param xMin : minimum value for X-axis
-	 * @param xMax : maximum value for X-axis
-	 * @param yMin : minimum value for Y-axis
-	 * @param yMax : maximum value for Y-axis
-	 *
-	 */
-	public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-		application.setAxisRange(xMin,xMax,yMin,yMax);
-		customAxis=true;
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		application.setAutoRange();
-		customAxis = false;
 	}
 
 	/**
@@ -298,89 +262,14 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	 * @param e
 	 */
 	private void plotPrefsAction() {
-		ArrayList plotFeatures = application.getPlottingFeatures();
-		if(plotControl == null) {
-			plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
-			plotControl.setTickLabelFontSize(this.tickLabelFontSize);
-			plotControl.setPlotLabelFontSize(this.plotLabelFontSize);
-			plotControl.setAxisLabelFontSize(this.axisLabelFontSize);
-		}
+		List<PlotCurveCharacterstics> plotFeatures = gw.getPlottingFeatures();
+		if(plotControl == null)
+			// first display
+			plotControl = new PlotColorAndLineTypeSelectorControlPanel(gw,plotFeatures);
 		else
+			// redisplay
 			plotControl.setPlotColorAndLineType(plotFeatures);
 		plotControl.setVisible(true);
-	}
-
-	/**
-	 *
-	 * @return the axis label font size
-	 * Default is 12
-	 */
-	public int getAxisLabelFontSize(){
-		if(plotControl != null)
-			return plotControl.getAxisLabelFontSize();
-		else
-			return this.axisLabelFontSize;
-			//return 24;
-	}
-
-	/**
-	 *
-	 * @return the tick label font
-	 * Default is 10
-	 */
-	public int getTickLabelFontSize(){
-		if(plotControl !=null)
-			return plotControl.getTickLabelFontSize();
-		else
-			return this.tickLabelFontSize;
-			//return 20;
-	}
-
-
-	/**
-	 *
-	 * @return the axis label font size
-	 * Default is 12
-	 */
-	public int getPlotLabelFontSize(){
-		if(plotControl != null)
-			return plotControl.getPlotLabelFontSize();
-		else
-			return this.plotLabelFontSize;
-			//return 24;
-
-	}
-
-	/**
-	 * Set plot label font size
-	 * 
-	 * @param fontSize
-	 */
-	public void setPlotLabelFontSize(int fontSize) {
-		if(plotControl != null) plotControl.setPlotLabelFontSize(fontSize);
-		this.plotLabelFontSize = fontSize;
-	}
-
-
-
-	/**
-	 * Set the tick label font size
-	 * 
-	 * @param fontSize
-	 */
-	public void setTickLabelFontSize(int fontSize) {
-		if(plotControl != null) plotControl.setTickLabelFontSize(fontSize);
-		this.tickLabelFontSize = fontSize;
-	}
-	
-	/**
-	 * Set the axis label font size
-	 * 
-	 * @param fontSize
-	 */
-	public void setAxisLabelFontSize(int fontSize) {
-		if(plotControl != null) plotControl.setAxisLabelFontSize(fontSize);
-		this.axisLabelFontSize = fontSize;
 	}
 
 
@@ -393,60 +282,5 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 	public void setPlotPreferencesButtonVisible(boolean flag){
 		plotPrefsButton.setVisible(false);
 	}
-
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel(){
-		return application.getXAxisLabel();
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel(){
-		return application.getYAxisLabel();
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel(){
-		return application.getPlotLabel();
-	}
-
-	/**
-	 *
-	 * sets  X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel){
-		application.setXAxisLabel(xAxisLabel);
-	}
-
-	/**
-	 *
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel){
-		application.setYAxisLabel(yAxisLabel);
-	}
-
-	/**
-	 *
-	 * sets plot Title
-	 */
-	public void setPlotLabel(String plotTitle){
-		application.setPlotLabel(plotTitle);
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		application.setPlottingOrder(order);
-	}
-
-
 
 }

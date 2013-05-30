@@ -24,6 +24,8 @@ import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -33,9 +35,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * Panel to show the Segments and Fault sections data 
@@ -247,7 +246,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFuncList = this.slipRatesRatioList;
 			yLog = false;
 		}
-		GraphWindow graphWindow= new GraphWindow(this);
+		GraphWidget graphWindow= new GraphWidget(this);
 		graphWindow.setPlotLabel(faultName);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);

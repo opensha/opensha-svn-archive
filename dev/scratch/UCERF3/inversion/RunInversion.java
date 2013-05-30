@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;

@@ -17,14 +17,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -534,7 +534,7 @@ public class BatchPlotGen {
 		gp.setAxisLabelFontSize(16);
 		gp.setPlotLabelFontSize(18);
 		
-		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
 		
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());

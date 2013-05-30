@@ -14,12 +14,11 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 
 /**
@@ -232,7 +231,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 						if(row==null || cell==null || 
 								cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || rupName.equalsIgnoreCase("")) {
 							r= r+4;
-							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromSegRecurIntvFile(funcList));
+							GraphWidget graphWindow= new GraphWidget(new CreatePlotFromSegRecurIntvFile(funcList));
 							graphWindow.setPlotLabel(PLOT_LABEL);
 							graphWindow.plotGraphUsingPlotPreferences();
 							graphWindow.setTitle(sheetName+" "+modelType);

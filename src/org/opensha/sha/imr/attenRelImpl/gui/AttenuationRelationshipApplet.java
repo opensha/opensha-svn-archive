@@ -66,6 +66,10 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.WarningParameter;
@@ -91,11 +95,6 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
@@ -177,7 +176,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	protected GraphPanel graphPanel;
 
 	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	private GraphWindow graphWindow;
+	private GraphWidget graphWindow;
 
 	//graph Title
 	private String plotTitle = "" ;
@@ -1362,7 +1361,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 * window. The current plot just shows empty window.
 	 */
 	private void peelOffCurves(){
-		graphWindow = new GraphWindow(this);
+		graphWindow = new GraphWidget(this);
 		clearPlot(true);
 		graphWindow.setVisible(true);
 	}

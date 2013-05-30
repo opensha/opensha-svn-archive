@@ -26,12 +26,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
@@ -174,7 +174,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 			PlotSpec spec = getCorrelationPlotSpec(faultName, tables.get(faultName), sol);
 			
 			double maxX = 0;
-			for (DiscretizedFunc func : spec.getFuncs()) {
+			for (DiscretizedFunc func : spec.getPlotElems()) {
 				double myMaxX = func.getMaxX();
 				if (myMaxX > maxX)
 					maxX = myMaxX;

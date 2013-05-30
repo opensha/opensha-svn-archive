@@ -14,6 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -21,7 +22,6 @@ import org.opensha.commons.param.impl.ParameterListParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui.EqkRateModel2_MFDsPlotter;
-import org.opensha.sha.gui.infoTools.GraphWindow;
 
 /**
  * This class tries various parameter settings in UCERF2 and finds the effect of each parameter on Bulge
@@ -244,7 +244,7 @@ public class ReportBulgeFigures {
 	 */
 	private void makeMFDsPlot(String fileName, UCERF2 ucerf2) {
 		EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(ucerf2, true);
-		GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
+		GraphWidget graphWindow= new GraphWidget(mfdsPlotter);
 		graphWindow.setPlotLabel("Cum Mag Freq Dist");
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);

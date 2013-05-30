@@ -52,6 +52,10 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -65,11 +69,6 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -149,7 +148,7 @@ ParameterChangeListener{
 	private GraphPanel incrRateGraphPanel,momentRateGraphPanel,cumRateGraphPanel;
 
 	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	private GraphWindow graphWindow;
+	private GraphWidget graphWindow;
 
 	private JSplitPane paramSplitPane = new JSplitPane();
 
@@ -916,7 +915,7 @@ ParameterChangeListener{
 	 * window. The current plot just shows empty window.
 	 */
 	private void peelOffCurves(){
-		graphWindow = new GraphWindow(this);
+		graphWindow = new GraphWidget(this);
 		graphWindow.setVisible(true);
 	}
 

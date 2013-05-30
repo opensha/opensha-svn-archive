@@ -29,6 +29,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -43,19 +44,23 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotPreferences;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleConstraint;
+import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanel</p>
@@ -93,13 +98,6 @@ ActionListener,ParameterChangeListener{
 	private StringParameter plotLabelParam;
 	public final static String plotLabelParamName = "Plot Label";
 
-
-	//Axis and plot labels variables
-	private String xAxisLabel;
-	private String yAxisLabel;
-	private String plotLabel;
-
-
 	//static String definitions
 	private final static String colorChooserString = "Color";
 //	private final static String lineTypeString = "Choose Line Type";
@@ -116,16 +114,16 @@ ActionListener,ParameterChangeListener{
 	private ArrayList<String> symbolStrings;
 
 	//parameter for tick label font size
-	private  StringParameter tickFontSizeParam;
+	private  IntegerParameter tickFontSizeParam;
 	public static final String tickFontSizeParamName = "Set tick label size";
 	//private ConstrainedStringParameterEditor tickFontSizeParamEditor;
 
 	//parameter for axis label font size
-	private StringParameter axisLabelsFontSizeParam;
+	private IntegerParameter axisLabelsFontSizeParam;
 	public static final String axislabelsFontSizeParamName = "Set axis label ";
 
 	//parameter for plot label font size
-	private StringParameter plotLabelsFontSizeParam;
+	private IntegerParameter plotLabelsFontSizeParam;
 	public static final String plotlabelsFontSizeParamName = "Set Plot label ";
 	
 	private static final String PLOT_ORDER_PARAM_NAME = "Plotting Order";
@@ -155,23 +153,24 @@ ActionListener,ParameterChangeListener{
 	private BorderLayout borderLayout1 = new BorderLayout();
 
 	//Curve characterstic array
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures;
+	private List<PlotCurveCharacterstics> plottingFeatures;
 	//default curve characterstics with values , when this control panel was called
-	private ArrayList<PlotCurveCharacterstics> defaultPlottingFeatures;
+	private List<PlotCurveCharacterstics> defaultPlottingFeatures;
 	private JButton RevertButton = new JButton();
 	//instance of application using this control panel
-	private PlotColorAndLineTypeSelectorControlPanelAPI application;
 	private JPanel curveFeaturePanel = new JPanel();
 	private JButton doneButton = new JButton();
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
+	
+	private GraphWidget gw;
 
 	//last updated width vals for Labels
 //	private int tickLabelWidth ;
 //	private int axisLabelWidth;
 //	private int plotLabelWidth;
 
-	public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
-			ArrayList<PlotCurveCharacterstics> curveCharacterstics) {
+	public PlotColorAndLineTypeSelectorControlPanel(GraphWidget gw, List<PlotCurveCharacterstics> curveCharacterstics) {
+		this.gw = gw;
 		
 		lineTypeStrings = new ArrayList<String>();
 		lineTypeStrings.add(NONE_OPTION);
@@ -183,27 +182,28 @@ ActionListener,ParameterChangeListener{
 		for (PlotSymbol sym : PlotSymbol.values())
 			symbolStrings.add(sym.toString());
 		
-		application = api;
-		
 		//creating the parameters to change the size of Labels
 		//creating list of supported font sizes
-		ArrayList<String> supportedFontSizes = new ArrayList<String>();
+		ArrayList<Integer> supportedFontSizes = new ArrayList<Integer>();
 
-		supportedFontSizes.add("8");
-		supportedFontSizes.add("10");
-		supportedFontSizes.add("12");
-		supportedFontSizes.add("14");
-		supportedFontSizes.add("16");
-		supportedFontSizes.add("18");
-		supportedFontSizes.add("20");
-		supportedFontSizes.add("22");
-		supportedFontSizes.add("24");
+		supportedFontSizes.add(8);
+		supportedFontSizes.add(10);
+		supportedFontSizes.add(12);
+		supportedFontSizes.add(14);
+		supportedFontSizes.add(16);
+		supportedFontSizes.add(18);
+		supportedFontSizes.add(20);
+		supportedFontSizes.add(22);
+		supportedFontSizes.add(24);
 
 
 		//creating the font size parameters
-		tickFontSizeParam = new StringParameter(tickFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(1));
-		axisLabelsFontSizeParam = new StringParameter(axislabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
-		plotLabelsFontSizeParam = new StringParameter(plotlabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
+		tickFontSizeParam = new IntegerParameter(tickFontSizeParamName,
+				new IntegerDiscreteConstraint(supportedFontSizes),supportedFontSizes.get(1));
+		axisLabelsFontSizeParam = new IntegerParameter(axislabelsFontSizeParamName,
+				new IntegerDiscreteConstraint(supportedFontSizes),supportedFontSizes.get(2));
+		plotLabelsFontSizeParam = new IntegerParameter(plotlabelsFontSizeParamName,
+				new IntegerDiscreteConstraint(supportedFontSizes),supportedFontSizes.get(2));
 		ArrayList<String> plotOrderStrings = new ArrayList<String>();
 		plotOrderStrings.add(PLOT_ORDER_FORWARD);
 		plotOrderStrings.add(PLOT_ORDER_BACKWARD);
@@ -216,9 +216,9 @@ ActionListener,ParameterChangeListener{
 //		axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
 //		plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
 		//creating the axis and plot label params
-		xAxisLabelParam = new StringParameter(xAxisLabelParamName,xAxisLabel);
-		yAxisLabelParam = new StringParameter(yAxisLabelParamName,yAxisLabel);
-		plotLabelParam = new StringParameter(plotLabelParamName,plotLabel);
+		xAxisLabelParam = new StringParameter(xAxisLabelParamName,gw.getXAxisLabel());
+		yAxisLabelParam = new StringParameter(yAxisLabelParamName,gw.getYAxisLabel());
+		plotLabelParam = new StringParameter(plotLabelParamName,gw.getPlotLabel());
 
 		xAxisLabelParam.addParameterChangeListener(this);
 		yAxisLabelParam.addParameterChangeListener(this);
@@ -244,16 +244,9 @@ ActionListener,ParameterChangeListener{
 			e.printStackTrace();
 		}
 
-		Component parent = (Component)api;
-
-		xAxisLabel = api.getXAxisLabel();
-		yAxisLabel = api.getYAxisLabel();
-		plotLabel = api.getPlotLabel();
-
-
 		// show the window at center of the parent component
-		this.setLocation(parent.getX()+parent.getWidth()/3,
-				parent.getY()+parent.getHeight()/2);
+		this.setLocation(gw.getX()+gw.getWidth()/3,
+				gw.getY()+gw.getHeight()/2);
 
 		
 		//creating editors for these font size parameters
@@ -323,7 +316,24 @@ ActionListener,ParameterChangeListener{
 	 * for each curve in list ,so creates these gui components dynamically based on
 	 * number of functions in list.
 	 */
-	public void setPlotColorAndLineType(ArrayList<PlotCurveCharacterstics> curveCharacterstics){
+	public void setPlotColorAndLineType(List<PlotCurveCharacterstics> curveCharacterstics){
+		PlotPreferences plotPrefs = gw.getPlotPrefs();
+		setOrAddParameterValue(axisLabelsFontSizeParam, plotPrefs.getAxisLabelFontSize());
+		setOrAddParameterValue(tickFontSizeParam, plotPrefs.getTickLabelFontSize());
+		setOrAddParameterValue(plotLabelsFontSizeParam, plotPrefs.getPlotLabelFontSize());
+		axisLabelsFontSizeParam.getEditor().refreshParamEditor();
+		tickFontSizeParam.getEditor().refreshParamEditor();
+		plotLabelsFontSizeParam.getEditor().refreshParamEditor();
+		
+		DatasetRenderingOrder plotOrder = gw.getPlottingOrder();
+		String plotOrderStr;
+		if (plotOrder == DatasetRenderingOrder.FORWARD)
+			plotOrderStr = PLOT_ORDER_FORWARD;
+		else
+			plotOrderStr = PLOT_ORDER_BACKWARD;
+		plotOrderParam.setValue(plotOrderStr);
+		plotOrderParam.getEditor().refreshParamEditor();
+		
 		int numCurves = curveCharacterstics.size();
 		plottingFeatures = curveCharacterstics;
 		defaultPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();
@@ -398,23 +408,23 @@ ActionListener,ParameterChangeListener{
 				}
 			}
 		} else {
-			if(paramName.equals(tickFontSizeParamName)){
-//				tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
-				//tickFontSizeParam.setValue(""+tickLabelWidth);
-
-			}
-			else if(paramName.equals(axislabelsFontSizeParamName)){
-//				axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-				//axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
-			} else if(paramName.equals(plotlabelsFontSizeParamName)) {
-//				plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
-			}
-			else if(paramName.equals(xAxisLabelParamName))
-				xAxisLabel = (String)this.xAxisLabelParam.getValue();
-			else if(paramName.equals(yAxisLabelParamName))
-				yAxisLabel = (String)this.yAxisLabelParam.getValue();
-			else if(paramName.equals(plotLabelParamName))
-				plotLabel = (String)this.plotLabelParam.getValue();
+//			if(paramName.equals(tickFontSizeParamName)){
+////				tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+//				//tickFontSizeParam.setValue(""+tickLabelWidth);
+//
+//			}
+//			else if(paramName.equals(axislabelsFontSizeParamName)){
+////				axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+//				//axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
+//			} else if(paramName.equals(plotlabelsFontSizeParamName)) {
+////				plotLabelWidth = Integer.parseInt((String)this.plotLabelsFontSizeParam.getValue());
+//			}
+//			else if(paramName.equals(xAxisLabelParamName))
+//				xAxisLabel = (String)this.xAxisLabelParam.getValue();
+//			else if(paramName.equals(yAxisLabelParamName))
+//				yAxisLabel = (String)this.yAxisLabelParam.getValue();
+//			else if(paramName.equals(plotLabelParamName))
+//				plotLabel = (String)this.plotLabelParam.getValue();
 
 			plotParamEditor.refreshParamEditor();
 		}
@@ -541,15 +551,19 @@ ActionListener,ParameterChangeListener{
 			float symbolWidth = symbolWidthParameter[i].getValue().floatValue();
 			chars.set(lineType, lineWidth, symbol, symbolWidth, chars.getColor());
 		}
-		application.setXAxisLabel(xAxisLabel);
-		application.setYAxisLabel(yAxisLabel);
-		application.setPlotLabel(plotLabel);
+		gw.setXAxisLabel(xAxisLabelParam.getValue());
+		gw.setYAxisLabel(yAxisLabelParam.getValue());
+		gw.setPlotLabel(plotLabelParam.getValue());
 		String plotOrder = plotOrderParam.getValue();
 		if (plotOrder.equals(PLOT_ORDER_FORWARD))
-			application.setPlottingOrder(DatasetRenderingOrder.FORWARD);
+			gw.setPlottingOrder(DatasetRenderingOrder.FORWARD);
 		else
-			application.setPlottingOrder(DatasetRenderingOrder.REVERSE);
-		application.plotGraphUsingPlotPreferences();
+			gw.setPlottingOrder(DatasetRenderingOrder.REVERSE);
+		PlotPreferences plotPrefs = gw.getPlotPrefs();
+		plotPrefs.setAxisLabelFontSize(axisLabelsFontSizeParam.getValue());
+		plotPrefs.setTickLabelFontSize(tickFontSizeParam.getValue());
+		plotPrefs.setPlotLabelFontSize(plotLabelsFontSizeParam.getValue());
+		gw.drawGraph();
 		return true;
 	}
 
@@ -609,41 +623,8 @@ ActionListener,ParameterChangeListener{
 			
 			curveFeaturePanel.repaint();
 			curveFeaturePanel.validate();
-			application.plotGraphUsingPlotPreferences();
+			gw.drawGraph();
 		}
-	}
-
-	/**
-	 *
-	 * @return axis label font size
-	 */
-	public int getAxisLabelFontSize(){
-		return  Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-	}
-
-	/**
-	 *Set axis label font size
-	 * @return 
-	 */
-	public void setAxisLabelFontSize(int fontSize){
-		setOrAddParameterValue(axisLabelsFontSizeParam, ""+fontSize);
-	}
-
-	/**
-	 *
-	 * @return axis label font size
-	 */
-	public int getPlotLabelFontSize(){
-		return  Integer.parseInt((String)plotLabelsFontSizeParam.getValue());
-	}
-
-	/**
-	 * Set plot label font size
-	 * 
-	 * @param fontSize
-	 */
-	public void setPlotLabelFontSize(int fontSize) {
-		setOrAddParameterValue(plotLabelsFontSizeParam, ""+fontSize);
 	}
 	
 	/**
@@ -652,31 +633,14 @@ ActionListener,ParameterChangeListener{
 	 * @param stringParam
 	 * @param value
 	 */
-	private void setOrAddParameterValue(StringParameter stringParam, String value) {
-		if (stringParam.isAllowed(value)) {
-			stringParam.setValue(value);
+	private void setOrAddParameterValue(IntegerParameter intParam, Integer value) {
+		if (intParam.isAllowed(value)) {
+			intParam.setValue(value);
 		} else {
-			StringConstraint sconst = (StringConstraint) stringParam.getConstraint();
-			sconst.addString(value);
-			stringParam.setValue(value);
+			IntegerDiscreteConstraint iconst = (IntegerDiscreteConstraint) intParam.getConstraint();
+			iconst.addAllowed(value);
+			intParam.setValue(value);
 		}
-	}
-
-	/**
-	 *
-	 * @return the tick label font size
-	 */
-	public int getTickLabelFontSize(){
-		return  Integer.parseInt((String)tickFontSizeParam.getValue());
-	}
-
-	/**
-	 * Set the tick label font size
-	 * 
-	 * @param fontSize
-	 */
-	public void setTickLabelFontSize(int fontSize) {
-		setOrAddParameterValue(tickFontSizeParam, ""+fontSize);
 	}
 
 	/**
@@ -686,36 +650,6 @@ ActionListener,ParameterChangeListener{
 	void doneButton_actionPerformed(ActionEvent e) {
 		if (applyChangesToPlot())
 			this.dispose();
-	}
-
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel(){
-		if(xAxisLabel !=null)
-			return xAxisLabel;
-		return "";
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel(){
-		if(yAxisLabel !=null)
-			return yAxisLabel;
-		return "";
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel(){
-		if(plotLabel !=null)
-			return plotLabel;
-		return "";
 	}
 
 }

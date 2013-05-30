@@ -13,7 +13,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.commons.gui.plot.GraphWidget;
 
 /**
  * @author vipingupta
@@ -99,7 +99,7 @@ public class CreateHistogramsFromSegRecurIntvFile  {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
 				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list,  X_AXIS_LABEL, Y_AXIS_LABEL);
-				GraphWindow graphWindow= new GraphWindow(plot);
+				GraphWidget graphWindow= new GraphWidget(plot);
 				graphWindow.setPlotLabel(PLOT_LABEL);
 				graphWindow.plotGraphUsingPlotPreferences();
 				graphWindow.setTitle(names[k]);
@@ -174,7 +174,7 @@ public class CreateHistogramsFromSegRecurIntvFile  {
 			ArrayList list = new ArrayList();
 			list.add(func);
 			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list,  X_AXIS_LABEL, Y_AXIS_LABEL);
-			GraphWindow graphWindow= new GraphWindow(plot);
+			GraphWidget graphWindow= new GraphWidget(plot);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(segName);

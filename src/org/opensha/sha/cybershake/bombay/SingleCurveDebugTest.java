@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -14,8 +16,6 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 
 public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {

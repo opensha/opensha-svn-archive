@@ -31,11 +31,10 @@ import javax.swing.JPanel;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 
 
 /**
@@ -231,7 +230,7 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	  }
 
 	  public void peelOff() {
-		  GraphWindow graphWindow = new GraphWindow(this);
+		  GraphWidget graphWindow = new GraphWidget(this);
 		  graphWindow.setVisible(true);
 	  }
 	  

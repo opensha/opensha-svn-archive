@@ -23,6 +23,8 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
@@ -31,9 +33,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -652,7 +651,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), plot4);	
 		}
 		
-		GraphWindow graphWindow= new GraphWindow(this);
+		GraphWidget graphWindow= new GraphWidget(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
 	    graphWindow.setVisible(true);

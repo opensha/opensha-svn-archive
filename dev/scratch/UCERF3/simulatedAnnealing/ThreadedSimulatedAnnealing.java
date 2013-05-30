@@ -28,10 +28,10 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

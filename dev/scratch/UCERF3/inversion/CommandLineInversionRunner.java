@@ -35,14 +35,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -852,7 +852,7 @@ public class CommandLineInversionRunner {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
-		return spec.getFuncs();
+		return spec.getPlotElems();
 	}
 
 	private static String getMFDPrefix(String prefix, Region region) {
@@ -1450,7 +1450,7 @@ public class CommandLineInversionRunner {
 			PlotSpec spec = specMap.get(faultName);
 			
 			double maxX = 0;
-			for (DiscretizedFunc func : spec.getFuncs()) {
+			for (DiscretizedFunc func : spec.getPlotElems()) {
 				double myMaxX = func.getMaxX();
 				if (myMaxX > maxX)
 					maxX = myMaxX;
@@ -1460,8 +1460,8 @@ public class CommandLineInversionRunner {
 			setFontSizes(gp);
 			gp.setUserBounds(0d, maxX, -0.05d, 1.05d);
 			
-			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+			gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
+					spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
 			
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);
@@ -1500,7 +1500,7 @@ public class CommandLineInversionRunner {
 			
 			double xMin = Double.POSITIVE_INFINITY;
 			double xMax = Double.NEGATIVE_INFINITY;
-			for (DiscretizedFunc func : specArray[2].getFuncs()) {
+			for (DiscretizedFunc func : specArray[2].getPlotElems()) {
 				double myXMin = func.getMinX();
 				double myXMax = func.getMaxX();
 				if (myXMin < xMin)
@@ -1526,7 +1526,7 @@ public class CommandLineInversionRunner {
 				// now determine y scale
 				List<Double> yValsList = Lists.newArrayList();
 				List<Double> confYValsList = Lists.newArrayList();
-				for (DiscretizedFunc func : spec.getFuncs()) {
+				for (DiscretizedFunc func : spec.getPlotElems()) {
 					if (func.getName().contains("separator"))
 						continue;
 					if (func.getName().contains("Confidence")) {
@@ -1579,8 +1579,8 @@ public class CommandLineInversionRunner {
 //					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 				gp.setUserBounds(xMin, xMax, yMin, yMax);
 				
-				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+				gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
+						spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
 				
 				File file = new File(dir, fname+"_"+fname_add);
 				gp.getCartPanel().setSize(1000, 500);

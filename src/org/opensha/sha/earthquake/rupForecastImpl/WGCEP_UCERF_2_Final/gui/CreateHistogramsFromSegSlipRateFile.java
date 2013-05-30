@@ -14,11 +14,10 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * @author vipingupta
@@ -200,7 +199,7 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
 				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
-				GraphWindow graphWindow= new GraphWindow(plot);
+				GraphWidget graphWindow= new GraphWidget(plot);
 				graphWindow.setPlotLabel(plotLabel);
 				graphWindow.plotGraphUsingPlotPreferences();
 				graphWindow.setTitle(names[k]);
@@ -285,7 +284,7 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 			ArrayList list = new ArrayList();
 			list.add(func);
 			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
-			GraphWindow graphWindow= new GraphWindow(plot);
+			GraphWidget graphWindow= new GraphWidget(plot);
 			graphWindow.setPlotLabel(plotLabel);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(segName);

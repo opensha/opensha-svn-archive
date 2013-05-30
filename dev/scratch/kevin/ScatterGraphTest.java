@@ -9,8 +9,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 
 public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {

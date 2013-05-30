@@ -14,12 +14,11 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * @author vipingupta
@@ -219,7 +218,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 						String rupName = cell.getStringCellValue().trim();
 						if(rupName.equalsIgnoreCase("Totals")) {
 							r= r+5;
-							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
+							GraphWidget graphWindow= new GraphWidget(new CreatePlotFromMagRateFile(funcList));
 							graphWindow.setPlotLabel(PLOT_LABEL);
 							graphWindow.plotGraphUsingPlotPreferences();
 							graphWindow.setTitle(sheetName+" "+modelType);

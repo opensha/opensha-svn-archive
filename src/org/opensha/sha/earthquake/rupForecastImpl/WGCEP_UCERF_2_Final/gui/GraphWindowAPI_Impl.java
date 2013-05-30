@@ -6,11 +6,10 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  *  This class will used to plot the Mag Freq dist for RuptureModelApp
@@ -76,7 +75,7 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 			2f, Color.LIGHT_GRAY);
 	protected final PlotCurveCharacterstics PLOT_CHAR24 = new PlotCurveCharacterstics(PlotLineType.DASHED,
 			2f, Color.GRAY);
-	private GraphWindow graphWindow;
+	private GraphWidget graphWindow;
 	/**
 	 * ArrayList of ArbitrarilyDiscretizedFunctions
 	 */
@@ -84,7 +83,7 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 		this.funcs = funcs;
 		this.xAxisLabel = xAxisLabel;
 		this.yAxisLabel = yAxisLabel;
-		graphWindow= new GraphWindow(this);
+		graphWindow= new GraphWidget(this);
 	    graphWindow.setPlotLabel(plotLabel);
 	    graphWindow.plotGraphUsingPlotPreferences();
 	    //graphWindow.pack();

@@ -64,10 +64,15 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.WeightedFuncListforPlotting;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.ParameterList;
@@ -152,13 +157,7 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gcim.ui.infoTools.IMT_Info;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
@@ -337,7 +336,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveApplication {
 	private JSplitPane imrImtSplitPane;
 	private JTabbedPane paramsTabbedPane;
 	private GraphPanel graphPanel; // actual plot panel
-	private GraphWindow graphWindow; // "Peel-Off" plot window
+	private GraphWidget graphWindow; // "Peel-Off" plot window
 	private ButtonControlPanel buttonControlPanel;
 
 	protected IMR_MultiGuiBean imrGuiBean;
@@ -2844,7 +2843,7 @@ public class GCIM_HazardCurveApp  extends HazardCurveApplication {
 	 * plot just shows empty window.
 	 */
 	protected void peelOffCurves() {
-		graphWindow = new GraphWindow(this);
+		graphWindow = new GraphWidget(this);
 		clearPlot();
 		graphWindow.setVisible(true);
 		clearButton.setEnabled(false);

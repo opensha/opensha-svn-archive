@@ -15,6 +15,7 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -27,7 +28,6 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;

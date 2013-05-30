@@ -64,6 +64,10 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -93,12 +97,7 @@ import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -170,7 +169,7 @@ IMR_GuiBeanAPI{
 	GraphPanel graphPanel;
 
 	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	GraphWindow graphWindow;
+	GraphWidget graphWindow;
 
 	//X and Y Axis  when plotting tha Curves Name
 	protected String xAxisName;
@@ -1483,7 +1482,7 @@ IMR_GuiBeanAPI{
 	 * window. The current plot just shows empty window.
 	 */
 	protected void peelOffCurves(){
-		graphWindow = new GraphWindow(this);
+		graphWindow = new GraphWidget(this);
 		clearPlot(true);
 		graphWindow.setVisible(true);
 	}

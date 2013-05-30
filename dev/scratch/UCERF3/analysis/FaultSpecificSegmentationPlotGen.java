@@ -16,14 +16,14 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -43,9 +43,9 @@ public class FaultSpecificSegmentationPlotGen {
 	public static void plotSegmentation(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), false);
-		gw.setX_AxisLabel(spec.getxAxisLabel());
-		gw.setY_AxisLabel(spec.getyAxisLabel());
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
+		gw.setX_AxisLabel(spec.getXAxisLabel());
+		gw.setY_AxisLabel(spec.getYAxisLabel());
 		gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
 		gw.getGraphWindow().setVisible(true);
 	}
@@ -59,7 +59,7 @@ public class FaultSpecificSegmentationPlotGen {
 		
 		gp.setxAxisInverted(true);
 		
-		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), false, spec.getTitle());
+		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), false, spec.getTitle());
 		
 		return gp;
 	}

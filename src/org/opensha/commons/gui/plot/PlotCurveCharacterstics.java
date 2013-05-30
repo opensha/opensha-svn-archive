@@ -17,14 +17,12 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui.infoTools;
+package org.opensha.commons.gui.plot;
 
 import java.awt.Color;
 import java.io.Serializable;
 
 import org.opensha.commons.data.Named;
-import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 import com.google.common.base.Preconditions;

@@ -16,15 +16,15 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -549,13 +549,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
+		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
 		
 		gw.setTickLabelFontSize(14);
 		gw.setAxisLabelFontSize(16);
 		gw.setPlotLabelFontSize(18);
-		gw.setX_AxisLabel(spec.getxAxisLabel());
-		gw.setY_AxisLabel(spec.getyAxisLabel());
+		gw.setX_AxisLabel(spec.getXAxisLabel());
+		gw.setY_AxisLabel(spec.getYAxisLabel());
 		gw.setYLog(true);
 		gw.setY_AxisRange(1e-6, 1.0);
 		
@@ -575,7 +575,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			minX = 5;
 		gp.setUserBounds(minX, totalMFD.getMaxX(),
 				1e-6, 1.0);
-		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
 		
 		return gp;
 	}

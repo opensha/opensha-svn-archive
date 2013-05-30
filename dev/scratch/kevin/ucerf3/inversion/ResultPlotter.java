@@ -17,15 +17,15 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
-import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
@@ -232,7 +232,7 @@ public class ResultPlotter {
 		}
 		
 		GraphiWindowAPI_Impl gwAPI = new GraphiWindowAPI_Impl(funcs, title, chars, visible);
-		GraphWindow gw = gwAPI.getGraphWindow();
+		GraphWidget gw = gwAPI.getGraphWindow();
 		gw.setPlotLabelFontSize(30);
 		gw.setAxisLabelFontSize(18);
 		gw.setTickLabelFontSize(14);

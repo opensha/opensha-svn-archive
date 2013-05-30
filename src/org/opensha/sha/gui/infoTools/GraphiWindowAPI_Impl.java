@@ -11,7 +11,10 @@ import java.util.List;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
@@ -55,7 +58,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	private boolean xLog = false, yLog = false;
 	private ArrayList<PlotCurveCharacterstics> plotChars;
 	private String plotTitle;
-	private GraphWindow graphWindow;
+	private GraphWidget graphWindow;
 	private boolean isCustomAxis = false;
 	
 	protected static ArrayList<PlotCurveCharacterstics> generateDefaultChars(List funcs) {
@@ -99,7 +102,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		funcs.add(func);
 		this.funcs = funcs;
 		this.plotChars = generateDefaultChars(funcs);
-		graphWindow= new GraphWindow(this);
+		graphWindow= new GraphWidget(this);
 		graphWindow.setPlotLabel(plotTitle);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);
@@ -117,16 +120,16 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		if (plotChars == null)
 			plotChars = generateDefaultChars(funcs);
 		this.plotChars = plotChars;
-		graphWindow= new GraphWindow(this);
+		graphWindow= new GraphWidget(this);
 		graphWindow.setPlotLabel(plotTitle);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(setVisible);
 	}
 	
 	public GraphiWindowAPI_Impl(PlotSpec plotSpec) {
-		this(plotSpec.getFuncs(), plotSpec.getTitle(), plotSpec.getChars(), true);
-		setX_AxisLabel(plotSpec.getxAxisLabel());
-		setY_AxisLabel(plotSpec.getyAxisLabel());
+		this(plotSpec.getPlotElems(), plotSpec.getTitle(), plotSpec.getChars(), true);
+		setX_AxisLabel(plotSpec.getXAxisLabel());
+		setY_AxisLabel(plotSpec.getYAxisLabel());
 	}
 
 	/**
@@ -444,7 +447,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		graphWindow.saveAsPNG(fileName);
 	}
 	
-	public GraphWindow getGraphWindow() {
+	public GraphWidget getGraphWindow() {
 		return graphWindow;
 	}
 

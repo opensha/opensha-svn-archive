@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -30,7 +31,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegme
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
-import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -406,12 +406,12 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	public void actionPerformed(ActionEvent event) {
 		Object src = event.getSource();
 		if(src == this.plotCumMFDsButton) {
-			GraphWindow graphWindow= new GraphWindow(cumMfdsPlotter);
+			GraphWidget graphWindow= new GraphWidget(cumMfdsPlotter);
 			graphWindow.setPlotLabel(CUM_PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
 		} else if(src == plotIncrMFDsButton) {
-			GraphWindow graphWindow= new GraphWindow(incrMfdsPlotter);
+			GraphWidget graphWindow= new GraphWidget(incrMfdsPlotter);
 			graphWindow.setPlotLabel(INCR_PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
@@ -539,7 +539,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		ArrayList funcs = new ArrayList();
 		funcs.add(func);
 		String yAxisLabel = "Count";
-		GraphWindow graphWindow= new GraphWindow(new CreateHistogramsFromSegSlipRateFile(funcs, plotLabel, yAxisLabel));
+		GraphWidget graphWindow= new GraphWidget(new CreateHistogramsFromSegSlipRateFile(funcs, plotLabel, yAxisLabel));
 		graphWindow.setPlotLabel(plotLabel);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);

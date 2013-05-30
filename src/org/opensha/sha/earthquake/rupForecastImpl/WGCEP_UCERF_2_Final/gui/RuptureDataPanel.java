@@ -23,14 +23,13 @@ import javax.swing.table.AbstractTableModel;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -336,14 +335,14 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			new GraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
 		} else if(eventSource == this.magAreaPlotButton) {
 			this.createFuncListColorCodingByRupRates();
-			GraphWindow graphWindow= new GraphWindow(this);
+			GraphWidget graphWindow= new GraphWidget(this);
 			graphWindow.setPlotLabel("Mag Area Plot");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setLocationRelativeTo(this);
 			graphWindow.setVisible(true);;
 		}else if(eventSource == this.magAreaPlotButton2) {
 			this.setColorCodingbyFaultNames();
-			GraphWindow graphWindow= new GraphWindow(this);
+			GraphWidget graphWindow= new GraphWidget(this);
 			graphWindow.setPlotLabel("Mag Area Plot");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setLocationRelativeTo(this);
@@ -369,7 +368,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			}
 			plottingFuncList.add(aPrioriRatesFunc);
 			plottingFuncList.add(finalRupRatesFunc);
-			GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(plottingFuncList));
+			GraphWidget graphWindow= new GraphWidget(new CreatePlotFromMagRateFile(plottingFuncList));
 			graphWindow.setPlotLabel(source.getFaultSegmentData().getFaultName());
 			graphWindow.setXAxisLabel("Rupture Index");
 			graphWindow.setYAxisLabel("Rupture Rate");
@@ -388,7 +387,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFuncList.add(ratioFunc);
 			CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(plottingFuncList);
 			plot.setYLog(false);
-			GraphWindow graphWindow= new GraphWindow(plot);
+			GraphWidget graphWindow= new GraphWidget(plot);
 			graphWindow.setPlotLabel("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());

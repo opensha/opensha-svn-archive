@@ -24,13 +24,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
@@ -258,7 +257,7 @@ class MouseListener extends MouseAdapter  implements GraphWindowAPI {
         TableModel tableModel = table.getModel();
         if(column==10) { // edit slip rate
         	funcs = (ArrayList)tableModel.getValueAt(row, column);
-        	GraphWindow graphWindow= new GraphWindow(this);
+        	GraphWidget graphWindow= new GraphWidget(this);
     	    graphWindow.setPlotLabel("Mag Rate");
     	    graphWindow.plotGraphUsingPlotPreferences();
     	    //graphWindow.pack();

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -43,7 +45,7 @@ public class EstimateViewer implements GraphWindowAPI {
   private final static String Y_AXIS_LABEL = "Probability";
   private Estimate estimate;
   private String xAxisLabel, yAxisLabel;
-  private GraphWindow graphWindow;
+  private GraphWidget graphWindow;
   private final PlotCurveCharacterstics PDF_PLOT_CHAR_HISTOGRAM = new PlotCurveCharacterstics(
 		  PlotLineType.HISTOGRAM, 2f, null, 4f, Color.RED);
   private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(
@@ -58,7 +60,7 @@ public class EstimateViewer implements GraphWindowAPI {
     setEstimate(estimate);
     setXAxisLabel(X_AXIS_LABEL);
     setYAxisLabel(Y_AXIS_LABEL);
-    graphWindow = new GraphWindow(this);
+    graphWindow = new GraphWidget(this);
     graphWindow.setPlotLabel(estimate.getName());
     graphWindow.plotGraphUsingPlotPreferences();
     //graphWindow.pack();

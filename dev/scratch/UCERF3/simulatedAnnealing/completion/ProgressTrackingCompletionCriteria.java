@@ -8,8 +8,8 @@ import java.util.List;
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 

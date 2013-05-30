@@ -6,10 +6,10 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * This class is used for plotting the MFDs for the EqkRateModel2.2

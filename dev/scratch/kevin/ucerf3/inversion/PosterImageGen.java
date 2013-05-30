@@ -9,12 +9,12 @@ import java.util.HashMap;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
@@ -59,7 +59,7 @@ public class PosterImageGen {
 	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/2011agu/";
 	
 	private static void saveImages(GraphiWindowAPI_Impl gwAPI, File dir, String fName) throws IOException {
-		GraphWindow gw = gwAPI.getGraphWindow();
+		GraphWidget gw = gwAPI.getGraphWindow();
 		GraphPanel gp = gw.getGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setSize(width, height);

@@ -9,9 +9,9 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -242,7 +242,7 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		
-		GraphWindow graphWindow= new GraphWindow(this);
+		GraphWidget graphWindow= new GraphWidget(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
 	    graphWindow.setVisible(true);

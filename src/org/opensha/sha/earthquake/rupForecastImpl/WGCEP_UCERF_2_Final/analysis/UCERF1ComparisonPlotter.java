@@ -28,6 +28,8 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
@@ -36,8 +38,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -170,7 +170,7 @@ public class UCERF1ComparisonPlotter {
 			aList.add(sjIncrRateFuncList.get(i));
 		A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(aList, false);
 		aFaultsPlotter.setPlottingFeatures(plotChars);
-		GraphWindow graphWindow= new GraphWindow(aFaultsPlotter);
+		GraphWidget graphWindow= new GraphWidget(aFaultsPlotter);
 		graphWindow.setPlotLabel(label);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);
@@ -211,7 +211,7 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
+			GraphWidget graphWindow= new GraphWidget(new A_FaultsMFD_Plotter(funcArrayList, false));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
@@ -225,7 +225,7 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
+			GraphWidget graphWindow= new GraphWidget(new A_FaultsMFD_Plotter(funcArrayList, true));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
@@ -442,7 +442,7 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
+			GraphWidget graphWindow= new GraphWidget(new A_FaultsMFD_Plotter(funcArrayList, false));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
@@ -456,7 +456,7 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
+			GraphWidget graphWindow= new GraphWidget(new A_FaultsMFD_Plotter(funcArrayList, true));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);

@@ -17,9 +17,9 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui.infoTools;
+package org.opensha.commons.data.function;
 
-import org.opensha.commons.data.function.WeightedFuncList;
+import org.opensha.commons.gui.plot.PlotElement;
 
 
 /**
@@ -30,7 +30,7 @@ import org.opensha.commons.data.function.WeightedFuncList;
  * @version 1.0
  */
 
-public class WeightedFuncListforPlotting extends WeightedFuncList{
+public class WeightedFuncListforPlotting extends WeightedFuncList implements PlotElement {
 
 
   private boolean individualCurvesToPlot = true;
