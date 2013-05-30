@@ -14,7 +14,7 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -117,7 +117,7 @@ public class CarrizoRateHist {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.GRAY));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
-		new GraphiWindowAPI_Impl(funcs, "Carrizo RI Dist", chars);
+		new GraphWindow(funcs, "Carrizo RI Dist", chars);
 		
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : nodeClasses) {
 			System.out.println(ClassUtils.getClassNameWithoutPackage(clazz));

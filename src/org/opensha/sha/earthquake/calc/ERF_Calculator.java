@@ -553,7 +553,7 @@ public class ERF_Calculator {
 //		mfd_funcs.add(calcMFD.getCumRateDistWithOffset());
 		mfd_funcs.addAll(obsCumDists);
 
-		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs, "Magnitude Frequency Distributions");   
+		GraphWindow mfd_graph = new GraphWindow(mfd_funcs, "Magnitude Frequency Distributions");   
 		mfd_graph.setYLog(true);
 		mfd_graph.setY_AxisRange(1e-5, 10);
 		mfd_graph.setX_AxisRange(5.0, 9.0);

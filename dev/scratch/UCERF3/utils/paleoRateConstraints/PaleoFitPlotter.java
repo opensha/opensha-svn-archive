@@ -28,7 +28,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.StatUtil;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
@@ -287,7 +287,7 @@ public class PaleoFitPlotter {
 			InversionFaultSystemSolution sol) {
 		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, sol);
 		
-		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
+		GraphWindow w = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
 		w.setX_AxisLabel(spec.getXAxisLabel());
 		w.setY_AxisLabel(spec.getYAxisLabel());
 	}

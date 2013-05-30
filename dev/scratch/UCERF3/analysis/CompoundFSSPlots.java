@@ -5476,7 +5476,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		String prefix = dir.getName();
 		// for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider,
 		// regions)) {
-		// GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
+		// GraphWindow gw = new GraphWindow(spec);
 		// gw.setYLog(true);
 		// }
 		// writeRegionalMFDPlots(fetch, weightProvider, regions, dir, prefix);

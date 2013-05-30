@@ -54,7 +54,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -980,7 +980,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		funcs.add(probGainFunc);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2, Color.BLUE));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Prob Gain Distribution "+info, plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Prob Gain Distribution "+info, plotChars);
 	}
 	
 	
@@ -1048,7 +1048,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		funcs.add(histFunc);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2, Color.MAGENTA));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Norm Time Since Last Distribution "+info, plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Norm Time Since Last Distribution "+info, plotChars);
 	}
 
 	
@@ -1303,8 +1303,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("numRups="+numRups);
 		System.out.println("normalizedRecurIntervals.size()="+normalizedRupRecurIntervals.size());
 		
-		GraphiWindowAPI_Impl grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+probTypeString);
-		GraphiWindowAPI_Impl graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+probTypeString);
+		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+probTypeString);
+		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+probTypeString);
 		
 //		System.out.println(obsMFD);
 
@@ -1320,7 +1320,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		funcs.add(obsMFD);
 		funcs.add(targetMFD.getCumRateDistWithOffset());
 		funcs.add(obsMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists; "+probTypeString); 
+		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists; "+probTypeString); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 //		graph.setYLog(true);	// this causes problems
@@ -1345,7 +1345,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Obs vs Imposed Section Rates; "+probTypeString, plotChars); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Obs vs Imposed Section Rates; "+probTypeString, plotChars); 
 		graph2.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph2.setY_AxisLabel("Simulated Section Participation Rate (per yr)");
 		
@@ -1403,7 +1403,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
 		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+probTypeString, plotChars2); 
+		GraphWindow graph3 = new GraphWindow(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+probTypeString, plotChars2); 
 		graph3.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph3.setY_AxisLabel("Ratio of Observed to Imposed");
 		
@@ -2370,7 +2370,7 @@ numSpontEvents=0;
 //					}
 				}
 //System.out.println("sampler.getNum()="+sampler.getNum()+"\t"+sampler.getY(sampler.getNum()-1));
-//GraphiWindowAPI_Impl magDistsGraph = new GraphiWindowAPI_Impl(sampler, "Sampler");
+//GraphWindow magDistsGraph = new GraphWindow(sampler, "Sampler");
 				
 				int randPtIndex = sampler.getRandomInt();
 //System.out.println("sampler.getRandomInt()="+spaceIndex);
@@ -3084,7 +3084,7 @@ numSpontEvents=0;
 //					}
 				}
 //System.out.println("sampler.getNum()="+sampler.getNum()+"\t"+sampler.getY(sampler.getNum()-1));
-//GraphiWindowAPI_Impl magDistsGraph = new GraphiWindowAPI_Impl(sampler, "Sampler");
+//GraphWindow magDistsGraph = new GraphWindow(sampler, "Sampler");
 				
 				int spaceIndex = sampler.getRandomInt();
 //System.out.println("sampler.getRandomInt()="+spaceIndex);

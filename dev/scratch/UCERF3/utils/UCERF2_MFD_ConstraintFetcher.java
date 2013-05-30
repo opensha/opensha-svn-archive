@@ -8,7 +8,7 @@ import org.opensha.commons.geo.RegionUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -175,7 +175,7 @@ public class UCERF2_MFD_ConstraintFetcher {
 		funcs.add(backgroundSeisMFD);
 		funcs.add(targetMFD);
 		funcs.add(targetMinusBackgroundMFD);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-4, 10);

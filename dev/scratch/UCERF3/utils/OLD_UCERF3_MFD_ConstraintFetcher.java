@@ -14,7 +14,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
@@ -219,7 +219,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.ORANGE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude-Frequency Distsributions", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Magnitude-Frequency Distsributions", plotChars); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setTickLabelFontSize(12);
@@ -253,7 +253,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 		funcs2.add(noCal1984_mean_cumMFD);
 		funcs2.add(noCal1984_lower95_cumMFD);
 		funcs2.add(noCal1984_upper95_cumMFD);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "No Cal Cum Mag-Freq Dists", plotChars); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "No Cal Cum Mag-Freq Dists", plotChars); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setY_AxisRange(1e-3, 500);
@@ -268,7 +268,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 		funcs3.add(soCal1984_mean_cumMFD);
 		funcs3.add(soCal1984_lower95_cumMFD);
 		funcs3.add(soCal1984_upper95_cumMFD);
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "So Cal Cum Mag-Freq Dists", plotChars); 
+		GraphWindow graph3 = new GraphWindow(funcs3, "So Cal Cum Mag-Freq Dists", plotChars); 
 		graph3.setX_AxisLabel("Mag");
 		graph3.setY_AxisLabel("Rate");
 		graph3.setY_AxisRange(1e-3, 500);
@@ -297,7 +297,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 //		funcs.add(fetcher.getTargetMFDConstraint().getMagFreqDist().getCumRateDistWithOffset());
 //		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-3, 500);
@@ -331,7 +331,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 
 //		System.out.println(fractFunc);
 		
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(fractFunc, "Fract aftershocks"); 
+//		GraphWindow graph = new GraphWindow(fractFunc, "Fract aftershocks"); 
 		
 		return fractFunc;
 
@@ -355,7 +355,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 		funcs2.add(noCal1984_mean_cumMFD);
 		funcs2.add(soCal1850_mean_cumMFD);
 		funcs2.add(soCal1984_mean_cumMFD);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "N. vs S. Cal MFDs", plotChars); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "N. vs S. Cal MFDs", plotChars); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setY_AxisRange(1e-2, 100);
@@ -395,7 +395,7 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 //		funcs.add(fetcher.getTargetMFDConstraint().getMagFreqDist().getCumRateDistWithOffset());
 //		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.MAGENTA));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "All Cal MFDs", plotChars2); 
+		GraphWindow graph = new GraphWindow(funcs, "All Cal MFDs", plotChars2); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-3, 500);

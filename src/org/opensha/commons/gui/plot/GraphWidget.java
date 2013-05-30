@@ -20,15 +20,18 @@
 package org.opensha.commons.gui.plot;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
+import javax.swing.border.LineBorder;
 
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
@@ -42,7 +45,7 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanel;
  * @version 1.0
  */
 
-public class GraphWidget extends JSplitPane {
+public class GraphWidget extends JPanel {
 
 	protected final static int W = 670;
 	protected final static int H = 700;
@@ -58,10 +61,6 @@ public class GraphWidget extends JSplitPane {
 	
 	private Range xRange;
 	private Range yRange;
-
-	protected static int windowNumber = 1;
-
-	protected final static String TITLE = "Plot Window - ";
 	
 	private PlotPreferences plotPrefs;
 
@@ -70,6 +69,8 @@ public class GraphWidget extends JSplitPane {
 
 	//instance of the GraphPanel class
 	protected GraphPanel graphPanel;
+	
+	private JPanel emptyPlotPanel = new JPanel();
 
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
@@ -80,31 +81,10 @@ public class GraphWidget extends JSplitPane {
 	 * for Y-log, 0 values will be converted to this small value
 	 */
 	protected double Y_MIN_VAL = 1e-16;
-
-	// TODO move to GraphWindow
-//	protected JMenuBar menuBar = new JMenuBar();
-//	protected JMenu fileMenu = new JMenu();
-//
-//	protected JMenuItem fileExitMenu = new JMenuItem();
-//	protected JMenuItem fileSaveMenu = new JMenuItem();
-//	protected JMenuItem filePrintMenu = new JCheckBoxMenuItem();
-//	protected JToolBar jToolBar = new JToolBar();
-//
-//	protected JButton closeButton = new JButton();
-//	protected ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
-//
-//	protected JButton printButton = new JButton();
-//	protected ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
-//
-//	protected JButton saveButton = new JButton();
-//	protected ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
-
-
-//	/**
-//	 * Protected class constructor , that can be only be called from the class
-//	 * inherting this class.
-//	 */
-//	protected GraphWindow(){}
+	
+	public GraphWidget() {
+		this(new PlotSpec(new ArrayList<PlotElement>(), new ArrayList<PlotCurveCharacterstics>(), null, null, null));
+	}
 
 	/**
 	 *
@@ -139,8 +119,6 @@ public class GraphWidget extends JSplitPane {
 			e.printStackTrace();
 		}
 
-		//increasing the window number corresponding to the new window.
-		++windowNumber;
 		//Recreating the chart with all the default settings that existed in the main application.
 		if (xLog)
 			buttonControlPanel.setXLog(xLog);
@@ -154,135 +132,21 @@ public class GraphWidget extends JSplitPane {
 	protected void jbInit() throws Exception {
 		this.setSize(W, H);
 		this.setLayout(borderLayout1);
-		// TODO move to GraphWindow
-//		fileMenu.setText("File");
-//		fileExitMenu.setText("Exit");
-//		fileSaveMenu.setText("Save");
-//		filePrintMenu.setText("Print");
-//
-//		fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				fileExitMenu_actionPerformed(e);
-//			}
-//		});
-//
-//		fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				fileSaveMenu_actionPerformed(e);
-//			}
-//		});
-//
-//		filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				filePrintMenu_actionPerformed(e);
-//			}
-//		});
-//
-//		closeButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent actionEvent) {
-//				closeButton_actionPerformed(actionEvent);
-//			}
-//		});
-//		printButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent actionEvent) {
-//				printButton_actionPerformed(actionEvent);
-//			}
-//		});
-//		saveButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent actionEvent) {
-//				saveButton_actionPerformed(actionEvent);
-//			}
-//		});
-//
-//		menuBar.add(fileMenu);
-//		fileMenu.add(fileSaveMenu);
-//		fileMenu.add(filePrintMenu);
-//		fileMenu.add(fileExitMenu);
-//
-//		setJMenuBar(menuBar);
-//		closeButton.setIcon(closeFileImage);
-//		closeButton.setToolTipText("Close Window");
-//		Dimension d = closeButton.getSize();
-//		jToolBar.add(closeButton);
-//		printButton.setIcon(printFileImage);
-//		printButton.setToolTipText("Print Graph");
-//		printButton.setSize(d);
-//		jToolBar.add(printButton);
-//		saveButton.setIcon(saveFileImage);
-//		saveButton.setToolTipText("Save Graph as image");
-//		saveButton.setSize(d);
-//		jToolBar.add(saveButton);
-//		jToolBar.setFloatable(false);
-//
-//		this.getContentPane().add(jToolBar, BorderLayout.NORTH);
 
-		this.setOrientation(JSplitPane.VERTICAL_SPLIT);
+//		this.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		chartPane.setLayout(gridBagLayout1);
 		buttonPanel.setLayout(flowLayout1);
 //		this.getContentPane().add(chartSplitPane, BorderLayout.CENTER);
-		this.add(chartPane, JSplitPane.TOP);
-		this.add(buttonPanel, JSplitPane.BOTTOM);
-		this.setDividerLocation(560);
+		this.add(chartPane, BorderLayout.CENTER);
+		this.add(buttonPanel, BorderLayout.SOUTH);
+//		this.setDividerLocation(560);
 		//object for the ButtonControl Panel
 		buttonControlPanel = new ButtonControlPanel(this, plotPrefs);
 		buttonPanel.add(buttonControlPanel, null);
+		emptyPlotPanel.setBorder(new LineBorder(Color.gray));
+		emptyPlotPanel.setBackground(Color.white);
 		togglePlot();
-		// TODO move to GraphWindow
-//		this.setTitle(TITLE + windowNumber);
 	}
-
-//	/**
-//	 * File | Exit action performed.
-//	 *
-//	 * @param actionEvent ActionEvent
-//	 */
-//	protected  void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
-//		this.dispose();
-//	}
-//
-//	/**
-//	 * File | Exit action performed.
-//	 *
-//	 * @param actionEvent ActionEvent
-//	 */
-//	protected  void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
-//		try {
-//			save();
-//		}
-//		catch (IOException e) {
-//			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-//					JOptionPane.OK_OPTION);
-//			return;
-//		}
-//	}
-//
-//	/**
-//	 * File | Exit action performed.
-//	 *
-//	 * @param actionEvent ActionEvent
-//	 */
-//	protected  void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
-//		print();
-//	}
-//
-//	protected  void closeButton_actionPerformed(ActionEvent actionEvent) {
-//		this.dispose();
-//	}
-//
-//	protected  void printButton_actionPerformed(ActionEvent actionEvent) {
-//		print();
-//	}
-//
-//	protected  void saveButton_actionPerformed(ActionEvent actionEvent) {
-//		try {
-//			save();
-//		}
-//		catch (IOException e) {
-//			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-//					JOptionPane.OK_OPTION);
-//			return;
-//		}
-//	}
 	
 	public GraphPanel getGraphPanel() {
 		return graphPanel;
@@ -401,13 +265,31 @@ public class GraphWidget extends JSplitPane {
 		this.yRange = null;
 		drawGraph();
 	}
+	
+	public PlotSpec getPlotSpec() {
+		return plotSpec;
+	}
+	
+	/**
+	 * Set plot specification (also triggers an update)
+	 * @param plotSpec
+	 */
+	public void setPlotSpec(PlotSpec plotSpec) {
+		this.plotSpec = plotSpec;
+		drawGraph();
+	}
 
 	/**
 	 * to draw the graph
 	 */
 	public void drawGraph() {
-		graphPanel.drawGraphPanel(plotSpec, xLog, yLog, xRange, yRange);
+		if (!isPlotEmpty())
+			graphPanel.drawGraphPanel(plotSpec, xLog, yLog, xRange, yRange);
 		togglePlot();
+	}
+	
+	private boolean isPlotEmpty() {
+		return plotSpec == null || plotSpec.getPlotElems().isEmpty();
 	}
 	
 	/* (non-Javadoc)
@@ -419,11 +301,22 @@ public class GraphWidget extends JSplitPane {
 	}
 
 	//checks if the user has plot the data window or plot window
-	public void togglePlot() {
+	public void togglePlot() {chartPane.removeAll();
+		if (isPlotEmpty()) {
+			removeChartAndMetadata();
+			buttonControlPanel.setEnabled(false);
+		} else {
+			buttonControlPanel.setEnabled(true);
+			graphPanel.togglePlot();
+			buttonControlPanel.updateToggleButtonText(graphPanel.isGraphOn());
+			updateChart(graphPanel);
+		}
+		
+	}
+	
+	private void updateChart(Component c) {
 		chartPane.removeAll();
-		graphPanel.togglePlot();
-		// TODO update button control panel
-		chartPane.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		chartPane.add(c, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0), 0, 0));
 		chartPane.validate();
@@ -516,8 +409,6 @@ public class GraphWidget extends JSplitPane {
 		this.drawGraph();
 	}
 
-
-
 	/**
 	 * Set the tick label font size
 	 * 
@@ -570,11 +461,12 @@ public class GraphWidget extends JSplitPane {
 		return graphPanel.getRenderingOrder();
 	}
 	
-	public void setDividerLocation(int location) {
-		this.setDividerLocation(location);
+	public ButtonControlPanel getButtonControlPanel() {
+		return buttonControlPanel;
 	}
 	
-	public void setDividerLocation(double proportionalLocation) {
-		this.setDividerLocation(proportionalLocation);
+	public void removeChartAndMetadata() {
+		updateChart(emptyPlotPanel);
+		graphPanel.removeChartAndMetadata();
 	}
 }

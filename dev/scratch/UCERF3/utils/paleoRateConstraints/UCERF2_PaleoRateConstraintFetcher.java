@@ -24,7 +24,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.base.Preconditions;
 
@@ -206,7 +206,7 @@ public class UCERF2_PaleoRateConstraintFetcher {
 			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 
-		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(funcs, "Paleosiesmic Constraint Fit", plotChars, true);
+		GraphWindow w = new GraphWindow(funcs, "Paleosiesmic Constraint Fit", plotChars, true);
 		w.setX_AxisLabel("");
 		w.setY_AxisLabel("Event Rate Per Year");
 	}

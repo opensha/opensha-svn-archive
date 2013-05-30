@@ -12,7 +12,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import com.google.common.collect.Lists;
@@ -78,7 +78,7 @@ public class NonzeroWaterlevelPlot {
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(refBranch);
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Num Non Zeros");
+//		GraphWindow gw = new GraphWindow(funcs, "Num Non Zeros");
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		

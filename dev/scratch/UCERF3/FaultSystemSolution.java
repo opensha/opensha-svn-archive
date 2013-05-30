@@ -30,7 +30,7 @@ import org.opensha.sha.faultSurface.CompoundGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -555,7 +555,7 @@ public class FaultSystemSolution implements Serializable {
 		for(int i=0; i<rupSet.getNumRuptures(); i++)
 			ruprates.set(i,getRateForRup(i));
 		funcs.add(ruprates); 	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Solution Rupture Rates"); 
+		GraphWindow graph = new GraphWindow(funcs, "Solution Rupture Rates"); 
 		graph.setX_AxisLabel("Rupture Index");
 		graph.setY_AxisLabel("Rate");
 
@@ -617,8 +617,8 @@ public class FaultSystemSolution implements Serializable {
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
-		GraphiWindowAPI_Impl graph3 =
-				new GraphiWindowAPI_Impl(funcs3,
+		GraphWindow graph3 =
+				new GraphWindow(funcs3,
 						"Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)",
 						plotChars);
 		graph3.setX_AxisLabel("Fault Section Index");
@@ -700,7 +700,7 @@ public class FaultSystemSolution implements Serializable {
 			
 			
 			
-			GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
+			GraphWindow graph4 = new GraphWindow(funcs4, "Magnitude Histogram for Final Rates"); 
 			graph4.setX_AxisLabel("Magnitude");
 			graph4.setY_AxisLabel("Frequency (per bin)");
 			graph4.setYLog(true);

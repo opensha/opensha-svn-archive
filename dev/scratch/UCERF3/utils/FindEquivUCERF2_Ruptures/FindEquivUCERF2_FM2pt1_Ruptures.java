@@ -35,7 +35,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.CompoundGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -764,7 +764,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		SummedMagFreqDist sumMFD = new SummedMagFreqDist(5.05,35,0.1);
 		sumMFD.addIncrementalMagFreqDist(mfdsForUCERF2AssocRups.get(0));
 */		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);
@@ -778,7 +778,7 @@ public class FindEquivUCERF2_FM2pt1_Ruptures extends FindEquivUCERF2_Ruptures {
 		cumFuncs.add(ucerf2_AandB_FaultCumMFD);
 		cumFuncs.add(mfdOfSubSeismoRups.getCumRateDistWithOffset());
 		cumFuncs.add(mfdOfOtherUnassocInvsionRups.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(cumFuncs, "Cumulative Mag-Freq Dists"); 
+		GraphWindow graph2 = new GraphWindow(cumFuncs, "Cumulative Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setYLog(true);

@@ -28,7 +28,7 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.XY_DataSetException;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 /**
  * <p>Title: TaperedGR_MagFreqDist </p>
@@ -240,7 +240,7 @@ public class TaperedGR_MagFreqDist
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, "GR Comparison"); 
+		GraphWindow graph = new GraphWindow(hists, "GR Comparison"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setX_AxisRange(5, 9);

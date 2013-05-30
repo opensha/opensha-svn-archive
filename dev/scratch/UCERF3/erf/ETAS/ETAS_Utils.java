@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.apache.commons.math3.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -325,12 +325,12 @@ public class ETAS_Utils {
 		funcs.add(cumDecayFunc1);
 		funcs.add(cumDecayFunc2);
 		funcs.add(cumDecayFunc3);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Probability of Aftershock Within Distance");
+		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
 
 		
 		
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(getDefaultNumWithTimeFunc(7.0, 0.5, 365d, 1), "Num aftershocks vs time");
-//		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(getDefaultNumWithLogTimeFunc(7.0, 0, 2.56, 0.0256), "Num aftershocks vs time");
+//		GraphWindow graph = new GraphWindow(getDefaultNumWithTimeFunc(7.0, 0.5, 365d, 1), "Num aftershocks vs time");
+//		GraphWindow graph2 = new GraphWindow(getDefaultNumWithLogTimeFunc(7.0, 0, 2.56, 0.0256), "Num aftershocks vs time");
 //		System.out.println("Double.MAX_VALUE="+Double.MAX_VALUE+"\t"+Double.MAX_VALUE/(1000*60*60*24*265.25));
 //		System.out.println("Long.MAX_VALUE="+Long.MAX_VALUE+"\t"+Long.MAX_VALUE/(1000*60*60*24*265));
 		

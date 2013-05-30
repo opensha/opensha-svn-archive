@@ -17,7 +17,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -373,7 +373,7 @@ public class ERF_RatesAtPointsInSpace {
 		magDistList.add(erfMFD.getCumRateDistWithOffset());
 
 		// Plot these MFDs
-		GraphiWindowAPI_Impl magDistsGraph = new GraphiWindowAPI_Impl(magDistList, "Mag-Freq Distributions"); 
+		GraphWindow magDistsGraph = new GraphWindow(magDistList, "Mag-Freq Distributions"); 
 		magDistsGraph.setX_AxisLabel("Mag");
 		magDistsGraph.setY_AxisLabel("Rate");
 		magDistsGraph.setY_AxisRange(1e-6, magDistsGraph.getY_AxisMax());

@@ -3,7 +3,7 @@ package org.opensha.sha.faultSurface.utils;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.util.NSHMP_Util;
 
 /**
@@ -88,7 +88,7 @@ public class PtSrcDistCorr {
 			funcs.add(func);
 		}
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Distance Corrections "); 
+		GraphWindow graph = new GraphWindow(funcs, "Distance Corrections "); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Correction");
 

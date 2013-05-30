@@ -18,7 +18,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -214,7 +214,7 @@ public class AMRCheck {
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "# Events Per Day Before Mainshock", chars);
+		GraphWindow gw = new GraphWindow(funcs, "# Events Per Day Before Mainshock", chars);
 	}
 
 }

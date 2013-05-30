@@ -25,7 +25,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
@@ -1394,7 +1394,7 @@ public class PeriodicityPlotter {
 		String fileName = new File(dir, prefix).getAbsolutePath();
 		
 		if (display) {
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, plotTitle, chars, display);
+			GraphWindow gw = new GraphWindow(funcs, plotTitle, chars, display);
 			if (dimensions == null)
 				gw.getGraphWindow().setSize(600, 800);
 			else

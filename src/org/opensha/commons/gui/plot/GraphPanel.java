@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.border.LineBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -160,13 +161,16 @@ public class GraphPanel extends JSplitPane {
 	//This ArrayList stores the legend for various
 	private List<String> legendString;
 	
-	private PlotPreferences plotPrefs; // TODO
+	private PlotPreferences plotPrefs;
+	
+	JPanel emptyPlotPanel;
 
 	/**
 	 * class constructor
 	 */
 	public GraphPanel(PlotPreferences plotPrefs) {
 		super(JSplitPane.VERTICAL_SPLIT, true);
+		this.plotPrefs = plotPrefs;
 		setResizeWeight(1);
 		setBorder(null);
 
@@ -199,6 +203,10 @@ public class GraphPanel extends JSplitPane {
 		chartPane = new JPanel(new BorderLayout());
 		chartPane.setMinimumSize(minPanelSize);
 		chartPane.setPreferredSize(minPanelSize);
+		emptyPlotPanel = new JPanel();
+		emptyPlotPanel.setBorder(new LineBorder(Color.gray));
+		emptyPlotPanel.setBackground(Color.white);
+		chartPane.add(emptyPlotPanel, BorderLayout.CENTER);
 
 		metadataText = new JTextPane();
 		metadataText.setEditable(false);
@@ -288,18 +296,12 @@ public class GraphPanel extends JSplitPane {
 	 */
 	public void drawGraphPanel(String xAxisName, String yAxisName, List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> plotChars, boolean xLog, boolean yLog,
-			String title, Range xRange, Range yRange) {
-		
-		// make a new list because we might modify it
-		plotChars = Lists.newArrayList(plotChars);
-
+			String title, Range xRange, Range yRange) {	
 		// Starting
 		String S = "drawGraphPanel(): ";
-
-
+		
 		createColorSchemeAndFunctionList(elems, plotChars);
-
-
+		
 		//flags to check if the exception was thrown on selection of the x-log or y-log.
 		boolean logErrorFlag = false;
 
@@ -704,6 +706,7 @@ public class GraphPanel extends JSplitPane {
 	 */
 	public void removeChartAndMetadata(){
 		chartPane.removeAll();
+		chartPane.add(emptyPlotPanel, BorderLayout.CENTER);
 		chartPanel = null;
 		metadataText.setText("");
 		dataTextArea.setText(NO_PLOT_MSG);

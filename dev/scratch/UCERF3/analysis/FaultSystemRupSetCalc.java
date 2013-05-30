@@ -26,7 +26,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -272,7 +272,7 @@ public class FaultSystemRupSetCalc {
 		list.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
 		list.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, "Histograms",list); 
+		GraphWindow graph = new GraphWindow(hists, "Histograms",list); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Normalized Number");
 
@@ -318,7 +318,7 @@ public class FaultSystemRupSetCalc {
 		hist.normalizeBySumOfY_Vals();
 		
 		if(plotResult) {
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hist, "Moment Rate Reductions Histogram"); 
+			GraphWindow graph = new GraphWindow(hist, "Moment Rate Reductions Histogram"); 
 			graph.setX_AxisLabel("Reduction");
 			graph.setY_AxisLabel("Normalized Number");
 
@@ -399,7 +399,7 @@ public class FaultSystemRupSetCalc {
 		if(faultSysRupSet.getFaultModel() == FaultModels.FM2_1) {
 			morelabel += " -- Mendocino included!";
 		}
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, label+morelabel,plotChars);
+		GraphWindow graph = new GraphWindow(funcs, label+morelabel,plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 20);
 		graph.setYLog(true);
@@ -426,7 +426,7 @@ public class FaultSystemRupSetCalc {
 		funcsCum.add(totTargetRateMatched.getCumRateDistWithOffset());
 		funcsCum.add(totTargetOnFault.getCumRateDistWithOffset());
 		funcsCum.add(totTargetOffFault.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graphCum = new GraphiWindowAPI_Impl(funcsCum, label+morelabel,plotChars);
+		GraphWindow graphCum = new GraphWindow(funcsCum, label+morelabel,plotChars);
 		graphCum.setX_AxisRange(5, 9);
 		graphCum.setY_AxisRange(1e-5, 20);
 		graphCum.setYLog(true);
@@ -671,7 +671,7 @@ public class FaultSystemRupSetCalc {
 //		test.add(totGR);
 //		test.add(onFaultMFD);
 //		test.add(offFaultMFD);
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(test, "MFDs");
+//		GraphWindow graph = new GraphWindow(test, "MFDs");
 
 		
 		
@@ -712,7 +712,7 @@ public class FaultSystemRupSetCalc {
 //		funcs.add(totGR.getCumRateDistWithOffset());
 //		funcs.add(offFaultMFD.getCumRateDistWithOffset());
 //		funcs.add(onFaultMFD.getCumRateDistWithOffset());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
+//		GraphWindow graph = new GraphWindow(funcs, "MFDs");
 //		graph.setX_AxisRange(5, 9);
 //		graph.setY_AxisRange(1e-5, 20);
 //		graph.setYLog(true);
@@ -815,7 +815,7 @@ public class FaultSystemRupSetCalc {
 		funcs.add(totalTargetGR.getCumRateDistWithOffset());
 		funcs.add(offFaultMFD.getCumRateDistWithOffset());
 		funcs.add(onFaultMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
+		GraphWindow graph = new GraphWindow(funcs, "MFDs");
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 10);
 		graph.setYLog(true);
@@ -914,7 +914,7 @@ public class FaultSystemRupSetCalc {
 //		funcs.add(totalTargetGR.getCumRateDistWithOffset());
 //		funcs.add(offFaultMFD.getCumRateDistWithOffset());
 //		funcs.add(onFaultMFD.getCumRateDistWithOffset());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
+//		GraphWindow graph = new GraphWindow(funcs, "MFDs");
 //		graph.setX_AxisRange(5, 9);
 //		graph.setY_AxisRange(1e-5, 10);
 //		graph.setYLog(true);
@@ -1163,7 +1163,7 @@ public class FaultSystemRupSetCalc {
 ////		funcs.add(totalTargetGR.getCumRateDistWithOffset());
 ////		funcs.add(offFaultMFD.getCumRateDistWithOffset());
 ////		funcs.add(onFaultMFD.getCumRateDistWithOffset());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "MFDs");
+//		GraphWindow graph = new GraphWindow(funcs, "MFDs");
 //		graph.setX_AxisRange(5, 9);
 //		graph.setY_AxisRange(1e-5, 10);
 //		graph.setYLog(true);
@@ -1262,7 +1262,7 @@ public class FaultSystemRupSetCalc {
 //		ArrayList<IncrementalMagFreqDist> funcs = new ArrayList<IncrementalMagFreqDist>();
 //		funcs.add(mfd);
 //		funcs.add(totalTargetGR);
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Total On Fault MFD");
+//		GraphWindow graph = new GraphWindow(funcs, "Total On Fault MFD");
 
 		return mfd;
 	}
@@ -1441,7 +1441,7 @@ if(mMax<5.85)
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.DARK_GRAY));
 		}
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Pre-Inversion MFDs", plotChars);
+		GraphWindow graph = new GraphWindow(mfds, "Pre-Inversion MFDs", plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 20);
 		graph.setYLog(true);
@@ -1495,7 +1495,7 @@ if(mMax<5.85)
 		
 		ave /= invFltSysRupSet.getNumRuptures();
 		
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(ratioVsLengthData, "ratio vs length");
+//		GraphWindow graph = new GraphWindow(ratioVsLengthData, "ratio vs length");
 //		graph.setX_AxisLabel("length (km)");
 //		graph.setY_AxisLabel("implied/actual DDW");
 		
@@ -1660,7 +1660,7 @@ if(mMax<5.85)
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED,2f,Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID,2f,Color.BLUE));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Incremental Off-Fault MFDs", plotChars);
+		GraphWindow graph = new GraphWindow(mfds, "Incremental Off-Fault MFDs", plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-5, 20);
 		graph.setYLog(true);
@@ -1677,7 +1677,7 @@ if(mMax<5.85)
 			}
 		}
 			
-		GraphiWindowAPI_Impl cumGraph = new GraphiWindowAPI_Impl(cumMFDs, "Cumulative Off-Fault MFDs", plotChars);
+		GraphWindow cumGraph = new GraphWindow(cumMFDs, "Cumulative Off-Fault MFDs", plotChars);
 		cumGraph.setX_AxisRange(5, 9);
 		cumGraph.setY_AxisRange(1e-5, 20);
 		cumGraph.setYLog(true);
@@ -2191,7 +2191,7 @@ if(mMax<5.85)
 //			if(UCERF2_A_FaultMapper.wasUCERF2_TypeAFault(data.getParentSectionId())) {
 //				if(data.getParentSectionId() != lastParentIndex) { // it's a new parent section, plot funcs and create new list
 //					if(lastParentIndex != -1) { // plot result
-//						GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+//						GraphWindow graph = new GraphWindow(funcList, parSectName); 
 //						graph.setX_AxisLabel("Magnitude");
 //						graph.setY_AxisLabel("Rate");
 //					}
@@ -2202,7 +2202,7 @@ if(mMax<5.85)
 //				lastParentIndex = data.getParentSectionId();
 //			}
 //		}
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, parSectName); 
+//		GraphWindow graph = new GraphWindow(funcList, parSectName); 
 //		graph.setX_AxisLabel("Magnitude");
 //		graph.setY_AxisLabel("Rate");
 
@@ -2355,7 +2355,7 @@ if(mMax<5.85)
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.GRAY));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.GRAY));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of Char MFD Constraints",plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Sum of Char MFD Constraints",plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-6, 20);
 		graph.setYLog(true);
@@ -2612,7 +2612,7 @@ if(mMax<5.85)
 //			mappedUCERF2_FSS_ParSectMFD_Map.get(parSectID).addIncrementalMagFreqDist(nuclMFD);
 //		}
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Char MFD Constraint Test");
+		GraphWindow graph = new GraphWindow(mfdList, "Char MFD Constraint Test");
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-6, 1e-2);
 		graph.setYLog(true);
@@ -2725,7 +2725,7 @@ if(mMax<5.85)
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.ORANGE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4, null, 0, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4, null, 0, Color.ORANGE));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of Char MFD Constraints",plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Sum of Char MFD Constraints",plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-6, 20);
 		graph.setYLog(true);
@@ -2790,7 +2790,7 @@ if(mMax<5.85)
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, null, 0, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2, null, 0, Color.BLUE));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Sum of GR MFD Constraints",plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Sum of GR MFD Constraints",plotChars);
 		graph.setX_AxisRange(5, 9);
 		graph.setY_AxisRange(1e-6, 20);
 		graph.setYLog(true);
@@ -2846,7 +2846,7 @@ if(mMax<5.85)
 		
 //		HistogramFunction magHist = getMagHistogram(rupSet, 0.05, 90, 0.1);
 //		System.out.println();
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(magHist, "Mag Hist");
+//		GraphWindow graph = new GraphWindow(magHist, "Mag Hist");
 
 		
 //		plotPreInversionMFDs(rupSet, false, false, true, null);
@@ -2858,7 +2858,7 @@ if(mMax<5.85)
 //		SummedMagFreqDist mfd = new SummedMagFreqDist(0.05, 100, 0.1);
 //		for(SectionMFD_constraint constr:getCharInversionSectMFD_Constraints(rupSet))
 //			mfd.addIncrementalMagFreqDist(constr.getResampledToEventlyDiscrMFD(0.05, 100, 0.1));
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfd, "Test MFD"); 
+//		GraphWindow graph = new GraphWindow(mfd, "Test MFD"); 
 //		graph.setX_AxisLabel("Mangitude");
 //		graph.setY_AxisLabel("Rate (per year)");
 //		graph.setYLog(true);
@@ -2991,7 +2991,7 @@ if(mMax<5.85)
 //		ArrayList<HistogramFunction> hists = new ArrayList<HistogramFunction>();
 //		hists.add(hist1.getCumulativeDistFunction());
 //		hists.add(hist2.getCumulativeDistFunction());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, "Histograms"); 
+//		GraphWindow graph = new GraphWindow(hists, "Histograms"); 
 //		graph.setX_AxisLabel("Magnitude");
 //		graph.setY_AxisLabel("Normalized Number");
 

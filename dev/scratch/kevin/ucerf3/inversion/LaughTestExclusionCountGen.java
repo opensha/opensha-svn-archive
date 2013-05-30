@@ -10,7 +10,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.collect.Lists;
 
@@ -148,7 +148,7 @@ public class LaughTestExclusionCountGen {
 			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(
+			GraphWindow gw = new GraphWindow(
 					funcs, "Fraction of Junctions/Ruptures Excluded", chars);
 			gw.setX_AxisLabel("PΔCFF Threshold");
 			gw.setY_AxisLabel("Fraction Excluded");

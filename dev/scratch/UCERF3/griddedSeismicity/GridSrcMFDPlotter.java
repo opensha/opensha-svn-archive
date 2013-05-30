@@ -10,7 +10,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -95,7 +95,7 @@ public class GridSrcMFDPlotter {
 		funcs.add(incremental ? fSubSeisIncr : fSubSeisCum);
 		funcs.add(incremental ? fTotalIncr : fTotalCum);
 
-		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow plotter = new GraphWindow(funcs,
 				(fName.contains("_gr_") ? "GR" : "CH") + " : " +
 				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
 					magScaling.toString()) + " : " +
@@ -173,7 +173,7 @@ public class GridSrcMFDPlotter {
 //		}
 		
 		
-		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow plotter = new GraphWindow(funcs,
 			"UCERF2wt1000 : " +
 					(fName.contains("_gr_") ? "GR" : "CH") + " : " +
 					CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,
@@ -249,7 +249,7 @@ public class GridSrcMFDPlotter {
 		funcs.add(incremental ? tssRegionIncr : tssRegionCum);
 		
 		
-		GraphiWindowAPI_Impl plotter = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow plotter = new GraphWindow(funcs,
 			(fName.contains("_gr_") ? "GR" : "CH") +
 				" : " +
 				CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,

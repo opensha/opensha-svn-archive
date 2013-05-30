@@ -128,7 +128,7 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 			System.out.println("Error: "+prob+"\n");
 			ArrayList funcs = new ArrayList();
 			funcs.add(this);
-			GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
+			GraphWindow sr_graph = new GraphWindow(funcs, "");  
 		}
 		*/
 		return indexHigh;

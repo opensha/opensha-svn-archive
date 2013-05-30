@@ -27,7 +27,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -219,7 +219,7 @@ public class RupsInFaultSystemInversion {
 		funcs.add(magHist);
 		magHist.setName("Histogram of Inversion ruptures");
 		magHist.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		GraphWindow graph = new GraphWindow(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Num");
 */	
@@ -930,7 +930,7 @@ public class RupsInFaultSystemInversion {
 		for(int i=0; i<rupRateSolution.length; i++)
 			ruprates.set(i,rupRateSolution[i]);
 		funcs.add(ruprates); 	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Inverted Rupture Rates"); 
+		GraphWindow graph = new GraphWindow(funcs, "Inverted Rupture Rates"); 
 		graph.setX_AxisLabel("Rupture Index");
 		graph.setY_AxisLabel("Rate");
 		
@@ -948,7 +948,7 @@ public class RupsInFaultSystemInversion {
 		}	
 		funcs2.add(syn);
 		funcs2.add(data);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
 		graph2.setX_AxisLabel("Fault Section Index");
 		graph2.setY_AxisLabel("Slip Rate");
 		
@@ -992,7 +992,7 @@ public class RupsInFaultSystemInversion {
 		aveSynFunc.setInfo(info);
 		funcs5.add(aveSynFunc);
 		funcs5.add(aveDataFunc);
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
+		GraphWindow graph5 = new GraphWindow(funcs5, "Average Slip Rates on Parent Sections"); 
 		graph5.setX_AxisLabel("Parent Section Index");
 		graph5.setY_AxisLabel("Slip Rate");
 
@@ -1029,7 +1029,7 @@ public class RupsInFaultSystemInversion {
 			func.setName(constraint.getFaultName());
 			funcs3.add(func);
 		}			
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
+		GraphWindow graph3 = new GraphWindow(funcs3, "Synthetic Event Rates (total - black & paleo visible - blue) and Paleo Data (red)");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLACK));
@@ -1062,7 +1062,7 @@ public class RupsInFaultSystemInversion {
 			targetMagFreqDist.setInfo("UCERF2 Solution minus background (with aftershocks added back in)");
 			funcs4.add(targetMagFreqDist);
 		}
-		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs4, "Magnitude Histogram for Final Rates"); 
+		GraphWindow graph4 = new GraphWindow(funcs4, "Magnitude Histogram for Final Rates"); 
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
 		
@@ -1077,7 +1077,7 @@ public class RupsInFaultSystemInversion {
 		magHist3.setName("Northern CA UCERF2 Background with Aftershocks");
 		ArrayList funcs6 = new ArrayList();
 		funcs5.add(magHist2); funcs6.add(magHist3);
-		GraphiWindowAPI_Impl graph6 = new GraphiWindowAPI_Impl(funcs6, "Total Regional Target MFD and UCERF2 Background MFD"); 
+		GraphWindow graph6 = new GraphWindow(funcs6, "Total Regional Target MFD and UCERF2 Background MFD"); 
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Frequency (per bin)");
 		*/
@@ -1198,7 +1198,7 @@ public class RupsInFaultSystemInversion {
 		funcs.add(magHist2);
 		magHist2.setName("Magnitude Distribution of Starting Model (before Annealing)");
 		magHist2.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		GraphWindow graph = new GraphWindow(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Frequency (per bin)");
 		
@@ -1300,7 +1300,7 @@ private double[] getSmoothStartingSolution(ArrayList<ArrayList<Integer>> rupList
 		funcs.add(magHist2);
 		magHist2.setName("Magnitude Distribution of Starting Model (before Annealing)");
 		magHist2.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		GraphWindow graph = new GraphWindow(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Frequency (per bin)");
 		

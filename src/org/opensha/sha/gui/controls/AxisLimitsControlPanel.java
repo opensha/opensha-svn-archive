@@ -53,8 +53,6 @@ import org.opensha.commons.gui.plot.GraphWidget;
 public class AxisLimitsControlPanel extends ControlPanel {
 	
 	public static final String NAME = "Set Axis";
-
-	private JPanel mainPanel = new JPanel();
 	
 	private JLabel minXLabel = new JLabel();
 	private JTextField minXField = new JTextField();
@@ -124,8 +122,6 @@ public class AxisLimitsControlPanel extends ControlPanel {
 	}
 
 	void jbInit() throws Exception {
-		mainPanel.setLayout(new BorderLayout());
-		
 		JPanel gridPanel = new JPanel();
 		gridPanel.setLayout(new GridLayout(4, 2, 10, 10));
 		
@@ -171,11 +167,12 @@ public class AxisLimitsControlPanel extends ControlPanel {
 		gridPanel.add(buildGridded(new JLabel(), ok));
 		gridPanel.add(buildGridded(cancel, new JLabel()));
 		
-		mainPanel.setMaximumSize(new Dimension(348, 143));
+		gridPanel.setMaximumSize(new Dimension(348, 143));
+		dialog.setContentPane(gridPanel);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//		dialog.setSize(600, 400);
+//		dialog.setSize(dialog.getPreferredSize());
 		dialog.setResizable(false);
-		
-		dialog.setContentPane(mainPanel);
 	}
 	
 	private static JPanel buildGridded(JComponent comp1, JComponent comp2) {
@@ -209,6 +206,7 @@ public class AxisLimitsControlPanel extends ControlPanel {
 					new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
 		}
 		gw.setAxisRange(xRange, yRange);
+		dialog.dispose();
 	}
 
 	/**

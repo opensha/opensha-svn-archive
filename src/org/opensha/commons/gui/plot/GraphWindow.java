@@ -1,18 +1,58 @@
 package org.opensha.commons.gui.plot;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
+import org.opensha.commons.util.FileUtils;
 
 import com.google.common.collect.Lists;
 
 public class GraphWindow extends JFrame {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private GraphWidget widget;
+	
+	protected JMenuBar menuBar = new JMenuBar();
+	protected JMenu fileMenu = new JMenu();
+
+	protected JMenuItem fileExitMenu = new JMenuItem();
+	protected JMenuItem fileSaveMenu = new JMenuItem();
+	protected JMenuItem filePrintMenu = new JCheckBoxMenuItem();
+	protected JToolBar jToolBar = new JToolBar();
+
+	protected JButton closeButton = new JButton();
+	protected ImageIcon closeFileImage = new ImageIcon(FileUtils.loadImage("icons/closeFile.png"));
+
+	protected JButton printButton = new JButton();
+	protected ImageIcon printFileImage = new ImageIcon(FileUtils.loadImage("icons/printFile.jpg"));
+
+	protected JButton saveButton = new JButton();
+	protected ImageIcon saveFileImage = new ImageIcon(FileUtils.loadImage("icons/saveFile.jpg"));
+	
+	protected static int windowNumber = 1;
+	protected final static String TITLE = "Plot Window - ";
 	
 	public GraphWindow(PlotElement elem, String plotTitle) {
 		this(Lists.newArrayList(elem), plotTitle);
@@ -36,7 +76,77 @@ public class GraphWindow extends JFrame {
 	
 	public GraphWindow(GraphWidget widget) {
 		this.widget = widget;
-		this.setContentPane(widget);
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		
+		fileMenu.setText("File");
+		fileExitMenu.setText("Exit");
+		fileSaveMenu.setText("Save");
+		filePrintMenu.setText("Print");
+
+		fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fileExitMenu_actionPerformed(e);
+			}
+		});
+
+		fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fileSaveMenu_actionPerformed(e);
+			}
+		});
+
+		filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				filePrintMenu_actionPerformed(e);
+			}
+		});
+
+		closeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				closeButton_actionPerformed(actionEvent);
+			}
+		});
+		printButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				printButton_actionPerformed(actionEvent);
+			}
+		});
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				saveButton_actionPerformed(actionEvent);
+			}
+		});
+
+		menuBar.add(fileMenu);
+		fileMenu.add(fileSaveMenu);
+		fileMenu.add(filePrintMenu);
+		fileMenu.add(fileExitMenu);
+
+		setJMenuBar(menuBar);
+		closeButton.setIcon(closeFileImage);
+		closeButton.setToolTipText("Close Window");
+		Dimension d = closeButton.getSize();
+		jToolBar.add(closeButton);
+		printButton.setIcon(printFileImage);
+		printButton.setToolTipText("Print Graph");
+		printButton.setSize(d);
+		jToolBar.add(printButton);
+		saveButton.setIcon(saveFileImage);
+		saveButton.setToolTipText("Save Graph as image");
+		saveButton.setSize(d);
+		jToolBar.add(saveButton);
+		jToolBar.setFloatable(false);
+
+		mainPanel.add(jToolBar, BorderLayout.NORTH);
+		mainPanel.add(widget, BorderLayout.CENTER);
+		
+		this.setContentPane(mainPanel);
+		
+		// increasing the window number corresponding to the new window.
+		this.setTitle(TITLE + windowNumber++);
+		
+		setSize(700, 800);
+		
 		this.setVisible(true);
 	}
 	
@@ -104,6 +214,59 @@ public class GraphWindow extends JFrame {
 		for (PlotCurveCharacterstics pchar : generateDefaultChars(null))
 			colors.add(pchar.getColor());
 		return colors;
+	}
+	
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	protected  void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+		this.dispose();
+	}
+
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	protected  void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+		try {
+			widget.save();
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+					JOptionPane.OK_OPTION);
+			return;
+		}
+	}
+
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	protected  void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+		widget.print();
+	}
+
+	protected  void closeButton_actionPerformed(ActionEvent actionEvent) {
+		this.dispose();
+	}
+
+	protected  void printButton_actionPerformed(ActionEvent actionEvent) {
+		widget.print();
+	}
+
+	protected  void saveButton_actionPerformed(ActionEvent actionEvent) {
+		try {
+			widget.save();
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+					JOptionPane.OK_OPTION);
+			return;
+		}
 	}
 
 }

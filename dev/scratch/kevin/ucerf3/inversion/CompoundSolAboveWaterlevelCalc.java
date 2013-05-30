@@ -19,7 +19,7 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -217,7 +217,7 @@ public class CompoundSolAboveWaterlevelCalc {
 		
 		if (abovesList.size() > 1) {
 			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-			List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+			List<Color> colors = GraphWindow.generateDefaultColors();
 			for (int i=0; i<abovesList.size(); i++)
 				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
 			
@@ -273,7 +273,7 @@ public class CompoundSolAboveWaterlevelCalc {
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(func);
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Num Non Zeros");
+//		GraphWindow gw = new GraphWindow(funcs, "Num Non Zeros");
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();

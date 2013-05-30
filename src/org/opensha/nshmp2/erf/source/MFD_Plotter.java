@@ -18,7 +18,7 @@ import org.opensha.commons.util.Interpolate;
 import org.opensha.nshmp2.util.FaultType;
 import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.Utils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -195,7 +195,7 @@ public class MFD_Plotter {
 			double yMin, double yMax) {
 		ArrayList funcs = Lists.newArrayList();
 		funcs.addAll(mfds);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow graph = new GraphWindow(funcs,
 				title, plotChars);
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Incremental Rate");

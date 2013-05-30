@@ -31,7 +31,7 @@ import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -646,7 +646,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		IncrementalMagFreqDist[] mfds = avg.calcParentSectionNucleationMFDs(301);
 		PlotSpec spec = getMFDConvergencePlotSpec(mfds, true, "SAF Mojave", 10);
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
+		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
 		gw.setX_AxisLabel(spec.getXAxisLabel());
 		gw.setY_AxisLabel(spec.getYAxisLabel());
 		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -13,7 +13,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -195,7 +195,7 @@ public class OmorisLawComparison {
 				ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 				funcs.add(eventFunc);
 				funcs.add(omoriComp);
-//				GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Omori's Law Comparison for M="+magBin);
+//				GraphWindow gw = new GraphWindow(funcs, "Omori's Law Comparison for M="+magBin);
 			}
 		}
 	}

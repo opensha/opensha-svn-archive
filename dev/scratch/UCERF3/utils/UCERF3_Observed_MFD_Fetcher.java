@@ -15,7 +15,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -170,7 +170,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs2.add(directCountsNoCal);
 		funcs2.add(directCountsNoCal_Lower95);
 		funcs2.add(directCountsNoCal_Upper95);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "No Cal Mag-Freq Dists", plotChars); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "No Cal Mag-Freq Dists", plotChars); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setY_AxisRange(1e-3, 500);
@@ -182,7 +182,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs3.add(directCountsSoCal);
 		funcs3.add(directCountsSoCal_Lower95);
 		funcs3.add(directCountsSoCal_Upper95);
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "So Cal Mag-Freq Dists", plotChars); 
+		GraphWindow graph3 = new GraphWindow(funcs3, "So Cal Mag-Freq Dists", plotChars); 
 		graph3.setX_AxisLabel("Mag");
 		graph3.setY_AxisLabel("Rate");
 		graph3.setY_AxisRange(1e-3, 500);
@@ -201,7 +201,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-3, 500);
@@ -213,7 +213,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs5.add(directCountsLA);
 		funcs5.add(directCountsLA_Lower95);
 		funcs5.add(directCountsLA_Upper95);
-		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box MFD", plotChars); 
+		GraphWindow graph4 = new GraphWindow(funcs5, "LA Box MFD", plotChars); 
 		graph4.setX_AxisLabel("Mag");
 		graph4.setY_AxisLabel("Rate");
 		graph4.setY_AxisRange(1e-3, 500);
@@ -225,7 +225,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs6.add(directCountsSF);
 		funcs6.add(directCountsSF_Lower95);
 		funcs6.add(directCountsSF_Upper95);
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box MFD", plotChars); 
+		GraphWindow graph5 = new GraphWindow(funcs6, "SF Box MFD", plotChars); 
 		graph5.setX_AxisLabel("Mag");
 		graph5.setY_AxisLabel("Rate");
 		graph5.setY_AxisRange(1e-3, 500);
@@ -252,7 +252,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs2.add(directCountsNoCal.getCumRateDistWithOffset());
 		funcs2.add(directCountsNoCal_Lower95.getCumRateDistWithOffset());
 		funcs2.add(directCountsNoCal_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "No Cal Mag-Freq Dists", plotChars); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "No Cal Mag-Freq Dists", plotChars); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setY_AxisRange(1e-3, 500);
@@ -264,7 +264,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs3.add(directCountsSoCal.getCumRateDistWithOffset());
 		funcs3.add(directCountsSoCal_Lower95.getCumRateDistWithOffset());
 		funcs3.add(directCountsSoCal_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(funcs3, "So Cal Mag-Freq Dists", plotChars); 
+		GraphWindow graph3 = new GraphWindow(funcs3, "So Cal Mag-Freq Dists", plotChars); 
 		graph3.setX_AxisLabel("Mag");
 		graph3.setY_AxisLabel("Rate");
 		graph3.setY_AxisRange(1e-3, 500);
@@ -283,7 +283,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "All Cal Cum Mag-Freq Dists", plotChars); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-3, 500);
@@ -296,7 +296,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs5.add(directCountsLA.getCumRateDistWithOffset());
 		funcs5.add(directCountsLA_Lower95.getCumRateDistWithOffset());
 		funcs5.add(directCountsLA_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box Cum MFD", plotChars); 
+		GraphWindow graph4 = new GraphWindow(funcs5, "LA Box Cum MFD", plotChars); 
 		graph4.setX_AxisLabel("Mag");
 		graph4.setY_AxisLabel("Rate");
 		graph4.setY_AxisRange(1e-3, 500);
@@ -308,7 +308,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs6.add(directCountsSF.getCumRateDistWithOffset());
 		funcs6.add(directCountsSF_Lower95.getCumRateDistWithOffset());
 		funcs6.add(directCountsSF_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box Cum MFD", plotChars); 
+		GraphWindow graph5 = new GraphWindow(funcs6, "SF Box Cum MFD", plotChars); 
 		graph5.setX_AxisLabel("Mag");
 		graph5.setY_AxisLabel("Rate");
 		graph5.setY_AxisRange(1e-3, 500);
@@ -348,7 +348,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs5.add(directCountsLA.getCumRateDistWithOffset());
 		funcs5.add(directCountsLA_Lower95.getCumRateDistWithOffset());
 		funcs5.add(directCountsLA_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph4 = new GraphiWindowAPI_Impl(funcs5, "LA Box Cum MFD", plotChars); 
+		GraphWindow graph4 = new GraphWindow(funcs5, "LA Box Cum MFD", plotChars); 
 		graph4.setX_AxisLabel("Magnitude");
 		graph4.setY_AxisLabel("Rate (per year)");
 		graph4.setPlotLabelFontSize(18);
@@ -370,7 +370,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		funcs6.add(directCountsSF.getCumRateDistWithOffset());
 		funcs6.add(directCountsSF_Lower95.getCumRateDistWithOffset());
 		funcs6.add(directCountsSF_Upper95.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs6, "SF Box Cum MFD", plotChars); 
+		GraphWindow graph5 = new GraphWindow(funcs6, "SF Box Cum MFD", plotChars); 
 		graph5.setX_AxisLabel("Magnitude");
 		graph5.setY_AxisLabel("Rate (per year)");
 		graph5.setPlotLabelFontSize(18);

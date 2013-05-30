@@ -38,7 +38,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
@@ -989,7 +989,7 @@ public class ManyRunCompilation {
 		
 		String title = "Rupture Rate Distribution";
 		
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+//		GraphWindow gw = new GraphWindow(funcs, title, chars);
 //		gw.setX_AxisLabel(xAxisLabel);
 //		gw.setYLog(true);
 //		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -17,7 +17,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -94,7 +94,7 @@ public class FaultSystemSolutionCalc {
 		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
 		funcList.add(covHist);
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Slip COV Histogram", plotChars);
+		GraphWindow graph = new GraphWindow(funcList, "Slip COV Histogram", plotChars);
 		graph.setX_AxisRange(0, 2);
 		graph.setX_AxisLabel("Slip COV");
 		graph.setY_AxisLabel("Fraction Per Bin");
@@ -176,7 +176,7 @@ public class FaultSystemSolutionCalc {
 		funcs2.add(hist);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Rupture Length Histogram"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Rupture Length Histogram"); 
 		graph2.setX_AxisLabel("Length (km)");
 		graph2.setY_AxisLabel("Fraction");
 	}

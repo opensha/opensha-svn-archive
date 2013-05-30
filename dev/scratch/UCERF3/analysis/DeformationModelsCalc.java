@@ -40,7 +40,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -156,7 +156,7 @@ public class DeformationModelsCalc {
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 //		list.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(hists, plotTitle); 
+		GraphWindow graph = new GraphWindow(hists, plotTitle); 
 		graph.setX_AxisLabel("Depth or Width (km)");
 		graph.setY_AxisLabel("Normalized Number");
 
@@ -1425,7 +1425,7 @@ public class DeformationModelsCalc {
 		System.out.println("straightAve="+(float)straightAve);
 		System.out.println("potential further reduction ((1.0-aveRatio)*totNoReduction)"+(float)((1.0-aveRatio)*totNoReduction));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(moRateReductionHist, "Moment Rate Reduction Histogram"); 
+		GraphWindow graph = new GraphWindow(moRateReductionHist, "Moment Rate Reduction Histogram"); 
 		graph.setX_AxisLabel("Fractional Reduction (due to creep)");
 		graph.setY_AxisLabel("Number of Fault Sub-Sections");
 		
@@ -1985,7 +1985,7 @@ public class DeformationModelsCalc {
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 5, null, 0, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 5, null, 0, Color.BLUE));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, label);
+		GraphWindow graph = new GraphWindow(funcs, label);
 		graph.setX_AxisRange(0, 1);
 		graph.setY_AxisRange(6.5, 10);
 		graph.setX_AxisLabel("Fraction of Total Seismicity That is Off Fault");
@@ -2334,7 +2334,7 @@ public class DeformationModelsCalc {
 		}
 	}
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(histogram.getCumulativeDistFunction(), "Histogram of mini-section slip rates"); 
+		GraphWindow graph = new GraphWindow(histogram.getCumulativeDistFunction(), "Histogram of mini-section slip rates"); 
 		graph.setX_AxisLabel("Number");
 		graph.setY_AxisLabel("Log10 Slip Rate");
 

@@ -20,6 +20,7 @@
 package org.opensha.sha.gui.infoTools;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -86,6 +87,7 @@ public class ButtonControlPanel extends JPanel implements ActionListener {
 	private GraphWidget gw;
 
 	public ButtonControlPanel(GraphWidget gw, PlotPreferences plotPrefs) {
+		System.out.println("ButtonControlPanel Init!");
 		Preconditions.checkNotNull(gw, "GraphWidget cannot be null");
 		Preconditions.checkNotNull(plotPrefs, "PlotPreferences cannot be null");
 		this.gw = gw;
@@ -189,8 +191,15 @@ public class ButtonControlPanel extends JPanel implements ActionListener {
 	 * Sets the text for the toggle button.
 	 * @param text to set
 	 */
-	public  void setToggleButtonText(String text){
+	public void setToggleButtonText(String text){
 		toggleButton.setText(text);
+	}
+	
+	public void updateToggleButtonText(boolean graphOn) {
+		if (graphOn)
+			setToggleButtonText("Show Data");
+		else
+			setToggleButtonText("Show Plot");
 	}
 
 	//Action method when the "Set Axis Range" button is pressed.
@@ -252,9 +261,11 @@ public class ButtonControlPanel extends JPanel implements ActionListener {
 	public void setEnabled(boolean flag){
 		jCheckxlog.setEnabled(flag);
 		jCheckylog.setEnabled(flag);
-		setAxisButton.setEnabled(flag);
-		toggleButton.setEnabled(flag);
-		plotPrefsButton.setEnabled(flag);
+//		setAxisButton.setEnabled(flag);
+//		toggleButton.setEnabled(flag);
+//		plotPrefsButton.setEnabled(flag);
+		for (Component c : buttonPanel.getComponents())
+			c.setEnabled(flag);
 	}
 
 	/**

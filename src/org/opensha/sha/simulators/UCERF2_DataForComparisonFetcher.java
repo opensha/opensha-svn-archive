@@ -19,7 +19,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 public class UCERF2_DataForComparisonFetcher {
 	
@@ -262,7 +262,7 @@ public class UCERF2_DataForComparisonFetcher {
 					parsonsPoisPDF_Funcs.add(func);
 					testList = new ArrayList<EvenlyDiscretizedFunc>();
 					testList.add(func);
-					//					GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(testList, "Parson's PDFs");
+					//					GraphWindow graph = new GraphWindow(testList, "Parson's PDFs");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -408,7 +408,7 @@ public class UCERF2_DataForComparisonFetcher {
 
 			/**/
 			if(testfuncs.size()>0) {
-//				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(testfuncs, "Parson's BPT MRI PDFs for "+siteName);
+//				GraphWindow graph = new GraphWindow(testfuncs, "Parson's BPT MRI PDFs for "+siteName);
 			}
 			
 		}

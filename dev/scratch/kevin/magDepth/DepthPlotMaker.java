@@ -21,7 +21,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -205,7 +205,7 @@ public class DepthPlotMaker {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> plotChars = Lists.newArrayList(new PlotCurveCharacterstics(PlotSymbol.X, 2f, Color.BLACK));
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Mag Vs. Depth", plotChars);
+		GraphWindow gw = new GraphWindow(funcs, "Mag Vs. Depth", plotChars);
 		gw.setX_AxisLabel("Magnitude");
 		gw.setY_AxisLabel("Altitude");
 	}

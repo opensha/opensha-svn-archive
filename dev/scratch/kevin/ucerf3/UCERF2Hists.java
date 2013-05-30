@@ -10,7 +10,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.collect.Lists;
 
@@ -48,14 +48,14 @@ public class UCERF2Hists {
 		histList.add(magHist);
 		PlotCurveCharacterstics histChar = new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 0.1f, Color.BLUE);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(histList, "Rupture Magnitude Histogram",Lists.newArrayList(histChar)); 
+		GraphWindow graph = new GraphWindow(histList, "Rupture Magnitude Histogram",Lists.newArrayList(histChar)); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Normalized Number");
 		
 		histList.clear();
 		histList.add(lengthHist);
 		
-		graph = new GraphiWindowAPI_Impl(histList, "Ruptre Length Histogram",Lists.newArrayList(histChar)); 
+		graph = new GraphWindow(histList, "Ruptre Length Histogram",Lists.newArrayList(histChar)); 
 		graph.setX_AxisLabel("Length");
 		graph.setY_AxisLabel("Normalized Number");
 	}

@@ -50,7 +50,7 @@ import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -649,7 +649,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		
-		List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+		List<Color> colors = GraphWindow.generateDefaultColors();
 		int colorCnt = 0;
 		
 		int setMod = refFuncs.size() / 2;

@@ -10,7 +10,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
@@ -93,7 +93,7 @@ public class ETAS_LocationWeightCalculator {
 		
 //		ArrayList funcs = new ArrayList();
 //		funcs.add(distHistogram);
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+//		GraphWindow graph = new GraphWindow(funcs, "test"); 
 		
 		
 		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(min , max, num);
@@ -352,7 +352,7 @@ public class ETAS_LocationWeightCalculator {
 		ArrayList funcs = new ArrayList();
 		funcs.add(targetHist);
 		funcs.add(distHistogram);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+		GraphWindow graph = new GraphWindow(funcs, "test"); 
 //		graph.setAxisRange(1, 1200, 1e-6, 1);
 //		graph.setYLog(true);
 //		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();

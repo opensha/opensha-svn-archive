@@ -31,7 +31,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
@@ -180,7 +180,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 					maxX = myMaxX;
 			}
 			
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
+			GraphWindow gw = new GraphWindow(spec);
 			gw.setAxisRange(0, maxX, 0, 1);
 		}
 	}

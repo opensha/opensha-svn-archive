@@ -170,6 +170,7 @@ ActionListener,ParameterChangeListener{
 //	private int plotLabelWidth;
 
 	public PlotColorAndLineTypeSelectorControlPanel(GraphWidget gw, List<PlotCurveCharacterstics> curveCharacterstics) {
+		System.out.println("PlotColorAndLineTypeSelectorControlPanel Init!");
 		this.gw = gw;
 		
 		lineTypeStrings = new ArrayList<String>();

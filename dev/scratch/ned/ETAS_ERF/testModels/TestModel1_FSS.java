@@ -18,7 +18,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
@@ -194,7 +194,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 			funcs.add(targetFaultGR.getCumRateDistWithOffset());
 			funcs.add(testMFD);
 
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, ""); 
+			GraphWindow graph = new GraphWindow(funcs, ""); 
 
 			System.out.println("MomentRates: "+totMoRate+"\t"+faultGR.getTotalMomentRate()
 					+"\t"+targetFaultGR.getTotalMomentRate());

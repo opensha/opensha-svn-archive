@@ -318,7 +318,7 @@ public final class FaultUtils {
 					traceFunc.setName(trace.getName());
 					funcs.add(traceFunc);
 				}
-				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "");  
+				GraphWindow graph = new GraphWindow(funcs, "");  
 				ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 	/*			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES, Color.BLACK, 4));
 				plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));

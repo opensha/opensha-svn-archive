@@ -21,7 +21,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -230,7 +230,7 @@ public class ETAS_SimAnalysisTools {
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Aftershock Epicenters for "+info); 
+		GraphWindow graph = new GraphWindow(funcs, "Aftershock Epicenters for "+info); 
 		graph.setX_AxisLabel("Longitude");
 		graph.setY_AxisLabel("Latitude");
 		double deltaLat = maxLat-minLat;
@@ -325,7 +325,7 @@ public class ETAS_SimAnalysisTools {
 
 				
 		// Plot these MFDs
-		GraphiWindowAPI_Impl magProbDistsGraph = new GraphiWindowAPI_Impl(magProbDists, "Mag-Freq Distributions for "+info+" Aftershocks",plotChars); 
+		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "Mag-Freq Distributions for "+info+" Aftershocks",plotChars); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Number");
 		magProbDistsGraph.setY_AxisRange(0.001, 1e3);
@@ -398,7 +398,7 @@ public class ETAS_SimAnalysisTools {
 			distDecayFuncs.add(obsAllDistHist);			
 		}
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks of "+info); 
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay for Aftershocks of "+info); 
 		graph.setX_AxisLabel("Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(0.4, 1200);
@@ -503,7 +503,7 @@ public class ETAS_SimAnalysisTools {
 //			distDecayFuncs.add(obsLogDistDecayFromMainShockHist);			
 		}
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks"+info); 
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay for Aftershocks"+info); 
 		graph.setX_AxisLabel("Log10-Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(histLogMin, histLogMax);
@@ -569,7 +569,7 @@ public class ETAS_SimAnalysisTools {
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Num aftershocks per day for "+info); 
+		GraphWindow graph = new GraphWindow(funcs, "Num aftershocks per day for "+info); 
 		graph.setX_AxisLabel("Days (since main shock)");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(0.4, 360);
@@ -637,7 +637,7 @@ public class ETAS_SimAnalysisTools {
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Temporal Aftershock Decay"); 
+		GraphWindow graph = new GraphWindow(funcs, "Temporal Aftershock Decay"); 
 		graph.setX_AxisLabel("Log-day");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(firstLogDay, lastLocDay);

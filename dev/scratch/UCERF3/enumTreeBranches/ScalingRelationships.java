@@ -16,7 +16,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.collect.Lists;
 
@@ -317,7 +317,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.MAGENTA));
 
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip-Length Relationships; DDW="+downDipWidth+" km", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Slip-Length Relationships; DDW="+downDipWidth+" km", plotChars); 
 		graph.setX_AxisLabel("Length (km)");
 		graph.setY_AxisLabel("Slip (m)");
 		graph.setPlotLabelFontSize(18);
@@ -400,7 +400,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.CYAN));
 
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Implied Slip vs Mag Relationships; DDW="+downDipWidth+" km", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Implied Slip vs Mag Relationships; DDW="+downDipWidth+" km", plotChars); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Slip (m)");
 		graph.setX_AxisRange(6.0, 8.5);
@@ -502,7 +502,7 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
 
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Area Relationships",plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag-Area Relationships",plotChars); 
 		graph.setX_AxisLabel("Area (km-sq)");
 		graph.setY_AxisLabel("Magnitude");
 		graph.setXLog(true);

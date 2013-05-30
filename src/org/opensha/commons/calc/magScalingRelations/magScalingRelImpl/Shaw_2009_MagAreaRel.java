@@ -81,7 +81,7 @@ public class Shaw_2009_MagAreaRel extends MagAreaRelationship {
     		ArrayList funcs = new ArrayList();
     		funcs.add(magAreaFunc);
     		funcs.add(this.getMagAreaFunction(4, 0.1, 45));
-    		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag vs Area");   
+    		GraphWindow graph = new GraphWindow(funcs, "Mag vs Area");   
 */
     	}
      	return magAreaFunc.getFirstInterpolatedX(mag);

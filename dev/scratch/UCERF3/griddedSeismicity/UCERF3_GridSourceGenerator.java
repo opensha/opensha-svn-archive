@@ -9,7 +9,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -293,7 +293,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	}
 
 	static void plot(ArrayList<IncrementalMagFreqDist> mfds) {
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds,
+		GraphWindow graph = new GraphWindow(mfds,
 				"GridSeis Test");
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Incremental Rate");

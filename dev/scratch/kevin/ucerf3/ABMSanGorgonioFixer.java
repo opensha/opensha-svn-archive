@@ -17,7 +17,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -305,15 +305,15 @@ public class ABMSanGorgonioFixer {
 		String xAxisLabel = "Distance Along North Branch (km)";
 		String yAxisLabel = "Slip Rate (mm/yr)";
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(beforeFuncs, "Slip Rates (Before)", chars);
+		GraphWindow gw = new GraphWindow(beforeFuncs, "Slip Rates (Before)", chars);
 		gw.setX_AxisLabel(xAxisLabel);
 		gw.setY_AxisLabel(yAxisLabel);
 		gw.setAxisRange(0, xMax, 0d, 25d);
-		gw = new GraphiWindowAPI_Impl(afterFuncs, "Slip Rates (After)", afterChars);
+		gw = new GraphWindow(afterFuncs, "Slip Rates (After)", afterChars);
 		gw.setX_AxisLabel(xAxisLabel);
 		gw.setY_AxisLabel(yAxisLabel);
 		gw.setAxisRange(0, xMax, 0d, 25d);
-		gw = new GraphiWindowAPI_Impl(allFuncs, "Slip Rates (After)", allChars);
+		gw = new GraphWindow(allFuncs, "Slip Rates (After)", allChars);
 		gw.setX_AxisLabel(xAxisLabel);
 		gw.setY_AxisLabel(yAxisLabel);
 		gw.setAxisRange(0, xMax, 0d, 25d);

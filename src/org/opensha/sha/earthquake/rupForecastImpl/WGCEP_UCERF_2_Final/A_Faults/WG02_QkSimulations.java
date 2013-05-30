@@ -29,7 +29,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 
 /**
@@ -331,7 +331,7 @@ public class WG02_QkSimulations {
 			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, null, 4f, Color.GRAY));
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title,plotChars);
+			GraphWindow graph = new GraphWindow(funcList,title,plotChars);
 			graph.setPlottingFeatures(plotChars);
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
@@ -356,7 +356,7 @@ public class WG02_QkSimulations {
 			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, null, 4f, Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, null, 4f, Color.GRAY));
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title,plotChars);
+			GraphWindow graph = new GraphWindow(funcList,title,plotChars);
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");

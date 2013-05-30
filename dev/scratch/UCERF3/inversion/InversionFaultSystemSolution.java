@@ -23,7 +23,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -526,7 +526,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		InversionTargetMFDs inversionTargetMFDs = rupSet.getInversionTargetMFDs();
 		
 		// Statewide
-		GraphiWindowAPI_Impl gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR(), inversionTargetMFDs.getOnFaultSupraSeisMFD(),
+		GraphWindow gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR(), inversionTargetMFDs.getOnFaultSupraSeisMFD(),
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 		gw.getGraphWindow().setVisible(true);
 		
@@ -544,12 +544,12 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 				&& rupSet.getDeformationModel() != DeformationModels.UCERF2_NCAL;
 	}
 	
-	public GraphiWindowAPI_Impl getMFDPlotWindow(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
+	public GraphWindow getMFDPlotWindow(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		
 		PlotSpec spec = getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
+		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
 		
 		gw.setTickLabelFontSize(14);
 		gw.setAxisLabelFontSize(16);
@@ -962,7 +962,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		for (int i=0; i<numSections; i++) data.set(i, rupSet.getSlipRateForSection(i));
 		funcs2.add(syn);
 		funcs2.add(data);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Slip Rate Synthetics (blue) & Data (black)"); 
 		graph2.setX_AxisLabel("Fault Section Index");
 		graph2.setY_AxisLabel("Slip Rate");
 		
@@ -1003,7 +1003,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		aveSynFunc.setInfo(info);
 		funcs5.add(aveSynFunc);
 		funcs5.add(aveDataFunc);
-		GraphiWindowAPI_Impl graph5 = new GraphiWindowAPI_Impl(funcs5, "Average Slip Rates on Parent Sections"); 
+		GraphWindow graph5 = new GraphWindow(funcs5, "Average Slip Rates on Parent Sections"); 
 		graph5.setX_AxisLabel("Parent Section Index");
 		graph5.setY_AxisLabel("Slip Rate");
 

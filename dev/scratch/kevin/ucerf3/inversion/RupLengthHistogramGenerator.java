@@ -13,7 +13,7 @@ import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -111,7 +111,7 @@ public class RupLengthHistogramGenerator {
 			title = "Lengh Histogram (scaled to "+(int)scaleToTotal+" ruptures)";
 		else
 			title = "Length Histogram";
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+		GraphWindow gw = new GraphWindow(funcs, title, chars);
 		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		if (scaleToTotal != 1)
@@ -123,7 +123,7 @@ public class RupLengthHistogramGenerator {
 		funcs.add(asDisrHist);
 		if (doU2)
 			funcs.add(asDisrU2Hist);
-		gw = new GraphiWindowAPI_Impl(funcs, "Length Histogram (as discretized)", chars);
+		gw = new GraphWindow(funcs, "Length Histogram (as discretized)", chars);
 		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		gw.setY_AxisLabel("Num Ruptures");
@@ -132,7 +132,7 @@ public class RupLengthHistogramGenerator {
 		funcs.add(momentHist);
 		if (doU2)
 			funcs.add(u2momentHist);
-		new GraphiWindowAPI_Impl(funcs, "Moment Rate Histogram", chars);
+		new GraphWindow(funcs, "Moment Rate Histogram", chars);
 		
 		funcs = Lists.newArrayList();
 		funcs.add(momentHist.getCumulativeDistFunction());
@@ -141,7 +141,7 @@ public class RupLengthHistogramGenerator {
 		chars.clear();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 5f, Color.RED));
-		new GraphiWindowAPI_Impl(funcs, "Cumulative Moment Rates", chars);
+		new GraphWindow(funcs, "Cumulative Moment Rates", chars);
 	}
 
 }

@@ -10,7 +10,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -87,7 +87,7 @@ public class MomentRateVariation {
 		
 		String title = windowLen+"yr Moving Average of Seismic Moment Release";
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+		GraphWindow gw = new GraphWindow(funcs, title, chars);
 		gw.setX_AxisLabel("Years");
 		gw.setY_AxisLabel("Moment Rate (N-m/yr)");
 		gw.setYLog(true);

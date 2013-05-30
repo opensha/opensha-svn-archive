@@ -26,9 +26,9 @@ public class PlotPreferences {
 	
 	public static PlotPreferences getDefault() {
 		PlotPreferences pref = new PlotPreferences();
-		pref.axisLabelFontSize = 12;
+		pref.tickLabelFontSize = 12;
 		pref.axisLabelFontSize = 14;
-		pref.axisLabelFontSize = 16;
+		pref.plotLabelFontSize = 16;
 		pref.backgroundColor = new Color( 200, 200, 230 );
 		return pref;
 	}

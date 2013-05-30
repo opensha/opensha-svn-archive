@@ -14,7 +14,7 @@ import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.collect.Lists;
 
@@ -58,7 +58,7 @@ public class PosterImageGen {
 //	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/dsa_poster/";
 	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/2011agu/";
 	
-	private static void saveImages(GraphiWindowAPI_Impl gwAPI, File dir, String fName) throws IOException {
+	private static void saveImages(GraphWindow gwAPI, File dir, String fName) throws IOException {
 		GraphWidget gw = gwAPI.getGraphWindow();
 		GraphPanel gp = gw.getGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
@@ -117,12 +117,12 @@ public class PosterImageGen {
 		if (!highQuality)
 			myTargetNum = targetPPM/2;
 		
-		HashMap<String, GraphiWindowAPI_Impl> windows = null;
+		HashMap<String, GraphWindow> windows = null;
 		if (!tableOnly)
 			windows = ResultPlotter.generatePlots(null, dir, highlight, coolType, threads, nodes,
 				includeStartSubZero, plotAvg, bundleDsaBySubs, bundleTsaBySubs,
 				myAvgNumX, myTargetNum, false, plots, null, null);
-		GraphiWindowAPI_Impl gw;
+		GraphWindow gw;
 		
 //		wikiTable.get(0).add("!"+dir.getName());
 		String prefix = dir.getName()+"_";
@@ -214,7 +214,7 @@ public class PosterImageGen {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLUE));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GREEN));
 		
-		GraphiWindowAPI_Impl gw = ResultPlotter.getGraphWindow(spd_vs_thds,
+		GraphWindow gw = ResultPlotter.getGraphWindow(spd_vs_thds,
 				ResultPlotter.speedup_vs_threads_title, chars, ResultPlotter.threads_label,
 				ResultPlotter.time_speedup_label, false);
 		
@@ -347,7 +347,7 @@ public class PosterImageGen {
 		chars.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 4f, PlotSymbol.FILLED_CIRCLE, 8f, Color.BLACK));
 		
-		GraphiWindowAPI_Impl gw = ResultPlotter.getGraphWindow(funcs,
+		GraphWindow gw = ResultPlotter.getGraphWindow(funcs,
 				"Speedup vs nSubIterations (40 Threads)", chars, "nSubIterations",
 				"Speedup", false);
 		

@@ -12,7 +12,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -647,7 +647,7 @@ public class SectionMFD_constraint {
 //		ArrayList<AbstractDiscretizedFunc> funcs = new ArrayList<AbstractDiscretizedFunc>();
 //		funcs.add(cumFunc);
 //		funcs.add(mfd.getCumRateDistWithOffset());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Test MFDs"); 
+//		GraphWindow graph = new GraphWindow(funcs, "Test MFDs"); 
 //		graph.setX_AxisLabel("Mangitude");
 //		graph.setY_AxisLabel("Rate (per year)");
 //		graph.setYLog(true);
@@ -711,7 +711,7 @@ public class SectionMFD_constraint {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.GREEN));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Section Constraint MFDs", plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Section Constraint MFDs", plotChars); 
 		graph.setX_AxisLabel("Mangitude");
 		graph.setY_AxisLabel("Rate (per year)");
 		graph.setAxisRange(6.0, 8.5, 1e-8, 1e-2);

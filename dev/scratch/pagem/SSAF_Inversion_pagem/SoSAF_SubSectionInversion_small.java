@@ -30,7 +30,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -1204,7 +1204,7 @@ public class SoSAF_SubSectionInversion_small {
 		finalSlipRateFunc.setName("Smooth Slip Rates");
 		sr_funcs.add(origSlipRateFunc);
 		sr_funcs.add(finalSlipRateFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs,
+		GraphWindow sr_graph = new GraphWindow(sr_funcs,
 				"Orig Versus Smoothed Slip Rates");
 
 	}
@@ -2219,7 +2219,7 @@ public class SoSAF_SubSectionInversion_small {
 		sr_funcs.add(origSlipRateFunc);
 		sr_funcs.add(origUpper95_SlipRateFunc);
 		sr_funcs.add(origLower95_SlipRateFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "");
+		GraphWindow sr_graph = new GraphWindow(sr_funcs, "");
 		ArrayList<PlotCurveCharacterstics> sr_plotChars = new ArrayList<PlotCurveCharacterstics>();
 		sr_plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
 		sr_plotChars.add(new PlotCurveCharacterstics(
@@ -2278,7 +2278,7 @@ public class SoSAF_SubSectionInversion_small {
 			er_funcs.add(func);
 		}
 		// er_funcs.add(obs_er_funcs);
-		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "");
+		GraphWindow er_graph = new GraphWindow(er_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
@@ -2313,7 +2313,7 @@ public class SoSAF_SubSectionInversion_small {
 		ArrayList rup_funcs = new ArrayList();
 		rupRateFunc.setName("Rupture Rates");
 		rup_funcs.add(rupRateFunc);
-		GraphiWindowAPI_Impl rup_graph = new GraphiWindowAPI_Impl(rup_funcs,
+		GraphWindow rup_graph = new GraphWindow(rup_funcs,
 				"Rupture Rates");
 
 		// PLOT MFDs
@@ -2355,7 +2355,7 @@ public class SoSAF_SubSectionInversion_small {
 		 * constraint values"); mfd_funcs.add(grConstraintFunc); }
 		 */
 
-		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs,
+		GraphWindow mfd_graph = new GraphWindow(mfd_funcs,
 				"Magnitude Frequency Distributions");
 		mfd_graph.setYLog(true);
 		mfd_graph.setY_AxisRange(1e-5, 0.2);
@@ -2403,7 +2403,7 @@ public class SoSAF_SubSectionInversion_small {
 			seg_funcs.add(obs_er_funcs.get(i));
 		seg_funcs.add(rateOfRupEndsOnSegFunc);
 
-		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "");
+		GraphWindow seg_graph = new GraphWindow(seg_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLUE));
@@ -2438,7 +2438,7 @@ public class SoSAF_SubSectionInversion_small {
 		ArrayList funcs = new ArrayList();
 		funcs.add(meanMagHistorgram);
 		funcs.add(magHistorgram);
-		GraphiWindowAPI_Impl mHist_graph = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow mHist_graph = new GraphWindow(funcs,
 				"Mag Histograms");
 		// mfd_graph.setYLog(true);
 		// mfd_graph.setY_AxisRange(1e-5, 1);
@@ -2452,7 +2452,7 @@ public class SoSAF_SubSectionInversion_small {
 		numSegInRupHistogram.setName("Num Segments In Rupture Histogram");
 		ArrayList funcs2 = new ArrayList();
 		funcs2.add(numSegInRupHistogram);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs2,
+		GraphWindow graph = new GraphWindow(funcs2,
 				"Num Segments In Rupture Histogram");
 
 	}

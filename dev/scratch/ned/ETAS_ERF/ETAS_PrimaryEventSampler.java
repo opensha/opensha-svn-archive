@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
@@ -298,7 +298,7 @@ public class ETAS_PrimaryEventSampler {
 		ArrayList funcs = new ArrayList();
 		funcs.add(distanceDist);
 		funcs.add(distanceDist.getCumDist());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "test"); 
+		GraphWindow graph = new GraphWindow(funcs, "test"); 
 		graph.setAxisRange(1, 1200, 1e-6, 1);
 		graph.setYLog(true);
 //		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
@@ -624,7 +624,7 @@ public class ETAS_PrimaryEventSampler {
 	public void plotDistDecayTestFuncs(String plotTitle, String pdfFileNameAndPath, double deltaDist) {
 		
 		ArrayList funcs = getDistDecayTestFuncs(deltaDist);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, plotTitle); 
+		GraphWindow graph = new GraphWindow(funcs, plotTitle); 
 		graph.setAxisRange(1, 1200, 1e-6, 1);
 		graph.setYLog(true);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();

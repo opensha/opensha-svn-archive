@@ -10,7 +10,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.utils.MatrixIO;
 
@@ -63,7 +63,7 @@ public class MultiSolCompare {
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		
-		List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+		List<Color> colors = GraphWindow.generateDefaultColors();
 		for (int i=0; i<funcs.size(); i++) {
 			float width;
 			if (i == 0)
@@ -76,7 +76,7 @@ public class MultiSolCompare {
 		
 		MatrixIO.doubleArrayToFile(average, new File(dir, "limit_average.bin"));
 		
-//		new GraphiWindowAPI_Impl(funcs, "Rates vs ID", chars);
+//		new GraphWindow(funcs, "Rates vs ID", chars);
 	}
 
 }

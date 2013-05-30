@@ -22,7 +22,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import com.google.common.base.Joiner;
@@ -43,7 +43,7 @@ public class FaultSpecificSegmentationPlotGen {
 	public static void plotSegmentation(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
+		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
 		gw.setX_AxisLabel(spec.getXAxisLabel());
 		gw.setY_AxisLabel(spec.getYAxisLabel());
 		gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
