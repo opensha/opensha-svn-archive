@@ -28,6 +28,7 @@ import java.util.ListIterator;
 import static org.junit.Assert.*;
 
 import org.jfree.chart.ChartUtilities;
+import org.jfree.data.Range;
 import org.junit.Test;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -36,7 +37,6 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.IM_EventSet.v03.IM_EventSetCalc_v3_0_API;
@@ -45,11 +45,11 @@ import org.opensha.sha.calc.IM_EventSet.v03.outputImpl.HAZ01Writer;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
-public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, GraphPanelAPI, PlotControllerAPI {
+public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API {
 	
 	public static final double TOL_PERCENT = 0.05;
 	
@@ -59,7 +59,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 	Site site;
 	ArrayList<Site> sites;
 	ArrayList<ArrayList<SiteDataValue<?>>> sitesData;
-	GraphPanel gp;
+	HeadlessGraphPanel gp;
 	
 	String imt = "SA 1.0";
 
@@ -86,7 +86,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		sitesData = new ArrayList<ArrayList<SiteDataValue<?>>>();
 		sitesData.add(new ArrayList<SiteDataValue<?>>());
 		
-		gp = new GraphPanel(this);
+		gp = new HeadlessGraphPanel();
 	}
 	
 	private void runHAZ01A() throws IOException {
@@ -130,10 +130,10 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 		boolean xLog = false;
 		boolean yLog = false;
 		boolean customAxis = true;
-		this.gp.drawGraphPanel(imt, "", curves, xLog, yLog, customAxis, "Curves", this);
+		Range xRange = new Range(0, 1);
+		Range yRange = new Range(0, 1);
+		this.gp.drawGraphPanel(imt, "", curves, null, xLog, yLog, "Curves", xRange, yRange);
 		this.gp.setVisible(true);
-		
-		this.gp.togglePlot(null);
 		
 		this.gp.validate();
 		this.gp.repaint();
@@ -224,47 +224,6 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API, Gra
 
 	public ArrayList<SiteDataValue<?>> getUserSiteDataValues(int i) {
 		return sitesData.get(i);
-	}
-
-	public double getUserMaxX() {
-		return 1;
-	}
-
-	public double getUserMaxY() {
-		return 1;
-	}
-
-	public double getUserMinX() {
-		return 0;
-	}
-
-	public double getUserMinY() {
-		return 0;
-	}
-
-	public int getAxisLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 12;
-	}
-
-	public int getPlotLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 12;
-	}
-
-	public int getTickLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 12;
-	}
-
-	public void setXLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setYLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

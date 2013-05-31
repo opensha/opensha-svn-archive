@@ -13,7 +13,6 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -21,7 +20,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
+public class EqkRateModel2_MFDsPlotter {
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String Y_AXIS_LABEL = "Rate";
 	

@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jfree.chart.ChartUtilities;
+import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -16,14 +16,14 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
-public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
+public class SingleCurveDebugTest {
 	
-	GraphPanel gp;
+	HeadlessGraphPanel gp;
 	
 	public SingleCurveDebugTest() {
-		gp = new GraphPanel(this);
+		gp = new HeadlessGraphPanel();
 	}
 
 	/**
@@ -78,58 +78,19 @@ public class SingleCurveDebugTest implements GraphPanelAPI, PlotControllerAPI {
 		boolean xLog = true;
 		boolean yLog = true;
 		
-		boolean customAxis = true;
+		Range xRange = new Range(1e-4, 1e1);
+		Range yRange = new Range(1e-16, 1e0);
 		
 		String title = "CyberShake Curves";
 		
-		this.gp.drawGraphPanel("3s SA", "Probability Rate (1/yr)", curves, xLog, yLog, customAxis, title, this);
+		this.gp.drawGraphPanel("3s SA", "Probability Rate (1/yr)", curves, null, xLog, yLog, title, xRange, yRange);
 		this.gp.setVisible(true);
-		
-		this.gp.togglePlot(null);
 		
 		this.gp.validate();
 		this.gp.repaint();
 		
 		System.out.println("Saving PNG to: " + outFile);
 		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), 600, 500);
-	}
-
-	public double getUserMaxX() {
-		return Double.parseDouble("1.0E1");
-	}
-
-	public double getUserMaxY() {
-		return Double.parseDouble("1.0E0");
-	}
-
-	public double getUserMinX() {
-		return Double.parseDouble("1.0E-4");
-	}
-
-	public double getUserMinY() {
-		return Double.parseDouble("1.0E-16");
-	}
-
-	public int getAxisLabelFontSize() {
-		return 12;
-	}
-
-	public int getPlotLabelFontSize() {
-		return 14;
-	}
-
-	public int getTickLabelFontSize() {
-		return 12;
-	}
-
-	public void setXLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setYLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

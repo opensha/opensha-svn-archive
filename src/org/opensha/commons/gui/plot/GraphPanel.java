@@ -802,6 +802,8 @@ public class GraphPanel extends JSplitPane {
 			List<PlotCurveCharacterstics> plotChars){
 
 		plottedFuncs.clear();
+		if (plotChars == null)
+			plotChars = Lists.newArrayList();
 		int numElems  = elems.size();
 		ArrayList<Integer> numColorArray = new ArrayList<Integer>();
 

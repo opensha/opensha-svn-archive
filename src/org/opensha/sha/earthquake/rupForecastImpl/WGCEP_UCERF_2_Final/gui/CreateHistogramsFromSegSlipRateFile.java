@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -23,7 +24,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @author vipingupta
  *
  */
-public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
+public class CreateHistogramsFromSegSlipRateFile {
 
 
 	private final PlotCurveCharacterstics PLOT_HISTOGRAM =
@@ -36,42 +37,6 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 		this.xAxisLabel = xAxisLabel;
 		this.yAxisLabel = yAxisLabel;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
-	 */
-	public ArrayList getCurveFunctionList() {
-		return funcs;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
-	 */
-	public boolean getXLog() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
-	 */
-	public boolean getYLog() {
-		 return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
-	 */
-	public String getXAxisLabel() {
-		return this.xAxisLabel;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
-	 */
-	public String getYAxisLabel() {
-		return this.yAxisLabel;
-	}
-	
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
@@ -80,46 +45,6 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 		 ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
 		 list.add(PLOT_HISTOGRAM);
 		 return list;
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
-	 */
-	public boolean isCustomAxis() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
-	 */
-	public double getUserMinX() {
-		//return 5.0;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
-	 */
-	public double getUserMaxX() {
-		//return 9.255;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
-	 */
-	public double getUserMinY() {
-		//return 1e-4;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
-	 */
-	public double getUserMaxY() {
-		//return 10;
-		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 	
 	/**
@@ -199,13 +124,13 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
 				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
-				GraphWidget graphWindow= new GraphWidget(plot);
-				graphWindow.setPlotLabel(plotLabel);
-				graphWindow.plotGraphUsingPlotPreferences();
+				GraphWindow graphWindow= new GraphWindow(funcList, plotLabel, plot.getPlottingFeatures());
+				graphWindow.setXAxisLabel(xAxisLabel);
+				graphWindow.setYAxisLabel(yAxisLabel);
 				graphWindow.setTitle(names[k]);
 				graphWindow.setVisible(true);
 				//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
-				graphWindow.saveAsPDF(dirName+"/"+names[k]+".pdf");
+				graphWindow.getGraphWidget().saveAsPDF(dirName+"/"+names[k]+".pdf");
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -281,16 +206,16 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 				}
 			}
 			
-			ArrayList list = new ArrayList();
+			ArrayList<EvenlyDiscretizedFunc> list = new ArrayList<EvenlyDiscretizedFunc>();
 			list.add(func);
 			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
-			GraphWidget graphWindow= new GraphWidget(plot);
-			graphWindow.setPlotLabel(plotLabel);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(list, plotLabel, plot.getPlottingFeatures());
+			graphWindow.setXAxisLabel(xAxisLabel);
+			graphWindow.setYAxisLabel(yAxisLabel);
 			graphWindow.setTitle(segName);
 			graphWindow.setVisible(true);
 			//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
-			graphWindow.saveAsPDF(dirName+"/"+segName+".pdf");
+			graphWindow.getGraphWidget().saveAsPDF(dirName+"/"+segName+".pdf");
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

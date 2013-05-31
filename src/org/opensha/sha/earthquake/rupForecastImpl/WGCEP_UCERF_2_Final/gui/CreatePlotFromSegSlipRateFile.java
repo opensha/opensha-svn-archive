@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -27,7 +29,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @author vipingupta
  *
  */
-public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
+public class CreatePlotFromSegSlipRateFile{
 	private final static String X_AXIS_LABEL = "Index";
 	private final static String Y_AXIS_LABEL = "Slip Rate";
 	private final static String PLOT_LABEL = "Segment Slip Rates";
@@ -230,14 +232,16 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 						if(row==null || cell==null || 
 								cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || segName.equalsIgnoreCase("")) {
 							r= r+4;
-							GraphWidget graphWindow= new GraphWidget(new CreatePlotFromSegSlipRateFile(funcList));
-							graphWindow.setPlotLabel(PLOT_LABEL);
-							graphWindow.plotGraphUsingPlotPreferences();
-							graphWindow.setTitle(sheetName+" "+modelType);
-							graphWindow.pack();
-							graphWindow.setVisible(true);
-							//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
-							graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
+							JOptionPane.showMessageDialog(null, "This was disabled during refactor because it will probably" +
+									" never be used again. If you need it, resurrect it.");
+//							GraphWidget graphWindow= new GraphWidget(new CreatePlotFromSegSlipRateFile(funcList));
+//							graphWindow.setPlotLabel(PLOT_LABEL);
+//							graphWindow.plotGraphUsingPlotPreferences();
+//							graphWindow.setTitle(sheetName+" "+modelType);
+//							graphWindow.pack();
+//							graphWindow.setVisible(true);
+//							//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
+//							graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
 							//Thread.sleep(100);
 							break;
 						}

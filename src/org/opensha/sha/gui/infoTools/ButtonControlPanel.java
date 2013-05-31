@@ -87,7 +87,6 @@ public class ButtonControlPanel extends JPanel implements ActionListener {
 	private GraphWidget gw;
 
 	public ButtonControlPanel(GraphWidget gw, PlotPreferences plotPrefs) {
-		System.out.println("ButtonControlPanel Init!");
 		Preconditions.checkNotNull(gw, "GraphWidget cannot be null");
 		Preconditions.checkNotNull(plotPrefs, "PlotPreferences cannot be null");
 		this.gw = gw;

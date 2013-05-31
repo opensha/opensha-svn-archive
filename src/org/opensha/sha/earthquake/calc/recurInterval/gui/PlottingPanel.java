@@ -24,17 +24,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.jfree.chart.plot.DatasetRenderingOrder;
-import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.commons.gui.plot.GraphWidget;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotElement;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -43,212 +42,64 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanel;
  * @author vipingupta
  *
  */
-public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowAPI {
+public class PlottingPanel extends JPanel {
 	
-	private GraphPanel graphPanel;
-	private String xAxisName, yAxisName;
-	private boolean xLog, yLog,  isCustomAxis;
-	private double minX, maxX, minY, maxY;
-	private ArrayList funcList;
-	//	instance for the ButtonControlPanel
-	private ButtonControlPanel buttonControlPanel;
-	private String plotTitle;
+	private GraphWidget graphWidget;
+	private List<PlotElement> funcList;
 	
-	public PlottingPanel(ButtonControlPanel buttonControlPanel) {
+	public PlottingPanel() {
 		this.setLayout(new GridBagLayout());
-		this.buttonControlPanel = buttonControlPanel;
-		funcList = new ArrayList();
-		graphPanel = new GraphPanel(this);
-		this.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+		funcList = new ArrayList<PlotElement>();
+		graphWidget = new GraphWidget();
+		this.add(graphWidget, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 				  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-
 	}
-	
-	
-	/**
-	 * Set custom axis range for this plot
-	 * @param xMin
-	 * @param xMax
-	 * @param yMin
-	 * @param yMax
-	 */
-	  public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {   
-	      this.minX = xMin;
-	      this.maxX = xMax;
-	      this.minY = yMin;
-	      this.maxY = yMax;
-	      this.isCustomAxis=true;
-	      this.addGraphPanel();
-	  }
-
-	  /**
-	   * Set Auto Range for this plot
-	   *
-	   */
-	  public void setAutoRange() {
-	      isCustomAxis=false;
-	      this.addGraphPanel();
-	  }
-
-	  /**
-	   * Set X Log
-	   * @param xLog
-	   */
-	  public void setX_Log(boolean xLog) {
-	    this.xLog = xLog;
-	    this.addGraphPanel();
-	  }
-	  
-	  
-	  /**
-	   * Set Y Log
-	   * 
-	   * @param yLog
-	   */
-	  public void setY_Log(boolean yLog) {
-	    this.yLog = yLog;
-	    this.addGraphPanel();
-	  }
 
 	  /**
 	   * Add Graph Panel
 	   *
 	   */
 	  public void addGraphPanel() {
-		  this.graphPanel.drawGraphPanel(this.xAxisName,yAxisName,
-                  this.funcList,xLog,yLog,this.isCustomAxis,
-                  plotTitle, buttonControlPanel);
-		  graphPanel.togglePlot(buttonControlPanel);
-		  graphPanel.validate();
-		  graphPanel.repaint();
-	  }
-	  
-	  
-	  public void setPlotTitle(String plotTitle) {
-		  this.plotTitle = plotTitle;
-	  }
-	  
-	  public String getPlotTitle() {
-		  return this.plotTitle;
-	  }
-	  
-	  public Range getX_AxisRange() {
-		  return graphPanel.getX_AxisRange();
-	   
-	  }
-
-	  public Range getY_AxisRange() {
-	      return graphPanel.getY_AxisRange();
-	  }
-
-	  public ArrayList getPlottingFeatures() {
-	      return graphPanel.getCurvePlottingCharacterstic();
+		  graphWidget.getPlotSpec().setPlotElems(funcList);
+		  this.graphWidget.drawGraph();
+		  graphWidget.validate();
+		  graphWidget.repaint();
 	  }
 
 	  public void plotGraphUsingPlotPreferences() {
 		  this.clearPlot();
 		  this.addGraphPanel();
 	  }
-
-	  public String getXAxisLabel() {
-	    return this.xAxisName;
-	  }
-
-	  public String getYAxisLabel() {
-	   return this.yAxisName;
-	  }
-
-	  public void setXAxisLabel(String xAxisLabel) {
-	    this.xAxisName = xAxisLabel;
-	  }
-
-	  public void setYAxisLabel(String yAxisLabel) {
-	   this.yAxisName = yAxisLabel;
-
-	  }
-
-	  public ArrayList getCurveFunctionList() {
-	    return this.funcList;
-
-	  }
-
-	  public boolean getXLog() {
-	    return xLog;
-	  }
-
-	  public boolean getYLog() {
-	    return yLog;
-	  }
-
-	  public boolean isCustomAxis() {
-		  return this.isCustomAxis;
-	  }
-	
-	  /**
-	   *
-	   * @return the Min X-Axis Range Value, if custom Axis is choosen
-	   */
-	  public double getUserMinX() {
-	    return this.minX;
-	  }
-
-	  /**
-	   *
-	   * @return the Max X-Axis Range Value, if custom axis is choosen
-	   */
-	  public double getUserMaxX() {
-	    return this.maxX;
-	  }
-
-	  /**
-	   *
-	   * @return the Min Y-Axis Range Value, if custom axis is choosen
-	   */
-	  public double getUserMinY() {
-	    return this.minY;
-	  }
-
-	  /**
-	   *
-	   * @return the Max X-Axis Range Value, if custom axis is choosen
-	   */
-	  public double getUserMaxY() {
-	   return this.maxY;
-	  }
 	  
 	  public void save() {
 		  try {
-			this.graphPanel.save();
+			this.graphWidget.save();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	  }
 	  
-	  public void print(JFrame frame) {
-		  this.graphPanel.print(frame);
+	  public void print() {
+		  this.graphWidget.print();
 	  }
 
 	  public void peelOff() {
-		  GraphWidget graphWindow = new GraphWidget(this);
+		  GraphWindow graphWindow = new GraphWindow(graphWidget);
+		  this.remove(graphWidget);
+		  graphWidget = new GraphWidget();
+		  funcList = Lists.newArrayList();
+		  this.add(graphWidget, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		  graphWindow.setVisible(true);
 	  }
 	  
 	  public void clearPlot() {
-		  this.graphPanel.removeChartAndMetadata();
+		  this.graphWidget.removeChartAndMetadata();
 		  this.funcList.clear();
-		  this.isCustomAxis = false;
-		  graphPanel.validate();
-		  graphPanel.repaint();
-	  }
-	  
-	  public void togglePlot() {
-		  this.removeAll();
-		  this.graphPanel.togglePlot(this.buttonControlPanel);
-		  this.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-				  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		  this.validate();
-		  this.repaint();
+		  graphWidget.setAutoRange();
+		  graphWidget.validate();
+		  graphWidget.repaint();
 	  }
 	  
 	  /**
@@ -259,9 +110,5 @@ public class PlottingPanel extends JPanel implements GraphPanelAPI, GraphWindowA
 	  public void addFunc(DiscretizedFunc func) {
 		  funcList.add(func);
 		  this.addGraphPanel();
-	  }
-	  
-	  public void setPlottingOrder(DatasetRenderingOrder order) {
-		  graphPanel.setRenderingOrder(order);
 	  }
 }

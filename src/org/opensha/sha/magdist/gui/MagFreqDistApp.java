@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -53,10 +54,12 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
@@ -68,7 +71,6 @@ import org.opensha.commons.util.ApplicationVersion;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -83,6 +85,8 @@ import org.opensha.sha.param.MagPDF_Parameter;
 import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
+
+import com.google.common.collect.Lists;
 /**
  * <p>Title:MagFreqDistApp </p>
  *
@@ -96,8 +100,7 @@ import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
  * @version 1.0
  */
 public class MagFreqDistApp
-extends JFrame implements GraphPanelAPI,ButtonControlPanelAPI,GraphWindowAPI,
-ParameterChangeListener{
+extends JFrame implements ParameterChangeListener {
 	
 	public static final String APP_NAME = "Magnitude Frequency Distribution Application";
 	public static final String APP_SHORT_NAME = "MagFreqDist";
@@ -141,14 +144,8 @@ ParameterChangeListener{
 
 	private final boolean D = false;
 
-	//instance for the ButtonControlPanel
-	private ButtonControlPanel buttonControlPanel;
-
 	//instance of the GraphPanel (window that shows all the plots)
-	private GraphPanel incrRateGraphPanel,momentRateGraphPanel,cumRateGraphPanel;
-
-	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	private GraphWidget graphWindow;
+	private GraphWidget incrRateGraphPanel,momentRateGraphPanel,cumRateGraphPanel;
 
 	private JSplitPane paramSplitPane = new JSplitPane();
 
@@ -160,19 +157,6 @@ ParameterChangeListener{
 	private String momentRateXAxisName = "Magnitude", momentRateYAxisName =  "Moment-Rate";
 
 	private boolean isIncrRatePlot,isMomentRatePlot,isCumRatePlot;
-
-	//log flags declaration
-	private boolean xLog;
-	private boolean yLog;
-
-	/**
-	 * these four values save the custom axis scale specified by user
-	 */
-	private double incrRateMinXValue,incrRateMaxXValue,incrRateMinYValue,incrRateMaxYValue;
-	private double cumRateMinXValue,cumRateMaxXValue,cumRateMinYValue,cumRateMaxYValue;
-	private double momentRateMinXValue,momentRateMaxXValue,momentRateMinYValue,momentRateMaxYValue;
-
-	private boolean incrCustomAxis,momentCustomAxis,cumCustomAxis;
 
 	private JButton peelOffButton = new JButton();
 	private JMenuBar menuBar = new JMenuBar();
@@ -208,9 +192,9 @@ ParameterChangeListener{
 
 
 	//list for storing all types of Mag Freq. dist. (incremental, cumulative and momentRate).
-	private ArrayList incrRateFunctionList = new ArrayList();
-	private ArrayList cumRateFunctionList =  new ArrayList();
-	private ArrayList momentRateFunctionList = new ArrayList();
+	private ArrayList<PlotElement> incrRateFunctionList = new ArrayList<PlotElement>();
+	private ArrayList<PlotElement> cumRateFunctionList =  new ArrayList<PlotElement>();
+	private ArrayList<PlotElement> momentRateFunctionList = new ArrayList<PlotElement>();
 	//summed distribution
 	private final static String textString = "(Last Plotted Dist. gets used"+
 	", Summed Dist. gets used if selected)";
@@ -250,9 +234,6 @@ ParameterChangeListener{
 				addButton_actionPerformed(e);
 			}
 		});
-
-		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
 
 		peelOffButton.setText("Peel-Off");
 		peelOffButton.addActionListener(new java.awt.event.ActionListener() {
@@ -368,19 +349,41 @@ ParameterChangeListener{
 		buttonPanel.add(addButton, 1);
 		buttonPanel.add(clearButton, 2);
 		buttonPanel.add(peelOffButton, 3);
-		buttonPanel.add(buttonControlPanel, 4);
-		buttonPanel.add(imgLabel, 5);
-		buttonPanel.add(textLabel, 6);
+		buttonPanel.add(imgLabel, 4);
+		buttonPanel.add(textLabel, 5);
 
 
-		incrRateGraphPanel = new GraphPanel(this);
-		cumRateGraphPanel = new GraphPanel(this);
-		momentRateGraphPanel = new GraphPanel(this);
+		incrRateGraphPanel = new GraphWidget();
+		cumRateGraphPanel = new GraphWidget();
+		momentRateGraphPanel = new GraphWidget();
 
 		this.setSize( W, H );
 		Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation( ( dm.width - this.getSize().width ) / 2, ( dm.height - this.getSize().height ) / 2 );
 		this.setTitle("Magnitude Frequency Distribution Application");
+		
+		incrRatePlotPanel.removeAll();
+		cumRatePlotPanel.removeAll();
+		momentRatePlotPanel.removeAll();
+
+		incrRatePlotPanel.add(incrRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		incrRatePlotPanel.validate();
+		incrRatePlotPanel.repaint();
+
+		cumRatePlotPanel.add(cumRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		cumRatePlotPanel.validate();
+		cumRatePlotPanel.repaint();
+
+		momentRatePlotPanel.add(momentRateGraphPanel,
+				new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+						, GridBagConstraints.CENTER,
+						GridBagConstraints.BOTH,
+						new Insets(0, 0, 0, 0), 0, 0));
+		momentRatePlotPanel.validate();
+		momentRatePlotPanel.repaint();
+		
 		this.setVisible( true );
 	}
 
@@ -563,12 +566,9 @@ ParameterChangeListener{
 				cumRateFunctionList.remove(cumRateFunctionList.size() - 1);
 				momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
 				//removing the plotting features from the plot prefs. for the summed distribution
-				ArrayList incrPlotFeaturesList = incrRateGraphPanel.
-				getCurvePlottingCharacterstic();
-				ArrayList cumPlotFeaturesList = cumRateGraphPanel.
-				getCurvePlottingCharacterstic();
-				ArrayList momentPlotFeaturesList = momentRateGraphPanel.
-				getCurvePlottingCharacterstic();
+				List<PlotCurveCharacterstics> incrPlotFeaturesList = incrRateGraphPanel.getPlottingFeatures();
+				List<PlotCurveCharacterstics> cumPlotFeaturesList = cumRateGraphPanel.getPlottingFeatures();
+				List<PlotCurveCharacterstics> momentPlotFeaturesList = momentRateGraphPanel.getPlottingFeatures();
 				incrPlotFeaturesList.remove(incrPlotFeaturesList.size() - 1);
 				cumPlotFeaturesList.remove(cumPlotFeaturesList.size() - 1);
 				momentPlotFeaturesList.remove(momentPlotFeaturesList.size() - 1);
@@ -585,45 +585,27 @@ ParameterChangeListener{
 
 		// Starting
 		String S = ": addGraphPanel(): ";
-
-		incrRateGraphPanel.drawGraphPanel(incrRateXAxisName,incrRateYAxisName,
-				incrRateFunctionList,xLog,yLog,incrCustomAxis,
-				incrRatePlotTitle,buttonControlPanel);
-		cumRateGraphPanel.drawGraphPanel(cumRateXAxisName,cumRateYAxisName,
-				cumRateFunctionList,xLog,yLog,cumCustomAxis,
-				cumRatePlotTitle,buttonControlPanel);
-		momentRateGraphPanel.drawGraphPanel(momentRateXAxisName,momentRateYAxisName,
-				momentRateFunctionList,xLog,yLog,momentCustomAxis,
-				momentRatePlotTitle,buttonControlPanel);
-		togglePlot();
-	}
-
-	//checks if the user has plot the data window or plot window
-	public void togglePlot(){
-		incrRatePlotPanel.removeAll();
-		cumRatePlotPanel.removeAll();
-		momentRatePlotPanel.removeAll();
-		incrRateGraphPanel.togglePlot(buttonControlPanel);
-		cumRateGraphPanel.togglePlot(buttonControlPanel);
-		momentRateGraphPanel.togglePlot(buttonControlPanel);
-
-		incrRatePlotPanel.add(incrRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		incrRatePlotPanel.validate();
-		incrRatePlotPanel.repaint();
-
-		cumRatePlotPanel.add(cumRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		cumRatePlotPanel.validate();
-		cumRatePlotPanel.repaint();
-
-		momentRatePlotPanel.add(momentRateGraphPanel,
-				new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-						, GridBagConstraints.CENTER,
-						GridBagConstraints.BOTH,
-						new Insets(0, 0, 0, 0), 0, 0));
-		momentRatePlotPanel.validate();
-		momentRatePlotPanel.repaint();
+		
+		PlotSpec incrSpec = incrRateGraphPanel.getPlotSpec();
+		incrSpec.setXAxisLabel(incrRateXAxisName);
+		incrSpec.setXAxisLabel(incrRateYAxisName);
+		incrSpec.setPlotElems(incrRateFunctionList);
+		incrSpec.setTitle(incrRatePlotTitle);
+		incrRateGraphPanel.drawGraph();
+		
+		PlotSpec cumSpec = cumRateGraphPanel.getPlotSpec();
+		cumSpec.setXAxisLabel(cumRateXAxisName);
+		cumSpec.setXAxisLabel(cumRateYAxisName);
+		cumSpec.setPlotElems(cumRateFunctionList);
+		cumSpec.setTitle(cumRatePlotTitle);
+		cumRateGraphPanel.drawGraph();
+		
+		PlotSpec momentSpec = momentRateGraphPanel.getPlotSpec();
+		momentSpec.setXAxisLabel(momentRateXAxisName);
+		momentSpec.setXAxisLabel(momentRateYAxisName);
+		momentSpec.setPlotElems(momentRateFunctionList);
+		momentSpec.setTitle(momentRatePlotTitle);
+		momentRateGraphPanel.drawGraph();
 	}
 
 
@@ -649,9 +631,9 @@ ParameterChangeListener{
 		//adding the plotting features to the sum distribution because this will
 		//allow to create the default color scheme first then can change for the
 		//sum distribution
-		ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
-		ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
-		ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
+		List<PlotCurveCharacterstics> incrPlotFeaturesList = incrRateGraphPanel.getPlottingFeatures();
+		List<PlotCurveCharacterstics> cumPlotFeaturesList = cumRateGraphPanel.getPlottingFeatures();
+		List<PlotCurveCharacterstics> momentPlotFeaturesList = momentRateGraphPanel.getPlottingFeatures();
 		incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotLineType.SOLID,
 				1f, null, 4f, Color.BLACK, 1));
 		cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotLineType.SOLID,
@@ -739,12 +721,9 @@ ParameterChangeListener{
 				momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
 
 				//removing the plotting features from the plot prefs. for the summed distribution
-				ArrayList incrPlotFeaturesList = incrRateGraphPanel.
-				getCurvePlottingCharacterstic();
-				ArrayList cumPlotFeaturesList = cumRateGraphPanel.
-				getCurvePlottingCharacterstic();
-				ArrayList momentPlotFeaturesList = momentRateGraphPanel.
-				getCurvePlottingCharacterstic();
+				List<PlotCurveCharacterstics> incrPlotFeaturesList = incrRateGraphPanel.getPlottingFeatures();
+				List<PlotCurveCharacterstics> cumPlotFeaturesList = cumRateGraphPanel.getPlottingFeatures();
+				List<PlotCurveCharacterstics> momentPlotFeaturesList = momentRateGraphPanel.getPlottingFeatures();
 				incrPlotFeaturesList.remove(incrPlotFeaturesList.size() - 1);
 				cumPlotFeaturesList.remove(cumPlotFeaturesList.size() - 1);
 				momentPlotFeaturesList.remove(momentPlotFeaturesList.size() - 1);
@@ -844,12 +823,6 @@ ParameterChangeListener{
 			momentRateFunctionList.clear();
 			summedMagFreqDist = null;
 		}
-		if(isCumRatePlot)
-			cumCustomAxis = false;
-		else if(isMomentRatePlot)
-			this.momentCustomAxis = false;
-		else if(isIncrRatePlot)
-			this.incrCustomAxis = false;
 
 		mainSplitPane.setDividerLocation( newLoc );
 	}
@@ -901,11 +874,11 @@ ParameterChangeListener{
 	 */
 	public void print() {
 		if(isIncrRatePlot)
-			incrRateGraphPanel.print(this);
+			incrRateGraphPanel.print();
 		else if(isCumRatePlot)
-			cumRateGraphPanel.print(this);
+			cumRateGraphPanel.print();
 		else if(isMomentRatePlot)
-			momentRateGraphPanel.print(this);
+			momentRateGraphPanel.print();
 	}
 
 
@@ -915,7 +888,15 @@ ParameterChangeListener{
 	 * window. The current plot just shows empty window.
 	 */
 	private void peelOffCurves(){
-		graphWindow = new GraphWidget(this);
+		GraphWidget graphWidget;
+		if (isCumRatePlot)
+			graphWidget = cumRateGraphPanel;
+		else if (isIncrRatePlot)
+			graphWidget = incrRateGraphPanel;
+		else
+			graphWidget = momentRateGraphPanel;
+		GraphWindow graphWindow = new GraphWindow(graphWidget);
+		graphWidget.getPlotSpec().setPlotElems(Lists.newArrayList(graphWidget.getPlotSpec().getPlotElems()));
 		graphWindow.setVisible(true);
 	}
 
@@ -971,60 +952,6 @@ ParameterChangeListener{
 		}
 	}
 
-
-	/**
-	 *
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX() {
-		if(isIncrRatePlot)
-			return incrRateMinXValue;
-		else if(isCumRatePlot)
-			return cumRateMinXValue;
-		else
-			return momentRateMinXValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX() {
-		if(isIncrRatePlot)
-			return incrRateMaxXValue;
-		else if(isCumRatePlot)
-			return cumRateMaxXValue;
-		else
-			return momentRateMaxXValue;
-	}
-
-	/**
-	 *
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY() {
-		if(isIncrRatePlot)
-			return incrRateMinYValue;
-		else if(isCumRatePlot)
-			return cumRateMinYValue;
-		else
-			return momentRateMinYValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY() {
-		if(isIncrRatePlot)
-			return incrRateMaxYValue;
-		else if(isCumRatePlot)
-			return cumRateMaxYValue;
-		else
-			return momentRateMaxYValue;
-	}
-
-
 	/**
 	 * Main function to run this as an application
 	 * @param args String[]
@@ -1038,199 +965,10 @@ ParameterChangeListener{
 		magFreqDistApp.makeSumDistVisible(true);
 	}
 
-
-
-	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
-		if(isIncrRatePlot){
-			incrRateMinXValue = xMin;
-			incrRateMaxXValue = xMax;
-			incrRateMinYValue = yMin;
-			incrRateMaxYValue = yMax;
-			this.incrCustomAxis=true;
-		}
-		else if(isCumRatePlot){
-			cumRateMinXValue = xMin;
-			cumRateMaxXValue = xMax;
-			cumRateMinYValue = yMin;
-			cumRateMaxYValue = yMax;
-			this.cumCustomAxis = true;
-		}
-		else{
-			momentRateMinXValue = xMin;
-			momentRateMaxXValue = xMax;
-			momentRateMinYValue = yMin;
-			momentRateMaxYValue = yMax;
-			this.momentCustomAxis = true;
-		}
-		addGraphPanel();
-	}
-
-	public void setAutoRange() {
-		if(isIncrRatePlot)
-			incrCustomAxis=false;
-		if(isCumRatePlot)
-			cumCustomAxis=false;
-		if(isMomentRatePlot)
-			momentCustomAxis=false;
-		addGraphPanel();
-	}
-
-
-	public void setX_Log(boolean xLog) {
-		this.xLog = xLog;
-		this.addGraphPanel();
-	}
-
-	public void setY_Log(boolean yLog) {
-		this.yLog = yLog;
-		this.addGraphPanel();
-	}
-
-	public Range getX_AxisRange() {
-		if(isIncrRatePlot)
-			return incrRateGraphPanel.getX_AxisRange();
-		else if(isCumRatePlot)
-			return cumRateGraphPanel.getX_AxisRange();
-		else
-			return momentRateGraphPanel.getX_AxisRange();
-	}
-
-	public Range getY_AxisRange() {
-		if(isIncrRatePlot)
-			return incrRateGraphPanel.getY_AxisRange();
-		else if(isCumRatePlot)
-			return cumRateGraphPanel.getY_AxisRange();
-		else
-			return momentRateGraphPanel.getY_AxisRange();
-	}
-
-	public ArrayList getPlottingFeatures() {
-		if(isIncrRatePlot)
-			return incrRateGraphPanel.getCurvePlottingCharacterstic();
-		else if(isCumRatePlot)
-			return cumRateGraphPanel.getCurvePlottingCharacterstic();
-		else
-			return momentRateGraphPanel.getCurvePlottingCharacterstic();
-	}
-
-	public void plotGraphUsingPlotPreferences() {
-		ArrayList plotPrefs;
-		if(isIncrRatePlot){
-			plotPrefs = incrRateGraphPanel.getCurvePlottingCharacterstic();
-			cumRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-			momentRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-		}
-		else if(isCumRatePlot){
-			plotPrefs = cumRateGraphPanel.getCurvePlottingCharacterstic();
-			incrRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-			momentRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-		}
-		else{
-			plotPrefs = momentRateGraphPanel.getCurvePlottingCharacterstic();
-			incrRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-			cumRateGraphPanel.setCurvePlottingCharacterstic(plotPrefs);
-		}
-		addGraphPanel();
-	}
-
-	public String getXAxisLabel() {
-		if(isIncrRatePlot)
-			return incrRateXAxisName;
-		else if(isCumRatePlot)
-			return cumRateXAxisName;
-		else
-			return momentRateXAxisName;
-	}
-
-	public String getYAxisLabel() {
-		if(isIncrRatePlot)
-			return incrRateYAxisName;
-		else if(isCumRatePlot)
-			return cumRateYAxisName;
-		else
-			return momentRateYAxisName;
-	}
-
-	public String getPlotLabel() {
-		if(isIncrRatePlot)
-			return incrRatePlotTitle;
-		else if(isCumRatePlot)
-			return cumRatePlotTitle;
-		else
-			return momentRatePlotTitle;
-
-	}
-
-
-	public void setXAxisLabel(String xAxisLabel) {
-		if(isIncrRatePlot)
-			incrRateXAxisName = xAxisLabel;
-		else if(isCumRatePlot)
-			cumRateXAxisName = xAxisLabel;
-		else
-			momentRateXAxisName = xAxisLabel;
-	}
-
-	public void setYAxisLabel(String yAxisLabel) {
-		if (isIncrRatePlot)
-			incrRateYAxisName = yAxisLabel;
-		else if (isCumRatePlot)
-			cumRateYAxisName = yAxisLabel;
-		else
-			momentRateYAxisName = yAxisLabel;
-
-	}
-
-	public void setPlotLabel(String plotTitle) {
-		if(isIncrRatePlot)
-			incrRatePlotTitle = plotTitle;
-		else if(isCumRatePlot)
-			cumRatePlotTitle = plotTitle;
-		else
-			momentRatePlotTitle = plotTitle;
-	}
-
-	public ArrayList getCurveFunctionList() {
-		if(isIncrRatePlot)
-			return incrRateFunctionList;
-		else if(isCumRatePlot)
-			return cumRateFunctionList;
-		else
-			return momentRateFunctionList;
-
-	}
-
-	public boolean getXLog() {
-		return xLog;
-	}
-
-	public boolean getYLog() {
-		return yLog;
-	}
-
-	public boolean isCustomAxis() {
-		if(isIncrRatePlot)
-			return incrCustomAxis;
-		else if(isCumRatePlot)
-			return cumCustomAxis;
-		else
-			return momentCustomAxis;
-	}
-
 	public void parameterChange(ParameterChangeEvent event) {
 		String paramName = event.getParameterName();
 		if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
 			createMagParam();
 		}
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		if(isIncrRatePlot)
-			incrRateGraphPanel.setRenderingOrder(order);
-		else if(isCumRatePlot)
-			cumRateGraphPanel.setRenderingOrder(order);
-		else
-			momentRateGraphPanel.setRenderingOrder(order);
 	}
 }

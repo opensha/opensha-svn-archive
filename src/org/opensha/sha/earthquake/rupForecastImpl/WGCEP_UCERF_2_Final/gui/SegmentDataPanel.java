@@ -25,6 +25,7 @@ import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -41,7 +42,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @author vipingupta
  *
  */
-public class SegmentDataPanel extends JPanel implements ActionListener, GraphWindowAPI {
+public class SegmentDataPanel extends JPanel implements ActionListener {
 	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
 	private FaultSectionTableModel faultSectionTableModel = new FaultSectionTableModel();
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
@@ -246,9 +247,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFuncList = this.slipRatesRatioList;
 			yLog = false;
 		}
-		GraphWidget graphWindow= new GraphWidget(this);
-		graphWindow.setPlotLabel(faultName);
-		graphWindow.plotGraphUsingPlotPreferences();
+		GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), faultName, getCurveFunctionList());
 		graphWindow.setVisible(true);
 	}
 	

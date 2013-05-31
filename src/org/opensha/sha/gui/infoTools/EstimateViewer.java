@@ -26,6 +26,7 @@ import org.opensha.commons.data.estimate.DiscreteValueEstimate;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -40,12 +41,12 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @version 1.0
  */
 
-public class EstimateViewer implements GraphWindowAPI {
+public class EstimateViewer {
   private final static String X_AXIS_LABEL = "X Values";
   private final static String Y_AXIS_LABEL = "Probability";
   private Estimate estimate;
   private String xAxisLabel, yAxisLabel;
-  private GraphWidget graphWindow;
+  private GraphWindow graphWindow;
   private final PlotCurveCharacterstics PDF_PLOT_CHAR_HISTOGRAM = new PlotCurveCharacterstics(
 		  PlotLineType.HISTOGRAM, 2f, null, 4f, Color.RED);
   private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(
@@ -58,32 +59,16 @@ public class EstimateViewer implements GraphWindowAPI {
 
   public EstimateViewer(Estimate estimate) {
     setEstimate(estimate);
-    setXAxisLabel(X_AXIS_LABEL);
-    setYAxisLabel(Y_AXIS_LABEL);
-    graphWindow = new GraphWidget(this);
-    graphWindow.setPlotLabel(estimate.getName());
-    graphWindow.plotGraphUsingPlotPreferences();
+    graphWindow = new GraphWindow(getCurveFunctionList(), estimate.getName(), getPlottingFeatures());
+    graphWindow.setXAxisLabel(X_AXIS_LABEL);
+    graphWindow.setYAxisLabel(Y_AXIS_LABEL);
     //graphWindow.pack();
     graphWindow.setVisible(true);
-  }
-
-  public void setXAxisLabel(String label) {
-    this.xAxisLabel = label;
-  }
-
-  public void setYAxisLabel(String label) {
-    this.yAxisLabel = label;
   }
 
   public void setEstimate(Estimate estimate) {
     this.estimate = estimate;
   }
-
-  public boolean getXLog() { return false; }
-  public boolean getYLog() { return false; }
-  public String getXAxisLabel() { return this.xAxisLabel;}
-  public String getYAxisLabel() { return this.yAxisLabel; }
-  public boolean isCustomAxis() {return false; }
 
   public ArrayList getCurveFunctionList() {
    ArrayList list = new ArrayList();
@@ -103,27 +88,6 @@ public class EstimateViewer implements GraphWindowAPI {
       list.add(DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR);
     else list.add(CDF_USING_FRACTILE_PLOT_CHAR);
     return list;
-  }
-
-  /***
-   * the methods getMinX(), getMaxX(), getMinY(), getMaxY() do not need to be
-   * implemented as we go with default X values limit here.
-   */
-
-  public double getUserMinX() {
-
-    throw new java.lang.UnsupportedOperationException("Method getMinX() not yet implemented.");
-  }
-  public double getUserMaxX() {
-
-    throw new java.lang.UnsupportedOperationException("Method getMaxX() not yet implemented.");
-  }
-  public double getUserMinY() {
-    throw new java.lang.UnsupportedOperationException("Method getMinY() not yet implemented.");
-  }
-  public double getUserMaxY() {
-
-    throw new java.lang.UnsupportedOperationException("Method getMaxY() not yet implemented.");
   }
 
 }

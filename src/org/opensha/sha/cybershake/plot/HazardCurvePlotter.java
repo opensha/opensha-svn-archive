@@ -49,6 +49,7 @@ import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -65,9 +66,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotPreferences;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
@@ -90,7 +91,7 @@ import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -102,7 +103,7 @@ import org.opensha.sha.util.SiteTranslator;
 import com.google.common.collect.Lists;
 
 
-public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
+public class HazardCurvePlotter {
 	
 	public static final PlotType PLOT_TYPE_DEFAULT = PlotType.PDF;
 	
@@ -123,7 +124,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	private HazardCurve2DB curve2db;
 	
-	private GraphPanel gp;
+	private HeadlessGraphPanel gp;
 	
 	private AbstractERF erf = null;
 	private ArrayList<AttenuationRelationship> attenRels = new ArrayList<AttenuationRelationship>();
@@ -193,7 +194,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	private void init() {
-		gp = new GraphPanel(this);
+		PlotPreferences plotPrefs = PlotPreferences.getDefault();
+		plotPrefs.setAxisLabelFontSize(12);
+		plotPrefs.setTickLabelFontSize(12);
+		plotPrefs.setPlotLabelFontSize(14);
+		gp = new HeadlessGraphPanel(plotPrefs);
 		gp.setBackgroundColor(null);
 		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		
@@ -940,12 +945,21 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		this.currentPeriod = im.getVal();
 		
-		this.gp.setCurvePlottingCharacterstic(chars);
+		Range xRange, yRange;
+		if (plotChars.isCustomAxis()) {
+			if (currentPeriod > 0)
+				xRange = new Range(plotChars.getXMin(), plotChars.getXMax(currentPeriod));
+			else
+				xRange = new Range(plotChars.getXMin(), plotChars.getXMax());
+			yRange = new Range(plotChars.getYMin(), plotChars.getYMax());
+		} else {
+			xRange = null;
+			yRange = null;
+		}
 		
-		this.gp.drawGraphPanel(xAxisName, plotChars.getYAxisLabel(), curves, plotChars.isXLog(), plotChars.isYLog(), plotChars.isCustomAxis(), title, this);
+		this.gp.drawGraphPanel(xAxisName, plotChars.getYAxisLabel(), curves, chars, plotChars.isXLog(),
+				plotChars.isYLog(), title, xRange, yRange);
 		this.gp.setVisible(true);
-		
-		this.gp.togglePlot(null);
 		
 		this.gp.validate();
 		this.gp.repaint();
@@ -1169,44 +1183,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	public void setERFComparison(AbstractERF erf) {
 		this.erf = erf;
-	}
-
-	public double getUserMaxX() {
-		if (currentPeriod > 0)
-			return plotChars.getXMax(currentPeriod);
-		return plotChars.getXMax();
-	}
-
-	public double getUserMaxY() {
-		return plotChars.getYMax();
-	}
-
-	public double getUserMinX() {
-		return plotChars.getXMin();
-	}
-
-	public double getUserMinY() {
-		return plotChars.getYMin();
-	}
-	
-	public int getAxisLabelFontSize() {
-		return 12;
-	}
-
-	public int getPlotLabelFontSize() {
-		return 12;
-	}
-
-	public int getTickLabelFontSize() {
-		return 14;
-	}
-
-	public void setXLog(boolean flag) {
-		plotChars.setXLog(flag);
-	}
-
-	public void setYLog(boolean flag) {
-		plotChars.setYLog(flag);
 	}
 	
 	public void setPlottingCharactersistics(HazardCurvePlotCharacteristics chars) {

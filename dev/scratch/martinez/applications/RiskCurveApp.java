@@ -28,7 +28,7 @@ import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 import scratch.martinez.beans.CreditBean;
-import scratch.martinez.beans.GraphPane;
+import scratch.martinez.beans.NSHMPGraphPane;
 import scratch.martinez.beans.HazardCurveBean;
 import scratch.martinez.beans.LossCurveBean;
 
@@ -125,7 +125,7 @@ public class RiskCurveApp extends JFrame implements Runnable {
 					0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
 					new Insets(5, 5, 5, 5), 2, 2));
 		} else {
-			newBean = new GraphPane(lossFuncs);
+			newBean = new NSHMPGraphPane(lossFuncs);
 		}
 		return newBean;
 	}

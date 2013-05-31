@@ -26,9 +26,9 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
 
 /**
@@ -37,8 +37,7 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
  * <p>Description: This class allows user to visualise the computed data as graphs.</p>
  * @author Ned Field,Nitin Gupta,E.V.Leyendecker, Eric Martinez
  */
-public class GraphPane extends JPanel 
-	implements ButtonControlPanelAPI, GraphPanelAPI {
+public class NSHMPGraphPane extends JPanel {
 	private static final long serialVersionUID	= 1;
 	
 	JMenuBar menuBar = new JMenuBar();
@@ -55,27 +54,12 @@ public class GraphPane extends JPanel
 	private JPanel chartPane = new JPanel();
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 	private BorderLayout borderLayout1 = new BorderLayout();
-	private JPanel buttonPanel = new JPanel();
 	private FlowLayout flowLayout1 = new FlowLayout();
-
-	//boolean parameters for the Axis to check for log
-	private boolean xLog = false;
-	private boolean yLog = false;
-
-	//boolean parameter to check for range of the axis
-	private boolean customAxis = false;
 
 	private String plotTitle = "Hazard Curves";
 
-	private double minXValue, maxXValue, minYValue, maxYValue;
-
-	//instance for the ButtonControlPanel
-	private ButtonControlPanel buttonControlPanel;
-
 	//instance of the GraphPanel class
-	private GraphPanel graphPanel;
-
-	private String xAxisName, yAxisName;
+	private GraphWidget graphWidget;
 
 	private JComboBox graphListCombo = new JComboBox();
 
@@ -89,7 +73,7 @@ public class GraphPane extends JPanel
 	 * Class constructor that shows the list of graphs that user can plot.
 	 * @param dataList ArrayList List of DiscretizedFunctionList
 	 */
-	public GraphPane(ArrayList dataList) {
+	public NSHMPGraphPane(ArrayList dataList) {
 		//adding list of graphs to the shown to the user.
 		int size = 0;
 		if(dataList != null) size = dataList.size();
@@ -158,8 +142,13 @@ public class GraphPane extends JPanel
 			exception.printStackTrace();
 		}
 
-		graphPanel = new GraphPanel(this);
-		graphPanel.setDividerLocation(350);
+		graphWidget = new GraphWidget();
+		graphWidget.getGraphPanel().setDividerLocation(350);
+		chartPane.add(graphWidget, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(2, 2, 2, 2), 0, 0));
+		chartPane.validate();
+		chartPane.repaint();
 		drawGraph();
 	}
 
@@ -181,77 +170,12 @@ public class GraphPane extends JPanel
 		chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		chartPane.setLayout(gridBagLayout1);
 
-		buttonPanel.setLayout(flowLayout1);
 		add(chartSplitPane, BorderLayout.CENTER);
 		chartSplitPane.add(chartPane, JSplitPane.TOP);
-		chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
 		chartSplitPane.setDividerLocation(450);
-		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
-		buttonPanel.add(buttonControlPanel, 0);
 		chartPane.add(graphListCombo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(4, 4, 4, 4), 0, 0));
-	}
-
-	/**
-	 *
-	 * @return the Range for the X-Axis
-	 */
-	public Range getX_AxisRange() {
-		return graphPanel.getX_AxisRange();
-	}
-
-	/**
-	 *
-	 * @return the Range for the Y-Axis
-	 */
-	public Range getY_AxisRange() {
-		return graphPanel.getY_AxisRange();
-	}
-
-	/**
-	 * tells the application if the xLog is selected
-	 * @param xLog : boolean
-	 */
-	public void setX_Log(boolean xLog) {
-		this.xLog = xLog;
-		drawGraph();
-	}
-
-	/**
-	 * tells the application if the yLog is selected
-	 * @param yLog : boolean
-	 */
-	public void setY_Log(boolean yLog) {
-		this.yLog = yLog;
-		drawGraph();
-	}
-
-	/**
-	 * sets the range for X and Y axis
-	 * @param xMin : minimum value for X-axis
-	 * @param xMax : maximum value for X-axis
-	 * @param yMin : minimum value for Y-axis
-	 * @param yMax : maximum value for Y-axis
-	 *
-	 */
-	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
-		minXValue = xMin;
-		maxXValue = xMax;
-		minYValue = yMin;
-		maxYValue = yMax;
-		customAxis = true;
-		drawGraph();
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		customAxis = false;
-		drawGraph();
 	}
 
 	/**
@@ -265,17 +189,15 @@ public class GraphPane extends JPanel
 		//show correct graph titles
 		plotTitle = selectedDataToPlot;
 
-		ArrayList functionsToPlot = (ArrayList) map.get(selectedDataToPlot);
-		ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)
-		functionsToPlot.get(0);
-		xAxisName = func.getXAxisName();
-		yAxisName = func.getYAxisName();
-
-		//creating the graph to be shown in the window
-		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionsToPlot, xLog, yLog,
-				customAxis, plotTitle, buttonControlPanel);
-		togglePlot();
-		graphPanel.updateUI();
+		ArrayList<ArbitrarilyDiscretizedFunc> functionsToPlot = map.get(selectedDataToPlot);
+		ArbitrarilyDiscretizedFunc func = functionsToPlot.get(0);
+		PlotSpec spec = graphWidget.getPlotSpec();
+		spec.setXAxisLabel(func.getXAxisName());
+		spec.setXAxisLabel(func.getYAxisName());
+		spec.setPlotElems(functionsToPlot);
+		spec.setTitle(plotTitle);
+		graphWidget.drawGraph();
+		graphWidget.updateUI();
 	}
 
 	/**
@@ -283,97 +205,6 @@ public class GraphPane extends JPanel
 	 */
 	public void plotGraphUsingPlotPreferences() {
 		drawGraph();
-	}
-
-	//checks if the user has plot the data window or plot window
-	public void togglePlot() {
-		graphPanel.togglePlot(buttonControlPanel);
-		chartPane.add(graphPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(2, 2, 2, 2), 0, 0));
-		chartPane.validate();
-		chartPane.repaint();
-	}
-
-	/**
-	 *
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX() {
-		return minXValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX() {
-		return maxXValue;
-	}
-
-	/**
-	 *
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY() {
-		return minYValue;
-	}
-
-	/**
-	 *
-	 * @return the Max Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY() {
-		return maxYValue;
-	}
-
-	/**
-	 *
-	 * @return the plotting feature like width, color and shape type of each
-	 * curve in list.
-	 */
-	public ArrayList getPlottingFeatures() {
-		return graphPanel.getCurvePlottingCharacterstic();
-	}
-
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel() {
-		return xAxisName;
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel() {
-		return yAxisName;
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel() {
-		return plotTitle;
-	}
-
-	/**
-	 *
-	 * sets	X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel) {
-		xAxisName = xAxisLabel;
-	}
-
-	/**
-	 *
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel) {
-		yAxisName = yAxisLabel;
 	}
 
 	/**
@@ -385,20 +216,12 @@ public class GraphPane extends JPanel
 	}
 
 	public void graphListCombo_itemStateChanged(ItemEvent itemEvent) {
-		graphPanel.removeChartAndMetadata();
+		graphWidget.removeChartAndMetadata();
 		drawGraph();
 	}
 	
 	public void setLogSpace(boolean xlog, boolean ylog) {
-		this.xLog = xlog;
-		this.yLog = ylog;
-		buttonControlPanel.setXLog(xlog);
-		buttonControlPanel.setYLog(ylog);
-		drawGraph();
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		graphPanel.setRenderingOrder(order);
+		graphWidget.setX_Log(xlog);
+		graphWidget.setY_Log(ylog);
 	}
 }

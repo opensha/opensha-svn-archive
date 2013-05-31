@@ -53,11 +53,11 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
 /**
  * <p>Title: GraphWindow</p>
@@ -66,8 +66,7 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
  * @author Ned Field,Nitin Gupta,E.V.Leyendecker
  * @version 1.0
  */
-public class GraphWindow
-extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
+public class NSHMPGraphWindow extends JFrame {
 
 	JMenuBar menuBar = new JMenuBar();
 	JMenu fileMenu = new JMenu();
@@ -95,37 +94,24 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	private JPanel buttonPanel = new JPanel();
 	private FlowLayout flowLayout1 = new FlowLayout();
 
-	//boolean parameters for the Axis to check for log
-	private boolean xLog = false;
-	private boolean yLog = false;
-
-	//boolean parameter to check for range of the axis
-	private boolean customAxis = false;
-
 	private String plotTitle = "Hazard Curves";
 
-	private double minXValue, maxXValue, minYValue, maxYValue;
-
-	//instance for the ButtonControlPanel
-	private ButtonControlPanel buttonControlPanel;
-
 	//instance of the GraphPanel class
-	private GraphPanel graphPanel;
-
-	private String xAxisName, yAxisName;
+	private GraphWidget graphWidget;
 
 	private JComboBox graphListCombo = new JComboBox();
 
 	/**
 	 * Creating this Map to keep track of the selected item to plot
 	 */
-	private TreeMap map = new TreeMap();
+	private TreeMap<String, ArrayList<ArbitrarilyDiscretizedFunc>> map = new
+			TreeMap<String, ArrayList<ArbitrarilyDiscretizedFunc>>();
 
 	/**
 	 * Class constructor that shows the list of graphs that user can plot.
 	 * @param dataList ArrayList List of DiscretizedFunctionList
 	 */
-	public GraphWindow(ArrayList dataList) {
+	public NSHMPGraphWindow(ArrayList dataList) {
 
 		//adding list of graphs to the shown to the user.
 		int size = dataList.size();
@@ -188,7 +174,12 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 			exception.printStackTrace();
 		}
 
-		graphPanel = new GraphPanel(this);
+		graphWidget = new GraphWidget();
+		chartPane.add(graphWidget, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(2, 2, 2, 2), 0, 0));
+		chartPane.validate();
+		chartPane.repaint();
 		drawGraph();
 	}
 
@@ -275,8 +266,6 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 		chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
 		chartSplitPane.setDividerLocation(600);
 		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
-		buttonPanel.add(buttonControlPanel, 0);
 		chartPane.add(graphListCombo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(4, 4, 4, 4), 0, 0));
@@ -321,66 +310,6 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	}
 
 	/**
-	 *
-	 * @return the Range for the X-Axis
-	 */
-	public Range getX_AxisRange() {
-		return graphPanel.getX_AxisRange();
-	}
-
-	/**
-	 *
-	 * @return the Range for the Y-Axis
-	 */
-	public Range getY_AxisRange() {
-		return graphPanel.getY_AxisRange();
-	}
-
-	/**
-	 * tells the application if the xLog is selected
-	 * @param xLog : boolean
-	 */
-	public void setX_Log(boolean xLog) {
-		this.xLog = xLog;
-		drawGraph();
-	}
-
-	/**
-	 * tells the application if the yLog is selected
-	 * @param yLog : boolean
-	 */
-	public void setY_Log(boolean yLog) {
-		this.yLog = yLog;
-		drawGraph();
-	}
-
-	/**
-	 * sets the range for X and Y axis
-	 * @param xMin : minimum value for X-axis
-	 * @param xMax : maximum value for X-axis
-	 * @param yMin : minimum value for Y-axis
-	 * @param yMax : maximum value for Y-axis
-	 *
-	 */
-	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
-		minXValue = xMin;
-		maxXValue = xMax;
-		minYValue = yMin;
-		maxYValue = yMax;
-		customAxis = true;
-		drawGraph();
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		customAxis = false;
-		drawGraph();
-	}
-
-	/**
 	 * to draw the graph
 	 */
 	private void drawGraph() {
@@ -391,17 +320,15 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 		//show correct graph titles
 		plotTitle = selectedDataToPlot;
 
-		ArrayList functionsToPlot = (ArrayList) map.get(selectedDataToPlot);
-		ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)
-		functionsToPlot.get(0);
-		xAxisName = func.getXAxisName();
-		yAxisName = func.getYAxisName();
-
-		//creating the graph to be shown in the window
-		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionsToPlot, xLog, yLog,
-				customAxis, plotTitle, buttonControlPanel);
-		togglePlot();
-		graphPanel.updateUI();
+		ArrayList<ArbitrarilyDiscretizedFunc> functionsToPlot = map.get(selectedDataToPlot);
+		ArbitrarilyDiscretizedFunc func = functionsToPlot.get(0);
+		PlotSpec spec = graphWidget.getPlotSpec();
+		spec.setXAxisLabel(func.getXAxisName());
+		spec.setXAxisLabel(func.getYAxisName());
+		spec.setPlotElems(functionsToPlot);
+		spec.setTitle(plotTitle);
+		graphWidget.drawGraph();
+		graphWidget.updateUI();
 	}
 
 	/**
@@ -412,92 +339,6 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 		drawGraph();
 	}
 
-	//checks if the user has plot the data window or plot window
-	public void togglePlot() {
-
-		//if(graphPanel !=null)
-		//  chartPane.remove(graphPanel);
-		graphPanel.togglePlot(buttonControlPanel);
-		chartPane.add(graphPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(2, 2, 2, 2), 0, 0));
-		chartPane.validate();
-		chartPane.repaint();
-	}
-
-	/**
-	 *
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX() {
-		return minXValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX() {
-		return maxXValue;
-	}
-
-	/**
-	 *
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY() {
-		return minYValue;
-	}
-
-	/**
-	 *
-	 * @return the Max Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY() {
-		return maxYValue;
-	}
-
-	/**
-	 *
-	 * @return the plotting feature like width, color and shape type of each
-	 * curve in list.
-	 */
-	public ArrayList getPlottingFeatures() {
-		return graphPanel.getCurvePlottingCharacterstic();
-	}
-
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel() {
-		return xAxisName;
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel() {
-		return yAxisName;
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel() {
-		return plotTitle;
-	}
-
-	/**
-	 *
-	 * sets  X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel) {
-		xAxisName = xAxisLabel;
-	}
-
 	/**
 	 * Opens a file chooser and gives the user an opportunity to save the chart
 	 * in PNG format.
@@ -505,22 +346,14 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	 * @throws IOException if there is an I/O error.
 	 */
 	public void save() throws IOException {
-		graphPanel.save();
+		graphWidget.save();
 	}
 
 	/**
 	 * Creates a print job for the chart.
 	 */
 	public void print() {
-		graphPanel.print(this);
-	}
-
-	/**
-	 *
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel) {
-		yAxisName = yAxisLabel;
+		graphWidget.print();
 	}
 
 	/**
@@ -532,7 +365,7 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 	}
 
 	public void graphListCombo_itemStateChanged(ItemEvent itemEvent) {
-		graphPanel.removeChartAndMetadata();
+		graphWidget.removeChartAndMetadata();
 		drawGraph();
 	}
 
@@ -553,10 +386,5 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 					JOptionPane.OK_OPTION);
 			return;
 		}
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		this.graphPanel.setRenderingOrder(order);
 	}
 }

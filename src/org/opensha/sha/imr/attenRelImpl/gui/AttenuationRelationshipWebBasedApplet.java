@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
 
 import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
@@ -70,7 +71,7 @@ public class AttenuationRelationshipWebBasedApplet
         titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL);
         //creating the Object the GraphPaenl class
-        graphPanel = new GraphPanel(this);
+        graphWidget = new GraphWidget();
 
         
         plotPanel.setLayout(GBL);
@@ -194,14 +195,12 @@ public class AttenuationRelationshipWebBasedApplet
 
 
         //object for the ButtonControl Panel
-        buttonControlPanel = new ButtonControlPanel(this);
         buttonPanel.add(addButton, 0);
         buttonPanel.add(clearButton, 1);
         buttonPanel.add(peelOffButton, 2);
         buttonPanel.add(xyDatasetButton, 3);
-        buttonPanel.add(buttonControlPanel,4);
-        buttonPanel.add(plotColorCheckBox, 5);
-        buttonPanel.add(imgLabel, 6);
+        buttonPanel.add(plotColorCheckBox, 4);
+        buttonPanel.add(imgLabel, 5);
         
 
         parametersSplitPane.setBottomComponent( sheetPanel );

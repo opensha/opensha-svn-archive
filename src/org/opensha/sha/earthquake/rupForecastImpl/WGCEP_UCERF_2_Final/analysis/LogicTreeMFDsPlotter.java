@@ -24,6 +24,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -51,7 +52,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * @author vipingupta
  *
  */
-public class LogicTreeMFDsPlotter implements GraphWindowAPI {
+public class LogicTreeMFDsPlotter {
 	
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String CUM_Y_AXIS_LABEL = "Cumulative Rate (per year)";
@@ -651,9 +652,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), plot4);	
 		}
 		
-		GraphWidget graphWindow= new GraphWidget(this);
-	    graphWindow.setPlotLabel("Mag Freq Dist");
-	    graphWindow.plotGraphUsingPlotPreferences();
+		GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), "Mag Freq Dist", getPlottingFeatures());
 	    graphWindow.setVisible(true);
 	 }
 

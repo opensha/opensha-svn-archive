@@ -31,10 +31,11 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.GraphPanelAPI;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -50,8 +51,7 @@ import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -72,7 +72,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class InversionConvergenceGUI extends JFrame implements
-ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
+ParameterChangeListener {
 	
 	private static final String BROWSE_PARAM_NAME = "CSV Dir/Zip File";
 	private FileParameter browseParam;
@@ -123,7 +123,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 	private CardLayout cl;
 	private JPanel chartPanel;
 	
-	private GraphPanel graphPanel;
+	private GraphWidget graphWidget;
 	
 	private JPanel barChartPanel;
 	
@@ -137,7 +137,7 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			new Double(0), new Double(100), "%", new Double(1.5));
 	private DoubleParameter energyChangeThresholdParam = new DoubleParameter("Energy Change Threshold",
 			new Double(0), new Double(1000), new Double(2));
-	private GraphPanel convergeGP;
+	private GraphWidget convergeGP;
 	
 	private Map<VariableLogicTreeBranch, CSVFile<String>> resultFilesMap;
 	private ArrayList<String> curNames;
@@ -185,14 +185,14 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		JPanel nonePanel = new JPanel();
 		nonePanel.add(new JLabel("No results found/loaded"));
 		chartPanel.add(nonePanel, CARD_NONE);
-		graphPanel = new GraphPanel(this);
-		chartPanel.add(graphPanel, CARD_GRAPH);
+		graphWidget = new GraphWidget();
+		chartPanel.add(graphWidget, CARD_GRAPH);
 		barChartPanel = new JPanel(new BorderLayout());
 		chartPanel.add(barChartPanel, CARD_BAR);
 		
 		// convergence playground
 		convergPlayPanel = new JPanel(new BorderLayout());
-		convergeGP = new GraphPanel(this);
+		convergeGP = new GraphWidget();
 		convergPlayPanel.add(convergeGP, BorderLayout.CENTER);
 		ParameterList convergeList = new ParameterList();
 		convergeList.addParameter(timeBasedParam);
@@ -524,12 +524,17 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 			default:
 				throw new RuntimeException("shouldn't get here...");
 			}
-			
-			graphPanel.setCurvePlottingCharacterstic(chars);
-			graphPanel.drawGraphPanel(xAxisName, yAxisName, funcs, false, false, false, title, this);
-			graphPanel.togglePlot(null);
-			graphPanel.validate();
-			graphPanel.repaint();
+			PlotSpec spec = graphWidget.getPlotSpec();
+			spec.setXAxisLabel(xAxisName);
+			spec.setYAxisLabel(yAxisName);
+			spec.setPlotElems(funcs);
+			spec.setChars(chars);
+			spec.setTitle(title);
+			graphWidget.setX_Log(false);
+			graphWidget.setY_Log(false);
+			graphWidget.drawGraph();
+			graphWidget.validate();
+			graphWidget.repaint();
 		} else if (plot.card.equals(CARD_BAR)) {
 			System.out.println("Updating a bar graph!");
 			// bar graph
@@ -720,11 +725,18 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		
 		System.out.println(xUnit+" saved: "+xSaved+"/"+xTot+" ("+(float)(xSaved/xTot * 100d)+" %)");
 		
-		convergeGP.setCurvePlottingCharacterstic(chars);
-		convergeGP.drawGraphPanel(xAxisName, yAxisName, funcs, false, false, false, title, this);
-		convergeGP.togglePlot(null);
+		PlotSpec spec = convergeGP.getPlotSpec();
+		spec.setXAxisLabel(xAxisName);
+		spec.setYAxisLabel(yAxisName);
+		spec.setPlotElems(funcs);
+		spec.setChars(chars);
+		spec.setTitle(title);
+		convergeGP.setX_Log(false);
+		convergeGP.setY_Log(false);
+		convergeGP.drawGraph();
 		convergeGP.validate();
 		convergeGP.repaint();
+
 	}
 
 	@Override
@@ -771,60 +783,6 @@ ParameterChangeListener, GraphPanelAPI, PlotControllerAPI {
 		File file = new File("/tmp/2012_03_05-epicenter-test.zip");
 		if (file.exists())
 			ic.browseParam.setValue(file);
-	}
-
-	@Override
-	public double getUserMinX() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getUserMaxX() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getUserMinY() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double getUserMaxY() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getAxisLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 12;
-	}
-
-	@Override
-	public int getTickLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 12;
-	}
-
-	@Override
-	public void setXLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setYLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getPlotLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 16;
 	}
 
 }

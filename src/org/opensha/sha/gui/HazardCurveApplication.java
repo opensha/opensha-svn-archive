@@ -1041,6 +1041,7 @@ ScalarIMRChangeListener {
 	}
 
 	private void clearPlot() {
+		graphWidget.setAutoRange();
 		graphWidget.removeChartAndMetadata();
 		functionList = Lists.newArrayList();
 //		clearButton.setEnabled(false);

@@ -468,5 +468,6 @@ public class GraphWidget extends JPanel {
 	public void removeChartAndMetadata() {
 		updateChart(emptyPlotPanel);
 		graphPanel.removeChartAndMetadata();
+		validate();
 	}
 }
