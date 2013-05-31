@@ -75,4 +75,9 @@ public class HeadlessGraphPanel extends GraphPanel {
 		this.xRange = xRange;
 		this.yRange = yRange;
 	}
+	
+	public void setAutoRange() {
+		this.xRange = null;
+		this.yRange = null;
+	}
 }

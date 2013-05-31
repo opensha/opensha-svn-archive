@@ -60,8 +60,8 @@ public class EstimateViewer {
   public EstimateViewer(Estimate estimate) {
     setEstimate(estimate);
     graphWindow = new GraphWindow(getCurveFunctionList(), estimate.getName(), getPlottingFeatures());
-    graphWindow.setXAxisLabel(X_AXIS_LABEL);
-    graphWindow.setYAxisLabel(Y_AXIS_LABEL);
+    graphWindow.setX_AxisLabel(X_AXIS_LABEL);
+    graphWindow.setY_AxisLabel(Y_AXIS_LABEL);
     //graphWindow.pack();
     graphWindow.setVisible(true);
   }

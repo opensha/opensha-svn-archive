@@ -712,7 +712,7 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	private void setRobPlotParams(ActionEvent actionEvent) {
-		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
+		List<PlotCurveCharacterstics> chars = application.getGraphWidget().getPlottingFeatures();
 		if (chars == null || chars.size() == 0) {
 			JOptionPane.showMessageDialog(this.frame, "Plot params cannot be set when no plots are showing.",
 					"Can't set Plot Params", JOptionPane.ERROR_MESSAGE);
@@ -723,7 +723,7 @@ extends ControlPanel implements ParameterChangeListener {
 		try {
 			period = (float)this.getPeriodDouble();
 		} catch (Exception e) {}
-		application.setY_Log(true);
+		application.getGraphWidget().setY_Log(true);
 		double xMin = 0.0;
 		double xMax = 2;
 		if (Math.abs(period - 3) < 0.05)
@@ -734,7 +734,7 @@ extends ControlPanel implements ParameterChangeListener {
 			xMax = 0.5;
 		double yMin = Double.parseDouble("1.0E-6");
 		double yMax = 1.0;
-		application.setAxisRange(xMin, xMax, yMin, yMax);
+		application.getGraphWidget().setAxisRange(xMin, xMax, yMin, yMax);
 	}
 	
 	private void setTomPlotParams(ActionEvent actionEvent) {
@@ -743,7 +743,7 @@ extends ControlPanel implements ParameterChangeListener {
 					"Can't set Plot Params", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
+		List<PlotCurveCharacterstics> chars = application.getGraphWidget().getPlottingFeatures();
 		
 		if (chars == null || chars.size() == 0) {
 			JOptionPane.showMessageDialog(this.frame, "Plot params cannot be set when no plots are showing.",
@@ -755,7 +755,7 @@ extends ControlPanel implements ParameterChangeListener {
 		double xMax = 3;
 		double yMin = Double.parseDouble("1.0E-5");
 		double yMax = 0.2;
-		application.setAxisRange(xMin, xMax, yMin, yMax);
+		application.getGraphWidget().setAxisRange(xMin, xMax, yMin, yMax);
 		
 		setSiteParams();
 		setEqkRupForecastParams();
@@ -779,10 +779,10 @@ extends ControlPanel implements ParameterChangeListener {
 		
 		this.setPlotLabels();
 		
-		application.getButtonControlPanel().setTickLabelFontSize(14);
-		application.getButtonControlPanel().setPlotLabelFontSize(14);
-		application.getButtonControlPanel().setAxisLabelFontSize(14);
-		application.getGraphPanel().setPlotBackgroundColor(Color.white);
+		application.getGraphWidget().setTickLabelFontSize(14);
+		application.getGraphWidget().setPlotLabelFontSize(14);
+		application.getGraphWidget().setAxisLabelFontSize(14);
+		application.getGraphWidget().setBackgroundColor(Color.white);
 		
 //		application.setProgressCheckBoxSelected(false);
 		
@@ -793,9 +793,9 @@ extends ControlPanel implements ParameterChangeListener {
 		
 //		imrGui.set
 		
-		application.setY_Log(true);
-		application.setX_Log(true);
-		application.getGraphPanel().setPlotBackgroundColor(Color.white);
+		application.getGraphWidget().setY_Log(true);
+		application.getGraphWidget().setX_Log(true);
+		application.getGraphWidget().setBackgroundColor(Color.white);
 	}
 	
 	private void setPlotLabels() {
@@ -804,14 +804,14 @@ extends ControlPanel implements ParameterChangeListener {
 		String name = this.selectedSite.name;
 		String short_name = this.selectedSite.short_name;
 		if (name.equals(short_name))
-			application.setPlotLabel(name);
+			application.getGraphWidget().setPlotLabel(name);
 		else
-			application.setPlotLabel(name + " (" + short_name + ")");
+			application.getGraphWidget().setPlotLabel(name + " (" + short_name + ")");
 		float period = (float)im.getVal();
 		period = period * 100f;
 		period = (float)(int)(period + 0.5f) / 100f;
-		application.setXAxisLabel(period + "s SA (g)");
-		application.setYAxisLabel("Probability Rate (1/yr)");
+		application.getGraphWidget().setXAxisLabel(period + "s SA (g)");
+		application.getGraphWidget().setYAxisLabel("Probability Rate (1/yr)");
 	}
 
 	/**

@@ -226,7 +226,7 @@ public class RunInversion {
 			// display SAF plots
 			PlotSpec plotSpec = plotSpecs.get("San Andreas")[2];
 			GraphWindow gw = new GraphWindow(plotSpec);
-			gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
+			gw.getGraphWidget().getGraphPanel().setxAxisInverted(true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

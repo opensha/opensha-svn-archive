@@ -300,7 +300,7 @@ public class InversionConvergencePlotGen {
 		if (axis != null)
 			gp.setUserBounds(axis[0][0], axis[0][1], axis[1][0], axis[1][1]);
 		
-		gp.drawGraphPanel(xAxis, yAxis, funcs, chars, true, title);
+		gp.drawGraphPanel(xAxis, yAxis, funcs, chars, title);
 		
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());

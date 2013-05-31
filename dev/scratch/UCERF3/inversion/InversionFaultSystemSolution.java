@@ -528,15 +528,15 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		// Statewide
 		GraphWindow gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR(), inversionTargetMFDs.getOnFaultSupraSeisMFD(),
 				RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR_NoCal(), inversionTargetMFDs.noCalTargetSupraMFD,
 				RELM_RegionUtils.getNoCalGriddedRegionInstance(), ucerf2Fetch);
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		gw = getMFDPlotWindow(inversionTargetMFDs.getTotalTargetGR_SoCal(), inversionTargetMFDs.soCalTargetSupraMFD,
 				RELM_RegionUtils.getSoCalGriddedRegionInstance(), ucerf2Fetch);
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 	}
 	
 	private boolean isStatewideDM() {
@@ -559,7 +559,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		gw.setYLog(true);
 		gw.setY_AxisRange(1e-6, 1.0);
 		
-		gw.getGraphWindow().setPlottingOrder(DatasetRenderingOrder.FORWARD);
+		gw.getGraphWidget().setPlottingOrder(DatasetRenderingOrder.FORWARD);
 		
 		return gw;
 	}
@@ -575,7 +575,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			minX = 5;
 		gp.setUserBounds(minX, totalMFD.getMaxX(),
 				1e-6, 1.0);
-		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+		gp.drawGraphPanel(spec);
 		
 		return gp;
 	}

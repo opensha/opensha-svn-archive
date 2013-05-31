@@ -503,7 +503,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	
 	private void drawGraph() {
 		gp.setYLog(logParam.getValue());
-		gp.drawGraphPanel("Rupture Index", "Rate", funcs, chars, true, "Rup Rate Convergence");
+		gp.drawGraphPanel("Rupture Index", "Rate", funcs, chars, "Rup Rate Convergence");
 	}
 	
 	private double[] getYBounds(int minX, int maxX) {

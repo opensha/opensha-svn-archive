@@ -556,7 +556,7 @@ public class CommandLineInversionRunner {
 				if (!noPlots) {
 					// MFD plots
 					try {
-						ArrayList<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
+						List<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
 						
 						if (!funcs.isEmpty()) {
 							info += "\n\n****** MFD Cumulative M5 Rates ******";
@@ -798,7 +798,7 @@ public class CommandLineInversionRunner {
 
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
-		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, title);
+		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, title);
 
 		File file = new File(dir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -825,7 +825,7 @@ public class CommandLineInversionRunner {
 		return new File(dir, getJumpFilePrefix(prefix, minMag, probPaleoVisible)+".png").exists();
 	}
 
-	public static ArrayList<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+	public static List<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 
 		// TODO switch to derrived value
@@ -842,7 +842,7 @@ public class CommandLineInversionRunner {
 						RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 	}
 
-	public static ArrayList<? extends DiscretizedFunc> writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
+	public static List<? extends DiscretizedFunc> writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
 		PlotSpec spec = invSol.getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(spec, totalMFD);
@@ -852,7 +852,7 @@ public class CommandLineInversionRunner {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
-		return spec.getPlotElems();
+		return (List<? extends DiscretizedFunc>) spec.getPlotElems();
 	}
 
 	private static String getMFDPrefix(String prefix, Region region) {
@@ -1406,7 +1406,7 @@ public class CommandLineInversionRunner {
 		yAxisLabel += " (per yr)";
 		
 		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
-		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
+		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 		
 		File file = new File(dir, fname);
 		gp.getCartPanel().setSize(1000, 800);
@@ -1450,7 +1450,7 @@ public class CommandLineInversionRunner {
 			PlotSpec spec = specMap.get(faultName);
 			
 			double maxX = 0;
-			for (DiscretizedFunc func : spec.getPlotElems()) {
+			for (DiscretizedFunc func : spec.getPlotFunctionsOnly()) {
 				double myMaxX = func.getMaxX();
 				if (myMaxX > maxX)
 					maxX = myMaxX;
@@ -1461,7 +1461,7 @@ public class CommandLineInversionRunner {
 			gp.setUserBounds(0d, maxX, -0.05d, 1.05d);
 			
 			gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
-					spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+					spec.getPlotElems(), spec.getChars(), spec.getTitle());
 			
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);
@@ -1500,7 +1500,7 @@ public class CommandLineInversionRunner {
 			
 			double xMin = Double.POSITIVE_INFINITY;
 			double xMax = Double.NEGATIVE_INFINITY;
-			for (DiscretizedFunc func : specArray[2].getPlotElems()) {
+			for (DiscretizedFunc func : specArray[2].getPlotFunctionsOnly()) {
 				double myXMin = func.getMinX();
 				double myXMax = func.getMaxX();
 				if (myXMin < xMin)
@@ -1526,7 +1526,7 @@ public class CommandLineInversionRunner {
 				// now determine y scale
 				List<Double> yValsList = Lists.newArrayList();
 				List<Double> confYValsList = Lists.newArrayList();
-				for (DiscretizedFunc func : spec.getPlotElems()) {
+				for (DiscretizedFunc func : spec.getPlotFunctionsOnly()) {
 					if (func.getName().contains("separator"))
 						continue;
 					if (func.getName().contains("Confidence")) {
@@ -1580,7 +1580,7 @@ public class CommandLineInversionRunner {
 				gp.setUserBounds(xMin, xMax, yMin, yMax);
 				
 				gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
-						spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+						spec.getPlotElems(), spec.getChars(), spec.getTitle());
 				
 				File file = new File(dir, fname+"_"+fname_add);
 				gp.getCartPanel().setSize(1000, 500);
@@ -1651,7 +1651,7 @@ public class CommandLineInversionRunner {
 		setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
-		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars, false,
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars,
 				"Rupture Pairing Smoothness");
 		File file = new File(dir, prefix+"_rup_smooth_pairings");
 		gp.getCartPanel().setSize(1000, 800);
@@ -1665,7 +1665,7 @@ public class CommandLineInversionRunner {
 		setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
-		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars, false,
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars,
 				"Rupture Pairing Smoothness Fractions");
 		file = new File(dir, prefix+"_rup_smooth_pairings_fract");
 		gp.getCartPanel().setSize(1000, 800);

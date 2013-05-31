@@ -23,6 +23,7 @@ import javax.swing.JTextArea;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -406,14 +407,12 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	public void actionPerformed(ActionEvent event) {
 		Object src = event.getSource();
 		if(src == this.plotCumMFDsButton) {
-			GraphWidget graphWindow= new GraphWidget(cumMfdsPlotter);
-			graphWindow.setPlotLabel(CUM_PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(cumMfdsPlotter.getCurveFunctionList(),
+					CUM_PLOT_LABEL, cumMfdsPlotter.getPlottingFeatures());
 			graphWindow.setVisible(true);
 		} else if(src == plotIncrMFDsButton) {
-			GraphWidget graphWindow= new GraphWidget(incrMfdsPlotter);
-			graphWindow.setPlotLabel(INCR_PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(incrMfdsPlotter.getCurveFunctionList(),
+					INCR_PLOT_LABEL, incrMfdsPlotter.getPlottingFeatures());
 			graphWindow.setVisible(true);
 		}else if(src == this.modSlipRateButton) { // ratio of modified slip rates
 			String plotLabel = "Normalized Segment Slip-Rate Residuals\n((Final_SR-Orig_SR)/SR_Sigma)";
@@ -539,9 +538,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		ArrayList funcs = new ArrayList();
 		funcs.add(func);
 		String yAxisLabel = "Count";
-		GraphWidget graphWindow= new GraphWidget(new CreateHistogramsFromSegSlipRateFile(funcs, plotLabel, yAxisLabel));
-		graphWindow.setPlotLabel(plotLabel);
-		graphWindow.plotGraphUsingPlotPreferences();
+		GraphWindow graphWindow= new GraphWindow(funcs, plotLabel);
+		graphWindow.setY_AxisLabel(yAxisLabel);
 		graphWindow.setVisible(true);
 	}
 

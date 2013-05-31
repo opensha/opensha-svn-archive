@@ -451,7 +451,7 @@ public class UCERF2_Section_MFDsCalc {
 			else
 				title = sectionNamefromID_Map.get(parID)+" Nucleation Cum MFDs (totWt="+totWt+")";
 
-			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, true, title);
+			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, title);
 
 			String fileName = sectionNamefromID_Map.get(parID).replace("\\s+","");
 			String subDir;

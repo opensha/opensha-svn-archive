@@ -112,7 +112,7 @@ public class RupLengthHistogramGenerator {
 		else
 			title = "Length Histogram";
 		GraphWindow gw = new GraphWindow(funcs, title, chars);
-		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
+		gw.getGraphWidget().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		if (scaleToTotal != 1)
 			gw.setY_AxisLabel("Num");
@@ -124,7 +124,7 @@ public class RupLengthHistogramGenerator {
 		if (doU2)
 			funcs.add(asDisrU2Hist);
 		gw = new GraphWindow(funcs, "Length Histogram (as discretized)", chars);
-		gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
+		gw.getGraphWidget().getGraphPanel().setBackgroundColor(Color.WHITE);
 		gw.setX_AxisLabel("Length (km)");
 		gw.setY_AxisLabel("Num Ruptures");
 		

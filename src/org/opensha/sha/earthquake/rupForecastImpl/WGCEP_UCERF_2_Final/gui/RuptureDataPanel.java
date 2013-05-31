@@ -334,8 +334,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener {
 			funcs.add(ucerf1Rate);
 			funcs.add(ucerf1CumRate);
 			GraphWindow gw = new GraphWindow(funcs, "Mag");
-			gw.setXAxisLabel("Rate");
-			gw.setYAxisLabel("Mag Rate");
+			gw.setX_AxisLabel("Rate");
+			gw.setY_AxisLabel("Mag Rate");
 		} else if(eventSource == this.magAreaPlotButton) {
 			this.createFuncListColorCodingByRupRates();
 			GraphWindow graphWindow = new GraphWindow(getCurveFunctionList(), "Mag Area Plot", getPlottingFeatures());
@@ -370,8 +370,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener {
 			CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(plottingFuncList);
 			GraphWindow graphWindow = new GraphWindow(plot.getCurveFunctionList(),
 					source.getFaultSegmentData().getFaultName(), plot.getPlottingFeatures());
-			graphWindow.setXAxisLabel("Rupture Index");
-			graphWindow.setYAxisLabel("Rupture Rate");
+			graphWindow.setX_AxisLabel("Rupture Index");
+			graphWindow.setY_AxisLabel("Rupture Rate");
 			graphWindow.setTitle("Rupture Rates");
 			graphWindow.setVisible(true);
 		} else if(eventSource == this.rupRatesRatioButton) {

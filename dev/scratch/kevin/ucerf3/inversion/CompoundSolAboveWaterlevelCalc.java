@@ -195,7 +195,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			String yAxisName = "# Ruptures";
 			
 			gp.setBackgroundColor(Color.WHITE);
-			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, false, title);
+			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, title);
 			
 			String nameAdd;
 			if (abovesList.size() > 1)
@@ -238,7 +238,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			
 			gp.setUserBounds(0d, 10d, 0d, maxY+10d);
 			gp.setBackgroundColor(Color.WHITE);
-			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, true, title);
+			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, title);
 			
 			File file = new File(dir, "rups_above_waterlevel_combined");
 			
@@ -280,7 +280,7 @@ public class CompoundSolAboveWaterlevelCalc {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setUserBounds(0, func.getMaxX(), 0, aboves.length);
-		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars, true,
+		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars,
 				"Ruptures Above Waterlevel");
 		File file = new File("/tmp/compound_rups_above_waterlevel");
 		gp.getCartPanel().setSize(1000, 800);

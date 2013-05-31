@@ -174,7 +174,7 @@ public class PaleoSiteCorrelationData implements Serializable {
 			PlotSpec spec = getCorrelationPlotSpec(faultName, tables.get(faultName), sol);
 			
 			double maxX = 0;
-			for (DiscretizedFunc func : spec.getPlotElems()) {
+			for (DiscretizedFunc func : spec.getPlotFunctionsOnly()) {
 				double myMaxX = func.getMaxX();
 				if (myMaxX > maxX)
 					maxX = myMaxX;

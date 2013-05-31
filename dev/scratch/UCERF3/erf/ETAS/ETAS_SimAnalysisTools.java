@@ -573,7 +573,7 @@ public class ETAS_SimAnalysisTools {
 		graph.setX_AxisLabel("Days (since main shock)");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(0.4, 360);
-		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
+		graph.setY_AxisRange(0.1, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
@@ -641,7 +641,7 @@ public class ETAS_SimAnalysisTools {
 		graph.setX_AxisLabel("Log-day");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(firstLogDay, lastLocDay);
-		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
+		graph.setY_AxisRange(0.1, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		// TEMP HACK FOR SSA TALK (delete first two when done, un-comment 3rd)
 		graph.setX_AxisRange(-2.5, 3);

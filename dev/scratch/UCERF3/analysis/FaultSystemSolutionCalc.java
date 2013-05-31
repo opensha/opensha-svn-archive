@@ -115,8 +115,7 @@ public class FaultSystemSolutionCalc {
 			try {
 				graph.saveAsPDF(new File(dir, name+".pdf").getAbsolutePath());
 				graph.saveAsPNG(new File(dir, name+".png").getAbsolutePath());
-				graph.getGraphWindow().getGraphPanel().saveAsTXT(
-						new File(dir, name+".txt").getAbsolutePath());
+				graph.saveAsTXT(new File(dir, name+".txt").getAbsolutePath());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -196,7 +195,7 @@ public class FaultSystemSolutionCalc {
 //		gp.setTickLabelFontSize(30);
 //		gp.setAxisLabelFontSize(36);
 //		gp.setPlotLabelFontSize(36);
-		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, true, title);
+		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, null, title);
 		File file = new File("testRightHere");
 //		gp.getCartPanel().setSize(1000, 800);
 		gp.getCartPanel().setSize(500, 400);

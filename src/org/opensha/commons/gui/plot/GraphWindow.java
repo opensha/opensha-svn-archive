@@ -62,8 +62,14 @@ public class GraphWindow extends JFrame {
 		this(elems, plotTitle, generateDefaultChars(elems));
 	}
 	
-	public GraphWindow(List<? extends PlotElement> elems, String plotTitle, List<PlotCurveCharacterstics> chars) {
+	public GraphWindow(List<? extends PlotElement> elems, String plotTitle,
+			List<PlotCurveCharacterstics> chars) {
 		this(new PlotSpec(elems, chars, plotTitle, null, null));
+	}
+	
+	public GraphWindow(List<? extends PlotElement> elems, String plotTitle,
+			List<PlotCurveCharacterstics> chars, boolean display) {
+		this(new GraphWidget(new PlotSpec(elems, chars, plotTitle, null, null)), display);
 	}
 	
 	public GraphWindow(PlotSpec spec) {
@@ -75,6 +81,10 @@ public class GraphWindow extends JFrame {
 	}
 	
 	public GraphWindow(GraphWidget widget) {
+		this(widget, true);
+	}
+	
+	public GraphWindow(GraphWidget widget, boolean display) {
 		this.widget = widget;
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		
@@ -147,14 +157,15 @@ public class GraphWindow extends JFrame {
 		
 		setSize(700, 800);
 		
-		this.setVisible(true);
+		if (display)
+			this.setVisible(true);
 	}
 	
-	public void setXAxisLabel(String xAxisLabel) {
+	public void setX_AxisLabel(String xAxisLabel) {
 		widget.setXAxisLabel(xAxisLabel);
 	}
 	
-	public void setYAxisLabel(String yAxisLabel) {
+	public void setY_AxisLabel(String yAxisLabel) {
 		widget.setYAxisLabel(yAxisLabel);
 	}
 	
@@ -267,6 +278,103 @@ public class GraphWindow extends JFrame {
 					JOptionPane.OK_OPTION);
 			return;
 		}
+	}
+
+	public void saveAsPDF(String fileName) throws IOException {
+		widget.saveAsPDF(fileName);
+	}
+
+	public void saveAsPNG(String fileName) throws IOException {
+		widget.saveAsPNG(fileName);
+	}
+	
+	/**
+	 * Save a txt file
+	 * @param fileName
+	 * @throws IOException 
+	 */
+	public void saveAsTXT(String fileName) throws IOException {
+		widget.saveAsTXT(fileName);
+	}
+
+	public void setXLog(boolean xLog) {
+		widget.setX_Log(xLog);
+	}
+
+	public void setYLog(boolean yLog) {
+		widget.setY_Log(yLog);
+	}
+
+	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
+		widget.setAxisRange(xMin, xMax, yMin, yMax);
+	}
+
+	public void setAxisRange(Range xRange, Range yRange) {
+		widget.setAxisRange(xRange, yRange);
+	}
+
+	public void setPlotSpec(PlotSpec plotSpec) {
+		widget.setPlotSpec(plotSpec);
+	}
+
+	public void setPlottingFeatures(
+			List<PlotCurveCharacterstics> curveCharacteristics) {
+		widget.setPlottingFeatures(curveCharacteristics);
+	}
+
+	public void togglePlot() {
+		widget.togglePlot();
+	}
+
+	public void setPlotLabel(String plotTitle) {
+		widget.setPlotLabel(plotTitle);
+	}
+
+	public void setPlotLabelFontSize(int fontSize) {
+		widget.setPlotLabelFontSize(fontSize);
+	}
+
+	public void setTickLabelFontSize(int fontSize) {
+		widget.setTickLabelFontSize(fontSize);
+	}
+
+	public void setAxisLabelFontSize(int fontSize) {
+		widget.setAxisLabelFontSize(fontSize);
+	}
+
+	public void setX_AxisRange(double minX, double maxX) {
+		widget.setX_AxisRange(minX, maxX);
+	}
+
+	public void setX_AxisRange(Range xRange) {
+		widget.setX_AxisRange(xRange);
+	}
+	
+	public Range getX_AxisRange() {
+		return widget.getX_AxisRange();
+	}
+
+	public void setY_AxisRange(double minY, double maxY) {
+		widget.setY_AxisRange(minY, maxY);
+	}
+
+	public void setY_AxisRange(Range yRange) {
+		widget.setY_AxisRange(yRange);
+	}
+	
+	public Range getY_AxisRange() {
+		return widget.getY_AxisRange();
+	}
+
+	public void setAllLineTypes(PlotLineType line, PlotSymbol symbol) {
+		for (PlotCurveCharacterstics pchar : widget.getPlottingFeatures()) {
+			pchar.setLineType(line);
+			pchar.setSymbol(symbol);
+		}
+	}
+
+	public void setAutoRange() {
+		widget.setAutoRange();
 	}
 
 }

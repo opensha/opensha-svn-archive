@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 
+import com.google.common.collect.Lists;
+
 /**
  * Useful if you need to describe a plot that will be used both in headless and interactive plotting.
  * 
@@ -33,6 +35,18 @@ public class PlotSpec implements Serializable {
 
 	public List<? extends PlotElement> getPlotElems() {
 		return elems;
+	}
+	
+	/**
+	 * 
+	 * @return list of all plot elements that are also Discretized Functions
+	 */
+	public List<DiscretizedFunc> getPlotFunctionsOnly() {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		for (PlotElement e : elems)
+			if (e instanceof DiscretizedFunc)
+				funcs.add((DiscretizedFunc)e);
+		return funcs;
 	}
 
 	public void setPlotElems(List<? extends PlotElement> elems) {

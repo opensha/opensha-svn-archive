@@ -206,7 +206,7 @@ public class UCERF2_PaleoRateConstraintFetcher {
 			paleoRateLower.set(paleoRateX, constr.getLower95ConfOfRate());
 		}
 
-		GraphWindow w = new GraphWindow(funcs, "Paleosiesmic Constraint Fit", plotChars, true);
+		GraphWindow w = new GraphWindow(funcs, "Paleosiesmic Constraint Fit", plotChars);
 		w.setX_AxisLabel("");
 		w.setY_AxisLabel("Event Rate Per Year");
 	}

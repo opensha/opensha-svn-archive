@@ -153,7 +153,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			gw = new GraphWindow(funcs, title, chars);
 		} else {
 			updatePlotFuncs();
-			gw.refreshPlot();
+			gw.getGraphWidget().drawGraph();
 		}
 		ArbitrarilyDiscretizedFunc equalityFunc = funcs.get(1);
 		double maxEqualityEnergy = equalityFunc.getY(0);

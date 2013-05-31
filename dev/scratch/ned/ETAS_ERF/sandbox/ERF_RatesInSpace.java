@@ -409,7 +409,7 @@ public class ERF_RatesInSpace {
 		GraphWindow magDistsGraph = new GraphWindow(magDistList, "Mag-Freq Distributions"); 
 		magDistsGraph.setX_AxisLabel("Mag");
 		magDistsGraph.setY_AxisLabel("Rate");
-		magDistsGraph.setY_AxisRange(1e-6, magDistsGraph.getY_AxisMax());
+		magDistsGraph.setY_AxisRange(1e-6, magDistsGraph.getY_AxisRange().getUpperBound());
 		magDistsGraph.setYLog(true);
 
 	}

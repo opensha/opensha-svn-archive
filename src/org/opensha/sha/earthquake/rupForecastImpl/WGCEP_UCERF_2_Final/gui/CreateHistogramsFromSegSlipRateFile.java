@@ -125,8 +125,8 @@ public class CreateHistogramsFromSegSlipRateFile {
 				list.add(funcList.get(i));
 				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
 				GraphWindow graphWindow= new GraphWindow(funcList, plotLabel, plot.getPlottingFeatures());
-				graphWindow.setXAxisLabel(xAxisLabel);
-				graphWindow.setYAxisLabel(yAxisLabel);
+				graphWindow.setX_AxisLabel(xAxisLabel);
+				graphWindow.setY_AxisLabel(yAxisLabel);
 				graphWindow.setTitle(names[k]);
 				graphWindow.setVisible(true);
 				//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
@@ -210,8 +210,8 @@ public class CreateHistogramsFromSegSlipRateFile {
 			list.add(func);
 			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
 			GraphWindow graphWindow= new GraphWindow(list, plotLabel, plot.getPlottingFeatures());
-			graphWindow.setXAxisLabel(xAxisLabel);
-			graphWindow.setYAxisLabel(yAxisLabel);
+			graphWindow.setX_AxisLabel(xAxisLabel);
+			graphWindow.setY_AxisLabel(yAxisLabel);
 			graphWindow.setTitle(segName);
 			graphWindow.setVisible(true);
 			//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());

@@ -275,7 +275,7 @@ public class EALConvergenceResults {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
-		gp.drawGraphPanel("EAL ($ million)", "Num", funcs, chars, false, "EAL Histogram");
+		gp.drawGraphPanel("EAL ($ million)", "Num", funcs, chars, "EAL Histogram");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.setBackground(Color.WHITE);
 		gp.saveAsPNG(new File(dir, "eal_hist.png").getAbsolutePath());
@@ -289,7 +289,8 @@ public class EALConvergenceResults {
 		funcs.set(0, cumDist);
 		chars.set(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
-		gp.drawGraphPanel("EAL ($ million)", "Probability [EAL <= X]", funcs, chars, false, "EAL Prob Dist");
+		gp.setAutoRange();
+		gp.drawGraphPanel("EAL ($ million)", "Probability [EAL <= X]", funcs, chars, "EAL Prob Dist");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.setBackground(Color.WHITE);
 		gp.saveAsPNG(new File(dir, "eal_prob_dist.png").getAbsolutePath());

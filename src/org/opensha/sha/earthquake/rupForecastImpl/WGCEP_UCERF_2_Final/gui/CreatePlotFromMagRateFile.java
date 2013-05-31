@@ -222,8 +222,8 @@ public class CreatePlotFromMagRateFile {
 							CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(funcList);
 							GraphWindow graphWindow= new GraphWindow(plot.getCurveFunctionList(),
 									PLOT_LABEL, plot.getPlottingFeatures());
-							graphWindow.setXAxisLabel(plot.getXAxisLabel());
-							graphWindow.setYAxisLabel(plot.getYAxisLabel());
+							graphWindow.setX_AxisLabel(plot.getXAxisLabel());
+							graphWindow.setY_AxisLabel(plot.getYAxisLabel());
 							graphWindow.setTitle(sheetName+" "+modelType);
 							graphWindow.pack();
 							graphWindow.setVisible(true);

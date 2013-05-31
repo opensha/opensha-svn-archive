@@ -46,8 +46,8 @@ public class FaultSpecificSegmentationPlotGen {
 		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
 		gw.setX_AxisLabel(spec.getXAxisLabel());
 		gw.setY_AxisLabel(spec.getYAxisLabel());
-		gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
-		gw.getGraphWindow().setVisible(true);
+		gw.getGraphWidget().getGraphPanel().setxAxisInverted(true);
+		gw.setVisible(true);
 	}
 	
 	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, InversionFaultSystemSolution sol,
@@ -59,7 +59,7 @@ public class FaultSpecificSegmentationPlotGen {
 		
 		gp.setxAxisInverted(true);
 		
-		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), false, spec.getTitle());
+		gp.drawGraphPanel(spec);
 		
 		return gp;
 	}

@@ -894,7 +894,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
-		gp.drawGraphPanel("Rank", "Rate", funcs, chars, false, "Rupture Rate Distribution");
+		gp.drawGraphPanel("Rank", "Rate", funcs, chars, "Rupture Rate Distribution");
 		File file = new File(prefix.getParentFile(), prefix.getName()+"_rate_dist");
 		gp.saveAsPNG(file.getAbsolutePath()+".png", plot_width, plot_height);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf", plot_width, plot_height);
@@ -953,7 +953,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		// energy vs time plot
 		gp.setUserBounds(timeMin, timeMax, energyPlotMin, energyPlotMax);
 		gp.drawGraphPanel(timeLabel, energyLabel, Lists.newArrayList(energyVsTime), energyChars,
-				true, "Energy Vs Time");
+				"Energy Vs Time");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_time.png").getAbsolutePath(),
 				plot_width, plot_height);
@@ -964,7 +964,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		// energy vs iters plot
 		gp.setUserBounds(itersMin, iterMax, energyPlotMin, energyPlotMax);
 		gp.drawGraphPanel(iterationsLabel, energyLabel, Lists.newArrayList(energyVsIters), energyChars,
-				true, "Energy Vs Time");
+				"Energy Vs Time");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_energy_vs_iters.png").getAbsolutePath(),
 				plot_width, plot_height);
@@ -975,8 +975,9 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		// perturbations vs iters plots
 		ArrayList<ArbitrarilyDiscretizedFunc> perturbWrap = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		perturbWrap.add(perturbsVsIters);
+		gp.setAutoRange();
 		gp.drawGraphPanel(iterationsLabel, "Perturbations", perturbWrap,
-				Lists.newArrayList(perturbChar), false, "Perturbations Vs Iters");
+				Lists.newArrayList(perturbChar), "Perturbations Vs Iters");
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+"_perturb_vs_iters.png").getAbsolutePath(),
 				plot_width, plot_height);
@@ -1051,8 +1052,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		double minY = 0;
 		double maxY = 1.15;
 		gp.setUserBounds(minX, maxX, minY, maxY);
-		gp.drawGraphPanel(iterationsLabel, "Normalized", normalizedFuncs, normChars, true,
-				title);
+		gp.drawGraphPanel(iterationsLabel, "Normalized", normalizedFuncs, normChars, title);
 		gp.saveAsPNG(new File(prefix.getParentFile(),
 				prefix.getName()+suffix).getAbsolutePath(),
 				plot_width, plot_height);

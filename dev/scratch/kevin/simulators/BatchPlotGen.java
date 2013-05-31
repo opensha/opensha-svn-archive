@@ -534,7 +534,7 @@ public class BatchPlotGen {
 		gp.setAxisLabelFontSize(16);
 		gp.setPlotLabelFontSize(18);
 		
-		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+		gp.drawGraphPanel(spec);
 		
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());

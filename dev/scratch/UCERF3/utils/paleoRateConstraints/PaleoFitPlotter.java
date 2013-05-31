@@ -300,7 +300,7 @@ public class PaleoFitPlotter {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setYLog(yLog);
 		
-		gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(), spec.getChars(), false, spec.getTitle());
+		gp.drawGraphPanel(spec);
 		
 		return gp;
 	}

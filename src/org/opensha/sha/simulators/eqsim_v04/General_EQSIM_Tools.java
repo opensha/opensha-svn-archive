@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.jfree.data.Range;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -1073,7 +1074,7 @@ public class General_EQSIM_Tools {
 //			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 //			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 
-			GraphWindow graph = new GraphWindow(mfdList, "Total Mag Freq Dist"); 
+			GraphWindow graph = new GraphWindow(mfdList, "Total Mag Freq Dist", curveChar); 
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
@@ -1081,7 +1082,6 @@ public class General_EQSIM_Tools {
 			double yMax = 2e1;
 			graph.setY_AxisRange(yMin,yMax);
 			graph.setYLog(true);
-			graph.setPlottingFeatures(curveChar);
 
 			if(savePlot)
 				try {
@@ -1135,7 +1135,7 @@ public class General_EQSIM_Tools {
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
-			double yMax = graph.getY_AxisMax();
+			double yMax = graph.getY_AxisRange().getUpperBound();
 			if(yMin<yMax) {
 				graph.setY_AxisRange(yMin,yMax);
 				graph.setYLog(true);
@@ -1163,7 +1163,7 @@ public class General_EQSIM_Tools {
 				graph.setX_AxisLabel("Magnitude");
 				graph.setY_AxisLabel("Rate (per yr)");
 				graph.setX_AxisRange(4.5, 8.5);
-				double yMax = graph.getY_AxisMax();
+				double yMax = graph.getY_AxisRange().getUpperBound();
 				if(yMin<yMax) {
 					graph.setY_AxisRange(yMin,yMax);
 					graph.setYLog(true);
@@ -1366,9 +1366,8 @@ public class General_EQSIM_Tools {
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setUserMinX(0.0);
-		gp.setUserMaxX(5.0);
-		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, true, plotTitle);
+		gp.setUserBounds(new Range(0, 5), null);
+		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, plotTitle);
 		gp.getCartPanel().setSize(1000, 800);
 		
 		return gp;
@@ -1403,10 +1402,9 @@ public class General_EQSIM_Tools {
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		// make plot
-		GraphWindow graph = new GraphWindow(funcList, plotTitle); 
+		GraphWindow graph = new GraphWindow(funcList, plotTitle, curveCharacteristics); 
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Density");
-		graph.setPlottingFeatures(curveCharacteristics);
 		graph.setX_AxisRange(0, 5);
 		return graph;
 		
@@ -1907,12 +1905,11 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(aveNormRI_AlongRup);
-		GraphWindow graph9 = new GraphWindow(funcList, "Ave Normalized RI Along Rupture"); 
-		graph9.setX_AxisLabel("Normalized Distance From End of Rupture");
-		graph9.setY_AxisLabel("Normalized Ave RI");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph9.setPlottingFeatures(curveCharacteristics);
+		GraphWindow graph9 = new GraphWindow(funcList, "Ave Normalized RI Along Rupture", curveCharacteristics); 
+		graph9.setX_AxisLabel("Normalized Distance From End of Rupture");
+		graph9.setY_AxisLabel("Normalized Ave RI");
 		if(saveStuff) {
 			try {
 				graph9.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
@@ -2003,7 +2000,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					//						plot7.setUserBounds(10, 10000, 10, 10000);
 					plot7.setXLog(true);
 					plot7.setYLog(true);
-					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, true, plotTitle7);
+					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle7);
 					plot7.getCartPanel().setSize(1000, 800);
 					if(saveStuff) {
 						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";

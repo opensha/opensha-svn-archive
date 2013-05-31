@@ -180,6 +180,15 @@ public class GraphWidget extends JPanel {
 	public void saveAsPNG(String fileName) throws IOException {
 		graphPanel.saveAsPNG(fileName);
 	}
+	
+	/**
+	 * Save a txt file
+	 * @param fileName
+	 * @throws IOException 
+	 */
+	public void saveAsTXT(String fileName) throws IOException {
+		graphPanel.saveAsTXT(fileName);
+	}
 
 	/**
 	 * Creates a print job for the chart.
@@ -211,6 +220,15 @@ public class GraphWidget extends JPanel {
 	public Range getX_AxisRange() {
 		return graphPanel.getX_AxisRange();
 	}
+	
+	public void setX_AxisRange(double minX, double maxX) {
+		setX_AxisRange(new Range(minX, maxX));
+	}
+	
+	public void setX_AxisRange(Range xRange) {
+		this.xRange = xRange;
+		drawGraph();
+	}
 
 	/**
 	 *
@@ -218,6 +236,15 @@ public class GraphWidget extends JPanel {
 	 */
 	public Range getY_AxisRange() {
 		return graphPanel.getY_AxisRange();
+	}
+	
+	public void setY_AxisRange(double minY, double maxY) {
+		setY_AxisRange(new Range(minY, maxY));
+	}
+	
+	public void setY_AxisRange(Range yRange) {
+		this.yRange = yRange;
+		drawGraph();
 	}
 
 	/**
@@ -469,5 +496,10 @@ public class GraphWidget extends JPanel {
 		updateChart(emptyPlotPanel);
 		graphPanel.removeChartAndMetadata();
 		validate();
+	}
+
+	public void setBackgroundColor(Color background) {
+		graphPanel.setBackgroundColor(background);
+		drawGraph();
 	}
 }

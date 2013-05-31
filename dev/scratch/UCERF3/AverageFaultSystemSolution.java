@@ -441,7 +441,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			PlotSpec spec = PaleoFitPlotter.getSegRateComparisonSpec(
 					paleoRateConstraints, null, sol);
 			
-			ArrayList<? extends DiscretizedFunc> funcs = spec.getPlotElems();
+			List<? extends DiscretizedFunc> funcs = spec.getPlotFunctionsOnly();
 			
 			if (otherFuncs.isEmpty()) {
 				for (int j=0; j<funcs.size(); j++) {
@@ -517,7 +517,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		gp.setYLog(true);
 		
-		gp.drawGraphPanel("", "Event Rate Per Year", funcs, chars, false, "Paleosiesmic Constraint Fit");
+		gp.drawGraphPanel("", "Event Rate Per Year", funcs, chars, "Paleosiesmic Constraint Fit");
 		File file = new File(dir, prefix+"_paleo_bounds");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
@@ -649,8 +649,8 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
 		gw.setX_AxisLabel(spec.getXAxisLabel());
 		gw.setY_AxisLabel(spec.getYAxisLabel());
-		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gw.getGraphWindow().setVisible(true);
+		gw.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gw.setVisible(true);
 		
 		
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/" +

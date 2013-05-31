@@ -1394,11 +1394,11 @@ public class PeriodicityPlotter {
 		String fileName = new File(dir, prefix).getAbsolutePath();
 		
 		if (display) {
-			GraphWindow gw = new GraphWindow(funcs, plotTitle, chars, display);
+			GraphWindow gw = new GraphWindow(funcs, plotTitle, chars);
 			if (dimensions == null)
-				gw.getGraphWindow().setSize(600, 800);
+				gw.setSize(600, 800);
 			else
-				gw.getGraphWindow().setSize(dimensions[0], dimensions[1]);
+				gw.setSize(dimensions[0], dimensions[1]);
 			if (xAxisLabel != null)
 				gw.setX_AxisLabel(xAxisLabel);
 			if (yAxisLabel != null)
@@ -1412,7 +1412,7 @@ public class PeriodicityPlotter {
 				gw.setYLog(logs[1]);
 			}
 			
-			gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
+			gw.getGraphWidget().setBackgroundColor(Color.WHITE);
 			gw.setTickLabelFontSize(18);
 			gw.setAxisLabelFontSize(20);
 			gw.setPlotLabelFontSize(21);
@@ -1432,7 +1432,7 @@ public class PeriodicityPlotter {
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
 			gp.setPlotLabelFontSize(21);
-			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, ranges != null, plotTitle);
+			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, plotTitle);
 			if (dimensions == null)
 				gp.getCartPanel().setSize(1000, 800);
 			else

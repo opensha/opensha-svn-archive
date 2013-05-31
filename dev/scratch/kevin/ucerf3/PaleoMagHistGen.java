@@ -75,7 +75,7 @@ public class PaleoMagHistGen {
 					Lists.newArrayList(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 			
 			gp.setBackground(Color.WHITE);
-			gp.drawGraphPanel("Magnitude", "Number", funcs, chars, false, hist.getName());
+			gp.drawGraphPanel("Magnitude", "Number", funcs, chars, hist.getName());
 			gp.getCartPanel().setSize(1000, 800);
 			gp.saveAsPNG(new File(dir, name+"_hist.png").getAbsolutePath());
 			

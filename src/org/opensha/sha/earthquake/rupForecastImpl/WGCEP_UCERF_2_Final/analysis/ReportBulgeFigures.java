@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
@@ -244,9 +245,8 @@ public class ReportBulgeFigures {
 	 */
 	private void makeMFDsPlot(String fileName, UCERF2 ucerf2) {
 		EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(ucerf2, true);
-		GraphWidget graphWindow= new GraphWidget(mfdsPlotter);
-		graphWindow.setPlotLabel("Cum Mag Freq Dist");
-		graphWindow.plotGraphUsingPlotPreferences();
+		GraphWindow graphWindow= new GraphWindow(mfdsPlotter.getCurveFunctionList(),
+				"Cum Mag Freq Dist", mfdsPlotter.getPlottingFeatures());
 		graphWindow.setVisible(true);
 		try {
 			graphWindow.saveAsPNG(dirName+"/"+fileName+".png");

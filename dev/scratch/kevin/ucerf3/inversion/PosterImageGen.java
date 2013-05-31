@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -58,47 +59,41 @@ public class PosterImageGen {
 //	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/dsa_poster/";
 	private static final String opensha_files_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/2011agu/";
 	
-	private static void saveImages(GraphWindow gwAPI, File dir, String fName) throws IOException {
-		GraphWidget gw = gwAPI.getGraphWindow();
-		GraphPanel gp = gw.getGraphPanel();
+	private static void saveImages(GraphWindow gw, File dir, String fName) throws IOException {
+		GraphWidget gp = gw.getGraphWidget();
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setSize(width, height);
-		gw.drawGraph();
+		gp.drawGraph();
 		gp.setVisible(true);
-
-		gp.togglePlot(null);
 		
 		gp.validate();
 		gp.repaint();
 		
-		gp.saveAsPDF(new File(dir, fName+".pdf").getAbsolutePath(), width, height);
-		gp.saveAsPNG(new File(dir, fName+".png").getAbsolutePath(), width, height);
+		gp.saveAsPDF(new File(dir, fName+".pdf").getAbsolutePath());
+		gp.saveAsPNG(new File(dir, fName+".png").getAbsolutePath());
 
 		gw.setPlotLabelFontSize(20);
 		gw.setAxisLabelFontSize(18);
 		gw.setTickLabelFontSize(14);
 		gp.setSize(png_med_width, png_med_height);
-		gw.drawGraph();
+		gp.drawGraph();
 		gp.setVisible(true);
-
-		gp.togglePlot(null);
 		
 		gp.validate();
 		gp.repaint();
-		gp.saveAsPNG(new File(dir, fName+".medium.png").getAbsolutePath(), png_med_width, png_med_height);
+		gp.saveAsPNG(new File(dir, fName+".medium.png").getAbsolutePath());
 
 		gw.setPlotLabelFontSize(16);
 		gw.setAxisLabelFontSize(14);
 		gw.setTickLabelFontSize(10);
 		gp.setSize(png_thumb_width, png_thumb_height);
-		gw.drawGraph();
+		gp.drawGraph();
 		gp.setVisible(true);
 
-		gp.togglePlot(null);
 		
 		gp.validate();
 		gp.repaint();
-		gp.saveAsPNG(new File(dir, fName+".small.png").getAbsolutePath(), png_thumb_width, png_thumb_height);
+		gp.saveAsPNG(new File(dir, fName+".small.png").getAbsolutePath());
 	}
 	
 	private static String getImageTableLine(String fName) {
@@ -186,7 +181,7 @@ public class PosterImageGen {
 		wikiTable.get(7).add(getImageTableLine(fName));
 		if (!tableOnly) {
 			gw = windows.get(ResultPlotter.speedup_vs_threads_title);
-			ArrayList<DiscretizedFunc> funcs = gw.getCurveFunctionList();
+			List<DiscretizedFunc> funcs = gw.getGraphWidget().getPlotSpec().getPlotFunctionsOnly();
 			DiscretizedFunc spdFunc = funcs.get(0);
 			spd_vs_thds.add(spdFunc);
 			if (spd_vs_thds_comp.isEmpty()) {

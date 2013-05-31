@@ -1097,4 +1097,16 @@ public class GraphPanel extends JSplitPane {
 		if (yAxis  != null)
 			yAxis.setInverted(yAxisInverted);
 	}
+
+	public void setAxisLabelFontSize(int axisLabelFontSize) {
+		plotPrefs.setAxisLabelFontSize(axisLabelFontSize);
+	}
+
+	public void setTickLabelFontSize(int tickLabelFontSize) {
+		plotPrefs.setTickLabelFontSize(tickLabelFontSize);
+	}
+
+	public void setPlotLabelFontSize(int plotLabelFontSize) {
+		plotPrefs.setPlotLabelFontSize(plotLabelFontSize);
+	}
 }

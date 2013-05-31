@@ -166,7 +166,7 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		sr_graph3.setPlottingFeatures(plotChars);
-		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisMax());
+		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisRange().getUpperBound());
 		
 	}
 
@@ -262,14 +262,14 @@ public class ETAS_Simulator {
 		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "Mag-Prob Distributions for "+info+" Aftershocks"); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Probability");
-		magProbDistsGraph.setY_AxisRange(1e-8, magProbDistsGraph.getY_AxisMax());
+		magProbDistsGraph.setY_AxisRange(1e-8, magProbDistsGraph.getY_AxisRange().getUpperBound());
 		magProbDistsGraph.setYLog(true);
 		
 	
 		GraphWindow expNumDistGraph = new GraphWindow(expNumDists, "Mag-Num Distributions for Aftershocks for "+(float)days+" days following "+info); 
 		expNumDistGraph.setX_AxisLabel("Mag");
 		expNumDistGraph.setY_AxisLabel("Expected Num");
-		expNumDistGraph.setY_AxisRange(1e-6, expNumDistGraph.getY_AxisMax());
+		expNumDistGraph.setY_AxisRange(1e-6, expNumDistGraph.getY_AxisRange().getUpperBound());
 		expNumDistGraph.setYLog(true);
 		
 		
@@ -288,7 +288,7 @@ public class ETAS_Simulator {
 		GraphWindow contributingPrimarySrcsGraph = new GraphWindow(mfdListFinal, "Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
 		contributingPrimarySrcsGraph.setX_AxisLabel("Mag");
 		contributingPrimarySrcsGraph.setY_AxisLabel("Probability");
-		contributingPrimarySrcsGraph.setY_AxisRange(1e-6, contributingPrimarySrcsGraph.getY_AxisMax());
+		contributingPrimarySrcsGraph.setY_AxisRange(1e-6, contributingPrimarySrcsGraph.getY_AxisRange().getUpperBound());
 		contributingPrimarySrcsGraph.setYLog(true);
 		
 		// plot above as cumulative distributions
@@ -299,7 +299,7 @@ public class ETAS_Simulator {
 		GraphWindow contrCumPrimarySrcsGraph = new GraphWindow(cumMFD_List, "Cumulative Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
 		contrCumPrimarySrcsGraph.setX_AxisLabel("Mag");
 		contrCumPrimarySrcsGraph.setY_AxisLabel("Probability");
-		contrCumPrimarySrcsGraph.setY_AxisRange(1e-6, contrCumPrimarySrcsGraph.getY_AxisMax());
+		contrCumPrimarySrcsGraph.setY_AxisRange(1e-6, contrCumPrimarySrcsGraph.getY_AxisRange().getUpperBound());
 		contrCumPrimarySrcsGraph.setYLog(true);
 		
 		if(savePDF_Files) {
@@ -388,7 +388,7 @@ public class ETAS_Simulator {
 		graph.setX_AxisLabel("Days (since main shock)");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(0.4, 360);
-		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
+		graph.setY_AxisRange(0.1, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));

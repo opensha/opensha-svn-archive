@@ -231,8 +231,8 @@ public class ResultPlotter {
 			chars = sortedChars;
 		}
 		
-		GraphWindow gwAPI = new GraphWindow(funcs, title, chars, visible);
-		GraphWidget gw = gwAPI.getGraphWindow();
+		GraphWindow gwAPI = new GraphWindow(funcs, title, chars);
+		GraphWidget gw = gwAPI.getGraphWidget();
 		gw.setPlotLabelFontSize(30);
 		gw.setAxisLabelFontSize(18);
 		gw.setTickLabelFontSize(14);

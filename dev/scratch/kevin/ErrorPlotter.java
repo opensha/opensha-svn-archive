@@ -84,7 +84,7 @@ public class ErrorPlotter {
 		gp.setYLog(true);
 		
 		gp.drawGraphPanel("DT (years)", "Relative Error",
-				funcs, chars, true, "Error Vs DT");
+				funcs, chars, "Error Vs DT");
 		
 		gp.getCartPanel().setSize(500, 500);
 		gp.saveAsPNG("/home/kevin/Documents/Geol 557/prob_set_06/explicit_error_dt.png");

@@ -86,7 +86,7 @@ public class NonzeroWaterlevelPlot {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setUserBounds(refBranch.getMinX(), refBranch.getMaxX(), 0, numRups);
-		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars, true,
+		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars,
 				"Ruptures Above Waterlevel");
 		File file = new File("/tmp/compound_rups_above_waterlevel");
 		gp.getCartPanel().setSize(1000, 800);

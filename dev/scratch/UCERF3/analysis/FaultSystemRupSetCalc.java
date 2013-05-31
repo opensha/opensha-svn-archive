@@ -2533,7 +2533,7 @@ if(mMax<5.85)
 			String title = "Nucleation MFDs";
 			String yAxisLabel = "Nucleation Rate";
 			title += " for "+parSectName+" ("+parID+")";
-			gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
+			gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);
 			try {

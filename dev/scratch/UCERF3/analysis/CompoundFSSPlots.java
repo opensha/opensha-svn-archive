@@ -179,8 +179,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				else
 					gp.setUserBounds(5d, 9d, 3e-6, 3e0);
 
-				gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
-						spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+				gp.drawGraphPanel(spec);
 
 				String fname = prefix;
 				if (cumulative)
@@ -522,8 +521,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //			gp.setUserBounds(5d, 9d, 1e-6, 1e0);
 			gp.setUserBounds(5d, 9d, 1e-5, 1e1);
 
-			gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
-					spec.getPlotElems(), spec.getChars(), true, spec.getTitle());
+			gp.drawGraphPanel(spec);
 
 			String fname = prefix + "_MFD_ERF";
 			if (region.getName() != null && !region.getName().isEmpty())
