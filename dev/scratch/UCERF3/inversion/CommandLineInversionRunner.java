@@ -28,6 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.data.Range;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -1509,8 +1510,9 @@ public class CommandLineInversionRunner {
 					xMax = myXMax;
 			}
 			
-			File slipPNGFile = null;
-			File paleoPNGFile = null;
+			Range xRange = null;
+			Range slipYRange = null;
+			Range paleoYRange = null;
 			
 			for (int i=0; i<specArray.length; i++) {
 				String fname_add = fname_adds[i];
@@ -1588,25 +1590,48 @@ public class CommandLineInversionRunner {
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
 				
-				if (i == 0)
-					paleoPNGFile = new File(file.getAbsolutePath()+".png");
-				else if (i == 1)
-					slipPNGFile = new File(file.getAbsolutePath()+".png");
+				if (i == 0) {
+					xRange = new Range(xMin, xMax);
+					paleoYRange = new Range(yMin, yMax);
+				} else if (i == 1) {
+					slipYRange = new Range(yMin, yMax);
+				}
 			}
-			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
-			BufferedImage slipImage = ImageIO.read(slipPNGFile);
-			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
-			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
-			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
-			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
-					BufferedImage.TYPE_INT_ARGB);
-			// paint both images, preserving the alpha channels
-			Graphics g = combined.getGraphics();
-			g.drawImage(slipImage, 0, 0, null);
-			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
-
-			// Save as new image
-			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
+			// now make combined plot
+			PlotSpec slipSpec = specArray[1];
+			PlotSpec paleoSpec = specArray[0];
+			List<PlotSpec> combinedSpecs = Lists.newArrayList(slipSpec, paleoSpec);
+			List<Range> xRanges = Lists.newArrayList(xRange);
+			List<Range> yRanges = Lists.newArrayList(slipYRange, paleoYRange);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			setFontSizes(gp);
+			gp.setBackgroundColor(Color.WHITE);
+			if (xMax > 0)
+				// only when latitudeX, this is a kludgy way of detecting this for CA
+				gp.setxAxisInverted(true);
+			gp.drawGraphPanel(combinedSpecs, false, true, xRanges, yRanges);
+			
+			File file = new File(dir, fname+"_combined");
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			
+//			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
+//			BufferedImage slipImage = ImageIO.read(slipPNGFile);
+//			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
+//			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
+//			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
+//			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
+//					BufferedImage.TYPE_INT_ARGB);
+//			// paint both images, preserving the alpha channels
+//			Graphics g = combined.getGraphics();
+//			g.drawImage(slipImage, 0, 0, null);
+//			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
+//
+//			// Save as new image
+//			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
 		}
 	}
 	

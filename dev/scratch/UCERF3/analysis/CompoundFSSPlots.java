@@ -5457,7 +5457,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8,
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 4,
 				FaultModels.FM3_1);
 
 		new DeadlockDetectionThread(3000).start();
@@ -5487,11 +5487,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
-//		plots.add(new PaleoFaultPlot(weightProvider));
+		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
-		plots.add(new SlipRatePlots(weightProvider));
+//		plots.add(new SlipRatePlots(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
