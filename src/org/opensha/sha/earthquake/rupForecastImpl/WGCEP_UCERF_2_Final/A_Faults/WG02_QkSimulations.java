@@ -332,7 +332,7 @@ public class WG02_QkSimulations {
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.RED));
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, null, 4f, Color.GRAY));
 			GraphWindow graph = new GraphWindow(funcList,title,plotChars);
-			graph.setPlottingFeatures(plotChars);
+			graph.setPlotChars(plotChars);
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");

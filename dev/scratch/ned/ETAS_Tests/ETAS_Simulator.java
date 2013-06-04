@@ -165,7 +165,7 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-		sr_graph3.setPlottingFeatures(plotChars);
+		sr_graph3.setPlotChars(plotChars);
 		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisRange().getUpperBound());
 		
 	}
@@ -393,7 +393,7 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(savePDF_File)
@@ -575,7 +575,7 @@ public class ETAS_Simulator {
 			graph.setX_AxisRange(minLon, maxLon);
 			graph.setY_AxisRange(minLat, newMaxLat);
 		}
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		if(savePDF_File)
 		try {
 			graph.saveAsPDF(dirToSaveData+"epicenterMap.pdf");
@@ -1176,7 +1176,7 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(savePDF_File)

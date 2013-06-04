@@ -253,7 +253,7 @@ public class ETAS_SimAnalysisTools {
 		graph.setY_AxisRange(35, 37);
 
 		
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(16);
 		graph.setTickLabelFontSize(14);
@@ -409,7 +409,7 @@ public class ETAS_SimAnalysisTools {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
 		if(mainShock != null)
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(pdf_FileName != null)
@@ -518,7 +518,7 @@ public class ETAS_SimAnalysisTools {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
 		if(mainShock != null)
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(16);
@@ -578,7 +578,7 @@ public class ETAS_SimAnalysisTools {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(pdf_FileName != null)
@@ -649,7 +649,7 @@ public class ETAS_SimAnalysisTools {
 //		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 //		graph.setXLog(true);
 		graph.setPlotLabelFontSize(18);

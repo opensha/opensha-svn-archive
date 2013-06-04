@@ -2228,7 +2228,7 @@ public class SoSAF_SubSectionInversion_small {
 				PlotLineType.SOLID, 1f, Color.BLUE));
 		sr_plotChars.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 1f, Color.BLUE));
-		sr_graph.setPlottingFeatures(sr_plotChars);
+		sr_graph.setPlotChars(sr_plotChars);
 		sr_graph.setX_AxisLabel("Subsection");
 		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
 		sr_graph.setY_AxisRange(0.0, 0.04);
@@ -2285,7 +2285,7 @@ public class SoSAF_SubSectionInversion_small {
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
-		er_graph.setPlottingFeatures(plotChars);
+		er_graph.setPlotChars(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
 		er_graph.setY_AxisLabel("Event Rate (per yr)");
 		er_graph.setYLog(true);
@@ -2371,7 +2371,7 @@ public class SoSAF_SubSectionInversion_small {
 		plotMFD_Chars.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 3f, Color.GREEN));
 		
-		mfd_graph.setPlottingFeatures(plotMFD_Chars);
+		mfd_graph.setPlotChars(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
 		mfd_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
@@ -2414,7 +2414,7 @@ public class SoSAF_SubSectionInversion_small {
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars2.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLACK));
-		seg_graph.setPlottingFeatures(plotChars2);
+		seg_graph.setPlotChars(plotChars2);
 		seg_graph.setX_AxisLabel("Subsection");
 		seg_graph.setY_AxisLabel("Rates");
 		seg_graph.setYLog(true);

@@ -1038,7 +1038,7 @@ public class RupsInFaultSystemInversion {
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
-		graph3.setPlottingFeatures(plotChars);
+		graph3.setPlotChars(plotChars);
 		graph3.setX_AxisLabel("Fault Section Index");
 		graph3.setY_AxisLabel("Event Rate (per year)");
 		

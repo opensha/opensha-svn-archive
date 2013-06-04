@@ -2,6 +2,7 @@ package org.opensha.commons.gui.plot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jfree.chart.annotations.XYAnnotation;
@@ -10,7 +11,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import com.google.common.collect.Lists;
 
 /**
- * Useful if you need to describe a plot that will be used both in headless and interactive plotting.
+ * Plot specification, contains all data for a 2D plot.
  * 
  * @author kevin
  *
@@ -26,6 +27,14 @@ public class PlotSpec implements Serializable {
 	private String title, xAxisLabel, yAxisLabel;
 	private List<? extends XYAnnotation> annotations;
 	
+	/**
+	 * 
+	 * @param elems	list of elements to plot
+	 * @param chars	list of plot curve characteristics, or null for default colors
+	 * @param title	plot title
+	 * @param xAxisLabel	x axis label
+	 * @param yAxisLabel	y axis label
+	 */
 	public PlotSpec(List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
 		this.elems = elems;
@@ -35,8 +44,12 @@ public class PlotSpec implements Serializable {
 		this.yAxisLabel = yAxisLabel;
 	}
 
+	/**
+	 * 
+	 * @return list of all plot elements (unmodifiable)
+	 */
 	public List<? extends PlotElement> getPlotElems() {
-		return elems;
+		return Collections.unmodifiableList(elems);
 	}
 	
 	/**
@@ -51,10 +64,21 @@ public class PlotSpec implements Serializable {
 		return funcs;
 	}
 
+	/**
+	 * Set the list of plot elements
+	 * 
+	 * @param elems
+	 */
 	public void setPlotElems(List<? extends PlotElement> elems) {
 		this.elems = elems;
 	}
 	
+	/**
+	 * Set the list of plot annotations (or null for no annotations). Note that any line annotations
+	 * will use default rendering (black 1pt line).
+	 * 
+	 * @param annotations
+	 */
 	public void setPlotAnnotations(List<? extends XYAnnotation> annotations) {
 		this.annotations = annotations;
 	}

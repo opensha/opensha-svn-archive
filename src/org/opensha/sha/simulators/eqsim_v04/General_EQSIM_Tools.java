@@ -2225,7 +2225,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			graph.setY_AxisLabel("Observed Slip Rate (m/s)");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 			curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
-			graph.setPlottingFeatures(curveCharacteristics);
+			graph.setPlotChars(curveCharacteristics);
 			if(fileNamePrefix != null) {
 				String plotFileName = fileNamePrefix +".pdf";
 				try {
@@ -2322,7 +2322,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		if(savePlot) {
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
@@ -2370,7 +2370,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		s_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.BLUE));
-		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
+		s_vs_l_graph.setPlotChars(s_vs_l_curveChar);
 		
 		// MAG VS AREA PLOT
 		DefaultXY_DataSet m_vs_a_data = new DefaultXY_DataSet(area,mag);
@@ -2396,7 +2396,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN));
 		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
 //		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.MAGENTA));
-		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
+		m_vs_a_graph.setPlotChars(m_vs_a_curveChar);
 		m_vs_a_graph.setXLog(true);
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
 	/**/
@@ -2411,7 +2411,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		m_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> m_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.GREEN));
-		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
+		m_vs_l_graph.setPlotChars(m_vs_l_curveChar);
 //		m_vs_l_graph.setXLog(true);
 		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
 		
@@ -2652,7 +2652,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		graph.setY_AxisLabel("Number of Observations");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");

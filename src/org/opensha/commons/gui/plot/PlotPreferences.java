@@ -24,6 +24,10 @@ public class PlotPreferences {
 	
 	private List<ChangeListener> listeners = Lists.newArrayList();
 	
+	/**
+	 * Default OpenSHA plot preferences.
+	 * @return
+	 */
 	public static PlotPreferences getDefault() {
 		PlotPreferences pref = new PlotPreferences();
 		pref.tickLabelFontSize = 12;

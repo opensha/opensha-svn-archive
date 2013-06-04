@@ -38,10 +38,12 @@ import org.jfree.data.Range;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
 /**
- * <p>Title: GraphWindow</p>
- * <p>Description: This window pops up when the user wants to see the plot curves
- * in a separate window ( peel the plot from the original window )</p>
- * @author : Nitin Gupta
+ * <p>Title: GraphWidget</p>
+ * <p>Description: This is a widget which contains a GraphPanel and associated
+ * buttons. It can be embedded into an application, or displayed in its own
+ * GraphWindow.</p>
+ * @author Kevin Milner
+ * @author Nitin Gupta
  * @version 1.0
  */
 
@@ -82,19 +84,23 @@ public class GraphWidget extends JPanel {
 	 */
 	protected double Y_MIN_VAL = 1e-16;
 	
+	/**
+	 * Default constructor witha blank graph
+	 */
 	public GraphWidget() {
 		this(new PlotSpec(new ArrayList<PlotElement>(), new ArrayList<PlotCurveCharacterstics>(), null, null, null));
 	}
 
 	/**
-	 *
-	 * @param api : Instance of this application using this object.
+	 * Constructor for widget displaying the given plot data
+	 * @param plotSpec
 	 */
 	public GraphWidget(PlotSpec plotSpec) {
 		this(plotSpec, PlotPreferences.getDefault(), false, false, null, null);
 	}
 
 	/**
+	 * Constructor for widget displaying the given plot data with preferences and all other options exposed.
 	 * 
 	 * @param plotSpec
 	 * @param plotPrefs
@@ -148,6 +154,10 @@ public class GraphWidget extends JPanel {
 		togglePlot();
 	}
 	
+	/**
+	 * Get the GraphPanel instance for more fine tuned plotting adjustments
+	 * @return
+	 */
 	public GraphPanel getGraphPanel() {
 		return graphPanel;
 	}
@@ -284,8 +294,7 @@ public class GraphWidget extends JPanel {
 	}
 
 	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
+	 * Clear custom ranges for both axis.
 	 */
 	public void setAutoRange() {
 		this.xRange = null;
@@ -293,6 +302,10 @@ public class GraphWidget extends JPanel {
 		drawGraph();
 	}
 	
+	/**
+	 * 
+	 * @return currently displayed plot
+	 */
 	public PlotSpec getPlotSpec() {
 		return plotSpec;
 	}
@@ -322,12 +335,14 @@ public class GraphWidget extends JPanel {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
-	public void setPlottingFeatures(List<PlotCurveCharacterstics> curveCharacteristics) {
+	public void setPlotChars(List<PlotCurveCharacterstics> curveCharacteristics) {
 		plotSpec.setChars(curveCharacteristics);
 		drawGraph();
 	}
 
-	//checks if the user has plot the data window or plot window
+	/**
+	 * checks if the user has plot the data window or plot window
+	 */
 	public void togglePlot() {chartPane.removeAll();
 		if (isPlotEmpty()) {
 			removeChartAndMetadata();
@@ -348,22 +363,6 @@ public class GraphWidget extends JPanel {
 				new Insets(0, 0, 0, 0), 0, 0));
 		chartPane.validate();
 		chartPane.repaint();
-	}
-
-	/**
-	 * 
-	 * @return custom X-Axis range if supplied, else null for auto scale
-	 */
-	public Range getXRange() {
-		return xRange;
-	}
-
-	/**
-	 * 
-	 * @return custom Y-Axis range if supplied, else null for auto scale
-	 */
-	public Range getYRange() {
-		return yRange;
 	}
 
 	/**
@@ -470,7 +469,6 @@ public class GraphWidget extends JPanel {
 	/**
 	 *
 	 * @return the axis label font size
-	 * Default is 12
 	 */
 	public int getPlotLabelFontSize(){
 		return plotPrefs.getPlotLabelFontSize();

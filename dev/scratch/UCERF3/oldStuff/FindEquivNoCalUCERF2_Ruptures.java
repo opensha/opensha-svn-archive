@@ -1074,7 +1074,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, null, 4f, Color.BLUE, 1));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, null, 4f, Color.BLACK, 1));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		
 		graph.setYLog(true);
 		try {

@@ -926,7 +926,8 @@ public class GraphPanel extends JSplitPane {
 	}
 	/**
 	 *
-	 * @return the Range for the X-Axis
+	 * @return the Range for the X-Axis. Note that this will return the first X-Axis in the case
+	 * of multiple subplots
 	 */
 	public Range getX_AxisRange(){
 		return xAxis.getRange();
@@ -934,16 +935,27 @@ public class GraphPanel extends JSplitPane {
 
 	/**
 	 *
-	 * @return the Range for the Y-Axis
+	 * @return the Range for the Y-Axis. Note that this will return the first Y-Axis in the case
+	 * of multiple subplots
 	 */
 	public Range getY_AxisRange(){
 		return yAxis.getRange();
 	}
 	
+	/**
+	 * 
+	 * @return the X-Axis. Note that this will return the first X-Axis in the case
+	 * of multiple subplots
+	 */
 	public ValueAxis getXAxis() {
 		return xAxis;
 	}
 	
+	/**
+	 * 
+	 * @return the Y-Axis. Note that this will return the first Y-Axis in the case
+	 * of multiple subplots
+	 */
 	public ValueAxis getYAxis() {
 		return yAxis;
 	}
@@ -953,6 +965,7 @@ public class GraphPanel extends JSplitPane {
 	 * to the DiscretizedFunction List. This method also creates the color scheme
 	 * depending on the different types of DiscretizedFunc added to the list.
 	 * @param elems
+	 * @param chars
 	 */
 	private static XY_DataSetList createColorSchemeAndFunctionList(List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> plotChars) {
@@ -1212,6 +1225,11 @@ public class GraphPanel extends JSplitPane {
 		return renderingOrder;
 	}
 
+	/**
+	 * Set dataset rendering order (allows plotting first function on top or bottom).
+	 * 
+	 * @param renderingOrder
+	 */
 	public void setRenderingOrder(DatasetRenderingOrder renderingOrder) {
 		this.renderingOrder = renderingOrder;
 	}
@@ -1220,6 +1238,10 @@ public class GraphPanel extends JSplitPane {
 		return xAxisInverted;
 	}
 
+	/**
+	 * Set X axis inverted.
+	 * @param xAxisInverted
+	 */
 	public void setxAxisInverted(boolean xAxisInverted) {
 		this.xAxisInverted = xAxisInverted;
 		if (xAxis  != null)
@@ -1230,6 +1252,10 @@ public class GraphPanel extends JSplitPane {
 		return yAxisInverted;
 	}
 
+	/**
+	 * Set Y axis inverted
+	 * @param yAxisInverted
+	 */
 	public void setyAxisInverted(boolean yAxisInverted) {
 		this.yAxisInverted = yAxisInverted;
 		if (yAxis  != null)

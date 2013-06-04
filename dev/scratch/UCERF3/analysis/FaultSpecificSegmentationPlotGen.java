@@ -42,6 +42,7 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
@@ -139,7 +140,7 @@ public class FaultSpecificSegmentationPlotGen {
 		for (Integer parent : parentSects) {
 			List<FaultSectionPrefData> sects = subSectsByParent.get(parent);
 			
-			if (sects == null && parent == 13)
+			if (sects == null)
 				continue;
 			
 			Location parentStart = sects.get(0).getFaultTrace().first();
@@ -421,7 +422,6 @@ public class FaultSpecificSegmentationPlotGen {
 			a.setTextAnchor(textAnchor);
 			a.setRotationAngle(angle);
 			annotations.add(a);
-			System.out.println(x+": "+name);
 		}
 		spec.setPlotAnnotations(annotations);
 		
@@ -469,6 +469,10 @@ public class FaultSpecificSegmentationPlotGen {
 	
 	public static List<Integer> getHaywardParents(FaultModels fm) {
 		return fm.getNamedFaultsMapAlt().get("Hayward-Rodgers Creek");
+//		if (fm == FaultModels.FM2_1)
+//			return Lists.newArrayList(25, 68, 69, 4, 5, 55);
+//		else
+//			return Lists.newArrayList(651, 639, 638, 637, 601, 602, 603, 621);
 	}
 	
 	public static void main(String args[]) throws IOException, DocumentException {
@@ -511,6 +515,32 @@ public class FaultSpecificSegmentationPlotGen {
 				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7.5, false);
 		
 		prefix = "branch_avg_hayward_seg7.5+";
+
+		file = new File(writeDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		// now UCERF2
+		
+		InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		
+		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 0, false);
+		
+		prefix = "ucerf2_hayward_seg";
+
+		file = new File(writeDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 7, false);
+		
+		prefix = "ucerf2_hayward_seg7.0+";
 
 		file = new File(writeDir, prefix);
 		gp.getCartPanel().setSize(1000, 800);

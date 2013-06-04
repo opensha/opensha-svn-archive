@@ -317,9 +317,9 @@ public class GraphWindow extends JFrame {
 		widget.setPlotSpec(plotSpec);
 	}
 
-	public void setPlottingFeatures(
+	public void setPlotChars(
 			List<PlotCurveCharacterstics> curveCharacteristics) {
-		widget.setPlottingFeatures(curveCharacteristics);
+		widget.setPlotChars(curveCharacteristics);
 	}
 
 	public void togglePlot() {
