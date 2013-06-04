@@ -87,7 +87,7 @@ public class InversionConfiguration implements XMLSaveable {
 	
 	private String metadata;
 	
-	public InversionConfiguration(
+	InversionConfiguration(
 			double slipRateConstraintWt_normalized,
 			double slipRateConstraintWt_unnormalized,
 			SlipRateConstraintWeightingType slipRateWeighting,
@@ -213,7 +213,7 @@ public class InversionConfiguration implements XMLSaveable {
 	 * slip-rate constraint (recommended: 10)
 	 * @param mfdInequalityConstraintWt weight of magnitude-distribution INEQUALITY constraint relative
 	 * to slip-rate constraint (recommended:  1000)
-	 * @param modifiers command line modifier arguments
+	 * @param modifiers command line modifier arguments (can be null)
 	 * @return
 	 */
 	public static InversionConfiguration forModel(InversionModels model, InversionFaultSystemRupSet rupSet,

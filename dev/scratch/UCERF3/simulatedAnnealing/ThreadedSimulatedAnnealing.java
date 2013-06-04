@@ -98,7 +98,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			DoubleMatrix2D A, double[] d, double[] initialState, double relativeSmoothnessWt, 
 			DoubleMatrix2D A_ineq,  double[] d_ineq, double[] minimumRuptureRates,
 			int numThreads, CompletionCriteria subCompetionCriteria) {
-		// SA inputs are checked in SA constructor, no need to duplicate checks
+		// SA inputs are checked in each serial SA constructor, no need to duplicate checks
 		
 		Preconditions.checkArgument(numThreads > 0, "numThreads must be > 0");
 		Preconditions.checkNotNull(subCompetionCriteria, "subCompetionCriteria cannot be null");
@@ -108,6 +108,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		this.minimumRuptureRates = minimumRuptureRates;
 		this.initialState = initialState;
 		
+		// list of serial SA instances for each thread
 		sas = new ArrayList<SerialSimulatedAnnealing>();
 		for (int i=0; i<numThreads; i++)
 			sas.add(new SerialSimulatedAnnealing(A, d, initialState, relativeSmoothnessWt, A_ineq, d_ineq));
@@ -317,6 +318,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			if (subCompletionCriteria instanceof VariableSubTimeCompletionCriteria)
 				((VariableSubTimeCompletionCriteria)subCompletionCriteria).setGlobalState(watch, iter, Ebest, perturbs);
 			
+			// write checkpoint information if applicable
 			if (checkPointCriteria != null &&
 					checkPointCriteria.isSatisfied(checkPointWatch, iter, Ebest, perturbs)) {
 				numCheckPoints++;
@@ -341,6 +343,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 			ArrayList<SAThread> threads = new ArrayList<ThreadedSimulatedAnnealing.SAThread>();
 			
 			// create the threads
+			// TODO switch to using a thread pool
 			for (int i=0; i<numThreads; i++) {
 				long start;
 				if (startSubIterationsAtZero)
@@ -364,6 +367,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				}
 			}
 			
+			// find best solution and max iteration count
 			for (int i=0; i<numThreads; i++) {
 				SAThread thread = threads.get(i);
 				if (thread.fatal)
@@ -398,6 +402,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 						+Doubles.join(", ", Ebest));
 			}
 			
+			// set next state in all SAs
 			for (SimulatedAnnealing sa : sas)
 				sa.setResults(Ebest, xbest, misfit, misfit_ineq);
 		}

@@ -238,7 +238,9 @@ public class CommandLineInversionRunner {
 			CommandLineParser parser = new GnuParser();
 			CommandLine cmd = parser.parse(options, args);
 
+			// if enabled, only the .bin files and rup set will be written out (no solution zip file)
 			boolean lightweight = cmd.hasOption("lightweight");
+			// solution zip file will still be written out, but no plots
 			boolean noPlots = cmd.hasOption("no-plots");
 
 			// get the directory/logic tree branch
@@ -246,42 +248,49 @@ public class CommandLineInversionRunner {
 			if (!dir.exists())
 				dir.mkdir();
 			String prefix = cmd.getOptionValue("branch-prefix");
+			// parse logic tree branch from prefix
 			LogicTreeBranch branch = LogicTreeBranch.fromFileName(prefix);
+			// ensure that branch is fully specified (no nulls)
 			Preconditions.checkState(branch.isFullySpecified(),
 					"Branch is not fully fleshed out! Prefix: "+prefix+", branch: "+branch);
 
+			// rup specific files are stored in a subdirectory using the prefix
 			File subDir = new File(dir, prefix);
 			if (!subDir.exists())
 				subDir.mkdir();
 
+			// Laugh Test Filter for rup set creation
 			LaughTestFilter laughTest;
 			if (cmd.hasOption(InversionOptions.UCERF3p2.argName))
 				laughTest = LaughTestFilter.getUCERF3p2Filter();
 			else
 				laughTest = LaughTestFilter.getDefault();
+			
+			// Option for overriding default Coulomb PDCFF threshold
 			if (cmd.hasOption(InversionOptions.COULOMB.argName)) {
 				double val = Double.parseDouble(cmd.getOptionValue(InversionOptions.COULOMB.argName));
 				laughTest.getCoulombFilter().setMinAverageProb(val);
 				laughTest.getCoulombFilter().setMinIndividualProb(val);
 			}
+			// Option for overriding default Coulomb DCFF threshold
 			if (cmd.hasOption(InversionOptions.COULOMB_EXCLUDE.argName)) {
 				double val = Double.parseDouble(cmd.getOptionValue(InversionOptions.COULOMB_EXCLUDE.argName));
 				laughTest.getCoulombFilter().setMinimumStressExclusionCeiling(val);
 			}
+			// default aseismicity value for faults without creep data
 			String aseisArg = InversionOptions.DEFAULT_ASEISMICITY.argName;
 			double defaultAseis = InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE;
+			// option for overriding this default value
 			if (cmd.hasOption(aseisArg)) {
 				String aseisVal = cmd.getOptionValue(aseisArg);
 				defaultAseis = Double.parseDouble(aseisVal);
 			}
-
-			// flag for disabling sub seismogenic moment reductions
-			//			InversionFaultSystemRupSet.applySubSeismoMomentReduction = !cmd.hasOption(InversionOptions.NO_SUBSEIS_RED.argName);
-
-
-			// first build the rupture set
+			
+			// build the rupture set
 			System.out.println("Building RupSet");
 			if (cmd.hasOption("remove-faults")) {
+				// this is an option for a special test where we ignore certain
+				// troublesome faults
 				HashSet<Integer> sectionsToIgnore = new HashSet<Integer>();
 				sectionsToIgnore.add(13); // mendocino
 				sectionsToIgnore.add(97); // imperial
@@ -298,40 +307,48 @@ public class CommandLineInversionRunner {
 
 			// now build the inversion inputs
 
-			// mfd relax flag
+			// MFD constraint weights
 			double mfdEqualityConstraintWt = InversionConfiguration.DEFAULT_MFD_EQUALITY_WT;
 			double mfdInequalityConstraintWt = InversionConfiguration.DEFAULT_MFD_INEQUALITY_WT;
 
+			// check if we're on a RelaxMFD branch and set weights accordingly
 			if (branch.getValue(MomentRateFixes.class).isRelaxMFD()) {
 				mfdEqualityConstraintWt = 1;
 				mfdInequalityConstraintWt = 1;
 			}
 
 			System.out.println("Building Inversion Configuration");
+			// this contains all inversion weights
 			InversionConfiguration config = InversionConfiguration.forModel(branch.getValue(InversionModels.class),
 					rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt, cmd);
 
+			// load paleo rate constraints
 			ArrayList<PaleoRateConstraint> paleoRateConstraints = getPaleoConstraints(branch.getValue(FaultModels.class), rupSet);
 
+			// load paleo probability of observance model
 			PaleoProbabilityModel paleoProbabilityModel =
 				InversionInputGenerator.loadDefaultPaleoProbabilityModel();
 
+			// this class generates inversion inputs (A matrix and data vector)
 			InversionInputGenerator gen = new InversionInputGenerator(rupSet, config,
 					paleoRateConstraints, null, paleoProbabilityModel);
 
+			// flag for enabling A Priori constraint (not used by default) on zero rate ruptures
+			// which acts as a minimization constraint on those ruptures.
 			if (cmd.hasOption(InversionOptions.A_PRIORI_CONST_FOR_ZERO_RATES.argName)) {
 				System.out.println("Setting a prior constraint for zero rates");
 				gen.setAPrioriConstraintForZeroRates(true);
 			}
 
+			// actually generate the inputs
 			System.out.println("Building Inversion Inputs");
 			gen.generateInputs();
 
+			// write out the rup set to a file so that we can clear it from memory
 			System.out.println("Writing RupSet");
 			config.updateRupSetInfoString(rupSet);
 			String info = rupSet.getInfoString();
 			info += "\n\n"+getPreInversionInfo(rupSet);
-			
 
 			File rupSetFile = new File(subDir, prefix+"_rupSet.zip");
 			FaultSystemIO.writeRupSet(rupSet, rupSetFile);
@@ -340,12 +357,15 @@ public class CommandLineInversionRunner {
 			gen.setRupSet(null);
 			System.gc();
 
+			// this makes the inversion much more efficient
 			System.out.println("Column Compressing");
 			gen.columnCompress();
 
+			// fetch inversion inputs
 			DoubleMatrix2D A = gen.getA();
 			double[] d = gen.getD();
 			double[] initialState = gen.getInitial();
+			// options for overriding initial state
 			if (cmd.hasOption(InversionOptions.INITIAL_ZERO.argName))
 				initialState = new double[initialState.length];
 			if (cmd.hasOption(InversionOptions.INITIAL_RANDOM.argName)) {
@@ -359,13 +379,18 @@ public class CommandLineInversionRunner {
 				for (int r=0; r<initialState.length; r++)
 					initialState[r] = Math.pow(10d, Math.random() * deltaExp + minExp);
 			}
+			// inputs for inequality constraints
 			DoubleMatrix2D A_ineq = gen.getA_ineq();
 			double[] d_ineq = gen.getD_ineq();
+			// waterlevel rates (these have already been subtracted from all datas and the initial state)
+			// can be null for no waterlevel
 			double[] minimumRuptureRates = gen.getMinimumRuptureRates();
+			// these list the row numbers and names for each constraint type for tracking individual energy levels
 			List<Integer> rangeEndRows = gen.getRangeEndRows();
 			List<String> rangeNames = gen.getRangeNames();
 			
 			if (cmd.hasOption(InversionOptions.SYNTHETIC.argName)) {
+				// special synthetic inversion test
 				double[] synrates = MatrixIO.doubleArrayFromFile(new File(dir, "syn.bin"));
 				Preconditions.checkState(synrates.length == initialState.length,
 						"synthetic starting solution has different num rups!");
@@ -412,26 +437,29 @@ public class CommandLineInversionRunner {
 					}
 				}
 				
+				// copy over "data" from synthetics
 				for (int[] range : rangesToCopy) {
 					System.out.println("Copying range "+range[0]+" => "+range[1]+" from syn to D");
 					for (int i=range[0]; i<=range[1]; i++)
 						d[i] = d_syn[i];
 				}
-				
-				// copy over slip rate
 			}
 
 			for (int i=0; i<rangeEndRows.size(); i++) {
 				System.out.println(i+". "+rangeNames.get(i)+": "+rangeEndRows.get(i));
 			}
 
+			// clear out generator
 			gen = null;
 			System.gc();
 
 			System.out.println("Creating TSA");
+			// set up multi thread SA
 			ThreadedSimulatedAnnealing tsa = ThreadedSimulatedAnnealing.parseOptions(cmd, A, d,
 					initialState, A_ineq, d_ineq, minimumRuptureRates, rangeEndRows, rangeNames);
+			// store a copy of the initial state for later
 			initialState = Arrays.copyOf(initialState, initialState.length);
+			// setup completion criteria
 			CompletionCriteria criteria = ThreadedSimulatedAnnealing.parseCompletionCriteria(cmd);
 			if (!(criteria instanceof ProgressTrackingCompletionCriteria)) {
 				File csvFile = new File(dir, prefix+".csv");
@@ -444,13 +472,16 @@ public class CommandLineInversionRunner {
 				tsa.setSubCompletionCriteria(criteria);
 				tsa.setNumThreads(1);
 			}
+			// run the inversion
 			System.out.println("Starting Annealing");
 			tsa.iterate(criteria);
 			System.out.println("Annealing DONE");
+			
+			// add SA metadata to solution info string
 			info += "\n";
 			info += "\n****** Simulated Annealing Metadata ******";
 			info += "\n"+tsa.getMetadata(args, criteria);
-			// add perturbation info
+			// add metadata on how many ruptures had their rates actually peturbed
 			ProgressTrackingCompletionCriteria pComp = (ProgressTrackingCompletionCriteria)criteria;
 			long numPerturbs = pComp.getPerturbs().get(pComp.getPerturbs().size()-1);
 			int numRups = initialState.length;
@@ -473,10 +504,12 @@ public class CommandLineInversionRunner {
 			+(float)(100d*((double)numAboveWaterlevel/(double)numRups))+" %)";
 			info += "\n******************************************";
 			System.out.println("Writing solution bin files");
+			// write out results
 			tsa.writeBestSolution(new File(subDir, prefix+".bin"));
 
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
+				// load the RupSet back in for plotting and solution file creation
 				InversionFaultSystemRupSet loadedRupSet = FaultSystemIO.loadInvRupSet(rupSetFile);
 				loadedRupSet.setInfoString(info);
 				double[] rupRateSolution = tsa.getBestSolution();
@@ -555,7 +588,7 @@ public class CommandLineInversionRunner {
 				info += "\n**********************************************";
 				
 				if (!noPlots) {
-					// MFD plots
+					// MFD plots - do this now so that we can add the M5 rates to the metadata files
 					try {
 						List<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
 						
@@ -579,10 +612,12 @@ public class CommandLineInversionRunner {
 
 				sol.setInfoString(info);
 
+				// actually write the solution
 				System.out.println("Writing solution");
 				FaultSystemIO.writeSol(sol, solutionFile);
 				
 				if (!noPlots) {
+					// now write out plots
 					CSVFile<String> moRateCSV = new CSVFile<String>(true);
 					moRateCSV.addLine(Lists.newArrayList("ID", "Name", "Target", "Solution", "Diff"));
 					for (ParentMomentRecord p : parentMoRates)

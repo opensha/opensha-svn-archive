@@ -1366,6 +1366,9 @@ public class InversionInputGenerator {
 			throw new IllegalArgumentException("Unknown matrix type: "+clazz);
 	}
 	
+	/**
+	 * Column compress the A matrix
+	 */
 	public void columnCompress() {
 		A = getColumnCompressed(A);
 		if (A_ineq != null)

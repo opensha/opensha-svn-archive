@@ -1,7 +1,6 @@
 package scratch.UCERF3.logicTree;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,13 +27,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
+/**
+ * Stores LogicTreeBranch choices. Each node is an enum which implements the LogicTreeBranchNode interface.
+ * 
+ * @author kevin
+ *
+ */
 public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends Enum<?>>>,
 	Cloneable, Serializable, Comparable<LogicTreeBranch>, XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "LogicTreeBranch";
 	
 	/**
-	 * This is the default reference branch
+	 * This is the default UCERF3 reference branch
 	 */
 	public static final LogicTreeBranch DEFAULT = fromValues(FaultModels.FM3_1, DeformationModels.ZENGBB,
 			ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.TAPERED, InversionModels.CHAR_CONSTRAINED, TotalMag5Rate.RATE_7p9,
@@ -66,6 +71,10 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> logicTreeClasses;
 	
+	/**
+	 * List of Logic Tree node classes
+	 * @return
+	 */
 	public static synchronized List<Class<? extends LogicTreeBranchNode<?>>> getLogicTreeNodeClasses() {
 		if (logicTreeClasses == null) {
 			logicTreeClasses = Lists.newArrayList();
@@ -104,10 +113,21 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return getValue(clazz, branch);
 	}
 	
+	/**
+	 * 
+	 * @param clazz
+	 * @return true of the value for the given class is not null
+	 */
 	public boolean hasNonNullValue(Class<? extends LogicTreeBranchNode<?>> clazz) {
-		return getValueUnchecked(clazz) !=  null;
+		return getValueUnchecked(clazz) != null;
 	}
 	
+	/**
+	 * Get the value for the given class. This unchecked version can be useful to get around
+	 * Java generics issues (use getValue(...) if possible)
+	 * @param clazz
+	 * @return
+	 */
 	public LogicTreeBranchNode<?> getValueUnchecked(Class<? extends LogicTreeBranchNode<?>> clazz) {
 		return getValueUnchecked(clazz, branch);
 	}
@@ -134,14 +154,30 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return number of logic tree branch nodes (including nulls)
+	 */
 	public int size() {
 		return branch.size();
 	}
 	
+	/**
+	 * 
+	 * @param index
+	 * @return Logic tree branch node value at the given index
+	 */
 	public LogicTreeBranchNode<?> getValue(int index) {
 		return branch.get(index);
 	}
 	
+	/**
+	 * Enums with choices that implement an abstract method create subclasses for each
+	 * choice. This ensures that the clazz you are using is an enum parent class and not
+	 * a choice's subclass.
+	 * @param clazz
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <E extends LogicTreeBranchNode<?>> Class<E> getEnumEnclosingClass(Class<E> clazz) {
 		if (!clazz.isEnum())
@@ -149,11 +185,19 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return clazz;
 	}
 	
+	/**
+	 * Sets the value for the given class to null.
+	 * @param clazz
+	 */
 	public void clearValue(Class<? extends LogicTreeBranchNode<?>> clazz) {
 		clazz = getEnumEnclosingClass(clazz);
 		branch.set(getLogicTreeNodeClasses().indexOf(clazz), null);
 	}
 	
+	/**
+	 * Sets the given value in the branch. Cannot be null (use clearValue(clazz)).
+	 * @param value
+	 */
 	public void setValue(LogicTreeBranchNode<?> value) {
 		Class<? extends LogicTreeBranchNode> clazz = getEnumEnclosingClass(value.getClass());
 		
@@ -172,6 +216,10 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		throw new IllegalArgumentException("Class '"+clazz+"' not part of logic tree node classes");
 	}
 	
+	/**
+	 * 
+	 * @return true if all branch values are non-null
+	 */
 	public boolean isFullySpecified() {
 		for (LogicTreeBranchNode<?> val : branch)
 			if (val == null)
@@ -232,6 +280,11 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return getNumAwayFrom(branch) == 0;
 	}
 	
+	/**
+	 * Builds a file name using the encodeChoiceString method on each branch value, separated by undercores.
+	 * Can be parsed with fromFileName(String).
+	 * @return
+	 */
 	public String buildFileName() {
 		String str = null;
 		for (int i=0; i<branch.size(); i++) {
@@ -248,6 +301,13 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return str;
 	}
 	
+	/**
+	 * Creates a LogicTreeBranch instance from given set of node values. Null or missing values
+	 * will be replaced with their default value (from LogicTreeBranch.DEFAULT).
+	 * 
+	 * @param vals
+	 * @return
+	 */
 	public static LogicTreeBranch fromValues(List<LogicTreeBranchNode<?>> vals) {
 		LogicTreeBranchNode<?>[] valsArray = new LogicTreeBranchNode[vals.size()];
 		
@@ -257,10 +317,26 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return fromValues(valsArray);
 	}
 	
+	/**
+	 * Creates a LogicTreeBranch instance from given set of node values. Null or missing values
+	 * will be replaced with their default value (from LogicTreeBranch.DEFAULT).
+	 * 
+	 * @param vals
+	 * @return
+	 */
 	public static LogicTreeBranch fromValues(LogicTreeBranchNode<?>... vals) {
 		return fromValues(true, vals);
 	}
 	
+	/**
+	 * Creates a LogicTreeBranch instance from given set of node values. Null or missing values
+	 * will be replaced with their default value (from LogicTreeBranch.DEFAULT) if setNullToDefault
+	 * is true.
+	 * 
+	 * @param setNullToDefault if true, null or missing values will be set to their default value
+	 * @param vals
+	 * @return
+	 */
 	public static LogicTreeBranch fromValues(boolean setNullToDefault, LogicTreeBranchNode<?>... vals) {
 		List<Class<? extends LogicTreeBranchNode<?>>> classes = getLogicTreeNodeClasses();
 		
@@ -308,10 +384,24 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return new LogicTreeBranch(branch);
 	}
 	
+	/**
+	 * Parses a list of strings to build a LogicTreeBranch. Strings should match the result
+	 * encodeStringValue() for each node. Any missing or unmatched values are left as null.
+	 * @param strings
+	 * @return
+	 */
 	public static LogicTreeBranch fromStringValues(List<String> strings) {
 		return fromFileName(Joiner.on("_").join(strings));
 	}
 	
+	/**
+	 * Parses a file name string to build a LogicTreeBranch. Format should match the result
+	 * encodeStringValue() for each node, separated by underscores. Any missing or unmatched
+	 * values are left as null.
+	 * 
+	 * @param fileName
+	 * @return
+	 */
 	public static LogicTreeBranch fromFileName(String fileName) {
 		List<Class<? extends LogicTreeBranchNode<?>>> classes = getLogicTreeNodeClasses();
 		List<LogicTreeBranchNode<? extends Enum<?>>> branch = Lists.newArrayList();
@@ -339,6 +429,13 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return false;
 	}
 	
+	/**
+	 * Parse the string value for the given class.
+	 * 
+	 * @param clazz
+	 * @param str
+	 * @return
+	 */
 	public static <E extends Enum<E>> E parseValue(Class<? extends LogicTreeBranchNode<E>> clazz, String str) {
 		LogicTreeBranchNode<E>[] options = clazz.getEnumConstants();
 		for (LogicTreeBranchNode<E> option : options)
@@ -364,11 +461,18 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return str+"]";
 	}
 	
+	/**
+	 * Used for Pre Inversion Analysis
+	 * @return
+	 */
 	public String getTabSepValStringHeader() {
 		return "FltMod\tDefMod\tScRel\tSlipAlongMod\tInvModels\tM5Rate\tMmaxOff\tMoRateFix\tSpatSeisPDF";
 	}
-
 	
+	/**
+	 * Used for Pre Inversion Analysis
+	 * @return
+	 */
 	public String getTabSepValString() {
 		String str = "";
 		boolean first = true;
@@ -424,8 +528,9 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	}
 	
 	/**
-	 * This returns the branch weight using a priori weights specified in the logic tree branch
+	 * This returns the normalized branch weight using a priori weights specified in the logic tree branch
 	 * node enums.
+	 * 
 	 * @return
 	 */
 	public double getAprioriBranchWt() {
@@ -436,6 +541,11 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 		return wt;
 	}
 	
+	/**
+	 * @param node
+	 * @param im
+	 * @return normalized weight for the given node
+	 */
 	static double getNormalizedWt(
 			LogicTreeBranchNode<? extends Enum<?>> node, InversionModels im) {
 		if (classWeightTotals == null) {
