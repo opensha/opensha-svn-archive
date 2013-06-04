@@ -298,12 +298,27 @@ public class GraphPanel extends JSplitPane {
 	}
 	
 
-	
+	/**
+	 * Draw the graph with a single plot and auto scaling
+	 * 
+	 * @param spec	PlotSpec instance
+	 * @param xLog	if true, log X axis
+	 * @param yLog	if true, log Y axis
+	 */
 	public void drawGraphPanel(PlotSpec spec, boolean xLog, boolean yLog) {
 		drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(), spec.getPlotElems(),
 				spec.getChars(), xLog, yLog, spec.getTitle(), null, null);
 	}
 	
+	/**
+	 * Draw the graph with a single plot
+	 * 
+	 * @param spec	PlotSpec instance
+	 * @param xLog	if true, log X axis
+	 * @param yLog	if true, log Y axis
+	 * @param xRange	X axis range, or null for auto scale
+	 * @param yRange	Y axis range, or null for auto scale
+	 */
 	public void drawGraphPanel(PlotSpec spec, boolean xLog, boolean yLog, Range xRange, Range yRange) {
 		List<PlotSpec> specs = Lists.newArrayList(spec);
 		List<Range> xRanges;
@@ -319,6 +334,15 @@ public class GraphPanel extends JSplitPane {
 		drawGraphPanel(specs, xLog, yLog, xRanges, yRanges);
 	}
 	
+	/**
+	 * Draw the graph with support for multiple subplots
+	 * 
+	 * @param specs	list of PlotSpec instances
+	 * @param xLog	if true, log X axis
+	 * @param yLog	if true, log Y axis
+	 * @param xRanges	X axis ranges for each subplot. If non null size > 1, combined plots will share a Y axis
+	 * @param yRanges	X axis ranges for each subplot. If non null size > 1, combined plots will share an X axis
+	 */
 	public void drawGraphPanel(List<PlotSpec> specs, boolean xLog, boolean yLog,
 			List<Range> xRanges, List<Range> yRanges) {
 		// Starting
@@ -823,7 +847,16 @@ public class GraphPanel extends JSplitPane {
 		this.backgroundColor = background;
 	}
 
-
+	/**
+	 * Sets preference for combined subplots. If true, the Y axis will be shared, else
+	 * the X axis will be shared among subplots. This will be overridden if multiple ranges
+	 * are set in the drawGraphPanel(...) call for a single axis.
+	 * @param combinedYAxis
+	 */
+	public void setCombinedOnYAxis(boolean combinedYAxis) {
+		this.combinedYAxis = combinedYAxis;
+	}
+	
 	/**
 	 * Clears the plot and the Metadata Window
 	 */
