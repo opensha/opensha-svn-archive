@@ -100,6 +100,7 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 
@@ -166,7 +167,7 @@ public class HazardCurvePlotter {
 	
 	private static int getRunID(Runs2DB runs2db, HazardCurve2DB curve2db, PeakAmplitudesFromDB amps2db,
 			int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID) {
-		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, velModelID, rupVarScenarioID, null, null, null, null);
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, velModelID, null, null, null, null);
 		if (runIDs == null || runIDs.size() == 0)
 			return -1;
 		int id = -1;
@@ -320,7 +321,7 @@ public class HazardCurvePlotter {
 			int runID = getRunID(runs2db, curve2db, amps2db, siteID, erfID, rupVarScenarioID, sgtVarID, velModelID);
 			if (runID < 0) {
 				System.err.println("No suitable run ID found! siteID: " + siteID + ", erfID: " + erfID +
-						", rupVarScenarioID: " + rupVarScenarioID + ", sgtVarID: " + sgtVarID);
+						", rupVarScenarioID: " + rupVarScenarioID + ", sgtVarID: " + sgtVarID + ", velModelID: "+velModelID);
 				return -1;
 			}
 			return runID;
