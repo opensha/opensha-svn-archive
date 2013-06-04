@@ -1709,5 +1709,6 @@ public class CommandLineInversionRunner {
 		gp.setTickLabelFontSize(18);
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
 	}
 }

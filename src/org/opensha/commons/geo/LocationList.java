@@ -476,5 +476,19 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 			};
 		}
 	}
+	
+	/**
+	 * @return the first location
+	 */
+	public Location first() {
+		return get(0);
+	}
+	
+	/**
+	 * @return the lats location
+	 */
+	public Location last() {
+		return get(size()-1);
+	}
 
 }

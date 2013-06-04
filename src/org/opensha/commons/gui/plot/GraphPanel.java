@@ -74,6 +74,7 @@ import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.lowagie.text.Document;
@@ -507,7 +508,7 @@ public class GraphPanel extends JSplitPane {
 				subPlot = plot;
 			}
 			
-			//secondarydataset index keeps track where do we have to add the seconadary data set in plot
+			//secondary dataset index keeps track where do we have to add the secondary data set in plot
 			for(int j=0,dataIndex=0; j < numFuncs; ++j,++dataIndex){
 				PlotCurveCharacterstics curveCharaceterstic = plotChars.get(j);
 				//getting the number of consecutive curves that have same plotting characterstics.
@@ -515,7 +516,7 @@ public class GraphPanel extends JSplitPane {
 				if (isBlankCurve(curveCharaceterstic)) {
 					//adding the number of consecutive curves with same plotting characterstics to dataset index.
 					datasetIndex +=numCurves;
-					//decrement the secondary dataset index so that we seconday dataset is added to correct place.
+					//decrement the secondary dataset index so that we secondary dataset is added to correct place.
 					--dataIndex;
 					continue;
 				}
@@ -548,9 +549,9 @@ public class GraphPanel extends JSplitPane {
 				datasetIndex +=numCurves;
 
 				//adding the dataset to the plot
-				subPlot.setDataset(dataIndex,dataset);
+				subPlot.setDataset(dataIndex, dataset);
 
-				//based on plotting characterstics for each curve sending configuring plot object
+				//based on plotting characteristics for each curve sending configuring plot object
 				//to be send to JFreechart for plotting.
 				drawCurvesUsingPlottingFeatures(subPlot, lineType, lineWidth, symbol, symbolWidth, color, dataIndex);
 			}
@@ -921,7 +922,7 @@ public class GraphPanel extends JSplitPane {
 	 * @param elems
 	 */
 	private static XY_DataSetList createColorSchemeAndFunctionList(List<? extends PlotElement> elems,
-			List<PlotCurveCharacterstics> plotChars){
+			List<PlotCurveCharacterstics> plotChars) {
 
 		if (plotChars == null)
 			plotChars = Lists.newArrayList();
@@ -931,34 +932,10 @@ public class GraphPanel extends JSplitPane {
 		XY_DataSetList plottedFuncs = new XY_DataSetList();
 
 		for(int i=0;i<numElems;++i){
-
-			Object obj = elems.get(i);
-			if(obj instanceof WeightedFuncListforPlotting){
-				WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
-				if(weightedList.areIndividualCurvesToPlot()){
-					XY_DataSetList list= weightedList.getWeightedFunctionList();
-					//list.get(0).setInfo(weightedList.getInfo()+"\n"+"(a) "+list.getInfo());
-					numColorArray.add(new Integer(list.size()));
-					plottedFuncs.addAll(list);
-				}
-				if(weightedList.areFractilesToPlot()){
-					XY_DataSetList list= weightedList.getFractileList();
-					// list.get(0).setInfo("(b) "+list.getInfo());
-					plottedFuncs.addAll(list);
-					numColorArray.add(new Integer(list.size()));
-				}
-				if(weightedList.isMeanToPlot()){
-					AbstractXY_DataSet meanFunc = weightedList.getMean();
-					//String info = meanFunc.getInfo();
-					//meanFunc.setInfo("(c) "+info);
-					plottedFuncs.add(meanFunc);
-					numColorArray.add(new Integer(1));
-				}
-			}
-			else{
-				plottedFuncs.add((XY_DataSet)obj);
-				numColorArray.add(new Integer(1));
-			}
+			PlotElement elem = elems.get(i);
+			
+			plottedFuncs.addAll(elem.getDatasetsToPlot());
+			numColorArray.addAll(elem.getPlotNumColorList());
 		}
 
 
@@ -987,6 +964,10 @@ public class GraphPanel extends JSplitPane {
 				}
 				plotChars.add(new PlotCurveCharacterstics(lineType, 1f, symbol, 4f,
 						defaultColor[defaultColorIndex],val));
+			} else {
+				PlotCurveCharacterstics chars = (PlotCurveCharacterstics)plotChars.get(i).clone();
+				chars.setNumContinuousCurvesWithSameCharaceterstics(val);
+				plotChars.set(i, chars);
 			}
 		}
 		

@@ -1,6 +1,7 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,11 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotMultiDataLayer;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -124,6 +131,7 @@ public class FaultSpecificSegmentationPlotGen {
 		
 		Map<Location, List<Integer>> stoppingPoints = Maps.newHashMap();
 		List<Location> parentSectEnds = Lists.newArrayList();
+		Map<Location, String> parentSectNamesMap = Maps.newHashMap();
 		
 		double toleranceKM = 3;
 		boolean normalize = true;
@@ -133,6 +141,12 @@ public class FaultSpecificSegmentationPlotGen {
 			
 			if (sects == null && parent == 13)
 				continue;
+			
+			Location parentStart = sects.get(0).getFaultTrace().first();
+			Location parentEnd = sects.get(sects.size()-1).getFaultTrace().last();
+			Location midPt = new Location(0.5*(parentStart.getLatitude()+parentEnd.getLatitude()),
+					0.5*(parentStart.getLongitude()+parentEnd.getLongitude()));
+			parentSectNamesMap.put(midPt, sects.get(0).getParentSectionName());
 			
 			List<Location> sectStoppingPoints = Lists.newArrayList();
 			for (int i=0; i<sects.size(); i++) {
@@ -363,27 +377,22 @@ public class FaultSpecificSegmentationPlotGen {
 		}
 		stopFunc.setInfo(info);
 		
-		ArbitrarilyDiscretizedFunc sectEnds = new ArbitrarilyDiscretizedFunc();
-		sectEnds.setName("Parent Section End Points");
+		PlotMultiDataLayer sectEnds = new PlotMultiDataLayer();
+		sectEnds.setInfo("Parent Section End Points");
 		
 		for (Location loc : parentSectEnds)
-			sectEnds.set(loc.getLatitude(), 1.5);
+			sectEnds.addVerticalLine(loc.getLatitude(), 0d, 1.5);
 		
 		System.out.println("Parent stopping pts: "+parentSectEnds.size());
 		
-		ArrayList<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotElement> funcs = Lists.newArrayList();
 		funcs.add(continueFunc);
 		funcs.add(stopFunc);
 		funcs.add(sectEnds);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 5f, Color.GREEN.darker()));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.FILLED_SQUARE, 5f, Color.RED));
-		float endsSize;
-		if (endsOnly)
-			endsSize = 0f;
-		else
-			endsSize = 8f;
-		chars.add(new PlotCurveCharacterstics(PlotSymbol.BOLD_X, endsSize, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY));
 		
 		String title = "Fault Segmentation";
 		if (minMag > 5)
@@ -391,7 +400,32 @@ public class FaultSpecificSegmentationPlotGen {
 		else
 			title += " (All Mags)";
 		
-		return new PlotSpec(funcs, chars, title, "Latitude", "Rate Ratio");
+		PlotSpec spec = new PlotSpec(funcs, chars, title, "Latitude", "Rate Ratio");
+		
+		// add annotations
+		Font font = new Font(Font.SERIF, 0, 16);
+		double angle = -0.5*Math.PI;
+		TextAnchor rotAnchor = TextAnchor.CENTER_RIGHT;
+		TextAnchor textAnchor = TextAnchor.CENTER_RIGHT;
+		List<XYAnnotation> annotations = Lists.newArrayList();
+		for (Location loc : parentSectNamesMap.keySet()) {
+			String name = parentSectNamesMap.get(loc);
+			if (name.contains("San Andreas"))
+				name = name.replaceAll("San Andreas", "").replaceAll("\\(", "").replaceAll("\\)", "");
+			name = name.replaceAll("2011 CFM", "");
+			name = name.trim();
+			double x = loc.getLatitude();
+			XYTextAnnotation a = new XYTextAnnotation(name, x, 1.5);
+			a.setFont(font);
+			a.setRotationAnchor(rotAnchor);
+			a.setTextAnchor(textAnchor);
+			a.setRotationAngle(angle);
+			annotations.add(a);
+			System.out.println(x+": "+name);
+		}
+		spec.setPlotAnnotations(annotations);
+		
+		return spec;
 	}
 	
 	private static boolean hasConnectionOnOtherParent(List<Integer> parents,
@@ -433,6 +467,10 @@ public class FaultSpecificSegmentationPlotGen {
 					285, 32, 658, 657, 655, 654, 653, 13);
 	}
 	
+	public static List<Integer> getHaywardParents(FaultModels fm) {
+		return fm.getNamedFaultsMapAlt().get("Hayward-Rodgers Creek");
+	}
+	
 	public static void main(String args[]) throws IOException, DocumentException {
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
 //		File solFile = new File("/tmp/FM3_1_GEOL_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
@@ -443,7 +481,42 @@ public class FaultSpecificSegmentationPlotGen {
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(solFile);
 		
-		CommandLineInversionRunner.writeSAFSegPlots(sol, new File("/tmp/branch_avg"), "branch_avg");
+		File writeDir = new File("/tmp/branch_avg");
+		
+		CommandLineInversionRunner.writeSAFSegPlots(sol, writeDir, "branch_avg");
+		
+		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 0, false);
+		
+		String prefix = "branch_avg_hayward_seg";
+
+		File file = new File(writeDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7, false);
+		
+		prefix = "branch_avg_hayward_seg7.0+";
+
+		file = new File(writeDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		
+		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7.5, false);
+		
+		prefix = "branch_avg_hayward_seg7.5+";
+
+		file = new File(writeDir, prefix);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
 //		Map<Integer, List<Integer>> namedMap = sol.getFaultModel().getNamedFaultsMap();
 //		List<Integer> parents = namedMap.get(32);
