@@ -24,6 +24,7 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerConstraint;
 import org.opensha.commons.param.constraint.impl.IntegerDiscreteConstraint;
@@ -165,7 +166,7 @@ implements Parameter<Integer>
 	 * @exception  ConstraintException  thrown if the value is not allowed
 	 * @throws  ConstraintException     Is thrown if the value is not allowed
 	 */
-	public IntegerParameter( String name, IntegerConstraint constraint ) throws ConstraintException {
+	public IntegerParameter( String name, ParameterConstraint<Integer> constraint ) throws ConstraintException {
 		super( name, constraint, null, null );
 		//if( this.constraint.getName() == null ) this.constraint.setName( this.name );
 	}
@@ -183,7 +184,7 @@ implements Parameter<Integer>
 	 *      allowed one. Null values are always allowed in the
 	 *      constructors
 	 */
-	public IntegerParameter( String name, IntegerConstraint constraint, String units ) throws ConstraintException {
+	public IntegerParameter( String name, ParameterConstraint<Integer> constraint, String units ) throws ConstraintException {
 		super( name, constraint, units, null );
 		//if( this.constraint.getName() == null ) this.constraint.setName( this.name );
 	}
@@ -259,7 +260,7 @@ implements Parameter<Integer>
 	 * @exception  ConstraintException  thrown if the value is not allowed
 	 * @throws  ConstraintException     Is thrown if the value is not allowed
 	 */
-	public IntegerParameter( String name, IntegerConstraint constraint, Integer value ) throws ConstraintException {
+	public IntegerParameter( String name, ParameterConstraint<Integer> constraint, Integer value ) throws ConstraintException {
 		super( name, constraint, null, value );
 		//if( this.constraint.getName() == null ) this.constraint.setName( this.name );
 	}
@@ -314,7 +315,7 @@ implements Parameter<Integer>
 	 * @exception  ConstraintException  Is thrown if the value is not allowed
 	 * @throws  ConstraintException     Is thrown if the value is not allowed
 	 */
-	public IntegerParameter( String name, IntegerConstraint constraint, String units, Integer value )
+	public IntegerParameter( String name, ParameterConstraint<Integer> constraint, String units, Integer value )
 	throws ConstraintException {
 		super( name, constraint, units, value );
 		//if( this.constraint.getName() == null ) this.constraint.setName( this.name );

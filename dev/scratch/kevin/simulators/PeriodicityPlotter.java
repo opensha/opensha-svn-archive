@@ -19,14 +19,14 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -1394,11 +1394,11 @@ public class PeriodicityPlotter {
 		String fileName = new File(dir, prefix).getAbsolutePath();
 		
 		if (display) {
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, plotTitle, chars, display);
+			GraphWindow gw = new GraphWindow(funcs, plotTitle, chars);
 			if (dimensions == null)
-				gw.getGraphWindow().setSize(600, 800);
+				gw.setSize(600, 800);
 			else
-				gw.getGraphWindow().setSize(dimensions[0], dimensions[1]);
+				gw.setSize(dimensions[0], dimensions[1]);
 			if (xAxisLabel != null)
 				gw.setX_AxisLabel(xAxisLabel);
 			if (yAxisLabel != null)
@@ -1412,7 +1412,7 @@ public class PeriodicityPlotter {
 				gw.setYLog(logs[1]);
 			}
 			
-			gw.getGraphWindow().getGraphPanel().setBackgroundColor(Color.WHITE);
+			gw.getGraphWidget().setBackgroundColor(Color.WHITE);
 			gw.setTickLabelFontSize(18);
 			gw.setAxisLabelFontSize(20);
 			gw.setPlotLabelFontSize(21);
@@ -1432,7 +1432,7 @@ public class PeriodicityPlotter {
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
 			gp.setPlotLabelFontSize(21);
-			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, ranges != null, plotTitle);
+			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, plotTitle);
 			if (dimensions == null)
 				gp.getCartPanel().setSize(1000, 800);
 			else

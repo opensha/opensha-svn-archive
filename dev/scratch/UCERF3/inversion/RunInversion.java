@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -225,8 +225,8 @@ public class RunInversion {
 					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, solution);
 			// display SAF plots
 			PlotSpec plotSpec = plotSpecs.get("San Andreas")[2];
-			GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(plotSpec);
-			gw.getGraphWindow().getGraphPanel().setxAxisInverted(true);
+			GraphWindow gw = new GraphWindow(plotSpec);
+			gw.getGraphWidget().getGraphPanel().setxAxisInverted(true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

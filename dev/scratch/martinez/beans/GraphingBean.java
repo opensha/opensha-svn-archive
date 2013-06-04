@@ -18,8 +18,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.nshmp.sha.gui.beans.GuiBeanAPI;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 
 /**
  * <strong>Title</strong>: GraphingBean<br />
@@ -36,8 +34,7 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  *
  */
-public class GraphingBean implements GuiBeanAPI, GraphPanelAPI,
-		ButtonControlPanelAPI {
+public class GraphingBean implements GuiBeanAPI {
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//                  Private Variables for this Bean to Run                      //
@@ -255,11 +252,5 @@ public class GraphingBean implements GuiBeanAPI, GraphPanelAPI,
 			
 		}
 		return buttonVis;
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		// TODO Auto-generated method stub
-		
 	}
 }

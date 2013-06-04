@@ -5,24 +5,28 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class is used for plotting the MFDs for the EqkRateModel2.2
  * @author vipingupta
  *
  */
-public class A_FaultsMFD_Plotter implements GraphWindowAPI {
+public class A_FaultsMFD_Plotter {
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String RATE_AXIS_LABEL = "Rate (per year)";
 	private final static String CUM_RATE_AXIS_LABEL = "Cum Rate (per year)";
 	private String yAxisLabel;
 	
-	private ArrayList funcs;
+	private List<DiscretizedFunc> funcs;
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f,
 		      Color.BLUE);
@@ -41,15 +45,15 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, null, 4f,
 		      Color.BLACK);
 	
-	private ArrayList plottingFeatures;
+	private List<PlotCurveCharacterstics> plottingFeatures;
 	
-	public A_FaultsMFD_Plotter(ArrayList funcs, boolean isCumRate) {
+	public A_FaultsMFD_Plotter(List<DiscretizedFunc> funcs, boolean isCumRate) {
 		this.funcs = funcs;
 		if(isCumRate) yAxisLabel = CUM_RATE_AXIS_LABEL;
 		else yAxisLabel = RATE_AXIS_LABEL;
 		
 		// set the default plotting features
-		plottingFeatures  = new ArrayList();
+		plottingFeatures  = Lists.newArrayList();
 		plottingFeatures.add(PLOT_CHAR8);
 		plottingFeatures.add(PLOT_CHAR7);
 		 if(funcs.size()>2) { // Size is 2 for B-Faults 
@@ -68,7 +72,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
-	public ArrayList getCurveFunctionList() {
+	public List<DiscretizedFunc> getCurveFunctionList() {
 		return funcs;
 	}
 
@@ -103,10 +107,13 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
-	public ArrayList getPlottingFeatures() {
+	public List<PlotCurveCharacterstics> getPlottingFeatures() {
 		return this.plottingFeatures;
 	}
 	
+	public PlotSpec getPlotSpec() {
+		return new PlotSpec(funcs, plottingFeatures, "", getXAxisLabel(), getYAxisLabel());
+	}
 	
 	/**
 	 * Set the plotting features

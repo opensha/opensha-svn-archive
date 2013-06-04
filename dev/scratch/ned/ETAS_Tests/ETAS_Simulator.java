@@ -19,6 +19,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -36,9 +37,8 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -156,7 +156,7 @@ public class ETAS_Simulator {
 		ArrayList funcs3 = new ArrayList();
 		funcs3.addAll(UCERF2.getObsCumMFD(true));
 		funcs3.add(erfCumDist);
-		GraphiWindowAPI_Impl sr_graph3 = new GraphiWindowAPI_Impl(funcs3, "Cum MFD for ERF and Karen's Obs for CA"); 
+		GraphWindow sr_graph3 = new GraphWindow(funcs3, "Cum MFD for ERF and Karen's Obs for CA"); 
 		sr_graph3.setX_AxisLabel("Mag");
 		sr_graph3.setY_AxisLabel("Cumulative Rate");
 		sr_graph3.setYLog(true);
@@ -165,8 +165,8 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-		sr_graph3.setPlottingFeatures(plotChars);
-		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisMax());
+		sr_graph3.setPlotChars(plotChars);
+		sr_graph3.setY_AxisRange(1e-6, sr_graph3.getY_AxisRange().getUpperBound());
 		
 	}
 
@@ -259,17 +259,17 @@ public class ETAS_Simulator {
 		
 		
 		// Plot these MFDs
-		GraphiWindowAPI_Impl magProbDistsGraph = new GraphiWindowAPI_Impl(magProbDists, "Mag-Prob Distributions for "+info+" Aftershocks"); 
+		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "Mag-Prob Distributions for "+info+" Aftershocks"); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Probability");
-		magProbDistsGraph.setY_AxisRange(1e-8, magProbDistsGraph.getY_AxisMax());
+		magProbDistsGraph.setY_AxisRange(1e-8, magProbDistsGraph.getY_AxisRange().getUpperBound());
 		magProbDistsGraph.setYLog(true);
 		
 	
-		GraphiWindowAPI_Impl expNumDistGraph = new GraphiWindowAPI_Impl(expNumDists, "Mag-Num Distributions for Aftershocks for "+(float)days+" days following "+info); 
+		GraphWindow expNumDistGraph = new GraphWindow(expNumDists, "Mag-Num Distributions for Aftershocks for "+(float)days+" days following "+info); 
 		expNumDistGraph.setX_AxisLabel("Mag");
 		expNumDistGraph.setY_AxisLabel("Expected Num");
-		expNumDistGraph.setY_AxisRange(1e-6, expNumDistGraph.getY_AxisMax());
+		expNumDistGraph.setY_AxisRange(1e-6, expNumDistGraph.getY_AxisRange().getUpperBound());
 		expNumDistGraph.setYLog(true);
 		
 		
@@ -285,10 +285,10 @@ public class ETAS_Simulator {
 		mfdListFinal.add(sumMFD.getCumRateDistWithOffset());
 		mfdListFinal.get(1).setName("Total Cum MFD");
 		mfdListFinal.addAll(mfdList);
-		GraphiWindowAPI_Impl contributingPrimarySrcsGraph = new GraphiWindowAPI_Impl(mfdListFinal, "Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
+		GraphWindow contributingPrimarySrcsGraph = new GraphWindow(mfdListFinal, "Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
 		contributingPrimarySrcsGraph.setX_AxisLabel("Mag");
 		contributingPrimarySrcsGraph.setY_AxisLabel("Probability");
-		contributingPrimarySrcsGraph.setY_AxisRange(1e-6, contributingPrimarySrcsGraph.getY_AxisMax());
+		contributingPrimarySrcsGraph.setY_AxisRange(1e-6, contributingPrimarySrcsGraph.getY_AxisRange().getUpperBound());
 		contributingPrimarySrcsGraph.setYLog(true);
 		
 		// plot above as cumulative distributions
@@ -296,10 +296,10 @@ public class ETAS_Simulator {
 		cumMFD_List.add(sumMFD.getCumRateDistWithOffset());
 		for(ArbIncrementalMagFreqDist mfd:mfdList)
 			cumMFD_List.add(mfd.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl contrCumPrimarySrcsGraph = new GraphiWindowAPI_Impl(cumMFD_List, "Cumulative Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
+		GraphWindow contrCumPrimarySrcsGraph = new GraphWindow(cumMFD_List, "Cumulative Mag-Prob Dists for Contributing Sources to Primary Events for "+info); 
 		contrCumPrimarySrcsGraph.setX_AxisLabel("Mag");
 		contrCumPrimarySrcsGraph.setY_AxisLabel("Probability");
-		contrCumPrimarySrcsGraph.setY_AxisRange(1e-6, contrCumPrimarySrcsGraph.getY_AxisMax());
+		contrCumPrimarySrcsGraph.setY_AxisRange(1e-6, contrCumPrimarySrcsGraph.getY_AxisRange().getUpperBound());
 		contrCumPrimarySrcsGraph.setYLog(true);
 		
 		if(savePDF_Files) {
@@ -384,16 +384,16 @@ public class ETAS_Simulator {
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Num aftershocks per day for "+info); 
+		GraphWindow graph = new GraphWindow(funcs, "Num aftershocks per day for "+info); 
 		graph.setX_AxisLabel("Days (since main shock)");
 		graph.setY_AxisLabel("Num Events");
 		graph.setX_AxisRange(0.4, 360);
-		graph.setY_AxisRange(0.1, graph.getY_AxisMax());
+		graph.setY_AxisRange(0.1, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(savePDF_File)
@@ -558,7 +558,7 @@ public class ETAS_Simulator {
 		funcs.add(traceFunc);
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.MAGENTA));
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Aftershock Epicenters for "+info); 
+		GraphWindow graph = new GraphWindow(funcs, "Aftershock Epicenters for "+info); 
 		graph.setX_AxisLabel("Longitude");
 		graph.setY_AxisLabel("Latitude");
 		double deltaLat = maxLat-minLat;
@@ -575,7 +575,7 @@ public class ETAS_Simulator {
 			graph.setX_AxisRange(minLon, maxLon);
 			graph.setY_AxisRange(minLat, newMaxLat);
 		}
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		if(savePDF_File)
 		try {
 			graph.saveAsPDF(dirToSaveData+"epicenterMap.pdf");
@@ -1166,7 +1166,7 @@ public class ETAS_Simulator {
 		obsAllDistHist.setInfo("(Crosses, and these are distances to the main shock, not to the parent)");
 		distDecayFuncs.add(obsAllDistHist);
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(distDecayFuncs, "Distance Decay for Aftershocks of "+info); 
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay for Aftershocks of "+info); 
 		graph.setX_AxisLabel("Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(0.4, 1200);
@@ -1176,7 +1176,7 @@ public class ETAS_Simulator {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setXLog(true);
 		if(savePDF_File)

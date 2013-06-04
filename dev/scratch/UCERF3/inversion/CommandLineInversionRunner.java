@@ -28,6 +28,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.data.Range;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -35,14 +36,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -556,7 +557,7 @@ public class CommandLineInversionRunner {
 				if (!noPlots) {
 					// MFD plots
 					try {
-						ArrayList<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
+						List<? extends DiscretizedFunc> funcs = writeMFDPlots(sol, subDir, prefix);
 						
 						if (!funcs.isEmpty()) {
 							info += "\n\n****** MFD Cumulative M5 Rates ******";
@@ -798,7 +799,7 @@ public class CommandLineInversionRunner {
 
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		setFontSizes(gp);
-		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, false, title);
+		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, title);
 
 		File file = new File(dir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -825,7 +826,7 @@ public class CommandLineInversionRunner {
 		return new File(dir, getJumpFilePrefix(prefix, minMag, probPaleoVisible)+".png").exists();
 	}
 
-	public static ArrayList<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
+	public static List<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 
 		// TODO switch to derrived value
@@ -842,7 +843,7 @@ public class CommandLineInversionRunner {
 						RELM_RegionUtils.getGriddedRegionInstance(), ucerf2Fetch);
 	}
 
-	public static ArrayList<? extends DiscretizedFunc> writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
+	public static List<? extends DiscretizedFunc> writeMFDPlot(InversionFaultSystemSolution invSol, File dir, String prefix, IncrementalMagFreqDist totalMFD,
 			IncrementalMagFreqDist targetMFD, Region region, UCERF2_MFD_ConstraintFetcher ucerf2Fetch) throws IOException {
 		PlotSpec spec = invSol.getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(spec, totalMFD);
@@ -852,7 +853,7 @@ public class CommandLineInversionRunner {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
-		return spec.getFuncs();
+		return (List<? extends DiscretizedFunc>) spec.getPlotElems();
 	}
 
 	private static String getMFDPrefix(String prefix, Region region) {
@@ -1406,7 +1407,7 @@ public class CommandLineInversionRunner {
 		yAxisLabel += " (per yr)";
 		
 		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
-		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, true, title);
+		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 		
 		File file = new File(dir, fname);
 		gp.getCartPanel().setSize(1000, 800);
@@ -1450,7 +1451,7 @@ public class CommandLineInversionRunner {
 			PlotSpec spec = specMap.get(faultName);
 			
 			double maxX = 0;
-			for (DiscretizedFunc func : spec.getFuncs()) {
+			for (DiscretizedFunc func : spec.getPlotFunctionsOnly()) {
 				double myMaxX = func.getMaxX();
 				if (myMaxX > maxX)
 					maxX = myMaxX;
@@ -1460,8 +1461,8 @@ public class CommandLineInversionRunner {
 			setFontSizes(gp);
 			gp.setUserBounds(0d, maxX, -0.05d, 1.05d);
 			
-			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+			gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
+					spec.getPlotElems(), spec.getChars(), spec.getTitle());
 			
 			File file = new File(dir, fname);
 			gp.getCartPanel().setSize(1000, 800);
@@ -1500,7 +1501,7 @@ public class CommandLineInversionRunner {
 			
 			double xMin = Double.POSITIVE_INFINITY;
 			double xMax = Double.NEGATIVE_INFINITY;
-			for (DiscretizedFunc func : specArray[2].getFuncs()) {
+			for (DiscretizedFunc func : specArray[2].getPlotFunctionsOnly()) {
 				double myXMin = func.getMinX();
 				double myXMax = func.getMaxX();
 				if (myXMin < xMin)
@@ -1509,8 +1510,9 @@ public class CommandLineInversionRunner {
 					xMax = myXMax;
 			}
 			
-			File slipPNGFile = null;
-			File paleoPNGFile = null;
+			Range xRange = null;
+			Range slipYRange = null;
+			Range paleoYRange = null;
 			
 			for (int i=0; i<specArray.length; i++) {
 				String fname_add = fname_adds[i];
@@ -1526,7 +1528,7 @@ public class CommandLineInversionRunner {
 				// now determine y scale
 				List<Double> yValsList = Lists.newArrayList();
 				List<Double> confYValsList = Lists.newArrayList();
-				for (DiscretizedFunc func : spec.getFuncs()) {
+				for (DiscretizedFunc func : spec.getPlotFunctionsOnly()) {
 					if (func.getName().contains("separator"))
 						continue;
 					if (func.getName().contains("Confidence")) {
@@ -1579,8 +1581,8 @@ public class CommandLineInversionRunner {
 //					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 				gp.setUserBounds(xMin, xMax, yMin, yMax);
 				
-				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+				gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
+						spec.getPlotElems(), spec.getChars(), spec.getTitle());
 				
 				File file = new File(dir, fname+"_"+fname_add);
 				gp.getCartPanel().setSize(1000, 500);
@@ -1588,25 +1590,48 @@ public class CommandLineInversionRunner {
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
 				
-				if (i == 0)
-					paleoPNGFile = new File(file.getAbsolutePath()+".png");
-				else if (i == 1)
-					slipPNGFile = new File(file.getAbsolutePath()+".png");
+				if (i == 0) {
+					xRange = new Range(xMin, xMax);
+					paleoYRange = new Range(yMin, yMax);
+				} else if (i == 1) {
+					slipYRange = new Range(yMin, yMax);
+				}
 			}
-			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
-			BufferedImage slipImage = ImageIO.read(slipPNGFile);
-			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
-			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
-			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
-			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
-					BufferedImage.TYPE_INT_ARGB);
-			// paint both images, preserving the alpha channels
-			Graphics g = combined.getGraphics();
-			g.drawImage(slipImage, 0, 0, null);
-			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
-
-			// Save as new image
-			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
+			// now make combined plot
+			PlotSpec slipSpec = specArray[1];
+			PlotSpec paleoSpec = specArray[0];
+			List<PlotSpec> combinedSpecs = Lists.newArrayList(slipSpec, paleoSpec);
+			List<Range> xRanges = Lists.newArrayList(xRange);
+			List<Range> yRanges = Lists.newArrayList(slipYRange, paleoYRange);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			setFontSizes(gp);
+			gp.setBackgroundColor(Color.WHITE);
+			if (xMax > 0)
+				// only when latitudeX, this is a kludgy way of detecting this for CA
+				gp.setxAxisInverted(true);
+			gp.drawGraphPanel(combinedSpecs, false, true, xRanges, yRanges);
+			
+			File file = new File(dir, fname+"_combined");
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			
+//			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
+//			BufferedImage slipImage = ImageIO.read(slipPNGFile);
+//			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
+//			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
+//			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
+//			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
+//					BufferedImage.TYPE_INT_ARGB);
+//			// paint both images, preserving the alpha channels
+//			Graphics g = combined.getGraphics();
+//			g.drawImage(slipImage, 0, 0, null);
+//			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
+//
+//			// Save as new image
+//			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
 		}
 	}
 	
@@ -1651,7 +1676,7 @@ public class CommandLineInversionRunner {
 		setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
-		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars, false,
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars,
 				"Rupture Pairing Smoothness");
 		File file = new File(dir, prefix+"_rup_smooth_pairings");
 		gp.getCartPanel().setSize(1000, 800);
@@ -1665,7 +1690,7 @@ public class CommandLineInversionRunner {
 		setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setYLog(true);
-		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars, false,
+		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars,
 				"Rupture Pairing Smoothness Fractions");
 		file = new File(dir, prefix+"_rup_smooth_pairings_fract");
 		gp.getCartPanel().setSize(1000, 800);
@@ -1684,5 +1709,6 @@ public class CommandLineInversionRunner {
 		gp.setTickLabelFontSize(18);
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
 	}
 }

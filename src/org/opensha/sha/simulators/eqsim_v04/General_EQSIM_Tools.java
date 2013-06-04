@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.jfree.data.Range;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -39,6 +40,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.PlaneUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.FileUtils;
@@ -50,9 +52,8 @@ import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -1073,7 +1074,7 @@ public class General_EQSIM_Tools {
 //			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 //			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, pink));
 
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Total Mag Freq Dist"); 
+			GraphWindow graph = new GraphWindow(mfdList, "Total Mag Freq Dist", curveChar); 
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
@@ -1081,7 +1082,6 @@ public class General_EQSIM_Tools {
 			double yMax = 2e1;
 			graph.setY_AxisRange(yMin,yMax);
 			graph.setYLog(true);
-			graph.setPlottingFeatures(curveChar);
 
 			if(savePlot)
 				try {
@@ -1131,11 +1131,11 @@ public class General_EQSIM_Tools {
 		
 		double yMin = Math.pow(10,Math.floor(Math.log10(1/getSimulationDurationYears())));
 		if(makeOnePlotWithAll){
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList, "Mag Freq Dists (Incremental)");   
+			GraphWindow graph = new GraphWindow(mfdList, "Mag Freq Dists (Incremental)");   
 			graph.setX_AxisLabel("Magnitude");
 			graph.setY_AxisLabel("Rate (per yr)");
 			graph.setX_AxisRange(4.5, 8.5);
-			double yMax = graph.getY_AxisMax();
+			double yMax = graph.getY_AxisRange().getUpperBound();
 			if(yMin<yMax) {
 				graph.setY_AxisRange(yMin,yMax);
 				graph.setYLog(true);
@@ -1159,11 +1159,11 @@ public class General_EQSIM_Tools {
 				mfdList2.add(mfd.getCumRateDistWithOffset());
 				mfdList2.get(1).setName(sectionNamesList.get(sectNum)+" Cumulative MFD");
 				mfdList2.get(1).setInfo(" ");
-				GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfdList2, sectionNamesList.get(sectNum)+" MFD"); 
+				GraphWindow graph = new GraphWindow(mfdList2, sectionNamesList.get(sectNum)+" MFD"); 
 				graph.setX_AxisLabel("Magnitude");
 				graph.setY_AxisLabel("Rate (per yr)");
 				graph.setX_AxisRange(4.5, 8.5);
-				double yMax = graph.getY_AxisMax();
+				double yMax = graph.getY_AxisRange().getUpperBound();
 				if(yMin<yMax) {
 					graph.setY_AxisRange(yMin,yMax);
 					graph.setYLog(true);
@@ -1247,7 +1247,7 @@ public class General_EQSIM_Tools {
 		}
 		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 		funcList.add(evPerYear);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Num Events Per Year"); 
+		GraphWindow graph = new GraphWindow(funcList, "Num Events Per Year"); 
 		graph.setX_AxisLabel("Year");
 		graph.setY_AxisLabel("Number");
 	}
@@ -1280,7 +1280,7 @@ public class General_EQSIM_Tools {
 				funcList.add(func);
 			}
 		}
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "SAF Events"); 
+		GraphWindow graph = new GraphWindow(funcList, "SAF Events"); 
 		graph.setX_AxisLabel("Distance Along Strike (km)");
 		graph.setY_AxisLabel("Number");
 
@@ -1366,9 +1366,8 @@ public class General_EQSIM_Tools {
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setUserMinX(0.0);
-		gp.setUserMaxX(5.0);
-		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, true, plotTitle);
+		gp.setUserBounds(new Range(0, 5), null);
+		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, plotTitle);
 		gp.getCartPanel().setSize(1000, 800);
 		
 		return gp;
@@ -1382,7 +1381,7 @@ public class General_EQSIM_Tools {
 	 * @param normRI_List
 	 * @param plotTitle
 	 */
-	public static GraphiWindowAPI_Impl plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+	public static GraphWindow plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
 		
 		// get the normalized RI dist
 		double delta=0.1;
@@ -1403,10 +1402,9 @@ public class General_EQSIM_Tools {
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		
 		// make plot
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, plotTitle); 
+		GraphWindow graph = new GraphWindow(funcList, plotTitle, curveCharacteristics); 
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Density");
-		graph.setPlottingFeatures(curveCharacteristics);
 		graph.setX_AxisRange(0, 5);
 		return graph;
 		
@@ -1775,7 +1773,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		DefaultXY_DataSet xy_data1 = new DefaultXY_DataSet(norm_lastEventSlipList, norm_aveElementIntervalList);
 		xy_data1.setName("norm_aveElementIntervalList vs norm_lastEventSlipList");
 		xy_data1.setInfo(info1);
-		GraphiWindowAPI_Impl graph1 = new GraphiWindowAPI_Impl(xy_data1, "Norm Obs RI vs Norm Last Slip");   
+		GraphWindow graph1 = new GraphWindow(xy_data1, "Norm Obs RI vs Norm Last Slip");   
 		graph1.setX_AxisLabel("Normalized Last-Event Slip");
 		graph1.setY_AxisLabel("Normalized Recurrence Interval");
 		graph1.setAllLineTypes(null, PlotSymbol.CROSS);
@@ -1796,7 +1794,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		DefaultXY_DataSet xy_data2 = new DefaultXY_DataSet(norm_nextEventSlipList, norm_aveElementIntervalList);
 		xy_data2.setName("norm_aveElementIntervalList vs norm_nextEventSlipList");
 		xy_data2.setInfo(info2);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(xy_data2, "Norm Obs RI vs Norm Next Slip");   
+		GraphWindow graph2 = new GraphWindow(xy_data2, "Norm Obs RI vs Norm Next Slip");   
 		graph2.setX_AxisLabel("Normalized Next-Event Slip");
 		graph2.setY_AxisLabel("Normalized Recurrence Interval");
 		graph2.setAllLineTypes(null, PlotSymbol.CROSS);
@@ -1878,13 +1876,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				tempInfoString +="\t"+(s+1)+"\tNaN\t\t\t\t\t\t\t\t"+
 				sectionNamesList.get(s)+" (num points = "+obsVals.size()+")\n";
 		}
-		GraphiWindowAPI_Impl graph0 = new GraphiWindowAPI_Impl(obs_aveElement_funcs, "Obs vs Ave Element RI");   
+		GraphWindow graph0 = new GraphWindow(obs_aveElement_funcs, "Obs vs Ave Element RI");   
 		graph0.setX_AxisLabel("Ave Element RI (aveElementInterval) (years)");
 		graph0.setY_AxisLabel("Observed RI (years)");
 		graph0.setAllLineTypes(null, PlotSymbol.CROSS);
 		graph0.setYLog(true);
 		graph0.setXLog(true);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(obs_tp2_funcs, "Obs vs Time-Pred RIs");   
+		GraphWindow graph = new GraphWindow(obs_tp2_funcs, "Obs vs Time-Pred RIs");   
 		graph.setX_AxisLabel("Time Pred RI (tpInterval2List) (years)");
 		graph.setY_AxisLabel("Observed RI (years)");
 		graph.setAllLineTypes(null, PlotSymbol.CROSS);
@@ -1907,12 +1905,11 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(aveNormRI_AlongRup);
-		GraphiWindowAPI_Impl graph9 = new GraphiWindowAPI_Impl(funcList, "Ave Normalized RI Along Rupture"); 
-		graph9.setX_AxisLabel("Normalized Distance From End of Rupture");
-		graph9.setY_AxisLabel("Normalized Ave RI");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph9.setPlottingFeatures(curveCharacteristics);
+		GraphWindow graph9 = new GraphWindow(funcList, "Ave Normalized RI Along Rupture", curveCharacteristics); 
+		graph9.setX_AxisLabel("Normalized Distance From End of Rupture");
+		graph9.setY_AxisLabel("Normalized Ave RI");
 		if(saveStuff) {
 			try {
 				graph9.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
@@ -1938,7 +1935,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					fw.write((float)distAlong+"\t"+(float)hist.getX(j)+"\t"+(float)hist.getY(j)+"\n");
 //				}
 			}
-//			GraphiWindowAPI_Impl graph10 = new GraphiWindowAPI_Impl(normRI_AlongRupFuncList, "Normalized RI Along Rupture"); 
+//			GraphWindow graph10 = new GraphWindow(normRI_AlongRupFuncList, "Normalized RI Along Rupture"); 
 //			graph10.setX_AxisLabel("Normalized RI");
 //			graph10.setY_AxisLabel("Franction");
 			fw.close();
@@ -1957,7 +1954,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			ArrayList<DefaultXY_DataSet> obs_tp1_funcsForTestElement = new ArrayList<DefaultXY_DataSet>();
 			DefaultXY_DataSet xy_data = new DefaultXY_DataSet(tpInterval2ListForTestElement,spInterval2ListForTestElement);
 			obs_tp1_funcsForTestElement.add(xy_data);
-			GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
+			GraphWindow graph3 = new GraphWindow(obs_tp1_funcsForTestElement, "Slip-Pred vs Time-Pred RIs at Element ID="+testElementID);   
 			graph3.setX_AxisLabel("Time-Pred RI (years)");
 			graph3.setY_AxisLabel("Slip-Pred RI (years)");
 			graph3.setAllLineTypes(null, PlotSymbol.CROSS);
@@ -2003,7 +2000,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					//						plot7.setUserBounds(10, 10000, 10, 10000);
 					plot7.setXLog(true);
 					plot7.setYLog(true);
-					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, true, plotTitle7);
+					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle7);
 					plot7.getCartPanel().setSize(1000, 800);
 					if(saveStuff) {
 						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
@@ -2223,12 +2220,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			xy_data.setInfo(" ");
 			ArrayList<DefaultXY_DataSet> funcs = new ArrayList<DefaultXY_DataSet>();
 			funcs.add(xy_data);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Slip Rate Comparison");   
+			GraphWindow graph = new GraphWindow(funcs, "Slip Rate Comparison");   
 			graph.setX_AxisLabel("Imposed Slip Rate (m/s)");
 			graph.setY_AxisLabel("Observed Slip Rate (m/s)");
 			ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 			curveCharacteristics.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
-			graph.setPlottingFeatures(curveCharacteristics);
+			graph.setPlotChars(curveCharacteristics);
 			if(fileNamePrefix != null) {
 				String plotFileName = fileNamePrefix +".pdf";
 				try {
@@ -2319,13 +2316,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(symNormSlipAlongHist);
 		funcList.add(sqrtSineHist);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Ave Normalized Slip Along Rupture"); 
+		GraphWindow graph = new GraphWindow(funcList, "Ave Normalized Slip Along Rupture"); 
 		graph.setX_AxisLabel("Normalized Distance Along Rupture");
 		graph.setY_AxisLabel("Normalized Slip");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		if(savePlot) {
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormalizedSlipAlongRup"+".pdf");
@@ -2368,12 +2365,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		s_vs_l_data.setInfo(" ");
 		ArrayList s_vs_l_funcs = new ArrayList();
 		s_vs_l_funcs.add(s_vs_l_data);
-		GraphiWindowAPI_Impl s_vs_l_graph = new GraphiWindowAPI_Impl(s_vs_l_funcs, "Mean Slip vs Length");   
+		GraphWindow s_vs_l_graph = new GraphWindow(s_vs_l_funcs, "Mean Slip vs Length");   
 		s_vs_l_graph.setY_AxisLabel("Mean Slip (m)");
 		s_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> s_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		s_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.BLUE));
-		s_vs_l_graph.setPlottingFeatures(s_vs_l_curveChar);
+		s_vs_l_graph.setPlotChars(s_vs_l_curveChar);
 		
 		// MAG VS AREA PLOT
 		DefaultXY_DataSet m_vs_a_data = new DefaultXY_DataSet(area,mag);
@@ -2390,7 +2387,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		m_vs_a_funcs.add(hb.getMagAreaFunction(1, 10000, 101));
 	//	m_vs_a_funcs.add(wc.getMagAreaFunction(1, 10000, 101));
 		m_vs_a_funcs.add(sh.getMagAreaFunction(1, 10000, 101));
-		GraphiWindowAPI_Impl m_vs_a_graph = new GraphiWindowAPI_Impl(m_vs_a_funcs, "Mag vs Area");   
+		GraphWindow m_vs_a_graph = new GraphWindow(m_vs_a_funcs, "Mag vs Area");   
 		m_vs_a_graph.setY_AxisLabel("Magnitude (Mw)");
 		m_vs_a_graph.setX_AxisLabel("Area (km-sq)");
 		ArrayList<PlotCurveCharacterstics> m_vs_a_curveChar = new ArrayList<PlotCurveCharacterstics>();
@@ -2399,7 +2396,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN));
 		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
 //		m_vs_a_curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.MAGENTA));
-		m_vs_a_graph.setPlottingFeatures(m_vs_a_curveChar);
+		m_vs_a_graph.setPlotChars(m_vs_a_curveChar);
 		m_vs_a_graph.setXLog(true);
 		m_vs_a_graph.setY_AxisRange(4.5, 8.5);
 	/**/
@@ -2409,12 +2406,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		m_vs_l_data.setInfo(" ");
 		ArrayList m_vs_l_funcs = new ArrayList();
 		m_vs_l_funcs.add(m_vs_l_data);
-		GraphiWindowAPI_Impl m_vs_l_graph = new GraphiWindowAPI_Impl(m_vs_l_funcs, "Mag vs Length");   
+		GraphWindow m_vs_l_graph = new GraphWindow(m_vs_l_funcs, "Mag vs Length");   
 		m_vs_l_graph.setY_AxisLabel("Magnitude (Mw)");
 		m_vs_l_graph.setX_AxisLabel("Length (km)");
 		ArrayList<PlotCurveCharacterstics> m_vs_l_curveChar = new ArrayList<PlotCurveCharacterstics>();
 		m_vs_l_curveChar.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 3f, Color.GREEN));
-		m_vs_l_graph.setPlottingFeatures(m_vs_l_curveChar);
+		m_vs_l_graph.setPlotChars(m_vs_l_curveChar);
 //		m_vs_l_graph.setXLog(true);
 		m_vs_l_graph.setY_AxisRange(4.5, 8.5);
 		
@@ -2553,7 +2550,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 			}
 		}
-		GraphiWindowAPI_Impl graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
+		GraphWindow graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.pdf");
@@ -2650,12 +2647,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(riHist);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Recurence Intervals for "+locName); 
+		GraphWindow graph = new GraphWindow(funcList, "Recurence Intervals for "+locName); 
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Number of Observations");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");
@@ -2853,7 +2850,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			ArrayList<PlotCurveCharacterstics> curveChar = new ArrayList<PlotCurveCharacterstics>();
 			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 			curveChar.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GRAY));
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Full Rup Mags (and not)",curveChar); 
+			GraphWindow graph = new GraphWindow(funcs, "Full Rup Mags (and not)",curveChar); 
 			graph.setX_AxisLabel("Mag");
 			graph.setY_AxisLabel("Number of Observations");
 			graph.setY_AxisRange(0.1, Math.ceil(mfd_doesNot.getMaxY()));

@@ -16,7 +16,7 @@ import scratch.UCERF3.utils.ModUCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.B_FaultsFetcherForMeanUCERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.util.EqkSourceNameComparator;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -184,7 +184,7 @@ public class ModMeanUCERF2_FM2pt1 extends ModMeanUCERF2 {
 		double diff = modUcerf2_fm2pt1MFD.getY(7.05)-modUcerf2_fm2pt2MFD.getY(7.05);
 		System.out.println ("m 7.05 diff between two fault models ="+(float)diff);
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);

@@ -8,8 +8,8 @@ import java.util.List;
 import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 
@@ -26,7 +26,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 	
 	private long autoPlotMillis;
 	private long nextPlotMillis;
-	private GraphiWindowAPI_Impl gw;
+	private GraphWindow gw;
 	private ArrayList<ArbitrarilyDiscretizedFunc> funcs;
 	private String plotTitle;
 	
@@ -150,10 +150,10 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 			String title = "Energy vs Iterations";
 			if (plotTitle != null)
 				title += " ("+plotTitle+")";
-			gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+			gw = new GraphWindow(funcs, title, chars);
 		} else {
 			updatePlotFuncs();
-			gw.refreshPlot();
+			gw.getGraphWidget().drawGraph();
 		}
 		ArbitrarilyDiscretizedFunc equalityFunc = funcs.get(1);
 		double maxEqualityEnergy = equalityFunc.getY(0);

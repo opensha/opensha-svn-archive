@@ -28,7 +28,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -134,7 +134,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 			offFaultPointMFD.setName("offFaultPointMFD");
 			offFaultPointMFD.setInfo(" ");		
 			funcs.add(offFaultPointMFD.getCumRateDistWithOffset());
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, ""); 	
+			GraphWindow graph = new GraphWindow(funcs, ""); 	
 			graph.setYLog(true);
 		}
 
@@ -244,7 +244,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 		
 //		System.out.println("Plotting expected MFD");
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
+//		GraphWindow graph = new GraphWindow(etas_PrimEventSampler.getExpectedMFD(mainShock), "Expected MFD for MainShock"); 
 
 		// Plot the map
 		System.out.println("Making sampler map");
@@ -298,14 +298,14 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 		funcs.add(magDist.getCumRateDistWithOffset());
 		funcs.add(rupsThatOverlapMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs, "Expected MFD for MainShock"); 
+		GraphWindow graph2 = new GraphWindow(funcs, "Expected MFD for MainShock"); 
 
 
 		
 
 		System.out.println("computing probabilities");
 		double ptSrcProbAboveMagThresh = offFaultPointMFD.getCumRate(magThresh)/offFaultPointMFD.getTotalIncrRate();
-//		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(offFaultPointMFD.getCumRateDistWithOffset(), "Expected MFD for MainShock"); 
+//		GraphWindow graph3 = new GraphWindow(offFaultPointMFD.getCumRateDistWithOffset(), "Expected MFD for MainShock"); 
 
 //		System.out.println("offFaultPointMFD.getTotalIncrRate()="+offFaultPointMFD.getTotalIncrRate());
 //		System.out.println("offFaultPointMFD.getCumRate(indexOfMagThresh)="+offFaultPointMFD.getCumRate(magThresh));

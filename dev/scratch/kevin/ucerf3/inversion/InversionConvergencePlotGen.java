@@ -17,10 +17,10 @@ import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -300,7 +300,7 @@ public class InversionConvergencePlotGen {
 		if (axis != null)
 			gp.setUserBounds(axis[0][0], axis[0][1], axis[1][0], axis[1][1]);
 		
-		gp.drawGraphPanel(xAxis, yAxis, funcs, chars, true, title);
+		gp.drawGraphPanel(xAxis, yAxis, funcs, chars, title);
 		
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());

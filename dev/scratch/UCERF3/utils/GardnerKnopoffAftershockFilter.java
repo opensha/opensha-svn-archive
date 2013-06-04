@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.XY_DataSetException;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
@@ -115,7 +115,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 		ArrayList<EvenlyDiscretizedFunc> mfds = new ArrayList<EvenlyDiscretizedFunc>();
 		mfds.add(allGR.getCumRateDistWithOffset());
 		mfds.add(mainGR.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(mfds, "Cumulative GR MFDs for Gardner-Knopoff filter", plotChars);
+		GraphWindow graph = new GraphWindow(mfds, "Cumulative GR MFDs for Gardner-Knopoff filter", plotChars);
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Normalized Rate");
 		graph.setAxisLabelFontSize(18);
@@ -135,7 +135,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 		ArrayList<EvenlyDiscretizedFunc> incrMFDs = new ArrayList<EvenlyDiscretizedFunc>();
 		incrMFDs.add(allGR);
 		incrMFDs.add(mainGR);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(incrMFDs, "Incremental GR MFDs for Gardner-Knopoff filter", plotChars);
+		GraphWindow graph2 = new GraphWindow(incrMFDs, "Incremental GR MFDs for Gardner-Knopoff filter", plotChars);
 		graph2.setX_AxisLabel("Magnitude");
 		graph2.setY_AxisLabel("Normalized Rate");
 		graph2.setAxisLabelFontSize(18);
@@ -158,7 +158,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 		ArrayList<EvenlyDiscretizedFunc> filters = new ArrayList<EvenlyDiscretizedFunc>();
 		filters.add(this);
 		filters.add(getKarensFractions());
-		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(filters, "Gardner-Knopoff filter", plotChars);
+		GraphWindow graph3 = new GraphWindow(filters, "Gardner-Knopoff filter", plotChars);
 		graph3.setX_AxisLabel("Magnitude");
 		graph3.setY_AxisLabel("Fraction Mainshocks (Incremental Distribution)");
 		graph3.setAxisLabelFontSize(18);

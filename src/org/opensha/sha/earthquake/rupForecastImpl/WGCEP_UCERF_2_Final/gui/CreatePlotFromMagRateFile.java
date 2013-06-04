@@ -14,18 +14,18 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * @author vipingupta
  *
  */
-public class CreatePlotFromMagRateFile implements GraphWindowAPI {
+public class CreatePlotFromMagRateFile {
 	
 	private final static String X_AXIS_LABEL = "Index";
 	private final static String Y_AXIS_LABEL = "Rate";
@@ -219,13 +219,15 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 						String rupName = cell.getStringCellValue().trim();
 						if(rupName.equalsIgnoreCase("Totals")) {
 							r= r+5;
-							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
-							graphWindow.setPlotLabel(PLOT_LABEL);
-							graphWindow.plotGraphUsingPlotPreferences();
+							CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(funcList);
+							GraphWindow graphWindow= new GraphWindow(plot.getCurveFunctionList(),
+									PLOT_LABEL, plot.getPlottingFeatures());
+							graphWindow.setX_AxisLabel(plot.getXAxisLabel());
+							graphWindow.setY_AxisLabel(plot.getYAxisLabel());
 							graphWindow.setTitle(sheetName+" "+modelType);
 							graphWindow.pack();
 							graphWindow.setVisible(true);
-							graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
+							graphWindow.getGraphWidget().saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
 							break;
 						}
 						//System.out.println(r);

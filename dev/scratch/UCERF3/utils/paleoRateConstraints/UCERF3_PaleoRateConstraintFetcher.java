@@ -16,8 +16,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.dom4j.DocumentException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphPanel;
 
 
 import scratch.UCERF3.FaultSystemRupSet;

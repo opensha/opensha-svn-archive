@@ -64,6 +64,12 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -91,14 +97,8 @@ import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -117,6 +117,8 @@ import org.opensha.sra.vulnerability.models.curee.caltech.CCTownhouseTypical;
 import org.opensha.sra.vulnerability.models.servlet.VulnerabilityServletAccessor;
 import org.opensha.sra.gui.components.GuiBeanAPI;
 import org.opensha.sra.gui.components.VulnerabilityBean;
+
+import com.google.common.collect.Lists;
 
 
 
@@ -141,9 +143,7 @@ import org.opensha.sra.gui.components.VulnerabilityBean;
  */
 
 public class LossEstimationApplication extends JFrame
-implements Runnable,  ParameterChangeListener,
-ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,CurveDisplayAppAPI,
-IMR_GuiBeanAPI{
+implements Runnable, ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI{
 	
 	public static final String APP_NAME = "Loss Estimation Application";
 	public static final String APP_SHORT_NAME = "LossEstimationApp";
@@ -161,20 +161,8 @@ IMR_GuiBeanAPI{
 	protected Site_GuiBean siteGuiBean;
 	protected VulnerabilityBean vulnBean;
 
-
-
-	//instance for the ButtonControlPanel
-	ButtonControlPanel buttonControlPanel;
-
 	//instance of the GraphPanel (window that shows all the plots)
-	GraphPanel graphPanel;
-
-	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	GraphWindow graphWindow;
-
-	//X and Y Axis  when plotting tha Curves Name
-	protected String xAxisName;
-	protected String yAxisName;
+	GraphWidget graphWidget;
 
 
 	// Strings for control pick list
@@ -195,16 +183,6 @@ IMR_GuiBeanAPI{
 
 	protected XY_ValuesControlPanel xyPlotControl;
 
-
-	private Insets plotInsets = new Insets( 4, 10, 4, 4 );
-
-	private Border border1;
-
-
-	//log flags declaration
-	private boolean xLog =false;
-	private boolean yLog =false;
-
 	// default insets
 	protected Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
@@ -215,19 +193,7 @@ IMR_GuiBeanAPI{
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
 	 */
-	protected ArrayList functionList = new ArrayList();
-
-
-	/**
-	 * these four values save the custom axis scale specified by user
-	 */
-	private double minXValue;
-	private double maxXValue;
-	private  double minYValue;
-	private double maxYValue;
-	private boolean customAxis = false;
-
-
+	protected List<PlotElement> functionList = Lists.newArrayList();
 
 	// PEER Test Cases
 	protected String TITLE = new String("Loss Curves");
@@ -396,7 +362,7 @@ IMR_GuiBeanAPI{
 
 	//Component initialization
 	protected void jbInit() throws Exception {
-		border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
+//		border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
 		border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
 		border3 = BorderFactory.createEmptyBorder();
 		border4 = BorderFactory.createLineBorder(SystemColor.controlText,1);
@@ -474,7 +440,7 @@ IMR_GuiBeanAPI{
 		jPanel1.setLayout(gridBagLayout10);
 
 		//creating the Object the GraphPaenl class
-		graphPanel = new GraphPanel(this);
+		graphWidget = new GraphWidget();
 
 		jPanel1.setBackground(Color.white);
 		jPanel1.setBorder(border4);
@@ -560,20 +526,15 @@ IMR_GuiBeanAPI{
 		jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 				,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
 
-		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
-
-
 		buttonPanel.add(controlComboBox, 0);
 		buttonPanel.add(addButton, 1);
 		buttonPanel.add(cancelCalcButton, 2);
 		buttonPanel.add(clearButton, 3);
 		buttonPanel.add(peelOffButton, 4);
 		buttonPanel.add(progressCheckBox, 5);
-		buttonPanel.add(buttonControlPanel, 6);
-		buttonPanel.add(usgsImgLabel, 7);
-		buttonPanel.add(openshaImgLabel, 8);
-		buttonPanel.add(riskAgoraImgLabel,9);
+		buttonPanel.add(usgsImgLabel, 6);
+		buttonPanel.add(openshaImgLabel, 7);
+		buttonPanel.add(riskAgoraImgLabel,8);
 		//making the cancel button not visible until user has started to do the calculation
 		cancelCalcButton.setVisible(false);
 
@@ -601,6 +562,11 @@ IMR_GuiBeanAPI{
 		//EXIT_ON_CLOSE == 3
 		this.setDefaultCloseOperation(3);
 		this.setTitle("Loss Estimation Curve Application ");
+		panel.removeAll();
+		panel.add(graphWidget, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.validate();
+		panel.repaint();
 
 	}
 
@@ -637,19 +603,11 @@ IMR_GuiBeanAPI{
 
 		// Starting
 		String S = C + ": addGraphPanel(): ";
-		graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel);
-		togglePlot();
+		PlotSpec spec = graphWidget.getPlotSpec();
+		spec.setPlotElems(functionList);
+		spec.setTitle(TITLE);
+		graphWidget.drawGraph();
 		//this.isIndividualCurves = false;
-	}
-
-	//checks if the user has plot the data window or plot window
-	public void togglePlot(){
-		panel.removeAll();
-		graphPanel.togglePlot(buttonControlPanel);
-		panel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.validate();
-		panel.repaint();
 	}
 
 	/**
@@ -812,39 +770,12 @@ IMR_GuiBeanAPI{
 		int newLoc = loc;
 
 		if( clearFunctions){
-			graphPanel.removeChartAndMetadata();
+			graphWidget.removeChartAndMetadata();
 			panel.removeAll();
 			functionList.clear();
 		}
-		customAxis = false;
+		graphWidget.setAutoRange();
 		chartSplit.setDividerLocation( newLoc );
-	}
-
-	/**
-	 * sets the range for X and Y axis
-	 * @param xMin : minimum value for X-axis
-	 * @param xMax : maximum value for X-axis
-	 * @param yMin : minimum value for Y-axis
-	 * @param yMax : maximum value for Y-axis
-	 *
-	 */
-	public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-		minXValue=xMin;
-		maxXValue=xMax;
-		minYValue=yMin;
-		maxYValue=yMax;
-		this.customAxis=true;
-		drawGraph();
-
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		this.customAxis=false;
-		drawGraph();
 	}
 
 	/*void imgLabel_mouseClicked(MouseEvent e) {
@@ -907,7 +838,7 @@ IMR_GuiBeanAPI{
 		addButton.setEnabled(b);
 		clearButton.setEnabled(b);
 		peelOffButton.setEnabled(b);
-		buttonControlPanel.setEnabled(b);
+		graphWidget.getButtonControlPanel().setEnabled(b);
 		progressCheckBox.setEnabled(b);
 	}
 
@@ -989,8 +920,8 @@ IMR_GuiBeanAPI{
 		lossFunc.setName(vulnBean.getCurrentModel().getName());
 		// set the X-axis label
 		String imt = currentIMT;
-		xAxisName = "Fractional Loss";
-		yAxisName = "Prob. of Exceed.";
+		graphWidget.setXAxisLabel("Fractional Loss");
+		graphWidget.setYAxisLabel("Prob. of Exceed.");
 
 		this.functionList.add(lossFunc);
 		isHazardCalcDone = true;
@@ -1274,7 +1205,7 @@ IMR_GuiBeanAPI{
 	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange(){
-		return graphPanel.getX_AxisRange();
+		return graphWidget.getX_AxisRange();
 	}
 
 	/**
@@ -1282,7 +1213,7 @@ IMR_GuiBeanAPI{
 	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange(){
-		return graphPanel.getY_AxisRange();
+		return graphWidget.getY_AxisRange();
 	}
 
 
@@ -1293,136 +1224,9 @@ IMR_GuiBeanAPI{
 	 */
 	public void addCurve(ArbitrarilyDiscretizedFunc function){
 		functionList.add(function);
-		ArrayList plotFeaturesList = getPlottingFeatures();
+		List<PlotCurveCharacterstics> plotFeaturesList = graphWidget.getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f, Color.BLACK, 1));
 		addGraphPanel();
-	}
-
-
-
-	/**
-	 * tells the application if the xLog is selected
-	 * @param xLog : boolean
-	 */
-	public void setX_Log(boolean xLog){
-		this.xLog = xLog;
-		drawGraph();
-	}
-
-	/**
-	 * tells the application if the yLog is selected
-	 * @param yLog : boolean
-	 */
-	public void setY_Log(boolean yLog){
-		this.yLog = yLog;
-		drawGraph();
-	}
-
-
-	/**
-	 *
-	 * @return the boolean: Log for X-Axis Selected
-	 */
-	public boolean getXLog(){
-		return xLog;
-	}
-
-	/**
-	 *
-	 * @return the boolean: Log for Y-Axis Selected
-	 */
-	public boolean getYLog(){
-		return yLog;
-	}
-
-	/**
-	 *
-	 * @return boolean: Checks if Custom Axis is selected
-	 */
-	public boolean isCustomAxis(){
-		return customAxis;
-	}
-
-	/**
-	 *
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX(){
-		return minXValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX(){
-		return maxXValue;
-	}
-
-	/**
-	 *
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY(){
-		return minYValue;
-	}
-
-	/**
-	 *
-	 * @return the Max Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY(){
-		return maxYValue;
-	}
-
-
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel(){
-		return xAxisName;
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel(){
-		return yAxisName;
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel(){
-		return TITLE;
-	}
-
-
-	/**
-	 *
-	 * sets  X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel){
-		xAxisName = xAxisLabel;
-	}
-
-	/**
-	 *
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel){
-		yAxisName = yAxisLabel;
-	}
-
-	/**
-	 *
-	 * sets plot Title
-	 */
-	public void setPlotLabel(String plotTitle){
-		TITLE = plotTitle;
 	}
 
 	/**
@@ -1471,19 +1275,19 @@ IMR_GuiBeanAPI{
 	 *
 	 * @return the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
 	 */
-	public ArrayList getCurveFunctionList(){
+	public List<PlotElement> getCurveFunctionList(){
 		return functionList;
 	}
-
-
-
+	
 	/**
 	 * Actual method implementation of the "Peel-Off"
 	 * This function peels off the window from the current plot and shows in a new
 	 * window. The current plot just shows empty window.
 	 */
 	protected void peelOffCurves(){
-		graphWindow = new GraphWindow(this);
+		GraphWindow graphWindow = new GraphWindow(graphWidget);
+		graphWidget.getPlotSpec().setPlotElems(Lists.newArrayList(graphWidget.getPlotSpec().getPlotElems()));
+		graphWidget = new GraphWidget();
 		clearPlot(true);
 		graphWindow.setVisible(true);
 	}
@@ -1498,16 +1302,6 @@ IMR_GuiBeanAPI{
 	void peelOffButton_actionPerformed(ActionEvent e) {
 		peelOffCurves();
 	}
-
-	/**
-	 *
-	 * @return the list PlotCurveCharacterstics that contain the info about
-	 * plotting the curve like plot line color , its width and line type.
-	 */
-	public ArrayList getPlottingFeatures(){
-		return graphPanel.getCurvePlottingCharacterstic();
-	}
-
 
 	/**
 	 * File | Exit action performed.
@@ -1563,14 +1357,14 @@ IMR_GuiBeanAPI{
 	 * @throws IOException if there is an I/O error.
 	 */
 	public void save() throws IOException {
-		graphPanel.save();
+		graphWidget.save();
 	}
 
 	/**
 	 * Creates a print job for the chart.
 	 */
 	public void print() {
-		graphPanel.print(this);
+		graphWidget.print();
 	}
 
 	public void closeButton_actionPerformed(ActionEvent actionEvent) {
@@ -1681,10 +1475,5 @@ IMR_GuiBeanAPI{
 	@Override
 	public void setCurveXValues() {
 		throw new RuntimeException("Not applicable for application");
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		graphPanel.setRenderingOrder(order);
 	}
 }

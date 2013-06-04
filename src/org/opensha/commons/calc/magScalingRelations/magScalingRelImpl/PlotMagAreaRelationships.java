@@ -3,7 +3,7 @@ package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 import java.util.ArrayList;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 public class PlotMagAreaRelationships {
 	
@@ -40,7 +40,7 @@ public class PlotMagAreaRelationships {
     	funcs.add(shaw09_func);
     	funcs.add(wc1994_func);
     	
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag Area Relationships"); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag Area Relationships"); 
 		graph.setX_AxisLabel("Area");
 		graph.setY_AxisLabel("Mag");
 		graph.setXLog(true);

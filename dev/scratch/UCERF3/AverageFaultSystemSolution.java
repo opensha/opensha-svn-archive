@@ -22,17 +22,17 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -441,7 +441,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			PlotSpec spec = PaleoFitPlotter.getSegRateComparisonSpec(
 					paleoRateConstraints, null, sol);
 			
-			ArrayList<? extends DiscretizedFunc> funcs = spec.getFuncs();
+			List<? extends DiscretizedFunc> funcs = spec.getPlotFunctionsOnly();
 			
 			if (otherFuncs.isEmpty()) {
 				for (int j=0; j<funcs.size(); j++) {
@@ -517,7 +517,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		gp.setYLog(true);
 		
-		gp.drawGraphPanel("", "Event Rate Per Year", funcs, chars, false, "Paleosiesmic Constraint Fit");
+		gp.drawGraphPanel("", "Event Rate Per Year", funcs, chars, "Paleosiesmic Constraint Fit");
 		File file = new File(dir, prefix+"_paleo_bounds");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
@@ -646,11 +646,11 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		IncrementalMagFreqDist[] mfds = avg.calcParentSectionNucleationMFDs(301);
 		PlotSpec spec = getMFDConvergencePlotSpec(mfds, true, "SAF Mojave", 10);
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), false);
-		gw.setX_AxisLabel(spec.getxAxisLabel());
-		gw.setY_AxisLabel(spec.getyAxisLabel());
-		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gw.getGraphWindow().setVisible(true);
+		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
+		gw.setX_AxisLabel(spec.getXAxisLabel());
+		gw.setY_AxisLabel(spec.getYAxisLabel());
+		gw.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gw.setVisible(true);
 		
 		
 //		File dir = new File("/home/kevin/OpenSHA/UCERF3/inversions/2012_04_30-fm2-a-priori-test/" +

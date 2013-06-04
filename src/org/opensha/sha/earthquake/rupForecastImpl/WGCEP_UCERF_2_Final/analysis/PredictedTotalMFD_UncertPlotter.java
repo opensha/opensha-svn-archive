@@ -12,14 +12,14 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -34,7 +34,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
+public class PredictedTotalMFD_UncertPlotter {
 
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String Y_AXIS_LABEL = "Cumulative Rate (per year)";
@@ -185,9 +185,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		Collections.reverse(funcs);
 		Collections.reverse(plottingFeaturesList);
 		
-		GraphWindow graphWindow= new GraphWindow(this);
-		graphWindow.setPlotLabel("Mag Freq Dist");
-		graphWindow.plotGraphUsingPlotPreferences();
+		GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), "Mag Freq Dist", getPlottingFeatures());
 		graphWindow.setVisible(true);
 		
 		return ;

@@ -9,11 +9,11 @@ import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 
@@ -84,7 +84,7 @@ public class ErrorPlotter {
 		gp.setYLog(true);
 		
 		gp.drawGraphPanel("DT (years)", "Relative Error",
-				funcs, chars, true, "Error Vs DT");
+				funcs, chars, "Error Vs DT");
 		
 		gp.getCartPanel().setSize(500, 500);
 		gp.saveAsPNG("/home/kevin/Documents/Geol 557/prob_set_06/explicit_error_dt.png");

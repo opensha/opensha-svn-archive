@@ -22,13 +22,19 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.jfree.data.Range;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotPreferences;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -36,8 +42,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -170,9 +174,12 @@ public class UCERF1ComparisonPlotter {
 			aList.add(sjIncrRateFuncList.get(i));
 		A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(aList, false);
 		aFaultsPlotter.setPlottingFeatures(plotChars);
-		GraphWindow graphWindow= new GraphWindow(aFaultsPlotter);
-		graphWindow.setPlotLabel(label);
-		graphWindow.plotGraphUsingPlotPreferences();
+		PlotSpec spec = aFaultsPlotter.getPlotSpec();
+		spec.setTitle(label);
+		GraphWindow graphWindow= new GraphWindow(spec, PlotPreferences.getDefault(),
+				aFaultsPlotter.getXLog(), aFaultsPlotter.getYLog(),
+				new Range(aFaultsPlotter.getUserMinX(), aFaultsPlotter.getUserMaxX()),
+				new Range(aFaultsPlotter.getUserMinY(), aFaultsPlotter.getUserMaxY()));
 		graphWindow.setVisible(true);
 	}
 	
@@ -211,9 +218,14 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
-			graphWindow.setPlotLabel(faultName);
-			graphWindow.plotGraphUsingPlotPreferences();
+			
+			A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(funcArrayList, false);
+			PlotSpec spec = aFaultsPlotter.getPlotSpec();
+			spec.setTitle(faultName);
+			GraphWindow graphWindow= new GraphWindow(spec, PlotPreferences.getDefault(),
+					aFaultsPlotter.getXLog(), aFaultsPlotter.getYLog(),
+					new Range(aFaultsPlotter.getUserMinX(), aFaultsPlotter.getUserMaxX()),
+					new Range(aFaultsPlotter.getUserMinY(), aFaultsPlotter.getUserMaxY()));
 			graphWindow.setVisible(true);
 		}
 
@@ -225,9 +237,14 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
-			graphWindow.setPlotLabel(faultName);
-			graphWindow.plotGraphUsingPlotPreferences();
+			
+			A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(funcArrayList, false);
+			PlotSpec spec = aFaultsPlotter.getPlotSpec();
+			spec.setTitle(faultName);
+			GraphWindow graphWindow= new GraphWindow(spec, PlotPreferences.getDefault(),
+					aFaultsPlotter.getXLog(), aFaultsPlotter.getYLog(),
+					new Range(aFaultsPlotter.getUserMinX(), aFaultsPlotter.getUserMaxX()),
+					new Range(aFaultsPlotter.getUserMinY(), aFaultsPlotter.getUserMaxY()));
 			graphWindow.setVisible(true);
 		}
 	}
@@ -442,9 +459,13 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
-			graphWindow.setPlotLabel(faultName);
-			graphWindow.plotGraphUsingPlotPreferences();
+			A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(funcArrayList, false);
+			PlotSpec spec = aFaultsPlotter.getPlotSpec();
+			spec.setTitle(faultName);
+			GraphWindow graphWindow= new GraphWindow(spec, PlotPreferences.getDefault(),
+					aFaultsPlotter.getXLog(), aFaultsPlotter.getYLog(),
+					new Range(aFaultsPlotter.getUserMinX(), aFaultsPlotter.getUserMaxX()),
+					new Range(aFaultsPlotter.getUserMinY(), aFaultsPlotter.getUserMaxY()));
 			graphWindow.setVisible(true);
 		}
 
@@ -456,9 +477,13 @@ public class UCERF1ComparisonPlotter {
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
 			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
-			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
-			graphWindow.setPlotLabel(faultName);
-			graphWindow.plotGraphUsingPlotPreferences();
+			A_FaultsMFD_Plotter aFaultsPlotter = new A_FaultsMFD_Plotter(funcArrayList, false);
+			PlotSpec spec = aFaultsPlotter.getPlotSpec();
+			spec.setTitle(faultName);
+			GraphWindow graphWindow= new GraphWindow(spec, PlotPreferences.getDefault(),
+					aFaultsPlotter.getXLog(), aFaultsPlotter.getYLog(),
+					new Range(aFaultsPlotter.getUserMinX(), aFaultsPlotter.getUserMaxX()),
+					new Range(aFaultsPlotter.getUserMinY(), aFaultsPlotter.getUserMaxY()));
 			graphWindow.setVisible(true);
 		}
 	}

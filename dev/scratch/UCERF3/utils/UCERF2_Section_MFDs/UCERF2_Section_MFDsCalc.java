@@ -20,6 +20,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
@@ -35,7 +36,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -451,7 +451,7 @@ public class UCERF2_Section_MFDsCalc {
 			else
 				title = sectionNamefromID_Map.get(parID)+" Nucleation Cum MFDs (totWt="+totWt+")";
 
-			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, true, title);
+			gp.drawGraphPanel("Magnitude", "Rate (per year)", funcs, chars, title);
 
 			String fileName = sectionNamefromID_Map.get(parID).replace("\\s+","");
 			String subDir;

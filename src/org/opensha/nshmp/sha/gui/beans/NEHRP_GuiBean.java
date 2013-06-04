@@ -54,7 +54,7 @@ import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.DataGenerator_NEHRP;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
+import org.opensha.nshmp.sha.gui.infoTools.NSHMPGraphWindow;
 import org.opensha.nshmp.sha.gui.infoTools.SiteCoefficientInfoWindow;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.LocationUtil;
@@ -1057,7 +1057,7 @@ public class NEHRP_GuiBean
 				if (sdSpecButton_doActions()) {
 				ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
 	      	mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
-	    		GraphWindow window = new GraphWindow(functions);
+	    		NSHMPGraphWindow window = new NSHMPGraphWindow(functions);
 	    		window.setVisible(true);
 				}
 			} else {	

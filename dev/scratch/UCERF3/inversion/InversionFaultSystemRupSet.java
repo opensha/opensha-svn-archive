@@ -21,7 +21,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -255,7 +255,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		funcs.add(magHist);
 		magHist.setName("Histogram of Inversion ruptures");
 		magHist.setInfo("(number in each mag bin)");
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Magnitude Histogram"); 
+		GraphWindow graph = new GraphWindow(funcs, "Magnitude Histogram"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Num");
 	}

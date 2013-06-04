@@ -10,7 +10,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures;
@@ -119,7 +119,7 @@ public class TestFaultSysSolPoissonERF {
 		funcs.add(origMFD);
 		funcs.add(invMFD.getCumRateDistWithOffset());
 		funcs.add(origMFD.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);

@@ -39,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
@@ -66,6 +67,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.WarningParameter;
@@ -85,17 +92,10 @@ import org.opensha.sha.gcim.imr.attenRelImpl.ASI_WrapperAttenRel.BA_2008_ASI_Att
 import org.opensha.sha.gcim.imr.attenRelImpl.DSI_WrapperAttenRel.BA_2008_DSI_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.SI_WrapperAttenRel.BA_2008_SI_AttenRel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
-import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.CurveDisplayAppAPI;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
@@ -120,6 +120,8 @@ import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 
+import com.google.common.collect.Lists;
+
 /**
  *  <b>Title:</b> AttenuationRelationshipApplet<br>
  *  <b>Description:</b> Applet that allows testing of independent and dependent
@@ -139,10 +141,7 @@ import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.Interpola
  */
 
 public class AttenuationRelationshipApplet extends JFrame
-implements ParameterChangeFailListener,
-ParameterChangeWarningListener,
-ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
-CurveDisplayAppAPI,GraphWindowAPI {
+implements ParameterChangeFailListener, ParameterChangeWarningListener, ItemListener, CurveDisplayAppAPI {
 	
 	public static final String APP_NAME = "Attenuation Relationship Application";
 	public static final String APP_SHORT_NAME = "AttenuationRelationship";
@@ -154,33 +153,13 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	protected final static String C = "AttenuationRelationshipApplet";
 	protected final static boolean D = false;
 
-	/**
-	 * these four values save the custom axis scale specified by user
-	 */
-	protected double minXValue;
-	protected double maxXValue;
-	protected double minYValue;
-	protected double maxYValue;
-	protected boolean customAxis = false;
-
 	// message string to be dispalayed if user chooses Axis Scale
 	// without first clicking on "Add Trace"
 	private final static String AXIS_RANGE_NOT_ALLOWED =
 		new String("First Choose Add Graph. Then choose Axis Scale option");
 
-
-
-	//instance for the ButtonControlPanel
-	protected ButtonControlPanel buttonControlPanel;
-
 	//instance of the GraphPanel (window that shows all the plots)
-	protected GraphPanel graphPanel;
-
-	//instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
-	private GraphWindow graphWindow;
-
-	//graph Title
-	private String plotTitle = "" ;
+	protected GraphWidget graphWidget;
 
 	//images for the OpenSHA
 	private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
@@ -190,8 +169,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
 	private JButton attenRelInfobutton = new JButton("  Get Info  ");
-
-
+	
 	/**
 	 *  Currently selected AttenuationRelationship and related information needed for the gui to
 	 *  work
@@ -208,12 +186,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
 	 */
-	private ArrayList functionList = new ArrayList();
-
-	//X and Y Axis  when plotting tha Curves Name
-	private String xAxisName="";
-	private String yAxisName="";
-
+	private ArrayList<PlotElement> functionList = new ArrayList<PlotElement>();
 
 	protected boolean inParameterChangeWarning = false;
 
@@ -386,14 +359,6 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	JSplitPane parametersSplitPane = new JSplitPane();
 	JSplitPane mainSplitPane = new JSplitPane();
 	JSplitPane plotSplitPane =  new JSplitPane();
-
-
-	private boolean yLog = false;
-	private boolean xLog = false;
-	int titleSize = 0;
-
-
-
 
 	protected String lastXYAxisName = "";
 
@@ -568,7 +533,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		titlePanel.setPreferredSize(new Dimension(40, 40));
 		titlePanel.setLayout( GBL);
 		//creating the Object the GraphPaenl class
-		graphPanel = new GraphPanel(this);
+		graphWidget = new GraphWidget();
 
 		plotPanel.setLayout(GBL);
 		innerPlotPanel.setLayout(GBL);
@@ -699,14 +664,12 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 
 		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
 		buttonPanel.add(addButton, 0);
 		buttonPanel.add(clearButton, 1);
 		buttonPanel.add(peelOffButton, 2);
 		buttonPanel.add(xyDatasetButton, 3);
-		buttonPanel.add(buttonControlPanel,4);
-		buttonPanel.add(plotColorCheckBox, 5);
-		buttonPanel.add(imgLabel, 6);
+		buttonPanel.add(plotColorCheckBox, 4);
+		buttonPanel.add(imgLabel, 5);
 
 		parametersSplitPane.setBottomComponent( sheetPanel );
 		parametersSplitPane.setTopComponent( inputPanel );
@@ -799,6 +762,12 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		// inputsPanel
 		
 		enableMenuButtons();
+		
+		innerPlotPanel.removeAll();
+		innerPlotPanel.add(graphWidget, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		innerPlotPanel.validate();
+		innerPlotPanel.repaint();
 
 		this.setVisible( true );
 	}
@@ -865,14 +834,14 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 * @throws IOException if there is an I/O error.
 	 */
 	public void save() throws IOException {
-		graphPanel.save();
+		graphWidget.save();
 	}
 
 	/**
 	 * Creates a print job for the chart.
 	 */
 	public void print() {
-		graphPanel.print(this);
+		graphWidget.print();
 	}
 
 	public void closeButton_actionPerformed(ActionEvent actionEvent) {
@@ -979,13 +948,14 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	 *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipApplet object
 	 */
 	private void addGraphPanel() {
-		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog,
-				yLog, customAxis, plotTitle,
-				buttonControlPanel);
-
-		togglePlot();
-		if (isWhite) graphPanel.setPlotBackgroundColor(Color.white);
-		else graphPanel.setPlotBackgroundColor(Color.black);
+		PlotSpec spec = graphWidget.getPlotSpec();
+		spec.setPlotElems(functionList);
+		graphWidget.drawGraph();
+		
+		if (isWhite)
+			graphWidget.getGraphPanel().setPlotBackgroundColor(Color.white);
+		else
+			graphWidget.getGraphPanel().setPlotBackgroundColor(Color.black);
 		
 		enableMenuButtons();
 	}
@@ -1014,29 +984,16 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 		int loc = this.mainSplitPane.getDividerLocation();
 		int newLoc = loc;
-		graphPanel.removeChartAndMetadata();
-		innerPlotPanel.removeAll();
-		if( clearFunctions){
+		if (clearFunctions) {
 			functionList.clear();
 			//clearing the plotting preferences
-			getPlottingFeatures().clear();
+			graphWidget.getPlottingFeatures().clear();
 		}
-		customAxis = false;
+		graphWidget.removeChartAndMetadata();
+		graphWidget.setAutoRange();
 		mainSplitPane.setDividerLocation( newLoc );
 		enableMenuButtons();
 	}
-
-
-	//checks if the user has plot the data window or plot window
-	public void togglePlot(){
-		innerPlotPanel.removeAll();
-		graphPanel.togglePlot(buttonControlPanel);
-		innerPlotPanel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		innerPlotPanel.validate();
-		innerPlotPanel.repaint();
-	}
-
 
 	/**
 	 *  Shown when a Constraint error is thrown on a ParameterEditor
@@ -1183,10 +1140,10 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		//if the user just wants to see the result for the single value.
 		if(XLabel.equals(AttenuationRelationshipGuiBean.X_AXIS_SINGLE_VAL)){
 			functionList.clear();
-			getPlottingFeatures().clear();
+			graphWidget.getPlottingFeatures().clear();
 			//making the GUI components disable if the user wants just one single value
 			clearButton.setEnabled(false);
-			buttonControlPanel.setEnabled(false);
+			graphWidget.getButtonControlPanel().setEnabled(false);
 			plotColorCheckBox.setEnabled(false);
 			double yVal = attenRel.getChosenValue();
 			String info = "";
@@ -1195,9 +1152,8 @@ CurveDisplayAppAPI,GraphWindowAPI {
 			info += "Info: "+attenRel.getIndependentsEditor().getVisibleParametersCloned().toString()+"\n\n";
 			info += YLabel+" = "+yVal;
 			//making the panel for the JFreechart null, so that it only shows the indivdual value
-			graphPanel.removeChartAndMetadata();
-			graphPanel.setMetadata(info);
-			togglePlot();
+			graphWidget.removeChartAndMetadata();
+			graphWidget.getGraphPanel().setMetadata(info);
 			return;
 		}
 
@@ -1205,7 +1161,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 		else{
 			//enabling all the GUI components if the user wants to see the plot
 			clearButton.setEnabled(true);
-			buttonControlPanel.setEnabled(true);
+			graphWidget.getButtonControlPanel().setEnabled(true);
 			plotColorCheckBox.setEnabled(true);
 
 			if( D && functionList != null ){
@@ -1250,11 +1206,15 @@ CurveDisplayAppAPI,GraphWindowAPI {
 			//data.setXLog(xLog);
 			//data.setYLog(yLog);
 
-			String xOld = xAxisName;
+			String xOld = graphWidget.getXAxisLabel();
+			if (xOld == null)
+				xOld = "";
 			String xUnitsOld="";
 			if(xOld.indexOf('(')!=-1)
 				xUnitsOld = xOld.substring(xOld.indexOf('(')+1, xOld.indexOf(')'));
-			String yOld = yAxisName;
+			String yOld = graphWidget.getYAxisLabel();
+			if (yOld == null)
+				yOld = "";
 
 			String xNew = attenRel.getGraphXAxisLabel();
 			String xUnitsNew ="";
@@ -1270,20 +1230,22 @@ CurveDisplayAppAPI,GraphWindowAPI {
 				if(xOld.indexOf(tempX)==-1) { // set the new X axis label
 					xNew=xOld.substring(0, xOld.indexOf('('))+" "+xNew.substring(0, xNew.indexOf('('))+
 					" ("+ xUnitsNew+")";
-					xAxisName = xNew ;
+					graphWidget.setXAxisLabel(xNew);
 				}
 			}
 			//if the X-Axis units are null for both old and new
-			else if(xUnitsNew.equals(xUnitsOld))newGraph = false;
-			else newGraph = true;
+			else if(xUnitsNew.equals(xUnitsOld))
+				newGraph = false;
+			else
+				newGraph = true;
 
 			if( !yOld.equals(yNew) ) newGraph = true;
 
 			if( newGraph ){
 				functionList.clear();
-				getPlottingFeatures().clear();
-				xAxisName = attenRel.getGraphXAxisLabel();
-				yAxisName =attenRel.getGraphIMYAxisLabel() ;
+				graphWidget.getPlottingFeatures().clear();
+				graphWidget.setXAxisLabel(attenRel.getGraphXAxisLabel());
+				graphWidget.setYAxisLabel(attenRel.getGraphIMYAxisLabel());
 			}
 
 			newGraph = false;
@@ -1325,7 +1287,7 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	public void addCurve(ArbitrarilyDiscretizedFunc function){
 		if( !functionList.contains( function )){
 			functionList.add(function);
-			ArrayList plotFeaturesList = getPlottingFeatures();
+			List<PlotCurveCharacterstics> plotFeaturesList = graphWidget.getPlottingFeatures();
 			plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f,
 					Color.BLACK,1));
 			addGraphPanel();
@@ -1345,25 +1307,22 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 	}
 
-
-	protected void toggleButton_actionPerformed(ActionEvent e){
-
-		String S = C + " : toggleButtonFocusGained(): ";
-		if(D) System.out.println(S + "Starting");
-		togglePlot();
-		if(D) System.out.println(S + "Ending");
-
-	}
-
-
 	/**
 	 * Actual method implementation of the "Peel-Off"
 	 * This function peels off the window from the current plot and shows in a new
 	 * window. The current plot just shows empty window.
 	 */
 	private void peelOffCurves(){
-		graphWindow = new GraphWindow(this);
+		graphWidget.getPlotSpec().setPlotElems(Lists.newArrayList(graphWidget.getPlotSpec().getPlotElems()));
+		GraphWindow graphWindow = new GraphWindow(graphWidget);
+		graphWidget = new GraphWidget();
 		clearPlot(true);
+		innerPlotPanel.removeAll();
+		graphWidget.togglePlot();
+		innerPlotPanel.add(graphWidget, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+				, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		innerPlotPanel.validate();
+		innerPlotPanel.repaint();
 		graphWindow.setVisible(true);
 	}
 
@@ -1402,198 +1361,17 @@ CurveDisplayAppAPI,GraphWindowAPI {
 
 			if( isWhite ) {
 				isWhite = false;
-				graphPanel.setPlotBackgroundColor(Color.black);
+				graphWidget.getGraphPanel().setPlotBackgroundColor(Color.black);
 			}
 			else{
 				isWhite = true;
-				graphPanel.setPlotBackgroundColor(Color.white);
+				graphWidget.getGraphPanel().setPlotBackgroundColor(Color.white);
 			}
 		}
 
 		// Ending
 		if ( D ) System.out.println( S + "Ending" );
 
-	}
-
-
-	/**
-	 * tells the application if the xLog is selected
-	 * @param xLog : boolean
-	 */
-	public void setX_Log(boolean xLog){
-		this.xLog = xLog;
-		addGraphPanel();
-	}
-
-	/**
-	 * tells the application if the yLog is selected
-	 * @param yLog : boolean
-	 */
-	public void setY_Log(boolean yLog){
-		this.yLog = yLog;
-		addGraphPanel();
-	}
-
-
-
-	/**
-	 *
-	 * @return the Range for the X-Axis
-	 */
-	public Range getX_AxisRange(){
-		return graphPanel.getX_AxisRange();
-	}
-
-	/**
-	 *
-	 * @return the Range for the Y-Axis
-	 */
-	public Range getY_AxisRange(){
-		return graphPanel.getY_AxisRange();
-	}
-
-	/**
-	 *
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX(){
-		return minXValue;
-	}
-
-	/**
-	 *
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX(){
-		return maxXValue;
-	}
-
-	/**
-	 *
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY(){
-		return minYValue;
-	}
-
-	/**
-	 *
-	 * @return the Max Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY(){
-		return maxYValue;
-	}
-
-
-	/**
-	 * sets the range for X and Y axis
-	 * @param xMin : minimum value for X-axis
-	 * @param xMax : maximum value for X-axis
-	 * @param yMin : minimum value for Y-axis
-	 * @param yMax : maximum value for Y-axis
-	 */
-	public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-		minXValue=xMin;
-		maxXValue=xMax;
-		minYValue=yMin;
-		maxYValue=yMax;
-		this.customAxis=true;
-		addGraphPanel();
-
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called
-	 * from the AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		this.customAxis = false;
-		addGraphPanel();
-	}
-
-
-	/**
-	 *
-	 * @return boolean: Checks if Custom Axis is selected
-	 */
-	public boolean isCustomAxis(){
-		return customAxis;
-	}
-
-
-
-	/**
-	 *
-	 * @return the boolean: Log for X-Axis Selected
-	 */
-	public boolean getXLog(){
-		return xLog;
-	}
-
-
-	/**
-	 *
-	 * @return the boolean: Log for Y-Axis Selected
-	 */
-	public boolean getYLog(){
-		return yLog;
-	}
-
-	/**
-	 *
-	 * @return the plotting feature like width, color and shape type of each
-	 * curve in list.
-	 */
-	public ArrayList getPlottingFeatures(){
-		return graphPanel.getCurvePlottingCharacterstic();
-	}
-	/**
-	 *
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel(){
-		return xAxisName;
-	}
-
-	/**
-	 *
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel(){
-		return yAxisName;
-	}
-
-	/**
-	 *
-	 * @return plot Title
-	 */
-	public String getPlotLabel(){
-		return plotTitle;
-	}
-
-
-	/**
-	 *
-	 * sets  X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel){
-		xAxisName = xAxisLabel;
-	}
-
-	/**
-	 *
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel){
-		yAxisName = yAxisLabel;
-	}
-
-	/**
-	 *
-	 * sets plot Title
-	 */
-	public void setPlotLabel(String plotTitle){
-		this.plotTitle = plotTitle;
 	}
 
 	/**
@@ -1642,10 +1420,5 @@ CurveDisplayAppAPI,GraphWindowAPI {
 	@Override
 	public void setCurveXValues() {
 		throw new RuntimeException("Not applicable for application");
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		graphPanel.setRenderingOrder(order);
 	}
 }

@@ -22,6 +22,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.RunScript;
@@ -29,8 +30,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -1195,7 +1195,7 @@ public class BayArea_Inversion {
 		finalSlipRateFunc.setName("Smooth Slip Rates");
 		sr_funcs.add(origSlipRateFunc);
 		sr_funcs.add(finalSlipRateFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs,
+		GraphWindow sr_graph = new GraphWindow(sr_funcs,
 				"Orig Versus Smoothed Slip Rates");
 
 	}
@@ -2227,13 +2227,13 @@ public class BayArea_Inversion {
 		sr_funcs.add(origSlipRateFunc);
 		sr_funcs.add(origUpper95_SlipRateFunc);
 		sr_funcs.add(origLower95_SlipRateFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "");
+		GraphWindow sr_graph = new GraphWindow(sr_funcs, "");
 		ArrayList<PlotCurveCharacterstics> sr_plotChars = new ArrayList<PlotCurveCharacterstics>();
 		sr_plotChars.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
 		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.BLUE));
 		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
 		sr_plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
-		sr_graph.setPlottingFeatures(sr_plotChars);
+		sr_graph.setPlotChars(sr_plotChars);
 		sr_graph.setX_AxisLabel("Subsection");
 		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
 		sr_graph.setY_AxisRange(0.0, 0.04);
@@ -2283,13 +2283,13 @@ public class BayArea_Inversion {
 			er_funcs.add(func);
 		}
 		// er_funcs.add(obs_er_funcs);
-		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "");
+		GraphWindow er_graph = new GraphWindow(er_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 4f, Color.BLUE));
 		for (int c = 0; c < num; c++)
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
-		er_graph.setPlottingFeatures(plotChars);
+		er_graph.setPlotChars(plotChars);
 		er_graph.setX_AxisLabel("Subsection");
 		er_graph.setY_AxisLabel("Event Rate (per yr)");
 		er_graph.setYLog(true);
@@ -2317,7 +2317,7 @@ public class BayArea_Inversion {
 		ArrayList rup_funcs = new ArrayList();
 		rupRateFunc.setName("Rupture Rates");
 		rup_funcs.add(rupRateFunc);
-		GraphiWindowAPI_Impl rup_graph = new GraphiWindowAPI_Impl(rup_funcs,
+		GraphWindow rup_graph = new GraphWindow(rup_funcs,
 				"Rupture Rates");
 
 		// PLOT MFDs
@@ -2359,7 +2359,7 @@ public class BayArea_Inversion {
 		 * constraint values"); mfd_funcs.add(grConstraintFunc); }
 		 */
 
-		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs,
+		GraphWindow mfd_graph = new GraphWindow(mfd_funcs,
 				"Magnitude Frequency Distributions");
 		mfd_graph.setYLog(true);
 		mfd_graph.setY_AxisRange(1e-5, 0.2);
@@ -2380,7 +2380,7 @@ public class BayArea_Inversion {
 			plotMFD_Chars.add(new PlotCurveCharacterstics(
 					PlotLineType.SOLID, 3f, Color.RED));
 		}
-		mfd_graph.setPlottingFeatures(plotMFD_Chars);
+		mfd_graph.setPlotChars(plotMFD_Chars);
 		mfd_graph.setTickLabelFontSize(12);
 		mfd_graph.setAxisLabelFontSize(14);
 		if (dirName != null) {
@@ -2412,7 +2412,7 @@ public class BayArea_Inversion {
 			seg_funcs.add(obs_er_funcs.get(i));
 		seg_funcs.add(rateOfRupEndsOnSegFunc);
 
-		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "");
+		GraphWindow seg_graph = new GraphWindow(seg_funcs, "");
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLUE));
@@ -2423,7 +2423,7 @@ public class BayArea_Inversion {
 					PlotLineType.SOLID, 1f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars2.add(new PlotCurveCharacterstics(
 				PlotLineType.SOLID, 2f, Color.BLACK));
-		seg_graph.setPlottingFeatures(plotChars2);
+		seg_graph.setPlotChars(plotChars2);
 		seg_graph.setX_AxisLabel("Subsection");
 		seg_graph.setY_AxisLabel("Rates");
 		seg_graph.setYLog(true);
@@ -2447,7 +2447,7 @@ public class BayArea_Inversion {
 		ArrayList funcs = new ArrayList();
 		funcs.add(meanMagHistorgram);
 		funcs.add(magHistorgram);
-		GraphiWindowAPI_Impl mHist_graph = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow mHist_graph = new GraphWindow(funcs,
 				"Mag Histograms");
 		// mfd_graph.setYLog(true);
 		// mfd_graph.setY_AxisRange(1e-5, 1);
@@ -2461,7 +2461,7 @@ public class BayArea_Inversion {
 		numSegInRupHistogram.setName("Num Segments In Rupture Histogram");
 		ArrayList funcs2 = new ArrayList();
 		funcs2.add(numSegInRupHistogram);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs2,
+		GraphWindow graph = new GraphWindow(funcs2,
 				"Num Segments In Rupture Histogram");
 
 	}

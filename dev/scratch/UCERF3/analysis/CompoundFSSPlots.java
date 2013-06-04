@@ -48,7 +48,9 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -76,8 +78,6 @@ import org.opensha.sha.faultSurface.RupInRegionCache;
 import org.opensha.sha.faultSurface.RupNodesCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -179,8 +179,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				else
 					gp.setUserBounds(5d, 9d, 3e-6, 3e0);
 
-				gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-						spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+				gp.drawGraphPanel(spec);
 
 				String fname = prefix;
 				if (cumulative)
@@ -522,8 +521,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //			gp.setUserBounds(5d, 9d, 1e-6, 1e0);
 			gp.setUserBounds(5d, 9d, 1e-5, 1e1);
 
-			gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(),
-					spec.getFuncs(), spec.getChars(), true, spec.getTitle());
+			gp.drawGraphPanel(spec);
 
 			String fname = prefix + "_MFD_ERF";
 			if (region.getName() != null && !region.getName().isEmpty())
@@ -5459,7 +5457,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8,
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 4,
 				FaultModels.FM3_1);
 
 		new DeadlockDetectionThread(3000).start();
@@ -5476,7 +5474,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		String prefix = dir.getName();
 		// for (PlotSpec spec : getRegionalMFDPlotSpecs(fetch, weightProvider,
 		// regions)) {
-		// GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(spec);
+		// GraphWindow gw = new GraphWindow(spec);
 		// gw.setYLog(true);
 		// }
 		// writeRegionalMFDPlots(fetch, weightProvider, regions, dir, prefix);
@@ -5489,11 +5487,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// writeJumpPlots(fetch, weightProvider, dir, prefix);
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
-//		plots.add(new PaleoFaultPlot(weightProvider));
+		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));
-		plots.add(new SlipRatePlots(weightProvider));
+//		plots.add(new SlipRatePlots(weightProvider));
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));

@@ -19,6 +19,9 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -26,9 +29,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * This class generates excel sheets for probability contribution of each A-Fault source and
@@ -46,7 +46,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author vipingupta
  *
  */
-public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
+public class ProbabilityDistHistogramPlotter {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/probContr/";
 	private final static double MIN_PROB= 0.025;
 	private final static double MAX_PROB= 0.975;
@@ -301,9 +301,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
 			plottingCurveChars.add(STACKED_BAR1);
 			plottingCurveChars.add(STACKED_BAR2);
-			GraphWindow graphWindow= new GraphWindow(this);
-			graphWindow.setPlotLabel(PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), PLOT_LABEL, getPlottingFeatures());
 			graphWindow.setVisible(true);
 
 		}catch (Exception e) {
@@ -350,9 +348,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			plottingCurveChars.add(STACKED_BAR1);
 			plottingCurveChars.add(STACKED_BAR2);
 			plottingCurveChars.add(STACKED_BAR3);
-			GraphWindow graphWindow= new GraphWindow(this);
-			graphWindow.setPlotLabel(PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), PLOT_LABEL, getPlottingFeatures());
 			graphWindow.setVisible(true);
 
 		}catch (Exception e) {
@@ -395,9 +391,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
 			plottingCurveChars.add(STACKED_BAR1);
 			plottingCurveChars.add(STACKED_BAR2);
-			GraphWindow graphWindow= new GraphWindow(this);
-			graphWindow.setPlotLabel(PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), PLOT_LABEL, getPlottingFeatures());
 			graphWindow.setVisible(true);
 
 		}catch (Exception e) {
@@ -449,9 +443,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
 			plottingCurveChars.add(STACKED_BAR1);
 			plottingCurveChars.add(STACKED_BAR2);
-			GraphWindow graphWindow= new GraphWindow(this);
-			graphWindow.setPlotLabel(PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), PLOT_LABEL, getPlottingFeatures());
 			graphWindow.setVisible(true);
 
 		}catch (Exception e) {
@@ -698,9 +690,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			funcs.add(func);
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
 			plottingCurveChars.add(this.HISTOGRAM1);
-			GraphWindow graphWindow= new GraphWindow(this);
-			graphWindow.setPlotLabel(PLOT_LABEL);
-			graphWindow.plotGraphUsingPlotPreferences();
+			GraphWindow graphWindow= new GraphWindow(getCurveFunctionList(), PLOT_LABEL, getPlottingFeatures());
 			graphWindow.setVisible(true);
 		}catch (Exception e) {
 			e.printStackTrace();

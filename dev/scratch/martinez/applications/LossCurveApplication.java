@@ -43,7 +43,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import scratch.martinez.LossCurveCalculator;
 import scratch.martinez.VulnerabilityModels.VulnerabilityModel;
-import scratch.martinez.beans.GraphPane;
+import scratch.martinez.beans.NSHMPGraphPane;
 import scratch.martinez.beans.VulnerabilityBean;
 
 public class LossCurveApplication extends JFrame {
@@ -232,8 +232,8 @@ public class LossCurveApplication extends JFrame {
 							new Insets(5, 5, 5, 5), 2, 2)
 				);
 		} else {
-			newLeftContent = new GraphPane(lossCurves);
-			((GraphPane) newLeftContent).setLogSpace(true, true);
+			newLeftContent = new NSHMPGraphPane(lossCurves);
+			((NSHMPGraphPane) newLeftContent).setLogSpace(true, true);
 		}
 		
 		newLeftContent.setPreferredSize(new Dimension(500, 500));

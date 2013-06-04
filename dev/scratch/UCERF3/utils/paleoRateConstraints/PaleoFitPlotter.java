@@ -19,17 +19,17 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.StatUtil;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.PlotSpec;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
@@ -287,9 +287,9 @@ public class PaleoFitPlotter {
 			InversionFaultSystemSolution sol) {
 		PlotSpec spec = getSegRateComparisonSpec(paleoRateConstraint, aveSlipConstraints, sol);
 		
-		GraphiWindowAPI_Impl w = new GraphiWindowAPI_Impl(spec.getFuncs(), spec.getTitle(), spec.getChars(), true);
-		w.setX_AxisLabel(spec.getxAxisLabel());
-		w.setY_AxisLabel(spec.getyAxisLabel());
+		GraphWindow w = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), true);
+		w.setX_AxisLabel(spec.getXAxisLabel());
+		w.setY_AxisLabel(spec.getYAxisLabel());
 	}
 
 	public static HeadlessGraphPanel getHeadlessSegRateComparison(List<PaleoRateConstraint> paleoRateConstraint,
@@ -300,7 +300,7 @@ public class PaleoFitPlotter {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setYLog(yLog);
 		
-		gp.drawGraphPanel(spec.getxAxisLabel(), spec.getyAxisLabel(), spec.getFuncs(), spec.getChars(), false, spec.getTitle());
+		gp.drawGraphPanel(spec);
 		
 		return gp;
 	}

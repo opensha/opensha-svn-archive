@@ -43,7 +43,6 @@ import org.opensha.sha.earthquake.calc.recurInterval.ExponentialDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
 
 /**
@@ -53,8 +52,7 @@ import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
  * @author vipingupta
  *
  */
-public class ProbabilityDistGUI extends JFrame implements ButtonControlPanelAPI, 
-ParameterChangeListener{
+public class ProbabilityDistGUI extends JFrame implements ParameterChangeListener {
 	private final static int W = 870;
 	private final static int H = 750;
 	private final boolean D = false;
@@ -62,18 +60,15 @@ ParameterChangeListener{
 	private JSplitPane paramSplitPane = new JSplitPane();
 	private JTabbedPane plotTabPane = new JTabbedPane();
 	private JPanel editorPanel = new JPanel();
-	
+
 	// List of all plotting Panels
 	private ArrayList<PlottingPanel>plottingPanelsList;
 	// Name of all plotting Panels
 	private ArrayList<String> plottingPanelNames;
-	
+
 	// list of all probability distribution names
 	private ArrayList<EqkProbDistCalc> probDistList;
 	private ArrayList<String> probDistNames;
-	
-	//	instance for the ButtonControlPanel
-	private ButtonControlPanel buttonControlPanel;
 
 	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 	private final static String POWERED_BY_IMAGE = "logos/PoweredByOpenSHA_Agua.jpg";
@@ -95,8 +90,6 @@ ParameterChangeListener{
 
 	private void jbInit() throws Exception {
 		getContentPane().setLayout(new BorderLayout());
-		//object for the ButtonControl Panel
-		buttonControlPanel = new ButtonControlPanel(this);
 		JButton addButton = new JButton();
 		addButton.setText("Plot-Dist");
 		addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -125,10 +118,9 @@ ParameterChangeListener{
 		buttonPanel.add(addButton, 0);
 		buttonPanel.add(clearButton, 1);
 		buttonPanel.add(peelOffButton, 2);
-		buttonPanel.add(buttonControlPanel, 3);
 		JLabel imgLabel = new JLabel(new ImageIcon(FileUtils.loadImage(POWERED_BY_IMAGE)));
 
-		buttonPanel.add(imgLabel, 4);
+		buttonPanel.add(imgLabel, 3);
 
 		// Menubar
 		setMenuBar();
@@ -139,12 +131,12 @@ ParameterChangeListener{
 		this.initSupportedProbDistParamAndEditor();
 		// show adjustable params based on selected Prob Dist
 		this.showAdjParams();
-		
-		
+
+
 		JSplitPane plotSplitPane = new JSplitPane();
 		mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		plotSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		
+
 
 
 		plotSplitPane.add(plotTabPane, JSplitPane.LEFT);
@@ -157,19 +149,19 @@ ParameterChangeListener{
 		this.getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 		plotSplitPane.setDividerLocation(600);
 		mainSplitPane.setDividerLocation(570);
-		
+
 		makePlottingPanels();
-		
+
 		for(int i=0; i<plottingPanelNames.size(); ++i)
 			plotTabPane.add(plottingPanelNames.get(i), plottingPanelsList.get(i));
-	
+
 		this.setSize( W, H );
 		Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation( ( dm.width - this.getSize().width ) / 2, ( dm.height - this.getSize().height ) / 2 );
 		this.setTitle("Probability Distribution Application");
 		this.setVisible( true );
 	}
-	
+
 	/**
 	 * All plotting panels to be showed in tabbed pane
 	 *
@@ -179,13 +171,13 @@ ParameterChangeListener{
 		plottingPanelNames = new ArrayList<String>();
 		int numPlottingPanels = 4;
 		for(int i=0; i<numPlottingPanels; ++i)
-			plottingPanelsList.add(new PlottingPanel(this.buttonControlPanel));
+			plottingPanelsList.add(new PlottingPanel());
 		plottingPanelNames.add("PDF");
 		plottingPanelNames.add("CDF");
 		plottingPanelNames.add("Cond Prob");
 		plottingPanelNames.add("Haz Func");	
 	}
-	
+
 	/**
 	 * Make a list of all supported probability distributions
 	 *
@@ -197,7 +189,7 @@ ParameterChangeListener{
 		probDistList.add(new LognormalDistCalc());
 		probDistList.add(new ExponentialDistCalc());
 		probDistList.add(new WeibullDistCalc());
-		
+
 		probDistNames = new ArrayList<String>();
 		for(int i=0; i<probDistList.size(); ++i)
 			probDistNames.add(probDistList.get(i).getName());
@@ -305,376 +297,230 @@ ParameterChangeListener{
 		probDistSelectorPanel.validate();
 		probDistSelectorPanel.repaint();
 		this.paramSplitPane.add(probDistSelectorPanel,paramSplitPane.TOP);
-		
+
 	}
 
-	  /**
-	   * Show adjustable params based on selected probability distribution
-	   */
-	  private void showAdjParams(){
+	/**
+	 * Show adjustable params based on selected probability distribution
+	 */
+	private void showAdjParams(){
 		EqkProbDistCalc selectedProbDist = getSelectedProbDist();
-	    editorPanel.removeAll();
-	    ParameterListEditor paramListEditor = new ParameterListEditor(selectedProbDist.getAdjParams());
-	    editorPanel.add(paramListEditor,
-                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                       , GridBagConstraints.CENTER,
-                                       GridBagConstraints.BOTH,
-                                       new Insets(2, 2, 2, 2), 0, 0));
-	    editorPanel.validate();
-	    editorPanel.repaint();
-	  }
-	  
-	  
-	  /**
-	   * Get selected BPT Dist calc
-	   * 
-	   * @return
-	   */
-	  private EqkProbDistCalc getSelectedProbDist() {
-		  String selectedProbDistName = (String)probDistParam.getValue();
-		  int selectedProbDistIndex = probDistNames.indexOf(selectedProbDistName);
-		  EqkProbDistCalc selectedProbDist = this.probDistList.get(selectedProbDistIndex);
-		  return selectedProbDist;
-		  
-	  }
-
-	  /**
-	  *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
-	  */
-	 private void addGraphPanel() {
-		 for(int i=0; i<this.plottingPanelsList.size(); ++i)
-				this.plottingPanelsList.get(i).addGraphPanel();
-	  }
-
-	  //checks if the user has plot the data window or plot window
-	  public void togglePlot(){
-		  for(int i=0; i<this.plottingPanelsList.size(); ++i)
-				this.plottingPanelsList.get(i).togglePlot();
-	  }
+		editorPanel.removeAll();
+		ParameterListEditor paramListEditor = new ParameterListEditor(selectedProbDist.getAdjParams());
+		editorPanel.add(paramListEditor,
+				new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+						, GridBagConstraints.CENTER,
+						GridBagConstraints.BOTH,
+						new Insets(2, 2, 2, 2), 0, 0));
+		editorPanel.validate();
+		editorPanel.repaint();
+	}
 
 
-	  /**
-	   * this function is called when "Add Dist" button is clicked
-	   * @param e
-	   */
-	  void addButton_actionPerformed(ActionEvent e) {
-	     addButton();
-	  }
+	/**
+	 * Get selected BPT Dist calc
+	 * 
+	 * @return
+	 */
+	private EqkProbDistCalc getSelectedProbDist() {
+		String selectedProbDistName = (String)probDistParam.getValue();
+		int selectedProbDistIndex = probDistNames.indexOf(selectedProbDistName);
+		EqkProbDistCalc selectedProbDist = this.probDistList.get(selectedProbDistIndex);
+		return selectedProbDist;
+
+	}
+
+	/**
+	 *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
+	 */
+	private void addGraphPanel() {
+		for(int i=0; i<this.plottingPanelsList.size(); ++i)
+			this.plottingPanelsList.get(i).addGraphPanel();
+	}
+
+	/**
+	 * this function is called when "Add Dist" button is clicked
+	 * @param e
+	 */
+	void addButton_actionPerformed(ActionEvent e) {
+		addButton();
+	}
 
 
-	  /**
-	   * This causes the model data to be calculated and a plot trace added to
-	   * the current plot
-	   *
-	   * @param  e  The feature to be added to the Button_mouseClicked attribute
-	   */
-	  private void addButton() {
+	/**
+	 * This causes the model data to be calculated and a plot trace added to
+	 * the current plot
+	 *
+	 * @param  e  The feature to be added to the Button_mouseClicked attribute
+	 */
+	private void addButton() {
 
-	    if (D)
-	      System.out.println("Starting");
+		if (D)
+			System.out.println("Starting");
 
-	    try {
-	    	EqkProbDistCalc selectedProbDist = getSelectedProbDist();
-	    	 this.plottingPanelsList.get(0).addFunc(selectedProbDist.getPDF());
-	    	 this.plottingPanelsList.get(1).addFunc(selectedProbDist.getCDF());
-	    	 this.plottingPanelsList.get(2).addFunc(selectedProbDist.getCondProbFunc());
-	    	 this.plottingPanelsList.get(3).addFunc(selectedProbDist.getHazFunc());
+		try {
+			EqkProbDistCalc selectedProbDist = getSelectedProbDist();
+			this.plottingPanelsList.get(0).addFunc(selectedProbDist.getPDF());
+			this.plottingPanelsList.get(1).addFunc(selectedProbDist.getCDF());
+			this.plottingPanelsList.get(2).addFunc(selectedProbDist.getCondProbFunc());
+			this.plottingPanelsList.get(3).addFunc(selectedProbDist.getHazFunc());
 
-	      // catch the error and display messages in case of input error
-	    }
-	    catch (NumberFormatException e) {
-	      e.printStackTrace();
-	      JOptionPane.showMessageDialog(this,
-	                                    new String("Enter a Valid Numerical Value"),
-	                                    "Invalid Data Entered",
-	                                    JOptionPane.ERROR_MESSAGE);
-	    }
-	    catch (NullPointerException e) {
-	      e.printStackTrace();
-	      //JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
-	      e.printStackTrace();
-	    }
-	    catch (Exception e) {
-	      e.printStackTrace();
-	      JOptionPane.showMessageDialog(this, new String(e.getMessage()),
-	                                    "Invalid Data Entered",
-	                                    JOptionPane.ERROR_MESSAGE);
-	    }
+			// catch the error and display messages in case of input error
+		}
+		catch (NumberFormatException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this,
+					new String("Enter a Valid Numerical Value"),
+					"Invalid Data Entered",
+					JOptionPane.ERROR_MESSAGE);
+		}
+		catch (NullPointerException e) {
+			e.printStackTrace();
+			//JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, new String(e.getMessage()),
+					"Invalid Data Entered",
+					JOptionPane.ERROR_MESSAGE);
+		}
 
-	    if (D)
-	      System.out.println("Ending");
+		if (D)
+			System.out.println("Ending");
 
-	  }
+	}
 
 
-	  /**
-	   * this function is called when "clear plot" is selected
-	   *
-	   * @param e
-	   */
-	  void clearButton_actionPerformed(ActionEvent e) {
+	/**
+	 * this function is called when "clear plot" is selected
+	 *
+	 * @param e
+	 */
+	void clearButton_actionPerformed(ActionEvent e) {
 		for(int i=0; i<this.plottingPanelsList.size(); ++i)
 			this.plottingPanelsList.get(i).clearPlot();
-	  }
+	}
 
-	
-	  /**
-	   * File | Exit action performed.
-	   *
-	   * @param actionEvent ActionEvent
-	   */
-	  private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
-	    try {
-	      save();
-	    }
-	    catch (IOException e) {
-	      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-	                                    JOptionPane.OK_OPTION);
-	      return;
-	    }
-	  }
 
-	  /**
-	   * File | Exit action performed.
-	   *
-	   * @param actionEvent ActionEvent
-	   */
-	  private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
-	    print();
-	  }
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+		try {
+			save();
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+					JOptionPane.OK_OPTION);
+			return;
+		}
+	}
 
-	  /**
-	   * Opens a file chooser and gives the user an opportunity to save the chart
-	   * in PNG format.
-	   *
-	   * @throws IOException if there is an I/O error.
-	   */
-	  public void save() throws IOException {
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+		print();
+	}
+
+	/**
+	 * Opens a file chooser and gives the user an opportunity to save the chart
+	 * in PNG format.
+	 *
+	 * @throws IOException if there is an I/O error.
+	 */
+	public void save() throws IOException {
 		int selectedIndex = this.plotTabPane.getSelectedIndex();
 		this.plottingPanelsList.get(selectedIndex).save();
-	  }
+	}
 
-	  /**
-	   * Creates a print job for the chart.
-	   */
-	  public void print() {
-		  int selectedIndex = this.plotTabPane.getSelectedIndex();
-		  this.plottingPanelsList.get(selectedIndex).print(this);
-	  }
-
-
-	  /**
-	   * Actual method implementation of the "Peel-Off"
-	   * This function peels off the window from the current plot and shows in a new
-	   * window. The current plot just shows empty window.
-	   */
-	  private void peelOffCurves(){
-		  int selectedIndex = this.plotTabPane.getSelectedIndex();
-		  this.plottingPanelsList.get(selectedIndex).peelOff();
-	  }
-
-
-	  /**
-	   * Action method to "Peel-Off" the curves graph window in a seperate window.
-	   * This is called when the user presses the "Peel-Off" window.
-	   * @param e
-	   */
-	  void peelOffButton_actionPerformed(ActionEvent e) {
-	    peelOffCurves();
-	  }
-
-
-	  /**
-	   * File | Exit action performed.
-	   *
-	   * @param actionEvent ActionEvent
-	   */
-	  private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
-	    close();
-	  }
-
-	  /**
-	   *
-	   */
-	  private void close() {
-	    int option = JOptionPane.showConfirmDialog(this,
-	        "Do you really want to exit the application?\n" +
-	                                               "You will loose all unsaved data.",
-	                                               "Exit App",
-	                                               JOptionPane.OK_CANCEL_OPTION);
-	    if (option == JOptionPane.OK_OPTION)
-	      System.exit(0);
-	  }
-
-	  public void closeButton_actionPerformed(ActionEvent actionEvent) {
-	    close();
-	  }
-
-	  public void printButton_actionPerformed(ActionEvent actionEvent) {
-	    print();
-	  }
-
-	  public void saveButton_actionPerformed(ActionEvent actionEvent) {
-	    try {
-	      save();
-	    }
-	    catch (IOException e) {
-	      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
-	                                    JOptionPane.OK_OPTION);
-	      return;
-	    }
-	  }
-
-
-	  public void parameterChange(ParameterChangeEvent event) {
-	    String paramName = event.getParameterName();
-	    if(paramName.equals(PROB_DIST_PARAM_NAME)){
-	      this.showAdjParams();
-	    }
-	  }
-
-
-	   /**
-	    * tells the application if the xLog is selected
-	    * @param xLog : boolean
-	    */
-	   public void setX_Log(boolean xLog) {  
-		   for(int i=0; i<plottingPanelsList.size(); ++i)
-			   this.plottingPanelsList.get(i).setX_Log(xLog);
-	   }
-
-	   /**
-	    * tells the application if the yLog is selected
-	    * @param yLog : boolean
-	    */
-	   public void setY_Log(boolean yLog) {
-		   for(int i=0; i<plottingPanelsList.size(); ++i)
-			   this.plottingPanelsList.get(i).setY_Log(yLog);
-	   }
-
-	   /**
-	    * Gets the range for the X-Axis
-	    * @return
-	    */
-	   public Range getX_AxisRange() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getX_AxisRange();	
-	   }
-
-	   /**
-	    * Gets the range for the Y-Axis
-	    * @return
-	    */
-	   public Range getY_AxisRange() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getY_AxisRange();	
-	   }
-
-	   /**
-	    *
-	    * @return the plotting feature like width, color and shape type of each
-	    * curve in list.
-	    */
-	   public ArrayList getPlottingFeatures() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getPlottingFeatures();
-	   }
-
-	   /**
-	    * plots the curves with defined color,line width and shape.
-	    *
-	    */
-	   public void plotGraphUsingPlotPreferences()  {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-		   this.plottingPanelsList.get(selectedIndex).plotGraphUsingPlotPreferences();
-	   }
-
-	   /**
-	    *
-	    * @return the X Axis Label
-	    */
-	   public String getXAxisLabel() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getXAxisLabel();	
-	   }
-
-	   /**
-	    *
-	    * @return Y Axis Label
-	    */
-	   public String getYAxisLabel() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getYAxisLabel();	
-	   }
-
-	   /**
-	    *
-	    * @return plot Title
-	    */
-	   public String getPlotLabel() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			return this.plottingPanelsList.get(selectedIndex).getPlotTitle();	
-	   }
-
-
-	   /**
-	    *
-	    * sets  X Axis Label
-	    */
-	   public void setXAxisLabel(String xAxisLabel) {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			 this.plottingPanelsList.get(selectedIndex).setXAxisLabel(xAxisLabel);
-	   }
-
-	   /**
-	    *
-	    * sets Y Axis Label
-	    */
-	   public void setYAxisLabel(String yAxisLabel) {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-		   this.plottingPanelsList.get(selectedIndex).setYAxisLabel(yAxisLabel);
-		   
-	   }
-
-	   /**
-	    *
-	    * sets plot Title
-	    */
-	   public void setPlotLabel(String plotTitle) {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			 this.plottingPanelsList.get(selectedIndex).setPlotTitle(plotTitle);
-	   }
-	   
-	   /**
-	    * sets the range for X and Y axis
-	    * @param xMin : minimum value for X-axis
-	    * @param xMax : maximum value for X-axis
-	    * @param yMin : minimum value for Y-axis
-	    * @param yMax : maximum value for Y-axis
-	    *
-	    */
-	   public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			 this.plottingPanelsList.get(selectedIndex).setAxisRange(xMin, xMax, yMin, yMax);
-	   }
-
-	   /**
-	    * This function sets auto range for axis
-	    */
-	   public void setAutoRange() {
-		   int selectedIndex = this.plotTabPane.getSelectedIndex();
-			 this.plottingPanelsList.get(selectedIndex).setAutoRange();
-	   }
-	   
-	   public static void main(String[] args) {
-		   ProbabilityDistGUI probDistGUI = new ProbabilityDistGUI();
-		   probDistGUI.setVisible(true);
-	   }
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
+	/**
+	 * Creates a print job for the chart.
+	 */
+	public void print() {
 		int selectedIndex = this.plotTabPane.getSelectedIndex();
-		 this.plottingPanelsList.get(selectedIndex).setPlottingOrder(order);
+		this.plottingPanelsList.get(selectedIndex).print();
+	}
+
+
+	/**
+	 * Actual method implementation of the "Peel-Off"
+	 * This function peels off the window from the current plot and shows in a new
+	 * window. The current plot just shows empty window.
+	 */
+	private void peelOffCurves(){
+		int selectedIndex = this.plotTabPane.getSelectedIndex();
+		this.plottingPanelsList.get(selectedIndex).peelOff();
+	}
+
+
+	/**
+	 * Action method to "Peel-Off" the curves graph window in a seperate window.
+	 * This is called when the user presses the "Peel-Off" window.
+	 * @param e
+	 */
+	void peelOffButton_actionPerformed(ActionEvent e) {
+		peelOffCurves();
+	}
+
+
+	/**
+	 * File | Exit action performed.
+	 *
+	 * @param actionEvent ActionEvent
+	 */
+	private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+		close();
+	}
+
+	/**
+	 *
+	 */
+	private void close() {
+		int option = JOptionPane.showConfirmDialog(this,
+				"Do you really want to exit the application?\n" +
+						"You will loose all unsaved data.",
+						"Exit App",
+						JOptionPane.OK_CANCEL_OPTION);
+		if (option == JOptionPane.OK_OPTION)
+			System.exit(0);
+	}
+
+	public void closeButton_actionPerformed(ActionEvent actionEvent) {
+		close();
+	}
+
+	public void printButton_actionPerformed(ActionEvent actionEvent) {
+		print();
+	}
+
+	public void saveButton_actionPerformed(ActionEvent actionEvent) {
+		try {
+			save();
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+					JOptionPane.OK_OPTION);
+			return;
+		}
+	}
+
+
+	public void parameterChange(ParameterChangeEvent event) {
+		String paramName = event.getParameterName();
+		if(paramName.equals(PROB_DIST_PARAM_NAME)){
+			this.showAdjParams();
+		}
+	}
+
+	public static void main(String[] args) {
+		ProbabilityDistGUI probDistGUI = new ProbabilityDistGUI();
+		probDistGUI.setVisible(true);
 	}
 
 }

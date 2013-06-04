@@ -10,10 +10,10 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import com.google.common.collect.Lists;
 
@@ -78,7 +78,7 @@ public class NonzeroWaterlevelPlot {
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(refBranch);
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Num Non Zeros");
+//		GraphWindow gw = new GraphWindow(funcs, "Num Non Zeros");
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
@@ -86,7 +86,7 @@ public class NonzeroWaterlevelPlot {
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setUserBounds(refBranch.getMinX(), refBranch.getMaxX(), 0, numRups);
-		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars, true,
+		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars,
 				"Ruptures Above Waterlevel");
 		File file = new File("/tmp/compound_rups_above_waterlevel");
 		gp.getCartPanel().setSize(1000, 800);

@@ -26,6 +26,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
@@ -39,8 +40,7 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -864,7 +864,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		IncrementalMagFreqDist targetMinusBackground = getN_CalTargetMinusBackground_MFD();
 		funcs.add(targetMinusBackground);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);
@@ -879,7 +879,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		sumCumMFD.setInfo("This is a measure of the current bulge problem in N Cal.");
 		funcs2.add(sumCumMFD);
 		funcs2.add(targetMinusBackground.getCumRateDistWithOffset());
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Cum Mag-Freq Dists"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Cum Mag-Freq Dists"); 
 		graph2.setX_AxisLabel("Mag");
 		graph2.setY_AxisLabel("Rate");
 		graph2.setYLog(true);
@@ -993,7 +993,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		funcs.add(totMFD);
 		funcs.add(faultMFD);
 		funcs.add(backgroundMFD);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);
@@ -1065,7 +1065,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		funcs.add(cumMFD);	
 		for(String key:srcMFDs.keySet())
 			funcs.add(srcMFDs.get(key));
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Mag-Freq Dists"); 
+		GraphWindow graph = new GraphWindow(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setY_AxisRange(1e-6, 0.1);
@@ -1074,7 +1074,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, null, 4f, Color.BLUE, 1));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, null, 4f, Color.BLACK, 1));
-		graph.setPlottingFeatures(curveCharacteristics);
+		graph.setPlotChars(curveCharacteristics);
 		
 		graph.setYLog(true);
 		try {

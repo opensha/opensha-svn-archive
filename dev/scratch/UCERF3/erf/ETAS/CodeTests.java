@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.util.ArithmeticUtils;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 
 /**
@@ -38,7 +38,7 @@ public class CodeTests {
 		ArrayList funcs = new ArrayList();
 		funcs.add(sampler);
 		funcs.add(testFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
+		GraphWindow sr_graph = new GraphWindow(funcs, "");  
 		
 		double maxDiff =0;
 		for(int i=0;i<testFunc.getNum();i++) {
@@ -79,7 +79,7 @@ public class CodeTests {
 		ArrayList funcs = new ArrayList();
 		funcs.add(targetFunc);
 		funcs.add(histogram);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, "");  
+		GraphWindow sr_graph = new GraphWindow(funcs, "");  
 		
 		double maxDiff =0;
 		for(int i=0;i<targetFunc.getNum();i++) {
@@ -124,7 +124,7 @@ public class CodeTests {
 /*		ArrayList funcs = new ArrayList();
 		funcs.add(targetFunc);
 		funcs.add(histogram);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(funcs, ""); 
+		GraphWindow sr_graph = new GraphWindow(funcs, ""); 
 */		
 		double maxDiff =0;
 		for(int i=0;i<targetFunc.getNum();i++) {

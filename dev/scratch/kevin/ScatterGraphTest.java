@@ -9,33 +9,19 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWindow;
 
-public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
+public class ScatterGraphTest {
 	
 	private GraphPanel gp;
 	private Random r = new Random();
 	
 	public ScatterGraphTest() {
-		gp = new GraphPanel(this);
-		
-		gp.drawGraphPanel("X", "Y", getFuncList(), false, false, true, "Title", this);
-		this.gp.setVisible(true);
-		
-		this.gp.togglePlot(null);
-		
-		this.gp.validate();
-		this.gp.repaint();
-		
-		JFrame frame = new JFrame();
-		frame.setSize(600, 600);
-		frame.setContentPane(gp);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-		
-		frame.validate();
+		GraphWindow gw = new GraphWindow(getFuncList(), "Title");
+
+		gw.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gw.setVisible(true);
 	}
 	
 	private ArrayList<XY_DataSet> getFuncList() {
@@ -43,7 +29,7 @@ public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
 		
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		DefaultXY_DataSet scatter = new DefaultXY_DataSet();
-		for (double x=0; x<getUserMaxX(); x++) {
+		for (double x=0; x<1d; x++) {
 			double y = x * 0.8;
 			y += r.nextDouble() - 0.5d;
 			System.out.println("Adding " + x + ", " + y);
@@ -61,56 +47,6 @@ public class ScatterGraphTest implements GraphPanelAPI, PlotControllerAPI {
 	
 	public static void main(String[] args) {
 		new ScatterGraphTest();
-	}
-
-	@Override
-	public double getUserMaxX() {
-		return 10;
-	}
-
-	@Override
-	public double getUserMaxY() {
-		return 10;
-	}
-
-	@Override
-	public double getUserMinX() {
-		return 0;
-	}
-
-	@Override
-	public double getUserMinY() {
-		return 0;
-	}
-
-	@Override
-	public int getAxisLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getPlotLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getTickLabelFontSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setXLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setYLog(boolean flag) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

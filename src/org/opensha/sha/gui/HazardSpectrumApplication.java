@@ -34,6 +34,7 @@ import javax.swing.Timer;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.WeightedFuncListforPlotting;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.param.Parameter;
@@ -54,7 +55,6 @@ import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.event.ScalarIMRChangeEvent;
@@ -84,7 +84,7 @@ extends HazardCurveApplication {
 	private List saPeriodVector;
 
 	//Graph Title
-	protected String TITLE = new String("Response Spectra Curves");
+	protected static final String DEFAULT_TITLE = new String("Response Spectra Curves");
 
 	//instances of various calculators
 	protected SpectrumCalculatorAPI calc;
@@ -166,6 +166,7 @@ extends HazardCurveApplication {
 		this.setTitle("Hazard Spectrum Application ("+getAppVersion()+")");
 		startAppProgressClass.dispose();
 		( (JPanel) getContentPane()).updateUI();
+		graphWidget.setPlotLabel(DEFAULT_TITLE);
 	}
 
 
@@ -248,7 +249,8 @@ extends HazardCurveApplication {
 		//gets the IML or Prob value filled in by the user
 		double imlProbValue = imlProbGuiBean.getIML_Prob();
 
-		if (imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML)) {
+		String xAxisName, yAxisName;
+		if (imlOrProb.equalsIgnoreCase(IMLorProbSelectorGuiBean.PROB_AT_IML)) {
 			yAxisName = PROB_AT_EXCEED;
 			probAtIML = true;
 		}
@@ -257,6 +259,8 @@ extends HazardCurveApplication {
 			probAtIML = false;
 		}
 		xAxisName = X_AXIS_LABEL;
+		graphWidget.setXAxisLabel(xAxisName);
+		graphWidget.setYAxisLabel(yAxisName);
 
 		if (forecast instanceof AbstractEpistemicListERF && isProbabilisticCurve) {
 			//if add on top get the name of ERF List forecast

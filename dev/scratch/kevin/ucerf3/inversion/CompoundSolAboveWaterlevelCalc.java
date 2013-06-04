@@ -16,11 +16,11 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -195,7 +195,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			String yAxisName = "# Ruptures";
 			
 			gp.setBackgroundColor(Color.WHITE);
-			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, false, title);
+			gp.drawGraphPanel(xAxisName, yAxisName, funcs, chars, title);
 			
 			String nameAdd;
 			if (abovesList.size() > 1)
@@ -217,7 +217,7 @@ public class CompoundSolAboveWaterlevelCalc {
 		
 		if (abovesList.size() > 1) {
 			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-			List<Color> colors = GraphiWindowAPI_Impl.generateDefaultColors();
+			List<Color> colors = GraphWindow.generateDefaultColors();
 			for (int i=0; i<abovesList.size(); i++)
 				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
 			
@@ -238,7 +238,7 @@ public class CompoundSolAboveWaterlevelCalc {
 			
 			gp.setUserBounds(0d, 10d, 0d, maxY+10d);
 			gp.setBackgroundColor(Color.WHITE);
-			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, true, title);
+			gp.drawGraphPanel(xAxisName, yAxisName, hists, chars, title);
 			
 			File file = new File(dir, "rups_above_waterlevel_combined");
 			
@@ -273,14 +273,14 @@ public class CompoundSolAboveWaterlevelCalc {
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(func);
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, "Num Non Zeros");
+//		GraphWindow gw = new GraphWindow(funcs, "Num Non Zeros");
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setUserBounds(0, func.getMaxX(), 0, aboves.length);
-		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars, true,
+		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars,
 				"Ruptures Above Waterlevel");
 		File file = new File("/tmp/compound_rups_above_waterlevel");
 		gp.getCartPanel().setSize(1000, 800);

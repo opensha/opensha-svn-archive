@@ -13,12 +13,12 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -94,7 +94,7 @@ public class FaultSystemSolutionCalc {
 		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
 		funcList.add(covHist);
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList, "Slip COV Histogram", plotChars);
+		GraphWindow graph = new GraphWindow(funcList, "Slip COV Histogram", plotChars);
 		graph.setX_AxisRange(0, 2);
 		graph.setX_AxisLabel("Slip COV");
 		graph.setY_AxisLabel("Fraction Per Bin");
@@ -115,8 +115,7 @@ public class FaultSystemSolutionCalc {
 			try {
 				graph.saveAsPDF(new File(dir, name+".pdf").getAbsolutePath());
 				graph.saveAsPNG(new File(dir, name+".png").getAbsolutePath());
-				graph.getGraphWindow().getGraphPanel().saveAsTXT(
-						new File(dir, name+".txt").getAbsolutePath());
+				graph.saveAsTXT(new File(dir, name+".txt").getAbsolutePath());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -176,7 +175,7 @@ public class FaultSystemSolutionCalc {
 		funcs2.add(hist);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "Rupture Length Histogram"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "Rupture Length Histogram"); 
 		graph2.setX_AxisLabel("Length (km)");
 		graph2.setY_AxisLabel("Fraction");
 	}
@@ -196,7 +195,7 @@ public class FaultSystemSolutionCalc {
 //		gp.setTickLabelFontSize(30);
 //		gp.setAxisLabelFontSize(36);
 //		gp.setPlotLabelFontSize(36);
-		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, true, title);
+		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, null, title);
 		File file = new File("testRightHere");
 //		gp.getCartPanel().setSize(1000, 800);
 		gp.getCartPanel().setSize(500, 400);

@@ -59,7 +59,7 @@ import org.opensha.nshmp.param.editor.EditableConstrainedStringParameterEditor;
 import org.opensha.nshmp.sha.data.DataGenerator_HazardCurves;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
+import org.opensha.nshmp.sha.gui.infoTools.NSHMPGraphWindow;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.LocationUtil;
 import org.opensha.nshmp.util.RegionUtil;
@@ -626,7 +626,7 @@ AnalysisOptionsGuiBeanAPI {
 			return;
 		}
 
-		GraphWindow window = new GraphWindow(dataGenerator.getHazardCurveFunction());
+		NSHMPGraphWindow window = new NSHMPGraphWindow(dataGenerator.getHazardCurveFunction());
 		window.setVisible(true);
 	}
 

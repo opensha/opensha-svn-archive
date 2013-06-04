@@ -29,6 +29,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
@@ -37,9 +38,8 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sra.calc.parallel.ThreadedEALCalc;
@@ -151,7 +151,7 @@ public class ManyRunCompilation {
 				for (int j=0; j<runRates.length; j++)
 					func.set(j, runRates[j]);
 				
-				gp.drawGraphPanel(idXAxisLabel, "Rate", funcs, chars, false, title);
+				gp.drawGraphPanel(idXAxisLabel, "Rate", funcs, chars, title);
 				gp.getCartPanel().setSize(1000, 800);
 				gp.saveAsPNG(rankFile.getAbsolutePath());
 			}
@@ -165,7 +165,7 @@ public class ManyRunCompilation {
 				for (int j=sortedRates.length; --j>=0;)
 					func.set(cnt++, sortedRates[j]);
 				
-				gp.drawGraphPanel(rankXAxisLabel, "Rate", funcs, chars, false, title);
+				gp.drawGraphPanel(rankXAxisLabel, "Rate", funcs, chars, title);
 				gp.getCartPanel().setSize(1000, 800);
 				gp.saveAsPNG(rankFile.getAbsolutePath());
 			}
@@ -208,7 +208,7 @@ public class ManyRunCompilation {
 							new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN),
 							new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 					
-					gp.drawGraphPanel(idXAxisLabel, "Rate", funcs2, chars2, false, "Mean/Std Devs after "+n+" runs");
+					gp.drawGraphPanel(idXAxisLabel, "Rate", funcs2, chars2, "Mean/Std Devs after "+n+" runs");
 					gp.getCartPanel().setSize(1000, 800);
 					gp.saveAsPNG(meanFile.getAbsolutePath());
 				}
@@ -300,7 +300,7 @@ public class ManyRunCompilation {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);
-		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, false, "Rup Rate Residuals Vs Runs");
+		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, "Rup Rate Residuals Vs Runs");
 		File plotFile = new File(dir, "rup_rate_residuals");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
@@ -638,7 +638,7 @@ public class ManyRunCompilation {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);
 		
-		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, false, "Normalized Partic Rate Residuals Vs Runs");
+		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, "Normalized Partic Rate Residuals Vs Runs");
 		File plotFile = new File(dir, "partic_rate_normalized_residuals");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
@@ -650,7 +650,7 @@ public class ManyRunCompilation {
 		funcs.addAll(avgFuncs);
 		funcs.addAll(medFuncs);
 		
-		gp.drawGraphPanel("# Runs", "Residuals vs Mean", funcs, chars, false, "Partic Rate Residuals Vs Runs");
+		gp.drawGraphPanel("# Runs", "Residuals vs Mean", funcs, chars, "Partic Rate Residuals Vs Runs");
 		plotFile = new File(dir, "partic_rate_residuals");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
@@ -666,7 +666,7 @@ public class ManyRunCompilation {
 //		funcs.addAll(medMeanOverStdDevOfMeanFuncs);
 		
 		gp.setYLog(false);
-		gp.drawGraphPanel("N", "Mean / Std Dev Of Mean", funcs, chars, false,
+		gp.drawGraphPanel("N", "Mean / Std Dev Of Mean", funcs, chars,
 				"Lowest Mean / Std Dev Of Mean vs # Runs");
 		plotFile = new File(dir, "partic_mean_over_std_dev_of_mean");
 		gp.getCartPanel().setSize(1000, 800);
@@ -692,7 +692,7 @@ public class ManyRunCompilation {
 			}
 		}
 		
-		gp.drawGraphPanel("N", "Target Mean / Std Dev Of Mean", theoreticalNFuncs, chars, false,
+		gp.drawGraphPanel("N", "Target Mean / Std Dev Of Mean", theoreticalNFuncs, chars,
 				"Theoretical N Needed to reach given Mean / Std Dev Of Mean");
 		plotFile = new File(dir, "partic_target_mean_over_std_dev_of_mean");
 		gp.getCartPanel().setSize(1000, 800);
@@ -728,7 +728,7 @@ public class ManyRunCompilation {
 				}
 			}
 			
-			gp.drawGraphPanel("N", "% above Mean / Std Dev Of Mean of "+aboveTarget, percentAvobeMeanOverSDOMFuncs, chars, false,
+			gp.drawGraphPanel("N", "% above Mean / Std Dev Of Mean of "+aboveTarget, percentAvobeMeanOverSDOMFuncs, chars,
 					"% Sects above Mean/SDOM of "+aboveTarget);
 			plotFile = new File(dir, "partic_above_"+(int)aboveTarget+"_mean_over_std_dev_of_mean");
 			gp.getCartPanel().setSize(1000, 800);
@@ -740,7 +740,7 @@ public class ManyRunCompilation {
 				gp.setXLog(true);
 				gp.setYLog(true);
 				gp.setUserBounds(1e-10, 1e-2, 1e-1, 1e3);
-				gp.drawGraphPanel("Mean Rate", "Mean / Std Dev", scatterMeanOverSDOMFuncs, scatterChars, true,
+				gp.drawGraphPanel("Mean Rate", "Mean / Std Dev", scatterMeanOverSDOMFuncs, scatterChars,
 						"Mean Rate vs Mean/SDOM of N=1");
 				plotFile = new File(dir, "partic_scatter_mean_over_std_dev_of_mean");
 				gp.getCartPanel().setSize(1000, 800);
@@ -748,6 +748,7 @@ public class ManyRunCompilation {
 				gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 				gp.setXLog(false);
 				gp.setYLog(false);
+				gp.setUserBounds(null, null);
 			}
 		}
 		
@@ -989,14 +990,14 @@ public class ManyRunCompilation {
 		
 		String title = "Rupture Rate Distribution";
 		
-//		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs, title, chars);
+//		GraphWindow gw = new GraphWindow(funcs, title, chars);
 //		gw.setX_AxisLabel(xAxisLabel);
 //		gw.setYLog(true);
 //		gw.getGraphWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(true);
-		gp.drawGraphPanel("Mean Rate Rank", "Rate", funcs, chars, false, title);
+		gp.drawGraphPanel("Mean Rate Rank", "Rate", funcs, chars, title);
 		File rankFile = new File(dir, prefix+"_rate_dist");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(rankFile.getAbsolutePath()+".pdf");
@@ -1005,7 +1006,7 @@ public class ManyRunCompilation {
 		funcs.set(1, meanFuncByID);
 		funcs.set(0, stdDevFuncByID);
 		
-		gp.drawGraphPanel("Rupture ID", "Rate", funcs, chars, false, title);
+		gp.drawGraphPanel("Rupture ID", "Rate", funcs, chars, title);
 		rankFile = new File(dir, prefix+"_rate_id_dist");
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(rankFile.getAbsolutePath()+".pdf");

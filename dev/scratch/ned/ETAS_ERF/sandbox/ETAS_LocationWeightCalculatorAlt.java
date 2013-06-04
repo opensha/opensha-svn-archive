@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
@@ -118,7 +118,7 @@ public class ETAS_LocationWeightCalculatorAlt {
 		
 		// plot to check for any zero bins
 		if (D) {
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(logDistWeightHist, "test hist"); 
+			GraphWindow graph = new GraphWindow(logDistWeightHist, "test hist"); 
 		}
 
 		// make target distances decay histogram (this is what we will match_
@@ -146,8 +146,8 @@ public class ETAS_LocationWeightCalculatorAlt {
 //		logTargetDecay.scale(1.0/tot);
 //		System.out.println("logWtHistogram.calcSumOfY_Vals()="+logTargetDecay.calcSumOfY_Vals());
 		
-//		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(logTargetDecay, "logTargetDecay"); 
-//		GraphiWindowAPI_Impl graph3 = new GraphiWindowAPI_Impl(logWtHistogram2, "logWtHistogram2"); 
+//		GraphWindow graph2 = new GraphWindow(logTargetDecay, "logTargetDecay"); 
+//		GraphWindow graph3 = new GraphWindow(logWtHistogram2, "logWtHistogram2"); 
 
 		// now fill in weights for each point
 		for(int iDep=0;iDep<numDepth; iDep++) {
@@ -444,7 +444,7 @@ public class ETAS_LocationWeightCalculatorAlt {
 		funcs1.add(testLogHistogram);
 		funcs1.add(logTargetDecay);
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs1, "testLogHistogram"); 
+		GraphWindow graph = new GraphWindow(funcs1, "testLogHistogram"); 
 		graph.setAxisRange(-2, 3, 1e-6, 1);
 		graph.setYLog(true);
 
@@ -452,7 +452,7 @@ public class ETAS_LocationWeightCalculatorAlt {
 		ArrayList funcs2 = new ArrayList();
 		funcs2.add(testHistogram);
 		funcs2.add(targetHist);
-		GraphiWindowAPI_Impl graph2 = new GraphiWindowAPI_Impl(funcs2, "testHistogram"); 
+		GraphWindow graph2 = new GraphWindow(funcs2, "testHistogram"); 
 		graph2.setAxisRange(0.1, 1000, 1e-6, 1);
 		graph2.setYLog(true);
 		graph2.setXLog(true);

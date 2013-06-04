@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.JButton;
@@ -24,13 +25,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
@@ -230,9 +232,9 @@ class B_Faults_Table extends JTable {
  * @author vipingupta
  *
  */
-class MouseListener extends MouseAdapter  implements GraphWindowAPI {
+class MouseListener extends MouseAdapter {
 	private JTable table;
-	private ArrayList funcs;
+	private List<PlotElement> funcs;
 	//	 SOLID LINES
 	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 4f,
 		      Color.BLUE);
@@ -258,11 +260,9 @@ class MouseListener extends MouseAdapter  implements GraphWindowAPI {
         TableModel tableModel = table.getModel();
         if(column==10) { // edit slip rate
         	funcs = (ArrayList)tableModel.getValueAt(row, column);
-        	GraphWindow graphWindow= new GraphWindow(this);
-    	    graphWindow.setPlotLabel("Mag Rate");
-    	    graphWindow.plotGraphUsingPlotPreferences();
+        	GraphWindow graphWindow= new GraphWindow(funcs, "Mag Rate");
     	    //graphWindow.pack();
-    	    graphWindow.setVisible(true);;
+    	    graphWindow.setVisible(true);
         }
 	}
 	
@@ -270,7 +270,7 @@ class MouseListener extends MouseAdapter  implements GraphWindowAPI {
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
-	public ArrayList getCurveFunctionList() {
+	public List<PlotElement> getCurveFunctionList() {
 		return funcs;
 	}
 

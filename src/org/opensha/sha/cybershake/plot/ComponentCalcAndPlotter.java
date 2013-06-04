@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -35,11 +36,9 @@ import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.PlotControllerAPI;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
-public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI {
+public class ComponentCalcAndPlotter {
 	
 	public static final boolean SKIP_EXISTING_CURVES = true;
 	
@@ -53,7 +52,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 	
 	private ArrayList<Double> imlVals = new ArrayList<Double>();
 	
-	private GraphPanel gp;
+	private HeadlessGraphPanel gp;
 	
 	public ComponentCalcAndPlotter(DBAccess db) {
 		curveCalc = new HazardCurveComputation(db);
@@ -65,7 +64,7 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		x3sec = hc2db.getIMFromID(48);
 		y3sec = hc2db.getIMFromID(75);
 		
-		gp = new GraphPanel(this);
+		gp = new HeadlessGraphPanel();
 		
 		ArbitrarilyDiscretizedFunc func = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
 		imlVals = new ArrayList<Double>();
@@ -132,17 +131,16 @@ public class ComponentCalcAndPlotter implements GraphPanelAPI, PlotControllerAPI
 		
 		String title = shortName + " CyberShake Curves";
 		
-		this.gp.drawGraphPanel("3s SA", "Probability Rate (1/yr)", curves, xLog, yLog, customAxis, title, this);
+		this.gp.drawGraphPanel("3s SA", "Probability Rate (1/yr)", curves, null, xLog, yLog, title);
 		this.gp.setVisible(true);
-		
-		this.gp.togglePlot(null);
 		
 		this.gp.validate();
 		this.gp.repaint();
 		
 		String outFile = dir + shortName + "_curves.png";
 		System.out.println("Saving PNG to: " + outFile);
-		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), 600, 500);
+		gp.getCartPanel().setSize(600, 500);
+		gp.saveAsPNG(outFile);
 	}
 
 	/**

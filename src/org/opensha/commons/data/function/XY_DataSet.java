@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**
@@ -24,7 +25,7 @@ import org.opensha.commons.metadata.XMLSaveable;
  * @author Peter Powers
  * @version $Id$
  */
-public interface XY_DataSet extends Named, XMLSaveable, Serializable, Iterable<Point2D> {
+public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializable, Iterable<Point2D> {
 
 	/* ******************************/
 	/* Basic Fields Getters/Setters */

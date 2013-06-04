@@ -17,15 +17,15 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.collect.Lists;
 
@@ -205,7 +205,7 @@ public class ResultPlotter {
 		return ret;
 	}
 	
-	protected static GraphiWindowAPI_Impl getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
+	protected static GraphWindow getGraphWindow(ArrayList<? extends DiscretizedFunc> funcs, String title,
 			ArrayList<PlotCurveCharacterstics> chars, String xAxisName, String yAxisName, boolean visible) {
 		if (sort_by_size) {
 			ArrayList<DiscretizedFunc> sortedFuncs = new ArrayList<DiscretizedFunc>();
@@ -231,8 +231,8 @@ public class ResultPlotter {
 			chars = sortedChars;
 		}
 		
-		GraphiWindowAPI_Impl gwAPI = new GraphiWindowAPI_Impl(funcs, title, chars, visible);
-		GraphWindow gw = gwAPI.getGraphWindow();
+		GraphWindow gwAPI = new GraphWindow(funcs, title, chars);
+		GraphWidget gw = gwAPI.getGraphWidget();
 		gw.setPlotLabelFontSize(30);
 		gw.setAxisLabelFontSize(18);
 		gw.setTickLabelFontSize(14);
@@ -821,7 +821,7 @@ public class ResultPlotter {
 		});
 	}
 
-	protected static HashMap<String, GraphiWindowAPI_Impl> generatePlots(File tsaDir, File dsaDir,
+	protected static HashMap<String, GraphWindow> generatePlots(File tsaDir, File dsaDir,
 			String highlight, String coolType, int threads, int nodes,
 			boolean includeStartSubZero, boolean plotAvg,
 			boolean bundleDsaBySubs, boolean bundleTsaBySubs, int avgNumX, int targetPPM,
@@ -1245,7 +1245,7 @@ public class ResultPlotter {
 			}
 		}
 		
-		HashMap<String, GraphiWindowAPI_Impl> windows = new HashMap<String, GraphiWindowAPI_Impl>();
+		HashMap<String, GraphWindow> windows = new HashMap<String, GraphWindow>();
 		
 		for (String plot : plots) {
 			if (plot.equals(avg_energy_vs_time_title)) {

@@ -11,7 +11,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 public class OldCreateRupturesFromSections {
 	
@@ -507,7 +507,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 		func.setName(name);
 		ArrayList funcs = new ArrayList();
 		funcs.add(func);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "");  
+		GraphWindow graph = new GraphWindow(funcs, "");  
 		// make the axis range equal
 		if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
 		else maxLon = minLon + (maxLat-minLat);
@@ -645,7 +645,7 @@ System.out.println("sectionClusterList.size()="+sectionClusterList.size());
 		ArrayList ft_funcs = new ArrayList();
 		ft_funcs.add(ft1_func);
 		ft_funcs.add(ft2_func);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(ft_funcs, "");  
+		GraphWindow sr_graph = new GraphWindow(ft_funcs, "");  
 		// make the axis range equal
 		if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
 		else maxLon = minLon + (maxLat-minLat);

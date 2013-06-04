@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
@@ -232,11 +232,11 @@ public class ReasenbergAndJonesComparison {
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
 		funcs.add(rj.findBestFitRJ(0.05));
-		GraphiWindowAPI_Impl gw = new GraphiWindowAPI_Impl(funcs,
+		GraphWindow gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M7+ on SAF Mojave)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		rupIden = new ElementMagRangeDescription(ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
 		rj = new ReasenbergAndJonesComparison(
@@ -245,11 +245,11 @@ public class ReasenbergAndJonesComparison {
 		funcs = Lists.newArrayList();
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M7+ on SAF Coachella)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		rupIden = new ElementMagRangeDescription(ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
 		rj = new ReasenbergAndJonesComparison(
@@ -258,11 +258,11 @@ public class ReasenbergAndJonesComparison {
 		funcs = Lists.newArrayList();
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M7+ on SAF Carrizo)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		rupIden = new MagRangeRuptureIdentifier(7d, 10d);
 		rj = new ReasenbergAndJonesComparison(
@@ -271,11 +271,11 @@ public class ReasenbergAndJonesComparison {
 		funcs = Lists.newArrayList();
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M7+)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		rupIden = new MagRangeRuptureIdentifier(6d, 10d);
 		rj = new ReasenbergAndJonesComparison(
@@ -284,11 +284,11 @@ public class ReasenbergAndJonesComparison {
 		funcs = Lists.newArrayList();
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M6+)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		rupIden = new MagRangeRuptureIdentifier(5d, 10d);
 		rj = new ReasenbergAndJonesComparison(
@@ -297,20 +297,20 @@ public class ReasenbergAndJonesComparison {
 		funcs = Lists.newArrayList();
 		funcs.add(rj.getCountFunc());
 		funcs.add(rjIntegralComp);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (M5+)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 		
 		
 		// RJ bounds
 		funcs = getRJIntegralBounds(minDays, maxDays);
-		gw = new GraphiWindowAPI_Impl(funcs,
+		gw = new GraphWindow(funcs,
 				"Rate Aftershcoks Larger Than Mainshock (R&J Bounds)", null, false);
 		gw.setX_AxisLabel("Days");
 		gw.setY_AxisLabel("Rate");
-		gw.getGraphWindow().setVisible(true);
+		gw.setVisible(true);
 	}
 
 }

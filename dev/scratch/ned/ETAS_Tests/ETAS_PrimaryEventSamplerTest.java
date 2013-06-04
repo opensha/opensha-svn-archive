@@ -16,6 +16,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -26,9 +27,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
@@ -487,13 +487,13 @@ public class ETAS_PrimaryEventSamplerTest {
 	public void plotDistDecayTestFuncs(String plotTitle, String pdfFileNameAndPath) {
 		
 		ArrayList funcs = getDistDecayTestFuncs(10.0);
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, plotTitle); 
+		GraphWindow graph = new GraphWindow(funcs, plotTitle); 
 		graph.setAxisRange(1, 1200, 1e-6, 1);
 		graph.setYLog(true);
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLUE));
-		graph.setPlottingFeatures(plotChars);
+		graph.setPlotChars(plotChars);
 		graph.setX_AxisLabel("Distance (km)");
 		graph.setY_AxisLabel("Probability");
 		

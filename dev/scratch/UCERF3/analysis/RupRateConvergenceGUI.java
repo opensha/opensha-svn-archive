@@ -18,6 +18,7 @@ import javax.swing.JTextArea;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -33,7 +34,6 @@ import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -503,7 +503,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 	
 	private void drawGraph() {
 		gp.setYLog(logParam.getValue());
-		gp.drawGraphPanel("Rupture Index", "Rate", funcs, chars, true, "Rup Rate Convergence");
+		gp.drawGraphPanel("Rupture Index", "Rate", funcs, chars, "Rup Rate Convergence");
 	}
 	
 	private double[] getYBounds(int minX, int maxX) {

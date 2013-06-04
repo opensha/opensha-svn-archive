@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.google.common.collect.Lists;
+
 public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 	/**
@@ -233,6 +235,16 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 				};
 			}
 		};
+	}
+	@Override
+	public XY_DataSetList getDatasetsToPlot() {
+		XY_DataSetList list = new XY_DataSetList();
+		list.add(this);
+		return list;
+	}
+	@Override
+	public List<Integer> getPlotNumColorList() {
+		return Lists.newArrayList(1);
 	}
 
 

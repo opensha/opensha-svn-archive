@@ -11,7 +11,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 
 public class LandersAnalysis {
@@ -152,7 +152,7 @@ public class LandersAnalysis {
 		ArrayList funcs = new ArrayList();
 		funcs.add(distCDF);
 		
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, " "); 
+		GraphWindow graph = new GraphWindow(funcs, " "); 
 		graph.setX_AxisLabel("Distance (km)");
 		graph.setY_AxisLabel(" ");
 //		graph.setX_AxisRange(0.4, 360);

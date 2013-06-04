@@ -26,14 +26,14 @@ import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 import com.google.common.base.Joiner;
@@ -494,7 +494,7 @@ public class TablesAndPlotsGen {
 		gp.setBackgroundColor(Color.WHITE);
 //		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		gp.setUserBounds(minX, maxX, minY, maxY);
-		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars, true,
+		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars,
 				"Moment Rate Distribution");
 		
 		File outputFile = new File(dir, name+"_mo_rate_dist_on_off");
@@ -543,7 +543,7 @@ public class TablesAndPlotsGen {
 		gp.setBackgroundColor(Color.WHITE);
 //		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		gp.setUserBounds(minX, maxX, minY, maxY);
-		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars, true,
+		gp.drawGraphPanel("Moment Rate (10^19 Nm/yr)", "Branch Weight", funcs, chars,
 				"Moment Rate Distribution");
 		
 		outputFile = new File(dir, name+"_mo_rate_dist_total");
@@ -643,7 +643,7 @@ public class TablesAndPlotsGen {
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 		gp.setUserBounds(0d, 500d, 0d, 1d);
-		gp.drawGraphPanel("Rupture Length (km)", "Fraction of Earthquakes", funcs, chars, true,
+		gp.drawGraphPanel("Rupture Length (km)", "Fraction of Earthquakes", funcs, chars,
 				"Rupture Length Distribution");
 		File outputFile = new File(dir, prefix+"_length_dists");
 		gp.getCartPanel().setSize(1000, 800);
@@ -691,7 +691,7 @@ public class TablesAndPlotsGen {
 		gp.setXLog(true);
 		gp.setYLog(true);
 		gp.setUserBounds(minX, scatter.getMaxX(), minY, scatter.getMaxY());
-		gp.drawGraphPanel("Mean Rupture Rate", "N for 95%-Conf within 10%", funcs, chars, true,
+		gp.drawGraphPanel("Mean Rupture Rate", "N for 95%-Conf within 10%", funcs, chars,
 				"");
 		File file = new File(outputDir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -802,7 +802,7 @@ public class TablesAndPlotsGen {
 			yAxisLabel = "Fraction";
 		else
 			yAxisLabel = "Number";
-		gp.drawGraphPanel("Subsection Slip Rate Misfit (solution/target)", yAxisLabel, funcs, chars, true,
+		gp.drawGraphPanel("Subsection Slip Rate Misfit (solution/target)", yAxisLabel, funcs, chars,
 				"Slip Rate Misfits");
 		File file = new File(outputDir, "slip_misfit_hist");
 		gp.getCartPanel().setSize(1000, 800);

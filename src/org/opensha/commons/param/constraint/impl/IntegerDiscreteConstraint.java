@@ -47,6 +47,10 @@ public class IntegerDiscreteConstraint extends AbstractParameterConstraint<Integ
 		return allowed;
 	}
 	
+	public void addAllowed(Integer val) {
+		allowed.add(val);
+	}
+	
 	public int size() {
 		return allowed.size();
 	}

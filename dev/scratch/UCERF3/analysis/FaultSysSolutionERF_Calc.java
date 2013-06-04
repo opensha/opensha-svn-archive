@@ -14,6 +14,7 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
@@ -22,8 +23,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
@@ -224,7 +224,7 @@ public class FaultSysSolutionERF_Calc {
 		funcs.add(fractileCalc.getFractile(0.5));
 		funcs.add(fractileCalc.getFractile(0.975));
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Test of UCERF2 Figure 25");
+		GraphWindow graph = new GraphWindow(funcs, "Test of UCERF2 Figure 25");
 		graph.setX_AxisRange(5, 8.5);
 		graph.setY_AxisRange(0, 1);
 	}
@@ -306,7 +306,7 @@ public class FaultSysSolutionERF_Calc {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, null, 1f, Color.GREEN));
 
 
-		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Cumulative MFDs in "+region.getName(),plotChars); 
+		GraphWindow graph = new GraphWindow(funcs, "Cumulative MFDs in "+region.getName(),plotChars); 
 		graph.setX_AxisLabel("Magnitude");
 		graph.setY_AxisLabel("Rate (per year)");
 		graph.setPlotLabelFontSize(18);

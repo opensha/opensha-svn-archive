@@ -65,11 +65,18 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.WeightedFuncListforPlotting;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.gui.DisclaimerDialog;
 import org.opensha.commons.gui.HelpMenuBuilder;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -116,16 +123,9 @@ import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.util.IconFetcher;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
@@ -135,6 +135,8 @@ import org.opensha.sha.imr.event.ScalarIMRChangeListener;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -162,9 +164,7 @@ import org.opensha.sha.util.TectonicRegionType;
 
 public class HazardCurveApplication extends JFrame implements
 Runnable, ParameterChangeListener,
-CurveDisplayAppAPI, ButtonControlPanelAPI,
-GraphPanelAPI, GraphWindowAPI, 
-CalculationSettingsControlPanelAPI, ActionListener,
+CurveDisplayAppAPI, CalculationSettingsControlPanelAPI, ActionListener,
 ScalarIMRChangeListener {
 
 	/**
@@ -194,11 +194,6 @@ ScalarIMRChangeListener {
 	public final static String DETERMINISTIC = "Deterministic";
 	public final static String STOCHASTIC = "Stochastic Event Sets";
 
-
-	// X and Y Axis when plotting tha Curves Name
-	protected String xAxisName;
-	protected String yAxisName;
-
 	// Strings for control pick list
 	protected final static String CONTROL_PANELS = "Select";
 
@@ -216,17 +211,13 @@ ScalarIMRChangeListener {
 
 	private ArrayList<ControlPanel> controlPanels;
 
-	// log flags declaration
-	private boolean xLog = false;
-	private boolean yLog = false;
-
 	// default insets
 	protected Insets defaultInsets = new Insets(4, 4, 4, 4); ///TODO remove
 
 	/**
 	 * List of ArbitrarilyDiscretized functions and Weighted funstions
 	 */
-	protected ArrayList<Object> functionList = new ArrayList<Object>();
+	protected ArrayList<PlotElement> functionList = new ArrayList<PlotElement>();
 
 	// holds the ArbitrarilyDiscretizedFunc
 	protected ArbitrarilyDiscretizedFunc function;
@@ -250,16 +241,6 @@ ScalarIMRChangeListener {
 	// index number of ERF for which Hazard Curve is being calculated
 	protected int currentERFInEpistemicListForHazardCurve = 0;
 
-	/**
-	 * these four values save the custom axis scale specified by user
-	 */
-	private double minXValue;
-	private double maxXValue;
-	private double minYValue;
-	private double maxYValue;
-	private boolean customAxis = false;
-
-
 	// flags to check which X Values the user wants to work with: default or
 	// custom
 	boolean useCustomX_Values = false;
@@ -274,7 +255,7 @@ ScalarIMRChangeListener {
 	protected boolean isStochasticCurve = false;
 
 	// PEER Test Cases
-	protected String TITLE = new String("Hazard Curves");
+	private static final String DEFAULT_TITLE = new String("Hazard Curves");
 
 
 	// accessible components
@@ -295,7 +276,6 @@ ScalarIMRChangeListener {
 	protected JComboBox probDeterComboBox;
 
 	private JPanel plotPanel;
-	private JPanel emptyPlotPanel;
 	//private JPanel sitePanel;
 	//protected JPanel imrPanel; // TODO make private
 	//protected JPanel imtPanel; // TODO make private
@@ -303,9 +283,7 @@ ScalarIMRChangeListener {
 
 	private JSplitPane imrImtSplitPane;
 	private JTabbedPane paramsTabbedPane;
-	private GraphPanel graphPanel; // actual plot panel
-	private GraphWindow graphWindow; // "Peel-Off" plot window
-	private ButtonControlPanel buttonControlPanel;
+	protected GraphWidget graphWidget; // actual plot widget
 
 	protected IMR_MultiGuiBean imrGuiBean;
 	private IMT_NewGuiBean imtGuiBean;
@@ -563,15 +541,6 @@ ScalarIMRChangeListener {
 		peelButton.putClientProperty("JButton.segmentPosition", "last");
 		peelButton.putClientProperty("JComponent.sizeVariant","small");
 
-		buttonControlPanel = new ButtonControlPanel(this);
-		buttonControlPanel.setEnabled(false);
-		// we know the button cp has a box layout so add clear and peel to it
-		buttonControlPanel.getButtonRow().remove(4); // getting rid of horizontal glue
-		buttonControlPanel.getButtonRow().add(Box.createHorizontalStrut(10));
-		buttonControlPanel.getButtonRow().add(clearButton);
-		buttonControlPanel.getButtonRow().add(peelButton);
-		buttonControlPanel.getButtonRow().add(Box.createHorizontalGlue());
-
 		//		buttonPanel.add(probDeterComboBox, 0);
 		//		buttonPanel.add(controlComboBox, 1);
 		//		buttonPanel.add(computeButton, 2);
@@ -582,20 +551,13 @@ ScalarIMRChangeListener {
 		//		//buttonPanel.add(buttonControlPanel, 7);
 		//		buttonPanel.add(imgLabel, 5);
 
-
-		// creating the Object the GraphPaenl class
-		graphPanel = new GraphPanel(this);
-
-
 		// ======== param panels ========
 		//plotPanel = new JPanel(new GridBagLayout());
 		plotPanel = new JPanel(new BorderLayout());
 		plotPanel.setBorder(BorderFactory.createEmptyBorder(11, 10, 11, 4));
-		emptyPlotPanel = new JPanel();
-		emptyPlotPanel.setBorder(new LineBorder(Color.gray));
-		emptyPlotPanel.setBackground(Color.white);
-		plotPanel.add(buttonControlPanel, BorderLayout.PAGE_END);
-		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
+
+		// creating the GraphWidget
+		buildGraphWidget();
 
 		// IMR, IMT & Site panel
 		//imrPanel = new JPanel(new GridBagLayout());
@@ -799,29 +761,12 @@ ScalarIMRChangeListener {
 
 		// Starting
 //		String S = C + ": addGraphPanel(): ";
-		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog,
-				yLog, customAxis, TITLE, buttonControlPanel);
-		togglePlot();
+		PlotSpec spec = graphWidget.getPlotSpec();
+		spec.setPlotElems(functionList);
+		graphWidget.drawGraph();
 		// this.isIndividualCurves = false;
 	}
-
-	// checks if the user has plot the data window or plot window
-	public void togglePlot() {
-		//		plotPanel.removeAll();
-		plotPanel.remove(graphPanel);
-		plotPanel.remove(emptyPlotPanel);
-		graphPanel.togglePlot(buttonControlPanel);
-		plotPanel.add(graphPanel, BorderLayout.CENTER);
-		//		plotPanel.add(graphPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-		//				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-		//						0, 0, 0, 0), 0, 0));
-		clearButton.setEnabled(true);
-		peelButton.setEnabled(true);
-		buttonControlPanel.setEnabled(true);
-
-		plotPanel.validate();
-		plotPanel.repaint();
-	}
+	
 
 	/**
 	 * this function is called when Add Graph button is clicked
@@ -1096,48 +1041,15 @@ ScalarIMRChangeListener {
 	}
 
 	private void clearPlot() {
-		graphPanel.removeChartAndMetadata();
-		plotPanel.remove(graphPanel);
-		plotPanel.add(emptyPlotPanel, BorderLayout.CENTER);
-		functionList.clear();
-		clearButton.setEnabled(false);
-		peelButton.setEnabled(false);
-		buttonControlPanel.setEnabled(false);
+		graphWidget.setAutoRange();
+		graphWidget.removeChartAndMetadata();
+		functionList = Lists.newArrayList();
+//		clearButton.setEnabled(false);
+//		peelButton.setEnabled(false);
+		graphWidget.getButtonControlPanel().setEnabled(false);
 		enableMenuButtons();
 		validate();
 		repaint();
-	}
-
-	/**
-	 * sets the range for X and Y axis
-	 * 
-	 * @param xMin
-	 *            : minimum value for X-axis
-	 * @param xMax
-	 *            : maximum value for X-axis
-	 * @param yMin
-	 *            : minimum value for Y-axis
-	 * @param yMax
-	 *            : maximum value for Y-axis
-	 * 
-	 */
-	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
-		minXValue = xMin;
-		maxXValue = xMax;
-		minYValue = yMin;
-		maxYValue = yMax;
-		this.customAxis = true;
-		drawGraph();
-
-	}
-
-	/**
-	 * set the auto range for the axis. This function is called from the
-	 * AxisLimitControlPanel
-	 */
-	public void setAutoRange() {
-		this.customAxis = false;
-		drawGraph();
 	}
 
 	/**
@@ -1222,9 +1134,9 @@ ScalarIMRChangeListener {
 	 */
 	protected void setButtonsEnable(boolean b) {
 		computeButton.setEnabled(b);
-		clearButton.setEnabled(b);
-		peelButton.setEnabled(b);
-		buttonControlPanel.setEnabled(b);
+//		clearButton.setEnabled(b);
+//		peelButton.setEnabled(b);
+		graphWidget.getButtonControlPanel().setEnabled(b);
 		progressCheckBox.setEnabled(b);
 		enableMenuButtons();
 	}
@@ -1372,8 +1284,10 @@ ScalarIMRChangeListener {
 		functionList.add(hazFunction);
 		// set the X-axis label
 		String imt = imtGuiBean.getSelectedIMT();
-		xAxisName = imt + " (" + firstIMRFromMap.getParameter(imt).getUnits() + ")";
-		yAxisName = "Probability of Exceedance";
+		String xAxisName = imt + " (" + firstIMRFromMap.getParameter(imt).getUnits() + ")";
+		String yAxisName = "Probability of Exceedance";
+		graphWidget.setXAxisLabel(xAxisName);
+		graphWidget.setYAxisLabel(yAxisName);
 
 		isHazardCalcDone = true;
 		disaggregationString = null;
@@ -1717,8 +1631,10 @@ ScalarIMRChangeListener {
 		if (addData)
 			functionList.add(weightedFuncList);
 		// set the X, Y axis label
-		xAxisName = imtGuiBean.getSelectedIMT();
-		yAxisName = "Probability of Exceedance";
+		String xAxisName = imtGuiBean.getSelectedIMT();
+		String yAxisName = "Probability of Exceedance";
+		graphWidget.setXAxisLabel(xAxisName);
+		graphWidget.setYAxisLabel(yAxisName);
 	}
 
 	/**
@@ -2049,7 +1965,7 @@ ScalarIMRChangeListener {
 	 * @return the Range for the X-Axis
 	 */
 	public Range getX_AxisRange() {
-		return graphPanel.getX_AxisRange();
+		return graphWidget.getX_AxisRange();
 	}
 
 	/**
@@ -2057,7 +1973,7 @@ ScalarIMRChangeListener {
 	 * @return the Range for the Y-Axis
 	 */
 	public Range getY_AxisRange() {
-		return graphPanel.getY_AxisRange();
+		return graphWidget.getY_AxisRange();
 	}
 
 	/**
@@ -2089,7 +2005,7 @@ ScalarIMRChangeListener {
 			ArbitrarilyDiscretizedFunc function) {
 		functionList.add(function);
 		enableMenuButtons();
-		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
+		List<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(null, 1f, PlotSymbol.CROSS, 4f, Color.BLACK, 1));
 		addGraphPanel();
 	}
@@ -2174,146 +2090,6 @@ ScalarIMRChangeListener {
 		this.avgSelected = isAvgSelected;
 	}
 
-	public ButtonControlPanel getButtonControlPanel() {
-		return buttonControlPanel;
-	}
-
-	/**
-	 * tells the application if the xLog is selected
-	 * 
-	 * @param xLog
-	 *            : boolean
-	 */
-	public void setX_Log(boolean xLog) {
-		if (xLog == this.xLog)
-			return;
-		this.xLog = xLog;
-		if (xLog != this.buttonControlPanel.isXLogSelected()) {
-			this.buttonControlPanel.setXLog(xLog);
-		}
-		drawGraph();
-	}
-
-	/**
-	 * tells the application if the yLog is selected
-	 * 
-	 * @param yLog
-	 *            : boolean
-	 */
-	public void setY_Log(boolean yLog) {
-		if (yLog == this.yLog)
-			return;
-		this.yLog = yLog;
-		if (yLog != this.buttonControlPanel.isYLogSelected()) {
-			this.buttonControlPanel.setYLog(yLog);
-		}
-		drawGraph();
-	}
-
-	/**
-	 * 
-	 * @return the boolean: Log for X-Axis Selected
-	 */
-	public boolean getXLog() {
-		return xLog;
-	}
-
-	/**
-	 * 
-	 * @return the boolean: Log for Y-Axis Selected
-	 */
-	public boolean getYLog() {
-		return yLog;
-	}
-
-	/**
-	 * 
-	 * @return boolean: Checks if Custom Axis is selected
-	 */
-	public boolean isCustomAxis() {
-		return customAxis;
-	}
-
-	/**
-	 * 
-	 * @return the Min X-Axis Range Value, if custom Axis is choosen
-	 */
-	public double getUserMinX() {
-		return minXValue;
-	}
-
-	/**
-	 * 
-	 * @return the Max X-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxX() {
-		return maxXValue;
-	}
-
-	/**
-	 * 
-	 * @return the Min Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMinY() {
-		return minYValue;
-	}
-
-	/**
-	 * 
-	 * @return the Max Y-Axis Range Value, if custom axis is choosen
-	 */
-	public double getUserMaxY() {
-		return maxYValue;
-	}
-
-	/**
-	 * 
-	 * @return the X Axis Label
-	 */
-	public String getXAxisLabel() {
-		return xAxisName;
-	}
-
-	/**
-	 * 
-	 * @return Y Axis Label
-	 */
-	public String getYAxisLabel() {
-		return yAxisName;
-	}
-
-	/**
-	 * 
-	 * @return plot Title
-	 */
-	public String getPlotLabel() {
-		return TITLE;
-	}
-
-	/**
-	 * 
-	 * sets X Axis Label
-	 */
-	public void setXAxisLabel(String xAxisLabel) {
-		xAxisName = xAxisLabel;
-	}
-
-	/**
-	 * 
-	 * sets Y Axis Label
-	 */
-	public void setYAxisLabel(String yAxisLabel) {
-		yAxisName = yAxisLabel;
-	}
-
-	/**
-	 * 
-	 * sets plot Title
-	 */
-	public void setPlotLabel(String plotTitle) {
-		TITLE = plotTitle;
-	}
-
 	/**
 	 * 
 	 * @return the String containing the values selected for different
@@ -2387,8 +2163,21 @@ ScalarIMRChangeListener {
 	 * @return the List for all the ArbitrarilyDiscretizedFunctions and
 	 *          Weighted Function list.
 	 */
-	public ArrayList<Object> getCurveFunctionList() {
+	public List<PlotElement> getCurveFunctionList() {
 		return functionList;
+	}
+	
+	private void buildGraphWidget() {
+		graphWidget = new GraphWidget();
+		graphWidget.setPlotLabel(DEFAULT_TITLE);
+		// we know the button cp has a box layout so add clear and peel to it
+		JPanel buttonRow = graphWidget.getButtonControlPanel().getButtonRow();
+		buttonRow.remove(4); // getting rid of horizontal glue
+		buttonRow.add(Box.createHorizontalStrut(10));
+		buttonRow.add(clearButton);
+		buttonRow.add(peelButton);
+		buttonRow.add(Box.createHorizontalGlue());
+		plotPanel.add(graphWidget, BorderLayout.CENTER);
 	}
 
 	/**
@@ -2397,12 +2186,21 @@ ScalarIMRChangeListener {
 	 * plot just shows empty window.
 	 */
 	protected void peelOffCurves() {
-		graphWindow = new GraphWindow(this);
+		// clean up old widget
+		JPanel buttonRow = graphWidget.getButtonControlPanel().getButtonRow();
+		buttonRow.remove(clearButton);
+		buttonRow.remove(peelButton);
+		plotPanel.remove(graphWidget);
+		
+		GraphWindow graphWindow = new GraphWindow(graphWidget);
+//		graphWindow.pack();
+		
+		// build new one
+		buildGraphWidget();
 		clearPlot();
 		graphWindow.setVisible(true);
 		clearButton.setEnabled(false);
 		peelButton.setEnabled(false);
-		buttonControlPanel.setEnabled(false);
 	}
 
 	/**
@@ -2411,8 +2209,8 @@ ScalarIMRChangeListener {
 	 *          plotting the curve like plot line color , its width and line
 	 *          type.
 	 */
-	public ArrayList<PlotCurveCharacterstics> getPlottingFeatures() {
-		return graphPanel.getCurvePlottingCharacterstic();
+	public List<PlotCurveCharacterstics> getPlottingFeatures() {
+		return graphWidget.getPlottingFeatures();
 	}
 
 	private void close() {
@@ -2427,7 +2225,7 @@ ScalarIMRChangeListener {
 	/* save plot in PNG format */
 	private void save() {
 		try {
-			graphPanel.save();
+			graphWidget.save();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(),
 					"Save File Error", JOptionPane.OK_OPTION);
@@ -2437,11 +2235,11 @@ ScalarIMRChangeListener {
 
 	/* print plot */
 	public void print() {
-		graphPanel.print(this);
+		graphWidget.print();
 	}
 
-	public GraphPanel getGraphPanel() {
-		return graphPanel;
+	public GraphWidget getGraphWidget() {
+		return graphWidget;
 	}
 
 	/**
@@ -2531,7 +2329,7 @@ ScalarIMRChangeListener {
 	 */
 	public void addCybershakeCurveData(DiscretizedFunc function) {
 		functionList.add(function);
-		ArrayList<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
+		List<PlotCurveCharacterstics> plotFeaturesList = getPlottingFeatures();
 		plotFeaturesList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f,
 				PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK, 1));
 		addGraphPanel();
@@ -2637,11 +2435,6 @@ ScalarIMRChangeListener {
 	@Override
 	public void imrChange(ScalarIMRChangeEvent event) {
 		updateSiteParams();
-	}
-
-	@Override
-	public void setPlottingOrder(DatasetRenderingOrder order) {
-		this.graphPanel.setRenderingOrder(order);
 	}
 }
 

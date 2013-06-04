@@ -11,7 +11,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
@@ -32,7 +32,7 @@ public class TestFaultSysSolTimeDepERF {
 //		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
 //		for(double aper:aperArray)
 //			funcs.add(FaultSystemSolutionTimeDepERF.getBPT_TimeToPoisCondProb(aper));
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "BPT_TimeToPoisCondProb");
+//		GraphWindow graph = new GraphWindow(funcs, "BPT_TimeToPoisCondProb");
 
 //		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF("/Users/field/ALLCAL_UCERF2.zip");
 		
@@ -110,7 +110,7 @@ public class TestFaultSysSolTimeDepERF {
 //		funcs.add(origMFD);
 //		funcs.add(invMFD.getCumRateDistWithOffset());
 //		funcs.add(origMFD.getCumRateDistWithOffset());
-//		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "Incremental Mag-Freq Dists"); 
+//		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists"); 
 //		graph.setX_AxisLabel("Mag");
 //		graph.setY_AxisLabel("Rate");
 //		graph.setYLog(true);

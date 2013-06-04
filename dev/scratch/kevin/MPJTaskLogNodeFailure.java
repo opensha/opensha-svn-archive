@@ -14,9 +14,9 @@ import java.util.Scanner;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -150,7 +150,7 @@ public class MPJTaskLogNodeFailure {
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
-		new GraphiWindowAPI_Impl(funcs, "Process # Failures", chars);
+		new GraphWindow(funcs, "Process # Failures", chars);
 		
 		List<String> hosts = Lists.newArrayList(hostFailuresMap.keySet());
 		Collections.sort(hosts);
@@ -163,7 +163,7 @@ public class MPJTaskLogNodeFailure {
 		
 		funcs = Lists.newArrayList();
 		funcs.add(hostFunc);
-		new GraphiWindowAPI_Impl(funcs, "Host Failures", chars);
+		new GraphWindow(funcs, "Host Failures", chars);
 		
 		EvenlyDiscretizedFunc hostDist = new EvenlyDiscretizedFunc(0d, (int)hostFunc.getMaxY()+1, 1d);
 		for (int i=0; i<hosts.size(); i++) {
@@ -173,7 +173,7 @@ public class MPJTaskLogNodeFailure {
 		
 		funcs = Lists.newArrayList();
 		funcs.add(hostDist);
-		new GraphiWindowAPI_Impl(funcs, "Host Failure Distribution", chars);
+		new GraphWindow(funcs, "Host Failure Distribution", chars);
 	}
 	
 	private static String getPercent(int subVal, int tot) {

@@ -54,7 +54,7 @@ import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.DataGenerator_UHS;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
+import org.opensha.nshmp.sha.gui.infoTools.NSHMPGraphWindow;
 import org.opensha.nshmp.sha.gui.infoTools.SiteCoefficientInfoWindow;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.LocationUtil;
@@ -542,7 +542,7 @@ AnalysisOptionsGuiBeanAPI {
 	private void viewCurves() {
 		ArrayList functions = dataGenerator.getFunctionsToPlotForSA(uhsCalculated,
 				approxUHS_Calculated, sdSpectrumCalculated, smSpectrumCalculated);
-		GraphWindow window = new GraphWindow(functions);
+		NSHMPGraphWindow window = new NSHMPGraphWindow(functions);
 		window.setVisible(true);
 	}
 

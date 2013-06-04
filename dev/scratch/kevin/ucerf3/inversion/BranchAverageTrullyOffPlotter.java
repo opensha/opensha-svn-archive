@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -51,7 +51,7 @@ public class BranchAverageTrullyOffPlotter {
 		funcs.add(u3p2TrulyOffMFD);
 		funcs.add(u3p3TrulyOffMFD);
 		
-		new GraphiWindowAPI_Impl(funcs, "Truly Off Fault MFDs");
+		new GraphWindow(funcs, "Truly Off Fault MFDs");
 	}
 
 }
