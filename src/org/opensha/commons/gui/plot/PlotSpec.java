@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jfree.chart.annotations.XYAnnotation;
 import org.opensha.commons.data.function.DiscretizedFunc;
 
 import com.google.common.collect.Lists;
@@ -23,6 +24,7 @@ public class PlotSpec implements Serializable {
 	private List<? extends PlotElement> elems;
 	private List<PlotCurveCharacterstics> chars;
 	private String title, xAxisLabel, yAxisLabel;
+	private List<? extends XYAnnotation> annotations;
 	
 	public PlotSpec(List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> chars, String title, String xAxisLabel, String yAxisLabel) {
@@ -51,6 +53,14 @@ public class PlotSpec implements Serializable {
 
 	public void setPlotElems(List<? extends PlotElement> elems) {
 		this.elems = elems;
+	}
+	
+	public void setPlotAnnotations(List<? extends XYAnnotation> annotations) {
+		this.annotations = annotations;
+	}
+	
+	public List<? extends XYAnnotation> getPlotAnnotations() {
+		return annotations;
 	}
 
 	public List<PlotCurveCharacterstics> getChars() {

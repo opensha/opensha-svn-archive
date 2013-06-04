@@ -51,6 +51,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.axis.ValueAxis;
@@ -553,6 +555,11 @@ public class GraphPanel extends JSplitPane {
 				drawCurvesUsingPlottingFeatures(subPlot, lineType, lineWidth, symbol, symbolWidth, color, dataIndex);
 			}
 			
+			// now add any annotations
+			if (plotSpec.getPlotAnnotations() != null)
+				for (XYAnnotation a : plotSpec.getPlotAnnotations())
+					subPlot.addAnnotation(a);
+			
 			// multiple plots
 			if (plot instanceof CombinedRangeXYPlot)
 				((CombinedRangeXYPlot)plot).add(subPlot);
@@ -618,12 +625,12 @@ public class GraphPanel extends JSplitPane {
 				setLegend =new SimpleAttributeSet();
 				StyleConstants.setFontSize(setLegend,12);
 				//checking if element in the list is weighted function list object
-				Object obj = plottedElems.get(i);
+				PlotElement elem = plottedElems.get(i);
 				PlotCurveCharacterstics chars = plottedChars.get(plotPrefIndex);
 				String datasetName = "DATASET #"+(i+1);
-				if(obj instanceof WeightedFuncListforPlotting){
+				if(elem instanceof WeightedFuncListforPlotting){
 					//getting the metadata for weighted functionlist
-					WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+					WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)elem;
 
 					String listInfo = weightedList.getInfo();
 
@@ -675,14 +682,24 @@ public class GraphPanel extends JSplitPane {
 						doc.insertString(doc.getLength(),legend,setLegend);
 						++plotPrefIndex;
 					}
-				}
-				else{ //if element in the list are individual function then get their info and show as legend
+				} else if (elem instanceof XY_DataSet){ //if element in the list are individual function then get their info and show as legend
 					plottedChars.get(plotPrefIndex).setName(datasetName);
 					XY_DataSet func = (XY_DataSet)plottedElems.get(i);
 					String functionInfo = func.getInfo();
 					String name = func.getName();
 					legend = new String(datasetName+" ("+chars+")"+"\n"+
 							name+"  "+SystemUtils.LINE_SEPARATOR+
+							functionInfo+SystemUtils.LINE_SEPARATOR);
+					legendString.add(legend);
+					Color color = plottedChars.get(plotPrefIndex).getColor();
+					StyleConstants.setForeground(setLegend,color);
+					doc.insertString(doc.getLength(),legend,setLegend);
+					++plotPrefIndex;
+				} else {
+					// other PlotElement
+					plottedChars.get(plotPrefIndex).setName(datasetName);
+					String functionInfo = elem.getInfo();
+					legend = new String(datasetName+" ("+chars+")"+"\n"+
 							functionInfo+SystemUtils.LINE_SEPARATOR);
 					legendString.add(legend);
 					Color color = plottedChars.get(plotPrefIndex).getColor();
@@ -742,12 +759,11 @@ public class GraphPanel extends JSplitPane {
 		for(int i=0;i<size;++i){
 			PlotElement elem = elemList.get(i);
 
-			if(!(elem instanceof WeightedFuncListforPlotting)){ //showing data for the individual function
+			if(elem instanceof XY_DataSet){ //showing data for the individual function
 				XY_DataSet function = (XY_DataSet)elem;
 				b.append("\nDATASET #" + (i+1) + "\n\n");
 				b.append(function.toString()+ '\n');
-			}
-			else{ //showing data for weighted function list
+			} else if (elem instanceof WeightedFuncListforPlotting) { //showing data for weighted function list
 				WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)elem;
 				b.append("\nDATASET #" + (i+1) + "   Weighted Function List"+'\n');
 				b.append(weightedList.getInfo()+"\n\n");
@@ -784,6 +800,9 @@ public class GraphPanel extends JSplitPane {
 					b.append("\nMean for Dataset #"+(i+1)+"\n");
 					b.append(weightedList.getMean().getMetadataString()+"\n");
 				}
+			} else {
+				b.append("\nDATASET #" + (i+1) + "\n\n");
+				b.append(elem.getInfo()+ '\n');
 			}
 		}
 
