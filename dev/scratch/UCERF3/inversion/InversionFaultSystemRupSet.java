@@ -663,6 +663,8 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * @return the number of clusters
 	 */
 	public int getNumClusters() {
+		if (clusterRups == null)
+			return 0;
 		return clusterRups.size();
 	}
 

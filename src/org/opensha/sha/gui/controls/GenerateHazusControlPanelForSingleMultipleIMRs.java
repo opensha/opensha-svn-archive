@@ -41,6 +41,7 @@ import javax.swing.Timer;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.AttenuationRelationship;

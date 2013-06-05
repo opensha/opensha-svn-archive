@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.commons.gui.plot.GraphWindow;
 
 

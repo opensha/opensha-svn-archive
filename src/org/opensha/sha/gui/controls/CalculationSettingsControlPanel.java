@@ -28,6 +28,7 @@ import java.awt.Window;
 
 import javax.swing.JFrame;
 
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 

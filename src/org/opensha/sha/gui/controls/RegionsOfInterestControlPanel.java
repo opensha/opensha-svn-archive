@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;

@@ -25,10 +25,10 @@ import javax.swing.JToolBar;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.plot.ButtonControlPanel;
 import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.gui.plot.PlotSpec;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
 
 /**

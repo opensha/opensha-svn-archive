@@ -1,4 +1,4 @@
-package org.opensha.sha.gui.controls;
+package org.opensha.commons.gui;
 
 import java.awt.Window;
 

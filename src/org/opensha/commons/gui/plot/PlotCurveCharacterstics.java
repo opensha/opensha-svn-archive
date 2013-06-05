@@ -23,9 +23,6 @@ import java.awt.Color;
 import java.io.Serializable;
 
 import org.opensha.commons.data.Named;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-
-import com.google.common.base.Preconditions;
 
 /**
  * <p>Title: PlotCurveCharacterstics</p>

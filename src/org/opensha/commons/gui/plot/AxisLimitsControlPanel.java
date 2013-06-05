@@ -17,9 +17,8 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui.controls;
+package org.opensha.commons.gui.plot;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -38,7 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jfree.data.Range;
-import org.opensha.commons.gui.plot.GraphWidget;
+import org.opensha.commons.gui.ControlPanel;
 
 /**
  * <p>Title: AxisLimitsControlPanel</p>

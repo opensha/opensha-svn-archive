@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 import com.google.common.collect.Lists;
 

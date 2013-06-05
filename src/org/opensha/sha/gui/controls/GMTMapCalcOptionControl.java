@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 
+import org.opensha.commons.gui.ControlPanel;
+
 /**
  * <p>Title: CalcOptionControl</p>
  * <p>Description: This class gives option to the user to choose the option to

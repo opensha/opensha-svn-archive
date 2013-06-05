@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 /**

@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -61,7 +62,6 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.event.IMTChangeEvent;
 import org.opensha.sha.gui.beans.event.IMTChangeListener;
-import org.opensha.sha.gui.controls.ControlPanel;
 import org.opensha.sha.gcim.ui.infoTools.AttenuationRelationshipsInstance;
 import org.opensha.sha.gcim.imCorrRel.ImCorrelationRelationship;
 import org.opensha.sha.gcim.imCorrRel.imCorrRelImpl.BakerJayaram08_ImCorrRel;

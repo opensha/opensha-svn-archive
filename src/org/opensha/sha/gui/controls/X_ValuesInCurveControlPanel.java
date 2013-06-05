@@ -45,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 
 

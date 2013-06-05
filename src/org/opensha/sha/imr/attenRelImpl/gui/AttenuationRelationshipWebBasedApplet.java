@@ -30,10 +30,10 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
 
+import org.opensha.commons.gui.plot.ButtonControlPanel;
 import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
 
 /**

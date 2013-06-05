@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;

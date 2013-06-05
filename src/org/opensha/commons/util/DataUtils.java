@@ -899,5 +899,32 @@ public class DataUtils {
 			return "min: " + min + ", max: " + max + ", avg: " + getAverage();
 		}
 	}
+	
+	/**
+	 * 
+	 * @param unsorted
+	 * @return median of the array of values. if values are already sorted, use median_sorted
+	 */
+	public static double median(double[] unsorted) {
+		double[] sorted = Arrays.copyOf(unsorted, unsorted.length);
+		Arrays.sort(sorted);
+		return median_sorted(sorted);
+	}
+	
+	/**
+	 * @param sorted
+	 * @return median of the sorted array of values
+	 */
+	public static double median_sorted(double[] sorted) {
+		if (sorted.length % 2 == 1)
+			return sorted[(sorted.length+1)/2-1];
+		else
+		{
+			double lower = sorted[sorted.length/2-1];
+			double upper = sorted[sorted.length/2];
+
+			return (lower + upper) * 0.5;
+		}	
+	}
 
 }

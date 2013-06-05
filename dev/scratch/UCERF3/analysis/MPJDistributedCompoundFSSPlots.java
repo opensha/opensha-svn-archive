@@ -24,7 +24,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.MeanFSSBuilder;
+import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
@@ -505,7 +505,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			}
 			
 			if (plotAll || cmd.hasOption("mean")) {
-				MeanFSSBuilder builder = new MeanFSSBuilder(weightProvider);
+				BranchAvgFSSBuilder builder = new BranchAvgFSSBuilder(weightProvider);
 				if (cmd.hasOption("meanind")) {
 					int meanInd = Integer.parseInt(cmd.getOptionValue("meanind"));
 					builder.setSolIndex(meanInd);

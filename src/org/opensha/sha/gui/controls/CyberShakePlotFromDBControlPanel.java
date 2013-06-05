@@ -45,6 +45,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.ControlPanel;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.param.ParameterList;

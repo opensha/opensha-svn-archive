@@ -2837,13 +2837,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 	public static void writeMeanSolutions(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, File dir, String prefix)
 			throws IOException {
-		MeanFSSBuilder plot = new MeanFSSBuilder(weightProvider);
+		BranchAvgFSSBuilder plot = new BranchAvgFSSBuilder(weightProvider);
 		plot.buildPlot(fetch);
 
 		writeMeanSolutions(plot, dir, prefix);
 	}
 
-	public static void writeMeanSolutions(MeanFSSBuilder plot, File dir,
+	public static void writeMeanSolutions(BranchAvgFSSBuilder plot, File dir,
 			String prefix) throws IOException {
 		System.out.println("Making mean solutions!");
 		
@@ -2909,7 +2909,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 	
-	public static class MeanFSSBuilder extends CompoundFSSPlots {
+	public static class BranchAvgFSSBuilder extends CompoundFSSPlots {
 		
 		private transient BranchWeightProvider weightProvider;
 		
@@ -2930,7 +2930,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		// in an AFSS
 		private int solIndex = -1;
 		
-		public MeanFSSBuilder(BranchWeightProvider weightProvider) {
+		public BranchAvgFSSBuilder(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
 		}
 
@@ -3035,7 +3035,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		protected void combineDistributedCalcs(
 				Collection<CompoundFSSPlots> otherCalcs) {
 			for (CompoundFSSPlots otherCalc : otherCalcs) {
-				MeanFSSBuilder o = (MeanFSSBuilder) otherCalc;
+				BranchAvgFSSBuilder o = (BranchAvgFSSBuilder) otherCalc;
 				if (region == null)
 					region = o.region;
 				for (FaultModels fm : o.weightsMap.keySet()) {
@@ -5395,8 +5395,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof MisfitTable) {
 				MisfitTable table = (MisfitTable) plot;
 				BatchPlotGen.writeMisfitsCSV(dir, prefix, table.misfitsMap);
-			} else if (plot instanceof MeanFSSBuilder) {
-				MeanFSSBuilder builder = (MeanFSSBuilder) plot;
+			} else if (plot instanceof BranchAvgFSSBuilder) {
+				BranchAvgFSSBuilder builder = (BranchAvgFSSBuilder) plot;
 				writeMeanSolutions(builder, dir, prefix);
 			} else if (plot instanceof MapBasedPlot) {
 				MapBasedPlot faultPlot = (MapBasedPlot) plot;

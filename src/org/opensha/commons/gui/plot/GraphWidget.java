@@ -35,7 +35,6 @@ import javax.swing.border.LineBorder;
 
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
 /**
  * <p>Title: GraphWidget</p>

@@ -5,6 +5,8 @@ import java.awt.Window;
 
 import javax.swing.JOptionPane;
 
+import org.opensha.commons.gui.ControlPanel;
+
 /**
  * This is a special type of <code>ControlPanel</code> which instead of displaying a
  * GUI component where the user makes selections, simply presents a confirmation dialog

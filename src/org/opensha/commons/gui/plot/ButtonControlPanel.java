@@ -17,13 +17,12 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui.infoTools;
+package org.opensha.commons.gui.plot;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -35,13 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
-import org.opensha.commons.gui.plot.GraphWidget;
-import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
-import org.opensha.commons.gui.plot.PlotPreferences;
-import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 import com.google.common.base.Preconditions;
 

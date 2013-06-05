@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 
+import org.opensha.commons.gui.ControlPanel;
+
 /**
  * <p>Title: PlottingOptionControl</p>
  * <p>Description: This class provides user with the option of adding new hazardcurves

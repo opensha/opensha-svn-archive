@@ -31,6 +31,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.opensha.commons.gui.ControlPanel;
+
 /**
  * <p>Title: RunAll_PEER_TestCasesControlPanel</p>
  * <p>Description: This class runs all the PEER tst cases and output the results in a file</p>

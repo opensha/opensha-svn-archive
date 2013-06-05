@@ -17,10 +17,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.XMLUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -97,9 +102,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public double[] getRates(LogicTreeBranch branch) {
+		return loadDoubleArray(branch, "rates.bin");
+	}
+	
+	public double[] loadDoubleArray(LogicTreeBranch branch, String fileName) {
 		try {
 			Map<String, String> nameRemappings = getRemappings(branch);
-			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get("rates.bin"));
+			ZipEntry ratesEntry = zip.getEntry(nameRemappings.get(fileName));
 			return MatrixIO.doubleArrayFromInputStream(
 					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
 		} catch (IOException e) {
@@ -130,25 +139,20 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	}
 	
 	public double[] getMags(LogicTreeBranch branch) {
-		try {
-			Map<String, String> nameRemappings = getRemappings(branch);
-			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("mags.bin"));
-			return MatrixIO.doubleArrayFromInputStream(
-					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
-		} catch (IOException e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
+		return loadDoubleArray(branch, "mags.bin");
 	}
 	
 	public double[] getLengths(LogicTreeBranch branch) {
-		try {
-			Map<String, String> nameRemappings = getRemappings(branch);
-			ZipEntry magsEntry = zip.getEntry(nameRemappings.get("rup_lengths.bin"));
-			return MatrixIO.doubleArrayFromInputStream(
-					new BufferedInputStream(zip.getInputStream(magsEntry)), magsEntry.getSize());
-		} catch (IOException e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
+		return loadDoubleArray(branch, "rup_lengths.bin");
+	}
+	
+	public List<FaultSectionPrefData> getSubSects(LogicTreeBranch branch) throws DocumentException, IOException {
+		Map<String, String> nameRemappings = getRemappings(branch);
+		ZipEntry fsdEntry = zip.getEntry(nameRemappings.get("fault_sections.xml"));
+		Document doc = XMLUtils.loadDocument(
+				new BufferedInputStream(zip.getInputStream(fsdEntry)));
+		Element fsEl = doc.getRootElement().element(FaultSectionPrefData.XML_METADATA_NAME+"List");
+		return FaultSystemIO.fsDataFromXML(fsEl);
 	}
 	
 	/**
