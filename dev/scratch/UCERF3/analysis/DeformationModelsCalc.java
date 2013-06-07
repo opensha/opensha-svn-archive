@@ -1048,6 +1048,13 @@ public class DeformationModelsCalc {
 	}
 	
 	
+	/**
+	 * This computes a wt-averaged aseismicity from subsection values (wted by subsection area) for each parent section.  
+	 * This is the same as the un-wted ave to the extent subsections have the same area.
+	 * @param fm
+	 * @param dm
+	 * @return
+	 */
 	private static Hashtable<Integer,Double> getParentSectAveAseisHashtable(FaultModels fm, DeformationModels dm) {
 		
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
@@ -1081,16 +1088,56 @@ public class DeformationModelsCalc {
 	}
 	
 	
-	
-	
-	
 	/**
-	 * The math here was derived so that section averages would come out right.
+	 * This computes a wt-averaged coupling coefficient from subsection values (wted by subsection area) for each parent section.  
+	 * This is the same as the un-wted ave to the extent subsections have the same area.
 	 * @param fm
 	 * @param dm
 	 * @return
 	 */
 	private static Hashtable<Integer,Double> getParentSectAveCouplingCoeffHashtable(FaultModels fm, DeformationModels dm) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double totOrigArea=0;
+		double aveCC =0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				double area = data.getOrigDownDipWidth()*data.getTraceLength();
+				totOrigArea += area;
+				aveCC += data.getCouplingCoeff()*area;
+			}
+			else {
+				if(!lastName.equals("")) {
+					hashtable.put(lastID, aveCC/totOrigArea);
+				}
+				// set first values for new parent section
+				double area = data.getOrigDownDipWidth()*data.getTraceLength();
+				totOrigArea = area;
+				aveCC = data.getCouplingCoeff()*area;
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		hashtable.put(lastID, aveCC/totOrigArea);
+
+		return hashtable;
+	}
+
+	
+	
+	/**
+	 * This is an alt way of doing it (compute from slip-rate aves rather than ave of CCs).
+	 * @param fm
+	 * @param dm
+	 * @return
+	 */
+	private static Hashtable<Integer,Double> getParentSectAveCouplingCoeffHashtableAlt(FaultModels fm, DeformationModels dm) {
 		
 		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
 		Hashtable<Integer,Double> hashtableOrigSlipRate = getParentSectAveSlipRateHashtable(fm, dm, false);
@@ -1104,8 +1151,71 @@ public class DeformationModelsCalc {
 
 
 
-
+	/**
+	 * This computes a wt-averaged slip rate from subsection values (wted by subsection area) for each parent section.  
+	 * This is the same as the un-wted ave to the extent subsections have the same area.  The creep-reduced case does no
+	 * utilize reduced areas in the wted ave because this would screw things up (reduced slip rate can be greater than
+	 * original).
+	 * @param fm
+	 * @param dm
+	 * @return
+	 */
 	private static Hashtable<Integer,Double> getParentSectAveSlipRateHashtable(FaultModels fm, DeformationModels dm, boolean creepReduced) {
+		
+		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
+		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
+
+		String lastName = "";
+		Integer lastID = -100;
+		double sumOrig=0;
+		double sumReduced=0;
+		double origAreaSum=0;
+//		double reducedAreaSum=0;
+
+		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
+			if(data.getParentSectionName().equals(lastName)) {
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum+=origArea;
+//				reducedAreaSum+=reducedArea;
+				sumOrig += data.getOrigAveSlipRate()*origArea;
+				sumReduced += data.getReducedAveSlipRate()*reducedArea;
+			}
+			else {
+				if(!lastName.equals("")) {
+					if(creepReduced)
+						hashtable.put(lastID, sumReduced/origAreaSum);
+					else
+						hashtable.put(lastID, sumOrig/origAreaSum);
+				}
+				// set first values for new parent section
+				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+				origAreaSum=origArea;
+//				reducedAreaSum=reducedArea;
+				sumOrig = data.getOrigAveSlipRate()*origArea;
+				sumReduced = data.getReducedAveSlipRate()*reducedArea;
+				lastName = data.getParentSectionName();
+				lastID = data.getParentSectionId();
+			}
+		}
+		// do the last one
+		if(creepReduced)
+			hashtable.put(lastID, sumReduced/origAreaSum);
+		else
+			hashtable.put(lastID, sumOrig/origAreaSum);
+
+		return hashtable;
+	}
+	
+	
+	
+	/**
+	 * This is test to see why the parent section 651 have a section ave coupling coefficient that exceeds 1.0
+	 * @param fm
+	 * @param dm
+	 */
+	private static void testGetParentSectAveSlipRateHashtable(FaultModels fm, DeformationModels dm) {
 		
 		DeformationModelFetcher defFetch = new DeformationModelFetcher(fm, dm, UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, InversionFaultSystemRupSetFactory.DEFAULT_ASEIS_VALUE);
 		Hashtable<Integer,Double> hashtable = new Hashtable<Integer,Double>();
@@ -1118,40 +1228,37 @@ public class DeformationModelsCalc {
 		double reducedAreaSum=0;
 
 		for(FaultSectionPrefData data:defFetch.getSubSectionList()) {
-			if(data.getParentSectionName().equals(lastName)) {
-				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
-				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
-				origAreaSum+=origArea;
-				reducedAreaSum+=reducedArea;
-				sumOrig += data.getOrigAveSlipRate()*origArea;
-				sumReduced += data.getReducedAveSlipRate()*reducedArea;
-			}
-			else {
-				if(!lastName.equals("")) {
-					if(creepReduced)
-						hashtable.put(lastID, sumReduced/reducedAreaSum);
-					else
-						hashtable.put(lastID, sumOrig/origAreaSum);
+			if(data.getParentSectionId()==651) {
+				if(data.getParentSectionName().equals(lastName)) {
+					double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+					double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+					origAreaSum+=origArea;
+					reducedAreaSum+=reducedArea;
+					sumOrig += data.getOrigAveSlipRate()*origArea;
+					sumReduced += data.getReducedAveSlipRate()*reducedArea;
+					System.out.println(origArea+"\t"+reducedArea+"\t"+data.getOrigAveSlipRate()+"\t"+data.getReducedAveSlipRate()+"\t"+sumOrig+"\t"+sumReduced+"\t"+lastName);
 				}
-				// set first values for new parent section
-				double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
-				double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
-				origAreaSum=origArea;
-				reducedAreaSum=reducedArea;
-				sumOrig = data.getOrigAveSlipRate()*origArea;
-				sumReduced = data.getReducedAveSlipRate()*reducedArea;
-				lastName = data.getParentSectionName();
-				lastID = data.getParentSectionId();
+				else {
+					// set first values for new parent section
+					double origArea = data.getOrigDownDipWidth()*data.getTraceLength();
+					double reducedArea = data.getReducedDownDipWidth()*data.getTraceLength();
+					origAreaSum=origArea;
+					reducedAreaSum=reducedArea;
+					sumOrig = data.getOrigAveSlipRate()*origArea;
+					sumReduced = data.getReducedAveSlipRate()*reducedArea;
+					lastName = data.getParentSectionName();
+					lastID = data.getParentSectionId();
+					System.out.println(origArea+"\t"+reducedArea+"\t"+data.getOrigAveSlipRate()+"\t"+data.getReducedAveSlipRate()+"\t"+
+							origAreaSum+"\t"+reducedAreaSum+"\t"+sumOrig+"\t"+sumReduced+"\t"+lastName);
+				}
+				
 			}
 		}
-		// do the last one
-		if(creepReduced)
-			hashtable.put(lastID, sumReduced/reducedAreaSum);
-		else
-			hashtable.put(lastID, sumOrig/origAreaSum);
-
-		return hashtable;
+		System.out.println(sumReduced/reducedAreaSum);
+		System.out.println(sumOrig/origAreaSum);
+		
 	}
+
 
 
 	
@@ -1216,6 +1323,9 @@ public class DeformationModelsCalc {
 				numSubSect = 1;
 			}
 	}
+	
+	
+
 	
 	
 	public static void writeSubSectDataForParent(String parentSectionName, FaultModels fm, DeformationModels dm) {
@@ -2348,6 +2458,9 @@ public class DeformationModelsCalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		
+		
+//		testGetParentSectAveSlipRateHashtable(FaultModels.FM3_1, DeformationModels.NEOKINEMA);
 		
 //		plotWtAveOnFaultMoRateRatioToUCERF2_Map();
 
