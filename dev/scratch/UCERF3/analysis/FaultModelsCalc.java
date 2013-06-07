@@ -1,10 +1,14 @@
 package scratch.UCERF3.analysis;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 
@@ -96,6 +100,77 @@ public class FaultModelsCalc {
 		}
 	}
 
+	
+	/**
+	 * File is written to: dev/scratch/UCERF3/data/scratch/FaultSectionDataForSuplTable.txt
+	 * @param fm
+	 */
+	public static void writeSectionDataForSuppleTable() {
+		HashMap<Integer,String> nameList = new HashMap<Integer,String>();
+		ArrayList<String> lineList = new ArrayList<String>();
+		HashMap<Integer,Boolean> inFM3pt1 = new HashMap<Integer,Boolean>();
+		HashMap<Integer,Boolean> inFM3pt2 = new HashMap<Integer,Boolean>();
+
+		ArrayList<FaultSectionPrefData> fm1_data = FaultModels.FM3_1.fetchFaultSections();
+		ArrayList<FaultSectionPrefData> fm2_data = FaultModels.FM3_2.fetchFaultSections();
+
+		for(FaultSectionPrefData data:fm1_data) {
+			nameList.put(data.getSectionId(),data.getName());
+			inFM3pt1.put(data.getSectionId(),true);
+			inFM3pt2.put(data.getSectionId(),false);
+		}
+		for(FaultSectionPrefData data:fm2_data) {
+			if(inFM3pt1.keySet().contains(data.getSectionId())) {	// already in list, override default inFM3pt2
+				inFM3pt2.put(data.getSectionId(),true);
+			}
+			else {	// not in list
+				inFM3pt1.put(data.getSectionId(),false);
+				inFM3pt2.put(data.getSectionId(),true);
+			}
+		}
+
+
+		for(FaultSectionPrefData data:fm1_data) {
+			String line = data.getName()+"\t"+data.getSectionId()+"\t"+true+"\t"+inFM3pt2.get(data.getSectionId())+"\t"+data.getAveDip()+"\t"+data.getOrigAveUpperDepth()+
+					data.getAveLowerDepth()+"\t"+data.getTraceLength();
+			for(Location loc:data.getFaultTrace()) {
+				line += "\t"+loc.getLatitude()+"\t"+loc.getLongitude();
+			}
+			lineList.add(line);
+		}
+		for(FaultSectionPrefData data:fm2_data) {
+			if(!inFM3pt1.get(data.getSectionId())) { // in not in fault model 3.1
+				String line = data.getName()+"\t"+data.getSectionId()+"\t"+false+"\t"+true+"\t"+data.getAveDip()+"\t"+data.getOrigAveUpperDepth()+
+						data.getAveLowerDepth()+"\t"+data.getTraceLength();
+				for(Location loc:data.getFaultTrace()) {
+					line += "\t"+loc.getLatitude()+"\t"+loc.getLongitude();
+				}	
+				lineList.add(line);
+			}
+		}
+
+		File dataFile = new File("dev/scratch/UCERF3/data/scratch/FaultSectionDataForSuplTable.txt");
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			String header = "Name\tID\tIn FM3.1\tIn FM3.2\tAve Dip\tUpper Seis Depth\tLower Seis Depth\tTrace Length\tTrace Locations (Lat, Lon)";
+			fw.write(header+"\n");
+			for(String str:lineList) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+
+
+
+	}
+
+	
+	
+
+	
 
 
 	/**
@@ -103,7 +178,9 @@ public class FaultModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, false);
+		writeSectionDataForSuppleTable();
+		
+//		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, false);
 //		writeSectionsForEachNamedFaultAlt(FaultModels.FM2_1);
 
 	}
