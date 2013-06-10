@@ -141,10 +141,10 @@ public class FaultModelsCalc {
 		for(FaultSectionPrefData data:fm2_data) {
 			if(!inFM3pt1.get(data.getSectionId())) { // in not in fault model 3.1
 				String line = data.getName()+"\t"+data.getSectionId()+"\t"+false+"\t"+true+"\t"+data.getAveDip()+"\t"+data.getOrigAveUpperDepth()+
-						data.getAveLowerDepth()+"\t"+data.getTraceLength();
+						"\t"+data.getAveLowerDepth()+"\t"+data.getTraceLength();
 				for(Location loc:data.getFaultTrace()) {
 					line += "\t"+loc.getLatitude()+"\t"+loc.getLongitude();
-				}	
+				}
 				lineList.add(line);
 			}
 		}
