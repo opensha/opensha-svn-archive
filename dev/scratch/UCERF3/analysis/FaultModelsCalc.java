@@ -132,7 +132,7 @@ public class FaultModelsCalc {
 
 		for(FaultSectionPrefData data:fm1_data) {
 			String line = data.getName()+"\t"+data.getSectionId()+"\t"+true+"\t"+inFM3pt2.get(data.getSectionId())+"\t"+data.getAveDip()+"\t"+data.getOrigAveUpperDepth()+
-					data.getAveLowerDepth()+"\t"+data.getTraceLength();
+					"\t"+data.getAveLowerDepth()+"\t"+data.getTraceLength();
 			for(Location loc:data.getFaultTrace()) {
 				line += "\t"+loc.getLatitude()+"\t"+loc.getLongitude();
 			}
