@@ -1360,7 +1360,7 @@ public class LogicTreePBSWriter {
 		System.exit(0);
 	}
 	
-	private static void writeMPJDispatchJob(RunSites site,
+	public static void writeMPJDispatchJob(RunSites site,
 			List<String> argsList, int numRuns, int maxNodes, int jobsPerNode,
 			int maxRuntimeMins, File remoteDir, File writeDir) throws IOException {
 		if (numRuns > 1) {

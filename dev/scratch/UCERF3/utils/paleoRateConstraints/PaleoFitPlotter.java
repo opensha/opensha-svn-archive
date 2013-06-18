@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils.paleoRateConstraints;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -20,7 +23,9 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotMultiDataLayer;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ExceptionUtils;
@@ -716,7 +721,7 @@ public class PaleoFitPlotter {
 			ArrayList<PlotCurveCharacterstics> rateChars = Lists.newArrayList();
 			ArrayList<DiscretizedFunc> slipFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> slipChars = Lists.newArrayList();
-			ArrayList<DiscretizedFunc> aveSlipFuncs = Lists.newArrayList();
+			ArrayList<PlotElement> aveSlipFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> aveSlipChars = Lists.newArrayList();
 			
 			List<Location> allSepLocs = Lists.newArrayList();
@@ -794,6 +799,24 @@ public class PaleoFitPlotter {
 			PlotCurveCharacterstics sepChar =
 				new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY);
 			
+			// find common prefix if any
+			List<String> parentNames = Lists.newArrayList();
+			for (Integer parentID : namedFaults) {
+				List<FaultSectionPrefData> sectionsForParent = sectionsForFault.get(parentID);
+				if (sectionsForParent == null)
+					continue;
+				String parentName = sectionsForParent.get(0).getParentSectionName();
+				parentNames.add(parentName);
+			}
+			String[] parentNamesArray = parentNames.toArray(new String[0]);
+			String commonPrefix = StringUtils.getCommonPrefix(parentNamesArray);
+			
+			List<XYTextAnnotation> annotations = Lists.newArrayList();
+			Font font = new Font(Font.SERIF, 0, 14);
+			double angle = -0.5*Math.PI;
+			TextAnchor rotAnchor = TextAnchor.CENTER_RIGHT;
+			TextAnchor textAnchor = TextAnchor.CENTER_RIGHT;
+			
 			int actualCount = 0;
 			for (int i=0; i<namedFaults.size(); i++) {
 				Integer parentID = namedFaults.get(i);
@@ -806,8 +829,35 @@ public class PaleoFitPlotter {
 				// add separators
 				FaultTrace firstTrace = sectionsForParent.get(0).getFaultTrace();
 				FaultTrace lastTrace = sectionsForParent.get(sectionsForParent.size()-1).getFaultTrace();
-				allSepLocs.add(firstTrace.get(0));
-				allSepLocs.add(lastTrace.get(lastTrace.size()-1));
+				Location startLoc = firstTrace.first();
+				Location endLoc = lastTrace.last();
+				allSepLocs.add(startLoc);
+				allSepLocs.add(endLoc);
+				
+				// add text annotation
+				String annotationName = parentName;
+				if (!commonPrefix.isEmpty())
+					annotationName = annotationName.substring(commonPrefix.length());
+				annotationName = annotationName.replaceAll("San Andreas", "");
+				annotationName = annotationName.replaceAll("Elsinore", "");
+				annotationName = annotationName.replaceAll("\\(", "").replaceAll("\\)", "");
+				annotationName = annotationName.replaceAll("2011 CFM", "");
+				annotationName = annotationName.replaceAll(" rev", "");
+				annotationName = annotationName.trim();
+				double midPt;
+				if (latitudeX)
+					midPt = 0.5*(startLoc.getLatitude() + endLoc.getLatitude());
+				else
+					midPt = 0.5*(startLoc.getLongitude() + endLoc.getLongitude());
+				// note - Y location will get reset in the plotting code
+				if (!annotationName.isEmpty()) {
+					XYTextAnnotation a = new XYTextAnnotation(annotationName+" ", midPt, 0d);
+					a.setFont(font);
+					a.setRotationAnchor(rotAnchor);
+					a.setTextAnchor(textAnchor);
+					a.setRotationAngle(angle);
+					annotations.add(a);
+				}
 				
 				double[][] xvals = new double[sectionsForParent.size()][];
 				for (int s=0; s<xvals.length; s++) {
@@ -986,64 +1036,51 @@ public class PaleoFitPlotter {
 			String slipYAxisLabel = "Slip Rate (mm/yr)";
 			String aveSlipYAxisLabel = "Ave Slip In Events (m)";
 			
-			ArrayList<DiscretizedFunc> paleoOnlyFuncs = Lists.newArrayList();
+			ArrayList<PlotElement> paleoOnlyFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> paleoOnlyChars = Lists.newArrayList();
 			paleoOnlyFuncs.addAll(rateFuncs);
 			paleoOnlyChars.addAll(rateChars);
 			
-			ArrayList<DiscretizedFunc> slipOnlyFuncs = Lists.newArrayList();
+			ArrayList<PlotElement> slipOnlyFuncs = Lists.newArrayList();
 			ArrayList<PlotCurveCharacterstics> slipOnlyChars = Lists.newArrayList();
 			slipOnlyFuncs.addAll(slipFuncs);
 			slipOnlyChars.addAll(slipChars);
 			
+			PlotMultiDataLayer paleoSeps = new PlotMultiDataLayer();
+			paleoSeps.setInfo("(separators)");
+			PlotMultiDataLayer slipSeps = new PlotMultiDataLayer();
+			slipSeps.setInfo("(separators)");
+			PlotMultiDataLayer aveSeps = new PlotMultiDataLayer();
+			aveSeps.setInfo("(separators)");
+			
 			for (Location sepLoc : allSepLocs) {
-				ArbitrarilyDiscretizedFunc paleoFunc = new ArbitrarilyDiscretizedFunc();
-				ArbitrarilyDiscretizedFunc slipFunc = new ArbitrarilyDiscretizedFunc();
-				ArbitrarilyDiscretizedFunc aveSlipFunc = new ArbitrarilyDiscretizedFunc();
-				paleoFunc.setName("(separator)");
-				slipFunc.setName("(separator)");
-				aveSlipFunc.setName("(separator)");
 				double x;
 				if (latitudeX)
 					x = sepLoc.getLatitude();
 				else
 					x = sepLoc.getLongitude();
-				paleoFunc.set(x, 1e1);
-				paleoFunc.set(x+0.0001, 1e-10);
-				slipFunc.set(x, 5e3);
-				slipFunc.set(x+0.0001, 1e-10);
-				aveSlipFunc.set(x, 0);
-				aveSlipFunc.set(x+0.0001, 50);
-				paleoOnlyFuncs.add(paleoFunc);
-				paleoOnlyChars.add(sepChar);
-				slipOnlyFuncs.add(slipFunc);
-				slipOnlyChars.add(sepChar);
-				aveSlipFuncs.add(aveSlipFunc);
-				aveSlipChars.add(sepChar);
+				paleoSeps.addVerticalLine(x, 1e-10, 1e1);
+				slipSeps.addVerticalLine(x, 1e-10, 5e3);
+				aveSeps.addVerticalLine(x, 0, 50);
 			}
+			
+			paleoOnlyFuncs.add(paleoSeps);
+			slipOnlyChars.add(sepChar);
+			slipOnlyFuncs.add(slipSeps);
+			paleoOnlyChars.add(sepChar);
+			aveSlipFuncs.add(aveSeps);
+			aveSlipChars.add(sepChar);
 			
 			PlotSpec paleoOnlySpec = new PlotSpec(
 					paleoOnlyFuncs, paleoOnlyChars, paleoTitle, xAxisLabel, paleoYAxisLabel);
+			paleoOnlySpec.setPlotAnnotations(annotations);
 			PlotSpec slipOnlySpec = new PlotSpec(
 					slipOnlyFuncs, slipOnlyChars, slipTitle, xAxisLabel, slipYAxisLabel);
+			slipOnlySpec.setPlotAnnotations(annotations);
 			PlotSpec aveSlipSpec = new PlotSpec(
 					aveSlipFuncs, aveSlipChars, aveSlipTitle, xAxisLabel, aveSlipYAxisLabel);
-			ArrayList<DiscretizedFunc> combinedFuncs = Lists.newArrayList(paleoOnlyFuncs);
-			for (DiscretizedFunc func : slipFuncs) {
-				ArbitrarilyDiscretizedFunc scaledFunc = new ArbitrarilyDiscretizedFunc(
-						func.getName()+" (normalized to max slip)");
-				for (int i=0; i<func.getNum(); i++) {
-					Point2D pt = func.get(i);
-					if (pt.getY() > 0)
-						scaledFunc.set(pt.getX(), pt.getY() / maxSlip);
-				}
-				combinedFuncs.add(scaledFunc);
-			}
-			ArrayList<PlotCurveCharacterstics> combinedChars = Lists.newArrayList(paleoOnlyChars);
-			combinedChars.addAll(slipChars);
-			PlotSpec combinedSpec = new PlotSpec(
-					combinedFuncs, combinedChars, paleoTitle, xAxisLabel, paleoYAxisLabel);
-			PlotSpec[] specArray = { paleoOnlySpec, slipOnlySpec, combinedSpec, aveSlipSpec };
+			aveSlipSpec.setPlotAnnotations(annotations);
+			PlotSpec[] specArray = { paleoOnlySpec, slipOnlySpec, aveSlipSpec };
 			specs.put(name, specArray);
 		}
 		

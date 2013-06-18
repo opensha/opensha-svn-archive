@@ -27,6 +27,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.math3.stat.StatUtils;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
 import org.opensha.commons.calc.FaultMomentCalc;
@@ -42,6 +44,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -1549,7 +1552,7 @@ public class CommandLineInversionRunner {
 			Map<String, PlotSpec[]> specs, String prefix, File dir)
 					throws IOException {
 		
-		String[] fname_adds = { "paleo_rate", "slip_rate", "combined", "ave_event_slip" };
+		String[] fname_adds = { "paleo_rate", "slip_rate", "ave_event_slip" };
 		
 		if (!dir.exists())
 			dir.mkdir();
@@ -1583,7 +1586,7 @@ public class CommandLineInversionRunner {
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				setFontSizes(gp);
 				gp.setBackgroundColor(Color.WHITE);
-				if (i != 3)
+				if (i != 2)
 					gp.setYLog(true);
 				if (xMax > 0)
 					// only when latitudeX, this is a kludgy way of detecting this for CA
@@ -1644,8 +1647,26 @@ public class CommandLineInversionRunner {
 //					gp.setUserBounds(xMin, xMax, 1e-5, 1e0);
 				gp.setUserBounds(xMin, xMax, yMin, yMax);
 				
-				gp.drawGraphPanel(spec.getXAxisLabel(), spec.getYAxisLabel(),
-						spec.getPlotElems(), spec.getChars(), spec.getTitle());
+				// set y for text annotations
+				if (spec.getPlotAnnotations() != null) {
+					List<XYAnnotation> newAnnotations = Lists.newArrayList();
+					for (XYAnnotation a : spec.getPlotAnnotations()) {
+						if (a instanceof XYTextAnnotation) {
+							try {
+								XYTextAnnotation t = (XYTextAnnotation)((XYTextAnnotation)a).clone();
+								t.setY(yMax);
+								newAnnotations.add(t);
+							} catch (CloneNotSupportedException e) {
+								ExceptionUtils.throwAsRuntimeException(e);
+							}
+						} else {
+							newAnnotations.add(a);
+						}
+						spec.setPlotAnnotations(newAnnotations);
+					}
+				}
+				
+				gp.drawGraphPanel(spec);
 				
 				File file = new File(dir, fname+"_"+fname_add);
 				gp.getCartPanel().setSize(1000, 500);
@@ -1663,6 +1684,7 @@ public class CommandLineInversionRunner {
 			// now make combined plot
 			PlotSpec slipSpec = specArray[1];
 			PlotSpec paleoSpec = specArray[0];
+			paleoSpec.setPlotAnnotations(null);
 			List<PlotSpec> combinedSpecs = Lists.newArrayList(slipSpec, paleoSpec);
 			List<Range> xRanges = Lists.newArrayList(xRange);
 			List<Range> yRanges = Lists.newArrayList(slipYRange, paleoYRange);
@@ -1680,21 +1702,6 @@ public class CommandLineInversionRunner {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
-			
-//			// TODO kludgy way to combine two plots until we add subplot support to GraphPanel
-//			BufferedImage slipImage = ImageIO.read(slipPNGFile);
-//			BufferedImage paleoImage = ImageIO.read(paleoPNGFile);
-//			Preconditions.checkState(slipImage.getWidth() == paleoImage.getWidth());
-//			int totHeight = slipImage.getHeight() + paleoImage.getHeight();
-//			BufferedImage combined = new BufferedImage(slipImage.getWidth(), totHeight,
-//					BufferedImage.TYPE_INT_ARGB);
-//			// paint both images, preserving the alpha channels
-//			Graphics g = combined.getGraphics();
-//			g.drawImage(slipImage, 0, 0, null);
-//			g.drawImage(paleoImage, 0, slipImage.getHeight(), null);
-//
-//			// Save as new image
-//			ImageIO.write(combined, "PNG", new File(dir, fname+"_combined.png"));
 		}
 	}
 	

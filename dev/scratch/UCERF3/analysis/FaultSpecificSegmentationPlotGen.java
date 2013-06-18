@@ -487,12 +487,15 @@ public class FaultSpecificSegmentationPlotGen {
 		
 		File writeDir = new File("/tmp/branch_avg");
 		
-		CommandLineInversionRunner.writeSAFSegPlots(sol, writeDir, "branch_avg");
+		CommandLineInversionRunner.writeSAFSegPlots(sol, writeDir, "ucerf3");
+		
+		InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		CommandLineInversionRunner.writeSAFSegPlots(ucerf2Sol, writeDir, "ucerf2");
 		
 		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
 				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 0, false);
 		
-		String prefix = "branch_avg_hayward_seg";
+		String prefix = "ucerf3_hayward_seg";
 
 		File file = new File(writeDir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -503,7 +506,7 @@ public class FaultSpecificSegmentationPlotGen {
 		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
 				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7, false);
 		
-		prefix = "branch_avg_hayward_seg7.0+";
+		prefix = "ucerf3_hayward_seg7.0+";
 
 		file = new File(writeDir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -514,7 +517,7 @@ public class FaultSpecificSegmentationPlotGen {
 		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
 				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7.5, false);
 		
-		prefix = "branch_avg_hayward_seg7.5+";
+		prefix = "ucerf3_hayward_seg7.5+";
 
 		file = new File(writeDir, prefix);
 		gp.getCartPanel().setSize(1000, 800);
@@ -523,8 +526,6 @@ public class FaultSpecificSegmentationPlotGen {
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
 		// now UCERF2
-		
-		InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		
 		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
 				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 0, false);

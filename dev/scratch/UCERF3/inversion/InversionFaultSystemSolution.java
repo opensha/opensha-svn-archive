@@ -79,8 +79,6 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	private Map<String, Double> energies;
 	private Map<String, Double> misfits;
 	
-	private GridSourceProvider gridSourceProvider;
-	
 	/**
 	 * Can be used on the fly for when InversionConfiguration/energies are not available/relevant
 	 * 
@@ -806,17 +804,16 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
  	}
 	
 	/**
-	 * Returns GridSourceProvider
+	 * Returns GridSourceProvider - creates on demand if necessary
 	 * @return
 	 */
 	public GridSourceProvider getGridSourceProvider() {
-		if (gridSourceProvider == null)
+		GridSourceProvider gridSourceProvider = super.getGridSourceProvider();
+		if (gridSourceProvider == null) {
 			gridSourceProvider = new UCERF3_GridSourceGenerator(this);
+			super.setGridSourceProvider(gridSourceProvider);
+		}
 		return gridSourceProvider;
-	}
-	
-	public void setGridSourceProvider(GridSourceProvider gridSourceProvider) {
-		this.gridSourceProvider = gridSourceProvider;
 	}
 	
 	private HashMap<Integer, ArbDiscrEmpiricalDistFunc> slipPDFMap =

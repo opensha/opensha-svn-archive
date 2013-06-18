@@ -25,7 +25,8 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 
 	private GridSourceProvider gridSources;
-	private String name = "UCERF3 Poisson ERF";
+	public static final String NAME = "UCERF3 Poisson ERF";
+	private String name = NAME;
 	
 	/**
 	 * No-arg constructor. This sets ERF to include background sources and
@@ -49,7 +50,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	 * Constructs a new ERF using an {@code FaultSystemSolution}.
 	 * @param faultSysSolution
 	 */
-	public UCERF3_FaultSysSol_ERF(InversionFaultSystemSolution faultSysSolution) {
+	public UCERF3_FaultSysSol_ERF(FaultSystemSolution faultSysSolution) {
 		super(faultSysSolution);
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
 	}
@@ -62,9 +63,10 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 
 	@Override
 	protected void setSolution(FaultSystemSolution sol) {
-		// ensure it's an IFSS
-		Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
-				"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
+		// no longer needed, GridSourceProvider promoted to FaultSystemSolution
+//		// ensure it's an IFSS
+//		Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
+//				"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
 		super.setSolution(sol);
 	}
 
@@ -72,13 +74,11 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	protected void initOtherSources() {
 			System.out.println("Initing other sources...");
 			
-			
-			// guarenteed to already be an IFSS as we checked earlier
-			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)getSolution();
+			FaultSystemSolution sol = getSolution();
 
 			// fetch grid sources from solution. By default this will be a UC3_GridSourceGenerator
 			// unless the grid sources have been cached or averaged (for a mean solution).
-			gridSources = invSol.getGridSourceProvider();
+			gridSources = sol.getGridSourceProvider();
 			
 			if (bgRupType.equals(BackgroundRupType.POINT)) {
 				// default is false; gridGen will create point sources for those

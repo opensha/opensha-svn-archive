@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -160,7 +161,7 @@ extends ProbEqkSource {
 	 * @param rake - average rake of the ruptures
 	 * @param duration - the duration in years
 	 */
-	public FaultRuptureSource(IncrementalMagFreqDist magDist, RuptureSurface  ruptureSurface,
+	public FaultRuptureSource(DiscretizedFunc magDist, RuptureSurface  ruptureSurface,
 			double rake, double duration) {
 
 		this.isPoissonian = true;

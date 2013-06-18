@@ -178,6 +178,11 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	public Element toXMLMetadata(Element root) {
 		throw new RuntimeException("not supported");
 	}
+
+	@Override
+	public Element toXMLMetadata(Element root, String elName) {
+		throw new RuntimeException("not supported");
+	}
 	
 	/**
 	 * Standard java function, usually used for debugging, prints out

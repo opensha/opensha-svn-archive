@@ -50,7 +50,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
  */
 public class InversionInputGenerator {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	/**
 	 * this enables use of the getQuick and setQuick methods on the sparse matrices.
 	 * this comes with a performance boost, but disables range checks and is more prone

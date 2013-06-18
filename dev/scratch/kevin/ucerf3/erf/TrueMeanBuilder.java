@@ -1,5 +1,6 @@
-package scratch.kevin.ucerf3.inversion;
+package scratch.kevin.ucerf3.erf;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,6 +13,8 @@ import java.util.zip.ZipException;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -25,6 +28,7 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -36,31 +40,49 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
+/**
+ * This class builds a "true mean" solution from the full UCERF3 logic tree.
+ * 
+ * <br>First all subsections are combined between the two fault models to avoid
+ * overlap. Then each logic tree branch is loaded and ruptures that are identical
+ * on all counts that affect hazard (surface, mag, rake) are combined into a single
+ * rupture. Most subsections are identical in area across all branches and these are
+ * also combined except for cases with varying aseismicity among branches.
+ * 
+ * <br>This all results in a FaultSystemSolution which contains the minimum set of
+ * ruptures to exactly describe the full logic tree branch (gridded seismicity is
+ * averaged). Hazard calculations with this solution, including averaged gridded
+ * seismicity nail full logic tree hazard calculations almost exactly (likely just
+ * rounding/averaging/precision errors causing the tiny discrepancies).
+ * @author kevin
+ *
+ */
 public class TrueMeanBuilder {
 	
 	/**
-	 * Class that describes a unique rupture
+	 * Class that describes a unique rupture, used for combining. Mag's are stored
+	 * in an MFD
 	 * @author kevin
 	 *
 	 */
 	private static class UniqueRupture {
 		// part of unique checks
 		private int id;
-		private double mag;
 		private double rake;
 		private double area;
 		
 		// not part of unique checks
-		private double rate = 0;
+		private DiscretizedFunc rupMFD;
 		private List<UniqueSection> sects;
 		private int cnt = 0;
 		
-		public UniqueRupture(int id, double mag, double rake, double area) {
+		public UniqueRupture(int id, double rake, double area) {
 			super();
 			this.id = id;
-			this.mag = mag;
 			this.rake = rake;
 			this.area = area;
+			
+			rupMFD = new ArbitrarilyDiscretizedFunc();
 		}
 
 		@Override
@@ -68,12 +90,10 @@ public class TrueMeanBuilder {
 			final int prime = 31;
 			int result = 1;
 			long temp;
-			temp = Double.doubleToLongBits(area);
+			temp = Float.floatToIntBits((float)area);
 			result = prime * result + (int) (temp ^ (temp >>> 32));
 			result = prime * result + id;
-			temp = Double.doubleToLongBits(mag);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(rake);
+			temp = Float.floatToIntBits((float)rake);
 			result = prime * result + (int) (temp ^ (temp >>> 32));
 			return result;
 		}
@@ -87,21 +107,23 @@ public class TrueMeanBuilder {
 			if (getClass() != obj.getClass())
 				return false;
 			UniqueRupture other = (UniqueRupture) obj;
-			if (Double.doubleToLongBits(area) != Double
-					.doubleToLongBits(other.area))
+			if (Float.floatToIntBits((float)area) != Float.floatToIntBits((float)other.area))
 				return false;
 			if (id != other.id)
 				return false;
-			if (Double.doubleToLongBits(mag) != Double
-					.doubleToLongBits(other.mag))
-				return false;
-			if (Double.doubleToLongBits(rake) != Double
-					.doubleToLongBits(other.rake))
+			if (Float.floatToIntBits((float)rake) != Float.floatToIntBits((float)other.rake))
 				return false;
 			return true;
 		}
 	}
 	
+	/**
+	 * Class that describes a unique subsection as described by its id, dip,
+	 * and upper/lower depths.
+	 * 
+	 * @author kevin
+	 *
+	 */
 	private static class UniqueSection {
 		// part of unique checks
 		private int id;
@@ -126,11 +148,11 @@ public class TrueMeanBuilder {
 			final int prime = 31;
 			int result = 1;
 			long temp;
-			temp = Double.doubleToLongBits(aveDip);
+			temp = Float.floatToIntBits((float)aveDip);
 			result = prime * result + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(aveLowerDepth);
+			temp = Float.floatToIntBits((float)aveLowerDepth);
 			result = prime * result + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(aveUpperDepth);
+			temp = Float.floatToIntBits((float)aveUpperDepth);
 			result = prime * result + (int) (temp ^ (temp >>> 32));
 			result = prime * result + id;
 			return result;
@@ -145,14 +167,11 @@ public class TrueMeanBuilder {
 			if (getClass() != obj.getClass())
 				return false;
 			UniqueSection other = (UniqueSection) obj;
-			if (Double.doubleToLongBits(aveDip) != Double
-					.doubleToLongBits(other.aveDip))
+			if (Float.floatToIntBits((float)aveDip) != Float.floatToIntBits((float)other.aveDip))
 				return false;
-			if (Double.doubleToLongBits(aveLowerDepth) != Double
-					.doubleToLongBits(other.aveLowerDepth))
+			if (Float.floatToIntBits((float)aveLowerDepth) != Float.floatToIntBits((float)other.aveLowerDepth))
 				return false;
-			if (Double.doubleToLongBits(aveUpperDepth) != Double
-					.doubleToLongBits(other.aveUpperDepth))
+			if (Float.floatToIntBits((float)aveUpperDepth) != Float.floatToIntBits((float)other.aveUpperDepth))
 				return false;
 			if (id != other.id)
 				return false;
@@ -181,6 +200,8 @@ public class TrueMeanBuilder {
 		// we use area to detect surface changes
 		
 		// first generate global rupture IDs
+		// this combines both Fault Models into a single model. each rupture
+		// and subsection is assigned a new "global ID"
 		System.out.println("Generating global IDs");
 		// rup IDs
 		Map<FaultModels, Map<Integer, Integer>> fmGlobalRupIDsMaps = Maps.newHashMap();
@@ -208,8 +229,10 @@ public class TrueMeanBuilder {
 				for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(r))
 					sectNames.add(sect.getSectionName());
 				Integer globalID = rupSectNamesToGlobalIDMap.get(sectNames);
-				if (globalID == null)
+				if (globalID == null) {
 					globalID = globalRupCount++;
+					rupSectNamesToGlobalIDMap.put(sectNames, globalID);
+				}
 				globalRupIDsMap.put(r, globalID);
 			}
 			System.out.println(fm.getShortName()+": globalRupCount="+globalRupCount);
@@ -222,39 +245,55 @@ public class TrueMeanBuilder {
 			for (int s=0; s<rupSet.getNumSections(); s++) {
 				String sectName = rupSet.getFaultSectionData(s).getSectionName();
 				Integer globalID = sectNamesToGlobalIDMap.get(sectName);
-				if (globalID == null)
+				if (globalID == null) {
 					globalID = globalSectCount++;
+					sectNamesToGlobalIDMap.put(sectName, globalID);
+				}
 				globalSectIDsMap.put(s, globalID);
 			}
 			System.out.println(fm.getShortName()+": globalSectCount="+globalSectCount);
 		}
 		
+		// these store UniqueRupture instances for each new global rup ID
 		List<HashMap<UniqueRupture, UniqueRupture>> uniqueRupturesList = Lists.newArrayList();
 		for (int i=0; i<globalRupCount; i++)
 			uniqueRupturesList.add(new HashMap<UniqueRupture, UniqueRupture>());
 		
+		// same for subsection IDs
 		List<HashMap<UniqueSection, UniqueSection>> uniqueSectionsList = Lists.newArrayList();
 		for (int i=0; i<globalSectCount; i++)
 			uniqueSectionsList.add(new HashMap<UniqueSection, UniqueSection>());
 		
+		// find the total branch weight for the tree
 		double totWeight = 0d;
 		for (LogicTreeBranch branch : branches)
 			totWeight += weightProvider.getWeight(branch);
 		
+		// counts for progress tracking
 		int branchCnt = 0;
 		int uniqueRupCount = 0;
 		int origNumRups = 0;
 		int uniqueSectCount = 0;
 		int origNumSects = 0;
+		int rupSetCount = 0;
+		int lastChangedBranch = 0;
+		
+		// used for sanity checks
+		double origTotalRate = 0;
+		double mfdMin = 5d;
+		double mfdDelta = 0.01;
+		int mfdNum = 500;
+		IncrementalMagFreqDist origAvgMFD = new IncrementalMagFreqDist(mfdMin, mfdNum, mfdDelta);
+		origAvgMFD.setTolerance(mfdDelta);
 		
 		for (LogicTreeBranch branch : branches) {
 			FaultModels fm = branch.getValue(FaultModels.class);
+			// mapping from FM IDs to global IDs
 			Map<Integer, Integer> globalRupIDsMap = fmGlobalRupIDsMaps.get(fm);
 			Map<Integer, Integer> globalSectIDsMap = fmGlobalSectIDsMaps.get(fm);
 
-			if (branch.getValue(fm.getClass()) != fm)
-				continue;
-
+			// loading things this way is more efficient than loading the whole solution in
+			// we only do that if needed.
 			double[] mags = cfss.getMags(branch);
 			double[] rates = cfss.getRates(branch);
 			double[] areas = cfss.loadDoubleArray(branch, "rup_areas.bin");
@@ -266,27 +305,44 @@ public class TrueMeanBuilder {
 			double scaledWt = weightProvider.getWeight(branch) / totWeight;
 
 			List<FaultSectionPrefData> fsd = null;
+			InversionFaultSystemRupSet rupSet = null;
 			
 			boolean print = false;
 			for (int r=0; r<mags.length; r++) {
-				// TODO deal with isRuptureBelowSectMinMag!
-				
 				int globalRupID = globalRupIDsMap.get(r);
 				HashMap<UniqueRupture, UniqueRupture> rupRates = uniqueRupturesList.get(globalRupID);
 
-				UniqueRupture rup = new UniqueRupture(globalRupID, mags[r], rakes[r], areas[r]);
+				UniqueRupture rup = new UniqueRupture(globalRupID, rakes[r], areas[r]);
 				double scaledRate = rates[r] * scaledWt;
 				
+				// see if we already have a matching rupture
 				UniqueRupture matchedRup = rupRates.get(rup);
 				if (matchedRup == null) {
-					// new rupture
+					// this is a new rupture (either first for this global ID, or has a property
+					// change such as rake/area
+					
+					// see if we're done and it's just belowSectMinMag rups
+					// if we haven't added anything for a ton of branches then assume done
+					int numSinceChanged = branchCnt - lastChangedBranch;
+					if (numSinceChanged > 150 || (numSinceChanged > 10 && uniqueRupCount == 1634466))
+						continue;
 					
 					// set fault section data
 					List<Integer> subSectIndexes = subSectIndexesMap.get(fm).get(r);
-					if (fsd == null)
-						fsd = cfss.getSubSects(branch);
+					if (rupSet == null) {
+						// we need to load the rupSet
+						rupSet = cfss.getSolution(branch).getRupSet();
+						fsd = rupSet.getFaultSectionDataList();
+						rupSetCount++;
+					}
+					// check if it's below sect min mag (and should be skipped)
+					if (rupSet.isRuptureBelowSectMinMag(r))
+						continue;
 					List<UniqueSection> rupSects = Lists.newArrayList();
 					for (int ind : subSectIndexes) {
+						// get UniqueSection instances for each subsection
+						// this will add new UniqueSections to the list if there are upper depth
+						// changes
 						int globalSectID = globalSectIDsMap.get(ind);
 						UniqueSection sect = new UniqueSection(fsd.get(ind), globalSectID);
 						UniqueSection matchedSect = uniqueSectionsList.get(globalSectID).get(sect);
@@ -302,19 +358,31 @@ public class TrueMeanBuilder {
 					if (uniqueRupCount % 100000 == 0)
 						print = true;
 					uniqueRupCount++;
+					lastChangedBranch = branchCnt;
 					rupRates.put(rup, rup);
 					matchedRup = rup;
 				}
 				// add my rate to the matched rate
-				matchedRup.rate += scaledRate;
+				double mag = mags[r];
+				int index = matchedRup.rupMFD.getXIndex(mag);
+				if (index >= 0)
+					matchedRup.rupMFD.set(index, matchedRup.rupMFD.getY(index)+scaledRate);
+				else
+					matchedRup.rupMFD.set(mag, scaledRate);
 				matchedRup.cnt++;
+				
+				// sanity checks
+				origTotalRate += scaledWt*rates[r];
+				origAvgMFD.add(mags[r], rates[r]*scaledWt);
 			}
 			branchCnt++;
 			print = print || branchCnt % 10 == 0;
 			if (print)
 				System.out.println("unique rup count: "+uniqueRupCount
-						+"; unique sect count: "+uniqueSectCount+"; branch count: "+branchCnt);
+						+"; unique sect count: "+uniqueSectCount+"; branch count: "+branchCnt
+						+"; loaded rupSet count: "+rupSetCount);
 		}
+		// metrics
 		double keptPercent = 100d*(double)uniqueRupCount/(double)origNumRups;
 		System.out.println("Ruptures kept: "+uniqueRupCount+"/"+origNumRups+" ("+(float)keptPercent+" %)");
 		
@@ -337,6 +405,7 @@ public class TrueMeanBuilder {
 		// now build the solution
 		
 		// first build FSD list
+		// IDs are not sorted and are somewhat arbitrary
 		int fsdIndex = 0;
 		List<FaultSectionPrefData> faultSectionData = Lists.newArrayList();
 		Map<UniqueSection, Integer> uniqueSectIndexMap = Maps.newHashMap();
@@ -361,6 +430,10 @@ public class TrueMeanBuilder {
 		double[] rakes = new double[uniqueRupCount];
 		double[] rupAreas = new double[uniqueRupCount];
 		double[] rates = new double[uniqueRupCount];
+		DiscretizedFunc[] mfds = new DiscretizedFunc[uniqueRupCount];
+		
+		IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(mfdMin, mfdNum, mfdDelta);
+		newMFD.setTolerance(mfdDelta);
 		
 		int rupIndex = 0;
 		for (Map<UniqueRupture, UniqueRupture> uniqueRups : uniqueRupturesList) {
@@ -368,33 +441,66 @@ public class TrueMeanBuilder {
 				List<Integer> sects = Lists.newArrayList();
 				for (UniqueSection sect : rup.sects)
 					sects.add(uniqueSectIndexMap.get(sect));
-				mags[rupIndex] = rup.mag;
 				rakes[rupIndex] = rup.rake;
 				rupAreas[rupIndex] = rup.area;
-				rates[rupIndex] = rup.rate;
 				sectionForRups.add(sects);
+				
+				DiscretizedFunc mfd = rup.rupMFD;
+				double totRate = 0;
+				double runningMag = 0;
+				for (Point2D pt : mfd) {
+					totRate += pt.getY();
+					runningMag += pt.getX()*pt.getY();
+					newMFD.add(pt.getX(), pt.getY());
+				}
+				rates[rupIndex] = totRate;
+				mags[rupIndex] = runningMag/totRate;
+				mfds[rupIndex] = mfd;
 				
 				rupIndex++;
 			}
 		}
 		
+		double newTotRate = StatUtils.sum(rates);
+		
+		// make sure we didn't screw anything up
+		checkEqual(origTotalRate, newTotRate, "Rates");
+		for (int i=0; i<mfdNum; i++)
+			checkEqual(origAvgMFD.getY(i), newMFD.getY(i), "MFD pt "+i+", mag="+origAvgMFD.getX(i));
+		
+		// now get total rate from MFDs
+		newTotRate = 0;
+		for (DiscretizedFunc mfd : mfds)
+			for (Point2D pt : mfd)
+				newTotRate += pt.getY();
+		
+		// check again
+		checkEqual(origTotalRate, newTotRate, "MFD Rates");
+		
 		String info = "UCERF3 Mean Solution";
 		
+		// assemble rupSet/solution
 		FaultSystemRupSet rupSet = new FaultSystemRupSet(faultSectionData, null, null, null, sectionForRups,
 				mags, rakes, rupAreas, null, info);
-		InversionFaultSystemRupSet invRupSet = new InversionFaultSystemRupSet(
-				rupSet, LogicTreeBranch.getMEAN_UCERF3(FaultModels.FM3_1), null, null, null, null, null);
-		InversionFaultSystemSolution sol = new InversionFaultSystemSolution(invRupSet, rates);
+		FaultSystemSolution sol = new FaultSystemSolution(rupSet, rates);
 		
 		// load in branch averages and build average grid source provider
 		List<File> branchAvgFiles = Lists.newArrayList(new File(invDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"),
 				new File(invDir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
 		sol.setGridSourceProvider(buildAvgGridSources(branchAvgFiles));
+		sol.setRupMagDists(mfds);
 		
 		String outputFileName = compoundFile.getName().replaceAll(".zip", "")+"_TRUE_HAZARD_MEAN_SOL.zip";
 		File outputFile = new File(invDir, outputFileName);
 		FaultSystemIO.writeSol(sol, outputFile);
+	}
+	
+	private static void checkEqual(double origVal, double newVal, String description) {
+		double pDiff = DataUtils.getPercentDiff(newVal, origVal);
+//		System.out.println(description+":\tpDiff="+pDiff+" %\torig="+origVal+"\tnew="+newVal);
+		// check within 0.0001%
+		Preconditions.checkState(pDiff < 0.0001, description+": "+origVal+" != "+newVal+" (pDiff="+pDiff+" %)");
 	}
 	
 	private static GridSourceFileReader buildAvgGridSources(List<File> branchAvgFiles) throws IOException, DocumentException {

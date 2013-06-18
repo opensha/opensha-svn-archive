@@ -162,10 +162,12 @@ Named,java.io.Serializable{
 		return true;
 	}
 
+	@Override
 	public Element toXMLMetadata(Element root) {
 		return toXMLMetadata(root, AbstractDiscretizedFunc.XML_METADATA_NAME);
 	}
 	
+	@Override
 	public Element toXMLMetadata(Element root, String elementName) {
 		Element xml = root.addElement(elementName);
 		

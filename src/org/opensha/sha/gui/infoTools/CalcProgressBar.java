@@ -139,6 +139,10 @@ public class CalcProgressBar extends JDialog {
 		info.setText(StringUtils.isEmpty(s) ? " " : s);
 		info.paintImmediately(info.getBounds());
 	}
+	
+	public void setIndeterminate(boolean indep) {
+		progress.setIndeterminate(indep);
+	}
 
 	/**
 	 * Does nothing. This is an unecessary message as an info message is always

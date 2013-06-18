@@ -71,6 +71,8 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	public void setFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
 		sectionId = faultSectionPrefData.getSectionId();
 		sectionName= faultSectionPrefData.getSectionName();
+		parentSectionId = faultSectionPrefData.getParentSectionId();
+		parentSectionName = faultSectionPrefData.getParentSectionName();
 		shortName= faultSectionPrefData.getShortName();
 		aveLongTermSlipRate= faultSectionPrefData.getOrigAveSlipRate();
 		slipRateStdDev=faultSectionPrefData.getOrigSlipRateStdDev();

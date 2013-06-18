@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -40,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionInputGenerator;
@@ -75,6 +77,13 @@ public class FaultSystemSolution implements Serializable {
 	private double[] rates;
 	// this is separate from the rupSet info string as you can have multiple solutions with one rupSet
 	private String infoString;
+	
+	// grid sources, can be null
+	private GridSourceProvider gridSourceProvider;
+	
+	// MFDs for each rupture (mags from different scaling relationships for example)
+	// usually null.
+	private DiscretizedFunc[] rupMFDs;
 	
 	/**
 	 * Default constructor, validates inputs
@@ -720,6 +729,54 @@ public class FaultSystemSolution implements Serializable {
 		for (int rup=0; rup<rupSet.getNumRuptures(); rup++) 
 			totalSolutionMoment += getRateForRup(rup)*MagUtils.magToMoment(rupSet.getMagForRup(rup));
 		return totalSolutionMoment;
+	}
+	
+	/**
+	 * Returns GridSourceProvider
+	 * @return
+	 */
+	public GridSourceProvider getGridSourceProvider() {
+		return gridSourceProvider;
+	}
+	
+	public void setGridSourceProvider(GridSourceProvider gridSourceProvider) {
+		this.gridSourceProvider = gridSourceProvider;
+	}
+	
+	/**
+	 * Return MFDs for the given rupture if present, otherwise null. DiscretizedFunc
+	 * is returned as they often won't be evenly spaced and sum of y values will
+	 * equal total rate for the rupture.
+	 * @param rupIndex
+	 * @return
+	 */
+	public DiscretizedFunc getRupMagDist(int rupIndex) {
+		if (rupMFDs == null)
+			return null;
+		return rupMFDs[rupIndex];
+	}
+	
+	/**
+	 * Return MFDs for the each rupture if present, otherwise null. DiscretizedFunc
+	 * is returned as they often won't be evenly spaced and sum of y values will
+	 * equal total rate for the rupture.
+	 * @param rupIndex
+	 * @return
+	 */
+	public DiscretizedFunc[] getRupMagDists() {
+		return rupMFDs;
+	}
+	
+	/**
+	 * sets MFDs for the each rupture (or null for no rup specific MFDs). DiscretizedFunc
+	 * is returned as they often won't be evenly spaced and sum of y values should
+	 * equal total rate for the rupture.
+	 * @param rupMFDs rup MFD list or null
+	 * @return
+	 */
+	public void setRupMagDists(DiscretizedFunc[] rupMFDs) {
+		Preconditions.checkArgument(rupMFDs == null || rupMFDs.length == getRupSet().getNumRuptures());
+		this.rupMFDs = rupMFDs;
 	}
 
 }

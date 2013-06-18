@@ -207,7 +207,8 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 		String info = param.getInfo();
 		if (info == null || info.length() == 0 || info.equals(" "))
 			return null;
-		return info;
+		
+		return "<html>"+info.replaceAll("\n", "<br>")+"</html>";
 	}
 
 	/**

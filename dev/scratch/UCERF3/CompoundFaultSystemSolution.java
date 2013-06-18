@@ -178,6 +178,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * inv_rup_set_metadata.xml		ALL
 	 * inv_sol_metadata.xml			ALL
 	 * grid_sources.xml				ALL
+	 * rup_mfds.bin					ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -209,6 +210,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("inv_rup_set_metadata.xml", null);
 		dependencyMap.put("inv_sol_metadata.xml", null);
 		dependencyMap.put("grid_sources.xml", null);
+		dependencyMap.put("rup_mfds.bin", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(

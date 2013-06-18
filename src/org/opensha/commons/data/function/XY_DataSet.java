@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.gui.plot.PlotElement;
@@ -219,5 +220,7 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 
 	public List<Double> xValues();
 	public List<Double> yValues();
+	
+	public Element toXMLMetadata(Element root, String elName);
 	
 }

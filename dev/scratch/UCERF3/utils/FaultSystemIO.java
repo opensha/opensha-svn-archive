@@ -19,6 +19,9 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -44,6 +47,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 public class FaultSystemIO {
 	
 	private static final boolean D = true;
+	private static final boolean DD = D && false;
 	
 	/*	******************************************
 	 * 		FILE READING
@@ -175,10 +179,14 @@ public class FaultSystemIO {
 	 * @throws DocumentException 
 	 */
 	private static FaultSystemRupSet loadRupSetAsApplicable(ZipFile zip, Map<String, String> nameRemappings) throws IOException, DocumentException {
+		if (DD) System.out.println("loadRupSetAsApplicable started");
+		
+		if (DD) System.out.println("loading mags");
 		ZipEntry magEntry = zip.getEntry(getRemappedName("mags.bin", nameRemappings));
 		double[] mags = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(magEntry)), magEntry.getSize());
 		
+		if (DD) System.out.println("loading sect slips");
 		ZipEntry sectSlipsEntry = zip.getEntry(getRemappedName("sect_slips.bin", nameRemappings));
 		double[] sectSlipRates;
 		if (sectSlipsEntry != null)
@@ -188,6 +196,7 @@ public class FaultSystemIO {
 		else
 			sectSlipRates = null;
 
+		if (DD) System.out.println("loading sect slip stds");
 		ZipEntry sectSlipStdDevsEntry = zip.getEntry(getRemappedName("sect_slips_std_dev.bin", nameRemappings));
 		double[] sectSlipRateStdDevs;
 		if (sectSlipStdDevsEntry != null)
@@ -197,6 +206,7 @@ public class FaultSystemIO {
 		else
 			sectSlipRateStdDevs = null;
 		
+		if (DD) System.out.println("loading rakes");
 		ZipEntry rakesEntry = zip.getEntry(getRemappedName("rakes.bin", nameRemappings));
 		double[] rakes = MatrixIO.doubleArrayFromInputStream(
 				new BufferedInputStream(zip.getInputStream(rakesEntry)), rakesEntry.getSize());
@@ -210,6 +220,7 @@ public class FaultSystemIO {
 		else
 			rupAreas = null;
 		
+		if (DD) System.out.println("loading rakes");
 		ZipEntry rupLenghtsEntry = zip.getEntry(getRemappedName("rup_lengths.bin", nameRemappings));
 		double[] rupLengths;
 		if (rupLenghtsEntry != null)
@@ -219,6 +230,7 @@ public class FaultSystemIO {
 		else
 			rupLengths = null;
 
+		if (DD) System.out.println("loading sect areas");
 		ZipEntry sectAreasEntry = zip.getEntry(getRemappedName("sect_areas.bin", nameRemappings));
 		double[] sectAreas;
 		if (sectAreasEntry != null)
@@ -228,6 +240,7 @@ public class FaultSystemIO {
 		else
 			sectAreas = null;
 
+		if (DD) System.out.println("loading rup sections");
 		ZipEntry rupSectionsEntry = zip.getEntry(getRemappedName("rup_sections.bin", nameRemappings));
 		List<List<Integer>> sectionForRups;
 		if (rupSectionsEntry != null)
@@ -236,6 +249,7 @@ public class FaultSystemIO {
 		else
 			sectionForRups = null;
 		
+		if (DD) System.out.println("loading FSD");
 		String fsdRemappedName = getRemappedName("fault_sections.xml", nameRemappings);
 		ZipEntry fsdEntry = zip.getEntry(fsdRemappedName);
 		if (fsdEntry == null && fsdRemappedName.startsWith("FM")) {
@@ -262,6 +276,7 @@ public class FaultSystemIO {
 		// IVFSRS specific. Try to load any IVFSRS specific files. Unfortunately a little messy to allow
 		// for loading in legacy files
 		
+		if (DD) System.out.println("loading inv matadata");
 		ZipEntry invXMLEntry = zip.getEntry(getRemappedName("inv_rup_set_metadata.xml", nameRemappings));
 		LogicTreeBranch branch = null;
 		LaughTestFilter filter = null;
@@ -327,12 +342,14 @@ public class FaultSystemIO {
 			}
 		}
 		
+		if (DD) System.out.println("instantiating FSRS");
 		FaultSystemRupSet rupSet = new FaultSystemRupSet(faultSectionData, sectSlipRates,
 				sectSlipRateStdDevs, sectAreas, sectionForRups, mags, rakes, rupAreas, rupLengths, info);
 		
 		if (branch != null) {
 			// it's an IVFSRS
 			
+			if (DD) System.out.println("loading rup avg slips");
 			ZipEntry rupSlipsEntry = zip.getEntry(getRemappedName("rup_avg_slips.bin", nameRemappings));
 			double[] rupAveSlips;
 			if (rupSlipsEntry != null)
@@ -342,6 +359,7 @@ public class FaultSystemIO {
 			else
 				rupAveSlips = null;
 
+			if (DD) System.out.println("loading close sections");
 			ZipEntry closeSectionsEntry = zip.getEntry(getRemappedName("close_sections.bin", nameRemappings));
 			List<List<Integer>> closeSections;
 			if (closeSectionsEntry != null)
@@ -350,6 +368,7 @@ public class FaultSystemIO {
 			else
 				closeSections = null;
 
+			if (DD) System.out.println("loading cluster rups");
 			ZipEntry clusterRupsEntry = zip.getEntry(getRemappedName("cluster_rups.bin", nameRemappings));
 			List<List<Integer>> clusterRups;
 			if (clusterRupsEntry != null)
@@ -376,6 +395,7 @@ public class FaultSystemIO {
 //			else
 //				rupSectionSlips = null;
 			
+			if (DD) System.out.println("instantiationg IFSRS");
 			return new InversionFaultSystemRupSet(rupSet, branch, filter, rupAveSlips, closeSections, clusterRups, clusterSects);
 		}
 		
@@ -456,15 +476,19 @@ public class FaultSystemIO {
 		// safe to use rupSet info string as we just loaded it from the same zip file
 		String infoString = rupSet.getInfoString();
 		
+		if (DD) System.out.println("loading rates");
 		// now load rates
 		ZipEntry ratesEntry = zip.getEntry(getRemappedName("rates.bin", nameRemappings));
 		double[] rates = MatrixIO.doubleArrayFromInputStream(
 					new BufferedInputStream(zip.getInputStream(ratesEntry)), ratesEntry.getSize());
 		
+		FaultSystemSolution sol;
+		
 		if (rupSet instanceof InversionFaultSystemRupSet) {
 			// it's an IVFSS
 			InversionFaultSystemRupSet invRupSet = (InversionFaultSystemRupSet)rupSet;
 			
+			if (DD) System.out.println("loading inversion metadata");
 			ZipEntry invXMLEntry = zip.getEntry(getRemappedName("inv_sol_metadata.xml", nameRemappings));
 			
 			InversionConfiguration conf = null;
@@ -495,8 +519,6 @@ public class FaultSystemIO {
 				energies = legacySol.getEnergies();
 			}
 			
-			InversionFaultSystemSolution sol;
-			
 			// now see if it's an average fault system solution
 			String ratesPrefix = getRemappedRatesPrefix(nameRemappings);
 			
@@ -510,17 +532,26 @@ public class FaultSystemIO {
 			else
 				// it's a regular IFSS
 				sol = new InversionFaultSystemSolution(invRupSet, rates, conf, energies);
-			
-			// finally look for grid sources
-			ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
-			GridSourceProvider gridSources = null;
-			if (gridSourcesEntry != null) {
-				sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
-			}
-			
-			return sol;
+		} else {
+			sol = new FaultSystemSolution(rupSet, rates);
 		}
-		return new FaultSystemSolution(rupSet, rates);
+		
+		// look for rup MFDs
+		ZipEntry rupMFDsEntry = zip.getEntry(getRemappedName("rup_mfds.bin", nameRemappings));
+		if (rupMFDsEntry != null) {
+			if (DD) System.out.println("loading rup MFDs");
+			DiscretizedFunc[] rupMFDs = MatrixIO.discFuncsFromInputStream(zip.getInputStream(rupMFDsEntry));
+			sol.setRupMagDists(rupMFDs);
+		}
+		
+		// finally look for grid sources
+		ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
+		if (gridSourcesEntry != null) {
+			if (DD) System.out.println("loading grid sources");
+			sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
+		}
+		
+		return sol;
 	}
 	
 	private static List<double[]> loadIndSolRates(String ratesPrefix, ZipFile zip, Map<String, String> nameRemappings) throws IOException {
@@ -810,6 +841,14 @@ public class FaultSystemIO {
 		MatrixIO.doubleArrayToFile(sol.getRateForAllRups(), ratesFile);
 		zipFileNames.add(ratesFile.getName());
 		
+		// write rup MFDs if applicable
+		DiscretizedFunc[] rupMFDs = sol.getRupMagDists();
+		if (rupMFDs != null) {
+			File mfdFile = new File(tempDir, getRemappedName("rup_mfds.bin", nameRemappings));
+			MatrixIO.discFuncsToFile(rupMFDs, mfdFile);
+			zipFileNames.add(mfdFile.getName());
+		}
+		
 		// overwrite info string
 		String info = sol.getInfoString();
 		if (info != null && !info.isEmpty()) {
@@ -822,21 +861,21 @@ public class FaultSystemIO {
 			zipFileNames.add(infoFile.getName());
 		}
 		
+		GridSourceProvider gridSources = sol.getGridSourceProvider();
+		if (gridSources != null) {
+			if (D) System.out.println("Saving grid sources to xml");
+			File gridSourcesFile = new File(tempDir, getRemappedName("grid_sources.xml", nameRemappings));
+			if (!zipFileNames.contains(gridSourcesFile.getName())) {
+				GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
+				zipFileNames.add(gridSourcesFile.getName());
+			}
+		}
+		
 		// InversionFaultSystemSolution specific
 		
 		if (sol instanceof InversionFaultSystemSolution) {
 			if (D) System.out.println("Saving InversionFaultSystemSolution specific data");
 			InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)sol;
-			
-			GridSourceProvider gridSources = invSol.getGridSourceProvider();
-			if (gridSources != null) {
-				if (D) System.out.println("Saving grid sources to xml");
-				File gridSourcesFile = new File(tempDir, getRemappedName("grid_sources.xml", nameRemappings));
-				if (!zipFileNames.contains(gridSourcesFile.getName())) {
-					GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
-					zipFileNames.add(gridSourcesFile.getName());
-				}
-			}
 			
 			// save IFSS metadata
 			if (D) System.out.println("Saving inversion solution metadata xml");

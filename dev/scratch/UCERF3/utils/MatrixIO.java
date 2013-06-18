@@ -1,18 +1,24 @@
 package scratch.UCERF3.utils;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
+
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
@@ -303,6 +309,70 @@ public class MatrixIO {
 		in.close();
 
 		return list;
+	}
+	
+	/**
+	 * This writes the discretized functions to a file. No metadata is preserved.
+	 * 
+	 * @param funcs
+	 * @param file
+	 * @throws IOException 
+	 */
+	public static void discFuncsToFile(DiscretizedFunc[] funcs, File file) throws IOException {
+		List<double[]> arrays = Lists.newArrayList();
+		// pack as xvals, yvals and save as array list
+		for (DiscretizedFunc func : funcs) {
+			int num = func.getNum();
+			double[] xVals = new double[num];
+			double[] yVals = new double[num];
+			for (int i=0; i<num; i++) {
+				Point2D pt = func.get(i);
+				xVals[i] = pt.getX();
+				yVals[i] = pt.getY();
+			}
+			arrays.add(xVals);
+			arrays.add(yVals);
+		}
+		doubleArraysListToFile(arrays, file);
+	}
+	
+	/**
+	 * Reads a file created by {@link MatrixIO.discFuncsToFile} into a DiscretizedFunc array.
+	 * @param file
+	 * @return
+	 * @throws FileNotFoundException 
+	 * @throws IOException
+	 */
+	public static DiscretizedFunc[] discFuncsFromFile(File file) throws FileNotFoundException, IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+
+		long len = file.length();
+		Preconditions.checkState(len > 0, "file is empty!");
+		Preconditions.checkState(len % 4 == 0, "file size isn't evenly divisible by 4, " +
+		"thus not a sequence of double & integer values.");
+
+		return discFuncsFromInputStream(new FileInputStream(file));
+	}
+	
+	/**
+	 * Reads an inputstream created by {@link MatrixIO.discFuncsToFile} into a DiscretizedFunc array.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static DiscretizedFunc[] discFuncsFromInputStream(InputStream is) throws IOException {
+		List<double[]> arrays = doubleArraysListFromInputStream(is);
+		
+		Preconditions.checkState(arrays.size() % 2 == 0, "should be even number of arrays in file");
+		
+		DiscretizedFunc[] funcs = new DiscretizedFunc[arrays.size()/2];
+		for (int i=0; i<arrays.size(); i+=2) {
+			int ind = i/2;
+			funcs[ind] = new LightFixedXFunc(arrays.get(i), arrays.get(i+1));
+		}
+		
+		return funcs;
 	}
 
 	/**
