@@ -155,7 +155,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		upperDepthUseMeanParam = new BooleanParameter("Use Mean Upper Depth", false);
 		upperDepthUseMeanParam.setInfo("If true and upper depth combine tolerance is > 0, mean upper" +
 				"\ndepth will be used, else the shallowest upper depth will be used when averaging." +
-				"\nNote that averaging does not incorporate participation rates, it is a true mean" +
+				"\nNote that averaging does not incorporate participation rates, it is an unweighted mean" +
 				"\nand may not be representative.");
 		upperDepthUseMeanParam.addParameterChangeListener(this);
 		adjustableParams.addParameter(upperDepthUseMeanParam);
@@ -165,7 +165,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		magTolParam.setValue(0d);
 		magTolParam.setInfo("Each rupture has a suite of magnitudes from the different scaling relationships." +
 				"\nThese magnitudes can be averaged (within a tolerance) in order to reduce the total rupture" +
-				"\ncount. Magnitudes are averaged weighted by their rate. Set to '10' to average all mags" +
+				"\ncount. Magnitudes are averaged weighted by their rate. Set to '1' to average all mags" +
 				"\nfor each rupture.");
 		magTolParam.addParameterChangeListener(this);
 		adjustableParams.addParameter(magTolParam);
