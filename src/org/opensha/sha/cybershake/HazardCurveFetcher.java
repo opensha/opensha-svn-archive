@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteData;
@@ -61,15 +62,20 @@ public class HazardCurveFetcher {
 		this.ids = ids;
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFunc>();
-		ArrayList<Integer> siteIDs = new ArrayList<Integer>();
+		// keep track of duplicates - we want the most recent curve (which will be the first in the list
+		// as the accessor sorts by curve date desc
+		HashSet<Integer> siteIDs = new HashSet<Integer>();
 		System.out.println("Start loop...");
 		for (int i=ids.size()-1; i>=0; i--) {
 			int id = ids.get(i);
-			if (siteIDs.contains(id)) {
+			int siteID = curve2db.getSiteIDFromCurveID(id);
+			if (siteIDs.contains(siteID)) {
 				ids.remove(i);
 				continue;
+			} else {
+				siteIDs.add(siteID);
 			}
-			sites.add(site2db.getSiteFromDB(curve2db.getSiteIDFromCurveID(id)));
+			sites.add(site2db.getSiteFromDB(siteID));
 			DiscretizedFunc curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
 		}
