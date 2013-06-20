@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteData;
@@ -35,6 +36,8 @@ import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
+
+import com.google.common.collect.Lists;
 
 public class HazardCurveFetcher {
 	
@@ -65,12 +68,14 @@ public class HazardCurveFetcher {
 		// keep track of duplicates - we want the most recent curve (which will be the first in the list
 		// as the accessor sorts by curve date desc
 		HashSet<Integer> siteIDs = new HashSet<Integer>();
+		List<Integer> duplicateCurveIDs = Lists.newArrayList();
 		System.out.println("Start loop...");
-		for (int i=ids.size()-1; i>=0; i--) {
+		for (int i=0; i<ids.size(); i++) {
 			int id = ids.get(i);
 			int siteID = curve2db.getSiteIDFromCurveID(id);
 			if (siteIDs.contains(siteID)) {
-				ids.remove(i);
+				System.out.println("Removing duplicate for site "+siteID+". Deleting curve ID "+id);
+				duplicateCurveIDs.add(id);
 				continue;
 			} else {
 				siteIDs.add(siteID);
@@ -79,6 +84,9 @@ public class HazardCurveFetcher {
 			DiscretizedFunc curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
 		}
+		for (int id : duplicateCurveIDs)
+			// use indexof because remove(int) will do index not object
+			ids.remove(ids.indexOf(id));
 	}
 	
 	private void initDBConnections(DBAccess db) {
