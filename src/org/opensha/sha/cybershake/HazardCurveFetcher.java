@@ -74,7 +74,7 @@ public class HazardCurveFetcher {
 			int id = ids.get(i);
 			int siteID = curve2db.getSiteIDFromCurveID(id);
 			if (siteIDs.contains(siteID)) {
-				System.out.println("Removing duplicate for site "+siteID+". Deleting curve ID "+id);
+//				System.out.println("Removing duplicate for site "+siteID+". Deleting curve ID "+id);
 				duplicateCurveIDs.add(id);
 				continue;
 			} else {
