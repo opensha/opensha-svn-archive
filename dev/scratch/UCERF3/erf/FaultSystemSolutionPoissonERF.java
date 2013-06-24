@@ -430,7 +430,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		this.faultSysSolution = sol;
 	}
 	
-	protected FaultSystemSolution getSolution() {
+	public FaultSystemSolution getSolution() {
 		return faultSysSolution;
 	}
 

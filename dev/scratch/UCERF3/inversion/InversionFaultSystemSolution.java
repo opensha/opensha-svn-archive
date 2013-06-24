@@ -578,6 +578,16 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		return gp;
 	}
 	
+	/**
+	 * This generates Nucleation MFD plots for the given region. The inversion and overall target MFDs are
+	 * passed in.
+	 * 
+	 * @param totalMFD
+	 * @param targetMFD
+	 * @param region
+	 * @param ucerf2Fetch
+	 * @return
+	 */
 	public PlotSpec getMFDPlots(IncrementalMagFreqDist totalMFD, IncrementalMagFreqDist targetMFD, Region region,
 			UCERF2_MFD_ConstraintFetcher ucerf2Fetch) {
 		

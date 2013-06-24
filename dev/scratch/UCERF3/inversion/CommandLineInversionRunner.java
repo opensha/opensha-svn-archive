@@ -88,6 +88,20 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
+/**
+ * This is the main class for running UCERF3 Inversions. It handes creation of the input matrices,
+ * running the inversion, and generating standard outputs/plots.
+ * <br><br>
+ * All options are specified via command line arguments. First, see Simulated Annealing specific
+ * arguments in the ThreadedSimulatedAnnealing class. Then it requires the working directory and
+ * a branch prefix, which is text based representation of the LogicTreeBranch to be computed
+ * (see LogicTreeBranch.buildFileName()). There are also a number of inversion options that can
+ * be used to override default behaviours, such as equation set weights and starting solutions.
+ * These are all outlined in the InversionOptions enum below. These can be used to test specific
+ * aspects of the model, and were widely used when developing the equation set weights.
+ * @author kevin
+ *
+ */
 public class CommandLineInversionRunner {
 
 	public enum InversionOptions {
@@ -510,12 +524,14 @@ public class CommandLineInversionRunner {
 			// write out results
 			tsa.writeBestSolution(new File(subDir, prefix+".bin"));
 
+			// for lightweight we just write out the .bin file, no solution files
 			if (!lightweight) {
 				System.out.println("Loading RupSet");
 				// load the RupSet back in for plotting and solution file creation
 				InversionFaultSystemRupSet loadedRupSet = FaultSystemIO.loadInvRupSet(rupSetFile);
 				loadedRupSet.setInfoString(info);
 				double[] rupRateSolution = tsa.getBestSolution();
+				// this adds back in the minimum rupture rates (waterlevel) if present
 				rupRateSolution = InversionInputGenerator.adjustSolutionForMinimumRates(
 						rupRateSolution, minimumRuptureRates);
 				InversionFaultSystemSolution sol = new InversionFaultSystemSolution(
@@ -621,6 +637,9 @@ public class CommandLineInversionRunner {
 				
 				if (!noPlots) {
 					// now write out plots
+					
+					// this writes out target and solution moment rates for each parent fault sections
+					// as a CSV file
 					CSVFile<String> moRateCSV = new CSVFile<String>(true);
 					moRateCSV.addLine(Lists.newArrayList("ID", "Name", "Target", "Solution", "Diff"));
 					for (ParentMomentRecord p : parentMoRates)
@@ -629,6 +648,8 @@ public class CommandLineInversionRunner {
 					moRateCSV.writeToFile(new File(subDir, prefix+"_sect_mo_rates.csv"));
 					
 					System.out.println("Writing Plots");
+					
+					// write simulated annealing related plots
 					tsa.writePlots(criteria, new File(subDir, prefix));
 
 					// 1 km jump plot
@@ -638,6 +659,7 @@ public class CommandLineInversionRunner {
 						e.printStackTrace();
 					}
 
+					// combined paleo plots, not really used anymore in favor of paleo fault based plots
 					List<AveSlipConstraint> aveSlipConstraints = null;
 					try {
 						if (config.getPaleoSlipConstraintWt() > 0d)
@@ -649,6 +671,7 @@ public class CommandLineInversionRunner {
 						e.printStackTrace();
 					}
 
+					// SAF segmentation plots
 					try {
 						writeSAFSegPlots(sol, subDir, prefix);
 					} catch (Exception e) {
@@ -728,6 +751,14 @@ public class CommandLineInversionRunner {
 	public static final String PALEO_CORRELATION_DIR_NAME = "paleo_correlation";
 	public static final String PARENT_SECT_MFD_DIR_NAME = "parent_sect_mfds";
 
+	/**
+	 * This writes plots of rupture rate vs the number of 1km (or greater) jumps. 
+	 * @param sol
+	 * @param distsMap
+	 * @param dir
+	 * @param prefix
+	 * @throws IOException
+	 */
 	public static void writeJumpPlots(FaultSystemSolution sol, Map<IDPairing, Double> distsMap, File dir, String prefix) throws IOException {
 		// use UCERF2 here because it doesn't depend on distance along
 		PaleoProbabilityModel paleoProbModel = new UCERF2_PaleoProbabilityModel();
@@ -735,6 +766,16 @@ public class CommandLineInversionRunner {
 		writeJumpPlot(sol, distsMap, dir, prefix, 1d, 0d, paleoProbModel);
 	}
 	
+	/**
+	 * Bin rupture rates into histograms of the number of 1 km or greater jumps
+	 * 
+	 * @param sol
+	 * @param distsMap subsection distances that were calculated earlier
+	 * @param jumpDist jump distance for calculation
+	 * @param minMag minimum magnitude of ruptures to consider
+	 * @param paleoProbModel if non null thn rates will be multiplied by their probability of observance
+	 * @return
+	 */
 	public static EvenlyDiscretizedFunc[] getJumpFuncs(FaultSystemSolution sol,
 			Map<IDPairing, Double> distsMap, double jumpDist, double minMag,
 			PaleoProbabilityModel paleoProbModel) {
@@ -807,6 +848,17 @@ public class CommandLineInversionRunner {
 		writeJumpPlot(dir, prefix, solFuncs, rupSetFuncs, jumpDist, minMag, paleoProb);
 	}
 	
+	/**
+	 * Write the given jump plot to a pdf/png/txt file
+	 * @param dir
+	 * @param prefix
+	 * @param solFuncs
+	 * @param rupSetFuncs
+	 * @param jumpDist
+	 * @param minMag
+	 * @param paleoProb
+	 * @throws IOException
+	 */
 	public static void writeJumpPlot(File dir, String prefix,
 			DiscretizedFunc[] solFuncs, DiscretizedFunc[] rupSetFuncs, double jumpDist, double minMag, boolean paleoProb) throws IOException {
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -864,6 +916,14 @@ public class CommandLineInversionRunner {
 		return new File(dir, getJumpFilePrefix(prefix, minMag, probPaleoVisible)+".png").exists();
 	}
 
+	/**
+	 * Writes Statewide, Northern and Southern CA  Nucleation MFD plots for the given InversionFaultSystemSolution
+	 * @param invSol solution
+	 * @param dir directory in which to write the MFD plots
+	 * @param prefix plot file name prefix
+	 * @return statewide MFDs
+	 * @throws IOException
+	 */
 	public static List<? extends DiscretizedFunc> writeMFDPlots(InversionFaultSystemSolution invSol, File dir, String prefix) throws IOException {
 		UCERF2_MFD_ConstraintFetcher ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher();
 
@@ -930,6 +990,14 @@ public class CommandLineInversionRunner {
 		return new File(dir, prefix+"_paleo_fit.png").exists();
 	}
 
+	/**
+	 * Writes segmentation plots for the San Andreas Fault
+	 * 
+	 * @param sol
+	 * @param dir
+	 * @param prefix
+	 * @throws IOException
+	 */
 	public static void writeSAFSegPlots(InversionFaultSystemSolution sol, File dir, String prefix) throws IOException {
 		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(sol.getRupSet().getFaultModel());
 

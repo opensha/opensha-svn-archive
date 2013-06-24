@@ -25,10 +25,12 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.base.Enums;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
@@ -147,13 +149,15 @@ public class CurveCalcTest {
 		outputDir.mkdir();
 		
 		System.out.println("Instantiating ERF...");
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(calcSol);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(calcSol);
 		erf.getTimeSpan().setDuration(1d);
 		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, true);
-		if (gridded)
+		if (gridded) {
 			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
-		else
+			Preconditions.checkNotNull(calcSol.getGridSourceProvider());
+		} else {
 			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+		}
 		System.out.println("done.");
 
 		System.out.println("Updating forecast...");

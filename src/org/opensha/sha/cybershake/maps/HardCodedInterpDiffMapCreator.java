@@ -304,10 +304,10 @@ public class HardCodedInterpDiffMapCreator {
 			int imTypeID = 21;
 			int velModelID = 1;
 			// the main dataset(s) that we're plotting
-			List<Integer> datasetIDs = Lists.newArrayList(26);
+			List<Integer> datasetIDs = Lists.newArrayList(20);
 			// comparison dataset for ratio maps
-//			List<Integer> compDatasetIDs = Lists.newArrayList(1);
-			List<Integer> compDatasetIDs = null;
+			List<Integer> compDatasetIDs = Lists.newArrayList(19);
+//			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;

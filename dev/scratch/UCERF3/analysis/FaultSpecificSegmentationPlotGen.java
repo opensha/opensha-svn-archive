@@ -89,7 +89,7 @@ public class FaultSpecificSegmentationPlotGen {
 			curSects.add(sect);
 		}
 		
-		// now look for places where the conection point is elsewhere on the parent section (other than the end)
+		// now look for places where the connection point is elsewhere on the parent section (other than the end)
 		for (Integer parentID : subSectsByParent.keySet()) {
 			List<FaultSectionPrefData> subSects = subSectsByParent.get(parentID);
 			int num = subSects.size();
@@ -130,13 +130,16 @@ public class FaultSpecificSegmentationPlotGen {
 			}
 		}
 		
+		// mapping from stopping points to subsection IDs
 		Map<Location, List<Integer>> stoppingPoints = Maps.newHashMap();
 		List<Location> parentSectEnds = Lists.newArrayList();
 		Map<Location, String> parentSectNamesMap = Maps.newHashMap();
 		
+		// stopping point tolerance
 		double toleranceKM = 3;
 		boolean normalize = true;
 		
+		// now we find all the the stopping points (location inbetween two subsections)
 		for (Integer parent : parentSects) {
 			List<FaultSectionPrefData> sects = subSectsByParent.get(parent);
 			

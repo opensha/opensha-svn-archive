@@ -10,8 +10,11 @@ import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 import com.google.common.base.Stopwatch;
 
@@ -78,7 +81,7 @@ public class ERF_Tester {
 		
 		System.out.println("Loading solution...");
 		FaultSystemSolution sol = FaultSystemIO.loadSol(meanSolFile);
-		asdf(sol);
+//		asdf(sol);
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		System.out.println("done.");
 		
@@ -93,9 +96,17 @@ public class ERF_Tester {
 		
 		System.out.println("sources: "+erf.getNumSources());
 		int totRups = 0;
-		for (int i=0; i<erf.getNumSources(); i++)
-			totRups += erf.getNumRuptures(i);
+		long surfPts = 0;
+		for (int i=0; i<erf.getNumSources(); i++) {
+			ProbEqkSource source = erf.getSource(i);
+			totRups += source.getNumRuptures();
+			CompoundGriddedSurface surf = (CompoundGriddedSurface)source.getSourceSurface();
+			for (EvenlyGriddedSurface subSurf : surf.getSurfaceList())
+				surfPts += subSurf.size();
+		}
 		System.out.println("ruptures: "+totRups);
+		System.out.println("surf locs: "+surfPts);
+		System.exit(0);
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		

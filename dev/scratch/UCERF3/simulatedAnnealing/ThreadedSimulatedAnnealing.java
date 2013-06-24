@@ -865,9 +865,20 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		writeRateVsRankPlot(prefix, solutionRates, adjustedRates, initialState);
 	}
 	
+	/**
+	 * Rupture rate vs rank plots.
+	 * 
+	 * @param prefix
+	 * @param ratesNoMin
+	 * @param rates
+	 * @param initialState
+	 * @throws IOException
+	 */
 	public static void writeRateVsRankPlot(File prefix, double[] ratesNoMin, double[] rates, double[] initialState)
 			throws IOException {
+		// rates without waterlevel
 		ratesNoMin = getSorted(ratesNoMin);
+		// rates with waterlevel
 		rates = getSorted(rates);
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, ratesNoMin.length, 1d);
 		int cnt = 0;
@@ -905,6 +916,12 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf", plot_width, plot_height);
 	}
 	
+	/**
+	 * This writes plots of SA energies as a function of time
+	 * @param track
+	 * @param prefix
+	 * @throws IOException
+	 */
 	private void writeProgressPlots(ProgressTrackingCompletionCriteria track, File prefix) throws IOException {
 		ArbitrarilyDiscretizedFunc perturbsVsIters = new ArbitrarilyDiscretizedFunc();
 		
@@ -1063,7 +1080,15 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 				plot_width, plot_height);
 	}
 	
+	/**
+	 * Write various SA related plots
+	 * 
+	 * @param criteria
+	 * @param prefix
+	 * @throws IOException
+	 */
 	public void writePlots(CompletionCriteria criteria, File prefix) throws IOException {
+		// this plots rupture rate vs rank
 		writeRateVsRankPlot(prefix);
 		if (criteria instanceof ProgressTrackingCompletionCriteria)
 			writeProgressPlots((ProgressTrackingCompletionCriteria)criteria, prefix);

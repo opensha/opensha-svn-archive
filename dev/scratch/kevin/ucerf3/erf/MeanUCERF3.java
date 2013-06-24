@@ -63,6 +63,9 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	private static final String RAKE_BASIS_FILE_NAME = "rake_basis.zip";
 	private static final String TRUE_MEAN_FILE_NAME = "mean_ucerf3_sol.zip";
 	
+	public static final String UPPER_DEPTH_TOL_PARAM_NAME = "Sect Upper Depth Averaging Tolerance";
+	public static final double UPPER_DEPTH_TOL_MIN = 0d;
+	public static final double UPPER_DEPTH_TOL_MAX = 100d;
 	private DoubleParameter upperDepthTolParam;
 	private double upperDepthTol;
 	
@@ -74,8 +77,8 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	
 	private StringParameter rakeBasisParam;
 	private String rakeBasisStr;
-	private static final String RAKE_BASIS_NONE = "Do Not Combine";
-	private static final String RAKE_BASIS_MEAN = "Def. Model Mean";
+	public static final String RAKE_BASIS_NONE = "Do Not Combine";
+	public static final String RAKE_BASIS_MEAN = "Def. Model Mean";
 	private Map<HashSet<String>, Double> rakeBasis;
 	
 	private BooleanParameter ignoreCacheParam;
@@ -141,7 +144,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		System.out.println("MeanUCERF3 store dir: "+storeDir);
 		Preconditions.checkState(storeDir.exists(), "Store dir doesn't exist: "+storeDir.getAbsolutePath());
 		
-		upperDepthTolParam = new DoubleParameter("Sect Upper Depth Averaging Tolerance", 0d, 100d);
+		upperDepthTolParam = new DoubleParameter(UPPER_DEPTH_TOL_PARAM_NAME, UPPER_DEPTH_TOL_MIN, UPPER_DEPTH_TOL_MAX);
 		upperDepthTolParam.setValue(0d);
 		upperDepthTolParam.setUnits("km");
 		upperDepthTolParam.setInfo("Some fault sections have different aseismicity values across UCERF3" +
@@ -245,7 +248,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 			return;
 		}
 		
-		File rakeBasisFile = checkDownload(RAKE_BASIS_FILE_NAME);
+		File rakeBasisFile = checkDownload(RAKE_BASIS_FILE_NAME, false);
 		
 		DeformationModels dm = null;
 		for (DeformationModels testDM : DeformationModels.values()) {
@@ -299,16 +302,23 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 			fName += "_rake"+rakeBasisStr;
 		
 		File solFile = new File(storeDir, "cached_"+fName+".zip");
-		if (!ignoreCache && solFile.exists()) {
-			// already cached
-			if (D) System.out.println("already cached: "+solFile.getName());
-			try {
-				FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
-				checkCombineMags(sol);
-				setSolution(sol);
-				return;
-			} catch (Exception e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+		
+		if (!ignoreCache) {
+			if (!solFile.exists()) {
+				// see if we can download it (precomputed)
+				checkDownload(solFile.getName(), true);
+			}
+			if (solFile.exists()) {
+				// already cached or we just downloaded it
+				if (D) System.out.println("already cached: "+solFile.getName());
+				try {
+					FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
+					checkCombineMags(sol);
+					setSolution(sol);
+					return;
+				} catch (Exception e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
 			}
 		}
 		
@@ -316,7 +326,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		if (meanTotalSol == null) {
 			// not loaded yet
 			if (D) System.out.println("loading mean sol");
-			File meanSolFile = checkDownload(TRUE_MEAN_FILE_NAME);
+			File meanSolFile = checkDownload(TRUE_MEAN_FILE_NAME, false);
 			
 			try {
 				setTrueMeanSol(FaultSystemIO.loadSol(meanSolFile));
@@ -365,6 +375,13 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		if (D) System.out.println("fetchSolution done");
 	}
 	
+	public void setMeanParams(double upperDepthTol, boolean upperDepthUseMean, double magTol, String rakeBasisStr) {
+		upperDepthTolParam.setValue(upperDepthTol);
+		upperDepthUseMeanParam.setValue(upperDepthUseMean);
+		magTolParam.setValue(magTol);
+		rakeBasisParam.setValue(rakeBasisStr);
+	}
+	
 	private void checkCombineMags(FaultSystemSolution sol) {
 		if (magTol > 0) {
 			if (D) System.out.println("combining mags");
@@ -380,7 +397,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	 * 
 	 * @param fName
 	 */
-	private File checkDownload(String fName) {
+	private File checkDownload(String fName, boolean ignoreErrors) {
 		File file = new File(storeDir, fName);
 		if (file.exists())
 			return file;
@@ -398,10 +415,15 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 				// not headless
 				progress.setVisible(false);
 				progress.dispose();
-				String message = "Error downloading "+fName+".\nServer down or file moved, try again later.";
-				JOptionPane.showMessageDialog(null, message, "Download Error", JOptionPane.ERROR_MESSAGE);
+				if (!ignoreErrors) {
+					String message = "Error downloading "+fName+".\nServer down or file moved, try again later.";
+					JOptionPane.showMessageDialog(null, message, "Download Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
-			ExceptionUtils.throwAsRuntimeException(e);
+			if (ignoreErrors)
+				return null;
+			else
+				ExceptionUtils.throwAsRuntimeException(e);
 		}
 		System.out.println("DONE.");
 		if (progress != null) {
