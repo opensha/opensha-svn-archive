@@ -126,7 +126,7 @@ public class DeformationModelFetcher {
 		chosenDefModName = deformationModel;
 		this.faultModel = faultModel;
 		if (deformationModel.getDataFileURL(faultModel) != null || deformationModel == DeformationModels.MEAN_UCERF3) {
-			// UCERF3
+			// UCERF3 deformation model
 			URL url = deformationModel.getDataFileURL(faultModel);
 			try {
 				Map<Integer,DeformationSection> model;
@@ -137,21 +137,28 @@ public class DeformationModelFetcher {
 					if (D) System.out.println("Loading def model from: "+url);
 					model = DeformationModelFileParser.load(url);
 				}
+				
+				// this loads in any moment reductions
 				if (D) System.out.println("Applying moment reductions to: "+deformationModel);
 				DeformationModelFileParser.applyMomentReductions(model, MOMENT_REDUCTION_MAX);
+				
+				// load in the parent fault section
 				if (D) System.out.println("Loading fault model: "+faultModel);
 				faultSectPrefDataList = faultModel.fetchFaultSections();
+				
+				// if non null, will use rakes from this model. currently unused, see note below
 				if (D) System.out.println("Combining model with sections...");
 				Map<Integer,DeformationSection> rakesModel = null;
-				
 				// NOW KEEP DM RAKES - based on e-mail 6/7/2012 from Ned entitled "Re: Deformation Model Rakes"
 //				if (faultModel.getFilterBasis() != null) {
 //					// use the rakes from this one
 //					if (D) System.out.println("Using rakes from: "+faultModel.getFilterBasis());
 //					rakesModel = DeformationModelFileParser.load(faultModel.getFilterBasis().getDataFileURL(faultModel));
 //				}
-				
+				// this builds the subsections from the minisections, and applies all moment reductions
 				faultSubSectPrefDataList = loadUCERF3DefModel(faultSectPrefDataList, model, maxSubSectionLength, rakesModel, defaultAseismicityValue);
+				
+				// apply custom geologic tapers
 //				if (deformationModel == DeformationModels.GEOLOGIC)
 				// now applied to all as per e-mail from Tom Parsons 10/9 subject "STATUS Re: Grand Inversion To Do List (URGENT ITEMS)
 				applyCustomGeologicTapers();
@@ -161,6 +168,7 @@ public class DeformationModelFetcher {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		} else {
+			// UCERF2
 			if(deformationModel == DeformationModels.UCERF2_NCAL) {
 				faultSubSectPrefDataList = createNorthCal_UCERF2_SubSections(false, maxSubSectionLength);
 				fileNamePrefix = "nCal_0_82_"+faultSubSectPrefDataList.size();	// now hard coded as no NaN slip rates (the 0), defModID=82, & number of sections
@@ -808,6 +816,18 @@ public class DeformationModelFetcher {
 		return fixed;
 	}
 
+	/**
+	 * This method creates UCERF3 subsections and maps minisection data subsections. All minisection -> subsection
+	 * mappings are done using length based averaging when subsections contain portions of multiple minisections. 
+	 * 
+	 * @param sections
+	 * @param model
+	 * @param maxSubSectionLength
+	 * @param rakesModel
+	 * @param defaultAseismicityValue
+	 * @return
+	 * @throws IOException
+	 */
 	private ArrayList<FaultSectionPrefData> loadUCERF3DefModel(
 			List<FaultSectionPrefData> sections, Map<Integer,DeformationSection> model, double maxSubSectionLength,
 			Map<Integer,DeformationSection> rakesModel, double defaultAseismicityValue)
@@ -820,7 +840,7 @@ public class DeformationModelFetcher {
 
 			if (DD) System.out.println("Working on section "+section.getSectionId()+". "+section.getSectionName());
 
-			// replace the slip rates with the def model rates
+			// this is the corresponding DeformationSection instance from the DM
 			DeformationSection def = model.get(section.getSectionId());
 
 			FaultTrace trace = section.getFaultTrace();
@@ -831,14 +851,14 @@ public class DeformationModelFetcher {
 					System.out.println("\t"+i+":\t"+trace.get(i).getLatitude()+"\t"+trace.get(i).getLongitude());
 			}
 
+			// split it into subsections
 			if (DD) System.out.println("Building sub sections.");
 			ArrayList<FaultSectionPrefData> subSectData = buildSubSections(
 					section, maxSubSectionLength, subSectIndex);
 
-			if (DD) System.out.println("Done with special cases");
-
 			List<Double> slips = def.getSlips();
 			List<Double> rakes;
+			// can use reakes from another model if passed in
 			if (rakesModel == null)
 				rakes = def.getRakes();
 			else
@@ -848,6 +868,8 @@ public class DeformationModelFetcher {
 
 			// now set the subsection rates from the def model
 			for (int s=0; s<subSectData.size(); s++) {
+				// the point of this code is to find out which minisections are contained in this subsection
+				
 				FaultSectionPrefData subSect = subSectData.get(s);
 				FaultTrace subTrace = subSect.getFaultTrace();
 				Preconditions.checkState(subTrace.size()>1, "sub section trace only has one point!!!!");
@@ -914,6 +936,7 @@ public class DeformationModelFetcher {
 				}
 				subLocs.add(subEnd);
 
+				// these are length averaged
 				double avgSlip = getLengthBasedAverage(subLocs, subSlips);
 				double avgRake = getLengthBasedRakeAverage(subLocs, subRakes);
 
@@ -922,6 +945,7 @@ public class DeformationModelFetcher {
 				
 				int parentID = section.getSectionId();
 				
+				// we apply custom moment reductions to parkfield and the creeping section
 				boolean customParkfield = CUSTOM_PARKFIELD_CREEPING_SECTION_MOMENT_REDUCTIONS
 						&& (parentID == 32 || parentID == 658);
 				
@@ -943,10 +967,13 @@ public class DeformationModelFetcher {
 					
 					double aseismicityFactor, couplingCoeff;
 					
+					// we apply moment reductions as aseismic recutions up to the MOMENT_REDUCTION_THRESHOLD
 					if (momentReductionFactor<=MOMENT_REDUCTION_THRESHOLD) {
+						// just aseismicity
 						aseismicityFactor = momentReductionFactor;
 						couplingCoeff = 1.0;
 					} else {
+						// above the threshold, split between aseis and coupling coeff
 						aseismicityFactor = MOMENT_REDUCTION_THRESHOLD;
 						double slipRateReduction = (momentReductionFactor-MOMENT_REDUCTION_THRESHOLD)/(1-aseismicityFactor);
 						couplingCoeff = 1.0 - slipRateReduction;
@@ -957,14 +984,15 @@ public class DeformationModelFetcher {
 //					System.out.println("New Aseis: "+ aseismicityFactor);
 //					System.out.println("New Coupling: "+ couplingCoeff);
 				} else {
+					// if we had an aseismicity value in UCERF2 (non zero), then keep that as recommended by Tim Dawson
+					// via e-mail 3/2/12 (subject: Moment Rate Reductions). Otherwise, set it to the default value.
 					if (subSect.getAseismicSlipFactor() == 0)
 						subSect.setAseismicSlipFactor(defaultAseismicityValue);
 //					else
 //						System.out.println("Keeping default aseis of "+subSect.getAseismicSlipFactor()+" for: "+subSect.getName());
-					// otherwise keep UCERF2 aseismicity value as recommended by Tim Dawson
-					// via e-mail 3/2/12 (subject: Moment Rate Reductions)
 				}
 				
+				// we set the mendocino coupling coefficient to 0.15 west of the triple junction
 				boolean customMendocino = parentID == 13;
 				
 				if (customMendocino) {
@@ -975,6 +1003,7 @@ public class DeformationModelFetcher {
 					subSect.setCouplingCoeff(couplingCoeff);
 				}
 				
+				// custom Brawley and Quien Sabe aseis factors
 				boolean customBrawley = parentID == 170 || parentID == 171;
 				
 				if (customBrawley)

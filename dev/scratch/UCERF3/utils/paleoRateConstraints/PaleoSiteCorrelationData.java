@@ -50,6 +50,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
+/**
+ * This represents correlation data between neighboring paleoseismic sites (loaded from
+ * an excel file). It also contains static methods for loading in data, and creating plots
+ * of the data with comparisons from a fault system solution.
+ * @author kevin
+ *
+ */
 public class PaleoSiteCorrelationData implements Serializable {
 	
 	private String site1Name;

@@ -59,9 +59,9 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	
 	public static final String NAME = "Mean UCERF3";
 	
-	private static final String DOWNLOAD_URL = "http://opensha.usc.edu/ftp/mean_ucerf3/";
-	private static final String RAKE_BASIS_FILE_NAME = "rake_basis.zip";
-	private static final String TRUE_MEAN_FILE_NAME = "mean_ucerf3_sol.zip";
+	static final String DOWNLOAD_URL = "http://opensha.usc.edu/ftp/mean_ucerf3/";
+	static final String RAKE_BASIS_FILE_NAME = "rake_basis.zip";
+	static final String TRUE_MEAN_FILE_NAME = "mean_ucerf3_sol.zip";
 	
 	public static final String UPPER_DEPTH_TOL_PARAM_NAME = "Sect Upper Depth Averaging Tolerance";
 	public static final double UPPER_DEPTH_TOL_MIN = 0d;
@@ -88,7 +88,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	private FaultSystemSolution meanTotalSol;
 	private DiscretizedFunc[] meanTotalMFDs;
 	
-	private static File getStoreDir() {
+	static File getStoreDir() {
 		// first check user prop
 		String path = System.getProperty("uc3.store");
 		if (path != null) {
@@ -380,6 +380,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		upperDepthUseMeanParam.setValue(upperDepthUseMean);
 		magTolParam.setValue(magTol);
 		rakeBasisParam.setValue(rakeBasisStr);
+	}
+	
+	public void setCachingEnabled(boolean enabled) {
+		ignoreCacheParam.setValue(!enabled);
 	}
 	
 	private void checkCombineMags(FaultSystemSolution sol) {

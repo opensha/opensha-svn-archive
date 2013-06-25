@@ -523,6 +523,14 @@ public class DeformationModelFileParser {
 //		wb.write(new FileOutputStream(new File("/tmp/fixed.xls")));
 //	}
 	
+	/**
+	 * This populates the momentReductions field of the DeformationSection objects passed in. It first loads
+	 * the creep data and then sets the moment reductions for each minisection via lookup table using
+	 * the creep rate divided by the slip rate, up to the specified maximum reduction.
+	 * 
+	 * @param model
+	 * @param maxMomentReduction
+	 */
 	public static void applyMomentReductions(Map<Integer, DeformationSection> model, double maxMomentReduction) {
 		// first load the data if needed
 		try {

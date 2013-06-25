@@ -50,9 +50,20 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * This class loads in a set of InversionFaultSystemSolutions from a zip file. It also has
+ * a static method for writing this zip file. The zip files avoid duplicating information
+ * between similar logic tree branches. For example, rupture rakes only vary among fault models
+ * and deformation models, so they would only be included in the zip file once for each FM/DM
+ * combination. See the javadoc for dependencyMap below for specifics of these mappings.
+ * 
+ * There are also special methods for loading in individual components of a solution when you
+ * only need one or two fields and don't want the overhead of loading a fault system solution.
+ * 
+ * @author kevin
+ *
+ */
 public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
-	
-	// TODO add weight support
 	
 	private ZipFile zip;
 	private List<LogicTreeBranch> branches;
@@ -92,8 +103,6 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			FaultSystemSolution sol = FaultSystemIO.loadSolAsApplicable(zip, nameRemappings);
 			Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
 					"Non IVFSS in Compound Sol?");
-			
-			// TODO cache all of the values?
 			
 			return (InversionFaultSystemSolution)sol;
 		} catch (Exception e) {
@@ -256,6 +265,13 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return remappings;
 	}
 	
+	/**
+	 * Filenames are modified according to the branch elements that influence that file.
+	 * This returns the modified filename, for example, rakes.bin could become 'FM3_1_GEOL_rakes.bin'.
+	 * @param name
+	 * @param branch
+	 * @return
+	 */
 	public static String getRemappedName(String name, LogicTreeBranch branch) {
 		String nodeStr = "";
 		List<Class<? extends LogicTreeBranchNode<?>>> dependencies = dependencyMap.get(name);

@@ -336,6 +336,12 @@ public class PaleoFitPlotter {
 		return rate;
 	}
 	
+	/**
+	 * This stores data for each paleo fault for a single solution. It is used to calculate
+	 * data for each logic tree branch in parallel before making a combined plot
+	 * @author kevin
+	 *
+	 */
 	public static class DataForPaleoFaultPlots implements Serializable {
 		
 		private Map<Integer, double[]> origSlipsMap;

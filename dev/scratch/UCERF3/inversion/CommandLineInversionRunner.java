@@ -678,12 +678,14 @@ public class CommandLineInversionRunner {
 						e.printStackTrace();
 					}
 					
+					// write MFD plots for each parent fault section
 					try {
 						writeParentSectionMFDPlots(sol, new File(subDir, PARENT_SECT_MFD_DIR_NAME));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					
+					// these are for correlation between paleoseismic sites
 					try {
 						writePaleoCorrelationPlots(
 								sol, new File(subDir, PALEO_CORRELATION_DIR_NAME), paleoProbabilityModel);
@@ -691,6 +693,7 @@ public class CommandLineInversionRunner {
 						e.printStackTrace();
 					}
 					
+					// Paleo fault based plots
 					try {
 						writePaleoFaultPlots(
 								paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
@@ -1086,6 +1089,12 @@ public class CommandLineInversionRunner {
 		}
 	}
 
+	/**
+	 * Writes incremental and cumulative participation and nucleation MFDs for each parent fault section.
+	 * @param sol
+	 * @param dir
+	 * @throws IOException
+	 */
 	public static void writeParentSectionMFDPlots(FaultSystemSolution sol, File dir) throws IOException {
 		Map<Integer, String> parentSects = Maps.newHashMap();
 		
@@ -1109,6 +1118,7 @@ public class CommandLineInversionRunner {
 			if (!parentSects.containsKey(sect.getParentSectionId()))
 				parentSects.put(sect.getParentSectionId(), sect.getParentSectionName());
 
+		// MFD extents
 		double minMag = 5.05;
 		double maxMag = 9.05;
 		int numMag = (int)((maxMag - minMag) / 0.1d) + 1;
@@ -1126,11 +1136,13 @@ public class CommandLineInversionRunner {
 			List<EvenlyDiscretizedFunc> nuclMFDs = Lists.newArrayList();
 			List<EvenlyDiscretizedFunc> partMFDs = Lists.newArrayList();
 			
+			// get incremental MFDs
 			SummedMagFreqDist nuclMFD = sol.calcNucleationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			nuclMFDs.add(nuclMFD);
 			IncrementalMagFreqDist partMFD = sol.calcParticipationMFD_forParentSect(parentSectionID, minMag, maxMag, numMag);
 			partMFDs.add(partMFD);
 			
+			// make cumulative MFDs with offsets
 			List<EvenlyDiscretizedFunc> nuclCmlMFDs = Lists.newArrayList();
 			nuclCmlMFDs.add(nuclMFD.getCumRateDistWithOffset());
 			List<EvenlyDiscretizedFunc> partCmlMFDs = Lists.newArrayList();
@@ -1138,6 +1150,7 @@ public class CommandLineInversionRunner {
 			partCmlMFDs.add(partCmlMFD);
 			
 			if (isAVG) {
+				// average fault system solution stuff (Std Dev, SDOM, Min/Max)
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
 				double[] sdom_over_means = calcAveSolMFDs(avgSol, true, false, true, partMFDs, parentSectionID, minMag, maxMag, numMag);
 				calcAveSolMFDs(avgSol, false, false, false, nuclMFDs, parentSectionID, minMag, maxMag, numMag);
@@ -1201,6 +1214,7 @@ public class CommandLineInversionRunner {
 				meanCmlParticCSV.addLine(line);
 			}
 			
+			// these are UCERF2 MFDs for comparison
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, false, false);
 			ArrayList<IncrementalMagFreqDist> ucerf2NuclCmlMFDs =
@@ -1210,6 +1224,7 @@ public class CommandLineInversionRunner {
 			ArrayList<IncrementalMagFreqDist> ucerf2PartCmlMFDs =
 					UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(parentSectionID, true, true);
 			
+			// if it's an IFSS, we can add sub seis MFDs
 			List<EvenlyDiscretizedFunc> subSeismoMFDs;
 			List<EvenlyDiscretizedFunc> subSeismoCmlMFDs;
 			List<EvenlyDiscretizedFunc> subPlusSupraSeismoNuclMFDs;
@@ -1263,6 +1278,8 @@ public class CommandLineInversionRunner {
 //					List<EvenlyDiscretizedFunc> ucerf2MFDs,
 //					boolean avgColoring, int id, String name, boolean nucleation) throws IOException {
 
+			// write out all of the plots
+			
 			// nucleation
 			// incremental
 			writeParentSectMFDPlot(nuclIncrSubDir, nuclMFDs, subSeismoMFDs, subPlusSupraSeismoNuclMFDs, ucerf2NuclMFDs,

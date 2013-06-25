@@ -5,9 +5,9 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 public enum MomentRateFixes implements LogicTreeBranchNode<MomentRateFixes> {
 	// TODO set weights for GR
 	APPLY_IMPLIED_CC(		"Apply Implied Coupling Coefficient",		"ApplyCC",			0.0d,	0.5d),
-	RELAX_MFD(				"Relaxed (weak) MFD Constraint Weights",	"RelaxMFD",			0.2d,	0.0d),
+	RELAX_MFD(				"Relaxed (weak) MFD Constraint Weights",	"RelaxMFD",			0.0d,	0.0d),
 	APPLY_CC_AND_RELAX_MFD(	"Apply Implied CC and Relax MFD",			"ApplyCCRelaxMFD",	0.0d,	0.0d),
-	NONE(					"No Moment Rate Fixes",						"NoFix",			0.8d,	0.5d);
+	NONE(					"No Moment Rate Fixes",						"NoFix",			1.0d,	0.5d);
 	
 	private String name, shortName;
 	private double charWeight, grWeight;

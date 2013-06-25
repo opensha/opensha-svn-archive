@@ -1,10 +1,13 @@
 package scratch.kevin.ucerf3.erf;
 
 import java.awt.geom.Point2D;
+import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +29,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -34,6 +38,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
+import com.google.common.primitives.Ints;
 
 /**
  * This class handles the various ways to combine ruptures from a true mean UCERF3 solution
@@ -207,11 +212,11 @@ public class RuptureCombiner {
 		if (D) System.out.println("Precombine we have "+mappedSectionsForRups.size()+" rups");
 		
 		// now combine identical ruptures
-		Table<HashSet<Integer>, Double, List<Integer>> combinedRupsMap = HashBasedTable.create();
+		Table<IntHashSet, Double, List<Integer>> combinedRupsMap = HashBasedTable.create();
 		// TODO optimize this loop, it is the slowest part of the method
 		if (D) System.out.println("Finding identical rups to combine");
 		for (int r=0; r<mappedSectionsForRups.size(); r++) {
-			HashSet<Integer> sectIDs = new HashSet<Integer>(mappedSectionsForRups.get(r));
+			IntHashSet sectIDs = new IntHashSet(mappedSectionsForRups.get(r));
 			Double rake = origRupSet.getAveRakeForRup(r);
 			List<Integer> matches = combinedRupsMap.get(sectIDs, rake);
 			if (matches == null) {
@@ -257,9 +262,9 @@ public class RuptureCombiner {
 		
 		if (combineRakes) {
 			if (D) System.out.println("Combining rakes");
-			Table<HashSet<Integer>, Double, List<Integer>> rakeCombinedRupsMap = HashBasedTable.create();
-			Map<HashSet<Integer>, Map<Double, List<Integer>>> rowMap = combinedRupsMap.rowMap();
-			for (HashSet<Integer> sectIDs : rowMap.keySet()) {
+			Table<IntHashSet, Double, List<Integer>> rakeCombinedRupsMap = HashBasedTable.create();
+			Map<IntHashSet, Map<Double, List<Integer>>> rowMap = combinedRupsMap.rowMap();
+			for (IntHashSet sectIDs : rowMap.keySet()) {
 				Map<Double, List<Integer>> colValMap = rowMap.get(sectIDs);
 				double newRake;
 				if (rakesBasis == null) {
@@ -300,7 +305,7 @@ public class RuptureCombiner {
 		double[] rates = new double[numCombinedRups];
 		DiscretizedFunc[] mfds = new DiscretizedFunc[numCombinedRups];
 		int runningRupIndex = 0;
-		for (Cell<HashSet<Integer>, Double, List<Integer>> cell : combinedRupsMap.cellSet()) {
+		for (Cell<IntHashSet, Double, List<Integer>> cell : combinedRupsMap.cellSet()) {
 			double rake = cell.getColumnKey();
 			List<Integer> combinedRups = cell.getValue();
 			
@@ -371,7 +376,9 @@ public class RuptureCombiner {
 				sects = Lists.newArrayList();
 				for (int id : origSects)
 					sects.add(sectIndexMapping.get(id));
+				sects = MatrixIO.getMemoryEfficientIntArray(sects);
 			}
+			// pass it through an array to use efficient 
 			combinedMappedSectionsForRups.add(sects);
 			
 			runningRupIndex++;
@@ -395,6 +402,108 @@ public class RuptureCombiner {
 		Preconditions.checkState((float)origTotRate == (float)newTotRate, "rates don't match! "+origTotRate+" != "+newTotRate);
 		
 		return sol;
+	}
+	
+	/**
+	 * Memory efficient int hash set
+	 * @author kevin
+	 *
+	 */
+	private static class IntHashSet extends AbstractSet<Integer> {
+		
+		private int[] vals;
+		
+		public IntHashSet(Collection<Integer> vals) {
+			this(Ints.toArray(vals), false);
+		}
+		
+		public IntHashSet(int[] vals, boolean alreadySorted) {
+			if (!alreadySorted)
+				Arrays.sort(vals);
+			
+			// remove duplicates
+			List<Integer> dupIndexes = Lists.newArrayList();
+			for (int i=1; i<vals.length; i++) {
+				if (vals[i] == vals[i-1])
+					dupIndexes.add(i);
+			}
+			if (!dupIndexes.isEmpty()) {
+				int[] newvals = new int[vals.length-dupIndexes.size()];
+				int newIndex = 0;
+				int curDup = dupIndexes.get(0);
+				for (int oldIndex=0; oldIndex<vals.length; oldIndex++) {
+					if (oldIndex == curDup) {
+						// we're at a duplicate
+						dupIndexes.remove(0);
+						if (dupIndexes.isEmpty())
+							curDup = -1;
+						else
+							curDup = dupIndexes.get(0);
+						continue;
+					}
+					newvals[newIndex++] = vals[oldIndex];
+				}
+				Preconditions.checkState(newIndex == newvals.length);
+				Preconditions.checkState(dupIndexes.isEmpty());
+				vals = newvals;
+			}
+			
+			
+			this.vals = vals;
+		}
+
+		@Override
+		public Iterator<Integer> iterator() {
+			return new Iterator<Integer>() {
+				
+				private int index = 0;
+
+				@Override
+				public boolean hasNext() {
+					return index < vals.length;
+				}
+
+				@Override
+				public Integer next() {
+					return vals[index++];
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException("Not supported by this iterator");
+				}
+			};
+		}
+
+		@Override
+		public int size() {
+			return vals.length;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Arrays.hashCode(vals);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			// if both IntHashSets we can do this one
+			if (getClass() == obj.getClass()) {
+				IntHashSet other = (IntHashSet) obj;
+				if (!Arrays.equals(vals, other.vals))
+					return false;
+			} else if (!super.equals(obj)) {
+				return false;
+			}
+			
+			return true;
+		}
+		
 	}
 	
 	private static boolean areAllUpperDepthsWithinTolOfMean(
@@ -569,9 +678,9 @@ public class RuptureCombiner {
 		Preconditions.checkState(rupSet1.getNumSections() == rupSet2.getNumSections(), "Sect count wrong");
 		
 		// create rupture mapping since rups could be in different order
-		Table<HashSet<Integer>, Double, Integer> rupSet2RupsToIndexesMap = HashBasedTable.create();
+		Table<IntHashSet, Double, Integer> rupSet2RupsToIndexesMap = HashBasedTable.create();
 		for (int r=0; r<rupSet2.getNumRuptures(); r++) {
-			HashSet<Integer> rupSects = new HashSet<Integer>(rupSet2.getSectionsIndicesForRup(r));
+			IntHashSet rupSects = new IntHashSet(rupSet2.getSectionsIndicesForRup(r));
 			Double rake = rupSet2.getAveRakeForRup(r);
 			Preconditions.checkState(!rupSet2RupsToIndexesMap.contains(rupSects, rake), "Duplicate rup found in rups2!");
 			rupSet2RupsToIndexesMap.put(rupSects, rake, r);
@@ -580,7 +689,7 @@ public class RuptureCombiner {
 		Map<Integer, Integer> rupIDMapping = Maps.newHashMap();
 		boolean idsIdentical = true;
 		for (int r=0; r<rupSet1.getNumRuptures(); r++) {
-			HashSet<Integer> rupSects = new HashSet<Integer>(rupSet1.getSectionsIndicesForRup(r));
+			IntHashSet rupSects = new IntHashSet(rupSet1.getSectionsIndicesForRup(r));
 			Double rake = rupSet1.getAveRakeForRup(r);
 			Integer index = rupSet2RupsToIndexesMap.get(rupSects, rake);
 			Preconditions.checkNotNull(index, "No mapping for rup "+r+" found in sol2");
@@ -588,6 +697,23 @@ public class RuptureCombiner {
 			idsIdentical = idsIdentical && r == index.intValue();
 			
 			rupIDMapping.put(r, index);
+			
+			// check section ordering identical (or reversed)
+			List<Integer> mySects = rupSet1.getSectionsIndicesForRup(r);
+			List<Integer> otherSects = rupSet2.getSectionsIndicesForRup(index);
+			Preconditions.checkState(mySects.size() == otherSects.size(), "Sect count wrong for rup "+r+"/"+index);
+			if (mySects.get(0).intValue() != otherSects.get(0).intValue()) {
+				// try reversing
+				mySects = Lists.newArrayList(mySects);
+				Collections.reverse(mySects);
+			}
+			boolean sectsEqual = mySects.equals(otherSects);
+			if (!sectsEqual) {
+				Joiner j = Joiner.on(",");
+				throw new IllegalStateException("Sect ordering wrong for rup "+r+"/"+index+
+						"\n\trup 1: "+j.join(mySects)+
+						"\n\trup 2: "+j.join(otherSects));
+			}
 			
 			// check rate equal
 			checkFloatTolerance(sol1.getRateForRup(r), sol2.getRateForRup(index), "Rates wrong for rup "+r+"/"+index);

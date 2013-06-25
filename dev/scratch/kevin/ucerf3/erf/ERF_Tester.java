@@ -33,9 +33,9 @@ public class ERF_Tester {
 	private static void asdf(FaultSystemSolution sol) throws ZipException, IOException {
 		FaultSystemRupSet rupSet = sol.getRupSet();
 //		double upperDepthTol = 1000d;
-		double upperDepthTol = 1d;
-		boolean combineRakes = true;
-		double combineMags = 0.01d;
+		double upperDepthTol = 0d;
+		boolean combineRakes = false;
+		double combineMags = 0d;
 //		Map<HashSet<String>, Double> rakeBasis = RuptureCombiner.loadRakeBasis(DeformationModels.GEOLOGIC);
 		Map<HashSet<String>, Double> rakeBasis = null;
 		if (combineRakes) {
@@ -56,7 +56,7 @@ public class ERF_Tester {
 				+reducedRupSet.getNumSections()+"/"+rupSet.getNumSections()+" sects");
 		
 		// make sure identical
-//		RuptureCombiner.checkIdentical(sol, reducedSol, true);
+		RuptureCombiner.checkIdentical(sol, reducedSol, true);
 		System.exit(0);
 	}
 	
@@ -81,7 +81,7 @@ public class ERF_Tester {
 		
 		System.out.println("Loading solution...");
 		FaultSystemSolution sol = FaultSystemIO.loadSol(meanSolFile);
-//		asdf(sol);
+		asdf(sol);
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		System.out.println("done.");
 		

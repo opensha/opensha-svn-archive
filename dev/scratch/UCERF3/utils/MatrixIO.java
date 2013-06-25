@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.opensha.commons.data.function.LightFixedXFunc;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 
 import cern.colt.list.tdouble.DoubleArrayList;
 import cern.colt.list.tint.IntArrayList;
@@ -443,16 +445,75 @@ public class MatrixIO {
 		for (int i=0; i<size; i++) {
 			int listSize = in.readInt();
 
-			ArrayList<Integer> ints = new ArrayList<Integer>(listSize);
-			for (int j=0; j<listSize; j++)
-				ints.add(in.readInt());
+			// use shorts if possible
+			int[] intArray = new int[listSize];
+			short[] shortArray = new short[listSize];
+			boolean shortSafe = true;
+			for (int j=0; j<listSize; j++) {
+				int val = in.readInt();
+				shortSafe = shortSafe && val < Short.MAX_VALUE;
+				intArray[j] = val;
+				shortArray[j] = (short)val;
+			}
 
-			list.add(ints);
+			if (shortSafe)
+				list.add(new ShortListWrapper(shortArray));
+			else
+				list.add(Ints.asList(intArray));
 		}
 
 		in.close();
 
 		return list;
+	}
+	
+	/**
+	 * Class to use shorts as the backing array for memory savings
+	 * @author kevin
+	 *
+	 */
+	private static class ShortListWrapper extends AbstractList<Integer> {
+		
+		private short[] vals;
+		
+		public ShortListWrapper(short[] vals) {
+			this.vals = vals;
+		}
+
+		@Override
+		public Integer get(int index) {
+			return new Integer(vals[index]);
+		}
+
+		@Override
+		public int size() {
+			return vals.length;
+		}
+		
+	}
+	
+	/**
+	 * Will return a primitive backed array, and will use shorts if possible
+	 * @param otherArray
+	 * @return
+	 */
+	public static List<Integer> getMemoryEfficientIntArray(List<Integer> otherArray) {
+		// use shorts if possible
+		int listSize = otherArray.size();
+		int[] intArray = new int[listSize];
+		short[] shortArray = new short[listSize];
+		boolean shortSafe = true;
+		for (int j=0; j<listSize; j++) {
+			int val = otherArray.size();
+			shortSafe = shortSafe && val < Short.MAX_VALUE;
+			intArray[j] = val;
+			shortArray[j] = (short)val;
+		}
+
+		if (shortSafe)
+			return new ShortListWrapper(shortArray);
+		else
+			return Ints.asList(intArray);
 	}
 
 }

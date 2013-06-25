@@ -133,6 +133,33 @@ import com.google.common.collect.Table;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
+/**
+ * This class contains plotting code which can be run in parallel to show the mean (and often min/max and fractiles)
+ * across multiple logic tree branches. Each plot is a subclass of the CompoundFSSPlots abstract class. Calculations
+ * can be done multithreaded on one machines via the batchPlot method, or in parallel via the
+ * MPJDistributedCompoundFSSPlots class. Here is the order of operations:
+ * 
+ * First load in a CompoundFaultSystemSolution file. Then the following will be called for each plot:
+ * 
+ * // Instantiate InversionFaultSystemSolution instance for branch if not already loaded
+ * if (plot.usesERFs()) {
+ * 	// instantiate ERF if necessary
+ * 	// make sure ERF parameters (gardner knopoff) set correctly
+ * 	
+ * 	// finally process the erf
+ * 	plot.processERF(branch, erf);
+ * } else {
+ *	// process the solution
+ *	plot.processSolution(branch, solution);
+ * }
+ * // if we're running in MPJ, load instances from other nodes and then call
+ * plot.combineDistributedCalcs(otherPlots);
+ * // then finalize it
+ * plot.finalizePlot()
+ * 
+ * @author kevin
+ *
+ */
 public abstract class CompoundFSSPlots implements Serializable {
 
 	/**
@@ -141,7 +168,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static final Color BROWN = new Color(130, 86, 5);
+	
+	/*
+	 * Regional MFD plots
+	 */
 
+	/**
+	 * calculates and writes MFD plots
+	 * @param fetch
+	 * @param weightProvider
+	 * @param regions
+	 * @param dir
+	 * @param prefix
+	 * @throws IOException
+	 */
 	public static void writeRegionalMFDPlots(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, List<Region> regions,
 			File dir, String prefix) throws IOException {
@@ -153,6 +193,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 		writeRegionalMFDPlots(plot.specs, plot.cumulative_specs, regions, dir, prefix);
 	}
 
+	/**
+	 * Writes already computed plots to files
+	 * @param specs
+	 * @param cumulative_specs
+	 * @param regions
+	 * @param dir
+	 * @param prefix
+	 * @throws IOException
+	 */
 	public static void writeRegionalMFDPlots(List<PlotSpec> specs, List<PlotSpec> cumulative_specs,
 			List<Region> regions, File dir, String prefix) throws IOException {
 		
@@ -208,7 +257,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 	}
 
 	/**
-	 * This creates MFD plots for a range of solutions
+	 * This creates MFD plots for a range of solutions/regions. These use InversionFaultSystemSolution instances
+	 * and not the full ERF.
 	 * 
 	 * @author kevin
 	 * 
@@ -281,7 +331,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 				InversionFaultSystemSolution sol, int solIndex) {
 			double wt = weightProvider.getWeight(branch);
 
+			// on fault, off fault, and total MFDs for each region
 			List<IncrementalMagFreqDist> onMFDs = Lists.newArrayList();
+			// off is the total gridded seis MFD (truly off and subseismogenic)
+			// off and total only used for statewide MFDs
 			List<IncrementalMagFreqDist> offMFDs = Lists.newArrayList();
 			List<IncrementalMagFreqDist> totMFDs = Lists.newArrayList();
 
@@ -293,7 +346,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						region, minX, maxX, delta, true);
 				onMFDs.add(onMFD);
 				if (isStatewide(region)) {
-					// we only have off fault for statewide right now
+					// we only have off fault for statewide
 					IncrementalMagFreqDist offMFD = sol.getFinalTotalGriddedSeisMFD();
 //					// TODO REMOVE
 //					offMFD = sol.getRupSet().getInversionTargetMFDs().getTotalGriddedSeisMFD();
@@ -317,6 +370,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			debug(solIndex, "archiving");
 			synchronized (this) {
+				// store MFDs for this branch
 				weights.add(wt);
 				for (int i = 0; i < regions.size(); i++) {
 					solMFDs.get(i).add(onMFDs.get(i));
@@ -343,19 +397,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 				Region region = regions.get(i);
 				
 				for (boolean cumulative : cumulatives) {
+					// we generate a cumulative and incremental plot for each region
+					
 					XY_DataSetList solMFDsForRegion = solMFDs.get(i);
 					XY_DataSetList solOffMFDsForRegion = solOffMFDs.get(i);
 					XY_DataSetList totalMFDsForRegion = solTotalMFDs.get(i);
 
+					// get UCERF2 comparison fetcher
 					if (ucerf2Fetch == null)
 						ucerf2Fetch = new UCERF2_MFD_ConstraintFetcher(region);
 					else
 						ucerf2Fetch.setRegion(region);
 
+					// UCERF2 comparison MFDs
 					EvenlyDiscretizedFunc ucerf2TotalMFD = ucerf2Fetch.getTotalMFD();
 					EvenlyDiscretizedFunc ucerf2OffMFD = ucerf2Fetch.getBackgroundSeisMFD();
 					
 					if (cumulative) {
+						// make cumulative datasets
 						XY_DataSetList cml_solMFDsForRegion = new XY_DataSetList();
 						XY_DataSetList cml_solOffMFDsForRegion = new XY_DataSetList();
 						XY_DataSetList cml_totalMFDsForRegion = new XY_DataSetList();
@@ -480,7 +539,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
-	public static List<PlotSpec> writeERFBasedRegionalMFDPlotSpecs(
+	/*
+	 * ERF Based MFD plots
+	 */
+	
+	public static List<PlotSpec> getERFBasedRegionalMFDPlotSpecs(
 			FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, List<Region> regions) {
 		ERFBasedRegionalMFDPlot plot = new ERFBasedRegionalMFDPlot(
@@ -491,12 +554,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		return plot.specs;
 	}
-
+	
 	public static void writeERFBasedRegionalMFDPlots(
 			FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, List<Region> regions,
 			File dir, String prefix) throws IOException {
-		List<PlotSpec> specs = writeERFBasedRegionalMFDPlotSpecs(fetch,
+		List<PlotSpec> specs = getERFBasedRegionalMFDPlotSpecs(fetch,
 				weightProvider, regions);
 
 		writeERFBasedRegionalMFDPlots(specs, regions, dir, prefix);
@@ -544,6 +607,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/**
+	 * ERF Based regional MFD plots
+	 * @author kevin
+	 *
+	 */
 	public static class ERFBasedRegionalMFDPlot extends CompoundFSSPlots {
 
 		/**
@@ -594,8 +662,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		private transient Map<FaultModels, RupInRegionCache> rupInRegionsCaches = Maps
 				.newHashMap();
-		private transient Map<FaultModels, Map<String, Integer>> rupCountsMap = Maps
-				.newHashMap();
 
 		private static double[] getDefaultFractiles() {
 //			double[] ret = { 0.5 };
@@ -642,6 +708,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 
+		/**
+		 * We store one UCERF2 comparison ERF per thread. Once checked out, and ERF should be 
+		 * returned via the returnUCERF2_ERF method
+		 * @return
+		 */
 		private synchronized UCERF2_TimeIndependentEpistemicList checkOutUCERF2_ERF() {
 			if (ucerf2_erf_lists.isEmpty()) {
 				UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = new UCERF2_TimeIndependentEpistemicList();
@@ -658,11 +729,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return ucerf2_erf_lists.pop();
 		}
 
+		/**
+		 * Return the ERF to the stack for a future thread to use
+		 * @param erf
+		 */
 		private synchronized void returnUCERF2_ERF(
 				UCERF2_TimeIndependentEpistemicList erf) {
 			ucerf2_erf_lists.push(erf);
 		}
 
+		/**
+		 * Calculate UCERF2 MFDs for the given index (up to the total number of UCERF2 branches).
+		 * @param erfIndex
+		 */
 		private void calcUCERF2MFDs(int erfIndex) {
 			UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = checkOutUCERF2_ERF();
 			ERF erf = ucerf2_erf_list.getERF(erfIndex);
@@ -734,6 +813,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 			returnUCERF2_ERF(ucerf2_erf_list);
 		}
 
+		/**
+		 * Makes sure that all UCERF2 MFDs have been calculated (if we have less UCERF3 logic tree
+		 * branches than UCERF2 this can take a little while).
+		 */
 		private void checkCalcAllUCERF2MFDs() {
 			for (int erfIndex = 0; erfIndex < numUCEF2_ERFs; erfIndex++) {
 				if (ucerf2MFDs.get(0)[erfIndex] == null)
@@ -746,35 +829,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 				InversionFaultSystemSolution sol, int solIndex) {
 			throw new IllegalStateException("Should not be called, ERF plot!");
 		}
-		
-		private void checkRupCount(ERF erf, IncludeBackgroundOption back, Map<String, Integer> countsMap) {
-			int count = 0;
-			for (int i=0; i<erf.getNumSources(); i++)
-				count += erf.getNumRuptures(i);
-			Integer prevCount = countsMap.get(back.name());
-			if (prevCount == null)
-				countsMap.put(back.name(), count);
-//			else
-//				Preconditions.checkState(count == prevCount.intValue(), "Uh oh, rup counts don't match! "+count+" != "+prevCount);
-		}
 
 		@Override
 		protected void processERF(LogicTreeBranch branch,
 				UCERF3_FaultSysSol_ERF erf, int solIndex) {
 			debug(solIndex, "checking UCERF2");
-			// do UCERF2 if applicable
+			// do UCERF2 if applicable so that we don't have to do them all single threaded at the end
 			if (solIndex < numUCEF2_ERFs)
 				calcUCERF2MFDs(solIndex);
 			debug(solIndex, " done UCERF2");
 
 			FaultModels fm = branch.getValue(FaultModels.class);
 
+			// this cache keeps track of which rupture is within each of the regions.
 			RupInRegionCache rupsCache = rupInRegionsCaches.get(fm);
 			if (rupsCache == null) {
 				synchronized (this) {
 					if (!rupInRegionsCaches.containsKey(fm)) {
 						rupInRegionsCaches.put(fm, new RupInRegionsCache());
-						rupCountsMap.put(fm, new HashMap<String, Integer>());
 					}
 				}
 				rupsCache = rupInRegionsCaches.get(fm);
@@ -785,11 +857,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<DiscretizedFunc> mfds = Lists.newArrayList();
 			List<DiscretizedFunc> offMFDs = Lists.newArrayList();
 			List<DiscretizedFunc> onMFDs = Lists.newArrayList();
-			
-			Map<String, Integer> countsMap = rupCountsMap.get(fm);
-			
-			checkRupCount(erf, IncludeBackgroundOption.INCLUDE, countsMap);
 
+			// get total MFD
 			for (int r = 0; r < regions.size(); r++) {
 				Region region = regions.get(r);
 
@@ -812,8 +881,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 			erf.updateForecast();
-			checkRupCount(erf, IncludeBackgroundOption.EXCLUDE, countsMap);
 			
+			// get on fault MFD
 			for (int r = 0; r < regions.size(); r++) {
 				Region region = regions.get(r);
 
@@ -834,6 +903,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				onMFDs.add(ucerf3_Part.getCumRateDistWithOffset());
 			}
 			
+			// get off fault - we can either infer off fault from total and on or calculate it again
 			if (infer_off_fault) {
 				for (int r = 0; r < regions.size(); r++) {
 					DiscretizedFunc totMFD = mfds.get(r);
@@ -846,7 +916,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else {
 				erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
 				erf.updateForecast();
-				checkRupCount(erf, IncludeBackgroundOption.ONLY, countsMap);
 				
 				for (int r = 0; r < regions.size(); r++) {
 					Region region = regions.get(r);
@@ -874,6 +943,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			debug(solIndex, " archiving");
 			synchronized (this) {
+				// store results
 				weights.add(weightProvider.getWeight(branch));
 				for (int r = 0; r < regions.size(); r++) {
 					solMFDs.get(r).add(mfds.get(r));
@@ -913,6 +983,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		protected void doFinalizePlot() {
 			specs = Lists.newArrayList();
 
+			// make sure we've calculated all UCERF2 MFDs
 			checkCalcAllUCERF2MFDs();
 
 //			MeanUCERF2 erf = new MeanUCERF2();
@@ -927,6 +998,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //			erf.updateForecast();
 
 			for (int r = 0; r < regions.size(); r++) {
+				// create plot spec for each region
 				Region region = regions.get(r);
 
 				XY_DataSetList ucerf2Funcs = new XY_DataSetList();
@@ -1008,12 +1080,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 	
+	/**
+	 * Parses source name to get inversion index
+	 * @param source
+	 * @return
+	 */
 	private static int getInversionIndex(ProbEqkSource source) {
 		String srcName = source.getName();
 //		System.out.println(srcName);
 		return Integer.parseInt(srcName.substring(srcName.indexOf("#")+1, srcName.indexOf(";")));
 	}
 	
+	/**
+	 * Cache for ruptures in regions. Uses the actual inversion index so that it works across
+	 * all branches ofthe same FM.
+	 * @author kevin
+	 *
+	 */
 	private static class RupInRegionsCache implements RupInRegionCache {
 		private ConcurrentMap<Region, ConcurrentMap<Integer, Boolean>> map = Maps
 				.newConcurrentMap();
@@ -1054,6 +1137,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/*
+	 * Paleo fault based plots
+	 */
+	
 	public static void writePaleoFaultPlots(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, File dir) throws IOException {
 		PaleoFaultPlot plot = new PaleoFaultPlot(weightProvider);
@@ -1081,6 +1168,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/**
+	 * Paleo fault based plot for multiple solutions. This will show min/max/mean across all
+	 * logic tree branches on faults with at least one paleo/ave slip site
+	 * 
+	 * @author kevin
+	 *
+	 */
 	public static class PaleoFaultPlot extends CompoundFSSPlots {
 
 		private transient PaleoProbabilityModel paleoProbModel;
@@ -1130,6 +1224,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<PaleoRateConstraint> paleoRateConstraints = paleoConstraintMaps
 						.get(fm);
 				if (paleoRateConstraints == null) {
+					// this means that it's the first invokation for this fault model. get constraints
+					// and set up maps
 					synchronized (this) {
 						paleoRateConstraints = paleoConstraintMaps.get(fm);
 						if (paleoRateConstraints == null) {
@@ -1150,6 +1246,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 				}
 
+				// keeps track of slip rates for each ave slip constraint
 				List<Double> slipsForConstraints = Lists.newArrayList();
 				paleoRateConstraints = Lists.newArrayList(paleoRateConstraints);
 				List<AveSlipConstraint> aveSlipConstraints = slipConstraintMaps
@@ -1161,19 +1258,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 					slipsForConstraints.add(slip);
 				}
 
-				Map<String, List<Integer>> namedFaultsMap = namedFaultsMaps
-						.get(fm);
+				Map<String, List<Integer>> namedFaultsMap = namedFaultsMaps.get(fm);
 
 				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap = PaleoFitPlotter
 						.getNamedFaultConstraintsMap(paleoRateConstraints,
 								rupSet.getFaultSectionDataList(), namedFaultsMap);
 
-				Map<Integer, List<FaultSectionPrefData>> allParentsMap = allParentsMaps
-						.get(fm);
+				Map<Integer, List<FaultSectionPrefData>> allParentsMap = allParentsMaps.get(fm);
 
 				double weight = weightProvider.getWeight(branch);
 
 				debug(solIndex, "Building...");
+				//  build all data for this solution
 				DataForPaleoFaultPlots data = DataForPaleoFaultPlots.build(sol,
 						namedFaultsMap, namedFaultConstraintsMap,
 						allParentsMap, paleoProbModel, weight);
@@ -1181,6 +1277,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				debug(solIndex, "Archiving results...");
 
 				synchronized (this) {
+					// store results
 					List<DataForPaleoFaultPlots> datasList = datasMap.get(fm);
 					if (datasList == null) {
 						datasList = Lists.newArrayList();
@@ -1219,6 +1316,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// build PlotSpec instances from data. Keep each FM separate
 			for (FaultModels fm : datasMap.keySet()) {
 				// build compound ave slips
 				List<AveSlipConstraint> aveSlips = slipConstraintMaps.get(fm);
@@ -1338,6 +1436,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		CommandLineInversionRunner.writePaleoCorrelationPlots(dir, plotsMap);
 	}
 
+	/**
+	 * Paleo site correlation plot across multiple logic tree branches
+	 * @author kevin
+	 *
+	 */
 	public static class PaleoSiteCorrelationPlot extends CompoundFSSPlots {
 
 		private transient PaleoProbabilityModel paleoProbModel;
@@ -1373,6 +1476,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						.get(fm);
 				if (corrs == null) {
 					synchronized (fm) {
+						// first call for this FM, prepare maps/tables
 						corrs = corrsListsMap.get(fm);
 						if (corrs == null) {
 							debug(solIndex, "I'm in the synchronized block! "
@@ -1395,6 +1499,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				double weight = weightProvider.getWeight(branch);
 
+				// mapping from fault name to correlation rates of each other
+				// paleo site to plot
 				Map<String, double[]> myData = Maps.newHashMap();
 
 				debug(solIndex, "Building...");
@@ -1442,6 +1548,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// generate the plot
 			Map<String, List<PaleoSiteCorrelationData>> allCorrsMap = Maps
 					.newHashMap();
 			for (FaultModels fm : corrsListsMap.keySet()) {
@@ -1725,6 +1832,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				subSeismoMFDs, subPlusSupraSeismoMFDs, ucerf2MFDs, false, id, name, nucleation, cumulative);
 	}
 
+	/**
+	 * Parent section MFD plots
+	 * @author kevin
+	 *
+	 */
 	public static class ParentSectMFDsPlot extends CompoundFSSPlots {
 
 		private transient BranchWeightProvider weightProvider;
@@ -1786,6 +1898,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			debug(solIndex, "cache fetching");
 			HashSet<Integer> parentIDs = parentMapsCache.get(fm);
 			if (parentIDs == null) {
+				// first call for the FM, setup caches
 				parentIDs = new HashSet<Integer>();
 				for (int sectIndex = 0; sectIndex < rupSet.getNumSections(); sectIndex++) {
 					FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
@@ -1803,6 +1916,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			debug(solIndex, "calculating");
 			for (Integer parentID : parentIDs) {
+				// calculate nucleation/participation MFDs
 				SummedMagFreqDist nuclMFD = sol
 						.calcNucleationMFD_forParentSect(parentID, minX, maxX,
 								num);
@@ -1811,6 +1925,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 								maxX, num);
 
 				synchronized (this) {
+					// store results
 					if (!nuclIncrMFDs.containsKey(parentID)) {
 						nuclIncrMFDs.put(parentID, new XY_DataSetList());
 						nuclSubSeismoMFDs.put(parentID, new XY_DataSetList());
@@ -1854,6 +1969,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// this reduces the MFDs for each branch into mean/min/max MFDs for plotting. It also generates
+			// cumulative MFDs (with offsets).
 			for (Integer parentID : nuclIncrMFDs.keySet()) {
 				plotNuclIncrMFDs.put(
 						parentID,
@@ -2016,7 +2133,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 						other.plotPartCmlMFDs.get(parentID).get(0));
 			}
 		}
-
 	}
 
 	public static void writeJumpPlots(FaultSystemSolutionFetcher fetch,
@@ -2044,6 +2160,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/**
+	 * This generates the rupture jump plot which keeps track of the number of 1km or greater
+	 * jumps.
+	 * @author kevin
+	 *
+	 */
 	public static class RupJumpPlot extends CompoundFSSPlots {
 
 		/**
@@ -2100,6 +2222,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			Map<IDPairing, Double> distances = distancesCache.get(fm);
 			debug(solIndex, "cache fetching");
 			if (distances == null) {
+				// calculate distances between subsections
 				synchronized (this) {
 					distances = distancesCache.get(fm);
 					if (distances == null) {
@@ -2117,6 +2240,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			debug(solIndex, "calculating");
 			List<EvenlyDiscretizedFunc[]> myFuncs = Lists.newArrayList();
 			for (int i = 0; i < minMags.length; i++) {
+				// get the single branch functions, will combine later
 				EvenlyDiscretizedFunc[] funcs = CommandLineInversionRunner
 						.getJumpFuncs(sol, distances, jumpDist, minMags[i],
 								paleoProbModel);
@@ -2157,6 +2281,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// combine all of the individual branches
 			for (int i = 0; i < solFuncs.size(); i++) {
 				List<DiscretizedFunc> solFractiles = getFractiles(
 						solFuncs.get(i), weights, "Solution Jumps", fractiles);
@@ -2194,6 +2319,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/**
+	 * This plot creates a CSV file with recurrence intervals on each minisection.
+	 * @author kevin
+	 *
+	 */
 	public static class MiniSectRIPlot extends CompoundFSSPlots {
 
 		/**
@@ -2252,6 +2382,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			Map<Integer, DeformationSection> dm = loadDM(fm);
 
 			debug(solIndex, "cache fetching");
+			// mapping from parent ID to minisection list for each subsection
 			Map<Integer, List<List<Integer>>> mappings = fmMappingsMap.get(fm);
 			if (mappings == null) {
 				synchronized (this) {
@@ -2269,11 +2400,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 			debug(solIndex, "calculating");
 			List<Map<Integer, List<Double>>> myRates = Lists.newArrayList();
 			for (int i = 0; i < minMags.length; i++) {
+				// calculate the minisection participation rates
 				myRates.add(MiniSectRecurrenceGen.calcMinisectionParticRates(
 						sol, mappings, minMags[i], false));
 			}
 			debug(solIndex, "archiving");
 			synchronized (this) {
+				// store results
 				for (int i = 0; i < minMags.length; i++) {
 					solRatesMap.get(fm).get(i).add(myRates.get(i));
 				}
@@ -2306,6 +2439,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// this combines the branches into averages for each fault model and min mag
 			for (int i = 0; i < minMags.length; i++) {
 				for (FaultModels fm : solRatesMap.keySet()) {
 					List<Map<Integer, List<Double>>> avgRatesList = avgRatesMap
@@ -2341,15 +2475,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 							avgRates.add(ri);
 						}
 						avg.put(parentID, avgRates);
-
-						// if (parentID == 651) {
-						// System.out.println("Avg: "+Joiner.on(",").join(avgRates));
-						// System.out.println("Branches:");
-						// for (int j=0; j<solRates.size(); j++) {
-						// Map<Integer, List<Double>> sol = solRates.get(j);
-						// System.out.println("\t"+Joiner.on(",").join(sol.get(parentID))+" (weight="+(float)weights[j]+")");
-						// }
-						// }
 					}
 					avgRatesList.add(avg);
 				}
@@ -2374,6 +2499,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		BatchPlotGen.writeMisfitsCSV(dir, prefix, plot.misfitsMap);
 	}
 
+	/**
+	 * This creates a CSV file with simulated annealing misfits and energies from each logic tree branch
+	 * 
+	 * @author kevin
+	 *
+	 */
 	public static class MisfitTable extends CompoundFSSPlots {
 
 		/**
@@ -2395,6 +2526,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					null);
 
 			debug(solIndex, "calc/archiving");
+			// very simple, just get the misfits from the solution which have already been loaded in
+			// from the inversion metadata
 			misfitsMap.putIfAbsent(vbr, sol.getMisfits());
 			debug(solIndex, "done");
 		}
@@ -2444,6 +2577,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		plot.carrizoCSV.writeToFile(new File(subDir, "carrizo_paleo_obs_rates.csv"));
 	}
 
+	/**
+	 * This creates CSV files with paleo and average slip rates at each site, along with confidence vals and
+	 * min/max amoung logic tree branches.
+	 * @author kevin
+	 *
+	 */
 	public static class PaleoRatesTable extends CompoundFSSPlots {
 
 		private transient BranchWeightProvider weightProvider;
@@ -2497,6 +2636,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<AveSlipConstraint> aveSlipConstraints = aveSlipConstraintsMap
 					.get(fm);
 			if (aveSlipConstraints == null) {
+				// load in constraints
 				synchronized (this) {
 					aveSlipConstraints = aveSlipConstraintsMap.get(fm);
 					List<PaleoRateConstraint> paleoConstraints = null;
@@ -2542,6 +2682,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 			}
 
+			// get data for ave slips at each site
 			double[] slips = new double[aveSlipConstraints.size()];
 			double[] proxyRates = new double[aveSlipConstraints.size()];
 			double[] obsRates = new double[aveSlipConstraints.size()];
@@ -2573,6 +2714,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			List<PaleoRateConstraint> paleoConstraints = paleoConstraintsMap
 					.get(fm);
 
+			// get data for paleo constraints at each site
 			debug(solIndex, "calculating paleo rates");
 			double[] paleoRates = new double[paleoConstraints.size()];
 			double carrizoRate = 0d;
@@ -2594,6 +2736,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			debug(solIndex, "archiving");
 			synchronized (this) {
+				// store it
 				weightsMap.get(fm).add(weightProvider.getWeight(branch));
 				branchesMap.get(fm).add(branch);
 				reducedSlipsMap.get(fm).add(slips);
@@ -2641,6 +2784,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected void doFinalizePlot() {
+			// this builds the CSV files and also calculates UCERF2 comparisons.
+			
 			InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher
 					.getUCERF2Solution(FaultModels.FM2_1);
 			List<AveSlipConstraint> ucerf2AveSlipConstraints;
@@ -2909,6 +3054,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 	
+	/**
+	 * This builds a branch averaged fault system solution that can be used for approximate hazard calculations
+	 * and some plots.
+	 * @author kevin
+	 *
+	 */
 	public static class BranchAvgFSSBuilder extends CompoundFSSPlots {
 		
 		private transient BranchWeightProvider weightProvider;
@@ -2946,6 +3097,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		protected void processSolution(LogicTreeBranch branch,
 				InversionFaultSystemSolution sol, int solIndex) {
 			if (this.solIndex >= 0) {
+				// we can build means from individual runs if specified
+				
 				Preconditions.checkState(sol instanceof AverageFaultSystemSolution,
 						"Sol index supplied but branch isn't an average!");
 				AverageFaultSystemSolution avgSol = (AverageFaultSystemSolution)sol;
@@ -2961,6 +3114,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			double weight = weightProvider.getWeight(branch);
 			
+			// get gridded seis data
 			GridSourceProvider gridSources = sol.getGridSourceProvider();
 			
 			Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = Maps.newHashMap();
@@ -4512,6 +4666,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 	
+	/**
+	 * Cache for gridded participation rate plots to speed things up.
+	 * @author kevin
+	 *
+	 */
 	public static class FSSRupNodesCache implements RupNodesCache {
 		
 		private ConcurrentMap<Region, ConcurrentMap<Integer, int[]>> nodesMap = Maps
@@ -4584,6 +4743,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 
+	/**
+	 * Data for a map based plot which can be written to/loaded from an XML file.
+	 * @author kevin
+	 *
+	 */
 	public static class MapPlotData implements XMLSaveable, Serializable {
 
 		private static final String XML_METADATA_NAME = "FaultBasedMap";
@@ -4777,6 +4941,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 
+	/**
+	 * Subclass for map based plots. Map data is written to an XML file for distributed
+	 * calculations on clusters.
+	 * @author kevin
+	 *
+	 */
 	public static abstract class MapBasedPlot extends CompoundFSSPlots {
 
 		protected abstract List<MapPlotData> getPlotData();
@@ -4941,31 +5111,28 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
-	private static class MapPlotCallable implements Callable<Integer> {
-
-		private File dir;
-		private String prefix;
-		private MapPlotData plot;
-
-		public MapPlotCallable(File dir, String prefix, MapPlotData plot) {
-			this.dir = dir;
-			this.prefix = prefix;
-			this.plot = plot;
-		}
-
-		@Override
-		public Integer call() throws Exception {
-			MapBasedPlot.doMakePlot(dir, prefix, plot);
-			return 0;
-		}
-
-	}
-
+	/**
+	 * Creates PlotCurveCharactersitcs for the given number of fractiles. Will be returned with
+	 * fractiles first, then mean/min/max. Matches output from getFractiles(...).
+	 * 
+	 * @param color
+	 * @param numFractiles
+	 * @return
+	 */
 	public static List<PlotCurveCharacterstics> getFractileChars(Color color,
 			int numFractiles) {
 		return getFractileChars(color, color, numFractiles);
 	}
 	
+	/**
+	 * Creates PlotCurveCharactersitcs for the given number of fractiles. Will be returned with
+	 * fractiles first, then mean/min/max. Matches output from getFractiles(...). This method allows for a different
+	 * fractile color.
+	 * @param color
+	 * @param fractileColor
+	 * @param numFractiles
+	 * @return
+	 */
 	public static List<PlotCurveCharacterstics> getFractileChars(Color color, Color fractileColor,
 			int numFractiles) {
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -4987,7 +5154,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 	}
 
 	/**
-	 * Called once for each solution
+	 * Called once for each solution unless ERF based
 	 * 
 	 * @param branch
 	 * @param sol
@@ -4998,7 +5165,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	/**
 	 * This is used when doing distributed calculations. This method will be
-	 * called on the root method to combine all of the other plots with this
+	 * called on the root node to combine all of the other plots with this
 	 * one.
 	 * 
 	 * @param otherCalcs
@@ -5007,12 +5174,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 			Collection<CompoundFSSPlots> otherCalcs);
 
 	/**
-	 * Called at the end to finalize the plot
+	 * Called at the end to finalize the plot. This should handle assembly of PlotSpecs.
 	 */
 	protected abstract void doFinalizePlot();
 	
 	/**
-	 * Called at the end to finalize the plot
+	 * Called at the end to finalize the plot. This should handle assembly of PlotSpecs.
 	 */
 	protected void finalizePlot() {
 		Stopwatch watch = new Stopwatch();
@@ -5034,6 +5201,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		return false;
 	}
 
+	/**
+	 * This will be overridden for each plot which uses ERFs
+	 * @param branch
+	 * @param erf
+	 * @param solIndex
+	 */
 	protected void processERF(LogicTreeBranch branch,
 			UCERF3_FaultSysSol_ERF erf, int solIndex) {
 		// do nothing unless overridden
@@ -5166,6 +5339,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 	// }
 	// }
 
+	/**
+	 * Plotting task to be executed - represents all plots for a given logic tree branch.
+	 * 
+	 * @author kevin
+	 *
+	 */
 	protected static class PlotSolComputeTask implements Task {
 
 		private Collection<CompoundFSSPlots> plots;
@@ -5221,6 +5400,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (CompoundFSSPlots plot : plots) {
 					Stopwatch computeWatch = new Stopwatch();
 					if (plot.usesERFs()) {
+						// if it's an ERF plot we need to make sure the ERF has been built and set
+						// any parameters
 						boolean update = false;
 						overheadWatch.start();
 						if (erf == null) {
@@ -5229,6 +5410,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 									(InversionFaultSystemSolution) sol);
 							update = true;
 						}
+						// some plots want the aftershock filter and some don't
+						// make sure that the ERF will be correct for this plot
 						boolean shouldApplyFilter = plot.isApplyAftershockFilter();
 						BooleanParameter applyFilterParam = (BooleanParameter)erf.getParameter(
 								ApplyGardnerKnopoffAftershockFilterParam.NAME);
@@ -5246,6 +5429,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						plot.processERF(branch, erf, index);
 						computeWatch.stop();
 					} else {
+						// 
 						debug("Processing Regular plot: "
 								+ ClassUtils.getClassNameWithoutPackage(plot
 										.getClass()));
@@ -5270,6 +5454,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
+	/**
+	 * Calculates all of the plots for the given FaultSystemSolutionFetcher with the given
+	 * number of threads.
+	 * @param plots
+	 * @param fetcher
+	 * @param threads
+	 */
 	public static void batchPlot(Collection<CompoundFSSPlots> plots,
 			FaultSystemSolutionFetcher fetcher, int threads) {
 
@@ -5342,11 +5533,28 @@ public abstract class CompoundFSSPlots implements Serializable {
 		System.out.println("***************************************");
 	}
 
+	/**
+	 * Write all plots after they have been calculated.
+	 * 
+	 * @param plots
+	 * @param dir
+	 * @param prefix
+	 * @throws Exception
+	 */
 	public static void batchWritePlots(Collection<CompoundFSSPlots> plots,
 			File dir, String prefix) throws Exception {
 		batchWritePlots(plots, dir, prefix, true);
 	}
 
+	/**
+	 * Write all plots after they have been calculated.
+	 * 
+	 * @param plots
+	 * @param dir
+	 * @param prefix
+	 * @param makeMapPlots
+	 * @throws Exception
+	 */
 	public static void batchWritePlots(Collection<CompoundFSSPlots> plots,
 			File dir, String prefix, boolean makeMapPlots) throws Exception {
 		for (CompoundFSSPlots plot : plots) {
