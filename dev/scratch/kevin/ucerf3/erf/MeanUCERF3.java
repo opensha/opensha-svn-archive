@@ -138,7 +138,6 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	
 	public MeanUCERF3(FaultSystemSolution meanTotalSol, File storeDir) {
 		super();
-		ignoreMinMagCheckParam.setValue(true);
 		this.meanTotalSol = meanTotalSol;
 		this.storeDir = storeDir;
 		System.out.println("MeanUCERF3 store dir: "+storeDir);

@@ -82,8 +82,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
 	protected BackgroundRupType bgRupType; // this is the primitive field
-	protected BooleanParameter ignoreMinMagCheckParam; // this is needed for MeanUCERF3 as check has already been done
-	protected boolean ignoreMinMagCheck;
 	
 	final public static double MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS = 0.97;	// 3%
 
@@ -163,9 +161,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
 		adjustableParams.addParameter(applyAftershockFilterParam);
-		
-		// don't add to list
-		ignoreMinMagCheckParam = new BooleanParameter("Ignore Section Min Mag Check", false);
 
 		// TODO I have commented out these references because they create a memory leak;
 		// need to figure out how to make these invisible when there is no background seis
@@ -184,7 +179,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterParam.addParameterChangeListener(this);
 		bgIncludeParam.addParameterChangeListener(this);
 		bgRupTypeParam.addParameterChangeListener(this);
-		ignoreMinMagCheckParam.addParameterChangeListener(this);
 		
 		// set primitives
 		faultGridSpacing = faultGridSpacingParam.getValue();
@@ -192,7 +186,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilter = applyAftershockFilterParam.getValue();
 		bgInclude = bgIncludeParam.getValue();
 		bgRupType = bgRupTypeParam.getValue();
-		ignoreMinMagCheck = ignoreMinMagCheckParam.getValue();
 
 	}
 	
@@ -261,8 +254,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //			bgRupTypeParam.getEditor().setEnabled(enable);
 		} else if (paramName.equalsIgnoreCase(bgRupTypeParam.getName())) {
 			bgRupType = bgRupTypeParam.getValue();
-		} else if (paramName.equalsIgnoreCase(ignoreMinMagCheckParam.getName())) {
-			ignoreMinMagCheck = ignoreMinMagCheckParam.getValue();
 		} else {
 			throw new RuntimeException("parameter name not recognized");
 		}
@@ -288,7 +279,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		numNonZeroFaultSystemSources =0;
 		for(int r=0; r< rupSet.getNumRuptures();r++){
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
-			if(!ignoreMinMagCheck && rupSet instanceof InversionFaultSystemRupSet)
+			if(rupSet instanceof InversionFaultSystemRupSet)
 				rupTooSmall = ((InversionFaultSystemRupSet)rupSet).isRuptureBelowSectMinMag(r);
 //			System.out.println("rate="+faultSysSolution.getRateForRup(r));
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall)
@@ -309,7 +300,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		int srcIndex = 0;
 		for(int r=0; r< rupSet.getNumRuptures();r++) {
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
-			if(!ignoreMinMagCheck && rupSet instanceof InversionFaultSystemRupSet)
+			if(rupSet instanceof InversionFaultSystemRupSet)
 				rupTooSmall = ((InversionFaultSystemRupSet)rupSet).isRuptureBelowSectMinMag(r);
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall) {
 				fltSysRupIndexForSource[srcIndex] = r;
@@ -497,8 +488,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 						rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
 						rupSet.getAveRakeForRup(invRupIndex), timeSpan.getDuration());
 			}
-		}
-		else {
+		} else {
 
 			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
