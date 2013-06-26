@@ -42,7 +42,6 @@ public class TestFaultSysSolTimeDepERF {
 		
 		
 		
-		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip");
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
 		

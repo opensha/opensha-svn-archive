@@ -106,13 +106,13 @@ public class simulatorAnalysisUtils {
 	public static void runAll() {
 		
 		// Set the simulator Geometry file
-//		File geomFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
-		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-//		File simEventFileDir = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
-		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
@@ -160,57 +160,57 @@ public class simulatorAnalysisUtils {
 //					System.out.println("Working on printMinAndMaxElementArea(*)");
 //					infoStrings.add(tools.printMinAndMaxElementArea());
 //
-//					// check slip rates
-//					System.out.println("Working on imposedVsImpliedSlipRates(*)");
-//					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
-//
+					// check slip rates
+					System.out.println("Working on imposedVsImpliedSlipRates(*)");
+					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
+
 					// check event mags
 					System.out.println("Working on checkEventMagnitudes(*)");
 					infoStrings.add(tools.checkEventMagnitudes(Double.NaN));
-//					
-//					// check full DDW ruptures
-//					if(Double.isNaN(magThresh)) {
-//						System.out.println("Working on checkFullDDW_rupturing(*)");
-//						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
-//					}
-//					// total MFD
-//					System.out.println("Working on computeTotalMagFreqDist(*)");
-//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
-//
-//					// norm RI dist for surface elements
-//					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
-//					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
-//
-//					// ave slip along rupture
-//					System.out.println("Working on plotAveNormSlipAlongRupture(*)");
-//					boolean success = tools.plotAveNormSlipAlongRupture(magThresh, true);
-//					if(!success) {
-//						infoStrings.add("plotAveNormSlipAlongRupture failed\n");
-//						System.out.println("plotAveNormSlipAlongRupture failed\n");
-//					}
-//
-//					// scaling plots
-//					System.out.println("Working on plotScalingRelationships(*)");
-//					tools.plotScalingRelationships(true);
-//
-//					// RIs at paleo sites
-//					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
-//					plotRI_DistsAtObsPaleoRateSites(tools, true);
-//					
-//					// all the time & slip predictability tests (plus other things):
-//					System.out.println("Working on testTimePredictability(*)");
-//					String info = tools.testTimePredictability(magThresh, true, null, false);
-//					infoStrings.add(info);
-//
-//					try {
-//						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");
-//						for(String string: infoStrings) 
-//							infoFileWriter.write(string+"\n");
-//						infoFileWriter.close();
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
+					
+					// check full DDW ruptures
+					if(Double.isNaN(magThresh)) {
+						System.out.println("Working on checkFullDDW_rupturing(*)");
+						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
+					}
+					// total MFD
+					System.out.println("Working on computeTotalMagFreqDist(*)");
+					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+
+					// norm RI dist for surface elements
+					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
+					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
+
+					// ave slip along rupture
+					System.out.println("Working on plotAveNormSlipAlongRupture(*)");
+					boolean success = tools.plotAveNormSlipAlongRupture(magThresh, true);
+					if(!success) {
+						infoStrings.add("plotAveNormSlipAlongRupture failed\n");
+						System.out.println("plotAveNormSlipAlongRupture failed\n");
+					}
+
+					// scaling plots
+					System.out.println("Working on plotScalingRelationships(*)");
+					tools.plotScalingRelationships(true);
+
+					// RIs at paleo sites
+					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
+					plotRI_DistsAtObsPaleoRateSites(tools, true);
+					
+					// all the time & slip predictability tests (plus other things):
+					System.out.println("Working on testTimePredictability(*)");
+					String info = tools.testTimePredictability(magThresh, true, null, false);
+					infoStrings.add(info);
+
+					try {
+						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");
+						for(String string: infoStrings) 
+							infoFileWriter.write(string+"\n");
+						infoFileWriter.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
 					System.out.println("Done");
 					
@@ -221,7 +221,11 @@ public class simulatorAnalysisUtils {
 		}
 	}
 	
-	
+	/**
+	 * This plots the RI distribution at the paleo sites available as UCERF3_PaleoRateConstraintFetcher.getConstraints()
+	 * @param tools
+	 * @param savePlot
+	 */
 	public static void plotRI_DistsAtObsPaleoRateSites(General_EQSIM_Tools tools, boolean savePlot) {
 		
 		try {
