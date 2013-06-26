@@ -469,6 +469,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		if(aleatoryMagAreaStdDev == 0) {
+			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(invRupIndex);
 			if (rupMFD == null || rupMFD.getNum() < 2) {
 				// normal source
