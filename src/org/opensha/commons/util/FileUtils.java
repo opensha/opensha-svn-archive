@@ -439,9 +439,8 @@ public class FileUtils {
 	}
 
 	public static void downloadURL(URL url, File outFile) throws IOException {
-		System.out.println("Downloading " + url + " to " + outFile.getAbsolutePath());
-
 		InputStream in = url.openStream();         // throws an IOException
+		System.out.println("Downloading " + url + " to " + outFile.getAbsolutePath());
 
 		FileOutputStream out = new FileOutputStream(outFile);
 

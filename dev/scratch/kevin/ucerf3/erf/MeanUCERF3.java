@@ -143,6 +143,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	
 	public MeanUCERF3(FaultSystemSolution meanTotalSol, File storeDir) {
 		super();
+		this.fileParamChanged = false;
 		this.meanTotalSol = meanTotalSol;
 		this.storeDir = storeDir;
 		System.out.println("MeanUCERF3 store dir: "+storeDir);
@@ -159,7 +160,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		adjustableParams.addParameter(upperDepthTolParam);
 		upperDepthTol = upperDepthTolParam.getValue();
 		
-		upperDepthUseMeanParam = new BooleanParameter("Use Mean Upper Depth", false);
+		upperDepthUseMeanParam = new BooleanParameter("Use Mean Upper Depth", true);
 		upperDepthUseMeanParam.setInfo("If true and upper depth combine tolerance is > 0, mean upper" +
 				"\ndepth will be used, else the shallowest upper depth will be used when averaging." +
 				"\nNote that averaging does not incorporate participation rates, it is an unweighted mean" +
@@ -208,7 +209,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 				"\ntrue will disable loading cached versions.");
 		ignoreCacheParam.addParameterChangeListener(this);
 		adjustableParams.addParameter(ignoreCacheParam);
-		upperDepthUseMean = ignoreCacheParam.getValue();
+		ignoreCache = ignoreCacheParam.getValue();
 		
 		// ensure disabled by default
 		aleatoryMagAreaStdDevParam.setValue(0d);
@@ -304,7 +305,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	 * solutions locally and laod from that cache if already computed
 	 */
 	private void fetchSolution() {
-		if (D) System.out.println("fetchSolution called");
+		if (D) System.out.println("fetchSolution called with "+upperDepthTol+"="+upperDepthTol
+				+", upperDepthUseMean="+upperDepthUseMean+", rakeBasisStr='"+rakeBasisStr+"'"
+				+", magTol="+magTol+", faultModelStr="+faultModelStr);
+		
 		// first see if what we already need is cached
 		
 		// don't use mag here since we keep that until later

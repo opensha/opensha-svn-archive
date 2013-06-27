@@ -69,7 +69,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	// Adjustable parameters
 	public static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
-	protected boolean fileParamChanged=true;
+	// we don't want to default this to true as many subclasses or non interactive classes don't use the file param
+	// and remove it from the list. defaulting to true will throw an error on updateForecast in this case.
+	protected boolean fileParamChanged=false;
 	protected FaultGridSpacingParam faultGridSpacingParam;
 	protected boolean faultGridSpacingChanged=true;
 	protected double faultGridSpacing = -1;
@@ -94,6 +96,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //	int lastSrcRequested = -1;
 //	ProbEqkSource currentSrc=null;
 
+	private boolean faultSysSolutionChanged = true;
 	// leave as a FaultSystemSolution for use with Simulator/other FSS
 	private FaultSystemSolution faultSysSolution;
 	protected int numNonZeroFaultSystemSources;		// this is the number of faultSystemRups with non-zero rates (each is a source here)
@@ -109,7 +112,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected int totNumRups;
 	protected int[] srcIndexForNthRup;
 	protected int[] rupIndexForNthRup;
-	protected HashMap<String,Integer> nthRupForSrcAndRupIndices;
 	
 	
 	protected List<FaultRuptureSource> faultSources;
@@ -215,7 +217,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		// do this before calling setupArraysAndLists().
 		initOtherSources();	// these are created even if not used
 
-		if (fileParamChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
+		if (faultSysSolutionChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
 			setupArraysAndLists();	// note that this overrides all fault-based source objects
 		} 
 		else if(timeSpanChangeFlag) {	// only time-span changed
@@ -225,6 +227,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		}
 		
 		// fileParamChanged is set to false in readFaultSysSolutionFromFile()
+		faultSysSolutionChanged = false;
 		aleatoryMagAreaStdDevChanged = false;
 		applyAftershockFilterChanged = false;
 		faultGridSpacingChanged = false;
@@ -330,7 +333,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		// now populate the following:
 		totNumRups=0;
 		totNumRupsFromFaultSystem=0;
-		nthRupForSrcAndRupIndices = new HashMap<String,Integer>();
 		nthRupIndicesForSource = new ArrayList<int[]>();
 		// srcIndexForNthRup
 		// rupIndexForNthRup
@@ -354,9 +356,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				tempRupIndexForNthRup.add(r);
 				if(s<numNonZeroFaultSystemSources)
 					tempFltSysRupIndexForNthRup.add(fltSysRupIndexForSource[s]);
-
-				String srcAndRup = s+","+r;
-				nthRupForSrcAndRupIndices.put(srcAndRup, new Integer(n));
 				nthRupsForSrc[r]=n;
 				n++;
 			}
@@ -411,6 +410,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				if(D) System.out.println("Loading solution took "+runTime+" seconds.");
 			}
 			fileParamChanged = false;
+			faultSysSolutionChanged = true;
 		}
 	}
 	
@@ -420,6 +420,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 */
 	protected void setSolution(FaultSystemSolution sol) {
 		this.faultSysSolution = sol;
+		faultSysSolutionChanged = true;
 	}
 	
 	public FaultSystemSolution getSolution() {
@@ -577,8 +578,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * (where the latter is the rupture index within the source)
 	 */	
 	public int getIndexN_ForSrcAndRupIndices(int s, int r) {
-		String str = s+","+r;
-		return nthRupForSrcAndRupIndices.get(str);
+		return get_nthRupIndicesForSource(s)[r];
 	}
 	
 	/**

@@ -504,7 +504,7 @@ public class MatrixIO {
 		short[] shortArray = new short[listSize];
 		boolean shortSafe = true;
 		for (int j=0; j<listSize; j++) {
-			int val = otherArray.size();
+			int val = otherArray.get(j);
 			shortSafe = shortSafe && val < Short.MAX_VALUE;
 			intArray[j] = val;
 			shortArray[j] = (short)val;

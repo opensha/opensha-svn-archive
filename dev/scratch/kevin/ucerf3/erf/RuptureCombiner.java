@@ -1,6 +1,8 @@
 package scratch.kevin.ucerf3.erf;
 
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.LightFixedXFunc;
@@ -29,6 +32,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Joiner;
@@ -216,7 +220,9 @@ public class RuptureCombiner {
 		// TODO optimize this loop, it is the slowest part of the method
 		if (D) System.out.println("Finding identical rups to combine");
 		for (int r=0; r<mappedSectionsForRups.size(); r++) {
-			IntHashSet sectIDs = new IntHashSet(mappedSectionsForRups.get(r));
+			List<Integer> sectIDsList = mappedSectionsForRups.get(r);
+			IntHashSet sectIDs = new IntHashSet(sectIDsList);
+			Preconditions.checkState(sectIDs.size() == sectIDsList.size(), "Duplicate sect IDs in rup!");
 			Double rake = origRupSet.getAveRakeForRup(r);
 			List<Integer> matches = combinedRupsMap.get(sectIDs, rake);
 			if (matches == null) {
@@ -680,9 +686,21 @@ public class RuptureCombiner {
 		// create rupture mapping since rups could be in different order
 		Table<IntHashSet, Double, Integer> rupSet2RupsToIndexesMap = HashBasedTable.create();
 		for (int r=0; r<rupSet2.getNumRuptures(); r++) {
+			System.out.println(Joiner.on(",").join(rupSet2.getSectionsIndicesForRup(r)));
 			IntHashSet rupSects = new IntHashSet(rupSet2.getSectionsIndicesForRup(r));
 			Double rake = rupSet2.getAveRakeForRup(r);
-			Preconditions.checkState(!rupSet2RupsToIndexesMap.contains(rupSects, rake), "Duplicate rup found in rups2!");
+			if (rupSet2RupsToIndexesMap.contains(rupSects, rake)) {
+				int prevIndex = rupSet2RupsToIndexesMap.get(rupSects, rake);
+				Joiner j = Joiner.on(",");
+				String message = "Duplicate rup found in rups2!";
+				message += "\n\t"+prevIndex+" mag="+rupSet2.getMagForRup(prevIndex)
+						+" area="+rupSet2.getAreaForRup(prevIndex)+" rake="+rupSet2.getAveRakeForRup(prevIndex)
+						+"\n\tsects: "+j.join(rupSet2.getSectionsIndicesForRup(prevIndex));
+				message += "\n\t"+r+" mag="+rupSet2.getMagForRup(r)
+						+" area="+rupSet2.getAreaForRup(r)+" rake="+rupSet2.getAveRakeForRup(r)
+						+"\n\tsects: "+j.join(rupSet2.getSectionsIndicesForRup(r));
+				throw new IllegalStateException(message);
+			}
 			rupSet2RupsToIndexesMap.put(rupSects, rake, r);
 		}
 		// rup1 -> rup2
@@ -878,6 +896,15 @@ public class RuptureCombiner {
 		for (int i=0; i<indexes.size(); i++)
 			ret[i] = fullArray[indexes.get(i)];
 		return ret;
+	}
+	
+	public static void main(String[] args) throws IOException, DocumentException {
+		File cacheDir = MeanUCERF3.getStoreDir();
+		FaultSystemSolution trueMean = FaultSystemIO.loadSol(new File(cacheDir, "mean_ucerf3_sol.zip"));
+		FaultSystemSolution reduced = getCombinedSolution(trueMean, 1e-10, true, false, null);
+//		FaultSystemSolution reduced = FaultSystemIO.loadSol(new File(cacheDir, "cached_dep1.0E-10_depShallow_rakeAll.zip"));
+		
+		checkIdentical(trueMean, reduced, true);
 	}
 
 }

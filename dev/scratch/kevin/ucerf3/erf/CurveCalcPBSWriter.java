@@ -25,27 +25,30 @@ public class CurveCalcPBSWriter {
 	public static void main(String[] args) throws IOException {
 		double[] upperDepthTols = { 0, 1d, 5d, Double.POSITIVE_INFINITY };
 		boolean[] rakeCombines = { false, true };
-		double[] magTols = { 0, 0.1, 0.5, 1 };
+		double[] magTols = { 0, 0.05, 0.1, 0.5};
 		DeformationModels[] rakeBasisDMs = { null, DeformationModels.GEOLOGIC };
 		DeformationModels[] noRakeBasisDMs = { null };
 		
-		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/MeanUCERF3-curves");
+		File writeDir = new File("/home/kevin/OpenSHA/UCERF3/MeanUCERF3-curves-test2");
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-//		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter("dodecacore");
-//		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/curves/MeanUCERF3-curves");
-//		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
+		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/curves/MeanUCERF3-curves");
+		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+		File mpjHome = null;
+		int maxHeapMB = 9000;
 		
-		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
-		File remoteDir = new File("/work/00950/kevinm/ucerf3/curves/MeanUCERF3-curves");
-		File javaBin = StampedeScriptWriter.JAVA_BIN;
-		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
+//		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
+//		File remoteDir = new File("/work/00950/kevinm/ucerf3/curves/MeanUCERF3-curves");
+//		File javaBin = StampedeScriptWriter.JAVA_BIN;
+//		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
+//		int maxHeapMB = 26000;
 		
 		String meanSolFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL.zip";
 		File meanSolFile = new File(remoteDir, meanSolFileName);
 		
-		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, 26000,
+		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, maxHeapMB,
 				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));
 		
 		int mins = 1000;
