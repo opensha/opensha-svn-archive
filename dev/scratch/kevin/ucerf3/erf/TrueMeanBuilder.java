@@ -191,9 +191,26 @@ public class TrueMeanBuilder {
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 		cfss.setCacheCopying(false);
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
-		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+//		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+//		String nameAdd = "";
+//		FaultModels[] fms = { FaultModels.FM3_1};
+//		String nameAdd = "_FM3_1";
+		FaultModels[] fms = { FaultModels.FM3_2 };
+		String nameAdd = "_FM3_2";
+		HashSet<FaultModels> fmSet = new HashSet<FaultModels>();
+		for (FaultModels fm : fms)
+			fmSet.add(fm);
 		
 		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
+		
+		// remove any branches for excluded fault models
+		for (int i=branches.size(); --i>=0;) {
+			LogicTreeBranch branch = branches.get(i);
+			FaultModels fm = branch.getValue(FaultModels.class);
+			if (!fmSet.contains(fm))
+				branches.remove(i);
+		}
+		
 		Collections.shuffle(branches);
 		
 		// unique elements: mag, surface, rake
@@ -325,6 +342,12 @@ public class TrueMeanBuilder {
 					// if we haven't added anything for a ton of branches then assume done
 					int numSinceChanged = branchCnt - lastChangedBranch;
 					if (numSinceChanged > 150 || (numSinceChanged > 10 && uniqueRupCount == 1634466))
+						continue;
+					// FM3.1
+					if (fms.length == 1 && numSinceChanged > 10 && uniqueRupCount == 930563)
+						continue;
+					// FM3.2
+					if (fms.length == 1 && numSinceChanged > 10 && uniqueRupCount == 1128358)
 						continue;
 					
 					// set fault section data
@@ -485,13 +508,15 @@ public class TrueMeanBuilder {
 		FaultSystemSolution sol = new FaultSystemSolution(rupSet, rates);
 		
 		// load in branch averages and build average grid source provider
-		List<File> branchAvgFiles = Lists.newArrayList(new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"),
-				new File(invDir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
-		sol.setGridSourceProvider(buildAvgGridSources(branchAvgFiles));
+		Map<FaultModels, File> branchAvgFiles = Maps.newHashMap();
+		branchAvgFiles.put(FaultModels.FM3_1, new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		branchAvgFiles.put(FaultModels.FM3_2, new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
+		sol.setGridSourceProvider(buildAvgGridSources(branchAvgFiles, fms));
 		sol.setRupMagDists(mfds);
 		
-		String outputFileName = compoundFile.getName().replaceAll(".zip", "")+"_TRUE_HAZARD_MEAN_SOL.zip";
+		String outputFileName = compoundFile.getName().replaceAll(".zip", "")+nameAdd+"_TRUE_HAZARD_MEAN_SOL.zip";
 		File outputFile = new File(invDir, outputFileName);
 		FaultSystemIO.writeSol(sol, outputFile);
 	}
@@ -503,10 +528,11 @@ public class TrueMeanBuilder {
 		Preconditions.checkState(pDiff < 0.0001, description+": "+origVal+" != "+newVal+" (pDiff="+pDiff+" %)");
 	}
 	
-	private static GridSourceFileReader buildAvgGridSources(List<File> branchAvgFiles) throws IOException, DocumentException {
+	private static GridSourceFileReader buildAvgGridSources(Map<FaultModels, File> branchAvgFiles, FaultModels[] fms)
+			throws IOException, DocumentException {
 		List<GridSourceProvider> providers = Lists.newArrayList();
-		for (File branchAvgFile : branchAvgFiles)
-			providers.add(FaultSystemIO.loadInvSol(branchAvgFile).getGridSourceProvider());
+		for (FaultModels fm : fms)
+			providers.add(FaultSystemIO.loadInvSol(branchAvgFiles.get(fm)).getGridSourceProvider());
 		
 		// FAULT MODELS ASSUMED TO HAVE EQUAL WEIGHT (currently true)
 		double weight = 1d/(double)providers.size();

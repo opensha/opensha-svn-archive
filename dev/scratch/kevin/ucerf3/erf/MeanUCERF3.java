@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -80,6 +81,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	public static final String RAKE_BASIS_NONE = "Do Not Combine";
 	public static final String RAKE_BASIS_MEAN = "Def. Model Mean";
 	private Map<HashSet<String>, Double> rakeBasis;
+	
+	private StringParameter faultModelParam;
+	private String faultModelStr;
+	public static final String FAULT_MODEL_BOTH = "Both";
 	
 	private BooleanParameter ignoreCacheParam;
 	private boolean ignoreCache;
@@ -187,6 +192,17 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		rakeBasisStr = rakeBasisParam.getValue();
 		loadRakeBasis();
 		
+		ArrayList<String> faultModelStrs = Lists.newArrayList(FAULT_MODEL_BOTH);
+		for (FaultModels fm : FaultModels.values())
+			if (fm.getRelativeWeight(null) > 0)
+				faultModelStrs.add(fm.name());
+		faultModelParam = new StringParameter("Fault Model(s)", faultModelStrs, FAULT_MODEL_BOTH);
+		faultModelParam.setInfo("There are two equally weighted Fault Models in UCERF3. You can optionally" +
+				"\nselect a single fault model with this parameter.");
+		faultModelParam.addParameterChangeListener(this);
+		adjustableParams.addParameter(faultModelParam);
+		faultModelStr = faultModelParam.getValue();
+		
 		ignoreCacheParam = new BooleanParameter("Ignore Cache", false);
 		ignoreCacheParam.setInfo("MeanUCERF3 caches reduced solutions to save time. Setting this to" +
 				"\ntrue will disable loading cached versions.");
@@ -228,6 +244,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		} else if (param == rakeBasisParam) {
 			rakeBasisStr = rakeBasisParam.getValue();
 			loadRakeBasis();
+			setSolution(null);
+		} else if (param == faultModelParam) {
+			faultModelStr = faultModelParam.getValue();
+			setTrueMeanSol(null);
 			setSolution(null);
 		} else if (param == ignoreCacheParam) {
 			ignoreCache = ignoreCacheParam.getValue();
@@ -300,6 +320,13 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		else
 			fName += "_rake"+rakeBasisStr;
 		
+		String prefix;
+		if (faultModelStr.equals(FAULT_MODEL_BOTH))
+			prefix = "";
+		else
+			prefix = faultModelStr+"_";
+		fName = prefix+fName;
+		
 		File solFile = new File(storeDir, "cached_"+fName+".zip");
 		
 		if (!ignoreCache) {
@@ -325,7 +352,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		if (meanTotalSol == null) {
 			// not loaded yet
 			if (D) System.out.println("loading mean sol");
-			File meanSolFile = checkDownload(TRUE_MEAN_FILE_NAME, false);
+			File meanSolFile = checkDownload(prefix+TRUE_MEAN_FILE_NAME, false);
 			
 			try {
 				setTrueMeanSol(FaultSystemIO.loadSol(meanSolFile));
@@ -401,6 +428,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	 * @param fName
 	 */
 	private File checkDownload(String fName, boolean ignoreErrors) {
+		// TODO allow some sort of server side versioning so that clients know to update
 		File file = new File(storeDir, fName);
 		if (file.exists())
 			return file;
@@ -410,7 +438,8 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 			progress = new CalcProgressBar("Downloading MeanUCERF3 Files", "downloading "+fName);
 		} catch (Exception e) {}
 		String url = DOWNLOAD_URL+fName;
-		System.out.print("Downloading "+url+" to "+file.getAbsolutePath());
+		if (!ignoreErrors)
+			System.out.print("Downloading "+url+" to "+file.getAbsolutePath());
 		try {
 			FileUtils.downloadURL(url, file);
 		} catch (Exception e) {
