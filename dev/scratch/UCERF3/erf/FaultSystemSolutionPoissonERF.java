@@ -6,6 +6,7 @@ import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.ONLY;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,16 +69,16 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	// Adjustable parameters
 	public static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
-	protected boolean fileParamChanged;
+	protected boolean fileParamChanged=true;
 	protected FaultGridSpacingParam faultGridSpacingParam;
-	protected boolean faultGridSpacingChanged;
+	protected boolean faultGridSpacingChanged=true;
 	protected double faultGridSpacing = -1;
 	protected AleatoryMagAreaStdDevParam aleatoryMagAreaStdDevParam;
-	protected boolean aleatoryMagAreaStdDevChanged;
+	protected boolean aleatoryMagAreaStdDevChanged=true;
 	double aleatoryMagAreaStdDev = Double.NaN;
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
 	protected boolean applyAftershockFilter;
-	protected boolean applyAftershockFilterChanged;
+	protected boolean applyAftershockFilterChanged=true;
 	protected IncludeBackgroundParam bgIncludeParam;
 	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
@@ -85,6 +86,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	final public static double MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS = 0.97;	// 3%
 
+	// this keeps track of time span changes
+	boolean timeSpanChangeFlag=true;
 	
 	// these help keep track of what's changed
 	protected File prevFile = null;
@@ -109,7 +112,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected HashMap<String,Integer> nthRupForSrcAndRupIndices;
 	
 	
-	private List<ProbEqkSource> faultSources;
+	protected List<FaultRuptureSource> faultSources;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -203,23 +206,29 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		
 		if (D) System.out.println("Updating forecast");
 		long runTime = System.currentTimeMillis();
-			
+		
+		
 		if(fileParamChanged) {
 			readFaultSysSolutionFromFile();	// this will not re-read the file if the name has not changed
-			setupArraysAndLists();
 		}
-		else if (aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
-			setupArraysAndLists();
-			aleatoryMagAreaStdDevChanged = false;
-			applyAftershockFilterChanged = false;
-			faultGridSpacingChanged = false;
-		} else {
-			// time span changes not being monitored
-			setupArraysAndLists();
-		}
-		// TODO arrays like srcIndexForNthRup set in setupArraysAndLists() wont include gridded seismicity until that is called again;
-
+		
+		// do this before calling setupArraysAndLists().
 		initOtherSources();	// these are created even if not used
+
+		if (fileParamChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
+			setupArraysAndLists();	// note that this overrides all fault-based source objects
+		} 
+		else if(timeSpanChangeFlag) {	// only time-span changed
+			for(FaultRuptureSource src : faultSources)
+				src.setDuration(timeSpan.getDuration());
+			// grid sources don't need to be updated here
+		}
+		
+		// fileParamChanged is set to false in readFaultSysSolutionFromFile()
+		aleatoryMagAreaStdDevChanged = false;
+		applyAftershockFilterChanged = false;
+		faultGridSpacingChanged = false;
+		timeSpanChangeFlag = false;
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		if(D) {
@@ -285,18 +294,17 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			if(faultSysSolution.getRateForRup(r) > 0.0 && !rupTooSmall)
 				numNonZeroFaultSystemSources +=1;			
 		}
-		
 		if(D) {
 			System.out.println("   " + numNonZeroFaultSystemSources+" of "+
 					rupSet.getNumRuptures()+ 
 					" fault system sources had non-zero rates");
 		}
 		
-		// make fltSysRupIndexForSource & srcIndexForFltSysRup
+		// make mapping between fault system and ERF sources: fltSysRupIndexForSource & srcIndexForFltSysRup
+		fltSysRupIndexForSource = new int[numNonZeroFaultSystemSources];
 		srcIndexForFltSysRup = new int[rupSet.getNumRuptures()];
 		for(int i=0; i<srcIndexForFltSysRup.length;i++)
-			srcIndexForFltSysRup[i] = -1;				// initialize values to -1 (no mapping due to zero rate)
-		fltSysRupIndexForSource = new int[numNonZeroFaultSystemSources];
+			srcIndexForFltSysRup[i] = -1;				// initialize values to -1 (no mapping due to zero rate or mag too small)
 		int srcIndex = 0;
 		for(int r=0; r< rupSet.getNumRuptures();r++) {
 			boolean rupTooSmall = false;	// filter out the too-small ruptures
@@ -308,28 +316,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				srcIndex += 1;
 			}
 		}
-		// now populate the following (requires making each source):
-//							int totNumRups;
-//							int[] srcIndexForNthRup;
-//							int[] rupIndexForNthRup;
-//							HashMap<String,Integer> nForSrcAndRupIndices;
 		
-//		System.out.println("starting to make nForSrcAndRupIndices HashMap");
 		
-		// TODO code below needs to be cleaned now that list of src objects is created and kept (plus srcIndexForNthRup etc don't includ background seis on first run)
-
-		totNumRups=0;
-		totNumRupsFromFaultSystem=0;
-		nthRupForSrcAndRupIndices = new HashMap<String,Integer>();
-		nthRupIndicesForSource = new ArrayList<int[]>();
-
-		// make temp array lists to avoid making each source twice
-		ArrayList<Integer> tempSrcIndexForNthRup = new ArrayList<Integer>();
-		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
-		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
-		int n=0;
-		
-	
 		// create reference array of all non-gridded sources and ruptures
 		if (!bgInclude.equals(ONLY)) {
 			faultSources = Lists.newArrayList();
@@ -338,11 +326,24 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			}
 		}
 
-		for(int s=0; s<getNumSources(); s++) {
-// ProbEqkSource src = getSource(s);
-// System.out.println("src.getName()="+src.getName()+"\tsrc.getNumRuptures()="+src.getNumRuptures());
+		
+		// now populate the following:
+		totNumRups=0;
+		totNumRupsFromFaultSystem=0;
+		nthRupForSrcAndRupIndices = new HashMap<String,Integer>();
+		nthRupIndicesForSource = new ArrayList<int[]>();
+		// srcIndexForNthRup
+		// rupIndexForNthRup
+		// fltSysRupIndexForNthRup
 
-			int numRups = getSource(s).getNumRuptures();	// prob at 7773
+		// make temp array lists to avoid making each source twice
+		ArrayList<Integer> tempSrcIndexForNthRup = new ArrayList<Integer>();
+		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
+		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
+		int n=0;
+		
+		for(int s=0; s<getNumSources(); s++) {
+			int numRups = getSource(s).getNumRuptures();
 			totNumRups += numRups;
 			if(s<numNonZeroFaultSystemSources) {
 				totNumRupsFromFaultSystem += numRups;
@@ -453,31 +454,28 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 
 	/**
 	 * Creates a fault source.
-	 * @param iSource
+	 * @param iSource - source index in ERF
 	 * @return
 	 */
-	protected ProbEqkSource makeFaultSystemSource(int iSource) {
+	protected FaultRuptureSource makeFaultSystemSource(int iSource) {
 		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
-		int invRupIndex = fltSysRupIndexForSource[iSource];
+		int fltSystRupIndex = fltSysRupIndexForSource[iSource];
 		FaultRuptureSource src;
 		
-//		if (iSource % 100000 == 0)
-//			System.out.println("Building source "+iSource);
-		
-		double mag = rupSet.getMagForRup(invRupIndex);
+		double mag = rupSet.getMagForRup(fltSystRupIndex);	// this is the average if there are more than one mags
 		double aftRateCorr = 1d;
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
-			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(invRupIndex);
+			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
 			if (rupMFD == null || rupMFD.getNum() < 2) {
 				// normal source
 				boolean isPoisson = true;
-				double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*timeSpan.getDuration());
+				double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(fltSystRupIndex)*timeSpan.getDuration());
 				src = new FaultRuptureSource(mag, 
-						rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing), 
-						rupSet.getAveRakeForRup(invRupIndex), prob, isPoisson);
+						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing), 
+						rupSet.getAveRakeForRup(fltSystRupIndex), prob, isPoisson);
 			} else {
 				// we have a MFD for this rupture
 				if (aftRateCorr != 1d) {
@@ -486,21 +484,21 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 					rupMFD.scale(aftRateCorr);
 				}
 				src = new FaultRuptureSource(rupMFD, 
-						rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
-						rupSet.getAveRakeForRup(invRupIndex), timeSpan.getDuration());
+						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing),
+						rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
 			}
 		} else {
-
-			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(invRupIndex)*MagUtils.magToMoment(mag);
+			// this currently only uses the mean magnitude
+			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(fltSystRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
-					rupSet.getSurfaceForRupupture(invRupIndex, faultGridSpacing),
-					rupSet.getAveRakeForRup(invRupIndex), timeSpan.getDuration());			
+					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing),
+					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());			
 		}
 
-		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(invRupIndex);
+		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(fltSystRupIndex);
 		String name = data.size()+" SECTIONS BETWEEN "+data.get(0).getName()+" AND "+data.get(data.size()-1).getName();
-		src.setName("Inversion Src #"+invRupIndex+"; "+name);
+		src.setName("Inversion Src #"+fltSystRupIndex+"; "+name);
 		return src;
 	}
 	
@@ -533,8 +531,8 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	}
 	
 	/**
-	 * Any subclasses that need to update background sources should override
-	 * this method. This method will only be called when the internal
+	 * Any subclasses that wants to include other (gridded) sources should should override
+	 * this method (and the getOtherSource() method).
 	 * faultSystemSolution changes
 	 */
 	protected void initOtherSources() {
@@ -610,5 +608,13 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	public ProbEqkRupture getNthRupture(int n) {
 		return getRupture(getSrcIndexForNthRup(n), getRupIndexInSourceForNthRup(n));
 	}
+	
+
+	@Override
+	public void timeSpanChange(EventObject event) {
+		timeSpanChangeFlag = true;
+	}
+
+
 
 }

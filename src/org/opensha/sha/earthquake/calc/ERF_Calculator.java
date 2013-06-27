@@ -247,6 +247,33 @@ public class ERF_Calculator {
 	}
 
 
+	/**
+	 * This computes the total moment rate (Nm/yr), from equivalent poisson rates, for the
+	 * ERF inside the region (only the fraction of each rupture inside the region is included)
+	 * @param erf
+	 * @param region - set as null to get ERF total moment rate
+	 * @return
+	 */
+	public static double getTotalMomentRateInRegion(ERF erf, Region region) {
+		double duration = erf.getTimeSpan().getDuration();
+		double totMoRate=0;
+		for (int s = 0; s < erf.getNumSources(); ++s) {
+			ProbEqkSource source = erf.getSource(s);
+			for (int r = 0; r < source.getNumRuptures(); ++r) {
+				ProbEqkRupture rupture = source.getRupture(r);
+				double rupMoment = MagUtils.magToMoment(rupture.getMag());
+				if(region != null) {
+					double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
+					totMoRate += fractionInside*rupMoment*rupture.getMeanAnnualRate(duration);
+				}
+				else {
+					totMoRate += rupMoment*rupture.getMeanAnnualRate(duration);
+				}
+			}
+		}
+		return totMoRate;
+	}
+
 
 
 	/**

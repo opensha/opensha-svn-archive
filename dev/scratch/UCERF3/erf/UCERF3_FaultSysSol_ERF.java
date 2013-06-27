@@ -62,15 +62,6 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	}
 
 	@Override
-	protected void setSolution(FaultSystemSolution sol) {
-		// no longer needed, GridSourceProvider promoted to FaultSystemSolution
-//		// ensure it's an IFSS
-//		Preconditions.checkState(sol instanceof InversionFaultSystemSolution,
-//				"Only Inversion Fault System Solutions can be used with UCERF3 FSS ERF");
-		super.setSolution(sol);
-	}
-
-	@Override
 	protected void initOtherSources() {
 			System.out.println("Initing other sources...");
 			
@@ -109,22 +100,24 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String f = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/refGR/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+//		String f = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/refGR/FM3_1_NEOK_EllB_DsrUni_GRConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
 //		String f = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/refCH/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_run5_sol.zip";
+		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+
 		File file = new File(f);
 				
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
 		erf.getParameter(FILE_PARAM_NAME).setValue(file);
 		erf.updateForecast();
 //		UCERF3_FaultSysSol_ERF erf = FaultSysSolutionERF_Calc.getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL_OFF,SmallMagScaling.MO_REDUCTION);
-		int otherRups = 0;
-		for (int i=0; i<erf.gridSources.size(); i++) {
-			ProbEqkSource src = erf.gridSources.getSource(i, 1d, false, false);
-			otherRups += src.getNumRuptures();
-		}
-		System.out.println("NumOtherRups: " + otherRups);
-		System.out.println("src100rups: " + erf.getSource(100).getNumRuptures());
-		System.out.println();
+//		int otherRups = 0;
+//		for (int i=0; i<erf.gridSources.size(); i++) {
+//			ProbEqkSource src = erf.gridSources.getSource(i, 1d, false, false);
+//			otherRups += src.getNumRuptures();
+//		}
+//		System.out.println("NumOtherRups: " + otherRups);
+//		System.out.println("src100rups: " + erf.getSource(100).getNumRuptures());
+//		System.out.println();
 	}
 
 }

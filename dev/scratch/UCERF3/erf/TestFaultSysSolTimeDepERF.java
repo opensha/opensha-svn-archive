@@ -42,20 +42,30 @@ public class TestFaultSysSolTimeDepERF {
 		
 		
 		
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2012_10_14-fm3-logic-tree-sample-x5_MEAN_BRANCH_AVG_SOL.zip";
+//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
 		
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
-		invERF.getTimeSpan().setDuration(10000);	// yrs
 		
+//		String dirName = "UCERF3_ER_WG02method_200kyr";
+//		double duration = 200000;
+//		int probType = 2;
+		
+//		String dirName = "UCERF3_ER_U3method_10kyr";
+//		double duration = 10000;
+//		int probType = 1;
+
+		String dirName = "UCERF3_ER_Pois_50kyr";
+		double duration = 50000;
+		int probType = 0;
+		
+		invERF.getTimeSpan().setDuration(duration);	// yrs
 		long runtime = System.currentTimeMillis();
-		
-		String dirName = "UCERF3_ER_WG02method";
-		
-		invERF.testER_Simulation(2, "From100k_PoisRun.txt", null, dirName);
-//		invERF.testER_Simulation();
+//		invERF.testER_Simulation(1, "From100k_PoisRun.txt", null, dirName);
+		invERF.testER_Simulation(probType, null, null, dirName);
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);
