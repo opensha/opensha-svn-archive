@@ -7,14 +7,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.List;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -33,7 +31,6 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.collect.Lists;

@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 
 import org.dom4j.DocumentException;
+import org.opensha.sha.earthquake.ProbEqkSource;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -31,10 +32,19 @@ public class MemoryDebug {
 		System.out.println("Creating ERF");
 		MeanUCERF3 erf = new MeanUCERF3(meanTotalSol);
 		erf.setCachingEnabled(false);
-		erf.setMeanParams(5d, true, 0.1d, DeformationModels.GEOLOGIC.name());
+		erf.setMeanParams(1d, false, 0.1d, DeformationModels.GEOLOGIC.name());
 		System.out.println("Updating forecast");
 		erf.updateForecast();
 		System.out.println("Done");
+		int charCount = 0;
+		int infoCount = 0;
+		for (ProbEqkSource src : erf) {
+			charCount += src.getName().length();
+			if (src.getInfo() != null)
+				infoCount += src.getInfo().length();
+		}
+		System.out.println("Total Name Char count: "+charCount);
+		System.out.println("Total Info Char count: "+infoCount);
 		while (1 < 10) {
 			erf.getSource((int)(Math.random()*erf.getNumSources()-1));
 			Thread.sleep(10000);

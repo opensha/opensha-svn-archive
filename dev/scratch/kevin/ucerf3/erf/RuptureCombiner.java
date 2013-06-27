@@ -231,7 +231,7 @@ public class RuptureCombiner {
 			}
 			matches.add(r);
 		}
-		if (D) System.out.println("Done finding identical rups (now have "+combinedRupsMap.size()+" rups)");
+		if (D) System.out.println("Done finding identical rups (now have "+combinedRupsMap.size()+" rups pre rakes)");
 		if (combineRakes == false && upperDepthTol <= 0 && D) {
 			if (D) System.out.println("Doing none-changed sanity check!");
 			// nothing should be changed, sanity check

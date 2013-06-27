@@ -9,12 +9,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
-import com.google.common.base.Preconditions;
-
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
-import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 
 
 /**
