@@ -411,7 +411,9 @@ public class CompoundGriddedSurface implements RuptureSurface {
 
 	@Override
 	public String getInfo() {
-		throw new RuntimeException("Need to implement this method");
+//		throw new RuntimeException("Need to implement this method");
+		// TODO implement
+		return "";
 	}
 
 	@Override
