@@ -71,6 +71,7 @@
 			<include name="at/**" />
 			<include name="com/**" />
 			<include name="edu/**" />
+			<include name="cern/**" />
 			<include name="net/**" />
 			<include name="org/**" />
 			<include name="javax/**" />
