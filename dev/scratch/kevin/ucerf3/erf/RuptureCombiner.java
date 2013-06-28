@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -70,7 +71,7 @@ public class RuptureCombiner {
 	 */
 	public static FaultSystemSolution getCombinedSolution(FaultSystemSolution meanSol,
 			double upperDepthTol, boolean useAvgUpperDepth,
-			boolean combineRakes, Map<HashSet<String>, Double> rakesBasis) {
+			boolean combineRakes, Map<Set<String>, Double> rakesBasis) {
 		
 		final boolean D = true;
 		
@@ -415,7 +416,7 @@ public class RuptureCombiner {
 	 * @author kevin
 	 *
 	 */
-	private static class IntHashSet extends AbstractSet<Integer> {
+	public static class IntHashSet extends AbstractSet<Integer> {
 		
 		private int[] vals;
 		
@@ -572,10 +573,10 @@ public class RuptureCombiner {
 		return name.trim();
 	}
 	
-	public static Map<HashSet<String>, Double> loadRakeBasis(DeformationModels dm) {
+	public static Map<Set<String>, Double> loadRakeBasis(DeformationModels dm) {
 		FaultModels[] fms = {FaultModels.FM3_1, FaultModels.FM3_2};
 		
-		Map<HashSet<String>, Double> rakeBasis = Maps.newHashMap();
+		Map<Set<String>, Double> rakeBasis = Maps.newHashMap();
 		
 		for (FaultModels fm : fms) {
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(fm, dm);

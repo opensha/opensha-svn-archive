@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -36,8 +37,8 @@ public class ERF_Tester {
 		double upperDepthTol = 0d;
 		boolean combineRakes = false;
 		double combineMags = 0d;
-//		Map<HashSet<String>, Double> rakeBasis = RuptureCombiner.loadRakeBasis(DeformationModels.GEOLOGIC);
-		Map<HashSet<String>, Double> rakeBasis = null;
+//		Map<Set<String>, Double> rakeBasis = RuptureCombiner.loadRakeBasis(DeformationModels.GEOLOGIC);
+		Map<Set<String>, Double> rakeBasis = null;
 		if (combineRakes) {
 			System.out.println("Loading rake basis...");
 			ZipFile rakeBasisZip = new ZipFile(new File("/tmp/rake_basis.zip"));

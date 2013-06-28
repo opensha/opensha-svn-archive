@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -103,7 +104,7 @@ public class CurveCalcTest {
 			boolean combineRakes = Boolean.parseBoolean(args[4]);
 			DeformationModels rakeBasisDM = null;
 			
-			Map<HashSet<String>, Double> rakeBasis = null;
+			Map<Set<String>, Double> rakeBasis = null;
 			if (combineRakes) {
 				String rakeBasisStr = args[5];
 				if (!rakeBasisStr.toLowerCase().trim().equals("null")) {

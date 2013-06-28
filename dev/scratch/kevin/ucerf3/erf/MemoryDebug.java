@@ -32,7 +32,9 @@ public class MemoryDebug {
 		System.out.println("Creating ERF");
 		MeanUCERF3 erf = new MeanUCERF3(meanTotalSol);
 		erf.setCachingEnabled(false);
-		erf.setMeanParams(1d, false, 0.1d, DeformationModels.GEOLOGIC.name());
+//		String rakeBasisStr = DeformationModels.GEOLOGIC.name();
+		String rakeBasisStr = MeanUCERF3.RAKE_BASIS_MEAN;
+		erf.setMeanParams(1d, false, 0.1d, rakeBasisStr);
 		System.out.println("Updating forecast");
 		erf.updateForecast();
 		System.out.println("Done");

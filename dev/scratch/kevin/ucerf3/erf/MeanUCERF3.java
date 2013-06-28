@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -80,7 +81,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	private String rakeBasisStr;
 	public static final String RAKE_BASIS_NONE = "Do Not Combine";
 	public static final String RAKE_BASIS_MEAN = "Def. Model Mean";
-	private Map<HashSet<String>, Double> rakeBasis;
+	private Map<Set<String>, Double> rakeBasis;
 	
 	private StringParameter faultModelParam;
 	private String faultModelStr;
