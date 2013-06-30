@@ -21,6 +21,8 @@ import java.util.PriorityQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataImpl;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc_3D;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -429,11 +431,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	}
 	
 	public void parameterChange(ParameterChangeEvent event) {
-		super.parameterChange(event);	// sets parent param changes and parameterChangeFlag = true;
 		String paramName = event.getParameterName();
 		if(paramName.equalsIgnoreCase(BPT_AperiodicityParam.NAME)) {
 			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
 			bpt_AperiodicityChanged=true;
+		}
+		else {
+			super.parameterChange(event);	// sets parent param changes and parameterChangeFlag = true;
 		}
 	}
 
@@ -1106,8 +1110,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @param probType - 0 for Poisson, 1 for U3, and 2 for WG02
 	 * @param dirNameForSavingFiles - leave null if you don't want plots saved
 	 */
-	public void testER_Simulation(int probType, String inputDateOfLastFileName, String outputDateOfLastFileName, String dirNameForSavingFiles) {
-		
+	public void testER_Simulation(int probType, String inputDateOfLastFileName, String outputDateOfLastFileName) {
 		
 		
 		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rates for parkfield
@@ -1155,6 +1158,12 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		else
 			throw new RuntimeException();
 		
+		// make output directory name
+		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
+		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
+		aper.replace(".", "pt");
+		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aper;
+
 		
 		// save original start time and total duration (these will get over ridden)
 		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
@@ -1172,6 +1181,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// initialize some things
 		normalizedRupRecurIntervals = new ArrayList<Double>();
 		normalizedSectRecurIntervals = new ArrayList<Double>();
+    	ArbDiscrEmpiricalDistFunc_3D normRI_AlongStrike = new ArbDiscrEmpiricalDistFunc_3D(0.05d,0.95d,10);
+
 		int numRups=0;
 		RandomDataImpl randomDataSampler = new RandomDataImpl();	// apache tool for sampling from exponential distribution here
 		
@@ -1286,14 +1297,34 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				
 				
 				
-				// save normalized fault section recurrence intervals
+				// save normalized fault section recurrence intervals & RI along strike
+				HistogramFunction sumRI_AlongHist = new HistogramFunction(normRI_AlongStrike.getMinX(), normRI_AlongStrike.getMaxX(), normRI_AlongStrike.getNumX());
+				HistogramFunction numRI_AlongHist = new HistogramFunction(normRI_AlongStrike.getMinX(), normRI_AlongStrike.getMaxX(), normRI_AlongStrike.getNumX());
+				int numSectInRup=sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex]).length;
+				int ithSectInRup=0;
 				for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
 					long timeOfLastMillis = dateOfLastForSect[sect];
 					if(timeOfLastMillis != Long.MIN_VALUE) {
 						double normYrsSinceLast = ((eventTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[sect];
 						normalizedSectRecurIntervals.add(normYrsSinceLast);
+						
+						double normDistAlong = ((double)ithSectInRup+0.5)/(double)numSectInRup;
+						sumRI_AlongHist.add(normDistAlong, normYrsSinceLast);
+						numRI_AlongHist.add(normDistAlong, 1.0);
 					}
+					ithSectInRup += 1;
 				}
+				// now put above averages in normRI_AlongStrike
+				if(numSectInRup>10) {
+					for(int i =0;i<sumRI_AlongHist.getNum();i++) {
+						double num = numRI_AlongHist.getY(i);
+						if(num > 0) {
+							normRI_AlongStrike.set(sumRI_AlongHist.getX(i), sumRI_AlongHist.getY(i)/num, 1.0);
+						}
+					}				
+				}
+				
+				
 				
 				// reset last event time and increment simulated/obs rate on sections
 				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
@@ -1392,7 +1423,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		graph.setY_AxisRange(1e-4, 1.0);
 		graph.setX_AxisRange(5.5, 8.5);
 		
-		
 		// plot observed versus imposed rup rates
 		for(int i=0;i<obsRupRateArray.length;i++) {
 			obsRupRateArray[i] = obsRupRateArray[i]/origDuration;
@@ -1480,6 +1510,30 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		graph2.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph2.setY_AxisLabel("Simulated Section Participation Rate (per yr)");
 		
+		
+		// plot ave norm RI along strike
+		ArrayList<EvenlyDiscretizedFunc> funcs8 = new ArrayList<EvenlyDiscretizedFunc>();
+		EvenlyDiscretizedFunc meanAlongFunc = normRI_AlongStrike.getMeanCurve();
+		meanAlongFunc.setName("mean");
+		funcs8.add(normRI_AlongStrike.getMeanCurve());
+		EvenlyDiscretizedFunc alongFunc2pt5 = normRI_AlongStrike.getInterpolatedFractileCurve(0.025);
+		EvenlyDiscretizedFunc alongFunc97pt5 = normRI_AlongStrike.getInterpolatedFractileCurve(0.975);
+		alongFunc2pt5.setInfo("2.5 percentile");
+		alongFunc97pt5.setInfo("97.5 percentile");
+		funcs8.add(alongFunc2pt5);
+		funcs8.add(alongFunc97pt5);
+		ArrayList<PlotCurveCharacterstics> plotChars8 = new ArrayList<PlotCurveCharacterstics>();
+		plotChars8.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		plotChars8.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars8.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		GraphWindow graph8 = new GraphWindow(funcs8, "Normalized RI vs Normalized Dist Along Strike; "+probTypeString, plotChars8); 
+		graph8.setX_AxisLabel("Norm Dist Along Strike");
+		graph8.setY_AxisLabel("Normalized RI");
+		
+		
+		
+		
+		
 //		System.out.println(testSectName+"\tobsSectRateArray="+obsSectRateArray[testSectIndex]+
 //				"\tlongTermPartRateForSectArray="+longTermPartRateForSectArray[testSectIndex]+"\tratio="+
 //				(obsSectRateArray[testSectIndex]/longTermPartRateForSectArray[testSectIndex]));
@@ -1545,11 +1599,30 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		if(dirNameForSavingFiles != null) {
 			try {
+				// plots
 				grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
 				graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
 				graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
 				graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
 				graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
+				graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
+				// data:
+				FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
+				for (double val : normalizedRupRecurIntervals)
+					fr.write(val + "\n");
+				fr.close();
+				
+				fr = new FileWriter(dirNameForSavingFiles+"/normalizedSectRecurIntervals.txt");
+				for (double val : normalizedSectRecurIntervals)
+					fr.write(val + "\n");
+				fr.close();
+				
+				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD, dirNameForSavingFiles+"/targetMFD.txt");
+				AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD, dirNameForSavingFiles+"/simulatedMFD.txt");
+				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/targetCumMFD.txt");
+				AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/simulatedCumMFD.txt");
+
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1756,14 +1829,15 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// now compute weight average gain for each rupture
 		for(int src=0;src<numNonZeroFaultSystemSources;src++) {
-			double totalArea=0;
+			double totalWt=0;
 			double sumGains = 0;			
 			for(int sect : sectIndexArrayForSrcList.get(src)) {
-				double area = areaForSect[sect];
-				totalArea += area;
-				sumGains += sectionGainArray[sect]*area;
+//test				double wt = areaForSect[sect]*this.invRupSet.getSlipRateForSection(sect);
+				double wt = areaForSect[sect];
+				totalWt += wt;
+				sumGains += sectionGainArray[sect]*wt;
 			}
-			probGainForFaultSystemSource[src] = sumGains/totalArea;
+			probGainForFaultSystemSource[src] = sumGains/totalWt;
 		}
 	}
 	

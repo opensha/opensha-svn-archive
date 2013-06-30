@@ -3,6 +3,9 @@
  */
 package org.opensha.commons.data.function;
 
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+
 /**
  * This class sets the tolerance high so that it can be used to construct histograms.
  * 
@@ -68,4 +71,45 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		}
 		return mode;
 	}
+	
+	public double computeMean() {
+		double sum = calcSumOfY_Vals();
+		double mean = 0;
+		for(int i=0;i<getNum();i++) {
+			mean+=getX(i)*getY(i)/sum;
+		}
+		return mean;
+	}
+	
+	
+	public double computeStdDev() {
+		double sum = calcSumOfY_Vals();
+		double mean = computeMean();
+		double var = 0;
+		for(int i=0;i<getNum();i++) {
+			var+=(getX(i)-mean)*(getX(i)-mean)*getY(i)/sum;
+		}
+		return Math.sqrt(var);
+	}
+	
+	public double computeCOV() {
+		return computeStdDev()/computeMean();
+	}
+	
+	
+	// test of compute methods
+	public static void main(String[] args) {
+		BPT_DistCalc bpt_calc = new BPT_DistCalc();
+		bpt_calc.setAll(110, 0.25, 1, 600);
+		EvenlyDiscretizedFunc func = bpt_calc.getPDF();
+		GraphWindow graph = new GraphWindow(func, "Test BPT"); 
+		HistogramFunction hist = new HistogramFunction(func.getMinX(),func.getMaxX(), func.getNum());
+		for(int i=0;i<hist.getNum();i++)
+			hist.set(i, func.getY(i));
+		System.out.println("mean="+hist.computeMean());
+		System.out.println("std="+hist.computeStdDev());
+		System.out.println("cov="+hist.computeCOV());
+
+	}
+
 }

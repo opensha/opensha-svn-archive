@@ -47,25 +47,19 @@ public class TestFaultSysSolTimeDepERF {
 		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
 		
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
-		invERF.bpt_AperiodicityParam.setValue(0.2);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
 		
-//		String dirName = "UCERF3_ER_WG02method_200kyr";
-//		double duration = 200000;
-//		int probType = 2;
+		invERF.bpt_AperiodicityParam.setValue(0.5);
+		double duration = 20000;
 		
-//		String dirName = "UCERF3_ER_U3method_10kyr";
-//		double duration = 10000;
-//		int probType = 1;
-
-		String dirName = "UCERF3_ER_Pois_50kyr";
-		double duration = 50000;
-		int probType = 0;
+//		int probType = 0;	// Poisson
+		int probType = 1;	// U3
+//		int probType = 2;	// WG02
+		
 		
 		invERF.getTimeSpan().setDuration(duration);	// yrs
 		long runtime = System.currentTimeMillis();
-//		invERF.testER_Simulation(1, "From100k_PoisRun.txt", null, dirName);
-		invERF.testER_Simulation(probType, null, null, dirName);
+		invERF.testER_Simulation(probType, null, null);
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);

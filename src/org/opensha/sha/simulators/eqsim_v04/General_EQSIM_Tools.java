@@ -1287,14 +1287,14 @@ public class General_EQSIM_Tools {
 	}
 	
 	
-	public static EvenlyDiscretizedFunc getNormRI_Distribution(ArrayList<Double> normRI_List, double deltaT) {
+	public static HistogramFunction getNormRI_Distribution(ArrayList<Double> normRI_List, double deltaT) {
 		// find max value
 		double max=0;
 		for(Double val:normRI_List)
 			if(val>max) max = val;
 //		double deltaX=0.1;
 		int num = (int)Math.ceil(max/deltaT)+2;
-		EvenlyDiscretizedFunc dist = new EvenlyDiscretizedFunc(deltaT/2,num,deltaT);
+		HistogramFunction dist = new HistogramFunction(deltaT/2,num,deltaT);
 		dist.setTolerance(2*deltaT);
 		int numData=normRI_List.size();
 		for(Double val:normRI_List) {
@@ -1385,14 +1385,17 @@ public class General_EQSIM_Tools {
 		
 		// get the normalized RI dist
 		double delta=0.1;
-		EvenlyDiscretizedFunc dist = getNormRI_Distribution(normRI_List, delta);
+		HistogramFunction dist = getNormRI_Distribution(normRI_List, delta);
 		
 		// now make the list of best-fit functions for the plot
 		ArrayList<EvenlyDiscretizedFunc> funcList = getRenewalModelFunctionFitsToDist(dist);
 				
 		// add the histogram created here
 		dist.setName("Recur. Int. Dist");
-		dist.setInfo("(Number of points = "+ normRI_List.size()+")");
+		String info = "Number of points = "+ normRI_List.size()+ "\nComputed mean = "+(float)dist.computeMean()+
+				"\nComputed COV = "+(float)dist.computeCOV();
+		dist.setInfo(info);
+
 		funcList.add(dist);
 		
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
