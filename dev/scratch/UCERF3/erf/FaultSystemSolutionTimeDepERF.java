@@ -133,6 +133,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	double[] magOfNthRups;
 	double[] aveCondRecurIntervalForFltSysRups = null;	// the recurrence interval of each rupture conditioned on the fact that it is the next event to occur
 	double[] longTermPartRateForSectArray;
+	double[] longTermSlipRateForSectArray;
 	
 	// for BPT conditional prob calculations (200 year recurrence interval)
 	static double refRI = 200;
@@ -334,14 +335,19 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// the following can't be from invSol.calcTotParticRateForAllSects() due to ERF rate reductions and low-mag filtering
 			longTermPartRateForSectArray = new double[invRupSet.getNumSections()];
+			longTermSlipRateForSectArray = new double[invRupSet.getNumSections()];
 			int nthRup=0;
 			for(ProbEqkSource src:this) {
 				for(ProbEqkRupture rup:src) {
 					double rupRate = rup.getMeanAnnualRate(timeSpan.getDuration());
 					int fltSysIndex = fltSysRupIndexForNthRup[nthRup];
 					List<Integer> sectIndices = invRupSet.getSectionsIndicesForRup(fltSysIndex);
-					for(int s:sectIndices)
-						longTermPartRateForSectArray[s] += rupRate;
+					double[] slips =  invRupSet.getSlipOnSectionsForRup(fltSysIndex);
+					for(int s=0;s<sectIndices.size();s++) {
+						int sectID = sectIndices.get(s);
+						longTermPartRateForSectArray[sectID] += rupRate;
+						longTermSlipRateForSectArray[sectID] += rupRate*slips[s];
+					}
 					nthRup+=1;
 				}
 			}
@@ -1146,22 +1152,22 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //		correctionMFD.set(8.15,1.43739);
 //		correctionMFD.set(8.25,1.82691);
 
-		
-		
+		// aperiodicity
+		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
+
 		String probTypeString;
 		if(probType==0)
 			probTypeString= "Poisson";
 		else if(probType==1)
-			probTypeString= "U3";
+			probTypeString= "U3 (aper="+aper+")";
 		else if(probType==2)
-			probTypeString= "WG02";
+			probTypeString= "WG02 (aper="+aper+")";
 		else
 			throw new RuntimeException();
 		
 		// make output directory name
-		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
-		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
 		aper.replace(".", "pt");
+		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
 		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aper;
 
 		
@@ -1191,13 +1197,20 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		updateForecast();	// TODO date of last set here from fault section data
 
 		
-		// this is for storing the simulated rate of events for each section
+		// this is for storing the simulated rate of events & skip rate for each section
 		double[] obsSectRateArray = new double[invRupSet.getNumSections()];
+		double[] obsSectSlipRateArray = new double[invRupSet.getNumSections()];
 		double[] obsSectRateArrayM6pt05to6pt65 = new double[invRupSet.getNumSections()];
 		double[] obsSectRateArrayM7pt95to8pt25 = new double[invRupSet.getNumSections()];
+
 		
 		// this is for storing obs/simulated event rates
 		double[] obsRupRateArray = new double[totNumRups];
+
+		
+		// for plotting SAF events
+		ArrayList<ArbitrarilyDiscretizedFunc> safEventFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		ArrayList<PlotCurveCharacterstics> safPlotChars4 = new ArrayList<PlotCurveCharacterstics>();
 
 		
 		// make the target MFD - 
@@ -1300,9 +1313,13 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				// save normalized fault section recurrence intervals & RI along strike
 				HistogramFunction sumRI_AlongHist = new HistogramFunction(normRI_AlongStrike.getMinX(), normRI_AlongStrike.getMaxX(), normRI_AlongStrike.getNumX());
 				HistogramFunction numRI_AlongHist = new HistogramFunction(normRI_AlongStrike.getMinX(), normRI_AlongStrike.getMaxX(), normRI_AlongStrike.getNumX());
-				int numSectInRup=sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex]).length;
+				int[] sectID_Array = sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex]);
+				double slips[] = invRupSet.getSlipOnSectionsForRup(fltSysRupIndexForNthRup[nthRup]);
+				// obsSectSlipRateArray
+				int numSectInRup=sectID_Array.length;
 				int ithSectInRup=0;
-				for(int sect : sectIndexArrayForSrcList.get(srcIndexForFltSysRup[fltSystRupIndex])) {
+				for(int sect : sectID_Array) {
+					obsSectSlipRateArray[sect] += slips[ithSectInRup];
 					long timeOfLastMillis = dateOfLastForSect[sect];
 					if(timeOfLastMillis != Long.MIN_VALUE) {
 						double normYrsSinceLast = ((eventTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[sect];
@@ -1324,7 +1341,39 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					}				
 				}
 				
-				
+				// make SAF event plotting funcs
+				ArrayList<Integer> safSections = new ArrayList<Integer>();
+				for(int id : sectID_Array) {
+					if(invRupSet.getFaultSectionData(id).getParentSectionName().contains("San Andreas"))
+							safSections.add(id);
+				}
+				if(safSections.size()>0) {
+					double[] lats = new double[safSections.size()];
+					for(int i=0;i<safSections.size();i++)
+						lats[i] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
+					double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
+					for(double val: lats) {
+						if(min>val) min = val;
+						if(max<val) max = val;
+					}
+					ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+					newFunc.set(min,eventTimeMillis/MILLISEC_PER_YEAR);
+					newFunc.set(max,eventTimeMillis/MILLISEC_PER_YEAR);
+					
+					safEventFuncs.add(newFunc);
+					double mag = magOfNthRups[nthRup];
+					if(mag<6.5)
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
+					else if(mag<7)
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
+					else if(mag<7.5)
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.ORANGE));
+					else if(mag<8)
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
+					else
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+				}
+
 				
 				// reset last event time and increment simulated/obs rate on sections
 				for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
@@ -1479,7 +1528,36 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 		
 		
+		// plot SAF events
+		GraphWindow graph9 = new GraphWindow(safEventFuncs, "SAF events; "+probTypeString, safPlotChars4); 
+		graph9.setX_AxisLabel("Latitute");
+		graph9.setY_AxisLabel("Year");
+
 		
+		// plot observed versus imposed section slip rates
+		for(int i=0;i<obsSectSlipRateArray.length;i++) {
+			obsSectSlipRateArray[i] = obsSectSlipRateArray[i]/origDuration;
+		}
+		DefaultXY_DataSet obsVsImposedSectSlipRates = new DefaultXY_DataSet(longTermSlipRateForSectArray,obsSectSlipRateArray);
+		obsVsImposedSectSlipRates.setName("Simulated vs Imposed Section Slip Rates");
+		DefaultXY_DataSet perfectAgreementSlipRateFunc = new DefaultXY_DataSet();
+		perfectAgreementSlipRateFunc.set(1e-5,1e-5);
+		perfectAgreementSlipRateFunc.set(0.05,0.05);
+		perfectAgreementSlipRateFunc.setName("Perfect agreement line");
+		ArrayList<DefaultXY_DataSet> funcsSR = new ArrayList<DefaultXY_DataSet>();
+		funcsSR.add(obsVsImposedSectSlipRates);
+		funcsSR.add(perfectAgreementSlipRateFunc);
+		ArrayList<PlotCurveCharacterstics> plotCharsSR = new ArrayList<PlotCurveCharacterstics>();
+		plotCharsSR.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
+		plotCharsSR.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		GraphWindow graphSR = new GraphWindow(funcsSR, "Obs vs Imposed Section Slip Rates; "+probTypeString, plotCharsSR); 
+		graphSR.setX_AxisRange(1e-5, 0.05);
+		graphSR.setY_AxisRange(1e-5, 0.05);
+		graphSR.setYLog(true);
+		graphSR.setXLog(true);
+		graphSR.setX_AxisLabel("Imposed Section Slip Rate (mm/yr)");
+		graphSR.setY_AxisLabel("Simulated Section Slip Rate (mm/yr)");
+
 		
 		
 		
@@ -1606,6 +1684,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
 				graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
 				graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
+				graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
+				graphSR.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.pdf");
 				// data:
 				FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
 				for (double val : normalizedRupRecurIntervals)

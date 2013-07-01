@@ -49,12 +49,12 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
 		
-		invERF.bpt_AperiodicityParam.setValue(0.5);
-		double duration = 20000;
+		invERF.bpt_AperiodicityParam.setValue(0.3);
+		double duration = 10000;
 		
 //		int probType = 0;	// Poisson
-		int probType = 1;	// U3
-//		int probType = 2;	// WG02
+//		int probType = 1;	// U3
+		int probType = 2;	// WG02
 		
 		
 		invERF.getTimeSpan().setDuration(duration);	// yrs
