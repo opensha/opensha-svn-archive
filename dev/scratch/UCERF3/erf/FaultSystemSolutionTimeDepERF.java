@@ -1341,37 +1341,40 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					}				
 				}
 				
-				// make SAF event plotting funcs
-				ArrayList<Integer> safSections = new ArrayList<Integer>();
-				for(int id : sectID_Array) {
-					if(invRupSet.getFaultSectionData(id).getParentSectionName().contains("San Andreas"))
-							safSections.add(id);
-				}
-				if(safSections.size()>0) {
-					double[] lats = new double[safSections.size()];
-					for(int i=0;i<safSections.size();i++)
-						lats[i] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
-					double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
-					for(double val: lats) {
-						if(min>val) min = val;
-						if(max<val) max = val;
+				// make SAF event plotting funcs (ONLY FOR FIRST 10000 YEARS)
+				double numYrs = (eventTimeMillis-origStartTime)/MILLISEC_PER_YEAR;
+				if(numYrs < 10000) {
+					ArrayList<Integer> safSections = new ArrayList<Integer>();
+					for(int id : sectID_Array) {
+						if(invRupSet.getFaultSectionData(id).getParentSectionName().contains("San Andreas"))
+								safSections.add(id);
 					}
-					ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
-					newFunc.set(min,eventTimeMillis/MILLISEC_PER_YEAR);
-					newFunc.set(max,eventTimeMillis/MILLISEC_PER_YEAR);
-					
-					safEventFuncs.add(newFunc);
-					double mag = magOfNthRups[nthRup];
-					if(mag<6.5)
-						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
-					else if(mag<7)
-						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
-					else if(mag<7.5)
-						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.ORANGE));
-					else if(mag<8)
-						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
-					else
-						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+					if(safSections.size()>0) {
+						double[] lats = new double[safSections.size()];
+						for(int i=0;i<safSections.size();i++)
+							lats[i] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
+						double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
+						for(double val: lats) {
+							if(min>val) min = val;
+							if(max<val) max = val;
+						}
+						ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+						newFunc.set(min,eventTimeMillis/MILLISEC_PER_YEAR);
+						newFunc.set(max,eventTimeMillis/MILLISEC_PER_YEAR);
+						
+						safEventFuncs.add(newFunc);
+						double mag = magOfNthRups[nthRup];
+						if(mag<6.5)
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
+						else if(mag<7)
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
+						else if(mag<7.5)
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.ORANGE));
+						else if(mag<8)
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
+						else
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+					}			
 				}
 
 				

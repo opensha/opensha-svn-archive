@@ -50,11 +50,11 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.getTimeSpan().setStartTimeInMillis(0);
 		
 		invERF.bpt_AperiodicityParam.setValue(0.3);
-		double duration = 10000;
+		double duration = 500000;
 		
-//		int probType = 0;	// Poisson
+		int probType = 0;	// Poisson
 //		int probType = 1;	// U3
-		int probType = 2;	// WG02
+//		int probType = 2;	// WG02
 		
 		
 		invERF.getTimeSpan().setDuration(duration);	// yrs
