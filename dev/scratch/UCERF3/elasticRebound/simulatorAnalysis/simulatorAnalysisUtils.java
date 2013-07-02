@@ -106,31 +106,31 @@ public class simulatorAnalysisUtils {
 	public static void runAll() {
 		
 		// Set the simulator Geometry file
-		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/allcal2_1-7-11");
+		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/allcal2_1-7-11");
 //		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/simulatorDataFiles");
 //		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
 //				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
-				"ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat" //,
+//				"ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat" //,
 //				"ALLCAL2-30k-output[3-24-11].converted",
-//				"Fred-allcal2-7june11.txt"
+				"Fred-allcal2-7june11.txt"
 				};
 //		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
 //		String[] dirNamesPrefixArray = {"RSQSim","ALLCAL","ViscoSim"};
 //		String[] dirNamesPrefixArray = {"RSQSim"};
-		String[] dirNamesPrefixArray = {"VirtCal"};
-//		String[] dirNamesPrefixArray = {"ViscoSim"};
+//		String[] dirNamesPrefixArray = {"VirtCal"};
 //		String[] dirNamesPrefixArray = {"ALLCAL"};
-		
+		String[] dirNamesPrefixArray = {"ViscoSim"};
+
 		// set the list of supra-seismogenic mag thresholds (NaN means it will be defined by ave fault DDW)
-//		double[] seismoMagThreshArray = {6.5,Double.NaN};
-		double[] seismoMagThreshArray = {6.5};
+		double[] seismoMagThreshArray = {6.5,Double.NaN};
+//		double[] seismoMagThreshArray = {6.5};
 				
 		// loop over desired runs
 		for(double magThresh:seismoMagThreshArray) {
@@ -153,13 +153,13 @@ public class simulatorAnalysisUtils {
 					infoStrings.add(dirNameForSavingFiles+"\tusing file "+fileName+"\n");
 					infoStrings.add("Simulation Duration is "+(float)tools.getSimulationDurationYears()+" years\n");
 					
-//					tools.testElementAreas();
-//					tools.testTemp();
+					tools.testElementAreas();
+					tools.testTemp();
 					
-//					// check element areas (only geometry file dependent)
-//					System.out.println("Working on printMinAndMaxElementArea(*)");
-//					infoStrings.add(tools.printMinAndMaxElementArea());
-//
+					// check element areas (only geometry file dependent)
+					System.out.println("Working on printMinAndMaxElementArea(*)");
+					infoStrings.add(tools.printMinAndMaxElementArea());
+
 					// check slip rates
 					System.out.println("Working on imposedVsImpliedSlipRates(*)");
 					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
