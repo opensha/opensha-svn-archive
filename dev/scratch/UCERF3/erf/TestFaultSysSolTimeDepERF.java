@@ -25,6 +25,15 @@ public class TestFaultSysSolTimeDepERF {
 	 */
 	public static void main(String[] args) {
 		
+		doAllER_Analyses();
+		
+		
+		
+		
+		
+		
+		
+		
 //		FaultSystemSolutionTimeDepERF.testFastBPT_Calc();
 //		FaultSystemSolutionTimeDepERF.testTimeToPoisCondProb();
 		
@@ -42,26 +51,26 @@ public class TestFaultSysSolTimeDepERF {
 		
 		
 		
-//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
-		
-		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
-		invERF.getTimeSpan().setStartTimeInMillis(0);
-		
-		invERF.bpt_AperiodicityParam.setValue(0.3);
-		double duration = 500000;
-		
-		int probType = 0;	// Poisson
-//		int probType = 1;	// U3
-//		int probType = 2;	// WG02
-		
-		
-		invERF.getTimeSpan().setDuration(duration);	// yrs
-		long runtime = System.currentTimeMillis();
-		invERF.testER_Simulation(probType, null, null);
-		runtime -= System.currentTimeMillis();
-		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
+////		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+//		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
+//		
+//		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
+//		invERF.getTimeSpan().setStartTimeInMillis(0);
+//		
+//		invERF.bpt_AperiodicityParam.setValue(0.3);
+//		double duration = 500000;
+//		
+//		int probType = 0;	// Poisson
+////		int probType = 1;	// U3
+////		int probType = 2;	// WG02
+//		
+//		
+//		invERF.getTimeSpan().setDuration(duration);	// yrs
+//		long runtime = System.currentTimeMillis();
+//		invERF.testER_Simulation(probType, null, null);
+//		runtime -= System.currentTimeMillis();
+//		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 //		System.exit(0);
 //
 //		invERF.getTimeSpan().setStartTime(1970);
@@ -159,6 +168,31 @@ public class TestFaultSysSolTimeDepERF {
 //				
 //				
 //				System.exit(0);
+
+	}
+	
+	public static void doAllER_Analyses() {
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionTimeDepERF invERF = new FaultSystemSolutionTimeDepERF(fileName);
+		
+		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
+		invERF.getTimeSpan().setStartTimeInMillis(0);
+		
+//		invERF.bpt_AperiodicityParam.setValue(0.2);
+//		invERF.bpt_AperiodicityParam.setValue(0.4);
+		invERF.bpt_AperiodicityParam.setValue(0.6);
+		double duration = 50000;
+		
+//		int probType = 0;	// Poisson
+		int probType = 1;	// U3
+//		int probType = 2;	// WG02
+		
+		
+		invERF.getTimeSpan().setDuration(duration);	// yrs
+		long runtime = System.currentTimeMillis();
+		invERF.testER_Simulation(probType, null, null);
+		runtime -= System.currentTimeMillis();
+		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 
 	}
 
