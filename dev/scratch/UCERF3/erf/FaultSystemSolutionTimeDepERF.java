@@ -250,7 +250,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @return
 	 */
 	protected static BPT_DistCalc getRef_BPT_DistCalc(double bpt_Aperiodicity, double durationInYears) {
-		int numPts = (int)Math.round((8*refRI+durationInYears)/deltaT);
+		int numPts = (int)Math.round((9*refRI+durationInYears)/deltaT);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		bptCalc.setAll(refRI, bpt_Aperiodicity, deltaT, numPts, durationInYears);
 		return bptCalc;
@@ -1166,10 +1166,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// make output directory name
 		// aperiodicity
 		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
-		String aperSring = aper;
-		aperSring.replace(".", "pt");
+		String aperString = aper;
+		aperString.replace(".", "pt");
 		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
-		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aperSring;
+		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aperString;
 
 		
 		// save original start time and total duration (these will get over ridden)
