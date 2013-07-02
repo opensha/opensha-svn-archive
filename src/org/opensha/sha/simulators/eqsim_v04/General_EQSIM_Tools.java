@@ -2644,18 +2644,23 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		double lower95 = meanInterval-1.96*stdDevOfMean;
 		
 		infoString += "meanRI="+Math.round(meanInterval)+"\tlower95="+Math.round(lower95)+"\tupper95="+Math.round(upper95)+"\n";
+		infoString += "mean from Histogram="+riHist.computeMean()+"\tCOV from Histogram="+riHist.computeCOV()+"\n";
+		riHist.normalizeBySumOfY_Vals();
+		infoString += riHist.toString();
 
 		riHist.setName(locName+" RI histogram");
 		riHist.setInfo(infoString);
 		
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
 		funcList.add(riHist);
-		GraphWindow graph = new GraphWindow(funcList, "Recurence Intervals for "+locName); 
-		graph.setX_AxisLabel("RI (yrs)");
-		graph.setY_AxisLabel("Number of Observations");
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph.setPlotChars(curveCharacteristics);
+
+		GraphWindow graph = new GraphWindow(funcList, "Recurence Intervals for "+locName, curveCharacteristics); 
+		graph.setX_AxisLabel("RI (yrs)");
+		graph.setY_AxisLabel("Fraction of Observations");
+//		graph.setY_AxisRange(0, 0.2);
+// System.out.println("max Y value:\t"+graph.getY_AxisRange().getUpperBound());
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");

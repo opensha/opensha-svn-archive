@@ -81,11 +81,15 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	
 	public EvenlyDiscretizedFunc getCDF() {
 		if(!upToDate) computeDistributions();
+		cdf.setName(NAME+" CDF");
+		cdf.setInfo(adjustableParams.toString());
 		return cdf;
 	}
 
 	public EvenlyDiscretizedFunc getPDF() {
 		if(!upToDate) computeDistributions();
+		pdf.setName(NAME+" PDF");
+		pdf.setInfo(adjustableParams.toString());
 		return pdf;
 	}
 
@@ -97,6 +101,8 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 			haz = pdf.getY(i)/(1.0-cdf.getY(i));
 			hazFunc.set(i,haz);
 		}
+		hazFunc.setName(NAME+" Hazard Function");
+		hazFunc.setInfo(adjustableParams.toString());
 		return hazFunc;
 	}
 	
@@ -114,6 +120,8 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		for(int i=0;i<condFunc.getNum();i++) {
 			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
 		}
+		condFunc.setName(NAME+" Conditional Probability Function");
+		condFunc.setInfo(adjustableParams.toString());
 		return condFunc;
 	}
 	
