@@ -1152,23 +1152,24 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 //		correctionMFD.set(8.15,1.43739);
 //		correctionMFD.set(8.25,1.82691);
 
-		// aperiodicity
-		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
 
 		String probTypeString;
 		if(probType==0)
 			probTypeString= "Poisson";
 		else if(probType==1)
-			probTypeString= "U3 (aper="+aper+")";
+			probTypeString= "U3";
 		else if(probType==2)
-			probTypeString= "WG02 (aper="+aper+")";
+			probTypeString= "WG02";
 		else
 			throw new RuntimeException();
 		
 		// make output directory name
-		aper.replace(".", "pt");
+		// aperiodicity
+		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
+		String aperSring = aper;
+		aperSring.replace(".", "pt");
 		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
-		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aper;
+		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aperSring;
 
 		
 		// save original start time and total duration (these will get over ridden)
@@ -1444,8 +1445,12 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("numRups="+numRups);
 		System.out.println("normalizedRecurIntervals.size()="+normalizedRupRecurIntervals.size());
 		
-		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+probTypeString);
-		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+probTypeString);
+		String plotLabelString = probTypeString;
+		if(probType != 0) plotLabelString += " (aper="+aper+")";
+			
+		
+		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+plotLabelString);
+		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString);
 		
 //		System.out.println(obsMFD);
 
@@ -1468,7 +1473,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		funcs.add(obsMFD);
 		funcs.add(targetMFD.getCumRateDistWithOffset());
 		funcs.add(obsMFD.getCumRateDistWithOffset());
-		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists; "+probTypeString); 
+		GraphWindow graph = new GraphWindow(funcs, "Incremental Mag-Freq Dists; "+plotLabelString); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
 		graph.setYLog(true);	// this causes problems
@@ -1521,7 +1526,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		ArrayList<PlotCurveCharacterstics> plotChars4 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
 		plotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphWindow graph4 = new GraphWindow(funcs4, "Obs vs Imposed Rup Rates; "+probTypeString, plotChars4); 
+		GraphWindow graph4 = new GraphWindow(funcs4, "Obs vs Imposed Rup Rates; "+plotLabelString, plotChars4); 
 		graph4.setX_AxisRange(5d/origDuration, 0.01);
 		graph4.setY_AxisRange(5d/origDuration, 0.01);
 		graph4.setYLog(true);
@@ -1532,7 +1537,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		
 		// plot SAF events
-		GraphWindow graph9 = new GraphWindow(safEventFuncs, "SAF events; "+probTypeString, safPlotChars4); 
+		GraphWindow graph9 = new GraphWindow(safEventFuncs, "SAF events; "+plotLabelString, safPlotChars4); 
 		graph9.setX_AxisLabel("Latitute");
 		graph9.setY_AxisLabel("Year");
 
@@ -1553,7 +1558,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		ArrayList<PlotCurveCharacterstics> plotCharsSR = new ArrayList<PlotCurveCharacterstics>();
 		plotCharsSR.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
 		plotCharsSR.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphWindow graphSR = new GraphWindow(funcsSR, "Obs vs Imposed Section Slip Rates; "+probTypeString, plotCharsSR); 
+		GraphWindow graphSR = new GraphWindow(funcsSR, "Obs vs Imposed Section Slip Rates; "+plotLabelString, plotCharsSR); 
 		graphSR.setX_AxisRange(1e-5, 0.05);
 		graphSR.setY_AxisRange(1e-5, 0.05);
 		graphSR.setYLog(true);
@@ -1674,7 +1679,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
 		plotChars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphWindow graph3 = new GraphWindow(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+probTypeString, plotChars2); 
+		GraphWindow graph3 = new GraphWindow(funcs3, "Obs/imposed vs Imposed Section Rates for M 6.0 to 6.7; "+plotLabelString, plotChars2); 
 		graph3.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph3.setY_AxisLabel("Ratio of Observed to Imposed");
 		

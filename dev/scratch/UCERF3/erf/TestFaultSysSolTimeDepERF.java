@@ -178,10 +178,10 @@ public class TestFaultSysSolTimeDepERF {
 		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
 		invERF.getTimeSpan().setStartTimeInMillis(0);
 		
-//		invERF.bpt_AperiodicityParam.setValue(0.2);
+		invERF.bpt_AperiodicityParam.setValue(0.2);
 //		invERF.bpt_AperiodicityParam.setValue(0.4);
-		invERF.bpt_AperiodicityParam.setValue(0.6);
-		double duration = 50000;
+//		invERF.bpt_AperiodicityParam.setValue(0.6);
+		double duration = 10000;
 		
 //		int probType = 0;	// Poisson
 		int probType = 1;	// U3
@@ -190,7 +190,7 @@ public class TestFaultSysSolTimeDepERF {
 		
 		invERF.getTimeSpan().setDuration(duration);	// yrs
 		long runtime = System.currentTimeMillis();
-		invERF.testER_Simulation(probType, null, null);
+		invERF.testER_Simulation(probType, "dateOfLastPoiss100k.txt", null);
 		runtime -= System.currentTimeMillis();
 		System.out.println("simulation took "+runtime/(1000*60)+" minutes");
 
