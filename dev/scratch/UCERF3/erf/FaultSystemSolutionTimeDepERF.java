@@ -250,7 +250,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @return
 	 */
 	protected static BPT_DistCalc getRef_BPT_DistCalc(double bpt_Aperiodicity, double durationInYears) {
-		int numPts = (int)Math.round((7*refRI+durationInYears)/deltaT);
+		int numPts = (int)Math.round((8*refRI+durationInYears)/deltaT);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		bptCalc.setAll(refRI, bpt_Aperiodicity, deltaT, numPts, durationInYears);
 		return bptCalc;
