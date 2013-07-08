@@ -240,6 +240,12 @@
 				<include name="**/*.asc" />
 			</fileset>
 		</copy>
+
+		<copy todir="${build}/scratch/UCERF3/data/seismicityGrids" overwrite="true">
+			<fileset dir="${dev}/scratch/UCERF3/data/seismicityGrids">
+				<include name="*.txt" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="resource.erfs.dev">
