@@ -243,7 +243,9 @@
 
 		<copy todir="${build}/scratch/UCERF3/data/seismicityGrids" overwrite="true">
 			<fileset dir="${dev}/scratch/UCERF3/data/seismicityGrids">
-				<include name="*.txt" />
+				<include name="StrikeSlipWts.txt" />
+				<include name="ReverseWts.txt" />
+				<include name="NormalWts.txt" />
 			</fileset>
 		</copy>
 	</target>
