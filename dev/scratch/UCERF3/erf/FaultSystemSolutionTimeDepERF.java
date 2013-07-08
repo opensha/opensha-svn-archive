@@ -1119,40 +1119,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	public void testER_Simulation(int probType, String inputDateOfLastFileName, String outputDateOfLastFileName) {
 		
 		
-		// temp correction MFD - to see if this will correct the MFD baises; it does, but messes up section part rates for parkfield
-//		IncrementalMagFreqDist correctionMFD = new IncrementalMagFreqDist(5.05,8.95,40);
-//		for(int i=0;i<correctionMFD.getNum();i++)
-//			correctionMFD.set(i,1.0);
-//		correctionMFD.set(5.55,0.68401*0.9);
-//		correctionMFD.set(5.65,0.514048*0.9);
-//		correctionMFD.set(5.75,0.790005*0.9);
-//		correctionMFD.set(5.85,0.837815*0.9);
-//		correctionMFD.set(5.95,0.871158*0.9);
-//		correctionMFD.set(6.05,0.837409*0.8);
-//		correctionMFD.set(6.15,0.817532*0.8);
-//		correctionMFD.set(6.25,0.794629*0.8);
-//		correctionMFD.set(6.35,0.819054*0.8);
-//		correctionMFD.set(6.45,0.857520*0.8);
-//		correctionMFD.set(6.55,0.866264*0.8);
-//		correctionMFD.set(6.65,0.886100*0.8);
-//		correctionMFD.set(6.75,0.925039*0.9);
-//		correctionMFD.set(6.85,0.910973*0.9);
-//		correctionMFD.set(6.95,0.948021*0.9);
-//		correctionMFD.set(7.05,0.974252);
-//		correctionMFD.set(7.15,0.9974);
-//		correctionMFD.set(7.25,1.00688);
-//		correctionMFD.set(7.35,1.0623);
-//		correctionMFD.set(7.45,1.09672);
-//		correctionMFD.set(7.55,0.991633);
-//		correctionMFD.set(7.65,1.04239);
-//		correctionMFD.set(7.75,1.05267);
-//		correctionMFD.set(7.85,1.0803);
-//		correctionMFD.set(7.95,1.34756);
-//		correctionMFD.set(8.05,1.11993);
-//		correctionMFD.set(8.15,1.43739);
-//		correctionMFD.set(8.25,1.82691);
-
-
 		String probTypeString;
 		if(probType==0)
 			probTypeString= "Poisson";
@@ -1163,14 +1129,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		else
 			throw new RuntimeException();
 		
-		// make output directory name
-		// aperiodicity
-		String aper = "aper"+this.bpt_AperiodicityParam.getValue();
-		String aperString = aper;
+		// make output directory name & other strings
+		double aper = this.bpt_AperiodicityParam.getValue();
+		String aperString = "aper"+aper;
 		aperString.replace(".", "pt");
 		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
 		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aperString;
+		String plotLabelString = probTypeString;
+		if(probType != 0) plotLabelString += " (aper="+aper+")";
 
+		File resultsDir = new File(dirNameForSavingFiles);
+		if(!resultsDir.exists()) resultsDir.mkdir();
 		
 		// save original start time and total duration (these will get over ridden)
 		long origStartTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
@@ -1210,7 +1179,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 		
 		// for plotting SAF events
-		ArrayList<ArbitrarilyDiscretizedFunc> safEventFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		ArrayList<XY_DataSet> safEventFuncs = new ArrayList<XY_DataSet>();
 		ArrayList<PlotCurveCharacterstics> safPlotChars4 = new ArrayList<PlotCurveCharacterstics>();
 
 		
@@ -1245,9 +1214,16 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		System.out.println("minCondRI="+minCondRI);
 		System.out.println("maxCondRI="+maxCondRI);
 		
-		// do simulation loop
+		// initialize things
 		double yr=startYear;
+		
+		// these are for scatter plots
+		double numScatterPlotSamples = 10;
+		double nextScatterPlotYrIncrement = origDuration/(numScatterPlotSamples*1.1);	// this should make numScatterPlotSamples samples
+		double nextScatterPlotYr = yr+nextScatterPlotYrIncrement;
+		ArrayList<DefaultXY_DataSet> scatFuncs = new ArrayList<DefaultXY_DataSet>();
 
+		// this is to track progress
 		int percDoneThresh=0;
 		int percDoneIncrement=5;
 		int numGoodDateOfLast=getNumSectWithDateOfLastEvent();
@@ -1259,6 +1235,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		if(inputDateOfLastFileName != null)
 			readSectTimeSinceLastEventFromFile(inputDateOfLastFileName, origStartTime);	// TODO Could differ from what was in the fault section data objects
 		
+		boolean firstEvent = true;
 		while (yr<origDuration+startYear) {
 			
 			// write progress
@@ -1345,15 +1322,46 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				// make SAF event plotting funcs (ONLY FOR FIRST 10000 YEARS)
 				double numYrs = (eventTimeMillis-origStartTime)/MILLISEC_PER_YEAR;
 				if(numYrs < 10000) {
+					// make the function showing 10% RI at bottom of plot
+					if(firstEvent) {
+						for(int s=0;s<invRupSet.getNumSections();s++) {
+							double tenPercentRI = 0.1/longTermPartRateForSectArray[s];
+							FaultSectionPrefData sectData= invRupSet.getFaultSectionData(s);
+							if(sectData.getParentSectionName().contains("San Andreas")) {
+								ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+								newFunc.set(sectData.getFaultTrace().first().getLatitude(),tenPercentRI);
+								newFunc.set(sectData.getFaultTrace().last().getLatitude(),tenPercentRI);
+								safEventFuncs.add(newFunc);
+								safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLACK));
+							}
+						}
+						firstEvent=false;
+					}
+					// make list of SAF sections in event
 					ArrayList<Integer> safSections = new ArrayList<Integer>();
 					for(int id : sectID_Array) {
 						if(invRupSet.getFaultSectionData(id).getParentSectionName().contains("San Andreas"))
 								safSections.add(id);
 					}
 					if(safSections.size()>0) {
-						double[] lats = new double[safSections.size()];
-						for(int i=0;i<safSections.size();i++)
-							lats[i] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
+						double[] lats = new double[2*safSections.size()];	// one for each end of the fault section
+						ArrayList<Double> shortSectRI_Lats = new ArrayList<Double>();
+						for(int i=0;i<safSections.size();i++) {
+							lats[2*i] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
+							lats[2*i+1] = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().last().getLatitude();
+							
+							// check for short interval
+							long timeOfLastMillis = dateOfLastForSect[safSections.get(i)];
+							if(timeOfLastMillis != Long.MIN_VALUE) {
+								double normYrsSinceLast = ((eventTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[safSections.get(i)];
+								if(normYrsSinceLast<0.1) {
+									double lat1 = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().first().getLatitude();
+									double lat2 = invRupSet.getFaultSectionData(safSections.get(i)).getFaultTrace().last().getLatitude();
+									shortSectRI_Lats.add((lat1+lat2)/2);
+								}
+							}
+
+						}
 						double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
 						for(double val: lats) {
 							if(min>val) min = val;
@@ -1364,6 +1372,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 						newFunc.set(max,eventTimeMillis/MILLISEC_PER_YEAR);
 						
 						safEventFuncs.add(newFunc);
+						
 						double mag = magOfNthRups[nthRup];
 						if(mag<6.5)
 							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
@@ -1375,6 +1384,16 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
 						else
 							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+						
+						// plot circles where there are short section RIs
+						if(shortSectRI_Lats.size()>0) {
+							DefaultXY_DataSet shortRIsFunc = new DefaultXY_DataSet();
+							for(double lat:shortSectRI_Lats) {
+								shortRIsFunc.set(lat, eventTimeMillis/MILLISEC_PER_YEAR);
+							}
+							safEventFuncs.add(shortRIsFunc);
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 2f, Color.BLACK));
+						}
 					}			
 				}
 
@@ -1398,6 +1417,84 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			yr+=timeOfNextInYrs;
 			timeSpan.setStartTimeInMillis(eventTimeMillis); // this is needed for the elastic rebound probs
 			long newStartTimeMillis = timeSpan.getStartTimeCalendar().getTimeInMillis();
+			
+			
+//			// make scatter plot of U2 vs U3 rup gains 
+//			if(yr > nextScatterPlotYr) {
+//				// set yr to do this next
+//				nextScatterPlotYr = yr+nextScatterPlotYrIncrement;
+//				
+//				computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+//				double[] u3ProbGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
+//				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
+//					u3ProbGainForFaultSystemSource[s] = probGainForFaultSystemSource[s];					
+//				}
+//				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
+//				double[] u2ProbGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
+//				for(int s=0;s<numNonZeroFaultSystemSources;s++) {
+//					u2ProbGainForFaultSystemSource[s] = probGainForFaultSystemSource[s];					
+//				}
+//				
+//				DefaultXY_DataSet scatFunc = new DefaultXY_DataSet();
+//				for(int n=0; n<totNumRupsFromFaultSystem;n++) {
+//					double gainRatio = u3ProbGainForFaultSystemSource[srcIndexForNthRup[n]]/u2ProbGainForFaultSystemSource[srcIndexForNthRup[n]];
+//					if(gainRatio<1e-10) gainRatio = 1e-10;
+//					if(gainRatio>1e10) gainRatio = 1e10;
+//					scatFunc.set(longTermRateOfNthRups[n],gainRatio);
+//				}
+//				scatFunc.setName("U3/U2 Rup Gain vs Long Rup Rate at "+Math.round(yr)+" yrs");
+//				scatFuncs.add(scatFunc);
+//			}
+			
+			
+			// make scatter plot of U2 vs U3 total sections rates
+			if(yr > nextScatterPlotYr) {
+				// set yr to do this next
+				nextScatterPlotYr = yr+nextScatterPlotYrIncrement;
+				
+				computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+				double[] u3_totSectTimeDepRates = new double[invRupSet.getNumSections()];
+				for(int n=0; n<totNumRupsFromFaultSystem;n++) {
+					int srcID = srcIndexForNthRup[n];
+					int fltSysRupIndex = fltSysRupIndexForSource[srcID];
+					double rupRate = probGainForFaultSystemSource[srcID]*longTermRateOfNthRups[n];
+					List<Integer> sectId_List = invRupSet.getSectionsIndicesForRup(fltSysRupIndex);
+					for(int sectID:sectId_List) {
+						u3_totSectTimeDepRates[sectID] += rupRate;
+					}
+				}
+				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
+				double[] u2_totSectTimeDepRates = new double[invRupSet.getNumSections()];
+				for(int n=0; n<totNumRupsFromFaultSystem;n++) {
+					int srcID = srcIndexForNthRup[n];
+					int fltSysRupIndex = fltSysRupIndexForSource[srcID];
+					double rupRate = probGainForFaultSystemSource[srcID]*longTermRateOfNthRups[n];
+					List<Integer> sectId_List = invRupSet.getSectionsIndicesForRup(fltSysRupIndex);
+					for(int sectID:sectId_List) {
+						u2_totSectTimeDepRates[sectID] += rupRate;
+					}
+				}
+				DefaultXY_DataSet scatFunc = new DefaultXY_DataSet();
+				for(int s=0; s<invRupSet.getNumSections();s++) {
+					double u3rate = u3_totSectTimeDepRates[s];
+					if(u3rate<1e-10) u3rate = 1e-10;
+					if(u3rate>1e10) u3rate = 1e10;
+					double u2rate = u2_totSectTimeDepRates[s];
+					if(u2rate<1e-10) u2rate = 1e-10;
+					if(u2rate>1e10) u2rate = 1e10;
+					scatFunc.set(u2rate,u3rate);
+					
+					// the following test shows that the trend is not section-rate dependent
+//					double gainRatio = u3_totSectTimeDepRates[s]/u2_totSectTimeDepRates[s];
+//					if(gainRatio<1e-10) gainRatio = 1e-10;
+//					if(gainRatio>1e10) gainRatio = 1e10;
+//					scatFunc.set(longTermPartRateForSectArray[s],gainRatio);
+				}
+				scatFunc.setName("U3 vs U2 section rates at "+Math.round(yr)+" yrs");
+				scatFuncs.add(scatFunc);
+			}
+
+			
 			
 			// Now update gains for each source
 //			long millis = System.currentTimeMillis();
@@ -1444,13 +1541,41 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		System.out.println("numRups="+numRups);
 		System.out.println("normalizedRecurIntervals.size()="+normalizedRupRecurIntervals.size());
-		
-		String plotLabelString = probTypeString;
-		if(probType != 0) plotLabelString += " (aper="+aper+")";
 			
 		
-		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+plotLabelString);
-		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString);
+		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+plotLabelString, bpt_AperiodicityParam.getValue());
+		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString, bpt_AperiodicityParam.getValue());
+		
+		
+		// scatter plot of U3 vs U2 time-dep rates
+		double aveRatio = 0;
+		int numRatio = 0;
+		for(DefaultXY_DataSet func: scatFuncs) {
+			for(int j=0;j<func.getNum();j++) {
+				aveRatio += func.getY(j)/func.getX(j);
+				numRatio+=1;
+			}
+		}
+		aveRatio /= numRatio;
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		ArrayList<PlotCurveCharacterstics> plotCharsScat = new ArrayList<PlotCurveCharacterstics>();
+		for(int i=0;i<scatFuncs.size();i++)
+			plotCharsScat.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, colors.get(i)));
+		DefaultXY_DataSet perfectAgreementScat = new DefaultXY_DataSet();
+		perfectAgreementScat.set(1e-10,1e-10);
+//		perfectAgreementScat.set(1e10,1e10);
+		perfectAgreementScat.set(1d,1d);
+		perfectAgreementScat.setName("Perfect agreement line");
+		scatFuncs.add(perfectAgreementScat);
+		plotCharsScat.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		GraphWindow graphScat = new GraphWindow(scatFuncs, "Section Rates - aveRatio="+(float)aveRatio+"; "+plotLabelString, plotCharsScat); 		
+		graphScat.setYLog(true);
+		graphScat.setXLog(true);
+		graphScat.setX_AxisLabel("U2 Section Rates");
+		graphScat.setY_AxisLabel("U3 Section Rates");
+
+		
+		
 		
 //		System.out.println(obsMFD);
 
@@ -1649,9 +1774,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 					obsSectRateArrayM7pt95to8pt25[s]+"\t"+
 					invRupSet.getFaultSectionData(s).getName()+"\n");
 		}
-//		if(!dataDir.exists()) dataDir.mkdir();
-		File resultsDir = new File(dirNameForSavingFiles);
-		if(!resultsDir.exists()) resultsDir.mkdir();
 		File dataFile = new File(resultsDir,File.separator+"testSectRates");
 		try {
 			FileWriter fileWriter = new FileWriter(dataFile);
@@ -1683,37 +1805,36 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		graph3.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph3.setY_AxisLabel("Ratio of Observed to Imposed");
 		
-		if(dirNameForSavingFiles != null) {
-			try {
-				// plots
-				grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
-				graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
-				graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
-				graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
-				graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
-				graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
-				graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
-				graphSR.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.pdf");
-				// data:
-				FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
-				for (double val : normalizedRupRecurIntervals)
-					fr.write(val + "\n");
-				fr.close();
-				
-				fr = new FileWriter(dirNameForSavingFiles+"/normalizedSectRecurIntervals.txt");
-				for (double val : normalizedSectRecurIntervals)
-					fr.write(val + "\n");
-				fr.close();
-				
-				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD, dirNameForSavingFiles+"/targetMFD.txt");
-				AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD, dirNameForSavingFiles+"/simulatedMFD.txt");
-				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/targetCumMFD.txt");
-				AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/simulatedCumMFD.txt");
+		try {
+			// plots
+			graphScat.saveAsPDF(dirNameForSavingFiles+"/scatterPlotOfU3vsU2_TimeDepSectRatesAt"+Math.round(yr)+"yrs.pdf");
+			grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
+			graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
+			graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
+			graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
+			graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
+			graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
+			graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
+			graphSR.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.pdf");
+			// data:
+			FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
+			for (double val : normalizedRupRecurIntervals)
+				fr.write(val + "\n");
+					fr.close();
+
+					fr = new FileWriter(dirNameForSavingFiles+"/normalizedSectRecurIntervals.txt");
+					for (double val : normalizedSectRecurIntervals)
+						fr.write(val + "\n");
+							fr.close();
+
+							AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD, dirNameForSavingFiles+"/targetMFD.txt");
+							AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD, dirNameForSavingFiles+"/simulatedMFD.txt");
+							AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/targetCumMFD.txt");
+							AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/simulatedCumMFD.txt");
 
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -1907,7 +2028,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				double refTimeSinceLast = timeSinceLastYears*refRI*longTermPartRateForSectArray[s];
 				double refDuration = durationYears*refRI*longTermPartRateForSectArray[s];
 				double prob_bpt = refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
-				double prob_pois = 1-Math.exp(-durationYears*longTermPartRateForSectArray[s]);
+//				double prob_pois = 1-Math.exp(-durationYears*longTermPartRateForSectArray[s]);
+				double prob_pois = durationYears*longTermPartRateForSectArray[s];	// this is there exact calculation, which is a bit different for long durations
 				sectionGainArray[s] = prob_bpt/prob_pois;
 			}
 			else {
