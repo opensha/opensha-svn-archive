@@ -225,6 +225,9 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		// convert to safe time since last if value too high
 		if(timeSinceLast>safeTimeSinceLast)
 			timeSinceLast=safeTimeSinceLast;
+		if(timeSinceLast+duration > cdf.getMaxX()+cdf.getTolerance()) {	// this can happen when safeTimeSinceLast = cdf.getMaxX()
+			timeSinceLast = safeTimeSinceLast-duration;
+		}
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
 		double denom = 1.0-p1;
