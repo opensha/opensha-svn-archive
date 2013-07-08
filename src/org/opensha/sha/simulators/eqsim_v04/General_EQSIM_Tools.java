@@ -1380,35 +1380,50 @@ public class General_EQSIM_Tools {
 	 * This is an alternative version of getNormRI_DistributionGraphPanel(*)
 	 * @param normRI_List
 	 * @param plotTitle
+	 * @param bptAperForComparison - this will add a BPT dist with mean=1 and given aper for comparison (set as Double.NaN if not desired)
 	 */
-	public static GraphWindow plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle) {
+	public static GraphWindow plotNormRI_Distribution(ArrayList<Double> normRI_List, String plotTitle, double bptAperForComparison) {
 		
 		// get the normalized RI dist
 		double delta=0.1;
 		HistogramFunction dist = getNormRI_Distribution(normRI_List, delta);
-		
-		// now make the list of best-fit functions for the plot
-		ArrayList<EvenlyDiscretizedFunc> funcList = getRenewalModelFunctionFitsToDist(dist);
-				
 		// add the histogram created here
 		dist.setName("Recur. Int. Dist");
 		String info = "Number of points = "+ normRI_List.size()+ "\nComputed mean = "+(float)dist.computeMean()+
 				"\nComputed COV = "+(float)dist.computeCOV();
 		dist.setInfo(info);
-
+		
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 		funcList.add(dist);
 		
+		// now make the list of best-fit functions for the plot
+		funcList.addAll(getRenewalModelFunctionFitsToDist(dist));
+						
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
+		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
-		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.RED));
+		
+		if(!Double.isNaN(bptAperForComparison)) {
+			BPT_DistCalc bpt_calc = new BPT_DistCalc();
+			bpt_calc.setAll(1.0, bptAperForComparison, funcList.get(1).getDelta()/2, funcList.get(1).getNum());	// not the first one because that's the obs histogram
+			EvenlyDiscretizedFunc bpt_func = bpt_calc.getPDF();
+			bpt_func.setName("BPT Dist for comparison");
+			bpt_func.setInfo("(mean="+1.0+", aper="+bptAperForComparison+")");
+			funcList.add(bpt_func);
+			curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GRAY));
+		}
 		
 		// make plot
 		GraphWindow graph = new GraphWindow(funcList, plotTitle, curveCharacteristics); 
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Density");
 		graph.setX_AxisRange(0, 5);
+		graph.setY_AxisRange(0, 2.3);
+		graph.setAxisLabelFontSize(22);
+		graph.setTickLabelFontSize(20);
+		graph.setPlotLabelFontSize(22);
 		return graph;
 		
 	}
@@ -1721,13 +1736,35 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			}
 		}
 
+//		// plot the normalized distributions and best fits
+//		HeadlessGraphPanel plot1 = getNormRI_DistributionGraphPanel(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
+//		HeadlessGraphPanel plot2 = getNormRI_DistributionGraphPanel(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
+//		HeadlessGraphPanel plot3 = getNormRI_DistributionGraphPanel(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
+//		HeadlessGraphPanel plot4 = getNormRI_DistributionGraphPanel(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
+//		HeadlessGraphPanel plot5 = getNormRI_DistributionGraphPanel(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
+//		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)");	// both lists are the same(?)		
+//		if(saveStuff) {
+//			try {
+//				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
+//				plot2.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval1_Dist.pdf");
+//				plot3.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
+//				plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
+//				plot5.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_Dist.pdf");
+//				plot6.saveAsPDF(dirNameForSavingFiles+"/norm_aveSlip_Dist.pdf");
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+		
+		
 		// plot the normalized distributions and best fits
-		HeadlessGraphPanel plot1 = getNormRI_DistributionGraphPanel(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
-		HeadlessGraphPanel plot2 = getNormRI_DistributionGraphPanel(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)");			
-		HeadlessGraphPanel plot3 = getNormRI_DistributionGraphPanel(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)");
-		HeadlessGraphPanel plot4 = getNormRI_DistributionGraphPanel(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)");			
-		HeadlessGraphPanel plot5 = getNormRI_DistributionGraphPanel(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)");			
-		HeadlessGraphPanel plot6 = getNormRI_DistributionGraphPanel(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)");	// both lists are the same(?)		
+		GraphWindow plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)", Double.NaN);
+		GraphWindow plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)", Double.NaN);			
+		GraphWindow plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)", Double.NaN);
+		GraphWindow plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)", Double.NaN);			
+		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)", Double.NaN);			
+		GraphWindow plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)", Double.NaN);	// both lists are the same(?)		
 		if(saveStuff) {
 			try {
 				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
@@ -1741,6 +1778,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				e.printStackTrace();
 			}
 		}
+
 
 		// Print correlations for "observed" and predicted intervals
 		double[] result;
@@ -2553,7 +2591,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 			}
 		}
-		GraphWindow graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements");
+		GraphWindow graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements", Double.NaN);
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.pdf");
@@ -2630,7 +2668,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				System.out.println(i+"\t"+intervals[i]+"\t"+binWidth+"\t"+numBins+"\t"+meanInterval+"\t"+maxInterval+"\t"+intervals.length);
 			}
 			
-			riHist.add(intervals[i], 1.0);
+			riHist.add(intervals[i], 1.0/(binWidth*intervals.length));	// binWidth this makes it a density function
 		}
 
 		// now compute stdDevOfMean & 95% conf
@@ -2655,12 +2693,14 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		funcList.add(riHist);
 		ArrayList<PlotCurveCharacterstics> curveCharacteristics = new ArrayList<PlotCurveCharacterstics>();
 		curveCharacteristics.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-
 		GraphWindow graph = new GraphWindow(funcList, "Recurence Intervals for "+locName, curveCharacteristics); 
 		graph.setX_AxisLabel("RI (yrs)");
-		graph.setY_AxisLabel("Fraction of Observations");
-//		graph.setY_AxisRange(0, 0.2);
-// System.out.println("max Y value:\t"+graph.getY_AxisRange().getUpperBound());
+		graph.setY_AxisLabel("Density");
+		graph.setX_AxisRange(0, 5*meanInterval);
+		graph.setY_AxisRange(0, 2.3/meanInterval);
+		graph.setAxisLabelFontSize(22);
+		graph.setTickLabelFontSize(20);
+		graph.setPlotLabelFontSize(22);
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/RI_HistogramFor_"+locName+".pdf");
