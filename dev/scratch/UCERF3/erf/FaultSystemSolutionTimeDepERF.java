@@ -108,6 +108,8 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	public static final String NAME = "Fault System Solution Time Dep ERF";
 	
+	private int typeCalcForU3_Probs = 1;	// 1 for averaging section recurrence intervals and time since last;  2 for averaging section rates and normalized time since last
+	
 	public final static double MILLISEC_PER_YEAR = 1000*60*60*24*365.25;
 	public final static long MILLISEC_PER_DAY = 1000*60*60*24;
 	
@@ -373,6 +375,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				oldGainForFaultSystemSource = probGainForFaultSystemSource;
 			
 			// create new prob gain
+			if(typeCalcForU3_Probs != 1)
+				System.out.println("WARNING - typeCalcForU3_Probs=2 OPTION NOW WORKING IN UPDATE FORECAST!!! ***********************");
+			
 			probGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
 			double duration = timeSpan.getDuration();
 			for(int s=0; s<numNonZeroFaultSystemSources; s++) {
@@ -579,12 +584,17 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				int sectID = data.getSectionId();
 				double area = data.getTraceLength()*data.getReducedDownDipWidth();
 				totArea += area;
-				// TEST HERE AND BELOW
-//				aveRate += longTermPartRateForSectArray[sectID]*area;  // weight averaged by area
-				aveRate += area/longTermPartRateForSectArray[sectID];  // this one averages RIs
+				// ave RIs or rates depending on which is set
+				if(typeCalcForU3_Probs==1)
+					aveRate += area/longTermPartRateForSectArray[sectID];  // this one averages RIs; wt averaged by area
+				else if(typeCalcForU3_Probs==2)
+					aveRate += longTermPartRateForSectArray[sectID]*area;  // this one averages rates; wt averaged by area
+				else throw new RuntimeException("Bad typeCalcForU3_Probs");
 			}
-//			aveCondRecurIntervalForFltSysRups[r] = 1/(aveRate/totArea);
-			aveCondRecurIntervalForFltSysRups[r] = aveRate/totArea;	// this one averages RIs
+			if(typeCalcForU3_Probs==1)
+				aveCondRecurIntervalForFltSysRups[r] = aveRate/totArea;	// this one averages RIs
+			else
+				aveCondRecurIntervalForFltSysRups[r] = 1/(aveRate/totArea);
 		}
 	}
 	
@@ -1132,11 +1142,18 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// make output directory name & other strings
 		double aper = this.bpt_AperiodicityParam.getValue();
 		String aperString = "aper"+aper;
-		aperString.replace(".", "pt");
+		aperString = aperString.replace(".", "pt");
 		int tempDur = (int) Math.round(timeSpan.getDuration()/1000);
-		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr_"+aperString;
+		String dirNameForSavingFiles = "UCERF3_ER_"+probTypeString+"_"+tempDur+"kyr";
+		if(probType != 0)
+			dirNameForSavingFiles += "_"+aperString;
+		if(probType == 1)
+			dirNameForSavingFiles += "_calcType"+typeCalcForU3_Probs;
 		String plotLabelString = probTypeString;
-		if(probType != 0) plotLabelString += " (aper="+aper+")";
+		if(probType == 1)
+			plotLabelString += " (aper="+aper+",c"+typeCalcForU3_Probs+")";
+		else if(probType == 2)
+			plotLabelString += " (aper="+aper+")";
 
 		File resultsDir = new File(dirNameForSavingFiles);
 		if(!resultsDir.exists()) resultsDir.mkdir();
@@ -1272,19 +1289,20 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				int fltSystRupIndex = fltSysRupIndexForNthRup[nthRup];
 				
 				
-				// TEST HERE:
-
 				// compute and save the normalize recurrence interval if all sections had date of last
-				long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
-				if(allSectionsHadDateOfLast) {
-					double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
-					normalizedRupRecurIntervals.add(timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex]);
+				if(typeCalcForU3_Probs == 1) {	// average time since last
+					long aveDateOfLastMillis = getAveDateOfLastEventFast(fltSystRupIndex);
+					if(allSectionsHadDateOfLast) {
+						double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
+						normalizedRupRecurIntervals.add(timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex]);
+					}
 				}
-				// Alternative to the calculation above:
-//				double aveNormYearsSinceLast = getAveNormTimeSinceLastEventFast(fltSystRupIndex, eventTimeMillis);
-//				if(allSectionsHadDateOfLast) {
-//					normalizedRupRecurIntervals.add(aveNormYearsSinceLast);
-//				}
+				else { // average normalized time since last
+					double aveNormYearsSinceLast = getAveNormTimeSinceLastEventFast(fltSystRupIndex, eventTimeMillis);
+					if(allSectionsHadDateOfLast) {
+						normalizedRupRecurIntervals.add(aveNormYearsSinceLast);
+					}					
+				}
 				
 				
 				
@@ -1420,7 +1438,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			
 //			// make scatter plot of U2 vs U3 rup gains 
-//			if(yr > nextScatterPlotYr) {
+//			if(yr > nextScatterPlotYr && probType != 0) {
 //				// set yr to do this next
 //				nextScatterPlotYr = yr+nextScatterPlotYrIncrement;
 //				
@@ -1448,7 +1466,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			
 			// make scatter plot of U2 vs U3 total sections rates
-			if(yr > nextScatterPlotYr) {
+			if(yr > nextScatterPlotYr && probType != 0) {
 				// set yr to do this next
 				nextScatterPlotYr = yr+nextScatterPlotYrIncrement;
 				
@@ -1501,9 +1519,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// nothing is done if probType=0;
 			if(probType==1) {
-				// TEST HERE:
-//				computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
-				computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+				if(typeCalcForU3_Probs == 1)
+					computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+				else
+				 computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
 			}
 			else if(probType==2)
 				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
@@ -1547,34 +1566,41 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString, bpt_AperiodicityParam.getValue());
 		
 		
+		
 		// scatter plot of U3 vs U2 time-dep rates
-		double aveRatio = 0;
-		int numRatio = 0;
-		for(DefaultXY_DataSet func: scatFuncs) {
-			for(int j=0;j<func.getNum();j++) {
-				aveRatio += func.getY(j)/func.getX(j);
-				numRatio+=1;
+		if(probType != 0) {
+			double aveRatio = 0;
+			int numRatio = 0;
+			for(DefaultXY_DataSet func: scatFuncs) {
+				for(int j=0;j<func.getNum();j++) {
+					aveRatio += func.getY(j)/func.getX(j);
+					numRatio+=1;
+				}
+			}
+			aveRatio /= numRatio;
+			List<Color> colors = GraphWindow.generateDefaultColors();
+			ArrayList<PlotCurveCharacterstics> plotCharsScat = new ArrayList<PlotCurveCharacterstics>();
+			for(int i=0;i<scatFuncs.size();i++)
+				plotCharsScat.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, colors.get(i)));
+			DefaultXY_DataSet perfectAgreementScat = new DefaultXY_DataSet();
+			perfectAgreementScat.set(1e-10,1e-10);
+			//		perfectAgreementScat.set(1e10,1e10);
+			perfectAgreementScat.set(1d,1d);
+			perfectAgreementScat.setName("Perfect agreement line");
+			scatFuncs.add(perfectAgreementScat);
+			plotCharsScat.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+			GraphWindow graphScat = new GraphWindow(scatFuncs, "Section Rates - aveRatio="+(float)aveRatio+"; "+plotLabelString, plotCharsScat); 		
+			graphScat.setYLog(true);
+			graphScat.setXLog(true);
+			graphScat.setX_AxisLabel("U2 Section Rates");
+			graphScat.setY_AxisLabel("U3 Section Rates");
+			try {
+				graphScat.saveAsPDF(dirNameForSavingFiles+"/scatterPlotOfU3vsU2_TimeDepSectRatesAt"+Math.round(yr)+"yrs.pdf");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-		aveRatio /= numRatio;
-		List<Color> colors = GraphWindow.generateDefaultColors();
-		ArrayList<PlotCurveCharacterstics> plotCharsScat = new ArrayList<PlotCurveCharacterstics>();
-		for(int i=0;i<scatFuncs.size();i++)
-			plotCharsScat.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, colors.get(i)));
-		DefaultXY_DataSet perfectAgreementScat = new DefaultXY_DataSet();
-		perfectAgreementScat.set(1e-10,1e-10);
-//		perfectAgreementScat.set(1e10,1e10);
-		perfectAgreementScat.set(1d,1d);
-		perfectAgreementScat.setName("Perfect agreement line");
-		scatFuncs.add(perfectAgreementScat);
-		plotCharsScat.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-		GraphWindow graphScat = new GraphWindow(scatFuncs, "Section Rates - aveRatio="+(float)aveRatio+"; "+plotLabelString, plotCharsScat); 		
-		graphScat.setYLog(true);
-		graphScat.setXLog(true);
-		graphScat.setX_AxisLabel("U2 Section Rates");
-		graphScat.setY_AxisLabel("U3 Section Rates");
-
-		
 		
 		
 //		System.out.println(obsMFD);
@@ -1807,7 +1833,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		try {
 			// plots
-			graphScat.saveAsPDF(dirNameForSavingFiles+"/scatterPlotOfU3vsU2_TimeDepSectRatesAt"+Math.round(yr)+"yrs.pdf");
 			grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
 			graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
 			graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
