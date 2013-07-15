@@ -116,15 +116,15 @@ public class simulatorAnalysisUtils {
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
-//				"ALLCAL2_no-creep_dt-08_st-10_110912-471207_Events_slip-map-5.5.dat" //,
-				"ALLCAL2-30k-output[3-24-11].converted",
-				"Fred-allcal2-7june11.txt"
+//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
+				"ALLCAL2_no-creep_dt-08_st-10_110912_471207_events_slip-map-5.5_eid-fix.dat" //,
+//				"ALLCAL2-30k-output[3-24-11].converted",
+//				"Fred-allcal2-7june11.txt"
 				};
 //		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
-		String[] dirNamesPrefixArray = {"RSQSim","ALLCAL","ViscoSim"};
+//		String[] dirNamesPrefixArray = {"RSQSim","ALLCAL","ViscoSim"};
 //		String[] dirNamesPrefixArray = {"RSQSim"};
-//		String[] dirNamesPrefixArray = {"VirtCal"};
+		String[] dirNamesPrefixArray = {"VirtCal"};
 //		String[] dirNamesPrefixArray = {"ALLCAL"};
 //		String[] dirNamesPrefixArray = {"ViscoSim"};
 
@@ -192,15 +192,15 @@ public class simulatorAnalysisUtils {
 //					// scaling plots
 //					System.out.println("Working on plotScalingRelationships(*)");
 //					tools.plotScalingRelationships(true);
-
+//
 					// RIs at paleo sites
 					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
 					plotRI_DistsAtObsPaleoRateSites(tools, true);
 					
-//					// all the time & slip predictability tests (plus other things):
-//					System.out.println("Working on testTimePredictability(*)");
-//					String info = tools.testTimePredictability(magThresh, true, null, false);
-//					infoStrings.add(info);
+					// all the time & slip predictability tests (plus other things):
+					System.out.println("Working on testTimePredictability(*)");
+					String info = tools.testTimePredictability(magThresh, true, null, false);
+					infoStrings.add(info);
 
 					try {
 						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");
