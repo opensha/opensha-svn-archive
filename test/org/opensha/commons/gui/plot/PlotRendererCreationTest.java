@@ -6,24 +6,24 @@ import java.awt.Shape;
 import java.awt.Stroke;
 
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.junit.Test;
 
 public class PlotRendererCreationTest {
 	
 	public static void testSymbolRendererCorrect(PlotSymbol sym, XYItemRenderer renderer) {
 		assertTrue("renderer should have symbols, but isn't correct type for sym="+sym,
-				renderer instanceof StandardXYItemRenderer);
+				renderer instanceof XYLineAndShapeRenderer);
 	}
 	
 	public static void testLineRendererCorrect(PlotLineType plt, XYItemRenderer renderer) {
 		if (plt.isSymbolCompatible()) {
 			assertTrue("renderer should have lines & is symbol compatible, but isn't correct type for sym="+plt,
-					renderer instanceof StandardXYItemRenderer);
+					renderer instanceof XYLineAndShapeRenderer);
 			
-			StandardXYItemRenderer stdRend = (StandardXYItemRenderer)renderer;
+			XYLineAndShapeRenderer stdRend = (XYLineAndShapeRenderer)renderer;
 			Stroke fromRend = stdRend.getBaseStroke();
 			assertNotNull("stroke should not be null!", fromRend);
 		} else {
