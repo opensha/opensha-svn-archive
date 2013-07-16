@@ -251,14 +251,15 @@ implements ParameterChangeWarningListener {
 		locList.add(loc);
 		ArrayList<SiteDataValue<?>> dataVals = new ArrayList<SiteDataValue<?>>();
 		String dataVal = null;
-		if(tokens == 3){
+		if (tokens == 3) {
 			dataVal = st.nextToken().trim();
 		}
 		if (SiteTranslator.wills_vs30_map.keySet().contains(dataVal)) {
 			// this is a wills class
 			dataVals.add(new SiteDataValue<String>(SiteData.TYPE_WILLS_CLASS,
 					SiteData.TYPE_FLAG_MEASURED, dataVal));
-		} else {
+		} else if (dataVal != null) {
+			// Vs30 value
 			try {
 				double vs30 = Double.parseDouble(dataVal);
 				dataVals.add(new SiteDataValue<Double>(SiteData.TYPE_VS30,
