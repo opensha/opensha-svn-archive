@@ -7,9 +7,9 @@ import java.util.NoSuchElementException;
 
 import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 
 import com.google.common.base.Preconditions;
 
@@ -109,6 +109,9 @@ public enum PlotLineType {
 	throws IllegalStateException {
 		checkValidConfiguration(plt, sym);
 		XYItemRenderer renderer = null;
+		// will usually use this
+		XYLineAndShapeRenderer lineShpRend = new XYLineAndShapeRenderer(plt != null, sym != null);
+		lineShpRend.setDrawSeriesLineAsPath(true);
 		if (plt != null) {
 			Preconditions.checkArgument(lineWidth > 0, "line widht must be >0");
 			if (plt == HISTOGRAM) {
@@ -122,30 +125,26 @@ public enum PlotLineType {
 				sbRend.setShadowVisible(false);
 				renderer = sbRend;
 			} else {
-				int type = sym == null ? StandardXYItemRenderer.LINES : StandardXYItemRenderer.SHAPES_AND_LINES;
-				renderer = new StandardXYItemRenderer(type);
+				renderer = lineShpRend;
 				Stroke stroke = plt.buildStroke(lineWidth);
 				renderer.setStroke(stroke);
 //				renderer.setBaseStroke(stroke);
 			}
 		}
 		if (sym != null) {
-			StandardXYItemRenderer stdRend;
 			if (renderer == null)
-				stdRend = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES);
+				renderer = lineShpRend;
 			else {
-				Preconditions.checkState(renderer instanceof StandardXYItemRenderer,
+				Preconditions.checkState(renderer instanceof XYLineAndShapeRenderer,
 						"Renderer already exists but isn't correct type for plt="+plt+" and sym="+sym);
-				stdRend = (StandardXYItemRenderer)renderer;
 			}
 			Preconditions.checkArgument(symWidth > 0, "symbol widht must be >0");
 			Shape shape = sym.buildShape(symWidth);
 			Preconditions.checkNotNull(shape, "Couldn't build shape for symbol: "+sym);
-			stdRend.setShape(shape);
+			renderer.setShape(shape);
 //			stdRend.setBaseShape(shape);
-			stdRend.setShapesFilled(sym.isFilled());
+			lineShpRend.setShapesFilled(sym.isFilled());
 //			stdRend.setBaseShapesFilled(sym.isFilled());
-			renderer = stdRend;
 			
 		}
 		return renderer;
