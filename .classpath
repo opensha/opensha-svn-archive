@@ -92,5 +92,10 @@
 			<attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/pdfbox-app-1.8.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://pdfbox.apache.org/apidocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

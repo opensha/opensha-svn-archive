@@ -1,6 +1,7 @@
 package scratch.kevin.simulators;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -12,17 +13,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.StatUtils;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.data.Range;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -32,6 +43,7 @@ import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.utils.IDPairing;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -59,7 +71,7 @@ public class PeriodicityPlotter {
 		boolean doRandom = true;
 		boolean display = false;
 		boolean displayEventTimes = false;
-		boolean randomNormDist = false;
+		RandomDistType randDistType = RandomDistType.ACTUAL;
 		boolean randSplitMults = true;
 		
 		File writeDir = new File(dir, "period_plots");
@@ -166,7 +178,7 @@ public class PeriodicityPlotter {
 		List<EQSIM_Event> randomResampledCatalog = null;
 		for (boolean randomized : randoms)
 			if (randomized)
-				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist, randSplitMults);
+				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
 		
 		for (boolean randomized : randoms) {
 			if (randomized)
@@ -208,6 +220,12 @@ public class PeriodicityPlotter {
 			plotTimeBetweenIdens(myWriteDir, display, randomized, events, rupIdens.get(mojaveIndex), rupIdenNames.get(mojaveIndex),
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
 			
+			if (!randomized) {
+				plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, null);
+				for (RandomDistType randDist : RandomDistType.values())
+					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, randDist);
+			}
+			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
 			double[] windowLengths = new double[30];
 			for (int i=1; i<=windowLengths.length; i++)
@@ -227,7 +245,7 @@ public class PeriodicityPlotter {
 			double cumulativePlotYears = 1000d;
 			if (!randomized) {
 				if (randomResampledCatalog == null)
-					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randomNormDist, randSplitMults);
+					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
 				
 				for (boolean includeInitialCorupture : initials) {
 					
@@ -701,6 +719,332 @@ public class PeriodicityPlotter {
 				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
+	private static void plotTimeBetweenAllIdens(File writeDir,
+			List<EQSIM_Event> events, List<RuptureIdentifier> idens, List<String> idenNames,
+			RandomDistType randDistType)
+					throws IOException {
+		if (randDistType != null) {
+			events = getRandomResampledCatalog(events, idens, randDistType, true);
+			writeDir = new File(writeDir, randDistType.getFNameAdd()+"_corr_plots");
+			if (!writeDir.exists())
+				writeDir.mkdir();
+		}
+		
+		List<List<EQSIM_Event>> matchesList = Lists.newArrayList();
+		for (RuptureIdentifier iden : idens)
+			matchesList.add(iden.getMatches(events));
+		
+		String xAxisLabel = "Inter Event Time (years)";
+		String yAxisLabel = "Number";
+		
+		Map<IDPairing, HistogramFunction> corrHists = Maps.newHashMap();
+		Map<IDPairing, HistogramFunction> corupHists = Maps.newHashMap();
+		
+		List<PlotSpec> specs = Lists.newArrayList();
+		for (int i=0; i<idens.size(); i++) {
+			String name1 = idenNames.get(i);
+			List<EQSIM_Event> matches1 = matchesList.get(i);
+			for (int j=i; j<idens.size(); j++) {
+				String name2 = idenNames.get(j);
+				List<EQSIM_Event> matches2 = matchesList.get(j);
+				
+				HistogramFunction matrixHist = new HistogramFunction(-2005, 401, 10d);
+				HistogramFunction corupHist = new HistogramFunction(-2000, 400, 10d);
+				double matHistMin = matrixHist.getMinX() - 5d;
+				double matHistMax = matrixHist.getMaxX() + 5d;
+				
+				for (EQSIM_Event event1 : matches1) {
+					double timeYears1 = event1.getTimeInYears();
+					for (EQSIM_Event event2 : matches2) {
+						double timeYears2 = event2.getTimeInYears();
+						
+						double timeDelta = timeYears2 - timeYears1;
+						
+						if (event1.getID() == event2.getID())
+							corupHist.add(0d, 1d);
+						else if (timeDelta >= matHistMin && timeDelta <= matHistMax)
+							matrixHist.add(timeDelta, 1d);
+					}
+				}
+				
+				IDPairing pair = new IDPairing(i, j);
+				
+				corrHists.put(pair, matrixHist);
+				corupHists.put(pair, corupHist);
+				
+				List<DiscretizedFunc> funcs = Lists.newArrayList();
+				funcs.add(corupHist);
+				funcs.add(matrixHist);
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+						new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE),
+						new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				String title = null;
+				PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				List<XYTextAnnotation> annotations = Lists.newArrayList();
+				double annY = matrixHist.getMaxY()*0.95;
+				double annX = matrixHist.getMaxX()*0.9;
+				Font font = new Font(Font.SERIF, Font.PLAIN, 14);
+				XYTextAnnotation leftAnn = new XYTextAnnotation(name1+" TO EACH "+name2, -annX, annY);
+				leftAnn.setFont(font);
+				leftAnn.setTextAnchor(TextAnchor.TOP_LEFT);
+				annotations.add(leftAnn);
+//				XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" => "+name1, annX, annY);
+//				rightAnn.setFont(font);
+//				rightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
+//				annotations.add(rightAnn);
+				spec.setPlotAnnotations(annotations);
+				specs.add(spec);
+			}
+		}
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setCombinedOnYAxis(false);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.drawGraphPanel(specs, false, false, null, null);
+		gp.getCartPanel().setSize(2000, 5000);
+		String fileName = writeDir.getAbsolutePath()+File.separator+"comb_all_inter_events";
+		gp.saveAsPNG(fileName+".png");
+		gp.saveAsPDF(fileName+".pdf");
+		
+		Map<IDPairing, HistogramFunction> corrFirstHists = Maps.newHashMap();
+		
+		specs = Lists.newArrayList();
+		boolean[] swaps = { false, true };
+		for (int i=0; i<idens.size(); i++) {
+			for (int j=i+1; j<idens.size(); j++) {
+				
+				for (boolean swap : swaps) {
+					String name1, name2;
+					List<EQSIM_Event> matches1, matches2;
+					IDPairing pair;
+					if (swap) {
+						name1 = idenNames.get(j);
+						matches1 = matchesList.get(j);
+						name2 = idenNames.get(i);
+						matches2 = matchesList.get(i);
+						pair = new IDPairing(j, i);
+					} else {
+						name1 = idenNames.get(i);
+						matches1 = matchesList.get(i);
+						name2 = idenNames.get(j);
+						matches2 = matchesList.get(j);
+						pair = new IDPairing(i, j);
+					}
+					
+					HistogramFunction matrixHist = new HistogramFunction(-1005, 201, 10d);
+					HistogramFunction corupHist = new HistogramFunction(-1000, 200, 10d);
+					double matHistMin = matrixHist.getMinX() - 5d;
+					double matHistMax = matrixHist.getMaxX() + 5d;
+					
+					int startK = 0;
+					for (EQSIM_Event event1 : matches1) {
+						double timeYears1 = event1.getTimeInYears();
+						for (int k=startK; k<matches2.size(); k++) {
+							EQSIM_Event event2 = matches2.get(k);
+							double timeYears2 = event2.getTimeInYears();
+							if (timeYears2 < timeYears1)
+								continue;
+							
+//							startK = k;
+							double afterDelta = timeYears2 - timeYears1;
+							
+							if (event1.getID() == event2.getID()) {
+								corupHist.add(0d, 1d);
+							} else {
+								if (afterDelta >= matHistMin && afterDelta <= matHistMax)
+									matrixHist.add(afterDelta, 1d);
+								if (k > 0) {
+									double beforeDelta = matches2.get(k-1).getTimeInYears()-timeYears1;
+									if (beforeDelta >= matHistMin && beforeDelta <= matHistMax)
+										matrixHist.add(beforeDelta, 1d);
+								}
+							}
+							break;
+						}
+					}
+					
+					corrFirstHists.put(pair, matrixHist);
+					
+					List<DiscretizedFunc> funcs = Lists.newArrayList();
+					funcs.add(corupHist);
+					funcs.add(matrixHist);
+					List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+							new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE),
+							new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+					String title = null;
+					PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+					List<XYTextAnnotation> annotations = Lists.newArrayList();
+					double annY = matrixHist.getMaxY()*0.95;
+					double annX = matrixHist.getMaxX()*0.9;
+					Font font = new Font(Font.SERIF, Font.PLAIN, 14);
+					XYTextAnnotation leftAnn = new XYTextAnnotation(name1+" TO CLOSEST "+name2, -annX, annY);
+					leftAnn.setFont(font);
+					leftAnn.setTextAnchor(TextAnchor.TOP_LEFT);
+					annotations.add(leftAnn);
+//					XYTextAnnotation rightAnn = new XYTextAnnotation(name1+" => "+name2, annX, annY);
+//					rightAnn.setFont(font);
+//					rightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
+//					annotations.add(rightAnn);
+					spec.setPlotAnnotations(annotations);
+					specs.add(spec);
+				}
+			}
+		}
+		
+		gp = new HeadlessGraphPanel();
+		gp.setCombinedOnYAxis(false);
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.drawGraphPanel(specs, false, false, null, null);
+		gp.getCartPanel().setSize(1000, 10000);
+		fileName = writeDir.getAbsolutePath()+File.separator+"comb_inter_events";
+		gp.saveAsPNG(fileName+".png");
+		gp.saveAsPDF(fileName+".pdf");
+		
+		// now assemble pages into PDFs
+		File pdfDir = new File(writeDir, "corr_pdfs");
+		if (!pdfDir.exists())
+			pdfDir.mkdir();
+		List<File> pdfFiles = Lists.newArrayList();
+		
+		for (int i=0; i<idens.size(); i++) {
+			for (int j=i+1; j<idens.size(); j++) {
+				HistogramFunction ithAutoFunc = corrHists.get(new IDPairing(i, i));
+				HistogramFunction ithCorupFunc = corupHists.get(new IDPairing(i, i));
+				HistogramFunction jthAutoFunc = corrHists.get(new IDPairing(j, j));
+				HistogramFunction jthCorupFunc = corupHists.get(new IDPairing(j, j));
+				
+				HistogramFunction crossFunc = corrHists.get(new IDPairing(i, j));
+				HistogramFunction crossCorupFunc = corupHists.get(new IDPairing(i, j));
+				
+				HistogramFunction ijFirstFunc = corrFirstHists.get(new IDPairing(i, j));
+				HistogramFunction jiFirstFunc = corrFirstHists.get(new IDPairing(j, i));
+				
+				// M is our j
+				// N is our i
+				
+				String name1 = idenNames.get(i);
+				String name2 = idenNames.get(j);
+				String title = "m: "+name2+"\nn: "+name1;
+				if (randDistType != null)
+					title += "\nRANDOMIZED: "+randDistType.getName();
+				
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+						new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.GRAY),
+						new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				int annotationSize = 18;
+				
+				specs = Lists.newArrayList();
+				
+				List<HistogramFunction> funcs = Lists.newArrayList();
+				funcs.add(jthCorupFunc);
+				funcs.add(jthAutoFunc);
+				
+				PlotSpec mAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				mAutoSpec.setPlotAnnotations(Lists.newArrayList(
+						getTopLeftAnnotation(funcs, "m ("+name2+") autocorrelation", annotationSize)));
+				specs.add(mAutoSpec);
+				
+				funcs = Lists.newArrayList();
+				funcs.add(ithCorupFunc);
+				funcs.add(ithAutoFunc);
+				
+				PlotSpec nAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				nAutoSpec.setPlotAnnotations(Lists.newArrayList(
+						getTopLeftAnnotation(funcs, "n ("+name1+") autocorrelation", annotationSize)));
+				specs.add(nAutoSpec);
+				
+				funcs = Lists.newArrayList();
+				funcs.add(crossCorupFunc);
+				funcs.add(crossFunc);
+				
+				PlotSpec crossSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				crossSpec.setPlotAnnotations(Lists.newArrayList(
+						getTopLeftAnnotation(funcs, "m ("+name2+"), n ("+name1+")\ncross-correlation", annotationSize)));
+				specs.add(crossSpec);
+				
+				funcs = Lists.newArrayList();
+				funcs.add(crossCorupFunc);
+				funcs.add(jiFirstFunc);
+				
+				PlotSpec mnFirstSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				mnFirstSpec.setPlotAnnotations(Lists.newArrayList(
+						getTopLeftAnnotation(funcs, "m ("+name2+") to first n ("+name1+")", annotationSize)));
+				specs.add(mnFirstSpec);
+				
+				funcs = Lists.newArrayList();
+				funcs.add(crossCorupFunc);
+				funcs.add(ijFirstFunc);
+				
+				PlotSpec nmFirstSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
+				nmFirstSpec.setPlotAnnotations(Lists.newArrayList(
+						getTopLeftAnnotation(funcs, "n ("+name1+") to first m ("+name2+")", annotationSize)));
+				specs.add(nmFirstSpec);
+				
+				gp = new HeadlessGraphPanel();
+				gp.setCombinedOnYAxis(false);
+				gp.setBackgroundColor(Color.WHITE);
+				gp.setTickLabelFontSize(18);
+				gp.setAxisLabelFontSize(20);
+				gp.setPlotLabelFontSize(21);
+				gp.drawGraphPanel(specs, false, false, null, null);
+				gp.getCartPanel().setSize(2000, 3000);
+				File prefixFile = new File(pdfDir, getFileSafeString(name2)+"_corr_"+getFileSafeString(name1));
+				fileName = prefixFile.getAbsolutePath();
+				gp.saveAsPNG(fileName+".png");
+				gp.saveAsPDF(fileName+".pdf");
+				
+				pdfFiles.add(new File(fileName+".pdf"));
+			}
+		}
+		
+		// now combined pdf
+		PDDocument document = new PDDocument();
+		List<PDDocument> subDocs = Lists.newArrayList();
+		for (File pdfFile : pdfFiles) {
+			PDDocument part = PDDocument.load(pdfFile);
+			List<PDPage> list = part.getDocumentCatalog().getAllPages();
+			document.addPage(list.get(0));
+			subDocs.add(part);
+		}
+		try {
+			String fName = "corr_combined";
+			if (randDistType != null)
+				fName += "_"+randDistType.getFNameAdd();
+			document.save(new File(writeDir, fName+".pdf"));
+		} catch (COSVisitorException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		document.close();
+		for (PDDocument doc : subDocs)
+			doc.close();
+	}
+	
+	private static XYTextAnnotation getTopLeftAnnotation(List<? extends DiscretizedFunc> funcs, String text, int fontSize) {
+		MinMaxAveTracker xTrack = new MinMaxAveTracker();
+		MinMaxAveTracker yTrack = new MinMaxAveTracker();
+		for (DiscretizedFunc func : funcs) {
+			xTrack.addValue(func.getMinX());
+			xTrack.addValue(func.getMaxX());
+			yTrack.addValue(func.getMinY());
+			yTrack.addValue(func.getMaxY());
+		}
+		
+		double xPos = xTrack.getMin();
+		double yPos = yTrack.getMax();
+		
+		XYTextAnnotation ann = new XYTextAnnotation(text, xPos, yPos);
+		ann.setFont(new Font(Font.SERIF, Font.PLAIN, fontSize));
+		ann.setTextAnchor(TextAnchor.TOP_LEFT);
+		
+		return ann;
+	}
+	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {
 		EvenlyDiscretizedFunc cml = new EvenlyDiscretizedFunc(func.getMinX(), func.getNum(), func.getDelta());
 		
@@ -794,8 +1138,9 @@ public class PeriodicityPlotter {
 	 * @return
 	 */
 	static List<EQSIM_Event> getRandomResampledCatalog(
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens, boolean normDist, boolean splitMultis) {
-		System.out.println("Generating randomized catalog.");
+			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+			RandomDistType distType, boolean splitMultis) {
+		System.out.println("Generating randomized catalog. DistType: "+distType.getName());
 		
 		int numRupIdens = rupIdens.size();
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
@@ -930,7 +1275,7 @@ public class PeriodicityPlotter {
 			eventsToResample.removeAll(multiEventsSet);
 			eventListsToResample.add(eventsToResample);
 			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(normDist, rps, totTime));
+			randomRPsList.add(getReturnPeriodProvider(distType, rps, totTime));
 		}
 		
 		for (int i=0; i<multiEvents.size(); i++) {
@@ -938,7 +1283,7 @@ public class PeriodicityPlotter {
 			Collections.sort(eventsToResample);
 			eventListsToResample.add(eventsToResample);
 			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(normDist, rps, totTime));
+			randomRPsList.add(getReturnPeriodProvider(distType, rps, totTime));
 		}
 		
 		List<EQSIM_Event> newList = Lists.newArrayList();
@@ -980,16 +1325,54 @@ public class PeriodicityPlotter {
 		return newList;
 	}
 	
-	private static RandomReturnPeriodProvider getReturnPeriodProvider(boolean normDist, double[] rps, double totTime) {
+	private static RandomReturnPeriodProvider getReturnPeriodProvider(
+			RandomDistType distType, double[] rps, double totTime) {
 		if (rps.length == 0) {
 			rps = new double[1];
 			rps[0] = totTime;
 			return new ActualDistReturnPeriodProvider(rps);
 		}
-		if (normDist)
-			return new NormalDistReturnPeriodProvider(rps);
-		else
-			return new ActualDistReturnPeriodProvider(rps);
+		return distType.instance(rps);
+	}
+	
+	static enum RandomDistType {
+		NORMAL("Random Normal Dist", "rand_norm_dist") {
+			@Override
+			public RandomReturnPeriodProvider instance(double[] rps) {
+				return new NormalDistReturnPeriodProvider(rps);
+			}
+		},
+		LOG_NORMAL("Random Log-Normal Dist", "rand_lognorm_dist") {
+			@Override
+			public RandomReturnPeriodProvider instance(double[] rps) {
+				return new LogNormalDistReturnPeriodProvider(rps);
+			}
+		},
+		POISSON("Random Poisson Dist", "rand_poisson_dist") {
+			@Override
+			public RandomReturnPeriodProvider instance(double[] rps) {
+				return new PoissonDistReturnPeriodProvider(rps);
+			}
+		},
+		ACTUAL("Random Actual Dist", "rand_actual_dist") {
+			@Override
+			public RandomReturnPeriodProvider instance(double[] rps) {
+				return new ActualDistReturnPeriodProvider(rps);
+			}
+		};
+		
+		private String name, fNameAdd;
+		private RandomDistType(String name, String fNameAdd) {
+			this.name = name;
+			this.fNameAdd = fNameAdd;
+		}
+		public String getName() {
+			return name;
+		}
+		public String getFNameAdd() {
+			return fNameAdd;
+		}
+		public abstract RandomReturnPeriodProvider instance(double[] rps);
 	}
 	
 	private static interface RandomReturnPeriodProvider {
@@ -1004,6 +1387,46 @@ public class PeriodicityPlotter {
 			double mean = StatUtils.mean(rps);
 			double sd = Math.sqrt(StatUtils.variance(rps, mean));
 			n = new NormalDistribution(mean, sd);
+		}
+
+		@Override
+		public double getReturnPeriod() {
+			return n.sample();
+		}
+	}
+	
+	private static class LogNormalDistReturnPeriodProvider implements RandomReturnPeriodProvider {
+		
+		private LogNormalDistribution n;
+		
+		public LogNormalDistReturnPeriodProvider(double[] rps) {
+			double mean = StatUtils.mean(rps);
+			double sd = Math.sqrt(StatUtils.variance(rps, mean));
+//			n = new LogNormalDistribution(mean, sd);
+			n = new LogNormalDistribution(Math.log(mean), Math.log(sd));
+			
+			System.out.println("Log-Normal Distribution. mean="+mean+", std dev="+sd+", num_mean="+n.getNumericalMean());
+			for (int i=0; i<10; i++)
+				System.out.println("\t"+i+". "+getReturnPeriod());
+		}
+
+		@Override
+		public double getReturnPeriod() {
+			return n.sample();
+		}
+	}
+	
+	private static class PoissonDistReturnPeriodProvider implements RandomReturnPeriodProvider {
+		
+		private PoissonDistribution n;
+		
+		public PoissonDistReturnPeriodProvider(double[] rps) {
+			double mean = StatUtils.mean(rps);
+			double sd = Math.sqrt(StatUtils.variance(rps, mean));
+			n = new PoissonDistribution(mean);
+			System.out.println("Poisson Distribution. mean="+mean+", std dev="+sd);
+			for (int i=0; i<10; i++)
+				System.out.println("\t"+i+". "+getReturnPeriod());
 		}
 
 		@Override
