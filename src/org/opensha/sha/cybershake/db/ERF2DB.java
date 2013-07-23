@@ -19,6 +19,9 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +33,9 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.cybershake.ERF_Rupture_File_Writer;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeProbEqkSource;
@@ -43,13 +49,24 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
+import com.google.common.base.Preconditions;
+
 public  class ERF2DB implements ERF2DBAPI{
 
 	protected AbstractERF eqkRupForecast;
 	private DBAccess dbaccess;
+	
+	// if set to true, points and such will be written to files here and not to the Points table
+	private boolean fileBased = false;
+	private File erfDir = null;
 
 	public ERF2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
+	}
+	
+	public void setFileBased(File erfDir) {
+		this.erfDir = erfDir;
+		fileBased = erfDir != null;
 	}
 
 	/**
@@ -303,36 +320,6 @@ public  class ERF2DB implements ERF2DBAPI{
 		(float)probability+"','"+(float)gridSpacing+"','"+numRows+"','"+numCols+
 		"','"+numPoints+"','"+(float)surfaceStartLat+"','"+(float)surfaceStartLon+"','"+(float)surfaceStartDepth+
 		"','"+(float)surfaceEndLat+"','"+(float)surfaceEndLon+"','"+(float)surfaceEndDepth+"')";
-		try {
-			dbaccess.insertUpdateOrDeleteData(sql);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Inserts surface locations information for each rupture in table "Points"
-	 * @param erfName
-	 * @param sourceId
-	 * @param ruptureId
-	 * @param lat
-	 * @param lon
-	 * @param depth
-	 * @param rake
-	 * @param dip
-	 * @param strike
-	 */
-	public void insertRuptureSurface(int erfId, int sourceId, int ruptureId, 
-			double lat, double lon, double depth, double rake, 
-			double dip, double strike) {
-		//		generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into Points"+ 
-		"(ERF_ID,Source_ID,Rupture_ID,Lat,Lon,Depth,Rake,Dip,Strike)"+
-		"VALUES('"+erfId+"','"+sourceId+"','"+
-		ruptureId+"','"+(float)lat+"','"+(float)lon+"','"+(float)depth+"','"+
-		(float)rake+"','"+(float)dip+"','"+(float)strike+"')";
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
@@ -634,8 +621,8 @@ public  class ERF2DB implements ERF2DBAPI{
 	public int insertERFId(String erfName, String erfDesc) {
 		//		generate the SQL to be inserted in the ERF_Metadata table
 		String sql = "INSERT into ERF_IDs"+ 
-		"(ERF_Name,ERF_Description)"+
-		"VALUES('"+erfName+"','"+erfDesc+"')";
+		"(ERF_Name,ERF_Description,Default_Prob_Model_ID,Default_Time_Span_ID)"+
+		"VALUES('"+erfName+"','"+erfDesc+"','1','1')";
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
@@ -702,7 +689,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	}
 
 	public void insertSrcRupInDB(){
-		this.insertSrcRupInDB(null, 0, 0);
+		this.insertSrcRupInDB(getInserted_ERF_ID(eqkRupForecast.getName()), null, 0, 0);
 	}
 
 	private boolean isInsideCutoffForRegion(GriddedRegion region, ProbEqkRupture rupture) {
@@ -734,9 +721,8 @@ public  class ERF2DB implements ERF2DBAPI{
 		return false;
 	}
 
-	public void insertSrcRupInDB(GriddedRegion region, int startSource, int startRup){
+	public void insertSrcRupInDB(int erfId, GriddedRegion region, int startSource, int startRup){
 		int numSources = eqkRupForecast.getNumSources();
-		int erfId = this.getInserted_ERF_ID(eqkRupForecast.getName());
 
 		boolean forRegion = (region != null);
 		for(int sourceId = 0;sourceId<numSources;++sourceId){
@@ -792,6 +778,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @param erfID
 	 * @param sourceID
 	 * @param rupID
+	 * @throws IOException 
 	 */
 	public void insertSrcRupInDB(ERF forecast, int erfID, int sourceID, int rupID) {
 		ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
@@ -835,28 +822,38 @@ public  class ERF2DB implements ERF2DBAPI{
 		//			}
 		//		}
 
-		ArrayList<Integer> sourceIds = new ArrayList<Integer>();
-		ArrayList<Integer> ruptureIds = new ArrayList<Integer>(); 
-		ArrayList<Double> lats = new ArrayList<Double>();
-		ArrayList<Double> lons = new ArrayList<Double>();
-		ArrayList<Double> depths = new ArrayList<Double>();
-		ArrayList<Double> rakes = new ArrayList<Double>(); 
-		ArrayList<Double> dips = new ArrayList<Double>();
-		ArrayList<Double> strikes = new ArrayList<Double>();
-		for(int k=0;k<numRows;++k){
-			for (int j = 0; j < numCols; ++j) {
-				Location loc = rupSurface.getLocation(k,j);
-				sourceIds.add(sourceID);
-				ruptureIds.add(rupID);
-				lats.add(loc.getLatitude());
-				lons.add(loc.getLongitude());
-				depths.add(loc.getDepth());
-				rakes.add(aveRake);
-				dips.add(dip);
-				strikes.add(localStrikeList[j]);
+		if (fileBased) {
+			if (!erfDir.exists())
+				Preconditions.checkState(erfDir.mkdir(), "couldn't create: "+erfDir.getPath());
+			try {
+				ERF_Rupture_File_Writer.writeRuptureFile(rupture, sourceID, rupID, erfDir);
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
 			}
+		} else {
+			ArrayList<Integer> sourceIds = new ArrayList<Integer>();
+			ArrayList<Integer> ruptureIds = new ArrayList<Integer>(); 
+			ArrayList<Double> lats = new ArrayList<Double>();
+			ArrayList<Double> lons = new ArrayList<Double>();
+			ArrayList<Double> depths = new ArrayList<Double>();
+			ArrayList<Double> rakes = new ArrayList<Double>(); 
+			ArrayList<Double> dips = new ArrayList<Double>();
+			ArrayList<Double> strikes = new ArrayList<Double>();
+			for(int k=0;k<numRows;++k){
+				for (int j = 0; j < numCols; ++j) {
+					Location loc = rupSurface.getLocation(k,j);
+					sourceIds.add(sourceID);
+					ruptureIds.add(rupID);
+					lats.add(loc.getLatitude());
+					lons.add(loc.getLongitude());
+					depths.add(loc.getDepth());
+					rakes.add(aveRake);
+					dips.add(dip);
+					strikes.add(localStrikeList[j]);
+				}
+			}
+			this.insertRuptureSurface(erfID, sourceIds, ruptureIds, lats, lons, depths, rakes, dips, strikes);
 		}
-		this.insertRuptureSurface(erfID, sourceIds, ruptureIds, lats, lons, depths, rakes, dips, strikes);
 	}
 
 
@@ -892,8 +889,12 @@ public  class ERF2DB implements ERF2DBAPI{
 		return localStrike;
 	}	  
 
-	public void insertForecaseInDB(String erfDescription, GriddedRegion region){
-		int erfId = insertERFId(eqkRupForecast.getName(), erfDescription);
+	public void insertForecaseInDB(String erfName, String erfDescription, GriddedRegion region){
+		System.out.println("Inserting erf with name: "+erfName);
+		int erfId = insertERFId(erfName, erfDescription);
+		Preconditions.checkState(erfId >= 0, "BAD ERF ID: "+erfId);
+		System.out.println("Inserted ERF ID: "+erfId);
+		Preconditions.checkState(erfId > 35);
 
 		//adding the forecast parameters
 		for (Parameter<?> param : eqkRupForecast.getAdjustableParameterList()){
@@ -911,7 +912,7 @@ public  class ERF2DB implements ERF2DBAPI{
 			insertERFParams(erfId, param.getName(), param.getValue().toString(), paramType,param.getUnits());
 		}
 		//inserts the rupture information in the database
-		insertSrcRupInDB(region, 0, 0);
+		insertSrcRupInDB(erfId, region, 0, 0);
 	}
 
 	public void deleteRupture(int erfID, int srcID, int rupID) {
@@ -936,8 +937,8 @@ public  class ERF2DB implements ERF2DBAPI{
 		}
 	}
 
-	public void insertForecaseInDB(String erfDescription){
-		this.insertForecaseInDB(erfDescription, null);
+	public void insertForecaseInDB(String erfName, String erfDescription){
+		this.insertForecaseInDB(erfName, erfDescription, null);
 	}
 
 	/**
@@ -1069,21 +1070,68 @@ public  class ERF2DB implements ERF2DBAPI{
 		
 		return locs;
 	}
+	
+	/**
+	 * This will check source/rup counts and such for 2 erfs that should be identical
+	 * @param id1
+	 * @param id2
+	 */
+	private void debugERFs(int id1, int id2, ERF erf) {
+		String sql = "SELECT max(Source_ID) from Ruptures WHERE ERF_ID=" + id1;
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		int numSources = -1;
+		try {
+			rs.first();
+			numSources = rs.getInt(1)+1;
+			rs.close();
+			
+			for (int sourceID=0; sourceID<numSources; sourceID++) {
+				sql = "SELECT max(Rupture_ID) from Ruptures WHERE ERF_ID=" + id1+" AND Source_ID="+sourceID;
+				rs = dbaccess.selectData(sql);
+				rs.first();
+				int num1 = rs.getInt(1)+1;
+				rs.close();
+				sql = "SELECT max(Rupture_ID) from Ruptures WHERE ERF_ID=" + id2+" AND Source_ID="+sourceID;
+				rs = dbaccess.selectData(sql);
+				rs.first();
+				int num2 = rs.getInt(1)+1;
+				rs.close();
+				
+				if (num1 != num2) {
+					ProbEqkSource src = erf.getSource(sourceID);
+					System.out.println("Discrepancy for source "+sourceID+": "+num1+" => "+num2
+							+" (source type: "+ClassUtils.getClassNameWithoutPackage(
+									src.getClass())+", "+src.getNumRuptures()+" rups)");
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String args[]) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		ERF2DB erf2db = new ERF2DB(db);
 		String name = "Ventura-Pitas Point";
 		//		  System.out.println(name + ": " + erf2db.getSourceIDFromName(34, name));
-		ArrayList<int[]> bad = erf2db.checkNumPoints(35);
-
-		if (bad.size() > 0) {
-			for (int[] it : bad) {
-				System.out.println("BAD: " + it[0] + " " + it[1]);
-			}
-		} else {
-			System.out.println("All checks out!");
-		}
+//		ArrayList<int[]> bad = erf2db.checkNumPoints(35);
+//
+//		if (bad.size() > 0) {
+//			for (int[] it : bad) {
+//				System.out.println("BAD: " + it[0] + " " + it[1]);
+//			}
+//		} else {
+//			System.out.println("All checks out!");
+//		}
+		
+		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		erf2db.debugERFs(35, 36, erf);
 
 		db.destroy();
 	}

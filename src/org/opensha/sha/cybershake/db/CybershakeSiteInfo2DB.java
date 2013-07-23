@@ -28,6 +28,7 @@ import java.util.ListIterator;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -203,6 +204,7 @@ public class CybershakeSiteInfo2DB {
 			int numRuptures = source.getNumRuptures();
 			
 			ArrayList<Integer> rupsToAdd = new ArrayList<Integer>();
+			ArrayList<Double> rupDistsToAdd = new ArrayList<Double>();
 
 			// going over all the ruptures in the source
 			for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
@@ -281,6 +283,13 @@ public class CybershakeSiteInfo2DB {
 						}
 //						System.out.println("Inserting Rupture " + sourceIndex + ", " + rupIndex + " for site " + siteId);
 						rupsToAdd.add(rupIndex);
+						double minDist = Double.POSITIVE_INFINITY;
+						for (Location rupLoc : rupSurface) {
+							double dist = LocationUtils.linearDistanceFast(rupLoc, loc);
+							if (dist<minDist)
+								minDist = dist;
+						}
+						rupDistsToAdd.add(minDist);
 //						this.site2db.insertSite_RuptureInfo(siteId, erfId,
 //								sourceIndex, rupIndex, CUT_OFF_DISTANCE);
 						count++;
@@ -301,7 +310,7 @@ public class CybershakeSiteInfo2DB {
 			if (rupsToAdd.size() > 0) {
 				System.out.println("Inserting " + rupsToAdd.size() + " ruptures for Site=" + siteId + " and source=" + sourceIndex);
 				
-				this.site2db.insertSite_RuptureInfoList(siteId, erfId, csSource, rupsToAdd, CUT_OFF_DISTANCE);
+				this.site2db.insertSite_RuptureInfoList(siteId, erfId, csSource, rupsToAdd, rupDistsToAdd, CUT_OFF_DISTANCE);
 			}
 			
 		}

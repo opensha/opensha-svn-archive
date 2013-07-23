@@ -20,7 +20,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 public class ERF_Rupture_File_Writer {
 	
-	private static void writeRuptureFile(ProbEqkRupture rup, int srcID, int rupID, File dir) throws IOException {
+	 public static void writeRuptureFile(ProbEqkRupture rup, int srcID, int rupID, File dir) throws IOException {
 		FileWriter fw = new FileWriter(new File(dir, srcID+"_"+rupID+".txt"));
 		
 		EvenlyGriddedSurface rawSurf = (EvenlyGriddedSurface)rup.getRuptureSurface();

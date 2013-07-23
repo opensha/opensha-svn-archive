@@ -300,13 +300,13 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		}
 	}
 	
-	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, ArrayList<Integer> ruptureId, double cutOffDistance) {
+	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, ArrayList<Integer> ruptureId, ArrayList<Double> rupDists, double cutOffDistance) {
 //		generate the SQL to be inserted in the Sites table
 		String sql = "INSERT into CyberShake_Site_Ruptures VALUES";
 		
 		int size = ruptureId.size();
 		for (int i=0; i<size; i++) {
-			sql += "('"+siteId+"','"+erfId+"','"+sourceId+"','"+ruptureId.get(i)+"','"+cutOffDistance+"')";
+			sql += "('"+siteId+"','"+erfId+"','"+sourceId+"','"+ruptureId.get(i)+"','"+cutOffDistance+"','"+rupDists.get(i)+"')";
 			
 			if ((i + 1) == size) { // this is the last one, no comma at end
 				

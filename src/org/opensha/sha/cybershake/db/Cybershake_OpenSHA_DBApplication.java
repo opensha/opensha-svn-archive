@@ -19,6 +19,7 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -359,12 +360,14 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
-		String erfName = erfDB.getERF_Instance().getName();
-		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL";
+		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
+		erfDB.setFileBased(erfDir);
+		String erfName = erfDB.getERF_Instance().getName()+" 200m";
+		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL, 200m";
 		
 		ERF forecast = erfDB.getERF_Instance();
-		System.out.println("ERF NAME: " + forecast.getName());
-		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
+		System.out.println("ERF NAME: " + erfName);
+		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("ERF ID: " + erfId);
 		
 		CybershakeSiteInfo2DB siteDB = new CybershakeSiteInfo2DB(db);
@@ -384,7 +387,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		region = new GriddedRegion(corners, gridSpacing);
 		
 		// this inserts it
-//		erfDB.insertForecaseInDB(erfDescription, region);
+		// TODO deal with rakes along strike before inserting UCERF3
+//		erfDB.insertForecaseInDB(erfName, erfDescription, region);
 		
 		// if you have to reinsert a rupture surface for some reason, do this
 //		int erfID = 35;
@@ -394,7 +398,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		// this inserts the site info
 //		siteDB.setMatchSourceNames(false);
-//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
+		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		
 		
 		/////////////// ADD SITES //////////////////////

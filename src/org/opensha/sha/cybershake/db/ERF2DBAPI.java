@@ -72,22 +72,6 @@ public interface ERF2DBAPI {
 			                        int numRows,int numCols,int numPoints);
 	
 	/**
-	 * Inserts surface locations information for each rupture in table "Points"
-	 * @param erfName
-	 * @param sourceId
-	 * @param ruptureId
-	 * @param lat
-	 * @param lon
-	 * @param depth
-	 * @param rake
-	 * @param dip
-	 * @param strike
-	 */
-	public void insertRuptureSurface(int erfId,int sourceId,int ruptureId,
-			                         double lat,double lon,double depth,double rake,
-			                         double dip,double strike);
-	
-	/**
 	 * Retrives the id of the ERF from the table ERF_IDs  for the corresponding ERF_Name.
 	 * @param erfName
 	 * @return
