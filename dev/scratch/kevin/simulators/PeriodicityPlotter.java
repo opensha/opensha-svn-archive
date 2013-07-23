@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.PoissonDistribution;
@@ -221,9 +222,10 @@ public class PeriodicityPlotter {
 					rupIdens.get(coachellaIndex), rupIdenNames.get(coachellaIndex));
 			
 			if (!randomized) {
-				plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, null);
+				Map<IDPairing, HistogramFunction> origFuncs =
+						plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, null, null);
 				for (RandomDistType randDist : RandomDistType.values())
-					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, randDist);
+					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, randDist, origFuncs);
 			}
 			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
@@ -719,9 +721,9 @@ public class PeriodicityPlotter {
 				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
-	private static void plotTimeBetweenAllIdens(File writeDir,
+	private static Map<IDPairing, HistogramFunction> plotTimeBetweenAllIdens(File writeDir,
 			List<EQSIM_Event> events, List<RuptureIdentifier> idens, List<String> idenNames,
-			RandomDistType randDistType)
+			RandomDistType randDistType, Map<IDPairing, HistogramFunction> origCorrHists)
 					throws IOException {
 		if (randDistType != null) {
 			events = getRandomResampledCatalog(events, idens, randDistType, true);
@@ -937,6 +939,8 @@ public class PeriodicityPlotter {
 				List<PlotCurveCharacterstics> chars = Lists.newArrayList(
 						new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.GRAY),
 						new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				if (origCorrHists != null)
+					chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 				int annotationSize = 18;
 				
 				specs = Lists.newArrayList();
@@ -944,6 +948,8 @@ public class PeriodicityPlotter {
 				List<HistogramFunction> funcs = Lists.newArrayList();
 				funcs.add(jthCorupFunc);
 				funcs.add(jthAutoFunc);
+				if (origCorrHists != null)
+					funcs.add(origCorrHists.get(new IDPairing(j, j)));
 				
 				PlotSpec mAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				mAutoSpec.setPlotAnnotations(Lists.newArrayList(
@@ -953,6 +959,8 @@ public class PeriodicityPlotter {
 				funcs = Lists.newArrayList();
 				funcs.add(ithCorupFunc);
 				funcs.add(ithAutoFunc);
+				if (origCorrHists != null)
+					funcs.add(origCorrHists.get(new IDPairing(i, i)));
 				
 				PlotSpec nAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				nAutoSpec.setPlotAnnotations(Lists.newArrayList(
@@ -962,6 +970,8 @@ public class PeriodicityPlotter {
 				funcs = Lists.newArrayList();
 				funcs.add(crossCorupFunc);
 				funcs.add(crossFunc);
+				if (origCorrHists != null)
+					funcs.add(origCorrHists.get(new IDPairing(i, j)));
 				
 				PlotSpec crossSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				crossSpec.setPlotAnnotations(Lists.newArrayList(
@@ -1023,6 +1033,8 @@ public class PeriodicityPlotter {
 		document.close();
 		for (PDDocument doc : subDocs)
 			doc.close();
+		
+		return corrHists;
 	}
 	
 	private static XYTextAnnotation getTopLeftAnnotation(List<? extends DiscretizedFunc> funcs, String text, int fontSize) {
@@ -1275,7 +1287,7 @@ public class PeriodicityPlotter {
 			eventsToResample.removeAll(multiEventsSet);
 			eventListsToResample.add(eventsToResample);
 			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(distType, rps, totTime));
+			randomRPsList.add(getReturnPeriodProvider(rupIdens.get(i), distType, rps, totTime));
 		}
 		
 		for (int i=0; i<multiEvents.size(); i++) {
@@ -1283,7 +1295,7 @@ public class PeriodicityPlotter {
 			Collections.sort(eventsToResample);
 			eventListsToResample.add(eventsToResample);
 			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(distType, rps, totTime));
+			randomRPsList.add(getReturnPeriodProvider(null, distType, rps, totTime));
 		}
 		
 		List<EQSIM_Event> newList = Lists.newArrayList();
@@ -1326,38 +1338,75 @@ public class PeriodicityPlotter {
 	}
 	
 	private static RandomReturnPeriodProvider getReturnPeriodProvider(
-			RandomDistType distType, double[] rps, double totTime) {
+			RuptureIdentifier rupIden, RandomDistType distType, double[] rps, double totTime) {
 		if (rps.length == 0) {
 			rps = new double[1];
 			rps[0] = totTime;
 			return new ActualDistReturnPeriodProvider(rps);
 		}
-		return distType.instance(rps);
+		return distType.instance(rupIden, rps);
 	}
 	
 	static enum RandomDistType {
 		NORMAL("Random Normal Dist", "rand_norm_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(double[] rps) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
 				return new NormalDistReturnPeriodProvider(rps);
+			}
+		},
+		EXPONENTIAL("Random Exponential Dist", "rand_exp_dist") {
+			@Override
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
+				return new ExponentialDistReturnPeriodProvider(rps);
 			}
 		},
 		LOG_NORMAL("Random Log-Normal Dist", "rand_lognorm_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(double[] rps) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
 				return new LogNormalDistReturnPeriodProvider(rps);
 			}
 		},
 		POISSON("Random Poisson Dist", "rand_poisson_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(double[] rps) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
 				return new PoissonDistReturnPeriodProvider(rps);
 			}
 		},
 		ACTUAL("Random Actual Dist", "rand_actual_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(double[] rps) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
 				return new ActualDistReturnPeriodProvider(rps);
+			}
+		},
+		PREFERRED_SYN("Random Preferred Synthetic", "rand_preferred") {
+			@Override
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
+				if (rupIden != null && rupIden instanceof ElementMagRangeDescription) {
+					List<Integer> ids = ((ElementMagRangeDescription)rupIden).getElementIDs();
+					if (ids.size() == 1 && ids.get(0) == ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID) {
+						// San Jacinto
+						List<RandomReturnPeriodProvider> provs = Lists.newArrayList();
+						List<Double> weights = Lists.newArrayList();
+						
+						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(98), 0.2));
+						weights.add(1.0);
+						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(160), 0.15));
+						weights.add(1.65);
+						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(235), 0.18));
+						weights.add(0.95);
+						
+//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(98), 0.2));
+//						weights.add(1.0);
+//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(160), 0.15));
+//						weights.add(1.65);
+//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(235), 0.1));
+//						weights.add(1.0);
+						
+						return new CompoundDistReturnPeriodProvider(provs, weights);
+					}
+				}
+				// default: log normal
+				return LOG_NORMAL.instance(rupIden, rps);
 			}
 		};
 		
@@ -1372,10 +1421,10 @@ public class PeriodicityPlotter {
 		public String getFNameAdd() {
 			return fNameAdd;
 		}
-		public abstract RandomReturnPeriodProvider instance(double[] rps);
+		public abstract RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps);
 	}
 	
-	private static interface RandomReturnPeriodProvider {
+	static interface RandomReturnPeriodProvider {
 		public double getReturnPeriod();
 	}
 	
@@ -1395,19 +1444,68 @@ public class PeriodicityPlotter {
 		}
 	}
 	
-	private static class LogNormalDistReturnPeriodProvider implements RandomReturnPeriodProvider {
+	private static class ExponentialDistReturnPeriodProvider implements RandomReturnPeriodProvider {
+		
+		private ExponentialDistribution n;
+		
+		public ExponentialDistReturnPeriodProvider(double[] rps) {
+			double mean = StatUtils.mean(rps);
+			double sd = Math.sqrt(StatUtils.variance(rps, mean));
+			n = new ExponentialDistribution(mean);
+		}
+
+		@Override
+		public double getReturnPeriod() {
+			return n.sample();
+		}
+	}
+	
+	public static class LogNormalDistReturnPeriodProvider implements RandomReturnPeriodProvider {
 		
 		private LogNormalDistribution n;
 		
+		public static double[] getTrimmedRPs(double[] rps, double mean) {
+			double trimAmount = mean*0.4;
+			double trimMin = mean-trimAmount;
+			double trimMax = mean+trimAmount;
+			List<Double> trimmedRPs = Lists.newArrayList();
+			for (double rp : rps)
+				if (rp>=trimMin && rp<=trimMax)
+					trimmedRPs.add(rp);
+			return Doubles.toArray(trimmedRPs);
+		}
+		
 		public LogNormalDistReturnPeriodProvider(double[] rps) {
 			double mean = StatUtils.mean(rps);
-			double sd = Math.sqrt(StatUtils.variance(rps, mean));
+			double var = StatUtils.variance(rps, mean);
+			double sd = Math.sqrt(var);
+			System.out.println("ORIG Mean: "+mean);
+			System.out.println("ORIG Variance: "+StatUtils.variance(rps, mean));
+			System.out.println("ORIG SD: "+sd);
+			// trim dist
+			rps = getTrimmedRPs(rps, mean);
+			mean = StatUtils.mean(rps);
+			var = StatUtils.variance(rps, mean);
+			sd = Math.sqrt(var);
 //			n = new LogNormalDistribution(mean, sd);
-			n = new LogNormalDistribution(Math.log(mean), Math.log(sd));
+//			n = new LogNormalDistribution(Math.log(mean), Math.log(sd));
+			System.out.println("Mean: "+mean);
+			System.out.println("Variance: "+var);
+			System.out.println("SD: "+sd);
+			double shape = sd / mean;
+//			double shape = 0.2;
+//			mean = mean-10;
+			System.out.println("Shape: "+shape);
+			n = new LogNormalDistribution(Math.log(mean), shape);
+//			n = new LogNormalDistribution(mean, 1d);
 			
-			System.out.println("Log-Normal Distribution. mean="+mean+", std dev="+sd+", num_mean="+n.getNumericalMean());
-			for (int i=0; i<10; i++)
-				System.out.println("\t"+i+". "+getReturnPeriod());
+//			System.out.println("Log-Normal Distribution. mean="+mean+", std dev="+sd+", num_mean="+n.getNumericalMean());
+//			for (int i=0; i<10; i++)
+//				System.out.println("\t"+i+". "+getReturnPeriod());
+		}
+		
+		public LogNormalDistReturnPeriodProvider(double scale, double shape) {
+			n = new LogNormalDistribution(scale, shape);
 		}
 
 		@Override
@@ -1455,7 +1553,42 @@ public class PeriodicityPlotter {
 		}
 	}
 	
-	private static double[] getRPs(List<EQSIM_Event> matches) {
+	public static class CompoundDistReturnPeriodProvider implements RandomReturnPeriodProvider {
+		
+		private List<RandomReturnPeriodProvider> provs;
+		private double[] weightEnds;
+		
+		public CompoundDistReturnPeriodProvider(
+				List<RandomReturnPeriodProvider> provs, List<Double> weights) {
+			Preconditions.checkState(provs.size() == weights.size());
+			double tot = 0;
+			for (double weight : weights)
+				tot += weight;
+			
+			weightEnds = new double[provs.size()];
+			double running = 0;
+			for (int i=0; i<weights.size(); i++) {
+				double weight = weights.get(i);
+				running += weight;
+				weightEnds[i] = running/tot;
+			}
+			this.provs = provs;
+		}
+
+		@Override
+		public double getReturnPeriod() {
+			double r = Math.random();
+			int i;
+			for (i=0; i<weightEnds.length-1; i++) {
+				if (r < weightEnds[i])
+					break;
+			}
+			return provs.get(i).getReturnPeriod();
+		}
+		
+	}
+	
+	static double[] getRPs(List<EQSIM_Event> matches) {
 		List<Double> rps = Lists.newArrayList();
 		
 		double prevTime = -1;
