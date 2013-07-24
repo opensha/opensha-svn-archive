@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -1131,6 +1132,19 @@ public  class ERF2DB implements ERF2DBAPI{
 //		}
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
+		// write out source counts
+		CSVFile<String> csv = new CSVFile<String>(true);
+		csv.addLine("Source ID", "Source Name", "# Ruptures", "Total Prob");
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource source = erf.getSource(sourceID);
+			csv.addLine(sourceID+"", source.getName(), source.getNumRuptures()+"", source.computeTotalProb()+"");
+		}
+		try {
+			csv.writeToFile(new File("/tmp/ucerf2_cybershake_sources.csv"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		erf2db.debugERFs(35, 36, erf);
 
 		db.destroy();

@@ -356,13 +356,13 @@ public class Cybershake_OpenSHA_DBApplication {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
-		DBAccess db = getAuthenticatedDBAccess(true);
+		DBAccess db = getAuthenticatedDBAccess(true, true);
 		
 		System.out.println("Creating and Updating ERF...");
-		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
+		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, true);
 		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
 		erfDB.setFileBased(erfDir);
-		String erfName = erfDB.getERF_Instance().getName()+" 200m";
+		String erfName = erfDB.getERF_Instance().getName();
 		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL, 200m";
 		
 		ERF forecast = erfDB.getERF_Instance();
@@ -398,7 +398,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		// this inserts the site info
 //		siteDB.setMatchSourceNames(false);
-		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
+//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		
 		
 		/////////////// ADD SITES //////////////////////

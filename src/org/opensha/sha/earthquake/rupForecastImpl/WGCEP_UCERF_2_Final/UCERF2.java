@@ -72,7 +72,7 @@ public class UCERF2 extends AbstractERF {
 	public final static double BACKGROUND_MAG_LOWER = 5.0;
 	
 	// Fault Grid Spacing
-	public final static double GRID_SPACING = 1;
+	public static double GRID_SPACING = 1;
 	public final static double RUP_OFFSET = 5;
 
 
