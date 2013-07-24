@@ -27,7 +27,10 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
@@ -41,17 +44,27 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 	
 	private AbstractERF erf = null;
 	
+	private BooleanParameter hiResParam;
+	
 	public CyberShakeUCERFWrapper_ERF() {
 		super();
+		
+		hiResParam = new BooleanParameter("200m resolution", false);
+		hiResParam.addParameterChangeListener(this);
+		adjustableParams.addParameter(hiResParam);
 	}
 	
 	private AbstractERF getERF() {
 		if (erf == null) {
 			try {
-				Document doc = XMLUtils.loadDocument(this.getClass().getResource("/"+ERF_XML_FILE));
-				Element root = doc.getRootElement();
-				Element erfEl = root.element(XML_METADATA_NAME);
-				erf = AbstractERF.fromXMLMetadata(erfEl);
+				if (hiResParam.getValue()) {
+					erf = MeanUCERF2_ToDB.createUCERF2_200mERF();
+				} else {
+					Document doc = XMLUtils.loadDocument(this.getClass().getResource("/"+ERF_XML_FILE));
+					Element root = doc.getRootElement();
+					Element erfEl = root.element(XML_METADATA_NAME);
+					erf = AbstractERF.fromXMLMetadata(erfEl);
+				}
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -67,7 +80,6 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 	}
 
 	public int getNumSources() {
-		// TODO Auto-generated method stub
 		return getERF().getNumSources();
 	}
 
@@ -91,6 +103,12 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 
 	public void updateForecast() {
 		getERF().updateForecast();
+	}
+
+	@Override
+	public void parameterChange(ParameterChangeEvent event) {
+		erf = null;
+		super.parameterChange(event);
 	}
 
 }

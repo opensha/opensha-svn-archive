@@ -152,18 +152,33 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 							int rowI = row % discrPnts;
 							int colI = column % discrPnts;
 							
+//							System.out.println("Interp get: row="+row+", origRow="+origRow+", rowI="+rowI);
+//							System.out.println("\tcol="+column+", origCol="+origCol+", colI="+colI);
+//							System.out.println("\torigRows="+loResSurf.getNumRows()+", origCols="+loResSurf.getNumCols());
+							
 							Location topLeftLoc = loResSurf.get(origRow, origCol);
-							Location topRightLoc = loResSurf.get(origRow, origCol+1);
-							Location botLeftLoc = loResSurf.get(origRow+1, origCol);
-							Location botRightLoc = loResSurf.get(origRow+1, origCol+1);
+//							Location botRightLoc = loResSurf.get(origRow+1, origCol+1);
+							double horzDist, horzAz;
+							if (origCol+1 == loResSurf.getNumCols()) {
+								horzDist = 0;
+								horzAz = 0;
+							} else {
+								Location topRightLoc = loResSurf.get(origRow, origCol+1);
+								horzDist = LocationUtils.horzDistance(topLeftLoc, topRightLoc);
+								horzAz = LocationUtils.azimuthRad(topLeftLoc, topRightLoc);
+							}
 							
-							double horzDist = LocationUtils.horzDistance(topLeftLoc, topRightLoc);
-							double vertDist = LocationUtils.horzDistance(topLeftLoc, botLeftLoc);
-							
-							double horzAz = LocationUtils.azimuthRad(topLeftLoc, topRightLoc);
-							double vertAz = LocationUtils.azimuthRad(topLeftLoc, botLeftLoc);
-							
-							double depthDelta = botLeftLoc.getDepth()-topLeftLoc.getDepth();
+							double vertDist, vertAz, depthDelta;
+							if (origRow+1 == loResSurf.getNumRows()) {
+								vertDist = 0;
+								vertAz = 0;
+								depthDelta = 0;
+							} else {
+								Location botLeftLoc = loResSurf.get(origRow+1, origCol);
+								vertDist = LocationUtils.horzDistance(topLeftLoc, botLeftLoc);
+								vertAz = LocationUtils.azimuthRad(topLeftLoc, botLeftLoc);
+								depthDelta = botLeftLoc.getDepth()-topLeftLoc.getDepth();
+							}
 							
 							double relativeVertPos = (double)rowI/(double)discrPnts;
 							double relativeHorzPos = (double)colI/(double)discrPnts;
@@ -231,6 +246,16 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 				}
 				ProbEqkSource combSource = new ProbEqkSource() {
 					
+					@Override
+					public String getName() {
+						return regSource.getName();
+					}
+
+					@Override
+					public String getInfo() {
+						return regSource.getInfo();
+					}
+
 					@Override
 					public RuptureSurface getSourceSurface() {
 						return hiResSource.getSourceSurface();

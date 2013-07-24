@@ -328,7 +328,7 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 
 		checkBounds( row, column, S );
 
-		if ( data[row * numCols + column] == null ) {
+		if ( get(row, column) == null ) {
 			return false;
 		} else {
 			return true;
@@ -371,7 +371,7 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 		Object[][] d = new Object[numRows][numCols];
 		for ( int j = 0; j < numRows; j++ ) {
 			for ( int i = 0; i < numCols; i++ ) {
-				d[i][j] = data[i * numCols + j];
+				d[i][j] = get(i, j);
 			}
 		}
 		return d;
@@ -683,7 +683,8 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 		@SuppressWarnings("unchecked")
 		public T next() throws NoSuchElementException {
 			try {
-				T object = (T)data[cursor * numCols + pinnedColumn];
+//				T object = (T)data[cursor * numCols + pinnedColumn];
+				T object = get(cursor, pinnedColumn);
 				lastRet = cursor++;
 				return object;
 			} catch ( IndexOutOfBoundsException e ) {
@@ -735,7 +736,8 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 
 			try {
 
-				T object = (T)data[currentRow * numCols + currentColumn];
+//				T object = (T)data[currentRow * numCols + currentColumn];
+				T object = get(currentRow, currentColumn);
 
 				currentRow++;
 				if ( currentRow == numRows ) {
@@ -784,11 +786,15 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 		public T next() throws NoSuchElementException {
 
 			try {
-				T object = (T)data[cursor];
+				int row = cursor / numCols;
+				int col = cursor % numCols;
+//				T object = (T)data[cursor];
+//				System.out.println("cursor="+cursor+", row="+row+"/"+numRows+", col="+col+"/"+numCols);
+				T object = get(row, col);
 				lastRet = cursor++;
 				return object;
 			} catch ( IndexOutOfBoundsException e ) {
-				throw new NoSuchElementException( "You have iterated past the last element." + e.toString() );
+				throw new NoSuchElementException( "You have iterated past the last element. " + e.toString() );
 			}
 
 		}
