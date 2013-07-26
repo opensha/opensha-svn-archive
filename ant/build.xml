@@ -413,6 +413,7 @@
 				<include name="**/*.xml" />
 				<include name="**/*.cat" />
 				<include name="**/*.dat" />
+				<include name="**/*.csv" />
 			</fileset>
 		</copy>
 	</target>
