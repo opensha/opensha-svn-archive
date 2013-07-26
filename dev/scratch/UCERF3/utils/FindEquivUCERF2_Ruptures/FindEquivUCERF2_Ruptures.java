@@ -227,5 +227,9 @@ public abstract class FindEquivUCERF2_Ruptures {
 	public final FaultSystemRupSet getFaultSysRupSet() {
 		return faultSysRupSet;
 	}
+	
+	public ERF getUCERF2_ERF() {
+		return modifiedUCERF2;
+	}
 
 }

@@ -73,7 +73,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * @author unascribed
  * @version 1.0
  */
-
+@Deprecated
 public class IMR_GuiBean extends ParameterListEditor
 implements ParameterChangeListener,
 ParameterChangeWarningListener, ParameterChangeFailListener {

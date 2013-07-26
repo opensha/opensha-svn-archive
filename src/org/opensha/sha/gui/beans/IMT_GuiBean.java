@@ -44,7 +44,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
  * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-
+@Deprecated
 public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeListener{
 
 	// IMT GUI Editor & Parameter names

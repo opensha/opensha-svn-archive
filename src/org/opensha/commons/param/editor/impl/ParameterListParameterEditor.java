@@ -79,6 +79,8 @@ ActionListener,ParameterChangeListener{
 	protected boolean parameterChangeFlag;
 	
 	private boolean useButton;
+	
+	private boolean modal = true;
 
 	public ParameterListParameterEditor(Parameter<ParameterList> model) {
 		this(model, true);
@@ -138,7 +140,7 @@ ActionListener,ParameterChangeListener{
 		if (e.getSource() == button) {
 			parameterChangeFlag = false;
 			frame = new JDialog();
-			frame.setModal(true);
+			frame.setModal(modal);
 			frame.setSize(300,400);
 			frame.setTitle(getParameter().getName());
 			frame.getContentPane().setLayout(new GridBagLayout());
@@ -225,5 +227,11 @@ ActionListener,ParameterChangeListener{
 		} else {
 			return editor;
 		}
+	}
+	
+	public void setModal(boolean modal) {
+		this.modal = modal;
+		if (frame != null)
+			frame.setModal(modal);
 	}
 }
