@@ -5,6 +5,7 @@ package scratch.UCERF3;
 
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -231,8 +232,17 @@ public class FaultSystemSolution implements Serializable {
 		double partRate=0;
 		for (int r : rupSet.getRupturesForSection(sectIndex)) {
 			double mag = rupSet.getMagForRup(r);
-			if(mag>=magLow && mag<magHigh)
-				partRate += getRateForRup(r);
+			DiscretizedFunc mfd = getRupMagDist(r);
+			if (mfd == null || mfd.getNum() == 1) {
+				if(mag>=magLow && mag<magHigh)
+					partRate += getRateForRup(r);
+			} else {
+				// use rup MFDs
+				for (Point2D pt : mfd) {
+					if(pt.getX()>=magLow && pt.getX()<magHigh)
+						partRate += pt.getY();
+				}
+			}
 		}
 		return partRate;
 	}
@@ -282,12 +292,24 @@ public class FaultSystemSolution implements Serializable {
 		double nucleationRate=0;
 		for (int r : rupSet.getRupturesForSection(sectIndex)) {
 			double mag = rupSet.getMagForRup(r);
-			if(mag>=magLow && mag<magHigh) {
-				double rate = getRateForRup(r);
+			DiscretizedFunc mfd = getRupMagDist(r);
+			if (mfd == null || mfd.getNum() == 1) {
+				if(mag>=magLow && mag<magHigh) {
+					double rate = getRateForRup(r);
+					double sectArea = rupSet.getAreaForSection(sectIndex);
+					double rupArea = rupSet.getAreaForRup(r);
+					nucleationRate += rate * (sectArea / rupArea);
+				}
+			} else {
+				// use rup MFDs
 				double sectArea = rupSet.getAreaForSection(sectIndex);
 				double rupArea = rupSet.getAreaForRup(r);
-				nucleationRate += rate * (sectArea / rupArea);
+				for (Point2D pt : mfd) {
+					if(pt.getX()>=magLow && pt.getX()<magHigh)
+						nucleationRate += pt.getY() * (sectArea / rupArea);
+				}
 			}
+			
 		}
 		return nucleationRate;
 	}
