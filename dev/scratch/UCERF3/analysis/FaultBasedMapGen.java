@@ -853,6 +853,10 @@ public class FaultBasedMapGen {
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
+		
+		getLog10_SlipRateCPT().writeCPTFile("Log10_SlipRate.cpt");
+		System.exit(0);
+		
 		File invSolsDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");

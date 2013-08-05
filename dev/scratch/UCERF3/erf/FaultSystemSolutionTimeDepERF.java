@@ -1339,7 +1339,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				
 				// make SAF event plotting funcs (ONLY FOR FIRST 10000 YEARS)
 				double numYrs = (eventTimeMillis-origStartTime)/MILLISEC_PER_YEAR;
-				if(numYrs < 10000) {
+				if(numYrs < 11000 && numYrs > 1000) {
 					// make the function showing 10% RI at bottom of plot
 					if(firstEvent) {
 						for(int s=0;s<invRupSet.getNumSections();s++) {
@@ -1391,17 +1391,19 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 						
 						safEventFuncs.add(newFunc);
 						
-						double mag = magOfNthRups[nthRup];
-						if(mag<6.5)
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
-						else if(mag<7)
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
-						else if(mag<7.5)
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.ORANGE));
-						else if(mag<8)
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
-						else
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
+						safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GRAY));
+						
+//						double mag = magOfNthRups[nthRup];
+//						if(mag<6.5)
+//							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.BLUE));
+//						else if(mag<7)
+//							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GREEN));
+//						else if(mag<7.5)
+//							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.ORANGE));
+//						else if(mag<8)
+//							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.RED));
+//						else
+//							safPlotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.MAGENTA));
 						
 						// plot circles where there are short section RIs
 						if(shortSectRI_Lats.size()>0) {
@@ -1410,7 +1412,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 								shortRIsFunc.set(lat, eventTimeMillis/MILLISEC_PER_YEAR);
 							}
 							safEventFuncs.add(shortRIsFunc);
-							safPlotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 2f, Color.BLACK));
+							safPlotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLACK));
 						}
 					}			
 				}
@@ -1689,8 +1691,11 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		
 		// plot SAF events
 		GraphWindow graph9 = new GraphWindow(safEventFuncs, "SAF events; "+plotLabelString, safPlotChars4); 
+		graph9.setX_AxisRange(36.8, 40.2);
+		graph9.setY_AxisRange(1000, 11000);
 		graph9.setX_AxisLabel("Latitute");
 		graph9.setY_AxisLabel("Year");
+		graph9.setSize(240, 800);
 
 		
 		// plot observed versus imposed section slip rates
