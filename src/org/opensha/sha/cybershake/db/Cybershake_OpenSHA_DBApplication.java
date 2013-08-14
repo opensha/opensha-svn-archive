@@ -309,7 +309,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		cyberSiteDB.setForceAddRuptures(forceAdd);
 		ERF erf = erf2db.getERF_Instance();
 		for (CybershakeSite site : sites) {
-			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
+			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + " %)");
 			if (site.id < 0) {
 				if (siteInfoDB == null)
 					siteInfoDB = new SiteInfo2DB(db);
@@ -357,6 +357,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
 		DBAccess db = getAuthenticatedDBAccess(true, true);
+		if (db.isReadOnly())
+			db.setIgnoreInserts(true);
 		
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, true);
@@ -388,7 +390,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		// this inserts it
 		// TODO deal with rakes along strike before inserting UCERF3
-//		erfDB.insertForecaseInDB(erfName, erfDescription, region);
+		erfDB.insertForecaseInDB(erfName, erfDescription, region);
 		
 		// if you have to reinsert a rupture surface for some reason, do this
 //		int erfID = 35;

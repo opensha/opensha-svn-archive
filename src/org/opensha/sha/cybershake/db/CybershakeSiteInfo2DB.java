@@ -36,6 +36,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.InterpolatedEvenlyGriddedSurface;
 
 public class CybershakeSiteInfo2DB {
 
@@ -215,8 +216,9 @@ public class CybershakeSiteInfo2DB {
 				
 				ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-				AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface(
-						(EvenlyGriddedSurface)rupture.getRuptureSurface());
+				EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface)rupture.getRuptureSurface();
+				if (rupSurface instanceof InterpolatedEvenlyGriddedSurface)
+					rupSurface = ((InterpolatedEvenlyGriddedSurface)rupSurface).getLowResSurface();
 
 				// getting the iterator for all points on the rupture
 				ListIterator it = rupSurface.getAllByRowsIterator();
@@ -283,11 +285,17 @@ public class CybershakeSiteInfo2DB {
 						}
 //						System.out.println("Inserting Rupture " + sourceIndex + ", " + rupIndex + " for site " + siteId);
 						rupsToAdd.add(rupIndex);
-						double minDist = Double.POSITIVE_INFINITY;
-						for (Location rupLoc : rupSurface) {
-							double dist = LocationUtils.linearDistanceFast(rupLoc, loc);
-							if (dist<minDist)
-								minDist = dist;
+						double minDist;
+						if (rupSurface.getGridSpacingAlongStrike() >= 0.9) {
+							minDist = Double.POSITIVE_INFINITY;
+							// TODO make this faster for UCERF3 ruptures
+							for (Location rupLoc : rupSurface) {
+								double dist = LocationUtils.linearDistanceFast(rupLoc, loc);
+								if (dist<minDist)
+									minDist = dist;
+							}
+						} else {
+							minDist = Double.NaN;
 						}
 						rupDistsToAdd.add(minDist);
 //						this.site2db.insertSite_RuptureInfo(siteId, erfId,
@@ -385,7 +393,9 @@ public class CybershakeSiteInfo2DB {
 	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 	        ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-	        AbstractEvenlyGriddedSurface rupSurface = new EvenlyGridCenteredSurface((EvenlyGriddedSurface)rupture.getRuptureSurface());
+	        EvenlyGriddedSurface rupSurface = (EvenlyGriddedSurface)rupture.getRuptureSurface();
+	        if (rupSurface instanceof InterpolatedEvenlyGriddedSurface)
+				rupSurface = ((InterpolatedEvenlyGriddedSurface)rupSurface).getLowResSurface();
 
 	        //getting the iterator for all points on the rupture
 	        ListIterator it = rupSurface.getAllByRowsIterator();

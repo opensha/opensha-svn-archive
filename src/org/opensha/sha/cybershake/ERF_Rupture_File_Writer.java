@@ -28,8 +28,8 @@ public class ERF_Rupture_File_Writer {
 				rawSurf);
 		
 		fw.write("Probability = "+rup.getProbability()+"\n");
-		fw.write("Magnitude = "+rup.getMag()+"\n");
-		fw.write("GridSpacing = "+rawSurf.getAveGridSpacing()+"\n");
+		fw.write("Magnitude = "+(float)rup.getMag()+"\n");
+		fw.write("GridSpacing = "+(float)rawSurf.getAveGridSpacing()+"\n");
 		fw.write("NumRows = "+centeredSurf.getNumRows()+"\n");
 		fw.write("NumCols = "+centeredSurf.getNumCols()+"\n");
 		
@@ -39,8 +39,8 @@ public class ERF_Rupture_File_Writer {
 		double dip = centeredSurf.getAveDip();
 		
 		fw.write("#   Lat         Lon         Depth      Rake    Dip     Strike"+"\n");
-		for (int col=0; col<centeredSurf.getNumCols(); col++) {
-			for (int row=0; row<centeredSurf.getNumRows(); row++) {
+		for (int row=0; row<centeredSurf.getNumRows(); row++) {
+			for (int col=0; col<centeredSurf.getNumCols(); col++) {
 				Location loc = centeredSurf.get(row, col);
 				fw.write((float)loc.getLatitude()+"    "+(float)loc.getLongitude()+"    "
 						+(float)loc.getDepth()+"    "+(float)rake+"    "+(float)dip

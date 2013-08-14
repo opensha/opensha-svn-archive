@@ -306,7 +306,10 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		
 		int size = ruptureId.size();
 		for (int i=0; i<size; i++) {
-			sql += "('"+siteId+"','"+erfId+"','"+sourceId+"','"+ruptureId.get(i)+"','"+cutOffDistance+"','"+rupDists.get(i)+"')";
+			if (rupDists != null && !Double.isNaN(rupDists.get(i)))
+				sql += "('"+siteId+"','"+erfId+"','"+sourceId+"','"+ruptureId.get(i)+"','"+cutOffDistance+"','"+rupDists.get(i)+"')";
+			else
+				sql += "('"+siteId+"','"+erfId+"','"+sourceId+"','"+ruptureId.get(i)+"','"+cutOffDistance+"',NULL)";
 			
 			if ((i + 1) == size) { // this is the last one, no comma at end
 				

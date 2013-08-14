@@ -13,10 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.distribution.ExponentialDistribution;
-import org.apache.commons.math3.distribution.LogNormalDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
@@ -40,14 +36,14 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.utils.IDPairing;
+import scratch.kevin.simulators.dists.RandomCatalogBuilder;
+import scratch.kevin.simulators.dists.RandomDistType;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
@@ -179,7 +175,7 @@ public class PeriodicityPlotter {
 		List<EQSIM_Event> randomResampledCatalog = null;
 		for (boolean randomized : randoms)
 			if (randomized)
-				randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
+				randomResampledCatalog = RandomCatalogBuilder.getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
 		
 		for (boolean randomized : randoms) {
 			if (randomized)
@@ -223,9 +219,22 @@ public class PeriodicityPlotter {
 			
 			if (!randomized) {
 				Map<IDPairing, HistogramFunction> origFuncs =
-						plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, null, null);
+						plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, colors, null, null, 2000d, 10d);
 				for (RandomDistType randDist : RandomDistType.values())
-					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, randDist, origFuncs);
+					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, rupIdenNames, colors, randDist, origFuncs, 2000d, 10d);
+				// zoomed in
+				File zoomWriteDir = new File(myWriteDir, "corr_zoomed");
+				if (!zoomWriteDir.exists())
+					zoomWriteDir.mkdir();
+				plotTimeBetweenAllIdens(zoomWriteDir, events, rupIdens, rupIdenNames, colors, null, null, 20d, 1d);
+				// zoomed out
+				zoomWriteDir = new File(myWriteDir, "corr_wide");
+				if (!zoomWriteDir.exists())
+					zoomWriteDir.mkdir();
+				double totYears = events.get(events.size()-1).getTimeInYears()-events.get(0).getTimeInYears();
+				// make it round
+				totYears = Math.ceil(totYears / 1000d) * 1000d;
+				plotTimeBetweenAllIdens(zoomWriteDir, events, rupIdens, rupIdenNames, colors, null, null, totYears, 10d);
 			}
 			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
@@ -247,7 +256,7 @@ public class PeriodicityPlotter {
 			double cumulativePlotYears = 1000d;
 			if (!randomized) {
 				if (randomResampledCatalog == null)
-					randomResampledCatalog = getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
+					randomResampledCatalog = RandomCatalogBuilder.getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
 				
 				for (boolean includeInitialCorupture : initials) {
 					
@@ -721,12 +730,62 @@ public class PeriodicityPlotter {
 				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
-	private static Map<IDPairing, HistogramFunction> plotTimeBetweenAllIdens(File writeDir,
+	private static PlotSpec getCorrFunc(int ind1, String name1, List<EQSIM_Event> matches1,
+			int ind2, String name2, List<EQSIM_Event> matches2, double plotYears, double binWidth) {
+		HistogramFunction matrixHist = new HistogramFunction(-plotYears-0.5*binWidth, (int)(plotYears*2d/binWidth)+1, binWidth);
+		HistogramFunction corupHist = new HistogramFunction(-plotYears, (int)(plotYears*2d/binWidth), binWidth);
+		double matHistMin = matrixHist.getMinX() - 0.5*binWidth;
+		double matHistMax = matrixHist.getMaxX() + 0.5*binWidth;
+		
+		for (EQSIM_Event event1 : matches1) {
+			double timeYears1 = event1.getTimeInYears();
+			for (EQSIM_Event event2 : matches2) {
+				double timeYears2 = event2.getTimeInYears();
+				
+				double timeDelta = timeYears2 - timeYears1;
+				
+				if (event1.getID() == event2.getID())
+					corupHist.add(0d, 1d);
+				else if (timeDelta >= matHistMin && timeDelta <= matHistMax)
+					matrixHist.add(timeDelta, 1d);
+			}
+		}
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(corupHist);
+		funcs.add(matrixHist);
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE),
+				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		String title = null;
+		PlotSpec spec = new PlotSpec(funcs, chars, title, "Inter Event Time (years)", "Number");
+		List<XYTextAnnotation> annotations = Lists.newArrayList();
+		double annY;
+		if (matrixHist.getMaxY() > corupHist.getMaxY())
+			annY = matrixHist.getMaxY()*0.95;
+		else
+			annY = corupHist.getMaxY()*0.95;
+		double annX = matrixHist.getMaxX()*0.9;
+		Font font = new Font(Font.SERIF, Font.PLAIN, 14);
+		XYTextAnnotation leftAnn = new XYTextAnnotation(name1+" TO EACH "+name2, -annX, annY);
+		leftAnn.setFont(font);
+		leftAnn.setTextAnchor(TextAnchor.TOP_LEFT);
+		annotations.add(leftAnn);
+//		XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" => "+name1, annX, annY);
+//		rightAnn.setFont(font);
+//		rightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
+//		annotations.add(rightAnn);
+		spec.setPlotAnnotations(annotations);
+		return spec;
+	}
+	
+	public static Map<IDPairing, HistogramFunction> plotTimeBetweenAllIdens(File writeDir,
 			List<EQSIM_Event> events, List<RuptureIdentifier> idens, List<String> idenNames,
-			RandomDistType randDistType, Map<IDPairing, HistogramFunction> origCorrHists)
+			List<Color> colors, RandomDistType randDistType, Map<IDPairing, HistogramFunction> origCorrHists,
+			double plotYears, double binWidth)
 					throws IOException {
 		if (randDistType != null) {
-			events = getRandomResampledCatalog(events, idens, randDistType, true);
+			events = RandomCatalogBuilder.getRandomResampledCatalog(events, idens, randDistType, true);
 			writeDir = new File(writeDir, randDistType.getFNameAdd()+"_corr_plots");
 			if (!writeDir.exists())
 				writeDir.mkdir();
@@ -750,51 +809,16 @@ public class PeriodicityPlotter {
 				String name2 = idenNames.get(j);
 				List<EQSIM_Event> matches2 = matchesList.get(j);
 				
-				HistogramFunction matrixHist = new HistogramFunction(-2005, 401, 10d);
-				HistogramFunction corupHist = new HistogramFunction(-2000, 400, 10d);
-				double matHistMin = matrixHist.getMinX() - 5d;
-				double matHistMax = matrixHist.getMaxX() + 5d;
+				PlotSpec spec = getCorrFunc(i, name1, matches1, j, name2, matches2, plotYears, binWidth);
 				
-				for (EQSIM_Event event1 : matches1) {
-					double timeYears1 = event1.getTimeInYears();
-					for (EQSIM_Event event2 : matches2) {
-						double timeYears2 = event2.getTimeInYears();
-						
-						double timeDelta = timeYears2 - timeYears1;
-						
-						if (event1.getID() == event2.getID())
-							corupHist.add(0d, 1d);
-						else if (timeDelta >= matHistMin && timeDelta <= matHistMax)
-							matrixHist.add(timeDelta, 1d);
-					}
-				}
+				HistogramFunction matrixHist = (HistogramFunction)spec.getPlotElems().get(1);
+				HistogramFunction corupHist = (HistogramFunction)spec.getPlotElems().get(0);
 				
 				IDPairing pair = new IDPairing(i, j);
 				
 				corrHists.put(pair, matrixHist);
 				corupHists.put(pair, corupHist);
 				
-				List<DiscretizedFunc> funcs = Lists.newArrayList();
-				funcs.add(corupHist);
-				funcs.add(matrixHist);
-				List<PlotCurveCharacterstics> chars = Lists.newArrayList(
-						new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE),
-						new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-				String title = null;
-				PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
-				List<XYTextAnnotation> annotations = Lists.newArrayList();
-				double annY = matrixHist.getMaxY()*0.95;
-				double annX = matrixHist.getMaxX()*0.9;
-				Font font = new Font(Font.SERIF, Font.PLAIN, 14);
-				XYTextAnnotation leftAnn = new XYTextAnnotation(name1+" TO EACH "+name2, -annX, annY);
-				leftAnn.setFont(font);
-				leftAnn.setTextAnchor(TextAnchor.TOP_LEFT);
-				annotations.add(leftAnn);
-//				XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" => "+name1, annX, annY);
-//				rightAnn.setFont(font);
-//				rightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
-//				annotations.add(rightAnn);
-				spec.setPlotAnnotations(annotations);
 				specs.add(spec);
 			}
 		}
@@ -836,10 +860,11 @@ public class PeriodicityPlotter {
 						pair = new IDPairing(i, j);
 					}
 					
-					HistogramFunction matrixHist = new HistogramFunction(-1005, 201, 10d);
-					HistogramFunction corupHist = new HistogramFunction(-1000, 200, 10d);
-					double matHistMin = matrixHist.getMinX() - 5d;
-					double matHistMax = matrixHist.getMaxX() + 5d;
+					double halfPlotYears = plotYears*0.5;
+					HistogramFunction matrixHist = new HistogramFunction(-halfPlotYears-0.5*binWidth, (int)(halfPlotYears*2d/binWidth)+1, binWidth);
+					HistogramFunction corupHist = new HistogramFunction(-halfPlotYears, (int)(halfPlotYears*2d/binWidth), binWidth);
+					double matHistMin = matrixHist.getMinX() - 0.5*binWidth;
+					double matHistMax = matrixHist.getMaxX() + 0.5*binWidth;
 					
 					int startK = 0;
 					for (EQSIM_Event event1 : matches1) {
@@ -1014,6 +1039,132 @@ public class PeriodicityPlotter {
 		}
 		
 		// now combined pdf
+		String fName = "corr_combined";
+		if (randDistType != null)
+			fName += "_"+randDistType.getFNameAdd();
+		File outputFile = new File(writeDir, fName+".pdf");
+		combinePDFs(pdfFiles, outputFile);
+		
+		if (randDistType == null) {
+			// now make rolling window autocorrelation plots
+			double windowLen = 50000;
+			double windowStart = events.get(0).getTimeInYears();
+			double windowEnd = windowStart+windowLen;
+			double lastEvent = events.get(events.size()-1).getTimeInYears();
+			
+			List<List<PlotSpec>> rollingSpecs = Lists.newArrayList();
+			for (int i=0; i<idenNames.size(); i++)
+				rollingSpecs.add(new ArrayList<PlotSpec>());
+			
+			while (windowEnd <= lastEvent) {
+				List<List<EQSIM_Event>> subMatchesList = Lists.newArrayList();
+				for (List<EQSIM_Event> matches : matchesList) {
+					List<EQSIM_Event> subMatches = Lists.newArrayList();
+					for (EQSIM_Event e : matches) {
+						double time = e.getTimeInYears();
+						if (time < windowStart)
+							continue;
+						if (time > windowEnd)
+							break;
+						subMatches.add(e);
+					}
+					subMatchesList.add(subMatches);
+				}
+				
+				for (int i=0; i<subMatchesList.size(); i++) {
+					List<EQSIM_Event> matches = subMatchesList.get(i);
+					String name = idenNames.get(i);
+					PlotSpec spec = getCorrFunc(i, name, matches, i, name, matches, plotYears, binWidth);
+					spec.setTitle(name+" Rolling Autocorrelations ("+(int)windowLen+" year binning)");
+					rollingSpecs.get(i).add(spec);
+				}
+				
+				windowStart += windowLen;
+				windowEnd += windowLen;
+			}
+			
+			// now build PDFs
+			pdfFiles = Lists.newArrayList();
+			
+			pdfDir = new File(writeDir, "rolling_autocorr_pdfs");
+			if (!pdfDir.exists())
+				pdfDir.mkdir();
+			
+			for (int i=0; i<idenNames.size(); i++) {
+				String name = idenNames.get(i);
+				specs = rollingSpecs.get(i);
+				
+				gp = new HeadlessGraphPanel();
+				gp.setCombinedOnYAxis(false);
+				gp.setBackgroundColor(Color.WHITE);
+				gp.setTickLabelFontSize(18);
+				gp.setAxisLabelFontSize(20);
+				gp.setPlotLabelFontSize(21);
+				gp.drawGraphPanel(specs, false, false, null, null);
+				gp.getCartPanel().setSize(2000, 3000);
+				File prefixFile = new File(pdfDir, getFileSafeString(name)+"_rolling_autocorr");
+				fileName = prefixFile.getAbsolutePath();
+				gp.saveAsPNG(fileName+".png");
+				gp.saveAsPDF(fileName+".pdf");
+				
+				pdfFiles.add(new File(fileName+".pdf"));
+			}
+			
+			outputFile = new File(writeDir, "rolling_autocorr_combined.pdf");
+			combinePDFs(pdfFiles, outputFile);
+		}
+		
+		// now do the progress plots
+		double startTime = events.get(0).getTimeInYears();
+		double endTime = events.get(events.size()-1).getTimeInYears();
+		
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		List<DiscretizedFunc> progFuncs = Lists.newArrayList();
+		
+		double delta = 100d;
+		
+		for (int i=0; i<idens.size(); i++) {
+			HistogramFunction hist = new HistogramFunction(0.5*delta, (int)((endTime-startTime)/delta), delta);
+			
+			List<EQSIM_Event> matches = matchesList.get(i);
+			for (EQSIM_Event e : matches) {
+				double t = e.getTimeInYears()-startTime;
+				if (t < hist.getMaxX()+0.5*delta)
+					hist.add(t, 1d);
+			}
+			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(delta, hist.getNum(), delta);
+			double cnt = 0;
+			func.setName(idenNames.get(i));
+			for (int j=0; j<hist.getNum(); j++) {
+				cnt += hist.getY(j);
+//				if (i == 0)
+//					System.out.println("j="+j+", cnt="+cnt+", hist.getY="+hist.getY(j));
+				func.set(j, cnt/(double)matches.size());
+			}
+			
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
+			progFuncs.add(func);
+//			progFuncs.add(hist);
+		}
+		
+		PlotSpec spec = new PlotSpec(progFuncs, chars, "Events Over Time", "Years", "Fraction Of Events");
+		gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.drawGraphPanel(spec, false, false, null, null);
+		gp.getCartPanel().setSize(1000, 800);
+		File prefixFile = new File(writeDir, "events_over_time");
+		fileName = prefixFile.getAbsolutePath();
+		gp.saveAsPNG(fileName+".png");
+		gp.saveAsPDF(fileName+".pdf");
+//		gp.saveAsTXT(fileName+".txt");
+		
+		return corrHists;
+	}
+	
+	public static void combinePDFs(List<File> pdfFiles, File outputFile) throws IOException {
 		PDDocument document = new PDDocument();
 		List<PDDocument> subDocs = Lists.newArrayList();
 		for (File pdfFile : pdfFiles) {
@@ -1023,18 +1174,13 @@ public class PeriodicityPlotter {
 			subDocs.add(part);
 		}
 		try {
-			String fName = "corr_combined";
-			if (randDistType != null)
-				fName += "_"+randDistType.getFNameAdd();
-			document.save(new File(writeDir, fName+".pdf"));
+			document.save(outputFile);
 		} catch (COSVisitorException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		document.close();
 		for (PDDocument doc : subDocs)
 			doc.close();
-		
-		return corrHists;
 	}
 	
 	private static XYTextAnnotation getTopLeftAnnotation(List<? extends DiscretizedFunc> funcs, String text, int fontSize) {
@@ -1137,458 +1283,7 @@ public class PeriodicityPlotter {
 		return funcs;
 	}
 	
-	/**
-	 * This returns a catalog containing all matches from the given events/rup idens but with events randomly distributed
-	 * according to their recurrence intervals following a normal distribution. Events involving multiple rup idens are maintained
-	 * by using the recurrence intervals of all events using that same set of rup idens.
-	 * @param events
-	 * @param rupIDens
-	 * @param normDist use normal distribution instead of actual exact distribution
-	 * @param splitMultis split coruptures into individual events. This maintains the RI distribution perfectly for each
-	 * identifier but creates duplicate events. Magnitudes are maintained for each event so this would also throw off MFDs.
-	 * Use this option carefully.
-	 * @return
-	 */
-	static List<EQSIM_Event> getRandomResampledCatalog(
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
-			RandomDistType distType, boolean splitMultis) {
-		System.out.println("Generating randomized catalog. DistType: "+distType.getName());
-		
-		int numRupIdens = rupIdens.size();
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		List<HashSet<EQSIM_Event>> matchesSets = Lists.newArrayList();
-		HashSet<EQSIM_Event> allEventsSet = new HashSet<EQSIM_Event>();
-		Map<RuptureIdentifier, Integer> idenIndexMap = Maps.newHashMap();
-		
-		for (int i=0; i<rupIdens.size(); i++) {
-			RuptureIdentifier rupIden = rupIdens.get(i);
-			List<EQSIM_Event> matches = rupIden.getMatches(events);
-			matchesLists.add(matches);
-			matchesSets.add(new HashSet<EQSIM_Event>(matches));
-			allEventsSet.addAll(matches);
-			idenIndexMap.put(rupIden, i);
-		}
-		
-		System.out.println("All matches size: "+allEventsSet.size());
-		
-		// now remove events involving multiple rup idens
-		List<HashSet<RuptureIdentifier>> multiSets = Lists.newArrayList();
-		List<List<EQSIM_Event>> multiEvents = Lists.newArrayList();
-		HashSet<EQSIM_Event> multiEventsSet = new HashSet<EQSIM_Event>();
-		
-		Map<RuptureIdentifier, List<Integer>> idenElemsListMap = null;
-		
-		int lastID = events.get(events.size()-1).getID();
-		if (splitMultis) {
-			idenElemsListMap = Maps.newHashMap();
-			for (int i=0; i<rupIdens.size(); i++) {
-				RuptureIdentifier iden = rupIdens.get(i);
-				Preconditions.checkState(iden instanceof ElementMagRangeDescription,
-						"Can only split for element based rup idens.");
-				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)iden;
-				List<Integer> elemIDs = elemIden.getElementIDs();
-				idenElemsListMap.put(iden, elemIDs);
-			}
-		}
-		
-		for (EQSIM_Event e : allEventsSet) {
-			HashSet<RuptureIdentifier> eventRupIdens = new HashSet<RuptureIdentifier>();
-			for (int i=0; i<numRupIdens; i++)
-				if (matchesSets.get(i).contains(e))
-					eventRupIdens.add(rupIdens.get(i));
-			
-			if (eventRupIdens.size() > 1) {
-				// we have multiple identifiers here
-//				if (splitMultis)
-//					throw new IllegalStateException("Doesn't currently work.");
-				if (splitMultis) {
-					for (RuptureIdentifier rupIden : eventRupIdens) {
-						int idenIndex = idenIndexMap.get(rupIden);
-						
-						// remove duplicate event from this iden's list
-						Preconditions.checkState(matchesLists.get(idenIndex).remove(e)); // assert removal correct
-						
-						List<Integer> elemIDsToRemove = Lists.newArrayList();
-						
-						// remove element ids
-						for (RuptureIdentifier oIden : eventRupIdens) {
-							// for each other rup identifier
-							if (oIden == rupIden)
-								continue;
-							
-							elemIDsToRemove.addAll(idenElemsListMap.get(oIden));
-						}
-						
-						// now find the event record which is a match
-						EQSIM_Event newEvent = null;
-						for (EventRecord testRec : e) {
-							EQSIM_Event testEvent = new EQSIM_Event(testRec);
-							if (rupIden.isMatch(testEvent)) {
-								newEvent = testEvent;
-								break;
-							}
-						}
-						Preconditions.checkNotNull(newEvent, "Splitting only works for idens for single faults");
-						
-						// now ensure that this new event isn't a match for any other Idens
-						for (RuptureIdentifier oIden : eventRupIdens) {
-							// for each other rup identifier
-							if (oIden == rupIden)
-								continue;
-							
-							Preconditions.checkState(!oIden.isMatch(newEvent),
-									"Another identifier must be on the same fault section, can't split");
-						}
-						
-						// ensure unique ID
-						newEvent.setID(++lastID);
-						
-						matchesLists.get(idenIndex).add(newEvent);
-					}
-				} else {
-					// look for a matching set already
-					int match = -1;
-					setLoop:
-					for (int i=0; i<multiSets.size(); i++) {
-						HashSet<RuptureIdentifier> set = multiSets.get(i);
-						if (set.size() != eventRupIdens.size())
-							continue;
-						for (RuptureIdentifier rupIden : eventRupIdens)
-							if (!set.contains(rupIden))
-								continue setLoop;
-						// if we're here then it's a match
-						match = i;
-						break;
-					}
-					if (match < 0) {
-						multiSets.add(eventRupIdens);
-						List<EQSIM_Event> eList = Lists.newArrayList();
-						eList.add(e);
-						multiEvents.add(eList);
-					} else {
-						multiEvents.get(match).add(e);
-					}
-					multiEventsSet.add(e);
-				}
-			}
-		}
-		
-		System.out.println("Detected "+multiSets.size()+" combinations of multi-events!");
-		
-		// now build return periods
-		List<List<EQSIM_Event>> eventListsToResample = Lists.newArrayList();
-		List<RandomReturnPeriodProvider> randomRPsList = Lists.newArrayList();
-		
-		double totTime = General_EQSIM_Tools.getSimulationDurationYears(events);
-		
-		for (int i=0; i<rupIdens.size(); i++) {
-			List<EQSIM_Event> eventsToResample = Lists.newArrayList(matchesLists.get(i));
-			Collections.sort(eventsToResample);
-			eventsToResample.removeAll(multiEventsSet);
-			eventListsToResample.add(eventsToResample);
-			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(rupIdens.get(i), distType, rps, totTime));
-		}
-		
-		for (int i=0; i<multiEvents.size(); i++) {
-			List<EQSIM_Event> eventsToResample = Lists.newArrayList(multiEvents.get(i));
-			Collections.sort(eventsToResample);
-			eventListsToResample.add(eventsToResample);
-			double[] rps = getRPs(eventsToResample);
-			randomRPsList.add(getReturnPeriodProvider(null, distType, rps, totTime));
-		}
-		
-		List<EQSIM_Event> newList = Lists.newArrayList();
-		
-		for (int i=0; i<eventListsToResample.size(); i++) {
-			RandomReturnPeriodProvider randomRP = randomRPsList.get(i);
-			// start at a random interval through the first RP
-			double time = events.get(0).getTimeInYears()+Math.random() * randomRP.getReturnPeriod();
-			for (EQSIM_Event e : eventListsToResample.get(i)) {
-				double timeSecs = time * General_EQSIM_Tools.SECONDS_PER_YEAR;
-				EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs);
-				newList.add(newE);
-				
-				// move forward one RP
-				time += randomRP.getReturnPeriod();
-			}
-		}
-		
-		// now sort to make it in order
-		Collections.sort(newList);
-		System.out.println("New matches size: "+newList.size());
-		int origListSize = newList.size();
-		
-		double oldLastTime = events.get(events.size()-1).getTimeInYears();
-		
-		int numRemoved = 0;
-		for (int i=newList.size(); --i>=0;) {
-			if (newList.get(i).getTimeInYears() > oldLastTime) {
-				numRemoved++;
-				newList.remove(i);
-			}
-		}
-		
-		System.out.println("Removed "+numRemoved+"/"+origListSize+" at tail of random catalog");
-		
-		System.out.println("Orig start="+events.get(0).getTimeInYears()+", end="+events.get(events.size()-1).getTimeInYears());
-		System.out.println("Rand start="+newList.get(0).getTimeInYears()+", end="+newList.get(newList.size()-1).getTimeInYears());
-		
-		return newList;
-	}
-	
-	private static RandomReturnPeriodProvider getReturnPeriodProvider(
-			RuptureIdentifier rupIden, RandomDistType distType, double[] rps, double totTime) {
-		if (rps.length == 0) {
-			rps = new double[1];
-			rps[0] = totTime;
-			return new ActualDistReturnPeriodProvider(rps);
-		}
-		return distType.instance(rupIden, rps);
-	}
-	
-	static enum RandomDistType {
-		NORMAL("Random Normal Dist", "rand_norm_dist") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				return new NormalDistReturnPeriodProvider(rps);
-			}
-		},
-		EXPONENTIAL("Random Exponential Dist", "rand_exp_dist") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				return new ExponentialDistReturnPeriodProvider(rps);
-			}
-		},
-		LOG_NORMAL("Random Log-Normal Dist", "rand_lognorm_dist") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				return new LogNormalDistReturnPeriodProvider(rps);
-			}
-		},
-		POISSON("Random Poisson Dist", "rand_poisson_dist") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				return new PoissonDistReturnPeriodProvider(rps);
-			}
-		},
-		ACTUAL("Random Actual Dist", "rand_actual_dist") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				return new ActualDistReturnPeriodProvider(rps);
-			}
-		},
-		PREFERRED_SYN("Random Preferred Synthetic", "rand_preferred") {
-			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps) {
-				if (rupIden != null && rupIden instanceof ElementMagRangeDescription) {
-					List<Integer> ids = ((ElementMagRangeDescription)rupIden).getElementIDs();
-					if (ids.size() == 1 && ids.get(0) == ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID) {
-						// San Jacinto
-						List<RandomReturnPeriodProvider> provs = Lists.newArrayList();
-						List<Double> weights = Lists.newArrayList();
-						
-						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(98), 0.2));
-						weights.add(1.0);
-						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(160), 0.15));
-						weights.add(1.65);
-						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(235), 0.18));
-						weights.add(0.95);
-						
-//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(98), 0.2));
-//						weights.add(1.0);
-//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(160), 0.15));
-//						weights.add(1.65);
-//						provs.add(new LogNormalDistReturnPeriodProvider(Math.log(235), 0.1));
-//						weights.add(1.0);
-						
-						return new CompoundDistReturnPeriodProvider(provs, weights);
-					}
-				}
-				// default: log normal
-				return LOG_NORMAL.instance(rupIden, rps);
-			}
-		};
-		
-		private String name, fNameAdd;
-		private RandomDistType(String name, String fNameAdd) {
-			this.name = name;
-			this.fNameAdd = fNameAdd;
-		}
-		public String getName() {
-			return name;
-		}
-		public String getFNameAdd() {
-			return fNameAdd;
-		}
-		public abstract RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps);
-	}
-	
-	static interface RandomReturnPeriodProvider {
-		public double getReturnPeriod();
-	}
-	
-	private static class NormalDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private NormalDistribution n;
-		
-		public NormalDistReturnPeriodProvider(double[] rps) {
-			double mean = StatUtils.mean(rps);
-			double sd = Math.sqrt(StatUtils.variance(rps, mean));
-			n = new NormalDistribution(mean, sd);
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			return n.sample();
-		}
-	}
-	
-	private static class ExponentialDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private ExponentialDistribution n;
-		
-		public ExponentialDistReturnPeriodProvider(double[] rps) {
-			double mean = StatUtils.mean(rps);
-			double sd = Math.sqrt(StatUtils.variance(rps, mean));
-			n = new ExponentialDistribution(mean);
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			return n.sample();
-		}
-	}
-	
-	public static class LogNormalDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private LogNormalDistribution n;
-		
-		public static double[] getTrimmedRPs(double[] rps, double mean) {
-			double trimAmount = mean*0.4;
-			double trimMin = mean-trimAmount;
-			double trimMax = mean+trimAmount;
-			List<Double> trimmedRPs = Lists.newArrayList();
-			for (double rp : rps)
-				if (rp>=trimMin && rp<=trimMax)
-					trimmedRPs.add(rp);
-			return Doubles.toArray(trimmedRPs);
-		}
-		
-		public LogNormalDistReturnPeriodProvider(double[] rps) {
-			double mean = StatUtils.mean(rps);
-			double var = StatUtils.variance(rps, mean);
-			double sd = Math.sqrt(var);
-			System.out.println("ORIG Mean: "+mean);
-			System.out.println("ORIG Variance: "+StatUtils.variance(rps, mean));
-			System.out.println("ORIG SD: "+sd);
-			// trim dist
-			rps = getTrimmedRPs(rps, mean);
-			mean = StatUtils.mean(rps);
-			var = StatUtils.variance(rps, mean);
-			sd = Math.sqrt(var);
-//			n = new LogNormalDistribution(mean, sd);
-//			n = new LogNormalDistribution(Math.log(mean), Math.log(sd));
-			System.out.println("Mean: "+mean);
-			System.out.println("Variance: "+var);
-			System.out.println("SD: "+sd);
-			double shape = sd / mean;
-//			double shape = 0.2;
-//			mean = mean-10;
-			System.out.println("Shape: "+shape);
-			n = new LogNormalDistribution(Math.log(mean), shape);
-//			n = new LogNormalDistribution(mean, 1d);
-			
-//			System.out.println("Log-Normal Distribution. mean="+mean+", std dev="+sd+", num_mean="+n.getNumericalMean());
-//			for (int i=0; i<10; i++)
-//				System.out.println("\t"+i+". "+getReturnPeriod());
-		}
-		
-		public LogNormalDistReturnPeriodProvider(double scale, double shape) {
-			n = new LogNormalDistribution(scale, shape);
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			return n.sample();
-		}
-	}
-	
-	private static class PoissonDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private PoissonDistribution n;
-		
-		public PoissonDistReturnPeriodProvider(double[] rps) {
-			double mean = StatUtils.mean(rps);
-			double sd = Math.sqrt(StatUtils.variance(rps, mean));
-			n = new PoissonDistribution(mean);
-			System.out.println("Poisson Distribution. mean="+mean+", std dev="+sd);
-			for (int i=0; i<10; i++)
-				System.out.println("\t"+i+". "+getReturnPeriod());
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			return n.sample();
-		}
-	}
-	
-	private static class ActualDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private int index = 0;
-		private double[] random_rps;
-		
-		public ActualDistReturnPeriodProvider(double[] rps) {
-			random_rps = Arrays.copyOf(rps, rps.length);
-			List<Double> randomized = Doubles.asList(random_rps);
-			Collections.shuffle(randomized);
-			random_rps = Doubles.toArray(randomized);
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			if (index == random_rps.length)
-				index = 0;
-			return random_rps[index++];
-		}
-	}
-	
-	public static class CompoundDistReturnPeriodProvider implements RandomReturnPeriodProvider {
-		
-		private List<RandomReturnPeriodProvider> provs;
-		private double[] weightEnds;
-		
-		public CompoundDistReturnPeriodProvider(
-				List<RandomReturnPeriodProvider> provs, List<Double> weights) {
-			Preconditions.checkState(provs.size() == weights.size());
-			double tot = 0;
-			for (double weight : weights)
-				tot += weight;
-			
-			weightEnds = new double[provs.size()];
-			double running = 0;
-			for (int i=0; i<weights.size(); i++) {
-				double weight = weights.get(i);
-				running += weight;
-				weightEnds[i] = running/tot;
-			}
-			this.provs = provs;
-		}
-
-		@Override
-		public double getReturnPeriod() {
-			double r = Math.random();
-			int i;
-			for (i=0; i<weightEnds.length-1; i++) {
-				if (r < weightEnds[i])
-					break;
-			}
-			return provs.get(i).getReturnPeriod();
-		}
-		
-	}
-	
-	static double[] getRPs(List<EQSIM_Event> matches) {
+	public static double[] getRPs(List<EQSIM_Event> matches) {
 		List<Double> rps = Lists.newArrayList();
 		
 		double prevTime = -1;
@@ -1999,7 +1694,7 @@ public class PeriodicityPlotter {
 		
 	}
 	
-	static String getFileSafeString(String str) {
+	public static String getFileSafeString(String str) {
 		return str.replaceAll("\\W+", "_");
 	}
 	

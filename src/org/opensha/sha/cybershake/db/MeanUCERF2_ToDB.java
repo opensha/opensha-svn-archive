@@ -6,9 +6,11 @@ package org.opensha.sha.cybershake.db;
 import java.util.List;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -16,6 +18,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.InterpolatedEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
 import com.google.common.base.Preconditions;
@@ -107,6 +110,12 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 			final ProbEqkSource regSource = regERF.getSource(sourceID);
 			final ProbEqkSource hiResSource = hiResERF.getSource(sourceID);
 			
+			EvenlyGriddedSurface s = (EvenlyGriddedSurface)hiResSource.getRupture(0).getRuptureSurface();
+//			s = (EvenlyGriddedSurface)hiResSource.getRupture(0).getRuptureSurface();
+//			System.out.println(LocationUtils.horzDistance(s.get(0, 0), s.get(0, 1)));
+//			System.out.flush();
+			Preconditions.checkState(s.getAveGridSpacing() == hiResSpacing);
+			
 			if (identical(regSource, hiResSource)) {
 				// use hi res
 				System.out.println("Identical!");
@@ -119,81 +128,7 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 				for (int i=0; i<regSource.getNumRuptures(); i++) {
 					ProbEqkRupture loResRup = regSource.getRupture(i);
 					final EvenlyGriddedSurface loResSurf = (EvenlyGriddedSurface)loResRup.getRuptureSurface();
-					int origRows = loResSurf.getNumRows();
-					int origCols = loResSurf.getNumCols();
-					int numRows = (origRows-1)*discrPnts+1;
-					int numCols = (origCols-1)*discrPnts+1;
-					EvenlyGriddedSurface interpSurf = new AbstractEvenlyGriddedSurface(numRows, numCols, hiResSpacing) {
-						
-						@Override
-						public double getAveStrike() {
-							return loResSurf.getAveStrike();
-						}
-						
-						@Override
-						public double getAveRupTopDepth() {
-							return loResSurf.getAveRupTopDepth();
-						}
-						
-						@Override
-						public double getAveDipDirection() {
-							return loResSurf.getAveDipDirection();
-						}
-						
-						@Override
-						public double getAveDip() {
-							return loResSurf.getAveDip();
-						}
-
-						@Override
-						public Location get(int row, int column) {
-							int origRow = row/discrPnts;
-							int origCol = column/discrPnts;
-							int rowI = row % discrPnts;
-							int colI = column % discrPnts;
-							
-//							System.out.println("Interp get: row="+row+", origRow="+origRow+", rowI="+rowI);
-//							System.out.println("\tcol="+column+", origCol="+origCol+", colI="+colI);
-//							System.out.println("\torigRows="+loResSurf.getNumRows()+", origCols="+loResSurf.getNumCols());
-							
-							Location topLeftLoc = loResSurf.get(origRow, origCol);
-//							Location botRightLoc = loResSurf.get(origRow+1, origCol+1);
-							double horzDist, horzAz;
-							if (origCol+1 == loResSurf.getNumCols()) {
-								horzDist = 0;
-								horzAz = 0;
-							} else {
-								Location topRightLoc = loResSurf.get(origRow, origCol+1);
-								horzDist = LocationUtils.horzDistance(topLeftLoc, topRightLoc);
-								horzAz = LocationUtils.azimuthRad(topLeftLoc, topRightLoc);
-							}
-							
-							double vertDist, vertAz, depthDelta;
-							if (origRow+1 == loResSurf.getNumRows()) {
-								vertDist = 0;
-								vertAz = 0;
-								depthDelta = 0;
-							} else {
-								Location botLeftLoc = loResSurf.get(origRow+1, origCol);
-								vertDist = LocationUtils.horzDistance(topLeftLoc, botLeftLoc);
-								vertAz = LocationUtils.azimuthRad(topLeftLoc, botLeftLoc);
-								depthDelta = botLeftLoc.getDepth()-topLeftLoc.getDepth();
-							}
-							
-							double relativeVertPos = (double)rowI/(double)discrPnts;
-							double relativeHorzPos = (double)colI/(double)discrPnts;
-							
-							// start top left
-							Location loc = topLeftLoc;
-							// move to the right
-							loc = LocationUtils.location(loc, horzAz, horzDist*relativeHorzPos);
-							// move down dip
-							if ((float)vertDist > 0f)
-								loc = LocationUtils.location(loc, vertAz, vertDist*relativeVertPos);
-							// now actually move down
-							return new Location(loc.getLatitude(), loc.getLongitude(), loc.getDepth()+depthDelta*relativeVertPos);
-						}
-					};
+					EvenlyGriddedSurface interpSurf = new InterpolatedEvenlyGriddedSurface(loResSurf, hiResSpacing);
 //					// now set all points
 //					for (int origRow=0; origRow<origRows-1; origRow++) {
 //						for (int origCol=0; origCol<origCols-1; origCol++) {
@@ -288,11 +223,15 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 				+interpolatedCnt+"/"+regERF.getNumSources()+" sources");
 		Preconditions.checkState(combSourceList.size() == regERF.getNumSources());
 		final String name = regERF.getName()+" "+(int)(hiResSpacing*1000d)+"m";
-		return new AbstractERF() {
+		final ParameterList adjustParams = regERF.getAdjustableParameterList();
+		final TimeSpan regTimeSpan = regERF.getTimeSpan();
+		AbstractERF meanERF = new AbstractERF() {
 			
 			@Override
 			public String getName() {
-				// TODO Auto-generated method stub
+				// kludgy way to do it
+				this.adjustableParams = adjustParams;
+				this.timeSpan = regTimeSpan;
 				return name;
 			}
 			
@@ -309,6 +248,10 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 				return combSourceList.size();
 			}
 		};
+		// this does our init stuff above
+		meanERF.getName();
+		
+		return meanERF;
 	}
 	
 	private static boolean identical(ProbEqkSource src1, ProbEqkSource src2) {

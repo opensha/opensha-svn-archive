@@ -896,7 +896,7 @@ public class DataUtils {
 
 		@Override
 		public String toString() {
-			return "min: " + min + ", max: " + max + ", avg: " + getAverage();
+			return "min: " + min + ", max: " + max + ", avg: " + getAverage() + ", tot: "+tot;
 		}
 	}
 	

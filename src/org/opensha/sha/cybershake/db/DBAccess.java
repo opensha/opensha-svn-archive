@@ -51,6 +51,7 @@ public class DBAccess implements Runnable{
 	public static final SimpleDateFormat SQL_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
 	private boolean readOnly = false;
+	private boolean ignoreInserts = false;
 	
     private Thread runner;
 
@@ -134,7 +135,15 @@ public class DBAccess implements Runnable{
     	this.readOnly = readOnly;
     }
     
-    public static DBAccess createWithAuthDialog(String host, String dbName) throws IOException {
+    public boolean isIgnoreInserts() {
+		return ignoreInserts;
+	}
+
+	public void setIgnoreInserts(boolean ignoreInserts) {
+		this.ignoreInserts = ignoreInserts;
+	}
+
+	public static DBAccess createWithAuthDialog(String host, String dbName) throws IOException {
     	UserAuthDialog auth = new UserAuthDialog(null, true);
 		auth.setVisible(true);
 		
@@ -767,6 +776,8 @@ public class DBAccess implements Runnable{
      * @param query
      */
     public int insertUpdateOrDeleteData(String query) throws java.sql.SQLException {
+    	if (ignoreInserts)
+    		return 0;
       Connection conn = getConnection();
       Statement stat = conn.createStatement();
       //System.out.println("Query = "+query);

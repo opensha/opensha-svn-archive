@@ -749,7 +749,7 @@ public class GraphPanel extends JSplitPane {
 		return ;
 	}
 	
-	private static void setupPlot(XYPlot plot, int tickFontSize) {
+	public static void setupPlot(XYPlot plot, int tickFontSize) {
 		//setting the plot properties
 		plot.setDomainCrosshairLockedOnData(false);
 		plot.setDomainCrosshairVisible(false);
@@ -920,6 +920,11 @@ public class GraphPanel extends JSplitPane {
 		if(plot !=null)
 			plot.setBackgroundPaint(color);
 	}
+	
+	public XYPlot getPlot() {
+		return plot;
+	}
+	
 	/**
 	 *
 	 * @return the Range for the X-Axis. Note that this will return the first X-Axis in the case

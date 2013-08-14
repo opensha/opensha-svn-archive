@@ -8,7 +8,8 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
-import scratch.kevin.simulators.PeriodicityPlotter.RandomDistType;
+import scratch.kevin.simulators.dists.RandomCatalogBuilder;
+import scratch.kevin.simulators.dists.RandomDistType;
 
 import com.google.common.collect.Lists;
 
@@ -62,7 +63,7 @@ public class Within5YrsStatisticsGen {
 			List<EQSIM_Event> theEvents;
 			if (randomized) {
 				System.out.println("\n\n******* RANDOMIZED ******\n");
-				theEvents = PeriodicityPlotter.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true);
+				theEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true);
 			} else {
 				theEvents = events;
 			}

@@ -142,8 +142,6 @@ public class A_FaultSegmentedSourceGenerator {
 	// list of sources
 	private ArrayList<FaultRuptureSource> sourceList;
 	
-	private final static double DEFAULT_GRID_SPACING = UCERF2.GRID_SPACING;
-	
 	private Boolean isTimeDeptendent;
 	
 	private double[] segProb, segGain, segAperiodicity, segTimeSinceLast, rupProb, rupGain;
@@ -507,9 +505,9 @@ public class A_FaultSegmentedSourceGenerator {
 		int[] segmentsInRup = getSegmentsInRup(rupIndex);
 		if(applyCyberShakeDDW_Corr) {
 			double ddwCorrFactor = somerville_magAreaRel.getMedianArea(rupMeanMag[rupIndex])/(rupArea[rupIndex]/1e6);
-			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING, ddwCorrFactor);
+			return segmentData.getCombinedGriddedSurface(segmentsInRup, UCERF2.GRID_SPACING, ddwCorrFactor);
 		} else
-			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
+			return segmentData.getCombinedGriddedSurface(segmentsInRup, UCERF2.GRID_SPACING);
 	}
 
 	/*

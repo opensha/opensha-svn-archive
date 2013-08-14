@@ -41,7 +41,7 @@ public class EventsInWindowsMatcher {
 		update();
 	}
 	
-	static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs) {
+	public static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs) {
 		EQSIM_Event r = new EQSIM_Event(e.get(0));
 		if (e.size() > 1)
 			r.addAll(e.subList(1, e.size()));
