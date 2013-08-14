@@ -354,6 +354,8 @@ public class RandomCatalogBuilder {
 						break;
 					}
 				}
+				
+				List<EQSIM_Event> eventsToAdd = Lists.newArrayList();
 
 				// now do probabilistic ones
 				for (int i=0; i<probRPs.size(); i++) {
@@ -398,10 +400,13 @@ public class RandomCatalogBuilder {
 						double timeSecs = rupTime * General_EQSIM_Tools.SECONDS_PER_YEAR;
 						EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs);
 
-						runningEvents.add(newE);
+						eventsToAdd.add(newE);
 						probAdded++;
 					}
 				}
+				
+				Collections.sort(eventsToAdd);
+				runningEvents.addAll(eventsToAdd);
 			}
 			
 			for (int i=0; i<probRPs.size(); i++) {

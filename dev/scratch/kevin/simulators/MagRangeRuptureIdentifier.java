@@ -32,4 +32,9 @@ public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		return "Mag Range: "+minMag+" => "+maxMag;
+	}
+
 }

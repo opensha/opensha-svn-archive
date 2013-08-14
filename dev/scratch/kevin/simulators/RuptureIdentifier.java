@@ -2,9 +2,10 @@ package scratch.kevin.simulators;
 
 import java.util.List;
 
+import org.opensha.commons.data.Named;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 
-public interface RuptureIdentifier {
+public interface RuptureIdentifier extends Named {
 	
 	/**
 	 * Returns true if the given event is a match for this scenario.

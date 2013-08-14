@@ -62,29 +62,22 @@ public class OmorisLawComparison {
 		List<Double> magBins = Lists.newArrayList(7.6d);
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
-		List<String> rupIdenNames = Lists.newArrayList();
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Mojave 7+",
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Mojave 7+");
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Coachella 7+",
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Coachella 7+");
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Carrizo 7+",
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Carrizo 7+");
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Cholame 7+",
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Cholame 7+");
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("Garlock 7+",
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("Garlock 7+");
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("San Jacinto 7+",
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("San Jacinto 7+");
 		
 		for (int i=0; i<rupIdens.size(); i++) {
 			RuptureIdentifier rupIden = rupIdens.get(i);
-			String idenName = rupIdenNames.get(i);
+			String idenName = rupIden.getName();
 			String fsafeName = PeriodicityPlotter.getFileSafeString(idenName);
 			
 			for (boolean randomize : randomizes) {

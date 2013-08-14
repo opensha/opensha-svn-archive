@@ -206,7 +206,7 @@ public class BatchPlotGen {
 			rupIdens.add(new MagRangeRuptureIdentifier(minMag, maxMag, elementsInRegion));
 			// now each fault section
 			for (Integer elementID : elementsOfInterest.keySet()) {
-				rupIdens.add(new ElementMagRangeDescription(elementID, minMag, maxMag));
+				rupIdens.add(new ElementMagRangeDescription("", elementID, minMag, maxMag));
 			}
 			
 			for (RuptureIdentifier rupIden : rupIdens) {

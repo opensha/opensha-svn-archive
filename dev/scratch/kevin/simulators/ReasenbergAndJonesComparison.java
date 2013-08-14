@@ -222,7 +222,8 @@ public class ReasenbergAndJonesComparison {
 		double minDays = 0.01;
 		int maxDays = 365;
 		
-		RuptureIdentifier rupIden = new ElementMagRangeDescription(ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
+		RuptureIdentifier rupIden = new ElementMagRangeDescription("SAF Mojave 7+",
+				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
 		ReasenbergAndJonesComparison rj = new ReasenbergAndJonesComparison(
 				events, rupIden, minDays, maxDays);
 		
@@ -238,7 +239,8 @@ public class ReasenbergAndJonesComparison {
 		gw.setY_AxisLabel("Rate");
 		gw.setVisible(true);
 		
-		rupIden = new ElementMagRangeDescription(ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
+		rupIden = new ElementMagRangeDescription("SAF Coachella 7+",
+				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
 		rj = new ReasenbergAndJonesComparison(
 				events, rupIden, minDays, maxDays);
 		
@@ -251,7 +253,8 @@ public class ReasenbergAndJonesComparison {
 		gw.setY_AxisLabel("Rate");
 		gw.setVisible(true);
 		
-		rupIden = new ElementMagRangeDescription(ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
+		rupIden = new ElementMagRangeDescription("SAF Carrizo 7+",
+				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
 		rj = new ReasenbergAndJonesComparison(
 				events, rupIden, minDays, maxDays);
 		

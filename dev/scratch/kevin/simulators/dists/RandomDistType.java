@@ -5,6 +5,7 @@ import java.util.List;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 
 import scratch.kevin.simulators.ElementMagRangeDescription;
+import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.RuptureIdentifier;
 import scratch.kevin.simulators.dists.RandomCatalogBuilder.CatalogBuilder;
 import scratch.kevin.simulators.dists.RandomCatalogBuilder.ProbabalisticCatalogBuilder;
@@ -89,12 +90,46 @@ public enum RandomDistType {
 				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
 				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
 				if (mojaveMatches == null) {
-					mojaveIden = new ElementMagRangeDescription(
+					mojaveIden = new ElementMagRangeDescription(ElementMagRangeDescription.smartName("SAF Mojave", elemIden),
 							ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, elemIden.getMinMag(), elemIden.getMaxMag());
 					mojaveMatches = mojaveIden.getMatches(events);
 				}
 				if (elemIden.getElementIDs().contains(ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID))
 					return ACTUAL.instance(rupIden, rps, events);
+				
+				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
+				return new FollowerReturnPeriodProvider(events, mojaveIden, mojaveMatches, rupIden, followerMatches, 10d, 1500);
+			}
+
+			@Override
+			public CatalogBuilder getBuilder() {
+				return new ProbabalisticCatalogBuilder();
+			}
+		},
+		MOJAVE_COACHELLA_CODRIVER("Mojave/Coachella Co-Driver Dist", "rand_coach_mojave_codriver_dist") {
+			private List<EQSIM_Event> mojaveMatches;
+			ElementMagRangeDescription mojaveIden;
+			private List<EQSIM_Event> coachellaMatches;
+			ElementMagRangeDescription coachellaIden;
+			
+			@Override
+			public synchronized RandomReturnPeriodProvider instance(
+					RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
+				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
+				if (mojaveMatches == null) {
+					mojaveIden = new ElementMagRangeDescription(ElementMagRangeDescription.smartName("SAF Mojave", elemIden),
+							ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, elemIden.getMinMag(), elemIden.getMaxMag());
+					mojaveMatches = mojaveIden.getMatches(events);
+				}
+				if (coachellaMatches == null) {
+					coachellaIden = new ElementMagRangeDescription(ElementMagRangeDescription.smartName("SAF Coachella", elemIden),
+							ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, elemIden.getMinMag(), elemIden.getMaxMag());
+					coachellaMatches = coachellaIden.getMatches(events);
+				}
+				if (elemIden.getElementIDs().contains(ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID))
+//					return ACTUAL.instance(rupIden, rps, events);
+					new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, mojaveIden, mojaveMatches, 10d, 1500);
 				
 				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
 				return new FollowerReturnPeriodProvider(events, mojaveIden, mojaveMatches, rupIden, followerMatches, 10d, 1500);
@@ -118,6 +153,12 @@ public enum RandomDistType {
 			return fNameAdd;
 		}
 		public abstract RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events);
+		
+		public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, List<EQSIM_Event> events) {
+			List<EQSIM_Event> matches = rupIden.getMatches(events);
+			double[] rps = PeriodicityPlotter.getRPs(matches);
+			return instance(rupIden, rps, events);
+		}
 		
 		public CatalogBuilder getBuilder() {
 			return new StandardCatalogBuilder();

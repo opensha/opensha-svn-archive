@@ -349,16 +349,16 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		Region region = new CaliforniaRegions.RELM_SOCAL();
 		
 //		RuptureIdentifier rupIden = null;
-		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription("SAF Cholame 7+",
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d);
-		ElementMagRangeDescription carrizoIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription carrizoIden = new ElementMagRangeDescription("SAF Carrizo 7+",
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
-		ElementMagRangeDescription mojaveIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription mojaveIden = new ElementMagRangeDescription("SAF Mojave 7+",
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
-		ElementMagRangeDescription coachellaIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription coachellaIden = new ElementMagRangeDescription("SAF Coachella 7+",
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
 		
-		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
+		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription("SAF Mojave/Coachella Corupture 7+",
 				6d, 10d, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
 		
 		double quietYears = 156;

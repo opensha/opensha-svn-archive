@@ -101,41 +101,34 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 		List<EQSIM_Event> events = tools.getEventsList();
 		
 		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
-				6d, 10d, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
-		String mojaveCoachellCoruptureName = "SAF Mojave/Coachella Corupture";
+				"SAF Mojave/Coachella Corupture", 6d, 10d,
+				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
-		List<String> rupIdenNames = Lists.newArrayList();
 		List<Color> colors = Lists.newArrayList();
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Cholame 7+",
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Cholame 7+");
 		colors.add(Color.RED);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Carrizo 7+",
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Carrizo 7+");
 		colors.add(Color.BLUE);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("Garlock 7+",
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("Garlock 7+");
 		colors.add(Color.GREEN);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Mojave 7+",
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Mojave 7+");
 		colors.add(Color.BLACK);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Coachella 7+",
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Coachella 7+");
 		colors.add(Color.RED);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("San Jacinto 7+",
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("San Jacinto 7+");
 		colors.add(Color.CYAN);
 		
 //		List<RuptureIdentifier> quietIdens = rupIdens;
@@ -162,12 +155,17 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 				List<String> idenMatches = Lists.newArrayList();
 				for (int i=0; i<rupIdens.size(); i++)
 					if (rupIdens.get(i).isMatch(e1))
-						idenMatches.add(rupIdenNames.get(i));
+						idenMatches.add(rupIdens.get(i).getName());
 				
 				System.out.println("\t"+timeDiff+": "+e1.getMagnitude()
 						+" (matches: "+Joiner.on(",").join(idenMatches)+")");
 			}
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "Quiet Perdiod: "+quietYears+" years, iden="+matchIden.getName();
 	}
 
 }

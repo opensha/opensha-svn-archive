@@ -837,56 +837,50 @@ public class FollowerReturnPeriodProvider implements
 		tools.read_EQSIMv04_EventsFile(eventFile);
 		List<EQSIM_Event> events = tools.getEventsList();
 		
-		boolean coachella_only = false;
-		boolean recover_debug = true;
+		boolean coachella_only = true;
+		boolean recover_debug = false;
+//		RandomDistType randDistType = RandomDistType.MOJAVE_DRIVER;
+		RandomDistType randDistType = RandomDistType.MOJAVE_COACHELLA_CODRIVER;
 		
 		File writeDir = new File(dir, "period_plots");
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
-		List<String> rupIdenNames = Lists.newArrayList();
 		List<Color> colors = Lists.newArrayList();
 		
 		if (!coachella_only) {
-			rupIdens.add(new ElementMagRangeDescription(
+			rupIdens.add(new ElementMagRangeDescription("SAF Cholame 7+",
 					ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d));
-			rupIdenNames.add("SAF Cholame 7+");
 			colors.add(Color.RED);
 
-			rupIdens.add(new ElementMagRangeDescription(
+			rupIdens.add(new ElementMagRangeDescription("SAF Carrizo 7+",
 					ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d));
-			rupIdenNames.add("SAF Carrizo 7+");
 			colors.add(Color.BLUE);
 
 //		}
-			rupIdens.add(new ElementMagRangeDescription(
+			rupIdens.add(new ElementMagRangeDescription("Garlock 7+",
 					ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d));
-			rupIdenNames.add("Garlock 7+");
 			colors.add(Color.GREEN);
 		}
 		
-		RuptureIdentifier driver = new ElementMagRangeDescription(
+		RuptureIdentifier driver = new ElementMagRangeDescription("SAF Mojave 7+",
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
 		String driverName = "SAF Mojave 7+";
 		rupIdens.add(driver);
-		rupIdenNames.add(driverName);
 		colors.add(Color.BLACK);
 		
-		rupIdens.add(new ElementMagRangeDescription(
+		rupIdens.add(new ElementMagRangeDescription("SAF Coachella 7+",
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
-		rupIdenNames.add("SAF Coachella 7+");
 		colors.add(Color.RED);
 		
 		if (!coachella_only) {
-			rupIdens.add(new ElementMagRangeDescription(
+			rupIdens.add(new ElementMagRangeDescription("San Jacinto 7+",
 					ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
-			rupIdenNames.add("San Jacinto 7+");
 			colors.add(Color.CYAN);
 		}
 		
 		writeDir = new File("/tmp");
-		RandomDistType randDistType = RandomDistType.MOJAVE_DRIVER;
 		
 		if (recover_debug) {
 			List<EQSIM_Event> rand_events = RandomCatalogBuilder.getRandomResampledCatalog(
@@ -900,10 +894,10 @@ public class FollowerReturnPeriodProvider implements
 				writeDir.mkdir();
 			
 			Map<IDPairing, HistogramFunction> origFuncs =
-					PeriodicityPlotter.plotTimeBetweenAllIdens(writeDir, events, rupIdens, rupIdenNames, colors,
+					PeriodicityPlotter.plotTimeBetweenAllIdens(writeDir, events, rupIdens, colors,
 							null, null, 2000d, 10d);
-			PeriodicityPlotter.	plotTimeBetweenAllIdens(writeDir, events, rupIdens, rupIdenNames, colors,
-					RandomDistType.MOJAVE_DRIVER, origFuncs, 2000d, 10d);
+			PeriodicityPlotter.	plotTimeBetweenAllIdens(writeDir, events, rupIdens, colors,
+					randDistType, origFuncs, 2000d, 10d);
 			
 //			File subDir = new File(writeDir, "round2");
 //			if (!subDir.exists())
@@ -914,7 +908,7 @@ public class FollowerReturnPeriodProvider implements
 			System.out.println("DONE");
 		}
 		
-		File pdfDir = new File("/tmp/follower_pdfs");
+		File pdfDir = new File("/tmp/follower_pdfs", randDistType.getFNameAdd());
 		if (!pdfDir.exists())
 			pdfDir.mkdir();
 		
@@ -922,12 +916,13 @@ public class FollowerReturnPeriodProvider implements
 		
 		for (int i=0; i<rupIdens.size(); i++) {
 			RuptureIdentifier iden = rupIdens.get(i);
-			String name = rupIdenNames.get(i);
+			String name = iden.getName();
 			
-			if (iden == driver)
+			RandomReturnPeriodProvider origProv = randDistType.instance(iden, events);
+			if (!(origProv instanceof FollowerReturnPeriodProvider))
 				continue;
 			
-			FollowerReturnPeriodProvider prov = new FollowerReturnPeriodProvider(events, driver, iden, 10d, 1500d);
+			FollowerReturnPeriodProvider prov = (FollowerReturnPeriodProvider)origProv;
 			
 			String fName = PeriodicityPlotter.getFileSafeString(name);
 			File file = new File(pdfDir, fName+".pdf");

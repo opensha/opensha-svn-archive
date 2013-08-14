@@ -40,7 +40,7 @@ public class XYZPlotWindow extends JFrame {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		EvenlyDiscrXYZ_DataSet data = new EvenlyDiscrXYZ_DataSet(150, 50, 0, 0, 10d);
+		EvenlyDiscrXYZ_DataSet data = new EvenlyDiscrXYZ_DataSet(150, 150, 0, 0, 5d);
 		for (int xInd=0; xInd<data.getNumX(); xInd++) {
 			for (int yInd=0; yInd<data.getNumY(); yInd++) {
 //				if (Math.random()<0.1)
@@ -50,8 +50,8 @@ public class XYZPlotWindow extends JFrame {
 			}
 		}
 		EvenlyDiscrXYZ_DataSet data2 = new EvenlyDiscrXYZ_DataSet(150, 50, 0, 0, 10d);
-		for (int xInd=0; xInd<data.getNumX(); xInd++) {
-			for (int yInd=0; yInd<data.getNumY(); yInd++) {
+		for (int xInd=0; xInd<data2.getNumX(); xInd++) {
+			for (int yInd=0; yInd<data2.getNumY(); yInd++) {
 //				if (Math.random()<0.1)
 //					data.set(xInd, yInd, Double.NaN);
 //				else
@@ -61,8 +61,10 @@ public class XYZPlotWindow extends JFrame {
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, data.getMaxZ());
 		
 		XYZPlotSpec spec1 = new XYZPlotSpec(data, cpt, "Title", "X axis", "Y axis", "Z label");
-		XYZPlotSpec spec2 = new XYZPlotSpec(data2, cpt, "Title2", "X axis2", "Y axis2", "Z label2");
-		XYZPlotWindow wind = new XYZPlotWindow(Lists.newArrayList(spec1, spec2));
+//		XYZPlotSpec spec2 = new XYZPlotSpec(data2, cpt, "Title2", "X axis2", "Y axis2", "Z label2");
+//		XYZPlotWindow wind = new XYZPlotWindow(Lists.newArrayList(spec1, spec2));
+		XYZPlotWindow wind = new XYZPlotWindow(spec1);
+		wind.panel.saveAsPNG("/tmp/fig.png");
 		wind.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 

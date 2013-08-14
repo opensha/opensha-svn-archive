@@ -28,21 +28,38 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	public static final int SAN_JACINTO__ELEMENT_ID = 1931;
 	public static final int ELSINORE_ELEMENT_ID = 2460;
 	
+	private String name;
 	private List<Integer> elementIDs;
 	private double minMag, maxMag;
 	
-	public ElementMagRangeDescription(int elementID, double minMag, double maxMag) {
-		this(Lists.newArrayList(elementID), minMag, maxMag);
+	public ElementMagRangeDescription(String name, int elementID, double minMag, double maxMag) {
+		this(name, Lists.newArrayList(elementID), minMag, maxMag);
 	}
 	
-	public ElementMagRangeDescription(double minMag, double maxMag, int... elementIDs) {
-		this(Ints.asList(elementIDs), minMag, maxMag);
+	public ElementMagRangeDescription(String name, double minMag, double maxMag, int... elementIDs) {
+		this(name, Ints.asList(elementIDs), minMag, maxMag);
+	}
+
+	public static String smartName(String fault, ElementMagRangeDescription o) {
+		return smartName(fault, o.minMag, o.maxMag);
+	}
+	public static String smartName(String fault, double minMag, double maxMag) {
+		if (maxMag < 9) {
+			return fault+" "+getRoundedStr(minMag)+"=>"+getRoundedStr(maxMag);
+		}
+		return fault+" "+getRoundedStr(minMag)+"+";
+	}
+	private static String getRoundedStr(double val) {
+		if (val == Math.floor(val))
+			return (int)val + "";
+		return (float)val+"";
 	}
 	
-	public ElementMagRangeDescription(List<Integer> elementIDs, double minMag, double maxMag) {
+	public ElementMagRangeDescription(String name, List<Integer> elementIDs, double minMag, double maxMag) {
 		this.elementIDs = elementIDs;
 		this.minMag = minMag;
 		this.maxMag = maxMag;
+		this.name = name;
 	}
 
 	@Override
@@ -109,7 +126,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		
 		List<EQSIM_Event> events = simTools.getEventsList();
 		
-		ElementMagRangeDescription descr = new ElementMagRangeDescription(1267, 7.2, 7.5);
+		ElementMagRangeDescription descr = new ElementMagRangeDescription(null, 1267, 7.2, 7.5);
 		
 		List<EQSIM_Event> matches = descr.getMatches(events);
 		
@@ -136,6 +153,11 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }

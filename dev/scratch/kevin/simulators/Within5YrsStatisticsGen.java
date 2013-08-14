@@ -35,23 +35,23 @@ public class Within5YrsStatisticsGen {
 //		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription(
 //				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID, 7d, 10d);
 		
-		ElementMagRangeDescription carrizoIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription carrizoIden = new ElementMagRangeDescription("SAF Carrizo 7+",
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID, 7d, 10d);
 		rupIdens.add(carrizoIden);
 		
-		ElementMagRangeDescription garlockIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription garlockIden = new ElementMagRangeDescription("SAF Garlock 7+", 
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID, 7d, 10d);
 		rupIdens.add(garlockIden);
 		
-		ElementMagRangeDescription mojaveIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription mojaveIden = new ElementMagRangeDescription("SAF Mojave 7+",
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d);
 		rupIdens.add(mojaveIden);
 		
-		ElementMagRangeDescription coachellaIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription coachellaIden = new ElementMagRangeDescription("SAF Coachella 7+",
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d);
 		rupIdens.add(coachellaIden);
 		
-		ElementMagRangeDescription sanJacintoIden = new ElementMagRangeDescription(
+		ElementMagRangeDescription sanJacintoIden = new ElementMagRangeDescription("San Jacinto 7+",
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d);
 		rupIdens.add(sanJacintoIden);
 		
