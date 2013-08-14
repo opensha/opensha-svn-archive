@@ -726,8 +726,7 @@ public  class ERF2DB implements ERF2DBAPI{
 		int numSources = eqkRupForecast.getNumSources();
 
 		boolean forRegion = (region != null);
-		// TODO
-		for(int sourceId = 150;sourceId<numSources;++sourceId){
+		for(int sourceId = 0;sourceId<numSources;++sourceId){
 			if (sourceId < startSource)
 				continue;
 			//			 get the ith source
