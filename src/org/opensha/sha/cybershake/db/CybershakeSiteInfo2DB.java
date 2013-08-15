@@ -42,7 +42,7 @@ public class CybershakeSiteInfo2DB {
 
 	
 	public static double CUT_OFF_DISTANCE = 200;
-	private SiteInfo2DBAPI site2db;
+	private SiteInfo2DB site2db;
 	private ERF2DBAPI erf2db = null;
 	private BufferedWriter out = null;
 	private boolean logging = false;
@@ -185,7 +185,7 @@ public class CybershakeSiteInfo2DB {
 			ERF eqkRupForecast, int erfId, int siteId,
 			double locLat, double locLon, boolean checkAddRup, String addLogFileName) {
 		Location loc = new Location(locLat, locLon);
-		Region region = new Region(loc,CUT_OFF_DISTANCE);
+		Region region = new Region(loc,site2db.getSiteCutoffDistance(siteId));
 		int numSources = eqkRupForecast.getNumSources();
 		
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
@@ -318,7 +318,7 @@ public class CybershakeSiteInfo2DB {
 			if (rupsToAdd.size() > 0) {
 				System.out.println("Inserting " + rupsToAdd.size() + " ruptures for Site=" + siteId + " and source=" + sourceIndex);
 				
-				this.site2db.insertSite_RuptureInfoList(siteId, erfId, csSource, rupsToAdd, rupDistsToAdd, CUT_OFF_DISTANCE);
+				this.site2db.insertSite_RuptureInfoList(siteId, erfId, csSource, rupsToAdd, rupDistsToAdd, site2db.getSiteCutoffDistance(siteId));
 			}
 			
 		}
@@ -368,7 +368,7 @@ public class CybershakeSiteInfo2DB {
 			                                        double locLat,double locLon, boolean update){
 		
 		Location loc = new Location(locLat,locLon);
-		Region region = new Region(loc,CUT_OFF_DISTANCE);
+		Region region = new Region(loc,site2db.getSiteCutoffDistance(siteId));
 		
 	    int numSources = eqkRupForecast.getNumSources();
 
@@ -442,12 +442,12 @@ public class CybershakeSiteInfo2DB {
 	    	start = System.currentTimeMillis();
 	    }
 	    if (update) {
-	    	site2db.updateSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
+	    	site2db.updateSiteRegionalBounds(siteId, erfId,site2db.getSiteCutoffDistance(siteId),
                     maxLat, maxLatSrcId, maxLatRupId, minLat,
                     minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
                     maxLonRupId, minLon, minLonSrcId, minLonRupId);
 	    } else {
-	    	site2db.insertSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
+	    	site2db.insertSiteRegionalBounds(siteId, erfId,site2db.getSiteCutoffDistance(siteId),
                     maxLat, maxLatSrcId, maxLatRupId, minLat,
                     minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
                     maxLonRupId, minLon, minLonSrcId, minLonRupId);

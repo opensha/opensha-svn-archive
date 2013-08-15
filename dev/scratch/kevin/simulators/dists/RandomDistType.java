@@ -129,7 +129,7 @@ public enum RandomDistType {
 				}
 				if (elemIden.getElementIDs().contains(ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID))
 //					return ACTUAL.instance(rupIden, rps, events);
-					new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, mojaveIden, mojaveMatches, 10d, 1500);
+					return new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, mojaveIden, mojaveMatches, 10d, 1500);
 				
 				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
 				return new FollowerReturnPeriodProvider(events, mojaveIden, mojaveMatches, rupIden, followerMatches, 10d, 1500);

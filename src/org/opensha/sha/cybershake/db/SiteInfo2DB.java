@@ -144,7 +144,13 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		 return CybershakeSiteInfo2DB.CUT_OFF_DISTANCE;
+		if (siteID == 73)
+			// TEST site
+			return 20;
+		if (siteID == 978)
+			// SMALL site
+			return 1;
+		return CybershakeSiteInfo2DB.CUT_OFF_DISTANCE;
 	}
 	
 	/**

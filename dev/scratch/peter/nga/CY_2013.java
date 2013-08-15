@@ -46,7 +46,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class CY_2013 {
 
-	static final String NAME = "Chiou & Youngs (2013)";
+	public static final String NAME = "Chiou & Youngs (2013)";
 
 	// implementation constants
 	private static final double A = pow(571, 4);

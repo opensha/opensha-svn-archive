@@ -43,7 +43,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class GK_2013 {
 
-	static final String NAME = "Graizer & Kalkan (2013)";
+	public static final String NAME = "Graizer & Kalkan (2013)";
 	
 	private static final Set<IMT> IMTS = EnumSet.complementOf(EnumSet.of(PGV, PGD));
 		

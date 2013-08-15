@@ -58,6 +58,13 @@ import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 
+import scratch.kevin.nga.NGAWrappers.ASK_2013_Wrapper;
+import scratch.kevin.nga.NGAWrappers.BSSA_2013_Wrapper;
+import scratch.kevin.nga.NGAWrappers.CB_2013_Wrapper;
+import scratch.kevin.nga.NGAWrappers.CY_2013_Wrapper;
+import scratch.kevin.nga.NGAWrappers.GK_2013_Wrapper;
+import scratch.kevin.nga.NGAWrappers.Idriss_2013_Wrapper;
+
 import com.sun.xml.rpc.processor.generator.writer.EnumerationSerializerWriter;
 
 /**
@@ -199,6 +206,18 @@ public enum AttenRelRef {
 
 	/** Cybershake fake attnuation relation */
 	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, EXPERIMENTAL),
+	
+	ASK_2013(ASK_2013_Wrapper.class, scratch.peter.nga.ASK_2013.NAME, EXPERIMENTAL),
+	
+	BSSA_2013(BSSA_2013_Wrapper.class, scratch.peter.nga.BSSA_2013.NAME, EXPERIMENTAL),
+	
+	CB_2013(CB_2013_Wrapper.class, scratch.peter.nga.CB_2013.NAME, EXPERIMENTAL),
+	
+	CY_2013(CY_2013_Wrapper.class, scratch.peter.nga.CY_2013.NAME, EXPERIMENTAL),
+	
+	GK_2013(GK_2013_Wrapper.class, scratch.peter.nga.GK_2013.NAME, EXPERIMENTAL),
+	
+	Idriss_2013(Idriss_2013_Wrapper.class, scratch.peter.nga.Idriss_2013.NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 

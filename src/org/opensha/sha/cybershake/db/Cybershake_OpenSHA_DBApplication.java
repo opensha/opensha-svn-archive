@@ -23,12 +23,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ERF;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -390,7 +393,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		// this inserts it
 		// TODO deal with rakes along strike before inserting UCERF3
-		erfDB.insertForecaseInDB(erfName, erfDescription, region);
+//		erfDB.insertForecaseInDB(erfName, erfDescription, region);
 		
 		// if you have to reinsert a rupture surface for some reason, do this
 //		int erfID = 35;
@@ -402,6 +405,11 @@ public class Cybershake_OpenSHA_DBApplication {
 //		siteDB.setMatchSourceNames(false);
 //		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		
+		SiteInfo2DB sites2db = new SiteInfo2DB(db);
+		ArrayList<CybershakeSite> sites = Lists.newArrayList();
+		sites.add(sites2db.getSiteFromDB(73));
+		sites.add(sites2db.getSiteFromDB(978));
+		app.insertNewERFForSites(sites, erfDB, erfName, erfDescription, false);
 		
 		/////////////// ADD SITES //////////////////////
 		

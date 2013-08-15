@@ -1,0 +1,296 @@
+package scratch.kevin.nga;
+
+import org.opensha.commons.data.Site;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.IMRException;
+import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.util.FaultUtils;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+
+import scratch.peter.newcalc.ScalarGroundMotion;
+import scratch.peter.nga.FaultStyle;
+import scratch.peter.nga.IMT;
+import scratch.peter.nga.TransitionalGMPE;
+
+/**
+ * This wraps Peter's NGA implementation to conform to the AttenuationRelationship construct
+ * 
+ * @author kevin
+ *
+ */
+public class TransitionalGMPEWrapper extends AttenuationRelationship {
+	
+	private String shortName;
+	private TransitionalGMPE gmpe;
+	private ScalarGroundMotion gm;
+	
+	DistanceX_Parameter distanceX_param;
+	
+	public TransitionalGMPEWrapper(String shortName, TransitionalGMPE gmpe) {
+		this.shortName = shortName;
+		this.gmpe = gmpe;
+		
+		initSupportedIntensityMeasureParams();
+		initSiteParams();
+		initOtherParams();
+	}
+
+	@Override
+	public double getMean() {
+		if (gm == null)
+			gm = gmpe.calc();
+		return gm.mean();
+	}
+
+	@Override
+	public double getStdDev() {
+		if (gm == null)
+			gm = gmpe.calc();
+		return gm.stdDev();
+	}
+
+	@Override
+	public void setParamDefaults() {
+		for (Parameter<?> param : siteParams)
+			param.setValueAsDefault();
+	}
+
+	@Override
+	public String getName() {
+		return gmpe.getName();
+	}
+
+	@Override
+	public String getShortName() {
+		return shortName;
+	}
+
+	@Override
+	public void setSite(Site site) {
+		super.setSite(site);
+		update();
+	}
+
+	@Override
+	public void setEqkRupture(EqkRupture eqkRupture) {
+		super.setEqkRupture(eqkRupture);
+		update();
+	}
+
+	@Override
+	public void setIntensityMeasure(Parameter intensityMeasure)
+			throws ParameterException, ConstraintException {
+		super.setIntensityMeasure(intensityMeasure);
+		update();
+	}
+
+	@Override
+	public void setIntensityMeasure(String intensityMeasureName)
+			throws ParameterException {
+		super.setIntensityMeasure(intensityMeasureName);
+		update();
+	}
+
+	@Override
+	public void setAll(EqkRupture eqkRupture, Site site,
+			Parameter intensityMeasure) throws ParameterException,
+			IMRException, ConstraintException {
+		// use super so as to not trigger multiple update calls
+		super.setSite(site);
+		super.setEqkRupture(eqkRupture);
+		super.setIntensityMeasure(intensityMeasure);
+		update();
+	}
+
+	@Override
+	protected void setPropagationEffectParams() {
+		update();
+	}
+	
+	/**
+	 * This updates all values in the wrapped GMPE
+	 */
+	private void update() {
+		gm = null;
+		
+		if (site != null && eqkRupture != null) {
+			// IMT
+			IMT imt;
+			if (im.getName().equals(SA_Param.NAME))
+				imt = IMT.getSA(SA_Param.getPeriodInSA_Param(im));
+			else
+				imt = IMT.parseIMT(im.getName());
+			
+			RuptureSurface surf = eqkRupture.getRuptureSurface();
+			Location siteLoc = site.getLocation();
+			
+			this.vs30Param.setValue(site.getParameter(Double.class, Vs30_Param.NAME).getValue());
+			this.vs30_TypeParam.setValue(site.getParameter(String.class, Vs30_TypeParam.NAME).getValue());
+			this.depthTo1pt0kmPerSecParam.setValue(site.getParameter(Double.class,
+					DepthTo1pt0kmPerSecParam.NAME).getValue());
+			this.depthTo2pt5kmPerSecParam.setValue(site.getParameter(Double.class,
+					DepthTo2pt5kmPerSecParam.NAME).getValue());
+			
+			double rake = eqkRupture.getAveRake();
+			// assert in range [-180 180]
+			FaultUtils.assertValidRake(rake);
+			FaultStyle style;
+			if (rake >= 135 || rake <= -135)
+				// right lateral
+				style = FaultStyle.STRIKE_SLIP;
+			else if (rake >= -45 && rake <= 45)
+				// left lateral
+				style = FaultStyle.STRIKE_SLIP;
+			else if (rake >= 45 && rake <= 135)
+				style = FaultStyle.REVERSE;
+			else
+				style = FaultStyle.NORMAL;
+			
+			gmpe.set_IMT(imt);
+			
+			gmpe.set_Mw(eqkRupture.getMag());
+			
+			gmpe.set_rJB(surf.getDistanceJB(siteLoc));
+			gmpe.set_rRup(surf.getDistanceRup(siteLoc));
+			gmpe.set_rX(surf.getDistanceX(siteLoc));
+			
+			gmpe.set_dip(surf.getAveDip());
+			gmpe.set_width(surf.getAveWidth());
+			gmpe.set_zTop(surf.getAveRupTopDepth());
+			if (eqkRupture.getHypocenterLocation() != null)
+				gmpe.set_zHyp(eqkRupture.getHypocenterLocation().getDepth());
+			else
+				gmpe.set_zHyp(Double.NaN);
+
+			gmpe.set_vs30(vs30Param.getValue());
+			gmpe.set_vsInf(vs30_TypeParam.getValue().equals(Vs30_TypeParam.VS30_TYPE_INFERRED));
+			if (depthTo2pt5kmPerSecParam.getValue() == null)
+				gmpe.set_z2p5(Double.NaN);
+			else
+				gmpe.set_z2p5(depthTo2pt5kmPerSecParam.getValue());
+			if (depthTo1pt0kmPerSecParam.getValue() == null)
+				gmpe.set_z1p0(Double.NaN);
+			else
+				gmpe.set_z1p0(depthTo1pt0kmPerSecParam.getValue());
+			
+			gmpe.set_fault(style);
+			
+		} else {
+			gmpe.set_IMT(null);
+			
+			gmpe.set_Mw(Double.NaN);
+			
+			gmpe.set_rJB(Double.NaN);
+			gmpe.set_rRup(Double.NaN);
+			gmpe.set_rX(Double.NaN);
+			
+			gmpe.set_dip(Double.NaN);
+			gmpe.set_width(Double.NaN);
+			gmpe.set_zTop(Double.NaN);
+			gmpe.set_zHyp(Double.NaN);
+
+			gmpe.set_vs30(Double.NaN);
+			gmpe.set_vsInf(true);
+			gmpe.set_z2p5(Double.NaN);
+			gmpe.set_z1p0(Double.NaN);
+			
+			gmpe.set_fault(null);
+		}
+	}
+
+	@Override
+	protected void initSupportedIntensityMeasureParams() {
+		// Create saParam:
+		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
+		for (IMT imt : IMT.values()) {
+			Double p = imt.getPeriod();
+			if (p != null)
+				periodConstraint.addDouble(p);
+		}
+		periodConstraint.setNonEditable();
+		saPeriodParam = new PeriodParam(periodConstraint);
+		saDampingParam = new DampingParam();
+		saParam = new SA_Param(saPeriodParam, saDampingParam);
+		saParam.setNonEditable();
+
+		//  Create PGA Parameter (pgaParam):
+		pgaParam = new PGA_Param();
+		pgaParam.setNonEditable();
+
+		//  Create PGV Parameter (pgvParam):
+		pgvParam = new PGV_Param();
+		pgvParam.setNonEditable();
+
+		//  Create PGD Parameter (pgdParam):
+		pgdParam = new PGD_Param();
+		pgdParam.setNonEditable();
+
+		// Add the warning listeners:
+		saParam.addParameterChangeWarningListener(listener);
+		pgaParam.addParameterChangeWarningListener(listener);
+		pgvParam.addParameterChangeWarningListener(listener);
+		pgdParam.addParameterChangeWarningListener(listener);
+
+		// Put parameters in the supportedIMParams list:
+		supportedIMParams.clear();
+		supportedIMParams.addParameter(saParam);
+		supportedIMParams.addParameter(pgaParam);
+		supportedIMParams.addParameter(pgvParam);
+		supportedIMParams.addParameter(pgdParam);
+	}
+
+	@Override
+	protected void initSiteParams() {
+		// we just have these such that they show up as requirements to use this IMR
+		vs30Param = new Vs30_Param();
+		vs30_TypeParam = new Vs30_TypeParam();
+		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(
+				null, DepthTo1pt0kmPerSecParam.MIN, DepthTo1pt0kmPerSecParam.MAX, true);
+		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(
+				null, DepthTo2pt5kmPerSecParam.MIN, DepthTo2pt5kmPerSecParam.MAX, true);
+		
+		siteParams.clear();
+		siteParams.addParameter(vs30Param);
+		siteParams.addParameter(vs30_TypeParam);
+		siteParams.addParameter(depthTo1pt0kmPerSecParam);
+		siteParams.addParameter(depthTo2pt5kmPerSecParam);
+	}
+
+	@Override
+	protected void initEqkRuptureParams() {
+		
+	}
+
+	@Override
+	protected void initPropagationEffectParams() {
+		
+	}
+
+	@Override
+	protected void initOtherParams() {
+		super.initOtherParams();
+		StringConstraint options = new StringConstraint();
+		options.addString(gmpe.get_TRT().toString());
+		tectonicRegionTypeParam.setConstraint(options);
+	    tectonicRegionTypeParam.setDefaultValue(gmpe.get_TRT().toString());
+	    tectonicRegionTypeParam.setValueAsDefault();
+	}
+
+}

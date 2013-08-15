@@ -42,7 +42,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class ASK_2013 {
 
-	static final String NAME = "Abrahamson & Silva (2013)";
+	public static final String NAME = "Abrahamson & Silva (2013)";
 	
 	private final Coeffs coeffs;
 	

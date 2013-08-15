@@ -29,6 +29,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
@@ -444,6 +445,21 @@ public class FollowerReturnPeriodProvider implements
 			}
 		}
 		
+		double medianDriverRP = DataUtils.median(driverActualDist.getRPs());
+		double medianFollowerRP = DataUtils.median(followerActualDist.getRPs());
+		
+		// if the driver RP is longer than the follower RP, then fill "revert" spots
+		// in reverse
+		boolean flipForFilling = medianDriverRP > medianFollowerRP;
+		
+		if (flipForFilling) {
+			EvenlyDiscrXYZ_DataSet temp =
+					new EvenlyDiscrXYZ_DataSet(num, num, discr_vals[0], discr_vals[0], distDeltaYears);
+			for (int xInd=0; xInd<num; xInd++)
+				for (int yInd=0; yInd<num; yInd++)
+					temp.set(xInd, yInd, cumCondProbDataset.get(yInd, xInd));
+			cumCondProbDataset = temp;
+		}
 		
 		// fill in top right corner of dist
 		// first find x val with val at greatest y
@@ -591,6 +607,18 @@ public class FollowerReturnPeriodProvider implements
 //		System.out.println("Cum Cond Prob(0,0): "+cumCondProbDataset.get(0, 0));
 //		System.out.println("**********************");
 		
+		if (flipForFilling) {
+			// flip back
+			EvenlyDiscrXYZ_DataSet temp =
+					new EvenlyDiscrXYZ_DataSet(num, num, discr_vals[0], discr_vals[0], distDeltaYears);
+			for (int xInd=0; xInd<num; xInd++)
+				for (int yInd=0; yInd<num; yInd++)
+					temp.set(xInd, yInd, cumCondProbDataset.get(yInd, xInd));
+			cumCondProbDataset = temp;
+		}
+		
+		showDist(cumCondProbDataset, 1d);
+		
 		fakeStartPrevDriverTime = -Math.random()*driverActualDist.getReturnPeriod();
 		fakeStartPrevFollowerTime = -Math.random()*followerActualDist.getReturnPeriod();
 		hitDataset = new EvenlyDiscrXYZ_DataSet(num, num, discr_vals[0], discr_vals[0], distDeltaYears);
@@ -679,7 +707,9 @@ public class FollowerReturnPeriodProvider implements
 			double eTime = e.getTimeInYears();
 			Preconditions.checkState(!Double.isNaN(eTime));
 			if (Double.isNaN(prevDriverTime) && driver.isMatch(e)) {
-				Preconditions.checkState(!follower.isMatch(e), "Coruptures still exist in randomized catalog!");
+				Preconditions.checkState(!follower.isMatch(e),
+						"Coruptures still exist in randomized catalog! follower="+follower.getName()+
+						", driver="+driver.getName());
 				prevDriverTime = eTime;
 				if (!Double.isNaN(prevFollowerTime))
 					// we already have a follower time, done
@@ -767,6 +797,7 @@ public class FollowerReturnPeriodProvider implements
 	}
 	
 	void printStats() {
+		System.out.println(follower.getName()+" driven by "+driver.getName());
 		System.out.println("Dep: "+dep_count+"/"+tot_count+" ("+(float)(100d*(double)dep_count/(double)tot_count)+" %)");
 		System.out.println("Fallback: "+fallback_count+"/"+tot_count+" ("+(float)(100d*(double)fallback_count/(double)tot_count)+" %)");
 		long other = tot_count - dep_count - fallback_count;
@@ -775,7 +806,9 @@ public class FollowerReturnPeriodProvider implements
 //		showDist(hitDataset, 1d);
 	}
 	
-	private void writeDistPDF(File file, String followerName, String driverName) throws IOException {
+	private void writeDistPDF(File file, List<EQSIM_Event> randomizedCat) throws IOException {
+		String followerName = follower.getName();
+		String driverName = driver.getName();
 		List<XYZPlotSpec> specs = Lists.newArrayList();
 		List<Range> xRanges = Lists.newArrayList();
 		List<Range> yRanges = Lists.newArrayList();
@@ -815,6 +848,15 @@ public class FollowerReturnPeriodProvider implements
 		List<PlotCurveCharacterstics> intereventChars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK),
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		if (randomizedCat != null) {
+			HistogramFunction randFollowHist = new HistogramFunction(refHist.getMinX(), refHist.getNum(), refHist.getDelta());
+			List<EQSIM_Event> randMatches = follower.getMatches(randomizedCat);
+			for (double rp : PeriodicityPlotter.getRPs(randMatches))
+				if (rp <= maxVal)
+					randFollowHist.add(rp, 1d);
+			intereventElems.add(randFollowHist);
+			intereventChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		}
 		PlotSpec intereventSpec = new PlotSpec(intereventElems, intereventChars, title, xAxisLabel, yAxisLabel);
 		intereventGP.drawGraphPanel(intereventSpec, false, false);
 		List<XYPlot> extraPlots = Lists.newArrayList(intereventGP.getPlot());
@@ -914,6 +956,8 @@ public class FollowerReturnPeriodProvider implements
 		
 		List<File> pdfs = Lists.newArrayList();
 		
+		List<EQSIM_Event> randomizedCat = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, randDistType, true);
+		
 		for (int i=0; i<rupIdens.size(); i++) {
 			RuptureIdentifier iden = rupIdens.get(i);
 			String name = iden.getName();
@@ -927,7 +971,7 @@ public class FollowerReturnPeriodProvider implements
 			String fName = PeriodicityPlotter.getFileSafeString(name);
 			File file = new File(pdfDir, fName+".pdf");
 			
-			prov.writeDistPDF(file, name, driverName);
+			prov.writeDistPDF(file, randomizedCat);
 			
 			pdfs.add(file);
 		}

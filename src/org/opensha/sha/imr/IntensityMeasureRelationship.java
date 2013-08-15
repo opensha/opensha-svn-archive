@@ -26,6 +26,7 @@ import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
+import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -45,7 +46,7 @@ import org.opensha.sha.earthquake.EqkRupture;
  */
 
 public interface IntensityMeasureRelationship
-    extends Named, Serializable, XMLSaveable, Comparable<IntensityMeasureRelationship> {
+    extends ShortNamed, Serializable, XMLSaveable, Comparable<IntensityMeasureRelationship> {
 
   /**
    *  Returns a reference to the current Site object of the IMR

@@ -47,7 +47,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class CB_2013 {
 
-	static final String NAME = "Campbell & Bozorgnia (2013)";
+	public static final String NAME = "Campbell & Bozorgnia (2013)";
 	
 	private final Coeffs coeffs;
 	private final Coeffs coeffsPGA;

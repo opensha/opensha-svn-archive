@@ -51,13 +51,22 @@ public class TectonicRegionTypeParam extends StringParameter {
 	 * and sets the parameter as non editable.
 	 */
 	public TectonicRegionTypeParam() {
+		this(TectonicRegionType.ACTIVE_SHALLOW);
+	}
+	
+	/**
+	 * This no-argument constructor defaults to only the given types. The first one given is considered default 
+	 * and sets the parameter as non editable.
+	 */
+	public TectonicRegionTypeParam(TectonicRegionType... types) {
 		super(NAME);
 		StringConstraint options = new StringConstraint();
 		//options.setNullAllowed(true);
-		options.addString(TectonicRegionType.ACTIVE_SHALLOW.toString());
+		for (TectonicRegionType trt : types)
+			options.addString(trt.toString());
 		setConstraint(options);
 	    setInfo(INFO);
-	    setDefaultValue(TectonicRegionType.ACTIVE_SHALLOW.toString());
+	    setDefaultValue(types[0].toString());
 	    //setNonEditable();
 	}
 

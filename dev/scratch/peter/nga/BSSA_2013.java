@@ -41,7 +41,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class BSSA_2013 {
 
-	static final String NAME = "Boore et al. (2013)";
+	public static final String NAME = "Boore et al. (2013)";
 
 	// implementation constants
 	private static final double A = pow(570.94, 4);

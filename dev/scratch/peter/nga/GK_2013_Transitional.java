@@ -3,6 +3,8 @@ package scratch.peter.nga;
 import static java.lang.Double.NaN;
 import static scratch.peter.nga.FaultStyle.UNKNOWN;
 
+import org.opensha.sha.util.TectonicRegionType;
+
 import com.google.common.base.Joiner;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
@@ -49,5 +51,10 @@ public class GK_2013_Transitional implements TransitionalGMPE {
 	@Override public void set_z1p0(double z1p0) {} // not used
 
 	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
 
 }
