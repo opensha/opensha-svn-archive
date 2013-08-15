@@ -1,5 +1,8 @@
 package scratch.kevin.nga;
 
+import java.util.HashSet;
+import java.util.List;
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
@@ -18,7 +21,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -41,8 +43,6 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 	private TransitionalGMPE gmpe;
 	private ScalarGroundMotion gm;
 	
-	DistanceX_Parameter distanceX_param;
-	
 	public TransitionalGMPEWrapper(String shortName, TransitionalGMPE gmpe) {
 		this.shortName = shortName;
 		this.gmpe = gmpe;
@@ -50,6 +50,10 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 		initSupportedIntensityMeasureParams();
 		initSiteParams();
 		initOtherParams();
+	}
+	
+	TransitionalGMPE getGMPE() {
+		return gmpe;
 	}
 
 	@Override
@@ -151,17 +155,7 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 			double rake = eqkRupture.getAveRake();
 			// assert in range [-180 180]
 			FaultUtils.assertValidRake(rake);
-			FaultStyle style;
-			if (rake >= 135 || rake <= -135)
-				// right lateral
-				style = FaultStyle.STRIKE_SLIP;
-			else if (rake >= -45 && rake <= 45)
-				// left lateral
-				style = FaultStyle.STRIKE_SLIP;
-			else if (rake >= 45 && rake <= 135)
-				style = FaultStyle.REVERSE;
-			else
-				style = FaultStyle.NORMAL;
+			FaultStyle style = getFaultStyle(rake);
 			
 			gmpe.set_IMT(imt);
 			
@@ -214,12 +208,28 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 			gmpe.set_fault(null);
 		}
 	}
+	
+	static FaultStyle getFaultStyle(double rake) {
+		if (rake >= 135 || rake <= -135)
+			// right lateral
+			return FaultStyle.STRIKE_SLIP;
+		else if (rake >= -45 && rake <= 45)
+			// left lateral
+			return FaultStyle.STRIKE_SLIP;
+		else if (rake >= 45 && rake <= 135)
+			return FaultStyle.REVERSE;
+		else
+			return FaultStyle.NORMAL;
+	}
 
 	@Override
 	protected void initSupportedIntensityMeasureParams() {
+		supportedIMParams.clear();
+		
 		// Create saParam:
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-		for (IMT imt : IMT.values()) {
+		HashSet<IMT> imtsSet = new HashSet<IMT>(gmpe.getSupportedIMTs());
+		for (IMT imt : imtsSet) {
 			Double p = imt.getPeriod();
 			if (p != null)
 				periodConstraint.addDouble(p);
@@ -229,31 +239,32 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 		saDampingParam = new DampingParam();
 		saParam = new SA_Param(saPeriodParam, saDampingParam);
 		saParam.setNonEditable();
-
-		//  Create PGA Parameter (pgaParam):
-		pgaParam = new PGA_Param();
-		pgaParam.setNonEditable();
-
-		//  Create PGV Parameter (pgvParam):
-		pgvParam = new PGV_Param();
-		pgvParam.setNonEditable();
-
-		//  Create PGD Parameter (pgdParam):
-		pgdParam = new PGD_Param();
-		pgdParam.setNonEditable();
-
-		// Add the warning listeners:
 		saParam.addParameterChangeWarningListener(listener);
-		pgaParam.addParameterChangeWarningListener(listener);
-		pgvParam.addParameterChangeWarningListener(listener);
-		pgdParam.addParameterChangeWarningListener(listener);
-
-		// Put parameters in the supportedIMParams list:
-		supportedIMParams.clear();
 		supportedIMParams.addParameter(saParam);
-		supportedIMParams.addParameter(pgaParam);
-		supportedIMParams.addParameter(pgvParam);
-		supportedIMParams.addParameter(pgdParam);
+
+		if (imtsSet.contains(IMT.PGA)) {
+			//  Create PGA Parameter (pgaParam):
+			pgaParam = new PGA_Param();
+			pgaParam.setNonEditable();
+			pgaParam.addParameterChangeWarningListener(listener);
+			supportedIMParams.addParameter(pgaParam);
+		}
+
+		if (imtsSet.contains(IMT.PGV)) {
+			//  Create PGV Parameter (pgvParam):
+			pgvParam = new PGV_Param();
+			pgvParam.setNonEditable();
+			pgvParam.addParameterChangeWarningListener(listener);
+			supportedIMParams.addParameter(pgvParam);
+		}
+
+		if (imtsSet.contains(IMT.PGD)) {
+			//  Create PGD Parameter (pgdParam):
+			pgdParam = new PGD_Param();
+			pgdParam.setNonEditable();
+			pgdParam.addParameterChangeWarningListener(listener);
+			supportedIMParams.addParameter(pgdParam);
+		}
 	}
 
 	@Override

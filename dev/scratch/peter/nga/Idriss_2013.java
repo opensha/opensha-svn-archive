@@ -23,6 +23,8 @@ import static java.lang.Math.*;
 import static scratch.peter.nga.IMT.PGA;
 import static scratch.peter.nga.FaultStyle.REVERSE;
 
+import java.util.Collection;
+
 import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
@@ -105,6 +107,9 @@ public class Idriss_2013 {
 		return 1.28 + s1 - s2;
 	}
 	
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffsLo.getSupportedIMTs();
+	}
 	
 	public static void main(String[] args) {
 		Idriss_2013 id = new Idriss_2013();

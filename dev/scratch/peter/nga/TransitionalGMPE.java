@@ -1,5 +1,7 @@
 package scratch.peter.nga;
 
+import java.util.Collection;
+
 import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
@@ -56,5 +58,7 @@ public interface TransitionalGMPE extends org.opensha.commons.data.Named {
 	public void set_fault(FaultStyle style);
 	
 	public TectonicRegionType get_TRT();
+	
+	public Collection<IMT> getSupportedIMTs();
 		
 }

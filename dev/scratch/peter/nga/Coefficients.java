@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +94,10 @@ public abstract class Coefficients {
 	 */
 	public double get(IMT imt, String name) {
 		return table.get(imt, name);
+	}
+	
+	public Collection<IMT> getSupportedIMTs() {
+		return table.rowKeySet();
 	}
 
 	private Table<IMT, String, Double> load(String resource) {

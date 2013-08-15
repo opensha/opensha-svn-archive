@@ -25,8 +25,12 @@ import static scratch.peter.nga.IMT.PGD;
 import static scratch.peter.nga.IMT.PGV;
 import static scratch.peter.nga.FaultStyle.*;
 
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+
+import com.google.common.collect.Lists;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -226,6 +230,10 @@ public class CY_2013 {
 		sigmaNL0 *= sqrt(vsTerm + NL0sq);
 
 		return sqrt(tau * tau * NL0sq + sigmaNL0 * sigmaNL0);
+	}
+	
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
 	}
 
 	public static void main(String[] args) {

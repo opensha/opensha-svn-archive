@@ -45,7 +45,7 @@ public class GK_2013 {
 
 	public static final String NAME = "Graizer & Kalkan (2013)";
 	
-	private static final Set<IMT> IMTS = EnumSet.complementOf(EnumSet.of(PGV, PGD));
+	static final Set<IMT> IMTS = EnumSet.complementOf(EnumSet.of(PGV, PGD));
 		
 	/**
 	 * Constructs a new instance of this attenuation relationship.
@@ -158,8 +158,7 @@ public class GK_2013 {
 
 		// Final Eq.
 		return F1 + F2 + F3 + F4 + F5;
-	}	
-	
+	}
 	
 	public static void main(String[] args) {
 		GK_2013 gk = new GK_2013();

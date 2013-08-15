@@ -22,6 +22,11 @@ import static scratch.peter.nga.IMT.PGA;
 import static java.lang.Math.*;
 import static scratch.peter.nga.FaultStyle.*;
 
+import java.util.Collection;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
@@ -218,7 +223,14 @@ public class BSSA_2013 {
 
 		// Total model -- Equation 3.2
 		return sqrt(phiMRV * phiMRV + tau * tau);
-	}	
+	}
+	
+	public Collection<IMT> getSupportedIMTs() {
+		List<IMT> imts = Lists.newArrayList();
+		imts.addAll(coeffs.getSupportedIMTs());
+		imts.addAll(coeffsPGA.getSupportedIMTs());
+		return imts;
+	}
 
 	public static void main(String[] args) {
 		BSSA_2013 bssa = new BSSA_2013();

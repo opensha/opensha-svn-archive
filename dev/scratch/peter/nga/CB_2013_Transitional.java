@@ -3,6 +3,8 @@ package scratch.peter.nga;
 import static java.lang.Double.NaN;
 import static scratch.peter.nga.FaultStyle.UNKNOWN;
 
+import java.util.Collection;
+
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Joiner;
@@ -63,6 +65,11 @@ public class CB_2013_Transitional implements TransitionalGMPE {
 	@Override
 	public TectonicRegionType get_TRT() {
 		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return impl.getSupportedIMTs();
 	}
 
 }

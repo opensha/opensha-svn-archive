@@ -264,6 +264,10 @@ public enum AttenRelRef {
 	public DevStatus status() {
 		return status;
 	}
+	
+	public Class<? extends AttenuationRelationship> getAttenRelClass() {
+		return clazz;
+	}
 
 	/**
 	 * Returns a new instance of the attenuation relationship represented by

@@ -24,9 +24,12 @@ import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static scratch.peter.nga.IMT.*;
 import static scratch.peter.nga.FaultStyle.*;
 
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
@@ -322,7 +325,14 @@ public class CB_2013 {
 
 	private static double stdMagDep(double lo, double hi, double Mw) {
 		return hi + (lo - hi) * (5.5 - Mw);
-	}	
+	}
+	
+	public Collection<IMT> getSupportedIMTs() {
+		List<IMT> imts = Lists.newArrayList();
+		imts.addAll(coeffs.getSupportedIMTs());
+		imts.addAll(coeffsPGA.getSupportedIMTs());
+		return imts;
+	}
 	
 	public static void main(String[] args) {
 

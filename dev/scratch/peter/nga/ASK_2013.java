@@ -24,6 +24,9 @@ import static org.opensha.commons.geo.GeoTools.TO_RAD;
 import static scratch.peter.nga.IMT.PGA;
 import static scratch.peter.nga.FaultStyle.*;
 
+import java.util.Collection;
+import java.util.List;
+
 import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
@@ -349,7 +352,11 @@ public class ASK_2013 {
 		if (vs30 >= vLin) return 0.0;
 		return (-b * saRock) / (saRock + C) +
 			    (b * saRock) / (saRock + C * pow(vs30 / vLin, N));
-	}	
+	}
+	
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
+	}
 	
 	// @formatter:on
 	
