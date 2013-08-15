@@ -78,7 +78,7 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 
 	@Override
 	public String getName() {
-		return gmpe.getName();
+		return gmpe.getName()+" EXPERIMENTAL";
 	}
 
 	@Override
