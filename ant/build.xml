@@ -326,6 +326,9 @@
 		<copy todir="${build}/resources/data/nshmp" overwrite="true">
 			<fileset dir="${src}/resources/data/nshmp" />
 		</copy>
+		<copy todir="${dev}/scratch/peter/nga/coeff" overwrite="true">
+			<fileset dir="${src}/scratch/peter/nga/coeff" />
+		</copy>
 	</target>
 	
 	<target name="resource.cybershake">

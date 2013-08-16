@@ -43,6 +43,8 @@ import com.google.common.io.Resources;
 public abstract class Coefficients {
 
 //	private static final String C_DIR = "/resources/data/nshmp/gmpe/";
+	
+	// If you move this, you must update the build.xml resources.imr target as well!
 	private static final String C_DIR = "coeff/";
 	private Table<IMT, String, Double> table;
 	private IMT imt;
