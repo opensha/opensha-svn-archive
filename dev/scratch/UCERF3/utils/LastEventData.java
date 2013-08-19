@@ -1,8 +1,10 @@
 package scratch.UCERF3.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
@@ -13,12 +15,17 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.dom4j.DocumentException;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -32,10 +39,11 @@ import com.google.common.collect.Maps;
  */
 public class LastEventData {
 	
-	private static final String SUB_DIR = "FaultModels";
+	private static final String SUB_DIR = "paleoRateData";
 	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver5.xls";
 	
 	private static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(2013, 0, 0);
+	private static final double MATCH_LOCATION_TOLERANCE = 1d;
 //	private static final double MILLIS_TO_YEARS = (double)(1000*60*24);
 	
 	private String sectName;
@@ -122,7 +130,6 @@ public class LastEventData {
 			Map<Integer, List<LastEventData>> datas) {
 		int populated = 0;
 		// start/end location tolerance (km)
-		final double locTol = 1d;
 		HashSet<LastEventData> usedDatas = new HashSet<LastEventData>();
 		for (FaultSectionPrefData sect : sects) {
 			int parentID = sect.getParentSectionId();
@@ -132,7 +139,7 @@ public class LastEventData {
 				continue;
 			// now find closest
 			for (LastEventData data : parentDatas) {
-				if (data.matchesLocation(sect, locTol)) {
+				if (data.matchesLocation(sect, MATCH_LOCATION_TOLERANCE)) {
 					Preconditions.checkState(!usedDatas.contains(data), "Duplicate on: "+data.getSectName());
 					sect.setDateOfLastEvent(data.getDateOfLastEvent().getTimeInMillis());
 					sect.setSlipInLastEvent(data.getLastOffset());
@@ -239,8 +246,57 @@ public class LastEventData {
 		return LocationUtils.horzDistanceFast(sectStartLoc, endLoc) <= toleranceKM
 				&& LocationUtils.horzDistanceFast(sectEndLoc, startLoc) <= toleranceKM;
 	}
+	
+	public static void writeOpenRecurrRatioTable(File file, FaultSystemSolution sol) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		csv.addLine("Parent Section Name", "Parent Section ID", "Sub Section ID",
+				"Open Interval (years)", "Paleo Obs. RI", "OI/Paleo RI");
+		
+		Map<Integer, List<LastEventData>> datas = load();
+		List<FaultSectionPrefData> fsd = sol.getRupSet().getFaultSectionDataList();
+		Map<Integer, List<FaultSectionPrefData>> fsdByParent = Maps.newHashMap();
+		for (FaultSectionPrefData sect : fsd) {
+			List<FaultSectionPrefData> parentSects = fsdByParent.get(sect.getParentSectionId());
+			if (parentSects == null) {
+				parentSects = Lists.newArrayList();
+				fsdByParent.put(sect.getParentSectionId(), parentSects);
+			}
+			parentSects.add(sect);
+		}
+		
+		PaleoProbabilityModel paleoProbModel = UCERF3_PaleoProbabilityModel.load();
+		
+		// this is for sorting by name
+		Map<String, Integer> parentNamesMap = Maps.newHashMap();
+		for (Integer parentID : datas.keySet())
+			if (fsdByParent.containsKey(parentID))
+				parentNamesMap.put(fsdByParent.get(parentID).get(0).getParentSectionName(), parentID);
+		List<String> parentNames = Lists.newArrayList(parentNamesMap.keySet());
+		Collections.sort(parentNames);
+		
+		for (String parentName : parentNames) {
+			Integer parentID = parentNamesMap.get(parentName);
+			List<LastEventData> eventData = datas.get(parentID);
+			List<FaultSectionPrefData> sects = fsdByParent.get(parentID);
+			
+			for (FaultSectionPrefData sect : sects) {
+				for (LastEventData data : eventData) {
+					if (data.matchesLocation(sect, MATCH_LOCATION_TOLERANCE)) {
+						double paleoObsRate = sol.calcTotPaleoVisibleRateForSect(sect.getSectionId(), paleoProbModel);
+						double paleoRI = 1d/paleoObsRate;
+						double ratio = data.openInterval/paleoRI;
+						csv.addLine(parentName, parentID+"", sect.getSectionId()+"", data.openInterval+"", paleoRI+"", ratio+"");
+						break;
+					}
+				}
+			}
+		}
+		
+		csv.writeToFile(file);
+	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, DocumentException {
 		// TODO Auto-generated method stub
 //		GregorianCalendar date = calcDate(14000);
 //		System.out.println(date);
@@ -251,16 +307,23 @@ public class LastEventData {
 //		System.out.println(date.getTimeInMillis());
 //		System.out.println(Long.MAX_VALUE);
 		
-		Map<Integer, List<LastEventData>> datas = load();
-		List<FaultSectionPrefData> subSects = new DeformationModelFetcher(
-				FaultModels.FM3_1, DeformationModels.GEOLOGIC,
-				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
-		populateSubSects(subSects, datas);
+//		Map<Integer, List<LastEventData>> datas = load();
+//		List<FaultSectionPrefData> subSects = new DeformationModelFetcher(
+//				FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+//				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
+//		populateSubSects(subSects, datas);
+//		
+//		subSects = new DeformationModelFetcher(
+//				FaultModels.FM3_2, DeformationModels.GEOLOGIC,
+//				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
+//		populateSubSects(subSects, datas);
 		
-		subSects = new DeformationModelFetcher(
-				FaultModels.FM3_2, DeformationModels.GEOLOGIC,
-				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
-		populateSubSects(subSects, datas);
+		File solDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		FaultSystemSolution sol = FaultSystemIO.loadSol(new File(solDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		File csvFile = new File("/tmp/open_interval_ratios.csv");
+		writeOpenRecurrRatioTable(csvFile, sol);
 	}
 
 }
