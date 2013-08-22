@@ -321,6 +321,10 @@ public class RandomCatalogBuilder {
 				probWatch = new Stopwatch();
 			}
 			
+			List<Integer> iterationIndexes = Lists.newArrayList();
+			for (int i=0; i<probRPs.size(); i++)
+				iterationIndexes.add(i);
+			
 //			int stepDiscr = 100;
 //			double stepProbMult = 1d/(double)stepDiscr;
 //			
@@ -358,7 +362,9 @@ public class RandomCatalogBuilder {
 				List<EQSIM_Event> eventsToAdd = Lists.newArrayList();
 
 				// now do probabilistic ones
-				for (int i=0; i<probRPs.size(); i++) {
+				
+				Collections.shuffle(iterationIndexes);
+				for (int i:iterationIndexes) {
 					ProbabilisticReturnPeriodProvider probRP = probRPs.get(i);
 
 					if (D) probWatch.start();
@@ -400,13 +406,23 @@ public class RandomCatalogBuilder {
 						double timeSecs = rupTime * General_EQSIM_Tools.SECONDS_PER_YEAR;
 						EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs);
 
-						eventsToAdd.add(newE);
+						boolean inserted = false;
+						for (int checkIndex=runningEvents.size(); --checkIndex>=0;) {
+							if (runningEvents.get(checkIndex).getTime() <= timeSecs) {
+								runningEvents.add(checkIndex+1, newE);
+								inserted = true;
+								break;
+							}
+						}
+						if (!inserted)
+							runningEvents.add(0, newE);
+//						runningEvents.add(newE);
 						probAdded++;
 					}
 				}
 				
-				Collections.sort(eventsToAdd);
-				runningEvents.addAll(eventsToAdd);
+//				Collections.sort(eventsToAdd);
+//				runningEvents.addAll(eventsToAdd);
 			}
 			
 			for (int i=0; i<probRPs.size(); i++) {

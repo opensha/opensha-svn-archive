@@ -139,6 +139,40 @@ public enum RandomDistType {
 			public CatalogBuilder getBuilder() {
 				return new ProbabalisticCatalogBuilder();
 			}
+		},
+		SAN_JACINTO_COACHELLA_CODRIVER("San Jacinto/Coachella Co-Driver Dist", "rand_sj_coach_codriver_dist") {
+			private List<EQSIM_Event> sjMatches;
+			ElementMagRangeDescription sjIden;
+			private List<EQSIM_Event> coachellaMatches;
+			ElementMagRangeDescription coachellaIden;
+			
+			@Override
+			public synchronized RandomReturnPeriodProvider instance(
+					RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
+				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
+				if (sjMatches == null) {
+					sjIden = new ElementMagRangeDescription(ElementMagRangeDescription.smartName("San Jacinto", elemIden),
+							ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, elemIden.getMinMag(), elemIden.getMaxMag());
+					sjMatches = sjIden.getMatches(events);
+				}
+				if (coachellaMatches == null) {
+					coachellaIden = new ElementMagRangeDescription(ElementMagRangeDescription.smartName("SAF Coachella", elemIden),
+							ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, elemIden.getMinMag(), elemIden.getMaxMag());
+					coachellaMatches = coachellaIden.getMatches(events);
+				}
+				if (elemIden.getElementIDs().contains(ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID))
+//					return ACTUAL.instance(rupIden, rps, events);
+					return new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, sjIden, sjMatches, 10d, 1500);
+				
+				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
+				return new FollowerReturnPeriodProvider(events, sjIden, sjMatches, rupIden, followerMatches, 10d, 1500);
+			}
+
+			@Override
+			public CatalogBuilder getBuilder() {
+				return new ProbabalisticCatalogBuilder();
+			}
 		};
 		
 		private String name, fNameAdd;
