@@ -706,4 +706,9 @@ extends HazardCurveApplication {
 		imrGuiBean.getSelectedIMR().setIntensityMeasure(SA_Param.NAME);
 	}
 
+	@Override
+	public String getSelectedIMT() {
+		return SA_Param.NAME;
+	}
+
 }
