@@ -354,7 +354,7 @@ implements ParameterChangeListener,EqkRupSelectorGuiBeanAPI{
 			parameterList.addParameter(ruptureParam);
 		} else {
 			IntegerConstraint iconst = (IntegerConstraint)ruptureParam.getConstraint();
-			iconst.setMinMax(0, numRuptures);
+			iconst.setMinMax(0, numRuptures-1);
 			ruptureParam.setValue(ruptureIndex);
 			ruptureParam.getEditor().refreshParamEditor();
 		}
