@@ -47,9 +47,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourc
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast;
 import org.opensha.sha.gui.HazardCurveApplication;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
-import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_MultiGuiBean;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.IMT_NewGuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
@@ -347,14 +345,14 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 		ScalarIMR imr = imrGuiBean.getSelectedIMR();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+		imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 		//if the selected test case is number 8_1
 		if(selectedTest.equals(TEST_CASE_EIGHT_A)){
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		}
 
 		//if the selected test case is number 8_2
@@ -362,7 +360,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(2.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		}
 
 		//if the selected test case is number 8_3
@@ -370,36 +368,39 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		}
 
 		//if the selected test case is number 9_1
 		if(selectedTest.equals(TEST_CASE_NINE_A)){
-			imr.getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
+			imrGuiBean.setSelectedSingleIMR(SadighEtAl_1997_AttenRel.NAME);
+			imr = imrGuiBean.getSelectedIMR();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 			siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 		}
 
 		//if the selected test case is number 9_2
 		if(selectedTest.equals(TEST_CASE_NINE_B)){
-			imr.getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
+			imrGuiBean.setSelectedSingleIMR(AS_1997_AttenRel.NAME);
+			imr = imrGuiBean.getSelectedIMR();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0)); // this shouldn't matter
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 			siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
 		}
 
 		//if the selected test case is number 9_3
 		if(selectedTest.equals(TEST_CASE_NINE_C)){
-			imr.getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
+			imrGuiBean.setSelectedSingleIMR(Campbell_1997_AttenRel.NAME);
+			imr = imrGuiBean.getSelectedIMR();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL_PGA_DEP);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 			siteGuiBean.getParameterListEditor().getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
 			siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
 		}
@@ -409,7 +410,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
 			imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
-			imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);  // needed because IMT gets reset to SA afer the above
+			imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		}
 
 
@@ -583,7 +584,7 @@ public class PEER_TestCaseSelectorControlPanel extends ControlPanel {
 		ScalarIMR imr = imrGuiBean.getSelectedIMR();
 		imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
 		imr.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_NONE);
-		imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(PGA_Param.NAME);
+		imtGuiBean.setSelectedIMT(PGA_Param.NAME);
 		siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
 

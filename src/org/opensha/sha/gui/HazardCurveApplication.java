@@ -1903,6 +1903,8 @@ ScalarIMRChangeListener {
 	 * @return the Adjustable parameters for the ScenarioShakeMap calculator
 	 */
 	public ParameterList getCalcAdjustableParams(){
+		if (calc == null)
+			createCalcInstance();
 		return calc.getAdjustableParams();
 	}
 
