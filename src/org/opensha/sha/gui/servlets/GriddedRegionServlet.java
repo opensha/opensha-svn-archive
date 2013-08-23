@@ -141,7 +141,7 @@ public class GriddedRegionServlet extends HttpServlet {
 		GriddedRegion eggr = new GriddedRegion(
 	    		new Location(minLat, minLon),
 	    		new Location(maxLat, maxLon),
-	    		gridSpacing, new Location(0,0));
+	    		gridSpacing, new Location(minLat,minLon));
 		SitesInGriddedRegion gridRectRegion  = new SitesInGriddedRegion(eggr);
 		String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
 

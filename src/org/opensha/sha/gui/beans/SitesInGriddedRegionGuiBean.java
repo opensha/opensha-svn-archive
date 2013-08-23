@@ -498,7 +498,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				  new GriddedRegion(
 						  new Location(minLatitude,minLongitude),
 						  new Location(maxLatitude,maxLongitude),
-						  gridSpacingD, new Location(0,0));
+//						  gridSpacingD, new Location(minLatitude, minLongitude));
+			  			  gridSpacingD, new Location(0, 0));
 			gridRegion= new SitesInGriddedRegion(eggr);
 		} else {
 			for (Region region : presets) {
