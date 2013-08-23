@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -181,6 +183,12 @@ implements DisaggregationCalculatorAPI{
 			Site site,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
 			AbstractERF eqkRupForecast, ParameterList calcParams) {
+		
+		if (iml < 0) {
+			currRuptures = 0;
+			totRuptures = 0;
+			return false;
+		}
 		
 		MaxDistanceParam maxDistanceParam = (MaxDistanceParam)calcParams.getParameter(MaxDistanceParam.NAME);
 		PtSrcDistanceCorrectionParam ptSrcDistCorrParam = (PtSrcDistanceCorrectionParam)calcParams.getParameter(PtSrcDistanceCorrectionParam.NAME);
