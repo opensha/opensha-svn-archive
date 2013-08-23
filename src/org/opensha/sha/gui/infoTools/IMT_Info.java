@@ -7,6 +7,7 @@ import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.IA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.MMI_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -46,6 +47,12 @@ public final class IMT_Info {
 	public final static double NUM_PGV = 51;
 	public final static double DEFAULT_PGV = 50;
 
+	// Default values for the PGD
+	public final static double MIN_PGD = .01;
+	public final static double MAX_PGD = 1000;
+	public final static double NUM_PGD = 51;
+	public final static double DEFAULT_PGD = 50;
+
 	// default values for WC94_DisplMagRel FAULT_DISPL_NAME
 	public final static double MIN_FAULT_DISPL = .001;
 	public final static double MAX_FAULT_DISPL = 100;
@@ -67,6 +74,7 @@ public final class IMT_Info {
 	public double discretization_pga;
 	public double discretization_sa;
 	public double discretization_pgv;
+	public double discretization_pgd;
 	public double discretization_fault_displ;
 	public double discretization_mmi;
 	public double discretization_ia;
@@ -78,6 +86,8 @@ public final class IMT_Info {
 			(NUM_SA - 1);
 		discretization_pgv = (Math.log(MAX_PGV) - Math.log(MIN_PGV)) /
 			(NUM_PGV - 1);
+		discretization_pgd = (Math.log(MAX_PGD) - Math.log(MIN_PGD)) /
+				(NUM_PGD - 1);
 		discretization_fault_displ = (Math.log(MAX_FAULT_DISPL) - Math
 			.log(MIN_FAULT_DISPL)) / (NUM_FAULT_DISPL - 1);
 		discretization_mmi = (Math.log(MAX_MMI) - Math.log(MIN_MMI)) /
@@ -114,6 +124,13 @@ public final class IMT_Info {
 			for (int i = 0; i < NUM_PGV; ++i) {
 				double xVal = Precision.round(
 					Math.exp(Math.log(MIN_PGV) + i * discretization_pgv), 5);
+				function.set(xVal, 1.0);
+			}
+			return function;
+		} else if ((imtName.equals(PGD_Param.NAME))) {
+			for (int i = 0; i < NUM_PGD; ++i) {
+				double xVal = Precision.round(
+					Math.exp(Math.log(MIN_PGD) + i * discretization_pgd), 5);
 				function.set(xVal, 1.0);
 			}
 			return function;
@@ -168,6 +185,8 @@ public final class IMT_Info {
 			return MIN_PGA;
 		else if (imt.equals(PGV_Param.NAME))
 			return MIN_PGV;
+		else if (imt.equals(PGD_Param.NAME))
+			return MIN_PGD;
 		else if (imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
 			return MIN_FAULT_DISPL;
 		else if (imt.equals(MMI_Param.NAME))
@@ -188,6 +207,8 @@ public final class IMT_Info {
 			return MAX_PGA;
 		else if (imt.equals(PGV_Param.NAME))
 			return MAX_PGV;
+		else if (imt.equals(PGD_Param.NAME))
+			return MAX_PGD;
 		else if (imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
 			return MAX_FAULT_DISPL;
 		else if (imt.equals(MMI_Param.NAME)) return MAX_MMI;
@@ -207,6 +228,8 @@ public final class IMT_Info {
 			return NUM_PGA;
 		else if (imt.equals(PGV_Param.NAME))
 			return NUM_PGV;
+		else if (imt.equals(PGD_Param.NAME))
+			return NUM_PGD;
 		else if (imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
 			return NUM_FAULT_DISPL;
 		else if (imt.equals(MMI_Param.NAME)) return NUM_MMI;
@@ -226,6 +249,8 @@ public final class IMT_Info {
 			return DEFAULT_PGA;
 		else if (imt.equals(PGV_Param.NAME))
 			return DEFAULT_PGV;
+		else if (imt.equals(PGD_Param.NAME))
+			return DEFAULT_PGD;
 		else if (imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
 			return DEFAULT_FAULT_DISPL;
 		else if (imt.equals(MMI_Param.NAME)) return DEFAULT_MMI;
@@ -241,6 +266,7 @@ public final class IMT_Info {
 	public static boolean isIMT_LogNormalDist(String imt) {
 		if (imt.equalsIgnoreCase(PGA_Param.NAME) ||
 			imt.equalsIgnoreCase(PGV_Param.NAME) ||
+			imt.equalsIgnoreCase(PGD_Param.NAME) ||
 			imt.equalsIgnoreCase(SA_Param.NAME) ||
 			imt.equalsIgnoreCase(SA_InterpolatedParam.NAME) ||
 			imt.equalsIgnoreCase(MMI_Param.NAME) ||
@@ -360,6 +386,10 @@ public final class IMT_Info {
 		func = hazardCurve.getDefaultHazardCurve("PGV");
 		System.out.println("For PGV: ");
 		System.out.println("Dis: " + hazardCurve.discretization_pgv);
+		System.out.println(func.toString());
+		func = hazardCurve.getDefaultHazardCurve("PGD");
+		System.out.println("For PGD: ");
+		System.out.println("Dis: " + hazardCurve.discretization_pgd);
 		System.out.println(func.toString());
 	}
 }
