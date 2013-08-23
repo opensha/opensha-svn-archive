@@ -899,13 +899,13 @@ public class GcimControlPanel extends ControlPanel
 			oldNewIMjSame = false;
 		} else {
 			//Names are the same now check dependent parameters
-			ListIterator<Parameter<?>> oldParentIMjParamsIt = oldParentIMj.getIndependentParametersIterator();
+			Iterator<Parameter<?>> oldParentIMjParamsIt = oldParentIMj.getIndependentParameterList().iterator();
 			//Loop over the oldParentIMj params
 			while (oldParentIMjParamsIt.hasNext()) {
 				boolean newOldParentIMjContainParam = false;
 				String oldParentIMjParamName = oldParentIMjParamsIt.next().toString();
 				//Now loop over the newParentIMj params
-				ListIterator<Parameter<?>> newParentIMjParamsIt = newParentIMj.getIndependentParametersIterator();
+				Iterator<Parameter<?>> newParentIMjParamsIt = newParentIMj.getIndependentParameterList().iterator();
 				while (newParentIMjParamsIt.hasNext()) {
 					String newParentIMjParamName = newParentIMjParamsIt.next().toString();
 					//Are the parameter names the same?

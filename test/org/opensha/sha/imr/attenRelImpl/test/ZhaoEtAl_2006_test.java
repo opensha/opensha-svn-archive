@@ -334,9 +334,7 @@ public class ZhaoEtAl_2006_test {
 		while(it.hasNext()){
 			Parameter tempParam = (Parameter)it.next();
 			if (tempParam.getName().equalsIgnoreCase(SA_Param.NAME)){
-				ListIterator it1 = tempParam.getIndependentParametersIterator();
-				while(it1.hasNext()){
-					Parameter independentParam = (Parameter)it1.next();
+				for (Parameter<?> independentParam : tempParam.getIndependentParameterList()) {
 					if (independentParam.getName().equalsIgnoreCase(PeriodParam.NAME)){
 						List<Double> saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
 

@@ -313,9 +313,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		String imtName = imtParameter.getValue();
 //		System.out.println("Updating GUI for: " + imtName);
 		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
-		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
-		while (paramIt.hasNext()) {
-			Parameter<?> param = paramIt.next();
+		for (Parameter<?> param : imtParam.getIndependentParameterList()) {
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				ArrayList<Double> periods = currentSupportedPeriods;
@@ -372,9 +370,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		// now add the independent params for the selected IMT
 		String imtName = imtParameter.getValue();
 		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
-		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
-		while (paramIt.hasNext()) {
-			Parameter<?> param = paramIt.next();
+		for (Parameter<?> param : imtParam.getIndependentParameterList()) {
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				periodParam.setValue(period);
@@ -499,9 +495,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		imr.setIntensityMeasure(imt.getName());
 		Parameter<Double> newIMT = (Parameter<Double>) imr.getIntensityMeasure();
 		
-		ListIterator<Parameter<?>> paramIt = newIMT.getIndependentParametersIterator();
-		while (paramIt.hasNext()) {
-			Parameter toBeSet = paramIt.next();
+		for (Parameter toBeSet : newIMT.getIndependentParameterList()) {
 			Parameter newVal = imt.getIndependentParameter(toBeSet.getName());
 			
 			toBeSet.setValue(newVal.getValue());
@@ -526,9 +520,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		imCorrRel.setIntensityMeasurei(imti.getName());
 		Parameter<Double> newIMTi = (Parameter<Double>) imCorrRel.getIntensityMeasurei();
 		
-		ListIterator<Parameter<?>> paramIti = newIMTi.getIndependentParametersIterator();
-		while (paramIti.hasNext()) {
-			Parameter toBeSet = paramIti.next();
+		for (Parameter toBeSet : newIMTi.getIndependentParameterList()) {
 			Parameter newVal = imti.getIndependentParameter(toBeSet.getName());
 			toBeSet.setValue(newVal.getValue());
 		}
@@ -537,9 +529,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		imCorrRel.setIntensityMeasurej(imtj.getName());
 		Parameter<Double> newIMTj = (Parameter<Double>) imCorrRel.getIntensityMeasurej();
 		
-		ListIterator<Parameter<?>> paramItj = newIMTj.getIndependentParametersIterator();
-		while (paramItj.hasNext()) {
-			Parameter toBeSet = paramItj.next();
+		for (Parameter toBeSet : newIMTj.getIndependentParameterList()) {
 			Parameter newVal = imtj.getIndependentParameter(toBeSet.getName());
 			toBeSet.setValue(newVal.getValue());
 		}

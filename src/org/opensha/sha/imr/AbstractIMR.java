@@ -281,11 +281,8 @@ implements IntensityMeasureRelationship {
 
 		if (isIntensityMeasureSupported(intensityMeasure)) {
 			setIntensityMeasure(intensityMeasure.getName());
-			ListIterator it = ( (Parameter) intensityMeasure).getIndependentParametersIterator();
-			while (it.hasNext()) {
-				Parameter param = (Parameter) it.next();
+			for (Parameter<?> param : intensityMeasure.getIndependentParameterList())
 				getParameter(param.getName()).setValue(param.getValue());
-			}
 		}
 		else {
 			throw new ParameterException("This im is not supported, name = " +
@@ -339,9 +336,7 @@ implements IntensityMeasureRelationship {
 			//		  System.out.println("got here");
 			int numIndParams = ((Parameter)supportedIMParams.getParameter(intensityMeasure.getName())).getNumIndependentParameters();
 			//ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
-			ListIterator it = ( (Parameter) intensityMeasure).getIndependentParametersIterator();
-			while (it.hasNext()) {
-				Parameter param = (Parameter) it.next();
+			for (Parameter<?> param : intensityMeasure.getIndependentParameterList()) {
 				if (getParameter(param.getName()).isAllowed(param.getValue())) {
 					continue;
 				}

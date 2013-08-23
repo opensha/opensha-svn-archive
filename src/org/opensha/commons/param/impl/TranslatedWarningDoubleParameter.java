@@ -564,8 +564,9 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     // *******************************************
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public ListIterator getIndependentParametersIterator(){
-        return param.getIndependentParametersIterator();}
+    @Override
+    public ParameterList getIndependentParameterList(){
+        return param.getIndependentParameterList();}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
     public Parameter getIndependentParameter(String name)throws ParameterException{
@@ -713,9 +714,7 @@ public class TranslatedWarningDoubleParameter extends WarningDoubleParameter {
     public String getDependentParamMetadataString() {
       StringBuffer metadata = new StringBuffer();
       metadata.append(getName()+" [ ");
-      ListIterator list = getIndependentParametersIterator();
-      while(list.hasNext()){
-        Parameter tempParam = (Parameter)list.next();
+      for (Parameter<?> tempParam : getIndependentParameterList()) {
         metadata.append(tempParam.getMetadataString()+" ; ");
        /* Note that the getmetadatSring is called here rather than the
           getDependentParamMetadataString() method becuase the former is

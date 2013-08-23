@@ -377,10 +377,10 @@ public interface Parameter<E> extends
 	 */
 
     /**
-     * Returns an iterator of all indepenedent parameters this parameter
+     * Returns an list of all indepenedent parameters this parameter
      * depends upon. Returns the parametes in the order they were added.
      */
-    public ListIterator getIndependentParametersIterator();
+    public ParameterList getIndependentParameterList();
 
     /**
      * Locates and returns an independent parameter from the list if it

@@ -503,14 +503,10 @@ extends HazardCurveApplication {
 	 * @param imr
 	 */
 	private void getSA_PeriodForIMR(ScalarIMR imr) {
-		ListIterator it = imr.getSupportedIntensityMeasuresIterator();
-		while (it.hasNext()) {
-			Parameter tempParam = (Parameter) it.next();
-			if (tempParam.getName().equalsIgnoreCase(this.SA_NAME)) {
-				ListIterator it1 = tempParam.getIndependentParametersIterator();
-				while (it1.hasNext()) {
-					Parameter independentParam = (Parameter) it1.next();
-					if (independentParam.getName().equalsIgnoreCase(this.SA_PERIOD)) {
+		for (Parameter<?> tempParam : imr.getSupportedIntensityMeasures()) {
+			if (tempParam.getName().equalsIgnoreCase(SA_NAME)) {
+				for (Parameter<?> independentParam: tempParam.getIndependentParameterList()) {
+					if (independentParam.getName().equalsIgnoreCase(SA_PERIOD)) {
 						saPeriodVector = ( (DoubleDiscreteParameter) independentParam).
 						getAllowedDoubles();
 						return;

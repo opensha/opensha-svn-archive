@@ -81,9 +81,7 @@ public abstract class IM_EventSetOutputWriter {
 		
 		if (param instanceof Parameter) {
 			Parameter<?> depParam = (Parameter<?>)param;
-			ListIterator<Parameter<?>> it = depParam.getIndependentParametersIterator();
-			while (it.hasNext()) {
-				Parameter<?> dep = it.next();
+			for (Parameter<?> dep : depParam.getIndependentParameterList()) {
 				if (dep.getName().equals(PeriodParam.NAME)) {
 					double period = (Double)dep.getValue();
 					int p10 = (int)(period * 10.0 + 0.5);
@@ -103,9 +101,7 @@ public abstract class IM_EventSetOutputWriter {
 		
 		if (param instanceof Parameter) {
 			Parameter<?> depParam = (Parameter<?>)param;
-			ListIterator<Parameter<?>> it = depParam.getIndependentParametersIterator();
-			while (it.hasNext()) {
-				Parameter<?> dep = it.next();
+			for (Parameter<?> dep : depParam.getIndependentParameterList()) {
 				if (dep.getName().equals(PeriodParam.NAME)) {
 					double period = (Double)dep.getValue();
 					imt += " " + (float)period;

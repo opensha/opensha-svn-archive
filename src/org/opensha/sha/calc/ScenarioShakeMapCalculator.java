@@ -145,9 +145,7 @@ public class ScenarioShakeMapCalculator {
 						e.printStackTrace();
 					}
 				}
-				it = attenRel.getIntensityMeasure().getIndependentParametersIterator();
-				while(it.hasNext()){
-					Parameter param = (Parameter)it.next();
+				for (Parameter<?> param : attenRel.getIntensityMeasure().getIndependentParameterList()) {
 					try {
 						fw.write(param.getName()+"\t");
 					} catch (IOException e) {
@@ -364,9 +362,7 @@ public class ScenarioShakeMapCalculator {
 						e.printStackTrace();
 					}
 				}
-				it = imr.getIntensityMeasure().getIndependentParametersIterator();
-				while(it.hasNext()){
-					Parameter param = (Parameter)it.next();
+				for (Parameter<?> param : imr.getIntensityMeasure().getIndependentParameterList()) {
 					try {
 						fw.write(param.getValue()+"\t");
 					} catch (IOException e) {

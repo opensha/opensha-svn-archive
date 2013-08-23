@@ -99,7 +99,7 @@ public class WarningIntegerParameter extends IntegerParameter implements
      * Only created if needed, else kept null. This is
      * known as "lazy instantiation".
      */
-    protected transient ArrayList warningListeners = null;
+    protected transient ArrayList<ParameterChangeWarningListener> warningListeners = null;
 
 
     /**
@@ -352,7 +352,7 @@ public class WarningIntegerParameter extends IntegerParameter implements
         String S = C + ": addParameterChangeWarningListener(): ";
         //checkEditable(S);
 
-        if ( warningListeners == null ) warningListeners = new ArrayList();
+        if ( warningListeners == null ) warningListeners = new ArrayList<ParameterChangeWarningListener>();
         if ( !warningListeners.contains( listener ) ) {
             if(D) System.out.println(S + "Adding listener: " + listener.getClass().getName() );
             warningListeners.add( listener );
@@ -639,10 +639,7 @@ public class WarningIntegerParameter extends IntegerParameter implements
         param.setWarningConstraint(c2);
 
 
-        ListIterator it = this.getIndependentParametersIterator();
-        while( it.hasNext() ){
-
-            Parameter p1 = (Parameter)it.next();
+        for (Parameter<?> p1 : getIndependentParameterList()) {
             Parameter p2 = (Parameter)p1.clone();
             param.addIndependentParameter(p2);
 
@@ -653,11 +650,8 @@ public class WarningIntegerParameter extends IntegerParameter implements
         // so should be interested in the clone
 
         if( this.warningListeners != null ){
-            it = this.warningListeners.listIterator();
-            while( it.hasNext() ){
-                ParameterChangeWarningListener listener = (ParameterChangeWarningListener)it.next();
+            for (ParameterChangeWarningListener listener : warningListeners)
                 param.addParameterChangeWarningListener( listener );
-            }
         }
 
 

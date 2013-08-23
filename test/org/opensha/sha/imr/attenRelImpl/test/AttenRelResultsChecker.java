@@ -222,10 +222,9 @@ public class AttenRelResultsChecker {
 							//adding the intensity measure parameter
 							if(!list.containsParameter(param))
 								list.addParameter(param);
-							Iterator it=param.getIndependentParametersIterator();
 							//adding the independent Params for the intensity Measure Param
-							while(it.hasNext()){
-								Parameter  tempParam =(Parameter)it.next();
+							for (Parameter<?> tempParam : param.getIndependentParameterList()) {
+								
 								if(!list.containsParameter(tempParam))
 									this.list.addParameter(tempParam);
 							}

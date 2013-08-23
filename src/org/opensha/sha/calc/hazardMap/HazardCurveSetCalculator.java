@@ -101,11 +101,8 @@ public class HazardCurveSetCalculator {
 					ScalarIMR imr = imrMap.get(trt);
 					imr.setIntensityMeasure(newIMT.getName());
 					Parameter<Double> imt = (Parameter<Double>) imr.getIntensityMeasure();
-					ListIterator<Parameter<?>> it = newIMT.getIndependentParametersIterator();
-					while (it.hasNext()) {
-						Parameter<?> depParam = it.next();
+					for (Parameter<?> depParam : newIMT.getIndependentParameterList())
 						imt.getIndependentParameter(depParam.getName()).setValue(depParam.getValue());
-					}
 				}
 			}
 			imrMapCount++;

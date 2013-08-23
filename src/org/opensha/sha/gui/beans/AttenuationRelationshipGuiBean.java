@@ -694,10 +694,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 				// add all the independent parameters related to this IMT
 				// NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
 				// this also converts these DoubleDiscreteParameters to StringParameters
-				ListIterator it2 = param.getIndependentParametersIterator();
 				if(D) System.out.println("IMT is:"+param.getName());
-				while ( it2.hasNext() ) {
-					Parameter param2 = (Parameter ) it2.next();
+				for ( Parameter<?> param2 : param.getIndependentParameterList()) {
 					
 					Parameter<?> independentParam;
 					List<Double> discAllowedValues = null;
@@ -763,11 +761,9 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		 * parameters to add them to the common ArrayList to display in the IMT Panel
 		 **/
 
-		Iterator it=imtParam.iterator();
+		Iterator<Parameter> it=imtParam.iterator();
 		while(it.hasNext()){
-			Iterator it1=((Parameter)it.next()).getIndependentParametersIterator();
-			while(it1.hasNext()){
-				Parameter tempParam = (Parameter)it1.next();
+			for (Parameter<?> tempParam : it.next().getIndependentParameterList()) {
 				if (imtParamList.containsParameter(tempParam.getName())) {
 					new ParamLinker(imtParamList.getParameter(tempParam.getName()), tempParam);
 				} else {
@@ -1238,9 +1234,8 @@ ParameterChangeWarningListener, ParameterChangeFailListener{
 		while(it.hasNext()){
 			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(imtName)){
-				Iterator it1=param.getIndependentParametersIterator();
-				while(it1.hasNext())
-					imtEditorParamListEditor.setParameterVisible(((Parameter)it1.next()).getName(),true);
+				for (Parameter<?> tempParam : param.getIndependentParameterList())
+					imtEditorParamListEditor.setParameterVisible(tempParam.getName(),true);
 			}
 		}
 

@@ -609,11 +609,8 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 			if (num > 0) {
 				Element dependent = xml
 					.addElement(Parameter.XML_INDEPENDENT_PARAMS_NAME);
-				ListIterator<Parameter> it = (ListIterator<Parameter>) param
-					.getIndependentParametersIterator();
-				while (it.hasNext()) {
-					dependent = it.next().toXMLMetadata(dependent);
-				}
+				for (Parameter<?> depParam : param.getIndependentParameterList())
+					dependent = depParam.toXMLMetadata(dependent);
 			}
 		}
 		return root;
@@ -693,15 +690,6 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	protected ArrayList<Parameter<?>> independentParameters = new ArrayList<Parameter<?>>();
 	// gets the Parameters Metadata
 	protected String metadataString;
-
-	/**
-	 * Returns an iterator of all parameters in the list.
-	 * <p>
-	 * 
-	 */
-	public ListIterator<Parameter<?>> getIndependentParametersIterator() {
-		return getIndependentParameterList().getParametersIterator();
-	}
 
 	/** Returns parameter from list if exist else throws exception */
 	public Parameter getIndependentParameter(String name)
@@ -804,9 +792,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 		if (independentParameters.size() > 0) {
 			StringBuffer metadata = new StringBuffer();
 			metadata.append(getName() + " [ ");
-			ListIterator list = getIndependentParametersIterator();
-			while (list.hasNext()) {
-				Parameter tempParam = (Parameter) list.next();
+			for (Parameter<?> tempParam : getIndependentParameterList()) {
 				metadata.append(tempParam.getMetadataString() + " ; ");
 				/*
 				 * Note that the getmetadatSring is called here rather than the
@@ -866,14 +852,10 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 * @return the independent parameter list for the dependent parameter
 	 */
 	public ParameterList getIndependentParameterList() {
-		Iterator it = independentParameters.iterator();
-		ParameterList list = new ParameterList();
-
-		while (it.hasNext()) {
-			Parameter param = (Parameter) it.next();
-			list.addParameter(param);
-		}
-		return list;
+		ParameterList params = new ParameterList();
+		for (Parameter<?> param : independentParameters)
+			params.addParameter(param);
+		return params;
 	}
 
 	/**

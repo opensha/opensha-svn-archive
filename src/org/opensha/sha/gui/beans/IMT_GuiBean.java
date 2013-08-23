@@ -211,11 +211,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 			// this also converts these DoubleDiscreteParameters to StringParameters
 			if (param instanceof Parameter) {
 				Parameter depParam = (Parameter)param;
-				ListIterator<Parameter> indepIt = depParam.getIndependentParametersIterator();
 				if(D) System.out.println("IMT is:"+param.getName());
-				while ( indepIt.hasNext() ) {
-
-					Parameter param2 = indepIt.next();
+				for (Parameter<?> param2 : depParam.getIndependentParameterList()) {
 					DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
 					// add all the periods relating to the SA
 					DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
@@ -247,9 +244,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		for (Parameter param : imtParam) {
 			if (param instanceof Parameter) {
 				Parameter depParam = (Parameter)param;
-				Iterator<Parameter> indepParamsIt = depParam.getIndependentParametersIterator();
-				while (indepParamsIt.hasNext())
-					parameterList.addParameter(indepParamsIt.next());
+				for (Parameter<?> indepParam : depParam.getIndependentParameterList())
+					parameterList.addParameter(indepParam);
 			}
 		}
 		this.editorPanel.removeAll();
@@ -282,9 +278,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 		while(it.hasNext()){
 			Parameter param=(Parameter)it.next();
 			if(param.getName().equalsIgnoreCase(imtName)){
-				Iterator it1=param.getIndependentParametersIterator();
-				while(it1.hasNext())
-					setParameterVisible(((Parameter)it1.next()).getName(),true);
+				for (Parameter<?> indepParam : param.getIndependentParameterList())
+					setParameterVisible(indepParam.getName(),true);
 			}
 		}
 	}

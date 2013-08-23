@@ -767,9 +767,8 @@ extends AbstractIMR implements ScalarIMR {
 	public String getAllParamMetadata() {
 		String metadata = imlAtExceedProbIndependentParams.getParameterListMetadataString();
 		metadata += "; " + im.getMetadataString() + " [ ";
-		Iterator it = im.getIndependentParametersIterator();
-		while (it.hasNext()) {
-			metadata += ( (Parameter) it.next()).getMetadataString() + "; ";
+		for (Parameter<?> param : im.getIndependentParameterList()) {
+			metadata += param.getMetadataString() + "; ";
 		}
 		metadata = metadata.substring(0, metadata.length() - 2);
 		metadata += " ]";

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -203,22 +204,22 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 		aString += "Portfolio File Name: " + fileName + "\n\n";
 		
 		// Get formatted output for the ERF
-		aString += formatOutput( view.getERF().getPanel().getERFParameterList().getParametersIterator(), "Earthquake Rupture Forecast" );
+		aString += formatOutput( view.getERF().getPanel().getERFParameterList(), "Earthquake Rupture Forecast" );
 		
 		// Get formatted output for the IMR
-		aString += formatOutput( view.getIMR().getIMRBean().getParameterList().getParametersIterator(), "Intesity Measure Relationship");
+		aString += formatOutput( view.getIMR().getIMRBean().getParameterList(), "Intesity Measure Relationship");
 		
 		// Get formatted output for the IMT
-		aString += formatOutput( ((Parameter)view.getIMR().getIMRBean().getSelectedIMR_Instance().getIntensityMeasure()).getIndependentParametersIterator(), "Intesity Measure Type");
+		aString += formatOutput( ((Parameter)view.getIMR().getIMRBean().getSelectedIMR_Instance().getIntensityMeasure()).getIndependentParameterList(), "Intesity Measure Type");
 		
 		// Get formatted output for the Site(s)
 		for( Site assetSite : portfolio.getSiteList()) {
 			site = assetSite;
-			aString += formatOutput( site.getParametersIterator(), "Site" );
+			aString += formatOutput( site, "Site" );
 		}
 			
 		// Get formatted output for the Timespan
-		aString += formatOutput( view.getERF().getPanel().getSelectedERFTimespanGuiBean().getParameterList().getParametersIterator(), "Timespan" );
+		aString += formatOutput( view.getERF().getPanel().getSelectedERFTimespanGuiBean().getParameterList(), "Timespan" );
 		
 		aString += "Max. Source-Site Distance = " + view.getDistanceControlPanel().getDistance() + "\n\n";
 		
@@ -249,17 +250,15 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 	 * @param type     	The name of what is being formatted
 	 * @return 		   	The formatted string that will be used in the ouput
 	 */
-	private String formatOutput( ListIterator<Parameter<?>> paramIterator, String type ) {
+	private String formatOutput( ParameterList params, String type ) {
 		aString = type + " Parameter List\n-------------------\n";
 		if ( type.equals("Site") ) {
 			if ( site.getName() != null ) aString += "Name: " + site.getName() + "\n";
 			aString += "Latitute: " + site.getLocation().getLatitude() + "\n";
 			aString += "Longitude: " + site.getLocation().getLongitude() + "\n";
 		}
-		while( paramIterator.hasNext() ) {
-			Parameter<?> next = paramIterator.next();
+		for (Parameter<?> next : params)
 			aString += next.getName() + ": " + next.getValue() + "\n";
-		}
 		aString += "\n";
 		return aString;
 	}

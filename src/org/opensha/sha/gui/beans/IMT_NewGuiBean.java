@@ -210,9 +210,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		String imtName = imtParameter.getValue();
 //		System.out.println("Updating GUI for: " + imtName);
 		Parameter<?> imtParam = (Parameter<?>) imtParams.getParameter(imtName);
-		ListIterator<Parameter<?>> paramIt = imtParam.getIndependentParametersIterator();
-		while (paramIt.hasNext()) {
-			Parameter<?> param = paramIt.next();
+		for (Parameter<?> param : imtParam.getIndependentParameterList()) {
 			if (param.getName().equals(PeriodParam.NAME)) {
 				PeriodParam periodParam = (PeriodParam) param;
 				List<Double> periods = currentSupportedPeriods;
@@ -339,9 +337,7 @@ implements ParameterChangeListener, ScalarIMRChangeListener {
 		imr.setIntensityMeasure(imt.getName());
 		Parameter<Double> newIMT = (Parameter<Double>) imr.getIntensityMeasure();
 		
-		ListIterator<Parameter<?>> paramIt = newIMT.getIndependentParametersIterator();
-		while (paramIt.hasNext()) {
-			Parameter toBeSet = paramIt.next();
+		for (Parameter toBeSet : newIMT.getIndependentParameterList()) {
 			Parameter newVal = imt.getIndependentParameter(toBeSet.getName());
 			
 			toBeSet.setValue(newVal.getValue());

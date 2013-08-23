@@ -72,10 +72,8 @@ public class IMT_ChooserPanel extends NamesListPanel implements ParameterChangeL
 		ListModel model = namesList.getModel();
 		Parameter<?> newIMT = (Parameter<?>) imtGuiBean.getIntensityMeasure();
 		Parameter<?> clone = (Parameter<?>) newIMT.clone();
-		ListIterator<Parameter<?>> it = newIMT.getIndependentParametersIterator();
-		while (it.hasNext()) {
-			clone.addIndependentParameter((Parameter<?>) it.next().clone());
-		}
+		for (Parameter<?> param : newIMT.getIndependentParameterList())
+			clone.addIndependentParameter((Parameter<?>)param.clone());
 //		System.out.println("Adding " + clone.getClass().getName());
 		imts.add(clone);
 		

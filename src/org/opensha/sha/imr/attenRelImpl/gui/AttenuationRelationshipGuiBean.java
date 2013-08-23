@@ -304,10 +304,10 @@ ParameterChangeListener, ParameterChangeFailListener
 	 *
 	 * @param  it  The new paramsInIteratorVisible value
 	 */
-	private void setParamsInIteratorVisible( ListIterator it ) {
+	private void setParamsVisible(ParameterList params) {
 
-		while ( it.hasNext() ) {
-			String name = ( ( Parameter ) it.next() ).getName();
+		for ( Parameter<?> param : params) {
+			String name = param.getName();
 			independentsEditor.setParameterVisible( name, true );
 		}
 
@@ -1043,11 +1043,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 
 		// Now add IM independent parameters to x-axis list
-		ListIterator imParamsIterator = imParam.getIndependentParametersIterator();
-		while ( imParamsIterator.hasNext() ) {
-			Object obj = imParamsIterator.next();
-
-			Parameter param = ( Parameter ) obj;
+		for (Parameter<?> param : imParam.getIndependentParameterList()) {
 			// Fix so that all data types can be supported on x-axis
 			if ( !( param instanceof StringParameter ) ) {
 				name = param.getName();
@@ -1174,9 +1170,7 @@ ParameterChangeListener, ParameterChangeFailListener
 
 			}
 
-			ListIterator it2 = param.getIndependentParametersIterator();
-			while ( it2.hasNext() ) {
-				Parameter param2 = ( Parameter ) it2.next();
+			for (Parameter<?> param2 : param.getIndependentParameterList()) {
 				//    System.out.println(param2.getName());
 				if ( !( independentParams.containsParameter( param2.getName() ) ) )
 					independentParams.addParameter( param2 );
@@ -1239,19 +1233,18 @@ ParameterChangeListener, ParameterChangeFailListener
 
 		// Add im parameters independent parameters to list
 		imParam = ( Parameter ) attenRel.getParameter( imName );
-		ListIterator imIt = imParam.getIndependentParametersIterator();
-		setParamsInIteratorVisible( imIt );
+		setParamsVisible( imParam.getIndependentParameterList() );
 
 		// Determine which y-axis function was choosen - then add it's required parameters
 		if ( yAxisName.equals( Y_AXIS_V1 ) )
 			//if mean is selected
-			setParamsInIteratorVisible( attenRel.getMeanIndependentParamsIterator() );
+			setParamsVisible( attenRel.getMeanIndependentParams() );
 		else if ( yAxisName.equals( Y_AXIS_V2 ) )
 			// if std dev is selected
-			setParamsInIteratorVisible( attenRel.getStdDevIndependentParamsIterator() );
+			setParamsVisible( attenRel.getStdDevIndependentParams() );
 		else if ( yAxisName.equals( Y_AXIS_V3 ) ) {
 			//if exceed Prob is selected
-			setParamsInIteratorVisible( attenRel.getExceedProbIndependentParamsIterator() );
+			setParamsVisible( attenRel.getExceedProbIndependentParams() );
 
 			// Hardcoded for special values
 			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
@@ -1262,7 +1255,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 		// if IML at Exceed Prob is selected
 		else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
-			setParamsInIteratorVisible( attenRel.getIML_AtExceedProbIndependentParamsIterator());
+			setParamsVisible( attenRel.getIML_AtExceedProbIndependentParams());
 			// Hardcoded for special values
 			ParameterEditor paramEditor = independentsEditor.getParameterEditor(SigmaTruncTypeParam.NAME);
 			if( paramEditor != null ){
@@ -1282,14 +1275,14 @@ ParameterChangeListener, ParameterChangeFailListener
 		StringConstraint xAxisConstraint = new StringConstraint();
 
 		xAxisConstraint = addToXAxisConstraint(
-				attenRel.getMeanIndependentParamsIterator(), xAxisConstraint
+				attenRel.getMeanIndependentParams(), xAxisConstraint
 		);
 
 		xAxisConstraint = addToXAxisConstraint(
-				attenRel.getStdDevIndependentParamsIterator(), xAxisConstraint
+				attenRel.getStdDevIndependentParams(), xAxisConstraint
 		);
 		xAxisConstraint = addToXAxisConstraint(
-				imParam.getIndependentParametersIterator(), xAxisConstraint
+				imParam.getIndependentParameterList(), xAxisConstraint
 		);
 
 		// First value in x axis constraint list
@@ -1379,14 +1372,12 @@ ParameterChangeListener, ParameterChangeFailListener
 	 *      attribute
 	 * @return                  Description of the Return Value
 	 */
-	private StringConstraint addToXAxisConstraint( ListIterator it, StringConstraint xAxisConstraint ) {
+	private StringConstraint addToXAxisConstraint( ParameterList params, StringConstraint xAxisConstraint ) {
 
 		boolean add = true;
-		while ( it.hasNext() ) {
+		for ( Parameter<?> param : params ) {
 
 			add = true;
-
-			Parameter param = ( Parameter ) it.next();
 			if ( !( param instanceof StringParameter ) && !( param instanceof BooleanParameter)) {
 
 				// If DoubleDiscreteConstraint check that it has more than one value to plot on xaxis
