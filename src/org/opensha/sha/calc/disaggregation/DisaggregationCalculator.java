@@ -184,7 +184,7 @@ implements DisaggregationCalculatorAPI{
 			Map<TectonicRegionType, ScalarIMR> imrMap,
 			AbstractERF eqkRupForecast, ParameterList calcParams) {
 		
-		if (iml < 0) {
+		if (Double.isInfinite(iml) || Double.isNaN(iml)) {
 			currRuptures = 0;
 			totRuptures = 0;
 			return false;
