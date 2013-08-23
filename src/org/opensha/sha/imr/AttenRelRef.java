@@ -169,7 +169,7 @@ public enum AttenRelRef {
 	NSHMP_2008(NSHMP_2008_CA.class, NSHMP_2008_CA.NAME, DEVELOPMENT),
 
 	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
-	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, ERROR), // TODO set to error because of ticket #366
+	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, ERROR), // TODO set to error, see ticket #435
 
 	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
 	AB_2006_140(AB2006_140_AttenRel.class, AB2006_140_AttenRel.NAME,
@@ -284,9 +284,18 @@ public enum AttenRelRef {
 				.getConstructor(params);
 			return con.newInstance(args);
 		} catch (Exception e) {
-			// TODO init logging
-			e.printStackTrace();
-			return null;
+			// now try a no arg constructor
+			try {
+				Object[] args = new Object[] {};
+				Class<?>[] params = new Class[] {};
+				Constructor<? extends AttenuationRelationship> con = clazz
+					.getConstructor(params);
+				return con.newInstance(args);
+			} catch (Exception e1) {
+				// TODO init logging
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
