@@ -629,6 +629,10 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		el.addAttribute("connector", isConnector()+"");
 		if (getZonePolygon() != null)
 			zonePolygon.toXMLMetadata(el, "ZonePolygon");
+		if (getDateOfLastEvent() > Long.MIN_VALUE)
+			el.addAttribute("dateOfLastEventMillis", getDateOfLastEvent()+"");
+		if (!Double.isNaN(getSlipInLastEvent()))
+			el.addAttribute("slipInLastEvent", getSlipInLastEvent()+"");
 
 		FaultTrace trace = this.getFaultTrace();
 
@@ -715,6 +719,13 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 		data.setParentSectionId(parentSectionId);
 		data.setConnector(connector);
 		data.setZonePolygon(zonePolygon);
+		
+		Attribute lastEventAtt = el.attribute("dateOfLastEventMillis");
+		if (lastEventAtt != null)
+			data.setDateOfLastEvent(Long.parseLong(lastEventAtt.getStringValue()));
+		Attribute lastSlipAtt = el.attribute("slipInLastEvent");
+		if (lastSlipAtt != null)
+			data.setSlipInLastEvent(Double.parseDouble(lastSlipAtt.getStringValue()));
 
 		return data;
 	}
