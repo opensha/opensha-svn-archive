@@ -39,8 +39,12 @@ import com.google.common.collect.Maps;
  */
 public class LastEventData {
 	
+	// sub directory of UCERF3/data
 	private static final String SUB_DIR = "paleoRateData";
-	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver5.xls";
+	// file name
+	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver6.xls";
+	// sheet in the workbook, zero based
+	private static final int SHEET_NUM = 0;
 	
 	private static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(2013, 0, 0);
 	private static final double MATCH_LOCATION_TOLERANCE = 1d;
@@ -76,7 +80,7 @@ public class LastEventData {
 	public static Map<Integer, List<LastEventData>> load(InputStream is) throws IOException {
 		POIFSFileSystem fs = new POIFSFileSystem(is);
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
-		HSSFSheet sheet = wb.getSheetAt(0);
+		HSSFSheet sheet = wb.getSheetAt(SHEET_NUM);
 		
 		Map<Integer, List<LastEventData>> datas = Maps.newHashMap();
 		
