@@ -42,7 +42,7 @@ public class LastEventData {
 	// sub directory of UCERF3/data
 	private static final String SUB_DIR = "paleoRateData";
 	// file name
-	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver6.xls";
+	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver7.xls";
 	// sheet in the workbook, zero based
 	private static final int SHEET_NUM = 0;
 	
