@@ -151,6 +151,8 @@ public class GMT_KML_Generator {
 		GMT_KML_Generator gen = new GMT_KML_Generator(psFile, minLat, maxLat, minLon, maxLon);
 		
 		gen.makeKMZ(kmzFile);
+		
+		System.exit(0);
 	}
 
 }

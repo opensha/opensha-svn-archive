@@ -271,6 +271,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public final static String SCALE_LABEL_PARAM_NAME = "Scale Label";
 	private final static String SCALE_LABEL_PARAM_INFO = "Map Scale Label(Don't give any brackets in label)";
 	protected StringParameter scaleLabelParam;
+	
+	
+	public final static String KML_PARAM_NAME = "Generate KML Files";
+	private final static Boolean KML_PARAM_DEFAULT = false;
+	private BooleanParameter kmlParam;
 
 
 	protected ParameterList adjustableParams;
@@ -369,6 +374,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		this.blackBackgroundParam = new BooleanParameter(BLACK_BACKGROUND_PARAM_NAME, BLACK_BACKGROUND_PARAM_DEFAULT);
 		blackBackgroundParam.setInfo(BLACK_BACKGROUND_PARAM_INFO);
 
+		// whether to apply GMT smoothing
+		this.kmlParam = new BooleanParameter(KML_PARAM_NAME, KML_PARAM_DEFAULT);
+
 
 		// create adjustable parameter list
 		adjustableParams = new ParameterList();
@@ -393,6 +401,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		adjustableParams.addParameter(dpiParam);
 		adjustableParams.addParameter(gmtFromServer);
 		adjustableParams.addParameter(logPlotParam);
+		adjustableParams.addParameter(kmlParam);
 
 
 	}
@@ -543,6 +552,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		map.setUseGMTSmoothing(gmtSmoothingParam.getValue());
 
 		map.setBlackBackground(blackBackgroundParam.getValue());
+		
+		map.setGenerateKML(kmlParam.getValue());
 
 		return map;
 	}
