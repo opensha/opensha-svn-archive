@@ -1125,7 +1125,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		boolean googleearth = true;
 
-		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
+		// Add google earth lines...this doesn't work yet, still need to figure out how to get raster extracter
 		// to be called during execution
 		if (googleearth) {
 			System.out.println("Making Google Earth files!");
@@ -1478,7 +1478,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		commandLine = "${PS2PDF_PATH}  "+psFileName+"  "+map.getPDFFileName();
 		gmtCommandLines.add(commandLine);
 
-		boolean googleearth = false;
+		boolean googleearth = map.isGenerateKML();
 
 		// Add google earth lines...this doesn't work yet, still need to figure out how to get raste extracter
 		// to be called during execution

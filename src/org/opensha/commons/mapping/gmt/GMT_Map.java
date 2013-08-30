@@ -105,6 +105,8 @@ public class GMT_Map implements Serializable {
 	private ArrayList<PSXYPolygon> xyLines = new ArrayList<PSXYPolygon>();
 	private PSXYSymbolSet xySymbolSet = null;
 	
+	private boolean generateKML = false;
+	
 	public GMT_Map(Region region, GeoDataSet griddedData,
 			double griddedDataInc, String cptFile) {
 		this.region = region;
@@ -368,6 +370,14 @@ public class GMT_Map implements Serializable {
 
 	public void setSymbolSet(PSXYSymbolSet xySymbolSet) {
 		this.xySymbolSet = xySymbolSet;
+	}
+
+	public boolean isGenerateKML() {
+		return generateKML;
+	}
+
+	public void setGenerateKML(boolean generateKML) {
+		this.generateKML = generateKML;
 	}
 
 }
