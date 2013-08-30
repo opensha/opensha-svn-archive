@@ -81,31 +81,22 @@ public class GMT_KML_Generator {
 	}
 	
 	public void makeKMZ(String kmzFileName) throws FileNotFoundException, IOException {
-		File kmzFile = new File(kmzFileName);
-		
-		String parent = kmzFile.getParent();
-		if (parent == null)
-			throw new IllegalArgumentException("KMZ file doesn't have a parent!");
-		if (!parent.endsWith(File.separator))
-			parent += File.separator;
+		File tempDir = FileUtils.createTempDir();
 		
 		ArrayList<String> zipFiles = new ArrayList<String>();
 		
 		String pngFileName = "map.png";
-		String absPNGFileName = parent + pngFileName;
+		String absPNGFileName = tempDir.getAbsolutePath()+File.separator+pngFileName;
 		extract(absPNGFileName);
 		zipFiles.add(pngFileName);
 		
 		String kmlFileName = "map.kml";
-		String absKMLFileName = parent + kmlFileName;
+		String absKMLFileName = tempDir.getAbsolutePath()+File.separator+kmlFileName;
 		writeKML(absKMLFileName, pngFileName);
 		zipFiles.add(kmlFileName);
 		
-		FileUtils.createZipFile(kmzFileName, parent, zipFiles);
-		
-		for (String fileName : zipFiles) {
-			new File(parent + fileName).delete();
-		}
+		FileUtils.createZipFile(kmzFileName, tempDir.getAbsolutePath(), zipFiles);
+		FileUtils.deleteRecursive(tempDir);
 	}
 	
 	public static double[] decodeGMTRegion(String reg) {
