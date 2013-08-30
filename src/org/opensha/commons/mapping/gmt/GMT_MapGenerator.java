@@ -108,7 +108,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
 	public static final String OPENSHA_SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "GMT_MapGeneratorServlet";
 	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
-	public static final String OPENSHA_CLASSPATH = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/classes";
+	public static final String OPENSHA_CLASSPATH = ServerPrefUtils.SERVER_PREFS.getTomcatDir()+"classes";
 	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
 
 	// this is the path where general data (e.g., topography) are found:
