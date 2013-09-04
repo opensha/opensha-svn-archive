@@ -289,7 +289,7 @@ public class GraphPanel extends JSplitPane {
 	public void drawGraphPanel(String xAxisName, String yAxisName, List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> plotChars, boolean xLog, boolean yLog,
 			String title, Range xRange, Range yRange) {
-		PlotSpec spec = new PlotSpec(elems, plotChars, title, yAxisName, yAxisName);
+		PlotSpec spec = new PlotSpec(elems, plotChars, title, xAxisName, yAxisName);
 		drawGraphPanel(spec, xLog, yLog, xRange, yRange);
 	}
 	
