@@ -1,4 +1,4 @@
-package scratch.kevin.simulators;
+package org.opensha.sha.simulators.eqsim_v04.iden;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +41,7 @@ public class EventsInWindowsMatcher {
 		update();
 	}
 	
-	public static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs) {
+	public static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs, int newID) {
 		EQSIM_Event r = new EQSIM_Event(e.get(0));
 		if (e.size() > 1)
 			r.addAll(e.subList(1, e.size()));
@@ -49,6 +49,7 @@ public class EventsInWindowsMatcher {
 		for (int i=0; i<e.size(); i++)
 			origTimes[i] = e.get(i).getTime();
 		r.setTime(timeSecs);
+		r.setID(newID);
 		// this also sets it in the EventRecord instances themselves - reset it
 		for (int i=0; i<e.size(); i++)
 			r.get(i).setTime(origTimes[i]);
@@ -70,7 +71,7 @@ public class EventsInWindowsMatcher {
 			
 			for (EQSIM_Event e : events) {
 				double time = startTime+Math.random()*simDuration;
-				EQSIM_Event r = cloneNewTime(e, time);
+				EQSIM_Event r = cloneNewTime(e, time, e.getID());
 				randomizedEvents.add(r);
 			}
 			

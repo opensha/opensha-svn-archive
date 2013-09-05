@@ -17,6 +17,9 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

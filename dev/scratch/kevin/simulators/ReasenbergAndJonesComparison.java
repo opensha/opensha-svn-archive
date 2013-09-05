@@ -12,6 +12,9 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

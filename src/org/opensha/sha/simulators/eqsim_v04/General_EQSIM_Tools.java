@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +59,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 
@@ -209,24 +211,41 @@ public class General_EQSIM_Tools {
 	public ArrayList<String> getSectionsNameList() {
 		return sectionNamesList;
 	}
-	
 
 	public void read_EQSIMv04_EventsFile(URL url) throws IOException {
+		read_EQSIMv04_EventsFile(url, null);
+	}
+
+	public void read_EQSIMv04_EventsFile(URL url, Collection<RuptureIdentifier> rupIdens) throws IOException {
 		URLConnection uc = url.openConnection();
-		read_EQSIMv04_EventsFile(new InputStreamReader((InputStream) uc.getContent()));
+		read_EQSIMv04_EventsFile(new InputStreamReader((InputStream) uc.getContent()), rupIdens);
 	}
 	
 	public void read_EQSIMv04_EventsFile(File file) throws IOException {
-		read_EQSIMv04_EventsFile(file.getAbsolutePath());
+		read_EQSIMv04_EventsFile(file, null);
 	}
 	
+	public void read_EQSIMv04_EventsFile(File file, Collection<RuptureIdentifier> rupIdens) throws IOException {
+		read_EQSIMv04_EventsFile(file.getAbsolutePath(), rupIdens);
+	}
 	
 	public void read_EQSIMv04_EventsFile(String filePathName) throws FileNotFoundException, IOException {
-		read_EQSIMv04_EventsFile(new FileReader(filePathName));
+		read_EQSIMv04_EventsFile(filePathName, null);
 	}
 	
+	public void read_EQSIMv04_EventsFile(String filePathName, Collection<RuptureIdentifier> rupIdens)
+			throws FileNotFoundException, IOException {
+		read_EQSIMv04_EventsFile(new FileReader(filePathName), rupIdens);
+	}
 	
-	private void read_EQSIMv04_EventsFile(Reader reader) throws IOException {
+	/**
+	 * Reads the given EQSIM events file. Events can be filtered by the given list of rupture identifiers
+	 * to cut down on memory requirements.
+	 * @param reader
+	 * @param rupIdens
+	 * @throws IOException
+	 */
+	private void read_EQSIMv04_EventsFile(Reader reader, Collection<RuptureIdentifier> rupIdens) throws IOException {
 		
 		BufferedReader buffRead;
 		
@@ -271,20 +290,29 @@ public class General_EQSIM_Tools {
 				numEventRecs+=1;
 				
 				// check whether this is the first event in the list
-				if(eventList.size() == 0) {
+				if(currEvent == null) {
 					EQSIM_Event event = new EQSIM_Event(evRec);
-					eventList.add(event);
 					currEvent = event;
-				}
-				else { // check whether this is part of currEvent (same ID)
+				} else { // check whether this is part of currEvent (same ID)
 					if(currEvent.isSameEvent(evRec)) {
 						currEvent.add(evRec);
 					}
 					else { // it's a new event
 // if(currEvent.getID()==1214) System.out.println(currEvent.getID()+"\t"+currEvent.getAllElementIDs().length);
+						// see if we should keep the previous event
+						boolean keep = rupIdens == null || rupIdens.isEmpty();
+						if (!keep) {
+							for (RuptureIdentifier rupIden : rupIdens) {
+								if (rupIden.isMatch(currEvent)) {
+									keep = true;
+									break;
+								}
+							}
+						}
+						if (keep)
+							eventList.add(currEvent);
 
 						EQSIM_Event event = new EQSIM_Event(evRec);
-						eventList.add(event);
 						currEvent = event;
 					}
 				}
@@ -296,6 +324,21 @@ public class General_EQSIM_Tools {
 			else if(kindOfLine ==202)
 				evRec.addType202_Line(line);
 			line = buffRead.readLine();
+		}
+		
+		if (currEvent != null) {
+			// now add the last one if applicable
+			boolean keep = rupIdens == null || rupIdens.isEmpty();
+			if (!keep) {
+				for (RuptureIdentifier rupIden : rupIdens) {
+					if (rupIden.isMatch(currEvent)) {
+						keep = true;
+						break;
+					}
+				}
+			}
+			if (keep)
+				eventList.add(currEvent);
 		}
 		
 		System.out.println("Num Events = "+this.eventList.size()+"\tNum Event Records = "+numEventRecs);

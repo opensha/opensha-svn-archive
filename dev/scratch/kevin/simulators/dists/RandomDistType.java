@@ -3,13 +3,14 @@ package scratch.kevin.simulators.dists;
 import java.util.List;
 
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
-import scratch.kevin.simulators.ElementMagRangeDescription;
 import scratch.kevin.simulators.PeriodicityPlotter;
-import scratch.kevin.simulators.RuptureIdentifier;
-import scratch.kevin.simulators.dists.RandomCatalogBuilder.CatalogBuilder;
-import scratch.kevin.simulators.dists.RandomCatalogBuilder.ProbabalisticCatalogBuilder;
-import scratch.kevin.simulators.dists.RandomCatalogBuilder.StandardCatalogBuilder;
+import scratch.kevin.simulators.catBuild.CatalogBuilder;
+import scratch.kevin.simulators.catBuild.ProbabalisticCatalogBuilder;
+import scratch.kevin.simulators.catBuild.StandardCatalogBuilder;
+import scratch.kevin.simulators.catBuild.StateBasedCatalogBuilder;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -43,6 +44,17 @@ public enum RandomDistType {
 			@Override
 			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
 				return new ActualDistReturnPeriodProvider(rps);
+			}
+		},
+		STATE_BASED("N Dim. State Based", "rand_state_based") {
+			@Override
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+				return new ActualDistReturnPeriodProvider(rps);
+			}
+
+			@Override
+			public CatalogBuilder getBuilder() {
+				return new StateBasedCatalogBuilder();
 			}
 		},
 		PREFERRED_SYN("Random Preferred Synthetic", "rand_preferred") {

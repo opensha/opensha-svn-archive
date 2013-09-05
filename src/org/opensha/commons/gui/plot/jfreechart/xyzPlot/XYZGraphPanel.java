@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.axis.ValueAxis;
@@ -303,6 +304,12 @@ public class XYZGraphPanel extends JPanel {
 //			legend.setPosition(RectangleEdge.BOTTOM);
 			legend.setPadding(5d, 15d, 5d, 15d);
 			legends.add(legend);
+			
+			// now add any annotations
+			if (spec.getPlotAnnotations() != null)
+				for (XYAnnotation a : spec.getPlotAnnotations())
+					subPlot.addAnnotation(a);
+			
 			// multiple plots
 			if (plot instanceof CombinedRangeXYPlot)
 				((CombinedRangeXYPlot)plot).add(subPlot);

@@ -1,4 +1,4 @@
-package scratch.kevin.simulators;
+package org.opensha.sha.simulators.eqsim_v04.iden;
 
 import java.awt.Color;
 import java.io.File;

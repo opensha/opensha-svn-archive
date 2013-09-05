@@ -37,10 +37,13 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.QuietPeriodIdenMatcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.utils.IDPairing;
-import scratch.kevin.simulators.dists.RandomCatalogBuilder;
+import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.RandomDistType;
 
 import com.google.common.base.Joiner;

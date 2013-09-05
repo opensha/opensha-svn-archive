@@ -155,7 +155,7 @@ public class GraphPanel extends JSplitPane {
 	private boolean yAxisInverted = false;
 	
 	// if true, multiple plots will be share the Y axis (false: X axis)
-	private boolean combinedYAxis = true;
+	private boolean combinedYAxis = false;
 
 	// light blue color
 	private Color backgroundColor = new Color( 200, 200, 230 );

@@ -1,5 +1,8 @@
 package org.opensha.commons.gui.plot.jfreechart.xyzPlot;
 
+import java.util.List;
+
+import org.jfree.chart.annotations.XYAnnotation;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -9,6 +12,7 @@ public class XYZPlotSpec {
 	private CPT cpt;
 	private String title, xAxisLabel, yAxisLabel, zAxisLabel;
 	private Double thickness = null;
+	private List<? extends XYAnnotation> annotations;
 	
 	public XYZPlotSpec(XYZ_DataSet xyzData, CPT cpt, String title,
 			String xAxisLabel, String yAxisLabel, String zAxisLabel) {
@@ -75,6 +79,20 @@ public class XYZPlotSpec {
 
 	public void setThickness(Double thickness) {
 		this.thickness = thickness;
+	}
+	
+	/**
+	 * Set the list of plot annotations (or null for no annotations). Note that any line annotations
+	 * will use default rendering (black 1pt line).
+	 * 
+	 * @param annotations
+	 */
+	public void setPlotAnnotations(List<? extends XYAnnotation> annotations) {
+		this.annotations = annotations;
+	}
+	
+	public List<? extends XYAnnotation> getPlotAnnotations() {
+		return annotations;
 	}
 
 }

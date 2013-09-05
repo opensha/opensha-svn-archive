@@ -37,11 +37,12 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.utils.IDPairing;
-import scratch.kevin.simulators.ElementMagRangeDescription;
 import scratch.kevin.simulators.PeriodicityPlotter;
-import scratch.kevin.simulators.RuptureIdentifier;
+import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -771,7 +772,7 @@ public class FollowerReturnPeriodProvider implements
 //		return condProbFunc.getDelta();
 	}
 	
-	void printStats() {
+	public void printStats() {
 		System.out.println(follower.getName()+" driven by "+driver.getName());
 		System.out.println("Dep: "+dep_count+"/"+tot_count+" ("+(float)(100d*(double)dep_count/(double)tot_count)+" %)");
 		System.out.println("Fallback: "+fallback_count+"/"+tot_count+" ("+(float)(100d*(double)fallback_count/(double)tot_count)+" %)");
@@ -859,7 +860,7 @@ public class FollowerReturnPeriodProvider implements
 		tools.read_EQSIMv04_EventsFile(eventFile);
 		List<EQSIM_Event> events = tools.getEventsList();
 		
-		boolean include_all = false;
+		boolean include_all = true;
 		
 		boolean include_sj = false;
 		boolean include_coachella = true;
@@ -867,8 +868,9 @@ public class FollowerReturnPeriodProvider implements
 		
 		boolean recover_debug = false;
 //		RandomDistType randDistType = RandomDistType.MOJAVE_DRIVER;
-		RandomDistType randDistType = RandomDistType.MOJAVE_COACHELLA_CODRIVER;
+//		RandomDistType randDistType = RandomDistType.MOJAVE_COACHELLA_CODRIVER;
 //		RandomDistType randDistType = RandomDistType.SAN_JACINTO_COACHELLA_CODRIVER;
+		RandomDistType randDistType = RandomDistType.STATE_BASED;
 		
 		File writeDir = new File(dir, "period_plots");
 		if (!writeDir.exists())
@@ -891,19 +893,19 @@ public class FollowerReturnPeriodProvider implements
 			colors.add(Color.GREEN);
 		}
 		
-		if (include_mojave) {
+		if (include_all || include_mojave) {
 			rupIdens.add(new ElementMagRangeDescription("SAF Mojave 7+",
 					ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID, 7d, 10d));
 			colors.add(Color.BLACK);
 		}
 		
-		if (include_coachella) {
+		if (include_all || include_coachella) {
 			rupIdens.add(new ElementMagRangeDescription("SAF Coachella 7+",
 					ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID, 7d, 10d));
 			colors.add(Color.RED);
 		}
 		
-		if (include_sj) {
+		if (include_all || include_sj) {
 			rupIdens.add(new ElementMagRangeDescription("San Jacinto 7+",
 					ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
 			colors.add(Color.CYAN);
@@ -967,7 +969,8 @@ public class FollowerReturnPeriodProvider implements
 			pdfs.add(file);
 		}
 		
-		PeriodicityPlotter.combinePDFs(pdfs, new File(pdfDir, "follower_dists.pdf"));
+		if (!pdfs.isEmpty())
+			PeriodicityPlotter.combinePDFs(pdfs, new File(pdfDir, "follower_dists.pdf"));
 		
 //		System.exit(0);
 	}

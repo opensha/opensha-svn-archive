@@ -23,6 +23,8 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
+import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.eqsim_v04.iden.QuietPeriodIdenMatcher;
 
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.simulators.erf.SubSectionBiulder;

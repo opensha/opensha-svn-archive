@@ -29,6 +29,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 

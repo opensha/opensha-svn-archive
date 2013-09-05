@@ -18,6 +18,10 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.QuietPeriodIdenMatcher;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -28,10 +32,6 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
-import scratch.kevin.simulators.ElementMagRangeDescription;
-import scratch.kevin.simulators.EventsInWindowsMatcher;
-import scratch.kevin.simulators.QuietPeriodIdenMatcher;
-import scratch.kevin.simulators.RuptureIdentifier;
 
 public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	

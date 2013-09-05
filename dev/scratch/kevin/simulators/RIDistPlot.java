@@ -24,10 +24,12 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
+import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.CompoundDistReturnPeriodProvider;
 import scratch.kevin.simulators.dists.LogNormalDistReturnPeriodProvider;
-import scratch.kevin.simulators.dists.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.RandomDistType;
 import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
 
