@@ -3,17 +3,13 @@ package org.opensha.sra.rtgm;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.Interpolate;
 
@@ -30,9 +26,6 @@ import com.google.common.primitives.Doubles;
  * risk-targeted ground motion based on a target risk and the hazard curve
  * supplied at construction, returning a reference to the {@code this} instance.
  * It can then be queried for stepwise and final results.
- * 
- * <p><i>Note:</i> Calculation is currently only for the probabilistic
- * component of hazard. Deterministic will be added in time.</p>
  * 
  * <p><i>Note:</i> Calculation parameters are currently fixed following Matlab
  * source but could be updated to be modifiable.</p>
@@ -120,8 +113,7 @@ public class RTGM implements Callable<RTGM> {
 	/**
 	 * Creates a new RTGM calculation and result container for the supplied
 	 * hazard curve that stores an internal index. The index may be used to
-	 * identify the RTGM container when
-	 *  working with an {@code ExecutorService}.
+	 * identify the RTGM container when working with an {@code ExecutorService}.
 	 * Users must call {@code call()} to initiate calculation of a risk-targeted
 	 * ground motion that can be retreived using {@code get()}.
 	 * 
@@ -149,7 +141,6 @@ public class RTGM implements Callable<RTGM> {
 	 */
 	@Override
 	public RTGM call() {
-//		System.out.println(hazCurve);
 		calculate(hazCurve);
 		return this;
 	}
@@ -160,8 +151,6 @@ public class RTGM implements Callable<RTGM> {
 	 * @return the risk targeted ground motion
 	 */
 	public double get() {
-		// return rtgm;
-		
 		// In the USGS seismic design maps, hazard curves are scaled by a
 		// frequency dependent factor. If a frequency was supplied at creation,
 		// the corresponding scale factor is applied here to the rtgm value.
@@ -406,7 +395,7 @@ public class RTGM implements Callable<RTGM> {
 
 		
 		double[] xs = { 0.0025,0.00375,0.00563,0.00844, 0.0127,0.019, 0.0285, 0.0427, 0.0641, 0.0961,0.144,0.216,0.324,0.487,0.73,1.09,1.64,2.46,3.69,5.54};
-		double[] ys = {0.4782,0.3901,0.3055,0.2322,0.1716,0.1241,0.08621,0.05687,0.03492,0.01985,0.01045, 0.005095, 0.002302,0.0009371,0.0003308,9.488e-05,1.952e-05,2.174e-06,8.553e-08,1.315e-10};
+		double[] ys = { 0.4782,0.3901,0.3055,0.2322,0.1716,0.1241,0.08621,0.05687,0.03492,0.01985,0.01045, 0.005095, 0.002302,0.0009371,0.0003308,9.488e-05,1.952e-05,2.174e-06,8.553e-08,1.315e-10};
 
 		DiscretizedFunc f = new ArbitrarilyDiscretizedFunc();
 		for (int i=0; i<xs.length; i++) {
