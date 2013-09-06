@@ -18,6 +18,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
@@ -26,6 +27,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -205,15 +207,15 @@ public class PeriodicityPlotter {
 					rupIdens.get(coachellaIndex));
 			
 			if (!randomized) {
-				Map<IDPairing, HistogramFunction> origFuncs =
-						plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, colors, null, null, 2000d, 10d);
+				Map<IDPairing, HistogramFunction[]> origFuncs =
+						plotACDF_CCDFs(myWriteDir, events, rupIdens, colors, null, null, 2000d, 10d);
 				for (RandomDistType randDist : RandomDistType.values())
-					plotTimeBetweenAllIdens(myWriteDir, events, rupIdens, colors, randDist, origFuncs, 2000d, 10d);
+					plotACDF_CCDFs(myWriteDir, events, rupIdens, colors, randDist, origFuncs, 2000d, 10d);
 				// zoomed in
 				File zoomWriteDir = new File(myWriteDir, "corr_zoomed");
 				if (!zoomWriteDir.exists())
 					zoomWriteDir.mkdir();
-				plotTimeBetweenAllIdens(zoomWriteDir, events, rupIdens, colors, null, null, 20d, 1d);
+				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, colors, null, null, 20d, 1d);
 				// zoomed out
 				zoomWriteDir = new File(myWriteDir, "corr_wide");
 				if (!zoomWriteDir.exists())
@@ -221,7 +223,7 @@ public class PeriodicityPlotter {
 				double totYears = events.get(events.size()-1).getTimeInYears()-events.get(0).getTimeInYears();
 				// make it round
 				totYears = Math.ceil(totYears / 1000d) * 1000d;
-				plotTimeBetweenAllIdens(zoomWriteDir, events, rupIdens, colors, null, null, totYears, 10d);
+				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, colors, null, null, totYears, 10d);
 			}
 			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
@@ -718,7 +720,7 @@ public class PeriodicityPlotter {
 				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
-	private static PlotSpec getCorrFunc(int ind1, String name1, List<EQSIM_Event> matches1,
+	private static PlotSpec getCDF_Func(int ind1, String name1, List<EQSIM_Event> matches1,
 			int ind2, String name2, List<EQSIM_Event> matches2, double plotYears, double binWidth) {
 		HistogramFunction matrixHist = new HistogramFunction(-plotYears-0.5*binWidth, (int)(plotYears*2d/binWidth)+1, binWidth);
 		HistogramFunction corupHist = new HistogramFunction(-plotYears, (int)(plotYears*2d/binWidth), binWidth);
@@ -734,7 +736,7 @@ public class PeriodicityPlotter {
 				
 				if (event1.getID() == event2.getID())
 					corupHist.add(0d, 1d);
-				else if (timeDelta >= matHistMin && timeDelta <= matHistMax)
+				else if (timeDelta > matHistMin && timeDelta < matHistMax)
 					matrixHist.add(timeDelta, 1d);
 			}
 		}
@@ -743,10 +745,10 @@ public class PeriodicityPlotter {
 		funcs.add(corupHist);
 		funcs.add(matrixHist);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
-				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE),
+				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.GRAY),
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		String title = null;
-		PlotSpec spec = new PlotSpec(funcs, chars, title, "Inter Event Time (years)", "Number");
+		PlotSpec spec = new PlotSpec(funcs, chars, title, "Event Time Difference (years)", "Number");
 		List<XYTextAnnotation> annotations = Lists.newArrayList();
 		double annY;
 		if (matrixHist.getMaxY() > corupHist.getMaxY())
@@ -767,9 +769,9 @@ public class PeriodicityPlotter {
 		return spec;
 	}
 	
-	public static Map<IDPairing, HistogramFunction> plotTimeBetweenAllIdens(File writeDir,
+	public static Map<IDPairing, HistogramFunction[]> plotACDF_CCDFs(File writeDir,
 			List<EQSIM_Event> events, List<RuptureIdentifier> idens,
-			List<Color> colors, RandomDistType randDistType, Map<IDPairing, HistogramFunction> origCorrHists,
+			List<Color> colors, RandomDistType randDistType, Map<IDPairing, HistogramFunction[]> origCorrHists,
 			double plotYears, double binWidth)
 					throws IOException {
 		if (randDistType != null) {
@@ -783,11 +785,19 @@ public class PeriodicityPlotter {
 		for (RuptureIdentifier iden : idens)
 			matchesList.add(iden.getMatches(events));
 		
-		String xAxisLabel = "Inter Event Time (years)";
+		String xAxisLabel = "Event Time Difference (years)";
 		String yAxisLabel = "Number";
 		
 		Map<IDPairing, HistogramFunction> corrHists = Maps.newHashMap();
 		Map<IDPairing, HistogramFunction> corupHists = Maps.newHashMap();
+		Map<IDPairing, HistogramFunction[]> combHists = Maps.newHashMap();
+		
+		File acdfDir = new File(writeDir, "acdfs");
+		if (!acdfDir.exists())
+			acdfDir.mkdir();
+		File ccdfDir = new File(writeDir, "ccdfs");
+		if (!ccdfDir.exists())
+			ccdfDir.mkdir();
 		
 		List<PlotSpec> specs = Lists.newArrayList();
 		for (int i=0; i<idens.size(); i++) {
@@ -797,17 +807,75 @@ public class PeriodicityPlotter {
 				String name2 = idens.get(j).getName();
 				List<EQSIM_Event> matches2 = matchesList.get(j);
 				
-				PlotSpec spec = getCorrFunc(i, name1, matches1, j, name2, matches2, plotYears, binWidth);
+				PlotSpec spec = getCDF_Func(i, name1, matches1, j, name2, matches2, plotYears, binWidth);
 				
 				HistogramFunction matrixHist = (HistogramFunction)spec.getPlotElems().get(1);
 				HistogramFunction corupHist = (HistogramFunction)spec.getPlotElems().get(0);
 				
 				IDPairing pair = new IDPairing(i, j);
 				
+				HistogramFunction[] comb = { corupHist, matrixHist };
+				combHists.put(pair, comb);
+				
 				corrHists.put(pair, matrixHist);
 				corupHists.put(pair, corupHist);
 				
 				specs.add(spec);
+				
+				HistogramFunction randMatrixHist = null;
+				PlotCurveCharacterstics corupChar =
+						new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.GRAY);
+				PlotCurveCharacterstics cdfChar =
+						new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK);
+				PlotCurveCharacterstics randChar =
+						new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLUE);
+				
+				// write out individual plots
+				File myWriteDir;
+				String fName;
+				String title;
+				int ySize;
+				if (i == j) {
+					myWriteDir = acdfDir;
+					fName = "acdf_"+getFileSafeString(name1);
+					title = "ACDF: "+name1;
+					// skip corup hist
+					corupHist = null;
+					ySize = 250;
+				} else {
+					myWriteDir = ccdfDir;
+					fName = "ccdf_"+getFileSafeString(name1)+"_"+getFileSafeString(name2);
+					title = "CCDF: "+name2+" - "+name1;
+					ySize = 400;
+				}
+				if (origCorrHists != null && randDistType != null) {
+					// this is a random one, show actual in bold
+					randMatrixHist = matrixHist;
+					matrixHist = origCorrHists.get(pair)[1];
+					corupHist = origCorrHists.get(pair)[0];
+				}
+				List<PlotElement> elems = Lists.newArrayList();
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				if (corupHist != null) {
+					elems.add(corupHist);
+					chars.add(corupChar);
+				}
+				if (randMatrixHist != null) {
+					elems.add(randMatrixHist);
+					chars.add(randChar);
+				}
+				elems.add(matrixHist);
+				chars.add(cdfChar);
+				PlotSpec newSpec = new PlotSpec(elems, chars, title, xAxisLabel, yAxisLabel);
+				HeadlessGraphPanel gp = new HeadlessGraphPanel();
+				gp.setBackgroundColor(Color.WHITE);
+				gp.setTickLabelFontSize(18);
+				gp.setAxisLabelFontSize(20);
+				gp.setPlotLabelFontSize(21);
+				gp.drawGraphPanel(newSpec, false, false, null, null);
+				gp.getCartPanel().setSize(1500, ySize);
+				String fileName = myWriteDir.getAbsolutePath()+File.separator+fName;
+				gp.saveAsPDF(fileName+".pdf");
 			}
 		}
 		
@@ -962,7 +1030,7 @@ public class PeriodicityPlotter {
 				funcs.add(jthCorupFunc);
 				funcs.add(jthAutoFunc);
 				if (origCorrHists != null)
-					funcs.add(origCorrHists.get(new IDPairing(j, j)));
+					funcs.add(origCorrHists.get(new IDPairing(j, j))[1]);
 				
 				PlotSpec mAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				mAutoSpec.setPlotAnnotations(Lists.newArrayList(
@@ -973,7 +1041,7 @@ public class PeriodicityPlotter {
 				funcs.add(ithCorupFunc);
 				funcs.add(ithAutoFunc);
 				if (origCorrHists != null)
-					funcs.add(origCorrHists.get(new IDPairing(i, i)));
+					funcs.add(origCorrHists.get(new IDPairing(i, i))[1]);
 				
 				PlotSpec nAutoSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				nAutoSpec.setPlotAnnotations(Lists.newArrayList(
@@ -984,7 +1052,7 @@ public class PeriodicityPlotter {
 				funcs.add(crossCorupFunc);
 				funcs.add(crossFunc);
 				if (origCorrHists != null)
-					funcs.add(origCorrHists.get(new IDPairing(i, j)));
+					funcs.add(origCorrHists.get(new IDPairing(i, j))[1]);
 				
 				PlotSpec crossSpec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 				crossSpec.setPlotAnnotations(Lists.newArrayList(
@@ -1062,7 +1130,7 @@ public class PeriodicityPlotter {
 				for (int i=0; i<subMatchesList.size(); i++) {
 					List<EQSIM_Event> matches = subMatchesList.get(i);
 					String name = idens.get(i).getName();
-					PlotSpec spec = getCorrFunc(i, name, matches, i, name, matches, plotYears, binWidth);
+					PlotSpec spec = getCDF_Func(i, name, matches, i, name, matches, plotYears, binWidth);
 					spec.setTitle(name+" Rolling Autocorrelations ("+(int)windowLen+" year binning)");
 					rollingSpecs.get(i).add(spec);
 				}
@@ -1149,7 +1217,7 @@ public class PeriodicityPlotter {
 		gp.saveAsPDF(fileName+".pdf");
 //		gp.saveAsTXT(fileName+".txt");
 		
-		return corrHists;
+		return combHists;
 	}
 	
 	public static void combinePDFs(List<File> pdfFiles, File outputFile) throws IOException {

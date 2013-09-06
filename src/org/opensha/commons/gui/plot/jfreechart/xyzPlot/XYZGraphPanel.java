@@ -301,7 +301,8 @@ public class XYZGraphPanel extends JPanel {
 			fakeZAxis.setLowerBound(scale.getLowerBound());
 			fakeZAxis.setUpperBound(scale.getUpperBound());
 			PaintScaleLegend legend = new PaintScaleLegend(scale, fakeZAxis);
-//			legend.setPosition(RectangleEdge.BOTTOM);
+			if (spec.getLegendPosition() != null)
+				legend.setPosition(spec.getLegendPosition());
 			legend.setPadding(5d, 15d, 5d, 15d);
 			legends.add(legend);
 			

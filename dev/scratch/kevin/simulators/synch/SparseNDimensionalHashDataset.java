@@ -1,14 +1,11 @@
-package scratch.kevin.simulators.catBuild;
+package scratch.kevin.simulators.synch;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Ints;
 
 /**
  * This is an n-dimensional dataset without any set limits on dataset or dimensional size. Only non zero values
@@ -79,40 +76,6 @@ public class SparseNDimensionalHashDataset<E> {
 		for (IndicesKey key : data.keySet())
 			indicesList.add(key.indices);
 		return indicesList;
-	}
-	
-	public static class IndicesKey {
-		private static Joiner j = Joiner.on(",");
-		private int hashCode;
-		private int[] indices;
-		public IndicesKey(int[] indices) {
-			this.indices = indices;
-			this.hashCode = Arrays.hashCode(indices);
-		}
-		@Override
-		public int hashCode() {
-			return hashCode;
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			IndicesKey other = (IndicesKey) obj;
-			return Arrays.equals(indices, other.indices);
-		}
-		
-		public String toString() {
-			return "IndicesKey["+j.join(Ints.asList(indices))+"]";
-		}
-		
-		public int[] getIndices() {
-			return indices;
-		}
 	}
 
 }

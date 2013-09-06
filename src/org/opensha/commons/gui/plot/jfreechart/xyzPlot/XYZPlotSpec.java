@@ -3,6 +3,7 @@ package org.opensha.commons.gui.plot.jfreechart.xyzPlot;
 import java.util.List;
 
 import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.ui.RectangleEdge;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -13,6 +14,7 @@ public class XYZPlotSpec {
 	private String title, xAxisLabel, yAxisLabel, zAxisLabel;
 	private Double thickness = null;
 	private List<? extends XYAnnotation> annotations;
+	private RectangleEdge legendPosition = RectangleEdge.TOP;
 	
 	public XYZPlotSpec(XYZ_DataSet xyzData, CPT cpt, String title,
 			String xAxisLabel, String yAxisLabel, String zAxisLabel) {
@@ -93,6 +95,14 @@ public class XYZPlotSpec {
 	
 	public List<? extends XYAnnotation> getPlotAnnotations() {
 		return annotations;
+	}
+
+	public RectangleEdge getLegendPosition() {
+		return legendPosition;
+	}
+
+	public void setLegendPosition(RectangleEdge legendPosition) {
+		this.legendPosition = legendPosition;
 	}
 
 }

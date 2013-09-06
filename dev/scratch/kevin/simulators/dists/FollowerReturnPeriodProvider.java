@@ -926,10 +926,10 @@ public class FollowerReturnPeriodProvider implements
 			if (!writeDir.exists())
 				writeDir.mkdir();
 			
-			Map<IDPairing, HistogramFunction> origFuncs =
-					PeriodicityPlotter.plotTimeBetweenAllIdens(writeDir, events, rupIdens, colors,
+			Map<IDPairing, HistogramFunction[]> origFuncs =
+					PeriodicityPlotter.plotACDF_CCDFs(writeDir, events, rupIdens, colors,
 							null, null, 2000d, 10d);
-			PeriodicityPlotter.	plotTimeBetweenAllIdens(writeDir, events, rupIdens, colors,
+			PeriodicityPlotter.	plotACDF_CCDFs(writeDir, events, rupIdens, colors,
 					randDistType, origFuncs, 2000d, 10d);
 			
 //			File subDir = new File(writeDir, "round2");
