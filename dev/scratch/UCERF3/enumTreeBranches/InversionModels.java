@@ -72,4 +72,9 @@ public enum InversionModels implements LogicTreeBranchNode<InversionModels> {
 	public boolean isConstrained() {
 		return this == CHAR_CONSTRAINED || this == GR_CONSTRAINED;
 	}
+	
+	@Override
+	public String getBranchLevelName() {
+		return "Inversion Model";
+	}
 }

@@ -51,5 +51,10 @@ public enum TotalMag5Rate implements LogicTreeBranchNode<TotalMag5Rate> {
 	public String encodeChoiceString() {
 		return "M5Rate"+getShortName();
 	}
+	
+	@Override
+	public String getBranchLevelName() {
+		return "Total Mag 5 Rate";
+	}
 
 }

@@ -287,4 +287,9 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		return getShortName();
 	}
 	
+	@Override
+	public String getBranchLevelName() {
+		return "Fault Model";
+	}
+	
 }

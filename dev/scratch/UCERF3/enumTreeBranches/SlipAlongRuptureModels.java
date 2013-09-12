@@ -42,4 +42,9 @@ public enum SlipAlongRuptureModels implements LogicTreeBranchNode<SlipAlongRuptu
 	public String encodeChoiceString() {
 		return "Dsr"+getShortName();
 	}
+	
+	@Override
+	public String getBranchLevelName() {
+		return "Slip Along Rupture Model (Dsr)";
+	}
 }

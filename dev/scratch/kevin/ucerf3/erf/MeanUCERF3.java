@@ -45,7 +45,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * <br><b>Magnitude Tolerance:</b>
  * <br>Ruptures have varying magnitudes on different branches due to different scaling relationships
  * and even variable aseismicity values. This parameter averages magnitudes within the given tolerance
- * to reducde the ruptures substantially. <b>NOTE: enabling aleatory magnitude variability will first
+ * to reduce the ruptures substantially. <b>NOTE: enabling aleatory magnitude variability will first
  * average magnitudes for each rupture!<b>
  * <br><b>Rake Combining:</b>
  * <br>Each Deformation Model supplies its own rakes. You can either use the DM specific rakes for each
@@ -61,7 +61,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	
 	public static final String NAME = "Mean UCERF3";
 	
-	static final String DOWNLOAD_URL = "http://opensha.usc.edu/ftp/mean_ucerf3/";
+	static final String DOWNLOAD_URL = "http://opensha.usc.edu/ftp/ucerf3_erf/";
 	static final String RAKE_BASIS_FILE_NAME = "rake_basis.zip";
 	static final String TRUE_MEAN_FILE_NAME = "mean_ucerf3_sol.zip";
 	
@@ -108,10 +108,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		// now see if we're running in eclispe
 		File scratchDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
 		if (scratchDir.exists()) {
-			File meanDir = new File(scratchDir, "MeanUCERF3");
+			File meanDir = new File(scratchDir, "UCERF3_ERF");
 			if (!meanDir.exists())
 				Preconditions.checkState(meanDir.mkdir(),
-						"Couldn't create MeanUCERF3 eclipse location: "+meanDir.getAbsolutePath());
+						"Couldn't create UCERF3 ERF eclipse location: "+meanDir.getAbsolutePath());
 			return meanDir;
 		}
 		
@@ -123,10 +123,10 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		if (!openSHADir.exists())
 			Preconditions.checkState(openSHADir.mkdir(),
 					"Couldn't create OpenSHA store location: "+openSHADir.getAbsolutePath());
-		File uc3Dir = new File(openSHADir, "mean_ucerf3");
+		File uc3Dir = new File(openSHADir, "ucerf3_erf");
 		if (!uc3Dir.exists())
 			Preconditions.checkState(uc3Dir.mkdir(),
-					"Couldn't create MeanUCERF3 store location: "+uc3Dir.getAbsolutePath());
+					"Couldn't create UCERF3 ERF store location: "+uc3Dir.getAbsolutePath());
 		return uc3Dir;
 	}
 	
@@ -433,10 +433,15 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	 * @param fName
 	 */
 	private File checkDownload(String fName, boolean ignoreErrors) {
-		// TODO allow some sort of server side versioning so that clients know to update
 		File file = new File(storeDir, fName);
+		return checkDownload(file, ignoreErrors);
+	}
+	
+	static File checkDownload(File file, boolean ignoreErrors) {
+		// TODO allow some sort of server side versioning so that clients know to update
 		if (file.exists())
 			return file;
+		String fName = file.getName();
 		CalcProgressBar progress = null;
 		// try to show progress bar
 		try {

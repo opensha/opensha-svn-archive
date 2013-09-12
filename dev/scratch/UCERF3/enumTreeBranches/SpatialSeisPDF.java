@@ -136,6 +136,11 @@ public enum SpatialSeisPDF implements LogicTreeBranchNode<SpatialSeisPDF> {
 		return "SpatSeis"+getShortName();
 	}
 	
+	@Override
+	public String getBranchLevelName() {
+		return "Spatial Seismicity PDF";
+	}
+	
 	/**
 	 * This tests getFractionInRegion(GriddedRegion region)
 	 * @param args

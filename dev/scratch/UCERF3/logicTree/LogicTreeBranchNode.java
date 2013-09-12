@@ -27,5 +27,11 @@ public interface LogicTreeBranchNode<E extends Enum<E>> extends ShortNamed, Seri
 	 * @return
 	 */
 	public String name();
+	
+	/**
+	 * This returns the human readable branch level name, e.g. "Fault Model"
+	 * @return
+	 */
+	public String getBranchLevelName();
 
 }

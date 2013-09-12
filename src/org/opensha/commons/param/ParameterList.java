@@ -124,15 +124,31 @@ public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 	 * name from the parameter, the constraint name is mapped to the parameter
 	 * name.
 	 */
-	public void addParameter(Parameter param) throws ParameterException{
+	public void addParameter(Parameter param) throws ParameterException {
+		addParameter(-1, param);
+	}
+
+	/**
+	 * Adds the parameter to the internal sotrage of parameters if it
+	 * doesn't exist, else throws exception. If the constraint has a different
+	 * name from the parameter, the constraint name is mapped to the parameter
+	 * name.
+	 */
+	public void addParameter(int index, Parameter param) throws ParameterException {
 
 		String S = C + ": addParameter(): ";
 
 		String name = param.getName();
 		String constraintName = param.getConstraintName();
 
-		if( getIndexOf(name)== -1) params.add(param);
-		else throw new ParameterException(S + "A Parameter already exists named " + name);
+		if( getIndexOf(name)== -1) {
+			if (index >= 0)
+				params.add(index, param);
+			else
+				params.add(param);
+		} else {
+			throw new ParameterException(S + "A Parameter already exists named " + name);
+		}
 
 
 		if( constraintName == null || constraintName.equals("") || constraintName.equals( name )) return;

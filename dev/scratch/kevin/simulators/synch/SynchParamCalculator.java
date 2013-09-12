@@ -99,6 +99,14 @@ public class SynchParamCalculator {
 		int numSubSums = 0;
 		int numSubBails = 0;
 		
+		boolean useIndepProbs = false;
+		Map<Integer, Double> mIndepProbs = null;
+		Map<Integer, Double> nIndepProbs = null;
+		if (useIndepProbs) {
+			mIndepProbs = calcIndepProbs(binnedIndices, m);
+			nIndepProbs = calcIndepProbs(binnedIndices, n);
+		}
+		
 		for (IndicesKey indicesKey : binnedIndices.keySet()) {
 			List<int[]> indicesList = binnedIndices.get(indicesKey);
 			double freqM = 0;
@@ -153,6 +161,19 @@ public class SynchParamCalculator {
 			freqN /= tot;
 			freqMN /= tot;
 			
+			if (useIndepProbs) {
+				int mIndex = indicesKey.indices[0];
+				int nIndex = indicesKey.indices[1];
+				if (mIndepProbs.containsKey(mIndex))
+					freqM = mIndepProbs.get(mIndex);
+				else
+					freqM = 0;
+				if (nIndepProbs.containsKey(nIndex))
+					freqN = nIndepProbs.get(nIndex);
+				else
+					freqN = 0;
+			}
+			
 			double synch = freqMN/(freqM*freqN);
 //			double prob_state = tot / totStateCount;
 			
@@ -181,6 +202,40 @@ public class SynchParamCalculator {
 			gBar_denominator += weight;
 		}
 		gBar = gBar_numerator/gBar_denominator;
+	}
+	
+	private Map<Integer, Double> calcIndepProbs(Map<IndicesKey, List<int[]>> binnedIndices, int index) {
+		Map<Integer, Double> freqs = Maps.newHashMap();
+		Map<Integer, Double> tots = Maps.newHashMap();
+		
+		for (IndicesKey key : binnedIndices.keySet()) {
+			List<int[]> binned = binnedIndices.get(key);
+			int myIndex = binned.get(0)[index];
+			double tot, freq;
+			if (freqs.containsKey(myIndex)) {
+				freq = freqs.get(myIndex);
+				tot = tots.get(myIndex);
+			} else {
+				freq = 0;
+				tot = 0;
+			}
+			for (int[] indices : binned) {
+				PossibleStates poss = chain.getStateTransitionDataset().get(indices);
+				tot += poss.getTot();
+				for (int[] state : poss.getStates()) {
+					if (state[index] == 0)
+						freq += poss.getFrequency(state);
+				}
+			}
+			freqs.put(myIndex, freq);
+			tots.put(myIndex, tot);
+		}
+		
+		Map<Integer, Double> probs = Maps.newHashMap();
+		
+		for (Integer key : freqs.keySet())
+			probs.put(key, freqs.get(key)/tots.get(key));
+		return probs;
 	}
 	
 	/**
@@ -354,6 +409,52 @@ public class SynchParamCalculator {
 		
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(contribScatterFile.getAbsolutePath()+".png");
+		
+		if (name1.contains("Mojave") && name2.contains("Coachella")) {
+			// write poster images
+			
+			// G
+			xyzGP = new XYZGraphPanel();
+			xyzXRange = xyzYRange;
+			rSpec.setTitle("Gain Factor");
+			xyzGP.drawPlot(rSpec, false, false, xyzXRange, xyzYRange);
+			xyzGP.getChartPanel().setSize(1000, 1000);
+			File gPlotFile = new File(synchXYZDir, "gain_"+PeriodicityPlotter.getFileSafeString(name1)
+					+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
+			xyzGP.saveAsPDF(gPlotFile.getAbsolutePath());
+			
+			// Occupancy
+			EvenlyDiscrXYZ_DataSet occFreqXYZ = new EvenlyDiscrXYZ_DataSet(
+					100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
+			SparseNDimensionalHashDataset<Double> totalStatesDataset = chain.getTotalStatesDataset();
+			for (int[] indices : totalStatesDataset.getPopulatedIndices()) {
+				if (indices[m] < occFreqXYZ.getNumX() && indices[n] < occFreqXYZ.getNumY()) {
+					Double val = totalStatesDataset.get(indices);
+					if (val != null && val > 0)
+						occFreqXYZ.set(indices[m], indices[n], occFreqXYZ.get(indices[m], indices[n])+val);
+				}
+			}
+			for (int x=0; x<occFreqXYZ.getNumX(); x++)
+				for (int y=0; y<occFreqXYZ.getNumY(); y++)
+					if (occFreqXYZ.get(x, y) == 0)
+						occFreqXYZ.set(x, y, Double.NaN);
+			
+			CPT occCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, occFreqXYZ.getMaxZ());
+			occCPT.setNanColor(Color.WHITE);
+			
+			XYZPlotSpec occSpec = new XYZPlotSpec(occFreqXYZ, occCPT, "State Occupancy Frequency",
+					rSpec.getXAxisLabel(), rSpec.getYAxisLabel(), null);
+			
+			xyzGP = new XYZGraphPanel();
+			xyzXRange = xyzYRange;
+			xyzGP.drawPlot(occSpec, false, false, xyzXRange, xyzYRange);
+			xyzGP.getChartPanel().setSize(1000, 1000);
+			File freqPlotFile = new File(synchXYZDir, "freq_"+PeriodicityPlotter.getFileSafeString(name1)
+					+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
+			xyzGP.saveAsPDF(freqPlotFile.getAbsolutePath());
+			
+			
+		}
 	}
 	
 	public File getSynch2DPlotFile() {

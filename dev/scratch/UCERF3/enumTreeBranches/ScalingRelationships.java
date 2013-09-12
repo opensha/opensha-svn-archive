@@ -265,6 +265,11 @@ public enum ScalingRelationships implements LogicTreeBranchNode<ScalingRelations
 		return name;
 	}
 	
+	@Override
+	public String getBranchLevelName() {
+		return "Scaling Relationship";
+	}
+	
 	public static void makeSlipLengthPlot(double downDipWidth, int maxLength, boolean saveFiles) {
 		
 		ArbitrarilyDiscretizedFunc u2_func = new ArbitrarilyDiscretizedFunc();

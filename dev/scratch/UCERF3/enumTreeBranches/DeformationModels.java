@@ -133,4 +133,9 @@ public enum DeformationModels implements LogicTreeBranchNode<DeformationModels> 
 	public String encodeChoiceString() {
 		return getShortName();
 	}
+	
+	@Override
+	public String getBranchLevelName() {
+		return "Deformation Model";
+	}
 }
