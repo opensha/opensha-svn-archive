@@ -24,6 +24,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * This is a Single Branch UCERF3 ERF which loads solutions from a compound fault system solution.
+ * If not already cached locally, the (large) compound solution file will be downloaded from
+ * opensha.usc.edu.
+ * 
+ * @author kevin
+ *
+ */
 public class UCERF3_CompoundSol_ERF extends UCERF3_FaultSysSol_ERF {
 	
 	/**
@@ -55,10 +63,22 @@ public class UCERF3_CompoundSol_ERF extends UCERF3_FaultSysSol_ERF {
 		return CompoundFaultSystemSolution.fromZipFile(compoundFile);
 	}
 	
+	/**
+	 * Default constructor will download or load locally cached default compound solution
+	 * 
+	 * @throws ZipException
+	 * @throws IOException
+	 */
 	public UCERF3_CompoundSol_ERF() throws ZipException, IOException {
 		this(loadFetcher(), null);
 	}
 	
+	/**
+	 * Constructor for already loaded fault system solution fetcher (usually a CompoundFaultSystemSolution)
+	 * 
+	 * @param fetch
+	 * @param initial
+	 */
 	public UCERF3_CompoundSol_ERF(FaultSystemSolutionFetcher fetch, LogicTreeBranch initial) {
 		this.fetch = fetch;
 		
