@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.erf;
+package scratch.UCERF3.erf.mean;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 	private FaultSystemSolution meanTotalSol;
 	private DiscretizedFunc[] meanTotalMFDs;
 	
-	static File getStoreDir() {
+	public static File getStoreDir() {
 		// first check user prop
 		String path = System.getProperty("uc3.store");
 		if (path != null) {
@@ -437,7 +437,7 @@ public class MeanUCERF3 extends UCERF3_FaultSysSol_ERF {
 		return checkDownload(file, ignoreErrors);
 	}
 	
-	static File checkDownload(File file, boolean ignoreErrors) {
+	public static File checkDownload(File file, boolean ignoreErrors) {
 		// TODO allow some sort of server side versioning so that clients know to update
 		if (file.exists())
 			return file;

@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.erf;
+package scratch.UCERF3.erf.mean;
 
 import java.io.File;
 import java.util.List;

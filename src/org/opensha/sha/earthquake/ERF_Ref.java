@@ -46,10 +46,12 @@ import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
 
 
-import scratch.kevin.ucerf3.erf.MeanUCERF3;
-import scratch.kevin.ucerf3.erf.UCERF3_CompoundSol_ERF;
+
+
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.UCERF3_CompoundSol_ERF;
+import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.christine.URS.URS_MeanUCERF2;
 

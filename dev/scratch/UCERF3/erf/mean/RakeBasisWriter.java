@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.erf;
+package scratch.UCERF3.erf.mean;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.erf.mean.RuptureCombiner.IntHashSet;
 import scratch.UCERF3.utils.MatrixIO;
-import scratch.kevin.ucerf3.erf.RuptureCombiner.IntHashSet;
 
 public class RakeBasisWriter {
 
