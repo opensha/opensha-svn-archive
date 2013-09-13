@@ -104,14 +104,15 @@ public class UCERF3_CompoundSol_ERF extends UCERF3_FaultSysSol_ERF {
 		adjustableParams.removeParameter(fileParam);
 	}
 	
-	private static <E extends Enum<E>> EnumParameter<E> buildParam(
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static EnumParameter buildParam(
 			Class<? extends LogicTreeBranchNode<?>> clazz, Collection<LogicTreeBranch> branches,
 			LogicTreeBranch initial) {
-		HashSet<E> set = new HashSet<E>();
+		HashSet<Enum> set = new HashSet<Enum>();
 		
-		E defaultValue;
+		Enum defaultValue;
 		if (initial != null)
-			defaultValue = (E) initial.getValueUnchecked(clazz);
+			defaultValue = (Enum) initial.getValueUnchecked(clazz);
 		else
 			defaultValue = null;
 		
@@ -121,16 +122,16 @@ public class UCERF3_CompoundSol_ERF extends UCERF3_FaultSysSol_ERF {
 			Preconditions.checkState(branch.isFullySpecified());
 			LogicTreeBranchNode<?> val = branch.getValueUnchecked(clazz);
 			Preconditions.checkNotNull(val);
-			set.add((E)val);
+			set.add((Enum)val);
 			if (defaultValue == null)
-				defaultValue = (E)val;
+				defaultValue = (Enum)val;
 			if (name == null)
 				name = val.getBranchLevelName();
 		}
 		
-		EnumSet<E> choices = EnumSet.copyOf(set);
+		EnumSet choices = EnumSet.copyOf(set);
 		
-		return new EnumParameter<E>(name, choices, defaultValue, null);
+		return new EnumParameter(name, choices, defaultValue, null);
 	}
 	
 	@Override
