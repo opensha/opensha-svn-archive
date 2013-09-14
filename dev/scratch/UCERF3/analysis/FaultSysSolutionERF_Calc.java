@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FractileCurveCalculator;
@@ -13,12 +15,24 @@ import org.opensha.commons.data.function.WeightedFuncList;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
@@ -29,6 +43,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
+import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -149,8 +164,98 @@ public class FaultSysSolutionERF_Calc {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
+	
+	
+	/**
+	 * This makes the iconic figure of U3.3, Fm3.1 participation rate maps, where section rates are properly 
+	 * mapped onto polygon grid nodes, and topography is included. Aftershocks are included.
+	 * Results are in OpenSHA/dev/scratch/UCERF3/data/scratch/GMT/COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL_Part_*
+	 * (where the "*" part is the minMagArray value(s) set below)
+	 */
+	public static void makeIconicFigureForU3pt3_and_FM3pt1() {
+
+		try {
+			
+			double[] minMagArray = {5,6.7};	// the mags to iterate over
+			double maxMag=10d;
+
+			// average solution for FM 3.1
+			String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+			File file = new File(f);
+
+			System.out.println("Instantiating ERF...");
+			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
+			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);	// don't include fault based sources here
+			erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.CROSSHAIR);	// this creates some faint cross artifacts due to tighter smoothing
+			erf.updateForecast();
+			String fileName = "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL";
+			
+			System.out.println(erf.getAdjustableParameterList().toString());
+			
+			
+			String scaleLabel = "Participation Rate";
+			String metadata =" ";
+			
+			// get the fault system solution and the polygon manager
+			InversionFaultSystemSolution fss = (InversionFaultSystemSolution) erf.getSolution();
+			FaultPolyMgr fltPolyMgr = fss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+			
+			for(double minMag: minMagArray) {
+				
+				// compute participation rates for supra-seis rups mapped onto grid nodes inside polygons
+				System.out.println("fss.calcParticRateForAllSects...");
+				double[] sectPartRates = fss.calcParticRateForAllSects(minMag, maxMag);
+				GriddedGeoDataSet supraSeisPartRates_xyzData = new GriddedGeoDataSet(GMT_CA_Maps.defaultGridRegion, true);	// true makes X latitude
+				for(int s=0; s<sectPartRates.length;s++) {
+					Map<Integer, Double> nodesForSectMap = fltPolyMgr.getNodeFractions(s);
+					Set<Integer> nodeIndicesList = nodesForSectMap.keySet();
+					for(int index:nodeIndicesList) {
+						double oldRate = supraSeisPartRates_xyzData.get(index);
+						supraSeisPartRates_xyzData.set(index, oldRate+nodesForSectMap.get(index)*sectPartRates[s]);
+					}
+				}
+				
+				// convert minMag to string for filename
+				Double tempDouble = new Double(minMag);
+				String magString = tempDouble.toString();
+				String dirName = fileName+"_Part_"+magString.replace(".", "pt");
+				
+				System.out.println(dirName);
+				
+				System.out.println("ERF_Calculator.getParticipationRatesInRegion...");
+				GriddedGeoDataSet geoDataSetForGridSeis = ERF_Calculator.getParticipationRatesInRegion(erf, GMT_CA_Maps.defaultGridRegion, minMag, maxMag);
+				GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+				
+				GeoDataSet sumGeoDataSet = GeoDataSetMath.add(supraSeisPartRates_xyzData, geoDataSetForGridSeis);
+				
+				System.out.println("Making GMT Map...");
+				//override default scale
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -6d);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, -2d);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_30_GLOBAL);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, true);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.DPI_PARAM_NAME, 300);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.BLACK_BACKGROUND_PARAM_NAME, false);
+				gmt_MapGenerator.setParameter(GMT_MapGenerator.KML_PARAM_NAME, true);
+
+				// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
+				// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
+				// but it won't succeed for the isAllowed(value) call.
+				CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+				cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+
+				GMT_CA_Maps.makeMap(sumGeoDataSet, "M>="+minMag+" "+scaleLabel, metadata, dirName, gmt_MapGenerator);
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	
 	/**
@@ -332,8 +437,10 @@ public class FaultSysSolutionERF_Calc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		makeIconicFigureForU3pt3_and_FM3pt1();
 				
-		makeUCERF2_PartRateMaps();
+//		makeUCERF2_PartRateMaps();
 		
 //		testUCERF2_Figure25();
 		

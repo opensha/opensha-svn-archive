@@ -76,6 +76,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.TaperedGR_MagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
@@ -463,6 +464,7 @@ implements ItemListener {
 		distNames.add(GutenbergRichterMagFreqDist.NAME);
 		distNames.add(GaussianMagFreqDist.NAME);
 		distNames.add(YC_1985_CharMagFreqDist.NAME);
+		distNames.add(TaperedGR_MagFreqDist.NAME);
 		magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
 		magDistEditor = new MagFreqDistParameterEditor();
 		magDistEditor.setParameter(magDist);

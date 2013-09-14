@@ -13,11 +13,14 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -30,6 +33,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
@@ -231,6 +235,53 @@ public class FaultSystemSolutionCalc {
 		System.out.println("Done with check");
 
 	}
+	
+	public static void writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT() {
+		
+		String fileName = "fm3pt1_forGMT.txt";
+		
+		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		File file = new File(f);
+		FaultSystemSolution fss=null;
+		try {
+			fss = FaultSystemIO.loadSol(file);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (DocumentException e1) {
+			e1.printStackTrace();
+		}
+		
+		FaultSystemRupSet rupSet = fss.getRupSet();
+		ArrayList<String> lineList = new ArrayList<String>();
+
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			FaultSectionPrefData data = rupSet.getFaultSectionData(s);
+			double partRate = fss.calcParticRateForSect(s, 0, 10);
+			lineList.add("> -Z"+(float)Math.log10(partRate));
+			StirlingGriddedSurface surf = data.getStirlingGriddedSurface(1.0, false, false);
+			ArrayList<Location> locList = new ArrayList<Location>();
+			locList.add(surf.getLocation(0, 0));
+			locList.add(surf.getLocation(0, surf.getNumCols()-1));
+			locList.add(surf.getLocation(surf.getNumRows()-1,surf.getNumCols()-1));
+			locList.add(surf.getLocation(surf.getNumRows()-1, 0));
+			for(Location loc:locList) {
+				lineList.add((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)-loc.getDepth());
+			}			
+		}
+
+		File dataFile = new File("dev/scratch/UCERF3/data/scratch/"+fileName);
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			for(String str:lineList) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+	}
+
 
 	
 	/**
@@ -239,6 +290,8 @@ public class FaultSystemSolutionCalc {
 	 * @throws ZipException 
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
+		
+		writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT();
 		
 //		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
 //		String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
@@ -251,16 +304,18 @@ public class FaultSystemSolutionCalc {
 ////		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_01_14-stampede_3p2_production_runs_combined_FM3_2_MEAN_BRANCH_AVG_SOL.zip");
 //
 		
-		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions
-		// download it from here: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip
-		String fileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
-		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File compoundFile = new File(invDir, fileName);
-		// output directory - you probably want to change this
-		File outputDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
+//		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions
+//		// download it from here: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip
+//		String fileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
+//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File compoundFile = new File(invDir, fileName);
+//		// output directory - you probably want to change this
+//		File outputDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
+//		
+//		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
 		
-		CompoundFaultSystemSolution fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-		writePaleoObsSlipCOV_ForScalingRels(fetcher, outputDir);
+		
 //		
 //		try {
 //			CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(solPath);

@@ -28,7 +28,7 @@ import cern.jet.stat.tdouble.Gamma;
 
 
 /**
- * <b>Title:</b> LognormalDistCalc.java <p>
+ * <b>Title:</b> WeibullDistCalc.java <p>
  * <b>Description:</p>.
  * Based on the equations given at http://en.wikipedia.org/wiki/Weibull_distribution
  <p>
@@ -45,49 +45,6 @@ public final class WeibullDistCalc extends EqkProbDistCalc implements ParameterC
 	public WeibullDistCalc() {
 		NAME = "Weibull";
 		super.initAdjParams();
-		mkAdjParamList();
-	}
-	
-	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
-		this.mean=mean;
-		this.aperiodicity=aperiodicity;
-		this.deltaX=deltaX;;
-		this.numPoints=numPoints;
-		upToDate=false;
-	}
-
-	
-	/**
-	 * 
-	 * @param mean
-	 * @param aperiodicity
-	 * @param timeSinceLast
-	 * @param duration
-	 * @param deltaX
-	 * @param numPoints
-	 */
-	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints, double duration) {
-		this.mean=mean;
-		this.aperiodicity=aperiodicity;
-		this.deltaX=deltaX;;
-		this.numPoints=numPoints;
-		this.duration = duration;
-		upToDate=false;
-	}
-	
-	/**
-	 * For this case deltaX defaults to 0.001*mean and numPoints is aperiodicity*10/deltaX+1
-	 * @param mean
-	 * @param aperiodicity
-	 * @param timeSinceLast
-	 * @param duration
-	 */
-	public void setAll(double mean, double aperiodicity) {
-		this.mean=mean;
-		this.aperiodicity=aperiodicity;
-		this.deltaX = DELTA_X_DEFAULT*mean;
-		this.numPoints = (int)Math.round(aperiodicity*10*mean/deltaX)+1;
-		upToDate=false;
 	}
 	
 	
@@ -147,38 +104,9 @@ public final class WeibullDistCalc extends EqkProbDistCalc implements ParameterC
 		}
 		return best_k;
 	}
-
-
-
-	/**
-	 *
-	 */
-	private void mkAdjParamList() {
-		adjustableParams = new ParameterList();
-		adjustableParams.addParameter(meanParam);
-		adjustableParams.addParameter(aperiodicityParam);
-		adjustableParams.addParameter(durationParam);
-		adjustableParams.addParameter(deltaX_Param);
-		adjustableParams.addParameter(numPointsParam);
-		
-		setAll(DEFAULT_MEAN_PARAM_VAL.doubleValue(), DEFAULT_APERIODICITY_PARAM_VAL.doubleValue(),
-				DEFAULT_DELTAX_PARAM_VAL.doubleValue(), DEFAULT_NUMPOINTS_PARAM_VAL.intValue(),
-				DEFAULT_DURATION_PARAM_VAL.doubleValue());
-	}
 	
 	
-	/**
-	 * Set the primitive types whenever a parameter changes
-	 */
-	public void parameterChange(ParameterChangeEvent event) {
-		String paramName = event.getParameterName();
-		if(paramName.equalsIgnoreCase(MEAN_PARAM_NAME)) this.mean = ((Double) meanParam.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(APERIODICITY_PARAM_NAME)) this.aperiodicity = ((Double) aperiodicityParam.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(DURATION_PARAM_NAME)) this.duration = ((Double) durationParam.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(DELTA_X_PARAM_NAME)) this.deltaX = ((Double) deltaX_Param.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) numPointsParam.getValue()).intValue();
-		this.upToDate = false;
-	}
+
 	
 	/**
 	 *  Main method for running tests.

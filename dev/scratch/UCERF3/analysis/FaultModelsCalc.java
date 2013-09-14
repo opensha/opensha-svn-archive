@@ -11,6 +11,7 @@ import java.util.Map;
 import org.opensha.commons.geo.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
@@ -162,13 +163,42 @@ public class FaultModelsCalc {
 		catch (IOException e) {
 			System.out.println ("IO exception = " + e );
 		}
-
-
-
 	}
 
 	
 	
+	/**
+	 * File is written to: dev/scratch/UCERF3/data/scratch/
+	 * @param fm
+	 */
+	public static void writeSectionOutlineForGMT(FaultModels fm, String fileName) {
+		ArrayList<FaultSectionPrefData> fm_data = fm.fetchFaultSections();
+		ArrayList<String> lineList = new ArrayList<String>();
+		for(FaultSectionPrefData data:fm_data) {
+			lineList.add("> "+data.getName());
+			StirlingGriddedSurface surface = data.getStirlingGriddedSurface(1.0, false, false);
+			FaultTrace upperEdge = surface.getRowAsTrace(0);
+			for(Location loc:upperEdge) {
+				lineList.add((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth());
+			}
+			FaultTrace lowerEdge = surface.getRowAsTrace(surface.getNumRows()-1);
+			lowerEdge.reverse();
+			for(Location loc:lowerEdge) {
+				lineList.add((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth());
+			}
+		}
+		File dataFile = new File("dev/scratch/UCERF3/data/scratch/"+fileName);
+		try {
+			FileWriter fw = new FileWriter(dataFile);
+			for(String str:lineList) {
+				fw.write(str+"\n");
+			}
+			fw.close ();
+		}
+		catch (IOException e) {
+			System.out.println ("IO exception = " + e );
+		}
+	}
 
 	
 
@@ -178,7 +208,9 @@ public class FaultModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		writeSectionDataForSuppleTable();
+		writeSectionOutlineForGMT(FaultModels.FM3_1, "fm3pt1_forGMT.txt");
+		
+//		writeSectionDataForSuppleTable();
 		
 //		writeSectionsNamesAndSomeAttributes(FaultModels.FM3_1, false);
 //		writeSectionsForEachNamedFaultAlt(FaultModels.FM2_1);

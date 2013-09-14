@@ -26,7 +26,7 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 
 
 /**
- * <b>Title:</b> BPT_DistCalc.java <p>
+ * <b>Title:</b> ExponentialDistCalc.java <p>
  * <b>Description:</p>.
  <p>
  *
@@ -42,9 +42,15 @@ public final class ExponentialDistCalc extends EqkProbDistCalc implements Parame
 	public ExponentialDistCalc() {
 		NAME = "Exponential";
 		super.initAdjParams();
-		mkAdjParamList();
+		adjustableParams.removeParameter(aperiodicityParam);	// hide aperiodicity because Exponential does not use this
 	}
 	
+	/**
+	 * Alternative without aperiodicity (which this distribution does not depend on)
+	 * @param mean
+	 * @param deltaX
+	 * @param numPoints
+	 */
 	public void setAll(double mean, double deltaX, int numPoints) {
 		this.mean=mean;
 		this.deltaX=deltaX;;
@@ -54,12 +60,11 @@ public final class ExponentialDistCalc extends EqkProbDistCalc implements Parame
 
 	
 	/**
-	 * 
+	 * Alternative without aperiodicity (which this distribution does not depend on)
 	 * @param mean
-	 * @param timeSinceLast
-	 * @param duration
 	 * @param deltaX
 	 * @param numPoints
+	 * @param duration
 	 */
 	public void setAll(double mean, double deltaX, int numPoints, double duration) {
 		this.mean=mean;
@@ -70,10 +75,25 @@ public final class ExponentialDistCalc extends EqkProbDistCalc implements Parame
 	}
 	
 	/**
-	 * For this case deltaX defaults to 0.001*mean and numPoints is aperiodicity*10/deltaX+1
+	 * Alternative without aperiodicity (which this distribution does not depend on)
 	 * @param mean
-	 * @param timeSinceLast
+	 * @param deltaX
+	 * @param numPoints
 	 * @param duration
+	 */
+	public void setAll(double mean, double deltaX, int numPoints, double duration, double histOpenInterval) {
+		this.mean=mean;
+		this.deltaX=deltaX;;
+		this.numPoints=numPoints;
+		this.duration = duration;
+		this.histOpenInterval = histOpenInterval;
+		upToDate=false;
+	}
+
+	
+	/**
+	 * Alternative without aperiodicity (which this distribution does not depend on)
+	 * @param mean
 	 */
 	public void setAll(double mean) {
 		this.mean=mean;
@@ -102,37 +122,7 @@ public final class ExponentialDistCalc extends EqkProbDistCalc implements Parame
 		}
 		upToDate = true;
 	}
-
 	
-
-
-
-	/**
-	 *
-	 */
-	private void mkAdjParamList() {
-		adjustableParams = new ParameterList();
-		adjustableParams.addParameter(meanParam);
-		adjustableParams.addParameter(durationParam);
-		adjustableParams.addParameter(deltaX_Param);
-		adjustableParams.addParameter(numPointsParam);
-		
-		setAll(DEFAULT_MEAN_PARAM_VAL.doubleValue(), DEFAULT_DELTAX_PARAM_VAL.doubleValue(), DEFAULT_NUMPOINTS_PARAM_VAL.intValue(),
-				DEFAULT_DURATION_PARAM_VAL.doubleValue());
-	}
-	
-	
-	/**
-	 * Set the primitive types whenever a parameter changes
-	 */
-	public void parameterChange(ParameterChangeEvent event) {
-		String paramName = event.getParameterName();
-		if(paramName.equalsIgnoreCase(MEAN_PARAM_NAME)) this.mean = ((Double) meanParam.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(DURATION_PARAM_NAME)) this.duration = ((Double) durationParam.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(DELTA_X_PARAM_NAME)) this.deltaX = ((Double) deltaX_Param.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) numPointsParam.getValue()).intValue();
-		this.upToDate = false;
-	}
 	
 	/**
 	 *  Main method for running tests.
