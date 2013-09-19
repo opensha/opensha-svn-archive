@@ -26,6 +26,8 @@ public enum GMT_CPT_Files {
 	UCERF3_HAZ_RATIO_P3("UCERF3_hazRatioP3toP3.cpt"),
 	NSHMP_1hz("nshmp_1hz.cpt"),
 	NSHMP_5hz("nshmp_5hz.cpt"),
+	NSHMP_RATIO("NSHMP_ratio.cpt"),
+	NSHMP_DIFF("NSHMP_diff.cpt"),
 	GMT_COPPER("GMT_copper.cpt"),
 //	GMT_CYCLIC("GMT_cyclic.cpt"),
 	GMT_DRYWET("GMT_drywet.cpt"),
