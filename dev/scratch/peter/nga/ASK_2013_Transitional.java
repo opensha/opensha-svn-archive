@@ -25,18 +25,20 @@ public class ASK_2013_Transitional implements TransitionalGMPE {
 	private double rJB = NaN;
 	private double rRup = NaN;
 	private double rX = NaN;
+	private double rY0 = -1.0;
 	private double dip = NaN;
 	private double width = NaN;
 	private double zTop = NaN;
 	private double vs30 = NaN;
+	private boolean vsInf = true;
 	private double z1p0 = NaN;
 	private FaultStyle style = UNKNOWN;
 	
 	@Override
 	public ScalarGroundMotion calc() {
 //		System.out.println(Joiner.on('\t').join(Mw, rJB, rRup, rX, dip, width, zTop, vs30, z1p0, style));
-		return impl.calc(imt, Mw, rJB, rRup, rX, dip, width, zTop, vs30, z1p0,
-			style);
+		return impl.calc(imt, Mw, rJB, rRup, rX, rY0, dip, width, zTop, vs30,
+			vsInf, z1p0, style);
 	}
 	
 	@Override public String getName() { return ASK_2013.NAME; }
@@ -55,7 +57,7 @@ public class ASK_2013_Transitional implements TransitionalGMPE {
 	@Override public void set_zHyp(double zHyp) {} // not used
 	
 	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
-	@Override public void set_vsInf(boolean vsInf) {} // not used
+	@Override public void set_vsInf(boolean vsInf) { this.vsInf = vsInf; }
 	@Override public void set_z2p5(double z2p5) {} // not used
 	@Override public void set_z1p0(double z1p0) { this.z1p0 = z1p0; }
 

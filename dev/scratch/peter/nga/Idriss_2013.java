@@ -114,7 +114,16 @@ public class Idriss_2013 {
 	public static void main(String[] args) {
 		Idriss_2013 id = new Idriss_2013();
 		
+		System.out.println("PGA");
 		ScalarGroundMotion sgm = id.calc(PGA, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("5Hz");
+		sgm = id.calc(IMT.SA0P2, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("1Hz");
+		sgm = id.calc(IMT.SA1P0, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 

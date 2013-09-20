@@ -218,13 +218,13 @@ public class CY_2013 {
 		double NL0 = snl * SAref / (SAref + c.phi4);
 
 		// Magnitude thresholds
-		double mTest = min(max(Mw, 5.0), 7.25) - 5.0;
+		double mTest = min(max(Mw, 5.0), 6.5) - 5.0;
 
 		// Inter-event Term
-		double tau = c.tau1 + (c.tau2 - c.tau1) / 2.25 * mTest;
+		double tau = c.tau1 + (c.tau2 - c.tau1) / 1.5 * mTest;
 
 		// Intra-event term
-		double sigmaNL0 = c.sigma1 + (c.sigma2 - c.sigma1) / 2.25 * mTest;
+		double sigmaNL0 = c.sigma1 + (c.sigma2 - c.sigma1) / 1.5 * mTest;
 		double vsTerm = vsInferred ? c.sigma3 : 0.7;
 		double NL0sq = (1 + NL0) * (1 + NL0);
 		sigmaNL0 *= sqrt(vsTerm + NL0sq);
@@ -238,8 +238,17 @@ public class CY_2013 {
 
 	public static void main(String[] args) {
 		CY_2013 cy = new CY_2013();
-					
+
+		System.out.println("PGA");
 		ScalarGroundMotion sgm = cy.calc(PGA, 6.80, 0.0, 4.629, 5.963, 27.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("5Hz");
+		sgm = cy.calc(IMT.SA0P2, 6.80, 0.0, 4.629, 5.963, 27.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("1Hz");
+		sgm = cy.calc(IMT.SA1P0, 6.80, 0.0, 4.629, 5.963, 27.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 

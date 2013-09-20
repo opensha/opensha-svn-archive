@@ -235,7 +235,16 @@ public class BSSA_2013 {
 	public static void main(String[] args) {
 		BSSA_2013 bssa = new BSSA_2013();
 		
+		System.out.println("PGA");
 		ScalarGroundMotion sgm = bssa.calc(PGA, 6.80, 0.0, 760.0, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("5Hz");
+		sgm = bssa.calc(IMT.SA0P2, 6.80, 0.0, 760.0, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("1Hz");
+		sgm = bssa.calc(IMT.SA1P0, 6.80, 0.0, 760.0, Double.NaN, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 

@@ -67,7 +67,7 @@ public class GK_2013 {
 		double F = (style == REVERSE) ? 1.28 : 1.0;
 
 		// fixed at 150m for now; generic CA value per email from Vladimir
-		double dBasin = 0.15;
+		double dBasin = 0.150;
 
 		double pgaRef = calcLnPGA(Mw, rRup, vs30, dBasin, F);
 		double sa = calcSpectralShape(per, Mw, rRup, vs30, dBasin);
@@ -130,6 +130,7 @@ public class GK_2013 {
 	private static final double VA = 484.5;
 	private static final double c11 = 0.345;
 	private static final double Q = 150.0; // California specific (is 156.6 in SH code)
+	// TODO Q, above, needs to be updated to 205 outside CA
 	
 	private static final double calcLnPGA(double Mw, double rRup, double vs30,
 			double dBasin, double F) {
@@ -163,9 +164,19 @@ public class GK_2013 {
 	public static void main(String[] args) {
 		GK_2013 gk = new GK_2013();
 
+		System.out.println("PGA");
 		ScalarGroundMotion sgm = gk.calc(PGA, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
+		System.out.println("5Hz");
+		sgm = gk.calc(SA0P2, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("1Hz");
+		sgm = gk.calc(SA1P0, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		
 //		ScalarGroundMotion sgm = gk.calc(PGA, 7.06, 27.08, 760.0, FaultStyle.STRIKE_SLIP);
 //		Set<IMT> IMTs = EnumSet.complementOf(EnumSet.of(PGV, PGD)); 
 //		for (IMT imt : IMTs) {

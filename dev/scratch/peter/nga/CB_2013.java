@@ -257,17 +257,6 @@ public class CB_2013 {
 		
 		// NOTE Japan ignored  -- Equation 19
 
-//		System.out.println(pgaRock);
-//		System.out.println(" Fmag: " + Fmag);
-//		System.out.println("   Fr: " + Fr);
-//		System.out.println(" Fflt: " + Fflt);
-//		System.out.println("  Fhw: " + Fhw);
-//		System.out.println("Fsite: " + Fsite);
-//		System.out.println(" Fsed: " + Fsed);
-//		System.out.println(" Fhyp: " + Fhyp);
-//		System.out.println(" Fdip: " + Fdip);
-//		System.out.println(" Fatn: " + Fatn);
-//
 		// total model -- Equation 1
 		return Fmag + Fr + Fflt + Fhw + Fsite + Fsed + Fhyp + Fdip + Fatn;
 		// @formatter:on
@@ -343,12 +332,21 @@ public class CB_2013 {
 		//6.5600004       0.0000000       4.6288643       5.9628415       27.000000       28.000000       2.0999999       10.100000       760.00000      0.60682398       1.0000000       0.0
 		
 		// FORT params 6.80	0.000	4.629	5.963	27.0	28.0	2.100	10.100	760.0	0.6068	1	0
-		ScalarGroundMotion sgm = cb.calc(PGA, 6.80, 0.0, 4.629, 5.963, 27.0, 28.0, 2.1, 10.1, 760.0, Double.NaN, FaultStyle.REVERSE);
+		System.out.println("PGA");
+		ScalarGroundMotion sgm = cb.calc(PGA, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("5Hz");
+		sgm = cb.calc(IMT.SA0P2, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
+		System.out.println(sgm.mean());
+		System.out.println(sgm.stdDev());
+		System.out.println("1Hz");
+		sgm = cb.calc(IMT.SA1P0, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 		
-		sgm = cb.calc(PGA, 6.56, 0.0, 4.6288643, 5.9628415, 27.0, 28.0, 2.1, 8.455866996353654, 760.0, Double.NaN, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
+//		sgm = cb.calc(PGA, 6.56, 0.0, 4.6288643, 5.9628415, 27.0, 28.0, 2.1, 8.455866996353654, 760.0, Double.NaN, FaultStyle.REVERSE);
+//		System.out.println(sgm.mean());
 //		System.out.println(sgm.stdDev());
 		
 //		         T0,M,Rrup,Rjb,Rx,FRV,FNM,ZTOR,Hhyp,W,dip,Vs30,Z25,SJ,iSpec)
