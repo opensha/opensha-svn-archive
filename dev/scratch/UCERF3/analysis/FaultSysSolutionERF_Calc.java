@@ -551,7 +551,7 @@ public class FaultSysSolutionERF_Calc {
 			FileWriter fw = new FileWriter(dataFile);
 			fw.write(tableString);
 			fw.close ();
-			graph.saveAsPDF("dev/scratch/UCERF3/data/scratch/aveMFDs_ForU3_andU2.txt");
+			graph.saveAsPDF("dev/scratch/UCERF3/data/scratch/aveMFDs_ForU3_andU2.pdf");
 		}
 		catch (IOException e) {
 			System.out.println ("IO exception = " + e );
