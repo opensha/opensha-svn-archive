@@ -69,7 +69,7 @@ public class DeformationModelFetcher {
 	private final static double brawley_aseis = 0.9;
 	private final static double quien_sabe_aseis = 0.9;
 
-	private final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
+	final static double MOMENT_REDUCTION_THRESHOLD = 0.9;
 	public final static double MOMENT_REDUCTION_MAX = 0.95;
 
 	//	 Stepover fix for Elsinor
@@ -1042,7 +1042,7 @@ public class DeformationModelFetcher {
 	 * @param scalars a list of scalar values to be averaged based on the distance between
 	 * each location in the location list
 	 */
-	private static double getLengthBasedAverage(List<Location> locs, List<Double> scalars) {
+	public static double getLengthBasedAverage(List<Location> locs, List<Double> scalars) {
 		Preconditions.checkArgument(locs.size() == scalars.size()+1,
 				"there must be exactly one less slip than location!");
 		Preconditions.checkArgument(!scalars.isEmpty(), "there must be at least 2 locations and 1 slip rate");
