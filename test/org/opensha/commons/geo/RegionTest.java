@@ -659,7 +659,7 @@ public class RegionTest {
 		assertEquals(0.0, octRegion.distanceToLocation(new Location(30,-115)), 0.0);
 		Location ll = new Location(25,-120);
 		assertEquals(
-			LocationUtils.distanceToSegmentFast(octRegionList.get(0), octRegionList.get(7), ll),
+			LocationUtils.distanceToLineSegmentFast(octRegionList.get(0), octRegionList.get(7), ll),
 			octRegion.distanceToLocation(ll), 0.0);
 	}
 	

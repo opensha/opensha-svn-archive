@@ -257,6 +257,7 @@ public class McVerryetal_2000_AttenRel extends AttenuationRelationship implement
     
     if (tecRegType.equals(FLT_TEC_ENV_INTERFACE) || tecRegType.equals(FLT_TEC_ENV_INTERFACE)) {
     	//Determine the focal depth
+    	// this is problematic, see ticket #438
     	RuptureSurface surf = this.eqkRupture.getRuptureSurface();
     	double hypoLon = 0.0;
 		double hypoLat = 0.0;

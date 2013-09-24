@@ -227,7 +227,7 @@ public final class LocationUtils {
 	 * If the line should instead be treated as a segment such that the result
 	 * will be a distance to an endpoint if <code>p3</code> does not project
 	 * onto the segment, use
-	 * {@link #distanceToSegment(Location, Location, Location)} instead.
+	 * {@link #distanceToLineSegment(Location, Location, Location)} instead.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -235,7 +235,7 @@ public final class LocationUtils {
 	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLineFast(Location, Location, Location)
-	 * @see #distanceToSegment(Location, Location, Location)
+	 * @see #distanceToLineSegment(Location, Location, Location)
 	 */
 	public static double distanceToLine(Location p1, Location p2, Location p3) {
 		// angular distance
@@ -263,7 +263,7 @@ public final class LocationUtils {
 	 * If the line should instead be treated as a segment such that the result
 	 * will be a distance to an endpoint if <code>p3</code> does not project
 	 * onto the segment, use
-	 * {@link #distanceToSegmentFast(Location, Location, Location)} instead.
+	 * {@link #distanceToLineSegmentFast(Location, Location, Location)} instead.
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -271,7 +271,7 @@ public final class LocationUtils {
 	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
 	 * @see #distanceToLine(Location, Location, Location)
-	 * @see #distanceToSegmentFast(Location, Location, Location)
+	 * @see #distanceToLineSegmentFast(Location, Location, Location)
 	 */
 	public static double distanceToLineFast(Location p1, Location p2,
 			Location p3) {
@@ -353,7 +353,7 @@ public final class LocationUtils {
 	 * <br/>
 	 * This method, though more accurate over longer distances and line lengths,
 	 * is up to 20x slower than
-	 * {@link #distanceToSegmentFast(Location, Location, Location)}. However,
+	 * {@link #distanceToLineSegmentFast(Location, Location, Location)}. However,
 	 * this method returns accurate results for values spanning #177;180&#176;. <br/>
 	 * <br/>
 	 * If the line should instead be treated as infinite, use
@@ -367,7 +367,7 @@ public final class LocationUtils {
 	 * @see #distanceToLineFast(Location, Location, Location)
 	 * @see #distanceToLine(Location, Location, Location)
 	 */
-	public static double distanceToSegment(Location p1, Location p2, Location p3) {
+	public static double distanceToLineSegment(Location p1, Location p2, Location p3) {
 
 		// repeat calcs in distanceToLine() to cut down on replication of
 		// expensive trig ops that would result from calling distanceToLine()
@@ -409,10 +409,10 @@ public final class LocationUtils {
 	 * @param p3 the <code>Location</code> point for which distance will be
 	 *        calculated
 	 * @return the shortest distance in km between the supplied point and line
-	 * @see #distanceToSegment(Location, Location, Location)
+	 * @see #distanceToLineSegment(Location, Location, Location)
 	 * @see #distanceToLineFast(Location, Location, Location)
 	 */
-	public static double distanceToSegmentFast(Location p1, Location p2,
+	public static double distanceToLineSegmentFast(Location p1, Location p2,
 			Location p3) {
 
 		double lat1 = p1.getLatRad();

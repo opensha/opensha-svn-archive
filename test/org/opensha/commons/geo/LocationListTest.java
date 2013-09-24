@@ -104,10 +104,10 @@ public class LocationListTest {
 		assertEquals(result_p3p4_p8, ll1.minDistToLine(p8), 0);
 		// test against underlying distToSegment
 		assertEquals(
-			LocationUtils.distanceToSegmentFast(p6, p7, p9), 
+			LocationUtils.distanceToLineSegmentFast(p6, p7, p9), 
 			ll1.minDistToLine(p9), 0);
 		assertEquals(
-			LocationUtils.distanceToSegmentFast(p3, p4, p8), 
+			LocationUtils.distanceToLineSegmentFast(p3, p4, p8), 
 			ll1.minDistToLine(p8), 0);
 	}
 	

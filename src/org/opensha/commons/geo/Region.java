@@ -506,7 +506,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 	 * @return the minimum distance between this {@code Region} and a point
 	 * @throws NullPointerException if supplied location is {@code null}
 	 * @see LocationList#minDistToLine(Location)
-	 * @see LocationUtils#distanceToSegmentFast(Location, Location, Location)
+	 * @see LocationUtils#distanceToLineSegmentFast(Location, Location, Location)
 	 */
 	public double distanceToLocation(Location loc) {
 		checkNotNull(loc, "Supplied location is null");
@@ -514,7 +514,7 @@ public class Region implements Serializable, XMLSaveable, Named {
 		double min = border.minDistToLine(loc);
 		// check the segment defined by the last and first points
 		// take abs because value may be negative; i.e. value to left of line
-		double temp = Math.abs(LocationUtils.distanceToSegmentFast(
+		double temp = Math.abs(LocationUtils.distanceToLineSegmentFast(
 			border.get(border.size() - 1), border.get(0), loc));
 		return Math.min(temp, min);
 	}

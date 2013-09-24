@@ -29,8 +29,8 @@ import static org.opensha.commons.geo.LocationUtils.azimuth;
 import static org.opensha.commons.geo.LocationUtils.azimuthRad;
 import static org.opensha.commons.geo.LocationUtils.distanceToLine;
 import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
-import static org.opensha.commons.geo.LocationUtils.distanceToSegment;
-import static org.opensha.commons.geo.LocationUtils.distanceToSegmentFast;
+import static org.opensha.commons.geo.LocationUtils.distanceToLineSegment;
+import static org.opensha.commons.geo.LocationUtils.distanceToLineSegmentFast;
 import static org.opensha.commons.geo.LocationUtils.vector;
 import static org.opensha.commons.geo.LocationUtils.horzDistance;
 import static org.opensha.commons.geo.LocationUtils.horzDistanceFast;
@@ -261,37 +261,37 @@ public class LocationUtilsTest {
 	@Test
 	public final void testDistanceToSegment() {
 		//set 1
-		assertEquals(34.425229936, distanceToSegment(L3,L2,L1), dtlD);
-		assertEquals(34.425229936, distanceToSegment(L2,L3,L1), dtlD);
-		assertEquals(47.851004687, distanceToSegment(L4,L3,L2), dtlD);
-		assertEquals(30.205855981, distanceToSegment(L4,L1,L3), dtlD);
+		assertEquals(34.425229936, distanceToLineSegment(L3,L2,L1), dtlD);
+		assertEquals(34.425229936, distanceToLineSegment(L2,L3,L1), dtlD);
+		assertEquals(47.851004687, distanceToLineSegment(L4,L3,L2), dtlD);
+		assertEquals(30.205855981, distanceToLineSegment(L4,L1,L3), dtlD);
 		//set 2
-		assertEquals(111.19505230826488, distanceToSegment(l1, l2, p1), 0);
-		assertEquals(157.22560972181338, distanceToSegment(l1, l2, p2), 0);
-		assertEquals(111.04264791008788, distanceToSegment(l1, l2, p3), 0);
-		assertEquals(157.0103400810619, distanceToSegment(l1, l2, p4), 0);
-		assertEquals(111.19505230826486, distanceToSegment(l1, l2, p5), 0);
-		assertEquals(157.0103400810619, distanceToSegment(l1, l2, p6), 0);
-		assertEquals(111.04264791008788, distanceToSegment(l1, l2, p7), 0);
-		assertEquals(157.22560972181338, distanceToSegment(l1, l2, p8), 0);
+		assertEquals(111.19505230826488, distanceToLineSegment(l1, l2, p1), 0);
+		assertEquals(157.22560972181338, distanceToLineSegment(l1, l2, p2), 0);
+		assertEquals(111.04264791008788, distanceToLineSegment(l1, l2, p3), 0);
+		assertEquals(157.0103400810619, distanceToLineSegment(l1, l2, p4), 0);
+		assertEquals(111.19505230826486, distanceToLineSegment(l1, l2, p5), 0);
+		assertEquals(157.0103400810619, distanceToLineSegment(l1, l2, p6), 0);
+		assertEquals(111.04264791008788, distanceToLineSegment(l1, l2, p7), 0);
+		assertEquals(157.22560972181338, distanceToLineSegment(l1, l2, p8), 0);
 	}
 	
 	@Test
 	public final void testDistanceToSegmentFast() {
 		//set 1
-		assertEquals(34.472999888, distanceToSegmentFast(L3,L2,L1), dtlD);
-		assertEquals(34.472999888, distanceToSegmentFast(L2,L3,L1), dtlD);
-		assertEquals(47.859144611, distanceToSegmentFast(L4,L3,L2), dtlD);
-		assertEquals(30.170948729, distanceToSegmentFast(L4,L1,L3), dtlD);
+		assertEquals(34.472999888, distanceToLineSegmentFast(L3,L2,L1), dtlD);
+		assertEquals(34.472999888, distanceToLineSegmentFast(L2,L3,L1), dtlD);
+		assertEquals(47.859144611, distanceToLineSegmentFast(L4,L3,L2), dtlD);
+		assertEquals(30.170948729, distanceToLineSegmentFast(L4,L1,L3), dtlD);
 		//set 2
-		assertEquals(111.19505230826488, distanceToSegmentFast(l1, l2, p1), 0);
-		assertEquals(157.2056610325692, distanceToSegmentFast(l1, l2, p2), 0);
-		assertEquals(111.04266335361307, distanceToSegmentFast(l1, l2, p3), 0);
-		assertEquals(157.0621369518209, distanceToSegmentFast(l1, l2, p4), 0);
-		assertEquals(111.19505230826486, distanceToSegmentFast(l1, l2, p5), 0);
-		assertEquals(157.0621369518209, distanceToSegmentFast(l1, l2, p6), 0);
-		assertEquals(111.04266335361307, distanceToSegmentFast(l1, l2, p7), 0);
-		assertEquals(157.2056610325692, distanceToSegmentFast(l1, l2, p8), 0);
+		assertEquals(111.19505230826488, distanceToLineSegmentFast(l1, l2, p1), 0);
+		assertEquals(157.2056610325692, distanceToLineSegmentFast(l1, l2, p2), 0);
+		assertEquals(111.04266335361307, distanceToLineSegmentFast(l1, l2, p3), 0);
+		assertEquals(157.0621369518209, distanceToLineSegmentFast(l1, l2, p4), 0);
+		assertEquals(111.19505230826486, distanceToLineSegmentFast(l1, l2, p5), 0);
+		assertEquals(157.0621369518209, distanceToLineSegmentFast(l1, l2, p6), 0);
+		assertEquals(111.04266335361307, distanceToLineSegmentFast(l1, l2, p7), 0);
+		assertEquals(157.2056610325692, distanceToLineSegmentFast(l1, l2, p8), 0);
 	}
 
 	@Test
@@ -598,28 +598,28 @@ public class LocationUtilsTest {
 		}
 
 		System.out.println("distanceToSegment(): " + 
-			distanceToSegment(L1,L2,L3));
+			distanceToLineSegment(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-					distanceToSegment(L1,L2,L3) :
-						distanceToSegment(randomLoc(),randomLoc(),randomLoc());
+					distanceToLineSegment(L1,L2,L3) :
+						distanceToLineSegment(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("    DTS: " + T);
 		}
 		
 		System.out.println("distanceToSegmentFast(): " + 
-			distanceToSegmentFast(L1,L2,L3));
+			distanceToLineSegmentFast(L1,L2,L3));
 		for (int i=0; i < 5; i++) {
 			long T = System.currentTimeMillis();
 			double d;
 			for (int j=0; j<numIter; j++) {
 				d = (fixedVals) ? 
-					distanceToSegmentFast(L1,L2,L3) :
-						distanceToSegmentFast(randomLoc(),randomLoc(),randomLoc());
+					distanceToLineSegmentFast(L1,L2,L3) :
+						distanceToLineSegmentFast(randomLoc(),randomLoc(),randomLoc());
 			}
 			T = (System.currentTimeMillis() - T);
 			System.out.println("   DTSF: " + T);

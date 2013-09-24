@@ -685,6 +685,7 @@ public class ZhaoEtAl_2006_AttenRel extends AttenuationRelationship implements
 		
 		// ---------------------------------------------------------------------- MARCO 2010.03.15
 		// Compute the hypocenter as the middle point of the rupture
+		// this is problematic, see ticket #438
 		double hypoLon = 0.0;
 		double hypoLat = 0.0;
 		double hypoDep = 0.0;

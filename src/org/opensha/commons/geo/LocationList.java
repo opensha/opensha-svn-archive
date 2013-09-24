@@ -138,7 +138,7 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 	 * Computes the shortest horizontal distance (in km) from the supplied
 	 * <code>Location</code> to the line defined by connecting the points in
 	 * this <code>LocationList</code>. This method uses
-	 * {@link LocationUtils#distanceToSegmentFast(Location, Location, Location)}
+	 * {@link LocationUtils#distanceToLineSegmentFast(Location, Location, Location)}
 	 * and is inappropriate for for use at large separations (e.g. &gt;200 km).
 	 * 
 	 * @param loc <code>Location</code> of interest
@@ -149,7 +149,7 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 		double min = Double.MAX_VALUE;
 		double dist = 0;
 		for (int i = 1; i < size(); i++) {
-			dist = Math.abs(LocationUtils.distanceToSegmentFast(get(i - 1),
+			dist = Math.abs(LocationUtils.distanceToLineSegmentFast(get(i - 1),
 				get(i), loc));
 			if (dist < min) min = dist;
 		}
