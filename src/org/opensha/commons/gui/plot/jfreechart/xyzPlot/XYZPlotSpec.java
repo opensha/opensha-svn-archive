@@ -7,6 +7,14 @@ import org.jfree.ui.RectangleEdge;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.util.cpt.CPT;
 
+/**
+ * Analogous to PlotSpec, but for XYZ plots. Contains data, labels, CPT for XYZ plot to be
+ * passed to XYZGraphPanel. It is recommended that you set the tickness (width of the colored
+ * square to be shown at each XY location) for non-gridded surfaces.
+ * 
+ * @author kevin
+ *
+ */
 public class XYZPlotSpec {
 	
 	private XYZ_DataSet xyzData;
@@ -16,6 +24,15 @@ public class XYZPlotSpec {
 	private List<? extends XYAnnotation> annotations;
 	private RectangleEdge legendPosition = RectangleEdge.TOP;
 	
+	/**
+	 * 
+	 * @param xyzData XYZ data
+	 * @param cpt color palette
+	 * @param title
+	 * @param xAxisLabel
+	 * @param yAxisLabel
+	 * @param zAxisLabel shown under the color scale
+	 */
 	public XYZPlotSpec(XYZ_DataSet xyzData, CPT cpt, String title,
 			String xAxisLabel, String yAxisLabel, String zAxisLabel) {
 		super();
@@ -101,6 +118,10 @@ public class XYZPlotSpec {
 		return legendPosition;
 	}
 
+	/**
+	 * This sets the position of the color scale legend.
+	 * @param legendPosition
+	 */
 	public void setLegendPosition(RectangleEdge legendPosition) {
 		this.legendPosition = legendPosition;
 	}

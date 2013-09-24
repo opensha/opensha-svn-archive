@@ -54,6 +54,22 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
+/**
+ * XYZ version of GraphPanel - this plots XYZ data in JFreeChart using CPT instances. A few
+ * special things to note:<br>
+ * <br>
+ * Every block (colored rectangle plotted at a data point) is plotted at a global thickness for
+ * that plot. If XYZPlotSpec's don't specify this thickness, it is determined from the XYZ_DataSet.
+ * For EvenlyDiscrXYZ_DataSet instances, the grid spacing will be used. For other (arbitrarily discretized)
+ * datasets, grid spacing is crudely estimated as the median distance between neighboring (by index) points
+ * in the dataset.<br>
+ * <br>
+ * Multiple XYZ plots can be combined in a single plot (sharing 1 axis) as with GraphPanel, but the color
+ * scales will all be placed together (at the top by default, but optionally at the bottom by setting the
+ * legend location in the first XYZPlotSpec instance).
+ * @author kevin
+ *
+ */
 public class XYZGraphPanel extends JPanel {
 
 	private boolean combinedYAxis = false;
@@ -300,6 +316,9 @@ public class XYZGraphPanel extends JPanel {
 			ValueAxis fakeZAxis = new NumberAxis();
 			fakeZAxis.setLowerBound(scale.getLowerBound());
 			fakeZAxis.setUpperBound(scale.getUpperBound());
+			fakeZAxis.setLabel(spec.getZAxisLabel());
+			Font axisLabelFont = fakeZAxis.getLabelFont();
+			fakeZAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
 			PaintScaleLegend legend = new PaintScaleLegend(scale, fakeZAxis);
 			if (spec.getLegendPosition() != null)
 				legend.setPosition(spec.getLegendPosition());

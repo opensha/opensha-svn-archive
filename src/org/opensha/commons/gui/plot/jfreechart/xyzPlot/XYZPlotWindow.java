@@ -12,6 +12,13 @@ import org.opensha.commons.util.cpt.CPT;
 
 import com.google.common.collect.Lists;
 
+/**
+ * Simple class for quickly viewing XYZ plots - analogous to GraphWindow. Pass through methods are
+ * not provided for saving, call getXYZPanel() to access these methods.
+ * 
+ * @author kevin
+ *
+ */
 public class XYZPlotWindow extends JFrame {
 	
 	private XYZGraphPanel panel;
@@ -37,6 +44,10 @@ public class XYZPlotWindow extends JFrame {
 		
 		setSize(700, 800);
 		setVisible(true);
+	}
+	
+	public XYZGraphPanel getXYZPanel() {
+		return panel;
 	}
 	
 	public static void main(String[] args) throws IOException {
