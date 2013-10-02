@@ -15,7 +15,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.ngaWest.NGAWestParser;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
@@ -28,13 +28,12 @@ public class CatalogWriter {
 	}
 	
 	protected static void writeFiniteSurfaceFile(RuptureSurface rupSurf, File file, double distCutoff) throws IOException {
-		ArrayList<EvenlyGriddedSurface> surfs = new ArrayList<EvenlyGriddedSurface>();
+		ArrayList<RuptureSurface> surfs = new ArrayList<RuptureSurface>();
 		
-		if (rupSurf instanceof EvenlyGriddedSurface) {
-			surfs.add((EvenlyGriddedSurface)rupSurf);
-		} else if (rupSurf instanceof CompoundGriddedSurface) {
-			surfs.addAll(((CompoundGriddedSurface)rupSurf).getSurfaceList());
-		}
+		if (rupSurf instanceof CompoundSurface) 
+			surfs.addAll(((CompoundSurface)rupSurf).getSurfaceList());
+		else
+			surfs.add(rupSurf);
 		
 		FileWriter fw = new FileWriter(file);
 		
@@ -42,30 +41,27 @@ public class CatalogWriter {
 		
 		ArrayList<Location> prevLocs = new ArrayList<Location>();
 		for (int i=0; i<surfs.size(); i++) {
-			EvenlyGriddedSurface surf = surfs.get(i);
+			RuptureSurface surf = surfs.get(i);
 			
 			int skips = 0;
 			ArrayList<Location> locs = new ArrayList<Location>();
 			
-			for (int row=0; row<surf.getNumRows(); row++) {
-				for (int col=0; col<surf.getNumCols(); col++) {
-					Location loc = surf.get(row, col);
-					if (distCutoff > 0 && distCutoff < Double.MAX_VALUE) {
-						// make sure we don't have any duplicates with the previous surface
-						boolean skip = false;
-						for (Location prevLoc : prevLocs) {
-							if (LocationUtils.linearDistanceFast(loc, prevLoc) < distCutoff) {
-								skip = true;
-								break;
-							}
-						}
-						if (skip) {
-							skips++;
+			for (Location loc : surf.getEvenlyDiscritizedListOfLocsOnSurface()) {
+				if (distCutoff > 0 && distCutoff < Double.MAX_VALUE) {
+					// make sure we don't have any duplicates with the previous surface
+					boolean skip = false;
+					for (Location prevLoc : prevLocs) {
+						if (LocationUtils.linearDistanceFast(loc, prevLoc) < distCutoff) {
+							skip = true;
 							break;
 						}
 					}
-					locs.add(loc);
+					if (skip) {
+						skips++;
+						break;
+					}
 				}
+				locs.add(loc);
 			}
 			
 			fw.write("# SURFACE "+i+" ("+skips+" pts skipped)\n");

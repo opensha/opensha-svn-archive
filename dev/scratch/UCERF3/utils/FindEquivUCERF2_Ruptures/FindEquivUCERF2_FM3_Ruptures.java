@@ -33,7 +33,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -862,7 +862,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 				for(FaultSectionPrefData fltData: faultSysRupSet.getFaultSectionDataForRupture(ir)) {
 					surfaces.add(fltData.getStirlingGriddedSurface(1.0, false, true));
 				}
-				CompoundGriddedSurface compSurf = new CompoundGriddedSurface(surfaces);
+				CompoundSurface compSurf = new CompoundSurface(surfaces);
 				LocationList surfLocs = compSurf.getEvenlyDiscritizedListOfLocsOnSurface();
 				double ptRate = rateOfUCERF2_Rup[ur]/surfLocs.size();
 				for(Location loc: surfLocs) {
@@ -893,7 +893,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 				for(FaultSectionPrefData fltData: faultSysRupSet.getFaultSectionDataForRupture(ir)) {
 					surfaces.add(fltData.getStirlingGriddedSurface(1.0, false, true));
 				}
-				CompoundGriddedSurface compSurf = new CompoundGriddedSurface(surfaces);
+				CompoundSurface compSurf = new CompoundSurface(surfaces);
 				LocationList surfLocs = compSurf.getEvenlyDiscritizedListOfLocsOnSurface();
 				HashSet<Integer> locIndices = new HashSet<Integer>();	// this will prevent duplicate entries
 				for(Location loc: surfLocs) {

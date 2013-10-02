@@ -15,9 +15,11 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
@@ -35,6 +37,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -43,6 +46,7 @@ import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -58,6 +62,24 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		FaultSystemSolution theSol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+						+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		HistogramFunction hist = new HistogramFunction(0.25, 40, 0.5);
+		for (FaultSectionPrefData sect : theSol.getRupSet().getFaultSectionDataList()) {
+			double len = sect.getTraceLength();
+			hist.add(len, 1d);
+		}
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		List<HistogramFunction> elems = Lists.newArrayList();
+		elems.add(hist);
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		PlotSpec spec = new PlotSpec(elems, chars, "Sub Sect Lenghts", "Length (km)", "Number");
+		gp.drawGraphPanel(spec);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.setBackground(Color.WHITE);
+		gp.saveAsPNG("/tmp/sub_sect_length_hist.png");
+		System.exit(0);
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/tmp/compound/2013_05_10-ucerf3p3-production-10runs_run1_COMPOUND_SOL.zip"));
 		List<LogicTreeBranch> branches = Lists.newArrayList(cfss.getBranches());
 		Collections.shuffle(branches);
@@ -232,7 +254,7 @@ public class PureScratch {
 		funcs.add(ucerf2Func);
 		funcs.add(inversionFunc);
 		
-		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars = new ArrayList<PlotCurveCharacterstics>();
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 		

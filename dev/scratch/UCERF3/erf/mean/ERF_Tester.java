@@ -14,8 +14,9 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 import com.google.common.base.Stopwatch;
 
@@ -101,9 +102,9 @@ public class ERF_Tester {
 		for (int i=0; i<erf.getNumSources(); i++) {
 			ProbEqkSource source = erf.getSource(i);
 			totRups += source.getNumRuptures();
-			CompoundGriddedSurface surf = (CompoundGriddedSurface)source.getSourceSurface();
-			for (EvenlyGriddedSurface subSurf : surf.getSurfaceList())
-				surfPts += subSurf.size();
+			CompoundSurface surf = (CompoundSurface)source.getSourceSurface();
+			for (RuptureSurface subSurf : surf.getSurfaceList())
+				surfPts += subSurf.getEvenlyDiscritizedListOfLocsOnSurface().size();
 		}
 		System.out.println("ruptures: "+totRups);
 		System.out.println("surf locs: "+surfPts);

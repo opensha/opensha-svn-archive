@@ -14,6 +14,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.QuadSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.faultSurface.SimpleFaultData;
@@ -63,6 +64,9 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	boolean lastPreserveGridSpacingExactly;
 	boolean lastAseisReducesArea;
 	StirlingGriddedSurface stirlingGriddedSurface=null;
+	
+	// or for a quad surface
+	QuadSurface quadSurf=null;
 
 	public String getShortName() {
 		return this.shortName;
@@ -569,15 +573,18 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 * and ddw exactly (otherwise trimming occurs)
 	 * @return
 	 */
-	public StirlingGriddedSurface getStirlingGriddedSurface(double gridSpacing, boolean preserveGridSpacingExactly,
+	public synchronized StirlingGriddedSurface getStirlingGriddedSurface(
+			double gridSpacing, boolean preserveGridSpacingExactly,
 			boolean aseisReducesArea) {
 		// return cached surface?
-		if( (gridSpacing==lastGridSpacing)
+		if( (gridSpacing==lastGridSpacing && stirlingGriddedSurface != null)
 				&& (preserveGridSpacingExactly== lastPreserveGridSpacingExactly)
 				&& (aseisReducesArea == lastAseisReducesArea)) {
 			return stirlingGriddedSurface;
 		}
 		else {		// make the surface
+			// make sure quad surf is null since things changed
+			quadSurf = null;
 			if(preserveGridSpacingExactly)
 				stirlingGriddedSurface = new StirlingGriddedSurface(getSimpleFaultData(aseisReducesArea), gridSpacing);
 			else
@@ -600,6 +607,23 @@ public class FaultSectionPrefData  implements Named, java.io.Serializable, XMLSa
 	 */
 	public StirlingGriddedSurface getStirlingGriddedSurface(double gridSpacing) {
 		return getStirlingGriddedSurface(gridSpacing, true, true);
+	}
+	
+	public QuadSurface getQuadSurface(boolean aseisReducesArea) {
+		return getQuadSurface(aseisReducesArea, 1d);
+	}
+	
+	public synchronized QuadSurface getQuadSurface(boolean aseisReducesArea, double spacingForGridOperations) {
+		if (lastAseisReducesArea == aseisReducesArea && quadSurf != null) {
+			quadSurf.setAveGridSpacing(spacingForGridOperations);
+			return quadSurf;
+		}
+		if (lastAseisReducesArea != aseisReducesArea)
+			// make sure stirling is null since aseis changed
+			stirlingGriddedSurface = null;
+		lastAseisReducesArea = aseisReducesArea;
+		quadSurf = new QuadSurface(this, aseisReducesArea);
+		return quadSurf;
 	}
 
 	

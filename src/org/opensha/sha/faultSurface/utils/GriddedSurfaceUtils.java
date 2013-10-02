@@ -267,7 +267,33 @@ public class GriddedSurfaceUtils {
 		return locList;
 	}
 	
-	
+	/**
+	 * Creates an evenly discretized line between the two points, with, at a maximum, the given
+	 * grid spacing. Will return at least 2 points.
+	 * @param start
+	 * @param end
+	 * @param gridSpacing
+	 * @return
+	 */
+	public static LocationList getEvenlyDiscretizedLine(Location start, Location end, double gridSpacing) {
+		double length = LocationUtils.linearDistance(start, end);
+		if (gridSpacing > length)
+			gridSpacing = length;
+		LocationVector vector = LocationUtils.vector(start, end);
+		double numSpans = Math.ceil(length/gridSpacing);
+		vector.setHorzDistance(vector.getHorzDistance()/numSpans);
+		vector.setVertDistance(vector.getVertDistance()/numSpans);
+		
+		LocationList line = new LocationList();
+		line.add(start);
+		Location prevPt = start;
+		for (int i=0; i<(int)numSpans; i++) {
+			Location loc = LocationUtils.location(prevPt, vector);
+			line.add(loc);
+			prevPt = loc;
+		}
+		return line;
+	}
 	
 	/**
 	 * This returns the minimum distance as the minimum among all location

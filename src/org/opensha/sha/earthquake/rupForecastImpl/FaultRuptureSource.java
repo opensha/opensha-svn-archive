@@ -31,7 +31,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -325,21 +325,21 @@ extends ProbEqkSource {
 			faultCornerLocations.add(griddedSurf.get(nRows - 1, (int) (nCols / 2)));
 			faultCornerLocations.add(griddedSurf.get(nRows - 1, nCols - 1));
 		}
-		else if (faultSurface instanceof CompoundGriddedSurface) {
-			// here we assume each surface is small enough to just take the top and bottom of 
-			//  first columns, plus the top and bottom of the last column of the last surface
-			ArrayList<EvenlyGriddedSurface> surfaces = ((CompoundGriddedSurface) faultSurface).getSurfaceList();
-			for(EvenlyGriddedSurface griddedSurf: surfaces) {
-				faultCornerLocations.add(griddedSurf.get(0, 0));
-				faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, 0));
-			}
-			EvenlyGriddedSurface griddedSurf = surfaces.get(surfaces.size()-1);
-			int lastCol = griddedSurf.getNumCols() - 1;
-			faultCornerLocations.add(griddedSurf.get(0, lastCol));
-			faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, lastCol));
-		}
+//		else if (faultSurface instanceof CompoundSurface) {
+//			// here we assume each surface is small enough to just take the top and bottom of 
+//			//  first columns, plus the top and bottom of the last column of the last surface
+//			ArrayList<EvenlyGriddedSurface> surfaces = ((CompoundSurface) faultSurface).getSurfaceList();
+//			for(EvenlyGriddedSurface griddedSurf: surfaces) {
+//				faultCornerLocations.add(griddedSurf.get(0, 0));
+//				faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, 0));
+//			}
+//			EvenlyGriddedSurface griddedSurf = surfaces.get(surfaces.size()-1);
+//			int lastCol = griddedSurf.getNumCols() - 1;
+//			faultCornerLocations.add(griddedSurf.get(0, lastCol));
+//			faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, lastCol));
+//		}
 		else
-			throw new RuntimeException("Surface type is not supported");
+			faultCornerLocations = faultSurface.getPerimeter();
 
 	}
 

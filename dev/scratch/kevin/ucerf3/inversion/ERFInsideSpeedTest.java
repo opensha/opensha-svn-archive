@@ -11,7 +11,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RupInRegionCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
@@ -54,7 +54,7 @@ public class ERFInsideSpeedTest {
 			public boolean isRupInRegion(ProbEqkSource src, EqkRupture rup, int srcIndex, int rupIndex,
 					Region region) {
 				RuptureSurface surf = rup.getRuptureSurface();
-				if (surf instanceof CompoundGriddedSurface) {
+				if (surf instanceof CompoundSurface) {
 					ConcurrentMap<String, Boolean> regMap = map.get(region);
 					if (regMap == null) {
 						regMap = Maps.newConcurrentMap();

@@ -13,6 +13,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -82,6 +83,11 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected IncludeBackgroundOption bgInclude; // this is the primitive field
 	protected BackgroundRupParam bgRupTypeParam;
 	protected BackgroundRupType bgRupType; // this is the primitive field
+	private static final String QUAD_SURFACES_PARAM_NAME = "Use Quad Surfaces (otherwise gridded)";
+	private static final boolean QUAD_SURFACES_PARAM_DEFAULT = false;
+	private BooleanParameter quadParam;
+	private boolean quadSurfaces;
+	protected boolean quadSurfacesChanged=true;
 	
 	final public static double MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS = 0.97;	// 3%
 
@@ -173,6 +179,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		bgRupTypeParam = new BackgroundRupParam();
 //		bgRupTypeParam.getEditor().setEnabled(false);
 		adjustableParams.addParameter(bgRupTypeParam);
+		
+		quadParam = new BooleanParameter(QUAD_SURFACES_PARAM_NAME, QUAD_SURFACES_PARAM_DEFAULT);
+		adjustableParams.addParameter(quadParam);
 
 		// set listeners
 		fileParam.addParameterChangeListener(this);
@@ -181,6 +190,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterParam.addParameterChangeListener(this);
 		bgIncludeParam.addParameterChangeListener(this);
 		bgRupTypeParam.addParameterChangeListener(this);
+		quadParam.addParameterChangeListener(this);
 		
 		// set primitives
 		faultGridSpacing = faultGridSpacingParam.getValue();
@@ -188,6 +198,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilter = applyAftershockFilterParam.getValue();
 		bgInclude = bgIncludeParam.getValue();
 		bgRupType = bgRupTypeParam.getValue();
+		quadSurfaces = quadParam.getValue();
 
 	}
 	
@@ -214,7 +225,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		// do this before calling setupArraysAndLists().
 		initOtherSources();	// these are created even if not used
 
-		if (faultSysSolutionChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || faultGridSpacingChanged) {	// faultGridSpacingChanged not influential here
+		if (faultSysSolutionChanged || aleatoryMagAreaStdDevChanged
+				|| applyAftershockFilterChanged || faultGridSpacingChanged
+				|| quadSurfacesChanged) {	// faultGridSpacingChanged not influential here
 			setupArraysAndLists();	// note that this overrides all fault-based source objects
 		} 
 		else if(timeSpanChangeFlag) {	// only time-span changed
@@ -229,6 +242,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		applyAftershockFilterChanged = false;
 		faultGridSpacingChanged = false;
 		timeSpanChangeFlag = false;
+		quadSurfacesChanged= false;
 				
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		if(D) {
@@ -263,6 +277,9 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 //			bgRupTypeParam.getEditor().setEnabled(enable);
 		} else if (paramName.equalsIgnoreCase(bgRupTypeParam.getName())) {
 			bgRupType = bgRupTypeParam.getValue();
+		} else if (paramName.equals(QUAD_SURFACES_PARAM_NAME)) {
+			quadSurfaces = quadParam.getValue();
+			quadSurfacesChanged = true;
 		} else {
 			throw new RuntimeException("parameter name not recognized");
 		}
@@ -472,7 +489,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 				boolean isPoisson = true;
 				double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(fltSystRupIndex)*timeSpan.getDuration());
 				src = new FaultRuptureSource(mag, 
-						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing), 
+						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces), 
 						rupSet.getAveRakeForRup(fltSystRupIndex), prob, isPoisson);
 			} else {
 				// we have a MFD for this rupture
@@ -482,7 +499,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 					rupMFD.scale(aftRateCorr);
 				}
 				src = new FaultRuptureSource(rupMFD, 
-						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing),
+						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 						rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
 			}
 		} else {
@@ -490,7 +507,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			double totMoRate = aftRateCorr*faultSysSolution.getRateForRup(fltSystRupIndex)*MagUtils.magToMoment(mag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,mag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
 			src = new FaultRuptureSource(srcMFD, 
-					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing),
+					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());			
 		}
 

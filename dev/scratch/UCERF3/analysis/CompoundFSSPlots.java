@@ -73,7 +73,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RupInRegionCache;
 import org.opensha.sha.faultSurface.RupNodesCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
@@ -1105,7 +1105,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public boolean isRupInRegion(ProbEqkSource source, EqkRupture rup,
 				int srcIndex, int rupIndex, Region region) {
 			RuptureSurface surf = rup.getRuptureSurface();
-			if (surf instanceof CompoundGriddedSurface) {
+			if (surf instanceof CompoundSurface) {
 				int invIndex = getInversionIndex(source);
 				ConcurrentMap<Integer, Boolean> regMap = map
 						.get(region);
@@ -4682,7 +4682,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public int[] getNodesForRup(ProbEqkSource source, EqkRupture rup,
 				int srcIndex, int rupIndex, GriddedRegion region) {
 			RuptureSurface surf = rup.getRuptureSurface();
-			if (surf instanceof CompoundGriddedSurface) {
+			if (surf instanceof CompoundSurface) {
 				int invIndex = getInversionIndex(source);
 				ConcurrentMap<Integer, int[]> regMap = nodesMap.get(region);
 				if (regMap == null) {
@@ -4727,7 +4727,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public double[] getFractsInNodesForRup(ProbEqkSource source,
 				EqkRupture rup, int srcIndex, int rupIndex, GriddedRegion region) {
 			RuptureSurface surf = rup.getRuptureSurface();
-			if (surf instanceof CompoundGriddedSurface) {
+			if (surf instanceof CompoundSurface) {
 				int invIndex = getInversionIndex(source);
 				ConcurrentMap<Integer, double[]> fractMap = fractsMap.get(region);
 				double[] fracts = fractMap.get(invIndex);

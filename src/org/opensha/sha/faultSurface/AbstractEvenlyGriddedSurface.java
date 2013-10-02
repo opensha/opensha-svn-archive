@@ -265,6 +265,11 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	public FaultTrace getEvenlyDiscritizedUpperEdge() {
 		return getRowAsTrace(0);
 	}
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedLowerEdge() {
+		return getRowAsTrace(getNumRows()-1);
+	}
 	
 	@Override
 	/**

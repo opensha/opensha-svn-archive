@@ -92,6 +92,15 @@ public interface RuptureSurface {
 	public FaultTrace getEvenlyDiscritizedUpperEdge();
 	
 	/**
+	 * This returns a list of locations that are evenly spread along the
+	 * lower edge of the surface.  Further details are specified by the implementing 
+	 * class.  These locations should be ordered along the fault following
+	 * the Aki and Richards convention.
+	 * @return
+	 */
+	public LocationList getEvenlyDiscritizedLowerEdge();
+	
+	/**
 	 * This returns the average grid spacing used to define the discretization 
 	 * used in what's returned by the methods here that contain "Discretized"
 	 * in their names.

@@ -256,17 +256,8 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 				Location traceLocation = LocationUtils.location( location1, dir  );
 
 				// get location at the top of the fault surface
-				Location topLocation;
-				if(traceLocation.getDepth() < upperSeismogenicDepth) {
-					//                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
-					vDistance = upperSeismogenicDepth - traceLocation.getDepth();
-					hDistance = vDistance / Math.tan( avDipRadians );
-					//                dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
-					dir = new LocationVector(aveDipDirection, hDistance, vDistance);
-					topLocation = LocationUtils.location( traceLocation, dir );
-				}
-				else
-					topLocation = traceLocation;
+				Location topLocation = getTopLocation(traceLocation, upperSeismogenicDepth,
+						avDipRadians, aveDipDirection);
 
 				set(0, ith_col, topLocation.clone());
 				if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
@@ -307,6 +298,28 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 			 */
 	}
 	
+	/**
+	 * This will return the location, down dip from the fault trace point at the top of the seismogenic
+	 * zone. If the location is already at or below the upper seismogenic depth, it is simply returned.
+	 * @param traceLoc
+	 * @param upperSeismogenicDepth
+	 * @param aveDipRadians in radians
+	 * @param aveDipDirection in decimal degrees
+	 * @return
+	 */
+	public static Location getTopLocation(Location traceLoc, double upperSeismogenicDepth,
+			double aveDipRadians, double aveDipDirection) {
+		if(traceLoc.getDepth() < upperSeismogenicDepth) {
+			//                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
+			double vDistance = upperSeismogenicDepth - traceLoc.getDepth();
+			double hDistance = vDistance / Math.tan( aveDipRadians );
+			//                dir = new LocationVector(vDistance, hDistance, aveDipDirection, 0);
+			LocationVector dir = new LocationVector(aveDipDirection, hDistance, vDistance);
+			return LocationUtils.location( traceLoc, dir );
+		}
+		else
+			return traceLoc;
+	}
 	
 	@Override
 	/**

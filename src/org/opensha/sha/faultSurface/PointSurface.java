@@ -361,6 +361,11 @@ public class PointSurface implements RuptureSurface {
 	}
 
 	@Override
+	public LocationList getEvenlyDiscritizedLowerEdge() {
+		return getLocationList();
+	}
+
+	@Override
 	public Location getFirstLocOnUpperEdge() {
 		return pointLocation;
 	}

@@ -220,6 +220,11 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 		return getRowAsTrace(0);
 	}
 
+	@Override
+	public FaultTrace getEvenlyDiscritizedLowerEdge() {
+		return getRowAsTrace(getNumRows()-1);
+	}
+
 
 	@Override
 	public Location getFirstLocOnUpperEdge() {

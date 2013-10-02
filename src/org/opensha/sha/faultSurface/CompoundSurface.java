@@ -15,7 +15,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 /**
- * This class represents compound EvenlyGriddedSurfaces to represent multi-fault ruptures. 
+ * This class represents compound RuptureSurface to represent multi-fault ruptures. 
  * The most challenging thing here is maintaining the Aki Richards convention for the total
  * surface.  The main method here was used to make various tests to ensure that these things are
  * handled properly (these data were analyzed externally using Igor).
@@ -23,9 +23,9 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * @author field
  *
  */
-public class CompoundGriddedSurface implements RuptureSurface {
+public class CompoundSurface implements RuptureSurface {
 	
-	ArrayList<EvenlyGriddedSurface> surfaces;
+	List<? extends RuptureSurface> surfaces;
 	
 	final static boolean D = false;
 	
@@ -46,7 +46,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	
 	
 	
-	public CompoundGriddedSurface(ArrayList<EvenlyGriddedSurface> surfaces) {
+	public CompoundSurface(List<? extends RuptureSurface> surfaces) {
 		this.surfaces = surfaces;
 		computeInitialStuff();
 	}
@@ -56,7 +56,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	 * 
 	 * @return ArrayList<EvenlyGriddedSurface>
 	 */
-	public ArrayList<EvenlyGriddedSurface> getSurfaceList() {
+	public List<? extends RuptureSurface> getSurfaceList() {
 		return surfaces;
 	}
 	
@@ -66,8 +66,8 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		reverseSurfTrace = new boolean[surfaces.size()];
 
 		// determine if either of the first two sections need to be reversed
-		EvenlyGriddedSurface surf1 = surfaces.get(0);
-		EvenlyGriddedSurface surf2 = surfaces.get(1);
+		RuptureSurface surf1 = surfaces.get(0);
+		RuptureSurface surf2 = surfaces.get(1);
 		double[] dist = new double[4];
 		dist[0] = LocationUtils.horzDistanceFast(surf1.getFirstLocOnUpperEdge(), surf2.getFirstLocOnUpperEdge());
 		dist[1] = LocationUtils.horzDistanceFast(surf1.getFirstLocOnUpperEdge(), surf2.getLastLocOnUpperEdge());
@@ -121,7 +121,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		aveDip = 0;
 		totArea=0;
 		for(int s=0; s<surfaces.size();s++) {
-			EvenlyGriddedSurface surf = surfaces.get(s);
+			RuptureSurface surf = surfaces.get(s);
 			double area = surf.getArea();
 			double dip;
 			try {
@@ -175,7 +175,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	public synchronized double getAveGridSpacing() {
 		if(aveGridSpacing == -1) {
 			aveGridSpacing = 0;
-			for(EvenlyGriddedSurface surf: surfaces) {
+			for(RuptureSurface surf: surfaces) {
 				aveGridSpacing += surf.getAveGridSpacing()*surf.getArea();
 			}
 			aveGridSpacing /= getArea();
@@ -190,7 +190,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	public synchronized double getAveLength() {
 		if(aveLength == -1) {
 			aveLength = 0;
-			for(EvenlyGriddedSurface surf: surfaces) {
+			for(RuptureSurface surf: surfaces) {
 				aveLength += surf.getAveLength();
 			}
 		}
@@ -204,7 +204,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	public synchronized double getAveRupTopDepth() {
 		if(aveRupTopDepth == -1) {
 			aveRupTopDepth = 0;
-			for(EvenlyGriddedSurface surf: surfaces) {
+			for(RuptureSurface surf: surfaces) {
 				aveRupTopDepth += surf.getAveRupTopDepth()*surf.getArea();
 			}
 			aveRupTopDepth /= getArea();
@@ -227,7 +227,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	public synchronized double getAveWidth() {
 		if(aveWidth == -1) {
 			aveWidth = 0;
-			for(EvenlyGriddedSurface surf: surfaces) {
+			for(RuptureSurface surf: surfaces) {
 				aveWidth += surf.getAveWidth()*surf.getArea();
 			}
 			aveWidth /= getArea();
@@ -246,7 +246,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		distanceRup = Double.MAX_VALUE;
 		double dist;
 		for (int i=0; i<surfaces.size(); i++) {
-			EvenlyGriddedSurface surf = surfaces.get(i);
+			RuptureSurface surf = surfaces.get(i);
 			dist = surf.getDistanceJB(siteLocForDistCalcs);
 			if (dist<distanceJB) distanceJB=dist;
 			dist = surf.getDistanceRup(siteLocForDistCalcs);
@@ -300,10 +300,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 		// update distX for closest sub-surface to Location
 		if(!siteLocForDistXCalc.equals(siteLoc)) {
 			siteLocForDistXCalc = siteLoc;
-			FaultTrace trace = surfaces.get(distXidx)
-				.getEvenlyDiscritizedUpperEdge();
-			distanceX = GriddedSurfaceUtils.getDistanceX(trace,
-					siteLocForDistXCalc);
+			distanceX = surfaces.get(distXidx).getDistanceX(siteLoc);
 		}
 		return distanceX;
 	}
@@ -315,7 +312,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	 */
 	public LocationList getEvenlyDiscritizedListOfLocsOnSurface() {
 		LocationList locList = new LocationList();
-		for(EvenlyGriddedSurface surf:surfaces) {
+		for(RuptureSurface surf:surfaces) {
 			locList.addAll(surf.getEvenlyDiscritizedListOfLocsOnSurface());
 		}
 		return locList;
@@ -323,45 +320,74 @@ public class CompoundGriddedSurface implements RuptureSurface {
 
 	@Override
 	public LocationList getEvenlyDiscritizedPerimeter() {
+		// TODO verify
 		LocationList perimeter = new LocationList();
+		LocationList upper = getEvenlyDiscritizedUpperEdge();
+		LocationList lower = getEvenlyDiscritizedUpperEdge();
+		LocationList right = GriddedSurfaceUtils.getEvenlyDiscretizedLine(
+				upper.last(), lower.last(), getAveGridSpacing());
+		LocationList left = GriddedSurfaceUtils.getEvenlyDiscretizedLine(
+				lower.first(), upper.first(), getAveGridSpacing());
 		// add the upper edge
-		perimeter.addAll(getEvenlyDiscritizedUpperEdge());
-		// make the lower edge
-		if(reverseOrderOfSurfaces) {
-			for(int s=0; s<surfaces.size(); s++) {
-				EvenlyGriddedSurface surf = surfaces.get(s);
-				if(reverseSurfTrace[s]) { // start at the beginning
-					for(int c=surf.getNumCols()-1; c>=0 ; c--)
-						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
-				}
-				else { // start at the end
-					for(int c=0; c< surf.getNumCols(); c++)
-						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
-				}
-			}
-		}
-		else { // no reverse order of surfaces; start at last surface
-			for(int s=surfaces.size()-1; s>=0; s--) {
-				EvenlyGriddedSurface surf = surfaces.get(s);
-				if(reverseSurfTrace[s]) { // start at the beginning
-					for(int c=0; c< surf.getNumCols(); c++)
-						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
-				}
-				else { // start at the end
-					for(int c=surf.getNumCols()-1; c>=0 ; c--)
-						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
-				}
-			}
-		}
+		perimeter.addAll(upper);
+		// make the "right" side
+		perimeter.addAll(right);
+		// add reversed lower
+		for (int i=lower.size(); --i>=0;)
+			perimeter.add(lower.get(i));
+		// add "left"
+		perimeter.addAll(left);
 		return perimeter;
+		
+//		// make the lower edge
+//		if(reverseOrderOfSurfaces) {
+//			for(int s=0; s<surfaces.size(); s++) {
+//				RuptureSurface surf = surfaces.get(s);
+//				if(reverseSurfTrace[s]) { // start at the beginning
+//					for(int c=surf.getNumCols()-1; c>=0 ; c--)
+//						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
+//				}
+//				else { // start at the end
+//					for(int c=0; c< surf.getNumCols(); c++)
+//						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
+//				}
+//			}
+//		}
+//		else { // no reverse order of surfaces; start at last surface
+//			for(int s=surfaces.size()-1; s>=0; s--) {
+//				RuptureSurface surf = surfaces.get(s);
+//				if(reverseSurfTrace[s]) { // start at the beginning
+//					for(int c=0; c< surf.getNumCols(); c++)
+//						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));
+//				}
+//				else { // start at the end
+//					for(int c=surf.getNumCols()-1; c>=0 ; c--)
+//						perimeter.add(surf.getLocation(surf.getNumRows()-1, c));					
+//				}
+//			}
+//		}
+//		return perimeter;
 	}
 
 	@Override
 	public FaultTrace getEvenlyDiscritizedUpperEdge() {
+		return getEvenlyDiscretizedEdge(true);
+	}
+
+	@Override
+	public FaultTrace getEvenlyDiscritizedLowerEdge() {
+		return getEvenlyDiscretizedEdge(false);
+	}
+	
+	private FaultTrace getEvenlyDiscretizedEdge(boolean upper) {
 		FaultTrace evenUpperEdge = new FaultTrace(null);
 			if(reverseOrderOfSurfaces) {
 				for(int s=surfaces.size()-1; s>=0;s--) {
-					FaultTrace trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					LocationList trace;
+					if (upper)
+						trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					else
+						trace = surfaces.get(s).getEvenlyDiscritizedLowerEdge();
 					if(reverseSurfTrace[s]) {
 						for(int i=0; i<trace.size();i++)
 							evenUpperEdge.add(trace.get(i));
@@ -374,7 +400,11 @@ public class CompoundGriddedSurface implements RuptureSurface {
 			}
 			else { // don't reverse order of surfaces
 				for(int s=0; s<surfaces.size();s++) {
-					FaultTrace trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					LocationList trace;
+					if (upper)
+						trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					else
+						trace = surfaces.get(s).getEvenlyDiscritizedLowerEdge();
 					if(reverseSurfTrace[s]) {
 						for(int i=trace.size()-1; i>=0;i--)
 							evenUpperEdge.add(trace.get(i));
@@ -517,7 +547,7 @@ public class CompoundGriddedSurface implements RuptureSurface {
 	    surfList.add(new StirlingGriddedSurface(cucamonga,1.0));
 	    surfList.add(new StirlingGriddedSurface(sanJacintoSanBer,1.0));
 	    
-	    CompoundGriddedSurface compoundSurf = new CompoundGriddedSurface(surfList);
+	    CompoundSurface compoundSurf = new CompoundSurface(surfList);
 	    
 	    System.out.println("aveDipDir="+compoundSurf.getAveDipDirection());
 	    System.out.println("aveStrike="+compoundSurf.getAveStrike());

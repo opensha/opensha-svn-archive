@@ -19,9 +19,10 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.CompoundGriddedSurface;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.QuadSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -498,26 +499,27 @@ public class FaultSystemRupSet implements Serializable {
 		return datas;
 	}
 	
-	
 	/**
 	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
-	 * a reduction of area and sets preserveGridSpacingExactly=false so there are no cut-off ends
-	 * (but variable grid spacing)
+	 * a reduction of area and sets preserveGridSpacingExactly=false (for evenly gridded) so there are
+	 * no cut-off ends (but variable grid spacing)
 	 * @param rupIndex
 	 * @param gridSpacing
+	 * @param quadRupSurface use quad surfaces (otherwise evenly gridded)
 	 * @return
 	 */
-	public RuptureSurface getSurfaceForRupupture(int rupIndex, double gridSpacing) {
-		List<FaultSectionPrefData> fsdList = getFaultSectionDataForRupture(rupIndex);
-		if (fsdList.size() > 1) {
-			ArrayList<EvenlyGriddedSurface> surfaces = new ArrayList<EvenlyGriddedSurface>();
-			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex)) {
-				surfaces.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
-			}
-			return new CompoundGriddedSurface(surfaces);
+	public RuptureSurface getSurfaceForRupupture(int rupIndex, double gridSpacing, boolean quadRupSurface) {
+		List<RuptureSurface> rupSurfs = Lists.newArrayList();
+		if (quadRupSurface) {
+			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex))
+				rupSurfs.add(fltData.getQuadSurface(true, gridSpacing));
+		} else {
+			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex))
+				rupSurfs.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
 		}
-		// just return an evenly gridded surface
-		return fsdList.get(0).getStirlingGriddedSurface(gridSpacing, false, true);
+		if (rupSurfs.size() == 1)
+			return rupSurfs.get(0);
+		return new CompoundSurface(rupSurfs);
 	}
 	
 	/**
