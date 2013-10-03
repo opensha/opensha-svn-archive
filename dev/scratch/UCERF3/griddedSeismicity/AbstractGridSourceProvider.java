@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.geo.Location;
-import org.opensha.nshmp2.erf.source.PointSource13;
 import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkSource;
