@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
-import org.opensha.sha.calc.hazus.parallel.HardCodedTest;
+import org.opensha.sha.calc.hazus.parallel.HazusJobWriter;
 
 import com.google.common.base.Preconditions;
 
@@ -56,8 +56,8 @@ public class HazusStitch {
 		File newCurves = new File("/home/kevin/OpenSHA/hazus/grid_fix/indep/curves_new");
 		File mergeCurves = new File("/home/kevin/OpenSHA/hazus/grid_fix/indep/curves_merged");
 		
-		LocationList newLocs = HardCodedTest.loadCSV(newLocsFile);
-		LocationList oldLocs = HardCodedTest.loadCSV(oldLocsFile);
+		LocationList newLocs = HazusJobWriter.loadCSV(newLocsFile);
+		LocationList oldLocs = HazusJobWriter.loadCSV(oldLocsFile);
 		
 		// first remove all of the bad locs
 		if (mergeCurves.exists()) {

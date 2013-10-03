@@ -27,7 +27,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
-import org.opensha.sha.calc.hazus.parallel.HardCodedTest;
+import org.opensha.sha.calc.hazus.parallel.HazusJobWriter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
@@ -104,7 +104,7 @@ public class HazardMapPBSGen {
 		provs.add(new WillsMap2006());
 		provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
-		List<Site> sites = HardCodedTest.loadSites(provs, region.getNodeList(), imrs, false, false, null);
+		List<Site> sites = HazusJobWriter.loadSites(provs, region.getNodeList(), imrs, false, false, null);
 		
 		List<Map<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();
 		Map<TectonicRegionType, ScalarIMR> imrMap = Maps.newHashMap();

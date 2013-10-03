@@ -27,6 +27,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
+import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
@@ -63,12 +64,12 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
-public class HardCodedTest {
+public class HazusJobWriter {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 	private static final boolean constrainBasinMin = false;
 	
-	private static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
+	static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		
 		if (startYear > 0) {
@@ -95,7 +96,7 @@ public class HardCodedTest {
 		return ucerf;
 	}
 
-	private static AbstractERF getERF(int years, int startYear, boolean includeBackSeis) {
+	static AbstractERF getERF(int years, int startYear, boolean includeBackSeis) {
 		return getUCERF2(years, startYear, includeBackSeis);
 	}
 	
@@ -277,7 +278,7 @@ public class HardCodedTest {
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
 		if (args.length < 7 || args.length > 11) {
-			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HardCodedTest.class)+
+			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(HazusJobWriter.class)+
 					" <T/F: time dependent> <"+NSHMP_08_NAME+"/"+MultiIMR_NAME+"/"+MultiIMR_NO_AS_NAME+">"+
 					" <T/F: prop effect speedup> <T/F: back seis>"+
 					" <HardCoded Vs30 (or 'null'/'wald'/'nobasin' for site data providers)>"+
@@ -322,10 +323,36 @@ public class HardCodedTest {
 //			new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30, SiteDataAPI.TYPE_FLAG_INFERRED, 760.0);
 //		SiteDataValue<?> hardcodedVal = null;
 		
-		File hazMapsDir = new File("/home/scec-02/kmilner/hazMaps");
-		
 		double sigmaTrunc = 3;
 		ScalarIMR imr = getIMR(imrStr, sigmaTrunc, propEffectSpeedup);
+		
+//		double spacing = 0.1;
+		double spacing = Double.parseDouble(args[5]);
+//		double spacing = 0.05;
+		
+		int mins = Integer.parseInt(args[7]);
+		int nodes = Integer.parseInt(args[8]);
+		int ppn;
+		if (args.length > 9)
+			ppn = Integer.parseInt(args[9]);
+		else
+			ppn = 0;
+		String queue;
+		if (args.length > 10)
+			queue = args[10];
+		else
+			queue = null;
+		
+		File hazMapsDir = new File("/home/scec-02/kmilner/hazMaps");
+		
+		prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal, noBasin,
+				useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+	}
+	
+	public static void prepareJob(AbstractERF erf, ScalarIMR imr, double spacing, int years,
+			boolean nullBasin, SiteDataValue<?> hardcodedVal, boolean noBasin, boolean useWald, String dirName,
+			int mins, int nodes, int ppn, String queue, File hazMapsDir) throws IOException, InvocationTargetException {
+		
 		Map<TectonicRegionType, ScalarIMR> imrMap =
 			TRTUtils.wrapInHashMap(imr);
 		List<Map<TectonicRegionType, ScalarIMR>> imrMaps = 
@@ -342,9 +369,6 @@ public class HardCodedTest {
 			}
 		}
 		
-//		double spacing = 0.1;
-		double spacing = Double.parseDouble(args[5]);
-//		double spacing = 0.05;
 		String spacingCode = ""+(int)(spacing * 100d);
 		if (spacingCode.length() < 2)
 			spacingCode = "0"+spacingCode;
@@ -473,68 +497,52 @@ public class HardCodedTest {
 		File libDir = new File(svnDir, "lib");
 		File jarFile = new File(distDir, "OpenSHA_complete.jar");
 		
-		int sitesPerJob;
-		if (args.length == 8)
-			sitesPerJob = Integer.parseInt(args[7]);
-		else
-			sitesPerJob = 20;
+		
 		
 		HazusDataSetDAGCreator dag = new HazusDataSetDAGCreator(erf, imrMaps, sites,
 				calcSet, archiver, javaBin.getAbsolutePath(), jarFile.getAbsolutePath(), years, spacing);
 		
-		if (MPJ) {
-			int mins = Integer.parseInt(args[7]);
-			int nodes = Integer.parseInt(args[8]);
-			int ppn;
-			if (args.length > 9)
-				ppn = Integer.parseInt(args[9]);
-			else
-				ppn = 0;
-			String queue;
-			if (args.length > 10)
-				queue = args[10];
-			else
-				queue = null;
-			
-			ArrayList<File> classpath = new ArrayList<File>();
-			classpath.add(jarFile);
-			classpath.add(new File(libDir, "commons-cli-1.2.jar"));
-			
-			MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 2000, classpath,
-					USC_HPCC_ScriptWriter.MPJ_HOME, false);
-			
-			ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);
-			
-			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf,
-					HazusDataSetDAGCreator.getHAZUSMaps(imrMaps), imts,
-					sites, calcSet, archiver);
-			
-			jobDir.mkdir();
-			
-			File inputsFile = new File(jobDir, "inputs.xml");
-			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
-			
-			String cliArgs = inputsFile.getAbsolutePath();
-			
-			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
-			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
-			
-			script = writer.buildScript(script, mins, nodes, ppn, queue);
-			
-			JavaShellScriptWriter assembleWriter = new JavaShellScriptWriter(javaBin, 2048, classpath);
-			String metadataFile = dag.writeMetadataFile(jobDir.getAbsolutePath());
-			String assembleArgs = archiver.getStoreDir().getPath() + " " + years + " " + metadataFile;
-			String assembleCommand = assembleWriter.buildCommand(HazusDataSetAssmbler.class.getName(), assembleArgs);
-			String exitLine = script.remove(script.size()-1);
-			script.add(assembleCommand);
-			script.add("");
-			script.add(exitLine);
-			
-			File pbsFile = new File(jobDir, "mpj.pbs");
-			JavaShellScriptWriter.writeScript(pbsFile, script);
-		} else {
-			dag.writeDAG(jobDir, sitesPerJob, false);
-		}
+		ArrayList<File> classpath = new ArrayList<File>();
+		classpath.add(jarFile);
+		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
+		classpath.add(new File(libDir, "parallelcolt-0.9.4.jar"));
+		classpath.add(new File(libDir, "csparsej.jar"));
+
+//		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 2000, classpath,
+//				USC_HPCC_ScriptWriter.MPJ_HOME, false);
+		FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(javaBin, 8000, classpath,
+				USC_HPCC_ScriptWriter.MPJ_HOME, false);
+
+
+		ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);
+
+		CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf,
+				HazusDataSetDAGCreator.getHAZUSMaps(imrMaps), imts,
+				sites, calcSet, archiver);
+
+		jobDir.mkdir();
+
+		File inputsFile = new File(jobDir, "inputs.xml");
+		XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
+
+		String cliArgs = inputsFile.getAbsolutePath();
+
+		List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
+		USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
+
+		script = writer.buildScript(script, mins, nodes, ppn, queue);
+
+		JavaShellScriptWriter assembleWriter = new JavaShellScriptWriter(javaBin, 2048, classpath);
+		String metadataFile = dag.writeMetadataFile(jobDir.getAbsolutePath());
+		String assembleArgs = archiver.getStoreDir().getPath() + " " + years + " " + metadataFile;
+		String assembleCommand = assembleWriter.buildCommand(HazusDataSetAssmbler.class.getName(), assembleArgs);
+		String exitLine = script.remove(script.size()-1);
+		script.add(assembleCommand);
+		script.add("");
+		script.add(exitLine);
+
+		File pbsFile = new File(jobDir, "mpj.pbs");
+		JavaShellScriptWriter.writeScript(pbsFile, script);
 	}
 
 }

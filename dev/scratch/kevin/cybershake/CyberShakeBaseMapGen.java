@@ -25,7 +25,7 @@ import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
-import org.opensha.sha.calc.hazus.parallel.HardCodedTest;
+import org.opensha.sha.calc.hazus.parallel.HazusJobWriter;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
@@ -99,7 +99,7 @@ public class CyberShakeBaseMapGen {
 		}
 		
 		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
-		ArrayList<Site> sites = HardCodedTest.loadSites(provs, region.getNodeList(), imrs, nullBasin, constrainBasinMin, null);
+		ArrayList<Site> sites = HazusJobWriter.loadSites(provs, region.getNodeList(), imrs, nullBasin, constrainBasinMin, null);
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		

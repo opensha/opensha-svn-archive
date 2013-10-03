@@ -12,9 +12,11 @@ import org.opensha.commons.param.impl.EnumParameter;
  * @version $Id:$
  */
 public class BackgroundRupParam extends EnumParameter<BackgroundRupType> {
+	
+	public static final String NAME = "Treat Background Seismicity As";
 
 	public BackgroundRupParam() {
-		super("Treat Background Seismicity As", EnumSet
+		super(NAME, EnumSet
 			.allOf(BackgroundRupType.class), BackgroundRupType.POINT, null);
 	}
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.sha.calc.hazus.parallel.HardCodedTest;
+import org.opensha.sha.calc.hazus.parallel.HazusJobWriter;
 
 public class HazusGridRecalc {
 	
@@ -30,8 +30,8 @@ public class HazusGridRecalc {
 		File origFile = new File("/home/kevin/OpenSHA/hazus/05grid.csv");
 		File newFile = new File("/home/kevin/OpenSHA/hazus/05GridV2.csv");
 		
-		LocationList origLocs = HardCodedTest.loadCSV(origFile);
-		LocationList newLocs = HardCodedTest.loadCSV(newFile);
+		LocationList origLocs = HazusJobWriter.loadCSV(origFile);
+		LocationList newLocs = HazusJobWriter.loadCSV(newFile);
 		
 		LocationList uniqueNew = new LocationList();
 		LocationList uniqueOld = new LocationList();
