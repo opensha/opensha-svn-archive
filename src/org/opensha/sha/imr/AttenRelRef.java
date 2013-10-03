@@ -17,6 +17,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.ServerPrefs;
 import org.opensha.nshmp2.imr.NSHMP08_CEUS;
+import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.impl.AB2006_140_AttenRel;
 import org.opensha.nshmp2.imr.impl.AB2006_200_AttenRel;
 import org.opensha.nshmp2.imr.impl.Campbell_2003_AttenRel;
@@ -170,6 +171,9 @@ public enum AttenRelRef {
 
 	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
 	NSHMP_2008_CEUS(NSHMP08_CEUS.class, NSHMP08_CEUS.NAME, ERROR), // TODO set to error, see ticket #435
+
+	/** Multiple weighted attenuation relationships used in 20008 CEUS NSHMP */
+	NSHMP_2008_WUS(NSHMP08_WUS.class, NSHMP08_WUS.NAME, ERROR),
 
 	/** Atkinson and Booore (2006) with 140bar stress drop. For NSHMP CEUS. */
 	AB_2006_140(AB2006_140_AttenRel.class, AB2006_140_AttenRel.NAME,

@@ -55,6 +55,7 @@ public class TestQuadSurface {
 	 */
 	private static Location getRandomTestLoc(FaultTrace gridded) {
 		Location p = gridded.get(r.nextInt(gridded.size()));
+		p = new Location(p.getLatitude(), p.getLongitude());
 		return LocationUtils.location(p, 2d*Math.PI*r.nextDouble(), test_trace_radius*r.nextDouble());
 	}
 	
@@ -64,6 +65,7 @@ public class TestQuadSurface {
 		fsd.setAveUpperDepth(upper);
 		fsd.setAveLowerDepth(lower);
 		fsd.setAveDip(dip);
+		fsd.setDipDirection((float) trace.getDipDirection());
 		return fsd;
 	}
 	
@@ -176,13 +178,20 @@ public class TestQuadSurface {
 		FaultSectionPrefData dipping = buildFSD(straight_trace, 0d, 10d, 30);
 		EvenlyGriddedSurface griddedDipping = dipping.getStirlingGriddedSurface(1d, false, false);
 		QuadSurface quadDipping = dipping.getQuadSurface(false);
-		for (int row=1; row<griddedDipping.getNumRows(); row++) {
-			for (int col=1; col<griddedDipping.getNumCols(); col++) {
+		for (int row=1; row<griddedDipping.getNumRows()-1; row++) {
+			for (int col=1; col<griddedDipping.getNumCols()-1; col++) {
 				Location loc = griddedDipping.get(row, col);
 				loc = new Location(loc.getLatitude(), loc.getLongitude());
 				double qDist = quadDipping.getDistanceJB(loc);
+				if (qDist > 1e-10) {
+					// reset the cache
+					quadDipping.getDistanceJB(new Location(Math.random(), Math.random()));
+					QuadSurface.D = true;
+					quadDipping.getDistanceJB(loc);
+					QuadSurface.D = false;
+				}
 				Preconditions.checkState((float)griddedDipping.getDistanceJB(loc)==0f);
-				assertEquals("Quad distJB isn't zero above surf: "+qDist, 0d, qDist, 1e-10);
+				assertEquals("Quad distJB isn't zero above surf: "+qDist+"\nloc: "+loc, 0d, qDist, 1e-10);
 			}
 		}
 	}
