@@ -216,13 +216,13 @@ ParameterChangeListener {
 		// Campbell & bozorgnia hidden
 		depthTo2pt5kmPerSecParam = new DepthTo2pt5kmPerSecParam(null, 0.0, 10.0, true);
 		depthTo2pt5kmPerSecParam.setValueAsDefault();
-		depthTo2pt5kmPerSecParam.getEditor().setVisible(false);
+//		depthTo2pt5kmPerSecParam.getEditor().setVisible(false);
 		siteParams.addParameter(depthTo2pt5kmPerSecParam);
 
 		// Chiou & Youngs hidden
 		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(null, true);
 		depthTo1pt0kmPerSecParam.setValueAsDefault();
-		depthTo1pt0kmPerSecParam.getEditor().setVisible(false);
+//		depthTo1pt0kmPerSecParam.getEditor().setVisible(false);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
 		vs30_TypeParam = new Vs30_TypeParam();
 		vs30_TypeParam.getEditor().setVisible(false);
