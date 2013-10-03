@@ -139,6 +139,8 @@ ParameterChangeListener {
 	public void setParamDefaults() {
 		
 		vs30Param.setValueAsDefault();
+		depthTo2pt5kmPerSecParam.setValueAsDefault();
+		depthTo1pt0kmPerSecParam .setValueAsDefault();
 		
 		saParam.setValueAsDefault();
 		saPeriodParam.setValueAsDefault();
@@ -224,6 +226,7 @@ ParameterChangeListener {
 		depthTo1pt0kmPerSecParam.setValueAsDefault();
 //		depthTo1pt0kmPerSecParam.getEditor().setVisible(false);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
+		
 		vs30_TypeParam = new Vs30_TypeParam();
 		vs30_TypeParam.getEditor().setVisible(false);
 		siteParams.addParameter(vs30_TypeParam);
@@ -265,7 +268,10 @@ ParameterChangeListener {
 		otherParams.addParameter(imrUncertParam);
 		otherParams.addParameter(hwEffectApproxParam);
 		
-		// override parent truncation param to default to 1-sided 3s
+		// remove, override and hide parent truncation param to 
+		// default to 1-sided 3s
+		otherParams.removeParameter(sigmaTruncTypeParam);
+		otherParams.removeParameter(sigmaTruncLevelParam);
 		sigmaTruncTypeParam = new SigmaTruncTypeParam(
 			SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 		sigmaTruncLevelParam = new SigmaTruncLevelParam(3.0);
@@ -309,6 +315,8 @@ ParameterChangeListener {
 	@Override
 	protected void initParameterEventListeners() {
 		vs30Param.addParameterChangeListener(this);
+		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
+		depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
 		saPeriodParam.addParameterChangeListener(this);
 	}
 
