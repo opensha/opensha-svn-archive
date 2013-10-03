@@ -1,13 +1,19 @@
 package scratch.UCERF3.griddedSeismicity;
 
 import java.awt.geom.Point2D;
+import java.util.Map;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.geo.Location;
+import org.opensha.nshmp2.erf.source.PointSource13;
+import org.opensha.nshmp2.erf.source.PointSource13b;
+import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 
@@ -33,6 +39,8 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		return getGriddedRegion().getNodeCount();
 	}
 
+	private static final double[] DEPTHS = new double[] {5.0, 1.0};
+	
 	@Override
 	public ProbEqkSource getSource(int idx, double duration,
 			boolean filterAftershocks, boolean isCrosshair) {
@@ -40,9 +48,17 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
 		if (filterAftershocks) scaleMFD(mfd);
 
-		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-			fracReverse[idx], isCrosshair);
+		Map<FocalMech, Double> mechMap = Maps.newHashMap();
+		mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip[idx]);
+		mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
+		mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
+		
+		
+		return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
+		
+//		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+//			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
+//			fracReverse[idx], isCrosshair);
 	}
 	
 	@Override
