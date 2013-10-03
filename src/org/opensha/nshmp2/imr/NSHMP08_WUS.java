@@ -533,7 +533,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 				idx++;
 			}
 		}
-		
+
 		// get and sum curves
 		Utils.zeroFunc(imls);
 		DiscretizedFunc f = imls.deepClone();
@@ -544,6 +544,8 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		}
 		return imls;
 	}
+	
+
 	
 	@Override
 	public double getExceedProbability() throws ParameterException,
@@ -579,7 +581,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 				idx++;
 			}
 		}
-		
+
 		// get and sum values
 		double pe = 0.0;
 		for (int i=0; i<means.length; i++) {
