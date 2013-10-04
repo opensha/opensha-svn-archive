@@ -150,21 +150,29 @@ public class EALCalculator {
 		if(IML.size() != DF.size() || IML.size() != MAFE.size())
 			throw new IllegalStateException("IML, DF, and MAFE must all be the same size for computing!");
 		
+		// running total of expected loss per unit of value
 		double answer = 0.0;
+		// values at the current IML
 		double iml_cur, df_cur, mafe_cur;
+		// values at the previous IML
 		double iml_pre, df_pre, mafe_pre;
+		// difference between *_cur and *_prev
 		double iml_delta, df_delta;
 		
+		// stores the log-linear slope of the hazard curve
 		double g = 0.0;
+		// not currently used, for debugging code below that is commented out
 		double a = 0.0;
 		double b = 0.0;
 		
 		double holder = 0.0;
 		
+		// remainder - unused
 		double R = 0.0;
 		double V = structValue;
 		
 		for(int i = 1; i < IML.size(); ++i) {
+			// populate *_cur, *_pre, and *_delta values
 			iml_cur = IML.get(i);
 			iml_pre = IML.get(i-1);
 			iml_delta = iml_cur - iml_pre;
@@ -176,7 +184,7 @@ public class EALCalculator {
 			mafe_cur = MAFE.get(i);
 			mafe_pre = MAFE.get(i-1);
 					
-			// Get the log-linear slope of the curve
+			// Get the log-linear slope of the hazard curve
 			g = (Math.log((mafe_cur/mafe_pre)) / iml_delta);
 			
 /* Useful for debugging.
@@ -196,6 +204,18 @@ public class EALCalculator {
 				);
 */				
 			
+			// equation #2 from:
+			// Porter, K.A.,C.R. Scawthorn, and J.L. Beck, 2006. Cost-effectiveness of stronger
+			// woodframe buildings. Earthquake Spectra 22 (1), February 2006, 239-266,
+			// http://www.sparisk.com/pubs/Porter-2006-woodframe.pdf
+			//
+			// mapping from our variables to the equation:
+			// df_pre = y sub i-1
+			// mafe_pre = G sub i-1
+			// g = m sub i
+			// iml_delta = delta s sub i
+			// df_delta = delta y sub i = [y sub i] - [y sub i-1]
+			// iml_delta = delta s sub i = [s sub i] - [s sub i-1]
 			holder = (df_pre*mafe_pre)*(1.0 - Math.exp( (g*iml_delta) ) );
 			holder -= ( 
 					( 
@@ -215,10 +235,12 @@ public class EALCalculator {
 			
 		} // END: for(int i < IML.size())
 		
-		// Adjust the answer
+		// multiply by the asset value
 		answer *= V;
+		// add the remainder (not used, hardcoded to zero)
 		answer += R;
 		
+		// return EAL
 		return answer;
 	}
 
