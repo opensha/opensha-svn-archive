@@ -467,13 +467,13 @@ public class HazusJobWriter {
 				Parameter<?> siteParam = it.next();
 				Parameter clonedParam = (Parameter) siteParam.clone();
 				String paramName = siteParam.getName();
-				if (nullBasin &&
-						(paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
-								|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
-					clonedParam.setValue(null);
-				} else {
+//				if (nullBasin &&
+//						(paramName.equals(DepthTo2pt5kmPerSecParam.NAME)
+//								|| paramName.equals(DepthTo1pt0kmPerSecParam.NAME))) {
+//					clonedParam.setValue(null);
+//				} else {
 					trans.setParameterValue(clonedParam, datas);
-				}
+//				}
 				site.addParameter(clonedParam);
 			}
 			sites.add(site);
