@@ -10,6 +10,7 @@ import java.util.List;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.imr.AttenRelRef;
@@ -35,6 +36,7 @@ public class UCERF3HazusJobWriter {
 		erf.setParameter(UCERF3_FaultSysSol_ERF.FILE_PARAM_NAME, fsdFile);
 		erf.getTimeSpan().setDuration((double)years);
 		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.CROSSHAIR);
+		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, true);
 		return erf;
 	}
 
