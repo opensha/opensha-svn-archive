@@ -54,7 +54,7 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
 		return gridSources.getSource(iSource, timeSpan.getDuration(),
-			applyAftershockFilter, true);
+			applyAftershockFilter, bgRupType == BackgroundRupType.CROSSHAIR);
 	}
 
 	@Override

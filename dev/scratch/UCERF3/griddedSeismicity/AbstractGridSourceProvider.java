@@ -52,12 +52,11 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
 		mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
 		
-		
+		if (isCrosshair)
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
+					fracReverse[idx], isCrosshair);
 		return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
-		
-//		return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-//			ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-//			fracReverse[idx], isCrosshair);
 	}
 	
 	@Override
