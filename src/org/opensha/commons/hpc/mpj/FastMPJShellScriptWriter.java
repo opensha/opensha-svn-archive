@@ -54,6 +54,22 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		
 		script.add("#!/bin/bash");
 		script.add("");
+		
+		// new lines added to remove host that job starts on from list of
+		// supplied nodes
+		script.add("NEW_NODEFILE=\"/tmp/${USER}-hostfile-${PBS_JOBID}\"");
+		script.add("echo \"creating PBS_NODEFILE: $NEW_NODEFILE\"");
+		script.add("hname=$(hostname)");
+		script.add("if [ \"$hname\" == \"\" ]");
+		script.add("then");
+		script.add("  echo \"Error getting hostname. Exiting\"");
+		script.add("  exit 1");
+		script.add("else");
+		script.add("  cat $PBS_NODEFILE | sort | uniq | fgrep -v $hname > $NEW_NODEFILE");
+		script.add("fi");
+		script.add("");
+		script.add("export PBS_NODEFILE=$NEW_NODEFILE");
+
 		script.add("export FMPJ_HOME="+mpjHome.getAbsolutePath());
 		script.add("export PATH=$PATH:$FMPJ_HOME/bin");
 		script.add("");
@@ -71,6 +87,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		script.add("  exit 1");
 		script.add("fi");
 		
+ 
 		String dev;
 		if (useMXDev)
 			dev = "mxdev";
