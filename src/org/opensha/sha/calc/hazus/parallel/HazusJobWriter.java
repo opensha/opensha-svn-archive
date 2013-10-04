@@ -511,7 +511,7 @@ public class HazusJobWriter {
 //		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 2000, classpath,
 //				USC_HPCC_ScriptWriter.MPJ_HOME, false);
 		FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(javaBin, 8000, classpath,
-				USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 
 
 		ArrayList<Parameter<Double>> imts = HazusDataSetDAGCreator.getIMTList(imrMaps);
