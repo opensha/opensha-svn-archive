@@ -2,8 +2,10 @@ package org.opensha.sha.faultSurface;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensha.commons.geo.Location;
@@ -13,6 +15,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class TestQuadSurface {
 	
@@ -214,6 +217,128 @@ public class TestQuadSurface {
 		
 		// complex dipping fault
 		runTest(buildFSD(jagged_trace, 0d, 10d, 45), jagged_trace_gridded, dist, num, tol);
+	}
+	
+	private static void runPlanarZeroZTest(Iterable<Location> locs, QuadSurface surf, double tol) {
+		for (Location loc : locs) {
+			Vector3D proj = surf.getRupProjectedPoint(0, loc);
+			assertEquals(0d, proj.getZ(), tol);
+		}
+	}
+	
+	private static void runZeroTest(Iterable<Location> locs, QuadSurface surf, Dist dist, double tol) {
+		for (Location loc : locs) {
+			double surfDist = getDist(surf, loc, dist);
+			assertEquals(0d, surfDist, tol);
+		}
+	}
+	
+	// TODO ramp up
+	private static final double zero_tol = 1e-8;
+	
+	@Test
+	public void testPerimeter() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getPerimeter(), surf, zero_tol);
+		runZeroTest(surf.getPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getPerimeter(), surf, zero_tol);
+		runZeroTest(surf.getPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getPerimeter(), surf, Dist.RUP, zero_tol);
+	}
+	
+	@Test
+	public void testGriddedPerimeter() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedPerimeter(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedPerimeter(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedPerimeter(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedPerimeter(), surf, Dist.RUP, zero_tol);
+	}
+	
+	@Test
+	public void testGriddedSurfLocs() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedListOfLocsOnSurface(), surf, Dist.RUP, zero_tol);
+	}
+	
+	@Test
+	public void testGriddedUpperLocs() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedUpperEdge(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedUpperEdge(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedUpperEdge(), surf, Dist.RUP, zero_tol);
+	}
+	
+	@Test
+	public void testGriddedLowerLocs() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedLowerEdge(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedLowerEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getEvenlyDiscritizedLowerEdge(), surf, zero_tol);
+		runZeroTest(surf.getEvenlyDiscritizedLowerEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedLowerEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getEvenlyDiscritizedLowerEdge(), surf, Dist.RUP, zero_tol);
+	}
+	
+	@Test
+	public void testUpperLocs() {
+		QuadSurface surf = buildFSD(straight_trace, 0d, 10d, 90).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getUpperEdge(), surf, zero_tol);
+		runZeroTest(surf.getUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(straight_trace, 0d, 10d, 45).getQuadSurface(false);
+		runPlanarZeroZTest(surf.getUpperEdge(), surf, zero_tol);
+		runZeroTest(surf.getUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 90).getQuadSurface(false);
+		runZeroTest(surf.getUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		surf = buildFSD(jagged_trace, 0d, 10d, 45).getQuadSurface(false);
+		runZeroTest(surf.getUpperEdge(), surf, Dist.RUP, zero_tol);
+		
+		List<Location> firstLast = Lists.newArrayList(surf.getFirstLocOnUpperEdge(), surf.getLastLocOnUpperEdge());
+		runZeroTest(firstLast, surf, Dist.RUP, zero_tol);
 	}
 
 }

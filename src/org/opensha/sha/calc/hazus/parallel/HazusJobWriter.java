@@ -541,7 +541,9 @@ public class HazusJobWriter {
 		script.add("");
 		script.add(exitLine);
 
-		File pbsFile = new File(jobDir, "mpj.pbs");
+		if (dirName.startsWith("20") && dirName.contains("-"))
+			dirName = dirName.substring(dirName.indexOf("-")+1);
+		File pbsFile = new File(jobDir, dirName+".pbs");
 		JavaShellScriptWriter.writeScript(pbsFile, script);
 	}
 

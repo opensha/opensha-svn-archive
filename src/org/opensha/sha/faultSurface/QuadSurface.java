@@ -31,6 +31,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.FaultUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
@@ -67,10 +68,12 @@ public class QuadSurface implements RuptureSurface {
 	
 	static boolean D = false;
 	
-	private double dip;
+	private double dipDeg;
+	private double dipRad;
 	private double width;
 	private double avgUpperDepth;
 	private double avgDipDirRad;
+	private double avgDipDirDeg;
 	
 	/* true if the entire trace is below 3km */
 	private boolean traceBelowSeis;
@@ -102,9 +105,16 @@ public class QuadSurface implements RuptureSurface {
 	private double distanceJB, distanceSeis, distanceRup, distanceX;
 	
 	private static double calcWidth(FaultSectionPrefData prefData, boolean aseisReducesArea) {
+		double upperDepth;
 		if (aseisReducesArea)
-			return prefData.getAveLowerDepth() - prefData.getReducedAveUpperDepth();
-		return prefData.getAveLowerDepth() - prefData.getOrigAveUpperDepth();
+			upperDepth = prefData.getReducedAveUpperDepth();
+		else
+			upperDepth = prefData.getOrigAveUpperDepth();
+		double lowerDepth = prefData.getAveLowerDepth();
+		System.out.println("Wdith calc: ("+lowerDepth+"-"+upperDepth+") * "
+				+Math.sin(Math.toRadians(prefData.getAveDip())));
+		System.out.println("Dip: "+prefData.getAveDip());
+		return (lowerDepth-upperDepth) / Math.sin(Math.toRadians(prefData.getAveDip()));
 	}
 	
 	/**
@@ -135,17 +145,25 @@ public class QuadSurface implements RuptureSurface {
 				prefData.getAveDip(), calcWidth(prefData, aseisReducesArea));
 	}
 
+	/**
+	 * 
+	 * @param trace
+	 * @param dip in degrees
+	 * @param width down dip width in km
+	 */
 	public QuadSurface(FaultTrace trace, double dip, double width) {
 		this.trace = trace;
-		this.dip = dip;
+		this.dipDeg = dip;
+		this.dipRad = dip * TO_RAD;
 		this.width = width;
 		rots = new ArrayList<Rotation>();
 		surfs = new ArrayList<Path2D>();
 		
 		// TODO USE DIP DIR FROM FSD
 		avgDipDirRad = (trace.getStrikeDirection() * TO_RAD) + PI_BY_2;
+		avgDipDirDeg = avgDipDirRad * TO_DEG;
 		
-		initSegments(dip, avgDipDirRad, width, trace, rots, surfs);
+		initSegments(dipRad, avgDipDirRad, width, trace, rots, surfs);
 		
 		traceBelowSeis = true;
 		avgUpperDepth = 0d;
@@ -158,12 +176,12 @@ public class QuadSurface implements RuptureSurface {
 		avgUpperDepth /= (double)trace.size();
 	}
 
-	private static void initSegments(double dip, double avgDipDirRad, double width,
+	private static void initSegments(double dipRad, double avgDipDirRad, double width,
 			FaultTrace trace, List<Rotation> rots, List<Path2D> surfs) {
-		Preconditions.checkState(!Double.isNaN(dip));
-		Preconditions.checkState(!Double.isNaN(avgDipDirRad));
-		Preconditions.checkState(!Double.isNaN(width));
-		double avgDip = dip * TO_RAD; // avg dip of fault
+		Preconditions.checkState(!Double.isNaN(dipRad), "dip cannot be NaN!");
+		Preconditions.checkState(dipRad > 0 && dipRad <= PI_BY_2, "dip must be > 0 and <= 90");
+		Preconditions.checkState(!Double.isNaN(avgDipDirRad), "dip direction cannot be NaN!");
+		Preconditions.checkState(!Double.isNaN(width), "width cannot be NaN!");
 		for (int i = 0; i < trace.size() - 1; i++) {
 
 			Location p1 = trace.get(i);
@@ -181,10 +199,18 @@ public class QuadSurface implements RuptureSurface {
 			Vector3D vt2 = new Vector3D(p1p2Dist, new Vector3D(surfStrk, 0));
 
 			// bottom trace #1
-			Vector3D vb1 = new Vector3D(width, new Vector3D(avgDipDirRad, avgDip));
+			Vector3D vb1 = new Vector3D(width, new Vector3D(avgDipDirRad, dipRad));
 
 			// bottom trace #2
 			Vector3D vb2 = new Vector3D(1, vt2, 1, vb1);
+			
+			if (D) {
+				System.out.println("Pre-rotation (width="+width+"):");
+				System.out.println("\tvt1="+vt1);
+				System.out.println("\tvt2="+vt2);
+				System.out.println("\tvb1="+vb1);
+				System.out.println("\tvb2="+vb2);
+			}
 
 			// set rotation // true dip of surface - rotate vb1 the strike angle about
 			// the z-axis, and flatten onto xy plane [0,y,z]
@@ -200,6 +226,21 @@ public class QuadSurface implements RuptureSurface {
 			vt2 = rot.applyTo(vt2);
 			vb1 = rot.applyTo(vb1);
 			vb2 = rot.applyTo(vb2);
+			
+			if (D) {
+				// make sure rotation worked and z=0 for all trace poitns
+				Preconditions.checkState(Math.abs(vt1.getZ()) < 1e-10, "vt1 z non zero: "+vt1);
+				Preconditions.checkState(Math.abs(vt2.getZ()) < 1e-10, "vt2 z non zero: "+vt2);
+				Preconditions.checkState(Math.abs(vb1.getZ()) < 1e-10, "vb1 z non zero: "+vb1);
+				Preconditions.checkState(Math.abs(vb2.getZ()) < 1e-10, "vb2 z non zero: "+vb2);
+				
+				double debugWidth = Math.sqrt(Math.pow(vb1.getX(), 2)+Math.pow(vb1.getY(), 2));
+				Preconditions.checkState((float)debugWidth == (float)width,
+						"Width not preserved in projection: "+debugWidth+" != "+width);
+				System.out.println("debug width: "+debugWidth);
+				System.out.println("width: "+width);
+				System.out.println(vb1.getX()+", "+vb1.getY());
+			}
 
 			// set up for 2D ops in yz plane
 			Path2D surface = new Path2D.Double();
@@ -217,16 +258,16 @@ public class QuadSurface implements RuptureSurface {
 		}
 	}
 
-	private static void initSegmentsJB(double dip, double avgDipDirRad, double width,
+	private static void initSegmentsJB(double dipRad, double avgDipDirRad, double width,
 			FaultTrace trace, List<Path2D> surfs) {
 		// this is for distance JB
-		Preconditions.checkState(!Double.isNaN(dip));
-		Preconditions.checkState(!Double.isNaN(avgDipDirRad));
-		Preconditions.checkState(!Double.isNaN(width));
-		double avgDip = dip * TO_RAD; // avg dip of fault
+		Preconditions.checkState(!Double.isNaN(dipRad), "dip cannot be NaN!");
+		Preconditions.checkState(dipRad > 0 && dipRad <= PI_BY_2, "dip must be > 0 and <= 90");
+		Preconditions.checkState(!Double.isNaN(avgDipDirRad), "dip direction cannot be NaN!");
+		Preconditions.checkState(!Double.isNaN(width), "width cannot be NaN!");
 		// now project width to the surface;
-		width = width*Math.cos(avgDip);
-		avgDip = 0;
+		width = width*Math.cos(dipRad);
+		dipRad = 0;
 		for (int i = 0; i < trace.size() - 1; i++) {
 
 			Location p1 = trace.get(i);
@@ -244,7 +285,7 @@ public class QuadSurface implements RuptureSurface {
 			Vector3D vt2 = new Vector3D(p1p2Dist, new Vector3D(surfStrk, 0));
 
 			// bottom trace #1
-			Vector3D vb1 = new Vector3D(width, new Vector3D(avgDipDirRad, avgDip));
+			Vector3D vb1 = new Vector3D(width, new Vector3D(avgDipDirRad, dipRad));
 
 			// bottom trace #2
 			Vector3D vb2 = new Vector3D(1, vt2, 1, vb1);
@@ -256,7 +297,7 @@ public class QuadSurface implements RuptureSurface {
 			Path2D surface = new Path2D.Double();
 			surface.moveTo(vt1.getX(), vt1.getY());
 			surface.lineTo(vt2.getX(), vt2.getY());
-			if (dip < 90) {
+			if (dipRad < PI_BY_2) {
 				// only need line at the top for vertical
 				surface.lineTo(vb2.getX(), vb2.getY());
 				surface.lineTo(vb1.getX(), vb1.getY());
@@ -295,7 +336,7 @@ public class QuadSurface implements RuptureSurface {
 					for (Location traceLoc : trace)
 						proj_trace.add(new Location(traceLoc.getLatitude(), traceLoc.getLongitude()));
 					proj_surfs = new ArrayList<Path2D>();
-					initSegmentsJB(dip, avgDipDirRad, width, trace, proj_surfs);
+					initSegmentsJB(dipRad, avgDipDirRad, width, trace, proj_surfs);
 				}
 			}
 		}
@@ -334,7 +375,7 @@ public class QuadSurface implements RuptureSurface {
 							widthBelowSeis = width - (DistanceSeisParameter.SEIS_DEPTH - avgUpperDepth);
 						else
 							widthBelowSeis = width;
-						initSegments(dip, avgDipDirRad, widthBelowSeis, seis_trace, seis_rots, seis_surfs);
+						initSegments(dipRad, avgDipDirRad, widthBelowSeis, seis_trace, seis_rots, seis_surfs);
 					}
 				}
 			}
@@ -350,18 +391,36 @@ public class QuadSurface implements RuptureSurface {
 		}
 	}
 	
+	/**
+	 * Returns the given point projected into the plane of the given trace index used for
+	 * distance rup calculations. Useful for debugging/tests
+	 * @param traceIndex
+	 * @param loc
+	 * @return
+	 */
+	Vector3D getRupProjectedPoint(int traceIndex, Location loc) {
+		return getProjectedPoint(trace, rots, traceIndex, loc);
+	}
+	
+	private static Vector3D getProjectedPoint(
+			FaultTrace trace, List<Rotation> rots, int traceIndex, Location loc) {
+		// compute geographic vector to point
+		LocationVector vec = LocationUtils.vector(trace.get(traceIndex), loc);
+		// convert to cartesian
+		Vector3D vp = new Vector3D(vec.getHorzDistance(), new Vector3D(
+			vec.getAzimuthRad(), 0), vec.getVertDistance(), Vector3D.PLUS_K);
+		if (rots != null)
+			// rotate
+			vp = rots.get(traceIndex).applyTo(vp);
+		return vp;
+	}
+	
 	private static double distance3D(FaultTrace trace, List<Rotation> rots, List<Path2D> surfs, Location loc) {
 		double distance = Double.MAX_VALUE;
 		for (int i = 0; i < trace.size() - 1; i++) {
 			if (D) System.out.println("Calc dist for trace pt "+i);
-			// compute geographic vector to point
-			LocationVector vec = LocationUtils.vector(trace.get(i), loc);
-			// convert to cartesian
-			Vector3D vp = new Vector3D(vec.getHorzDistance(), new Vector3D(
-				vec.getAzimuthRad(), 0), vec.getVertDistance(), Vector3D.PLUS_K);
-			if (rots != null)
-				// rotate
-				vp = rots.get(i).applyTo(vp);
+			// convert to cartesian projected pt
+			Vector3D vp = getProjectedPoint(trace, rots, i, loc);
 			// compute distance
 			Path2D surf = surfs.get(i);
 			if (surf.contains(vp.getX(), vp.getY())) {
@@ -394,11 +453,12 @@ public class QuadSurface implements RuptureSurface {
 	 */
 	private static void showDebugGraphIgnoreError(Path2D surf, Vector3D vp, boolean waitForClose) {
 		try {
-			showDebugGraph(surf, vp, waitForClose);
+			showDebugGraph(surf, vp, waitForClose, null);
 		} catch (Exception e) {}
 	}
 	
-	private static void showDebugGraph(Path2D surf, Vector3D vp, boolean waitForClose) {
+	private static void showDebugGraph(Path2D surf, Vector3D vp, boolean waitForClose,
+			List<Vector3D> otherVects) {
 		List<XY_DataSet> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		PathIterator pit = surf.getPathIterator(null);
@@ -437,6 +497,20 @@ public class QuadSurface implements RuptureSurface {
 			else
 				col = Color.RED;
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.X, 6f, col));
+		}
+		if (otherVects != null) {
+			for (Vector3D v : otherVects) {
+				DefaultXY_DataSet xy = new DefaultXY_DataSet();
+				xy.set(v.getX(), v.getY());
+				funcs.add(xy);
+				Color col = Color.BLUE;
+				PlotSymbol sym;
+				if (surf.contains(v.getX(), v.getY()))
+					sym = PlotSymbol.FILLED_CIRCLE;
+				else
+					sym = PlotSymbol.CIRCLE;
+				chars.add(new PlotCurveCharacterstics(sym, 3f, col));
+			}
 		}
 		GraphWindow gw = new GraphWindow(funcs, "Surface Debug", chars);
 		// now wait until closed
@@ -519,7 +593,7 @@ public class QuadSurface implements RuptureSurface {
 
 	@Override
 	public double getAveDip() {
-		return dip;
+		return dipDeg;
 	}
 
 	@Override
@@ -646,17 +720,15 @@ public class QuadSurface implements RuptureSurface {
 	 * of the fault. If width is passed in, the bottom trace is given.
 	 * 
 	 * Points given in same order as top fault trace.
-	 * @param depthDownDip
+	 * @param widthDownDip
 	 * @return
 	 */
-	private LocationList getHorizontalPoints(double depthDownDip) {
+	private LocationList getHorizontalPoints(double widthDownDip) {
 		LocationList locs = new LocationList();
-		double dipRad = Math.toRadians(dip);
-		double hDistance = depthDownDip * Math.cos( dipRad );
-		double vDistance = depthDownDip * Math.sin(dipRad);
-		LocationVector dir;
+		double hDistance = widthDownDip * Math.cos( dipRad );
+		double vDistance = widthDownDip * Math.sin(dipRad);
+		LocationVector dir = new LocationVector(avgDipDirDeg, hDistance, vDistance);
 		for (Location traceLoc : trace) {
-			dir = new LocationVector(avgDipDirRad, hDistance, vDistance);
 			locs.add(LocationUtils.location(traceLoc, dir));
 		}
 		return locs;
@@ -734,11 +806,11 @@ public class QuadSurface implements RuptureSurface {
 		
 		double topDepth = 0d;
 		double width = 10d;
-		double dip = 10;
+		double dip = 45;
 //		Location l1 = new Location(34.0, -118.0, topDepth);
 //		Location l2 = new Location(34.1, -117.9, topDepth);
 		Location l1 = new Location(34.0, -118.0, topDepth);
-		Location l2 = new Location(34.1, -118.0, topDepth);
+		Location l2 = new Location(36.1, -118.0, topDepth);
 //		Location l1 = new Location(0.00, 0.00, topDepth);
 //		Location l2 = new Location(0.01, 0.01, topDepth);
 
@@ -746,7 +818,30 @@ public class QuadSurface implements RuptureSurface {
 		ft.add(l1);
 		ft.add(l2);
 		
-		QuadSurface q = new QuadSurface(ft, dip, width);
+		FaultSectionPrefData prefData = new FaultSectionPrefData();
+		prefData.setFaultTrace(ft);
+		prefData.setAveDip(dip);
+		prefData.setDipDirection((float)ft.getDipDirection());
+		prefData.setAveUpperDepth(topDepth);
+		double lowerDepth = topDepth + width*Math.sin(Math.toRadians(dip));
+		prefData.setAveLowerDepth(lowerDepth);
+		
+//		QuadSurface q = new QuadSurface(ft, dip, width);
+		D = true;
+		QuadSurface q = prefData.getQuadSurface(false);
+		EvenlyGriddedSurface gridded = prefData.getStirlingGriddedSurface(1d, false, false);
+		
+		// now plot outline
+		List<Vector3D> pts = Lists.newArrayList();
+//		for (Location loc : q.getPerimeter())
+		for (Location loc : q.getEvenlyDiscritizedListOfLocsOnSurface())
+//		for (Location loc : gridded)
+			pts.add(getProjectedPoint(q.trace, q.rots, 0, loc));
+		MinMaxAveTracker zTrack = new MinMaxAveTracker();
+		for (Vector3D pt : pts)
+			zTrack.addValue(pt.getZ());
+		System.out.println("Ztrack: "+zTrack);
+		showDebugGraph(q.surfs.get(0), null, true, pts);
 		
 //		PathIterator pit = q.surfs.get(0).getPathIterator(null);
 //		double[] c = new double[6]; // coordinate array
@@ -761,7 +856,6 @@ public class QuadSurface implements RuptureSurface {
 //		}
 		
 //		showDebugGraph(q.surfs.get(0), null, false);
-		D = true;
 		double d12 = LocationUtils.horzDistanceFast(l1, l2);
 		LocationVector v12 = LocationUtils.vector(l1, l2);
 		Location middle12 = LocationUtils.location(l1, v12.getAzimuthRad(), 0.5*d12);
