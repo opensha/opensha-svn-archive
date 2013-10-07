@@ -131,7 +131,7 @@ public class HazusJobWriter {
 		return imr;
 	}
 
-	private static ScalarIMR getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
+	static ScalarIMR getIMR(String name, double sigmaTrunc, boolean propEffectSpeedup){
 		ScalarIMR attenRel = null;
 		if (name.equals(NSHMP_08_NAME))
 			attenRel = getUSGSCombined2008IMR();
@@ -272,9 +272,9 @@ public class HazusJobWriter {
 		return sites;
 	}
 	
-	private static final String NSHMP_08_NAME = "NSHMP08";
-	private static final String MultiIMR_NAME = "MultiIMR";
-	private static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
+	static final String NSHMP_08_NAME = "NSHMP08";
+	static final String MultiIMR_NAME = "MultiIMR";
+	static final String MultiIMR_NO_AS_NAME = "MultiIMRnoAS";
 
 	public static void main(String args[]) throws IOException, InvocationTargetException {
 		if (args.length < 7 || args.length > 11) {

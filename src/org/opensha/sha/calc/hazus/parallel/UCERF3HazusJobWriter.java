@@ -120,7 +120,7 @@ public class UCERF3HazusJobWriter {
 					noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 		}
 		
-		// now wills no soil
+		// now ref no soil
 		branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
 		hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d);
 		noBasin = true;
@@ -139,8 +139,33 @@ public class UCERF3HazusJobWriter {
 		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
 				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 		
+		// now ref no soil with 3NGA
+		dirName = df.format(today)+"_ref_rock_+3nga";
+		
+		jobDir = new File(hazMapsDir, dirName);
+		if (!jobDir.exists())
+			jobDir.mkdir();
+		
+		solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
+		FaultSystemIO.writeSol(sol, solFile);
+		
+		erf = getERF(solFile, years, backSeis);
+		
+		HazusJobWriter.prepareJob(erf, HazusJobWriter.getIMR(HazusJobWriter.MultiIMR_NO_AS_NAME, 3d, true),
+				spacing, years, nullBasin, hardcodedVal, noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+		
 		
 		// now UCERF2
+//		if (!"a".isEmpty())
+//			throw new RuntimeException("remember to make sure back seis consistent between UCERF2/UCERF3!");
+		erf = HazusJobWriter.getUCERF2(years, 0, backSeis);
+		dirName = df.format(today)+"_ucerf2_ref_rock";
+		jobDir = new File(hazMapsDir, dirName);
+		if (!jobDir.exists())
+			jobDir.mkdir();
+		
+		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
+				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 		hardcodedVal = null;
 		noBasin = false;
 //		if (!"a".isEmpty())
