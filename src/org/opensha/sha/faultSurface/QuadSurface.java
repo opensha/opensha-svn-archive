@@ -30,8 +30,11 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
@@ -66,7 +69,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  */
 public class QuadSurface implements RuptureSurface {
 	
-	static boolean D = false;
+	final static boolean D = false;
 	
 	private double dipDeg;
 	private double dipRad;
@@ -111,9 +114,9 @@ public class QuadSurface implements RuptureSurface {
 		else
 			upperDepth = prefData.getOrigAveUpperDepth();
 		double lowerDepth = prefData.getAveLowerDepth();
-		System.out.println("Wdith calc: ("+lowerDepth+"-"+upperDepth+") * "
-				+Math.sin(Math.toRadians(prefData.getAveDip())));
-		System.out.println("Dip: "+prefData.getAveDip());
+//		System.out.println("Wdith calc: ("+lowerDepth+"-"+upperDepth+") * "
+//				+Math.sin(Math.toRadians(prefData.getAveDip())));
+//		System.out.println("Dip: "+prefData.getAveDip());
 		return (lowerDepth-upperDepth) / Math.sin(Math.toRadians(prefData.getAveDip()));
 	}
 	
@@ -437,7 +440,7 @@ public class QuadSurface implements RuptureSurface {
 			if (distance == 0)
 				return 0;
 		}
-		if (Double.isNaN(distance)) {
+		if (D && Double.isNaN(distance)) {
 			for (int i = 0; i < trace.size() - 1; i++) {
 				if (rots != null)
 					System.out.println(rots.get(i).getAngle());
@@ -499,11 +502,22 @@ public class QuadSurface implements RuptureSurface {
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.X, 6f, col));
 		}
 		if (otherVects != null) {
+			MinMaxAveTracker zTrack = new MinMaxAveTracker();
+			for (Vector3D v : otherVects)
+				zTrack.addValue(Math.abs(v.getZ()));
+			CPT cpt;
+			try {
+				cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, zTrack.getMax());
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+			System.out.println("Plot Z range: "+zTrack);
 			for (Vector3D v : otherVects) {
 				DefaultXY_DataSet xy = new DefaultXY_DataSet();
 				xy.set(v.getX(), v.getY());
 				funcs.add(xy);
-				Color col = Color.BLUE;
+//				Color col = Color.BLUE;
+				Color col = cpt.getColor((float)Math.abs(v.getZ()));
 				PlotSymbol sym;
 				if (surf.contains(v.getX(), v.getY()))
 					sym = PlotSymbol.FILLED_CIRCLE;
@@ -642,14 +656,16 @@ public class QuadSurface implements RuptureSurface {
 		LocationList perim = new LocationList();
 		LocationList upper = getEvenlyDiscritizedUpperEdge();
 		LocationList lower = getEvenlyDiscritizedLowerEdge();
+		LocationList right = GriddedSurfaceUtils.getEvenlyDiscretizedLine(upper.last(), lower.last(), discr_km);
+		LocationList left = GriddedSurfaceUtils.getEvenlyDiscretizedLine(lower.first(), upper.first(), discr_km);
 		// top, forwards
 		perim.addAll(upper);
-		// "right"
-		perim.addAll(GriddedSurfaceUtils.getEvenlyDiscretizedLine(upper.last(), lower.last(), discr_km));
+		// "right", except the first point
+		perim.addAll(right.subList(1, right.size()));
 		// bottom, backwards
-		perim.addAll(getReversed(lower));
+		perim.addAll(getReversed(lower).subList(1, lower.size()));
 		// "left"
-		perim.addAll(GriddedSurfaceUtils.getEvenlyDiscretizedLine(lower.first(), upper.first(), discr_km));
+		perim.addAll(left.subList(1, left.size()));
 		return perim;
 	}
 
@@ -827,7 +843,6 @@ public class QuadSurface implements RuptureSurface {
 		prefData.setAveLowerDepth(lowerDepth);
 		
 //		QuadSurface q = new QuadSurface(ft, dip, width);
-		D = true;
 		QuadSurface q = prefData.getQuadSurface(false);
 		EvenlyGriddedSurface gridded = prefData.getStirlingGriddedSurface(1d, false, false);
 		
@@ -835,6 +850,7 @@ public class QuadSurface implements RuptureSurface {
 		List<Vector3D> pts = Lists.newArrayList();
 //		for (Location loc : q.getPerimeter())
 		for (Location loc : q.getEvenlyDiscritizedListOfLocsOnSurface())
+//		for (Location loc : q.getEvenlyDiscritizedPerimeter())
 //		for (Location loc : gridded)
 			pts.add(getProjectedPoint(q.trace, q.rots, 0, loc));
 		MinMaxAveTracker zTrack = new MinMaxAveTracker();
