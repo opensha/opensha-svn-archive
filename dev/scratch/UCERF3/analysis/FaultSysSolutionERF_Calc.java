@@ -44,6 +44,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
+import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -443,56 +444,87 @@ public class FaultSysSolutionERF_Calc {
 		double aleatoryMagAreaVar = 0.0;
 		
 		Region relmRegion = RELM_RegionUtils.getGriddedRegionInstance();
-
-		// average solution for FM 3.1
-		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		File file = new File(f);
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+		
+		MeanUCERF3 erf = new MeanUCERF3();
+		erf.setMeanParams(10d, true, 0d, MeanUCERF3.RAKE_BASIS_MEAN);
 		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(aleatoryMagAreaVar);
 		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
 		erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
-		erf.updateForecast();
-		SummedMagFreqDist mfd_U3_total = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
 		
+		System.out.println("Working on INCLUDE");
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+		erf.updateForecast();
+		SummedMagFreqDist mfd_U3_total = ERF_Calculator.getMagFreqDistInRegionFaster(erf, relmRegion, 5.05, 40, 0.1, true);
+		
+		System.out.println("Working on EXCLUDE");
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		erf.updateForecast();
-		SummedMagFreqDist mfd_U3_faults = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
+		SummedMagFreqDist mfd_U3_faults = ERF_Calculator.getMagFreqDistInRegionFaster(erf, relmRegion, 5.05, 40, 0.1, true);
 		
+		System.out.println("Working on ONLY");
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
 		erf.updateForecast();
-		SummedMagFreqDist mfd_U3_gridded = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
-
-
-		// average solution for FM 3.1
-		String f2 ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip";
-		File file2 = new File(f2);
-		erf = new UCERF3_FaultSysSol_ERF(file2);
-		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(aleatoryMagAreaVar);
-		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
-		erf.updateForecast();
+		SummedMagFreqDist mfd_U3_gridded = ERF_Calculator.getMagFreqDistInRegionFaster(erf, relmRegion, 5.05, 40, 0.1, true);
 		
-		mfd_U3_total.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
-		mfd_U3_total.scale(0.5);
 		EvenlyDiscretizedFunc mfd_U3_total_cum = mfd_U3_total.getCumRateDistWithOffset();
 		mfd_U3_total_cum.setName("Cumulative MFD for Mean UCERF3 - Total");
-		
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-		erf.updateForecast();
-		mfd_U3_faults.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
-		mfd_U3_faults.scale(0.5);
 		EvenlyDiscretizedFunc mfd_U3_faults_cum = mfd_U3_faults.getCumRateDistWithOffset();
 		mfd_U3_faults_cum.setName("Cumulative MFD for Mean UCERF3 - Faults");
-
-		
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
-		erf.updateForecast();
-		mfd_U3_gridded.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
-		mfd_U3_gridded.scale(0.5);
 		EvenlyDiscretizedFunc mfd_U3_gridded_cum = mfd_U3_gridded.getCumRateDistWithOffset();
 		mfd_U3_gridded_cum.setName("Cumulative MFD for Mean UCERF3 - Gridded");
+
+
+
+
+//		// average solution for FM 3.1
+//		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+//		File file = new File(f);
+//		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+//		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(aleatoryMagAreaVar);
+//		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+//		erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
+//		erf.updateForecast();
+//		SummedMagFreqDist mfd_U3_total = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
+//		
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//		erf.updateForecast();
+//		SummedMagFreqDist mfd_U3_faults = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
+//		
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
+//		erf.updateForecast();
+//		SummedMagFreqDist mfd_U3_gridded = ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true);
+//
+//
+//		// average solution for FM 3.2
+//		String f2 ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip";
+//		File file2 = new File(f2);
+//		erf = new UCERF3_FaultSysSol_ERF(file2);
+//		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(aleatoryMagAreaVar);
+//		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+//		erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
+//		erf.updateForecast();
+//		
+//		mfd_U3_total.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
+//		mfd_U3_total.scale(0.5);
+//		EvenlyDiscretizedFunc mfd_U3_total_cum = mfd_U3_total.getCumRateDistWithOffset();
+//		mfd_U3_total_cum.setName("Cumulative MFD for Mean UCERF3 - Total");
+//		
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//		erf.updateForecast();
+//		mfd_U3_faults.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
+//		mfd_U3_faults.scale(0.5);
+//		EvenlyDiscretizedFunc mfd_U3_faults_cum = mfd_U3_faults.getCumRateDistWithOffset();
+//		mfd_U3_faults_cum.setName("Cumulative MFD for Mean UCERF3 - Faults");
+//
+//		
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
+//		erf.updateForecast();
+//		mfd_U3_gridded.addResampledMagFreqDist(ERF_Calculator.getMagFreqDistInRegion(erf, relmRegion, 5.05, 40, 0.1, true), true);
+//		mfd_U3_gridded.scale(0.5);
+//		EvenlyDiscretizedFunc mfd_U3_gridded_cum = mfd_U3_gridded.getCumRateDistWithOffset();
+//		mfd_U3_gridded_cum.setName("Cumulative MFD for Mean UCERF3 - Gridded");
 
 
 		// Now mean UCERF2
@@ -567,7 +599,9 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) {
 		
-		plot_U3pt3_U2_TotalMeanMFDs();
+		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
+		
+//		plot_U3pt3_U2_TotalMeanMFDs();
 		
 //		makeIconicFigureForU3pt3_and_FM3pt1();
 				

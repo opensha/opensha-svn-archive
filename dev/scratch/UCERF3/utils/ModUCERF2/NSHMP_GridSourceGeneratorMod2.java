@@ -34,7 +34,8 @@ public class NSHMP_GridSourceGeneratorMod2 extends NSHMP_GridSourceGenerator {
 			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources, 
 			boolean include_agrd_deeps_out) {
 
-		double scaleFactor = 33;
+		double scaleFactor = 33;	// this gives a total M≥5 rate of 7.5 for ModMeanUCERF2, which is actually 7.42 inside the RELM region
+//		double scaleFactor = 25;	// this gives a total M≥5 rate of 5.8 for ModMeanUCERF2 inside the RELM region
 		
 		// TEMPORARY
 //		scaleFactor *= 2;

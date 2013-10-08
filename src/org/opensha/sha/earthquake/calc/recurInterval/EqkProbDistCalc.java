@@ -31,14 +31,31 @@ import org.opensha.commons.param.impl.IntegerParameter;
 /**
  * <b>Title:</b> EqkProbDistCalc.java <p>
  * <b>Description:</p>.
+ * This abstract class represents the core functionality for computing earthquake probabilities for various renewal models 
+ * from the mean, aperiodicity, and other parameters.  Each subclass (one for each renewal model) simply computes the pdf 
+ * and cdf in their respective implementations of the computeDistributions() method defined here.  All other calculations 
+ * are performed here from the pdf and cdf.
+ * 
+ * The units of time are arbitrary (they just need to be consistent among parameters)
+ * 
+ * These classes have not been fully tested in terms of numerical accuracy, so make sure the number of points is high (so 
+ * the cdf gets close to 1.0), and that the time discretization is very small compared to both the mean and the duration.
+ * No checks for these are currently made.
+ * 
+ * Some subclasses implement a getSafeCondProb(*) method that checks for numerical errors at high timeSinceLast.
+ * 
+ * A method could/should be added for sampling random values.
+ * 
  <p>
  *
  * @author Edward Field
- * @created    July, 2007
+ * @created    July, 2007; updated several times since
  * @version 1.0
  */
 
 public abstract class EqkProbDistCalc implements ParameterChangeListener {
+	
+	final static boolean D = false;	// debugging flag
 	
 	protected EvenlyDiscretizedFunc pdf, cdf;
 	protected double mean, aperiodicity, deltaX, duration, histOpenInterval;
@@ -46,22 +63,23 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public static final double DELTA_X_DEFAULT = 0.001;
 	protected boolean upToDate=false;
 	protected  String NAME;
+	protected String commonInfoString;
 	
 	// Parameter names
-	protected final static String MEAN_PARAM_NAME= "Mean";
-	protected final static String APERIODICITY_PARAM_NAME = "Aperiodicity";
-	protected final static String DURATION_PARAM_NAME = "Duration";
-	protected final static String DELTA_X_PARAM_NAME = "Delta X";
-	protected final static String NUM_POINTS_PARAM_NAME = "Num Points";
-	protected final static String HIST_OPEN_INTERVAL_PARAM_NAME = "Historic Open Interval";
+	public final static String MEAN_PARAM_NAME= "Mean";
+	public final static String APERIODICITY_PARAM_NAME = "Aperiodicity";
+	public final static String DURATION_PARAM_NAME = "Duration";
+	public final static String DELTA_X_PARAM_NAME = "Delta T";
+	public final static String NUM_POINTS_PARAM_NAME = "Num Points";
+	public final static String HIST_OPEN_INTERVAL_PARAM_NAME = "Historic Open Interval";
 	
 	// Parameter Infos
 	protected final static String MEAN_PARAM_INFO= "Mean";
-	protected final static String APERIODICITY_PARAM_INFO = "Aperiodicity";
-	protected final static String DURATION_PARAM_INFO = "Duration";
-	protected final static String DELTA_X_PARAM_INFO = "Delta X";
-	protected final static String NUM_POINTS_PARAM_INFO = "Num Points";
-	protected final static String HIST_OPEN_INTERVAL_PARAM_INFO = "Historic time interval over which event has not occurred";
+	protected final static String APERIODICITY_PARAM_INFO = "Aperiodicity is the standard deviation divided by the mean ";
+	protected final static String DURATION_PARAM_INFO = "Duration of the forecast";
+	protected final static String DELTA_X_PARAM_INFO = "The time discretization for the distribution";
+	protected final static String NUM_POINTS_PARAM_INFO = "The number of points for the distribution";
+	protected final static String HIST_OPEN_INTERVAL_PARAM_INFO = "Historic time interval over which event is known not to have occurred";
 	
 	// default param values
 	protected final static Double DEFAULT_MEAN_PARAM_VAL = new Double(100);
@@ -79,22 +97,21 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	protected ParameterList adjustableParams;
 
 	/*
-	 * 
+	 * The method is where subclasses are to compute the pdf and cdf for the given parameters (mean, aperiodicity, delta
 	 */
 	abstract void computeDistributions();
 	
 	public EvenlyDiscretizedFunc getCDF() {
 		if(!upToDate) computeDistributions();
-		cdf.setName(NAME+" CDF");
+		cdf.setName(NAME+" CDF (Cumulative Density Function)");
 		cdf.setInfo(adjustableParams.toString());
 		return cdf;
 	}
 
 	public EvenlyDiscretizedFunc getPDF() {
 		if(!upToDate) computeDistributions();
-		pdf.setName(NAME+" PDF");
+		pdf.setName(NAME+" PDF (Probability Density Function)");
 		pdf.setInfo(adjustableParams.toString());
-getCondProbForUnknownTimeSinceLastEvent();
 		return pdf;
 	}
 
@@ -121,6 +138,7 @@ getCondProbForUnknownTimeSinceLastEvent();
 			throw new RuntimeException("duration has not been set");
 		if(!upToDate) computeDistributions();
 		int numPts = numPoints - (int)(duration/deltaX+1);
+//System.out.println("numPts="+numPts+"\t"+duration);
 		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
 		for(int i=0;i<condFunc.getNum();i++) {
 			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
@@ -136,13 +154,12 @@ getCondProbForUnknownTimeSinceLastEvent();
 		return getCondProbFunc();
 	}
 
-	
-
 	/**
-	 * This is a non-static version that is slightly more accurate (due to
-	 * interpolation of the cdf function), although it requires instantiation of the class to
-	 * access (and stores information internally). The commented out bit of code gives the non 
-	 * interpolated result which is exactly the same as what comes from the static version.
+	 * This computes the the probability of occurrence over the given duration conditioned 
+	 * on timeSinceLast (how long it has been since the last event).
+	 * 
+	 * The commented out code gives the non-interpolated result, which not as accurate.
+	 * 
 	 * This does not check for numerical errors at high timeSinceLast (look for a getSafeCondProb(*)
 	 * version of this method in subclasses.
 	 * @param timeSinceLast
@@ -279,89 +296,58 @@ getCondProbForUnknownTimeSinceLastEvent();
 	
 	/**
 	 * This computes the probability of an event over the specified duration for the case where the 
-	 * date of last event is unknown, but where the historic open interval is applied (which defaults 
-	 * to zero if never set).
+	 * date of last event is unknown (looping over all possible values), but where the historic open 
+	 * interval is applied (the latter defaults to zero if never set).
 	 * @return
 	 */
 	public double getCondProbForUnknownTimeSinceLastEvent() {
 		double result=0;
-		double sum=0;
+		double normDenom=0;
 		EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
 		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
 		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-			double probOfTimeSince = (1-cdf.getY(i))/mean;
-			sum+=probOfTimeSince; 
+			double probOfTimeSince = (1-cdf.getY(i));
+			normDenom+=probOfTimeSince; 
 			result+= condProbFunc.getY(i)*probOfTimeSince;
 		}
-		result /= sum;	// normalize properly
+		result /= normDenom;	// normalize properly
 		
 		
-// TEST OF RESULT
-		// this is another way of computing the same thing
-		int lastIndex = condProbFunc.getClosestXIndex(histOpenInterval+duration);
-		double sumCDF=0;
-		for(int i=firstIndex;i<=lastIndex;i++) {
-			sumCDF += cdf.getY(i)*cdf.getDelta();
-		}
-		double result2= (duration-sumCDF)/mean;
-//		System.out.println("\ncdf.getDelta()="+cdf.getDelta());
-		
-		
-		double sumCDF2=0;
-		int numIndicesForDuration = (int)Math.round(duration/cdf.getDelta());
-		for(int i=firstIndex;i<cdf.getNum()-numIndicesForDuration;i++) {
-			sumCDF2 += (cdf.getY(i+numIndicesForDuration)-cdf.getY(i))*cdf.getDelta();
-		}
-		double result3 = sumCDF2/mean;
-		
+		// this tests two other ways of computing the same thing
+		if(D) {
+			int lastIndex = condProbFunc.getClosestXIndex(histOpenInterval+duration);
+			double sumCDF=0;
+			for(int i=firstIndex;i<=lastIndex;i++) {
+				sumCDF += cdf.getY(i)*cdf.getDelta();
+			}
+			double result2= ((duration-sumCDF)/normDenom)/cdf.getDelta();
+			
+			
+			double sumCDF2=0;
+			int numIndicesForDuration = (int)Math.round(duration/cdf.getDelta());
+			for(int i=firstIndex;i<cdf.getNum()-numIndicesForDuration;i++) {
+				sumCDF2 += (cdf.getY(i+numIndicesForDuration)-cdf.getY(i))*cdf.getDelta();
+			}
+			double result3 = (sumCDF2/normDenom)/cdf.getDelta();
+			
 
-		double poisProb1orMore = 1-Math.exp(-duration/mean);
-		double poisProbOf1 = (duration/mean)*Math.exp(-duration/mean);
-		System.out.println("\nsum="+(float)sum);
-		System.out.println("CondProbForUnknownDateOfLast="+(float)result+
-				"\ttestCalc="+(float)result2+" ("+(float)(result/result2)+")"+
-				"\ttestCalc2="+(float)result3 +" ("+(float)(result/result3)+")"+
-				"\tduration/mean="+(duration/mean)+
-				"\tpoisProb1orMore="+(float)poisProb1orMore+
-				"\tpoisProbOf1="+(float)poisProbOf1);
-// END TEST OF RESULT
-		
-		
-		return result;
-	}
-	
-	
-	public double OLDgetCondProbForUnknownDateOfLastEvent() {
-		
-		
-		double result=0;
-		double result2=0;
-		double sum=0;
-		double test=0;
-		EvenlyDiscretizedFunc cpFunc = getCondProbFunc();
-		EvenlyDiscretizedFunc hazFunc = getHazFunc();
-		for(int i=0;i<cpFunc.getNum();i++) {
-			sum+=(1-cdf.getY(i))/mean; 
-			if(cdf.getX(i)<=duration) test+=cdf.getY(i);
+			double poisProb1orMore = 1-Math.exp(-duration/mean);
+			double poisProbOf1 = (duration/mean)*Math.exp(-duration/mean);
+			System.out.println("\nnormDenom="+(float)normDenom);
+			System.out.println("CondProbForUnknownDateOfLast="+(float)result+
+					"\ntestCalc="+(float)result2+" ("+(float)(result/result2)+")"+
+					"\ntestCalc2="+(float)result3 +" ("+(float)(result/result3)+")"+
+					"\nduration/mean="+(duration/mean)+
+					"\npoisProb1orMore="+(float)poisProb1orMore+
+					"\npoisProbOf1="+(float)poisProbOf1);			
 		}
-		test /= sum;
-		for(int i=0;i<cpFunc.getNum();i++) {
-			result+= cpFunc.getY(i)*(1-cdf.getY(i))/(mean*sum);
-			result2+= hazFunc.getY(i)*(1-cdf.getY(i))/(mean*sum);
-		}
-		double poisProb1orMore = 1-Math.exp(-duration/mean);
-		double poisProbOf1 = (duration/mean)*Math.exp(-duration/mean);
-		double test2 = (duration-test)/mean;
-		System.out.println("\ntestSum="+(float)sum);
-		System.out.println("CondProbForUnknownDateOfLast="+(float)result+"\tduration/mean="+(duration/mean)+
-				"\tpoisProb1orMore="+(float)poisProb1orMore+"\tpoisProbOf1="+(float)poisProbOf1+"\ttest="+(float)test2);
-		System.out.println("AveHazFuncForUnknownDateOfLast="+(float)result2+"\t1/mean="+(1.0/mean));
 		return result;
 	}
 
 	
 	/**
-	 * Method to set several parameter values
+	 * Method to set several values (but corresponding parameters are not changed,
+	 * for efficiency, so getAdjParams().toString() won't be correct)
 	 * @param mean
 	 * @param aperiodicity
 	 * @param deltaX
@@ -377,7 +363,8 @@ getCondProbForUnknownTimeSinceLastEvent();
 
 	
 	/**
-	 * Method to set several parameter values
+	 * Method to set several values (but corresponding parameters are not changed,
+	 * for efficiency, so getAdjParams().toString() won't be correct)
 	 * @param mean
 	 * @param aperiodicity
 	 * @param deltaX
@@ -394,7 +381,8 @@ getCondProbForUnknownTimeSinceLastEvent();
 	}
 	
 	/**
-	 * Method to set several parameter values
+	 * Method to set several values (but corresponding parameters are not changed,
+	 * for efficiency, so getAdjParams().toString() won't be correct)
 	 * @param mean
 	 * @param aperiodicity
 	 * @param deltaX
@@ -410,10 +398,33 @@ getCondProbForUnknownTimeSinceLastEvent();
 		this.histOpenInterval = histOpenInterval;
 		upToDate=false;
 	}
+	
+	
+	/**
+	 * This method sets values in the Parameter objects (slower, but safe in terms of using
+	 * getAdjParams().toString())
+	 * @param mean
+	 * @param aperiodicity
+	 * @param deltaX
+	 * @param numPoints
+	 * @param duration
+	 */
+	public void setAllParameters(double mean, double aperiodicity, double deltaX, int numPoints, double duration, double histOpenInterval) {
+		this.meanParam.setValue(mean);
+		this.aperiodicityParam.setValue(aperiodicity);
+		this.deltaX_Param.setValue(deltaX);
+		this.numPointsParam.setValue(numPoints);
+		this.durationParam.setValue(duration);
+		this.histOpenIntParam.setValue(histOpenInterval);
+	}
+
 
 	
 	/**
-	 * For this case deltaX defaults to 0.001*mean and numPoints is aperiodicity*10/deltaX+1
+	 * For this case deltaX defaults to 0.001*mean and numPoints is aperiodicity*10/deltaX+1.
+	 * The corresponding values in the mean and aperiodicity parameters are not 
+	 * changed, so getAdjParams().toString() won't be correct.
+	 * 
 	 * @param mean
 	 * @param aperiodicity
 	 */

@@ -11,8 +11,10 @@ import java.util.zip.ZipException;
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -281,6 +283,67 @@ public class FaultSystemSolutionCalc {
 			System.out.println ("IO exception = " + e );
 		}
 	}
+	
+	
+	public static void plotCumulativeDistOfSubsectionRecurrenceIntervals(FaultSystemSolution fltSysSol, File outputPDF_FileName) {
+		
+		ArbDiscrEmpiricalDistFunc dist = new ArbDiscrEmpiricalDistFunc();
+		for(double sectRate : fltSysSol.calcParticRateForAllSects(6, 10)){
+			dist.set(1.0/sectRate, 1.0);
+		}
+		
+		ArbitrarilyDiscretizedFunc cumDist = dist.getNormalizedCumDist();
+		cumDist.setName("Cumulative Distribution of Section Recurrence Intervals");
+		cumDist.setInfo("Num Sections = "+fltSysSol.getRupSet().getNumSections()+
+				"\nFraction at RI=1600 years = "+cumDist.getInterpolatedY(1600)+
+				"\nFraction at RI=250 years = "+cumDist.getInterpolatedY(250)+
+				"\nFraction at RI=70 years = "+cumDist.getInterpolatedY(70));
+		
+		DefaultXY_DataSet RI1600_func = new DefaultXY_DataSet();
+		RI1600_func.set(1600d,0d);
+		RI1600_func.set(1600d,1d);
+		
+		DefaultXY_DataSet RI250_func = new DefaultXY_DataSet();
+		RI250_func.set(250d,0d);
+		RI250_func.set(250d,1d);
+
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(cumDist);
+		funcList.add(RI1600_func);
+		funcList.add(RI250_func);
+
+		GraphWindow graph = new GraphWindow(funcList, "", plotChars);
+		graph.setX_AxisRange(10, 100000);
+		graph.setY_AxisRange(0, 1);
+		graph.setY_AxisLabel("Fraction of Fault Sections");
+		graph.setX_AxisLabel("Recurrence Interval (years)");
+
+		graph.setTickLabelFontSize(24);
+		graph.setAxisLabelFontSize(28);
+		graph.setPlotLabelFontSize(18);
+		graph.setXLog(true);
+		
+		if (outputPDF_FileName != null) {
+			// stip out an extention if present
+			File dir = outputPDF_FileName.getParentFile();
+			String name = outputPDF_FileName.getName();
+			if (name.endsWith(".pdf"))
+				name = name.substring(0, name.indexOf(".pdf"));
+			try {
+				graph.saveAsPDF(new File(dir, name+".pdf").getAbsolutePath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 
 
 	

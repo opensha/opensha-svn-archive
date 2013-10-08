@@ -1,5 +1,6 @@
 package scratch.UCERF3.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.BorderType;
@@ -34,14 +35,14 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
  */
 public class UCERF2_MFD_ConstraintFetcher {
 	
-	ModMeanUCERF2 meanUCERF2_ETAS;	// using this because it has aftershocks added in
+	ModMeanUCERF2 modMeanUCERF2;	// using this because it has aftershocks added in
 	Region region;
 	SummedMagFreqDist totalMFD, faultMFD, backgroundSeisMFD, targetMinusBackgroundMFD;
 	GutenbergRichterMagFreqDist targetMFD;
 	
 	// discretization params for MFDs:
 	final static double MIN_MAG=5.05;
-	final static int NUM_MAG=35;
+	final static int NUM_MAG=40;
 	final static double DELTA_MAG=0.1;
 	
 	final static double B_VALUE = 1.0;	// b-value for total target distribution
@@ -57,15 +58,15 @@ public class UCERF2_MFD_ConstraintFetcher {
 
 //		System.out.println("Starting MeanUCERF2 instantiation");
 		double forecastDuration = 1.0;	// years
-		meanUCERF2_ETAS = new ModMeanUCERF2();
-		meanUCERF2_ETAS.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
-		meanUCERF2_ETAS.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+		modMeanUCERF2 = new ModMeanUCERF2();
+		modMeanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
+		modMeanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 //		meanUCERF2_ETAS.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
-		meanUCERF2_ETAS.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		modMeanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
 //		meanUCERF2_ETAS.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-		meanUCERF2_ETAS.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
-		meanUCERF2_ETAS.getTimeSpan().setDuration(forecastDuration);
-		meanUCERF2_ETAS.updateForecast();
+		modMeanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		modMeanUCERF2.getTimeSpan().setDuration(forecastDuration);
+		modMeanUCERF2.updateForecast();
 		double runtime = (System.currentTimeMillis()-startRunTime)/1000;
 //		System.out.println("MeanUCERF2 instantiation took "+runtime+" seconds");
 		
@@ -132,9 +133,9 @@ public class UCERF2_MFD_ConstraintFetcher {
 		 backgroundSeisMFD = new SummedMagFreqDist(MIN_MAG,NUM_MAG,DELTA_MAG); 
 		 targetMinusBackgroundMFD = new SummedMagFreqDist(MIN_MAG,NUM_MAG,DELTA_MAG); 
 		 
-		  double duration = meanUCERF2_ETAS.getTimeSpan().getDuration();
-		  for (int s = 0; s < meanUCERF2_ETAS.getNumSources(); ++s) {
-			  ProbEqkSource source = meanUCERF2_ETAS.getSource(s);
+		  double duration = modMeanUCERF2.getTimeSpan().getDuration();
+		  for (int s = 0; s < modMeanUCERF2.getNumSources(); ++s) {
+			  ProbEqkSource source = modMeanUCERF2.getSource(s);
 			  for (int r = 0; r < source.getNumRuptures(); ++r) {
 				  ProbEqkRupture rupture = source.getRupture(r);
 				  double mag = rupture.getMag();
@@ -178,10 +179,38 @@ public class UCERF2_MFD_ConstraintFetcher {
 		GraphWindow graph = new GraphWindow(funcs, "Mag-Freq Dists"); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate");
+		graph.setY_AxisRange(3e-6, 3);
+		graph.setX_AxisRange(5, 9.0);
+		graph.setYLog(true);
+		
+		try {
+			graph.saveAsPDF("UCERF2_MFD_ConstraintFetcherPlot.pdf");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * This plots the cumulative MFDs
+	 */
+	public void plotCumMFDs() {
+		ArrayList funcs = new ArrayList();
+		funcs.add(totalMFD.getCumRateDistWithOffset());
+		funcs.add(faultMFD.getCumRateDistWithOffset());
+		funcs.add(backgroundSeisMFD.getCumRateDistWithOffset());
+		funcs.add(targetMFD.getCumRateDistWithOffset());
+		funcs.add(targetMinusBackgroundMFD.getCumRateDistWithOffset());
+		GraphWindow graph = new GraphWindow(funcs, "Cumulative Mag-Freq Dists"); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Cumulative Rate");
 		graph.setY_AxisRange(1e-4, 10);
 		graph.setX_AxisRange(5, 8.5);
 		graph.setYLog(true);
+		
 	}
+
 	
 	
 	private void computeMomentRates() {
@@ -190,22 +219,22 @@ public class UCERF2_MFD_ConstraintFetcher {
 		int lastIndexOfFirstBackground = 815;	// this is because Brawley, Mentods, and Creeps are the first fixed rate sources, but they are not C zones
 		int lastIndexOfC_zones = 1919;
 		double faultMoRate=0, nonCA_faultMoRate=0, cZoneMoRate=0, backSrcMoRate=0;
-		double duration = meanUCERF2_ETAS.getTimeSpan().getDuration();
+		double duration = modMeanUCERF2.getTimeSpan().getDuration();
 		for(int s=0;s<=lastIndexOfFltSources;s++)
-			faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+			faultMoRate+=modMeanUCERF2.getSource(s).computeEquivTotalMomentRate(duration);
 		for(int s=lastIndexOfFltSources+1;s<=lastIndexOfNonCA_FltSources;s++)
-			nonCA_faultMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+			nonCA_faultMoRate+=modMeanUCERF2.getSource(s).computeEquivTotalMomentRate(duration);
 		for(int s=lastIndexOfNonCA_FltSources+1;s<=lastIndexOfFirstBackground;s++) {
-			backSrcMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+			backSrcMoRate+=modMeanUCERF2.getSource(s).computeEquivTotalMomentRate(duration);
 		}
 		for(int s=lastIndexOfFirstBackground+1;s<=lastIndexOfC_zones;s++) {
-			cZoneMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+			cZoneMoRate+=modMeanUCERF2.getSource(s).computeEquivTotalMomentRate(duration);
 		}
-		for(int s=lastIndexOfC_zones+1;s<meanUCERF2_ETAS.getNumSources();s++)
-			backSrcMoRate+=meanUCERF2_ETAS.getSource(s).computeEquivTotalMomentRate(duration);
+		for(int s=lastIndexOfC_zones+1;s<modMeanUCERF2.getNumSources();s++)
+			backSrcMoRate+=modMeanUCERF2.getSource(s).computeEquivTotalMomentRate(duration);
 		
 		double moRate=0;
-		for(ProbEqkSource source : meanUCERF2_ETAS)
+		for(ProbEqkSource source : modMeanUCERF2)
 			moRate += source.computeEquivTotalMomentRate(duration);
 
 		System.out.println("totMoRate = "+(float)moRate+"\ttest="+(float)(faultMoRate+nonCA_faultMoRate+cZoneMoRate+backSrcMoRate)+")\n"+
@@ -220,19 +249,19 @@ public class UCERF2_MFD_ConstraintFetcher {
 		
 		moRate=0;
 		String srcName = "Brawley Point2Vert_FaultPoisSource";
-		for(ProbEqkSource source : meanUCERF2_ETAS)
+		for(ProbEqkSource source : modMeanUCERF2)
 			if(source.getName().equals(srcName))
 				moRate += source.computeEquivTotalMomentRate(duration);
 		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
 		moRate=0;
 		srcName = "Mendos Point2Vert_FaultPoisSource";
-		for(ProbEqkSource source : meanUCERF2_ETAS)
+		for(ProbEqkSource source : modMeanUCERF2)
 			if(source.getName().equals(srcName))
 				moRate += source.computeEquivTotalMomentRate(duration);
 		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
 		moRate=0;
 		srcName = "Creeps Point2Vert_FaultPoisSource";
-		for(ProbEqkSource source : meanUCERF2_ETAS)
+		for(ProbEqkSource source : modMeanUCERF2)
 			if(source.getName().equals(srcName))
 				moRate += source.computeEquivTotalMomentRate(duration);
 		System.out.println("\ntotMoRate = "+(float)moRate+"\tfor\t"+srcName);
@@ -251,11 +280,13 @@ public class UCERF2_MFD_ConstraintFetcher {
 //		Region relmOrigNCal = new CaliforniaRegions.RELM_NOCAL();
 //		Region region  = new Region(relmOrigNCal.getBorder(), BorderType.GREAT_CIRCLE);
 		
-		Region region = new CaliforniaRegions.RELM_GRIDDED();
+		Region region = new CaliforniaRegions.RELM_TESTING();
 
 		
 		UCERF2_MFD_ConstraintFetcher fetcher = new UCERF2_MFD_ConstraintFetcher(region);
-		fetcher.computeMomentRates();
-//		fetcher.plotMFDs();
+		System.out.println(fetcher.getTotalMFD().getCumRateDistWithOffset());
+//		fetcher.computeMomentRates();
+		fetcher.plotCumMFDs();
+		fetcher.plotMFDs();
 	}
 }

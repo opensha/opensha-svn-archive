@@ -31,7 +31,9 @@ import javax.swing.JToolBar;
 
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.ButtonControlPanel;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -362,7 +364,13 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 			EqkProbDistCalc selectedProbDist = getSelectedProbDist();
 			this.plottingPanelsList.get(0).addFunc(selectedProbDist.getPDF());
 			this.plottingPanelsList.get(1).addFunc(selectedProbDist.getCDF());
-			this.plottingPanelsList.get(2).addFunc(selectedProbDist.getCondProbFunc());
+			EvenlyDiscretizedFunc condFunc = selectedProbDist.getCondProbFunc();
+			// now add the CondProbForUnknownTimeSinceLastEvent to the info string
+			Parameter param = selectedProbDist.getAdjParams().getParameter(EqkProbDistCalc.HIST_OPEN_INTERVAL_PARAM_NAME);
+			condFunc.setInfo(condFunc.getInfo()+
+					"\nCond Prob = "+(float)selectedProbDist.getCondProbForUnknownTimeSinceLastEvent()+
+					" if date of last event unknown, but "+param.getName() +" = "+param.getValue()+"\n");
+			this.plottingPanelsList.get(2).addFunc(condFunc);
 			this.plottingPanelsList.get(3).addFunc(selectedProbDist.getHazFunc());
 
 			// catch the error and display messages in case of input error

@@ -4,6 +4,7 @@
 package scratch.UCERF3.utils.ModUCERF2;
 
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.opensha.commons.data.ValueWeight;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -31,10 +33,19 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.ModUCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.B_FaultsFetcherForMeanUCERF;
@@ -1034,8 +1045,16 @@ public class ModMeanUCERF2 extends AbstractERF {
 	public static void main(String[] args) {
 		ModMeanUCERF2 meanFinalUCERF2 = new ModMeanUCERF2();
 		meanFinalUCERF2.calcSummedMFDs  =false;
-		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanFinalUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanFinalUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 		meanFinalUCERF2.updateForecast();
+		
+		Region relmRegion = RELM_RegionUtils.getGriddedRegionInstance();
+		SummedMagFreqDist mfd = ERF_Calculator.getMagFreqDistInRegion(meanFinalUCERF2, relmRegion, 5.05, 40, 0.1, true);
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(meanFinalUCERF2, 5.05, 8.95, 40, true);
+		System.out.println(mfd.getCumRateDistWithOffset());
+
 
 		
 //		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
