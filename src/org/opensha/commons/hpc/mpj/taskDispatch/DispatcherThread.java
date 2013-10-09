@@ -123,7 +123,7 @@ public class DispatcherThread extends Thread {
 					debug("checking if we're all done...");
 					List<Integer> notDones = Lists.newArrayList();
 					boolean allDone = true;
-					for (int i=0; i<size; i++) {
+					for (int i=1; i<size; i++) {
 						if (!dones[i]) {
 							allDone = false;
 							notDones.add(i);
