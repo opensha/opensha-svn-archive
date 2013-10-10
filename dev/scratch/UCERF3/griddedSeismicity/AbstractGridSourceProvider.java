@@ -53,18 +53,20 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
 		mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
 		
-		if(bgRupType == BackgroundRupType.CROSSHAIR) {
+		switch (bgRupType) {
+		case CROSSHAIR:
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-					fracReverse[idx], true);			
-		}
-		else if(bgRupType == BackgroundRupType.FINITE) {
+					fracReverse[idx], true);
+		case FINITE:
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-					fracReverse[idx], false);						
-		}
-		else {	// Point source case
-			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);			
+					fracReverse[idx], false);
+		case POINT:
+			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
+
+		default:
+			throw new IllegalStateException("Unknown Background Rup Type: "+bgRupType);
 		}
 		
 	}
