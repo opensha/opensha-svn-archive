@@ -39,10 +39,11 @@ public class UCERF2_FM2pt1_FSS_ERFupdate extends FaultSystemSolutionPoissonERF {
 	
 	// this is called by updateForecast() in parent
 	@Override
-	protected void initOtherSources() {
+	protected boolean initOtherSources() {
 		// always point sources - fixed strike included
 		numOtherSources = gridSrcGen.getNumSources();
 		gridSrcGen.setForecastDuration(timeSpan.getDuration());
+		return true;
 	}
 
 }

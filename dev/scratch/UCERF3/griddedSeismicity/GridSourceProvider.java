@@ -2,6 +2,7 @@ package scratch.UCERF3.griddedSeismicity;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -28,15 +29,15 @@ public interface GridSourceProvider {
 	 * @return the source at {@code index}
 	 */
 	public ProbEqkSource getSource(int index, double duration,
-			boolean filterAftershocks, boolean crosshair);
+			boolean filterAftershocks, BackgroundRupType bgRupType);
 	
-	/**
-	 * Set whether all sources should just be treated as point sources, not just
-	 * those with M&leq;6.0
-	 * 
-	 * @param usePoints
-	 */
-	public void setAsPointSources(boolean usePoints);
+//	/**
+//	 * Set whether all sources should just be treated as point sources, not just
+//	 * those with M&leq;6.0
+//	 * 
+//	 * @param usePoints
+//	 */
+//	public void setAsPointSources(boolean usePoints);
 
 	/**
 	 * Returns the unassociated MFD of a grid node.

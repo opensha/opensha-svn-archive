@@ -57,7 +57,7 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 	
 	
 	@Override
-	protected void initOtherSources() {
+	protected boolean initOtherSources() {
 			if (bgRupType.equals(BackgroundRupType.POINT))
 				nshmp_gridSrcGen.setAsPointSources(true);
 			else
@@ -76,6 +76,7 @@ public class UCERF2_FM2pt1_FaultSysSolERF extends FaultSystemSolutionPoissonERF 
 				System.out.println("numGridSources="+numGridSources);
 				System.out.println("numFixedStrikeSources="+fixedStrikeSources.size());
 			}
+			return true;
 	}
 
 	

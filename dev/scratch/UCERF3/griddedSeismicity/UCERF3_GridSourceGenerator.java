@@ -10,6 +10,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -260,7 +261,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		int numRups = 0;
 		System.out.println("numSrcs: " + numSrcs);
 		for (int i=0; i<numSrcs; i++) {
-			numRups += gridGen.getSource(i, 1, false, false).getNumRuptures();
+			numRups += gridGen.getSource(i, 1, false, BackgroundRupType.POINT).getNumRuptures();
 		}
 		System.out.println("numRups: " + numRups);
 

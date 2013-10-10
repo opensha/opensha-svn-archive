@@ -397,7 +397,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			for(int s=0; s<numNonZeroFaultSystemSources; s++) {
 				double newOverOldGain = probGainForFaultSystemSource[s]/oldGainForFaultSystemSource[s];
 				if(newOverOldGain > 1.0001 || newOverOldGain < 0.9999) { 	// different from 1.0
-					faultSources.get(s).scaleRupRates(newOverOldGain);
+					faultSourceList.get(s).scaleRupRates(newOverOldGain);
 				}
 			}
 			
@@ -1184,7 +1184,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		updateForecast();	// TODO date of last set here from fault section data
 
 		
-		// this is for storing the simulated rate of events & skip rate for each section
+		// this is for storing the simulated rate of events & slip rate for each section
 		double[] obsSectRateArray = new double[invRupSet.getNumSections()];
 		double[] obsSectSlipRateArray = new double[invRupSet.getNumSections()];
 		double[] obsSectRateArrayM6pt05to6pt65 = new double[invRupSet.getNumSections()];

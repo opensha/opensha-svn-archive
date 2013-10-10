@@ -8,6 +8,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -42,7 +43,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	
 	@Override
 	public ProbEqkSource getSource(int idx, double duration,
-			boolean filterAftershocks, boolean isCrosshair) {
+			boolean filterAftershocks, BackgroundRupType bgRupType) {
 		Location loc = getGriddedRegion().locationForIndex(idx);
 		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
 		if (filterAftershocks) scaleMFD(mfd);
@@ -52,17 +53,26 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
 		mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
 		
-		if (isCrosshair)
+		if(bgRupType == BackgroundRupType.CROSSHAIR) {
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
 					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-					fracReverse[idx], isCrosshair);
-		return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
+					fracReverse[idx], true);			
+		}
+		else if(bgRupType == BackgroundRupType.FINITE) {
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
+					fracReverse[idx], false);						
+		}
+		else {	// Point source case
+			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);			
+		}
+		
 	}
 	
-	@Override
-	public void setAsPointSources(boolean usePoints) {
-		ptSrcCutoff = (usePoints) ? 10.0 : 6.0;
-	}
+//	@Override
+//	public void setAsPointSources(boolean usePoints) {
+//		ptSrcCutoff = (usePoints) ? 10.0 : 6.0;
+//	}
 
 
 	/**

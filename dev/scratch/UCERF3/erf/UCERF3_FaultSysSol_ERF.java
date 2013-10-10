@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
@@ -14,8 +16,10 @@ import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 
 
 /**
- * Note that this does not yet include C zones (fixed strike sources)
- * @author field
+ * This extends FaultSystemSolutionPoissonERF to include UCERF3 background seismicity as given
+ * by FaultSystemSolution.getGridSourceProvider().
+ * 
+ * @author field & powers
  *
  */
 public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
@@ -25,8 +29,8 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	private String name = NAME;
 	
 	/**
-	 * No-arg constructor. This sets ERF to include background sources and
-	 * the aftershock filter is off (aftershocks included).
+	 * No-arg constructor. This sets ERF to include background sources.
+	 * All other parameters are as defaults.
 	 */
 	public UCERF3_FaultSysSol_ERF() {
 		bgIncludeParam.setValue(IncludeBackgroundOption.INCLUDE);
@@ -54,27 +58,19 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 	@Override
 	protected ProbEqkSource getOtherSource(int iSource) {
 		return gridSources.getSource(iSource, timeSpan.getDuration(),
-			applyAftershockFilter, bgRupType == BackgroundRupType.CROSSHAIR);
+			applyAftershockFilter, bgRupType);
 	}
 
 	@Override
-	protected void initOtherSources() {
-			System.out.println("Initing other sources...");
-			
-			FaultSystemSolution sol = getSolution();
-
-			// fetch grid sources from solution. By default this will be a UC3_GridSourceGenerator
-			// unless the grid sources have been cached or averaged (for a mean solution).
-			gridSources = sol.getGridSourceProvider();
-			
-			if (bgRupType.equals(BackgroundRupType.POINT)) {
-				// default is false; gridGen will create point sources for those
-				// with M<6 anyway; this forces those M>6 to be points as well
-				gridSources.setAsPointSources(true);
-			}
-	
-			// update parent source count
+	protected boolean initOtherSources() {
+		if(bgRupTypeChanged) {
+			gridSources = getSolution().getGridSourceProvider();
 			numOtherSources = gridSources.size();
+			return true;
+		}
+		else {
+			return false;
+		}
 	}	
 	
 	/**
@@ -103,8 +99,42 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		File file = new File(f);
 				
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
-		erf.getParameter(FILE_PARAM_NAME).setValue(file);
-		erf.updateForecast();
+		
+		System.out.println(erf.getAdjustableParameterList().toString());
+		
+//		erf.getParameter(FILE_PARAM_NAME).setValue(file);
+//		
+//		erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.FINITE);
+//		BackgroundRupParam bgParam = (BackgroundRupParam)erf.getParameter(BackgroundRupParam.NAME);
+//		System.out.println(bgParam.getName()+" = "+bgParam.getValue());
+//		erf.updateForecast();
+//		int lastNthRupIndex = erf.getTotNumRups()-1;
+//		int srcIndexForLastNthRup = erf.getSrcIndexForNthRup(lastNthRupIndex);
+//		int rupIndexInSrcForLastNthRup = erf.getRupIndexInSourceForNthRup(lastNthRupIndex);
+//		System.out.println("\tlastNthRupIndex="+lastNthRupIndex);
+//		System.out.println("\tsrcIndexForLastNthRup="+srcIndexForLastNthRup);
+//		System.out.println("\trupIndexInSrcForLastNthRup="+rupIndexInSrcForLastNthRup);
+//		ProbEqkSource lastSrce = erf.getSource(srcIndexForLastNthRup);
+//		System.out.println("\tnum rups for lastSrce = "+lastSrce.getNumRuptures());
+//		System.out.println("\tname for lastSrce = "+lastSrce.getName());
+//		lastSrce.getRupture(rupIndexInSrcForLastNthRup);
+		
+//		System.out.println("\t");
+//		erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.POINT);
+//		System.out.println(bgParam.getName()+" = "+bgParam.getValue());
+//		erf.updateForecast();
+//		lastNthRupIndex = erf.getTotNumRups()-1;
+//		srcIndexForLastNthRup = erf.getSrcIndexForNthRup(lastNthRupIndex);
+//		rupIndexInSrcForLastNthRup = erf.getRupIndexInSourceForNthRup(lastNthRupIndex);
+//		System.out.println("\tlastNthRupIndex="+lastNthRupIndex);
+//		System.out.println("\tsrcIndexForLastNthRup="+srcIndexForLastNthRup);
+//		System.out.println("\trupIndexInSrcForLastNthRup="+rupIndexInSrcForLastNthRup);
+//		lastSrce = erf.getSource(srcIndexForLastNthRup);
+//		System.out.println("\tnum rups for lastSrce = "+lastSrce.getNumRuptures());
+//		System.out.println("\tname for lastSrce = "+lastSrce.getName());
+//		lastSrce.getRupture(rupIndexInSrcForLastNthRup);
+
+
 //		UCERF3_FaultSysSol_ERF erf = FaultSysSolutionERF_Calc.getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL_OFF,SmallMagScaling.MO_REDUCTION);
 //		int otherRups = 0;
 //		for (int i=0; i<erf.gridSources.size(); i++) {
