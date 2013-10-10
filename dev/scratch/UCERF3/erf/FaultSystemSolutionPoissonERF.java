@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
 /**
  * This class creates a Poisson ERF from a given FaultSystemSolution (FSS).  Each "rupture" in the FaultSystemSolution
  * is treated as a separate source (each of which will have more than one rupture only if the 
- * AleatoryMagAreaStdDevParam has a non-zero value.
+ * AleatoryMagAreaStdDevParam has a non-zero value or multiple branches are represented ; e.g., MeanUCERF3).
  * 
  * The fault system solution can be provided in the constructor (as an object or file name) or the file 
  * can be set in the file parameter.
@@ -48,7 +48,7 @@ import com.google.common.collect.Lists;
  * branch), but the mean is used if aleatoryMagAreaStdDev !=0.
  * 
  * This filters out fault system ruptures that have zero rates, or have a magnitude below the section minimum
- * (as determined by InversionFaultSystemRupSet.isRuptureBelowSectMinMag(r)).   - WHAT HAPPENS WHEN THERE ARE MORE THAN ONE MAG FOR RUP?
+ * (as determined by InversionFaultSystemRupSet.isRuptureBelowSectMinMag(r)).
  * 
  * To make accessing ruptures less confusing, this class keeps track of "nth" ruptures within the ERF 
  * (see the last 7 methods here); these methods could be added to AbstractERF.
@@ -251,7 +251,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 			faultGridSpacingChanged = false;
 			timeSpanChangeFlag = false;
 			quadSurfacesChanged= false;
-
 		} 
 		
 		// if timeSpan is still marked as changed, update fault sources (grid sources don't need to be updated here because the getSource() method handles changed durations)
