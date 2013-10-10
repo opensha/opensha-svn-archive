@@ -159,6 +159,8 @@ public class PointSource13b extends ProbEqkSource {
 
 	@Override
 	public ProbEqkRupture getRupture(int idx) {
+		if(idx>getNumRuptures()-1 || idx < 0)
+			throw new RuntimeException("index out of bounds");
 		FocalMech mech = mechForIndex(idx);
 		double wt = mechWts.get(mech);
 		if (mech != STRIKE_SLIP) wt *= 0.5;
