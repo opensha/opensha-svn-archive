@@ -24,6 +24,7 @@ import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.CombinedRangeXYPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.PaintScale;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
@@ -32,11 +33,18 @@ import org.jfree.data.Range;
 import org.jfree.data.xy.AbstractXYZDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotPreferences;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.DataUtils;
@@ -310,8 +318,48 @@ public class XYZGraphPanel extends JPanel {
 			renderer.setBlockWidth(thickness);
 			PaintScaleWrapper scale = new PaintScaleWrapper(spec.getCPT());
 	        renderer.setPaintScale(scale);
-			subPlot.setRenderer(renderer);
-			subPlot.setDataset(dataset);
+			subPlot.setRenderer(0, renderer);
+			subPlot.setDataset(0, dataset);
+			
+			if (spec.getXYChars() != null) {
+				List<PlotCurveCharacterstics> xyChars = spec.getXYChars();
+				List<? extends XY_DataSet> xyElems = spec.getXYElems();
+				
+				Preconditions.checkState(xyChars.size() == xyElems.size());
+				
+				int datasetIndex = 1;
+				
+				for (int i=0; i<xyElems.size(); i++) {
+					PlotCurveCharacterstics curveCharaceterstic = xyChars.get(i);
+					Color color = curveCharaceterstic.getColor();
+					float lineWidth = curveCharaceterstic.getLineWidth();
+					PlotLineType lineType = curveCharaceterstic.getLineType();
+					float symbolWidth = curveCharaceterstic.getSymbolWidth();
+					PlotSymbol symbol = curveCharaceterstic.getSymbol();
+					
+					//creating dataset for each curve and its consecutive curves which have same plotting
+					//characterstics. Eg: can be weighted functions in weighted functionlist  have same
+					//plotting characterstics, also fractiles in weighted function list share same
+					//plotting characterstics. So creating dataset for each list of curves with
+					//same plotting characterstics.
+					XY_DataSetList dataFunctions = new XY_DataSetList();
+					dataFunctions.add(xyElems.get(i));
+					DiscretizedFunctionXYDataSet xyDataset = new DiscretizedFunctionXYDataSet();
+					xyDataset.setXLog(xLog);
+					xyDataset.setYLog(yLog);
+					//converting the zero in Y-axis to some minimum value.
+					xyDataset.setConvertZeroToMin(true ,GraphPanel.LOG_Y_MIN_VAL);
+					xyDataset.setFunctions(dataFunctions);
+
+					//adding the dataset to the plot
+					subPlot.setDataset(datasetIndex++, xyDataset);
+
+					//based on plotting characteristics for each curve sending configuring plot object
+					//to be send to JFreechart for plotting.
+					GraphPanel.drawCurvesUsingPlottingFeatures(subPlot, lineType, lineWidth, symbol, symbolWidth, color, datasetIndex);
+				}
+				subPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+			}
 			
 			ValueAxis fakeZAxis = new NumberAxis();
 			fakeZAxis.setLowerBound(scale.getLowerBound());

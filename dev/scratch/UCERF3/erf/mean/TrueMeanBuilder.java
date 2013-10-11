@@ -2,6 +2,7 @@ package scratch.UCERF3.erf.mean;
 
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,17 +20,23 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.primitives.Ints;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -37,7 +44,9 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
@@ -76,6 +85,8 @@ public class TrueMeanBuilder {
 		private List<UniqueSection> sects;
 		private int cnt = 0;
 		
+		private List<LogicTreeBranch> branchesWithRup;
+		
 		public UniqueRupture(int id, double rake, double area) {
 			super();
 			this.id = id;
@@ -83,6 +94,7 @@ public class TrueMeanBuilder {
 			this.area = area;
 			
 			rupMFD = new ArbitrarilyDiscretizedFunc();
+			branchesWithRup = Lists.newArrayList();
 		}
 
 		@Override
@@ -191,12 +203,12 @@ public class TrueMeanBuilder {
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 		cfss.setCacheCopying(false);
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
-//		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
-//		String nameAdd = "";
+		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };
+		String nameAdd = "";
 //		FaultModels[] fms = { FaultModels.FM3_1};
 //		String nameAdd = "_FM3_1";
-		FaultModels[] fms = { FaultModels.FM3_2 };
-		String nameAdd = "_FM3_2";
+//		FaultModels[] fms = { FaultModels.FM3_2 };
+//		String nameAdd = "_FM3_2";
 		HashSet<FaultModels> fmSet = new HashSet<FaultModels>();
 		for (FaultModels fm : fms)
 			fmSet.add(fm);
@@ -222,7 +234,10 @@ public class TrueMeanBuilder {
 		System.out.println("Generating global IDs");
 		// rup IDs
 		Map<FaultModels, Map<Integer, Integer>> fmGlobalRupIDsMaps = Maps.newHashMap();
+		// this maps global ID to ID within rup set
+		Table<Integer, FaultModels, Integer> globalToRupSetIDTable = HashBasedTable.create();
 		Map<HashSet<String>, Integer> rupSectNamesToGlobalIDMap = Maps.newHashMap();
+		Map<FaultModels, Integer> fmRupCountMap = Maps.newHashMap();
 		int globalRupCount = 0;
 		// sub sects
 		Map<FaultModels, Map<Integer, Integer>> fmGlobalSectIDsMaps = Maps.newHashMap();
@@ -237,6 +252,7 @@ public class TrueMeanBuilder {
 					break;
 				}
 			}
+			fmRupCountMap.put(fm, rupSet.getNumRuptures());
 			
 			// rups
 			Map<Integer, Integer> globalRupIDsMap = Maps.newHashMap();
@@ -250,6 +266,7 @@ public class TrueMeanBuilder {
 					globalID = globalRupCount++;
 					rupSectNamesToGlobalIDMap.put(sectNames, globalID);
 				}
+				globalToRupSetIDTable.put(globalID, fm, r);
 				globalRupIDsMap.put(r, globalID);
 			}
 			System.out.println(fm.getShortName()+": globalRupCount="+globalRupCount);
@@ -303,6 +320,9 @@ public class TrueMeanBuilder {
 		IncrementalMagFreqDist origAvgMFD = new IncrementalMagFreqDist(mfdMin, mfdNum, mfdDelta);
 		origAvgMFD.setTolerance(mfdDelta);
 		
+		// keyed to just FM, DM, Scale
+		Map<LogicTreeBranch, boolean[]> minMagArrays = Maps.newHashMap();
+		
 		for (LogicTreeBranch branch : branches) {
 			FaultModels fm = branch.getValue(FaultModels.class);
 			// mapping from FM IDs to global IDs
@@ -324,8 +344,33 @@ public class TrueMeanBuilder {
 			List<FaultSectionPrefData> fsd = null;
 			InversionFaultSystemRupSet rupSet = null;
 			
+			LogicTreeBranch fmDmScaleBranch = (LogicTreeBranch) branch.clone();
+			for (int i=0; i<branch.size(); i++) {
+				LogicTreeBranchNode<?> val = branch.getValue(i);
+				if (!(val instanceof FaultModels || val instanceof DeformationModels || val instanceof ScalingRelationships))
+					fmDmScaleBranch.clearValue(i);
+			}
+			boolean[] belowMinMag = minMagArrays.get(fmDmScaleBranch);
+			if (belowMinMag == null) {
+				// we need to load the rupSet
+				rupSet = cfss.getSolution(branch).getRupSet();
+				fsd = rupSet.getFaultSectionDataList();
+				rupSetCount++;
+				belowMinMag = rupSet.getRuptureBelowSectMinMagArray();
+//				int numBelows = 0;
+//				for (boolean below : belowMinMag)
+//					if (below)
+//						numBelows++;
+//				System.out.println("Loaded belows. "+numBelows+"/"+belowMinMag.length+" are below. Branch: "+fmDmScaleBranch);
+				minMagArrays.put(fmDmScaleBranch, belowMinMag);
+			}
+			
 			boolean print = false;
 			for (int r=0; r<mags.length; r++) {
+				// check if it's below sect min mag (and should be skipped)
+				if (belowMinMag[r])
+					continue;
+				
 				int globalRupID = globalRupIDsMap.get(r);
 				HashMap<UniqueRupture, UniqueRupture> rupRates = uniqueRupturesList.get(globalRupID);
 
@@ -358,9 +403,6 @@ public class TrueMeanBuilder {
 						fsd = rupSet.getFaultSectionDataList();
 						rupSetCount++;
 					}
-					// check if it's below sect min mag (and should be skipped)
-					if (rupSet.isRuptureBelowSectMinMag(r))
-						continue;
 					List<UniqueSection> rupSects = Lists.newArrayList();
 					for (int ind : subSectIndexes) {
 						// get UniqueSection instances for each subsection
@@ -385,13 +427,14 @@ public class TrueMeanBuilder {
 					rupRates.put(rup, rup);
 					matchedRup = rup;
 				}
-				// add my rate to the matched rate
+				// add my rate/mag to the matched rup
 				double mag = mags[r];
 				int index = matchedRup.rupMFD.getXIndex(mag);
 				if (index >= 0)
 					matchedRup.rupMFD.set(index, matchedRup.rupMFD.getY(index)+scaledRate);
 				else
 					matchedRup.rupMFD.set(mag, scaledRate);
+				matchedRup.branchesWithRup.add(branch);
 				matchedRup.cnt++;
 				
 				// sanity checks
@@ -458,6 +501,9 @@ public class TrueMeanBuilder {
 		IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(mfdMin, mfdNum, mfdDelta);
 		newMFD.setTolerance(mfdDelta);
 		
+		// this keeps track of the IDs in our true mean solution that map back to each branch rupture
+		Map<LogicTreeBranch, int[]> branchIDsMap = Maps.newHashMap();
+		
 		int rupIndex = 0;
 		for (Map<UniqueRupture, UniqueRupture> uniqueRups : uniqueRupturesList) {
 			for (UniqueRupture rup : uniqueRups.keySet()) {
@@ -479,6 +525,18 @@ public class TrueMeanBuilder {
 				rates[rupIndex] = totRate;
 				mags[rupIndex] = runningMag/totRate;
 				mfds[rupIndex] = mfd;
+				
+				for (LogicTreeBranch branch : rup.branchesWithRup) {
+					int[] ids = branchIDsMap.get(branch);
+					if (ids == null) {
+						ids = new int[fmRupCountMap.get(branch.getValue(FaultModels.class))];
+						for (int i=0; i<ids.length; i++)
+							ids[i] = -1;
+						branchIDsMap.put(branch, ids);
+					}
+					int rupSetIndex = globalToRupSetIDTable.get(rup.id, branch.getValue(FaultModels.class));
+					ids[rupSetIndex] = rupIndex;
+				}
 				
 				rupIndex++;
 			}
@@ -519,6 +577,87 @@ public class TrueMeanBuilder {
 		String outputFileName = compoundFile.getName().replaceAll(".zip", "")+nameAdd+"_TRUE_HAZARD_MEAN_SOL.zip";
 		File outputFile = new File(invDir, outputFileName);
 		FaultSystemIO.writeSol(sol, outputFile);
+		
+		// write branch specific data
+		// unzip true mean to temp dir
+		File tempDir = FileUtils.createTempDir();
+		FileUtils.unzipFile(outputFile, tempDir);
+		List<String> fileNames = Lists.newArrayList();
+		for (File file : tempDir.listFiles()) {
+			if (file.isDirectory())
+				// important files will be in root, directories could be "." or ".."
+				continue;
+			fileNames.add(file.getName());
+		}
+		// first write logic tree branches in order
+		branches = Lists.newArrayList(cfss.getBranches()); // un shuffle it
+		Collections.sort(branches);
+		File branchesFile = new File(tempDir, "branch_list.txt");
+		FileWriter fw = new FileWriter(branchesFile);
+		for (LogicTreeBranch branch : branches)
+			fw.write(branch.buildFileName()+"\n");
+		fw.close();
+		fileNames.add(branchesFile.getName());
+		// now write id mapping
+		List<List<Integer>> branchRupsMapping = Lists.newArrayList();
+		double[] negCounts = new double[branches.size()];
+		for (int i = 0; i < branches.size(); i++) {
+			LogicTreeBranch branch = branches.get(i);
+			int[] ids = branchIDsMap.get(branch);
+			// will only be -1 if below sect min mag
+			for (int id : ids)
+				if (id < 0)
+					negCounts[i]++;
+			
+			if (Math.random() < 0.01) {
+				System.out.println("Performing audit on: "+branch.buildFileName());
+				InversionFaultSystemRupSet auditRupSet = cfss.getSolution(branch).getRupSet();
+				for (int j = 0; j < ids.length; j++) {
+					int id = ids[j];
+					if (id < 0) {
+						if (!auditRupSet.isRuptureBelowSectMinMag(j)) {
+							LogicTreeBranch fmDmScaleBranch = (LogicTreeBranch) branch.clone();
+							for (int k=0; k<branch.size(); k++) {
+								LogicTreeBranchNode<?> val = branch.getValue(k);
+								if (!(val instanceof FaultModels || val instanceof DeformationModels || val instanceof ScalingRelationships))
+									fmDmScaleBranch.clearValue(k);
+							}
+							boolean[] belowOrig = minMagArrays.get(fmDmScaleBranch);
+							boolean[] below = auditRupSet.getRuptureBelowSectMinMagArray();
+							int negs = 0;
+							int badNegs = 0;
+							int belowDiscreps = 0;
+							for (int k=0; k<ids.length; k++) {
+								if (ids[k] < 0) {
+									negs++;
+									if (!below[k])
+										badNegs++;
+								}
+								if (below[k] != belowOrig[k])
+									belowDiscreps++;
+							}
+							System.out.println("negs: "+negs);
+							System.out.println("badNegs: "+badNegs);
+							System.out.println("belowDiscreps: "+belowDiscreps);
+							System.out.flush();
+						}
+						Preconditions.checkState(auditRupSet.isRuptureBelowSectMinMag(j),
+								"rup "+j+" mapping is -1, but not below min mag. mag="+auditRupSet.getMagForRup(j));
+					}
+				}
+			}
+			branchRupsMapping.add(Ints.asList(ids));
+		}
+		System.out.println("Neg index counts:");
+		System.out.println("\tmin="+StatUtils.min(negCounts));
+		System.out.println("\tmax="+StatUtils.max(negCounts));
+		System.out.println("\tmean="+StatUtils.mean(negCounts));
+		System.out.println("\tmeduan="+DataUtils.median(negCounts));
+		File branchIDsFile = new File(tempDir, "branch_ids.bin");
+		MatrixIO.intListListToFile(branchRupsMapping, branchIDsFile);
+		fileNames.add(branchIDsFile.getName());
+		FileUtils.createZipFile(outputFile.getAbsolutePath(), tempDir.getAbsolutePath(), fileNames);
+		FileUtils.deleteRecursive(tempDir);
 	}
 	
 	private static void checkEqual(double origVal, double newVal, String description) {

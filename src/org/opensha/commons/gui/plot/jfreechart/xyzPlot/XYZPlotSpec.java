@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.ui.RectangleEdge;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.util.cpt.CPT;
 
 /**
@@ -23,6 +26,8 @@ public class XYZPlotSpec {
 	private Double thickness = null;
 	private List<? extends XYAnnotation> annotations;
 	private RectangleEdge legendPosition = RectangleEdge.TOP;
+	private List<? extends XY_DataSet> xyElems;
+	private List<PlotCurveCharacterstics> xyChars;
 	
 	/**
 	 * 
@@ -124,6 +129,22 @@ public class XYZPlotSpec {
 	 */
 	public void setLegendPosition(RectangleEdge legendPosition) {
 		this.legendPosition = legendPosition;
+	}
+
+	public List<? extends XY_DataSet> getXYElems() {
+		return xyElems;
+	}
+
+	public void setXYElems(List<? extends XY_DataSet> xyElems) {
+		this.xyElems = xyElems;
+	}
+
+	public List<PlotCurveCharacterstics> getXYChars() {
+		return xyChars;
+	}
+
+	public void setXYChars(List<PlotCurveCharacterstics> xyChars) {
+		this.xyChars = xyChars;
 	}
 
 }

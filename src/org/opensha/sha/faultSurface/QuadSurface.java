@@ -60,7 +60,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * calculate the minimum distance to a fault surface.<br />
  * <br />
  * Internally, this class uses a right-handed cartesian coordinate system where
- * x is latitude, y is latitude, and z is depth (positive down per seismological
+ * x is longitude, y is latitude, and z is depth (positive down per seismological
  * convention). This convention preserves strike values (degrees clockwise from
  * north) as clockwise rotation about the z-axis per cartesian convention.
  * 
@@ -94,6 +94,11 @@ public class QuadSurface implements RuptureSurface {
 	private FaultTrace seis_trace;
 	private List<Rotation> seis_rots;
 	private List<Path2D> seis_surfs;
+
+	/* for distance X calcs */
+	private List<Rotation> x_rots;
+	private List<Path2D> x_surfs;
+	private List<Vector3D> x_trace_vects;
 	
 	/*
 	 * discretization to use for evenly discretized methods
@@ -127,25 +132,30 @@ public class QuadSurface implements RuptureSurface {
 	 * @return
 	 */
 	private static FaultTrace getTraceBelowSeismogenic(FaultSectionPrefData prefData, boolean aseisReducesArea) {
-		FaultTrace belowTrace = new FaultTrace("");
 		double upperSeismogenicDepth;
 		if (aseisReducesArea)
 			upperSeismogenicDepth = prefData.getReducedAveUpperDepth();
 		else
 			upperSeismogenicDepth = prefData.getOrigAveUpperDepth();
+
 		double aveDipRadians = Math.toRadians(prefData.getAveDip());
 		double aveDipDirection = prefData.getDipDirection();
-		for (Location loc : prefData.getFaultTrace())
+		return getTraceBelowDepth(prefData.getFaultTrace(), upperSeismogenicDepth, aveDipRadians, aveDipDirection);
+	}
+	
+	private static FaultTrace getTraceBelowDepth(FaultTrace trace, double depth, double avgDipRad, double dipDirDeg) {
+		FaultTrace belowTrace = new FaultTrace("");
+		for (Location loc : trace)
 			belowTrace.add(StirlingGriddedSurface.getTopLocation(
-					loc, upperSeismogenicDepth, aveDipRadians, aveDipDirection));
+					loc, depth, avgDipRad, dipDirDeg));
 		return belowTrace;
 	}
 	
 	public QuadSurface(FaultSectionPrefData prefData, boolean aseisReducesArea) {
-//		this(getTraceBelowSeismogenic(prefData, aseisReducesArea),
-//				prefData.getAveDip(), calcWidth(prefData, aseisReducesArea));
-		this(prefData.getFaultTrace(),
+		this(getTraceBelowSeismogenic(prefData, aseisReducesArea),
 				prefData.getAveDip(), calcWidth(prefData, aseisReducesArea));
+//		this(prefData.getFaultTrace(),
+//				prefData.getAveDip(), calcWidth(prefData, aseisReducesArea));
 	}
 
 	/**
@@ -362,13 +372,7 @@ public class QuadSurface implements RuptureSurface {
 						seis_rots = rots;
 						seis_surfs = surfs;
 					} else {
-						seis_trace = new FaultTrace("seis depth trace");
-						for (Location traceLoc : trace) {
-							double depth = traceLoc.getDepth();
-							if (depth < DistanceSeisParameter.SEIS_DEPTH)
-								depth = DistanceSeisParameter.SEIS_DEPTH;
-							seis_trace.add(new Location(traceLoc.getLatitude(), traceLoc.getLongitude(), depth));
-						}
+						seis_trace = getTraceBelowDepth(trace, DistanceSeisParameter.SEIS_DEPTH, dipRad, avgDipDirDeg);
 						seis_rots = new ArrayList<Rotation>();
 						seis_surfs = new ArrayList<Path2D>();
 						
@@ -570,31 +574,83 @@ public class QuadSurface implements RuptureSurface {
 	}
 	
 	public synchronized double getDistanceX(Location siteLoc) {
+		if (x_trace_vects == null) {
+			// we recalculate the rotations because don't want to consider dip
+			x_rots = Lists.newArrayList();
+			x_surfs = Lists.newArrayList();
+			initSegments(PI_BY_2, avgDipDirRad, width, trace, x_rots, x_surfs);
+			// this is a list of vectors from the origin in the trace pt local coordinate system
+			x_trace_vects = Lists.newArrayList();
+			for (int i = 0; i < trace.size() - 1; i++) {
+				Path2D surf = x_surfs.get(i);
+				PathIterator pit = surf.getPathIterator(null);
+				double[] c = new double[6]; // coordinate array
+				// load in origin, ensuring that it's indeed the origin
+				Preconditions.checkState(pit.currentSegment(c) == PathIterator.SEG_MOVETO);
+				pit.next();
+				Preconditions.checkState((float)c[0] == (float)0);
+				Preconditions.checkState((float)c[1] == (float)0);
+				// load in second trace point, ensuring that it's along the x axis
+				Preconditions.checkState(pit.currentSegment(c) == PathIterator.SEG_LINETO);
+				Preconditions.checkState(Math.abs(c[1]) < 1e-10);
+				x_trace_vects.add(new Vector3D(c[0], c[1], 0));
+			}
+		}
 		if (siteLoc.equals(siteLocForDistXCalc))
 			return distanceX;
 		siteLocForDistXCalc = siteLoc;
 		// TODO do it right
-		distanceX =  GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLoc);
+//		distanceX =  GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLoc);
+//		return distanceX;
+//		return distanceX + distanceX*(0.5 - Math.random());
+		double distanceSq = Double.MAX_VALUE;
+		double distance = Double.MAX_VALUE;
+		for (int i = 0; i < trace.size() - 1; i++) {
+			// compute geographic vector to point
+			LocationVector vec = LocationUtils.vector(trace.get(i), siteLoc);
+			// convert to cartesian
+			Vector3D vp = new Vector3D(vec.getHorzDistance(), new Vector3D(
+				vec.getAzimuthRad(), 0), vec.getVertDistance(), Vector3D.PLUS_K);
+			// rotate
+			vp = x_rots.get(i).applyTo(vp);
+			double siteX = vp.getX();
+			double siteY = vp.getY();
+			double siteZ = vp.getZ();
+			// now get the trace vector
+			Vector3D traceVect = x_trace_vects.get(i);
+			double traceX = traceVect.getX();
+			double traceY = traceVect.getY();
+			// since traceVect is along the X axis, the distance to the segment can be calculated easily
+			boolean trueDist; // if true, we do an actual 3d distance to segment. otherwise just y/z dist
+			if (siteX < 0) {
+				// it's to the left in our projected trace
+				// do true distance if this isn't the leftmost trace point
+				trueDist = i > 0;
+			} else if (siteX > traceX) {
+				// it's to the right in our projected trace
+				// do true distance if this isn't the leftmost trace point
+				trueDist = i < trace.size()-2;
+			} else {
+				// this is directly above/below the trace
+				trueDist = false;
+			}
+			double myDistSq;
+			if (trueDist)
+				myDistSq = Line2D.ptSegDistSq(0d, 0d, traceX, 0,
+						siteX, siteZ);
+			else
+				myDistSq = siteZ * siteZ;
+			
+			if (myDistSq < distanceSq) {
+				distanceSq = myDistSq;
+				distance = Math.sqrt(myDistSq);
+				// faults dip in the positive y direction, so neg y is on foot wall
+				if (siteZ > 0)
+					distance = -distance;
+			}
+		}
+		distanceX = distance;
 		return distanceX;
-//		double distance = Double.MAX_VALUE;
-//		for (int i = 0; i < trace.size() - 1; i++) {
-//			// compute geographic vector to point
-//			LocationVector vec = LocationUtils.vector(trace.get(i), loc);
-//			// convert to cartesian
-//			Vector3D vp = new Vector3D(vec.getHorzDistance(), new Vector3D(
-//				vec.getAzimuthRad(), 0), vec.getVertDistance(), Vector3D.PLUS_K);
-//			// rotate
-//			vp = rots.get(i).applyTo(vp);
-//			// compute distance
-//			Path2D surf = surfs.get(i);
-//			Line2D.pt
-//			if (surf.contains(vp.getX(), vp.getY())) {
-//				distance = Math.min(distance, Math.abs(vp.getZ()));
-//			} else {
-//				distance = Math.min(distance, distanceToSurface(vp, surf));
-//			}
-//		}
-//		return distance;
 	}
 	
 //	private EvenlyGriddedSurface getGridded() {
@@ -721,6 +777,8 @@ public class QuadSurface implements RuptureSurface {
 			perim.add(loc);
 		// bottom, backwards
 		perim.addAll(getReversed(getHorizontalPoints(width)));
+		// close it
+		perim.add(perim.get(0));
 		return perim;
 	}
 	
@@ -829,6 +887,8 @@ public class QuadSurface implements RuptureSurface {
 		Location l2 = new Location(36.1, -118.0, topDepth);
 //		Location l1 = new Location(0.00, 0.00, topDepth);
 //		Location l2 = new Location(0.01, 0.01, topDepth);
+		
+		Location distXDebug = new Location(35d, -119);
 
 		FaultTrace ft = new FaultTrace("Test");
 		ft.add(l1);
@@ -844,6 +904,8 @@ public class QuadSurface implements RuptureSurface {
 		
 //		QuadSurface q = new QuadSurface(ft, dip, width);
 		QuadSurface q = prefData.getQuadSurface(false);
+		q.getDistanceX(distXDebug);
+		showDebugGraph(q.x_surfs.get(0), getProjectedPoint(q.trace, q.x_rots, 0, distXDebug), true, null);
 		EvenlyGriddedSurface gridded = prefData.getStirlingGriddedSurface(1d, false, false);
 		
 		// now plot outline

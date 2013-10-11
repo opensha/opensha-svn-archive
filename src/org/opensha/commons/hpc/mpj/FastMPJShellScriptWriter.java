@@ -57,7 +57,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		
 		// new lines added to remove host that job starts on from list of
 		// supplied nodes
-		script.add("NEW_NODEFILE=\"/tmp/${USER}-hostfile-${PBS_JOBID}\"");
+		script.add("NEW_NODEFILE=\"/tmp/${USER}-hostfile-fmpj-${PBS_JOBID}\"");
 		script.add("echo \"creating PBS_NODEFILE: $NEW_NODEFILE\"");
 		script.add("hname=$(hostname)");
 		script.add("if [ \"$hname\" == \"\" ]");

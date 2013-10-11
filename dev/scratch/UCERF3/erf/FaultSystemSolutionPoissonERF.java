@@ -85,7 +85,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
 	protected IncludeBackgroundParam bgIncludeParam;
 	protected BackgroundRupParam bgRupTypeParam;
-	private static final String QUAD_SURFACES_PARAM_NAME = "Use Quad Surfaces (otherwise gridded)";
+	static final String QUAD_SURFACES_PARAM_NAME = "Use Quad Surfaces (otherwise gridded)";
 	private static final boolean QUAD_SURFACES_PARAM_DEFAULT = false;
 	private BooleanParameter quadSurfacesParam;
 	
@@ -112,7 +112,6 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	boolean timeSpanChangeFlag=true;
 	
 	// these help keep track of what's changed
-	protected File prevFile = null;
 	private boolean faultSysSolutionChanged = true;
 	
 	// leave as a FaultSystemSolution for use with Simulator/other FSS
@@ -374,19 +373,16 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		File file = fileParam.getValue();
 		if (file == null) throw new RuntimeException("No solution file specified");
 
-		if (file != prevFile) {
-			if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
-			long runTime = System.currentTimeMillis();
-			try {
-				setSolution(FaultSystemIO.loadSol(file));
-				prevFile = file;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			if(D) {
-				runTime = (System.currentTimeMillis()-runTime)/1000;
-				if(D) System.out.println("Loading solution took "+runTime+" seconds.");
-			}
+		if (D) System.out.println("Loading solution from: "+file.getAbsolutePath());
+		long runTime = System.currentTimeMillis();
+		try {
+			setSolution(FaultSystemIO.loadSol(file), false);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		if(D) {
+			runTime = (System.currentTimeMillis()-runTime)/1000;
+			if(D) System.out.println("Loading solution took "+runTime+" seconds.");
 		}
 	}
 	
@@ -396,9 +392,26 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	 * @param sol
 	 */
 	protected void setSolution(FaultSystemSolution sol) {
+		setSolution(sol, true);
+	}
+	
+	private void setSolution(FaultSystemSolution sol, boolean clearFileParam) {
 		this.faultSysSolution = sol;
+		if (clearFileParam) {
+			// this means that the method was called manually, clear the file param so that
+			// any subsequent sets to the file parameter trigger an update and override this
+			// current solution.
+			synchronized (fileParam) {
+				fileParam.removeParameterChangeListener(this);
+				fileParam.setValue(null);
+				fileParam.addParameterChangeListener(this);
+			}
+		}
 		faultSysSolutionChanged = true;
 		bgRupTypeChanged = true;  // because the background ruptures come from the FSS
+		// have to set fileParamChanged to false in case you set the file param and then call
+		// setSolution manually before doing an update forecast
+		fileParamChanged = false;
 	}
 	
 	public FaultSystemSolution getSolution() {

@@ -497,4 +497,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 			 */
 		}
 	}
+	
+	public boolean isCrossHair() {
+		return isCrossHair;
+	}
 }

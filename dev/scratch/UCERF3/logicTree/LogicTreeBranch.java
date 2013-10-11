@@ -195,6 +195,14 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	}
 	
 	/**
+	 * Sets the value at the given index to null.
+	 * @param index
+	 */
+	public void clearValue(int index) {
+		branch.set(index, null);
+	}
+	
+	/**
 	 * Sets the given value in the branch. Cannot be null (use clearValue(clazz)).
 	 * @param value
 	 */

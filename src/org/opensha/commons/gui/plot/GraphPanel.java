@@ -140,7 +140,7 @@ public class GraphPanel extends JSplitPane {
 	/**
 	 * for Y-log, 0 values will be converted to this small value
 	 */
-	private static final double LOG_Y_MIN_VAL = 1e-16;
+	public static final double LOG_Y_MIN_VAL = 1e-16;
 
 
 	private XYPlot plot;
@@ -235,7 +235,7 @@ public class GraphPanel extends JSplitPane {
 	 * This method creates a new renderer for each dataset based on user's selected
 	 * plotting style.If index is zero then set primary renderer else set secondary renderer
 	 */
-	private static void drawCurvesUsingPlottingFeatures(
+	public static void drawCurvesUsingPlottingFeatures(
 			XYPlot plot,
 			PlotLineType lineType, float lineWidth,
 			PlotSymbol symbol, float symbolWidth,

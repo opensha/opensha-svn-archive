@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.jfree.data.Range;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
@@ -25,6 +26,8 @@ public class XYZPlotWindow extends JFrame {
 	
 	private static int count = 0;
 	
+	private List<XYZPlotSpec> specs;
+	
 	public XYZPlotWindow(XYZ_DataSet xyz, CPT cpt, String title) {
 		this(new XYZPlotSpec(xyz, cpt, title, null, null, null));
 	}
@@ -34,9 +37,15 @@ public class XYZPlotWindow extends JFrame {
 	}
 	
 	public XYZPlotWindow(List<XYZPlotSpec> specs) {
+		this(specs, null, null);
+	}
+	
+	public XYZPlotWindow(List<XYZPlotSpec> specs, List<Range> xRanges, List<Range> yRanges) {
 		this.panel = new XYZGraphPanel();
-		panel.drawPlot(specs, false, false, null, null);
+		panel.drawPlot(specs, false, false, xRanges, yRanges);
+//		panel.drawPlot(specs, false, false, null, null);
 		this.setContentPane(panel.getChartPanel());
+		this.specs = specs;
 		
 		++count;
 		

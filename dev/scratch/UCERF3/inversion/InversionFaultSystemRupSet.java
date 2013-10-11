@@ -831,6 +831,12 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		return isRupBelowMinMagsForSects[rupIndex];
 
 	}
+	
+	public boolean[] getRuptureBelowSectMinMagArray() {
+		// make sure it's initialized;
+		isRuptureBelowSectMinMag(0);
+		return isRupBelowMinMagsForSects;
+	}
 
 
 	/**
