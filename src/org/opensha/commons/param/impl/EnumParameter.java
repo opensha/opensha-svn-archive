@@ -31,6 +31,7 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 	private EnumParameterEditor<E> editor;
 	private String nullOption;
 	private Class<E> clazz;
+	private EnumSet<E> choices;
 
 	// private; for internal cloning use only
 	private EnumParameter() {};
@@ -52,6 +53,7 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 		super(name, new EnumConstraint<E>(choices, nullOption != null), null,
 			defaultValue);
 		clazz = (Class<E>) Iterables.getFirst(choices, null).getClass();
+		this.choices = choices;
 		if (choices.size() > 1) {
 			if (!clazz.isEnum()) {
 				// this checks to see if the enum class is actually a concrete implementation
@@ -82,11 +84,19 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 		ep.defaultValue = defaultValue;
 		ep.value = value;
 		ep.name = name;
+		ep.choices = choices;
 		return ep;
 	}
 
 	@Override
 	protected boolean setIndividualParamValueFromXML(Element el) {
+		String val = el.attributeValue("value");
+		for (E choice : choices) {
+			if (choice.toString().equals(val)) {
+				setValue(choice);
+				return true;
+			}
+		}
 		return false;
 	}
 
