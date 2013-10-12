@@ -181,7 +181,7 @@ public class TestFaultSysSolTimeDepERF {
 //		invERF.bpt_AperiodicityParam.setValue(0.11);
 		invERF.bpt_AperiodicityParam.setValue(0.2);
 
-		double duration = 500000;
+		double duration = 50000;
 		
 //		int probType = 0;	// Poisson
 		int probType = 1;	// U3

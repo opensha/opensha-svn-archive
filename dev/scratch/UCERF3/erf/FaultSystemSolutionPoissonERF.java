@@ -115,7 +115,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	private boolean faultSysSolutionChanged = true;
 	
 	// leave as a FaultSystemSolution for use with Simulator/other FSS
-	private FaultSystemSolution faultSysSolution;		// the FFS for the ERF
+	protected FaultSystemSolution faultSysSolution;		// the FFS for the ERF
 	protected int numNonZeroFaultSystemSources;			// this is the number of faultSystemRups with non-zero rates (each is a source here)
 	int totNumRupsFromFaultSystem;						// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	

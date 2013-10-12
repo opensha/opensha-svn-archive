@@ -296,6 +296,10 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// use parent to update forecast if an appropriate parent param has changed (creating long-term Poisson fault-based sources)
 		super.updateForecast();
 		
+		invSol = (InversionFaultSystemSolution)faultSysSolution;
+		invRupSet = invSol.getRupSet();
+
+		
 		boolean sourcesUpdatedInParent = (fileChange || aleatoryMagAreaChange || aftershockFilterChanged || gridSpacingChanged);
 		// not that the above does not include timeSpanChanged
 		
@@ -304,6 +308,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		// make/update the bpt calculator
 		if(refBPT_DistributionCalc == null || timeSpanChanged || bpt_AperiodicityChanged)
 			initBPT_CondProbCalc();
+		
 		
 		// init some arrays used for faster calculations
 		if(fileChange)
@@ -1602,7 +1607,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			try {
 				graphScat.saveAsPDF(dirNameForSavingFiles+"/scatterPlotOfU3vsU2_TimeDepSectRatesAt"+Math.round(yr)+"yrs.pdf");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
