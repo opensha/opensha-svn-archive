@@ -455,5 +455,9 @@ public class PointSource13b extends ProbEqkSource {
 		}
 		
 	}
+	
+	public IncrementalMagFreqDist getMFD() {
+		return mfd;
+	}
 
 }

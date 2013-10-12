@@ -48,11 +48,6 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
 		if (filterAftershocks) scaleMFD(mfd);
 
-		Map<FocalMech, Double> mechMap = Maps.newHashMap();
-		mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip[idx]);
-		mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
-		mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
-		
 		switch (bgRupType) {
 		case CROSSHAIR:
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
@@ -63,6 +58,10 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
 					fracReverse[idx], false);
 		case POINT:
+			Map<FocalMech, Double> mechMap = Maps.newHashMap();
+			mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip[idx]);
+			mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
+			mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
 			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
 
 		default:

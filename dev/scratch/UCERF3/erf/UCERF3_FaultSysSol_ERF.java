@@ -7,6 +7,7 @@ import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
@@ -99,40 +100,14 @@ public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 		File file = new File(f);
 				
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
+		erf.getParameter(FILE_PARAM_NAME).setValue(file);
 		
-		System.out.println(erf.getAdjustableParameterList().toString());
+		erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.CROSSHAIR);
+		erf.updateForecast();
 		
-//		erf.getParameter(FILE_PARAM_NAME).setValue(file);
-//		
-//		erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.FINITE);
-//		BackgroundRupParam bgParam = (BackgroundRupParam)erf.getParameter(BackgroundRupParam.NAME);
-//		System.out.println(bgParam.getName()+" = "+bgParam.getValue());
-//		erf.updateForecast();
-//		int lastNthRupIndex = erf.getTotNumRups()-1;
-//		int srcIndexForLastNthRup = erf.getSrcIndexForNthRup(lastNthRupIndex);
-//		int rupIndexInSrcForLastNthRup = erf.getRupIndexInSourceForNthRup(lastNthRupIndex);
-//		System.out.println("\tlastNthRupIndex="+lastNthRupIndex);
-//		System.out.println("\tsrcIndexForLastNthRup="+srcIndexForLastNthRup);
-//		System.out.println("\trupIndexInSrcForLastNthRup="+rupIndexInSrcForLastNthRup);
-//		ProbEqkSource lastSrce = erf.getSource(srcIndexForLastNthRup);
-//		System.out.println("\tnum rups for lastSrce = "+lastSrce.getNumRuptures());
-//		System.out.println("\tname for lastSrce = "+lastSrce.getName());
-//		lastSrce.getRupture(rupIndexInSrcForLastNthRup);
+		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
+		erf.updateForecast();
 		
-//		System.out.println("\t");
-//		erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.POINT);
-//		System.out.println(bgParam.getName()+" = "+bgParam.getValue());
-//		erf.updateForecast();
-//		lastNthRupIndex = erf.getTotNumRups()-1;
-//		srcIndexForLastNthRup = erf.getSrcIndexForNthRup(lastNthRupIndex);
-//		rupIndexInSrcForLastNthRup = erf.getRupIndexInSourceForNthRup(lastNthRupIndex);
-//		System.out.println("\tlastNthRupIndex="+lastNthRupIndex);
-//		System.out.println("\tsrcIndexForLastNthRup="+srcIndexForLastNthRup);
-//		System.out.println("\trupIndexInSrcForLastNthRup="+rupIndexInSrcForLastNthRup);
-//		lastSrce = erf.getSource(srcIndexForLastNthRup);
-//		System.out.println("\tnum rups for lastSrce = "+lastSrce.getNumRuptures());
-//		System.out.println("\tname for lastSrce = "+lastSrce.getName());
-//		lastSrce.getRupture(rupIndexInSrcForLastNthRup);
 
 
 //		UCERF3_FaultSysSol_ERF erf = FaultSysSolutionERF_Calc.getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL_OFF,SmallMagScaling.MO_REDUCTION);

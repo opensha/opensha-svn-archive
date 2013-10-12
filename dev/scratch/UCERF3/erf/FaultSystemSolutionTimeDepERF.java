@@ -376,13 +376,14 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			
 			// create new prob gain
 			if(typeCalcForU3_Probs != 1)
-				System.out.println("WARNING - typeCalcForU3_Probs=2 OPTION NOW WORKING IN UPDATE FORECAST!!! ***********************");
+				System.out.println("WARNING - typeCalcForU3_Probs=2 OPTION NOT WORKING IN UPDATE FORECAST!!! ***********************");
 			
 			probGainForFaultSystemSource = new double[numNonZeroFaultSystemSources];
 			double duration = timeSpan.getDuration();
 			for(int s=0; s<numNonZeroFaultSystemSources; s++) {
 				int fltSystRupIndex = fltSysRupIndexForSource[s];
 				double aveTimeSinceLastYears = (double)getAveDateOfLastEventCorrected(fltSystRupIndex)/MILLISEC_PER_YEAR;	
+				// ERROR - The above needs to account for current time !!!!!!!!!!!!!!!!!!!!!!!!!! 
 				// THE ABOVE COMPUTES FROM THE FAULT SECTION DATA!
 				if(totRupAreaWithDateOfLast == 0) {	// shouldn't be necessary, but more efficient
 					probGainForFaultSystemSource[s] = 1.0;
@@ -681,48 +682,6 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	
 	
 	
-	/**
-	 * This method returns the average date of last event (epoch milliseconds) for the given rupture, representing
-	 * an area-weight averaged value.  Fault sections that have no date of last event are given the equivalent
-	 * date of last that is closest to the Poisson distribution.
-	 * Users will know this has been done by the following first two global variables being non equal
-	 * and the third being false, after the calculation:
-	 * 
-	 * 		double totRupArea
-	 * 		double totRupAreaWithDateOfLast
-	 * 		boolean allSectionsHadDateOfLast
-	 * 
-	 * @param fltSystRupIndex
-	 * @return
-	 */
-	public long getAveDateOfLastEventCorrected(int fltSystRupIndex) {
-		// compute average date of last event
-		double aveExpRI = aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
-		double durOverRI = timeSpan.getDuration()/aveExpRI;
-		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
-		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
-		double defaultAveDateOfLast =  (double)startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
-
-		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
-		totRupArea=0;
-		totRupAreaWithDateOfLast=0;
-		allSectionsHadDateOfLast = true;
-		double sumDateOfLast = 0;
-		for(FaultSectionPrefData data:fltData) {
-			long dateOfLast = data.getDateOfLastEvent();
-			double area = data.getTraceLength()*data.getReducedDownDipWidth();
-			totRupArea += area;
-			if(dateOfLast != Long.MIN_VALUE) {
-				totRupAreaWithDateOfLast += area;
-				sumDateOfLast += (double)dateOfLast*area;
-			}
-			else {
-				sumDateOfLast += defaultAveDateOfLast;
-				allSectionsHadDateOfLast = false;
-			}
-		}
-		return Math.round(sumDateOfLast/totRupArea);  // epoch millis
-	}
 	
 	
 	/**
@@ -799,12 +758,56 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				sumDateOfLast += (double)dateOfLast*area;
 			}
 			else {
-				sumDateOfLast += defaultAveDateOfLast;
+				sumDateOfLast += defaultAveDateOfLast;	// TODO BUG CHECK - should this be multiplied by area?
 				allSectionsHadDateOfLast = false;
 			}
 		}
 		return Math.round(sumDateOfLast/totRupArea);  // epoch millis
 	}
+	
+	/**
+	 * This method returns the average date of last event (epoch milliseconds) for the given rupture, representing
+	 * an area-weight averaged value.  Fault sections that have no date of last event are given the equivalent
+	 * date of last that is closest to the Poisson distribution.
+	 * Users will know this has been done by the following first two global variables being non equal
+	 * and the third being false, after the calculation:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionsHadDateOfLast
+	 * 
+	 * @param fltSystRupIndex
+	 * @return
+	 */
+	public long getAveDateOfLastEventCorrected(int fltSystRupIndex) {
+		// compute average date of last event
+		double aveExpRI = aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
+		double durOverRI = timeSpan.getDuration()/aveExpRI;
+		double timeWhereBPT_CondProbSameAsPois = bptTimeToPoisCondProbFunc.getInterpolatedY(durOverRI);
+		long startTime = timeSpan.getStartTimeCalendar().getTimeInMillis();
+		double defaultAveDateOfLast =  (double)startTime - Math.round(aveExpRI*MILLISEC_PER_YEAR*timeWhereBPT_CondProbSameAsPois);	// set at time that will give cond prob equiv to poisson
+
+		List<FaultSectionPrefData> fltData = invRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumDateOfLast = 0;
+		for(FaultSectionPrefData data:fltData) {
+			long dateOfLast = data.getDateOfLastEvent();
+			double area = data.getTraceLength()*data.getReducedDownDipWidth();
+			totRupArea += area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				totRupAreaWithDateOfLast += area;
+				sumDateOfLast += (double)dateOfLast*area;
+			}
+			else {
+				sumDateOfLast += defaultAveDateOfLast;		// TODO BUG CHECK - should this be multiplied by area?
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		return Math.round(sumDateOfLast/totRupArea);  // epoch millis
+	}
+
 
 	
 	public long testAltAveDateOfLastEventCorrectedFast(int fltSystRupIndex, long startTimeMillis, double durationYears) {
@@ -1165,7 +1168,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 
 		// switch to simulation mode
 		SIMULATION_MODE=true;
-		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use
+		initiateTimeSpan();	// just in case the non-simulation timeSpan was in use; this switches to millisecond start time precision
 		double simDuration = 1.0;	// 1 year; this could be the expected time to next event?
 		timeSpan.setDuration(simDuration);	// use annual probability to sample events
 		System.out.println("start time: "+origStartTime+ " millis ("+startYear+" yrs)");
@@ -1522,9 +1525,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			// nothing is done if probType=0;
 			if(probType==1) {
 				if(typeCalcForU3_Probs == 1)
-					computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
+					computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);	//TODO bug here???????????????
 				else
-				 computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
+					computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
 			}
 			else if(probType==2)
 				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);
