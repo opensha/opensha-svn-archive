@@ -30,6 +30,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -133,8 +134,15 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	// moment-rate reduction to remove aftershocks from supra-seis ruptures
 	final public static double MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS = 0.97;	// 3%
 
-	// this keeps track of time span changes
-	boolean timeSpanChangeFlag=true;
+	
+	// TimeSpan stuff:
+	protected final static double DURATION_DEFAULT = 30;	// years
+	protected final static double DURATION_MIN = 0.01;
+	protected final static double DURATION_MAX = 1000;
+	protected final static int START_TIME_DEFAULT = 2014;
+	protected final static int START_TIME_MIN = 2013;		// Need to handle recent events if this is less
+	protected final static int START_TIME_MAX = 2100;
+	boolean timeSpanChangeFlag=true;	// this keeps track of time span changes
 	
 	// these help keep track of what's changed
 	protected File prevFile = null;
@@ -194,8 +202,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 */
 	public FaultSystemSolutionERF() {
 		initParams();
-		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-		timeSpan.setDuration(30.);
+		initTimeSpan(); // must be done after the above
 	}
 	
 	
@@ -241,7 +248,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 
 		
 		// set parameters to the primitive values
-		// don't do anything here fileParam 
+		// don't do anything here for fileParam 
 		faultGridSpacingParam.setValue(faultGridSpacing);
 		aleatoryMagAreaStdDevParam.setValue(aleatoryMagAreaStdDev);
 		applyAftershockFilterParam.setValue(applyAftershockFilter);
@@ -293,11 +300,6 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			if(probModel != ProbabilityModelOptions.POISSON)
 				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity, timeSpan);
 		}
-		
-		// update the following ERF rup-related fields: totNumRups, totNumRupsFromFaultSystem, nthRupIndicesForSource, srcIndexForNthRup[], rupIndexForNthRup[], fltSysRupIndexForNthRup[]
-		if(numOtherRupsChanged || numFaultRupsChanged) {
-			setAllNthRupRelatedArrays();
-		}
 
 		// now make the list of fault-system sources
 		if (faultSysSolutionChanged || faultGridSpacingChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || 
@@ -305,6 +307,11 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			makeAllFaultSystemSources();	// overrides all fault-based source objects; created even if not fault sources aren't wanted
 		}
 		
+		// update the following ERF rup-related fields: totNumRups, totNumRupsFromFaultSystem, nthRupIndicesForSource, srcIndexForNthRup[], rupIndexForNthRup[], fltSysRupIndexForNthRup[]
+		if(numOtherRupsChanged || numFaultRupsChanged) {
+			setAllNthRupRelatedArrays();
+		}
+
 		// reset change flags (that haven't already been done so)
 		fileParamChanged = false;
 		faultSysSolutionChanged = false;
@@ -355,6 +362,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		} else if (paramName.equals(probModelParam.getName())) {
 			probModel = probModelParam.getValue();
 			probModelChanged = true;
+			initTimeSpan();
 		} else if (paramName.equals(bpt_AperiodicityParam.getName())) {
 			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
 			bpt_AperiodicityChanged = true;
@@ -363,7 +371,28 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 	}
 
-	
+	/**
+	 * This initiates the timeSpan.
+	 */
+	protected void initTimeSpan() {
+		if(probModel != ProbabilityModelOptions.POISSON) {
+			timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+			timeSpan.setDuration(DURATION_DEFAULT);
+			timeSpan.addParameterChangeListener(this);
+		}
+		else if (probModel != ProbabilityModelOptions.BPT) {
+			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+			timeSpan.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
+			timeSpan.setDuration(DURATION_DEFAULT);
+			timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
+			timeSpan.setStartTime(START_TIME_DEFAULT);
+		}
+		else {
+			throw new RuntimeException("Probability model not implemented");
+		}
+		timeSpan.addParameterChangeListener(this);			
+	}
+
 	
 	/**
 	 * This method initializes the following arrays:
@@ -536,7 +565,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			if (rupMFD == null || rupMFD.getNum() < 2) {
 				// normal source
 				boolean isPoisson = true;		// TODO Does this matter for BPT?
-				double prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*timeSpan.getDuration());
+				double duration = timeSpan.getDuration();
+				double prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration);
 				src = new FaultRuptureSource(meanMag, 
 						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces), 
 						rupSet.getAveRakeForRup(fltSystRupIndex), prob, isPoisson);
@@ -742,6 +772,21 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	}
 	
 
+	public static void main(String[] args) {
+		
+		long runtime = System.currentTimeMillis();
+
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+		
+//		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
+//		invERF.bpt_AperiodicityParam.setValue(0.2);
+
+		erf.updateForecast();
+		
+		System.out.println("run took "+runtime/(1000*60)+" minutes");
+
+	}
 
 
 }

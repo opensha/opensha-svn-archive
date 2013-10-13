@@ -37,7 +37,9 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 
 public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
-	final static double SAFE_ONE_MINUS_CDF = 10e-11;	// found by trial and error over aperiodicity from 0.1 to 1.0
+	// this defines how closely to 0 the denominator of the conditional probability calculation can get
+	// about ??? greater than double precision accuracy (check by trial and error over aperiodicity from 0.1 to 1.0)
+	final static double SAFE_ONE_MINUS_CDF = 10e-14;
 	
 	double safeTimeSinceLast=Double.NaN;
 	
@@ -138,35 +140,96 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	
 	/**
 	 * This is a version of the parent method getCondProb(*) that avoids numerical artifacts
-	 * at high timeSinceLast.  If timeSinceLast is greater than safeTimeSinceLast, then the
-	 * conditional probability at safeTimeSinceLast is returned (i.e., cond prob is constant
-	 * above safeTimeSinceLast).  The safe values have been visually verified for aperiodicity 
-	 * values of 0.1 to 1.0 (using the GUI).
+	 * at high timeSinceLast (cdf gets too close to 1 and therefore we have division by 
+	 * nearly zero).
+	 * If timeSinceLast+duration is greater than safeTimeSinceLast, then the conditional probability at 
+	 * safeTimeSinceLast-duration is returned (i.e., cond prob becomes constant near safeTimeSinceLast).
+	 * The safe values have been visually verified for aperiodicity values of 0.1 to 1.0 (using the GUI).
 	 * @param timeSinceLast
 	 * @param duration
 	 * @return
 	 */
 	public double getSafeCondProb(double timeSinceLast, double duration) {
+		this.duration=duration;
 		if(!upToDate) computeDistributions();
 		
-		// convert to safe time since last if value too high
-		if(timeSinceLast>safeTimeSinceLast)
-			timeSinceLast=safeTimeSinceLast;
-		if(timeSinceLast+duration > cdf.getMaxX()+cdf.getTolerance()) {	// this can happen when safeTimeSinceLast = cdf.getMaxX()
-			timeSinceLast = safeTimeSinceLast-duration;
+		double newTimeSinceLast=timeSinceLast;
+		if(timeSinceLast+duration > safeTimeSinceLast) {
+			newTimeSinceLast = safeTimeSinceLast-duration-cdf.getDelta();
 		}
-		double p1 = cdf.getInterpolatedY(timeSinceLast);
-		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
+		
+// OLD
+//		double newTimeSinceLast = timeSinceLast;
+//		// convert to safe time since last if value too high
+//		if(newTimeSinceLast>safeTimeSinceLast)
+//			newTimeSinceLast=safeTimeSinceLast;
+//		if(newTimeSinceLast+duration > cdf.getMaxX()+cdf.getTolerance()) {	// this can happen when safeTimeSinceLast = cdf.getMaxX()
+//			newTimeSinceLast = safeTimeSinceLast-duration;
+//		}
+		
+		if(newTimeSinceLast<0) // if safeTimeSinceLast is less than duration, it must be a very long duration compared to recurrence interval
+			return 1.0;
+//			throw new RuntimeException(this.mean+"\t"+timeSinceLast+"\t"+newTimeSinceLast+"\t"+safeTimeSinceLast+"\t"+duration);
+		
+		double p1 = cdf.getInterpolatedY(newTimeSinceLast);
+		double p2 = cdf.getInterpolatedY(newTimeSinceLast+duration);
 		double denom = 1.0-p1;
 		return (p2-p1)/denom;
 	}	
 	
 	
+	public EvenlyDiscretizedFunc getSafeCondProbFunc() {
+		if(duration==0)
+			throw new RuntimeException("duration has not been set");
+		if(!upToDate) computeDistributions();
+		int numPts = numPoints - (int)(duration/deltaX+1);
+		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
+		for(int i=0;i<condFunc.getNum();i++) {
+			condFunc.set(i,getSafeCondProb(condFunc.getX(i), duration));
+		}
+		condFunc.setName(NAME+" Safe Conditional Probability Function");
+		condFunc.setInfo(adjustableParams.toString()+"\n"+"safeTimeSinceLast="+safeTimeSinceLast);
+		return condFunc;
+	}
+	
 	/**
-	 * The returns the maximum value of timeSinceLast (as discretized in the x-axis of the cdf) that is  
-	 * numerically safe (values above will return NaN from getSafeCondProb(*) due to numerical problems).
-	 * This returns Double.Nan is no x-axis values are safe.  The safe values were found by trial and
-	 * error for aperiodicity values between 0.1 and 1.0 (using the GUI).
+	 * This computes the probability of an event over the specified duration for the case where the 
+	 * date of last event is unknown (looping over all possible values), but where the historic open 
+	 * interval is applied (the latter defaults to zero if never set).
+	 * 
+	 * If (histOpenInterval>safeTimeSinceLast), this returns condProbFunc.getY(safeTimeSinceLast) 
+	 * because values are constant above.
+	 * @return
+	 */
+	public double getSafeCondProbForUnknownTimeSinceLastEvent() {
+		double result=0;
+		double normDenom=0;
+		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
+		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
+		if(histOpenInterval>safeTimeSinceLast) {
+			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
+			return condProbFunc.getY(safeTimeSinceLast);
+		}
+		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+			double probOfTimeSince = (1-cdf.getY(i));
+			normDenom+=probOfTimeSince; 
+			result+= condProbFunc.getY(i)*probOfTimeSince;
+		}
+		result /= normDenom;	// normalize properly
+		
+		if(result>1) result=1;
+		
+		return result;
+	}
+
+	
+	
+	/**
+	 * This returns the maximum value of timeSinceLast (as discretized in the x-axis of the cdf) that is  
+	 * numerically safe (to avoid division by zero in the conditional probability calculations, where the
+	 * denominator is 1-cdf). This returns Double.Nan if no x-axis values are safe (not even the first ones).  
+	 * The threshold for safe values was found by trial and error and checked for aperiodicity values between 
+	 * 0.1 and 1.0 (using the GUI).
 	 * @return
 	 */
 	public double getSafeTimeSinceLastCutoff() {
@@ -174,19 +237,21 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	}
 	
 	/**
-	 * See doc for getSafeTimeSinceLastCutoff()
+	 * This finds the largest x-axis value such that (1.0-cdf.getY(x)) >= SAFE_ONE_MINUS_CDF
+	 * (not too close to zero, as this is the denominator of the conditional probability calculation)
 	 */
 	private void computeSafeTimeSinceLastCutoff() {
 		safeTimeSinceLast = Double.NaN;
 		for(int x=0;x<cdf.getNum();x++) {
-			if(1.0-cdf.getY(x) < SAFE_ONE_MINUS_CDF) {
+			if(1.0-cdf.getY(x) < SAFE_ONE_MINUS_CDF) {	// when cdf gets too close to 1, keep last safeTimeSinceLast
 				break;
-				
 			}
 			else {
 				safeTimeSinceLast = cdf.getX(x);
 			}
 		}
+		
+//		System.out.println("safeTimeSinceLast="+safeTimeSinceLast);
 	}
 
 	

@@ -763,7 +763,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				sumDateOfLast += (double)dateOfLast*area;
 			}
 			else {
-				sumDateOfLast += defaultAveDateOfLast;	// TODO BUG CHECK - should this be multiplied by area?
+				sumDateOfLast += defaultAveDateOfLast*area;	// TODO BUG CHECK - should this be multiplied by area?
 				allSectionsHadDateOfLast = false;
 			}
 		}
@@ -806,7 +806,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				sumDateOfLast += (double)dateOfLast*area;
 			}
 			else {
-				sumDateOfLast += defaultAveDateOfLast;		// TODO BUG CHECK - should this be multiplied by area?
+				sumDateOfLast += defaultAveDateOfLast*area;		// TODO BUG CHECK - should this be multiplied by area?
 				allSectionsHadDateOfLast = false;
 			}
 		}
@@ -1530,9 +1530,9 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			// nothing is done if probType=0;
 			if(probType==1) {
 				if(typeCalcForU3_Probs == 1)
-					computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);	//TODO bug here???????????????
+					computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);	//TODO bug here???????????????
 				else
-					computeU3_ProbGainsForRupsFast1(newStartTimeMillis, simDuration);
+					computeU3_ProbGainsForRupsFast2(newStartTimeMillis, simDuration);
 			}
 			else if(probType==2)
 				computeWG02_ProbGainsForRupsFast(newStartTimeMillis, simDuration);

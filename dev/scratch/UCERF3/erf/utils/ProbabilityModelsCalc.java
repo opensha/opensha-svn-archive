@@ -1,10 +1,22 @@
 package scratch.UCERF3.erf.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
+import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
+import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -98,6 +110,17 @@ public class ProbabilityModelsCalc {
 		bptTimeToPoisCondProbFunc = getBPT_TimeToPoisCondProbFunc(aperiodicity);
 		refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity, durationYears);
 	}
+	
+	
+	/**
+	 * This is for tests
+	 * @param 
+	 */
+	public ProbabilityModelsCalc(double aperiodicity, double durationYears) {
+		bptTimeToPoisCondProbFunc = getBPT_TimeToPoisCondProbFunc(aperiodicity);
+		refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity, durationYears);
+	}
+
 	
 
 	/**
@@ -483,6 +506,180 @@ public class ProbabilityModelsCalc {
 		return func;
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	public static void tempEquivTimeGivenHistoricOpenInterval() {
+		BPT_DistCalc bptCalc = new BPT_DistCalc();
+		
+		// for calculator:
+		double mean = 20;
+		double deltaX = 0.01;	// 0.1 years
+		int numPoints = (int)Math.round(12*mean/deltaX);
+
+		// for data:
+		double minLogDurOverMean = -2;
+		double maxLogDurOverMean = Math.log10(5);
+		int numLogDurOverMean = 31;
+		double deltaLogDurOverMean = (maxLogDurOverMean-minLogDurOverMean)/(numLogDurOverMean-1);
+		
+		double minLogHistOpenIntOverMean = -2;
+		double maxLogHistOpenIntOverMean = Math.log10(5);;
+		int numLogHistOpenIntOverMean = 31;
+		double deltaLogHistOpenIntOverMean = (maxLogHistOpenIntOverMean-minLogHistOpenIntOverMean)/(numLogHistOpenIntOverMean-1);
+
+//		double[] aperArray = {0.2,0.3,0.7};
+		double[] aperArray = {0.2};
+		
+		System.out.println("mean\tduration\thistOpenInterval\tlogDurOverMean\tlogHistOpenIntOverMean\tcondProb\tnormEquivTimeSinceLast\ttestRatio\tproblem1\tproblem2\tproblem3\tminTimeSince\tmaxTimeSince\tratio");
+
+		
+		for(double aperiodicity:aperArray) {
+//			System.out.println("aperiodicity = "+aperiodicity);
+			
+			EvenlyDiscrXYZ_DataSet xyzDataCondProbForUnknown = new EvenlyDiscrXYZ_DataSet(numLogDurOverMean, numLogHistOpenIntOverMean, 
+					minLogDurOverMean, minLogHistOpenIntOverMean, deltaLogHistOpenIntOverMean);
+			EvenlyDiscrXYZ_DataSet xyzDataEquivNormTimeSinceLast = new EvenlyDiscrXYZ_DataSet(numLogDurOverMean, numLogHistOpenIntOverMean, 
+					minLogDurOverMean, minLogHistOpenIntOverMean, deltaLogHistOpenIntOverMean);
+			
+			double smallDurNormTimeSinceLast=Double.NaN;
+			for(int j=0;j<numLogHistOpenIntOverMean;j++) {
+				double logHistOpenIntOverMean = minLogHistOpenIntOverMean + j*deltaLogHistOpenIntOverMean;
+				double histOpenIntOverMean = Math.pow(10,logHistOpenIntOverMean);
+				double histOpenInterval = histOpenIntOverMean*mean;
+				boolean probNearOne=false;
+				double timeSinceLastAtFirstProbNearOne=Double.NaN;
+				for(int i=0;i<numLogDurOverMean;i++) {
+					double logDurOverMean = minLogDurOverMean + i*deltaLogDurOverMean;
+					double durOverMean = Math.pow(10,logDurOverMean);
+					double duration = durOverMean*mean;
+				
+	//				System.out.print((float)logDurOverMean+"\t"+(float)logHistOpenIntOverMean);
+					System.out.print(mean+"\t"+(float)duration+"\t"+(float)histOpenInterval+"\t"+(float)logDurOverMean+"\t"+(float)logHistOpenIntOverMean);
+
+					bptCalc.setAllParameters(mean, aperiodicity, deltaX, numPoints, duration, histOpenInterval);		
+					double condProbForUnknownTimeSinceLast = bptCalc.getSafeCondProbForUnknownTimeSinceLastEvent();
+					
+					/**
+					 *   We now want to get the time since last that gives the same probability as condProbForUnknownTimeSinceLast.
+					 *   The problem is there may be several x-axis values that satisfy this (at some level of precision) as duration
+					 *   increases, and we have to choose one (e.g., at very large durations all conditional probabilities are 1.0).
+					 *   
+					 *   Options are:
+					 *   
+					 *   1) choose the smallest time since last that satisfies the probability (will be zero for high duration/mean)
+					 *   
+					 *   2) choose a mean or median among all x-axis values that are within the threshold (not good because this depends on length of x-axis)
+					 *   
+					 *   3) use the value at the lowest duration when
+					 */
+					EvenlyDiscretizedFunc condProbFunc = bptCalc.getSafeCondProbFunc();
+					
+					
+					double equivTimeSinceLast= Double.NaN;
+					boolean problem=false;
+					if(condProbForUnknownTimeSinceLast<=condProbFunc.getY(0)) {
+						equivTimeSinceLast=condProbFunc.getX(0);
+						problem=true;
+					}
+					else if(condProbForUnknownTimeSinceLast>=condProbFunc.getY(condProbFunc.getNum()-1)) {
+						equivTimeSinceLast=condProbFunc.getX(condProbFunc.getNum()-1);
+						problem=true;
+					}
+					else {
+						equivTimeSinceLast = condProbFunc.getFirstInterpolatedX(condProbForUnknownTimeSinceLast);
+					}
+					
+					
+					double minTimeSince = equivTimeSinceLast;
+					double maxTimeSince = equivTimeSinceLast;
+					double threshold = 1e-5;
+					for(int z=0;z<condProbFunc.getNum();z++) {
+						double prob = condProbFunc.getY(z);
+						double fractDiff = Math.abs((prob-condProbForUnknownTimeSinceLast)/condProbForUnknownTimeSinceLast);
+						if(fractDiff<threshold) {
+							double timeSince = condProbFunc.getX(z);
+							if(minTimeSince>timeSince) minTimeSince=timeSince;
+							if(maxTimeSince<timeSince) maxTimeSince=timeSince;
+						}
+					}
+					
+					equivTimeSinceLast = minTimeSince;
+					double normEquivTimeSinceLast = equivTimeSinceLast/mean;
+
+					double safeTimeSinceLast = bptCalc.getSafeTimeSinceLastCutoff();
+					boolean problem2=false;
+					if(equivTimeSinceLast>safeTimeSinceLast) {
+						 problem2 = true;
+					}
+					
+					// don't let time since last be less that the historic open interval
+					boolean problem3=false;
+					if(normEquivTimeSinceLast<histOpenIntOverMean) {
+						normEquivTimeSinceLast=histOpenIntOverMean;
+						equivTimeSinceLast=normEquivTimeSinceLast*mean;
+						if(equivTimeSinceLast<minTimeSince || equivTimeSinceLast>maxTimeSince)
+							throw new RuntimeException("Problem");
+						problem3=true;
+					}
+					
+					if(!probNearOne) {
+						double diff = Math.abs(1.0-condProbForUnknownTimeSinceLast);
+						if(diff<0.001) {
+							probNearOne=true;
+							timeSinceLastAtFirstProbNearOne = equivTimeSinceLast;
+						}
+					}
+					else {
+						equivTimeSinceLast=timeSinceLastAtFirstProbNearOne;
+						normEquivTimeSinceLast = equivTimeSinceLast/mean;
+					}
+
+					
+					if(i==0) {
+						smallDurNormTimeSinceLast = normEquivTimeSinceLast;
+					}
+					
+					double smallDurTimeSinceLast = smallDurNormTimeSinceLast*mean;
+					if(smallDurTimeSinceLast>condProbFunc.getMaxX()) smallDurTimeSinceLast=condProbFunc.getMaxX();
+					double testProb = condProbFunc.getInterpolatedY(smallDurTimeSinceLast);
+					double testRatio = testProb/condProbForUnknownTimeSinceLast;
+					
+					
+				System.out.println("\t"+condProbForUnknownTimeSinceLast+"\t"+(float)normEquivTimeSinceLast+"\t"+(float)testRatio+
+						"\t"+problem+"\t"+problem2+"\t"+problem3+"\t"+minTimeSince/mean+"\t"+maxTimeSince/mean+"\t"+(minTimeSince/maxTimeSince));
+
+										
+					xyzDataCondProbForUnknown.set(i, j, condProbForUnknownTimeSinceLast);	
+					xyzDataEquivNormTimeSinceLast.set(i, j, normEquivTimeSinceLast);
+				}
+			}
+			
+			CPT cpt_prob=null;
+			CPT cpt_normRI=null;
+			try {
+				cpt_prob = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, 1.0);
+				cpt_normRI = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyzDataEquivNormTimeSinceLast.getMinZ(), xyzDataEquivNormTimeSinceLast.getMaxZ());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			XYZPlotSpec spec_prob = new XYZPlotSpec(xyzDataCondProbForUnknown, cpt_prob, "xyzDataCondProbForUnknown", "LogNormDuration", "LogNormHistOpenInt", "Probability");
+			XYZPlotWindow window_prob = new XYZPlotWindow(spec_prob);
+
+			XYZPlotSpec spec_normRI = new XYZPlotSpec(xyzDataEquivNormTimeSinceLast, cpt_normRI, "xyzDataEquivNormTimeSinceLast", "LogNormDuration", "LogNormHistOpenInt", "NormRI");
+			XYZPlotWindow window_normRI = new XYZPlotWindow(spec_normRI);
+//			wind.panel.saveAsPNG("/tmp/fig.png");
+//			wind.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
+	}
+
+	
 	/**
 	 * This is made fast by using a reference calculator (with a reference RI), rather than
 	 * redoing the calculation each time 
@@ -501,7 +698,8 @@ public class ProbabilityModelsCalc {
 
 
 	/**
-	 * This creates a reference BPT distribution calculator
+	 * This creates a reference BPT distribution calculator for the given aperiodicity and duration
+	 * (the calculator uses refRI and deltaT) 
 	 * @param bpt_Aperiodicity
 	 * @param durationInYears
 	 * @return
@@ -513,13 +711,141 @@ public class ProbabilityModelsCalc {
 		return bptCalc;
 	}
 
+	
+	
+	/**
+	 * This tests computeBPT_ProbGainFast(*).
+	 * 
+	 * Cases that fail here are not problematic (all pass at 0.01 (1%) threshold), and
+	 * only for aperiodicity>=0.7, which we probably won't use.
+	 */
+	public static void testComputeBPT_ProbGainFast() {
+		
+		double testThresh = 0.001;
+		
+		boolean probFound = false;
+
+		double[] durationArray = {1, 15, 30, 100};
+		double[] aperArray = {0.1, 0.2,0.5,0.7,0.8,0.9};
+		double[] ri_array = {20,2e2,2e3,2e4,2e5,2e6,2e7,2e8};
+		double[] normTimeSinceLastArray = {1e-2,1e-1,1,3,6};
+		
+		for(double duration:durationArray) {
+			for(double aper:aperArray) {
+				ProbabilityModelsCalc calc = new ProbabilityModelsCalc(aper, duration);
+				for(double ri:ri_array) {
+					for(double norm_tsl:normTimeSinceLastArray) {
+						double timeSinceLast = norm_tsl*ri;
+						
+//						System.out.println(ri+"\t"+timeSinceLast+"\t"+norm_tsl+"\t"+aper+"\t"+duration);
+						
+						double prob_gain_fast = calc.computeBPT_ProbGainFast(ri, timeSinceLast, duration);
+						
+						// test against slower calculation
+						BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
+						double deltaT_Alt = deltaT*ri/refRI;
+						int numPts = (int)Math.round(7*refRI/deltaT);
+						bptDistCalcAlt.setAll(ri, aper, deltaT_Alt, numPts);
+						double poisProb = 1-Math.exp(-duration/ri);
+						double prob_gain = bptDistCalcAlt.getSafeCondProb(timeSinceLast, duration)/poisProb;
+						
+						double safeTimeSinceLast = bptDistCalcAlt.getSafeTimeSinceLastCutoff();
+						
+						double ratio = prob_gain_fast/prob_gain;
+						if(prob_gain_fast < 1e-20 && prob_gain < 1e-20) ratio = 1;
+						
+//						if(duration>safeTimeSinceLast)
+//							System.out.println((float)ratio+"\t"+ri+"\t"+timeSinceLast+"\t"+aper+"\t"+duration+"\t"+
+//								(float)prob_gain_fast+"\t"+(float)prob_gain+"\t"+safeTimeSinceLast+"\t"+poisProb);
+						
+						if(ratio>1+testThresh || ratio<1-testThresh) {
+							System.out.println((float)ratio+"\t"+ri+"\t"+timeSinceLast+"\t"+norm_tsl+"\t"+aper+"\t"+duration+"\t"+
+								(float)prob_gain_fast+"\t"+(float)prob_gain+"\t"+safeTimeSinceLast+"\t"+(float)poisProb);
+							probFound = true;
+						}
+					}
+				}
+			}
+		}
+		System.out.println("probFound="+probFound);
+	}
+	
+	/**
+	 * This tests how close the BPT conditional probability is to Poisson when the former is based
+	 * on the distance out from the getBPT_TimeToPoisCondProb(aper) function.  The two are the same
+	 * except in cases where they are expected to differ: when duration is 1.5 to 2 times the recurrence
+	 * interval, the BPT probability is 25% to 16% higher than the Poisson (and can't get any closer).
+	 * 
+	 * This also tests that getBPT_TimeToPoisCondProb(aper) only depends on the ratio of duration/ri,
+	 * and that the fast way of calculating things (by scaling ri and duration to a reference) gives 
+	 * the same result as the slower way.
+	 */
+	public static void testTimeToPoisCondProb() {
+		double[] ri_array = {10,1e2,1e3,1e4,1e5,1e6,1e7,1e8}; 	// recurrence intervals to loop over
+//		double[] aperArray = {0.2};					// aperiodicities to loop over
+		double[] aperArray = {0.2,0.4,0.6,0.8};					// aperiodicities to loop over
+		
+		double logLowDurOverRI = -2;
+		double logHighDurOverRI = 1;
+		int numDurOverRI = 31;
+		double deltaLogDurOverRI = (logHighDurOverRI-logLowDurOverRI)/(numDurOverRI-1);
+		
+		System.out.println("bpt/pois\tdistOut\tdurOverRI\tri\tduration\taper\tpoisProb\tbptProb");
+
+		for(double aper:aperArray) {
+			ArbitrarilyDiscretizedFunc distOutFunc = getBPT_TimeToPoisCondProbFunc(aper);
+			for(double ri:ri_array) {
+				for(int i=0;i<numDurOverRI;i++) {
+					double durOverRI = Math.pow(10,logLowDurOverRI+i*deltaLogDurOverRI);
+					double duration = durOverRI*ri;
+
+					// the fast way using reference RI:
+					double refDuration = duration*refRI/ri;
+					BPT_DistCalc bptCalc = getRef_BPT_DistCalc(aper, refDuration);
+					double poisProbFast = 1-Math.exp(-refDuration/refRI);
+					double distOutFast = distOutFunc.getInterpolatedY(refDuration/refRI);
+					double bptEquivProbFast = bptCalc.getCondProb(refRI*distOutFast, refDuration);
+
+					// the slower calculation
+					double poisProb = 1-Math.exp(-duration/ri);
+					BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
+					double deltaT_Alt = deltaT*ri/refRI;
+					int numPts = (int)Math.round((7*ri+duration)/deltaT_Alt);
+					bptDistCalcAlt.setAll(ri, aper, deltaT_Alt, numPts, duration);
+					double distOut = distOutFunc.getInterpolatedY(duration/ri);
+					double bptEquivProbAlt = bptDistCalcAlt.getCondProb(ri*distOut, duration);
+					
+					// this tests that fast calc is equivalent to slow calc
+					double ratio = bptEquivProbFast/bptEquivProbAlt;
+					if(ratio>1.001 || ratio <0.999)
+						throw new RuntimeException("fast way not same as slow for BPT Prob; ratio="+ratio);
+					
+					ratio = distOutFast/distOut;
+//					System.out.println(distOut+"\t"+distOutFast);
+					if(ratio>1.001 || ratio <0.999)
+						throw new RuntimeException("fast way not same as slow for distOut; ratio="+ratio);
+
+					// we want the first column to be 1.0 (if possible)
+					System.out.println((float)(bptEquivProbFast/poisProb)+"\t"+(float)distOut+"\t"+(float)durOverRI+"\t"+ri+"\t"+duration+"\t"+aper+"\t"+
+							+(float)poisProb+"\t"+(float)bptEquivProbFast);
+				}
+			}
+		}
+	}
+
 
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+//		testComputeBPT_ProbGainFast();
+//		testTimeToPoisCondProb();
+		
+//		System.out.println(Double.MIN_NORMAL);
+//		System.out.println(Double.MIN_VALUE);
+		
+		tempEquivTimeGivenHistoricOpenInterval();
 
 	}
 

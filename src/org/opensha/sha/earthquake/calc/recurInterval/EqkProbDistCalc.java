@@ -42,7 +42,9 @@ import org.opensha.commons.param.impl.IntegerParameter;
  * the cdf gets close to 1.0), and that the time discretization is very small compared to both the mean and the duration.
  * No checks for these are currently made.
  * 
- * Some subclasses implement a getSafeCondProb(*) method that checks for numerical errors at high timeSinceLast.
+ * Some subclasses implement a getSafeCondProb(*) method that checks and corrects for numerical errors when the denominator of the
+ * conditional probability calculation (1.0-cdf.getInterpolatedY(timeSinceLast+duration)) approaches zero at high timeSinceLast.
+ * See BPT_DistCalc for an example; that implementation could be moved here?
  * 
  * A method could/should be added for sampling random values.
  * 
@@ -121,6 +123,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		double haz;
 		for(int i=0;i<hazFunc.getNum();i++) {
 			haz = pdf.getY(i)/(1.0-cdf.getY(i));
+			if(Double.isInfinite(haz) || Double.isInfinite(-haz)) haz = Double.NaN;
 			hazFunc.set(i,haz);
 		}
 		hazFunc.setName(NAME+" Hazard Function");
@@ -148,27 +151,28 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		return condFunc;
 	}
 	
-	public EvenlyDiscretizedFunc getCondProbFunc(double durationYears) {
-//		durationParam.setValue(durationYears);
-		duration = durationYears;
+	public EvenlyDiscretizedFunc getCondProbFunc(double duration) {
+		this.duration = duration;
+		if(!upToDate) computeDistributions();
 		return getCondProbFunc();
 	}
-
+	
+	
 	/**
 	 * This computes the the probability of occurrence over the given duration conditioned 
 	 * on timeSinceLast (how long it has been since the last event).
 	 * 
-	 * The commented out code gives the non-interpolated result, which not as accurate.
+	 * The commented out code gives the non-interpolated result, which is not as accurate.
 	 * 
-	 * This does not check for numerical errors at high timeSinceLast (look for a getSafeCondProb(*)
-	 * version of this method in subclasses.
+	 * This does not check for numerical errors where the denominator approaches zero at high 
+	 * timeSinceLast (look for a getSafeCondProb(*) version of this method in subclasses).
 	 * @param timeSinceLast
 	 * @param duration
 	 * @return
 	 */
 	public double getCondProb(double timeSinceLast, double duration) {
+		this.duration = duration;
 		if(!upToDate) computeDistributions();
-		
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
 //		System.out.println("t1 and t2:\t"+timeSinceLast+"\t"+(timeSinceLast+duration));		
@@ -176,7 +180,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		return (p2-p1)/(1.0-p1);
 
 		
-		// non interpolated alternative that gives the same result as the static methods:
+		// non interpolated alternative:
 /*
 		int pt1 = (int)Math.round(timeSinceLast/deltaX);
 		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX);
