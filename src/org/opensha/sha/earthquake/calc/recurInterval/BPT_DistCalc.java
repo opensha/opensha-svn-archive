@@ -39,7 +39,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	
 	// this defines how closely to 0 the denominator of the conditional probability calculation can get
 	// about ??? greater than double precision accuracy (check by trial and error over aperiodicity from 0.1 to 1.0)
-	final static double SAFE_ONE_MINUS_CDF = 10e-14;
+	final static double SAFE_ONE_MINUS_CDF = 10e-13;
 	
 	double safeTimeSinceLast=Double.NaN;
 	
