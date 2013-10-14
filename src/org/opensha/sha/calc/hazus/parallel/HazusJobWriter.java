@@ -70,6 +70,10 @@ public class HazusJobWriter {
 	private static final boolean constrainBasinMin = false;
 	
 	static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis) {
+		return getUCERF2(years, startYear, includeBackSeis, UCERF2.BACK_SEIS_RUP_CROSSHAIR);
+	}
+	
+	static MeanUCERF2 getUCERF2(int years, int startYear, boolean includeBackSeis, String backSeisType) {
 		MeanUCERF2 ucerf = new MeanUCERF2();
 		
 		if (startYear > 0) {
@@ -83,6 +87,7 @@ public class HazusJobWriter {
 			ucerf.getTimeSpan().setDuration(years);
 		}
 		
+		ucerf.setParameter(UCERF2.BACK_SEIS_RUP_NAME, backSeisType);
 		StringParameter backSeisParam = (StringParameter) ucerf.getParameter(UCERF2.BACK_SEIS_NAME);
 		if (includeBackSeis)
 			backSeisParam.setValue(UCERF2.BACK_SEIS_INCLUDE);

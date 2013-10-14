@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
@@ -31,11 +32,11 @@ public class UCERF3HazusJobWriter {
 	
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 	
-	private static AbstractERF getERF(File fsdFile, int years, boolean backSeis) {
+	private static AbstractERF getERF(File fsdFile, int years, boolean backSeis, BackgroundRupType backSeisType) {
 		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
 		erf.setParameter(UCERF3_FaultSysSol_ERF.FILE_PARAM_NAME, fsdFile);
 		erf.getTimeSpan().setDuration((double)years);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.CROSSHAIR);
+		erf.setParameter(BackgroundRupParam.NAME, backSeisType);
 		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, true);
 		return erf;
 	}
@@ -114,7 +115,7 @@ public class UCERF3HazusJobWriter {
 			File solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
 			FaultSystemIO.writeSol(sol, solFile);
 			
-			AbstractERF erf = getERF(solFile, years, backSeis);
+			AbstractERF erf = getERF(solFile, years, backSeis, BackgroundRupType.POINT);
 			
 			HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
 					noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
@@ -134,7 +135,23 @@ public class UCERF3HazusJobWriter {
 		File solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
 		FaultSystemIO.writeSol(sol, solFile);
 		
-		AbstractERF erf = getERF(solFile, years, backSeis);
+		AbstractERF erf = getERF(solFile, years, backSeis, BackgroundRupType.POINT);
+		
+		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
+				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+		
+		// now ref no soil
+		dirName = df.format(today)+"_ref_rock_crosshair";
+		
+		jobDir = new File(hazMapsDir, dirName);
+		if (!jobDir.exists())
+			jobDir.mkdir();
+		
+		sol = cfss.getSolution(branch);
+		solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
+		FaultSystemIO.writeSol(sol, solFile);
+		
+		erf = getERF(solFile, years, backSeis, BackgroundRupType.CROSSHAIR);
 		
 		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
 				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
@@ -149,13 +166,13 @@ public class UCERF3HazusJobWriter {
 		solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
 		FaultSystemIO.writeSol(sol, solFile);
 		
-		erf = getERF(solFile, years, backSeis);
+		erf = getERF(solFile, years, backSeis, BackgroundRupType.POINT);
 		
 		HazusJobWriter.prepareJob(erf, HazusJobWriter.getIMR(HazusJobWriter.MultiIMR_NO_AS_NAME, 3d, true),
 				spacing, years, nullBasin, hardcodedVal, noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 		
 		
-		// now UCERF2
+		// now UCERF2, rocj
 //		if (!"a".isEmpty())
 //			throw new RuntimeException("remember to make sure back seis consistent between UCERF2/UCERF3!");
 		erf = HazusJobWriter.getUCERF2(years, 0, backSeis);
@@ -166,6 +183,18 @@ public class UCERF3HazusJobWriter {
 		
 		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
 				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+		
+		// now UCERF2 point sources, rock
+		erf = HazusJobWriter.getUCERF2(years, 0, backSeis, UCERF2.BACK_SEIS_RUP_POINT);
+		dirName = df.format(today)+"_ucerf2_ref_rock_point";
+		jobDir = new File(hazMapsDir, dirName);
+		if (!jobDir.exists())
+			jobDir.mkdir();
+		
+		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
+				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+		
+		
 		hardcodedVal = null;
 		noBasin = false;
 //		if (!"a".isEmpty())
@@ -175,9 +204,6 @@ public class UCERF3HazusJobWriter {
 		jobDir = new File(hazMapsDir, dirName);
 		if (!jobDir.exists())
 			jobDir.mkdir();
-		
-		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
-				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 	}
 
 }
