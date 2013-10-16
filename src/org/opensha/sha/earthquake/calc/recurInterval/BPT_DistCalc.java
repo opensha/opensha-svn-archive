@@ -206,11 +206,15 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double normDenom=0;
 		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
 		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-		if(histOpenInterval>safeTimeSinceLast) {
+		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
+
+		//		if(histOpenInterval>safeTimeSinceLast) {
+		if(firstIndex>=indexOfSafeTime) {
 			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
-			return condProbFunc.getY(safeTimeSinceLast);
+			return condProbFunc.getY(indexOfSafeTime);
 		}
-		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+//		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+		for(int i=firstIndex;i<=indexOfSafeTime;i++) {
 			double probOfTimeSince = (1-cdf.getY(i));
 			normDenom+=probOfTimeSince; 
 			result+= condProbFunc.getY(i)*probOfTimeSince;
@@ -222,6 +226,32 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		return result;
 	}
 
+	
+	public double testValue() {
+		double result=0;
+		double totWt=0;
+		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
+		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
+		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
+
+		//		if(histOpenInterval>safeTimeSinceLast) {
+//		if(firstIndex>=indexOfSafeTime) {
+//			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
+//			return condProbFunc.getY(indexOfSafeTime);
+//		}
+		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+			double probOfTimeSince = (1-cdf.getY(i));
+			double wt = condProbFunc.getY(i)*probOfTimeSince;
+			totWt += wt; 
+			result+= wt*condProbFunc.getX(i);
+		}
+		result /= totWt;
+		
+		double prob1 = this.getCondProbForUnknownTimeSinceLastEvent();
+		double prob2 = condProbFunc.getInterpolatedY(result);
+		System.out.println(mean+"\t"+aperiodicity+"\t"+(duration/mean)+"\t"+(histOpenInterval/mean)+"\t"+result+"\t"+prob1+"\t"+prob2+"\t"+(prob2/prob1));
+		return result;
+	}
 	
 	
 	/**
@@ -249,6 +279,10 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			else {
 				safeTimeSinceLast = cdf.getX(x);
 			}
+		}
+		
+		if(Double.isNaN(safeTimeSinceLast)) {
+			throw new RuntimeException ("CDF never gets close to 1.0; need to increase numPoints?");
 		}
 		
 //		System.out.println("safeTimeSinceLast="+safeTimeSinceLast);

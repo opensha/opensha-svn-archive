@@ -552,9 +552,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		double probGain=1d;	// default
 		if(probModel == ProbabilityModelOptions.BPT && iSource < numNonZeroFaultSystemSources) {
 			if(PROB_GAIN_CALC_TYPE == 1)
-				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, false);
+				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, 0.0, false);
 			else if (PROB_GAIN_CALC_TYPE == 2)
-				probGain = probModelsCalc.getU3_ProbGain2_ForRup(fltSystRupIndex, false);
+				probGain = probModelsCalc.OLDgetU3_ProbGain2_ForRup(fltSystRupIndex, false);
 			else if (PROB_GAIN_CALC_TYPE == 3)
 				probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false);
 		}

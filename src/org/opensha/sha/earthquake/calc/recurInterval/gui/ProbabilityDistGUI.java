@@ -171,13 +171,14 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 	private void makePlottingPanels() {
 		plottingPanelsList = new ArrayList<PlottingPanel>();
 		plottingPanelNames = new ArrayList<String>();
-		int numPlottingPanels = 4;
+		int numPlottingPanels = 5;
 		for(int i=0; i<numPlottingPanels; ++i)
 			plottingPanelsList.add(new PlottingPanel());
 		plottingPanelNames.add("PDF");
 		plottingPanelNames.add("CDF");
 		plottingPanelNames.add("Cond Prob");
 		plottingPanelNames.add("Haz Func");	
+		plottingPanelNames.add("Time Since Last PDF");	
 	}
 
 	/**
@@ -372,6 +373,7 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 					" if date of last event unknown, but "+param.getName() +" = "+param.getValue()+"\n");
 			this.plottingPanelsList.get(2).addFunc(condFunc);
 			this.plottingPanelsList.get(3).addFunc(selectedProbDist.getHazFunc());
+			this.plottingPanelsList.get(4).addFunc(selectedProbDist.getTimeSinceLastEventPDF());
 
 			// catch the error and display messages in case of input error
 		}

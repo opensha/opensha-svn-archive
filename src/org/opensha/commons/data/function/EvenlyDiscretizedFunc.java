@@ -232,6 +232,24 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 			if(points[i] > maxY) maxY = points[i];
 		return maxY;
 	}
+	
+	/**
+	 * Returns the x index for the maximum y-value in this series. Since the value could
+	 * appear aywhere along the x-axis, each point needs to be
+	 * examined, lookup is slower the larger the dataset. <p>
+	 *
+	 */
+	public int getXindexForMaxY(){
+		double maxY = Double.NEGATIVE_INFINITY;
+		int xIndex=-1;
+		for(int i = 0; i<num; ++i)
+			if(points[i] > maxY) {
+				maxY = points[i];
+				xIndex=i;
+			}
+		return xIndex;
+	}
+
 
 
 	/**
@@ -376,7 +394,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	}
 
 	/**
-	 * Given the imput y value, finds the two sequential
+	 * Given the input y value, finds the two sequential
 	 * x values with the closest y values, then calculates an
 	 * interpolated x value for this y value, fitted to the curve. <p>
 	 *
@@ -422,6 +440,98 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
 		return x;
 	}
+	
+	
+	/**
+	 * Given the input y value, finds all interpolated x-axis values where y equals
+	 * the given value (using linear interpolation between neighboring points).
+	 * Values are increasing in x and the list is empty if none are found. <p>
+	 *
+	 *
+	 * @param y(value for which interpolated first x value has to be found
+	 * @return ArrayList of interpolated x-axis values
+	 */
+
+	public ArrayList<Double> getAllInterpolatedX(double y){
+		double y1=Double.NaN;
+		double y2=Double.NaN;
+		int i;
+
+		ArrayList<Double> vals = new ArrayList<Double>();
+
+		//if Size of the function is 1 and Y value is equal to Y val of function
+		//return the only X value
+		if(num == 1 && y == getY(0)) {
+			vals.add(0d);
+			return vals;
+		}
+
+		//finds the Y values within which the the given y value lies
+		for(i=0;i<num-1;++i) {
+			y1=getY(i);
+			y2=getY(i+1);
+			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+				double x1=getX(i);
+				double x2=getX(i+1);
+				double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
+				vals.add(x);
+			}
+		}
+
+		return vals;
+	}
+
+	
+	
+	/**
+	 * Given the input y value, finds the two sequential
+	 * x values with the closest y values, then calculates an
+	 * interpolated x value for this y value, fitted to the curve.
+	 * This is only done after the given xIndex (and not including) <p>
+	 *
+	 * Since there may be multiple y values with the same value, this
+	 * function just matches the first found.
+	 *
+	 * @param y(value for which interpolated first x value has to be found
+	 * @return x(this  is the interpolated x based on the given y value)
+	 */
+
+	public double getFirstInterpolatedX_afterXindex(double y, int xIndex){
+		double y1=Double.NaN;
+		double y2=Double.NaN;
+		int i;
+
+
+		//if Size of the function is 1 and Y value is equal to Y val of function
+		//return the only X value
+		if(num == 1)
+			throw new RuntimeException("num must be greater than 1");
+
+		boolean found = false; // this boolean hold whether the passed y value lies within range
+
+		//finds the Y values within which the the given y value lies
+		for(i=xIndex+1;i<num-1;++i) {
+			y1=getY(i);
+			y2=getY(i+1);
+			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+				found = true;
+				break;
+			}
+		}
+
+		//if passed parameter(y value) is not within range then throw exception
+		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(xIndex+1)+" and "+getY(num-1));
+
+
+		//finding the x values for the coressponding y values
+		double x1=getX(i);
+		double x2=getX(i+1);
+
+		//using the linear interpolation equation finding the value of x for given y
+		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
+		return x;
+	}
+
 
 
 	/**

@@ -113,7 +113,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public EvenlyDiscretizedFunc getPDF() {
 		if(!upToDate) computeDistributions();
 		pdf.setName(NAME+" PDF (Probability Density Function)");
-		pdf.setInfo(adjustableParams.toString());
+		pdf.setInfo(adjustableParams.toString()+"\nComputed mean = "+(float)computeMeanFromPDF(pdf));
 		return pdf;
 	}
 
@@ -347,6 +347,55 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		}
 		return result;
 	}
+	
+	
+	
+	/**
+	 * This provides the PDF of the date of last event when only the historic open interval is known.
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getTimeSinceLastEventPDF() {
+		EvenlyDiscretizedFunc timeSinceLastPDF = new EvenlyDiscretizedFunc(0.0, numPoints , deltaX);
+		double normDenom=0;
+		int firstIndex = timeSinceLastPDF.getClosestXIndex(histOpenInterval);
+		for(int i=firstIndex;i<timeSinceLastPDF.getNum();i++) {
+			double probOfTimeSince = (1-cdf.getY(i));
+			timeSinceLastPDF.set(i,probOfTimeSince);
+			normDenom+=probOfTimeSince; 
+		}
+		timeSinceLastPDF.scale(deltaX/normDenom);
+		timeSinceLastPDF.setName("Time Since Last Event PDF");
+		timeSinceLastPDF.setInfo("The PDF of date of last event when only the historic open interval ("+
+				histOpenInterval+") is known\nmean = "+(float)computeMeanFromPDF(timeSinceLastPDF));
+		return timeSinceLastPDF;
+	}
+	
+	
+	/**
+	 * This provides the mean date of last event when only the historic open interval is known.
+	 * @return
+	 */
+	public double getMeanTimeSinceLastEventPDF() {
+		return computeMeanFromPDF(getTimeSinceLastEventPDF());
+	}
+
+	
+	
+	/**
+	 * This computes the mean from the given PDF
+	 * @param pdf
+	 * @return
+	 */
+	public static double computeMeanFromPDF(EvenlyDiscretizedFunc pdf) {
+		double result = 0;
+		double normDenom=0;
+		for(int i=0;i<pdf.getNum();i++) {
+			result += pdf.getX(i)*pdf.getY(i);
+			normDenom += pdf.getY(i);
+		}
+		return result/normDenom;
+	}
+
 
 	
 	/**
