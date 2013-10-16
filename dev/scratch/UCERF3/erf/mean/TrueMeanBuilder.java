@@ -574,8 +574,8 @@ public class TrueMeanBuilder {
 		sol.setGridSourceProvider(buildAvgGridSources(branchAvgFiles, fms));
 		sol.setRupMagDists(mfds);
 		
-		String outputFileName = compoundFile.getName().replaceAll(".zip", "")+nameAdd+"_TRUE_HAZARD_MEAN_SOL.zip";
-		File outputFile = new File(invDir, outputFileName);
+		String outputFilePrefix = compoundFile.getName().replaceAll(".zip", "")+nameAdd+"_TRUE_HAZARD_MEAN_SOL";
+		File outputFile = new File(invDir, outputFilePrefix+".zip");
 		FaultSystemIO.writeSol(sol, outputFile);
 		
 		// write branch specific data
@@ -656,6 +656,7 @@ public class TrueMeanBuilder {
 		File branchIDsFile = new File(tempDir, "branch_ids.bin");
 		MatrixIO.intListListToFile(branchRupsMapping, branchIDsFile);
 		fileNames.add(branchIDsFile.getName());
+		outputFile = new File(invDir, outputFilePrefix+"_WITH_MAPPING.zip");
 		FileUtils.createZipFile(outputFile.getAbsolutePath(), tempDir.getAbsolutePath(), fileNames);
 		FileUtils.deleteRecursive(tempDir);
 	}

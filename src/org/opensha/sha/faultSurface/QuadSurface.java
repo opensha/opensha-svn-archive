@@ -96,6 +96,7 @@ public class QuadSurface implements RuptureSurface {
 	private List<Path2D> seis_surfs;
 
 	/* for distance X calcs */
+	private FaultTrace x_trace;
 	private List<Rotation> x_rots;
 	private List<Path2D> x_surfs;
 	private List<Vector3D> x_trace_vects;
@@ -111,6 +112,12 @@ public class QuadSurface implements RuptureSurface {
 	private Location siteLocForDistSeisCalc = new Location(Double.NaN,Double.NaN);
 	private Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
 	private double distanceJB, distanceSeis, distanceRup, distanceX;
+	
+	/**
+	 * If true, distance X will use the average strike to extend the trace infinitely, as opposed
+	 * to extending the last trace segment itself indfinitely.
+	 */
+	private boolean distX_useAvgStrike = true;
 	
 	private static double calcWidth(FaultSectionPrefData prefData, boolean aseisReducesArea) {
 		double upperDepth;
@@ -578,10 +585,24 @@ public class QuadSurface implements RuptureSurface {
 			// we recalculate the rotations because don't want to consider dip
 			x_rots = Lists.newArrayList();
 			x_surfs = Lists.newArrayList();
-			initSegments(PI_BY_2, avgDipDirRad, width, trace, x_rots, x_surfs);
+			if (distX_useAvgStrike) {
+				// add tiny traces spans to the ends in the direction of getAvgStrike
+				x_trace = new FaultTrace("dist x");
+				Location startPt = trace.first();
+				Location endPt = trace.last();
+				double strikeDirRad = LocationUtils.azimuthRad(startPt, endPt);
+				double reverseStrikeDirRad = LocationUtils.azimuthRad(endPt, startPt);
+				double dist_x_pad_dist = 1e-6;
+				x_trace.add(LocationUtils.location(startPt, reverseStrikeDirRad, dist_x_pad_dist));
+				x_trace.addAll(trace);
+				x_trace.add(LocationUtils.location(endPt, strikeDirRad, dist_x_pad_dist));
+			} else {
+				x_trace = trace;
+			}
+			initSegments(PI_BY_2, avgDipDirRad, width, x_trace, x_rots, x_surfs);
 			// this is a list of vectors from the origin in the trace pt local coordinate system
 			x_trace_vects = Lists.newArrayList();
-			for (int i = 0; i < trace.size() - 1; i++) {
+			for (int i = 0; i < x_trace.size() - 1; i++) {
 				Path2D surf = x_surfs.get(i);
 				PathIterator pit = surf.getPathIterator(null);
 				double[] c = new double[6]; // coordinate array
@@ -605,9 +626,9 @@ public class QuadSurface implements RuptureSurface {
 //		return distanceX + distanceX*(0.5 - Math.random());
 		double distanceSq = Double.MAX_VALUE;
 		double distance = Double.MAX_VALUE;
-		for (int i = 0; i < trace.size() - 1; i++) {
+		for (int i = 0; i < x_trace.size() - 1; i++) {
 			// compute geographic vector to point
-			LocationVector vec = LocationUtils.vector(trace.get(i), siteLoc);
+			LocationVector vec = LocationUtils.vector(x_trace.get(i), siteLoc);
 			// convert to cartesian
 			Vector3D vp = new Vector3D(vec.getHorzDistance(), new Vector3D(
 				vec.getAzimuthRad(), 0), vec.getVertDistance(), Vector3D.PLUS_K);
@@ -629,7 +650,7 @@ public class QuadSurface implements RuptureSurface {
 			} else if (siteX > traceX) {
 				// it's to the right in our projected trace
 				// do true distance if this isn't the leftmost trace point
-				trueDist = i < trace.size()-2;
+				trueDist = i < x_trace.size()-2;
 			} else {
 				// this is directly above/below the trace
 				trueDist = false;
