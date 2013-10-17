@@ -227,33 +227,6 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	}
 
 	
-	public double testValue() {
-		double result=0;
-		double totWt=0;
-		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
-		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
-
-		//		if(histOpenInterval>safeTimeSinceLast) {
-//		if(firstIndex>=indexOfSafeTime) {
-//			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
-//			return condProbFunc.getY(indexOfSafeTime);
-//		}
-		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-			double probOfTimeSince = (1-cdf.getY(i));
-			double wt = condProbFunc.getY(i)*probOfTimeSince;
-			totWt += wt; 
-			result+= wt*condProbFunc.getX(i);
-		}
-		result /= totWt;
-		
-		double prob1 = this.getCondProbForUnknownTimeSinceLastEvent();
-		double prob2 = condProbFunc.getInterpolatedY(result);
-		System.out.println(mean+"\t"+aperiodicity+"\t"+(duration/mean)+"\t"+(histOpenInterval/mean)+"\t"+result+"\t"+prob1+"\t"+prob2+"\t"+(prob2/prob1));
-		return result;
-	}
-	
-	
 	/**
 	 * This returns the maximum value of timeSinceLast (as discretized in the x-axis of the cdf) that is  
 	 * numerically safe (to avoid division by zero in the conditional probability calculations, where the

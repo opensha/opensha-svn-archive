@@ -67,6 +67,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	protected  String NAME;
 	protected String commonInfoString;
 	
+	// TODO create and get these from ../../../param (hist open interval is already there)
 	// Parameter names
 	public final static String MEAN_PARAM_NAME= "Mean";
 	public final static String APERIODICITY_PARAM_NAME = "Aperiodicity";

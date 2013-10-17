@@ -25,6 +25,7 @@ import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
@@ -73,7 +74,7 @@ import com.google.common.collect.Lists;
  * 
  * 1) make the list of adjustable parameters dynamic (e.g., hide those that aren't relevant 
  * based on other param settings); there was some memory leak with the way it was being handled
- * previously, but MeanUCERF2 approach seems to be working.
+ * previously, but the approach used in MeanUCERF2 seems to be working.
  * 
  * 2) evaluate whether pre-computing fault-based sources (rather than creating dynamically 
  * in the getSource() method) is really an advantage given memory consumption.
@@ -108,6 +109,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	private BooleanParameter quadSurfacesParam;
 	private ProbabilityModelParam probModelParam;
 	private BPT_AperiodicityParam bpt_AperiodicityParam;
+	private HistoricOpenIntervalParam histOpenIntervalParam;
 
 	
 	// The primitive versions of parameters; and values here are the param defaults: (none for fileParam)
@@ -119,6 +121,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	private boolean quadSurfaces = false;
 	private ProbabilityModelOptions probModel = ProbabilityModelOptions.POISSON;
 	private double bpt_Aperiodicity=0.3;
+	private double histOpenInterval=0;
 
 	// Parameter change flags: (none for bgIncludeParam) 
 	protected boolean fileParamChanged=false;	// set as false since most subclasses ignore this parameter
@@ -129,6 +132,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected boolean quadSurfacesChanged=true;
 	protected boolean probModelChanged=true;
 	protected boolean bpt_AperiodicityChanged=true;
+	protected boolean histOpenIntervalChanged=true;
 	
 
 	// moment-rate reduction to remove aftershocks from supra-seis ruptures
@@ -160,7 +164,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected ArrayList<int[]> nthRupIndicesForSource;	// this gives the nth indices for a given source
 	protected double[] longTermRateOfFltSysRupInERF;	// this holds the long-term rate of FSS rups as used by this ERF (e.g., small mags set to rate of zero); these rates include aftershocks
 	
-	// THESE COULD BE ADDED TO ABSRACT ERF:
+	// THESE AND ASSOCIATED GET/SET METHODS COULD BE ADDED TO ABSRACT ERF:
 	protected int totNumRups;
 	protected int[] srcIndexForNthRup;
 	protected int[] rupIndexForNthRup;
@@ -202,7 +206,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 */
 	public FaultSystemSolutionERF() {
 		initParams();
-		initTimeSpan(); // must be done after the above
+		initTimeSpan(); // must be done after the above because this depends on probModelParam
 	}
 	
 	
@@ -233,6 +237,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		
 		bpt_AperiodicityParam = new BPT_AperiodicityParam();
 		adjustableParams.addParameter(bpt_AperiodicityParam);
+		
+		histOpenIntervalParam = new HistoricOpenIntervalParam();
+		adjustableParams.addParameter(histOpenIntervalParam);
 
 
 		// set listeners
@@ -245,6 +252,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		quadSurfacesParam.addParameterChangeListener(this);
 		probModelParam.addParameterChangeListener(this);
 		bpt_AperiodicityParam.addParameterChangeListener(this);
+		histOpenIntervalParam.addParameterChangeListener(this);
 
 		
 		// set parameters to the primitive values
@@ -257,6 +265,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		quadSurfacesParam.setValue(quadSurfaces);
 		probModelParam.setValue(probModel);
 		bpt_AperiodicityParam.setValue(bpt_Aperiodicity);
+		histOpenIntervalParam.setValue(histOpenInterval);
 
 
 	}
@@ -283,13 +292,13 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 		
 		// update other sources if needed
-		boolean numOtherRupsChanged=false;
+		boolean numOtherRupsChanged=false;	// this is needed below
 		if(bgRupTypeChanged) {
 			numOtherRupsChanged = initOtherSources();	// these are created even if not used; this sets numOtherSources
 		}
 		
 		// update following FSS-related arrays if needed: longTermRateOfFltSysRupInERF[], srcIndexForFltSysRup[], fltSysRupIndexForSource[], numNonZeroFaultSystemSources
-		boolean numFaultRupsChanged = false;
+		boolean numFaultRupsChanged = false;	// needed below as well
 		if (faultSysSolutionChanged) {	
 			makeMiscFSS_Arrays(); 
 			numFaultRupsChanged = true;	// not necessarily true, but a safe assumption
@@ -301,9 +310,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity, timeSpan);
 		}
 
-		// now make the list of fault-system sources
+		// now make the list of fault-system sources if any of the following have changed
 		if (faultSysSolutionChanged || faultGridSpacingChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || 
-				quadSurfacesChanged || probModelChanged || bpt_AperiodicityChanged || timeSpanChangeFlag) {
+				quadSurfacesChanged || probModelChanged || bpt_AperiodicityChanged || timeSpanChangeFlag || histOpenIntervalChanged) {
 			makeAllFaultSystemSources();	// overrides all fault-based source objects; created even if not fault sources aren't wanted
 		}
 		
@@ -322,6 +331,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		quadSurfacesChanged= false;
 		probModelChanged = false;
 		bpt_AperiodicityChanged = false;
+		histOpenIntervalChanged = false;
 		timeSpanChangeFlag = false;
 		
 		runTime = (System.currentTimeMillis()-runTime)/1000;
@@ -366,6 +376,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		} else if (paramName.equals(bpt_AperiodicityParam.getName())) {
 			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
 			bpt_AperiodicityChanged = true;
+		} else if (paramName.equals(histOpenIntervalParam.getName())) {
+			histOpenInterval = histOpenIntervalParam.getValue();
+			histOpenIntervalChanged = true;
 		} else {
 			throw new RuntimeException("parameter name not recognized");
 		}
@@ -549,12 +562,15 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		// get time-dependent probability gain
-		double probGain=1d;	// default
+		double probGain=1.0;	// default for Poisson
+		boolean isPoisson = true;		// this is for setting the source type
 		if(probModel == ProbabilityModelOptions.BPT && iSource < numNonZeroFaultSystemSources) {
+			isPoisson=false;
 			if(PROB_GAIN_CALC_TYPE == 1)
-				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, 0.0, false);
+				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, histOpenInterval, false);
 			else if (PROB_GAIN_CALC_TYPE == 2)
-				probGain = probModelsCalc.OLDgetU3_ProbGain2_ForRup(fltSystRupIndex, false);
+				throw new RuntimeException("not yet implemented");
+//				probGain = probModelsCalc.OLDgetU3_ProbGain2_ForRup(fltSystRupIndex, false);
 			else if (PROB_GAIN_CALC_TYPE == 3)
 				probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false);
 		}
@@ -562,9 +578,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
-			if (rupMFD == null || rupMFD.getNum() < 2) {
-				// normal source
-				boolean isPoisson = true;		// TODO Does this matter for BPT?
+			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
+				// set source type
 				double duration = timeSpan.getDuration();
 				double prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration);
 				src = new FaultRuptureSource(meanMag, 
@@ -577,6 +592,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 					rupMFD = rupMFD.deepClone();
 					rupMFD.scale(aftRateCorr*probGain);
 				}
+				// this set the source as Poisson; does this matter? TODO
 				src = new FaultRuptureSource(rupMFD, 
 						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 						rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
@@ -585,6 +601,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			// this currently only uses the mean magnitude
 			double totMoRate = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*MagUtils.magToMoment(meanMag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,meanMag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
+			// this also sets the source as Poisson; does this matter? TODO
 			src = new FaultRuptureSource(srcMFD, 
 					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());			
@@ -598,7 +615,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	
 	/**
-	 * TODO move this elsewhere?
+	 * TODO move this elsewhere (e.g., abstract parent)?
 	 * @param fileNameAndPath
 	 */
 	public void writeSourceNamesToFile(String fileNameAndPath) {
@@ -703,7 +720,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	/**
 	 * This checks whether what's returned from get_nthRupIndicesForSource(s) gives
 	 *  successive integer values when looped over all sources.
-	 *  TODO move this to a test class
+	 *  TODO move this to a test class?
 	 *  
 	 */
 	public void testNthRupIndicesForSource() {
