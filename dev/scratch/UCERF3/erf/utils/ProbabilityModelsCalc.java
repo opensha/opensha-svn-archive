@@ -39,7 +39,7 @@ import scratch.UCERF3.FaultSystemSolution;
  * 
  * 3) remove the "OLD*" methods here, as they were experimental and are no longer needed.
  * 
- * 4) enable just changing just the timeSpan and/or aperiodicity (would require setting arrays fields to null)
+ * 4) enable changing just the timeSpan and/or aperiodicity (would require setting dependent arrays to null)
  * 
  * @author field
  *
@@ -278,6 +278,23 @@ public class ProbabilityModelsCalc {
 	
 	
 	
+	public int writeSectionsWithDateOfLastEvent() {
+		List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataList();
+		int numWith=0;
+		System.out.println("Sections With Date of Last Event Data (timeSinceLastYears, dateOfLastMillis, sectName):");
+		for(FaultSectionPrefData data:fltData) {
+			long dateOfLastMillis = data.getDateOfLastEvent();
+			if(dateOfLastMillis != Long.MIN_VALUE) {
+				double timeSinceLastYears = (startTimeMillis-dateOfLastMillis)/MILLISEC_PER_YEAR;
+				timeSinceLastYears = (double)Math.round(timeSinceLastYears*100)/100;
+				System.out.println((float)timeSinceLastYears+"\t"+"\t"+dateOfLastMillis+"\t"+data.getName());
+				numWith += 1;
+			}
+		}
+		return numWith;
+	}
+
+	
 	
 	/**
 	 * This computes the BPT probability gain using the UCERF3 type2 methodology
@@ -450,8 +467,6 @@ public class ProbabilityModelsCalc {
 	 * That this function is independent of meanRecurInt can be seen by running in verbose 
 	 * mode while changing the "mean" value set in the method. 
 	 * 
-	 * TODO need to test how close interpolated values are to true values
-	 * 
 	 * @param aperiodicity
 	 * @param verbose - this will print to system.out and generate an XYZ plot of the probability
 	 * @return
@@ -516,7 +531,8 @@ public class ProbabilityModelsCalc {
 
 	/**
 	 * This is made fast by using a reference calculator (with a reference RI), rather than
-	 * redoing the calculation each time 
+	 * redoing the calculation each time .
+	 * 
 	 * @param aveRecurInterval
 	 * @param aveTimeSinceLastYears
 	 * @param duration
@@ -537,7 +553,8 @@ public class ProbabilityModelsCalc {
 	 * 
 	 * This is "fast" in that it interpolates from a cached XYZ function.
 	 * 
-	 * TODO this should be tested against the slower way.
+	 * TODO this should be tested against the slower way (compare interpolated values to
+	 * directly computed values).
 	 * 
 	 * @param recurIntevalYears
 	 * @param histOpenIntervalYears

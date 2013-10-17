@@ -5,9 +5,11 @@ import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.ONLY;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -38,6 +40,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
 import com.google.common.collect.Lists;
@@ -173,6 +176,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected List<FaultRuptureSource> faultSourceList;
 	
 	ProbabilityModelsCalc probModelsCalc;
+	protected boolean datesOfLastEventsAddedToSections = false;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -302,12 +306,30 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if (faultSysSolutionChanged) {	
 			makeMiscFSS_Arrays(); 
 			numFaultRupsChanged = true;	// not necessarily true, but a safe assumption
+			datesOfLastEventsAddedToSections = false;
+		}
+		
+		// set dates of last events in fault sections
+		if(datesOfLastEventsAddedToSections == false && probModel != ProbabilityModelOptions.POISSON) {
+			// 
+			Map<Integer, List<LastEventData>> data;
+			try {
+				data = LastEventData.load();
+				LastEventData.populateSubSects(faultSysSolution.getRupSet().getFaultSectionDataList(), data);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		// update prob model calculator if needed
 		if (faultSysSolutionChanged || bpt_AperiodicityChanged || timeSpanChangeFlag || probModelChanged) {
-			if(probModel != ProbabilityModelOptions.POISSON)
+			if(probModel != ProbabilityModelOptions.POISSON) {
 				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity, timeSpan);
+				if(D) {
+					int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
+					System.out.println(numSectWith+" sections had date of last");
+				}
+			}
 		}
 
 		// now make the list of fault-system sources if any of the following have changed
@@ -388,12 +410,12 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 * This initiates the timeSpan.
 	 */
 	protected void initTimeSpan() {
-		if(probModel != ProbabilityModelOptions.POISSON) {
+		if(probModel == ProbabilityModelOptions.POISSON) {
 			timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 			timeSpan.setDuration(DURATION_DEFAULT);
 			timeSpan.addParameterChangeListener(this);
 		}
-		else if (probModel != ProbabilityModelOptions.BPT) {
+		else if (probModel == ProbabilityModelOptions.BPT) {
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 			timeSpan.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
 			timeSpan.setDuration(DURATION_DEFAULT);
@@ -796,8 +818,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		
-//		invERF.aleatoryMagAreaStdDevParam.setValue(0.0);
-//		invERF.bpt_AperiodicityParam.setValue(0.2);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.BPT);
 
 		erf.updateForecast();
 		
