@@ -33,7 +33,6 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -591,8 +590,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			if(PROB_GAIN_CALC_TYPE == 1)
 				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, histOpenInterval, false);
 			else if (PROB_GAIN_CALC_TYPE == 2)
-				throw new RuntimeException("not yet implemented");
-//				probGain = probModelsCalc.OLDgetU3_ProbGain2_ForRup(fltSystRupIndex, false);
+				probGain = probModelsCalc.getU3_ProbGain2_ForRup(fltSystRupIndex, histOpenInterval, false);
 			else if (PROB_GAIN_CALC_TYPE == 3)
 				probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false);
 		}

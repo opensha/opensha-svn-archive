@@ -277,7 +277,51 @@ public class ProbabilityModelsCalc {
 	}
 	
 	
+	/**
+	 * This method returns normalized time since last event (timeSince/meanRecurInt)
+	 *  averaged over fault sections that have such data (and weighted by section area). 
+	 * 
+	 *  Double.NaN is returned in none of the fault sections have a date of last event 
+	 *  
+	 *  The following global variables are also set for further diagnostics:
+	 * 
+	 * 		double totRupArea
+	 * 		double totRupAreaWithDateOfLast
+	 * 		boolean allSectionsHadDateOfLast
+	 * 		boolean noSectionsHadDateOfLast
+	 *
+	 * @param fltSystRupIndex
+	 */
+	public double getAveNormTimeSinceLastEventWhereKnown(int fltSystRupIndex) {
+		
+		List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
+		totRupArea=0;
+		totRupAreaWithDateOfLast=0;
+		allSectionsHadDateOfLast = true;
+		double sumNormTimeSinceLast = 0;
+		for(FaultSectionPrefData data:fltData) {
+			long dateOfLast = data.getDateOfLastEvent();
+			int sectID = data.getSectionId();
+			double area = sectionArea[sectID];
+			totRupArea+=area;
+			if(dateOfLast != Long.MIN_VALUE) {
+				sumNormTimeSinceLast += area*((double)(startTimeMillis-dateOfLast)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[sectID];
+				totRupAreaWithDateOfLast += area;
+			}
+			else {
+				allSectionsHadDateOfLast = false;
+			}
+		}
+		if(totRupAreaWithDateOfLast>0.0)
+			return sumNormTimeSinceLast/totRupAreaWithDateOfLast; 
+		else {
+			noSectionsHadDateOfLast=true;
+			return Double.NaN;
+		}
+	}
 	
+	
+
 	public int writeSectionsWithDateOfLastEvent() {
 		List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataList();
 		int numWith=0;
@@ -294,47 +338,6 @@ public class ProbabilityModelsCalc {
 		return numWith;
 	}
 
-	
-	
-	/**
-	 * This computes the BPT probability gain using the UCERF3 type2 methodology
-	 * (from averaging section rates (rather than RIs) and averaging normalized 
-	 * time since last event (rather than date of last event)).
-	 * 
-	 * This returns Double.NaN if onlyIfAllSectionsHaveDateOfLast=true and one or mare sections
-	 * lack date of last event.
-	 * 
-	 * @param fltSystRupIndex
-	 * @param onlyIfAllSectionsHaveDateOfLast
-	 */
-	public double getU3_ProbGain2_ForRup(int fltSysRupIndex, boolean onlyIfAllSectionsHaveDateOfLast) {
-		
-		throw new RuntimeException("Not yet implemented");
-		
-//		// make aveCondRecurIntervalForFltSysRups_type1 if it doesn't exist
-//		if(aveCondRecurIntervalForFltSysRups_type2 == null)
-//			aveCondRecurIntervalForFltSysRups_type2 = this.computeAveCondRecurIntervalForFltSysRups(2);
-//		
-//		// get ave norm time since last
-//		double aveNormTimeSinceLast = OLDgetAveNormTimeSinceLastCorrected(fltSysRupIndex, onlyIfAllSectionsHaveDateOfLast);
-//		// quit if all having date of last event is not satisfied
-//		if(aveNormTimeSinceLast == Double.NaN)
-//			return Double.NaN;
-//
-//		// now compute and set gain
-//		if(totRupAreaWithDateOfLast == 0.0) {	// this should not be necessary, but faster? 	// this should not be necessary, but faster?	// TODO actually this is not right, as we don't want to end up with the poiss prob given open interval
-//			return 1.0;
-//		}
-//		else {
-//			if(aveNormTimeSinceLast < 0) {
-//				throw new RuntimeException("aveNormTimeSinceLast cannot be negative (aveNormTimeSinceLast="+aveNormTimeSinceLast+")");
-//			}
-//			double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type2[fltSysRupIndex];
-//			return computeBPT_ProbGainFast(aveCondRecurInterval, aveNormTimeSinceLast*aveCondRecurInterval, durationYears);					
-//		}
-	}
-
-	
 	
 	
 	/**
@@ -391,6 +394,62 @@ public class ProbabilityModelsCalc {
 		}
 	}
 	
+	
+	
+	/**
+	 * This computes the BPT probability gain using the UCERF3 type2 methodology
+	 * 
+	 * This returns Double.NaN if onlyIfAllSectionsHaveDateOfLast=true and one or mare sections
+	 * lack date of last event.
+	 * 
+	 * @param fltSystRupIndex
+	 * @param onlyIfAllSectionsHaveDateOfLast
+	 */
+	public double getU3_ProbGain2_ForRup(int fltSysRupIndex, double histOpenInterval, boolean onlyIfAllSectionsHaveDateOfLast) {
+
+		// make aveCondRecurIntervalForFltSysRups_type1 if it doesn't exist
+		if(aveCondRecurIntervalForFltSysRups_type2 == null)
+			aveCondRecurIntervalForFltSysRups_type2 = computeAveCondRecurIntervalForFltSysRups(2);
+		
+		double aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type2[fltSysRupIndex];
+				
+		double aveNormTimeSinceLastEventWhereKnown = getAveNormTimeSinceLastEventWhereKnown(fltSysRupIndex);
+		// the following global variables were just set by this method
+		// 		double totRupArea
+		// 		double totRupAreaWithDateOfLast
+		// 		boolean allSectionsHadDateOfLast
+		// 		boolean noSectionsHadDateOfLast
+		
+		double aveTimeSinceLastWhereKnownYears = aveNormTimeSinceLastEventWhereKnown*aveCondRecurInterval;
+		
+		if(onlyIfAllSectionsHaveDateOfLast && !allSectionsHadDateOfLast) {
+			return Double.NaN;
+		}
+		else if(allSectionsHadDateOfLast) {
+			return computeBPT_ProbGainFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears);					
+		}
+		else if (noSectionsHadDateOfLast) {
+			return computeBPT_ProbGainForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval);
+		}
+		else {	// case where some have date of last; loop over all possibilities for those that don't.
+			double sumCondProbGain=0;
+			double totWeight=0;
+			for(int i=0;i<normBPT_CDF.getNum();i++) {
+				double timeSinceYears = normBPT_CDF.getX(i)*aveCondRecurInterval;
+				double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
+				if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
+					// average the time since last between known and unknown sections
+					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
+					double condProbGain = computeBPT_ProbGainFast(aveCondRecurInterval, aveTimeSinceLast, durationYears);
+					sumCondProbGain += condProbGain*relProbForTimeSinceLast;
+					totWeight += relProbForTimeSinceLast;
+				}
+			}
+			return sumCondProbGain/totWeight;
+		}
+	}
+
 	
 	/**
 	 * This returns the probability gain computed using the WG02 methodology, where the probability
