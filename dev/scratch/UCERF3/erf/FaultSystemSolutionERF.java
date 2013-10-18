@@ -76,11 +76,7 @@ import com.google.common.collect.Lists;
  * 
  * TODO: 
  * 
- * 1) make the list of adjustable parameters dynamic (e.g., hide those that aren't relevant 
- * based on other param settings); there was some memory leak with the way it was being handled
- * previously, but the approach used in MeanUCERF2 seems to be working.
- * 
- * 2) evaluate whether pre-computing fault-based sources (rather than creating dynamically 
+ * 1) evaluate whether pre-computing fault-based sources (rather than creating dynamically 
  * in the getSource() method) is really an advantage given memory consumption.
  * 
  * 
