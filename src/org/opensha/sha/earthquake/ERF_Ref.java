@@ -49,6 +49,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
 
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_CompoundSol_ERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
@@ -182,9 +183,12 @@ public enum ERF_Ref {
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
 			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false),
 	
-	INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME,
+	OLD_INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME,
 			EXPERIMENTAL, false),
 			
+	INVERSION_SOLUTION_ERF(FaultSystemSolutionERF.class, FaultSystemSolutionERF.NAME,
+					EXPERIMENTAL, false),
+		
 	MEAN_UCERF3(MeanUCERF3.class, MeanUCERF3.NAME, EXPERIMENTAL, false),
 	
 	UCERF3_COMPOUND(UCERF3_CompoundSol_ERF.class, UCERF3_CompoundSol_ERF.NAME, EXPERIMENTAL, false);

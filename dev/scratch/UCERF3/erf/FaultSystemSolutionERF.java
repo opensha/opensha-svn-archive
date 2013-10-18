@@ -14,6 +14,7 @@ import java.util.Map;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
@@ -33,6 +34,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -101,6 +103,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	// Adjustable parameters
 	public static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
+	protected boolean includeFileParam = true;
 	protected FaultGridSpacingParam faultGridSpacingParam;
 	protected AleatoryMagAreaStdDevParam aleatoryMagAreaStdDevParam;
 	protected ApplyGardnerKnopoffAftershockFilterParam applyAftershockFilterParam;
@@ -215,34 +218,15 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	protected void initParams() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
-		adjustableParams.addParameter(fileParam);
-		
 		faultGridSpacingParam = new FaultGridSpacingParam();
-		adjustableParams.addParameter(faultGridSpacingParam);
-		
 		aleatoryMagAreaStdDevParam = new AleatoryMagAreaStdDevParam();
-		adjustableParams.addParameter(aleatoryMagAreaStdDevParam);
-		
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
-		adjustableParams.addParameter(applyAftershockFilterParam);
-
 		bgIncludeParam = new IncludeBackgroundParam();
-		adjustableParams.addParameter(bgIncludeParam);
-
 		bgRupTypeParam = new BackgroundRupParam();
-		adjustableParams.addParameter(bgRupTypeParam);
-		
 		quadSurfacesParam = new BooleanParameter(QUAD_SURFACES_PARAM_NAME, QUAD_SURFACES_PARAM_DEFAULT);
-		adjustableParams.addParameter(quadSurfacesParam);
-		
 		probModelParam = new ProbabilityModelParam();
-		adjustableParams.addParameter(probModelParam);
-		
 		bpt_AperiodicityParam = new BPT_AperiodicityParam();
-		adjustableParams.addParameter(bpt_AperiodicityParam);
-		
 		histOpenIntervalParam = new HistoricOpenIntervalParam();
-		adjustableParams.addParameter(histOpenIntervalParam);
 
 
 		// set listeners
@@ -270,8 +254,34 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		bpt_AperiodicityParam.setValue(bpt_Aperiodicity);
 		histOpenIntervalParam.setValue(histOpenInterval);
 
-
+		createParamList();
 	}
+	
+	/**
+	 * Put parameters in theParameterList
+	 */
+	private void createParamList() {
+		adjustableParams = new ParameterList();
+		if(includeFileParam)
+			adjustableParams.addParameter(fileParam);
+		adjustableParams.addParameter(applyAftershockFilterParam);
+		adjustableParams.addParameter(aleatoryMagAreaStdDevParam);
+		adjustableParams.addParameter(bgIncludeParam);
+		if(!bgIncludeParam.getValue().equals(IncludeBackgroundOption.EXCLUDE)) {
+			adjustableParams.addParameter(bgRupTypeParam);
+		}
+		adjustableParams.addParameter(quadSurfacesParam);
+		if(quadSurfacesParam.getValue().equals(false)) {
+			adjustableParams.addParameter(faultGridSpacingParam);
+		}
+		adjustableParams.addParameter(probModelParam);
+		if(!probModelParam.getValue().equals(ProbabilityModelOptions.POISSON)) {
+			adjustableParams.addParameter(bpt_AperiodicityParam);	
+			adjustableParams.addParameter(histOpenIntervalParam);
+		}
+	}
+
+
 	
 	/**
 	 * This returns the number of fault system sources
@@ -384,6 +394,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			applyAftershockFilterChanged = true;
 		} else if (paramName.equalsIgnoreCase(bgIncludeParam.getName())) {
 			bgInclude = bgIncludeParam.getValue();
+			createParamList();
 		} else if (paramName.equalsIgnoreCase(bgRupTypeParam.getName())) {
 			bgRupType = bgRupTypeParam.getValue();
 			bgRupTypeChanged = true;
@@ -394,6 +405,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			probModel = probModelParam.getValue();
 			probModelChanged = true;
 			initTimeSpan();
+			createParamList();
 		} else if (paramName.equals(bpt_AperiodicityParam.getName())) {
 			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
 			bpt_AperiodicityChanged = true;
