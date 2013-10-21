@@ -44,14 +44,19 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		this(buildRupSet(elements, events, durationYears, minMag), durationYears);
 	}
 	
-	private SimulatorFaultSystemSolution(FaultSystemRupSet rupSet, double durationYears) {
+	SimulatorFaultSystemSolution(FaultSystemRupSet rupSet, double durationYears) {
 		super(rupSet, buildRates(rupSet.getNumRuptures(), durationYears));
 	}
 	
-	private static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
+	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
 			double durationYears, double minMag) {
 		System.out.print("Building FSD...");
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
+		return buildRupSet(elements, events, durationYears, minMag, subSectBuilder);
+	}
+	
+	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
+			double durationYears, double minMag, SubSectionBiulder subSectBuilder) {
 		List<FaultSectionPrefData> fsd = subSectBuilder.getSubSectsList();
 		Map<Integer, Integer> elemIDsMap = subSectBuilder.getElemIDToSubSectsMap();
 		System.out.println("DONE.");

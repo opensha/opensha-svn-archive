@@ -42,9 +42,9 @@ public class LastEventData {
 	// sub directory of UCERF3/data
 	private static final String SUB_DIR = "paleoRateData";
 	// file name
-	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver7.xls";
+	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver8.xls";
 	// sheet in the workbook, zero based
-	private static final int SHEET_NUM = 0;
+	private static final int[] SHEET_NUMS = {0,1}; //"Well resolved historical" and "Paleo-well resolved"
 	
 	private static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(2013, 0, 0);
 	private static final double MATCH_LOCATION_TOLERANCE = 1d;
@@ -78,48 +78,56 @@ public class LastEventData {
 	 * @throws IOException
 	 */
 	public static Map<Integer, List<LastEventData>> load(InputStream is) throws IOException {
+		return load(is, SHEET_NUMS);
+	}
+	
+	public static Map<Integer, List<LastEventData>> load(InputStream is, int[] sheets) throws IOException {
 		POIFSFileSystem fs = new POIFSFileSystem(is);
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
-		HSSFSheet sheet = wb.getSheetAt(SHEET_NUM);
 		
 		Map<Integer, List<LastEventData>> datas = Maps.newHashMap();
-		
-		for (int rowIndex=0; rowIndex<=sheet.getLastRowNum(); rowIndex++) {
-			HSSFRow row = sheet.getRow(rowIndex);
-			HSSFCell intervalCell = row.getCell(4);
-			// only cells with open intervals
-			if (intervalCell == null || intervalCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC)
-				continue;
-			double interval = intervalCell.getNumericCellValue();
-			String name = row.getCell(0).getStringCellValue();
-			int parentID = (int)row.getCell(1).getNumericCellValue();
-			Preconditions.checkState(parentID >= 0);
-			HSSFCell offsetCell = row.getCell(3);
-			double offset;
-			if (offsetCell == null || offsetCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC)
-				offset = Double.NaN;
-			else
-				offset = offsetCell.getNumericCellValue();
-			// make sure it has a location
-			HSSFCell locStartCell = row.getCell(6);
-			if (locStartCell == null || locStartCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC) {
-				System.err.println("WARNING: no location for "+name+"...skipping!");
-				continue;
-			}
-			double startLat = row.getCell(6).getNumericCellValue();
-			double startLon = row.getCell(7).getNumericCellValue();
-			double endLat = row.getCell(8).getNumericCellValue();
-			double endLon = row.getCell(9).getNumericCellValue();
-			Location startLoc = new Location(startLat, startLon);
-			Location endLoc = new Location(endLat, endLon);
+		for (int sheetNum : sheets) {
+			HSSFSheet sheet = wb.getSheetAt(sheetNum);
 			
-			List<LastEventData> parentList = datas.get(parentID);
-			if (parentList == null) {
-				parentList = Lists.newArrayList();
-				datas.put(parentID, parentList);
+			for (int rowIndex=0; rowIndex<=sheet.getLastRowNum(); rowIndex++) {
+				HSSFRow row = sheet.getRow(rowIndex);
+				if (row == null)
+					continue;
+				HSSFCell intervalCell = row.getCell(4);
+				// only cells with open intervals
+				if (intervalCell == null || intervalCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC)
+					continue;
+				double interval = intervalCell.getNumericCellValue();
+				String name = row.getCell(0).getStringCellValue();
+				int parentID = (int)row.getCell(1).getNumericCellValue();
+				Preconditions.checkState(parentID >= 0);
+				HSSFCell offsetCell = row.getCell(3);
+				double offset;
+				if (offsetCell == null || offsetCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC)
+					offset = Double.NaN;
+				else
+					offset = offsetCell.getNumericCellValue();
+				// make sure it has a location
+				HSSFCell locStartCell = row.getCell(6);
+				if (locStartCell == null || locStartCell.getCellType() != HSSFCell.CELL_TYPE_NUMERIC) {
+					System.err.println("WARNING: no location for "+name+"...skipping!");
+					continue;
+				}
+				double startLat = row.getCell(6).getNumericCellValue();
+				double startLon = row.getCell(7).getNumericCellValue();
+				double endLat = row.getCell(8).getNumericCellValue();
+				double endLon = row.getCell(9).getNumericCellValue();
+				Location startLoc = new Location(startLat, startLon);
+				Location endLoc = new Location(endLat, endLon);
+				
+				List<LastEventData> parentList = datas.get(parentID);
+				if (parentList == null) {
+					parentList = Lists.newArrayList();
+					datas.put(parentID, parentList);
+				}
+				
+				parentList.add(new LastEventData(name, parentID, offset, interval, startLoc, endLoc));
 			}
-			
-			parentList.add(new LastEventData(name, parentID, offset, interval, startLoc, endLoc));
 		}
 		return datas;
 	}
@@ -172,7 +180,11 @@ public class LastEventData {
 	 * @return
 	 */
 	private static GregorianCalendar calcDate(double openInterval) {
-		GregorianCalendar eventDate = (GregorianCalendar)OPEN_INTERVAL_BASIS.clone();
+		return calcDate(OPEN_INTERVAL_BASIS, openInterval);
+	}
+	
+	public static GregorianCalendar calcDate(GregorianCalendar intervalBasis, double openInterval) {
+			GregorianCalendar eventDate = (GregorianCalendar)intervalBasis.clone();
 		
 		// go back years
 		int years = (int)openInterval;
@@ -252,12 +264,16 @@ public class LastEventData {
 	}
 	
 	public static void writeOpenRecurrRatioTable(File file, FaultSystemSolution sol) throws IOException {
+		writeOpenRecurrRatioTable(file, sol, SHEET_NUMS);
+	}
+	
+	public static void writeOpenRecurrRatioTable(File file, FaultSystemSolution sol, int[] sheets) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		csv.addLine("Parent Section Name", "Parent Section ID", "Sub Section ID",
 				"Open Interval (years)", "Paleo Obs. RI", "OI/Paleo RI");
 		
-		Map<Integer, List<LastEventData>> datas = load();
+		Map<Integer, List<LastEventData>> datas = load(UCERF3_DataUtils.locateResourceAsStream(SUB_DIR, FILE_NAME), sheets);
 		List<FaultSectionPrefData> fsd = sol.getRupSet().getFaultSectionDataList();
 		Map<Integer, List<FaultSectionPrefData>> fsdByParent = Maps.newHashMap();
 		for (FaultSectionPrefData sect : fsd) {
@@ -328,6 +344,10 @@ public class LastEventData {
 		
 		File csvFile = new File("/tmp/open_interval_ratios.csv");
 		writeOpenRecurrRatioTable(csvFile, sol);
+		
+		csvFile = new File("/tmp/open_interval_ratios_unused.csv");
+		int[] sheets_unused = {2,3};
+		writeOpenRecurrRatioTable(csvFile, sol, sheets_unused);
 	}
 
 }

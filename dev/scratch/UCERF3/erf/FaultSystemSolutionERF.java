@@ -18,6 +18,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -175,6 +176,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	ProbabilityModelsCalc probModelsCalc;
 	protected boolean datesOfLastEventsAddedToSections = false;
+	// if true, it will be assumed that the FSS already has date of last event data and we shouldn't load it
+	private boolean useFSSDateOfLastEvents = false;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -315,14 +318,14 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 		
 		// set dates of last events in fault sections
-		if(datesOfLastEventsAddedToSections == false && probModel != ProbabilityModelOptions.POISSON) {
+		if(!useFSSDateOfLastEvents && datesOfLastEventsAddedToSections == false && probModel != ProbabilityModelOptions.POISSON) {
 			// 
 			Map<Integer, List<LastEventData>> data;
 			try {
 				data = LastEventData.load();
 				LastEventData.populateSubSects(faultSysSolution.getRupSet().getFaultSectionDataList(), data);
 			} catch (IOException e) {
-				e.printStackTrace();
+				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
 		
@@ -542,6 +545,16 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		this.faultSysSolution = sol;
 		faultSysSolutionChanged = true;
 		bgRupTypeChanged = true;  // because the background ruptures come from the FSS
+	}
+	
+	/**
+	 * You may want to use pre-loaded date of last event data instead of fetching
+	 * the UCERF3 values. If so, call this method and set it to true before updating
+	 * the forecast for the first time!
+	 * @param useFSSDateOfLastEvents
+	 */
+	public void setUseFSSDateOfLastEvents(boolean useFSSDateOfLastEvents) {
+		this.useFSSDateOfLastEvents = useFSSDateOfLastEvents;
 	}
 	
 	public FaultSystemSolution getSolution() {

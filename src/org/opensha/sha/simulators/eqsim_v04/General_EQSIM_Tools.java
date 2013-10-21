@@ -120,7 +120,8 @@ public class General_EQSIM_Tools {
 //	ArrayList<String> infoStrings;
 	String dirNameForSavingFiles;
 	
-	UCERF2_DataForComparisonFetcher ucerf2_dataFetcher = new UCERF2_DataForComparisonFetcher();
+	// not used, and should be lazy initialized if needed
+//	UCERF2_DataForComparisonFetcher ucerf2_dataFetcher = new UCERF2_DataForComparisonFetcher();
 
 
 	/**

@@ -27,6 +27,7 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.XMLUtils;
@@ -251,10 +252,15 @@ public class HardCodedScenarioShakeMapGen {
 //		int rupID = 26;
 //		Location hypo = new Location(34.093,-118.0315,13.2411);
 		
-		// ShakeOut 2011
-		int sourceID = 254;
-		int rupID = 30;
-		Location hypo = new Location(34.34, -119.17, 11.1);
+//		// ShakeOut 2011
+//		int sourceID = 254;
+//		int rupID = 30;
+//		Location hypo = new Location(34.34, -119.17, 11.1);
+		
+		// ShakeOut 2013
+		int sourceID = 77;
+		int rupID = 0;
+		Location hypo = null;
 		
 		boolean useBaseMap = true;
 		double[] periods = { 3.0 };
@@ -265,7 +271,7 @@ public class HardCodedScenarioShakeMapGen {
 //		String scatterHardCodeFile = "/home/kevin/CyberShake/eew/parkfield/min7.0/shakemap.txt";
 //		String scatterHardCodeFile = "/home/kevin/ShakeOut/bband/pga.txt";
 		
-		String outputDir = "/home/kevin/CyberShake/ShakeOut/2011/maps";
+		String outputDir = "/home/kevin/Documents/2013 ShakeOut/cs_maps";
 //		String outputDir = "/home/kevin/CyberShake/ShakeOut/bband/maps";
 		
 		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(0.005);
@@ -282,7 +288,18 @@ public class HardCodedScenarioShakeMapGen {
 		
 		ArrayList<SiteDataValueList<?>> lists = loadValLists(region);
 		
+		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+				"/resources/cpt/MaxSpectrum2.cpt"));
 		boolean logPlot = true;
+		
+//		CPT cpt = GMT_CPT_Files.SHAKEMAP.instance();
+//		boolean logPlot = false;
+		
+//		Double customMin = 0d;
+//		Double customMax = 0.5d;
+		
+//		Double customMin = null;
+//		Double customMax = null;
 		
 		boolean isProbAt_IML = false;
 		double val = 0.5;
@@ -320,9 +337,6 @@ public class HardCodedScenarioShakeMapGen {
 			
 			if (region instanceof CustomGriddedRegion)
 				continue;
-			
-			CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-			"/resources/cpt/MaxSpectrum2.cpt"));
 			
 			GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 			
