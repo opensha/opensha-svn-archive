@@ -8,7 +8,8 @@ package org.opensha.sha.earthquake.param;
 @SuppressWarnings("javadoc")
 public enum ProbabilityModelOptions {
 	POISSON("Poisson"),
-	BPT("BPT");
+	U3_BPT("UCERF3 BPT"),
+	WG02_BPT("WG02 BPT");
 	
 	private String label;
 	private ProbabilityModelOptions(String label) {

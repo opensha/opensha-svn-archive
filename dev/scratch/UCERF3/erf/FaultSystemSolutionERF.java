@@ -43,6 +43,7 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
 import com.google.common.collect.Lists;
@@ -84,12 +85,18 @@ import com.google.common.collect.Lists;
  */
 public class FaultSystemSolutionERF extends AbstractERF {
 	
-	/** This sets the type of probability gain calculations
-	 * 1 for averaging section recurrence intervals and time since last
-	 * 2 for averaging section rates and normalized time since last
-	 * 3 for WG02 calculations
-	 */
-	private static int PROB_GAIN_CALC_TYPE = 1;	
+//	/** This sets the type of probability gain calculations
+//	 * 1 for averaging section recurrence intervals and time since last
+//	 * 2 for averaging section rates and normalized time since last
+//	 * 3 for WG02 calculations
+//	 */
+//	private static int PROB_GAIN_CALC_TYPE = 1;	
+	
+	// this tells whether to average recurrence intervals (or rates) in computing conditional rupture RIs:
+	public boolean aveRecurIntervalsInU3_BPTcalc = true;
+	// this tells whether to average normalized time since last (divided by section RI) or un-normalized time since last:
+	public boolean aveNormTimeSinceLastInU3_BPTcalc = false;
+
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -332,7 +339,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		// update prob model calculator if needed
 		if (faultSysSolutionChanged || bpt_AperiodicityChanged || timeSpanChangeFlag || probModelChanged) {
 			if(probModel != ProbabilityModelOptions.POISSON) {
-				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity, timeSpan);
+				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity);
 				if(D) {
 					int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
 					System.out.println(numSectWith+" sections had date of last");
@@ -425,15 +432,12 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			timeSpan.setDuration(DURATION_DEFAULT);
 			timeSpan.addParameterChangeListener(this);
 		}
-		else if (probModel == ProbabilityModelOptions.BPT) {
+		else {
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 			timeSpan.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
 			timeSpan.setDuration(DURATION_DEFAULT);
 			timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
 			timeSpan.setStartTime(START_TIME_DEFAULT);
-		}
-		else {
-			throw new RuntimeException("Probability model not implemented");
 		}
 		timeSpan.addParameterChangeListener(this);			
 	}
@@ -502,6 +506,11 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		for (int i=0; i<numNonZeroFaultSystemSources; i++) {
 			faultSourceList.add(makeFaultSystemSource(i));
 		}
+	}
+	
+	
+	public double[] getLongTermRateOfFltSysRupInERF() {
+		return longTermRateOfFltSysRupInERF;
 	}
 	
 	
@@ -604,17 +613,33 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		// get time-dependent probability gain
-		double probGain=1.0;	// default for Poisson
-		boolean isPoisson = true;		// this is for setting the source type
-		if(probModel == ProbabilityModelOptions.BPT && iSource < numNonZeroFaultSystemSources) {
-			isPoisson=false;
-			if(PROB_GAIN_CALC_TYPE == 1)
-				probGain = probModelsCalc.getU3_ProbGain1_ForRup(fltSystRupIndex, histOpenInterval, false);
-			else if (PROB_GAIN_CALC_TYPE == 2)
-				probGain = probModelsCalc.getU3_ProbGain2_ForRup(fltSystRupIndex, histOpenInterval, false);
-			else if (PROB_GAIN_CALC_TYPE == 3)
-				probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false);
+		double probGain;	// default for Poisson		
+		if(probModel == ProbabilityModelOptions.POISSON) {
+			probGain=1.0;
 		}
+		else if(probModel == ProbabilityModelOptions.U3_BPT) {
+			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, 
+					aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
+		}
+		else if(probModel == ProbabilityModelOptions.WG02_BPT) {
+			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
+		}
+		else {
+			throw new RuntimeException("Unrecognized Probability Model");
+		}
+
+//		switch (probModel) {
+//		case POISSON:
+//			probGain=1.0;
+//		case U3_BPT:
+//			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, aveNormTimeSinceLastInU3_BPTcalc);
+//		case WG02_BPT:
+//		default:
+//			probGain=Double.NaN;
+////			throw new RuntimeException("Unrecognized Probability Model");
+//		}
+
+		boolean isPoisson = true;		// this is for setting the source type
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
@@ -755,8 +780,28 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 	}
 	
+	/**
+	 * This returns the fault system rupture index for the Nth rupture
+	 * @param nthRup
+	 * @return
+	 */
+	public int getFltSysRupIndexForNthRup(int nthRup) {
+		return fltSysRupIndexForNthRup[nthRup];
+	}
 
+	/**
+	 * this returns the src index for a given fault-system rupture
+	 * index
+	 * @param fltSysRupIndex
+	 * @return
+	 */
+	public int getSrcIndexForFltSysRup(int fltSysRupIndex) {
+		return srcIndexForFltSysRup[fltSysRupIndex];
+	}
 	
+	public int getTotNumRupsFromFaultSystem() {
+		return totNumRupsFromFaultSystem;
+	}
 	
 	/**
 	 * This checks whether what's returned from get_nthRupIndicesForSource(s) gives
@@ -837,7 +882,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.BPT);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 
 		erf.updateForecast();
 		
