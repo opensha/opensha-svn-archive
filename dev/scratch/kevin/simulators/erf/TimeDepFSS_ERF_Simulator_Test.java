@@ -66,6 +66,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		int numTrials;
 		final double default_cov = 0.3;
 		double cov;
+		boolean test_time_indep = true;
 		if (args.length > 0) {
 			interactive = false;
 			outputDir = new File(args[0]);
@@ -80,10 +81,12 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			interactive = true;
 			dataDir = new File("/home/kevin/Simulators");
 			outputDir = dataDir;
-			numTrials = 1000;
+			numTrials = 100000;
 			outputPrefix = "erf_audit_"+numTrials;
 			cov = default_cov;
 		}
+		if (test_time_indep)
+			outputPrefix += "_INDEP";
 		File geomFile = new File(dataDir, "ALLCAL2_1-7-11_Geometry.dat");
 		System.out.println("Loading geometry from "+geomFile.getAbsolutePath());
 		General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
@@ -199,6 +202,17 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		double[] forecastOccurences = new double[rupSet.getNumRuptures()];
 		double[] simulatorOccurances = new double[rupSet.getNumRuptures()];
 		
+		FaultSystemSolutionERF indepERF = null;
+		if (test_time_indep) {
+			indepERF = new FaultSystemSolutionERF(sol);
+			indepERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+			indepERF.getTimeSpan().setDuration(forecastDuration);
+			// this will make it use the simulator dates of last events
+			indepERF.setUseFSSDateOfLastEvents(true);
+			indepERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+			indepERF.updateForecast();
+		}
+		
 		Stopwatch watch = new Stopwatch();
 		watch.start();
 		for (int i=0; i<numTrials; i++) {
@@ -222,25 +236,33 @@ public class TimeDepFSS_ERF_Simulator_Test {
 //				Thread.sleep(1000);
 //			} catch (InterruptedException e1) {}
 			
-			populateOpenIntervals(subSectBuilder, eventsBefore, randTrainEndTime, timeSpanStartYear);
+			FaultSystemSolutionERF erf;
+			if (test_time_indep) {
+				erf = indepERF;
+			} else {
+				populateOpenIntervals(subSectBuilder, eventsBefore, randTrainEndTime, timeSpanStartYear);
+				
+				erf = new FaultSystemSolutionERF(sol);
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				erf.setParameter(BPT_AperiodicityParam.NAME, cov);
+				erf.getTimeSpan().setStartTime(timeSpanStartYear);
+				erf.getTimeSpan().setDuration(forecastDuration);
+				// make sure this didn't clear the start year
+				Preconditions.checkState(erf.getTimeSpan().getStartTimeYear() == timeSpanStartYear);
+				// this will make it use the simulator dates of last events
+				erf.setUseFSSDateOfLastEvents(true);
+				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+				erf.updateForecast();
+			}
 			
-			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
-			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.BPT);
-			erf.setParameter(BPT_AperiodicityParam.NAME, cov);
-			erf.getTimeSpan().setStartTime(timeSpanStartYear);
-			erf.getTimeSpan().setDuration(forecastDuration);
-			// make sure this didn't clear the start year
-			Preconditions.checkState(erf.getTimeSpan().getStartTimeYear() == timeSpanStartYear);
-			// this will make it use the simulator dates of last events
-			erf.setUseFSSDateOfLastEvents(true);
-			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-			erf.updateForecast();
-			
-			for (ProbEqkSource source : erf) {
-				String srcName = source.getName();
-				int rupIndex = Integer.parseInt(srcName.substring(srcName.indexOf("#")+1, srcName.indexOf(";")));
-				double prob = source.computeTotalProb();
-				forecastOccurences[rupIndex] += prob;
+			if (!test_time_indep || i == 0) {
+				// don't bother if this is a time independent erf test
+				for (ProbEqkSource source : erf) {
+					String srcName = source.getName();
+					int rupIndex = Integer.parseInt(srcName.substring(srcName.indexOf("#")+1, srcName.indexOf(";")));
+					double prob = source.computeTotalProb();
+					forecastOccurences[rupIndex] += prob;
+				}
 			}
 			// now log what actually happened
 			// do it this way to only count rups once even if they happen multiple times
@@ -252,6 +274,10 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			for (int rupIndex : rupsOccurredThisTime) {
 				simulatorOccurances[rupIndex] += 1d;
 			}
+		}
+		if (test_time_indep) {
+			for (int i=0; i<forecastOccurences.length; i++)
+				forecastOccurences[i] *= (double)numTrials;
 		}
 		watch.stop();
 		long secs = watch.elapsed(TimeUnit.SECONDS);

@@ -26,8 +26,8 @@ import com.google.common.collect.Lists;
 public class TimeDepFSS_ERF_SimulatorPlot {
 
 	public static void main(String[] args) throws IOException {
-		int numTrialsPer = 5000;
-		File dir = new File("/tmp");
+		int numTrialsPer = 2500;
+		File dir = new File("/tmp/2013_10_21-erf-audit-cov-0.2");
 		String prefix = "erf_audit_";
 		
 		List<File> erfFiles = Lists.newArrayList();
