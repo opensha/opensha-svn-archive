@@ -29,11 +29,12 @@ import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 import org.opensha.sra.calc.parallel.MPJ_EAL_Calc;
 
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 public class UCERF3_EAL_ScriptWriter {
 
 	public static void main(String[] args) throws IOException {
-		ERF erf = new FaultSystemSolutionPoissonERF();
+		ERF erf = new UCERF3_FaultSysSol_ERF();
 //		UCERF2_TimeDependentEpistemicList erf = new UCERF2_TimeDependentEpistemicList();
 		int listIndex = 0;
 		

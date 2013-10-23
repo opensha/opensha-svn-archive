@@ -770,7 +770,7 @@ public class SynchParamCalculator {
 	private static XYZPlotSpec swapSpec(XYZPlotSpec spec) {
 		EvenlyDiscrXYZ_DataSet orig = (EvenlyDiscrXYZ_DataSet) spec.getXYZ_Data();
 		EvenlyDiscrXYZ_DataSet swapped = new EvenlyDiscrXYZ_DataSet(
-				orig.getNumX(), orig.getNumY(), orig.getMinX(), orig.getMinY(), orig.getGridSpacing());
+				orig.getNumX(), orig.getNumY(), orig.getMinX(), orig.getMinY(), orig.getGridSpacingX(), orig.getGridSpacingY());
 		for (int x=0; x<orig.getNumX(); x++)
 			for (int y=0; y<orig.getNumY(); y++)
 				swapped.set(y, x, orig.get(x, y));

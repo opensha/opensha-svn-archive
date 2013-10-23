@@ -1097,7 +1097,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @author kevin
 	 *
 	 */
-	private static class RupInRegionsCache implements RupInRegionCache {
+	public static class RupInRegionsCache implements RupInRegionCache {
 		private ConcurrentMap<Region, ConcurrentMap<Integer, Boolean>> map = Maps
 				.newConcurrentMap();
 

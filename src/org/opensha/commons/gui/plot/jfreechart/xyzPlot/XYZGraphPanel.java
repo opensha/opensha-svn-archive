@@ -283,10 +283,12 @@ public class XYZGraphPanel extends JPanel {
 			}
 			
 			XYZ_DataSet xyz = spec.getXYZ_Data();
-			Double thickness = spec.getThickness();
-			if (thickness == null) {
+			Double thicknessX = spec.getThickness();
+			Double thicknessY = thicknessX;
+			if (thicknessX == null) {
 				if (xyz instanceof EvenlyDiscrXYZ_DataSet) {
-					thickness = ((EvenlyDiscrXYZ_DataSet)xyz).getGridSpacing();
+					thicknessX = ((EvenlyDiscrXYZ_DataSet)xyz).getGridSpacingX();
+					thicknessY = ((EvenlyDiscrXYZ_DataSet)xyz).getGridSpacingY();
 				} else {
 					// detect from data - use median of differences
 					int numToCheck = xyz.size();
@@ -308,14 +310,15 @@ public class XYZGraphPanel extends JPanel {
 							
 							prevPt = pt;
 						}
-						thickness = DataUtils.median(diffs);
+						thicknessX = DataUtils.median(diffs);
+						thicknessY = DataUtils.median(diffs);
 					}
 				}
 			}
 			XYZDatasetWrapper dataset = new XYZDatasetWrapper(spec);
 			XYBlockRenderer renderer = new XYBlockRenderer();
-			renderer.setBlockHeight(thickness);
-			renderer.setBlockWidth(thickness);
+			renderer.setBlockHeight(thicknessY);
+			renderer.setBlockWidth(thicknessX);
 			PaintScaleWrapper scale = new PaintScaleWrapper(spec.getCPT());
 	        renderer.setPaintScale(scale);
 			subPlot.setRenderer(0, renderer);

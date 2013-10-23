@@ -37,23 +37,33 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	private double maxX;
 	private double minY;
 	private double maxY;
-	private double gridSpacing;
+	private double gridSpacingX;
+	private double gridSpacingY;
 	
 	public EvenlyDiscrXYZ_DataSet(int nx, int ny, double minX, double minY, double gridSpacing) {
-		this(new double[ny][nx], minX, minY, gridSpacing);
+		this(nx, ny, minX, minY, gridSpacing, gridSpacing);
+	}
+	
+	public EvenlyDiscrXYZ_DataSet(int nx, int ny, double minX, double minY, double gridSpacingX, double gridSpacingY) {
+		this(new double[ny][nx], minX, minY, gridSpacingX, gridSpacingY);
 	}
 	
 	public EvenlyDiscrXYZ_DataSet(double[][] data, double minX, double minY, double gridSpacing) {
+		this(data, minX, minY, gridSpacing, gridSpacing);
+	}
+	
+	public EvenlyDiscrXYZ_DataSet(double[][] data, double minX, double minY, double gridSpacingX, double gridSpacingY) {
 		this.data = data;
 		this.minX = minX;
 		this.minY = minY;
-		this.gridSpacing = gridSpacing;
+		this.gridSpacingX = gridSpacingX;
+		this.gridSpacingY = gridSpacingY;
 		
 		this.ny = data.length;
 		this.nx = data[0].length;
 		
-		maxX = minX + gridSpacing * (nx-1);
-		maxY = minY + gridSpacing * (ny-1);
+		maxX = minX + gridSpacingX * (nx-1);
+		maxY = minY + gridSpacingY * (ny-1);
 		
 //		System.out.println("EvenlyDiscretizedXYZ_DataSet: minX: " + minX + ", maxX: " + maxX
 //				+ ", minY: " + minY + ", maxY: " + maxY);
@@ -76,11 +86,19 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	}
 	
 	/**
-	 * Get the grid spacing of this evenly discretized dataset
+	 * Get the grid spacing of this evenly discretized dataset in the x dimension
 	 * @return
 	 */
-	public double getGridSpacing() {
-		return gridSpacing;
+	public double getGridSpacingX() {
+		return gridSpacingX;
+	}
+	
+	/**
+	 * Get the grid spacing of this evenly discretized dataset in the y dimension
+	 * @return
+	 */
+	public double getGridSpacingY() {
+		return gridSpacingY;
 	}
 	
 	public int getNumX() {
@@ -97,7 +115,12 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		header.write("nrows" + "\t" + ny + "\n");
 		header.write("xllcorner" + "\t" + minX + "\n");
 		header.write("yllcorner" + "\t" + minY + "\n");
-		header.write("cellsize" + "\t" + gridSpacing + "\n");
+		if (gridSpacingX != gridSpacingY) {
+			header.write("cellsizeX" + "\t" + gridSpacingX + "\n");
+			header.write("cellsizeY" + "\t" + gridSpacingY + "\n");
+		} else {
+			header.write("cellsize" + "\t" + gridSpacingX + "\n");
+		}
 		header.write("NODATA_value" + "\t" + "-9999" + "\n");
 		header.write("byteorder" + "\t" + "LSBFIRST" + "\n");
 		
@@ -151,11 +174,11 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	}
 	
 	public double getX(int xIndex) {
-		return minX + (double)xIndex * gridSpacing;
+		return minX + (double)xIndex * gridSpacingX;
 	}
 	
 	public double getY(int yIndex) {
-		return minY + (double)yIndex * gridSpacing;
+		return minY + (double)yIndex * gridSpacingY;
 	}
 	
 	private int getIndex(double x, double y) {
@@ -172,12 +195,12 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		return index / nx;
 	}
 	
-	private int getYIndex(double y) {
-		return (int)((y - minY) / gridSpacing + 0.5);
+	public int getYIndex(double y) {
+		return (int)((y - minY) / gridSpacingY + 0.5);
 	}
 	
-	private int getXIndex(double x) {
-		return (int)((x - minX) / gridSpacing + 0.5);
+	public int getXIndex(double x) {
+		return (int)((x - minX) / gridSpacingX + 0.5);
 	}
 	
 	@Override
@@ -217,12 +240,12 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		Preconditions.checkArgument(x >= minX && x <= maxX, "x value of "+x+" outside valid range!");
 		Preconditions.checkArgument(y >= minY && y <= maxY, "y value of "+y+" outside valid range!");
 			
-		int x0 = getIndexBefore(x, minX);
+		int x0 = getIndexBefore(x, minX, gridSpacingX);
 		int x1 = x0 + 1;
 		// handle edges
 		if (x1 >= getNumX())
 			x1 = x0;
-		int y0 = getIndexBefore(y, minY);
+		int y0 = getIndexBefore(y, minY, gridSpacingY);
 		int y1 = y0 + 1;
 		// handle edges
 		if (y1 >= getNumY())
@@ -237,14 +260,14 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		// below and to the right
 		double s11 = get(x1, y1);
 		
-		double xfrac = (x - getX(x0))/gridSpacing;
-		double yfrac = (y - getY(y0))/gridSpacing;
+		double xfrac = (x - getX(x0))/gridSpacingX;
+		double yfrac = (y - getY(y0))/gridSpacingY;
 		
 		return (1 - yfrac) * ((1 - xfrac)*s00 + xfrac*s01) + 
 			    yfrac * ((1 - xfrac)*s10 + xfrac*s11);
 	}
 	
-	private int getIndexBefore(double val, double min) {
+	private int getIndexBefore(double val, double min, double gridSpacing) {
 		return (int)Math.floor((val-min)/gridSpacing);
 	}
 
@@ -296,7 +319,7 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		
 	@Override
 	public XYZ_DataSet copy() {
-		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(nx, ny, minX, minY, gridSpacing);
+		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(nx, ny, minX, minY, gridSpacingX, gridSpacingY);
 		for (int x=0; x<nx; x++) {
 			for (int y=0; y<ny; y++) {
 				xyz.set(x, y, get(x, y));

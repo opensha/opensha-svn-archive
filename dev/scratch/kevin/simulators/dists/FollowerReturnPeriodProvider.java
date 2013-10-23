@@ -470,7 +470,7 @@ public class FollowerReturnPeriodProvider implements
 	private static EvenlyDiscrXYZ_DataSet getSmoothedDataset(
 			EvenlyDiscrXYZ_DataSet orig, EvenlyDiscrXYZ_DataSet threshBasis, double smoothThreshold) {
 		EvenlyDiscrXYZ_DataSet smooth = new EvenlyDiscrXYZ_DataSet(orig.getNumX(), orig.getNumY(),
-				orig.getMinX(), orig.getMinY(), orig.getGridSpacing());
+				orig.getMinX(), orig.getMinY(), orig.getGridSpacingX(), orig.getGridSpacingY());
 		
 		EvenlyDiscrXYZ_DataSet distances = new EvenlyDiscrXYZ_DataSet(5, 5, -2, -2, 1d);
 		for (int i=0; i<distances.size(); i++) {
@@ -768,7 +768,7 @@ public class FollowerReturnPeriodProvider implements
 
 	@Override
 	public double getPreferredWindowLength() {
-		return autoRupProb.getGridSpacing();
+		return autoRupProb.getGridSpacingX();
 //		return condProbFunc.getDelta();
 	}
 	

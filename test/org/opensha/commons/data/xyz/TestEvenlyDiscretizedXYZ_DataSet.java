@@ -37,8 +37,9 @@ public class TestEvenlyDiscretizedXYZ_DataSet {
 		
 		assertTrue("ncols not set correctly", ncols == data.getNumX());
 		assertTrue("nrows not set correctly", nrows == data.getNumY());
-		
-		assertEquals("gridSpacing not set correctly", gridSpacing, data.getGridSpacing(), 0.00000001);
+
+		assertEquals("gridSpacing not set correctly", gridSpacing, data.getGridSpacingX(), 0.00000001);
+		assertEquals("gridSpacing not set correctly", gridSpacing, data.getGridSpacingY(), 0.00000001);
 		
 //		double maxX = minX + gridSpacing * (ncols-1);
 		

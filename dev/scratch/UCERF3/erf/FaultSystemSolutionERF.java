@@ -93,9 +93,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //	private static int PROB_GAIN_CALC_TYPE = 1;	
 	
 	// this tells whether to average recurrence intervals (or rates) in computing conditional rupture RIs:
-	public boolean aveRecurIntervalsInU3_BPTcalc = true;
+	public boolean aveRecurIntervalsInU3_BPTcalc = false;
 	// this tells whether to average normalized time since last (divided by section RI) or un-normalized time since last:
-	public boolean aveNormTimeSinceLastInU3_BPTcalc = false;
+	public boolean aveNormTimeSinceLastInU3_BPTcalc = true;
 
 	
 	private static final long serialVersionUID = 1L;
