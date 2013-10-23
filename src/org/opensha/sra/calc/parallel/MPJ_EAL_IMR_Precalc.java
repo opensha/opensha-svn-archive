@@ -469,7 +469,7 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 		}
 		
 		void calculate(ERF erf, ScalarIMR imr, Site initialSite, ArbitrarilyDiscretizedFunc magThreshFunc) {
-			System.out.println("Calculating asset "+index);
+//			System.out.println("Calculating asset "+index);
 			asset.siteSetup(initialSite);
 			Site site = asset.getSite();
 			imr.setSite(site);
@@ -481,7 +481,7 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vulnModel.getPeriod());
 			results = new double[erf.getNumSources()][][];
 			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
-				System.out.println("Calculating asset "+index+" source "+sourceID);
+//				System.out.println("Calculating asset "+index+" source "+sourceID);
 				ProbEqkSource source = erf.getSource(sourceID);
 				double distance = source.getMinDistance(site);
 				
