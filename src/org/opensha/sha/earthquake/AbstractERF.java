@@ -102,30 +102,32 @@ public abstract class AbstractERF implements
 		return this.timeSpan;
 	}
 
-
-
-
+	@SuppressWarnings("unchecked")
+	public void setParameter(String name, Object value){
+		setParameter(this, name, value);
+	}
+	
 	/**
+	 * This method can be used by all other ERF implementations;
+	 * 
 	 * Loops over all the adjustable parameters and set parameter with the given
 	 * name to the given value.
 	 * First checks if the parameter is contained within the ERF adjustable parameter
-	 * list or TimeSpan adjustable parameters list. If not then return false.
+	 * list or TimeSpan adjustable parameters list. If not then IllegalArgumentException is thrown.
+	 * @param erf
 	 * @param name String Name of the Adjustable Parameter
 	 * @param value Object Parameeter Value
-	 * @return boolean boolean to see if it was successful in setting the parameter
+	 * @throws IllegalArgumentException if ERF doesn't contain parameter.
 	 * value.
 	 */
-	@SuppressWarnings("unchecked")
-	public boolean setParameter(String name, Object value){
-		if(getAdjustableParameterList().containsParameter(name)){
-			getAdjustableParameterList().getParameter(name).setValue(value);
-			return true;
-		}
-		else if(timeSpan.getAdjustableParams().containsParameter(name)){
+	public static void setParameter(BaseERF erf, String name, Object value) {
+		TimeSpan timeSpan = erf.getTimeSpan();
+		if(erf.getAdjustableParameterList().containsParameter(name))
+			erf.getAdjustableParameterList().getParameter(name).setValue(value);
+		else if(timeSpan.getAdjustableParams().containsParameter(name))
 			timeSpan.getAdjustableParams().getParameter(name).setValue(value);
-			return true;
-		}
-		return false;
+		else 
+			throw new IllegalArgumentException("Parameter '"+name+"' not present in ERF adjustable parameter list!");
 	}
 
 	/**

@@ -53,8 +53,8 @@ public class ERFTestSubset implements ERF {
 	}
 
 	@Override
-	public boolean setParameter(String name, Object value) {
-		return baseERF.setParameter(name, value);
+	public void setParameter(String name, Object value) {
+		baseERF.setParameter(name, value);
 	}
 
 	@Override

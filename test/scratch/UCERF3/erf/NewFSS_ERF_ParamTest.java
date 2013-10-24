@@ -27,11 +27,15 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.faultSurface.CompoundSurface;
@@ -59,7 +63,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 
-public class FSS_ERF_ParamTest {
+public class NewFSS_ERF_ParamTest {
 	
 	
 	/*
@@ -114,8 +118,12 @@ public class FSS_ERF_ParamTest {
 				Lists.newArrayList(EnumSet.allOf(IncludeBackgroundOption.class)));
 		paramsOptionsMap.put(BackgroundRupParam.NAME,
 				Lists.newArrayList(EnumSet.allOf(BackgroundRupType.class)));
-		paramsOptionsMap.put(FaultSystemSolutionPoissonERF.QUAD_SURFACES_PARAM_NAME,
+		paramsOptionsMap.put(FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME,
 				Lists.newArrayList(true, false));
+		paramsOptionsMap.put(ProbabilityModelParam.NAME,
+				Lists.newArrayList(EnumSet.allOf(ProbabilityModelOptions.class)));
+		paramsOptionsMap.put(BPT_AperiodicityParam.NAME, Lists.newArrayList(0.2, 0.3, 0.4));
+		paramsOptionsMap.put(HistoricOpenIntervalParam.NAME, Lists.newArrayList(0d, 150d, 200d));
 	}
 	
 	private static InversionFaultSystemRupSet buildSmallRupSet() {
@@ -225,28 +233,28 @@ public class FSS_ERF_ParamTest {
 	@Test
 	public void testSetSolution() {
 		// first set directly, then file, then directly
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF();
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
 		erf.setSolution(ivfss_2);
 		validateSol(erf, ivfss_2, true);
-		erf.setParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME, ivfss_1_file);
+		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, ivfss_1_file);
 		erf.updateForecast();
 		validateSol(erf, ivfss_1, false);
 		erf.setSolution(ivfss_1);
 		validateSol(erf, ivfss_1, true);
 		
 		// now check file, directly, file
-		erf = new FaultSystemSolutionPoissonERF();
-		erf.setParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME, ivfss_1_file);
+		erf = new FaultSystemSolutionERF();
+		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, ivfss_1_file);
 		erf.updateForecast();
 		validateSol(erf, ivfss_1, false);
 		erf.setSolution(ivfss_2);
 		validateSol(erf, ivfss_2, true);
-		erf.setParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME, ivfss_1_file);
+		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, ivfss_1_file);
 		erf.updateForecast();
 		validateSol(erf, ivfss_1, false);
 	}
 	
-	private static void validateSol(FaultSystemSolutionPoissonERF erf, FaultSystemSolution sol,
+	private static void validateSol(FaultSystemSolutionERF erf, FaultSystemSolution sol,
 			boolean checkSameInstance) {
 		FaultSystemSolution erfSol = erf.getSolution();
 		if (checkSameInstance)
@@ -271,7 +279,7 @@ public class FSS_ERF_ParamTest {
 	
 	@Test
 	public void testInitialParamSettings() {
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF();
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
 		erf.setSolution(ivfss_1);
 		erf.updateForecast();
 		checkAllParams(getCurrentParamsMap(erf), erf);
@@ -279,25 +287,25 @@ public class FSS_ERF_ParamTest {
 	
 	@Test
 	public void testBaseERFParamSetting() {
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF();
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
 		erf.setSolution(ivfss_1);
 		int numTests = 100;
 		int maxSetsPerTest = 10;
 		testParamSetting(erf, numTests, maxSetsPerTest);
 	}
 	
-	@Test
-	public void testUCERF3_ERFParamSetting() {
-		FaultSystemSolutionPoissonERF erf = new UCERF3_FaultSysSol_ERF();
-		erf.setSolution(ivfss_1);
-		int numTests = 50;
-		int maxSetsPerTest = 10;
-		testParamSetting(erf, numTests, maxSetsPerTest);
-	}
+//	@Test
+//	public void testUCERF3_ERFParamSetting() {
+//		FaultSystemSolutionERF erf = new UCERF3_FaultSysSol_ERF();
+//		erf.setSolution(ivfss_1);
+//		int numTests = 50;
+//		int maxSetsPerTest = 10;
+//		testParamSetting(erf, numTests, maxSetsPerTest);
+//	}
 	
-	private void testParamSetting(FaultSystemSolutionPoissonERF erf, int numTests, int maxSetsPerTest) {
+	private void testParamSetting(FaultSystemSolutionERF erf, int numTests, int maxSetsPerTest) {
 		List<String> paramNames = Lists.newArrayList(paramsOptionsMap.keySet());
-		paramNames.add(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME);
+		paramNames.add(FaultSystemSolutionERF.FILE_PARAM_NAME);
 		String directSol = "Direct Solution";
 		paramNames.add(directSol);
 		
@@ -311,9 +319,9 @@ public class FSS_ERF_ParamTest {
 			System.out.println("Test "+t+". Setting "+paramsToSet+" params:");
 			for (int i=0; i<paramsToSet; i++) {
 				String paramName = paramNames.get(rand.nextInt(paramNames.size()));
-				if (paramName.equals(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME)) {
+				if (paramName.equals(FaultSystemSolutionERF.FILE_PARAM_NAME)) {
 					System.out.println("\t"+i+". Setting file param");
-					erf.setParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME, ivfss_1_file);
+					erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, ivfss_1_file);
 				} else if (paramName.equals(directSol)) {
 					System.out.println("\t"+i+". Setting solution directly.");
 					if (rand.nextBoolean())
@@ -324,6 +332,19 @@ public class FSS_ERF_ParamTest {
 					// regular parameter
 					List<?> options = paramsOptionsMap.get(paramName);
 					Object option = options.get(rand.nextInt(options.size()));
+					// make sure it's not currently disabled
+					if (!erf.getAdjustableParameterList().containsParameter(paramName)) {
+						// make sure setting causes an exception
+						try {
+							erf.setParameter(paramName, null);
+							fail("Should have thrown exception on set for nonexistant param");
+						} catch (RuntimeException e) {
+							// expected, do nothing
+						}
+						// pick a new parameter as this one is disabled
+						i--;
+						continue;
+					}
 					System.out.println("\t"+i+". Setting '"+paramName+"' to: "+option);
 					erf.setParameter(paramName, option);
 					paramsMap.put(paramName, option);
@@ -341,7 +362,7 @@ public class FSS_ERF_ParamTest {
 		}
 	}
 	
-	private static Map<String, Object> getCurrentParamsMap(FaultSystemSolutionPoissonERF erf) {
+	private static Map<String, Object> getCurrentParamsMap(FaultSystemSolutionERF erf) {
 		Map<String, Object> paramsMap = Maps.newHashMap();
 		
 		paramsMap.put(FaultGridSpacingParam.NAME, erf.getParameter(FaultGridSpacingParam.NAME).getValue());
@@ -349,14 +370,15 @@ public class FSS_ERF_ParamTest {
 		paramsMap.put(ApplyGardnerKnopoffAftershockFilterParam.NAME,
 				erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).getValue());
 		paramsMap.put(IncludeBackgroundParam.NAME, erf.getParameter(IncludeBackgroundParam.NAME).getValue());
-		paramsMap.put(BackgroundRupParam.NAME, erf.getParameter(BackgroundRupParam.NAME).getValue());
-		paramsMap.put(FaultSystemSolutionPoissonERF.QUAD_SURFACES_PARAM_NAME,
-				erf.getParameter(FaultSystemSolutionPoissonERF.QUAD_SURFACES_PARAM_NAME).getValue());
+		if (erf.getParameter(IncludeBackgroundParam.NAME).getValue() != IncludeBackgroundOption.EXCLUDE)
+			paramsMap.put(BackgroundRupParam.NAME, erf.getParameter(BackgroundRupParam.NAME).getValue());
+		paramsMap.put(FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME,
+				erf.getParameter(FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME).getValue());
 		
 		return paramsMap;
 	}
 	
-	private static void checkAllParams(Map<String, Object> paramsMap, FaultSystemSolutionPoissonERF erf) {
+	private static void checkAllParams(Map<String, Object> paramsMap, FaultSystemSolutionERF erf) {
 		for (String paramName : paramsMap.keySet())
 			checkParemterApplied(erf, paramName, paramsMap.get(paramName));
 	}
@@ -367,17 +389,23 @@ public class FSS_ERF_ParamTest {
 	 * @param paramName
 	 * @param paramVal
 	 */
-	private static void checkParemterApplied(FaultSystemSolutionPoissonERF erf, String paramName, Object paramVal) {
+	private static void checkParemterApplied(FaultSystemSolutionERF erf, String paramName, Object paramVal) {
 		// already assumes that forecast has been updated
 		
 		// get num fault sources
 		int numFaultSources = 0;
 		for (int i=0; i<erf.getNumSources(); i++) {
+			ProbEqkSource source = erf.getSource(i);
+			assertNotNull("Source "+i+" is null!", source);
 			if (erf.getSource(i) instanceof FaultRuptureSource)
 				numFaultSources++;
 			else
 				break;
 		}
+		if (erf.getAdjustableParameterList().getParameter(
+				IncludeBackgroundOption.class, IncludeBackgroundParam.NAME).getValue() != IncludeBackgroundOption.ONLY)
+			// only check if we actually ahve fault system sources
+			assertEquals("Num fault system sources inconsistent!", erf.getNumFaultSystemSources(), numFaultSources);
 		FaultSystemSolution sol = erf.getSolution();
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		double duration = erf.getTimeSpan().getDuration();
@@ -387,13 +415,23 @@ public class FSS_ERF_ParamTest {
 		
 		Random rand = new Random();
 		
+		boolean containsParam = erf.getAdjustableParameterList().containsParameter(paramName);
+		
+		// need to know this for some tests as we can't calculate our own probabilities
+		ProbabilityModelOptions probModel = erf.getAdjustableParameterList().getParameter(
+				ProbabilityModelOptions.class, ProbabilityModelParam.NAME).getValue();
+		boolean timeDep = probModel != ProbabilityModelOptions.POISSON;
+		
 		if (paramName.equals(FaultGridSpacingParam.NAME)) {
+			boolean quad = (Boolean) erf.getParameter(
+					FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME).getValue();
 			double spacing = (Double)paramVal;
+			assertTrue("Not a quad surface and no grid spacing param!", quad || containsParam);
+			if (quad && !containsParam)
+				return;
 			// first check directly
 			assertEquals(setMessage,
 					spacing, (Double)erf.getParameter(paramName).getValue(), 1e-14);
-			boolean quad = (Boolean) erf.getParameter(
-					FaultSystemSolutionPoissonERF.QUAD_SURFACES_PARAM_NAME).getValue();
 			for (int i=0; i<10 && numFaultSources > 0 && !quad; i++) {
 				int srcID = rand.nextInt(numFaultSources);
 				ProbEqkSource source = erf.getSource(srcID);
@@ -438,9 +476,10 @@ public class FSS_ERF_ParamTest {
 			assertEquals(setMessage,
 					apply, (Boolean)erf.getParameter(paramName).getValue());
 			double aftRateCorr = 1;
-			if(apply) aftRateCorr = FaultSystemSolutionPoissonERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS;
+			if(apply) aftRateCorr = FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS;
 			boolean variability = (Double)erf.getParameter(AleatoryMagAreaStdDevParam.NAME).getValue() > 0;
-			for (int i=0; i<10 && numFaultSources > 0; i++) {
+			// can only validate when it's time independent
+			for (int i=0; i<10 && numFaultSources > 0 && !timeDep; i++) {
 				int srcID = rand.nextInt(numFaultSources);
 				FaultRuptureSource source = (FaultRuptureSource)erf.getSource(srcID);
 				int invRup = getInvIndex(source);
@@ -463,61 +502,68 @@ public class FSS_ERF_ParamTest {
 			assertEquals(setMessage,
 					incl, (IncludeBackgroundOption)erf.getParameter(paramName).getValue());
 			int numSources = erf.getNumSources();
-			if (erf instanceof UCERF3_FaultSysSol_ERF) {
-				switch (incl) {
-				case EXCLUDE:
-					assertEquals(applyMessage, numFaultSources, numSources);
-					break;
-				case INCLUDE:
-					assertTrue(applyMessage, numSources > numFaultSources);
-					for (int i=numFaultSources; i<numSources; i++) {
-						ProbEqkSource source = erf.getSource(i);
-						assertTrue(applyMessage, source instanceof PointSource13b
-								|| source instanceof Point2Vert_FaultPoisSource);
-					}
-					break;
-				case ONLY:
-					assertEquals(applyMessage, 0, numFaultSources);
-					assertTrue(applyMessage, numSources > 0);
-					for (int i=0; i<numSources; i++) {
-						ProbEqkSource source = erf.getSource(i);
-						assertTrue(applyMessage, source instanceof PointSource13b
-								|| source instanceof Point2Vert_FaultPoisSource);
-					}
-					break;
-
-				default:
-					break;
-				}
-			} else {
+			// TODO UCERF3
+//			if (erf instanceof UCERF3_FaultSysSol_ERF) {
+//				switch (incl) {
+//				case EXCLUDE:
+//					assertEquals(applyMessage, numFaultSources, numSources);
+//					break;
+//				case INCLUDE:
+//					assertTrue(applyMessage, numSources > numFaultSources);
+//					for (int i=numFaultSources; i<numSources; i++) {
+//						ProbEqkSource source = erf.getSource(i);
+//						assertTrue(applyMessage, source instanceof PointSource13b
+//								|| source instanceof Point2Vert_FaultPoisSource);
+//					}
+//					break;
+//				case ONLY:
+//					assertEquals(applyMessage, 0, numFaultSources);
+//					assertTrue(applyMessage, numSources > 0);
+//					for (int i=0; i<numSources; i++) {
+//						ProbEqkSource source = erf.getSource(i);
+//						assertTrue(applyMessage, source instanceof PointSource13b
+//								|| source instanceof Point2Vert_FaultPoisSource);
+//					}
+//					break;
+//
+//				default:
+//					break;
+//				}
+//			} else {
 				if (incl == IncludeBackgroundOption.INCLUDE || incl == IncludeBackgroundOption.EXCLUDE) {
 					assertEquals(applyMessage, numFaultSources, numSources);
 				} else {
 					// only
 					assertEquals(applyMessage, 0, numSources);
 				}
-			}
+//			}
 		} else if (paramName.equals(BackgroundRupParam.NAME)) {
-			BackgroundRupType type = (BackgroundRupType)paramVal;
-			// first check directly
-			assertEquals(setMessage,
-					type, (BackgroundRupType)erf.getParameter(paramName).getValue());
 			IncludeBackgroundOption incl = (IncludeBackgroundOption) erf.getParameter(
 					IncludeBackgroundParam.NAME).getValue();
+			if (incl == IncludeBackgroundOption.EXCLUDE && !containsParam)
+				// parameter was removed because it was excluded, this is fine
+				return;
+			BackgroundRupType type = (BackgroundRupType)paramVal;
+			// first check directly
+			assertEquals(setMessage+" (incl="+incl+")",
+					type, (BackgroundRupType)erf.getParameter(paramName).getValue());
 			int numSources = erf.getNumSources();
 			if (incl == IncludeBackgroundOption.INCLUDE || incl == IncludeBackgroundOption.ONLY) {
 				for (int i=numFaultSources; i<numSources; i++) {
 					ProbEqkSource source = erf.getSource(i);
 					switch (type) {
 					case POINT:
-						assertTrue(applyMessage, source instanceof PointSource13b);
+						assertTrue(applyMessage+". instance: "+source.getClass().getName(),
+								source instanceof PointSource13b);
 						break;
 					case FINITE:
-						assertTrue(applyMessage, source instanceof Point2Vert_FaultPoisSource);
+						assertTrue(applyMessage+". instance: "+source.getClass().getName(),
+								source instanceof Point2Vert_FaultPoisSource);
 						assertFalse(applyMessage, ((Point2Vert_FaultPoisSource)source).isCrossHair());
 						break;
 					case CROSSHAIR:
-						assertTrue(applyMessage, source instanceof Point2Vert_FaultPoisSource);
+						assertTrue(applyMessage+". instance: "+source.getClass().getName(),
+								source instanceof Point2Vert_FaultPoisSource);
 						assertTrue(applyMessage, ((Point2Vert_FaultPoisSource)source).isCrossHair());
 						break;
 
@@ -527,7 +573,7 @@ public class FSS_ERF_ParamTest {
 					}
 				}
 			}
-		} else if (paramName.equals(FaultSystemSolutionPoissonERF.QUAD_SURFACES_PARAM_NAME)) {
+		} else if (paramName.equals(FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME)) {
 			boolean quad = (Boolean)paramVal;
 			// first check directly
 			assertEquals(setMessage,
@@ -543,6 +589,73 @@ public class FSS_ERF_ParamTest {
 						assertFalse(applyMessage, subSurf instanceof QuadSurface);
 				}
 			}
+		} else if (paramName.equals(ProbabilityModelParam.NAME)) {
+			// first check directly
+			assertEquals(setMessage,
+					probModel, (ProbabilityModelOptions)erf.getParameter(paramName).getValue());
+			// if ruptures have date of last event or historical open interval is non zero then probabilities should differ
+			double aftRateCorr = 1;
+			if ((Boolean)erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).getValue())
+				aftRateCorr = FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS;
+			boolean variability = (Double)erf.getParameter(AleatoryMagAreaStdDevParam.NAME).getValue() > 0;
+			// can only validate when it's time independent
+			for (int i=0; i<10 && numFaultSources > 0 && !timeDep; i++) {
+				int srcID = rand.nextInt(numFaultSources);
+				FaultRuptureSource source = (FaultRuptureSource)erf.getSource(srcID);
+				int invRup = getInvIndex(source);
+				boolean shouldEqual;
+				if (timeDep) {
+					// if none of the sections have last event data, skip source
+					boolean hasLast = false;
+					for (FaultSectionPrefData sectData : rupSet.getFaultSectionDataForRupture(invRup)) {
+						if (sectData.getDateOfLastEvent() != Long.MIN_VALUE) {
+							hasLast = true;
+							break;
+						}
+					}
+					if (!hasLast)
+						continue;
+					shouldEqual = false;
+				} else {
+					shouldEqual = true;
+				}
+				double rate = sol.getRateForRup(invRup);
+				if (variability) {
+					double mag = rupSet.getMagForRup(invRup);
+					double totMoRate = aftRateCorr*rate*MagUtils.magToMoment(mag);
+					double actualTotMoRate = 0;
+					for (ProbEqkRupture rup : source)
+						actualTotMoRate += rup.getMeanAnnualRate(duration)*MagUtils.magToMoment(rup.getMag());
+					if (shouldEqual)
+						assertEquals(applyMessage, totMoRate, actualTotMoRate, 1e-5*totMoRate);
+					else
+						assertFalse(applyMessage, totMoRate == actualTotMoRate);
+				} else {
+					double prob = 1-Math.exp(-aftRateCorr*rate*duration);
+					if (shouldEqual)
+						assertEquals(applyMessage, prob, source.getRupture(0).getProbability(), 1e-5*prob);
+					else
+						assertFalse(applyMessage, prob == source.getRupture(0).getProbability());
+				}
+			}
+		} else if (paramName.equals(BPT_AperiodicityParam.NAME)) {
+			assertTrue("Non poisson and doesn't have BPT_AperiodicityParam", !timeDep || containsParam);
+			if (!timeDep && !containsParam)
+				return;
+			// first check directly
+			Double val = (Double) paramVal;
+			assertEquals(setMessage,
+					val, (Double)erf.getParameter(paramName).getValue());
+			// TODO check actually applied!!!
+		} else if (paramName.equals(HistoricOpenIntervalParam.NAME)) {
+			assertTrue("Non poisson and doesn't have HistoricOpenIntervalParam", !timeDep || containsParam);
+			if (!timeDep && !containsParam)
+				return;
+			// first check directly
+			Double val = (Double) paramVal;
+			assertEquals(setMessage,
+					val, (Double)erf.getParameter(paramName).getValue());
+			// TODO check actually applied!!!
 		}
 	}
 

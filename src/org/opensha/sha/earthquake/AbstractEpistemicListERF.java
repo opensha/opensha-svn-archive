@@ -234,27 +234,10 @@ TimeSpanChangeListener,ParameterChangeListener, XMLSaveable {
 		return adjustableParams.getParameter(paramName);
 	}
 
-	/**
-	 * Loops over all the adjustable parameters and set parameter with the given
-	 * name to the given value.
-	 * First checks if the parameter is contained within the ERF adjustable parameter
-	 * list or TimeSpan adjustable parameters list. If not then return false.
-	 * @param name String Name of the Adjustable Parameter
-	 * @param value Object Parameeter Value
-	 * @return boolean boolean to see if it was successful in setting the parameter
-	 * value.
-	 */
+
 	@SuppressWarnings("unchecked")
-	public boolean setParameter(String name, Object value){
-		if(getAdjustableParameterList().containsParameter(name)){
-			getAdjustableParameterList().getParameter(name).setValue(value);
-			return true;
-		}
-		else if(timeSpan.getAdjustableParams().containsParameter(name)){
-			timeSpan.getAdjustableParams().getParameter(name).setValue(value);
-			return true;
-		}
-		return false;
+	public void setParameter(String name, Object value){
+		AbstractERF.setParameter(this, name, value);
 	}
 
 	/**

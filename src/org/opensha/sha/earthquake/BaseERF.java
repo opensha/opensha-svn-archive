@@ -79,14 +79,16 @@ public interface BaseERF extends Named, Serializable, Comparable<BaseERF> {
 
 
 	/**
-	 * This will set the parameter with the given
+	 * Loops over all the adjustable parameters and set parameter with the given
 	 * name to the given value.
+	 * First checks if the parameter is contained within the ERF adjustable parameter
+	 * list or TimeSpan adjustable parameters list. If not then IllegalArgumentException is thrown.
 	 * @param name String Name of the Adjustable Parameter
-	 * @param value Object Parameter Value
-	 * @return boolean boolean to see if it was successful in setting the parameter
+	 * @param value Object Parameeter Value
+	 * @throws IllegalArgumentException if ERF doesn't contain parameter.
 	 * value.
 	 */
-	public boolean setParameter(String name, Object value);
+	public void setParameter(String name, Object value);
 
 	/**
 	 * Gets the Adjustable parameter list for the ERF
