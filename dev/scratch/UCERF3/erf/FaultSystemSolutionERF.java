@@ -85,13 +85,6 @@ import com.google.common.collect.Lists;
  */
 public class FaultSystemSolutionERF extends AbstractERF {
 	
-//	/** This sets the type of probability gain calculations
-//	 * 1 for averaging section recurrence intervals and time since last
-//	 * 2 for averaging section rates and normalized time since last
-//	 * 3 for WG02 calculations
-//	 */
-//	private static int PROB_GAIN_CALC_TYPE = 1;	
-	
 	// this tells whether to average recurrence intervals (or rates) in computing conditional rupture RIs:
 	public boolean aveRecurIntervalsInU3_BPTcalc = false;
 	// this tells whether to average normalized time since last (divided by section RI) or un-normalized time since last:
@@ -185,6 +178,13 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected boolean datesOfLastEventsAddedToSections = false;
 	// if true, it will be assumed that the FSS already has date of last event data and we shouldn't load it
 	private boolean useFSSDateOfLastEvents = false;
+	
+	
+	public void testSetBPT_CalcType(boolean aveRecurIntervalsInU3_BPTcalc,boolean aveNormTimeSinceLastInU3_BPTcalc) {
+		this.aveRecurIntervalsInU3_BPTcalc=aveRecurIntervalsInU3_BPTcalc;
+		this.aveNormTimeSinceLastInU3_BPTcalc=aveNormTimeSinceLastInU3_BPTcalc;
+	}
+
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
