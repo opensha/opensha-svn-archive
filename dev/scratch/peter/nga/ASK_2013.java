@@ -351,7 +351,7 @@ public class ASK_2013 {
 		
 		System.out.println("PGA");
 		ScalarGroundMotion sgm = as.calc(
-			PGA, 6.80, 0.0, 4.629, 5.963, -1.0, 27.0, 28.0, 2.1, 760.0, true, 4.13132049E-02, FaultStyle.REVERSE);
+			PGA, 6.80, 0.0, 4.629, 5.963, -1.0, 27.0, 28.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 		System.out.println("5Hz");
