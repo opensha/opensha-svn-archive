@@ -53,6 +53,10 @@ public final class LognormalDistCalc extends EqkProbDistCalc implements Paramete
 	 */
 	protected void computeDistributions() {
 		
+		// make these null
+		integratedCDF = null;
+		integratedOneMinusCDF = null;
+
 		pdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		cdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		// set first y-values to zero

@@ -19,8 +19,11 @@
 
 package org.opensha.sha.earthquake.calc.recurInterval;
 
+import java.util.ArrayList;
+
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -57,9 +60,9 @@ import org.opensha.commons.param.impl.IntegerParameter;
 
 public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	
-	final static boolean D = false;	// debugging flag
+	final static boolean D = true;	// debugging flag
 	
-	protected EvenlyDiscretizedFunc pdf, cdf;
+	protected EvenlyDiscretizedFunc pdf, cdf, integratedCDF, integratedOneMinusCDF;
 	protected double mean, aperiodicity, deltaX, duration, histOpenInterval;
 	protected int numPoints;
 	public static final double DELTA_X_DEFAULT = 0.001;
@@ -265,6 +268,8 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public void fitToThisFunction(EvenlyDiscretizedFunc dist, double minMean, double maxMean,
 			int numMean, double minAper, double maxAper,int numAper) {
 		
+		if(!upToDate) computeDistributions();
+		
 		deltaX_Param.setValue(dist.getDelta()/2);	// increase discretization here just to be safe
 		numPointsParam.setValue(dist.getNum()*2+1);	// vals start from zero whereas passed in histograms might start at delta/2
 		double bestMean=0;
@@ -306,49 +311,81 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	 * @return
 	 */
 	public double getCondProbForUnknownTimeSinceLastEvent() {
-		double result=0;
-		double normDenom=0;
-		EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
-		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-			double probOfTimeSince = (1-cdf.getY(i));
-			normDenom+=probOfTimeSince; 
-			result+= condProbFunc.getY(i)*probOfTimeSince;
-		}
-		result /= normDenom;	// normalize properly
+		
+		if(!upToDate) computeDistributions();
+		
+		if(integratedCDF==null) 
+			makeIntegratedCDFs();
+		double numer = duration - (integratedCDF.getInterpolatedY(histOpenInterval+duration)-integratedCDF.getInterpolatedY(histOpenInterval));
+		double denom = (integratedOneMinusCDF.getY(numPoints-1)-integratedOneMinusCDF.getInterpolatedY(histOpenInterval));
+		double result = numer/denom;
 		
 		
-		// this tests two other ways of computing the same thing
+		// this tests other ways of computing the same thing
 		if(D) {
+			
+			double numer2=0;
+			double denom2=0;
+			EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
+			int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
+			for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+				double probOfTimeSince = (1-cdf.getY(i));
+				if(i==firstIndex)
+					probOfTimeSince *= ((cdf.getX(i)+deltaX/2.0) - histOpenInterval)/deltaX;	// fraction of first bin
+				denom2+=probOfTimeSince; 
+				numer2+= condProbFunc.getY(i)*probOfTimeSince;
+			}
+			denom2 *= deltaX;
+			numer2 *= deltaX;
+			double result2 = numer2/denom2;	// normalize properly
+			
+			
+			double numer3=0;
+			int numIndicesForDuration = (int)Math.round(duration/cdf.getDelta());
+			for(int i=firstIndex;i<cdf.getNum()-numIndicesForDuration;i++) {
+				numer3 += (cdf.getY(i+numIndicesForDuration)-cdf.getY(i))*cdf.getDelta();
+			}
+			double result3 = (numer3/denom2);
+			
+
 			int lastIndex = condProbFunc.getClosestXIndex(histOpenInterval+duration);
 			double sumCDF=0;
 			for(int i=firstIndex;i<=lastIndex;i++) {
 				sumCDF += cdf.getY(i)*cdf.getDelta();
 			}
-			double result2= ((duration-sumCDF)/normDenom)/cdf.getDelta();
+			double numer4 = duration-sumCDF;
+			double result4= numer4/denom2;
 			
 			
-			double sumCDF2=0;
-			int numIndicesForDuration = (int)Math.round(duration/cdf.getDelta());
-			for(int i=firstIndex;i<cdf.getNum()-numIndicesForDuration;i++) {
-				sumCDF2 += (cdf.getY(i+numIndicesForDuration)-cdf.getY(i))*cdf.getDelta();
-			}
-			double result3 = (sumCDF2/normDenom)/cdf.getDelta();
 			
-
 			double poisProb1orMore = 1-Math.exp(-duration/mean);
 			double poisProbOf1 = (duration/mean)*Math.exp(-duration/mean);
-			System.out.println("\nnormDenom="+(float)normDenom);
-			System.out.println("CondProbForUnknownDateOfLast="+(float)result+
-					"\ntestCalc="+(float)result2+" ("+(float)(result/result2)+")"+
-					"\ntestCalc2="+(float)result3 +" ("+(float)(result/result3)+")"+
+			System.out.println("result="+(float)result+"\tnumer="+numer+"\tdenom="+denom+
+					"\nresult2="+(float)result2 +" ("+(float)(result/result2)+")"+"\tnumer2="+numer2+"\tdemon2="+denom2+
+					"\nresult3="+(float)result3 +" ("+(float)(result/result3)+")"+"\tnumer3="+numer3+
+					"\nresult4="+(float)result4+" ("+(float)(result/result4)+")"+"\tnumer4="+numer4+
 					"\nduration/mean="+(duration/mean)+
 					"\npoisProb1orMore="+(float)poisProb1orMore+
 					"\npoisProbOf1="+(float)poisProbOf1);			
 		}
+		
+		
 		return result;
 	}
 	
+	
+	protected void makeIntegratedCDFs() {
+		integratedCDF = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
+		integratedOneMinusCDF = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
+		double sum1=0;
+		double sum2=0;
+		for(int i=1;i<numPoints;i++) {
+			sum1 += deltaX*(cdf.getY(i-1)+cdf.getY(i))/2;	// trapezoidal integration (assume triangle)
+			sum2 += deltaX*(1.0-(cdf.getY(i-1)+cdf.getY(i))/2);
+			integratedCDF.set(i,sum1);
+			integratedOneMinusCDF.set(i,sum2);
+		}
+	}
 	
 	
 	/**
@@ -356,6 +393,9 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getTimeSinceLastEventPDF() {
+		
+		if(!upToDate) computeDistributions();
+
 		EvenlyDiscretizedFunc timeSinceLastPDF = new EvenlyDiscretizedFunc(0.0, numPoints , deltaX);
 		double normDenom=0;
 		int firstIndex = timeSinceLastPDF.getClosestXIndex(histOpenInterval);
@@ -470,6 +510,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		this.numPointsParam.setValue(numPoints);
 		this.durationParam.setValue(duration);
 		this.histOpenIntParam.setValue(histOpenInterval);
+		upToDate=false;
 	}
 
 
@@ -490,6 +531,16 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		upToDate=false;
 	}
 	
+	
+	
+	public void setDuration(double duration) {
+		this.duration=duration;
+	}
+	
+	public void setDurationAndHistOpenInterval(double duration, double histOpenInterval) {
+		this.duration=duration;
+		this.histOpenInterval=histOpenInterval;
+	}
 	
 	
 	/**

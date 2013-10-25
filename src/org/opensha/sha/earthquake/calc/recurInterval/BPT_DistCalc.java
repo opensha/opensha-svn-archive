@@ -39,7 +39,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	
 	// this defines how closely to 0 the denominator of the conditional probability calculation can get
 	// about ??? greater than double precision accuracy (check by trial and error over aperiodicity from 0.1 to 1.0)
-	final static double SAFE_ONE_MINUS_CDF = 10e-13;
+	final static double SAFE_ONE_MINUS_CDF = 10e-11;
 	
 	double safeTimeSinceLast=Double.NaN;
 	
@@ -56,6 +56,11 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * Trapezoidal integration. 
 	 */
 	protected void computeDistributions() {
+		
+		// make these null
+		integratedCDF = null;
+		integratedOneMinusCDF = null;
+
 		pdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		cdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		// set first y-values to zero
@@ -158,15 +163,6 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			newTimeSinceLast = safeTimeSinceLast-duration-cdf.getDelta();
 		}
 		
-// OLD
-//		double newTimeSinceLast = timeSinceLast;
-//		// convert to safe time since last if value too high
-//		if(newTimeSinceLast>safeTimeSinceLast)
-//			newTimeSinceLast=safeTimeSinceLast;
-//		if(newTimeSinceLast+duration > cdf.getMaxX()+cdf.getTolerance()) {	// this can happen when safeTimeSinceLast = cdf.getMaxX()
-//			newTimeSinceLast = safeTimeSinceLast-duration;
-//		}
-		
 		if(newTimeSinceLast<0) // if safeTimeSinceLast is less than duration, it must be a very long duration compared to recurrence interval
 			return 1.0;
 //			throw new RuntimeException(this.mean+"\t"+timeSinceLast+"\t"+newTimeSinceLast+"\t"+safeTimeSinceLast+"\t"+duration);
@@ -202,28 +198,45 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * @return
 	 */
 	public double getSafeCondProbForUnknownTimeSinceLastEvent() {
-		double result=0;
-		double normDenom=0;
-		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
-		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
+		if(!upToDate) computeDistributions();
 
-		//		if(histOpenInterval>safeTimeSinceLast) {
-		if(firstIndex>=indexOfSafeTime) {
-			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
-			return condProbFunc.getY(indexOfSafeTime);
+		if(histOpenInterval>=safeTimeSinceLast) {
+			// we're in the range where cond prob is constant, so any wted ave must equal the constant value
+			return this.getSafeCondProb(safeTimeSinceLast,duration);
 		}
-//		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-		for(int i=firstIndex;i<=indexOfSafeTime;i++) {
-			double probOfTimeSince = (1-cdf.getY(i));
-			normDenom+=probOfTimeSince; 
-			result+= condProbFunc.getY(i)*probOfTimeSince;
-		}
-		result /= normDenom;	// normalize properly
 		
-		if(result>1) result=1;
-		
+		if(integratedCDF==null) 
+			makeIntegratedCDFs();
+		double numer = duration - (integratedCDF.getInterpolatedY(histOpenInterval+duration)-integratedCDF.getInterpolatedY(histOpenInterval));
+		double denom = (integratedOneMinusCDF.getY(numPoints-1)-integratedOneMinusCDF.getInterpolatedY(histOpenInterval));
+		double result = numer/denom;
 		return result;
+		
+//		// OLD VERSION
+//		double result=0;
+//		double normDenom=0;
+//		EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
+//		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
+//		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
+//
+//		//		if(histOpenInterval>safeTimeSinceLast) {
+//		if(firstIndex>=indexOfSafeTime) {
+//			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
+//			return condProbFunc.getY(indexOfSafeTime);
+//		}
+////		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+//		for(int i=firstIndex;i<=indexOfSafeTime;i++) {
+//			double probOfTimeSince = (1-cdf.getY(i));
+//			if(i==firstIndex)
+//				probOfTimeSince *= ((cdf.getX(i)+deltaX/2.0) - histOpenInterval)/deltaX;	// fraction of first bin
+//			normDenom+=probOfTimeSince; 
+//			result+= condProbFunc.getY(i)*probOfTimeSince;
+//		}
+//		result /= normDenom;	// normalize properly
+//		
+//		if(result>1) result=1;
+//		
+//		return result;
 	}
 
 	
@@ -236,6 +249,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * @return
 	 */
 	public double getSafeTimeSinceLastCutoff() {
+		if(!upToDate) computeDistributions();
 		return safeTimeSinceLast;
 	}
 	
