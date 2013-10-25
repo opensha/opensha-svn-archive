@@ -20,7 +20,6 @@
 package org.opensha.commons.util;
 
 import static com.google.common.base.Preconditions.*;
-import static org.junit.Assert.assertArrayEquals;
 import static java.lang.Double.*;
 
 import java.lang.reflect.Array;
@@ -148,8 +147,8 @@ public class DataUtils {
 	}
 
 	/**
-	 * Returns the difference of adjacent elements in the supplied {@code data}
-	 * . Method returns results in a new array that has {@code data.length - 1}
+	 * Returns the difference of adjacent elements in the supplied {@code data}.
+	 * Method returns results in a new array that has {@code data.length - 1}
 	 * where differences are computed per {@code data[i+1] - data[i]}.
 	 * @param data to difference
 	 * @return the differences between adjacent values
@@ -222,6 +221,8 @@ public class DataUtils {
 		for (double val = min; val < max; val += step) {
 			seq.add(val);
 		}
+		// TODO given the val < max check above, max will never be reached, therefore
+		// we could simply blindly add max and skip the check below
 		if (seq.get(seq.size() - 1) != max) seq.add(max);
 		return Doubles.toArray(seq);
 	}	
@@ -320,6 +321,21 @@ public class DataUtils {
 		checkArgument(checkNotNull(data1).size() == checkNotNull(data2).size());
 		for (int i = 0; i < data1.size(); i++) {
 			data1.set(i, data1.get(i) - data2.get(i));
+		}
+		return data1;
+	}
+
+	/**
+	 * Subtracts the values of {@code data2} from {@code data1} and returns a
+	 * reference to {@code data1}.
+	 * @param data1
+	 * @param data2
+	 * @return a reference to {@code data1}
+	 */
+	public static double[] multiply(double[] data1, double[] data2) {
+		checkArgument(checkNotNull(data1).length == checkNotNull(data2).length);
+		for (int i = 0; i < data1.length; i++) {
+			data1[i] *= data2[i];
 		}
 		return data1;
 	}
