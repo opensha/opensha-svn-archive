@@ -31,6 +31,8 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Preliminary implementation of the Idriss (2013) next generation attenuation
  * relationship developed as part of NGA West II.
  * 
+ * Idriss (2013) recommends a cap of Vs=1200m/s (implemented) and a distance limit of 150km (not implemented)
+ * 
  * Component: RotD50
  * 
  * Implementation details:
@@ -80,7 +82,7 @@ public class Idriss_2013 {
 		coeffsHi.set(imt);
 		coeffsLo.set(imt);
 		
-		Coeffs c = (Mw <= 6.75) ? coeffsLo : coeffsHi;
+		Coeffs c = (Mw <= 3.75) ? coeffsLo : coeffsHi;
 		
 		double mean = calcMean(c, Mw, rRup, vs30, style);
 		double stdDev = calcStdDev(c, Mw);
@@ -88,12 +90,13 @@ public class Idriss_2013 {
 		return new DefaultGroundMotion(mean, stdDev);
 	}
 	
-	// Mean ground motion model
+	// Mean ground motion model - cap of Vs = 1200 m/s
 	private double calcMean(Coeffs c, double Mw, double rRup, double vs30,
 			FaultStyle style) {
 		return c.a1 + c.a2 * Mw + c.a3 * (8.5 - Mw) * (8.5 - Mw) -
-			(c.b1 + c.b2 * Mw) * log(rRup + 10.0) + c.xi * log(vs30) + c.gamma *
-			rRup + (style == REVERSE ? c.phi : 0.0);
+			(c.b1 + c.b2 * Mw) * log(rRup + 10.0) +
+			c.xi * log(min(vs30, 1200.0)) + 
+			c.gamma * rRup + (style == REVERSE ? c.phi : 0.0);
 	}
 
 	// Aleatory uncertainty model
@@ -114,16 +117,21 @@ public class Idriss_2013 {
 	public static void main(String[] args) {
 		Idriss_2013 id = new Idriss_2013();
 		
+		FaultStyle style = FaultStyle.NORMAL;
+		double mag = 5.05;
+		ScalarGroundMotion sgm;
+		
 		System.out.println("PGA");
-		ScalarGroundMotion sgm = id.calc(PGA, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		sgm = id.calc(PGA, mag, 4.629, 760.0, style);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 		System.out.println("5Hz");
-		sgm = id.calc(IMT.SA0P2, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+//		sgm = id.calc(IMT.SA0P2, mag,5.0249376, 760.0, style);
+		sgm = id.calc(IMT.SA0P2, mag, 4.629, 760.0, style);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 		System.out.println("1Hz");
-		sgm = id.calc(IMT.SA1P0, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
+		sgm = id.calc(IMT.SA1P0, mag, 4.629, 760.0, style);
 		System.out.println(sgm.mean());
 		System.out.println(sgm.stdDev());
 
