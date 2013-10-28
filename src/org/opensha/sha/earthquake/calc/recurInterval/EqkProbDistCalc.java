@@ -180,7 +180,8 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
 //		System.out.println("t1 and t2:\t"+timeSinceLast+"\t"+(timeSinceLast+duration));		
-//		System.out.println("p1 and p2:\t"+p1+"\t"+p2);
+//		System.out.println(timeSinceLast+"\t"+(p2-p1)+"\t"+(1.0-p1));
+		
 		return (p2-p1)/(1.0-p1);
 
 		
