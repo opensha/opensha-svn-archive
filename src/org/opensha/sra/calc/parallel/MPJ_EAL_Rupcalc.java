@@ -65,7 +65,7 @@ import cern.colt.list.tint.IntArrayList;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements CalculationExceptionHandler {
+public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExceptionHandler {
 	
 	public static final String BATCH_ELEMENT_NAME = "BatchCalculation";
 	
@@ -82,11 +82,11 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	
 	private static final boolean FILE_DEBUG = true;
 	
-	public MPJ_EAL_IMR_Precalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
+	public MPJ_EAL_Rupcalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
 		this(cmd, portfolio, el, null);
 	}
 	
-	public MPJ_EAL_IMR_Precalc(CommandLine cmd, Portfolio portfolio, Element el, File outputFile) throws IOException, DocumentException, InvocationTargetException {
+	public MPJ_EAL_Rupcalc(CommandLine cmd, Portfolio portfolio, Element el, File outputFile) throws IOException, DocumentException, InvocationTargetException {
 		super(cmd);
 		
 		assets = portfolio.getAssetList();
@@ -343,12 +343,12 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 		try {
 			Options options = createOptions();
 			
-			CommandLine cmd = parse(options, args, MPJ_EAL_IMR_Precalc.class);
+			CommandLine cmd = parse(options, args, MPJ_EAL_Rupcalc.class);
 			
 			args = cmd.getArgs();
 			
 			if (args.length < 2 || args.length > 3) {
-				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_EAL_IMR_Precalc.class)
+				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_EAL_Rupcalc.class)
 						+" [options] <portfolio_file> <calculation_params_file> [<output_file>]");
 				abortAndExit(2);
 			}
@@ -364,14 +364,14 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 				Iterator<Element> it = root.elementIterator(BATCH_ELEMENT_NAME);
 				
 				while (it.hasNext()) {
-					MPJ_EAL_IMR_Precalc driver = new MPJ_EAL_IMR_Precalc(cmd, portfolio, it.next());
+					MPJ_EAL_Rupcalc driver = new MPJ_EAL_Rupcalc(cmd, portfolio, it.next());
 					
 					driver.run();
 				}
 			} else {
 				File outputFile = new File(args[2]);
 				
-				MPJ_EAL_IMR_Precalc driver = new MPJ_EAL_IMR_Precalc(cmd, portfolio, root, outputFile);
+				MPJ_EAL_Rupcalc driver = new MPJ_EAL_Rupcalc(cmd, portfolio, root, outputFile);
 				
 				driver.run();
 			}

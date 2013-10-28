@@ -13,7 +13,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sra.calc.parallel.MPJ_EAL_IMR_Precalc.SiteResult;
+import org.opensha.sra.calc.parallel.MPJ_EAL_Rupcalc.SiteResult;
 import org.opensha.sra.gui.portfolioeal.Asset;
 import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 
