@@ -20,6 +20,9 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -312,6 +315,128 @@ public class Asset implements Cloneable {
 		calculationDone();
 		calc = null;
 		return EAL;
+	}
+	
+	/**
+	 * This calculates the expected loss for each rupture in the given forecast individually.
+	 * 
+	 * @return The EAL for the asset.  This will be summed up with all of the EAL's
+	 * for the other assets in the list.
+	 */
+	public double[][] calculateExpectedLossPerRup(
+			ScalarIMR imr, ArbitrarilyDiscretizedFunc magThreshFunc, Site site, ERF erf,
+			CalculationExceptionHandler controller ) {
+		// Edit the site with the asset values
+		siteSetup(site);
+		Site newSite = getSite();
+		boolean error = false;
+
+		errorMessage = "";
+
+		// Create a new hazard function, which will will be used to make calculation
+		ArbitrarilyDiscretizedFunc logHazFunction = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+
+		// Setup for the HazardCurveCalculator
+		try {
+			calc = new HazardCurveCalculator();
+			wait(5000);
+		} catch( Exception e ) {
+		}
+
+		startCalcProgressBar();
+
+		// The vulnerability model, which is hard coded for now
+		Vulnerability vulnModel = null;
+
+		try {
+			vulnModel = getVulnModel();
+		} catch( Exception e ) {
+			e.printStackTrace();
+			errorMessage += e.getMessage();
+			error = true;
+		}
+
+		Preconditions.checkNotNull(vulnModel, "Vulnerability model '"+getVulnModelName()+"' is null!");
+		String imt = vulnModel.getIMT();
+		double imls[] = vulnModel.getIMLValues();
+
+		// Sets the intensity measure for the imr instance
+		try {				
+			//			((AttenuationRelationship)imr).setIntensityMeasure(imt, period);
+//			System.out.println("IMT: " + imt);
+			imr.setIntensityMeasure(imt);
+			if (imt.equals(SA_Param.NAME))
+				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vulnModel.getPeriod());
+			//			((AttenuationRelationship)imr).setIntensityMeasure(imt);
+		} catch( ParameterException e ) {
+			e.printStackTrace();
+			controller.calculationException( e.getMessage() );
+		}
+
+		// Take the log of the x values of the hazard function
+		// Used to make calculations
+		for( int i = 0; i < imls.length; ++i ) {
+			
+//			System.out.println(i+". "+imls[i]+", log: "+Math.log(imls[i]));
+			logHazFunction.set( Math.log( imls[i] ), 1 );
+			hazFunction.set(imls[i], 1);
+		}
+		
+		Preconditions.checkState(imls.length == hazFunction.getNum());
+		
+		double[][] results = new double[erf.getNumSources()][];
+		
+		EAL = 0d;
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource source = erf.getSource(sourceID);
+			double distance = source.getMinDistance(site);
+			
+			if (distance > magThreshFunc.getMaxX()) {
+//				System.out.println("Distance thresh fail (dist="+distance+")");
+				continue;
+			}
+			double magThresh = magThreshFunc.getInterpolatedY(distance);
+			results[sourceID] = new double[source.getNumRuptures()];
+			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+				ProbEqkRupture rupture = source.getRupture(rupID);
+				
+				if (rupture.getMag() < magThresh) {
+//					System.out.println("Mag thresh fail (mag="+rupture.getMag()+", thresh="+magThresh+")");
+					continue;
+				}
+				
+				// calc deterministic hazard curve
+				calc.getHazardCurve(logHazFunction, newSite, imr, rupture);
+				
+				Preconditions.checkState(imls.length == logHazFunction.getNum());
+
+				// populate the linear func with the y values
+				for (int i=0; i<logHazFunction.getNum(); i++)
+					hazFunction.set(i, logHazFunction.getY(i));
+
+//				// Create the annualized rates function to be used in the EAL calculator
+//				try {
+//					hazFunction = (ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(hazFunction, 1d);
+//				} catch( Exception e ) {
+//					e.printStackTrace();
+//					errorMessage += e.getMessage();
+//					error = true;
+//				}
+
+				if ( error ) controller.calculationException( errorMessage );
+
+				EALCalculator currentCalc = new EALCalculator(hazFunction, vulnModel.getVulnerabilityFunc(), getValue() );
+				double rupEL = currentCalc.computeEAL();
+				
+				results[sourceID][rupID] = rupEL;
+				EAL += rupEL * rupture.getMeanAnnualRate(duration);
+			}
+		}
+		calculationDone();
+		return results;
 	}
 	
 	public double getValue() {

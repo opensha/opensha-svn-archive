@@ -68,7 +68,7 @@ public class ThreadedEAL_IMR_Precalc {
 	public List<SiteResult> calculateBatch(int[] batch) throws InterruptedException {
 		ArrayDeque<SiteResult> deque = new ArrayDeque<SiteResult>();
 		for (int index : batch)
-			deque.add(new SiteResult(index, assets.get(index)));
+			deque.add(new SiteResult(index, assets.get(index), handler));
 		List<SiteResult> results = Lists.newArrayList(deque);
 		calculateBatch(deque);
 		

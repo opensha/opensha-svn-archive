@@ -72,7 +72,7 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	protected List<Asset> assets;
 //	protected double maxSourceDistance = 200; // TODO set
 	
-	private ArrayList<SiteResult> results = Lists.newArrayList();
+	private double[][] my_results;
 	
 	private ThreadedEAL_IMR_Precalc calc;
 	
@@ -80,7 +80,7 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	
 	private ERF refERF;
 	
-	private static final boolean FILE_DEBUG = false;
+	private static final boolean FILE_DEBUG = true;
 	
 	public MPJ_EAL_IMR_Precalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
 		this(cmd, portfolio, el, null);
@@ -113,6 +113,10 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 		debug("done updating ERFs");
 		
 		refERF = erfs[0];
+		
+		my_results = new double[refERF.getNumSources()][];
+		for (int sourceID=0; sourceID<refERF.getNumSources(); sourceID++)
+			my_results[sourceID] = new double[refERF.getNumRuptures(sourceID)];
 		
 //		ERF erf = loadERF(el);
 //		erf.updateForecast();
@@ -157,53 +161,68 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	}
 	
 	protected synchronized void registerResult(SiteResult result) {
-		results.add(result);
+		double[][] vals = result.results;
+		Preconditions.checkState(vals.length == my_results.length,
+				"Source count discrepancy. Expected "+my_results.length+", was "+vals.length);
+		for (int sourceID=0; sourceID<vals.length; sourceID++) {
+			if (vals[sourceID] != null) {
+//				Preconditions.checkState(vals[sourceID].length == my_results[sourceID].length,
+//						"Rup count discrepancy for source "+sourceID+". Expected "+my_results[sourceID].length
+//						+", was "+vals[sourceID].length);
+				for (int rupID=0; rupID<vals[sourceID].length; rupID++)
+					my_results[sourceID][rupID] += vals[sourceID][rupID];
+			}
+		}
 	}
 	
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		// gather the loss
 		
-		SiteResult[] my_results = this.results.toArray(new SiteResult[0]);
-		
 		int TAG_GET_NUM = 0;
 		int TAG_GET_RESULTS = 1;
 		
+		// pack results into one dimensional array
+		int rupCount = 0;
+		for (int sourceID=0; sourceID<my_results.length; sourceID++)
+			rupCount += my_results[sourceID].length;
+		double[] packed_results = new double[rupCount];
+		int cnt = 0;
+		for (double[] vals : my_results)
+			for (double val : vals)
+				packed_results[cnt++] = val;
+		
+		
 		if (rank == 0) {
-			SiteResult[] global_results = new SiteResult[assets.size()];
+			double[] global_results = new double[rupCount];
 			
 			for (int source=0; source<size; source++) {
-				SiteResult[] srcResults;
+				double[] srcResults;
 				
 				if (source == rank) {
-					srcResults = my_results;
+					srcResults = packed_results;
 				} else {
-					// ask for size
-					int[] size = new int[1];
-					MPI.COMM_WORLD.Recv(size, 0, 1, MPI.INT, source, TAG_GET_NUM);
-					
 					// get results
-					srcResults = new SiteResult[size[0]];
-					MPI.COMM_WORLD.Recv(srcResults, 0, srcResults.length, MPI.OBJECT, source, TAG_GET_RESULTS);
+					srcResults = new double[rupCount];
+					MPI.COMM_WORLD.Recv(srcResults, 0, srcResults.length, MPI.DOUBLE, source, TAG_GET_RESULTS);
 				}
 				
-				for (SiteResult result : srcResults)
-					global_results[result.index] = result;
-				
+				for (int i=0; i<rupCount; i++)
+					global_results[i] += srcResults[i];
 			}
 			
-			for (SiteResult result : global_results)
-				Preconditions.checkNotNull(result);
-			
-			// TODO
-//			writeOutputFile(global_results);
-			writeResults(outputFile, global_results, refERF);
+			// now unpack
+			double[][] unpacked_results = new double[my_results.length][];
+			cnt = 0;
+			for (int sourceID=0; sourceID<my_results.length; sourceID++) {
+				unpacked_results[sourceID] = new double[my_results[sourceID].length];
+				for (int rupID=0; rupID<my_results[sourceID].length; rupID++)
+					unpacked_results[sourceID][rupID] = global_results[cnt++];
+			}
+			writeResults(outputFile, unpacked_results);
 		} else {
-			int[] size = { my_results.length };
-			MPI.COMM_WORLD.Send(size, 0, 1, MPI.INT, 0, TAG_GET_NUM);
-			
 			// send results
-			MPI.COMM_WORLD.Send(my_results, 0, my_results.length, MPI.OBJECT, 0, TAG_GET_RESULTS);
+			MPI.COMM_WORLD.Send(packed_results, 0, packed_results.length, MPI.DOUBLE, 0, TAG_GET_RESULTS);
 		}
 	}
 	
@@ -226,114 +245,46 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	// TODO
 	/**
 	 * File format:<br>
-	 * [num assets]
 	 * [num ERF sources]
 	 * 		[num ruptures for source]
-	 * 			[num assets for rupture]
-	 * 				[asset index]
-	 * 				[double: ln mean]
-	 * 				[double: ln std dev]
+	 *      	[expected loss for rupture]
 	 * @param results
 	 * @param file
 	 * @throws IOException 
 	 */
-	public static void writeResults(File file, SiteResult[] results, ERF erf) throws IOException {
+	public static void writeResults(File file, double[][] results) throws IOException {
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 		
-		int numSources = erf.getNumSources();
+		int numSources = results.length;
 		
-		out.writeInt(results.length);
 		out.writeInt(numSources);
-		
-		List<IntArrayList> sourceMappings = Lists.newArrayList();
-		
-		// get asset mappings for each source
-		for (int sourceID=0; sourceID<numSources; sourceID++) {
-			
-			IntArrayList sourceMapping = new IntArrayList();
-			sourceMappings.add(sourceMapping);
-
-			for (int i=0; i<results.length; i++) {
-				double[][][] a = results[i].results;
-				if (a[sourceID] != null)
-					sourceMapping.add(i);
-			}
-		}
 		
 		// get asset counts for each source/rup
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
-			int numRups = erf.getNumRuptures(sourceID);
+			int numRups = results[sourceID].length;
+			out.writeInt(numRups);
 			
-			IntArrayList sourceMapping = sourceMappings.get(sourceID);
-			if (sourceMapping.isEmpty()) {
-				// no assets have this source, set to zero rups
-				out.writeInt(0);
-				continue;
-			} else {
-				out.writeInt(numRups);
-			}
-			
-			for (int rupID=0; rupID<numRups; rupID++) {
-				List<Integer> assetIndexes = Lists.newArrayList();
-				for (int i=0; i<sourceMapping.size(); i++) {
-					int assetIndex = sourceMapping.get(i);
-					double[][][] a = results[assetIndex].results;
-					if (a[sourceID][rupID] != null) {
-						assetIndexes.add(assetIndex);
-					}
-				}
-				out.writeInt(assetIndexes.size());
-				for (int assetIndex : assetIndexes) {
-					double[] vals = results[assetIndex].results[sourceID][rupID];
-					// index
-					out.writeInt(assetIndex);
-					// ln mean
-					out.writeDouble(vals[0]);
-					// ln std dev
-					out.writeDouble(vals[1]);
-				}
-			}
+			for (int rupID=0; rupID<numRups; rupID++)
+				out.writeDouble(results[sourceID][rupID]);
 		}
 		
 		out.close();
 		
 		if (FILE_DEBUG) {
 			System.out.println("Auditing file IO");
-			SiteResult[] results2 = loadResults(file);
+			double[][] results2 = loadResults(file);
 			int checks = 0;
 			Preconditions.checkState(results.length == results2.length);
 			checks++;
-			for (int i=0; i<results.length; i++) {
-				SiteResult r1 = results[i];
-				SiteResult r2 = results2[i];
-				Preconditions.checkState(r1.index == r2.index);
+			for (int sourceID=0; sourceID<results.length; sourceID++) {
+				int numRups = results[sourceID].length;
+				Preconditions.checkState(numRups == results2[sourceID].length);
 				checks++;
-				double[][][] a1 = r1.results;
-				double[][][] a2 = r2.results;
-				Preconditions.checkState(a1.length == a2.length);
-				checks++;
-				for (int sourceID=0; sourceID<a1.length; sourceID++) {
-					if (a1[sourceID] == null) {
-						Preconditions.checkState(a2[sourceID] == null);
-						checks++;
-					} else {
-						Preconditions.checkState(a1[sourceID].length == a2[sourceID].length);
-						checks++;
-						for (int rupID=0; rupID<a1[sourceID].length; rupID++) {
-							double[] v1 = a1[sourceID][rupID];
-							double[] v2 = a2[sourceID][rupID];
-							
-							if (v1 == null) {
-								Preconditions.checkState(v2 == null);
-								checks++;
-							} else {
-								Preconditions.checkState((float)v1[0] == (float)v2[0]);
-								checks++;
-								Preconditions.checkState((float)v1[1] == (float)v2[1]);
-								checks++;
-							}
-						}
-					}
+				for (int rupID=0; rupID<numRups; rupID++) {
+					double v1 = results[sourceID][rupID];
+					double v2 = results2[sourceID][rupID];
+					Preconditions.checkState((float)v1 == (float)v2);
+					checks++;
 				}
 			}
 			System.out.println("Done auditing file IO ("+checks+" checks)");
@@ -341,47 +292,31 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 	}
 	
 	/**
-	 * [num assets]
 	 * [num ERF sources]
 	 * 		[num ruptures for source]
-	 * 			[num assets for rupture]
-	 * 				[asset index]
-	 * 				[double: ln mean]
-	 * 				[double: ln std dev]
+	 *      	[expected loss for rupture]
 	 * @param file
 	 * @return
 	 * @throws IOException
 	 */
-	public static SiteResult[] loadResults(File file) throws IOException {
+	public static double[][] loadResults(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
 		is = new BufferedInputStream(is);
 
 		DataInputStream in = new DataInputStream(is);
 
-		int numAssets = in.readInt();
 		int numSources = in.readInt();
 
-		Preconditions.checkState(numAssets > 0, "Size must be > 0!");
+		Preconditions.checkState(numSources > 0, "Size must be > 0!");
 		
-		SiteResult[] results = new SiteResult[numAssets];
-		for (int i=0; i<numAssets; i++) {
-			results[i] = new SiteResult(i, null);
-			results[i].results = new double[numSources][][];
-		}
+		double[][] results = new double[numSources][];
 		
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
 			int numRups = in.readInt();
+			results[sourceID] = new double[numRups];
 			for (int rupID=0; rupID<numRups; rupID++) {
-				int numRupAssets = in.readInt();
-				for (int i=0; i<numRupAssets; i++) {
-					int assetIndex = in.readInt();
-					double[][][] res = results[assetIndex].results;
-					if (res[sourceID] == null)
-						res[sourceID] = new double[numRups][];
-					double[] rupVals = { in.readDouble(), in.readDouble() };
-					res[sourceID][rupID] = rupVals;
-				}
+				results[sourceID][rupID] = in.readDouble();
 			}
 		}
 		
@@ -458,53 +393,20 @@ public class MPJ_EAL_IMR_Precalc extends MPJTaskCalculator implements Calculatio
 		
 		private int index;
 		private transient Asset asset;
+		private transient CalculationExceptionHandler handler;
 		
-		// results: [sourceID][rupID][mean,std dev]
-		private double[][][] results;
+		// expected loss results per rupture: [sourceID][rupID]
+		private double[][] results;
 		
-		public SiteResult(int index, Asset asset) {
+		public SiteResult(int index, Asset asset, CalculationExceptionHandler handler) {
 			super();
 			this.index = index;
 			this.asset = asset;
+			this.handler = handler;
 		}
 		
 		void calculate(ERF erf, ScalarIMR imr, Site initialSite, ArbitrarilyDiscretizedFunc magThreshFunc) {
-//			System.out.println("Calculating asset "+index);
-			asset.siteSetup(initialSite);
-			Site site = asset.getSite();
-			imr.setSite(site);
-			Vulnerability vulnModel = PortfolioEALCalculatorController.getVulnerabilities()
-					.get(asset.getVulnModelName());
-			String imt = vulnModel.getIMT();
-			imr.setIntensityMeasure(imt);
-			if (imt.equals(SA_Param.NAME))
-				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vulnModel.getPeriod());
-			results = new double[erf.getNumSources()][][];
-			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
-//				System.out.println("Calculating asset "+index+" source "+sourceID);
-				ProbEqkSource source = erf.getSource(sourceID);
-				double distance = source.getMinDistance(site);
-				
-				if (distance > magThreshFunc.getMaxX())
-					continue;
-				double magThresh = magThreshFunc.getInterpolatedY(distance);
-				
-				for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
-					EqkRupture rupture = source.getRupture(rupID);
-					
-					if (rupture.getMag() < magThresh)
-						continue;
-					
-					// set the EqkRup in the IMR
-					imr.setEqkRupture(rupture);
-					
-					double[] myResults = { imr.getMean(), imr.getStdDev() };
-					
-					if (results[sourceID] == null)
-						results[sourceID] = new double[source.getNumRuptures()][];
-					results[sourceID][rupID] = myResults;
-				}
-			}
+			results = asset.calculateExpectedLossPerRup(imr, magThreshFunc, initialSite, erf, handler);
 		}
 
 		@Override
