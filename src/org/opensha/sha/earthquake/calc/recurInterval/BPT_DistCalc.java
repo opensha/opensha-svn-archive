@@ -28,6 +28,8 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 /**
  * <b>Title:</b> BPT_DistCalc.java <p>
  * <b>Description:</p>.
+ * This represents the Brownian Passage Time renewal model as described by Matthews et al. (2002, BSSA, vol 92, pp. 2223-2250).
+ * This adds several "Safe" methods are also supplied to avoid numerical artifacts; see description for each method for more details
  <p>
  *
  * @author Edward Field
@@ -38,8 +40,8 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
 	// this defines how closely to 0 the denominator of the conditional probability calculation can get
-	// about ??? greater than double precision accuracy (check by trial and error over aperiodicity from 0.1 to 1.0)
 	final static double SAFE_ONE_MINUS_CDF = 1e-13;
+	// this defines the smallest duration/mean (values below are computed approximately)
 	final static double MIN_NORM_DURATION = 0.01;
 	
 	double safeTimeSinceLast=Double.NaN;
@@ -146,11 +148,32 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	
 	/**
 	 * This is a version of the parent method getCondProb(*) that avoids numerical artifacts
-	 * at high timeSinceLast (cdf gets too close to 1 and therefore we have division by 
-	 * nearly zero).
-	 * If timeSinceLast+duration is greater than safeTimeSinceLast, then the conditional probability at 
-	 * safeTimeSinceLast-duration is returned (i.e., cond prob becomes constant near safeTimeSinceLast).
-	 * The safe values have been visually verified for aperiodicity values of 0.1 to 1.0 (using the GUI).
+	 * at high timeSinceLast (where 1-cdf gets too close to 0, and we therefore have division by 
+	 * zero).
+	 * 
+	 * We know that at infinite time the mean residual life (expected time to next earthquake) for BPT 
+	 * approaches the following asymptotically:
+	 * 
+	 * 			mrl = 2*mean*aperiodicity*aperiodicity
+	 * 
+	 * (Equation 24 of Matthews et al. (2002, BSSA, vol 92, pp. 2223-2250)), so the conditional probability
+	 * becomes 1-exp(duration/mrl) at large timeSinceLast.  We also define a safeTimeSinceLast as that where 
+	 * 1-cdf becomes close to zero (<= SAFE_ONE_MINUS_CDF).  Beyond this point we assume the conditional 
+	 * probability varies linearly between the value at safeTimeSinceLast and 1-exp(duration/mrl), where
+	 * "infinite time" is taken as timeSinceLast/mean = 10.  While this choice of 10 is somewhat arbitrary,
+	 * differences are only slight, and mostly only for low aperiodicity (<0.15).  Also keep in mind that
+	 * the probability of getting beyond safeTimeSinceLast is SAFE_ONE_MINUS_CDF (e.g., 1e-13), so we are
+	 * way out on the tail, where application of the model will always be speculative anyway.
+	 * 
+	 * The above does not solve all numerical problems, as we can get instability before safeTimeSinceLast
+	 * where p2-p1 in the parent method becomes too small (e.g., 1e-14), which occurs when duration/mean is
+	 * <= 1e-3 (and again, only for aperiodicities <= 0.2).  To avoid this problem, the smallest duration/mean
+	 * for which conditional probability is computed is MIN_NORM_DURATION, with values below this simply being
+	 * the value for MIN_NORM_DURATION scaled by (duration/mean)/MIN_NORM_DURATION.  The testSafeCalcs show that
+	 * this produces conditional probabilities within 0.1% of true values where these numerical artifacts are 
+	 * lacking, and shows that discrepancies elsewhere are for very un-probable states (e.g., just below
+	 * safeTimeSinceLast); nonetheless, this fixes these other numerical artifacts.
+	 * 
 	 * @param timeSinceLast
 	 * @param duration
 	 * @return
@@ -164,12 +187,12 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		if(duration/mean >= MIN_NORM_DURATION) {
 //			System.out.println("good");
 			if(timeSinceLast+duration <= safeTimeSinceLast) {
-				result = getCondProb(timeSinceLast, duration);
+				result = super.getCondProb(timeSinceLast, duration);	// use super method
 			}
 			else {
 				if(safeTimeSinceLast-duration<0)
 					return 1.0; // very long duration
-				double condProbAtSafeTime = getCondProb(safeTimeSinceLast-duration, duration);
+				double condProbAtSafeTime = super.getCondProb(safeTimeSinceLast-duration, duration);
 				double condProbAtInfTime = 1-Math.exp(-duration/(aperiodicity*aperiodicity*mean*2)); // based on Equation 24 of Matthews et al. (2002).
 				// linear interpolate assuming inf time is mean*10
 				result = condProbAtSafeTime + (condProbAtInfTime-condProbAtSafeTime)*(timeSinceLast-(safeTimeSinceLast-duration))/(10*mean-(safeTimeSinceLast-duration));
@@ -177,51 +200,21 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		}
 		else {
 //			System.out.println("bad");
-			double condProbForMinNormDur = getSafeCondProb(timeSinceLast, MIN_NORM_DURATION*mean);
+			double condProbForMinNormDur = getSafeCondProb(timeSinceLast, MIN_NORM_DURATION*mean); // this will temporarily override this.duration, so we need to fix this below
 			result = condProbForMinNormDur*duration/(MIN_NORM_DURATION*mean);
-			
+			 this.duration=duration;
 		}
 		
-		 this.duration=duration;	// can't set this first thing or it screws the above up
 		 return result;
 
-		// test:
-//		double result = (p2-p1)/(1.0-p1);;
-//		double p1_alt = cdf.getInterpolatedY(timeSinceLast);
-//		double p2_alt = cdf.getInterpolatedY(timeSinceLast+duration/10d);
-//		
-//		double result_alt = 10*(p2_alt-p1_alt)/(1.0-p1_alt);;
-//		System.out.println(timeSinceLast+"\t"+(p2-p1)+"\t"+(1.0-p1)+"\t"+result+"\t"+result_alt+"\t"+(float)(result_alt/result));
-
-
-		
-//		if(timeSinceLast+duration <= safeTimeSinceLast) {
-//			return getCondProb(timeSinceLast, duration);
-//		}
-//		else {
-//			double condProbAtSafeTime = getCondProb(safeTimeSinceLast-duration, duration);
-//			double condProbAtInfTime = 1-Math.exp(-duration/(aperiodicity*aperiodicity*mean*2)); // based on Equation 24 of Matthews et al. (2002).
-//			// linear interpolate assuming inf time is mean*10
-//			return condProbAtSafeTime + (condProbAtInfTime-condProbAtSafeTime)*(timeSinceLast-(safeTimeSinceLast-duration))/(10*mean-(safeTimeSinceLast-duration));
-//		}
-		
-//		double newTimeSinceLast=timeSinceLast;
-//		if(timeSinceLast+duration > safeTimeSinceLast) {
-//			newTimeSinceLast = safeTimeSinceLast-duration-cdf.getDelta();
-//		}
-//		
-//		if(newTimeSinceLast<0) // if safeTimeSinceLast is less than duration, it must be a very long duration compared to recurrence interval
-//			return 1.0;
-////			throw new RuntimeException(this.mean+"\t"+timeSinceLast+"\t"+newTimeSinceLast+"\t"+safeTimeSinceLast+"\t"+duration);
-//		
-//		double p1 = cdf.getInterpolatedY(newTimeSinceLast);
-//		double p2 = cdf.getInterpolatedY(newTimeSinceLast+duration);
-//		double denom = 1.0-p1;
-//		return (p2-p1)/denom;
 	}	
 	
 	
-	public EvenlyDiscretizedFunc getCondProbFunc() {
+	/**
+	 * Overrides parent to use safe method here
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getSafeCondProbFunc() {
 		if(duration==0)
 			throw new RuntimeException("duration has not been set");
 		if(!upToDate) computeDistributions();
@@ -240,18 +233,27 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * date of last event is unknown (looping over all possible values), but where the historic open 
 	 * interval is applied (the latter defaults to zero if never set).
 	 * 
-	 * If (histOpenInterval>safeTimeSinceLast), this returns condProbFunc.getY(safeTimeSinceLast) 
-	 * because values are constant above.
+	 * This avoids numerical artifacts in the parent method a couple ways.
+	 * 
+	 * First, if histOpenInterval>=safeTimeSinceLast,  we simply return the conditional probability at
+	 * safeTimeSinceLast (technically we should weight average the values beyond, but they are
+	 * nearly constant, the weights are decaying beyond (so that at safeTimeSinceLast is highest),
+	 * and the likelihood of histOpenInterval ever getting to safeTimeSinceLast is vanishingly
+	 * small (as noted in the doc for the getCondProb method here)).
+	 * 
+	 * A less efficient way of calculating this cond probability is also used if unstable results are
+	 * expected (see details regarding "numer" and "denom" below).
+	 * 
 	 * @return
 	 */
 	public double getSafeCondProbForUnknownTimeSinceLastEvent() {
 		if(!upToDate) computeDistributions();
 
 		if(histOpenInterval>=safeTimeSinceLast) {
-			// we're in the range where cond prob is constant, so any wted ave must equal the constant value
 			return this.getSafeCondProb(safeTimeSinceLast,duration);
 		}
 		
+		// this is the faster calculation:
 		if(integratedCDF==null) 
 			makeIntegratedCDFs();
 		double lastTime = histOpenInterval+duration;
@@ -261,23 +263,26 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double denom = (integratedOneMinusCDF.getY(numPoints-1)-integratedOneMinusCDF.getInterpolatedY(histOpenInterval));
 		double result = numer/denom;
 		
-		if(numer >1e13) {
+		if(result>1) result=1;
+		
+		// test stuff
+//		double logNormDur = Math.log10(duration/mean);
+//		double logNormHoi = Math.log10(histOpenInterval/mean);
+//		System.out.println(logNormDur+"\t"+logNormHoi+"\t"+result+"\t"+numer+"\t"+denom+"\t"+(numer > 1e-11 && denom > 1e-11)+"\t"+duration+"\t"+integratedCDF.getInterpolatedY(lastTime)+"\t"+integratedCDF.getInterpolatedY(histOpenInterval));
+		
+		// avoid numerical artifacts found when the following are not satisfied
+		if(numer > 1e-10 && denom > 1e-10) {
 			return result;
 		}
 		else {
 			result=0;
 			double normDenom=0;
-			EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
+			EvenlyDiscretizedFunc condProbFunc = getSafeCondProbFunc();
 			int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
 			int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
 	
-//			if(firstIndex>=indexOfSafeTime) {
-//				// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
-//				return condProbFunc.getY(indexOfSafeTime);
-//			}
-			
-			for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-//			for(int i=firstIndex;i<=indexOfSafeTime;i++) {
+//			for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+			for(int i=firstIndex;i<=indexOfSafeTime;i++) {
 				double probOfTimeSince = (1-cdf.getY(i));
 				if(i==firstIndex)
 					probOfTimeSince *= ((cdf.getX(i)+deltaX/2.0) - histOpenInterval)/deltaX;	// fraction of first bin
@@ -286,41 +291,11 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			}
 			result /= normDenom;	// normalize properly
 			
-			if(result>1) result=1;
+			if(result>1) result=1;	// avoid slightly greater than zero problems
 			
 			return result;
 		}
 		
-//		System.out.println(Math.log10(duration/mean)+"\t"+Math.log10(histOpenInterval/mean)+"\t"+numer+"\t"+denom+"\t"+result);
-		
-		
-		
-		
-//		// OLD VERSION
-//		double result=0;
-//		double normDenom=0;
-//		EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
-//		int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-//		int indexOfSafeTime = condProbFunc.getClosestXIndex(safeTimeSinceLast);	// need to use closest because condProbFunc has fewer points than CDF (so safeTimeSinceLast can exceed the x-axis range)
-//
-//		//		if(histOpenInterval>safeTimeSinceLast) {
-//		if(firstIndex>=indexOfSafeTime) {
-//			// we're in the range where cond prob is constant, so avoid numerical errors and just return the following
-//			return condProbFunc.getY(indexOfSafeTime);
-//		}
-////		for(int i=firstIndex;i<condProbFunc.getNum();i++) {
-//		for(int i=firstIndex;i<=indexOfSafeTime;i++) {
-//			double probOfTimeSince = (1-cdf.getY(i));
-//			if(i==firstIndex)
-//				probOfTimeSince *= ((cdf.getX(i)+deltaX/2.0) - histOpenInterval)/deltaX;	// fraction of first bin
-//			normDenom+=probOfTimeSince; 
-//			result+= condProbFunc.getY(i)*probOfTimeSince;
-//		}
-//		result /= normDenom;	// normalize properly
-//		
-//		if(result>1) result=1;
-//		
-//		return result;
 	}
 
 	
@@ -360,6 +335,13 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	}
 	
 	
+	/**
+	 * This tests the difference between values obtained using the local and parent
+	 * getCondProbFunc(*) methods for cases within safeTimeSinceLast, where the fix 
+	 * for small normalized durations is applied in the local method.  This prints all
+	 * cases that differ by more than 0.1%.  All those printed are indeed the problems
+	 * we sought to avoid, and are very rare circumstances anyway.
+	 */
 	public void testSafeCalcs() {
 		
 		double[] durations = {1,0.1,0.01,0.001,0.0001};
@@ -371,7 +353,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			for(double dur:durations) {
 				setAll(1.0, aper, 0.01, 1000,dur);
 				double safeDist = getSafeTimeSinceLastCutoff();
-				EvenlyDiscretizedFunc safeCondProbFunc = getCondProbFunc();
+				EvenlyDiscretizedFunc safeCondProbFunc = getSafeCondProbFunc();
 				EvenlyDiscretizedFunc condProbFunc = super.getCondProbFunc();
 				for(int i=0;i<safeCondProbFunc.getNum();i++) {
 					double timeSince = safeCondProbFunc.getX(i);
