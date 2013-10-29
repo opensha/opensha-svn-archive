@@ -1030,7 +1030,7 @@ public class ProbabilityModelsCalc {
 				percDoneThresh += percDoneIncrement;
 			}
 			
-			System.out.println(numRups+"\t"+currentYear+"\t"+totalRate);
+//			System.out.println(numRups+"\t"+currentYear+"\t"+totalRate);
 			
 			yearsIntoSimulation.add(currentYear);
 			totRateAtYearsIntoSimulation.add(totalRate);
