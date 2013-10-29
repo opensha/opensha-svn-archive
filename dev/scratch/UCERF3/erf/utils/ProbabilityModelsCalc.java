@@ -411,13 +411,13 @@ public class ProbabilityModelsCalc {
 		if(aveRecurIntervals) {
 			if(aveCondRecurIntervalForFltSysRups_type1 == null)
 				aveCondRecurIntervalForFltSysRups_type1 = computeAveCondRecurIntervalForFltSysRups(1);
-			System.out.println("aveRecurIntervals");
+//			System.out.println("aveRecurIntervals");
 			aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type1[fltSysRupIndex];
 		}
 		else {
 			if(aveCondRecurIntervalForFltSysRups_type2 == null)
 				aveCondRecurIntervalForFltSysRups_type2 = computeAveCondRecurIntervalForFltSysRups(2);
-			System.out.println("aveRecurRates");
+//			System.out.println("aveRecurRates");
 			aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type2[fltSysRupIndex];			
 		}
 		
