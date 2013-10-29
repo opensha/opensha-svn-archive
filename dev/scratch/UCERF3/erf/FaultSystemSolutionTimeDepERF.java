@@ -617,7 +617,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	public double computeBPT_ProbGainFast(double aveRecurInterval, double aveTimeSinceLastYears, double duration) {
 		double refTimeSinceLast = aveTimeSinceLastYears*refRI/aveRecurInterval;
 		double refDuration = duration*refRI/aveRecurInterval;
-		double prob_bpt= refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+		double prob_bpt= refBPT_DistributionCalc.getCondProb(refTimeSinceLast, refDuration);
 		double prob_pois = 1-Math.exp(-duration/aveRecurInterval);
 		return prob_bpt/prob_pois;
 	}
@@ -2064,7 +2064,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				double timeSinceLastYears = ((double)(startTimeMillis-timeOfLastMillis))/MILLISEC_PER_YEAR;
 				double refTimeSinceLast = timeSinceLastYears*refRI*longTermPartRateForSectArray[s];
 				double refDuration = durationYears*refRI*longTermPartRateForSectArray[s];
-				double prob_bpt = refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+				double prob_bpt = refBPT_DistributionCalc.getCondProb(refTimeSinceLast, refDuration);
 //				double prob_pois = 1-Math.exp(-durationYears*longTermPartRateForSectArray[s]);
 				double prob_pois = durationYears*longTermPartRateForSectArray[s];	// this is there exact calculation, which is a bit different for long durations
 				sectionGainArray[s] = prob_bpt/prob_pois;
@@ -2109,14 +2109,14 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 				
 				boolean tooFarOut = refTimeSinceLast>bptCalc.getSafeTimeSinceLastCutoff();
 				
-				double prob_bpt_fast= bptCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+				double prob_bpt_fast= bptCalc.getCondProb(refTimeSinceLast, refDuration);
 				
 				// test against slower calculation
 				BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
 				double deltaT_Alt = deltaT*ri/refRI;
 				int numPts = (int)Math.round(7*refRI/deltaT);
 				bptDistCalcAlt.setAll(ri, bpt_Aper, deltaT_Alt, numPts, testDuration);
-				double prob_bpt = bptDistCalcAlt.getSafeCondProb(timeSinceLast, testDuration);
+				double prob_bpt = bptDistCalcAlt.getCondProb(timeSinceLast, testDuration);
 				double ratio = prob_bpt_fast/prob_bpt;
 				if(prob_bpt_fast < 1e-20 && prob_bpt < 1e-20) ratio = 1;
 				System.out.println((float)ratio+"\t"+ri+"\t"+timeSinceLast+"\t"+refTimeSinceLast+"\t"+refDuration+"\t"+

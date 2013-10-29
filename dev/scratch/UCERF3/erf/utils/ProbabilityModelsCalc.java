@@ -441,27 +441,25 @@ public class ProbabilityModelsCalc {
 			return computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/computePoissonProb(aveCondRecurInterval, durationYears);					
 		}
 		else if (noSectionsHadDateOfLast) {
-//			double poisProb = 1.0-Math.exp(-durationYears/aveCondRecurInterval);
-//			return computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
-			return 1d; // TODO
+			double poisProb = computePoissonProb(aveCondRecurInterval, durationYears);
+			return computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
-//			double sumCondProbGain=0;
-//			double totWeight=0;
-//			for(int i=0;i<normBPT_CDF.getNum();i++) {
-//				double timeSinceYears = normBPT_CDF.getX(i)*aveCondRecurInterval;
-//				double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
-//				if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
-//					// average the time since last between known and unknown sections
-//					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
-//					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
-//					double condProbGain = computeBPT_ProbGainFast(aveCondRecurInterval, aveTimeSinceLast, durationYears);
-//					sumCondProbGain += condProbGain*relProbForTimeSinceLast;
-//					totWeight += relProbForTimeSinceLast;
-//				}
-//			}
-//			return sumCondProbGain/totWeight;
-			return 1d; // TODO
+			double sumCondProbGain=0;
+			double totWeight=0;
+			for(int i=0;i<normBPT_CDF.getNum();i++) {
+				double timeSinceYears = normBPT_CDF.getX(i)*aveCondRecurInterval;
+				double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
+				if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
+					// average the time since last between known and unknown sections
+					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
+					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears);
+					sumCondProbGain += (condProb/computePoissonProb(aveCondRecurInterval, durationYears))*relProbForTimeSinceLast;
+					totWeight += relProbForTimeSinceLast;
+				}
+			}
+			return sumCondProbGain/totWeight;
 		}
 	}
 
@@ -489,7 +487,7 @@ public class ProbabilityModelsCalc {
 					double timeSinceLastYears = ((double)(presentTimeMillis-timeOfLastMillis))/MILLISEC_PER_YEAR;
 					double refTimeSinceLast = timeSinceLastYears*refRI*longTermPartRateForSectArray[s];
 					double refDuration = durationYears*refRI*longTermPartRateForSectArray[s];
-					double prob_bpt = refBPT_DistributionCalc.getSafeCondProb(refTimeSinceLast, refDuration);
+					double prob_bpt = refBPT_DistributionCalc.getCondProb(refTimeSinceLast, refDuration);
 //					double prob_pois = 1-Math.exp(-durationYears*longTermPartRateForSectArray[s]);
 					double prob_pois = durationYears*longTermPartRateForSectArray[s];	// this is there exact calculation, which is a bit different for long durations
 					sectionGainArray[s] = prob_bpt/prob_pois;
@@ -561,7 +559,7 @@ public class ProbabilityModelsCalc {
 
 				// get condProbForUnknownTimeSinceLast & condProbFunc from the calculator
 				bptCalc2.setDurationAndHistOpenInterval(duration, histOpenInterval);
-				double condProbForUnknownTimeSinceLast = bptCalc2.getSafeCondProbForUnknownTimeSinceLastEvent();
+				double condProbForUnknownTimeSinceLast = bptCalc2.getCondProbForUnknownTimeSinceLastEvent();
 				xyzDataCondProbForUnknown.set(x, y, Math.log10(condProbForUnknownTimeSinceLast));
 				double probGain = condProbForUnknownTimeSinceLast/computePoissonProb(refRI, duration);
 				xyzDataProbGain.set(x, y, Math.log10(probGain));
@@ -624,7 +622,7 @@ public class ProbabilityModelsCalc {
 				double durOverMean = Math.pow(10,logDurOverMean);
 				double duration = durOverMean*refRI;
 
-				double condProb = bptCalc2.getSafeCondProb(timeSinceLast, duration);
+				double condProb = bptCalc2.getCondProb(timeSinceLast, duration);
 				if(condProb == 0) 
 					condProb = Double.NaN;
 				xyzDataCondProb.set(x, y, Math.log10(condProb));
@@ -657,106 +655,6 @@ public class ProbabilityModelsCalc {
 	
 	
 	
-	/**
-	 * This creates an XYZ data set containing the log10-conditional probability when date of last 
-	 * event is unknown as a function of log10(duration/meanRecurInt)  on the x axis) and 
-	 * log10(histOpenInt/meanRecurInt) on the y axis.
-	 * 
-	 * That this function is independent of meanRecurInt can be seen by running in verbose 
-	 * mode while changing the "mean" value set in the method. 
-	 * 
-	 * @param aperiodicity
-	 * @param verbose - this will print to system.out and generate an XYZ plot of the probability
-	 * @return
-	 */
-	public static EvenlyDiscrXYZ_DataSet OLDgetXYZ_FuncOfCondProbForUnknownDateOfLastEvent(double aperiodicity,boolean verbose) {
-
-		double minLogDurOverMean = -7;
-		double maxLogDurOverMean = Math.log10(5.01187);	// this is 0.7
-		double deltaLogDurOverMean = 0.1;
-		int numLogDurOverMean = 1+(int)Math.ceil((maxLogDurOverMean-minLogDurOverMean)/deltaLogDurOverMean);
-
-		double minLogHistOpenIntOverMean = -2;
-		double maxLogHistOpenIntOverMean = Math.log10(5.01187);
-		double deltaLogHistOpenIntOverMean = 0.025;
-		int numLogHistOpenIntOverMean = 1+(int)Math.ceil((maxLogHistOpenIntOverMean-minLogHistOpenIntOverMean)/deltaLogHistOpenIntOverMean);
-
-//		System.out.println("aperiodicity="+aperiodicity);
-		
-		// for BPT calculator:
-		BPT_DistCalc bptCalc = new BPT_DistCalc();
-		double mean = 20;
-//		double deltaX = Math.pow(10, minLogDurOverMean)*mean/10.0;	// 0.1 years
-		double deltaX = 0.01;	// 0.1 years
-		int numPoints = (int)Math.round(12*mean/deltaX);
-		
-		BPT_DistCalc bptCalc2 = getRef_BPT_DistCalc(aperiodicity);
-
-		// this is what we will return
-		EvenlyDiscrXYZ_DataSet xyzDataCondProbForUnknown = new EvenlyDiscrXYZ_DataSet(numLogDurOverMean, numLogHistOpenIntOverMean, 
-				minLogDurOverMean, minLogHistOpenIntOverMean, deltaLogDurOverMean,deltaLogHistOpenIntOverMean);
-		
-		EvenlyDiscrXYZ_DataSet xyzDataProbGain=null;
-		if(verbose) {
-			xyzDataProbGain = new EvenlyDiscrXYZ_DataSet(numLogDurOverMean, numLogHistOpenIntOverMean, 
-					minLogDurOverMean, minLogHistOpenIntOverMean, deltaLogDurOverMean,deltaLogHistOpenIntOverMean);
-			
-		}
-		
-		for(int y=0;y<xyzDataCondProbForUnknown.getNumY();y++) {
-			double logHistOpenIntOverMean = xyzDataCondProbForUnknown.getY(y);
-			double histOpenIntOverMean = Math.pow(10,logHistOpenIntOverMean);
-			double histOpenInterval = histOpenIntOverMean*mean;
-			for(int x=0;x<xyzDataCondProbForUnknown.getNumX();x++) {
-				double logDurOverMean = xyzDataCondProbForUnknown.getX(x);
-				double durOverMean = Math.pow(10,logDurOverMean);
-				double duration = durOverMean*mean;
-
-				// get condProbForUnknownTimeSinceLast & condProbFunc from the calculator
-				bptCalc.setAllParameters(mean, aperiodicity, deltaX, numPoints, duration, histOpenInterval);	
-				double condProbForUnknownTimeSinceLast = bptCalc.getSafeCondProbForUnknownTimeSinceLastEvent();
-				xyzDataCondProbForUnknown.set(x, y, Math.log10(condProbForUnknownTimeSinceLast));
-				
-				bptCalc2.setDurationAndHistOpenInterval(duration*refRI/mean, histOpenInterval*refRI/mean);
-				double condProbTest = bptCalc2.getSafeCondProbForUnknownTimeSinceLastEvent();
-				double test = Math.abs((condProbForUnknownTimeSinceLast-condProbTest)/condProbTest);
-//				if(test > 0.001)
-//					throw new RuntimeException("\norig="+condProbForUnknownTimeSinceLast+"\ntest="+condProbTest+"\nfractDiff="+test+
-//							"\nduration="+duration+"\nhistOpenInterval="+histOpenInterval);
-						
-				if(verbose) {
-					if(x==0 && y==0)	// print header
-						System.out.println("aperiodicity\tmean\tduration\thistOpenInterval\tlogDurOverMean\tlogHistOpenIntOverMean\tcondProb\tlog10_CondProb\ttest");
-						
-						System.out.println(aperiodicity+"\t"+mean+"\t"+(float)duration+"\t"+(float)histOpenInterval+"\t"+(float)logDurOverMean+"\t"+(float)logHistOpenIntOverMean+
-							"\t"+condProbForUnknownTimeSinceLast+"\t"+Math.log10(condProbForUnknownTimeSinceLast)+"\t"+test);
-						
-						double probGain = condProbForUnknownTimeSinceLast/(1.0-Math.exp(-duration/mean));
-						xyzDataProbGain.set(x, y, Math.log10(probGain));
-				}
-			}
-		}
-
-		if(verbose) {	// plot result
-			
-			CPT cpt_prob=null;
-			CPT cpt_probGain=null;
-			try {
-//				cpt_prob = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0.0, 1.0);
-				cpt_prob = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyzDataCondProbForUnknown.getMinZ(), 0);
-				cpt_probGain = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyzDataProbGain.getMinZ(), xyzDataProbGain.getMaxZ());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			XYZPlotSpec spec_prob = new XYZPlotSpec(xyzDataCondProbForUnknown, cpt_prob, "CondProbForUnknownLast; aper="+aperiodicity, "LogNormDuration", "LogNormHistOpenInt", "Probability");
-			XYZPlotWindow window_prob = new XYZPlotWindow(spec_prob);
-			XYZPlotSpec spec_probGain = new XYZPlotSpec(xyzDataProbGain, cpt_probGain, "Log10 Prob Gain (vs Poisson); aper="+aperiodicity, "LogNormDuration", "LogNormHistOpenInt", "Log10 Prob Gain");
-			XYZPlotWindow window_probGain = new XYZPlotWindow(spec_probGain);
-		}
-
-		return xyzDataCondProbForUnknown;
-	}
-
 
 
 
@@ -773,7 +671,7 @@ public class ProbabilityModelsCalc {
 	 * @return
 	 */
 	public double computeBPT_ProbFast(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears) {
-		return refBPT_DistributionCalc.getSafeCondProb(aveTimeSinceLastYears*refRI/aveRecurIntervalYears, durationYears*refRI/aveRecurIntervalYears);
+		return refBPT_DistributionCalc.getCondProb(aveTimeSinceLastYears*refRI/aveRecurIntervalYears, durationYears*refRI/aveRecurIntervalYears);
 	}
 	
 	
@@ -788,7 +686,7 @@ public class ProbabilityModelsCalc {
 		int numPts = (int)Math.round((9*aveRecurIntervalYears)/delta);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		bptCalc.setAll(aveRecurIntervalYears, aperiodicity, delta, numPts);
-		return bptCalc.getSafeCondProb(aveTimeSinceLastYears, durationYears);
+		return bptCalc.getCondProb(aveTimeSinceLastYears, durationYears);
 	}
 	
 	
@@ -800,7 +698,7 @@ public class ProbabilityModelsCalc {
 	 */
 	public double computeBPT_ProbForUnknownDateOfLastFast(double aveRecurIntervalYears, double histOpenIntervalYears, double durationYears) {
 		refBPT_DistributionCalc.setDurationAndHistOpenInterval(durationYears*refRI/aveRecurIntervalYears, histOpenIntervalYears*refRI/aveRecurIntervalYears);
-		return refBPT_DistributionCalc.getSafeCondProbForUnknownTimeSinceLastEvent();	 
+		return refBPT_DistributionCalc.getCondProbForUnknownTimeSinceLastEvent();	 
 	}
 	
 	
@@ -814,7 +712,7 @@ public class ProbabilityModelsCalc {
 		int numPts = (int)Math.round((9*aveRecurIntervalYears)/delta);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		bptCalc.setAll(aveRecurIntervalYears, aperiodicity, delta, numPts, durationYears, histOpenIntervalYears);
-		return bptCalc.getSafeCondProbForUnknownTimeSinceLastEvent();	 
+		return bptCalc.getCondProbForUnknownTimeSinceLastEvent();	 
 	}
 
 	
@@ -828,62 +726,6 @@ public class ProbabilityModelsCalc {
 		return 1.0-Math.exp(-durationYears/aveRecurIntevalYears);
 	}
 
-	
-//	/**
-//	 * This gives the BPT conditional probability gain, when date of last event is unknown, 
-//	 * for the given recurrence interval and historic open interval.
-//	 * 
-//	 * This is "fast" in that it interpolates from a cached XYZ function.
-//	 * 
-//	 * TODO this should be tested against the slower way (compare interpolated values to
-//	 * directly computed values).
-//	 * 
-//	 * @param recurIntevalYears
-//	 * @param histOpenIntervalYears
-//	 * @return
-//	 */
-//	public double OLDcomputeBPT_ProbForUnknownDateOfLastFast(double recurIntevalYears, double histOpenIntervalYears, double durationYears) {
-//		
-//		double minLogDurOverMean = -7;
-//		double maxLogDurOverMean = Math.log10(5.01187);	// this is 0.7
-//		double deltaLogDurOverMean = 0.1;
-//		int numLogDurOverMean = 1+(int)Math.ceil((maxLogDurOverMean-minLogDurOverMean)/deltaLogDurOverMean);
-//
-//		double minLogHistOpenIntOverMean = -2;
-//		double maxLogHistOpenIntOverMean = Math.log10(5.01187);
-//		double deltaLogHistOpenIntOverMean = 0.025;
-//		int numLogHistOpenIntOverMean = 1+(int)Math.ceil((maxLogHistOpenIntOverMean-minLogHistOpenIntOverMean)/deltaLogHistOpenIntOverMean);
-//
-//		// make xyz function if it's null
-//		if(condProbForUnknownDateOfLast_xyzData == null) {
-//			condProbForUnknownDateOfLast_xyzData = OLDgetXYZ_FuncOfCondProbForUnknownDateOfLastEvent(aperiodicity,false);
-//		}
-//		
-//		double log10_NormalizedDuration = Math.log10(durationYears/recurIntevalYears);
-//		double log10_NormalizedHistOpenInt = Math.log10(histOpenIntervalYears/recurIntevalYears);
-//		
-//		// check the range
-//		if(log10_NormalizedDuration<minLogDurOverMean) {
-////			log10_NormalizedDuration=minLogDurOverMean;
-//			throw new RuntimeException("Duration ("+durationYears+") is too small; it must be > "+
-//					Math.pow(10, minLogDurOverMean)+" of the recurInterval ("+recurIntevalYears+")");
-//		}
-//		else if(log10_NormalizedDuration>maxLogDurOverMean)
-//			log10_NormalizedDuration=maxLogDurOverMean;
-//
-//		if(log10_NormalizedHistOpenInt<minLogHistOpenIntOverMean)
-//			log10_NormalizedHistOpenInt=minLogHistOpenIntOverMean;
-//		else if(log10_NormalizedHistOpenInt>maxLogHistOpenIntOverMean)
-//			log10_NormalizedHistOpenInt=maxLogHistOpenIntOverMean;
-//		
-////		System.out.println("test: "+log10_NormalizedDuration+"\t"+log10_NormalizedHistOpenInt);
-//		
-//		double log10Prob = condProbForUnknownDateOfLast_xyzData.bilinearInterpolation(log10_NormalizedDuration, log10_NormalizedHistOpenInt);
-//
-////		return 1.0-Math.exp(-durationYears/recurIntevalYears);
-//		return Math.pow(10, log10Prob);
-//	}
-//
 	
 
 
@@ -903,163 +745,54 @@ public class ProbabilityModelsCalc {
 
 	
 	
-	/**
-	 * This tests computeBPT_ProbGainFast(*).
-	 * 
-	 * Cases that fail here are not problematic (all pass at 0.01 (1%) threshold), and
-	 * only for aperiodicity>=0.7, which we probably won't use.
-	 * 
-	 * TODO move this to a test class
-	 */
-	public static void OLDtestComputeBPT_ProbGainFast() {
-		
-		double testThresh = 0.001;
-		
-		boolean probFound = false;
 
-		double[] durationArray = {1, 15, 30, 100};
-		double[] aperArray = {0.1, 0.2,0.5,0.7,0.8,0.9};
-		double[] ri_array = {20,2e2,2e3,2e4,2e5,2e6,2e7,2e8};
-		double[] normTimeSinceLastArray = {1e-2,1e-1,1,3,6};
-		
-		System.out.println("ratio\tri\ttimeSinceLast\tnorm_tsl\taper\tduration\tprob_gain_fast\tprob_gain\tsafeTimeSinceLast\tpoisProb");
-
-		
-		for(double duration:durationArray) {
-			for(double aper:aperArray) {
-				ProbabilityModelsCalc calc = new ProbabilityModelsCalc(aper);
-				for(double ri:ri_array) {
-					for(double norm_tsl:normTimeSinceLastArray) {
-						double timeSinceLast = norm_tsl*ri;
-						
-//						System.out.println(ri+"\t"+timeSinceLast+"\t"+norm_tsl+"\t"+aper+"\t"+duration);
-						
-						double prob_gain_fast = calc.computeBPT_ProbFast(ri, timeSinceLast, duration)/computePoissonProb(ri, duration);
-						
-						// test against slower calculation
-						BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
-						double deltaT_Alt = deltaT*ri/refRI;
-						int numPts = (int)Math.round(7*refRI/deltaT);
-						bptDistCalcAlt.setAll(ri, aper, deltaT_Alt, numPts);
-						double poisProb = 1-Math.exp(-duration/ri);
-						double prob_gain = bptDistCalcAlt.getSafeCondProb(timeSinceLast, duration)/poisProb;
-						
-						double safeTimeSinceLast = bptDistCalcAlt.getSafeTimeSinceLastCutoff();
-						
-						double ratio = prob_gain_fast/prob_gain;
-						if(prob_gain_fast < 1e-20 && prob_gain < 1e-20) ratio = 1;
-						
-//						if(duration>safeTimeSinceLast)
-//							System.out.println((float)ratio+"\t"+ri+"\t"+timeSinceLast+"\t"+aper+"\t"+duration+"\t"+
-//								(float)prob_gain_fast+"\t"+(float)prob_gain+"\t"+safeTimeSinceLast+"\t"+poisProb);
-						
-						if(ratio>1+testThresh || ratio<1-testThresh) {
-							System.out.println((float)ratio+"\t"+ri+"\t"+timeSinceLast+"\t"+norm_tsl+"\t"+aper+"\t"+duration+"\t"+
-								(float)prob_gain_fast+"\t"+(float)prob_gain+"\t"+safeTimeSinceLast+"\t"+(float)poisProb);
-							probFound = true;
-						}
-					}
-				}
-			}
-		}
-		System.out.println("probFound="+probFound);
-	}
-	
-	
 	
 	/**
-	 * This tests computeBPT_ProbGainForUnknownDateOfLastFast().
-	 * 
-	 * 
-	 * TODO move this to a test class
+	 * This test the slow versus fact computations here, monte carlo sampling over a range of aver recur intervals, 
+	 * normalized durations, normalized time since last, and normalize historic open intervals.  Fractional discrepancies
+	 * greater than 0.001 are listed.  All are generally small and for large normalized durations or historic open intervals,
+	 * where differences in how to avoid numerical problems arise.  I don't think any of these are significant for UCERF3, but
+	 * the better test for the latter would be to do it both ways for UCERF3 (test the long way against the fast caclulations).
+	 * @param numTests
 	 */
-	public static void OLDtestComputeBPT_ProbForUnknownDateOfLastFast() {
+	public static void testFastCalculations(int numTests) {
 		
-		double testThresh = 0.01;
+		System.out.println("Prob\tdiff\tprob\tprob_fast\taperiodicity\taveRI\tdur\ttimeSince\thistOpenInt\tnormDur\tnormTimeSince\tnormHistOpenInt");
 		
-		double[] durationArray = {0.11, 1.1, 15.1, 30.1, 100.1};
-		double[] aperArray = {0.1, 0.2,0.5,0.7,0.8,0.9};
-		double[] ri_array = {20.1,2.1e2,2.1e3,2.1e4,2.1e5};
-		double[] normOpenIntervalArray = {1.1e-2,1.1e-1,1.1,2.1};
-//		double[] durationArray = {1};
-//		double[] aperArray = {0.1};
-//		double[] ri_array = {2e3};
-//		double[] normOpenIntervalArray = {1e-2};
-		
-		System.out.println("ratio\tlog10(normDur)\tlog10(normOpenInt)\taper\tri\tduration\topenInt\tsafeTimeSinceLast\tprob_fast\tprob");
+		double[] apers = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
+		for(double aper:apers) {
+			ProbabilityModelsCalc calc = new ProbabilityModelsCalc(aper);
+			double diffThresh = 0.001;
+			for(int i=0;i<numTests; i++) {
+				double aveRI = 20 +Math.random()*1.0e5;	  // get mean between 20 and 100,020 years
+				double normDur = 0.001+Math.random()*5.0; // get normalized duration between 0.001 and 5.001
+				double normTimeSince = Math.random()*5.0; // get normalized time since last between and 5
+				double normHistOpenInt = normTimeSince;
+				double dur = normDur*aveRI;
+				double timeSince = normTimeSince*aveRI;
+				double histOpenInt = normHistOpenInt*aveRI;
+				
+				double prob1 = calc.computeBPT_Prob(aveRI, timeSince, dur);
+				double prob2 = calc.computeBPT_ProbForUnknownDateOfLast(aveRI, histOpenInt, dur);
+				double prob1_fast = calc.computeBPT_ProbFast(aveRI, timeSince, dur);
+				double prob2_fast = calc.computeBPT_ProbForUnknownDateOfLastFast(aveRI, histOpenInt, dur);
+				
+				double diff1 = Math.abs((prob1-prob1_fast)/prob1);
+				if(prob1<1e-12 && prob1_fast<1e-12)
+					diff1 = 0;
 
-		for(double duration:durationArray) {
-			for(double aper:aperArray) {
-				ProbabilityModelsCalc calc = new ProbabilityModelsCalc(aper);
-				for(double ri:ri_array) {
-					for(double norm_openInt:normOpenIntervalArray) {
-						double openInt = norm_openInt*ri;
-												
-						double prob_fast = calc.computeBPT_ProbForUnknownDateOfLastFast(ri, openInt, duration);
-
-						// test against slower calculation
-						BPT_DistCalc bptDistCalcAlt = new BPT_DistCalc();
-						double deltaT_Alt = deltaT*ri/refRI;
-						int numPts = (int)Math.round(7*refRI/deltaT);
-						bptDistCalcAlt.setAll(ri, aper, deltaT_Alt, numPts, duration, openInt);
-						double condProb = bptDistCalcAlt.getSafeCondProbForUnknownTimeSinceLastEvent();
-						
-						double safeTimeSinceLast = bptDistCalcAlt.getSafeTimeSinceLastCutoff();
-						
-						double ratio = prob_fast/condProb;
-						if(prob_fast < 1e-15 && condProb < 1e-15) ratio = 1;
-
-//						System.out.println((float)ratio+"\t"+(float)Math.log10(duration/ri)+"\t"+(float)Math.log10(norm_openInt)+"\t"+
-//						aper+"\t"+ri+"\t"+duration+"\t"+openInt+"\t"+(float)safeTimeSinceLast+"\t"+(float)prob_fast+"\t"+(float)condProb);
-						
-						if(ratio>1+testThresh || ratio<1-testThresh) {
-							System.out.println((float)ratio+"\t"+(float)Math.log10(duration/ri)+"\t"+(float)Math.log10(norm_openInt)+"\t"+
-							aper+"\t"+ri+"\t"+duration+"\t"+openInt+"\t"+(float)safeTimeSinceLast+"\t"+(float)prob_fast+"\t"+(float)condProb);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	
-	public static void testFastCalculations(double aperiodicity, int numTests) {
-		
-		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(aperiodicity);
-		double diffThresh = 0.001;
-		for(int i=0;i<numTests; i++) {
-			double aveRI = 20 +Math.random()*1.0e5;	  // get mean between 20 and 100,020 years
-			double normDur = 0.001+Math.random()*5.0; // get normalized duration between 0.001 and 5.001
-			double normTimeSince = Math.random()*5.0; // get normalized time since last between and 5
-			double normHistOpenInt = normTimeSince;
-			double dur = normDur*aveRI;
-			double timeSince = normTimeSince*aveRI;
-			double histOpenInt = normHistOpenInt*aveRI;
-			
-			double prob1 = calc.computeBPT_Prob(aveRI, timeSince, dur);
-			double prob2 = calc.computeBPT_ProbForUnknownDateOfLast(aveRI, histOpenInt, dur);
-			double prob1_fast = calc.computeBPT_ProbFast(aveRI, timeSince, dur);
-			double prob2_fast = calc.computeBPT_ProbForUnknownDateOfLastFast(aveRI, histOpenInt, dur);
-			
-			double diff1 = Math.abs((prob1-prob1_fast)/prob1);
-			if(prob1<1e-12 && prob1_fast<1e-12)
-				diff1 = 0;
-
-			double diff2 = Math.abs((prob2-prob2_fast)/prob2);
-			if(prob2<1e-12 && prob2_fast<1e-12)
-				diff2 = 0;
-			
-			if(i==1)
-				System.out.println("Prob\tdiff\tprob\tprob_fast\taperiodicity\taveRI\tdur\ttimeSince\thistOpenInt\tnormDur\tnormTimeSince\tnormHistOpenInt");
-
-			
-			if(diff1>diffThresh)
-				System.out.println("Prob1\t"+diff1+"\t"+prob1+"\t"+prob1_fast+"\t"+aperiodicity+"\t"+aveRI+"\t"+dur+"\t"+timeSince+"\t"+Double.NaN+"\t"+normDur+"\t"+normTimeSince+"\t"+Double.NaN);
-//				throw new RuntimeException("problem with diff1");
-			
-			if(diff2>diffThresh)
-				System.out.println("Prob2\t"+diff2+"\t"+prob2+"\t"+prob2_fast+"\t"+aperiodicity+"\t"+aveRI+"\t"+dur+"\t"+Double.NaN+"\t"+histOpenInt+"\t"+normDur+"\t"+Double.NaN+"\t"+normHistOpenInt);
-//				throw new RuntimeException("problem with diff2");
+				double diff2 = Math.abs((prob2-prob2_fast)/prob2);
+				if(prob2<1e-12 && prob2_fast<1e-12)
+					diff2 = 0;
+				
+				if(diff1>diffThresh)
+					System.out.println("Prob1\t"+diff1+"\t"+prob1+"\t"+prob1_fast+"\t"+aper+"\t"+aveRI+"\t"+dur+"\t"+timeSince+"\t"+Double.NaN+"\t"+normDur+"\t"+normTimeSince+"\t"+Double.NaN);
+//					throw new RuntimeException("problem with diff1");
+				
+				if(diff2>diffThresh)
+					System.out.println("Prob2\t"+diff2+"\t"+prob2+"\t"+prob2_fast+"\t"+aper+"\t"+aveRI+"\t"+dur+"\t"+Double.NaN+"\t"+histOpenInt+"\t"+normDur+"\t"+Double.NaN+"\t"+normHistOpenInt);
+//					throw new RuntimeException("problem with diff2");
+			}			
 		}
 	}
 	
@@ -1959,7 +1692,7 @@ public class ProbabilityModelsCalc {
 //		testCalc.testER_Simulation(timeSinceLastFileNamePois, null, erf,10000d);
 		
 		
-		testFastCalculations(0.2, 1000);
+//		testFastCalculations(10000);
 		
 		
 		
@@ -1968,13 +1701,13 @@ public class ProbabilityModelsCalc {
 		// good for a variety of aperiodicities, nomralized durations, normalized 
 		// time since last, and normalized historic open intervals (e.g., no
 		// outliers from numerical artifacts).
-//		double[] apers = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
-//		for(double aper:apers) {
-//			System.out.println("working on " +aper);
-//			ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc((float)aper);
-//			testCalc.plotXYZ_FuncOfCondProbForUnknownDateOfLastEvent();		
-//			testCalc.plotXYZ_FuncOfCondProb();
-//		}
+		double[] apers = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
+		for(double aper:apers) {
+			System.out.println("working on " +aper);
+			ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc((float)aper);
+			testCalc.plotXYZ_FuncOfCondProbForUnknownDateOfLastEvent();		
+			testCalc.plotXYZ_FuncOfCondProb();
+		}
 		
 		
 		
