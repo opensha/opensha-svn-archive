@@ -302,7 +302,7 @@ public class ProbabilityModelsCalc {
 	 * @param onlyIfAllSectionsHaveDateOfLast
 	 */
 	public long getAveDateOfLastEventWhereKnown(int fltSystRupIndex) {
-		
+//		System.out.println("getAveDateOfLastEventWhereKnown");
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
 		allSectionsHadDateOfLast = true;
@@ -345,6 +345,8 @@ public class ProbabilityModelsCalc {
 	 * @param presentTimeMillis - present time in epoch milliseconds
 	 */
 	public double getAveNormTimeSinceLastEventWhereKnown(int fltSystRupIndex, long presentTimeMillis) {
+		
+//		System.out.println("getAveNormTimeSinceLastEventWhereKnown");
 		
 //		List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
 		totRupArea=0;
@@ -409,11 +411,13 @@ public class ProbabilityModelsCalc {
 		if(aveRecurIntervals) {
 			if(aveCondRecurIntervalForFltSysRups_type1 == null)
 				aveCondRecurIntervalForFltSysRups_type1 = computeAveCondRecurIntervalForFltSysRups(1);
+			System.out.println("aveRecurIntervals");
 			aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type1[fltSysRupIndex];
 		}
 		else {
 			if(aveCondRecurIntervalForFltSysRups_type2 == null)
 				aveCondRecurIntervalForFltSysRups_type2 = computeAveCondRecurIntervalForFltSysRups(2);
+			System.out.println("aveRecurRates");
 			aveCondRecurInterval = aveCondRecurIntervalForFltSysRups_type2[fltSysRupIndex];			
 		}
 		
@@ -434,14 +438,15 @@ public class ProbabilityModelsCalc {
 		// 		boolean noSectionsHadDateOfLast
 		
 		
+		double poisProb = computePoissonProb(aveCondRecurInterval, durationYears);
+
 		if(onlyIfAllSectionsHaveDateOfLast && !allSectionsHadDateOfLast) {
 			return Double.NaN;
 		}
 		else if(allSectionsHadDateOfLast) {
-			return computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/computePoissonProb(aveCondRecurInterval, durationYears);					
+			return computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/poisProb;					
 		}
 		else if (noSectionsHadDateOfLast) {
-			double poisProb = computePoissonProb(aveCondRecurInterval, durationYears);
 			return computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
@@ -455,7 +460,7 @@ public class ProbabilityModelsCalc {
 					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
 					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
 					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears);
-					sumCondProbGain += (condProb/computePoissonProb(aveCondRecurInterval, durationYears))*relProbForTimeSinceLast;
+					sumCondProbGain += (condProb/poisProb)*relProbForTimeSinceLast;
 					totWeight += relProbForTimeSinceLast;
 				}
 			}
@@ -1674,22 +1679,23 @@ public class ProbabilityModelsCalc {
 	public static void main(String[] args) {
 		
 
-//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
-//		
-//		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+		
+		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
 //		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 //		testCalc.testER_Simulation(null, null, erf,100000d);
 		
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-//		boolean aveRecurIntervalsInU3_BPTcalc=true;
-//		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-//		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
-//		erf.updateForecast();
-//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-//		testCalc.testER_Simulation(timeSinceLastFileNamePois, null, erf,10000d);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		boolean aveRecurIntervalsInU3_BPTcalc=false;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
+		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
+		erf.updateForecast();
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.testER_Simulation(timeSinceLastFileNamePois, null, erf,10000d);
+		
 		
 		
 //		testFastCalculations(10000);
@@ -1701,30 +1707,13 @@ public class ProbabilityModelsCalc {
 		// good for a variety of aperiodicities, nomralized durations, normalized 
 		// time since last, and normalized historic open intervals (e.g., no
 		// outliers from numerical artifacts).
-		double[] apers = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
-		for(double aper:apers) {
-			System.out.println("working on " +aper);
-			ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc((float)aper);
-			testCalc.plotXYZ_FuncOfCondProbForUnknownDateOfLastEvent();		
-			testCalc.plotXYZ_FuncOfCondProb();
-		}
-		
-		
-		
-		
-		
-//		OLDtestComputeBPT_ProbForUnknownDateOfLastFast();
-		
-//		OLDtestComputeBPT_ProbGainFast();
-		
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.1, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.2, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.3, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.4, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.5, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.6, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.7, true);
-//		getXYZ_FuncOfCondProbForUnknownDateOfLastEvent(0.8, true);
+//		double[] apers = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
+//		for(double aper:apers) {
+//			System.out.println("working on " +aper);
+//			ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc((float)aper);
+//			testCalc.plotXYZ_FuncOfCondProbForUnknownDateOfLastEvent();		
+//			testCalc.plotXYZ_FuncOfCondProb();
+//		}
 
 	}
 
