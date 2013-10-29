@@ -66,7 +66,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		int numTrials;
 		final double default_cov = 0.3;
 		double cov;
-		boolean test_time_indep = true;
+		boolean test_time_indep = false;
 		if (args.length > 0) {
 			interactive = false;
 			outputDir = new File(args[0]);

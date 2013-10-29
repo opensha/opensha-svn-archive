@@ -41,12 +41,16 @@ public class TimeDepNoDataTest {
 		depERF.getTimeSpan().setDuration(duration);
 		depERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 		depERF.setUseFSSDateOfLastEvents(true);
+		System.out.println("Updating time dep forecast");
 		depERF.updateForecast();
+		System.out.println("Done updating time dep forecast");
 		
 		FaultSystemSolutionERF indepERF = new FaultSystemSolutionERF(sol);
 		indepERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 		indepERF.getTimeSpan().setDuration(duration);
+		System.out.println("Updating time indep forecast");
 		indepERF.updateForecast();
+		System.out.println("Done updating time indep forecast");
 		
 		double[] depRates = new double[depERF.getNumSources()];
 		double[] indepRates = new double[depERF.getNumSources()];

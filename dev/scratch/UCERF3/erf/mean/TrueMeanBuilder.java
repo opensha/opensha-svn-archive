@@ -1,6 +1,7 @@
 package scratch.UCERF3.erf.mean;
 
 import java.awt.geom.Point2D;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,7 +11,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -659,6 +663,34 @@ public class TrueMeanBuilder {
 		outputFile = new File(invDir, outputFilePrefix+"_WITH_MAPPING.zip");
 		FileUtils.createZipFile(outputFile.getAbsolutePath(), tempDir.getAbsolutePath(), fileNames);
 		FileUtils.deleteRecursive(tempDir);
+	}
+	
+	public static Map<LogicTreeBranch, List<Integer>> loadRuptureMappings(File fssFile) throws IOException {
+		List<LogicTreeBranch> branches = Lists.newArrayList();
+		ZipFile zip = new ZipFile(fssFile);
+		ZipEntry branchesEntry = zip.getEntry("branch_list.txt");
+		Preconditions.checkNotNull(branchesEntry, "Given file doesn't have branch list!");
+		
+		Scanner scanner = new Scanner(
+				new BufferedInputStream(zip.getInputStream(branchesEntry)));
+		try {
+			while (scanner.hasNextLine()){
+				branches.add(LogicTreeBranch.fromFileName(scanner.nextLine()));
+			}
+		}
+		finally{
+			scanner.close();
+		}
+		
+		// now load in the mappings
+		ZipEntry mappingEntry = zip.getEntry("branch_ids.bin");
+		Preconditions.checkNotNull(branchesEntry, "Given file doesn't have mappings!");
+		List<List<Integer>> idsList = MatrixIO.intListListFromInputStream(zip.getInputStream(mappingEntry));
+		Preconditions.checkState(branches.size() == idsList.size(), "mappings lengths inconsistent!");
+		Map<LogicTreeBranch, List<Integer>> mapping = Maps.newHashMap();
+		for (int i=0; i<branches.size(); i++)
+			mapping.put(branches.get(i), idsList.get(i));
+		return mapping;
 	}
 	
 	private static void checkEqual(double origVal, double newVal, String description) {

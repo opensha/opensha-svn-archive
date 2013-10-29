@@ -6,31 +6,19 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import mpi.MPI;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.math3.stat.StatUtils;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -38,32 +26,25 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
-import org.opensha.commons.metadata.MetadataLoader;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.nshmp2.calc.HazardCalc;
-import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.EpistemicListERF;
-import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sra.gui.portfolioeal.Asset;
 import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 import org.opensha.sra.gui.portfolioeal.Portfolio;
 import org.opensha.sra.gui.portfolioeal.PortfolioEALCalculatorController;
-import org.opensha.sra.vulnerability.Vulnerability;
 
-import cern.colt.list.tint.IntArrayList;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExceptionHandler {
 	
@@ -80,7 +61,7 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 	
 	private ERF refERF;
 	
-	private static final boolean FILE_DEBUG = true;
+	private static final boolean FILE_DEBUG = false;
 	
 	public MPJ_EAL_Rupcalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
 		this(cmd, portfolio, el, null);
@@ -158,6 +139,13 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		
 		for (SiteResult result : results)
 			registerResult(result);
+		
+		System.gc();
+		Runtime rt = Runtime.getRuntime();
+		long totalMB = rt.totalMemory() / 1024 / 1024;
+		long freeMB = rt.freeMemory() / 1024 / 1024;
+		long usedMB = totalMB - freeMB;
+		debug("post calc mem t/u/f: "+totalMB+"/"+usedMB+"/"+freeMB);
 	}
 	
 	protected synchronized void registerResult(SiteResult result) {
@@ -220,10 +208,73 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 					unpacked_results[sourceID][rupID] = global_results[cnt++];
 			}
 			writeResults(outputFile, unpacked_results);
+			
+			if (refERF instanceof FaultSystemSolutionERF) {
+				double[][] fssResults = mapResultsToFSS((FaultSystemSolutionERF)refERF, unpacked_results);
+				
+				String name = outputFile.getName();
+				if (name.toLowerCase().endsWith(".bin"))
+					name = name.substring(0, name.toLowerCase().indexOf(".bin"));
+				File fssOutputFile = new File(outputFile.getParentFile(), name+"_fss_index.bin");
+				writeResults(fssOutputFile, fssResults);
+				File fssGridOutputFile = new File(outputFile.getParentFile(), name+"_fss_gridded.bin");
+				writeFSSGridSourcesFile((FaultSystemSolutionERF)refERF, unpacked_results, fssGridOutputFile);
+			}
 		} else {
 			// send results
 			MPI.COMM_WORLD.Send(packed_results, 0, packed_results.length, MPI.DOUBLE, 0, TAG_GET_RESULTS);
 		}
+	}
+	
+	public static double[][] mapResultsToFSS(FaultSystemSolutionERF erf, double[][] origResults) throws IOException {
+		// write it out by rupture index as well. we can use the same file format
+		int numFSSRups = erf.getSolution().getRupSet().getNumRuptures();
+		double[][] fssResults = new double[numFSSRups][];
+		for (int r=0; r<numFSSRups; r++) {
+			int sourceIndex = erf.getSrcIndexForFltSysRup(r);
+			if (sourceIndex < 0)
+				fssResults[r] = new double[0];
+			else
+				fssResults[r] = origResults[sourceIndex];
+		}
+		return fssResults;
+	}
+	
+	public static void writeFSSGridSourcesFile(FaultSystemSolutionERF erf, double[][] origResults, File file) throws IOException {
+		int fssSources = erf.getNumFaultSystemSources();
+		int numSources = erf.getNumSources();
+		int numGridded = numSources - fssSources;
+		
+		if (numGridded <= 0)
+			return;
+		
+		GridSourceProvider prov = erf.getSolution().getGridSourceProvider();
+
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		out.writeInt(numGridded);
+		
+		for (int srcIndex=fssSources; srcIndex<erf.getNumSources(); srcIndex++) {
+			// returned in nodeList order
+			int nodeIndex = srcIndex - fssSources;
+			Location loc = prov.getGriddedRegion().locationForIndex(nodeIndex);
+			
+			// write location to be safe in case gridding changes in the future
+			out.writeDouble(loc.getLatitude());
+			out.writeDouble(loc.getLongitude());
+			
+			ProbEqkSource source = erf.getSource(srcIndex);
+			
+			out.writeInt(source.getNumRuptures());
+			
+			for (int r=0; r<source.getNumRuptures(); r++) {
+				ProbEqkRupture rup = source.getRupture(r);
+				out.writeDouble(rup.getMag());
+				// expected loss
+				out.writeDouble(origResults[srcIndex][r]);
+			}
+		}
+		
+		out.close();
 	}
 	
 	// TODO

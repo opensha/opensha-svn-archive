@@ -390,6 +390,8 @@ public class Asset implements Cloneable {
 		EAL = 0d;
 		double duration = erf.getTimeSpan().getDuration();
 		
+		EALCalculator currentCalc = new EALCalculator(hazFunction, vulnModel.getVulnerabilityFunc(), getValue() );
+		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
 			double distance = source.getMinDistance(site);
@@ -428,7 +430,7 @@ public class Asset implements Cloneable {
 
 				if ( error ) controller.calculationException( errorMessage );
 
-				EALCalculator currentCalc = new EALCalculator(hazFunction, vulnModel.getVulnerabilityFunc(), getValue() );
+				currentCalc.setMAFE(hazFunction);
 				double rupEL = currentCalc.computeEAL();
 				
 				results[sourceID][rupID] = rupEL;

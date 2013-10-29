@@ -35,16 +35,14 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
-import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
 import com.google.common.collect.Lists;
 
@@ -627,19 +625,21 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
 		
 		// get time-dependent probability gain
-		double probGain;	// default for Poisson		
-		if(probModel == ProbabilityModelOptions.POISSON) {
-			probGain=1.0;
-		}
-		else if(probModel == ProbabilityModelOptions.U3_BPT) {
+		double probGain;
+		switch (probModel) {
+		case POISSON:
+			probGain = 1.0;
+			break;
+		case U3_BPT:
 			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, 
 					aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
-		}
-		else if(probModel == ProbabilityModelOptions.WG02_BPT) {
+			break;
+		case WG02_BPT:
 			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
-		}
-		else {
-			throw new RuntimeException("Unrecognized Probability Model");
+			break;
+
+		default:
+			throw new IllegalStateException("Unrecognized Probability Model");
 		}
 
 //		switch (probModel) {

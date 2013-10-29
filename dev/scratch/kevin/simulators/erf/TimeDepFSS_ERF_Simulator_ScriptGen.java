@@ -16,18 +16,19 @@ public class TimeDepFSS_ERF_Simulator_ScriptGen {
 		List<File> classpath = Lists.newArrayList();
 		classpath.add(new File(dir, "OpenSHA_complete.jar"));
 		
-		double cov = 0.2;
+		double cov = 0.3;
 		String prefix_add = "cov"+(float)cov+"_";
 		
-		String outputDirName = "2013_10_21-erf-audit-cov-0.2";
+		String outputDirName = "2013_10_29-erf-audit-cov-0.3";
 		File localOutputDir = new File("/tmp", outputDirName);
 		if (!localOutputDir.exists())
 			localOutputDir.mkdir();
 		File remoteOutputDir = new File(dir, outputDirName);
 		
-		int numJobs = 40;
+		int numJobs = 45;
 //		int trialsPerJob = 5000;
-		int trialsPerJob = 2500;
+//		int trialsPerJob = 2500;
+		int trialsPerJob = 1000;
 		int secsPerTrial = 12; // very conservative
 		int mins = secsPerTrial*trialsPerJob/60;
 		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;

@@ -29,6 +29,8 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	private final WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 	private double[] fracStrikeSlip,fracNormal,fracReverse;
 	private double ptSrcCutoff = 6.0;
+	
+	public static final double SOURCE_MIN_MAG_CUTOFF = 5.05;
 
 	protected AbstractGridSourceProvider() {
 		initFocalMechGrids();
@@ -45,7 +47,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	public ProbEqkSource getSource(int idx, double duration,
 			boolean filterAftershocks, BackgroundRupType bgRupType) {
 		Location loc = getGriddedRegion().locationForIndex(idx);
-		IncrementalMagFreqDist mfd = getNodeMFD(idx, 5.05);
+		IncrementalMagFreqDist mfd = getNodeMFD(idx, SOURCE_MIN_MAG_CUTOFF);
 		if (filterAftershocks) scaleMFD(mfd);
 
 		switch (bgRupType) {
