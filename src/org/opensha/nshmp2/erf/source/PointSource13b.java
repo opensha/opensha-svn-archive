@@ -423,16 +423,16 @@ public class PointSource13b extends ProbEqkSource {
 //		System.out.println(r);
 		
 		
-		double Mw = 6.0;
+		double Mw = 7.45;
 		SingleMagFreqDist mfd = new SingleMagFreqDist(Mw, 1, 0.1, Mw, 1);
 		Location srcLoc = new Location(31.6, -117.1);
-		Location siteLoc = new Location(31.6, -116.9);
+		Location siteLoc = new Location(31.6, -117.105);
 		double[] depths = new double[] {5.0, 1.0};
 		
 		Map<FocalMech, Double> mechMap = Maps.newHashMap();
-		mechMap.put(FocalMech.STRIKE_SLIP, 0.5);
+		mechMap.put(FocalMech.STRIKE_SLIP, 0.0);
 		mechMap.put(FocalMech.REVERSE, 0.0);
-		mechMap.put(FocalMech.NORMAL, 0.1334735636);
+		mechMap.put(FocalMech.NORMAL, 1.0);
 
 		
 		PointSource13b ptSrc = new PointSource13b(srcLoc, mfd, 1.0, depths, mechMap);
