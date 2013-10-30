@@ -106,31 +106,32 @@ public class simulatorAnalysisUtils {
 	public static void runAll() {
 		
 		// Set the simulator Geometry file
-		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/allcal2_1-7-11");
-//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+//		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/allcal2_1-7-11");
+		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/simulatorDataFiles");
-//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
+//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
 //				"ALLCAL2_no-creep_dt-08_st-10_110912_471207_events_slip-map-5.5_eid-fix.dat" //,
-//				"ALLCAL2-30k-output[3-24-11].converted",
+				"ALLCAL2-30k-output[3-24-11].converted",
 //				"Fred-allcal2-7june11.txt"
 				};
 //		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
 //		String[] dirNamesPrefixArray = {"RSQSim","ALLCAL","ViscoSim"};
-		String[] dirNamesPrefixArray = {"RSQSim"};
+//		String[] dirNamesPrefixArray = {"RSQSim"};
 //		String[] dirNamesPrefixArray = {"VirtCal"};
-//		String[] dirNamesPrefixArray = {"ALLCAL"};
+		String[] dirNamesPrefixArray = {"ALLCAL"};
 //		String[] dirNamesPrefixArray = {"ViscoSim"};
 
 		// set the list of supra-seismogenic mag thresholds (NaN means it will be defined by ave fault DDW)
 //		double[] seismoMagThreshArray = {6.5,Double.NaN};
 		double[] seismoMagThreshArray = {Double.NaN};
+//		double[] seismoMagThreshArray = {6.5};
 				
 		// loop over desired runs
 		for(double magThresh:seismoMagThreshArray) {
@@ -160,9 +161,9 @@ public class simulatorAnalysisUtils {
 //					System.out.println("Working on printMinAndMaxElementArea(*)");
 //					infoStrings.add(tools.printMinAndMaxElementArea());
 //
-//					// check slip rates
-//					System.out.println("Working on imposedVsImpliedSlipRates(*)");
-//					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
+					// check slip rates
+					System.out.println("Working on imposedVsImpliedSlipRates(*)");
+					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
 //
 //					// check event mags
 //					System.out.println("Working on checkEventMagnitudes(*)");
@@ -173,14 +174,14 @@ public class simulatorAnalysisUtils {
 //						System.out.println("Working on checkFullDDW_rupturing(*)");
 //						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
 //					}
-//					// total MFD
-//					System.out.println("Working on computeTotalMagFreqDist(*)");
-//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
-//
-//					// norm RI dist for surface elements
-//					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
-//					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
-//
+					// total MFD
+					System.out.println("Working on computeTotalMagFreqDist(*)");
+					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+
+					// norm RI dist for surface elements
+					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
+					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
+
 //					// ave slip along rupture
 //					System.out.println("Working on plotAveNormSlipAlongRupture(*)");
 //					boolean success = tools.plotAveNormSlipAlongRupture(magThresh, true);
@@ -189,13 +190,13 @@ public class simulatorAnalysisUtils {
 //						System.out.println("plotAveNormSlipAlongRupture failed\n");
 //					}
 //
-//					// scaling plots
-//					System.out.println("Working on plotScalingRelationships(*)");
-//					tools.plotScalingRelationships(true);
-//
-					// RIs at paleo sites
-					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
-					plotRI_DistsAtObsPaleoRateSites(tools, true);
+					// scaling plots
+					System.out.println("Working on plotScalingRelationships(*)");
+					tools.plotScalingRelationships(true);
+
+//					// RIs at paleo sites
+//					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
+//					plotRI_DistsAtObsPaleoRateSites(tools, true);
 					
 					// all the time & slip predictability tests (plus other things):
 					System.out.println("Working on testTimePredictability(*)");
