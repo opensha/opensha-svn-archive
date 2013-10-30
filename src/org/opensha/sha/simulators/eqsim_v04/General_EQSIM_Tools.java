@@ -1520,7 +1520,7 @@ public class General_EQSIM_Tools {
 			}
 		}
 		for(int i=0; i<aveRI_ForElement.length; i++) {
-			aveRI_ForElement[i] /= numEventsForElement[i]-1;	// one less than the number of events
+			aveRI_ForElement[i] /= numEventsForElement[i]-1;	// one less than the number of events; sum is just equal to last minus first time
 			aveSlipForElement[i] /= numEventsForElement[i];
 			aveRI_ForElement[i] /= SECONDS_PER_YEAR;
 		}
@@ -1542,7 +1542,9 @@ public class General_EQSIM_Tools {
 		ArrayList<Double> spInterval2List = new ArrayList<Double>();
 		ArrayList<Double> aveSlipRateList = new ArrayList<Double>();
 		ArrayList<Double> aveElementIntervalList = new ArrayList<Double>();
-		ArrayList<Double> norm_aveElementIntervalList = new ArrayList<Double>();	// normalized by long-term RI averaged over all elements
+		ArrayList<Double> norm_aveElementIntervalList = new ArrayList<Double>();	    // normalized by long-term RI averaged over all elements
+		ArrayList<Double> norm_aveElementIntervalAlt1_List = new ArrayList<Double>();	// normalized by one-over long-term rate averaged over all elements
+		ArrayList<Double> norm_aveElementIntervalAlt2_List = new ArrayList<Double>();	// ave normalized element RI
 		ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
 		ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
 		ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
@@ -1561,7 +1563,7 @@ public class General_EQSIM_Tools {
 			
 		// write file header
 		linesFor_fw_timePred+="counter\tobsInterval\ttpInterval1\tnorm_tpInterval1\ttpInterval2\tnorm_tpInterval2\t"+
-						"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\tnorm_aveElementInterval\t"+
+						"spInterval1\tnorm_spInterval1\tspInterval2\tnorm_spInterval2\tnorm_aveElementInterval\tnorm_aveElementIntervalAlt1\tnorm_aveElementIntervalAlt2\t"+
 						"aveLastSlip\taveSlip\tnorm_lastEventSlip\tnorm_nextEventSlip\teventMag\teventID\tfirstSectionID\tnumSectionsInEvent\tsectionsInEventString\n";
 			
 		// for norm RI along rupture
@@ -1604,6 +1606,7 @@ public class General_EQSIM_Tools {
 				double aveEventSlip=0;
 				double aveSlipOverElements=0;	// the average of long-term ave slips
 				double aveElementInterval=0;			// the long-term RI averaged over all elements
+				double aveElementIntervalFromRates=0;	// this will be one over the ave long-term element rates
 				double aveNormTimeSinceLast=0;
 				int numElementsUsed = 0;
 				int numNormDistProblems = 0;
@@ -1623,7 +1626,7 @@ public class General_EQSIM_Tools {
 						aveLastSlip += lastSlip;
 						aveEventSlip += slips[e];
 						aveElementInterval += aveRI_ForElement[index];
-//						aveElementInterval += 1.0/aveRI_ForElement[index];
+						aveElementIntervalFromRates += 1.0/aveRI_ForElement[index];
 						aveSlipOverElements += aveSlipForElement[index];
 						aveNormTimeSinceLast += ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[index];
 						numElementsUsed += 1;
@@ -1670,7 +1673,7 @@ public class General_EQSIM_Tools {
 				aveLastSlip /= numElementsUsed;
 				aveEventSlip /= numElementsUsed;
 				aveElementInterval /= numElementsUsed;
-//				aveElementInterval = numElementsUsed/aveElementInterval;
+				aveElementIntervalFromRates = numElementsUsed/aveElementIntervalFromRates;
 				aveSlipOverElements /= numElementsUsed;
 				aveNormTimeSinceLast /= numElementsUsed;
 				double obsInterval = (eventTime-aveLastEvTime)/SECONDS_PER_YEAR;
@@ -1683,7 +1686,8 @@ public class General_EQSIM_Tools {
 				double norm_spInterval1 = obsInterval/spInterval1;
 				double norm_spInterval2 = obsInterval/spInterval2;
 				double norm_aveElementInterval = obsInterval/aveElementInterval;
-//				double norm_aveElementInterval = aveNormTimeSinceLast;
+				double norm_aveElementIntervalAlt1 = obsInterval/aveElementIntervalFromRates;
+				double norm_aveElementIntervalAlt2 = aveNormTimeSinceLast;
 				double norm_lastEventSlip = aveLastSlip/aveSlipOverElements;
 				double norm_nextEventSlip = aveEventSlip/aveSlipOverElements;
 				
@@ -1728,6 +1732,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 						spInterval1+"\t"+(float)norm_spInterval1+"\t"+
 						spInterval2+"\t"+(float)norm_spInterval2+"\t"+
 						(float)norm_aveElementInterval+"\t"+
+						(float)norm_aveElementIntervalAlt1+"\t"+
+						(float)norm_aveElementIntervalAlt2+"\t"+
 						(float)aveLastSlip+"\t"+(float)aveEventSlip+"\t"+
 						(float)norm_lastEventSlip+"\t"+(float)norm_nextEventSlip+"\t"+
 						(float)eventMag+"\t"+event.getID()+"\t"+
@@ -1743,6 +1749,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					aveElementIntervalList.add(aveElementInterval);
 					nucleationSectionList.add(event.get(0).getSectionID());
 					norm_aveElementIntervalList.add(norm_aveElementInterval);
+					norm_aveElementIntervalAlt1_List.add(norm_aveElementIntervalAlt1);
+					norm_aveElementIntervalAlt2_List.add(norm_aveElementIntervalAlt2);
 					norm_tpInterval1List.add(norm_tpInterval1);
 					norm_spInterval1List.add(norm_spInterval1);
 					norm_tpInterval2List.add(norm_tpInterval2);
@@ -1807,8 +1815,11 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		GraphWindow plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)", Double.NaN);			
 		GraphWindow plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)", Double.NaN);
 		GraphWindow plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)", Double.NaN);			
-		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Obs to Ave Element RI (norm_aveElementIntervalList)", Double.NaN);			
-		GraphWindow plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)", Double.NaN);	// both lists are the same(?)		
+		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)", Double.NaN);			
+		GraphWindow plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)", Double.NaN);	// both lists are the same(?)
+		GraphWindow plot7 = plotNormRI_Distribution(norm_aveElementIntervalAlt1_List, "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)", Double.NaN);			
+		GraphWindow plot8 = plotNormRI_Distribution(norm_aveElementIntervalAlt2_List, "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)", Double.NaN);			
+
 		if(saveStuff) {
 			try {
 				plot1.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval1_Dist.pdf");
@@ -1817,6 +1828,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
 				plot5.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_Dist.pdf");
 				plot6.saveAsPDF(dirNameForSavingFiles+"/norm_aveSlip_Dist.pdf");
+				plot7.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt1.pdf");
+				plot8.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt2.pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -2072,27 +2085,27 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 				if(sectNormObsIntervalList.size()>2){	// only do it if there are more than 2  data points
 					// Plot RI PDF
-					String plotTitle8 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+sectionNamesList.get(s);
-					HeadlessGraphPanel plot8 = getNormRI_DistributionGraphPanel(sectNormObsIntervalList, plotTitle8);
+					String plotTitle10 = "Normalized Obs Interval (norm_aveElementIntervalList) for "+sectionNamesList.get(s);
+					HeadlessGraphPanel plot10 = getNormRI_DistributionGraphPanel(sectNormObsIntervalList, plotTitle10);
 
 					// plot obs vs predicted scatter plot
-					String plotTitle7 = "Norm Obs RI vs Norm Last Slip for "+sectionNamesList.get(s);
-					HeadlessGraphPanel plot7 = new HeadlessGraphPanel();
+					String plotTitle11 = "Norm Obs RI vs Norm Last Slip for "+sectionNamesList.get(s);
+					HeadlessGraphPanel plot11 = new HeadlessGraphPanel();
 					ArrayList<DefaultXY_DataSet> tempList = new ArrayList<DefaultXY_DataSet>();
 					tempList.add(normObs_vs_normLastSlip_funcsMap.get(s));
 					ArrayList<PlotCurveCharacterstics> curveCharacteristics2 = new ArrayList<PlotCurveCharacterstics>();
 					curveCharacteristics2.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.RED));
-					//						plot7.setUserBounds(10, 10000, 10, 10000);
-					plot7.setXLog(true);
-					plot7.setYLog(true);
-					plot7.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle7);
-					plot7.getCartPanel().setSize(1000, 800);
+					//						plot11.setUserBounds(10, 10000, 10, 10000);
+					plot11.setXLog(true);
+					plot11.setYLog(true);
+					plot11.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle11);
+					plot11.getCartPanel().setSize(1000, 800);
 					if(saveStuff) {
-						String fileName8 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
-						String fileName7 = dirNameForSavingFiles+"/"+subDir+"/normObsVsLastSlip_forSect"+s+".pdf";
+						String fileName10 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
+						String fileName11 = dirNameForSavingFiles+"/"+subDir+"/normObsVsLastSlip_forSect"+s+".pdf";
 						try {
-							plot8.saveAsPDF(fileName8);
-							plot7.saveAsPDF(fileName7);
+							plot10.saveAsPDF(fileName10);
+							plot11.saveAsPDF(fileName11);
 							//								plot7.saveAsPNG(fileName7);
 						} catch (IOException e) {
 							e.printStackTrace();
