@@ -676,7 +676,10 @@ public class ProbabilityModelsCalc {
 	 * @return
 	 */
 	public double computeBPT_ProbFast(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears) {
-		return refBPT_DistributionCalc.getCondProb(aveTimeSinceLastYears*refRI/aveRecurIntervalYears, durationYears*refRI/aveRecurIntervalYears);
+		double newTimeSinceLast = aveTimeSinceLastYears*refRI/aveRecurIntervalYears;
+		if(newTimeSinceLast<0 && newTimeSinceLast > -1e-10)
+			newTimeSinceLast=0;
+		return refBPT_DistributionCalc.getCondProb(newTimeSinceLast, durationYears*refRI/aveRecurIntervalYears);
 	}
 	
 	
@@ -1682,19 +1685,21 @@ public class ProbabilityModelsCalc {
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		
-		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
+//		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
+		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
 //		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-//		testCalc.testER_Simulation(null, null, erf,100000d);
+//		testCalc.testER_Simulation(null, null, erf,200000d);
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
 		boolean aveRecurIntervalsInU3_BPTcalc=false;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileNamePois, null, erf,10000d);
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,200000d);
 		
 		
 		
