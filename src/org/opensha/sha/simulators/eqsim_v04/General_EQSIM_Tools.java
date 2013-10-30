@@ -1338,6 +1338,7 @@ public class General_EQSIM_Tools {
 			if(val>max) max = val;
 //		double deltaX=0.1;
 		int num = (int)Math.ceil(max/deltaT)+2;
+// System.out.println("HERE: "+num+"\t"+max+"\t"+deltaT);
 		HistogramFunction dist = new HistogramFunction(deltaT/2,num,deltaT);
 		dist.setTolerance(2*deltaT);
 		int numData=normRI_List.size();
@@ -1749,7 +1750,18 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					aveElementIntervalList.add(aveElementInterval);
 					nucleationSectionList.add(event.get(0).getSectionID());
 					norm_aveElementIntervalList.add(norm_aveElementInterval);
-					norm_aveElementIntervalAlt1_List.add(norm_aveElementIntervalAlt1);
+					if(norm_aveElementIntervalAlt1 < 50)	// found a problem case for ESQSim with seismogenic cutoff of 6.5
+						norm_aveElementIntervalAlt1_List.add(norm_aveElementIntervalAlt1);
+					else {
+						System.out.println("Strange norm_aveElementIntervalAlt1: "+norm_aveElementIntervalAlt1+"\naveElementIntervalFromRates="+
+								aveElementIntervalFromRates+"\n Element RIs:");
+						for(int e=0;e<slips.length;e++) {
+							int index = elemIDs[e]-1;  // index = ID-1
+							double slipRate = rectElementsList.get(index).getSlipRate();
+							if(slipRate != 0)
+								System.out.println("\t"+e+"\t"+aveRI_ForElement[index]);
+						}
+					}
 					norm_aveElementIntervalAlt2_List.add(norm_aveElementIntervalAlt2);
 					norm_tpInterval1List.add(norm_tpInterval1);
 					norm_spInterval1List.add(norm_spInterval1);
@@ -1809,6 +1821,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 //			}
 //		}
 		
+		System.out.println("norm_aveElementIntervalAlt1_List.size()="+norm_aveElementIntervalAlt1_List.size());
 		
 		// plot the normalized distributions and best fits
 		GraphWindow plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)", Double.NaN);
