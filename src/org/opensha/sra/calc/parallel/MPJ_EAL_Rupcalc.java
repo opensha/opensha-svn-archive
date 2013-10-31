@@ -24,6 +24,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
@@ -226,6 +228,15 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		}
 	}
 	
+	/**
+	 * This takes results in [sourceID][rupID] format and maps them into [FSS rup index][mag index] where mag index
+	 * is the index in the rupture MFD.
+	 * 
+	 * @param erf
+	 * @param origResults
+	 * @return
+	 * @throws IOException
+	 */
 	public static double[][] mapResultsToFSS(FaultSystemSolutionERF erf, double[][] origResults) throws IOException {
 		// write it out by rupture index as well. we can use the same file format
 		int numFSSRups = erf.getSolution().getRupSet().getNumRuptures();
@@ -240,6 +251,14 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		return fssResults;
 	}
 	
+	/**
+	 * This writes a file containing expected losses for each grid node/magnitude bin
+	 * 
+	 * @param erf
+	 * @param origResults
+	 * @param file
+	 * @throws IOException
+	 */
 	public static void writeFSSGridSourcesFile(FaultSystemSolutionERF erf, double[][] origResults, File file) throws IOException {
 		int fssSources = erf.getNumFaultSystemSources();
 		int numSources = erf.getNumSources();
@@ -275,6 +294,51 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		}
 		
 		out.close();
+	}
+	
+	/**
+	 * This loads a file containing expected losses for each grid node/magnitude bin. A gridded region
+	 * can also be passed in to validate the locations
+	 * 
+	 * @param file
+	 * @param region can be null, just used for verification (recommended!)
+	 * @return
+	 * @throws IOException 
+	 */
+	public static DiscretizedFunc[] loadGridSourcesFile(File file, GriddedRegion region) throws IOException {
+		InputStream is = new FileInputStream(file);
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		is = new BufferedInputStream(is);
+
+		DataInputStream in = new DataInputStream(is);
+
+		int numGridded = in.readInt();
+
+		Preconditions.checkState(numGridded > 0, "Size must be > 0!");
+		Preconditions.checkState(region == null || region.getNodeCount() == numGridded,
+				"Gridded location count doesn't match passed in region!");
+		
+		DiscretizedFunc[] results = new DiscretizedFunc[numGridded];
+		
+		for (int node=0; node<numGridded; node++) {
+			double lat = in.readDouble();
+			double lon = in.readDouble();
+			if (region != null)
+				Preconditions.checkState(region.locationForIndex(node).equals(new Location(lat, lon)));
+			int numRups = in.readInt();
+			if (numRups == 0)
+				continue;
+			double[] mags = new double[numRups];
+			double[] losses = new double[numRups];
+			for (int rupID=0; rupID<numRups; rupID++) {
+				mags[rupID] = in.readDouble();
+				losses[rupID] = in.readDouble();
+			}
+		}
+		
+		in.close();
+		
+		return results;
 	}
 	
 	// TODO
@@ -370,6 +434,8 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 				results[sourceID][rupID] = in.readDouble();
 			}
 		}
+		
+		in.close();
 		
 		return results;
 	}

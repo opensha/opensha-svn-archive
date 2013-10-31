@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FractileCurveCalculator;
@@ -19,6 +21,8 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -26,31 +30,50 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.cpt.CPT;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
+
+import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.erf.FSSRupsInRegionCache;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 
 public class FaultSysSolutionERF_Calc {
@@ -590,14 +613,296 @@ public class FaultSysSolutionERF_Calc {
 		}
 
 	}
-
 	
+//	public static void makeRegionalProb
 
+	/**
+	 * This calculates a cumulative magnitude vs probability distribution for the given FSS ERF and region.
+	 * Each point in the returned function represents the probability in the forecast (using the forecast duration)
+	 * of a rupture at or above the given magnitude with any portion inside the region.
+	 * 
+	 * @param erf
+	 * @param region
+	 * @param minMag
+	 * @param numMag
+	 * @param deltaMag
+	 * @param calcFromMFD if true probabilities will be calculated by first computing participation MFD for the region,
+	 * otherwise probabilities will be summed for each source as totProb = 1 - (1 - prob1)*(1 - prob2)*...*(1 - probN)
+	 * @param cache optional but recommended - this cache will greatly speed up calculations and can be reused for
+	 * different calls to this method with different durations, probability models, or regions.
+	 * @return
+	 */
+	public static EvenlyDiscretizedFunc calcMagProbDist(FaultSystemSolutionERF erf, Region region,
+			double minMag, int numMag, double deltaMag, boolean calcFromMFD, FSSRupsInRegionCache cache) {
+		Preconditions.checkState(numMag > 0);
+		erf.updateForecast();
+		double duration = erf.getTimeSpan().getDuration();
+		
+		if (calcFromMFD) {
+			// just use the MFD itself
+			// we want the cumulative distribution, so shift minMag up by half a mag bin
+			// and then get cumulative dist with offset
+			SummedMagFreqDist incrMFD = ERF_Calculator.getParticipationMagFreqDistInRegion(
+					erf, region, minMag+0.5*deltaMag, numMag, deltaMag, true, cache);
+			EvenlyDiscretizedFunc mfd = incrMFD.getCumRateDistWithOffset();
+			Preconditions.checkState(minMag == mfd.getMinX());
+			EvenlyDiscretizedFunc result = calcProbsFromSummedMFD(mfd, duration);
+			Preconditions.checkState(minMag == result.getMinX());
+			return result;
+		} else {
+			// calc from each source itself
+			if (cache == null)
+				cache = new FSSRupsInRegionCache(erf);
+			
+			EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+			
+			// this tracks the rupture probabilities for each mag bin
+			List<List<Double>> probsList = Lists.newArrayList();
+			for (int m=0; m<numMag; m++)
+				probsList.add(new ArrayList<Double>());
+			
+			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+				ProbEqkSource source = erf.getSource(sourceID);
+				if (!cache.isRupInRegion(source, source.getRupture(0), sourceID, 0, region))
+					// source is just for a single rupture, if the first rup isn't in the region none are
+					continue;
+				for (ProbEqkRupture rup : source) {
+					double prob = rup.getProbability();
+					double mag = rup.getMag();
+					populateProbList(mag, prob, probsList, result);
+				}
+			}
+			
+			// now sum the probabilities as:
+			calcSummedProbs(probsList, result);
+			return result;
+		}
+	}
+	
+	private static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
+		int numMag = cmlMFD.getNum();
+		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(cmlMFD.getMinX(), numMag, cmlMFD.getDelta());
+		
+		// convert from rates to poisson probabilities
+		for (int i=0; i<numMag; i++) {
+			double rate = cmlMFD.getY(i);
+			double prob = 1-Math.exp(-rate*duration);
+			result.set(i, prob);
+		}
+		return result;
+	}
+	
+	private static void calcSummedProbs(List<List<Double>> probsList, EvenlyDiscretizedFunc result) {
+		// now sum the probabilities as:
+		// totProb = 1 - (1 - prob1)*(1 - prob2)*...*(1 - probN)
+		for (int i=0; i<result.getNum(); i++) {
+			List<Double> probs = probsList.get(i);
+			double totOneMinus = 1;
+			for (double prob : probs) {
+				totOneMinus *= (1-prob);
+			}
+			double totProb = 1 - totOneMinus;
+			result.set(i, totProb);
+//			System.out.println("\tM "+result.getX(i)+"+ Prob: "+(float)(totProb*100d)+" %");
+		}
+	}
+	
+	private static void populateProbList(double mag, double prob, List<List<Double>> probsList,
+			EvenlyDiscretizedFunc xVals) {
+		// we want to find the smallest mag in the function where rupMag >= mag
+		if (mag < xVals.getMinX())
+			return;
+		int magIndex = xVals.getClosestXIndex(mag);
+		// closest could be above, check for that and correct
+		if (mag < xVals.getX(magIndex))
+			magIndex--;
+		Preconditions.checkState(magIndex >= 0);
+		for (int m=0; m<=magIndex && m<xVals.getNum(); m++)
+			probsList.get(m).add(prob);
+	}
+	
+	/**
+	 * This calculates rupture probability distributions for supra-seismogenic ruptures
+	 * on each fault section from the given ERF. Functions are returned in an array
+	 * corresponding to the section index in the FaultSystemRupSet, with magnitude in the
+	 * x field and cumulative probability in the y field.
+	 * 
+	 * @param erf
+	 * @param minMag
+	 * @param numMag
+	 * @param deltaMag
+	 * @return
+	 */
+	public static EvenlyDiscretizedFunc[] calcSubSectSupraSeisMagProbDists(
+			FaultSystemSolutionERF erf, double minMag, int numMag, double deltaMag) {
+		erf.updateForecast();
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		int numSects = rupSet.getNumSections();
+		
+		// create a list of all rupture probs for each section
+		List<List<List<Double>>> sectProbLists = Lists.newArrayList();
+		for (int i=0; i<numSects; i++) {
+			List<List<Double>> probLists = Lists.newArrayList();
+			for (int m=0; m<numMag; m++)
+				probLists.add(new ArrayList<Double>());
+			sectProbLists.add(probLists);
+		}
+		
+		EvenlyDiscretizedFunc xVals = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+		
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			int invIndex = erf.getFltSysRupIndexForSource(sourceID);
+			for (ProbEqkRupture rup : erf.getSource(sourceID)) {
+				double mag = rup.getMag();
+				double prob = rup.getProbability();
+				for (int sectIndex : rupSet.getSectionsIndicesForRup(invIndex)) {
+					populateProbList(mag, prob, sectProbLists.get(sectIndex), xVals);
+				}
+			}
+		}
+		
+		EvenlyDiscretizedFunc[] results = new EvenlyDiscretizedFunc[numSects];
+		for (int sectIndex=0; sectIndex<numSects; sectIndex++) {
+			results[sectIndex] = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+			calcSummedProbs(sectProbLists.get(sectIndex), results[sectIndex]);
+		}
+		return results;
+	}
+	
+	/**
+	 * This generates a set of statewide fault probability gain maps for the given fault system
+	 * solution.
+	 * @param sol
+	 * @param saveDir directory where plots should be saved
+	 * @param prefix file prefix
+	 * @param filterAftershocks if true then the Gardner Knopoff aftershock filter will be enabled
+	 * @param duration forecast duration
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	public static void makeFaultProbGainMaps(FaultSystemSolution sol, File saveDir, String prefix,
+			boolean filterAftershocks, double duration) throws GMT_MapException, RuntimeException, IOException {
+		double minMag = 6.5;
+		int numMag = 4;
+		double deltaMag = 0.5;
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, filterAftershocks);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] poissonFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] poissonAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+		
+		// TODO historical open interval?
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] bptFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] bptAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+		
+		// log space
+		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
+//		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
+		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
+		
+		List<LocationList> faults = Lists.newArrayList();
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+			faults.add(sect.getFaultTrace());
+		
+		Region region = new CaliforniaRegions.RELM_COLLECTION();
+		
+		prefix += "_"+(float)duration+"yr";
+		
+		for (int i=0; i<numMag+1; i++) {
+			
+			double[] poissonVals;
+			double[] bptVals;
+			String myPrefix;
+			String magStr;
+			if (i == numMag) {
+				poissonVals = extractYVals(poissonAllMags, 0);
+				bptVals = extractYVals(bptAllMags, 0);
+				myPrefix = prefix+"_supra_seis";
+				magStr = "Supra Seis";
+			} else {
+				poissonVals = extractYVals(poissonFuncs, i);
+				bptVals = extractYVals(bptFuncs, i);
+				double mag = poissonFuncs[0].getX(i);
+				myPrefix = prefix+"_"+(float)mag+"+";
+				magStr = "M>="+(float)mag;
+			}
+			
+			double[] ratioVals = new double[poissonVals.length];
+			for (int j=0; j<ratioVals.length; j++)
+				ratioVals[j] = bptVals[j]/poissonVals[j];
+			
+			// poisson probs
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(poissonVals), region,
+					saveDir, myPrefix+"_poisson", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" Poisson Prob)");
+			// bpt probs
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(bptVals), region,
+					saveDir, myPrefix+"_bpt", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" BPT Prob)");
+			// prob gain
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, ratioVals, region,
+					saveDir, myPrefix+"_prob_gain", false, true,
+					(float)duration+" yr "+magStr+" BPT/Poisson Prob Gain");
+		}
+		
+		// now make normalized time since last event
+		double[] normTimeSinceLast = new double[poissonAllMags.length];
+		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
+				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
+		double[] sectImpliedProbGain = new double[poissonAllMags.length];
+		long curTime = System.currentTimeMillis();
+		final double YEARS_PER_MILLI = 1d/((double)(1000l*60l*60l*24l)*365.242);
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		double[] partRates = sol.calcTotParticRateForAllSects();
+		for (int i=0; i<normTimeSinceLast.length; i++) {
+			FaultSectionPrefData sect = rupSet.getFaultSectionData(i);
+			long dateLast = sect.getDateOfLastEvent();
+			if (dateLast == Long.MIN_VALUE) {
+				normTimeSinceLast[i] = Double.NaN;
+				sectImpliedProbGain[i] = Double.NaN;
+			} else {
+				long deltaMillis = curTime - dateLast;
+				double diffYears = YEARS_PER_MILLI*deltaMillis;
+				
+				double ri = 1d/partRates[i];
+				normTimeSinceLast[i] = diffYears / ri;
+				double bptProb = calc.computeBPT_ProbFast(ri, diffYears, duration);
+				double poissonProb = ProbabilityModelsCalc.computePoissonProb(ri, duration);
+				sectImpliedProbGain[i] = bptProb/poissonProb;
+			}
+		}
+		// norm time since last
+		FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, normTimeSinceLast, region,
+				saveDir, prefix+"_norm_time_since_last", false, true,
+				"Normalized Time Since Last Event");
+		// sect implied
+		FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, sectImpliedProbGain, region,
+				saveDir, prefix+"_sect_implied_prob_gain", false, true,
+				"Sect Implied Prob Gain");
+	}
+	
+	private static double[] extractYVals(EvenlyDiscretizedFunc[] funcs, int index) {
+		double[] vals = new double[funcs.length];
+		for (int i=0; i<funcs.length; i++)
+			vals[i] = funcs[i].getY(index);
+		return vals;
+	}
 	
 	/**
 	 * @param args
+	 * @throws DocumentException 
+	 * @throws IOException 
+	 * @throws RuntimeException 
+	 * @throws GMT_MapException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		
 		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
 		
@@ -627,8 +932,114 @@ public class FaultSysSolutionERF_Calc {
 //		}
 //		System.out.println("numRups="+tmp.getNumRuptures());
 //		System.out.println("numSect="+tmp.getNumSections());
-
-
+		double minMag = 6.5;
+		double deltaMag = 0.1;
+		int numMag = 21;
+//		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+//		// we want to find the smallest mag in the function where rupMag >= mag
+//		for (int i=0; i<10; i++) {
+//			double mag = Math.random() * (result.getMaxX()-minMag) + minMag;
+//			if (mag < minMag)
+//				continue;
+//			int magIndex = result.getClosestXIndex(mag);
+//			// closest could be above, check for that and correct
+//			if (mag < result.getX(magIndex))
+//				magIndex--;
+//			Preconditions.checkState(magIndex >= 0);
+//			System.out.println("Mag: "+mag);
+//			System.out.println("Mag index: "+magIndex);
+//			System.out.println("Mapped mag: "+result.getX(magIndex));
+//		}
+//		System.exit(0);
+//		IncrementalMagFreqDist mfdTest = new IncrementalMagFreqDist(minMag + deltaMag*0.5, numMag, deltaMag);
+//		for (int i=0; i<numMag; i++)
+//			mfdTest.set(i, (double)(numMag-i-1));
+//		EvenlyDiscretizedFunc cmlMFDTest = mfdTest.getCumRateDistWithOffset();
+//		System.out.println("Incremental");
+//		System.out.print("X:");
+//		for (int i=0; i<numMag; i++)
+//			System.out.print("\t"+(float)mfdTest.getX(i));
+//		System.out.println();
+//		System.out.print("Y:");
+//		for (int i=0; i<numMag; i++)
+//			System.out.print("\t"+(float)mfdTest.getY(i));
+//		System.out.println();
+//		System.out.println("Cumulative");
+//		System.out.print("X:");
+//		for (int i=0; i<numMag; i++)
+//			System.out.print("\t"+(float)cmlMFDTest.getX(i));
+//		System.out.println();
+//		System.out.print("Y:");
+//		for (int i=0; i<numMag; i++)
+//			System.out.print("\t"+(float)cmlMFDTest.getY(i));
+//		System.out.println();
+//		System.exit(0);
+		
+		
+		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		File saveDir = new File("/tmp/prob_maps");
+		if (!saveDir.exists())
+			saveDir.mkdir();
+		makeFaultProbGainMaps(meanSol, saveDir, "ucerf3_ca", false, 30d);
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+//		erf.getTimeSpan().setDuration(30d);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		FSSRupsInRegionCache cache = new FSSRupsInRegionCache(erf);
+//		Region region = new CaliforniaRegions.RELM_SOCAL();
+//		// preload the cache so that timing comparisons are fair
+//		System.out.println("Preloading cache");
+//		Stopwatch watch = new Stopwatch();
+//		watch.start();
+//		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+//			ProbEqkSource source = erf.getSource(sourceID);
+//			cache.isRupInRegion(source, source.getRupture(0), sourceID, 0, region);
+//		}
+//		watch.stop();
+//		System.out.println("Done. Took "+(watch.elapsed(TimeUnit.MILLISECONDS)/1000f)+"s");
+//		watch.reset();
+//		watch.start();
+//		System.out.println("Calculating indep MFD");
+//		EvenlyDiscretizedFunc indepProbsMFD = calcMagProbDist(erf, region, minMag, numMag, deltaMag, true, cache);
+//		watch.stop();
+//		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS)/1000f)+"s");
+//		watch.reset();
+//		watch.start();
+//		System.out.println("Calculating indep Sum");
+//		EvenlyDiscretizedFunc indepProbsSum = calcMagProbDist(erf, region, minMag, numMag, deltaMag, false, cache);
+//		watch.stop();
+//		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS)/1000f)+"s");
+//		watch.reset();
+//		watch.start();
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+//		erf.updateForecast();
+//		System.out.println("Calculating dep MFD");
+//		EvenlyDiscretizedFunc depProbsMFD = calcMagProbDist(erf, region, minMag, numMag, deltaMag, true, cache);
+//		watch.stop();
+//		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS)/1000f)+"s");
+//		watch.reset();
+//		watch.start();
+//		System.out.println("Calculating dep Sum");
+//		EvenlyDiscretizedFunc depProbsSum = calcMagProbDist(erf, region, minMag, numMag, deltaMag, false, cache);
+//		watch.stop();
+//		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS)/1000f)+"s");
+//		watch.reset();
+//		watch.start();
+//		List<DiscretizedFunc> funcs = Lists.newArrayList();
+//		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//		funcs.add(indepProbsMFD);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
+//		funcs.add(indepProbsSum);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY));
+//		funcs.add(depProbsMFD);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+//		funcs.add(depProbsSum);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.CYAN));
+//		
+//		new GraphWindow(funcs, "30 Year So Cal Probabilities", chars);
 	}
 
 }

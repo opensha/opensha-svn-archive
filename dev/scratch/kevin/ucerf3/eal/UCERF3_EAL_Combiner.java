@@ -56,6 +56,7 @@ public class UCERF3_EAL_Combiner {
 		File compoundSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
 		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output.bin");
+		File rupGriddedFile = null;
 		boolean isFSSMapped = false; // if false, then organized as erf source/rup. else, fss rup/mag
 		BranchWeightProvider weightProv = new APrioriBranchWeightProvider();
 		File csvFile = new File("/tmp/ucerf3_indep_fault_eals.csv");
@@ -91,6 +92,10 @@ public class UCERF3_EAL_Combiner {
 			Preconditions.checkState(sourceCount == expectedLosses.length);
 			expectedLosses = mappedLosses;
 		}
+		DiscretizedFunc[] griddedFuncs = null;
+		if (rupGriddedFile != null)
+			griddedFuncs = MPJ_EAL_Rupcalc.loadGridSourcesFile(rupGriddedFile,
+					trueMeanSol.getGridSourceProvider().getGriddedRegion());
 		
 		double trueMeanEAL = 0;
 		for (int r=0; r<expectedLosses.length; r++) {
@@ -103,6 +108,7 @@ public class UCERF3_EAL_Combiner {
 		}
 		
 		double[] eals = new double[branches.size()];
+		double[] gridEALs = new double[branches.size()];
 		
 		System.out.println("calculating branch eals");
 		for (int i=0; i<branches.size(); i++) {
@@ -180,7 +186,7 @@ public class UCERF3_EAL_Combiner {
 			func.add(eal, weight);
 			calcMeanEAL += eal*weight;
 		}
-		System.out.println("calc mean eal="+trueMeanEAL);
+		System.out.println("calc mean eal="+calcMeanEAL);
 		
 		List<PlotElement> elems = Lists.newArrayList();
 		elems.add(func);

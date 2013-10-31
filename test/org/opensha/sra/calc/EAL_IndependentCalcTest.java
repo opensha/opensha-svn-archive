@@ -109,9 +109,11 @@ public class EAL_IndependentCalcTest {
 	@Test
 	public void test() {
 		MinMaxAveTracker track = new MinMaxAveTracker();
+		MinMaxAveTracker noAbsTrack = new MinMaxAveTracker();
 		for (int i=0; i<assets.size(); i++) {
 			if (assets.size() > 100 && i % 100 == 0) {
 				System.out.println("Calculating asset "+i+"/"+assets.size()+" ("+(100f*((float)i/assets.size()))+" %)");
+				System.out.println(noAbsTrack);
 				System.out.println(track);
 			}
 			Asset asset = assets.get(i);
@@ -131,6 +133,8 @@ public class EAL_IndependentCalcTest {
 			// this is calculated by the above call
 			double calcEAL = asset.getAssetEAL();
 			double pDiff = DataUtils.getPercentDiff(calcEAL, eal);
+			double pDiffNoAbs = (calcEAL - eal) / eal * 100d;
+			noAbsTrack.addValue(pDiffNoAbs);
 			track.addValue(pDiff);
 			// test to within 0.1 %
 			String message = "Asset "+i+". Acutal: "+eal+", sep calc: "+calcEAL;
