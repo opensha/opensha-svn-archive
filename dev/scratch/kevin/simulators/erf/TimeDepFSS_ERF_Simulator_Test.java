@@ -67,6 +67,8 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		final double default_cov = 0.3;
 		double cov;
 		boolean test_time_indep = false;
+		double defaultForecastDuration = 50d;
+		double forecastDuration;
 		if (args.length > 0) {
 			interactive = false;
 			outputDir = new File(args[0]);
@@ -77,6 +79,11 @@ public class TimeDepFSS_ERF_Simulator_Test {
 				cov = Double.parseDouble(args[3]);
 			else
 				cov = default_cov;
+			if (args.length > 4)
+				forecastDuration = Double.parseDouble(args[4]);
+			else
+				forecastDuration = defaultForecastDuration;
+			
 		} else {
 			interactive = true;
 			dataDir = new File("/home/kevin/Simulators");
@@ -84,6 +91,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			numTrials = 100000;
 			outputPrefix = "erf_audit_"+numTrials;
 			cov = default_cov;
+			forecastDuration = defaultForecastDuration;
 		}
 		if (test_time_indep)
 			outputPrefix += "_INDEP";
@@ -189,8 +197,6 @@ public class TimeDepFSS_ERF_Simulator_Test {
 //			System.out.println("\t"+simID+": "+simToRupIndex.get(simID));
 //		}
 //		System.exit(0);
-		
-		double forecastDuration = 50d;
 		
 		double minDuration = 1000;
 		double maxDuration = durationYears-forecastDuration;
