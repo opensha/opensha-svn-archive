@@ -1,6 +1,8 @@
 package scratch.UCERF3.griddedSeismicity;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -11,6 +13,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -19,6 +23,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -91,6 +96,78 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 		toXMLMetadata(root);
 		
 		XMLUtils.writeDocumentToFile(file, doc);
+	}
+	
+	/**
+	 * This writes gridded seismicity MFDs to the given binary file. XML metadata for the region is stored
+	 * in it's own xml file.
+	 * @param file
+	 * @param region
+	 * @param nodeSubSeisMFDs
+	 * @param nodeUnassociatedMFDs
+	 * @throws IOException
+	 */
+	public static void writeGriddedSeisBinFile(File binFile, File regXMLFile, GridSourceProvider gridProv) throws IOException {
+		DiscretizedFunc[] funcs = new DiscretizedFunc[gridProv.getGriddedRegion().getNodeCount()*2];
+		
+		for (int i=0; i<funcs.length; i+=2) {
+			int id2 = i/2;
+			DiscretizedFunc unMFD = gridProv.getNodeUnassociatedMFD(id2);
+			DiscretizedFunc subSeisMFD = gridProv.getNodeSubSeisMFD(id2);
+			if (unMFD == null)
+				unMFD = new ArbitrarilyDiscretizedFunc();
+			if (subSeisMFD == null)
+				subSeisMFD = new ArbitrarilyDiscretizedFunc();
+			funcs[i] = unMFD;
+			funcs[i+1] = subSeisMFD;
+		}
+		
+		MatrixIO.discFuncsToFile(funcs, binFile);
+		
+		if (regXMLFile == null)
+			return;
+		
+		// now write gridded_region
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		
+		gridProv.getGriddedRegion().toXMLMetadata(root);
+		
+		XMLUtils.writeDocumentToFile(regXMLFile, doc);
+	}
+	
+	public static GridSourceFileReader fromBinFile(File binFile, File regXMLFile) throws IOException, DocumentException {
+		return fromBinStreams(new BufferedInputStream(new FileInputStream(binFile)),
+				new BufferedInputStream(new FileInputStream(regXMLFile)));
+	}
+	
+	public static GridSourceFileReader fromBinStreams(InputStream binFileStream, InputStream regXMLFileStream)
+			throws IOException, DocumentException {
+		// load region
+		Document doc = XMLUtils.loadDocument(regXMLFileStream);
+		Element regionEl = doc.getRootElement().element(GriddedRegion.XML_METADATA_NAME);
+		
+		GriddedRegion region = GriddedRegion.fromXMLMetadata(regionEl);
+		
+		DiscretizedFunc[] funcs = MatrixIO.discFuncsFromInputStream(binFileStream);
+		Preconditions.checkState(funcs.length == region.getNodeCount()*2);
+		
+		Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = Maps.newHashMap();
+		Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = Maps.newHashMap();
+		
+		for (int i=0; i<funcs.length; i+=2) {
+			int id2 = i/2;
+			
+			DiscretizedFunc unMFD = funcs[i];
+			DiscretizedFunc subSeisMFD = funcs[i+1];
+			
+			if (unMFD.getNum() > 0)
+				nodeUnassociatedMFDs.put(id2, asIncr(unMFD));
+			if (subSeisMFD.getNum() > 0)
+				nodeSubSeisMFDs.put(id2, asIncr(subSeisMFD));
+		}
+		
+		return new GridSourceFileReader(region, nodeSubSeisMFDs, nodeUnassociatedMFDs);
 	}
 	
 	/**
@@ -184,7 +261,17 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 		EvenlyDiscretizedFunc func =
 				(EvenlyDiscretizedFunc)AbstractDiscretizedFunc.fromXMLMetadata(funcEl);
 		
-		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(func.getMinX(), func.getNum(), func.getDelta());
+		return asIncr(func);
+	}
+	
+	private static IncrementalMagFreqDist asIncr(DiscretizedFunc func) {
+		IncrementalMagFreqDist mfd;
+		if (func instanceof EvenlyDiscretizedFunc) {
+			EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
+			mfd = new IncrementalMagFreqDist(eFunc.getMinX(), eFunc.getNum(), eFunc.getDelta());
+		} else {
+			mfd = new IncrementalMagFreqDist(func.getMinX(), func.getNum(), func.getX(1) - func.getX(0));
+		}
 		mfd.setInfo(func.getInfo());
 		mfd.setName(func.getName());
 		mfd.setXAxisName(func.getXAxisName());
@@ -196,41 +283,46 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		File fssFile = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_" +
-				"NoFix_SpatSeisU3_VarPaleo0.6_VarSmoothPaleoSect1000_VarSectNuclMFDWt0.01_sol.zip");
+//		File fssFile = new File("/tmp/FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_" +
+//				"NoFix_SpatSeisU3_VarPaleo0.6_VarSmoothPaleoSect1000_VarSectNuclMFDWt0.01_sol.zip");
+		File fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		InversionFaultSystemSolution ivfss = FaultSystemIO.loadInvSol(fssFile);
-		UCERF3_GridSourceGenerator srcGen = new UCERF3_GridSourceGenerator(ivfss);
-		
-		GriddedRegion region = srcGen.getGriddedRegion();
-		
-		Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = Maps.newHashMap();
-		Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = Maps.newHashMap();
-		for (int i=0; i<region.getNumLocations(); i++) {
-			nodeSubSeisMFDs.put(i, srcGen.getNodeSubSeisMFD(i));
-			nodeUnassociatedMFDs.put(i, srcGen.getNodeUnassociatedMFD(i));
-		}
-		File gridSourcesFile = new File("/tmp/grid_sources.xml");
+		GridSourceProvider sourceProv = ivfss.getGridSourceProvider();
 		System.out.println("Saving");
-		writeGriddedSeisFile(gridSourcesFile, srcGen);
+//		File gridSourcesFile = new File("/tmp/grid_sources.xml");
+//		writeGriddedSeisFile(gridSourcesFile, sourceProv);
+//		
+//		System.out.println("Loading");
+//		GridSourceFileReader reader = fromFile(gridSourcesFile);
+		
+		File gridSourcesRegionFile = new File("/tmp/grid_sources_reg.xml");
+		File gridSourcesBinFile = new File("/tmp/grid_sources.bin");
+		writeGriddedSeisBinFile(gridSourcesBinFile, gridSourcesRegionFile, sourceProv);
 		
 		System.out.println("Loading");
-		GridSourceFileReader reader = fromFile(gridSourcesFile);
+		GridSourceFileReader reader = fromBinFile(gridSourcesBinFile, gridSourcesRegionFile);
 		System.out.println("DONE");
 		
-		for (int i=0; i<region.getNumLocations(); i++) {
-			IncrementalMagFreqDist nodeSubSeisMFD = nodeSubSeisMFDs.get(i);
-			IncrementalMagFreqDist nodeUnassociatedMFD = nodeUnassociatedMFDs.get(i);
+		for (int i=0; i<sourceProv.getGriddedRegion().getNumLocations(); i++) {
+			IncrementalMagFreqDist nodeSubSeisMFD = sourceProv.getNodeSubSeisMFD(i);
+			IncrementalMagFreqDist nodeUnassociatedMFD = sourceProv.getNodeUnassociatedMFD(i);
 			
-			if (nodeSubSeisMFD == null)
+			if (nodeSubSeisMFD == null) {
 				Preconditions.checkState(reader.getNodeSubSeisMFD(i) == null);
-			else
+			} else {
+				Preconditions.checkNotNull(reader.getNodeSubSeisMFD(i), i+". Was supposed to be size "+nodeSubSeisMFD.getNum()
+						+" tot "+(float)nodeSubSeisMFD.getTotalIncrRate()+", was null");
 				Preconditions.checkState((float)nodeSubSeisMFD.getTotalIncrRate() ==
 						(float)reader.getNodeSubSeisMFD(i).getTotalIncrRate());
-			if (nodeUnassociatedMFD == null)
+			}
+			if (nodeUnassociatedMFD == null) {
 				Preconditions.checkState(reader.getNodeUnassociatedMFD(i) == null);
-			else
+			} else {
+				Preconditions.checkNotNull(reader.getNodeUnassociatedMFD(i));
 				Preconditions.checkState((float)nodeUnassociatedMFD.getTotalIncrRate() ==
 						(float)reader.getNodeUnassociatedMFD(i).getTotalIncrRate());
+			}
 		}
 	}
 

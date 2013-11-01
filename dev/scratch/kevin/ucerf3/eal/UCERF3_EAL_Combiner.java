@@ -20,6 +20,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sra.calc.parallel.MPJ_EAL_Rupcalc;
 
 import com.google.common.base.Joiner;
@@ -31,6 +32,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.mean.TrueMeanBuilder;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -54,7 +56,7 @@ public class UCERF3_EAL_Combiner {
 		File trueMeanSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 		File compoundSolFile = new File(invSolDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_gridded.zip");
 		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output.bin");
 		File rupGriddedFile = null;
 		boolean isFSSMapped = false; // if false, then organized as erf source/rup. else, fss rup/mag
@@ -158,6 +160,26 @@ public class UCERF3_EAL_Combiner {
 				// TODO aftershock removal, time dependence
 				double rupEAL = rupLoss * rate;
 				eals[i] += rupEAL;
+			}
+			
+			// now gridded
+			if (gridEALs != null) {
+				GridSourceProvider gridProv = cfss.loadGridSourceProviderFile(branch);
+				for (int n=0; n<gridProv.getGriddedRegion().getNodeCount(); n++) {
+					IncrementalMagFreqDist branchMFD = gridProv.getNodeMFD(n);
+					DiscretizedFunc lossDist = griddedFuncs[i];
+					for (int j=0; j<lossDist.getNum(); j++) {
+						double lossX = lossDist.getX(j);
+						double lossY = lossDist.getY(j);
+						int branchIndex = lossDist.getXIndex(lossX);
+						if (branchIndex >= 0) {
+							double rate = branchMFD.getY(branchIndex);
+							// TODO aftershock removal, time dependence
+							double rupEAL = lossY * rate;
+							gridEALs[i] += rupEAL;
+						}
+					}
+				}
 			}
 		}
 		

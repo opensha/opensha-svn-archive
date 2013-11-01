@@ -26,7 +26,7 @@ public class TimeDepFSS_ERF_Simulator_ScriptGen {
 			localOutputDir.mkdir();
 		File remoteOutputDir = new File(dir, outputDirName);
 		
-		int numJobs = 66+(16*4);
+		int numJobs = 500;
 //		int trialsPerJob = 5000;
 //		int trialsPerJob = 2500;
 		int trialsPerJob = 1000;

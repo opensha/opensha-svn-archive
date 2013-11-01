@@ -2,6 +2,7 @@ package scratch.UCERF3;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,8 @@ import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -164,6 +167,20 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		return FaultSystemIO.fsDataFromXML(fsEl);
 	}
 	
+	public GridSourceProvider loadGridSourceProviderFile(LogicTreeBranch branch) throws DocumentException, IOException {
+		Map<String, String> nameRemappings = getRemappings(branch);
+		ZipEntry gridSourcesEntry = zip.getEntry(nameRemappings.get("grid_sources.xml"));
+		ZipEntry gridSourcesBinEntry = zip.getEntry(nameRemappings.get("grid_sources.bin"));
+		ZipEntry gridSourcesRegEntry = zip.getEntry(nameRemappings.get("grid_sources_reg.xml"));
+		if (gridSourcesEntry != null) {
+			return GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry));
+		} else if (gridSourcesBinEntry != null && gridSourcesRegEntry != null) {
+			return GridSourceFileReader.fromBinStreams(
+					zip.getInputStream(gridSourcesBinEntry), zip.getInputStream(gridSourcesRegEntry));
+		}
+		throw new FileNotFoundException();
+	}
+	
 	/**
 	 * *********************************************
 	 * Files						Dependencies
@@ -186,7 +203,9 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * sect_slips_std_dev.bin		ALL BUT Dsr
 	 * inv_rup_set_metadata.xml		ALL
 	 * inv_sol_metadata.xml			ALL
-	 * grid_sources.xml				ALL
+	 * grid_sources.xml				ALL // old xml format
+	 * grid_sources_reg.xml			NONE // new binary format
+	 * grid_sources.bin				ALL // new binary format
 	 * rup_mfds.bin					ALL
 	 * 
 	 * null entry in map means ALL!
@@ -219,6 +238,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("inv_rup_set_metadata.xml", null);
 		dependencyMap.put("inv_sol_metadata.xml", null);
 		dependencyMap.put("grid_sources.xml", null);
+		dependencyMap.put("grid_sources_reg.xml", buildList());
+		dependencyMap.put("grid_sources.bin", null);
 		dependencyMap.put("rup_mfds.bin", null);
 	}
 	

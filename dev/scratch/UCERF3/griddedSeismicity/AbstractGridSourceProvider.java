@@ -78,14 +78,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 //	}
 
 
-	/**
-	 * Returns the MFD associated with a grid node trimmed to the supplied 
-	 * minimum magnitude and the maximum non-zero magnitude.
-	 * 
-	 * @param idx node index
-	 * @param minMag minimum magniitude to trim MFD to
-	 * @return the trimmed MFD
-	 */
+	@Override
 	public IncrementalMagFreqDist getNodeMFD(int idx, double minMag) {
 		return trimMFD(getNodeMFD(idx), minMag);
 		
@@ -94,14 +87,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		// MFD is safe from alteration.
 	}
 	
-	/**
-	 * Returns the MFD associated with a grid node. This is the sum of any
-	 * unassociated and sub-seismogenic MFDs for the node.
-	 * @param idx node index
-	 * @return the MFD
-	 * @see UCERF3_GridSourceGenerator#getNodeUnassociatedMFD(int)
-	 * @see UCERF3_GridSourceGenerator#getNodeSubSeisMFD(int)
-	 */
+	@Override
 	public IncrementalMagFreqDist getNodeMFD(int idx) {
 		
 		IncrementalMagFreqDist nodeIndMFD = getNodeUnassociatedMFD(idx);

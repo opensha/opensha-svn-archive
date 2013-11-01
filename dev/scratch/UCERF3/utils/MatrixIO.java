@@ -252,7 +252,7 @@ public class MatrixIO {
 
 		for (double[] array : list) {
 			Preconditions.checkNotNull(array, "array cannot be null!");
-			Preconditions.checkState(array.length > 0, "array cannot be empty!");
+//			Preconditions.checkState(array.length > 0, "array cannot be empty!"); // actually it can be!
 			out.writeInt(array.length);
 			for (double val : array)
 				out.writeDouble(val);

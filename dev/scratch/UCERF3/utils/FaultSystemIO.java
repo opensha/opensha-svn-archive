@@ -546,9 +546,16 @@ public class FaultSystemIO {
 		
 		// finally look for grid sources
 		ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
+		ZipEntry gridSourcesBinEntry = zip.getEntry(getRemappedName("grid_sources.bin", nameRemappings));
+		ZipEntry gridSourcesRegEntry = zip.getEntry(getRemappedName("grid_sources_reg.xml", nameRemappings));
 		if (gridSourcesEntry != null) {
 			if (DD) System.out.println("loading grid sources");
 			sol.setGridSourceProvider(GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry)));
+		} else if (gridSourcesBinEntry != null && gridSourcesRegEntry != null) {
+			// now look for bin files
+			if (DD) System.out.println("loading grid sources");
+			sol.setGridSourceProvider(GridSourceFileReader.fromBinStreams(
+					zip.getInputStream(gridSourcesBinEntry), zip.getInputStream(gridSourcesRegEntry)));
 		}
 		
 		return sol;
@@ -863,11 +870,20 @@ public class FaultSystemIO {
 		
 		GridSourceProvider gridSources = sol.getGridSourceProvider();
 		if (gridSources != null) {
-			if (D) System.out.println("Saving grid sources to xml");
-			File gridSourcesFile = new File(tempDir, getRemappedName("grid_sources.xml", nameRemappings));
-			if (!zipFileNames.contains(gridSourcesFile.getName())) {
-				GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
-				zipFileNames.add(gridSourcesFile.getName());
+			// new binary format
+//			if (D) System.out.println("Saving grid sources to xml");
+//			File gridSourcesFile = new File(tempDir, getRemappedName("grid_sources.xml", nameRemappings));
+//			if (!zipFileNames.contains(gridSourcesFile.getName())) {
+//				GridSourceFileReader.writeGriddedSeisFile(gridSourcesFile, gridSources);
+//				zipFileNames.add(gridSourcesFile.getName());
+//			}
+			if (D) System.out.println("Saving grid sources to binary file");
+			File gridSourcesBinFile = new File(tempDir, getRemappedName("grid_sources.bin", nameRemappings));
+			File gridSourcesRegFile = new File(tempDir, getRemappedName("grid_sources_reg.xml", nameRemappings));
+			if (!zipFileNames.contains(gridSourcesBinFile.getName()) && !zipFileNames.contains(gridSourcesRegFile.getName())) {
+				GridSourceFileReader.writeGriddedSeisBinFile(gridSourcesBinFile, gridSourcesRegFile, gridSources);
+				zipFileNames.add(gridSourcesBinFile.getName());
+				zipFileNames.add(gridSourcesRegFile.getName());
 			}
 		}
 		

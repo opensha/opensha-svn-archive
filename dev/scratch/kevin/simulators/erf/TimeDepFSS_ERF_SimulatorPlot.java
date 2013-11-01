@@ -27,6 +27,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 
 	public static void main(String[] args) throws IOException {
 		int numTrialsPer = 1000;
+//		File dir = new File("/tmp/2013_10_29-erf-audit-cov-0.3");
 		File dir = new File("/tmp/2013_10_31-erf-audit-cov-0.3-dur5");
 		String prefix = "erf_audit_";
 		
@@ -60,6 +61,20 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 				}
 			}
 		}
+		int numNonZeros = 0;
+		for (int i=0; i<simulatorOccurances.length; i++)
+			if (simulatorOccurances[i] > 0 && forecastOccurances[i] > 0)
+				numNonZeros++;
+		double[] nonZeroOccur = new double[numNonZeros];
+		double[] nonZeroPredict = new double[numNonZeros];
+		int cnt = 0;
+		for (int i=0; i<simulatorOccurances.length; i++) {
+			if (simulatorOccurances[i] > 0 && forecastOccurances[i] > 0) {
+				nonZeroOccur[cnt] = simulatorOccurances[i];
+				nonZeroPredict[cnt++] = forecastOccurances[i];
+			}
+		}
+		Preconditions.checkState(cnt == numNonZeros);
 		System.out.println("Loaded in "+simFiles.size()+" files");
 		int numTrials = simFiles.size()*numTrialsPer;
 		
@@ -76,7 +91,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		System.out.println("erf per. min="+erfPerWindows[0]+"\tmax="+simPerWindows[erfPerWindows.length-1]
 				+"\tavg="+StatUtils.mean(erfPerWindows)+"\tmedian="+DataUtils.median_sorted(erfPerWindows));
 		
-		DefaultXY_DataSet ratioData = new DefaultXY_DataSet(simulatorOccurances, forecastOccurances);
+		DefaultXY_DataSet ratioData = new DefaultXY_DataSet(nonZeroOccur, nonZeroPredict);
 		double max = StatUtils.max(simulatorOccurances);
 		max = Math.max(max, StatUtils.max(forecastOccurances));
 		ArbitrarilyDiscretizedFunc eventRatio = new ArbitrarilyDiscretizedFunc();
