@@ -116,16 +116,18 @@ public class simulatorAnalysisUtils {
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// Kevin has long version:  eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall
+				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// RSQSim
+//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall",	// the long file from Kevin
 //				"ALLCAL2_no-creep_dt-08_st-10_110912_471207_events_slip-map-5.5_eid-fix.dat" //,
-				"ALLCAL2-30k-output[3-24-11].converted",
+//				"ALLCAL2-30k-output[3-24-11].converted",
 //				"Fred-allcal2-7june11.txt"
 				};
 //		String[] dirNamesPrefixArray = {"RSQSim","VirtCal","ALLCAL","ViscoSim"};
 //		String[] dirNamesPrefixArray = {"RSQSim","ALLCAL","ViscoSim"};
-//		String[] dirNamesPrefixArray = {"RSQSim"};
+		String[] dirNamesPrefixArray = {"RSQSim"};
+//		String[] dirNamesPrefixArray = {"RSQSim_Long"};
 //		String[] dirNamesPrefixArray = {"VirtCal"};
-		String[] dirNamesPrefixArray = {"ALLCAL"};
+//		String[] dirNamesPrefixArray = {"ALLCAL"};
 //		String[] dirNamesPrefixArray = {"ViscoSim"};
 
 		// set the list of supra-seismogenic mag thresholds (NaN means it will be defined by ave fault DDW)
@@ -153,7 +155,8 @@ public class simulatorAnalysisUtils {
 					infoStrings.add("UCERF3.elasticRebound.simulatorAnalysis.simulatorAnalysisUtils.runAll()\n");
 					infoStrings.add(dirNameForSavingFiles+"\tusing file "+fileName+"\n");
 					infoStrings.add("Simulation Duration is "+(float)tools.getSimulationDurationYears()+" years\n");
-					
+					System.out.println("Simulation Duration is "+(float)tools.getSimulationDurationYears()+" years\n");
+		
 //					tools.testElementAreas();
 //					tools.testTemp();
 //					
@@ -161,9 +164,9 @@ public class simulatorAnalysisUtils {
 //					System.out.println("Working on printMinAndMaxElementArea(*)");
 //					infoStrings.add(tools.printMinAndMaxElementArea());
 //
-					// check slip rates
-					System.out.println("Working on imposedVsImpliedSlipRates(*)");
-					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
+//					// check slip rates
+//					System.out.println("Working on imposedVsImpliedSlipRates(*)");
+//					tools.checkElementSlipRates("imposedVsImpliedSlipRates", true);
 //
 //					// check event mags
 //					System.out.println("Working on checkEventMagnitudes(*)");
@@ -174,9 +177,9 @@ public class simulatorAnalysisUtils {
 //						System.out.println("Working on checkFullDDW_rupturing(*)");
 //						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
 //					}
-					// total MFD
-					System.out.println("Working on computeTotalMagFreqDist(*)");
-					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+//					// total MFD
+//					System.out.println("Working on computeTotalMagFreqDist(*)");
+//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
 
 					// norm RI dist for surface elements
 					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
@@ -190,10 +193,10 @@ public class simulatorAnalysisUtils {
 //						System.out.println("plotAveNormSlipAlongRupture failed\n");
 //					}
 //
-					// scaling plots
-					System.out.println("Working on plotScalingRelationships(*)");
-					tools.plotScalingRelationships(true);
-
+//					// scaling plots
+//					System.out.println("Working on plotScalingRelationships(*)");
+//					tools.plotScalingRelationships(true);
+//
 //					// RIs at paleo sites
 //					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
 //					plotRI_DistsAtObsPaleoRateSites(tools, true);

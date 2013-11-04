@@ -54,6 +54,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.final
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -62,6 +63,7 @@ import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.utils.ProbModelsPlottingUtils;
 
 import com.google.common.primitives.Ints;
 
@@ -1579,12 +1581,18 @@ public class General_EQSIM_Tools {
 //			riDistsAlongAlongRup[i] = new HistogramFunction(-1, 31, 0.1);	// log10 space
 			riDistsAlongAlongRup[i] = new HistogramFunction(0.05, 50, 0.1);
 
+		CalcProgressBar progressBar = new CalcProgressBar("testTimePredictability","Events Processed");
+		progressBar.showProgress(true);
+		
+		int eventNum=-1;
 		
 		// loop over all events
 		for(EQSIM_Event event:eventList) {
 			double eventTime = event.getTime();
 			
-
+			eventNum +=1;
+			progressBar.updateProgress(eventNum, eventList.size());
+			
 			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, supraSeisMagThresh)) {  
 				boolean goodSample = true;
 				double eventMag = event.getMagnitude();
@@ -1753,6 +1761,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					if(norm_aveElementIntervalAlt1 < 50)	// found a problem case for ESQSim with seismogenic cutoff of 6.5
 						norm_aveElementIntervalAlt1_List.add(norm_aveElementIntervalAlt1);
 					else {
+						norm_aveElementIntervalAlt1_List.add(50d);	// cap at 50
 						System.out.println("Strange norm_aveElementIntervalAlt1: "+norm_aveElementIntervalAlt1+"\naveElementIntervalFromRates="+
 								aveElementIntervalFromRates+"\n Element RIs:");
 						for(int e=0;e<slips.length;e++) {
@@ -1799,6 +1808,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 			}
 		}
+		
+		progressBar.showProgress(false);
 
 //		// plot the normalized distributions and best fits
 //		HeadlessGraphPanel plot1 = getNormRI_DistributionGraphPanel(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)");
@@ -1821,17 +1832,23 @@ if(norm_tpInterval1 < 0  && goodSample) {
 //			}
 //		}
 		
-		System.out.println("norm_aveElementIntervalAlt1_List.size()="+norm_aveElementIntervalAlt1_List.size());
+//		System.out.println("norm_aveElementIntervalAlt1_List.size()="+norm_aveElementIntervalAlt1_List.size());
 		
 		// plot the normalized distributions and best fits
 		GraphWindow plot1 = plotNormRI_Distribution(norm_tpInterval1List, "Normalized Ave Time-Pred RI (norm_tpInterval1List)", Double.NaN);
 		GraphWindow plot2 = plotNormRI_Distribution(norm_spInterval1List, "Normalized Ave Slip-Pred RI (norm_spInterval1List)", Double.NaN);			
 		GraphWindow plot3 = plotNormRI_Distribution(norm_tpInterval2List, "Normalized Ave Time-Pred RI (norm_tpInterval2List)", Double.NaN);
 		GraphWindow plot4 = plotNormRI_Distribution(norm_spInterval2List, "Normalized Ave Slip-Pred RI (norm_spInterval2List)", Double.NaN);			
-		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)", Double.NaN);			
 		GraphWindow plot6 = plotNormRI_Distribution(norm_lastEventSlipList, "Normalized Ave Slip (X-axis is mislabeled; should be normalized slip)", Double.NaN);	// both lists are the same(?)
-		GraphWindow plot7 = plotNormRI_Distribution(norm_aveElementIntervalAlt1_List, "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)", Double.NaN);			
-		GraphWindow plot8 = plotNormRI_Distribution(norm_aveElementIntervalAlt2_List, "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)", Double.NaN);			
+		
+		
+		GraphWindow plot5 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalList, Double.NaN), "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)");
+		GraphWindow plot7 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt1_List, Double.NaN), "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)");
+		GraphWindow plot8 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_List, Double.NaN), "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)");
+
+//		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)", Double.NaN);			
+//		GraphWindow plot7 = plotNormRI_Distribution(norm_aveElementIntervalAlt1_List, "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)", Double.NaN);			
+//		GraphWindow plot8 = plotNormRI_Distribution(norm_aveElementIntervalAlt2_List, "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)", Double.NaN);			
 
 		if(saveStuff) {
 			try {
@@ -1840,9 +1857,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				plot3.saveAsPDF(dirNameForSavingFiles+"/norm_tpInterval2_Dist.pdf");
 				plot4.saveAsPDF(dirNameForSavingFiles+"/norm_spInterval2_Dist.pdf");
 				plot5.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_Dist.pdf");
+				plot5.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementInterval_Dist.txt");
 				plot6.saveAsPDF(dirNameForSavingFiles+"/norm_aveSlip_Dist.pdf");
 				plot7.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt1.pdf");
+				plot7.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt1.txt");
 				plot8.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt2.pdf");
+				plot8.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt2.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -2661,10 +2681,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				}
 			}
 		}
-		GraphWindow graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements", Double.NaN);
+//		GraphWindow graph = plotNormRI_Distribution(vals, "Normalized RI for All Surface Elements", Double.NaN);
+		GraphWindow graph = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(vals, Double.NaN), "Normalized RI for All Surface Elements");
+
 		if(savePlot)
 			try {
 				graph.saveAsPDF(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.pdf");
+				graph.saveAsTXT(dirNameForSavingFiles+"/NormRecurIntsForAllSurfaceElements.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

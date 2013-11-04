@@ -125,6 +125,11 @@ public class ProbabilityModelsCalc {
 
 	// data dir for Elastic Rebound simulations
 	final static File dataDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR,File.separator+"erSimulations");
+	
+	boolean simulationMode=false;
+	HistogramFunction simNormTimeSinceLastHist;
+	HistogramFunction simProbGainHist;
+
 
 	
 	/**
@@ -439,15 +444,17 @@ public class ProbabilityModelsCalc {
 		
 		
 		double poisProb = computePoissonProb(aveCondRecurInterval, durationYears);
+		
+		double probGain;
 
 		if(onlyIfAllSectionsHaveDateOfLast && !allSectionsHadDateOfLast) {
-			return Double.NaN;
+			probGain = Double.NaN;
 		}
 		else if(allSectionsHadDateOfLast) {
-			return computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/poisProb;					
+			probGain = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/poisProb;					
 		}
 		else if (noSectionsHadDateOfLast) {
-			return computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
+			probGain = computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
 			double sumCondProbGain=0;
@@ -464,8 +471,27 @@ public class ProbabilityModelsCalc {
 					totWeight += relProbForTimeSinceLast;
 				}
 			}
-			return sumCondProbGain/totWeight;
+			probGain = sumCondProbGain/totWeight;
 		}
+		
+		if(simulationMode) {
+			if(aveTimeSinceLastWhereKnownYears/aveCondRecurInterval > simNormTimeSinceLastHist.getMaxX())
+				simNormTimeSinceLastHist.add(simNormTimeSinceLastHist.getMaxX(), 1.0);
+			else
+				simNormTimeSinceLastHist.add(aveTimeSinceLastWhereKnownYears/aveCondRecurInterval, 1.0);
+			
+//			if(simProbGainHist.getXIndex(probGain) == -1)
+//				System.out.println("bad gain: "+probGain+";  max is "+simProbGainHist.getMaxX()+"\nallSectionsHadDateOfLast="+
+//						allSectionsHadDateOfLast+"\tnoSectionsHadDateOfLast="+noSectionsHadDateOfLast);
+//			
+			if(probGain > simProbGainHist.getMaxX())
+				simProbGainHist.add(simProbGainHist.getMaxX(), 1.0);
+			else
+				simProbGainHist.add(probGain, 1.0);
+		}
+		
+		return probGain;
+
 	}
 
 	
@@ -679,7 +705,10 @@ public class ProbabilityModelsCalc {
 		double newTimeSinceLast = aveTimeSinceLastYears*refRI/aveRecurIntervalYears;
 		if(newTimeSinceLast<0 && newTimeSinceLast > -1e-10)
 			newTimeSinceLast=0;
-		return refBPT_DistributionCalc.getCondProb(newTimeSinceLast, durationYears*refRI/aveRecurIntervalYears);
+		double prob=refBPT_DistributionCalc.getCondProb(newTimeSinceLast, durationYears*refRI/aveRecurIntervalYears);
+//		if(prob<0d)
+//			System.out.println("Negative Prob: "+prob+"\t"+aveRecurIntervalYears+"\t"+aveTimeSinceLastYears+"\t"+durationYears);
+		return prob;
 	}
 	
 	
@@ -823,6 +852,11 @@ public class ProbabilityModelsCalc {
 		boolean aveRecurIntervals = erf.aveRecurIntervalsInU3_BPTcalc;
 		boolean aveNormTimeSinceLast = erf.aveNormTimeSinceLastInU3_BPTcalc;
 		
+		this.simulationMode=true;
+		simNormTimeSinceLastHist = new HistogramFunction(0.05, 100, 0.1);	// up to 10
+		simProbGainHist = new HistogramFunction(0.05, 100, 0.1);	// up to 10
+
+		
 		
 		// LABELING AND FILENAME STUFF
 		String typeCalcForU3_Probs;
@@ -896,6 +930,17 @@ public class ProbabilityModelsCalc {
 		double[] obsSectRateArrayM6pt05to6pt65 = new double[numSections];
 		double[] obsSectRateArrayM7pt95to8pt25 = new double[numSections];
 		double[] obsRupRateArray = new double[erf.getTotNumRups()];
+		double[] aveRupProbGainArray = new double[erf.getTotNumRups()];	// averages the prob gains at each event time
+		
+		// this is for writing out simulated events that occur
+		FileWriter eventFileWriter=null;
+		try {
+			eventFileWriter = new FileWriter(dirNameForSavingFiles+"/sampledEventsData.txt");
+			eventFileWriter.write("nthRupIndex\tfssRupIndex\tyear\tepoch\tnormRupRI\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 
 		int numRups=0;
 		RandomDataImpl randomDataSampler = new RandomDataImpl();	// apache tool for sampling from exponential distribution here
@@ -1033,6 +1078,33 @@ public class ProbabilityModelsCalc {
 				percDoneThresh += percDoneIncrement;
 			}
 			
+			// update gains and sampler if not Poisson
+			if(probTypeEnum != ProbabilityModelOptions.POISSON) {
+				// first the gains
+				if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
+					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
+						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
+						probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, simDuration);
+					}
+				}
+				else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT) {
+					sectionGainArray=null; // set this null so it gets updated
+					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
+						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
+						probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, simDuration);
+					}
+				}		
+				// now update totalRate and ruptureSampler (for all rups since start time changed)
+				for(int n=0; n<erf.getTotNumRupsFromFaultSystem();n++) {
+//					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
+					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[erf.getSrcIndexForNthRup(n)];
+					aveRupProbGainArray[n] += probGainForFaultSystemSource[erf.getSrcIndexForNthRup(n)];
+					nthRupRandomSampler.set(n, newRate);
+				}
+				totalRate = nthRupRandomSampler.getSumOfY_vals();				
+			}
+
+			
 //			System.out.println(numRups+"\t"+currentYear+"\t"+totalRate);
 			
 			yearsIntoSimulation.add(currentYear);
@@ -1068,6 +1140,15 @@ public class ProbabilityModelsCalc {
 						normalizedRupRecurIntervals.add(timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex]);
 					}					
 				}
+				
+				
+				// write event info out
+				try {
+					eventFileWriter.write(nthRup+"\t"+fltSystRupIndex+"\t"+(currentYear+timeToNextInYrs)+"\t"+eventTimeMillis+"\t"+normalizedRupRecurIntervals.get(normalizedRupRecurIntervals.size()-1)+"\n");
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
 				
 				// save normalized fault section recurrence intervals & RI along strike
 				HistogramFunction sumRI_AlongHist = new HistogramFunction(normRI_AlongStrike.getMinX(), normRI_AlongStrike.getMaxX(), normRI_AlongStrike.getNumX());
@@ -1204,53 +1285,16 @@ public class ProbabilityModelsCalc {
 			
 //			System.out.println("currentYear="+currentYear+"; currentTimeMillis="+currentTimeMillis+"; timeToNextInYrs="+timeToNextInYrs);
 			
-//ArrayList<Double> normRI_List=null;
-//if(firstEvent)
-//	normRI_List = new ArrayList<Double>();
-
-			// update gains and sampler if not Poisson
-			if(probTypeEnum != ProbabilityModelOptions.POISSON) {
-				// first the gains
-				if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
-					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
-						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-						probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, simDuration);
-//if(firstEvent) {
-//							long aveTimeOfLastMillisWhereKnown = getAveDateOfLastEventWhereKnown(fltSysRupIndex);
-//							double test = ((double)(currentTimeMillis-aveTimeOfLastMillisWhereKnown)/MILLISEC_PER_YEAR)/aveCondRecurIntervalForFltSysRups_type1[fltSysRupIndex];
-//							if(test<0)
-//								throw new RuntimeException("test is negative: "+test);
-//							normRI_List.add(test);
-//}
-					}
-//if(firstEvent) {
-//	System.out.println("normRI_List.size()="+normRI_List.size());
-//	HistogramFunction dist = ProbModelsPlottingUtils.getNormRI_Distribution(normRI_List, 0.1);
-//	GraphWindow graph = new GraphWindow(dist, "test"); 	
-//}
-
-				}
-				else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT) {
-					sectionGainArray=null; // set this null so it gets updated
-					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
-						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-						probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, simDuration);
-					}
-				}		
-				// System.out.println("allProbGains took (sec): "+(System.currentTimeMillis()-millis)/1e3);
-//				System.out.println((float)probGainForFaultSystemSource[srcIndex]);
-				
-				// now update totalRate and ruptureSampler (for all rups since start time changed)
-				for(int n=0; n<erf.getTotNumRupsFromFaultSystem();n++) {
-//					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
-					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[erf.getSrcIndexForNthRup(n)];
-					nthRupRandomSampler.set(n, newRate);
-				}
-				totalRate = nthRupRandomSampler.getSumOfY_vals();				
-			}
+			
 			firstEvent=false;
 		}
 		
+		try {
+			eventFileWriter.close();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 		// write section date of last file if not null
 		if(outputDateOfLastFileName != null)
@@ -1259,6 +1303,43 @@ public class ProbabilityModelsCalc {
 		String infoString = dirNameForSavingFiles;
 		infoString += "\ninputDateOfLastFileName: "+inputDateOfLastFileName;
 		infoString += "\nnumRups="+numRups;
+		
+		
+		// plot average rupture gains
+		double[] tempMagArray = new double[aveRupProbGainArray.length];
+		for(int i=0;i<aveRupProbGainArray.length;i++) {
+			aveRupProbGainArray[i]/=numRups;
+			tempMagArray[i]=magOfNthRups[i];	// the latter may include gridded seis rups
+		}
+		DefaultXY_DataSet aveRupProbGainVsMag = new DefaultXY_DataSet(tempMagArray,aveRupProbGainArray);
+		aveRupProbGainVsMag.setName("Ave Rup Prob Gain vs Mag");
+		double meanProbGain =0;
+		for(double val:aveRupProbGainArray) 
+			meanProbGain += val;
+		meanProbGain /= aveRupProbGainArray.length;
+		aveRupProbGainVsMag.setInfo("meanProbGain="+(float)meanProbGain);
+		ArrayList<DefaultXY_DataSet> aveRupProbGainVsMagFuncs = new ArrayList<DefaultXY_DataSet>();
+		aveRupProbGainVsMagFuncs.add(aveRupProbGainVsMag);
+		ArrayList<PlotCurveCharacterstics> plotCharsAveGain = new ArrayList<PlotCurveCharacterstics>();
+		plotCharsAveGain.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
+		GraphWindow graphAveRupProbGainVsMag = new GraphWindow(aveRupProbGainVsMagFuncs, "Ave Rup Prob Gain vs Mag; "+plotLabelString, plotCharsAveGain); 
+		graphAveRupProbGainVsMag.setX_AxisLabel("Magnitude");
+		graphAveRupProbGainVsMag.setY_AxisLabel("Ave Rup Prob Gain");
+
+		// write out these gains and other stuff
+		FileWriter gain_fr;
+		try {
+			gain_fr = new FileWriter(dirNameForSavingFiles+"/aveRupGainData.txt");
+			gain_fr.write("nthRupIndex\taveRupGain\trupMag\trupLongTermRate\trupObsRupRate\n");
+			for(int i=0;i<aveRupProbGainArray.length;i++) {
+				gain_fr.write(i+"\t"+aveRupProbGainArray[i]+"\t"+magOfNthRups[i]+"\t"+longTermRateOfNthRups[i]+"\t"+obsRupRateArray[i]+"\n");
+			}
+			gain_fr.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		
 		
 		// get normalized section recurrence interval plots
 		ArrayList<EvenlyDiscretizedFunc> funcList = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedRupRecurIntervals, aperiodicity);
@@ -1275,6 +1356,39 @@ public class ProbabilityModelsCalc {
 //		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString, aperiodicity);
 		infoString += "\n\nSect "+funcList2.get(0).getName()+":";
 		infoString += "\n"+funcList2.get(0).getInfo();
+		
+
+		// 	plot simNormTimeSinceLastHist & simProbGainHist
+		if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
+			int numObs = (int)Math.round(simNormTimeSinceLastHist.calcSumOfY_Vals());
+			simNormTimeSinceLastHist.scale(1.0/(simNormTimeSinceLastHist.calcSumOfY_Vals()*simNormTimeSinceLastHist.getDelta())); // makes it a density function
+			ArrayList<EvenlyDiscretizedFunc> funcListForSimNormTimeSinceLastHist = ProbModelsPlottingUtils.addBPT_Fit(simNormTimeSinceLastHist);
+			simNormTimeSinceLastHist.setName("Dist of normalized time since last for each rupture at all event times (simNormTimeSinceLastHist)");
+			GraphWindow graphSimNormTimeSinceLastHist = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcListForSimNormTimeSinceLastHist, "simNormTimeSinceLastHist; "+plotLabelString);
+			
+			numObs = (int)Math.round(simProbGainHist.calcSumOfY_Vals());
+			simProbGainHist.scale(1.0/(simProbGainHist.calcSumOfY_Vals()*simProbGainHist.getDelta())); // makes it a density function
+			simProbGainHist.setName("simProbGainHist");
+			simProbGainHist.setInfo("Dist of gains for each rupture at all event times (simProbGainHist)\nMean = "+simProbGainHist.computeMean()+"\nnumObs="+numObs);
+			ArrayList<EvenlyDiscretizedFunc> funcListForSimProbGainHist = new ArrayList<EvenlyDiscretizedFunc>();
+			funcListForSimProbGainHist.add(simProbGainHist);
+			GraphWindow graphSimProbGainHistWindow = new GraphWindow(funcListForSimProbGainHist, "simProbGainHist"); 
+			graphSimProbGainHistWindow.setX_AxisLabel("Gain");
+			graphSimProbGainHistWindow.setY_AxisLabel("Density");
+			graphSimProbGainHistWindow.setAxisLabelFontSize(22);
+			graphSimProbGainHistWindow.setTickLabelFontSize(20);
+			graphSimProbGainHistWindow.setPlotLabelFontSize(22);
+
+			try {
+				graphSimNormTimeSinceLastHist.saveAsPDF(dirNameForSavingFiles+"/simNormTimeSinceLastHist.pdf");
+				graphSimProbGainHistWindow.saveAsPDF(dirNameForSavingFiles+"/simProbGainHist.pdf");
+				graphSimNormTimeSinceLastHist.saveAsTXT(dirNameForSavingFiles+"/simNormTimeSinceLastHist.txt");
+				graphSimProbGainHistWindow.saveAsTXT(dirNameForSavingFiles+"/simProbGainHist.txt");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 
 		
 		// plot long-term rate versus time
@@ -1543,15 +1657,23 @@ public class ProbabilityModelsCalc {
 		
 		try {
 			// plots
+			graphAveRupProbGainVsMag.saveAsPDF(dirNameForSavingFiles+"/aveRupProbGainVsMag.pdf");
+			graphAveRupProbGainVsMag.saveAsTXT(dirNameForSavingFiles+"/aveRupProbGainVsMag.txt");
 			grapha_a.saveAsPDF(dirNameForSavingFiles+"/normalizedRupRecurIntervals.pdf");
+			grapha_a.saveAsTXT(dirNameForSavingFiles+"/normalizedRupRecurIntervalsPlot.txt");
 			graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
+			graph2_b.saveAsTXT(dirNameForSavingFiles+"/normalizedSectRecurIntervalsPlot.txt");
 			graphTotalRateVsTime.saveAsPDF(dirNameForSavingFiles+"/totalRateVsTime.pdf");
 			graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
 			graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
+			graph2.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.txt");
+			graph4.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedRupRates.pdf");
+			graph4.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedRupRates.txt");
 			graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRates.pdf");
 			graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
 			graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
 			graphSR.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.pdf");
+			graphSR.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.txt");
 			// data:
 			FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
 			for (double val : normalizedRupRecurIntervals)
@@ -1692,14 +1814,14 @@ public class ProbabilityModelsCalc {
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 //		testCalc.testER_Simulation(null, null, erf,200000d);
 		
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.WG02_BPT);
 		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
-		boolean aveRecurIntervalsInU3_BPTcalc=false;
+		boolean aveRecurIntervalsInU3_BPTcalc=true;
 		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,200000d);
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,15000d);
 		
 		
 		

@@ -38,18 +38,31 @@ public class ProbModelsPlottingUtils {
 		// get the normalized RI dist
 		double delta=0.1;
 		HistogramFunction dist = getNormRI_Distribution(normRI_List, delta);
-		// add the histogram created here
-		dist.setName("Recur. Int. Dist");
-//		String info = "Number of points = "+ normRI_List.size()+ "\nComputed mean = "+(float)dist.computeMean()+
-//				"\nComputed COV = "+(float)dist.computeCOV();
-		String info = "NumObs\tObsMean\tObsCOV\n"+ normRI_List.size()+ "\t"+(float)dist.computeMean()+"\t"+(float)dist.computeCOV();
-		dist.setInfo(info);
 		
 		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
 		funcList.add(dist);
 		
 		// now make the list of best-fit functions for the plot
 		funcList.addAll(getRenewalModelFunctionFitsToDist(dist));
+		
+		// fill in name and Info for obs dist:
+		double obsAboveFive=0;
+		int firstIndex = dist.getClosestXIndex(5.0);
+		for(int i=firstIndex;i<dist.getNum();i++)
+			obsAboveFive += dist.getY(i);
+		
+		double bptAboveFive=0;
+		EvenlyDiscretizedFunc bptDist = funcList.get(1);
+		firstIndex = bptDist.getClosestXIndex(5.0);
+		for(int i=firstIndex;i<bptDist.getNum();i++)
+			bptAboveFive += bptDist.getY(i);
+
+		dist.setName("Recur. Int. Dist");
+		String info = "NumObs\tObsMean\tObsCOV\tObsOverBPTAboveFive\tbestFitBPTmean\tbestFitBPTaper\n"+ normRI_List.size()+ "\t"+
+				(float)dist.computeMean()+"\t"+(float)dist.computeCOV()+"\t"+(float)(obsAboveFive/bptAboveFive);
+		info += "\t"+bptDist.getInfo().split("\n")[1];
+		dist.setInfo(info);
+
 		
 		if(!Double.isNaN(bptAperForComparison)) {
 			BPT_DistCalc bpt_calc = new BPT_DistCalc();
@@ -65,6 +78,38 @@ public class ProbModelsPlottingUtils {
 						
 		
 	}
+	
+	
+	
+	public static ArrayList<EvenlyDiscretizedFunc> addBPT_Fit(HistogramFunction dist) {
+		
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		funcList.add(dist);
+		
+		// now make the list of best-fit functions for the plot
+		funcList.add(getRenewalModelFunctionFitsToDist(dist).get(0));	// just the first one
+		
+		// fill in name and Info for obs dist:
+		double obsAboveFive=0;
+		int firstIndex = dist.getClosestXIndex(5.0);
+		for(int i=firstIndex;i<dist.getNum();i++)
+			obsAboveFive += dist.getY(i);
+		
+		double bptAboveFive=0;
+		EvenlyDiscretizedFunc bptDist = funcList.get(1);
+		firstIndex = bptDist.getClosestXIndex(5.0);
+		for(int i=firstIndex;i<bptDist.getNum();i++)
+			bptAboveFive += bptDist.getY(i);
+
+		dist.setName("Recur. Int. Dist");
+		String info = "ObsMean\tObsCOV\tObsOverBPTAboveFive\n"+ (float)dist.computeMean()+"\t"+(float)dist.computeCOV()+"\t"+(float)(obsAboveFive/bptAboveFive);
+		dist.setInfo(info);
+		
+		return funcList;
+						
+		
+	}
+
 	
 	
 	/**

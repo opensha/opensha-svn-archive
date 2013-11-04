@@ -194,8 +194,13 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 					return 1.0; // very long duration
 				double condProbAtSafeTime = super.getCondProb(safeTimeSinceLast-duration*1.0001, duration);	// 1.0001 is needed because safeTimeSinceLast-duration+duration != safeTimeSinceLast inside this method
 				double condProbAtInfTime = 1-Math.exp(-duration/(aperiodicity*aperiodicity*mean*2)); // based on Equation 24 of Matthews et al. (2002).
+				if(timeSinceLast+duration>cdf.getMaxX())
+					return condProbAtInfTime;
+
 				// linear interpolate assuming inf time is mean*10
 				result = condProbAtSafeTime + (condProbAtInfTime-condProbAtSafeTime)*(timeSinceLast-(safeTimeSinceLast-duration))/(10*mean-(safeTimeSinceLast-duration));
+//				if(result<0)
+//					System.out.println("found it: "+result+"\t"+timeSinceLast+"\t"+duration);
 			}			
 		}
 		else {
