@@ -37,6 +37,8 @@ import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.imr.AbstractIMR;
@@ -276,6 +278,8 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		if (numGridded <= 0)
 			return;
 		
+		BackgroundRupType bgType = (BackgroundRupType)erf.getParameter(BackgroundRupParam.NAME).getValue();
+		
 		GridSourceProvider prov = erf.getSolution().getGridSourceProvider();
 
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
@@ -295,15 +299,47 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 			// now combine by mag
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			
+			double fractSS = prov.getFracStrikeSlip(nodeIndex);
+			double fractReverse = prov.getFracReverse(nodeIndex);
+			double fractNormal = prov.getFracNormal(nodeIndex);
+			// this is for making sure we account for everything correctly
+			ArbitrarilyDiscretizedFunc fractTrack = new ArbitrarilyDiscretizedFunc();
+			
 			for (int r=0; r<source.getNumRuptures(); r++) {
 				ProbEqkRupture rup = source.getRupture(r);
+				
+				// need to scale loss by the fraction with that focal mech
+				double fract = 0d;
+				if ((float)rup.getAveRake() == -90f)
+					fract = fractNormal;
+				else if ((float)rup.getAveRake() == 90f)
+					fract = fractReverse;
+				else if ((float)rup.getAveRake() == 0f)
+					fract = fractSS;
+				else
+					throw new IllegalStateException("Unkown rake: "+rup.getAveRake());
+				if (bgType == BackgroundRupType.CROSSHAIR)
+					// there are twice as many ruptures in the crosshair case
+					fract *= 0.5;
+				else if (bgType == BackgroundRupType.POINT && (float)rup.getAveRake() != 0f)
+					// non SS rups have 2 for each mech type
+					fract *= 0.5;
+				
+				double loss = fract*origResults[srcIndex][r];
 				double mag = rup.getMag();
 				int ind = func.getXIndex(mag);
-				if (ind >= 0)
-					func.set(ind, func.getY(ind)+origResults[srcIndex][r]);
-				else
-					func.set(rup.getMag(), origResults[srcIndex][r]);
+				if (ind >= 0) {
+					func.set(ind, func.getY(ind)+loss);
+					fractTrack.set(ind, fractTrack.getY(ind)+fract);
+				} else {
+					func.set(rup.getMag(), loss);
+					fractTrack.set(rup.getMag(), fract);
+				}
 			}
+			// make sure we got all of the fractional losses for each mag bin
+			for (int i=0; i<fractTrack.getNum(); i++)
+				Preconditions.checkState((float)fractTrack.getY(i) == 1f,
+						"Fract for mag "+fractTrack.getX(i)+" != 1: "+fractTrack.getY(i));
 			out.writeInt(func.getNum());
 			for (int i=0; i<func.getNum(); i++) {
 				out.writeDouble(func.getX(i));

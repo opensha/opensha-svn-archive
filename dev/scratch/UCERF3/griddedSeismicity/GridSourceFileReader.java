@@ -42,9 +42,12 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 	private Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs;
 	private Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs;
 	
+	private double[] fracStrikeSlip,fracNormal,fracReverse;
+	
 	public GridSourceFileReader(GriddedRegion region,
 			Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs,
 			Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs) {
+		initFocalMechGrids();
 		this.region = region;
 		this.nodeSubSeisMFDs = nodeSubSeisMFDs;
 		this.nodeUnassociatedMFDs = nodeUnassociatedMFDs;
@@ -370,6 +373,33 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 			}
 		}
 		System.out.println("Validated");
+	}
+	
+	@Override
+	public double getFracStrikeSlip(int idx) {
+		return fracStrikeSlip[idx];
+	}
+
+
+	@Override
+	public double getFracReverse(int idx) {
+		return fracReverse[idx];
+	}
+
+
+	@Override
+	public double getFracNormal(int idx) {
+		return fracNormal[idx];
+	}
+	
+	private void initFocalMechGrids() {
+		GridReader gRead;
+		gRead = new GridReader("StrikeSlipWts.txt");
+		fracStrikeSlip = gRead.getValues();
+		gRead = new GridReader("ReverseWts.txt");
+		fracReverse = gRead.getValues();
+		gRead = new GridReader("NormalWts.txt");
+		fracNormal = gRead.getValues();
 	}
 
 }

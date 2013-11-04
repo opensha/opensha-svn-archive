@@ -79,5 +79,26 @@ public interface GridSourceProvider {
 	 * @return the gridded region
 	 */
 	public GriddedRegion getGriddedRegion();
+	
+	/**
+	 * Returns the fraction of focal mechanisms at this node that are strike slip
+	 * @param idx
+	 * @return
+	 */
+	public abstract double getFracStrikeSlip(int idx);
+
+	/**
+	 * Returns the fraction of focal mechanisms at this node that are reverse
+	 * @param idx
+	 * @return
+	 */
+	public abstract double getFracReverse(int idx);
+
+	/**
+	 * Returns the fraction of focal mechanisms at this node that are normal
+	 * @param idx
+	 * @return
+	 */
+	public abstract double getFracNormal(int idx);
 
 }

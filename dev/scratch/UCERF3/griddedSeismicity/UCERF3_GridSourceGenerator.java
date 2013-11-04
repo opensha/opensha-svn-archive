@@ -35,6 +35,8 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
 	private final CaliforniaRegions.RELM_TESTING_GRIDDED region = RELM_RegionUtils.getGriddedRegionInstance();
 
+	private double[] fracStrikeSlip,fracNormal,fracReverse;
+	
 	private InversionFaultSystemSolution ifss;
 	private LogicTreeBranch branch;
 	private FaultPolyMgr polyMgr;
@@ -73,6 +75,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	 *        grided/background sources should be generated
 	 */
 	public UCERF3_GridSourceGenerator(InversionFaultSystemSolution ifss) {
+		initFocalMechGrids();
 
 		this.ifss = ifss;
 		branch = ifss.getLogicTreeBranch();
@@ -301,6 +304,33 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		graph.setYLog(true);
 		graph.setY_AxisRange(1e-8, 1e2);
 
+	}
+
+	@Override
+	public double getFracStrikeSlip(int idx) {
+		return fracStrikeSlip[idx];
+	}
+
+
+	@Override
+	public double getFracReverse(int idx) {
+		return fracReverse[idx];
+	}
+
+
+	@Override
+	public double getFracNormal(int idx) {
+		return fracNormal[idx];
+	}
+	
+	private void initFocalMechGrids() {
+		GridReader gRead;
+		gRead = new GridReader("StrikeSlipWts.txt");
+		fracStrikeSlip = gRead.getValues();
+		gRead = new GridReader("ReverseWts.txt");
+		fracReverse = gRead.getValues();
+		gRead = new GridReader("NormalWts.txt");
+		fracNormal = gRead.getValues();
 	}
 
 }

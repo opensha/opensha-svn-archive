@@ -27,13 +27,11 @@ import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 
 	private final WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
-	private double[] fracStrikeSlip,fracNormal,fracReverse;
 	private double ptSrcCutoff = 6.0;
 	
 	public static final double SOURCE_MIN_MAG_CUTOFF = 5.05;
 
 	protected AbstractGridSourceProvider() {
-		initFocalMechGrids();
 	}
 	
 	@Override
@@ -49,21 +47,25 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		Location loc = getGriddedRegion().locationForIndex(idx);
 		IncrementalMagFreqDist mfd = getNodeMFD(idx, SOURCE_MIN_MAG_CUTOFF);
 		if (filterAftershocks) scaleMFD(mfd);
+		
+		double fracStrikeSlip = getFracStrikeSlip(idx);
+		double fracNormal = getFracNormal(idx);
+		double fracReverse = getFracReverse(idx);
 
 		switch (bgRupType) {
 		case CROSSHAIR:
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-					fracReverse[idx], true);
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, true);
 		case FINITE:
 			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
-					ptSrcCutoff, fracStrikeSlip[idx], fracNormal[idx],
-					fracReverse[idx], false);
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, false);
 		case POINT:
 			Map<FocalMech, Double> mechMap = Maps.newHashMap();
-			mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip[idx]);
-			mechMap.put(FocalMech.REVERSE, fracReverse[idx]);
-			mechMap.put(FocalMech.NORMAL, fracNormal[idx]);
+			mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip);
+			mechMap.put(FocalMech.REVERSE, fracReverse);
+			mechMap.put(FocalMech.NORMAL, fracNormal);
 			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
 
 		default:
@@ -104,16 +106,6 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	private static SummedMagFreqDist initSummedMFD(IncrementalMagFreqDist model) {
 		return new SummedMagFreqDist(model.getMinX(), model.getMaxX(),
 			model.getNum());
-	}
-
-	private void initFocalMechGrids() {
-		GridReader gRead;
-		gRead = new GridReader("StrikeSlipWts.txt");
-		fracStrikeSlip = gRead.getValues();
-		gRead = new GridReader("ReverseWts.txt");
-		fracReverse = gRead.getValues();
-		gRead = new GridReader("NormalWts.txt");
-		fracNormal = gRead.getValues();
 	}
 
 
