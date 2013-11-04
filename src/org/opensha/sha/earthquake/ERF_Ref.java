@@ -182,9 +182,6 @@ public enum ERF_Ref {
 	/** CyberShake ERF that wraps UCERF2 for use with the CyberShake Fake IMR */
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
 			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false),
-	
-	OLD_INVERSION_SOLUTION_ERF(FaultSystemSolutionPoissonERF.class, FaultSystemSolutionPoissonERF.NAME,
-			EXPERIMENTAL, false),
 			
 	INVERSION_SOLUTION_ERF(FaultSystemSolutionERF.class, FaultSystemSolutionERF.NAME,
 					EXPERIMENTAL, false),

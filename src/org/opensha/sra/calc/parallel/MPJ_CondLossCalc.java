@@ -25,6 +25,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
@@ -36,6 +37,8 @@ import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.imr.AbstractIMR;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.gui.portfolioeal.Asset;
@@ -48,7 +51,7 @@ import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 
 import com.google.common.base.Preconditions;
 
-public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExceptionHandler {
+public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationExceptionHandler {
 	
 	public static final String BATCH_ELEMENT_NAME = "BatchCalculation";
 	
@@ -57,7 +60,7 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 	
 	private double[][] my_results;
 	
-	private ThreadedEAL_IMR_Precalc calc;
+	private ThreadedCondLossCalc calc;
 	
 	private File outputFile;
 	
@@ -65,11 +68,11 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 	
 	private static final boolean FILE_DEBUG = false;
 	
-	public MPJ_EAL_Rupcalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
+	public MPJ_CondLossCalc(CommandLine cmd, Portfolio portfolio, Element el) throws IOException, DocumentException, InvocationTargetException {
 		this(cmd, portfolio, el, null);
 	}
 	
-	public MPJ_EAL_Rupcalc(CommandLine cmd, Portfolio portfolio, Element el, File outputFile) throws IOException, DocumentException, InvocationTargetException {
+	public MPJ_CondLossCalc(CommandLine cmd, Portfolio portfolio, Element el, File outputFile) throws IOException, DocumentException, InvocationTargetException {
 		super(cmd);
 		
 		assets = portfolio.getAssetList();
@@ -112,7 +115,7 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		// TODO mag thresh func
 		ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
 		
-		calc = new ThreadedEAL_IMR_Precalc(assets, erfs, imrs, this, magThreshFunc);
+		calc = new ThreadedCondLossCalc(assets, erfs, imrs, this, magThreshFunc);
 		
 		if (cmd.hasOption("vuln-file")) {
 			File vulnFile = new File(cmd.getOptionValue("vuln-file"));
@@ -261,8 +264,14 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 	 */
 	public static void writeFSSGridSourcesFile(FaultSystemSolutionERF erf, double[][] origResults, File file) throws IOException {
 		int fssSources = erf.getNumFaultSystemSources();
+		if (erf.getParameter(IncludeBackgroundParam.NAME).getValue() == IncludeBackgroundOption.ONLY)
+			fssSources = 0;
 		int numSources = erf.getNumSources();
 		int numGridded = numSources - fssSources;
+//		System.out.println("fssSources="+fssSources);
+//		System.out.println("numSources="+numSources);
+//		System.out.println("numGridded="+numGridded);
+//		System.exit(0);
 		
 		if (numGridded <= 0)
 			return;
@@ -283,13 +292,23 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 			
 			ProbEqkSource source = erf.getSource(srcIndex);
 			
-			out.writeInt(source.getNumRuptures());
+			// now combine by mag
+			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			
 			for (int r=0; r<source.getNumRuptures(); r++) {
 				ProbEqkRupture rup = source.getRupture(r);
-				out.writeDouble(rup.getMag());
+				double mag = rup.getMag();
+				int ind = func.getXIndex(mag);
+				if (ind >= 0)
+					func.set(ind, func.getY(ind)+origResults[srcIndex][r]);
+				else
+					func.set(rup.getMag(), origResults[srcIndex][r]);
+			}
+			out.writeInt(func.getNum());
+			for (int i=0; i<func.getNum(); i++) {
+				out.writeDouble(func.getX(i));
 				// expected loss
-				out.writeDouble(origResults[srcIndex][r]);
+				out.writeDouble(func.getY(i));
 			}
 		}
 		
@@ -316,7 +335,7 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 
 		Preconditions.checkState(numGridded > 0, "Size must be > 0!");
 		Preconditions.checkState(region == null || region.getNodeCount() == numGridded,
-				"Gridded location count doesn't match passed in region!");
+				"Gridded location count doesn't match passed in region: "+region.getNodeCount()+" != "+numGridded);
 		
 		DiscretizedFunc[] results = new DiscretizedFunc[numGridded];
 		
@@ -334,6 +353,7 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 				mags[rupID] = in.readDouble();
 				losses[rupID] = in.readDouble();
 			}
+			results[node] = new LightFixedXFunc(mags, losses);
 		}
 		
 		in.close();
@@ -460,12 +480,12 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 		try {
 			Options options = createOptions();
 			
-			CommandLine cmd = parse(options, args, MPJ_EAL_Rupcalc.class);
+			CommandLine cmd = parse(options, args, MPJ_CondLossCalc.class);
 			
 			args = cmd.getArgs();
 			
 			if (args.length < 2 || args.length > 3) {
-				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_EAL_Rupcalc.class)
+				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_CondLossCalc.class)
 						+" [options] <portfolio_file> <calculation_params_file> [<output_file>]");
 				abortAndExit(2);
 			}
@@ -481,14 +501,14 @@ public class MPJ_EAL_Rupcalc extends MPJTaskCalculator implements CalculationExc
 				Iterator<Element> it = root.elementIterator(BATCH_ELEMENT_NAME);
 				
 				while (it.hasNext()) {
-					MPJ_EAL_Rupcalc driver = new MPJ_EAL_Rupcalc(cmd, portfolio, it.next());
+					MPJ_CondLossCalc driver = new MPJ_CondLossCalc(cmd, portfolio, it.next());
 					
 					driver.run();
 				}
 			} else {
 				File outputFile = new File(args[2]);
 				
-				MPJ_EAL_Rupcalc driver = new MPJ_EAL_Rupcalc(cmd, portfolio, root, outputFile);
+				MPJ_CondLossCalc driver = new MPJ_CondLossCalc(cmd, portfolio, root, outputFile);
 				
 				driver.run();
 			}

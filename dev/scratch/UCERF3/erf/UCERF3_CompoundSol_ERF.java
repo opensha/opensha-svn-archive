@@ -18,7 +18,6 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.EnumParameter;
-import org.opensha.commons.util.ClassUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -32,7 +31,7 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public class UCERF3_CompoundSol_ERF extends UCERF3_FaultSysSol_ERF {
+public class UCERF3_CompoundSol_ERF extends FaultSystemSolutionERF {
 	
 	/**
 	 * 

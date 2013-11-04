@@ -81,7 +81,7 @@ public class NewFSS_ERF_ParamTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws IOException {
-		InversionFaultSystemRupSet rupSet1 = buildSmallRupSet();
+		InversionFaultSystemRupSet rupSet1 = buildSmallTestRupSet();
 		InversionFaultSystemRupSet rupSet2 = new InversionFaultSystemRupSet(
 				rupSet1, rupSet1.getLogicTreeBranch(), null,
 				rupSet1.getAveSlipForAllRups(),rupSet1.getCloseSectionsListList(),
@@ -126,7 +126,7 @@ public class NewFSS_ERF_ParamTest {
 		paramsOptionsMap.put(HistoricOpenIntervalParam.NAME, Lists.newArrayList(0d, 150d, 200d));
 	}
 	
-	private static InversionFaultSystemRupSet buildSmallRupSet() {
+	public static InversionFaultSystemRupSet buildSmallTestRupSet() {
 		LogicTreeBranch branch = LogicTreeBranch.UCERF2;
 		// this list will store our subsections
 		List<FaultSectionPrefData> subSections = Lists.newArrayList();

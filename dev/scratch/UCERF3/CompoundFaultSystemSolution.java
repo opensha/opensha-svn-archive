@@ -171,7 +171,11 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		Map<String, String> nameRemappings = getRemappings(branch);
 		ZipEntry gridSourcesEntry = zip.getEntry(nameRemappings.get("grid_sources.xml"));
 		ZipEntry gridSourcesBinEntry = zip.getEntry(nameRemappings.get("grid_sources.bin"));
+		if (gridSourcesBinEntry == null)
+			System.out.println("Doesn't have: "+nameRemappings.get("grid_sources.bin"));
 		ZipEntry gridSourcesRegEntry = zip.getEntry(nameRemappings.get("grid_sources_reg.xml"));
+		if (gridSourcesRegEntry == null)
+			System.out.println("Doesn't have: "+nameRemappings.get("grid_sources_reg.xml"));
 		if (gridSourcesEntry != null) {
 			return GridSourceFileReader.fromInputStream(zip.getInputStream(gridSourcesEntry));
 		} else if (gridSourcesBinEntry != null && gridSourcesRegEntry != null) {

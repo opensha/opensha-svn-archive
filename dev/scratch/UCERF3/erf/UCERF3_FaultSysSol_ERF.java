@@ -23,6 +23,7 @@ import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
  * @author field & powers
  *
  */
+@Deprecated
 public class UCERF3_FaultSysSol_ERF extends FaultSystemSolutionPoissonERF {
 
 	private GridSourceProvider gridSources;

@@ -40,6 +40,7 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
@@ -116,7 +117,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected double faultGridSpacing = 1.0;
 	double aleatoryMagAreaStdDev = 0.0;
 	protected boolean applyAftershockFilter = false;
-	protected IncludeBackgroundOption bgInclude = IncludeBackgroundOption.EXCLUDE;
+	protected IncludeBackgroundOption bgInclude = IncludeBackgroundOption.INCLUDE;
 	protected BackgroundRupType bgRupType = BackgroundRupType.POINT;
 	private boolean quadSurfaces = false;
 	private ProbabilityModelOptions probModel = ProbabilityModelOptions.POISSON;
@@ -153,6 +154,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	// leave as a FaultSystemSolution for use with Simulator/other FSS
 	private FaultSystemSolution faultSysSolution;		// the FFS for the ERF
+	private GridSourceProvider gridSources;				// grid sources from the FSS
 	protected int numNonZeroFaultSystemSources;			// this is the number of faultSystemRups with non-zero rates (each is a source here)
 	int totNumRupsFromFaultSystem;						// the sum of all nth ruptures that come from fault system sources (and not equal to faultSysSolution.getNumRuptures())
 	
@@ -551,6 +553,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	private void setSolution(FaultSystemSolution sol, boolean clearFileParam) {
 		this.faultSysSolution = sol;
+		this.gridSources = sol.getGridSourceProvider();
 		if (clearFileParam) {
 			// this means that the method was called manually, clear the file param so that
 			// any subsequent sets to the file parameter trigger an update and override this
@@ -719,7 +722,10 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 * @return
 	 */
 	protected ProbEqkSource getOtherSource(int iSource) {
-		return null;
+		if (gridSources == null)
+			return null;
+		return gridSources.getSource(iSource, timeSpan.getDuration(),
+				applyAftershockFilter, bgRupType);
 	}
 	
 	/**
@@ -728,8 +734,19 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 * number of ruptures changes.
 	 */
 	protected boolean initOtherSources() {
-		numOtherSources=0;
-		return false;
+		if(bgRupTypeChanged) {
+			if (gridSources == null) {
+				int prevOther = numOtherSources;
+				numOtherSources = 0;
+				// return true only if we used to have grid sources but now don't
+				return prevOther > 0;
+			}
+			numOtherSources = gridSources.size();
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override

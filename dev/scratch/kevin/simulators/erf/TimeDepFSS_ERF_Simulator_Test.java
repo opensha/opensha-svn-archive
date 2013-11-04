@@ -363,7 +363,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		}
 	}
 	
-	private static FaultSystemSolution combineIdenticalRups(FaultSystemSolution orig) {
+	static FaultSystemSolution combineIdenticalRups(FaultSystemSolution orig) {
 		FaultSystemRupSet origRupSet = orig.getRupSet();
 		
 		List<FaultSectionPrefData> faultSectionData = origRupSet.getFaultSectionDataList();

@@ -12,6 +12,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -93,10 +94,11 @@ public class CompoundGriddedRecalc {
 				File regXMLFile = null;
 				if (!isRegionWritten())
 					regXMLFile = new File(dir, CompoundFaultSystemSolution.getRemappedName("grid_sources_reg.xml", branch));
-				File binFile = new File(dir, CompoundFaultSystemSolution.getRemappedName("grid_source.bin", branch));
+				File binFile = new File(dir, CompoundFaultSystemSolution.getRemappedName("grid_sources.bin", branch));
 				try {
 //					GridSourceFileReader.writeGriddedSeisFile(file, gridSources);
-					GridSourceFileReader.writeGriddedSeisBinFile(binFile, regXMLFile, gridSources);
+					GridSourceFileReader.writeGriddedSeisBinFile(binFile, regXMLFile, gridSources,
+							AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF);
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}

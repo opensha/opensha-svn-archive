@@ -69,6 +69,7 @@ import com.google.common.collect.Lists;
  * 
  * 
  */
+@Deprecated
 public class FaultSystemSolutionPoissonERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;

@@ -1,6 +1,5 @@
 package org.opensha.sra.calc.parallel;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,14 +12,14 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sra.calc.parallel.MPJ_EAL_Rupcalc.SiteResult;
+import org.opensha.sra.calc.parallel.MPJ_CondLossCalc.SiteResult;
 import org.opensha.sra.gui.portfolioeal.Asset;
 import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class ThreadedEAL_IMR_Precalc {
+public class ThreadedCondLossCalc {
 	
 	protected List<Asset> assets;
 	protected ERF[] erfs;
@@ -32,7 +31,7 @@ public class ThreadedEAL_IMR_Precalc {
 	protected Deque<SiteResult> stack;
 	private ArbitrarilyDiscretizedFunc magThreshFunc;
 	
-	public ThreadedEAL_IMR_Precalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs,
+	public ThreadedCondLossCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs,
 			CalculationExceptionHandler handler, ArbitrarilyDiscretizedFunc magThreshFunc) {
 		Preconditions.checkNotNull(assets);
 		Preconditions.checkArgument(!assets.isEmpty());

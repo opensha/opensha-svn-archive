@@ -881,7 +881,7 @@ public class FaultSystemIO {
 			File gridSourcesBinFile = new File(tempDir, getRemappedName("grid_sources.bin", nameRemappings));
 			File gridSourcesRegFile = new File(tempDir, getRemappedName("grid_sources_reg.xml", nameRemappings));
 			if (!zipFileNames.contains(gridSourcesBinFile.getName()) && !zipFileNames.contains(gridSourcesRegFile.getName())) {
-				GridSourceFileReader.writeGriddedSeisBinFile(gridSourcesBinFile, gridSourcesRegFile, gridSources);
+				GridSourceFileReader.writeGriddedSeisBinFile(gridSourcesBinFile, gridSourcesRegFile, gridSources, 0d);
 				zipFileNames.add(gridSourcesBinFile.getName());
 				zipFileNames.add(gridSourcesRegFile.getName());
 			}

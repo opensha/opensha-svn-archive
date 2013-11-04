@@ -136,11 +136,15 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	 * 0.05.
 	 */
 	private static IncrementalMagFreqDist trimMFD(IncrementalMagFreqDist mfdIn, double mMin) {
+		if (mfdIn == null)
+			return new IncrementalMagFreqDist(mMin,mMin,1);
 		// in GR nofix branches there are mfds with all zero rates
 		try {
 			double mMax = mfdIn.getMaxMagWithNonZeroRate();
-			int num = (int) ((mMax - mMin) / 0.1) + 1;
-			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+			double delta = mfdIn.getDelta();
+			int num = (int) ((mMax - mMin) / delta) + 1;
+//			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, num, delta);
 			for (int i=0; i<mfdOut.getNum(); i++) {
 				double mag = mfdOut.getX(i);
 				double rate = mfdIn.getY(mag);
@@ -148,9 +152,10 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 			}
 			return mfdOut;
 		} catch (Exception e) {
-			System.out.println("empty MFD");
+//			e.printStackTrace();
+//			System.out.println("empty MFD");
 			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin,mMin,1);
-			mfdOut.scaleToCumRate(mMin, 0.0);
+//			mfdOut.scaleToCumRate(mMin, 0.0);
 			return mfdOut;
 		}
 	}
