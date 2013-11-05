@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	NewFSS_ERF_ParamTest.class
+	FSS_ERF_ParamTest.class
 })
 
 public class UCERF3_ERF_TestSuite {

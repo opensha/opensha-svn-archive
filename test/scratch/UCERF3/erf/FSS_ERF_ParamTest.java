@@ -63,7 +63,7 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 
-public class NewFSS_ERF_ParamTest {
+public class FSS_ERF_ParamTest {
 	
 	
 	/*

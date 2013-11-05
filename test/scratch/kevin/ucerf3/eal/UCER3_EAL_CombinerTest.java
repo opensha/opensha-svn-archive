@@ -46,7 +46,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.NewFSS_ERF_ParamTest;
+import scratch.UCERF3.erf.FSS_ERF_ParamTest;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -72,7 +72,7 @@ public class UCER3_EAL_CombinerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		rupSet = NewFSS_ERF_ParamTest.buildSmallTestRupSet();
+		rupSet = FSS_ERF_ParamTest.buildSmallTestRupSet();
 		List<Integer> mapping = Lists.newArrayList();
 		// simple 1 to 1 mapping, only mag variation
 		for (int i=0; i<rupSet.getNumRuptures(); i++)
