@@ -1,5 +1,9 @@
 package org.opensha.sra.rtgm;
 
+import static com.google.common.primitives.Doubles.asList;
+import static com.google.common.primitives.Doubles.toArray;
+import static com.google.common.collect.Lists.reverse;
+
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +13,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.special.Erf;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.Interpolate;
 import org.opensha.nshmp.NEHRP_TestCity;
 
 import com.google.common.base.Charsets;
@@ -25,6 +30,21 @@ import com.google.common.io.Files;
  */
 class RTGM_Util {
 
+	
+	/**
+	 * For finding prob. of exceedance on a hazard curve. To use standard
+	 * interpolation methods requires reversing the supplied x and y values,
+	 * and then supplying them as reversed arguments to Interpolate.findLogLogY.
+	 * This satisfies the monotonically increasingrequirements of x and y
+	 * data in Interpolate.
+	 * @return the log-interpolated 
+	 */
+	static double findLogLogX(double[] xs, double[] ys, double y) {
+			double[] revXs = toArray(reverse(asList(xs)));
+			double[] revYs = toArray(reverse(asList(ys)));
+			return Interpolate.findLogLogY(revYs, revXs, y);
+	}
+	
 	// can't use trapezoidal integration in commons.math as it requires a
 	// continuous x function whereas we're working with discretized x fns
 	/**
@@ -46,6 +66,28 @@ class RTGM_Util {
 		}
 		return sum * 0.5;
 	}
+	
+	// can't use trapezoidal integration in commons.math as it requires a
+	// continuous x function whereas we're working with discretized x fns
+	// TODO move to DataUtils?
+	/**
+	 * Performs trapezoidal rule integration on the supplied discretized
+	 * function.
+	 * @param f function to integrate
+	 * @return the integral
+	 */
+	static double trapz(double[] xs, double[] ys) {
+		Preconditions.checkNotNull(xs, "Supplied x-values are null");
+		Preconditions.checkNotNull(ys, "Supplied y-values are null");
+		Preconditions.checkArgument(xs.length > 1,
+				"Supplied function is too short");
+		double sum = 0;
+		for (int i=1; i<xs.length; i++) {
+			sum += (xs[i] - xs[i-1]) * (ys[i] + ys[i-1]);
+		}
+		return sum * 0.5;
+	}
+
 
 	// TODO this should ultimately be imported from NSHM dev
 	/**
