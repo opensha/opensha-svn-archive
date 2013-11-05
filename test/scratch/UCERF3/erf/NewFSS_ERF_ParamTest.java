@@ -404,7 +404,7 @@ public class NewFSS_ERF_ParamTest {
 		}
 		if (erf.getAdjustableParameterList().getParameter(
 				IncludeBackgroundOption.class, IncludeBackgroundParam.NAME).getValue() != IncludeBackgroundOption.ONLY)
-			// only check if we actually ahve fault system sources
+			// only check if we actually have fault system sources
 			assertEquals("Num fault system sources inconsistent!", erf.getNumFaultSystemSources(), numFaultSources);
 		FaultSystemSolution sol = erf.getSolution();
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -502,41 +502,31 @@ public class NewFSS_ERF_ParamTest {
 			assertEquals(setMessage,
 					incl, (IncludeBackgroundOption)erf.getParameter(paramName).getValue());
 			int numSources = erf.getNumSources();
-			// TODO UCERF3
-//			if (erf instanceof UCERF3_FaultSysSol_ERF) {
-//				switch (incl) {
-//				case EXCLUDE:
-//					assertEquals(applyMessage, numFaultSources, numSources);
-//					break;
-//				case INCLUDE:
-//					assertTrue(applyMessage, numSources > numFaultSources);
-//					for (int i=numFaultSources; i<numSources; i++) {
-//						ProbEqkSource source = erf.getSource(i);
-//						assertTrue(applyMessage, source instanceof PointSource13b
-//								|| source instanceof Point2Vert_FaultPoisSource);
-//					}
-//					break;
-//				case ONLY:
-//					assertEquals(applyMessage, 0, numFaultSources);
-//					assertTrue(applyMessage, numSources > 0);
-//					for (int i=0; i<numSources; i++) {
-//						ProbEqkSource source = erf.getSource(i);
-//						assertTrue(applyMessage, source instanceof PointSource13b
-//								|| source instanceof Point2Vert_FaultPoisSource);
-//					}
-//					break;
-//
-//				default:
-//					break;
-//				}
-//			} else {
-				if (incl == IncludeBackgroundOption.INCLUDE || incl == IncludeBackgroundOption.EXCLUDE) {
-					assertEquals(applyMessage, numFaultSources, numSources);
-				} else {
-					// only
-					assertEquals(applyMessage, 0, numSources);
+			switch (incl) {
+			case EXCLUDE:
+				assertEquals(applyMessage, numFaultSources, numSources);
+				break;
+			case INCLUDE:
+				assertTrue(applyMessage, numSources > numFaultSources);
+				for (int i=numFaultSources; i<numSources; i++) {
+					ProbEqkSource source = erf.getSource(i);
+					assertTrue(applyMessage, source instanceof PointSource13b
+							|| source instanceof Point2Vert_FaultPoisSource);
 				}
-//			}
+				break;
+			case ONLY:
+				assertEquals(applyMessage, 0, numFaultSources);
+				assertTrue(applyMessage, numSources > 0);
+				for (int i=0; i<numSources; i++) {
+					ProbEqkSource source = erf.getSource(i);
+					assertTrue(applyMessage, source instanceof PointSource13b
+							|| source instanceof Point2Vert_FaultPoisSource);
+				}
+				break;
+
+			default:
+				break;
+			}
 		} else if (paramName.equals(BackgroundRupParam.NAME)) {
 			IncludeBackgroundOption incl = (IncludeBackgroundOption) erf.getParameter(
 					IncludeBackgroundParam.NAME).getValue();

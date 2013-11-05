@@ -5,7 +5,6 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	FSS_ERF_ParamTest.class,
 	NewFSS_ERF_ParamTest.class
 })
 
