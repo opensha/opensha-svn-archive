@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.EXCLUDE;
 import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.ONLY;
 
@@ -11,6 +12,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
@@ -95,6 +97,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	private static final boolean D = true;
 
 	public static final String NAME = "Fault System Solution ERF";
+	private String name = NAME;
 	
 	// Adjustable parameters
 	public static final String FILE_PARAM_NAME = "Solution Input File";
@@ -587,7 +590,12 @@ public class FaultSystemSolutionERF extends AbstractERF {
 
 	@Override
 	public String getName() {
-		return NAME;
+		return name;
+	}
+	
+	public void setName(String name) {
+		checkArgument(!StringUtils.isBlank(name), "Name cannot be empty");
+		this.name = name;
 	}
 
 	@Override
