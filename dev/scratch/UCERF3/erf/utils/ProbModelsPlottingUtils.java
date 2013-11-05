@@ -174,7 +174,7 @@ public class ProbModelsPlottingUtils {
 		
 		// add best-fit BPT function
 		BPT_DistCalc bpt_calc = new BPT_DistCalc();
-		bpt_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 151);
+		bpt_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitBPT_func = bpt_calc.getPDF();
 		fitBPT_func.setName("Best Fit BPT Dist");
 		fitBPT_func.setInfo("mean\taper\n"+(float)bpt_calc.getMean()+"\t"+(float)bpt_calc.getAperiodicity());
