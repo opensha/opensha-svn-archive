@@ -21,6 +21,7 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -325,19 +326,29 @@ extends ProbEqkSource {
 			faultCornerLocations.add(griddedSurf.get(nRows - 1, (int) (nCols / 2)));
 			faultCornerLocations.add(griddedSurf.get(nRows - 1, nCols - 1));
 		}
-//		else if (faultSurface instanceof CompoundSurface) {
-//			// here we assume each surface is small enough to just take the top and bottom of 
-//			//  first columns, plus the top and bottom of the last column of the last surface
-//			ArrayList<EvenlyGriddedSurface> surfaces = ((CompoundSurface) faultSurface).getSurfaceList();
-//			for(EvenlyGriddedSurface griddedSurf: surfaces) {
-//				faultCornerLocations.add(griddedSurf.get(0, 0));
-//				faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, 0));
-//			}
-//			EvenlyGriddedSurface griddedSurf = surfaces.get(surfaces.size()-1);
-//			int lastCol = griddedSurf.getNumCols() - 1;
-//			faultCornerLocations.add(griddedSurf.get(0, lastCol));
-//			faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, lastCol));
-//		}
+		else if (faultSurface instanceof CompoundSurface) {
+			List<? extends RuptureSurface> surfs = ((CompoundSurface)faultSurface).getSurfaceList();
+			boolean gridded = surfs.get(0) instanceof EvenlyGriddedSurface;
+			for (int i=0; i<surfs.size(); i++) {
+				RuptureSurface surf = surfs.get(i);
+				if (gridded) {
+					// here we assume each surface is small enough to just take the top and bottom of 
+					//  first columns, plus the top and bottom of the last column of the last surface
+					EvenlyGriddedSurface griddedSurf = (EvenlyGriddedSurface)surf;
+					faultCornerLocations.add(griddedSurf.get(0, 0));
+					faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, 0));
+					
+					if (i == surfs.size()-1) {
+						// add last edge
+						int lastCol = griddedSurf.getNumCols() - 1;
+						faultCornerLocations.add(griddedSurf.get(0, lastCol));
+						faultCornerLocations.add(griddedSurf.get(griddedSurf.getNumRows() - 1, lastCol));
+					}
+				} else {
+					faultCornerLocations.addAll(surf.getPerimeter());
+				}
+			}
+		}
 		else
 			faultCornerLocations = faultSurface.getPerimeter();
 

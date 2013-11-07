@@ -804,7 +804,7 @@ public class ManyRunCompilation {
 	
 	private static double[] calcEALs(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs,
 			CalculationExceptionHandler handler, double maxSourceDistance) throws InterruptedException {
-		ThreadedEALCalc calc = new ThreadedEALCalc(assets, erfs, imrs, handler, maxSourceDistance);
+		ThreadedEALCalc calc = new ThreadedEALCalc(assets, erfs, imrs, handler, maxSourceDistance, null);
 		
 		int[] batch = new int[assets.size()];
 		for (int i=0; i<batch.length; i++)

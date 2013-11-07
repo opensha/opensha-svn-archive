@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
@@ -28,8 +30,10 @@ public class ThreadedEALCalc {
 	
 	protected Deque<Asset> stack;
 	private double maxSourceDistance;
+	private ArbitrarilyDiscretizedFunc magThreshFunc;
 	
-	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, CalculationExceptionHandler handler, double maxSourceDistance) {
+	public ThreadedEALCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs, CalculationExceptionHandler handler,
+			double maxSourceDistance, ArbitrarilyDiscretizedFunc magThreshFunc) {
 		Preconditions.checkNotNull(assets);
 		Preconditions.checkArgument(!assets.isEmpty());
 		Preconditions.checkNotNull(erfs);
@@ -49,6 +53,7 @@ public class ThreadedEALCalc {
 		this.imrs = imrs;
 		this.handler = handler;
 		this.maxSourceDistance = maxSourceDistance;
+		this.magThreshFunc = magThreshFunc;
 		
 		sites = new Site[imrs.length];
 		for (int i=0; i<imrs.length; i++) {
@@ -123,7 +128,7 @@ public class ThreadedEALCalc {
 			Asset asset = popAsset();
 			
 			while (asset != null) {
-				asset.calculateEAL(imr, maxSourceDistance, site, erf, handler);
+				asset.calculateEAL(imr, maxSourceDistance, magThreshFunc, site, erf, handler);
 				
 //				System.out.println("Calculated EAL: "+asset.getAssetEAL());
 				

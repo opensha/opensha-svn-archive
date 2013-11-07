@@ -9,9 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.LightFixedXFunc;
@@ -19,8 +22,12 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
@@ -32,6 +39,7 @@ import org.opensha.sra.calc.parallel.MPJ_CondLossCalc;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -227,6 +235,30 @@ public class UCERF3_EAL_Combiner {
 	public double[] getTotalEALs() {
 		return totalEALs;
 	}
+	
+	private static Map<LogicTreeBranch, Double> loadValidateRuns(File validateDir, String prefix, boolean gridded)
+			throws IOException {
+		Map<LogicTreeBranch, Double> results = Maps.newHashMap();
+		for (File file : validateDir.listFiles()) {
+			if (file.isDirectory())
+				continue;
+			String name = file.getName();
+			if (!name.endsWith(".txt"))
+				continue;
+			if (!name.startsWith("FM") || !name.contains(prefix))
+				continue;
+			if (gridded && !name.contains("_bgONLY"))
+				continue;
+			else if (!gridded && !name.contains("_bgEXCLUDE"))
+				continue;
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(name);
+			List<String> lines = FileUtils.readLines(file);
+			String[] split = lines.get(0).split(" ");
+			double eal = Double.parseDouble(split[split.length-1]);
+			results.put(branch, eal);
+		}
+		return results;
+	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		File invSolDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
@@ -234,13 +266,18 @@ public class UCERF3_EAL_Combiner {
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 		File compoundSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_GRIDDED.zip");
-		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_index.bin");
-		File rupGriddedFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_gridded.bin");
+//		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_index.bin");
+//		File rupGriddedFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_gridded.bin");
+		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013/");
+		String prefix = "CB_2013";
+		File rupLossesFile = new File(jobDir, prefix+"_fss_index.bin");
+		File rupGriddedFile = new File(jobDir, prefix+"_fss_gridded.bin");
+		File validateDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013-validate/");
 //		File rupGriddedFile = null;
 //		BackgroundRupType gridType = BackgroundRupType.CROSSHAIR;
 		boolean isFSSMapped = true; // if false, then organized as erf source/rup. else, fss rup/mag
 		BranchWeightProvider weightProv = new APrioriBranchWeightProvider();
-		File csvFile = new File("/tmp/ucerf3_indep_fault_eals.csv");
+		File csvFile = new File(jobDir, prefix+"_eals.csv");
 		
 		System.out.println("Loading true mean/compound");
 		FaultSystemSolution trueMeanSol = FaultSystemIO.loadSol(trueMeanSolFile);
@@ -314,13 +351,16 @@ public class UCERF3_EAL_Combiner {
 		}
 		
 		System.out.println("'true mean fault eal'="+trueMeanEAL);
-		plotDist(eals, branchWeights, "UCERF3 Fault Based Indep EAL Distribution");
+		plotDist(eals, branchWeights, "UCERF3 Fault Based Indep EAL Distribution",
+				new File(jobDir, prefix+"_fault_hist.png"));
 		if (griddedFuncs != null)
-			plotDist(gridEALs, branchWeights, "UCERF3 Gridded Indep EAL Distribution");
+			plotDist(gridEALs, branchWeights, "UCERF3 Gridded Indep EAL Distribution",
+					new File(jobDir, prefix+"_gridded_hist.png"));
 		double[] combEALs = comb.getTotalEALs();
 		for (int i=0; i<eals.length; i++)
 			combEALs[i] = eals[i]+gridEALs[i];
-		plotDist(combEALs, branchWeights, "UCERF3 Total Indep EAL Distribution");
+		plotDist(combEALs, branchWeights, "UCERF3 Total Indep EAL Distribution",
+				new File(jobDir, prefix+"_total_hist.png"));
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList("Index", "Branch Weight", "Total EAL", "Fault EAL", "Gridded EAL");
@@ -341,23 +381,94 @@ public class UCERF3_EAL_Combiner {
 			csv.addLine(line);
 		}
 		csv.writeToFile(csvFile);
+		
+		if (validateDir != null) {
+			Map<LogicTreeBranch, Double> gridValidate = loadValidateRuns(validateDir, prefix, true);
+			Map<LogicTreeBranch, Double> faultValidate = loadValidateRuns(validateDir, prefix, false);
+
+			if (!gridValidate.isEmpty())
+				plotValidates(gridValidate, "Gridded Validate", branches, gridEALs,
+						new File(validateDir, prefix+"_validate_gridded.png"));
+			if (!faultValidate.isEmpty())
+				plotValidates(faultValidate, "Fault Validate", branches, eals,
+						new File(validateDir, prefix+"_validate_fault.png"));
+		}
+		
+		// now print the mag dist threshold for reference
+		ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
+		GraphWindow gw = new GraphWindow(magThreshFunc, "Mag/Distance Function");
+		gw.setX_AxisLabel("Max Distance");
+		gw.setY_AxisLabel("Magnitude");
 	}
 	
-	private static void plotDist(double[] eals, double[] branchWeights, String title) {
+	private static void plotValidates(Map<LogicTreeBranch, Double> validate, String title,
+			List<LogicTreeBranch> branches, double[] eals, File pngFile) throws IOException {
+		double[] refResults = new double[validate.size()];
+		double[] testResults = new double[validate.size()];
+		
+		MinMaxAveTracker track = new MinMaxAveTracker();
+		MinMaxAveTracker absTrack = new MinMaxAveTracker();
+		int cnt = 0;
+		for (LogicTreeBranch branch : validate.keySet()) {
+			int ind = branches.indexOf(branch);
+			Preconditions.checkPositionIndex(ind, eals.length);
+			refResults[cnt] = validate.get(branch);
+			testResults[cnt] = eals[ind];
+			
+			double pDiffAbs = DataUtils.getPercentDiff(testResults[cnt], refResults[cnt]);
+			double pDiff = (testResults[cnt] - refResults[cnt]) / refResults[cnt] * 100d;
+			
+			track.addValue(pDiff);
+			absTrack.addValue(pDiffAbs);
+			
+			cnt++;
+		}
+		
+		DefaultXY_DataSet func = new DefaultXY_DataSet(refResults, testResults);
+		List<PlotElement> elems = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		double max = Math.max(func.getMaxY(), func.getMaxX());
+		double min = Math.min(func.getMinY(), func.getMinX());
+		DefaultXY_DataSet refLine = new DefaultXY_DataSet();
+		refLine.set(0d, 0d);
+		refLine.set(min, min);
+		refLine.set(max, max);
+		elems.add(refLine);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		elems.add(func);
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.BLACK));
+		
+		System.out.println(track);
+		System.out.println(absTrack);
+		
+		title += " (avg % diff: "+(float)track.getAverage()+", abs="+(float)absTrack.getAverage()+")";
+		
+		GraphWindow gw = new GraphWindow(elems, title, chars);
+		gw.setX_AxisLabel("Reference (full hazard curve) EAL");
+		gw.setY_AxisLabel("New (conditional loss) EAL");
+		if (pngFile != null)
+			gw.saveAsPNG(pngFile.getAbsolutePath());
+	}
+	
+	private static void plotDist(double[] eals, double[] branchWeights, String title, File pngFile)
+			throws IOException {
 		double minEAL = StatUtils.min(eals);
 		double maxEAL = StatUtils.max(eals);
 		System.out.println("min="+minEAL+"\tmax="+maxEAL);
 		
 //		double delta = 1000000d;
 		// we want about 10 bins
+		double binLogBase = 10;
 		double delta = (maxEAL - minEAL) / 10d;
 		System.out.println("Calc delta: "+delta);
-		delta = Math.pow(10, Math.round(Math.log10(delta)));
-		System.out.println("Round delta: "+delta);
+		delta = Math.pow(binLogBase, Math.round(Math.log(delta)/Math.log(binLogBase)));
 //		double delta = 100d;
 		double funcMin = ((int)(minEAL/delta))*delta;
 		double funcMax = ((int)(maxEAL/delta)+1)*delta;
 		int funcNum = (int)((funcMax - funcMin)/delta);
+		System.out.println("Round delta: "+delta+"\tbins="+funcNum);
 		
 		double calcMeanEAL = 0d;
 		
@@ -374,8 +485,17 @@ public class UCERF3_EAL_Combiner {
 		elems.add(func);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		DefaultXY_DataSet meanXY = new DefaultXY_DataSet();
+		meanXY.set(calcMeanEAL, 0d);
+		meanXY.set(calcMeanEAL, func.getMaxY()*1.1d);
+		elems.add(meanXY);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		
-		new GraphWindow(elems, title, chars);
+		GraphWindow gw = new GraphWindow(elems, title+" (mean="+(float)calcMeanEAL+")", chars);
+		gw.setX_AxisLabel("EAL ($)");
+		gw.setY_AxisLabel("Weighted Fraction of Branches");
+		if (pngFile != null)
+			gw.saveAsPNG(pngFile.getAbsolutePath());
 	}
 
 }

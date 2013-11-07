@@ -220,6 +220,10 @@ public class Asset implements Cloneable {
 	 * for the other assets in the list.
 	 */
 	public double calculateEAL( ScalarIMR imr, double distance, Site site, BaseERF erf, CalculationExceptionHandler controller ) {
+		return calculateEAL(imr, distance, null, site, erf, controller);
+	}
+	
+	public double calculateEAL( ScalarIMR imr, double distance, ArbitrarilyDiscretizedFunc magThreshFunc, Site site, BaseERF erf, CalculationExceptionHandler controller ) {
 		// Edit the site with the asset values
 		siteSetup(site);
 		Site newSite = getSite();
@@ -285,7 +289,10 @@ public class Asset implements Cloneable {
 
 		// Create a HazardCurveCalculator with a site, imr, and erf
 		try {
-			calc.setMaxSourceDistance( distance );
+			if (magThreshFunc != null)
+				calc.setMagDistCutoffFunc(magThreshFunc);
+			else
+				calc.setMaxSourceDistance( distance );
 			forecast = erf;
 			hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, newSite, imr, (ERF) forecast);
 		} catch( Exception e ) {

@@ -62,7 +62,7 @@ public class MPJ_AssetRTGM_Calc extends MPJ_EAL_Calc {
 //		}
 		
 		this.calc = new ThreadedRTGMCalc(prevCalc.getAssets(), prevCalc.getERFs(), prevCalc.getIMRs(),
-				this, maxSourceDistance);
+				this, 200d);
 	}
 	
 	private class ThreadedRTGMCalc extends ThreadedEALCalc {
@@ -70,7 +70,7 @@ public class MPJ_AssetRTGM_Calc extends MPJ_EAL_Calc {
 		public ThreadedRTGMCalc(List<Asset> assets, ERF[] erfs,
 				ScalarIMR[] imrs, CalculationExceptionHandler handler,
 				double maxSourceDistance) {
-			super(assets, erfs, imrs, handler, maxSourceDistance);
+			super(assets, erfs, imrs, handler, maxSourceDistance, null);
 		}
 
 		@Override

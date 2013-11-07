@@ -21,12 +21,14 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
@@ -46,7 +48,7 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 	
 	private Portfolio portfolio;
 	protected List<Asset> assets;
-	protected double maxSourceDistance = 200; // TODO set
+	
 	
 	private ArrayList<Integer> indexes = new ArrayList<Integer>();
 	private ArrayList<Double> eals = new ArrayList<Double>();
@@ -99,7 +101,12 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 			System.out.println("DONE loading vulns.");
 		}
 		
-		calc = new ThreadedEALCalc(assets, erfs, imrs, this, maxSourceDistance);
+		ArbitrarilyDiscretizedFunc magThreshFunc;
+		if (cmd.hasOption("dist-func"))
+			magThreshFunc = new MagDistCutoffParam().getDefaultValue();
+		else
+			magThreshFunc = null;
+		calc = new ThreadedEALCalc(assets, erfs, imrs, this, 200d, magThreshFunc);
 	}
 	
 	private ERF loadERF(Element root) throws InvocationTargetException {
@@ -215,6 +222,10 @@ public class MPJ_EAL_Calc extends MPJTaskCalculator implements CalculationExcept
 		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
 		erfOp.setRequired(false);
 		ops.addOption(erfOp);
+		
+		Option distFuncOp = new Option("df", "dist-func", false, "If set, the default distance/mag function will be used instead of 200 km");
+		distFuncOp.setRequired(false);
+		ops.addOption(distFuncOp);
 		
 		return ops;
 	}
