@@ -182,7 +182,8 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 			if (depthTo1pt0kmPerSecParam.getValue() == null)
 				gmpe.set_z1p0(Double.NaN);
 			else
-				gmpe.set_z1p0(depthTo1pt0kmPerSecParam.getValue());
+				// OpenSHA has Z1.0 in m instead of km, need to convert
+				gmpe.set_z1p0(depthTo1pt0kmPerSecParam.getValue()/1000d);
 			
 			gmpe.set_fault(style);
 			
