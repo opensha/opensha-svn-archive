@@ -1430,9 +1430,11 @@ if(firstEvent) {
 		FileWriter gain_fr;
 		try {
 			gain_fr = new FileWriter(dirNameForSavingFiles+"/aveRupGainData.txt");
-			gain_fr.write("nthRupIndex\taveRupGain\tminRupGain\tmaxRupGain\trupMag\trupLongTermRate\trupCondRI\n");
+			gain_fr.write("nthRupIndex\taveRupGain\tminRupGain\tmaxRupGain\trupMag\trupLongTermRate\trupCondRI\trupName\n");
 			for(int i=0;i<aveRupProbGainArray.length;i++) {
-				gain_fr.write(i+"\t"+aveRupProbGainArray[i]+"\t"+minRupProbGainArray[i]+"\t"+maxRupProbGainArray[i]+"\t"+magOfNthRups[i]+"\t"+longTermRateOfNthRups[i]+"\t"+aveCondRecurIntervalForFltSysRups[erf.getFltSysRupIndexForNthRup(i)]+"\n");
+				gain_fr.write(i+"\t"+aveRupProbGainArray[i]+"\t"+minRupProbGainArray[i]+"\t"+maxRupProbGainArray[i]+"\t"+magOfNthRups[i]
+						+"\t"+longTermRateOfNthRups[i]+"\t"+aveCondRecurIntervalForFltSysRups[erf.getFltSysRupIndexForNthRup(i)]+"\t"+
+						erf.getSource(erf.getSrcIndexForNthRup(i)).getName()+"\n");
 			}
 			gain_fr.close();
 		} catch (IOException e1) {
@@ -2245,11 +2247,11 @@ if(firstEvent) {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(null, null, erf,100000d, "TestRun1");
+		testCalc.testER_Simulation(null, null, erf,200000d, "TestRun1");
 		
 
 //		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
@@ -2271,8 +2273,9 @@ if(firstEvent) {
 //		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 //		erf.updateForecast();
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,150000d, "Run1");
-//		testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
+//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,9000d, "Run1");
+
+		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		
 		
 		
