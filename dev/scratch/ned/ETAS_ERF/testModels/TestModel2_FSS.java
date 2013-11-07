@@ -38,28 +38,30 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * @author field
  *
  */
-public class TestModel1_FSS extends InversionFaultSystemSolution {
+public class TestModel2_FSS extends FaultSystemSolution {
 	
-	final static boolean D = true;	// debug flag
+	final static boolean D = false;	// debug flag
 	
+	int minNumSectInRup=4;
 	double rake=0;
 	double slipRate = 25;	// mm/yr
 	double ddw=12;
 	double dip=90;
-	Location faultEndLoc1 = new Location(36,241-360);
-	Location faultEndLoc2 = new Location(36,243-360);
-	LocationList pointLocsOnFault;
+	double minLonForFault=241;
+//	double maxLonForFault=243;
+	double maxLonForFault=249;
+	Location faultEndLoc1 = new Location(36,minLonForFault-360);
+	Location faultEndLoc2 = new Location(36,maxLonForFault-360);
 	
-	int totNumRups=1653;	// found by computing once
+	int totNumRups;	// found by computing once
 	
 	ArrayList<FaultSectionPrefData> subSectionData;
-	double[] rateForRup = new double[totNumRups];
-	double[] magForRup = new double[totNumRups];
-	double[] areaForRup = new double[totNumRups];	// square-meters
-	double[] aveSlipForRup = new double[totNumRups];	// meters
-	int[] firstSubSectForRup = new int[totNumRups];
-	int[] lastSubSectForRup = new int[totNumRups];
-	
+	double[] rateForRup;
+	double[] magForRup;
+	double[] areaForRup;	// square-meters
+	double[] aveSlipForRup;	// meters
+	int[] firstSubSectForRup;
+	int[] lastSubSectForRup;
 	
 	
 	// MFDs
@@ -67,7 +69,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 	ArbIncrementalMagFreqDist faultGR;			// goes to the smallest fault mag
 	
 	
-	public TestModel1_FSS() {
+	public TestModel2_FSS() {
 		super();
 		
 		FaultTrace trace = new FaultTrace(null);
@@ -81,15 +83,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 		faultSectData.setAveSlipRate(slipRate);
 		faultSectData.setFaultTrace(trace);
 		
-		pointLocsOnFault = new LocationList();
-		for(int i=0;i<=40;i++) {
-			pointLocsOnFault.add(new Location(36,241-360+i*0.05));
-			if(D)
-				System.out.println(pointLocsOnFault.get(i));
-		}
-
-		
-		double subSectionMaxLength = 3.0;
+		double subSectionMaxLength = ddw/minNumSectInRup;
 		
 		double area = faultSectData.getTraceLength()*faultSectData.getReducedDownDipWidth();  // sq-km
 		
@@ -102,8 +96,8 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 			subSectionData.get(s).setSectionId(s);
 //			subSectionData.get(s).setDateOfLastEvent(0);
 			areaForSections[s] = subSectionData.get(s).getTraceLength()*subSectionData.get(s).getReducedDownDipWidth();
-			if(D)
-				System.out.println("subsection name = "+subSectionData.get(s).getName());
+//			if(D)
+//				System.out.println("subsection name = "+subSectionData.get(s).getName());
 		}
 
 		
@@ -119,8 +113,8 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 //		Ellsworth_B_WG02_MagAreaRel ellB_magArea = new Ellsworth_B_WG02_MagAreaRel();
 		HanksBakun2002_MagAreaRel hbMagArea = new HanksBakun2002_MagAreaRel();
 		double maxMag = hbMagArea.getMedianMag(area);
-		double minMag = hbMagArea.getMedianMag(firstSubSec.getReducedDownDipWidth()*4*firstSubSec.getTraceLength());
-		
+		double minMag = hbMagArea.getMedianMag(firstSubSec.getReducedDownDipWidth()*minNumSectInRup*firstSubSec.getTraceLength());
+
 		if(D) {
 			System.out.println("\nminMag="+(float)minMag+"; maxMag="+(float)maxMag);
 		}
@@ -130,62 +124,82 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 		totMoRate *= 0.5/1.1420689;	// this makes it one M>=5 every 2 years
 //		totMoRate /= 10;
 		
-		EvenlyDiscretizedFunc magNumDist = new EvenlyDiscretizedFunc(6.15, 7.55, 15);
+		EvenlyDiscretizedFunc magNumDist = new EvenlyDiscretizedFunc(5.15, 9.55, 45);
 		magNumDist.setTolerance(0.1);
 		
-		int testTotNumRups=0;
+		// compute tot num ruptures
+		totNumRups=0;
+		for(int s=minNumSectInRup;s<subSectionData.size()+1;s++) {
+			int numSectForRup=s;
+			if(numSectForRup<subSectionData.size()/2)
+				totNumRups += subSectionData.size()+1 - s;
+		}
+		rateForRup = new double[totNumRups];
+		magForRup = new double[totNumRups];
+		areaForRup = new double[totNumRups];	// square-meters
+		aveSlipForRup = new double[totNumRups];	// meters
+		firstSubSectForRup = new int[totNumRups];
+		lastSubSectForRup = new int[totNumRups];
+		
 		int rupIndex=0;
-		for(int s=4;s<subSectionData.size()+1;s++) {
-			int numRups = subSectionData.size()+1 - s;
-			testTotNumRups += numRups;
-			double length = (s)*firstSubSec.getTraceLength();
-			double rupArea = length*firstSubSec.getReducedDownDipWidth();
-			double mag = hbMagArea.getMedianMag(rupArea);
-			mag = ((double)Math.round(mag*100))/100;
-			double aveSlip = FaultMomentCalc.getSlip(rupArea*1e6, MagUtils.magToMoment(mag));
-			magNumDist.add(mag, numRups);
-			if(D) {
-				System.out.println("\tMag="+(float)mag+" for "+s+" sub sections; numRups="+numRups);
-			}
-			for(int r=0;r<numRups;r++) {
-				magForRup[rupIndex] = mag;
-				aveSlipForRup[rupIndex]=aveSlip;
-				areaForRup[rupIndex]=rupArea*1e6;	// converted to meters-squared
-				firstSubSectForRup[rupIndex]=r;
-				lastSubSectForRup[rupIndex]=r+s-1;
-				if(firstSubSectForRup[rupIndex]==19 && lastSubSectForRup[rupIndex]==40)
-					System.out.println("Good Rupture: rupIndex="+rupIndex);
+		for(int s=minNumSectInRup;s<subSectionData.size()+1;s++) {
+			int numSectForRup=s;
+			if(numSectForRup<subSectionData.size()/2) {
+				int numRups = subSectionData.size()+1 - s;
+				double length = (s)*firstSubSec.getTraceLength();
+				double rupArea = length*firstSubSec.getReducedDownDipWidth();
+				double mag = hbMagArea.getMedianMag(rupArea);
+				mag = ((double)Math.round(mag*100))/100;
+				double aveSlip = FaultMomentCalc.getSlip(rupArea*1e6, MagUtils.magToMoment(mag));
+				magNumDist.add(mag, numRups);
 				if(D) {
-					System.out.println("\t\t"+(float)magForRup[rupIndex]+"\t"+Math.round(areaForRup[rupIndex])+"\t"+
-							(float)aveSlipForRup[rupIndex]+"\t"+firstSubSectForRup[rupIndex]+"\t"+lastSubSectForRup[rupIndex]);
+					System.out.println("\tMag="+(float)mag+" for "+s+" sub sections; numRups="+numRups);
 				}
-				rupIndex+=1;
+				for(int r=0;r<numRups;r++) {
+					magForRup[rupIndex] = mag;
+					aveSlipForRup[rupIndex]=aveSlip;
+					areaForRup[rupIndex]=rupArea*1e6;	// converted to meters-squared
+					firstSubSectForRup[rupIndex]=r;
+					lastSubSectForRup[rupIndex]=r+s-1;
+					if(D) {
+						System.out.println("\t\t"+(float)magForRup[rupIndex]+"\t"+Math.round(areaForRup[rupIndex])+"\t"+
+								(float)aveSlipForRup[rupIndex]+"\t"+firstSubSectForRup[rupIndex]+"\t"+lastSubSectForRup[rupIndex]);
+					}
+					rupIndex+=1;
+				}
 			}
 		}
 		
-		if(testTotNumRups != this.totNumRups)
-			throw new RuntimeException("Num rups changed");
 		
 		if(D) {
-			System.out.println("\ntotNumRups="+testTotNumRups);
+			System.out.println("\ntotNumRups="+totNumRups);
 			System.out.println("\nmagForRup.length="+magForRup.length);
 			System.out.println("\n"+magNumDist);
 		}
 		
-		targetFaultGR = new GutenbergRichterMagFreqDist(2.55, 51, 0.1,2.55, 7.55,totMoRate, 1.0);
+		double roundedMaxMag = magNumDist.getX(magNumDist.getClosestXIndex(maxMag));
+		double roundedMinMag = magNumDist.getX(magNumDist.getClosestXIndex(minMag));
+		int numPts1 = (int)Math.round((roundedMaxMag-2.55)/0.1) + 1;
+		
+		targetFaultGR = new GutenbergRichterMagFreqDist(2.55, numPts1, 0.1,2.55, roundedMaxMag,totMoRate, 1.0);
+		targetFaultGR.setName("targetFaultGR");
 //		System.out.println("\n"+targetFaultGR);
 		
-		faultGR = new ArbIncrementalMagFreqDist(6.15, 7.55, 15);
+		int numPts2 = (int)Math.round((roundedMaxMag-roundedMinMag)/0.1) + 1;
+
+		faultGR = new ArbIncrementalMagFreqDist(roundedMinMag, roundedMaxMag, numPts2);
+		faultGR.setName("faultGR");
 		for(int i=0;i<faultGR.getNum();i++) {
 			double mag = faultGR.getX(i);
 			faultGR.set(mag, targetFaultGR.getY(mag));
 		}
 		
-		ArbIncrementalMagFreqDist testMFD = new ArbIncrementalMagFreqDist(6.15, 7.55, 15);
+		ArbIncrementalMagFreqDist testMFD = new ArbIncrementalMagFreqDist(roundedMinMag, roundedMaxMag, numPts2);
+		testMFD.setName("testMFD");
 
-		for(int r=0; r<this.totNumRups;r++) {
+		for(int r=0; r<totNumRups;r++) {
 			int index = faultGR.getClosestXIndex(magForRup[r]);
-			rateForRup[r] = faultGR.getY(index)/magNumDist.getY(index);
+			rateForRup[r] = faultGR.getY(index)/magNumDist.getY(magForRup[r]);
 			testMFD.add(index, rateForRup[r]);
 		}
 
@@ -234,10 +248,6 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 	
 	public ArbIncrementalMagFreqDist getFaultGR() {
 		return faultGR;
-	}
-	
-	public LocationList getPointLocsOnFault() {
-		return pointLocsOnFault;
 	}
 	
 
@@ -319,7 +329,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 	 */
 	public static void main(String[] args) {
 		
-		TestModel1_FSS test = new TestModel1_FSS();
+		TestModel2_FSS test = new TestModel2_FSS();
 		
 		System.out.println(test.getRupSet().getNumRuptures());
 
