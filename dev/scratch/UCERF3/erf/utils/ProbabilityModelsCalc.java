@@ -892,11 +892,6 @@ public class ProbabilityModelsCalc {
 		simProbGainForMagBelow7_Hist = new HistogramFunction(0.05, 100, 0.1);	// up to 10
 		
 		
-//		// write name of each sub-section
-//		for(int i=0;i<fltSysRupSet.getNumSections();i++) {
-//			System.out.println(fltSysRupSet.getFaultSectionData(i).getName());
-//		}
-//		System.exit(0);
 		
 		// LABELING AND FILENAME STUFF
 		String typeCalcForU3_Probs;
@@ -1444,6 +1439,28 @@ if(firstEvent) {
 			e1.printStackTrace();
 		}
 
+		// make aveGainVsMagFunction, weighted by rupture rate
+		HistogramFunction aveGainVsMagHist = new HistogramFunction(5.05, 40, 0.1);
+		HistogramFunction tempWtHist = new HistogramFunction(5.05, 40, 0.1);
+		for(int i=0;i<aveRupProbGainArray.length;i++) {
+			aveGainVsMagHist.add(magOfNthRups[i], aveRupProbGainArray[i]*longTermRateOfNthRups[i]);
+			tempWtHist.add(magOfNthRups[i], longTermRateOfNthRups[i]);
+		}
+		for(int i=0;i<aveGainVsMagHist.getNum();i++) {
+			double wt = tempWtHist.getY(i);
+			if(wt>1e-15) // avoid division by zero
+				aveGainVsMagHist.set(i,aveGainVsMagHist.getY(i)/wt);
+		}
+		aveGainVsMagHist.setName("aveGainVsMagHist");
+		aveGainVsMagHist.setInfo("weighted by rupture long-term rates");
+		GraphWindow graphAveGainVsMagHist = new GraphWindow(aveGainVsMagHist, "Ave Rup Gain vs Mag; "+plotLabelString); 
+		graphAveGainVsMagHist.setX_AxisLabel("Mag");
+		graphAveGainVsMagHist.setY_AxisLabel("Ave Gain");
+		graphAveGainVsMagHist.setAxisLabelFontSize(22);
+		graphAveGainVsMagHist.setTickLabelFontSize(20);
+		graphAveGainVsMagHist.setPlotLabelFontSize(22);
+
+
 		
 		
 		// get normalized rup and section recurrence interval plots
@@ -1719,6 +1736,25 @@ if(firstEvent) {
 		graph2.setX_AxisLabel("Imposed Section Participation Rate (per yr)");
 		graph2.setY_AxisLabel("Simulated Section Participation Rate (per yr)");
 		
+		// write section rates with names
+		FileWriter eventRates_fr;
+		try {
+			eventRates_fr = new FileWriter(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.txt");
+			eventRates_fr.write("sectID\timposedRate\tsimulatedRate\tsimOverImpRateRatio\tsectName\n");
+			for(int i=0;i<fltSysRupSet.getNumSections();i++) {
+				FaultSectionPrefData fltData = fltSysRupSet.getFaultSectionData(i);
+				double ratio = obsSectRateArray[i]/longTermPartRateForSectArray[i];
+				eventRates_fr.write(fltData.getSectionId()+"\t"+longTermPartRateForSectArray[i]+"\t"+obsSectRateArray[i]+"\t"+ratio+"\t"+fltData.getName()+"\n");
+			}
+			eventRates_fr.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+
+		
+
+		
 		
 		// plot ave norm RI along strike
 		ArrayList<EvenlyDiscretizedFunc> funcs8 = new ArrayList<EvenlyDiscretizedFunc>();
@@ -1738,6 +1774,7 @@ if(firstEvent) {
 		GraphWindow graph8 = new GraphWindow(funcs8, "Normalized RI vs Normalized Dist Along Strike; "+probTypeString, plotChars8); 
 		graph8.setX_AxisLabel("Norm Dist Along Strike");
 		graph8.setY_AxisLabel("Normalized RI");
+		
 		
 		
 //		System.out.println(testSectName+"\tobsSectRateArray="+obsSectRateArray[testSectIndex]+
@@ -1812,14 +1849,16 @@ if(firstEvent) {
 			graphTotalRateVsTime.saveAsPDF(dirNameForSavingFiles+"/totalRateVsTime.pdf");
 			graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
 			graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
-			graph2.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.txt");
+//			graph2.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.txt"); // replaced above
 			graph4.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedRupRates.pdf");
 			graph4.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedRupRates.txt");
 			graph3.saveAsPDF(dirNameForSavingFiles+"/obsOverImposedVsImposedSectionPartRatesM6to6pt7.pdf");
 			graph8.saveAsPDF(dirNameForSavingFiles+"/normRI_AlongRupTrace.pdf");
-			graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
+//			graph9.saveAsPDF(dirNameForSavingFiles+"/safEventsVsTime.pdf");
 			graphSR.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.pdf");
 			graphSR.saveAsTXT(dirNameForSavingFiles+"/obsVsImposedSectionSlipRates.txt");
+			graphAveGainVsMagHist.saveAsPDF(dirNameForSavingFiles+"/aveRupGainVsMagHist.pdf");
+			graphAveGainVsMagHist.saveAsTXT(dirNameForSavingFiles+"/aveRupGainVsMagHist.txt");
 			// data:
 			FileWriter fr = new FileWriter(dirNameForSavingFiles+"/normalizedRupRecurIntervals.txt");
 			for (double val : normalizedRupRecurIntervals)
@@ -2206,11 +2245,11 @@ if(firstEvent) {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(null, null, erf,20000d, "TestRun1");
+		testCalc.testER_Simulation(null, null, erf,100000d, "TestRun1");
 		
 
 //		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
