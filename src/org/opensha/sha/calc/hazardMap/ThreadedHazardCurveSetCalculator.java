@@ -18,10 +18,12 @@ public class ThreadedHazardCurveSetCalculator {
 	}
 	
 	public void calculateCurves(List<Site> sites) throws IOException, InterruptedException {
+		populateNameField(sites, null);
 		calculateCurves(new ArrayDeque<Site>(sites));
 	}
 	
 	public void calculateCurves(List<Site> sites, int[] indices) throws IOException, InterruptedException {
+		populateNameField(sites, indices);
 		ArrayDeque<Site> deque = new ArrayDeque<Site>();
 		for (int index : indices)
 			deque.add(sites.get(index));
@@ -40,7 +42,7 @@ public class ThreadedHazardCurveSetCalculator {
 		}
 	}
 	
-	public void calculateCurves(Deque<Site> sites) throws IOException, InterruptedException {
+	private void calculateCurves(Deque<Site> sites) throws IOException, InterruptedException {
 		this.stack = sites;
 		int numThreads = calcs.length;
 		
