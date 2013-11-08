@@ -670,7 +670,7 @@ public class FaultSysSolutionERF_Calc {
 			for (int m=0; m<numMag; m++)
 				probsList.add(new ArrayList<Double>());
 			
-			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
 				ProbEqkSource source = erf.getSource(sourceID);
 				if (!cache.isRupInRegion(source, source.getRupture(0), sourceID, 0, region))
 					// source is just for a single rupture, if the first rup isn't in the region none are
@@ -764,7 +764,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		EvenlyDiscretizedFunc xVals = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
 		
-		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
 			int invIndex = erf.getFltSysRupIndexForSource(sourceID);
 			for (ProbEqkRupture rup : erf.getSource(sourceID)) {
 				double mag = rup.getMag();
@@ -822,7 +822,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		EvenlyDiscretizedFunc xVals = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
 		
-		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
 			int invIndex = erf.getFltSysRupIndexForSource(sourceID);
 			for (ProbEqkRupture rup : erf.getSource(sourceID)) {
 				double mag = rup.getMag();
@@ -849,23 +849,21 @@ public class FaultSysSolutionERF_Calc {
 	/**
 	 * This generates a set of statewide fault probability gain maps for the given fault system
 	 * solution.
-	 * @param sol
+	 * @param erf
 	 * @param saveDir directory where plots should be saved
 	 * @param prefix file prefix
-	 * @param filterAftershocks if true then the Gardner Knopoff aftershock filter will be enabled
-	 * @param duration forecast duration
 	 * @throws GMT_MapException
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public static void makeFaultProbGainMaps(FaultSystemSolution sol, File saveDir, String prefix,
-			boolean filterAftershocks, double duration) throws GMT_MapException, RuntimeException, IOException {
+	public static void makeFaultProbGainMaps(FaultSystemSolutionERF erf, File saveDir, String prefix
+			) throws GMT_MapException, RuntimeException, IOException {
 		double minMag = 6.5;
 		int numMag = 4;
 		double deltaMag = 0.5;
 		
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, filterAftershocks);
+		FaultSystemSolution sol = erf.getSolution();
+		
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
 		
@@ -897,6 +895,7 @@ public class FaultSysSolutionERF_Calc {
 		if (!prefix.isEmpty() && !prefix.endsWith("_"))
 			prefix += "_";
 		
+		double duration = erf.getTimeSpan().getDuration();
 		prefix += (float)duration+"yr";
 		
 		for (int i=0; i<numMag+2; i++) {
@@ -996,17 +995,15 @@ public class FaultSysSolutionERF_Calc {
 	/**
 	 * This generates a set of statewide fault probability gain maps for the given fault system
 	 * solution, exploring different averaging options.
-	 * @param sol
+	 * @param erf no need to update forecast
 	 * @param saveDir directory where plots should be saved
 	 * @param prefix file prefix
-	 * @param filterAftershocks if true then the Gardner Knopoff aftershock filter will be enabled
-	 * @param duration forecast duration
 	 * @throws GMT_MapException
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public static void makeAvgMethodProbGainMaps(FaultSystemSolution sol, File saveDir, String prefix,
-			boolean filterAftershocks, double duration) throws GMT_MapException, RuntimeException, IOException {
+	public static void makeAvgMethodProbGainMaps(FaultSystemSolutionERF erf, File saveDir, String prefix
+			) throws GMT_MapException, RuntimeException, IOException {
 		double minMag = 6.5;
 		int numMag = 4;
 		double deltaMag = 0.5;
@@ -1018,8 +1015,6 @@ public class FaultSysSolutionERF_Calc {
 		avgBools.add(toArray(true, false));
 		avgBools.add(toArray(true, true));
 		
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, filterAftershocks);
 		// TODO historical open interval?
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		erf.updateForecast();
@@ -1042,6 +1037,8 @@ public class FaultSysSolutionERF_Calc {
 		
 		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT().rescale(0.8d, 1.2d);
 		
+		FaultSystemSolution sol = erf.getSolution();
+		
 		List<LocationList> faults = Lists.newArrayList();
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
 			faults.add(sect.getFaultTrace());
@@ -1052,6 +1049,8 @@ public class FaultSysSolutionERF_Calc {
 			prefix = "";
 		if (!prefix.isEmpty() && !prefix.endsWith("_"))
 			prefix += "_";
+		
+		double duration = erf.getTimeSpan().getDuration();
 		
 		prefix += (float)duration+"yr";
 		
@@ -1127,14 +1126,13 @@ public class FaultSysSolutionERF_Calc {
 	/**
 	 * This makes XYZ plots of probability as a function of mag/duration for various california regions
 	 * with both Poisson and BPT probabilities (and prob gains).
-	 * @param sol
+	 * @param erf
 	 * @param saveDir
 	 * @param prefix
-	 * @param filterAftershocks
 	 * @throws IOException
 	 */
-	public static void makeMagDurationProbPlots(FaultSystemSolution sol, File saveDir, String prefix,
-			boolean filterAftershocks) throws IOException {
+	public static void makeMagDurationProbPlots(FaultSystemSolutionERF erf, File saveDir, String prefix)
+			throws IOException {
 		double minMag = 6.5;
 		int numMag = 21;
 		double deltaMag = 0.1;
@@ -1157,9 +1155,7 @@ public class FaultSysSolutionERF_Calc {
 					numDuration, numMag, minDuration, minMag, deltaDuration, deltaMag);
 		}
 		
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 		FSSRupsInRegionCache cache = new FSSRupsInRegionCache(erf);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, filterAftershocks);
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		
 		populateMagDurationXYZ(erf, poissonXYZs, regions, cache);
@@ -1214,21 +1210,31 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	/**
-	 * This writes out a CSV file of varios probabilities/rates aggregated over each parent section. Parent section
-	 * RI's are calculated as 1 over total parent section partiticpation rate. Open intervals are averaged among all
-	 * fault sections where known, or NaN if no sections of a parent have a date of last event.
-	 * @param sol
+	 * This writes out a CSV file of varios probabilities/rates for each sub section.
+	 * @param erf
 	 * @param outputFile
-	 * @param duration
-	 * @param filterAftershocks
 	 * @throws IOException
 	 */
-	public static void writeParentSectionTimeDependenceCSV(FaultSystemSolution sol, File outputFile,
-			double duration, boolean filterAftershocks) throws IOException {
+	public static void writeSubSectionTimeDependenceCSV(FaultSystemSolutionERF erf, File outputFile)
+			throws IOException {
+		writeTimeDependenceCSV(erf, outputFile, false);
+	}
+	
+	private static Map<Integer, EvenlyDiscretizedFunc> remap(EvenlyDiscretizedFunc[] funcs) {
+		Map<Integer, EvenlyDiscretizedFunc> map = Maps.newHashMap();
+		for (int i=0; i<funcs.length; i++)
+			map.put(i, funcs[i]);
+		return map;
+	}
+	
+	private static void writeTimeDependenceCSV(FaultSystemSolutionERF erf, File outputFile, boolean parent)
+			throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		double minMag = 6.5;
 		int numMag = 4;
 		double deltaMag = 0.5;
+		
+		FaultSystemSolution sol = erf.getSolution();
 		
 		double allMagMin = 5d;
 		int numAllMag = 3+numMag;
@@ -1236,12 +1242,19 @@ public class FaultSysSolutionERF_Calc {
 		String[] magRangeStrs = { "M>=6.5", "M>=7.0", "M>=7.5", "M>=8.0", "Supra Seis", "M<=7.0" };
 		
 		// header
-		List<String> header = Lists.newArrayList("Parent Section Name", "Parent ID");
+		List<String> header = Lists.newArrayList("Section Name");
+		if (parent)
+			header.add("Parent Section ID");
+		else
+			header.add("Sub Section ID");
 		for (String rangeStr : magRangeStrs) {
 			header.add(rangeStr);
 			// these are just averaged (unweighted) since area approx the same for subsections of a parent
 			header.add("Recurr Int.");
-			header.add("Open Int. Where Known");
+			if (parent)
+				header.add("Open Int. Where Known");
+			else
+				header.add("Open Int.");
 			header.add("Ppois");
 			header.add("Pbpt");
 			header.add("Prob Gain");
@@ -1249,57 +1262,83 @@ public class FaultSysSolutionERF_Calc {
 		}
 		csv.addLine(header);
 		
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
-		erf.getTimeSpan().setDuration(duration);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, filterAftershocks);
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
 		
-		Map<Integer, EvenlyDiscretizedFunc> poissonFuncs = calcParentSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
-		Map<Integer, EvenlyDiscretizedFunc> poissonAllMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
-		Map<Integer, EvenlyDiscretizedFunc> poissonSmallMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d);
+		Map<Integer, EvenlyDiscretizedFunc> poissonFuncs, poissonAllMags, poissonSmallMags;
+		if (parent) {
+			poissonFuncs = calcParentSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+			poissonAllMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+			poissonSmallMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d);
+		} else {
+			poissonFuncs = remap(calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag));
+			poissonAllMags = remap(calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag));
+			poissonSmallMags = remap(calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d));
+		}
 		
 		// TODO historical open interval?
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		erf.updateForecast();
-		
-		Map<Integer, EvenlyDiscretizedFunc> bptFuncs = calcParentSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
-		Map<Integer, EvenlyDiscretizedFunc> bptAllMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
-		Map<Integer, EvenlyDiscretizedFunc> bptSmallMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d);
+
+		Map<Integer, EvenlyDiscretizedFunc> bptFuncs, bptAllMags, bptSmallMags;
+		if (parent) {
+			bptFuncs = calcParentSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+			bptAllMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+			bptSmallMags = calcParentSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d);
+		} else {
+			bptFuncs = remap(calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag));
+			bptAllMags = remap(calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag));
+			bptSmallMags = remap(calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag, 7d));
+		}
 		
 		// parent names and mapping to IDs
-		HashSet<String> parentNamesSet = new HashSet<String>();
+		HashSet<String> namesSet = new HashSet<String>();
 		Map<String, Integer> nameIDMap = Maps.newHashMap();
-		Map<Integer, List<Long>> lastEventMap = Maps.newHashMap();
+		Map<Integer, List<Long>> parentLastEventMap = Maps.newHashMap();
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList()) {
-			int parentID = sect.getParentSectionId();
-			String parentName = sect.getParentSectionName();
-			if (!parentNamesSet.contains(parentName)) {
-				parentNamesSet.add(parentName);
-				nameIDMap.put(parentName, parentID);
-				lastEventMap.put(parentID, new ArrayList<Long>());
+			if (parent) {
+				int parentID = sect.getParentSectionId();
+				String parentName = sect.getParentSectionName();
+				if (!namesSet.contains(parentName)) {
+					namesSet.add(parentName);
+					nameIDMap.put(parentName, parentID);
+					parentLastEventMap.put(parentID, new ArrayList<Long>());
+				}
+				if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
+					parentLastEventMap.get(parentID).add(sect.getDateOfLastEvent());
+			} else {
+				int sectID = sect.getSectionId();
+				String name = sect.getSectionName();
+				namesSet.add(name);
+				nameIDMap.put(name, sectID);
 			}
-			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
-				lastEventMap.get(parentID).add(sect.getDateOfLastEvent());
 		}
-		List<String> parentNames = Lists.newArrayList(parentNamesSet);
-		Collections.sort(parentNames);
+		List<String> sectNames = Lists.newArrayList(namesSet);
+		Collections.sort(sectNames);
 		
 		long curMillis = System.currentTimeMillis();
 		
 		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
 				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
 		
-		for (String parentName : parentNames) {
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for (String sectName : sectNames) {
 			List<String> line = Lists.newArrayList();
 			
-			Integer parentID = nameIDMap.get(parentName);
+			Integer sectID = nameIDMap.get(sectName);
 			
-			line.add(parentName);
-			line.add(parentID+"");
+			line.add(sectName);
+			line.add(sectID+"");
 			
 			double oi;
-			List<Long> lastDates = lastEventMap.get(parentID);
+			List<Long> lastDates = parentLastEventMap.get(sectID);
+			if (!parent) {
+				lastDates = Lists.newArrayList();
+				long last = sol.getRupSet().getFaultSectionData(sectID).getDateOfLastEvent();
+				if (last > Long.MIN_VALUE)
+					lastDates.add(last);
+			}
 			if (lastDates.isEmpty()) {
 				oi = Double.NaN;
 			} else {
@@ -1315,20 +1354,25 @@ public class FaultSysSolutionERF_Calc {
 			for (int i=0; i<numMag+2; i++) {
 				line.add("");
 				
-				IncrementalMagFreqDist mfd = sol.calcParticipationMFD_forParentSect(
-						parentID, allMagMin+0.5*deltaMag, allMagMax+0.5*deltaMag, numAllMag);
+				IncrementalMagFreqDist mfd;
+				if (parent)
+					mfd = sol.calcParticipationMFD_forParentSect(
+						sectID, allMagMin+0.5*deltaMag, allMagMax+0.5*deltaMag, numAllMag);
+				else
+					mfd = sol.calcParticipationMFD_forSect(
+							sectID, allMagMin+0.5*deltaMag, allMagMax+0.5*deltaMag, numAllMag);
 				EvenlyDiscretizedFunc cmlMFD = mfd.getCumRateDistWithOffset();
 				
 				double poissonProb;
 				double bptProb;
 				double ri;
 				if (i == numMag) {
-					poissonProb = poissonAllMags.get(parentID).getY(0);
-					bptProb = bptAllMags.get(parentID).getY(0);
+					poissonProb = poissonAllMags.get(sectID).getY(0);
+					bptProb = bptAllMags.get(sectID).getY(0);
 					ri = 1d/cmlMFD.getY(0);
 				} else if (i == numMag+1) {
-					poissonProb = poissonSmallMags.get(parentID).getY(0);
-					bptProb = bptSmallMags.get(parentID).getY(0);
+					poissonProb = poissonSmallMags.get(sectID).getY(0);
+					bptProb = bptSmallMags.get(sectID).getY(0);
 					double smallRate = 0d;
 					for (Point2D pt : mfd) {
 						if (pt.getX()>7d)
@@ -1337,8 +1381,8 @@ public class FaultSysSolutionERF_Calc {
 					}
 					ri = 1d/smallRate;
 				} else {
-					poissonProb = poissonFuncs.get(parentID).getY(i);
-					bptProb = bptFuncs.get(parentID).getY(i);
+					poissonProb = poissonFuncs.get(sectID).getY(i);
+					bptProb = bptFuncs.get(sectID).getY(i);
 					ri = 1d/cmlMFD.getY(i+(numAllMag - numMag));
 				}
 				
@@ -1355,6 +1399,19 @@ public class FaultSysSolutionERF_Calc {
 		}
 		
 		csv.writeToFile(outputFile);
+	}
+	
+	/**
+	 * This writes out a CSV file of varios probabilities/rates aggregated over each parent section. Parent section
+	 * RI's are calculated as 1 over total parent section partiticpation rate. Open intervals are averaged among all
+	 * fault sections where known, or NaN if no sections of a parent have a date of last event.
+	 * @param erf
+	 * @param outputFile
+	 * @throws IOException
+	 */
+	public static void writeParentSectionTimeDependenceCSV(FaultSystemSolutionERF erf, File outputFile)
+			throws IOException {
+		writeTimeDependenceCSV(erf, outputFile, true);
 	}
 	
 	/**
@@ -1401,6 +1458,9 @@ public class FaultSysSolutionERF_Calc {
 				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+		erf.getTimeSpan().setDuration(30d);
+		
 		// this will generate the prob gain mains for BPT/Poisson
 //		File saveDir = new File("/tmp/prob_maps");
 //		if (!saveDir.exists())
@@ -1414,13 +1474,14 @@ public class FaultSysSolutionERF_Calc {
 //		makeMagDurationProbPlots(meanSol, saveDir, "ucerf3", false);
 		
 		// this will write the parent section CSV file
-//		writeParentSectionTimeDependenceCSV(meanSol, new File("/tmp/erf_time_dependence_parent_probs_30yr.csv"), 30d, false);
+		writeParentSectionTimeDependenceCSV(erf, new File("/tmp/erf_time_dependence_parent_probs_30yr.csv"));
+		writeSubSectionTimeDependenceCSV(erf, new File("/tmp/erf_time_dependence_sub_probs_30yr.csv"));
 
 		// this will generate prob gain maps for BPT parameters
 		File saveDir = new File("/tmp/bpt_calc_prob_gains");
 		if (!saveDir.exists())
 			saveDir.mkdir();
-		makeAvgMethodProbGainMaps(meanSol, saveDir, "bpt_param", false, 30d);
+		makeAvgMethodProbGainMaps(erf, saveDir, "bpt_param");
 		
 //		double minMag = 6.5;
 //		double deltaMag = 0.1;
