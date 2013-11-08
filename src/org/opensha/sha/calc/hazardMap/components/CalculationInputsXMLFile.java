@@ -13,6 +13,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.FileUtils;
@@ -26,6 +27,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 /**
  * This class represents all of the inputs to the hazard map calculation process,
@@ -236,7 +238,13 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 			archiver = AsciiFileCurveArchiver.fromXMLMetadata(archiverEl);
 		} else {
 			archiverEl = root.element(BinaryCurveArchiver.XML_METADATA_NAME);
-			archiver = BinaryCurveArchiver.fromXMLMetadata(archiverEl, sites.size(), calcSettings.getXValsMap());
+			Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
+			for (int i=0; i<imrMapsList.size(); i++) {
+				// the first 0 is for thread 0, then i is the actual imr index
+				ScalarIMR imr = imrMapsList.get(0).get(i).values().iterator().next();
+				xValsMap.put("imrs"+(i+1), calcSettings.getXValues(imr.getIntensityMeasure().getName()));
+			}
+			archiver = BinaryCurveArchiver.fromXMLMetadata(archiverEl, sites.size(), xValsMap);
 		}
 		
 		CalculationInputsXMLFile[] inputs = new CalculationInputsXMLFile[threads];

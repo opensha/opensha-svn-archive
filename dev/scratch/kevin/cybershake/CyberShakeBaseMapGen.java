@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
@@ -112,6 +113,8 @@ public class CyberShakeBaseMapGen {
 		ArbitrarilyDiscretizedFunc xValues = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
 		double maxSourceDistance = 200;
 		
+		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
+		xValsMap.put("imrs1", xValues);
 		CalculationSettings calcSettings = new CalculationSettings(xValues, maxSourceDistance);
 		
 		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
@@ -141,7 +144,7 @@ public class CyberShakeBaseMapGen {
 			File curveDir = new File(imrDir, "curves");
 //			CurveResultsArchiver archiver = new AsciiFileCurveArchiver(
 //				curveDir.getAbsolutePath()+File.separator, true, false);
-			CurveResultsArchiver archiver = new BinaryCurveArchiver(curveDir, sites.size(), calcSettings.getXValsMap());
+			CurveResultsArchiver archiver = new BinaryCurveArchiver(curveDir, sites.size(), xValsMap);
 			
 			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
 			

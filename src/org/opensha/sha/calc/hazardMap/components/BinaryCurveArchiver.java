@@ -77,6 +77,7 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 		IntBuffer intBuff = record.asIntBuffer();
 
 		for (String imrName : xValsMap.keySet()) {
+			
 			File outputFile = new File(outputDir, imrName+".bin");
 			if (!outputFile.exists()) {
 				DiscretizedFunc xVals = xValsMap.get(imrName);
