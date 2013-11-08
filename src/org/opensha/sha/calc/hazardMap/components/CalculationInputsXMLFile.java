@@ -232,10 +232,12 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		CurveResultsArchiver archiver;
 		// first try ASCII
 		Element archiverEl = root.element(AsciiFileCurveArchiver.XML_METADATA_NAME);
-		if (archiverEl != null)
+		if (archiverEl != null) {
 			archiver = AsciiFileCurveArchiver.fromXMLMetadata(archiverEl);
-		else
+		} else {
+			archiverEl = root.element(BinaryCurveArchiver.XML_METADATA_NAME);
 			archiver = BinaryCurveArchiver.fromXMLMetadata(archiverEl, sites.size(), calcSettings.getXValsMap());
+		}
 		
 		CalculationInputsXMLFile[] inputs = new CalculationInputsXMLFile[threads];
 		
