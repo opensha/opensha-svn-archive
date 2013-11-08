@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -13,6 +14,9 @@ import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public class AttenRelCurves2DB {
 	
@@ -223,6 +227,35 @@ public class AttenRelCurves2DB {
 		}
 		
 		return curves;
+	}
+	
+	public void deleteAllCurvesFromDataset(int datasetID, int imTypeID) throws SQLException {
+		List<Integer> curveIDs = Lists.newArrayList(getCurveIDs(datasetID, imTypeID).values());
+		System.out.println("Deleting "+curveIDs.size()+" curves");
+		deleteCurves(curveIDs);
+	}
+	
+	private static final int max_delete = 500;
+	public void deleteCurves(List<Integer> curveIDs) throws SQLException {
+		curveIDs = Lists.newArrayList(curveIDs);
+		while (curveIDs.size() > max_delete) {
+			List<Integer> subCurves = Lists.newArrayList();
+			for (int i=0; i<max_delete; i++)
+				subCurves.add(curveIDs.remove(curveIDs.size()-1));
+			deleteCurves(subCurves);
+		}
+		if (curveIDs.isEmpty())
+			return;
+		System.out.println("Deleting "+curveIDs.size()+" curves");
+		// first delete points
+		String sql = "DELETE FROM "+ATTEN_REL_CURVE_POINTS_TABLE_NAME+" WHERE AR_Hazard_Curve_ID IN ("
+				+Joiner.on(",").join(curveIDs)+");";
+		db.insertUpdateOrDeleteData(sql);
+		
+		// now delete curve references
+		sql = "DELETE FROM "+ATTEN_REL_CURVES_TABLE_NAME+" WHERE AR_Hazard_Curve_ID IN ("
+				+Joiner.on(",").join(curveIDs)+");";
+		db.insertUpdateOrDeleteData(sql);
 	}
 	
 	private HashMap<Location, ArbitrarilyDiscretizedFunc> doFetchSubset(

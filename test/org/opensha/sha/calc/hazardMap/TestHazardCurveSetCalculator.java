@@ -112,7 +112,7 @@ public class TestHazardCurveSetCalculator extends TestCase {
 	public void testHazardCurves() throws IOException {
 		HazardCurveSetCalculator calc = new HazardCurveSetCalculator(erf, imrMaps, archiver, calcSettings);
 		
-		calc.calculateCurves(sites);
+		calc.calculateCurves(sites, null);
 	}
 	
 	public void testCurvesFromXML() throws DocumentException, InvocationTargetException, IOException, InterruptedException {

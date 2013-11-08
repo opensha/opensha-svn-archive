@@ -64,8 +64,9 @@ public class HazardCurveDriver {
 			ThreadedHazardCurveSetCalculator calc = new ThreadedHazardCurveSetCalculator(calcs);
 			calc.calculateCurves(sites);
 		} else {
-			calcs[0].calculateCurves(sites);
+			calcs[0].calculateCurves(sites, null);
 		}
+		calcs[0].close();
 	}
 	
 	/**

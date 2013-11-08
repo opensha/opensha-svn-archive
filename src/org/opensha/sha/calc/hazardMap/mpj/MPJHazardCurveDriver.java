@@ -19,6 +19,7 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.calc.hazardMap.ThreadedHazardCurveSetCalculator;
+import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 
 import com.google.common.base.Preconditions;
@@ -38,7 +39,7 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 	private ThreadedHazardCurveSetCalculator calc;
 	private List<Site> sites;
 	
-	private int rank;
+//	private int rank;
 	
 	public MPJHazardCurveDriver(CommandLine cmd, String[] args) throws IOException, DocumentException, InvocationTargetException {
 		super(cmd);
@@ -61,6 +62,10 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		
 		debug(rank, null, "loading inputs for "+getNumThreads()+" threads");
 		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
+		// initialize binary curve writer if applicable
+		if (rank ==0 && inputs[0].getArchiver() instanceof BinaryCurveArchiver) {
+			((BinaryCurveArchiver)inputs[0].getArchiver()).initialize();
+		}
 		sites = inputs[0].getSites();
 		HazardCurveSetCalculator[] calcs = new HazardCurveSetCalculator[getNumThreads()];
 		for (int i=0; i<inputs.length; i++)
@@ -109,6 +114,8 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 			MPJHazardCurveDriver driver = new MPJHazardCurveDriver(cmd, args);
 			
 			driver.run();
+			
+			driver.calc.close();
 			
 			finalizeMPJ();
 			

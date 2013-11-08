@@ -3,7 +3,7 @@ package org.opensha.sha.calc.hazardMap.components;
 import java.io.File;
 import java.io.IOException;
 
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**
@@ -23,7 +23,7 @@ public interface CurveResultsArchiver extends XMLSaveable {
 	 * @param meta - curve metadata
 	 * @throws IOException 
 	 */
-	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException;
+	public void archiveCurve(DiscretizedFunc curve, CurveMetadata meta) throws IOException;
 	
 	/**
 	 * Returns true if the given curve has already been calculated and archived
@@ -32,7 +32,7 @@ public interface CurveResultsArchiver extends XMLSaveable {
 	 * @param xVals
 	 * @return
 	 */
-	public boolean isCurveCalculated(CurveMetadata meta, ArbitrarilyDiscretizedFunc xVals);
+	public boolean isCurveCalculated(CurveMetadata meta, DiscretizedFunc xVals);
 	
 	/**
 	 * Return the store dir if applicable (null otherwise) for this archiver.
@@ -40,4 +40,6 @@ public interface CurveResultsArchiver extends XMLSaveable {
 	 * @return
 	 */
 	public File getStoreDir();
+	
+	public void close();
 }

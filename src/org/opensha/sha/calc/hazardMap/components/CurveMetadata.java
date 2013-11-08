@@ -19,11 +19,13 @@ public class CurveMetadata {
 	private Site site;
 	private Map<TectonicRegionType, ScalarIMR> imrMap;
 	private String shortLabel;
+	private int index;
 	
-	public CurveMetadata(Site site,
+	public CurveMetadata(Site site, int index,
 			Map<TectonicRegionType, ScalarIMR> imrMap,
 			String shortLabel) {
 		this.site = site;
+		this.index = index;
 		this.imrMap = imrMap;
 		this.shortLabel = shortLabel;
 	}
@@ -51,6 +53,10 @@ public class CurveMetadata {
 
 	public void setShortLabel(String shortLabel) {
 		this.shortLabel = shortLabel;
+	}
+	
+	public int getIndex() {
+		return index;
 	}
 
 }

@@ -23,6 +23,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 /**
  * This class calculates a set of hazard curves, typically for use in Condor.
  * 
@@ -72,25 +75,33 @@ public class HazardCurveSetCalculator {
 		erf.updateForecast();
 	}
 	
-	public void calculateCurves(List<Site> sites) throws IOException {
+	public void calculateCurves(List<Site> sites, List<Integer> siteIndexes) throws IOException {
 		if (D) System.out.println("Calculating " + sites.size() + " hazard curves");
+		if (siteIndexes == null) {
+			siteIndexes = Lists.newArrayList();
+			for (int i=0; i<sites.size(); i++)
+				siteIndexes.add(i);
+		}
+		Preconditions.checkState(siteIndexes.size() == sites.size());
 		if (D) System.out.println("ERF: " + erf.getName());
 		if (D) System.out.println("Num IMR Maps: " + imrMaps.size());
 		calc.setMaxSourceDistance(calcSettings.getMaxSourceDistance());
 		if (D) System.out.println("Max Source Cutoff: " + calcSettings.getMaxSourceDistance());
 		// looop over all sites
 		int siteCount = 0;
-		for (Site site : sites) {
+		for (int i=0; i<sites.size(); i++) {
+			int index = siteIndexes.get(i);
+			Site site = sites.get(i);
 			siteCount++;
 			if (siteCount % 10 == 0)
 				System.gc();
 			if (D) System.out.println("Calculating curve(s) for site " + siteCount + "/" + sites.size());
-			calculateCurves(site);
+			calculateCurves(site, index);
 		}
 		if (D) System.out.println("DONE!");
 	}
 	
-	public void calculateCurves(Site site) throws IOException {
+	public void calculateCurves(Site site, int index) throws IOException {
 		int imrMapCount = 0;
 		for (Map<TectonicRegionType, ScalarIMR> imrMap : imrMaps) {
 			if (imts != null) {
@@ -115,12 +126,12 @@ public class HazardCurveSetCalculator {
 			}
 			if (D) System.out.println("Calculating curve(s) for IMR Map " + imrMapCount
 					+ "/" + imrMaps.size() + " IMT: " + imtMeta);
-			CurveMetadata meta = new CurveMetadata(site, imrMap, "imrs" + imrMapCount);
+			CurveMetadata meta = new CurveMetadata(site, index, imrMap, "imrs" + imrMapCount);
 			if (archiver.isCurveCalculated(meta, calcSettings.getXValues(imt))) {
 				if (D) System.out.println("Curve already calculated, skipping...");
 				continue;
 			}
-			ArbitrarilyDiscretizedFunc calcFunction;
+			DiscretizedFunc calcFunction;
 			boolean logSpace = calcSettings.isCalcInLogSpace();
 			if (logSpace)
 				calcFunction = getLogFunction(calcSettings.getXValues(imt));
@@ -146,7 +157,7 @@ public class HazardCurveSetCalculator {
 			long curveEnd = System.currentTimeMillis();
 			float curveSecs = (float)(curveEnd - curveStart) / 1000f;
 			if (D) System.out.println("Calculated a curve! timestamp=" + curveEnd + " ("+curveSecs+" secs)");
-			ArbitrarilyDiscretizedFunc hazardCurve;
+			DiscretizedFunc hazardCurve;
 			if (logSpace)
 				hazardCurve = unLogFunction(calcSettings.getXValues(imt), calcFunction);
 			else
@@ -175,7 +186,7 @@ public class HazardCurveSetCalculator {
 	}
 	
 	public static ArbitrarilyDiscretizedFunc unLogFunction(
-			ArbitrarilyDiscretizedFunc oldHazFunc, ArbitrarilyDiscretizedFunc logHazFunction) {
+			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
 		int numPoints = oldHazFunc.getNum();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
@@ -187,6 +198,10 @@ public class HazardCurveSetCalculator {
 //		}
 //		else
 //			throw new RuntimeException("Unsupported IMT");
+	}
+	
+	public void close() {
+		archiver.close();
 	}
 
 }

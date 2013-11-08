@@ -1,7 +1,6 @@
 package org.opensha.sha.calc.hazardMap.components;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -47,7 +46,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		System.out.println("Output Dir: " + outputDir);
 	}
 
-	public void archiveCurve(ArbitrarilyDiscretizedFunc curve, CurveMetadata meta) throws IOException {
+	public void archiveCurve(DiscretizedFunc curve, CurveMetadata meta) throws IOException {
 		String outFileName = getFileName(meta);
 		if (D) System.out.println("Writing '" + outFileName + "'");
 		AbstractDiscretizedFunc.writeSimpleFuncFile(curve, outFileName);
@@ -105,7 +104,7 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		return new AsciiFileCurveArchiver(outputDir, binByLat, binByLon);
 	}
 
-	public boolean isCurveCalculated(CurveMetadata meta, ArbitrarilyDiscretizedFunc xVals) {
+	public boolean isCurveCalculated(CurveMetadata meta, DiscretizedFunc xVals) {
 		String outFileName = getFileName(meta);
 		File file = new File(outFileName);
 		if (file.exists()) {
@@ -129,6 +128,11 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 	@Override
 	public File getStoreDir() {
 		return new File(outputDir);
+	}
+
+	@Override
+	public void close() {
+		// do nothing
 	}
 	
 }

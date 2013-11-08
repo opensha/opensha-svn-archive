@@ -9,6 +9,8 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
+import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
 public class AttenRels2DB {
 	
@@ -184,8 +186,10 @@ public class AttenRels2DB {
 //		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
-			ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
+			ScalarIMR imr = AttenRelRef.Idriss_2013.instance(null);
 			imr.setParamDefaults();
+			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);
 //			atten2db.insertAttenRelMetadata(0, imr);
 			atten2db.insertAttenRel(imr);
 //			int id = atten2db.getAttenRelID(imr);

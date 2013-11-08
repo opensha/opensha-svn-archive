@@ -21,6 +21,7 @@ import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.AsciiFileCurveArchiver;
+import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CalculationInputsXMLFile;
 import org.opensha.sha.calc.hazardMap.components.CalculationSettings;
 import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
@@ -31,6 +32,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -78,8 +80,12 @@ public class CyberShakeBaseMapGen {
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);
-			imr.setIntensityMeasure(SA_Param.NAME);
-			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
+			if (period > 0) {
+				imr.setIntensityMeasure(SA_Param.NAME);
+				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), period);
+			} else {
+				imr.setIntensityMeasure(PGA_Param.NAME);
+			}
 			imrs.add(imr);
 		}
 		
@@ -132,8 +138,10 @@ public class CyberShakeBaseMapGen {
 			if (!imrDir.exists())
 				imrDir.mkdir();
 			
-			String curveDir = new File(imrDir, "curves").getAbsolutePath()+File.separator;
-			CurveResultsArchiver archiver = new AsciiFileCurveArchiver(curveDir, true, false);
+			File curveDir = new File(imrDir, "curves");
+//			CurveResultsArchiver archiver = new AsciiFileCurveArchiver(
+//				curveDir.getAbsolutePath()+File.separator, true, false);
+			CurveResultsArchiver archiver = new BinaryCurveArchiver(curveDir, sites.size(), calcSettings.getXValsMap());
 			
 			CalculationInputsXMLFile inputs = new CalculationInputsXMLFile(erf, imrMaps, sites, calcSettings, archiver);
 			

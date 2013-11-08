@@ -28,6 +28,18 @@ public class ThreadedHazardCurveSetCalculator {
 		calculateCurves(deque);
 	}
 	
+	private void populateNameField(List<Site> sites, int[] indices) {
+		// this stores site index in the name field
+		if (indices == null) {
+			for (int i=0; i<sites.size(); i++)
+				sites.get(i).setName(i+"");
+		} else {
+			for (int ind : indices) {
+				sites.get(ind).setName(ind+"");
+			}
+		}
+	}
+	
 	public void calculateCurves(Deque<Site> sites) throws IOException, InterruptedException {
 		this.stack = sites;
 		int numThreads = calcs.length;
@@ -73,13 +85,18 @@ public class ThreadedHazardCurveSetCalculator {
 					site = popSite();
 					if (site == null)
 						break;
-					calc.calculateCurves(site);
+					int index = Integer.parseInt(site.getName());
+					calc.calculateCurves(site, index);
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		
+	}
+	
+	public void close() {
+		calcs[0].close();
 	}
 
 }

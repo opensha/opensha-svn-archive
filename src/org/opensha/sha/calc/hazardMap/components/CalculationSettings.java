@@ -2,10 +2,12 @@ package org.opensha.sha.calc.hazardMap.components;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
 
 /**
@@ -21,36 +23,40 @@ public class CalculationSettings implements XMLSaveable {
 	public static final String XML_METADATA_NAME = "CalculationSettings";
 	
 //	private ArbitrarilyDiscretizedFunc xValues;
-	private HashMap<String, ArbitrarilyDiscretizedFunc> imtXValMap;
+	private HashMap<String, DiscretizedFunc> imtXValMap;
 	private double maxSourceDistance;
 	private boolean calcInLogSpace = true;
 	private boolean serializeERF = true;
 	
-	public CalculationSettings(ArbitrarilyDiscretizedFunc xValues, double maxSourceDistance) {
-		this(new HashMap<String, ArbitrarilyDiscretizedFunc>(), maxSourceDistance);
+	public CalculationSettings(DiscretizedFunc xValues, double maxSourceDistance) {
+		this(new HashMap<String, DiscretizedFunc>(), maxSourceDistance);
 		imtXValMap.put(null, xValues);
 		this.maxSourceDistance = maxSourceDistance;
 	}
 	
-	public CalculationSettings(HashMap<String, ArbitrarilyDiscretizedFunc> imtXValMap, double maxSourceDistance) {
+	public CalculationSettings(HashMap<String, DiscretizedFunc> imtXValMap, double maxSourceDistance) {
 		this.imtXValMap = imtXValMap;
 		this.maxSourceDistance = maxSourceDistance;
 	}
 
-	public ArbitrarilyDiscretizedFunc getXValues(String imt) {
+	public DiscretizedFunc getXValues(String imt) {
 		if (imt == null || imtXValMap.size() == 1)
 			return imtXValMap.get(imtXValMap.keySet().iterator().next());
 		return imtXValMap.get(imt);
 	}
 	
-	public void setXValues(ArbitrarilyDiscretizedFunc xValues) {
+	public void setXValues(DiscretizedFunc xValues) {
 		imtXValMap.clear();
 		if (xValues != null)
 			imtXValMap.put(null, xValues);
 	}
 
-	public void setXValues(String imt, ArbitrarilyDiscretizedFunc xValues) {
+	public void setXValues(String imt, DiscretizedFunc xValues) {
 		imtXValMap.put(imt, xValues);
+	}
+	
+	public Map<String, DiscretizedFunc> getXValsMap() {
+		return imtXValMap;
 	}
 
 	public double getMaxSourceDistance() {
@@ -84,7 +90,7 @@ public class CalculationSettings implements XMLSaveable {
 		calcEl.addAttribute("calcInLogSpace", calcInLogSpace + "");
 		calcEl.addAttribute("serializeERF", serializeERF + "");
 		for (String imt : imtXValMap.keySet()) {
-			ArbitrarilyDiscretizedFunc xValues = imtXValMap.get(imt);
+			DiscretizedFunc xValues = imtXValMap.get(imt);
 			if (imt == null)
 				xValues.setXAxisName("");
 			else
@@ -101,7 +107,7 @@ public class CalculationSettings implements XMLSaveable {
 		boolean serializeERF = Boolean.parseBoolean(calcEl.attributeValue("serializeERF"));
 		
 		Iterator<Element> funcElIt = calcEl.elementIterator(ArbitrarilyDiscretizedFunc.XML_METADATA_NAME);
-		HashMap<String, ArbitrarilyDiscretizedFunc> imtXValMap = new HashMap<String, ArbitrarilyDiscretizedFunc>();
+		HashMap<String, DiscretizedFunc> imtXValMap = new HashMap<String, DiscretizedFunc>();
 		while (funcElIt.hasNext()) {
 			Element funcEl = funcElIt.next();
 			ArbitrarilyDiscretizedFunc xValues;

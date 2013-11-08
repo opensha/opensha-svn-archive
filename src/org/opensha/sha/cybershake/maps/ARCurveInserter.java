@@ -71,17 +71,19 @@ public class ARCurveInserter {
 	 */
 	public static void main(String[] args) throws IOException {
 //		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
-		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
-		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
+//		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
+		String dir = "/home/kevin/CyberShake/baseMaps/2013_11_07-cvm4-cs-nga2/CY2013/curves/imrs1/";
+		boolean deleteOld = true;
+		ScalarIMR imr = AttenRelRef.CY_2013.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
-		int velModelID = 2;
+		int velModelID = 1;
 		int probModelID = 1;
 		int timeSpanID = 1;
 		int imTypeID = 21;
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2012, 5, 22);
+		cal.set(2013, 11, 07);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests
@@ -105,6 +107,9 @@ public class ARCurveInserter {
 			int datasetID = arDataSets2DB.getDataSetID(arID, erfID, velModelID, probModelID, timeSpanID, timeSpanDate);
 			if (datasetID < 0)
 				throw new RuntimeException("AR Dataset not found!");
+			
+			if (deleteOld)
+				arCurves2DB.deleteAllCurvesFromDataset(datasetID, imTypeID);
 			
 			arCurves2DB.insertARCurves(calcDate, datasetID, imTypeID, curves);
 		} catch (Exception e) {

@@ -224,13 +224,18 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		Element sitesEl = root.element(Site.XML_METADATA_LIST_NAME);
 		ArrayList<Site> sites = Site.loadSitesFromXML(sitesEl, paramsToAdd);
 		
-		/* Load Curve Archiver						*/
-		Element archiverEl = root.element(AsciiFileCurveArchiver.XML_METADATA_NAME);
-		CurveResultsArchiver archiver = AsciiFileCurveArchiver.fromXMLMetadata(archiverEl);
-		
 		/* Load calc settings						*/
 		Element calcSettingsEl = root.element(CalculationSettings.XML_METADATA_NAME);
 		CalculationSettings calcSettings = CalculationSettings.fromXMLMetadata(calcSettingsEl);
+		
+		/* Load Curve Archiver						*/
+		CurveResultsArchiver archiver;
+		// first try ASCII
+		Element archiverEl = root.element(AsciiFileCurveArchiver.XML_METADATA_NAME);
+		if (archiverEl != null)
+			archiver = AsciiFileCurveArchiver.fromXMLMetadata(archiverEl);
+		else
+			archiver = BinaryCurveArchiver.fromXMLMetadata(archiverEl, sites.size(), calcSettings.getXValsMap());
 		
 		CalculationInputsXMLFile[] inputs = new CalculationInputsXMLFile[threads];
 		
