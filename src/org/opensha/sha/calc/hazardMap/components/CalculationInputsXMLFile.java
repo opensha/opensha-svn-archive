@@ -239,9 +239,10 @@ public class CalculationInputsXMLFile implements XMLSaveable {
 		} else {
 			archiverEl = root.element(BinaryCurveArchiver.XML_METADATA_NAME);
 			Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
-			for (int i=0; i<imrMapsList.size(); i++) {
-				// the first 0 is for thread 0, then i is the actual imr index
-				ScalarIMR imr = imrMapsList.get(0).get(i).values().iterator().next();
+			List<Map<TectonicRegionType, ScalarIMR>> thread0IMRMaps = imrMapsList.get(0);
+			for (int i=0; i<thread0IMRMaps.size(); i++) {
+				// i is the actual imr index
+				ScalarIMR imr = thread0IMRMaps.get(i).values().iterator().next();
 				xValsMap.put("imrs"+(i+1), calcSettings.getXValues(imr.getIntensityMeasure().getName()));
 			}
 			archiver = BinaryCurveArchiver.fromXMLMetadata(archiverEl, sites.size(), xValsMap);
