@@ -1874,10 +1874,10 @@ if(norm_tpInterval1 < 0  && goodSample) {
 
 		GraphWindow plot13 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalLowMagList, Double.NaN), "M<=6.7 Norm Rup RI");
 		GraphWindow plot14 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalMidMagList, Double.NaN), "6.7<M<=7.7 Norm Rup RI");
-		GraphWindow plot15 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalHighMagList, Double.NaN), "M>6.7 Norm Rup RI");
+		GraphWindow plot15 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalHighMagList, Double.NaN), "M>7.7 Norm Rup RI");
 		GraphWindow plot16 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_LowMagList, Double.NaN), "M<=6.7 Norm Rup RI; Alt2");
 		GraphWindow plot17 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_MidMagList, Double.NaN), "6.7<M<=7.7 Norm Rup RI; Alt2");
-		GraphWindow plot18 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_HighMagList, Double.NaN), "M>6.7 Norm Rup RI; Alt2");
+		GraphWindow plot18 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_HighMagList, Double.NaN), "M>7.7 Norm Rup RI; Alt2");
 
 //		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)", Double.NaN);			
 //		GraphWindow plot7 = plotNormRI_Distribution(norm_aveElementIntervalAlt1_List, "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)", Double.NaN);			

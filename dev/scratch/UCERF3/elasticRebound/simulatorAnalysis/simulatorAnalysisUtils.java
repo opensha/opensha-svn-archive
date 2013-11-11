@@ -181,9 +181,9 @@ public class simulatorAnalysisUtils {
 //					System.out.println("Working on computeTotalMagFreqDist(*)");
 //					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
 
-					// norm RI dist for surface elements
-					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
-					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
+//					// norm RI dist for surface elements
+//					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
+//					tools.plotNormRecurIntsForAllSurfaceElements(magThresh, true);
 
 //					// ave slip along rupture
 //					System.out.println("Working on plotAveNormSlipAlongRupture(*)");
