@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +20,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 import org.jfree.data.Range;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 
 import com.google.common.collect.Lists;
 
+/**
+ * Class for quickly displaying JFreeChart plots. As this is often used in quick test code where labels
+ * and such are not set from GUI threads, most methods are surrounded in SwingUtilities.invokeAndWait(...)
+ * calls to prevent race conditions.
+ * @author kevin
+ *
+ */
 public class GraphWindow extends JFrame {
 	
 	/**
@@ -84,7 +94,7 @@ public class GraphWindow extends JFrame {
 		this(widget, true);
 	}
 	
-	public GraphWindow(GraphWidget widget, boolean display) {
+	public GraphWindow(GraphWidget widget, final boolean display) {
 		this.widget = widget;
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		
@@ -153,20 +163,50 @@ public class GraphWindow extends JFrame {
 		this.setContentPane(mainPanel);
 		
 		// increasing the window number corresponding to the new window.
-		this.setTitle(TITLE + windowNumber++);
-		
-		setSize(700, 800);
-		
-		if (display)
-			this.setVisible(true);
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					setTitle(TITLE + windowNumber++);
+					
+					setSize(700, 800);
+					
+					if (display)
+						setVisible(true);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 	
-	public void setX_AxisLabel(String xAxisLabel) {
-		widget.setXAxisLabel(xAxisLabel);
+	public void setX_AxisLabel(final String xAxisLabel) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setXAxisLabel(xAxisLabel);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 	
-	public void setY_AxisLabel(String yAxisLabel) {
-		widget.setYAxisLabel(yAxisLabel);
+	public void setY_AxisLabel(final String yAxisLabel) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setXAxisLabel(yAxisLabel);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 	
 	public GraphWidget getGraphWidget() {
@@ -297,84 +337,254 @@ public class GraphWindow extends JFrame {
 		widget.saveAsTXT(fileName);
 	}
 
-	public void setXLog(boolean xLog) {
-		widget.setX_Log(xLog);
+	public void setXLog(final boolean xLog) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setX_Log(xLog);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setYLog(boolean yLog) {
-		widget.setY_Log(yLog);
+	public void setYLog(final boolean yLog) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setY_Log(yLog);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
-		widget.setAxisRange(xMin, xMax, yMin, yMax);
+	public void setAxisRange(final double xMin, final double xMax, final double yMin, final double yMax) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setAxisRange(xMin, xMax, yMin, yMax);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setAxisRange(Range xRange, Range yRange) {
-		widget.setAxisRange(xRange, yRange);
+	public void setAxisRange(final Range xRange, final Range yRange) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setAxisRange(xRange, yRange);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setPlotSpec(PlotSpec plotSpec) {
-		widget.setPlotSpec(plotSpec);
+	public void setPlotSpec(final PlotSpec plotSpec) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setPlotSpec(plotSpec);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
 	public void setPlotChars(
-			List<PlotCurveCharacterstics> curveCharacteristics) {
-		widget.setPlotChars(curveCharacteristics);
+			final List<PlotCurveCharacterstics> curveCharacteristics) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setPlotChars(curveCharacteristics);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
 	public void togglePlot() {
-		widget.togglePlot();
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.togglePlot();
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setPlotLabel(String plotTitle) {
-		widget.setPlotLabel(plotTitle);
+	public void setPlotLabel(final String plotTitle) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setPlotLabel(plotTitle);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setPlotLabelFontSize(int fontSize) {
-		widget.setPlotLabelFontSize(fontSize);
+	public void setPlotLabelFontSize(final int fontSize) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setPlotLabelFontSize(fontSize);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setTickLabelFontSize(int fontSize) {
-		widget.setTickLabelFontSize(fontSize);
+	public void setTickLabelFontSize(final int fontSize) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setTickLabelFontSize(fontSize);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setAxisLabelFontSize(int fontSize) {
-		widget.setAxisLabelFontSize(fontSize);
+	public void setAxisLabelFontSize(final int fontSize) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setAxisLabelFontSize(fontSize);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setX_AxisRange(double minX, double maxX) {
-		widget.setX_AxisRange(minX, maxX);
+	public void setX_AxisRange(final double minX, final double maxX) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setX_AxisRange(minX, maxX);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setX_AxisRange(Range xRange) {
-		widget.setX_AxisRange(xRange);
+	public void setX_AxisRange(final Range xRange) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setX_AxisRange(xRange);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 	
 	public Range getX_AxisRange() {
 		return widget.getX_AxisRange();
 	}
 
-	public void setY_AxisRange(double minY, double maxY) {
-		widget.setY_AxisRange(minY, maxY);
+	public void setY_AxisRange(final double minY, final double maxY) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setY_AxisRange(minY, maxY);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
-	public void setY_AxisRange(Range yRange) {
-		widget.setY_AxisRange(yRange);
+	public void setY_AxisRange(final Range yRange) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setY_AxisRange(yRange);
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 	
 	public Range getY_AxisRange() {
 		return widget.getY_AxisRange();
 	}
 
-	public void setAllLineTypes(PlotLineType line, PlotSymbol symbol) {
-		for (PlotCurveCharacterstics pchar : widget.getPlottingFeatures()) {
-			pchar.setLineType(line);
-			pchar.setSymbol(symbol);
+	public void setAllLineTypes(final PlotLineType line, final PlotSymbol symbol) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					for (PlotCurveCharacterstics pchar : widget.getPlottingFeatures()) {
+						pchar.setLineType(line);
+						pchar.setSymbol(symbol);
+					}
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
 		}
 	}
 
 	public void setAutoRange() {
-		widget.setAutoRange();
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				
+				@Override
+				public void run() {
+					widget.setAutoRange();
+				}
+			});
+		} catch (Exception e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
 	}
 
 }
