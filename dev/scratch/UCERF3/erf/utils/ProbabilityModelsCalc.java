@@ -892,6 +892,37 @@ public class ProbabilityModelsCalc {
 		simProbGainForMagBelow7_Hist = new HistogramFunction(0.05, 100, 0.1);	// up to 10
 		
 		
+		// test 0.2 correction:
+		EvenlyDiscretizedFunc gainCorrFunc = new EvenlyDiscretizedFunc(5.05, 40, 0.1);
+		gainCorrFunc.setTolerance(0.0001);
+//		System.out.println(gainCorrFunc.toString());
+		gainCorrFunc.set(5.95, 1.2515862);
+		gainCorrFunc.set(6.05, 1.2486653);
+		gainCorrFunc.set(6.15, 1.2710088);
+		gainCorrFunc.set(6.25, 1.2457086);
+		gainCorrFunc.set(6.35, 1.2671978);
+		gainCorrFunc.set(6.45, 1.2193723);
+		gainCorrFunc.set(6.55, 1.1521313);
+		gainCorrFunc.set(6.65, 1.1509639);
+		gainCorrFunc.set(6.75, 1.1327398);
+		gainCorrFunc.set(6.85, 1.1177831);
+		gainCorrFunc.set(6.95, 1.0977552);
+		gainCorrFunc.set(7.05, 1.0852119);
+		gainCorrFunc.set(7.15, 1.0621086);
+		gainCorrFunc.set(7.25, 1.0424535);
+		gainCorrFunc.set(7.35, 1.0282868);
+		gainCorrFunc.set(7.45, 1.0218965);
+		gainCorrFunc.set(7.55, 1.00646);
+		gainCorrFunc.set(7.65, 1.0283455);
+		gainCorrFunc.set(7.75, 1.0049069);
+		gainCorrFunc.set(7.85, 1.0478466);
+		gainCorrFunc.set(7.95, 1.0073843);
+		gainCorrFunc.set(8.05, 0.9277357);
+		gainCorrFunc.set(8.15, 0.87376344);
+		gainCorrFunc.set(8.25, 0.77365386);
+		gainCorrFunc.set(8.35, 0.72504234);
+
+		
 		
 		// LABELING AND FILENAME STUFF
 		String typeCalcForU3_Probs;
@@ -1151,10 +1182,15 @@ public class ProbabilityModelsCalc {
 				}		
 				// now update totalRate and ruptureSampler (for all rups since start time changed)
 				for(int n=0; n<erf.getTotNumRupsFromFaultSystem();n++) {
-//					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[srcIndexForNthRup[n]] * correctionMFD.getClosestY(magOfNthRups[n]);
-//					double newRate = longTermRateOfNthRups[n] * probGainForFaultSystemSource[erf.getSrcIndexForNthRup(n)] /1.3;
 					double probGain = probGainForFaultSystemSource[erf.getSrcIndexForNthRup(n)];
+					
+					// test correction:
+//					double gainCorr = gainCorrFunc.getClosestY(erf.getNthRupture(n).getMag());
+//					double newRate = longTermRateOfNthRups[n] * probGain/gainCorr;
+//					
+					// no correction
 					double newRate = longTermRateOfNthRups[n] * probGain;
+					
 					nthRupRandomSampler.set(n, newRate);
 					aveRupProbGainArray[n] += probGain;
 					if(minRupProbGainArray[n]>probGain)
@@ -2239,24 +2275,24 @@ if(firstEvent) {
 	 */
 	public static void main(String[] args) {
 		
-		TestModel2_FSS testFSS = new TestModel2_FSS();
-		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
-			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
-		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
-		erf.updateForecast();
-		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(null, null, erf,200000d, "TestRun1");
+//		TestModel2_FSS testFSS = new TestModel2_FSS();
+//		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
+//			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+//		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
+//		boolean aveRecurIntervalsInU3_BPTcalc=true;
+//		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
+//		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
+//		erf.updateForecast();
+//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+//		testCalc.testER_Simulation(null, null, erf,10000d, "TestRun1");
 		
 
-//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
-//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 
 		
 //		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
@@ -2266,14 +2302,14 @@ if(firstEvent) {
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 //		testCalc.testER_Simulation(null, null, erf,200000d);
 		
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-//		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
-//		boolean aveRecurIntervalsInU3_BPTcalc=true;
-//		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-//		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
-//		erf.updateForecast();
-//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,9000d, "Run1");
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.WG02_BPT);
+		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
+		boolean aveRecurIntervalsInU3_BPTcalc=false;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
+		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
+		erf.updateForecast();
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,200000d, "Nov10");
 
 		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		

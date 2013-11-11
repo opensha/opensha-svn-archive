@@ -174,7 +174,7 @@ public class ProbModelsPlottingUtils {
 		
 		// add best-fit BPT function
 		BPT_DistCalc bpt_calc = new BPT_DistCalc();
-		bpt_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
+		bpt_calc.fitToThisFunction(dist, 0.5, 1.5, 101, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitBPT_func = bpt_calc.getPDF();
 		fitBPT_func.setName("Best Fit BPT Dist");
 		fitBPT_func.setInfo("mean\taper\n"+(float)bpt_calc.getMean()+"\t"+(float)bpt_calc.getAperiodicity());
@@ -182,7 +182,7 @@ public class ProbModelsPlottingUtils {
 		
 		// add best-fit Lognormal dist function
 		LognormalDistCalc logNorm_calc = new LognormalDistCalc();
-		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
+		logNorm_calc.fitToThisFunction(dist, 0.5, 1.5, 101, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitLogNorm_func = logNorm_calc.getPDF();
 		fitLogNorm_func.setName("Best Fit Lognormal Dist");
 		fitLogNorm_func.setInfo("mean\taper\n"+(float)logNorm_calc.getMean()+"\t"+(float)logNorm_calc.getAperiodicity()+")");
@@ -190,7 +190,7 @@ public class ProbModelsPlottingUtils {
 		
 		// add best-fit Weibull dist function
 		WeibullDistCalc weibull_calc = new WeibullDistCalc();
-		weibull_calc.fitToThisFunction(dist, 0.5, 1.5, 11, 0.1, 1.5, 141);
+		weibull_calc.fitToThisFunction(dist, 0.5, 1.5, 101, 0.1, 1.5, 141);
 		EvenlyDiscretizedFunc fitWeibull_func = weibull_calc.getPDF();
 		fitWeibull_func.setName("Best Fit Weibull Dist");
 		fitWeibull_func.setInfo("mean\taper\n"+(float)weibull_calc.getMean()+"\t"+(float)weibull_calc.getAperiodicity()+")");
