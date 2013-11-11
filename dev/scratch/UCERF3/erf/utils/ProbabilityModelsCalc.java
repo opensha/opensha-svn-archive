@@ -45,6 +45,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 
@@ -1147,8 +1148,14 @@ public class ProbabilityModelsCalc {
 //			dateOfLastForSect[i] = currentTimeMillis-Math.round(1.0*MILLISEC_PER_YEAR/longTermPartRateForSectArray[i]);
 		//*****************************************************
 		
+		CalcProgressBar progressBar = new CalcProgressBar(dirNameForSavingFiles,"Num Years Done");
+		progressBar.showProgress(true);
+	
+		
 		boolean firstEvent = true;
 		while (currentYear<numYears+origStartYear) {
+			
+			progressBar.updateProgress((int)Math.round(currentYear-origStartYear), (int)Math.round(numYears));
 			
 			// write progress
 			int percDone = (int)Math.round(100*(currentYear-origStartYear)/numYears);
@@ -1416,6 +1423,8 @@ if(firstEvent) {
 			
 			firstEvent=false;
 		}
+		
+		progressBar.showProgress(false);
 		
 		try {
 			eventFileWriter.close();
@@ -2302,14 +2311,14 @@ if(firstEvent) {
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 //		testCalc.testER_Simulation(null, null, erf,200000d);
 		
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.WG02_BPT);
-		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.2);
-		boolean aveRecurIntervalsInU3_BPTcalc=false;
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.1);
+		boolean aveRecurIntervalsInU3_BPTcalc=true;
 		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,200000d, "Nov10");
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,10000d, "Nov11");
 
 		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		
