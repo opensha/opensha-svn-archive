@@ -19,6 +19,7 @@
 package scratch.peter.nga;
 
 import static scratch.peter.nga.IMT.PGA;
+import static scratch.peter.nga.IMT.PGV;
 import static java.lang.Math.*;
 import static scratch.peter.nga.FaultStyle.*;
 
@@ -128,9 +129,11 @@ public class BSSA_2013 {
 		// Basin depth term -- Equations 4.9 and 4.10
 		double DZ1 = calcDeltaZ1(z1p0, vs30);
 		double Fz1 = 0.0;
-		// ignore at short periods and PGV, PGD
-		// (must test for PGA first and fall through to period check
-		if (c.imt().equals(PGA) || 
+		// this implemention matches that in S. Rezaeian's Matlab codes
+		// I assume the repeated -9.9 values for f6 and f7 coeffs are
+		// appropriate for PGV and just not used (but for some reason repeated
+		// through all periods up to 0.65s
+		if (c.imt().equals(PGV) || 
 				(c.imt().getPeriod() != null && c.imt().getPeriod() >= 0.65)) {
 			// -- Equation 3.13
 			Fz1 = (DZ1 <= c.f7 / c.f6) ? c.f6 * DZ1 : c.f7;
