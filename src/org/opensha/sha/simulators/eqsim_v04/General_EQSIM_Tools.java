@@ -1546,8 +1546,16 @@ public class General_EQSIM_Tools {
 		ArrayList<Double> aveSlipRateList = new ArrayList<Double>();
 		ArrayList<Double> aveElementIntervalList = new ArrayList<Double>();
 		ArrayList<Double> norm_aveElementIntervalList = new ArrayList<Double>();	    // normalized by long-term RI averaged over all elements
+		ArrayList<Double> norm_aveElementIntervalLowMagList = new ArrayList<Double>();	    // for below M≤6.7
+		ArrayList<Double> norm_aveElementIntervalMidMagList = new ArrayList<Double>();	    // for 6.7<M≤7.7
+		ArrayList<Double> norm_aveElementIntervalHighMagList = new ArrayList<Double>();	    // for M>7.7
 		ArrayList<Double> norm_aveElementIntervalAlt1_List = new ArrayList<Double>();	// normalized by one-over long-term rate averaged over all elements
 		ArrayList<Double> norm_aveElementIntervalAlt2_List = new ArrayList<Double>();	// ave normalized element RI
+		ArrayList<Double> norm_aveElementIntervalAlt2_LowMagList = new ArrayList<Double>();	    // for below M≤6.7
+		ArrayList<Double> norm_aveElementIntervalAlt2_MidMagList = new ArrayList<Double>();	    // for 6.7<M≤7.7
+		ArrayList<Double> norm_aveElementIntervalAlt2_HighMagList = new ArrayList<Double>();	    // for M>7.7
+	
+		
 		ArrayList<Double> norm_tpInterval1List = new ArrayList<Double>();
 		ArrayList<Double> norm_spInterval1List = new ArrayList<Double>();
 		ArrayList<Double> norm_tpInterval2List = new ArrayList<Double>();
@@ -1757,7 +1765,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					aveSlipRateList.add(aveSlipRate);
 					aveElementIntervalList.add(aveElementInterval);
 					nucleationSectionList.add(event.get(0).getSectionID());
+
 					norm_aveElementIntervalList.add(norm_aveElementInterval);
+					// separate out by magnitude
+					if(eventMag<=6.7)
+						norm_aveElementIntervalLowMagList.add(norm_aveElementInterval);
+					else if(eventMag<=7.7)
+						norm_aveElementIntervalMidMagList.add(norm_aveElementInterval);
+					else
+						norm_aveElementIntervalHighMagList.add(norm_aveElementInterval);
+					
 					if(norm_aveElementIntervalAlt1 < 50)	// found a problem case for ESQSim with seismogenic cutoff of 6.5
 						norm_aveElementIntervalAlt1_List.add(norm_aveElementIntervalAlt1);
 					else {
@@ -1771,7 +1788,16 @@ if(norm_tpInterval1 < 0  && goodSample) {
 								System.out.println("\t"+e+"\t"+aveRI_ForElement[index]);
 						}
 					}
+					
 					norm_aveElementIntervalAlt2_List.add(norm_aveElementIntervalAlt2);
+					// separate out by magnitude
+					if(eventMag<=6.7)
+						norm_aveElementIntervalAlt2_LowMagList.add(norm_aveElementIntervalAlt2);
+					else if(eventMag<=7.7)
+						norm_aveElementIntervalAlt2_MidMagList.add(norm_aveElementIntervalAlt2);
+					else
+						norm_aveElementIntervalAlt2_HighMagList.add(norm_aveElementIntervalAlt2);
+
 					norm_tpInterval1List.add(norm_tpInterval1);
 					norm_spInterval1List.add(norm_spInterval1);
 					norm_tpInterval2List.add(norm_tpInterval2);
@@ -1846,6 +1872,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		GraphWindow plot7 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt1_List, Double.NaN), "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)");
 		GraphWindow plot8 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_List, Double.NaN), "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)");
 
+		GraphWindow plot13 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalLowMagList, Double.NaN), "M<=6.7 Norm Rup RI");
+		GraphWindow plot14 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalMidMagList, Double.NaN), "6.7<M<=7.7 Norm Rup RI");
+		GraphWindow plot15 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalHighMagList, Double.NaN), "M>6.7 Norm Rup RI");
+		GraphWindow plot16 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_LowMagList, Double.NaN), "M<=6.7 Norm Rup RI; Alt2");
+		GraphWindow plot17 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_MidMagList, Double.NaN), "6.7<M<=7.7 Norm Rup RI; Alt 2");
+		GraphWindow plot18 = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(norm_aveElementIntervalAlt2_HighMagList, Double.NaN), "M>6.7 Norm Rup RI; Alt 2");
+
 //		GraphWindow plot5 = plotNormRI_Distribution(norm_aveElementIntervalList, "Normalized Rup RI (ave elem RIs; norm_aveElementIntervalList)", Double.NaN);			
 //		GraphWindow plot7 = plotNormRI_Distribution(norm_aveElementIntervalAlt1_List, "Normalized Rup RI (ave elem rates; norm_aveElementIntervalAlt1_List)", Double.NaN);			
 //		GraphWindow plot8 = plotNormRI_Distribution(norm_aveElementIntervalAlt2_List, "Normalized Rup RI (ave norm elem RIs; norm_aveElementIntervalAlt2_List)", Double.NaN);			
@@ -1863,6 +1896,21 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				plot7.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt1.txt");
 				plot8.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt2.pdf");
 				plot8.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementInterval_DistAlt2.txt");
+				
+				plot13.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalLowMag_Dist.pdf");
+				plot13.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalLowMag_Dist.txt");
+				plot14.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalMidMag_Dist.pdf");
+				plot14.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalMidMag_Dist.txt");
+				plot15.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalHighMag_Dist.pdf");
+				plot15.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalHighMag_Dist.txt");
+				
+				plot16.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_LowMag_Dist.pdf");
+				plot16.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_LowMag_Dist.txt");
+				plot17.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_MidMag_Dist.pdf");
+				plot17.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_MidMag_Dist.txt");
+				plot18.saveAsPDF(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_HighMag_Dist.pdf");
+				plot18.saveAsTXT(dirNameForSavingFiles+"/norm_aveElementIntervalAt2_HighMag_Dist.txt");
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
