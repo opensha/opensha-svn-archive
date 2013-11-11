@@ -138,7 +138,6 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	/*
 	 * This gives a function of the probability of an event occurring between time T
 	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T.
-	 * TODO THIS NEEDS TO BE TESTED
 	 */
 	public EvenlyDiscretizedFunc getCondProbFunc() {
 		if(duration==0)
@@ -155,11 +154,25 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		return condFunc;
 	}
 	
+	
 	public EvenlyDiscretizedFunc getCondProbFunc(double duration) {
 		this.duration = duration;
 		if(!upToDate) computeDistributions();
 		return getCondProbFunc();
 	}
+	
+	
+	
+	public EvenlyDiscretizedFunc getCondProbGainFunc() {
+		EvenlyDiscretizedFunc func = getCondProbFunc();
+		double poisProb = 1.0-Math.exp(-duration/mean);
+		func.scale(1.0/poisProb);
+		func.setName(NAME+" Conditional Probability Gain Function");
+		func.setInfo("Relative to Poisson probability of one or more events.\n"+adjustableParams.toString());
+		
+		return func;
+	}
+
 	
 	
 	/**

@@ -171,7 +171,7 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 	private void makePlottingPanels() {
 		plottingPanelsList = new ArrayList<PlottingPanel>();
 		plottingPanelNames = new ArrayList<String>();
-		int numPlottingPanels = 5;
+		int numPlottingPanels = 6;
 		for(int i=0; i<numPlottingPanels; ++i)
 			plottingPanelsList.add(new PlottingPanel());
 		plottingPanelNames.add("PDF");
@@ -179,6 +179,7 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 		plottingPanelNames.add("Cond Prob");
 		plottingPanelNames.add("Haz Func");	
 		plottingPanelNames.add("Time Since Last PDF");	
+		plottingPanelNames.add("Cond Prob Gain");	
 	}
 
 	/**
@@ -374,6 +375,7 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 			this.plottingPanelsList.get(2).addFunc(condFunc);
 			this.plottingPanelsList.get(3).addFunc(selectedProbDist.getHazFunc());
 			this.plottingPanelsList.get(4).addFunc(selectedProbDist.getTimeSinceLastEventPDF());
+			this.plottingPanelsList.get(5).addFunc(selectedProbDist.getCondProbGainFunc());
 
 			// catch the error and display messages in case of input error
 		}
