@@ -88,7 +88,7 @@ public class ProbabilityModelsCalc {
 	// passed in values:
 	FaultSystemSolution fltSysSolution;
 	double[] longTermRateOfFltSysRup;	// this has zeros where events were filtered our by the ERF (mags too low); this includes aftershocks
-	double aperiodicity;
+//	double aperiodicity;
 
 	// computed from passed in values
 	FaultSystemRupSet fltSysRupSet;
@@ -106,12 +106,21 @@ public class ProbabilityModelsCalc {
 	// for BPT reference calculator (200 year recurrence interval); this is used for efficiency
 	static double refRI = 1.0;
 	static double deltaT = 0.005;
-	BPT_DistCalc refBPT_DistributionCalc;	
+//	BPT_DistCalc refBPT_DistributionCalc;
+	BPT_DistCalc[] refBPT_CalcArray;
+	int numAperValues;
+	double[] aperValues;
+	double[] aperMagBoundaries;	// this must have one less element than aperValues
 	
+//	double[] defaultAperValues = {0.8,0.4,0.2};
+	double[] defaultAperValues = {0.4,0.2,0.1};
+	double[] defaultAperMagBoundaries = {6.7,7.7};
+
 	// Normalized CDF function used for when looping over possible dates of last event
 	static double max_time_for_normBPT_CDF=5;
 	static int num_for_normBPT_CDF=501;
-	EvenlyDiscretizedFunc normBPT_CDF;
+	EvenlyDiscretizedFunc[] normBPT_CDF_Array;
+//	EvenlyDiscretizedFunc normBPT_CDF;
 	
 	// this is for getting the BPT time since last that is equivalent to the poisson probability TODO no longer needed?
 	ArbitrarilyDiscretizedFunc OLDbptTimeToPoisCondProbFunc;
@@ -160,7 +169,12 @@ public class ProbabilityModelsCalc {
 	public ProbabilityModelsCalc(FaultSystemSolution fltSysSolution, double[] longTermRateOfFltSysRupInERF, double aperiodicity) {
 		this.fltSysSolution=fltSysSolution;
 		longTermRateOfFltSysRup = longTermRateOfFltSysRupInERF;
-		this.aperiodicity = aperiodicity;
+//		this.aperiodicity = aperiodicity;
+		
+		// TODO get the following as constructor arguments?
+		aperValues=defaultAperValues;
+		numAperValues=defaultAperValues.length;
+		aperMagBoundaries=defaultAperMagBoundaries;
 		
 		fltSysRupSet = fltSysSolution.getRupSet();
 		numRupsInFaultSystem = fltSysRupSet.getNumRuptures();
@@ -168,15 +182,18 @@ public class ProbabilityModelsCalc {
 		
 		initializeArrays();
 		
-		if(!Double.isNaN(aperiodicity)) {
-			refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
-			
-			// set normBPT_CDF
-			BPT_DistCalc tempCalc = new BPT_DistCalc();
-			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
-			tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);
-			normBPT_CDF=tempCalc.getCDF();		
-		}	
+//		if(!Double.isNaN(aperiodicity)) {
+//			refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
+//						
+//			// set normBPT_CDF
+//			BPT_DistCalc tempCalc = new BPT_DistCalc();
+//			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
+//			tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);
+//			normBPT_CDF=tempCalc.getCDF();		
+//		}	
+		
+		refBPT_CalcArray = getRef_BPT_DistCalcArray();
+		normBPT_CDF_Array = getNormBPT_CDF_Array();
 
 	}
 	
@@ -184,6 +201,9 @@ public class ProbabilityModelsCalc {
 	public ProbabilityModelsCalc(FaultSystemSolutionERF erf) {
 		this.fltSysSolution=erf.getSolution();
 		longTermRateOfFltSysRup = erf.getLongTermRateOfFltSysRupInERF();
+		
+		// TODO the following is ignored; need to get array of value from ERF
+		double aperiodicity;
 		if(erf.getAdjustableParameterList().containsParameter(BPT_AperiodicityParam.NAME)) {
 			aperiodicity = ((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue();
 		}
@@ -191,21 +211,29 @@ public class ProbabilityModelsCalc {
 			aperiodicity = Double.NaN;
 		}
 		
+		aperValues=defaultAperValues;
+		numAperValues=defaultAperValues.length;
+		aperMagBoundaries=defaultAperMagBoundaries;
+		
 		fltSysRupSet = fltSysSolution.getRupSet();
 		numRupsInFaultSystem = fltSysRupSet.getNumRuptures();
 		numSections = fltSysRupSet.getNumSections();
 		
 		initializeArrays();
 		
-		if(!Double.isNaN(aperiodicity)) {
-			refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
-			
-			// set normBPT_CDF
-			BPT_DistCalc tempCalc = new BPT_DistCalc();
-			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
-			tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);
-			normBPT_CDF=tempCalc.getCDF();		
-		}	
+//		if(!Double.isNaN(aperiodicity)) {
+//			refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
+//			
+//			// set normBPT_CDF
+//			BPT_DistCalc tempCalc = new BPT_DistCalc();
+//			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
+//			tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);
+//			normBPT_CDF=tempCalc.getCDF();		
+//		}	
+		
+		refBPT_CalcArray = getRef_BPT_DistCalcArray();
+		normBPT_CDF_Array = getNormBPT_CDF_Array();
+
 	}
 
 	
@@ -213,18 +241,27 @@ public class ProbabilityModelsCalc {
 	
 	/**
 	 * This is for tests
+	 * 
 	 * @param 
 	 */
 	public ProbabilityModelsCalc(double aperiodicity) {
-		this.aperiodicity=aperiodicity;
-		refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
+		this.numAperValues=1;
+		aperValues = new double[1];
+		aperValues[0] = aperiodicity;
+		aperMagBoundaries=null;
 		
-		// set normBPT_CDF
-		BPT_DistCalc tempCalc = new BPT_DistCalc();
-		double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
-		tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);	// TODO check this discretization and overall look
-		normBPT_CDF=tempCalc.getCDF();	
-//		GraphWindow graph = new GraphWindow(normBPT_CDF, "test");
+//		this.aperiodicity=aperiodicity;
+//		refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
+		
+//		// set normBPT_CDF
+//		BPT_DistCalc tempCalc = new BPT_DistCalc();
+//		double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
+//		tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);	// TODO check this discretization and overall look
+//		normBPT_CDF=tempCalc.getCDF();	
+////		GraphWindow graph = new GraphWindow(normBPT_CDF, "test");
+		
+		refBPT_CalcArray = getRef_BPT_DistCalcArray();
+		normBPT_CDF_Array = getNormBPT_CDF_Array();
 
 	}
 
@@ -421,6 +458,8 @@ public class ProbabilityModelsCalc {
 	 */
 	public double getU3_ProbGainForRup(int fltSysRupIndex, double histOpenInterval, boolean onlyIfAllSectionsHaveDateOfLast, 
 			boolean aveRecurIntervals, boolean aveNormTimeSinceLast, long presentTimeMillis, double durationYears) {
+		
+		double rupMag = fltSysRupSet.getMagForRup(fltSysRupIndex);
 
 		// get the average recurrence interval
 		double aveCondRecurInterval;
@@ -462,12 +501,29 @@ public class ProbabilityModelsCalc {
 			probGain = Double.NaN;
 		}
 		else if(allSectionsHadDateOfLast) {
-			probGain = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears)/poisProb;					
+			probGain = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears, rupMag)/poisProb;					
 		}
 		else if (noSectionsHadDateOfLast) {
-			probGain = computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears)/poisProb;
+			probGain = computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears, rupMag)/poisProb;
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
+			
+			// set normBPT_CDF based on magnitude
+			EvenlyDiscretizedFunc normBPT_CDF=null;
+			if(numAperValues==1)
+				normBPT_CDF=normBPT_CDF_Array[0];	// the only one
+			else if(rupMag>aperMagBoundaries[aperMagBoundaries.length-1])
+				normBPT_CDF=normBPT_CDF_Array[normBPT_CDF_Array.length-1];	// it's the last function
+
+			else {
+				for(int m=0; m<aperMagBoundaries.length;m++) {
+					if(rupMag<=aperMagBoundaries[m]) {
+						normBPT_CDF=normBPT_CDF_Array[m];
+						break;
+					}
+				}
+			}
+			
 			double sumCondProbGain=0;
 			double totWeight=0;
 			for(int i=0;i<normBPT_CDF.getNum();i++) {
@@ -477,7 +533,7 @@ public class ProbabilityModelsCalc {
 					// average the time since last between known and unknown sections
 					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
 					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
-					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears);
+					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag);
 					sumCondProbGain += (condProb/poisProb)*relProbForTimeSinceLast;
 					totWeight += relProbForTimeSinceLast;
 				}
@@ -486,7 +542,6 @@ public class ProbabilityModelsCalc {
 		}
 		
 		if(simulationMode) {
-			double rupMag = fltSysRupSet.getMagForRup(fltSysRupIndex);
 			if(aveTimeSinceLastWhereKnownYears/aveCondRecurInterval > simNormTimeSinceLastHist.getMaxX()) {
 				simNormTimeSinceLastHist.add(simNormTimeSinceLastHist.getMaxX(), longTermRateOfFltSysRup[fltSysRupIndex]);
 				if(rupMag <= 7)
@@ -540,6 +595,8 @@ public class ProbabilityModelsCalc {
 	 */
 	public double getWG02_ProbGainForRup(int fltSysRupIndex, boolean onlyIfAllSectionsHaveDateOfLast, long presentTimeMillis, double durationYears) {
 		
+		BPT_DistCalc refBPT_DistributionCalc = getRef_BPT_DistCalc(fltSysRupSet.getMagForRup(fltSysRupIndex));
+		
 		// first compute the gains for each fault section if it does not exist
 		if(sectionGainArray==null) {
 			sectionGainArray = new double[numSections];
@@ -587,8 +644,12 @@ public class ProbabilityModelsCalc {
 	
 	
 	
-	
+	/**
+	 * This only applies the first aperiodicity value
+	 */
 	public void plotXYZ_FuncOfCondProbForUnknownDateOfLastEvent() {
+		
+		double aperiodicity = aperValues[0];
 
 		BPT_DistCalc bptCalc2 = getRef_BPT_DistCalc(aperiodicity);
 
@@ -654,9 +715,15 @@ public class ProbabilityModelsCalc {
 		XYZPlotWindow window_probGain = new XYZPlotWindow(spec_probGain);
 
 	}
-
 	
+	
+
+	/**
+	 * 	 This only applies the first aperiodicity value
+	 */
 	public void plotXYZ_FuncOfCondProb() {
+		
+		double aperiodicity = aperValues[0];
 
 		BPT_DistCalc bptCalc2 = getRef_BPT_DistCalc(aperiodicity);
 
@@ -733,7 +800,10 @@ public class ProbabilityModelsCalc {
 	 * @param duration
 	 * @return
 	 */
-	public double computeBPT_ProbFast(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears) {
+	public double computeBPT_ProbFast(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears, double rupMag) {
+		
+		BPT_DistCalc refBPT_DistributionCalc = this.getRef_BPT_DistCalcForMag(rupMag);
+		
 		double newTimeSinceLast = aveTimeSinceLastYears*refRI/aveRecurIntervalYears;
 		if(newTimeSinceLast<0 && newTimeSinceLast > -1e-10)
 			newTimeSinceLast=0;
@@ -750,7 +820,7 @@ public class ProbabilityModelsCalc {
 	 * @param duration
 	 * @return
 	 */
-	public double computeBPT_Prob(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears) {
+	public double computeBPT_Prob(double aveRecurIntervalYears, double aveTimeSinceLastYears, double durationYears, double aperiodicity) {
 		double delta = aveRecurIntervalYears/200d;
 		int numPts = (int)Math.round((9*aveRecurIntervalYears)/delta);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
@@ -765,7 +835,8 @@ public class ProbabilityModelsCalc {
 	 * 
 	 * @return
 	 */
-	public double computeBPT_ProbForUnknownDateOfLastFast(double aveRecurIntervalYears, double histOpenIntervalYears, double durationYears) {
+	public double computeBPT_ProbForUnknownDateOfLastFast(double aveRecurIntervalYears, double histOpenIntervalYears, double durationYears, double rupMag) {
+		BPT_DistCalc refBPT_DistributionCalc = this.getRef_BPT_DistCalcForMag(rupMag);
 		refBPT_DistributionCalc.setDurationAndHistOpenInterval(durationYears*refRI/aveRecurIntervalYears, histOpenIntervalYears*refRI/aveRecurIntervalYears);
 		return refBPT_DistributionCalc.getCondProbForUnknownTimeSinceLastEvent();	 
 	}
@@ -776,7 +847,7 @@ public class ProbabilityModelsCalc {
 	 * 
 	 * @return
 	 */
-	public double computeBPT_ProbForUnknownDateOfLast(double aveRecurIntervalYears, double histOpenIntervalYears, double durationYears) {
+	public double computeBPT_ProbForUnknownDateOfLast(double aveRecurIntervalYears, double histOpenIntervalYears, double durationYears, double aperiodicity) {
 		double delta = aveRecurIntervalYears/200d;
 		int numPts = (int)Math.round((9*aveRecurIntervalYears)/delta);
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
@@ -802,7 +873,6 @@ public class ProbabilityModelsCalc {
 	 * This creates a reference BPT distribution calculator for the given aperiodicity and duration
 	 * (the calculator uses refRI and deltaT) 
 	 * @param bpt_Aperiodicity
-	 * @param durationInYears
 	 * @return
 	 */
 	protected static BPT_DistCalc getRef_BPT_DistCalc(double bpt_Aperiodicity) {
@@ -811,6 +881,69 @@ public class ProbabilityModelsCalc {
 		bptCalc.setAll(refRI, bpt_Aperiodicity, deltaT, numPts);
 		return bptCalc;
 	}
+
+	
+	/**
+	 * This creates a reference BPT distribution calculators for the given aperiodicities and duration
+	 * (the calculator uses refRI and deltaT) 
+	 * @param bpt_Aperiodicity
+	 * @param durationInYears
+	 * @return
+	 */
+	protected BPT_DistCalc[] getRef_BPT_DistCalcArray() {
+		
+		BPT_DistCalc[] bptCalcArray = new BPT_DistCalc[numAperValues];
+		int numPts = (int)Math.round((9*refRI)/deltaT);
+		
+		for(int i=0;i<numAperValues;i++) {
+			BPT_DistCalc bptCalc = new BPT_DistCalc();
+			bptCalc.setAll(refRI, aperValues[i], deltaT, numPts);
+			bptCalcArray[i]=bptCalc;			
+		}
+		
+		return bptCalcArray;
+	}
+	
+	
+	protected BPT_DistCalc getRef_BPT_DistCalcForMag(double rupMag) {
+		BPT_DistCalc bptCalc=null;
+		if(numAperValues==1)
+			bptCalc=refBPT_CalcArray[0];	// the only one
+		else if(rupMag>aperMagBoundaries[numAperValues-2])	// minus 2 to get last value since aperMagBoundaries has one less elements
+			bptCalc=refBPT_CalcArray[numAperValues-1];	// it's the last function
+		else {
+			for(int m=0; m<aperMagBoundaries.length;m++) {
+				if(rupMag<=aperMagBoundaries[m]) {
+					bptCalc=refBPT_CalcArray[m];
+					break;
+				}
+			}
+		}
+		return bptCalc;
+	}
+	
+
+
+	
+	/**
+	 * This creates an array of BPT CDFs (one for each aperiodicity)
+	 * @return
+	 */
+	protected EvenlyDiscretizedFunc[] getNormBPT_CDF_Array() {
+		
+		EvenlyDiscretizedFunc[] normCDF_Array = new EvenlyDiscretizedFunc[numAperValues];
+		
+		for(int i=0;i<numAperValues;i++) {
+			BPT_DistCalc tempCalc = new BPT_DistCalc();
+			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
+			tempCalc.setAll(1.0, aperValues[i], delta, num_for_normBPT_CDF);
+			normCDF_Array[i]=tempCalc.getCDF();		
+		}
+		
+		return normCDF_Array;
+	}
+
+	
 
 	
 	
@@ -841,10 +974,12 @@ public class ProbabilityModelsCalc {
 				double timeSince = normTimeSince*aveRI;
 				double histOpenInt = normHistOpenInt*aveRI;
 				
-				double prob1 = calc.computeBPT_Prob(aveRI, timeSince, dur);
-				double prob2 = calc.computeBPT_ProbForUnknownDateOfLast(aveRI, histOpenInt, dur);
-				double prob1_fast = calc.computeBPT_ProbFast(aveRI, timeSince, dur);
-				double prob2_fast = calc.computeBPT_ProbForUnknownDateOfLastFast(aveRI, histOpenInt, dur);
+				double rupMag = Double.NaN;	// this will be ignored because there is only one aperiodicity here
+				
+				double prob1 = calc.computeBPT_Prob(aveRI, timeSince, dur, aper);
+				double prob2 = calc.computeBPT_ProbForUnknownDateOfLast(aveRI, histOpenInt, dur, aper);
+				double prob1_fast = calc.computeBPT_ProbFast(aveRI, timeSince, dur, rupMag);
+				double prob2_fast = calc.computeBPT_ProbForUnknownDateOfLastFast(aveRI, histOpenInt, dur, rupMag);
 				
 				double diff1 = Math.abs((prob1-prob1_fast)/prob1);
 				if(prob1<1e-12 && prob1_fast<1e-12)
@@ -936,8 +1071,22 @@ public class ProbabilityModelsCalc {
 		else
 			typeCalcForU3_Probs += "_aveTimeSince";
 
-		String aperString = "aper"+aperiodicity;
+//		String aperiodicity="DefaultRange";
+//		String aperString = "aper"+aperiodicity;
+
+		String aperString = "aper";
+		boolean first = true;
+		for(double aperVal:this.aperValues) {
+			if(first)
+				aperString+=aperVal;
+			else
+				aperString+=","+aperVal;
+			first=false;
+		}
 		aperString = aperString.replace(".", "pt");
+		
+		System.out.println("\naperString: "+aperString+"\n");
+		
 		int tempDur = (int) Math.round(numYears/1000);
 		
 		String probTypeString;
@@ -964,9 +1113,9 @@ public class ProbabilityModelsCalc {
 		
 		String plotLabelString = probTypeString;
 		if(probTypeEnum == ProbabilityModelOptions.U3_BPT)
-			plotLabelString += " (aper="+aperiodicity+", "+typeCalcForU3_Probs+")";
+			plotLabelString += " ("+aperString+", "+typeCalcForU3_Probs+")";
 		else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT)
-			plotLabelString += " (aper="+aperiodicity+")";
+			plotLabelString += " ("+aperString+")";
 
 		File resultsDir = new File(dirNameForSavingFiles);
 		if(!resultsDir.exists()) resultsDir.mkdir();
@@ -1511,7 +1660,7 @@ if(firstEvent) {
 		
 		
 		// get normalized rup and section recurrence interval plots
-		ArrayList<EvenlyDiscretizedFunc> funcList = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedRupRecurIntervals, aperiodicity);
+		ArrayList<EvenlyDiscretizedFunc> funcList = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedRupRecurIntervals, Double.NaN);
 		GraphWindow grapha_a = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcList, "Normalized Rupture RIs; "+plotLabelString);
 //		GraphWindow grapha_a = General_EQSIM_Tools.plotNormRI_Distribution(normalizedRupRecurIntervals, "Normalized Rupture RIs; "+plotLabelString, aperiodicity);
 		infoString += "\n\nRup "+funcList.get(0).getName()+":";
@@ -1520,7 +1669,7 @@ if(firstEvent) {
 		infoString += "\n"+funcList.get(1).getInfo();
 
 		
-		ArrayList<EvenlyDiscretizedFunc> funcList2 = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedSectRecurIntervals, aperiodicity);
+		ArrayList<EvenlyDiscretizedFunc> funcList2 = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedSectRecurIntervals, Double.NaN);
 		GraphWindow graph2_b = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcList2, "Normalized Section RIs; "+plotLabelString);
 //		GraphWindow graph2_b = General_EQSIM_Tools.plotNormRI_Distribution(normalizedSectRecurIntervals, "Normalized Section RIs; "+plotLabelString, aperiodicity);
 		infoString += "\n\nSect "+funcList2.get(0).getName()+":";
@@ -2050,6 +2199,7 @@ if(firstEvent) {
 		else
 			typeCalcForU3_Probs += "_aveTimeSince";
 
+		String aperiodicity="DefaultRange";
 		String aperString = "aper"+aperiodicity;
 		aperString = aperString.replace(".", "pt");
 		int tempDur = (int) Math.round(numYears/1000);
@@ -2312,13 +2462,14 @@ if(firstEvent) {
 //		testCalc.testER_Simulation(null, null, erf,200000d);
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		// THE FOLLOWING SHOULD NO LONGER MATTER
 		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.1);
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,10000d, "Nov11");
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,200000d, "Nov12");
 
 		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		
