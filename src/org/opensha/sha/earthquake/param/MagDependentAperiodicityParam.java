@@ -17,7 +17,7 @@ public class MagDependentAperiodicityParam extends EnumParameter<MagDependentApe
 	public static final String INFO = "Magnitude-dependent aperiodicity values for: M≤6.7, 6.7<M≤7.2, 7.2<M≤7.7, and M>7.7";
 
 	public MagDependentAperiodicityParam() {
-		super(NAME, EnumSet.allOf(MagDependentAperiodicityOptions.class), MagDependentAperiodicityOptions.MID_VALUES, null);
+		super(NAME, EnumSet.allOf(MagDependentAperiodicityOptions.class), MagDependentAperiodicityOptions.ALL_PT3_VALUES, null);
 		setInfo(INFO);
 	}
 

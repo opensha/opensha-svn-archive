@@ -139,7 +139,7 @@ public class ProbModelsPlottingUtils {
 		graph.setX_AxisLabel("RI (yrs)");
 		graph.setY_AxisLabel("Density");
 		graph.setX_AxisRange(0, 5);
-		graph.setY_AxisRange(0, 2.3);
+		graph.setY_AxisRange(0, 5);
 		graph.setAxisLabelFontSize(22);
 		graph.setTickLabelFontSize(20);
 		graph.setPlotLabelFontSize(22);

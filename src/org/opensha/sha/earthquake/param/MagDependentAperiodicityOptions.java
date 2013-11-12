@@ -20,12 +20,12 @@ public enum MagDependentAperiodicityOptions {
 	ALL_PT8_VALUES("All 0.8",new double[] {0.8}, null);
 	
 	private String label;
-	private double[] aperMagThreshArray;	// the magnitude boundaries; must have one less element than the next array
+	private double[] aperMagBoundariesArray;	// the magnitude boundaries; must have one less element than the next array
 	private double[] aperValuesArray;
-	private MagDependentAperiodicityOptions(String label, double[] aperValuesArray, double[] aperMagThreshArray) {
+	private MagDependentAperiodicityOptions(String label, double[] aperValuesArray, double[] aperMagBoundariesArray) {
 		this.label = label;
 		this.aperValuesArray=aperValuesArray;
-		this.aperMagThreshArray=aperMagThreshArray;
+		this.aperMagBoundariesArray=aperMagBoundariesArray;
 	}
 	
 	@Override public String toString() {
@@ -46,8 +46,8 @@ public enum MagDependentAperiodicityOptions {
 	 * where null is returned if the latter has only one value.
 	 * @return
 	 */
-	public double[] getAperMagThreshArray(){
-		return aperMagThreshArray;
+	public double[] getAperMagBoundariesArray(){
+		return aperMagBoundariesArray;
 	}
 
 }
