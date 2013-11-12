@@ -34,6 +34,8 @@ import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -112,7 +114,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	public static final boolean QUAD_SURFACES_PARAM_DEFAULT = false;
 	private BooleanParameter quadSurfacesParam;
 	private ProbabilityModelParam probModelParam;
-	private BPT_AperiodicityParam bpt_AperiodicityParam;
+//	private BPT_AperiodicityParam bpt_AperiodicityParam;
+	private MagDependentAperiodicityParam magDepAperiodicityParam;
 	private HistoricOpenIntervalParam histOpenIntervalParam;
 
 	
@@ -124,7 +127,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected BackgroundRupType bgRupType = BackgroundRupType.POINT;
 	private boolean quadSurfaces = false;
 	private ProbabilityModelOptions probModel = ProbabilityModelOptions.POISSON;
-	private double bpt_Aperiodicity=0.3;
+//	private double bpt_Aperiodicity=0.3;
+	private MagDependentAperiodicityOptions magDepAperiodicity = MagDependentAperiodicityOptions.MID_VALUES;
 	private double histOpenInterval=0;
 
 	// Parameter change flags: (none for bgIncludeParam) 
@@ -135,7 +139,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected boolean bgRupTypeChanged=true;
 	protected boolean quadSurfacesChanged=true;
 	protected boolean probModelChanged=true;
-	protected boolean bpt_AperiodicityChanged=true;
+//	protected boolean bpt_AperiodicityChanged=true;
+	protected boolean magDepAperiodicityChanged=true;
 	protected boolean histOpenIntervalChanged=true;
 	
 
@@ -233,7 +238,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		bgRupTypeParam = new BackgroundRupParam();
 		quadSurfacesParam = new BooleanParameter(QUAD_SURFACES_PARAM_NAME, QUAD_SURFACES_PARAM_DEFAULT);
 		probModelParam = new ProbabilityModelParam();
-		bpt_AperiodicityParam = new BPT_AperiodicityParam();
+//		bpt_AperiodicityParam = new BPT_AperiodicityParam();
+		magDepAperiodicityParam = new MagDependentAperiodicityParam();
 		histOpenIntervalParam = new HistoricOpenIntervalParam();
 
 
@@ -246,7 +252,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		bgRupTypeParam.addParameterChangeListener(this);
 		quadSurfacesParam.addParameterChangeListener(this);
 		probModelParam.addParameterChangeListener(this);
-		bpt_AperiodicityParam.addParameterChangeListener(this);
+//		bpt_AperiodicityParam.addParameterChangeListener(this);
+		magDepAperiodicityParam.addParameterChangeListener(this);
 		histOpenIntervalParam.addParameterChangeListener(this);
 
 		
@@ -259,7 +266,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		bgRupTypeParam.setValue(bgRupType);
 		quadSurfacesParam.setValue(quadSurfaces);
 		probModelParam.setValue(probModel);
-		bpt_AperiodicityParam.setValue(bpt_Aperiodicity);
+//		bpt_AperiodicityParam.setValue(bpt_Aperiodicity);
+		magDepAperiodicityParam.setValue(magDepAperiodicity);
 		histOpenIntervalParam.setValue(histOpenInterval);
 
 		createParamList();
@@ -284,7 +292,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 		adjustableParams.addParameter(probModelParam);
 		if(!probModelParam.getValue().equals(ProbabilityModelOptions.POISSON)) {
-			adjustableParams.addParameter(bpt_AperiodicityParam);	
+			adjustableParams.addParameter(magDepAperiodicityParam);	
 			adjustableParams.addParameter(histOpenIntervalParam);
 		}
 	}
@@ -339,9 +347,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 		
 		// update prob model calculator if needed
-		if (faultSysSolutionChanged || bpt_AperiodicityChanged || timeSpanChangeFlag || probModelChanged) {
+		if (faultSysSolutionChanged || magDepAperiodicityChanged || timeSpanChangeFlag || probModelChanged) {
 			if(probModel != ProbabilityModelOptions.POISSON) {
-				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, bpt_Aperiodicity);
+				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, magDepAperiodicity);
 				if(D) {
 					int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
 					System.out.println(numSectWith+" sections had date of last");
@@ -351,7 +359,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 
 		// now make the list of fault-system sources if any of the following have changed
 		if (faultSysSolutionChanged || faultGridSpacingChanged || aleatoryMagAreaStdDevChanged || applyAftershockFilterChanged || 
-				quadSurfacesChanged || probModelChanged || bpt_AperiodicityChanged || timeSpanChangeFlag || histOpenIntervalChanged) {
+				quadSurfacesChanged || probModelChanged || magDepAperiodicityChanged || timeSpanChangeFlag || histOpenIntervalChanged) {
 			makeAllFaultSystemSources();	// overrides all fault-based source objects; created even if not fault sources aren't wanted
 		}
 		
@@ -369,7 +377,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		bgRupTypeChanged = false;			
 		quadSurfacesChanged= false;
 		probModelChanged = false;
-		bpt_AperiodicityChanged = false;
+		magDepAperiodicityChanged = false;
 		histOpenIntervalChanged = false;
 		timeSpanChangeFlag = false;
 		
@@ -415,9 +423,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			probModelChanged = true;
 			initTimeSpan();
 			createParamList();
-		} else if (paramName.equals(bpt_AperiodicityParam.getName())) {
-			bpt_Aperiodicity = bpt_AperiodicityParam.getValue();
-			bpt_AperiodicityChanged = true;
+		} else if (paramName.equals(magDepAperiodicityParam.getName())) {
+			magDepAperiodicity = magDepAperiodicityParam.getValue();
+			magDepAperiodicityChanged = true;
 		} else if (paramName.equals(histOpenIntervalParam.getName())) {
 			histOpenInterval = histOpenIntervalParam.getValue();
 			histOpenIntervalChanged = true;

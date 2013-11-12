@@ -43,6 +43,7 @@ import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
@@ -167,20 +168,14 @@ public class ProbabilityModelsCalc {
 	 * @param aperiodicity - aperiodicity of the BPT model
 	 * 
 	 */
-	public ProbabilityModelsCalc(FaultSystemSolution fltSysSolution, double[] longTermRateOfFltSysRupInERF, double aperiodicity) {
+	public ProbabilityModelsCalc(FaultSystemSolution fltSysSolution, double[] longTermRateOfFltSysRupInERF, MagDependentAperiodicityOptions magDepAperiodicity) {
 		this.fltSysSolution=fltSysSolution;
 		longTermRateOfFltSysRup = longTermRateOfFltSysRupInERF;
 //		this.aperiodicity = aperiodicity;
 		
-		// TODO get the following as constructor arguments?
-		MagDependentAperiodicityParam magDepAperParm = new MagDependentAperiodicityParam();
-		aperValues=magDepAperParm.getValue().getAperValuesArray();
+		aperValues=magDepAperiodicity.getAperValuesArray();
 		numAperValues=aperValues.length;
-		aperMagBoundaries=magDepAperParm.getValue().getAperMagBoundariesArray();
-//	
-//		aperValues=defaultAperValues;
-//		numAperValues=defaultAperValues.length;
-//		aperMagBoundaries=defaultAperMagBoundaries;
+		aperMagBoundaries=magDepAperiodicity.getAperMagBoundariesArray();
 		
 		fltSysRupSet = fltSysSolution.getRupSet();
 		numRupsInFaultSystem = fltSysRupSet.getNumRuptures();
@@ -208,39 +203,19 @@ public class ProbabilityModelsCalc {
 		this.fltSysSolution=erf.getSolution();
 		longTermRateOfFltSysRup = erf.getLongTermRateOfFltSysRupInERF();
 		
-		// TODO the following is ignored; need to get array of value from ERF
-		double aperiodicity;
-		if(erf.getAdjustableParameterList().containsParameter(BPT_AperiodicityParam.NAME)) {
-			aperiodicity = ((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue();
+		MagDependentAperiodicityOptions magDepAperiodicity = null;;
+		if(erf.getAdjustableParameterList().containsParameter(MagDependentAperiodicityParam.NAME)) {
+			magDepAperiodicity = ((MagDependentAperiodicityParam)erf.getParameter(MagDependentAperiodicityParam.NAME)).getValue();
+			aperValues=magDepAperiodicity.getAperValuesArray();
+			numAperValues=aperValues.length;
+			aperMagBoundaries=magDepAperiodicity.getAperMagBoundariesArray();
 		}
-		else {
-			aperiodicity = Double.NaN;
-		}
-		
-		MagDependentAperiodicityParam magDepAperParm = new MagDependentAperiodicityParam();
-		aperValues=magDepAperParm.getValue().getAperValuesArray();
-		numAperValues=aperValues.length;
-		aperMagBoundaries=magDepAperParm.getValue().getAperMagBoundariesArray();
-//	
-//		aperValues=defaultAperValues;
-//		numAperValues=defaultAperValues.length;
-//		aperMagBoundaries=defaultAperMagBoundaries;
 		
 		fltSysRupSet = fltSysSolution.getRupSet();
 		numRupsInFaultSystem = fltSysRupSet.getNumRuptures();
 		numSections = fltSysRupSet.getNumSections();
 		
 		initializeArrays();
-		
-//		if(!Double.isNaN(aperiodicity)) {
-//			refBPT_DistributionCalc = getRef_BPT_DistCalc(aperiodicity);
-//			
-//			// set normBPT_CDF
-//			BPT_DistCalc tempCalc = new BPT_DistCalc();
-//			double delta = max_time_for_normBPT_CDF/(num_for_normBPT_CDF-1);
-//			tempCalc.setAll(1.0, aperiodicity, delta, num_for_normBPT_CDF);
-//			normBPT_CDF=tempCalc.getCDF();		
-//		}	
 		
 		refBPT_CalcArray = getRef_BPT_DistCalcArray();
 		normBPT_CDF_Array = getNormBPT_CDF_Array();
@@ -2518,13 +2493,13 @@ if(firstEvent) {
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		// THE FOLLOWING SHOULD NO LONGER MATTER
-		erf.getParameter(BPT_AperiodicityParam.NAME).setValue(0.1);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
 		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,9000d, "Nov12");
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,6000d, "Nov12");
 
 		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		
