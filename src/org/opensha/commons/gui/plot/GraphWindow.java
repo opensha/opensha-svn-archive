@@ -201,7 +201,7 @@ public class GraphWindow extends JFrame {
 				
 				@Override
 				public void run() {
-					widget.setXAxisLabel(yAxisLabel);
+					widget.setYAxisLabel(yAxisLabel);
 				}
 			});
 		} catch (Exception e1) {
