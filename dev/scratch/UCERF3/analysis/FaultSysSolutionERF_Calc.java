@@ -51,6 +51,7 @@ import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -1420,6 +1421,45 @@ public class FaultSysSolutionERF_Calc {
 			throws IOException {
 		writeTimeDependenceCSV(erf, outputFile, true);
 	}
+	
+	
+	
+	
+	public static void writeDiffAveragingMethodsSubSectionTimeDependenceCSV() {
+		boolean[] aveRI_array = {true,false};
+		boolean[] aveNormTS_array = {true,false};
+		FaultSystemSolution meanSol=null;
+		try {
+			try {
+				meanSol = FaultSystemIO.loadSol(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+			} catch (DocumentException e) {
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}				
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+		erf.getTimeSpan().setDuration(30d);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+
+		for(boolean aveRI:aveRI_array) {
+			for(boolean aveNormTS:aveNormTS_array) {
+				erf.testSetBPT_CalcType(aveRI, aveNormTS);
+				String calcType=getBPTCalcTypeStr(new boolean[] {aveRI,aveNormTS});
+				System.out.println("working on "+calcType);
+				try {
+					writeSubSectionTimeDependenceCSV(erf, new File("SubSectProbData_30yr_MID_COVs_"+calcType+".csv"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}				
+			}
+		}
+	}
+
 	
 	/**
 	 * @param args
