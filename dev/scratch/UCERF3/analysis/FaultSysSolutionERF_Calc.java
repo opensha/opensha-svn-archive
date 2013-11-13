@@ -860,7 +860,7 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void makeFaultProbGainMaps(FaultSystemSolutionERF erf, File saveDir, String prefix
 			) throws GMT_MapException, RuntimeException, IOException {
-		double minMag = 6.5;
+		double minMag = 6.7;
 		int numMag = 4;
 		double deltaMag = 0.5;
 		
@@ -1233,7 +1233,7 @@ public class FaultSysSolutionERF_Calc {
 	private static void writeTimeDependenceCSV(FaultSystemSolutionERF erf, File outputFile, boolean parent)
 			throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
-		double minMag = 6.5;
+		double minMag = 6.7;
 		int numMag = 4;
 		double deltaMag = 0.5;
 		
@@ -1390,7 +1390,7 @@ public class FaultSysSolutionERF_Calc {
 				} else {
 					poissonProb = poissonFuncs.get(sectID).getY(i);
 					bptProb = bptFuncs.get(sectID).getY(i);
-					implCompareMag = poissonFuncs.get(sectID).getX(i);
+					implCompareMag = poissonFuncs.get(sectID).getX(i)+0.05; // make sure to get above
 					ri = 1d/cmlMFD.getY(i+(numAllMag - numMag));
 				}
 				
@@ -1425,37 +1425,96 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	
-	public static void writeDiffAveragingMethodsSubSectionTimeDependenceCSV() {
+	public static void writeDiffAveragingMethodsSubSectionTimeDependenceCSV(File outputDir) throws IOException {
 		boolean[] aveRI_array = {true,false};
 		boolean[] aveNormTS_array = {true,false};
-		FaultSystemSolution meanSol=null;
+		FaultSystemSolution meanSol;
 		try {
-			try {
-				meanSol = FaultSystemIO.loadSol(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+			meanSol = FaultSystemIO.loadSol(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-			} catch (DocumentException e) {
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}				
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
-		erf.getTimeSpan().setDuration(30d);
+		double duration = 30d;
+		erf.getTimeSpan().setDuration(duration);
+		String durStr = (int)duration+"yr";
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		
+		MagDependentAperiodicityOptions[] covFuncs = { MagDependentAperiodicityOptions.LOW_VALUES,
+				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES };
 
-		for(boolean aveRI:aveRI_array) {
-			for(boolean aveNormTS:aveNormTS_array) {
-				erf.testSetBPT_CalcType(aveRI, aveNormTS);
-				String calcType=getBPTCalcTypeStr(new boolean[] {aveRI,aveNormTS});
-				System.out.println("working on "+calcType);
-				try {
-					writeSubSectionTimeDependenceCSV(erf, new File("SubSectProbData_30yr_MID_COVs_"+calcType+".csv"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}				
+		for (MagDependentAperiodicityOptions cov : covFuncs) {
+			erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(cov);
+			
+			List<boolean[]> avgBoolsList = Lists.newArrayList();
+			List<CSVFile<String>> csvFiles = Lists.newArrayList();
+			
+			for(boolean aveRI:aveRI_array) {
+				for(boolean aveNormTS:aveNormTS_array) {
+					erf.testSetBPT_CalcType(aveRI, aveNormTS);
+					String calcType=getBPTCalcTypeStr(new boolean[] {aveRI,aveNormTS});
+					System.out.println("working on "+calcType);
+					File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+calcType+".csv");
+					writeSubSectionTimeDependenceCSV(erf, csvFile);
+					
+					// keep track of settings and parse the CSV file
+					avgBoolsList.add(new boolean[] {aveRI, aveNormTS});
+					csvFiles.add(CSVFile.readFile(csvFile, true));	
+				}
+			}
+			
+			// now stitch into a master file for this COV func
+			// mag ranges to do
+			double[] minMags = { 0, 6.7 };
+			// start col ("Recurr Int.") for that mag range
+			int[] startCols = { 31, 3 };
+			for (int i=0; i<minMags.length; i++) {
+				double minMag = minMags[i];
+				int startCol = startCols[i];
+				
+				// use this for common to all columns
+				CSVFile<String> refCSV = csvFiles.get(0);
+				
+				CSVFile<String> csv = new CSVFile<String>(true);
+				// add first two columns (name and ID
+				csv.addColumn(refCSV.getColumn(0));
+				csv.addColumn(refCSV.getColumn(1));
+				
+				// now add common to all values
+				csv.addColumn(refCSV.getColumn(startCol)); // recurr int
+				csv.addColumn(refCSV.getColumn(startCol+1)); // open int
+				csv.addColumn(refCSV.getColumn(startCol+2)); // Ppois
+				csv.addColumn(refCSV.getColumn(startCol+5)); // Sect Impl Gain
+				
+				// now for each calc setting
+				for (int j=0; j<avgBoolsList.size(); j++) {
+					boolean[] avgBools = avgBoolsList.get(j);
+					CSVFile<String> calcCSV = csvFiles.get(j);
+					
+					// now add blank column except for header which states settings
+					List<String> headerCol = Lists.newArrayList();
+					String calcType = getBPTCalcTypeStr(avgBools);
+					headerCol.add(calcType);
+					while (headerCol.size() < refCSV.getNumRows())
+						headerCol.add("");
+					csv.addColumn(headerCol);
+					
+					// now add unique data columns
+					csv.addColumn(calcCSV.getColumn(startCol+3)); // Pbpt
+					csv.addColumn(calcCSV.getColumn(startCol+4)); // Prob Gain
+				}
+				
+				// write out combined CSV
+				String magStr;
+				if (minMag < 5)
+					magStr = "supra_seis";
+				else
+					magStr = (float)minMag+"+";
+				File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+magStr+"_combined.csv");
+				csv.writeToFile(csvFile);
 			}
 		}
 	}
@@ -1469,15 +1528,6 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
-		
-		CSVFile<String> csv = CSVFile.readFile(new File("/tmp/hypos.csv"), true);
-		FileWriter fw = new FileWriter(new File("/tmp/hypos.txt"));
-		for (List<String> line : csv) {
-			fw.write(line.get(6)+"\t"+line.get(7)+"\t"+line.get(8)+"\n");
-		}
-		fw.close();
-		System.exit(0);
-		
 		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
 		
 //		plot_U3pt3_U2_TotalMeanMFDs();
@@ -1537,6 +1587,9 @@ public class FaultSysSolutionERF_Calc {
 		File saveDir = new File("/tmp/ucerf3_time_dep_erf_plots");
 		if (!saveDir.exists())
 			saveDir.mkdir();
+		
+		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(saveDir);
+		System.exit(0);
 		
 		for (MagDependentAperiodicityOptions cov : covFuncs) {
 			String dirName = "cov_"+cov.name();

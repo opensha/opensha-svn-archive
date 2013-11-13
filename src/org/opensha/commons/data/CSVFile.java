@@ -111,6 +111,35 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		return ret;
 	}
 	
+	public void addColumn(List<E> vals) {
+		if (getNumRows() == 0) {
+			// this is an empty CSV
+			for (int i=0; i<vals.size(); i++)
+				addLine(new ArrayList<E>());
+		}
+		Preconditions.checkArgument(vals.size() == getNumRows());
+		
+		int prevNumCols = cols;
+		
+		for (int row=0; row<vals.size(); row++) {
+			List<E> line = getLine(row);
+			E val = vals.get(row);
+			if (!strictRowSizes && line.size()<prevNumCols) {
+				// this means that we don't have strict column counts, and this one is already short
+				// if val is null here we don't have to do anything
+				if (val != null) {
+					// populate with nulls to get it the right size
+					while (line.size()<prevNumCols)
+						line.add(null);
+					line.add(val);
+				}
+			} else {
+				line.add(val);
+			}
+		}
+		cols++;
+	}
+	
 	private void checkValidLine(List<E> line) {
 		Preconditions.checkNotNull(line, "Cannot add a null line!");
 		if (strictRowSizes) {
@@ -138,6 +167,19 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	
 	public static String getLineStr(List<?> line) {
 		return getLineStr(line.toArray());
+	}
+	
+	public List<E> getColumn(int col) {
+		Preconditions.checkArgument(col < getNumCols(), "No column at "+col);
+		List<E> colVals = Lists.newArrayList();
+		for (int row=0; row<getNumRows(); row++) {
+			List<E> line = getLine(row);
+			if (!strictRowSizes && col >= line.size())
+				colVals.add(null);
+			else
+				colVals.add(line.get(col));
+		}
+		return colVals;
 	}
 	
 	public static String getLineStr(Object[] line) {
