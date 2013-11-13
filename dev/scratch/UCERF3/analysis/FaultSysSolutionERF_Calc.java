@@ -50,6 +50,7 @@ import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -942,8 +943,9 @@ public class FaultSysSolutionERF_Calc {
 		
 		// now make normalized time since last event
 		double[] normTimeSinceLast = new double[poissonAllMags.length];
-		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
-				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
+//		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
+//				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
+		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(erf);
 		double[] sectImpliedProbGain = new double[poissonAllMags.length];
 		long curTime = System.currentTimeMillis();
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -959,7 +961,7 @@ public class FaultSysSolutionERF_Calc {
 				double diffYears = YEARS_PER_MILLI*deltaMillis;
 				double ri = 1d/partRates[i];
 				normTimeSinceLast[i] = diffYears / ri;
-				double bptProb = calc.computeBPT_ProbFast(ri, diffYears, duration, Double.NaN);
+				double bptProb = calc.computeBPT_ProbFast(ri, diffYears, duration, 0d);
 				double poissonProb = ProbabilityModelsCalc.computePoissonProb(ri, duration);
 				sectImpliedProbGain[i] = bptProb/poissonProb;
 			}
@@ -1010,9 +1012,9 @@ public class FaultSysSolutionERF_Calc {
 		
 		List<boolean[]> avgBools = Lists.newArrayList();
 		int refIndex = 1;
-		avgBools.add(toArray(false, false));
-		avgBools.add(toArray(false, true)); // reference
-		avgBools.add(toArray(true, false));
+//		avgBools.add(toArray(false, false));
+		avgBools.add(toArray(false, true));
+		avgBools.add(toArray(true, false)); // reference
 		avgBools.add(toArray(true, true));
 		
 		// TODO historical open interval?
@@ -1318,8 +1320,9 @@ public class FaultSysSolutionERF_Calc {
 		
 		long curMillis = System.currentTimeMillis();
 		
-		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
-				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
+//		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(
+//				((BPT_AperiodicityParam)erf.getParameter(BPT_AperiodicityParam.NAME)).getValue());
+		ProbabilityModelsCalc calc = new ProbabilityModelsCalc(erf);
 		
 		double duration = erf.getTimeSpan().getDuration();
 		
@@ -1366,10 +1369,12 @@ public class FaultSysSolutionERF_Calc {
 				double poissonProb;
 				double bptProb;
 				double ri;
+				double implCompareMag;
 				if (i == numMag) {
 					poissonProb = poissonAllMags.get(sectID).getY(0);
 					bptProb = bptAllMags.get(sectID).getY(0);
 					ri = 1d/cmlMFD.getY(0);
+					implCompareMag = 0;
 				} else if (i == numMag+1) {
 					poissonProb = poissonSmallMags.get(sectID).getY(0);
 					bptProb = bptSmallMags.get(sectID).getY(0);
@@ -1380,9 +1385,11 @@ public class FaultSysSolutionERF_Calc {
 						smallRate += pt.getY();
 					}
 					ri = 1d/smallRate;
+					implCompareMag = 0;
 				} else {
 					poissonProb = poissonFuncs.get(sectID).getY(i);
 					bptProb = bptFuncs.get(sectID).getY(i);
+					implCompareMag = poissonFuncs.get(sectID).getX(i);
 					ri = 1d/cmlMFD.getY(i+(numAllMag - numMag));
 				}
 				
@@ -1391,7 +1398,7 @@ public class FaultSysSolutionERF_Calc {
 				line.add(poissonProb+"");
 				line.add(bptProb+"");
 				line.add(bptProb/poissonProb+"");
-				double implBPTProb = calc.computeBPT_ProbFast(ri, oi, duration, Double.NaN);
+				double implBPTProb = calc.computeBPT_ProbFast(ri, oi, duration, implCompareMag);
 				double implPoissonProb = ProbabilityModelsCalc.computePoissonProb(ri, duration);
 				line.add(implBPTProb/implPoissonProb+"");
 			}
@@ -1422,6 +1429,14 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
+		
+		CSVFile<String> csv = CSVFile.readFile(new File("/tmp/hypos.csv"), true);
+		FileWriter fw = new FileWriter(new File("/tmp/hypos.txt"));
+		for (List<String> line : csv) {
+			fw.write(line.get(6)+"\t"+line.get(7)+"\t"+line.get(8)+"\n");
+		}
+		fw.close();
+		System.exit(0);
 		
 		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
 		
@@ -1458,8 +1473,11 @@ public class FaultSysSolutionERF_Calc {
 				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
+		double duration = 30d;
+		String durStr = (int)duration+"yr";
+		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
-		erf.getTimeSpan().setDuration(30d);
+		erf.getTimeSpan().setDuration(duration);
 		
 		// this will generate the prob gain mains for BPT/Poisson
 //		File saveDir = new File("/tmp/prob_maps");
@@ -1473,15 +1491,34 @@ public class FaultSysSolutionERF_Calc {
 //			saveDir.mkdir();
 //		makeMagDurationProbPlots(meanSol, saveDir, "ucerf3", false);
 		
-		// this will write the parent section CSV file
-		writeParentSectionTimeDependenceCSV(erf, new File("/tmp/erf_time_dependence_parent_probs_30yr.csv"));
-		writeSubSectionTimeDependenceCSV(erf, new File("/tmp/erf_time_dependence_sub_probs_30yr.csv"));
-
-		// this will generate prob gain maps for BPT parameters
-		File saveDir = new File("/tmp/bpt_calc_prob_gains");
+		MagDependentAperiodicityOptions[] covFuncs = { MagDependentAperiodicityOptions.LOW_VALUES,
+				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES };
+		
+		File saveDir = new File("/tmp/ucerf3_time_dep_erf_plots");
 		if (!saveDir.exists())
 			saveDir.mkdir();
-		makeAvgMethodProbGainMaps(erf, saveDir, "bpt_param");
+		
+		for (MagDependentAperiodicityOptions cov : covFuncs) {
+			String dirName = "cov_"+cov.name();
+			File covSaveDir = new File(saveDir, dirName);
+			if (!covSaveDir.exists())
+				covSaveDir.mkdir();
+			// this will write the parent section CSV file
+			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
+			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
+			
+			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
+			if (!fltGainDir.exists())
+				fltGainDir.mkdir();
+			
+			makeFaultProbGainMaps(erf, fltGainDir, dirName);
+
+			// this will generate prob gain maps for BPT parameters
+			File bptGainDir = new File(covSaveDir, "bpt_calc_prob_gains");
+			if (!bptGainDir.exists())
+				bptGainDir.mkdir();
+			makeAvgMethodProbGainMaps(erf, bptGainDir, dirName);
+		}
 		
 //		double minMag = 6.5;
 //		double deltaMag = 0.1;

@@ -34,6 +34,8 @@ import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -122,7 +124,8 @@ public class FSS_ERF_ParamTest {
 				Lists.newArrayList(true, false));
 		paramsOptionsMap.put(ProbabilityModelParam.NAME,
 				Lists.newArrayList(EnumSet.allOf(ProbabilityModelOptions.class)));
-		paramsOptionsMap.put(BPT_AperiodicityParam.NAME, Lists.newArrayList(0.2, 0.3, 0.4));
+		paramsOptionsMap.put(MagDependentAperiodicityParam.NAME,
+				Lists.newArrayList(EnumSet.allOf(MagDependentAperiodicityOptions.class)));
 		paramsOptionsMap.put(HistoricOpenIntervalParam.NAME, Lists.newArrayList(0d, 150d, 200d));
 	}
 	
@@ -628,14 +631,14 @@ public class FSS_ERF_ParamTest {
 						assertFalse(applyMessage, prob == source.getRupture(0).getProbability());
 				}
 			}
-		} else if (paramName.equals(BPT_AperiodicityParam.NAME)) {
-			assertTrue("Non poisson and doesn't have BPT_AperiodicityParam", !timeDep || containsParam);
+		} else if (paramName.equals(MagDependentAperiodicityParam.NAME)) {
+			assertTrue("Non poisson and doesn't have MagDependentAperiodicityParam", !timeDep || containsParam);
 			if (!timeDep && !containsParam)
 				return;
 			// first check directly
-			Double val = (Double) paramVal;
+			MagDependentAperiodicityOptions val = (MagDependentAperiodicityOptions) paramVal;
 			assertEquals(setMessage,
-					val, (Double)erf.getParameter(paramName).getValue());
+					val, erf.getParameter(paramName).getValue());
 			// TODO check actually applied!!!
 		} else if (paramName.equals(HistoricOpenIntervalParam.NAME)) {
 			assertTrue("Non poisson and doesn't have HistoricOpenIntervalParam", !timeDep || containsParam);

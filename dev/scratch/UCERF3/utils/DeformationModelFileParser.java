@@ -43,7 +43,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-
+import scratch.UCERF3.enumTreeBranches.InversionModels;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -749,8 +749,11 @@ public class DeformationModelFileParser {
 		for (int i=0; i<dms.size(); i++) {
 			DeformationModels dm = dms.get(i);
 			
-			if (dm == DeformationModels.GEOLOGIC_LOWER || dm == DeformationModels.GEOLOGIC_UPPER)
+			if (dm == DeformationModels.GEOLOGIC_LOWER || dm == DeformationModels.GEOLOGIC_UPPER || dm == DeformationModels.MEAN_UCERF3)
 				continue;
+			if (dm.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) == 0)
+				continue;
+			System.out.println("DM: "+dm);
 			
 			header.add(dm.getShortName()+" Slip");
 			header.add(dm.getShortName()+" Moment Reduction");
@@ -885,7 +888,7 @@ public class DeformationModelFileParser {
 //		System.exit(0);
 		
 		writeSlipCreepTable(new File("/tmp/slips_creep.csv"), FaultModels.FM3_1);
-//		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
+		writeCreepReductionsTable(new File("/tmp/new_creep_data.csv"), FaultModels.FM3_1);
 		System.exit(0);
 		
 		FaultModels[] fms = { FaultModels.FM3_1, FaultModels.FM3_2 };

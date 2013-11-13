@@ -4,10 +4,13 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
+
+import com.google.common.collect.Maps;
 
 public class BinaryHazardCurveReader {
 	private DataInputStream reader = null;
@@ -23,6 +26,19 @@ public class BinaryHazardCurveReader {
 		for ( int i = 0; i < imlcount; ++i ) {
 			imlvals.add(reader.readDouble());
 		}
+	}
+	
+	public Map<Location, ArbitrarilyDiscretizedFunc> getCurveMap() throws Exception {
+		Map<Location, ArbitrarilyDiscretizedFunc> map = Maps.newHashMap();
+		
+		ArbitrarilyDiscretizedFunc curve = nextCurve();
+		while (curve != null) {
+			Location loc = currentLocation();
+			map.put(loc, curve);
+			curve = nextCurve();
+		}
+		
+		return map;
 	}
 	
 	public ArbitrarilyDiscretizedFunc nextCurve() throws Exception {

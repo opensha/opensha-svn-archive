@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 
 import com.google.common.collect.Lists;
 
@@ -16,17 +17,18 @@ public class TimeDepFSS_ERF_Simulator_ScriptGen {
 		List<File> classpath = Lists.newArrayList();
 		classpath.add(new File(dir, "OpenSHA_complete.jar"));
 		
-		double cov = 0.3;
+		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.LOW_VALUES;
 		double duration = 5;
-		String prefix_add = "cov"+(float)cov+"_dur"+(int)duration+"_";
+		String prefix_add = "cov"+cov.name()+"_dur"+(int)duration+"_";
 		
-		String outputDirName = "2013_10_31-erf-audit-cov-0.3-dur5";
+		String outputDirName = "2013_11_12-erf-audit-cov-LOW-dur5";
 		File localOutputDir = new File("/tmp", outputDirName);
 		if (!localOutputDir.exists())
 			localOutputDir.mkdir();
 		File remoteOutputDir = new File(dir, outputDirName);
 		
 		int numJobs = 500;
+//		int numJobs = 100;
 //		int trialsPerJob = 5000;
 //		int trialsPerJob = 2500;
 		int trialsPerJob = 1000;
@@ -51,7 +53,7 @@ public class TimeDepFSS_ERF_Simulator_ScriptGen {
 			
 			File pbsFile = new File(localOutputDir, prefix+".pbs");
 			
-			String scriptArgs = remoteOutputDir.getAbsolutePath()+" "+prefix+" "+trialsPerJob+" "+cov+" "+duration;
+			String scriptArgs = remoteOutputDir.getAbsolutePath()+" "+prefix+" "+trialsPerJob+" "+cov.name()+" "+duration;
 			List<String> script = writer.buildScript(TimeDepFSS_ERF_Simulator_Test.class.getName(), scriptArgs);
 			pbsWrite.writeScript(pbsFile, script, mins, 1, 8, null);
 		}

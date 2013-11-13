@@ -30,6 +30,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
@@ -64,8 +66,8 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		File outputDir;
 		File dataDir;
 		int numTrials;
-		final double default_cov = 0.3;
-		double cov;
+		final MagDependentAperiodicityOptions default_cov = MagDependentAperiodicityOptions.LOW_VALUES;
+		MagDependentAperiodicityOptions cov;
 		boolean test_time_indep = false;
 		double defaultForecastDuration = 50d;
 		double forecastDuration;
@@ -76,7 +78,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			outputPrefix = args[1];
 			numTrials = Integer.parseInt(args[2]);
 			if (args.length > 3)
-				cov = Double.parseDouble(args[3]);
+				cov = MagDependentAperiodicityOptions.valueOf(args[3]);
 			else
 				cov = default_cov;
 			if (args.length > 4)
@@ -250,7 +252,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 				
 				erf = new FaultSystemSolutionERF(sol);
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-				erf.setParameter(BPT_AperiodicityParam.NAME, cov);
+				erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 				erf.getTimeSpan().setStartTime(timeSpanStartYear);
 				erf.getTimeSpan().setDuration(forecastDuration);
 				// make sure this didn't clear the start year

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -63,7 +64,7 @@ public class HazardDataSetLoader {
 	}
 	
 	public static GeoDataSet extractPointFromCurves(
-			HashMap<Location, ArbitrarilyDiscretizedFunc> curves,
+			Map<Location, ArbitrarilyDiscretizedFunc> curves,
 			boolean isProbAt_IML, double level) {
 		GeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		for (Location loc : curves.keySet()) {
