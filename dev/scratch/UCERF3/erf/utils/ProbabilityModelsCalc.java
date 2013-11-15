@@ -57,6 +57,7 @@ import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbModelsPlottingUtils;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_ERF.testModels.TestModel2_FSS;
@@ -2457,6 +2458,70 @@ if(firstEvent) {
 	}
 	
 	
+	/**
+	 * This writes out the rupture probability gains for the 4 different averaging 
+	 * combinations to a file, along with other info about the rupture
+	 * @param presentTimeMillis
+	 * @param durationYears
+	 * @param fileName
+	 */
+	public void writeRupProbGainsForDiffAveragingMethods(long presentTimeMillis, double durationYears, String fileName) {
+		boolean[] aveRI_array = {true,false};
+		boolean[] aveNormTS_array = {true,false};
+		File dataFile = new File(fileName);
+		FileWriter fileWriter;		
+		try {
+			fileWriter = new FileWriter(dataFile);
+			fileWriter.write("rupIndex\tRI_NTS\tRI_TS\tRateNTS\tRateTS\tcondRI_RI\tcondRI_Rate\tlongTermRate\tmaxOverMin\tMaxMinusMin\tsigDiff\trupMag\trupAper\trupName\n");
+			for(int fltSystRupIndex=0; fltSystRupIndex<numRupsInFaultSystem;fltSystRupIndex++) {
+				if(longTermRateOfFltSysRup[fltSystRupIndex]>0.0) {
+					String line = Integer.toString(fltSystRupIndex);
+					// TODO add long term rate and condRI & header line
+					double min=Double.MAX_VALUE, max=-1;
+					for(boolean aveRI:aveRI_array) {
+						for(boolean aveNormTS:aveNormTS_array) {
+							double gain = this.getU3_ProbGainForRup(fltSystRupIndex, 0.0, false, aveRI, aveNormTS, presentTimeMillis, durationYears);
+							line += "\t"+gain;
+							if(min>gain) min=gain;
+							if(max<gain) max=gain;
+						}
+					}
+					List<FaultSectionPrefData> data = fltSysRupSet.getFaultSectionDataForRupture(fltSystRupIndex);
+					String name = data.size()+" SECTIONS BETWEEN "+data.get(0).getName()+" AND "+data.get(data.size()-1).getName();
+					boolean sigDiff = (max/min > 1.1 && max-min > 0.1);
+					double rupMag=fltSysRupSet.getMagForRup(fltSystRupIndex);
+					line += "\t"+aveCondRecurIntervalForFltSysRups_type1[fltSystRupIndex]+
+							"\t"+aveCondRecurIntervalForFltSysRups_type2[fltSystRupIndex]+
+							"\t"+longTermRateOfFltSysRup[fltSystRupIndex]+
+							"\t"+(max/min)+"\t"+(max-min)+"\t"+sigDiff+
+							"\t"+rupMag+"\t"+aperValues[getAperIndexForRupMag(rupMag)]+
+							"\t"+name;
+					fileWriter.write(line+"\n");
+				}
+			}
+			fileWriter.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Done with writeRupProbGainsForDiffAveragingMethods for "+fileName);
+	}
+	
+	
+	public String getInfoAboutRupture(int fltSystRupIndex, long presentTimeMillis) {
+		String info = "fltSystRupIndex="+fltSystRupIndex+"\n";
+		info += "mag="+fltSysRupSet.getMagForRup(fltSystRupIndex)+"\n";
+		info += "Index\tRI\tRate\tTimeSince\tNormTimeSince\tArea\tName\n";
+		List<Integer> sectIndicesList = fltSysRupSet.getSectionsIndicesForRup(fltSystRupIndex);
+		for(int sectIndex:sectIndicesList) {
+			FaultSectionPrefData fltData = fltSysRupSet.getFaultSectionData(sectIndex);
+			double yrsSinceLast = ((double)(presentTimeMillis-fltData.getDateOfLastEvent()))/MILLISEC_PER_YEAR;
+			info+=sectIndex+"\t"+(1.0/longTermPartRateForSectArray[sectIndex])+"\t"+longTermPartRateForSectArray[sectIndex]+"\t"+
+			yrsSinceLast+"\t"+yrsSinceLast*longTermPartRateForSectArray[sectIndex]+"\t"+sectionArea[sectIndex]+"\t"+fltData.getName()+"\n";
+		}
+		return info;
+	}
 
 	
 	/**
@@ -2499,7 +2564,17 @@ if(firstEvent) {
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,6000d, "Nov12");
+		
+		// Biggest gain ratio diff between viable approaches
+		System.out.println(testCalc.getInfoAboutRupture(250420, erf.getTimeSpan().getStartTimeInMillis()));
+		
+		// Biggest gain diff between viable approaches
+		System.out.println(testCalc.getInfoAboutRupture(240628, erf.getTimeSpan().getStartTimeInMillis()));
+		
+//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,6000d, "Nov12");
+		
+		
+//		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), erf.getTimeSpan().getDuration(), "TEST_FILE");
 
 		//testCalc.tempSimulateER_Events(timeSinceLastFileName, null, erf,10000d);
 		

@@ -1422,6 +1422,36 @@ public class FaultSysSolutionERF_Calc {
 		writeTimeDependenceCSV(erf, outputFile, true);
 	}
 	
+	/**
+	 * This writes out the rupture gains for the different averaging methods, and for the hard-coded erf.
+	 */
+	public static void writeDiffAveragingMethodsRupProbGains() {
+
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
+		erf.updateForecast();
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_LowApers.txt");
+		
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		erf.updateForecast();
+		testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_MidApers.txt");
+		
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
+		erf.updateForecast();
+		testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_HighApers.txt");
+	}
+	
 	
 	
 	
@@ -1529,6 +1559,9 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
+		
+		writeDiffAveragingMethodsRupProbGains();
+		System.exit(0);
 		
 //		plot_U3pt3_U2_TotalMeanMFDs();
 		
