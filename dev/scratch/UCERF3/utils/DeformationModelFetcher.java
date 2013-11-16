@@ -1200,7 +1200,7 @@ public class DeformationModelFetcher {
 		return map;
 	}
 
-	private void writeMapFile(Map<IDPairing, Double> map, File file) throws IOException {
+	public static void writeMapFile(Map<IDPairing, Double> map, File file) throws IOException {
 		// Create an output stream to the file.
 		FileOutputStream file_output = new FileOutputStream (file);
 		// Wrap the FileOutputStream with a DataOutputStream

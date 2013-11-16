@@ -1621,14 +1621,16 @@ public class FaultSysSolutionERF_Calc {
 		if (!saveDir.exists())
 			saveDir.mkdir();
 		
-		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(saveDir);
-		System.exit(0);
+//		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(saveDir);
+//		System.exit(0);
 		
 		for (MagDependentAperiodicityOptions cov : covFuncs) {
 			String dirName = "cov_"+cov.name();
 			File covSaveDir = new File(saveDir, dirName);
 			if (!covSaveDir.exists())
 				covSaveDir.mkdir();
+			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 			// this will write the parent section CSV file
 			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
 			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));

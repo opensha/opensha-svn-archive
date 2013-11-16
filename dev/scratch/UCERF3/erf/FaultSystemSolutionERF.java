@@ -558,7 +558,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 * This sets both faultSysSolutionChanged and bgRupTypeChanged as true.
 	 * @param sol
 	 */
-	protected void setSolution(FaultSystemSolution sol) {
+	public void setSolution(FaultSystemSolution sol) {
 		setSolution(sol, true);
 	}
 	
