@@ -2122,7 +2122,7 @@ if(firstEvent) {
 		boolean aveRecurIntervals = erf.aveRecurIntervalsInU3_BPTcalc;
 		boolean aveNormTimeSinceLast = erf.aveNormTimeSinceLastInU3_BPTcalc;
 
-		double forecastDurationYrs = 50d;
+		double forecastDurationYrs = 5d;
 
 		// LABELING AND FILENAME STUFF
 		String typeCalcForU3_Probs;
@@ -2486,14 +2486,20 @@ if(firstEvent) {
 		FileWriter eventRates_fr;
 		try {
 			eventRates_fr = new FileWriter(dirNameForSavingFiles+"/obsVsTargetSectionPartRates.txt");
-			eventRates_fr.write("sectID\timposedRate\tsimulatedRate\tsimOverImpRateRatio\thasDateOfLast\tsectName\n");
+			eventRates_fr.write("sectID\tlongTermRate\ttargetRate\tsimulatedRate\tsimOverTargetRateRatio\taveSectGain\thasDateOfLast\tnormTimeSince\tsectName\n");
 			for(int i=0;i<fltSysRupSet.getNumSections();i++) {
 				FaultSectionPrefData fltData = fltSysRupSet.getFaultSectionData(i);
 				double ratio = obsSectRateArray[i]/targetRateOfSection[i];
 				boolean hasDateOfLast=false;
 				if(fltData.getDateOfLastEvent() != Long.MIN_VALUE)
 					hasDateOfLast=true;
-				eventRates_fr.write(fltData.getSectionId()+"\t"+targetRateOfSection[i]+"\t"+obsSectRateArray[i]+"\t"+ratio+"\t"+hasDateOfLast+"\t"+fltData.getName()+"\n");
+				double normTimeSince;
+				if(hasDateOfLast)
+					normTimeSince = (((double)(origStartTimeMillis-origDateOfLastForSect[i]))/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[i];
+				else
+					normTimeSince = Double.NaN;
+				eventRates_fr.write(fltData.getSectionId()+"\t"+longTermPartRateForSectArray[i]+"\t"+targetRateOfSection[i]+"\t"+
+					obsSectRateArray[i]+"\t"+ratio+"\t"+(targetRateOfSection[i]/longTermPartRateForSectArray[i])+"\t"+hasDateOfLast+"\t"+normTimeSince+"\t"+fltData.getName()+"\n");
 			}
 			eventRates_fr.close();
 		} catch (IOException e1) {
@@ -2979,7 +2985,7 @@ if(firstEvent) {
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		
-		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimBPT", 1000);
+		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimBPT_5yrTest", 5000);
 
 		
 //		// Biggest gain ratio diff between viable approaches
