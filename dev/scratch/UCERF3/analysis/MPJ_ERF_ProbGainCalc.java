@@ -59,7 +59,8 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		}
 		
 		outputDir = new File(cmd.getOptionValue("dir"));
-		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
+		if (rank == 0)
+			Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
 	}
 
 	@Override
