@@ -1239,7 +1239,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		FaultSystemSolution sol = erf.getSolution();
 		
-		double allMagMin = 5d;
+		double allMagMin = 5.2d;
 		int numAllMag = 3+numMag;
 		double allMagMax = allMagMin + deltaMag*(numAllMag-1);
 		String[] magRangeStrs = { "M>=6.5", "M>=7.0", "M>=7.5", "M>=8.0", "Supra Seis", "M<=7.0" };
