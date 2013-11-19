@@ -672,7 +672,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 ////			throw new RuntimeException("Unrecognized Probability Model");
 //		}
 
-		boolean isPoisson = true;		// this is for setting the source type
+		boolean isPoisson = true;		// this is for setting the source type; TODO change for U3?
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
@@ -680,7 +680,12 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
 				// set source type
 				double duration = timeSpan.getDuration();
-				double prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration);
+				double prob;
+				if(probModel == ProbabilityModelOptions.U3_BPT)
+					prob = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
+				else
+					prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration);
+
 				src = new FaultRuptureSource(meanMag, 
 						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces), 
 						rupSet.getAveRakeForRup(fltSystRupIndex), prob, isPoisson);

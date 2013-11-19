@@ -2150,7 +2150,7 @@ if(firstEvent) {
 		boolean aveRecurIntervals = erf.aveRecurIntervalsInU3_BPTcalc;
 		boolean aveNormTimeSinceLast = erf.aveNormTimeSinceLastInU3_BPTcalc;
 
-		double forecastDurationYrs = 50.0;
+		double forecastDurationYrs = 5.0;
 
 		// LABELING AND FILENAME STUFF
 		String typeCalcForU3_Probs;
@@ -3066,15 +3066,15 @@ if(firstEvent) {
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
+		boolean aveRecurIntervalsInU3_BPTcalc=false;
+		boolean aveNormTimeSinceLastInU3_BPTcalc=true;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		
 //		System.out.println(testCalc.getInfoAboutRupsOnSection(295, "tempRupOnSectInfo.txt"));
 		
-		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimBPT_NewPois_2", null, 1000);
+//		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimBPT_FinalChange_5yr_1", null, 5000);
 
 		
 //		// Biggest gain ratio diff between viable approaches
@@ -3083,7 +3083,7 @@ if(firstEvent) {
 //		// Biggest gain diff between viable approaches
 //		System.out.println(testCalc.getInfoAboutRupture(240628, erf.getTimeSpan().getStartTimeInMillis()));
 		
-//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf,6000d, "Nov12");
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 20000d, "FinalChange");
 		
 		
 		
