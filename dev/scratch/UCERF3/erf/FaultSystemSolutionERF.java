@@ -639,6 +639,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		
 		double meanMag = rupSet.getMagForRup(fltSystRupIndex);	// this is the average if there are more than one mags
 		
+		double duration = timeSpan.getDuration();
+		
 		// set aftershock rate correction
 		double aftRateCorr = 1.0;
 		if(applyAftershockFilter) aftRateCorr = MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS; // GardnerKnopoffAftershockFilter.scaleForMagnitude(mag);
@@ -651,38 +653,28 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			break;
 		case U3_BPT:
 			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, 
-					aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
+					aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), duration);
 			break;
 		case WG02_BPT:
-			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), timeSpan.getDuration());
+			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), duration);
 			break;
 
 		default:
 			throw new IllegalStateException("Unrecognized Probability Model");
 		}
 
-//		switch (probModel) {
-//		case POISSON:
-//			probGain=1.0;
-//		case U3_BPT:
-//			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, aveNormTimeSinceLastInU3_BPTcalc);
-//		case WG02_BPT:
-//		default:
-//			probGain=Double.NaN;
-////			throw new RuntimeException("Unrecognized Probability Model");
-//		}
-
-		boolean isPoisson = true;		// this is for setting the source type; TODO change for U3?
+		boolean isPoisson = true;		// this is for setting the source type
 		
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
 			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
 				// set source type
-				double duration = timeSpan.getDuration();
 				double prob;
-				if(probModel == ProbabilityModelOptions.U3_BPT)
+				if(probModel == ProbabilityModelOptions.U3_BPT) {
 					prob = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
+					isPoisson = false;	// this is only the probability of the next event
+				}
 				else
 					prob = 1-Math.exp(-aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration);
 
@@ -690,22 +682,38 @@ public class FaultSystemSolutionERF extends AbstractERF {
 						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces), 
 						rupSet.getAveRakeForRup(fltSystRupIndex), prob, isPoisson);
 			} else {
-				// we have a MFD for this rupture
-				if (aftRateCorr != 1d || probGain != 1d) {
 					// apply aftershock and/or gain corrections
-					rupMFD = rupMFD.deepClone();
-					rupMFD.scale(aftRateCorr*probGain);
+				DiscretizedFunc rupMFDcorrected = rupMFD.deepClone();
+				if(probModel == ProbabilityModelOptions.U3_BPT) {
+					for(int i=0;i<rupMFDcorrected.getNum();i++) {
+						double origRate = rupMFDcorrected.getY(i);
+						double prob = aftRateCorr*probGain*origRate*duration;
+						double equivRate = -Math.log(1-prob)/duration;
+						rupMFDcorrected.set(i,equivRate);
+					}
 				}
-				// this set the source as Poisson; does this matter? TODO
-				src = new FaultRuptureSource(rupMFD, 
+				else {	// WG02 and Poisson case
+					rupMFDcorrected.scale(aftRateCorr*probGain);					
+				}
+					
+				// this set the source as Poisson for U3; does this matter? TODO
+				src = new FaultRuptureSource(rupMFDcorrected, 
 						rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 						rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
 			}
 		} else {
 			// this currently only uses the mean magnitude
-			double totMoRate = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*MagUtils.magToMoment(meanMag);
+			double rupRate;
+			if(probModel == ProbabilityModelOptions.U3_BPT) {
+				double rupProb = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
+				rupRate = -Math.log(1-rupProb)/duration;
+			}
+			else {
+				rupRate = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex);
+			}
+			double totMoRate = rupRate*MagUtils.magToMoment(meanMag);
 			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,meanMag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
-			// this also sets the source as Poisson; does this matter? TODO
+			// this also sets the source as Poisson for U3; does this matter? TODO
 			src = new FaultRuptureSource(srcMFD, 
 					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());			
