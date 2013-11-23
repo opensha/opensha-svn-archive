@@ -1558,10 +1558,12 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
-		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
 		
-		writeDiffAveragingMethodsRupProbGains();
+//		writeDiffAveragingMethodsRupProbGains();
+		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
 		System.exit(0);
+
+//		scratch.UCERF3.utils.RELM_RegionUtils.printNumberOfGridNodes();
 		
 //		plot_U3pt3_U2_TotalMeanMFDs();
 		
