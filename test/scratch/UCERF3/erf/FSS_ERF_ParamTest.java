@@ -353,6 +353,19 @@ public class FSS_ERF_ParamTest {
 					paramsMap.put(paramName, option);
 				}
 			}
+			if (erf.getParameter(ProbabilityModelParam.NAME).getValue() == ProbabilityModelOptions.WG02_BPT) {
+				// make sure isn't mag dependent
+				// white listed
+				List<MagDependentAperiodicityOptions> allowed = Lists.newArrayList(
+						MagDependentAperiodicityOptions.ALL_PT1_VALUES, MagDependentAperiodicityOptions.ALL_PT2_VALUES,
+						MagDependentAperiodicityOptions.ALL_PT3_VALUES, MagDependentAperiodicityOptions.ALL_PT4_VALUES,
+						MagDependentAperiodicityOptions.ALL_PT5_VALUES, MagDependentAperiodicityOptions.ALL_PT6_VALUES);
+				if (!allowed.contains(erf.getParameter(MagDependentAperiodicityParam.NAME).getValue())) {
+					MagDependentAperiodicityOptions newVal = allowed.get(rand.nextInt(allowed.size()));
+					erf.setParameter(MagDependentAperiodicityParam.NAME, newVal);
+					paramsMap.put(MagDependentAperiodicityParam.NAME, newVal);
+				}
+			}
 			// test parameter settting
 			erf.updateForecast();
 			try {

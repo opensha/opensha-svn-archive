@@ -49,6 +49,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -716,7 +717,10 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			// this also sets the source as Poisson for U3; does this matter? TODO
 			src = new FaultRuptureSource(srcMFD, 
 					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
-					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());			
+					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
+			Preconditions.checkState(src.getNumRuptures() > 0,
+					"Source has zero rups! Mag="+meanMag+", aleatoryMagAreaStdDev="+aleatoryMagAreaStdDev
+					+", fssRate="+faultSysSolution.getRateForRup(fltSystRupIndex)+", adjRupRate="+rupRate);
 		}
 		// make and set the name
 		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(fltSystRupIndex);
