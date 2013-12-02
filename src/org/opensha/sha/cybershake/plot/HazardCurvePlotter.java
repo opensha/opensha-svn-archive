@@ -59,6 +59,7 @@ import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
@@ -74,6 +75,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
@@ -219,36 +221,49 @@ public class HazardCurvePlotter {
 			try {
 				providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
 			} catch (IOException e) {
-				e.printStackTrace();
-				providers.add(new CachedSiteDataWrapper<String>(new WillsMap2000()));
+				ExceptionUtils.throwAsRuntimeException(e);
 			}
 			if (velModelID == 1) {
 				/*		CVM4 Depth to 2.5					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
 				} catch (IOException e) {
-					e.printStackTrace();
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
 				
 				/*		CVM4 Depth to 1.0					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
 				} catch (IOException e) {
-					e.printStackTrace();
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
 			} else if (velModelID == 2 || velModelID == 4) {
 				/*		CVMH Depth to 2.5					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
 				} catch (IOException e) {
-					e.printStackTrace();
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
 				
 				/*		CVMH Depth to 1.0					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
 				} catch (IOException e) {
-					e.printStackTrace();
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			} else if (velModelID == 5) {
+				/*		CVM4i26 Depth to 2.5					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				
+				/*		CVM4i26 Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
 			} else {
 				System.err.println("Unknown Velocity Model ID: "+velModelID);
