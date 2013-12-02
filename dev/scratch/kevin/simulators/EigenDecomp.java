@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -13,16 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
-import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
-import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
@@ -168,27 +160,28 @@ public class EigenDecomp {
 //			displayMatrix("Symmetrix Max Correlation Matrix", symmetricCorrelMatrix);
 //		}
 		
-		EigenDecomposition eig = new EigenDecomposition(correlMatrix);
-
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
-		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		
-		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
-
-		int numEig = eig.getImagEigenvalues().length;
-		cpt = cpt.rescale(0d, numEig-1);
-
-		for (int i=0; i<numEig; i++) {
-			RealVector e = eig.getEigenvector(i);
-			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, e.getMaxIndex()+1, 1d);
-			for (int n=0; n<func.getNum(); n++)
-				func.set(n, e.getEntry(n));
-			func.setName("Eigenvector with Eigenvalue="+eig.getRealEigenvalue(i));
-			funcs.add(func);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, cpt.getColor((float)i)));
-		}
-
-		new GraphWindow(funcs, "Eigenvectors", chars);
+		// TODO causes builds to fail?
+//		EigenDecomposition eig = new EigenDecomposition(correlMatrix);
+//
+//		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+//		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//		
+//		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//
+//		int numEig = eig.getImagEigenvalues().length;
+//		cpt = cpt.rescale(0d, numEig-1);
+//
+//		for (int i=0; i<numEig; i++) {
+//			RealVector e = eig.getEigenvector(i);
+//			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, e.getMaxIndex()+1, 1d);
+//			for (int n=0; n<func.getNum(); n++)
+//				func.set(n, e.getEntry(n));
+//			func.setName("Eigenvector with Eigenvalue="+eig.getRealEigenvalue(i));
+//			funcs.add(func);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, cpt.getColor((float)i)));
+//		}
+//
+//		new GraphWindow(funcs, "Eigenvectors", chars);
 	}
 	
 	private static void displayMatrix(String title, RealMatrix matrix) throws IOException {
