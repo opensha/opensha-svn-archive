@@ -294,6 +294,38 @@
     <url-pattern>/SiteData/CVM4_1_0</url-pattern>
   </servlet-mapping>
   
+  <!-- * CVM4i26 2.5 * -->
+  <servlet>
+    <servlet-name>CVM4i26_2_5</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.CVM4i26BasinDepthTo2_5_Servlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>CVM4i26_2_5</servlet-name>
+    <url-pattern>/SiteData/CVM4i26_2_5</url-pattern>
+  </servlet-mapping>
+
+  <!-- * CVM4i26 1.0 * -->
+  <servlet>
+    <servlet-name>CVM4i26_1_0</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.CVM4i26BasinDepthTo1_0_Servlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>CVM4i26_1_0</servlet-name>
+    <url-pattern>/SiteData/CVM4i26_1_0</url-pattern>
+  </servlet-mapping>
+  
   <!-- * CVMH 2.5 * -->
   <servlet>
     <servlet-name>CVMH_2_5</servlet-name>

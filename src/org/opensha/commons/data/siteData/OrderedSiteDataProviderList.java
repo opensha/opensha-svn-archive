@@ -33,6 +33,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.MeanTopoSlope;
 import org.opensha.commons.data.siteData.impl.SRTM30PlusTopoSlope;
@@ -331,10 +332,12 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 	 * <LI> 4. CVM 4 Depth 1.0 (servlet access)
 	 * <LI> 5. CVMH Depth 2.5
 	 * <LI> 6. CVMH Depth 1.0
-	 * <LI> 7. USGS Bay Area Depth 2.5 (servlet access)
-	 * <LI> 8. USGS Bay Area Depth 1.0 (servlet access)
-	 * <LI> 9. CVM 2 Depth 2.5 (servlet access)
-	 * <LI> 10. Topographic Slope Vs30 (Wald and Allen 2007/2008) (servlet access)
+	 * <LI> 7. CVM 4 Iteration 26 Depth 2.5 (servlet access)
+	 * <LI> 8. CVM 4 Iteration 26 Depth 1.0 (servlet access)
+	 * <LI> 9. USGS Bay Area Depth 2.5 (servlet access)
+	 * <LI> 10. USGS Bay Area Depth 1.0 (servlet access)
+	 * <LI> 11. CVM 2 Depth 2.5 (servlet access)
+	 * <LI> 12. Topographic Slope Vs30 (Wald and Allen 2007/2008) (servlet access)
 	 * </UL>
 	 * 
 	 * @return
@@ -377,6 +380,18 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		/*		CVM H Depth 1.0		*/
 		try {
 			providers.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 4i26 Depth 2.5		*/
+		try {
+			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 4i26 Depth 1.0		*/
+		try {
+			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
