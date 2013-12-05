@@ -918,6 +918,9 @@ public class FaultSysSolutionERF_Calc {
 	
 	private static final double YEARS_PER_MILLI = 1d/((double)(1000l*60l*60l*24l)*365.242);
 	
+	
+	
+	
 	/**
 	 * This generates a set of statewide fault probability gain maps for the given fault system
 	 * solution.
@@ -1049,6 +1052,142 @@ public class FaultSysSolutionERF_Calc {
 		FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, sectImpliedProbGain, region,
 				saveDir, prefix+"_sect_implied_prob_gain", false, true,
 				"Sect Implied Prob Gain");
+	}
+	
+	
+	
+	
+	
+	/**
+	 * This generates various state-wide fault probability maps for the WG02 approach.
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	public static void makeWG02_FaultProbMaps() throws GMT_MapException, RuntimeException, IOException {
+		double minMag = 6.7;
+		int numMag = 4;
+		double deltaMag = 0.5;
+		
+		String prefix = "aper0pt3";
+		String dirName = "WG02_tests_Aper0pt3";
+		File saveDir = new File(dirName);
+		if (!saveDir.exists())
+			saveDir.mkdir();
+		
+		
+		FaultSystemSolution meanSol=null;
+		try {
+			meanSol = FaultSystemIO.loadSol(
+					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+							"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		double duration = 30d;
+		String durStr = (int)duration+"yr";
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+		erf.getTimeSpan().setDuration(duration);
+
+		
+		FaultSystemSolution sol = erf.getSolution();
+		
+		// Poisson values
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] poissonFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] poissonAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+		
+		// U3 Values for const aper=0.3
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.ALL_PT3_VALUES);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] bptFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] bptAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+	
+		// WG02 Values for const aper=0.3
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.WG02_BPT);
+		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.ALL_PT3_VALUES);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] wg02_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] wg02_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+
+		// log space
+		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
+//		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
+//		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
+		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
+		
+		List<LocationList> faults = Lists.newArrayList();
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+			faults.add(sect.getFaultTrace());
+		
+		Region region = new CaliforniaRegions.RELM_COLLECTION();
+		
+		if (prefix == null)
+			prefix = "";
+		if (!prefix.isEmpty() && !prefix.endsWith("_"))
+			prefix += "_";
+		
+		prefix += (int)duration+"yr";
+		
+		for (int i=0; i<numMag+1; i++) {
+			
+			double[] poissonVals;
+			double[] bptVals;
+			double[] wg02_Vals;
+			String myPrefix;
+			String magStr;
+			if (i == numMag) {
+				poissonVals = extractYVals(poissonAllMags, 0);
+				bptVals = extractYVals(bptAllMags, 0);
+				wg02_Vals =  extractYVals(wg02_AllMags, 0);
+				myPrefix = prefix+"_supra_seis";
+				magStr = "Supra Seis";
+			} else {
+				poissonVals = extractYVals(poissonFuncs, i);
+				bptVals = extractYVals(bptFuncs, i);
+				wg02_Vals =  extractYVals(wg02_Funcs, 0);
+				double mag = poissonFuncs[0].getX(i);
+				myPrefix = prefix+"_"+(float)mag+"+";
+				magStr = "M>="+(float)mag;
+			}
+			
+			double[] wg02overPoisVavs = new double[poissonVals.length];
+			double[] U3overWG02_Vavs = new double[poissonVals.length];
+			for (int j=0; j<wg02overPoisVavs.length; j++) {
+				wg02overPoisVavs[j] = wg02_Vals[j]/poissonVals[j];
+				U3overWG02_Vavs[j] = bptVals[j]/wg02_Vals[j];
+			}
+			
+			// poisson probs
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(poissonVals), region,
+					saveDir, myPrefix+"_poisson", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" Poisson Prob)");
+			// bpt probs
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(bptVals), region,
+					saveDir, myPrefix+"_U3", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" U3 Prob)");
+			// bpt probs
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(wg02_Vals), region,
+					saveDir, myPrefix+"_WG02", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" WG02 Prob)");
+			// prob gain
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, wg02overPoisVavs, region,
+					saveDir, myPrefix+"_WG02_prob_gain", false, true,
+					(float)duration+" yr "+magStr+" WG02 Prob Gain");
+			// prob gain
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, U3overWG02_Vavs, region,
+					saveDir, myPrefix+"_U2overWG02_ratio", false, true,
+					(float)duration+" yr "+magStr+" U3 over WG02 Prob Ratio");
+		}
+		
 	}
 	
 	private static boolean[] toArray(boolean... vals) {
@@ -2687,8 +2826,11 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
+		
+		makeWG02_FaultProbMaps();
+		
 //		testProbSumMethods();
-//		System.exit(0);
+		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);
