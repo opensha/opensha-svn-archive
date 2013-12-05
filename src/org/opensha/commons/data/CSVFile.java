@@ -1,5 +1,6 @@
 package org.opensha.commons.data;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -297,6 +298,8 @@ public class CSVFile<E> implements Iterable<List<E>> {
 	}
 	
 	public static CSVFile<String> readStream(InputStream is, boolean strictRowSizes, int cols) throws IOException {
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
 		List<List<String>> values = new ArrayList<List<String>>();
 		for (String line : FileUtils.loadStream(is)) {
 			if (strictRowSizes && cols < 0) {

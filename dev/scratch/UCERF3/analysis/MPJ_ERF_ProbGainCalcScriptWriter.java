@@ -20,11 +20,13 @@ import com.google.common.collect.Lists;
 public class MPJ_ERF_ProbGainCalcScriptWriter {
 
 	public static void main(String[] args) throws IOException {
-		String runName = "ucerf3-prob-gains-5yr";
+		String runName = "ucerf3-prob-gains-main-30yr";
 		if (args.length > 1)
 			runName = args[1];
 		
-		double duration = 5;
+		boolean mainFaults = true;
+		
+		double duration = 30;
 		
 		// it is assumed that this file is also stored locally in InversionSolutions!
 		String compoundFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
@@ -33,12 +35,8 @@ public class MPJ_ERF_ProbGainCalcScriptWriter {
 		int nodes = 20;
 		int jobMins = 10*60; // TODO
 		
-		String regionCode = "CA_RELM";
-		String resCode = "0.1";
-		String imtCode = "GM0P00";
 //		String threadsArg = "";
 		// trailing space is important
-		String threadsArg = "--threads 12 ";
 		
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/probGains");
 		if (!localMainDir.exists())
@@ -73,9 +71,11 @@ public class MPJ_ERF_ProbGainCalcScriptWriter {
 		}
 		
 		List<boolean[]> calcOpsList = Lists.newArrayList();
-		calcOpsList.add(new boolean[] { true, false });
+		if (!mainFaults)
+			calcOpsList.add(new boolean[] { true, false });
 		calcOpsList.add(new boolean[] { true, true });
-		calcOpsList.add(new boolean[] { false, true });
+		if (!mainFaults)
+			calcOpsList.add(new boolean[] { false, true });
 		
 		MagDependentAperiodicityOptions[] covs = { MagDependentAperiodicityOptions.LOW_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES };
@@ -102,6 +102,8 @@ public class MPJ_ERF_ProbGainCalcScriptWriter {
 						+" --output-dir "+remoteOutput.getAbsolutePath()
 						+" --duration "+duration+" --aperiodicity "+cov.name()
 						+" --ave-ri "+calcOps[0]+" --ave-norm-time-since "+calcOps[1];
+				if (mainFaults)
+					classArgs += " --main-faults";
 				
 				List<String> script = mpjWrite.buildScript(className, classArgs);
 				

@@ -65,8 +65,8 @@ public class IMRMeanStdCalc {
 		ArrayList<SiteData<?>> provList = new ArrayList<SiteData<?>>();
 		provList.add(new WillsMap2006());
 		// swap these two lines to switch between CVM4 and CVMH
-		provList.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
-//		provList.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+//		provList.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		provList.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		ArrayList<Site> sites = new ArrayList<Site>();
 		for (Location loc : locs) {
 			Site site = new Site(loc);

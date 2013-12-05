@@ -76,7 +76,11 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 		}
 		boolean[] sects = sectsInRegions.get(region);
 		RuptureSurface surf = rup.getRuptureSurface();
-		int invIndex = erf.getFltSysRupIndexForSource(srcIndex);
+		int invIndex;
+		if (srcIndex >= erf.getNumFaultSystemSources())
+			invIndex = -1;
+		else
+			invIndex = erf.getFltSysRupIndexForSource(srcIndex);
 		if (invIndex >= 0) {
 			ConcurrentMap<Integer, Boolean> regRupMap = rupMap
 					.get(region);

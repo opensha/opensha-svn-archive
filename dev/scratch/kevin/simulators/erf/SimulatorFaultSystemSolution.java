@@ -2,6 +2,7 @@ package scratch.kevin.simulators.erf;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -35,39 +36,81 @@ import scratch.UCERF3.utils.IDPairing;
 
 public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	
-	public SimulatorFaultSystemSolution(List<RectangularElement> elements, List<EQSIM_Event> events, double durationYears) {
-		this(elements, events, durationYears, 0d);
+	private List<EQSIM_Event> events;
+	private SubSectionBiulder subSectBuilder;
+	
+	public static SimulatorFaultSystemSolution build(List<RectangularElement> elements, List<EQSIM_Event> events,
+			double durationYears) {
+		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
+		FaultSystemRupSet rupSet = buildRupSet(elements, events, durationYears, subSectBuilder);
+		return new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);
 	}
 	
-	public SimulatorFaultSystemSolution(List<RectangularElement> elements, List<EQSIM_Event> events,
-			double durationYears, double minMag) {
-		this(buildRupSet(elements, events, durationYears, minMag), durationYears);
-	}
-	
-	SimulatorFaultSystemSolution(FaultSystemRupSet rupSet, double durationYears) {
+	SimulatorFaultSystemSolution(FaultSystemRupSet rupSet, SubSectionBiulder subSectBuilder,
+			List<EQSIM_Event> events, double durationYears) {
 		super(rupSet, buildRates(rupSet.getNumRuptures(), durationYears));
+		this.events = events;
+		this.subSectBuilder = subSectBuilder;
+	}
+	
+	public List<double[]> getSlipAlongRupVals(boolean max) {
+		List<double[]> vals = Lists.newArrayList();
+		FaultSystemRupSet rupSet = getRupSet();
+		Map<Integer, Integer> elemToSubMap = subSectBuilder.getElemIDToSubSectsMap();
+		Preconditions.checkState(events.size() == rupSet.getNumRuptures());
+		
+		for (int i=0; i<events.size(); i++) {
+			List<Integer> inds = rupSet.getSectionsIndicesForRup(i);
+			List<List<Double>> elemMappedSlips = Lists.newArrayList();
+			for (int j=0; j<inds.size(); j++)
+				elemMappedSlips.add(new ArrayList<Double>());
+			
+			EQSIM_Event e = events.get(i);
+			
+			int[] elemIDs = e.getAllElementIDs();
+			double[] elemSlips = e.getAllElementSlips();
+			
+			for (int j=0; j<e.getNumElements(); j++) {
+				int mappedIndex = elemToSubMap.get(elemIDs[j]);
+				double slip = elemSlips[j];
+				
+				int ind = inds.indexOf(mappedIndex);
+				elemMappedSlips.get(ind).add(slip);
+			}
+			
+			double[] slips = new double[inds.size()];
+			for (int j=0; j<slips.length; j++) {
+				List<Double> sectSlips = elemMappedSlips.get(j);
+				if (sectSlips.isEmpty()) {
+					slips[j] = 0;
+				} else {
+					if (max) {
+						for (double slip : sectSlips)
+							slips[j] = Math.max(slip, slips[j]);
+					} else {
+						for (double slip : sectSlips)
+							slips[j] += slip;
+						slips[j] /= (double)sectSlips.size();
+					}
+				}
+			}
+			vals.add(slips);
+		}
+		return vals;
 	}
 	
 	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
-			double durationYears, double minMag) {
+			double durationYears) {
 		System.out.print("Building FSD...");
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
-		return buildRupSet(elements, events, durationYears, minMag, subSectBuilder);
+		return buildRupSet(elements, events, durationYears, subSectBuilder);
 	}
 	
 	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
-			double durationYears, double minMag, SubSectionBiulder subSectBuilder) {
+			double durationYears, SubSectionBiulder subSectBuilder) {
 		List<FaultSectionPrefData> fsd = subSectBuilder.getSubSectsList();
 		Map<Integer, Integer> elemIDsMap = subSectBuilder.getElemIDToSubSectsMap();
 		System.out.println("DONE.");
-		
-		if (minMag > 0) {
-			List<EQSIM_Event> filteredEvents = Lists.newArrayList();
-			for (EQSIM_Event e : events)
-				if (e.getMagnitude() >= minMag)
-					filteredEvents.add(e);
-			events = filteredEvents;
-		}
 		
 		// for each rup
 		double[] mags = new double[events.size()];
@@ -402,7 +445,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 			events = eventsInRegion;
 		}
 		
-		SimulatorFaultSystemSolution fss = new SimulatorFaultSystemSolution(tools.getElementsList(), events, durationYears, 5.5);
+		SimulatorFaultSystemSolution fss = build(tools.getElementsList(), events, durationYears);
 		System.out.println(fss.getInfoString());
 		
 		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));

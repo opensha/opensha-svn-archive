@@ -153,7 +153,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected final static double DURATION_DEFAULT = 30;	// years
 	protected final static double DURATION_MIN = 0.01;
 	protected final static double DURATION_MAX = 1000;
-	protected final static int START_TIME_DEFAULT = 2014;
+	public final static int START_TIME_DEFAULT = 2014;
 	protected final static int START_TIME_MIN = 2013;		// Need to handle recent events if this is less
 	protected final static int START_TIME_MAX = 2100;
 	boolean timeSpanChangeFlag=true;	// this keeps track of time span changes

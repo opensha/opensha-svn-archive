@@ -27,6 +27,10 @@ public class HeadlessGraphPanel extends GraphPanel {
 		drawGraphPanel(spec, xLog, yLog, xRange, yRange);
 	}
 	
+	public void drawGraphPanel(PlotSpec spec, boolean xLog, boolean yLog) {
+		drawGraphPanel(spec, xLog, yLog, xRange, yRange);
+	}
+	
 	public void drawGraphPanel(String xAxisName, String yAxisName, List<? extends PlotElement> elems,
 			List<PlotCurveCharacterstics> plotChars, String title) {
 		drawGraphPanel(xAxisName, yAxisName, elems, plotChars, xLog, yLog, title, xRange, yRange);

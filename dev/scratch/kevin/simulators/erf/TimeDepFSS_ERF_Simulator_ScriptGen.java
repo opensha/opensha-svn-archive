@@ -18,17 +18,17 @@ public class TimeDepFSS_ERF_Simulator_ScriptGen {
 		classpath.add(new File(dir, "OpenSHA_complete.jar"));
 		
 		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.LOW_VALUES;
-		double duration = 5;
+		double duration = 50;
 		String prefix_add = "cov"+cov.name()+"_dur"+(int)duration+"_";
 		
-		String outputDirName = "2013_11_12-erf-audit-cov-LOW-dur5";
+		String outputDirName = "2013_11_20-erf-audit-cov-LOW-dur50";
 		File localOutputDir = new File("/tmp", outputDirName);
 		if (!localOutputDir.exists())
 			localOutputDir.mkdir();
 		File remoteOutputDir = new File(dir, outputDirName);
 		
-		int numJobs = 500;
-//		int numJobs = 100;
+//		int numJobs = 500;
+		int numJobs = 100;
 //		int trialsPerJob = 5000;
 //		int trialsPerJob = 2500;
 		int trialsPerJob = 1000;

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -228,38 +229,9 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		if (namedFaultsMapAlt == null) {
 			synchronized (this) {
 				try {
-					Map<String, List<Integer>> map = Maps.newHashMap();
-					
-					BufferedReader br = new BufferedReader(UCERF3_DataUtils.getReader(FAULT_MODEL_STORE_DIR_NAME,
-							getShortName()+"FaultsByNameAlt.txt"));
-					
-					String line = br.readLine();
-					
-					Splitter s = Splitter.on('\t');
-					
-					while (line != null) {
-						line = line.trim();
-						if (!line.isEmpty()) {
-							ArrayList<Integer> sects = Lists.newArrayList();
-							
-							String faultname = null;
-							boolean isFirst = true;
-							for (String idStr : s.split(line)) {
-								if(isFirst) {
-									faultname = idStr.trim();
-									isFirst=false;
-								}
-								else
-									sects.add(Integer.parseInt(idStr));
-							}
-							
-							Preconditions.checkState(!sects.isEmpty(), "Shouldn't be empty here!");
-							
-							map.put(faultname, sects);
-						}
-						
-						line = br.readLine();
-					}
+					Reader reader = UCERF3_DataUtils.getReader(FAULT_MODEL_STORE_DIR_NAME,
+							getShortName()+"FaultsByNameAlt.txt");
+					Map<String, List<Integer>> map = parseNamedFaultsAltFile(reader);
 					
 					if (namedFaultsMapAlt == null)
 						namedFaultsMapAlt = map;
@@ -271,6 +243,45 @@ public enum FaultModels implements LogicTreeBranchNode<FaultModels> {
 		return namedFaultsMapAlt;
 	}
 
+	public static Map<String, List<Integer>> parseNamedFaultsAltFile(Reader reader) throws IOException {
+		Map<String, List<Integer>> map = Maps.newHashMap();
+		
+		BufferedReader br;
+		if (reader instanceof BufferedReader)
+			br = (BufferedReader)reader;
+		else
+			br = new BufferedReader(reader);
+		
+		String line = br.readLine();
+		
+		Splitter s = Splitter.on('\t');
+		
+		while (line != null) {
+			line = line.trim();
+			if (!line.isEmpty()) {
+				ArrayList<Integer> sects = Lists.newArrayList();
+				
+				String faultname = null;
+				boolean isFirst = true;
+				for (String idStr : s.split(line)) {
+					if(isFirst) {
+						faultname = idStr.trim();
+						isFirst=false;
+					}
+					else
+						sects.add(Integer.parseInt(idStr));
+				}
+				
+				Preconditions.checkState(!sects.isEmpty(), "Shouldn't be empty here!");
+				
+				map.put(faultname, sects);
+			}
+			
+			line = br.readLine();
+		}
+		br.close();
+		return map;
+	}
 	
 	@Override
 	public String toString() {

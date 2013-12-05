@@ -44,7 +44,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 //		File dir = new File("/tmp/2013_10_29-erf-audit-cov-0.3");
 //		File dir = new File("/tmp/2013_10_31-erf-audit-cov-0.3-dur5");
 //		File dir = new File("/tmp/2013_11_12-erf-audit-cov-LOW-dur50");
-		File dir = new File("/tmp/2013_11_12-erf-audit-cov-LOW-dur5");
+		File dir = new File("/tmp/2013_11_20-erf-audit-cov-LOW-dur50");
 		String prefix = "erf_audit_";
 		double magThresh = 7d;
 		
@@ -245,8 +245,8 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		
 		ArrayList<RectangularElement> elements = tools.getElementsList();
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
-		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, minMag, subSectBuilder);
-		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, durationYears);
+		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, subSectBuilder);
+		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);
 		System.out.println("Precombine sol has "+rupSet.getNumRuptures()+" rups");
 		sol = TimeDepFSS_ERF_Simulator_Test.combineIdenticalRups(sol);
 		rupSet = sol.getRupSet();

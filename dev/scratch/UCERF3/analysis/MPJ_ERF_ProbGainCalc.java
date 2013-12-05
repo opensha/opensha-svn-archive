@@ -2,13 +2,18 @@ package scratch.UCERF3.analysis;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
@@ -16,12 +21,19 @@ import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.primitives.Doubles;
 
 public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 	
@@ -29,7 +41,14 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 	private List<LogicTreeBranch> branches;
 	private FaultSystemSolutionERF erf;
 	
+	private double duration;
+	
 	private File outputDir;
+	
+	private boolean mainFaults = false;
+	private Map<String, List<Integer>> mainFaultsMap;
+	private Map<FaultModels, Map<String, Collection<Integer>>> mainFaultsRupMappings;
+	private List<String> mainFaultsSorted;
 
 	public MPJ_ERF_ProbGainCalc(CommandLine cmd) throws ZipException, IOException {
 		super(cmd);
@@ -50,7 +69,8 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			erf.testSetBPT_CalcType(aveRI, aveNTS);
 		}
 		
-		erf.getTimeSpan().setDuration(Double.parseDouble(cmd.getOptionValue("duration")));
+		this.duration = Double.parseDouble(cmd.getOptionValue("duration"));
+		erf.getTimeSpan().setDuration(duration);
 		
 		if (cmd.hasOption("cov")) {
 			MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.valueOf(cmd.getOptionValue("cov"));
@@ -58,9 +78,21 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 		}
 		
+		
 		outputDir = new File(cmd.getOptionValue("dir"));
-		if (rank == 0)
+		if (rank == 0) {
 			Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
+//			debug("DURATION: "+erf.getTimeSpan().getDuration());
+		}
+		
+		if (cmd.hasOption("faults")) {
+			mainFaults = true;
+			mainFaultsMap = FaultModels.parseNamedFaultsAltFile(UCERF3_DataUtils.getReader("FaultModels",
+							"MainFaultsForTimeDepComparison.txt"));
+			mainFaultsSorted = Lists.newArrayList(mainFaultsMap.keySet());
+			Collections.sort(mainFaultsSorted);
+			mainFaultsRupMappings = Maps.newHashMap();
+		}
 	}
 
 	@Override
@@ -76,13 +108,90 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			
 			FaultSystemSolution sol = cfss.getSolution(branch);
 			erf.setSolution(sol);
+			erf.getTimeSpan().setDuration(duration);
 			
-			File subOutputFile = new File(outputDir, name+"_subs.csv");
-			File parentOutputFile = new File(outputDir, name+"_parents.csv");
-			
-			FaultSysSolutionERF_Calc.writeSubSectionTimeDependenceCSV(erf, subOutputFile);
-			FaultSysSolutionERF_Calc.writeParentSectionTimeDependenceCSV(erf, parentOutputFile);
+			if (!mainFaults) {
+				File subOutputFile = new File(outputDir, name+"_subs.csv");
+				File parentOutputFile = new File(outputDir, name+"_parents.csv");
+				
+				FaultSysSolutionERF_Calc.writeSubSectionTimeDependenceCSV(erf, subOutputFile);
+				FaultSysSolutionERF_Calc.writeParentSectionTimeDependenceCSV(erf, parentOutputFile);
+			} else {
+				double[] minMags = {0d, 6.7d, 7.2d, 7.7d, 8.2d};
+				FaultModels fm = branch.getValue(FaultModels.class);
+				FaultSystemRupSet rupSet = sol.getRupSet();
+				Map<String, Collection<Integer>> mappings = mainFaultsRupMappings.get(fm);
+				if (mappings == null) {
+					mappings = Maps.newHashMap();
+					for (String fault : mainFaultsSorted) {
+						HashSet<Integer> rups = new HashSet<Integer>();
+						for (Integer parentID : mainFaultsMap.get(fault)) {
+							List<Integer> parentRups = rupSet.getRupturesForParentSection(parentID);
+							if (parentRups != null)
+								rups.addAll(parentRups);
+						}
+						mappings.put(fault, rups);
+					}
+					mainFaultsRupMappings.put(fm, mappings);
+				}
+				CSVFile<String> csv = new CSVFile<String>(true);
+				List<String> header = Lists.newArrayList("Name");
+				for (double minMag : minMags) {
+					header.add("M>="+(float)minMag);
+					header.add("U3 pBPT");
+					header.add("U3 pPois");
+				}
+				csv.addLine(header);
+				// time dependent
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				erf.getTimeSpan().setDuration(duration);
+				erf.updateForecast();
+				Table<String, Double, Double> bptTable = calcFaultProbs(erf, rupSet, minMags, mappings);
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+				erf.getTimeSpan().setDuration(duration);
+				erf.updateForecast();
+				Table<String, Double, Double> poisTable = calcFaultProbs(erf, rupSet, minMags, mappings);
+				for (String fault : mainFaultsSorted) {
+					List<String> line = Lists.newArrayList(fault);
+					for (double minMag : minMags) {
+						line.add("");
+						line.add(""+bptTable.get(fault, minMag));
+						line.add(""+poisTable.get(fault, minMag));
+					}
+					csv.addLine(line);
+				}
+				csv.writeToFile(new File(outputDir, name+"_main_faults.csv"));
+			}
 		}
+	}
+	
+	private Table<String, Double, Double> calcFaultProbs(FaultSystemSolutionERF erf, FaultSystemRupSet rupSet,
+			double[] minMags, Map<String, Collection<Integer>> mappings) {
+		Table<String, Double, Double> bptTable = ArrayTable.create(mainFaultsSorted, Doubles.asList(minMags));
+		for (double minMag : minMags) {
+			for (String fault : mainFaultsSorted) {
+				Collection<Integer> rups = mappings.get(fault);
+				double prob;
+				if (rups.isEmpty())
+					prob = Double.NaN;
+				else
+					prob = calcFaultProb(erf, rupSet, rups, minMag);
+				bptTable.put(fault, minMag, prob);
+			}
+		}
+		return bptTable;
+	}
+	
+	private static double calcFaultProb(FaultSystemSolutionERF erf, FaultSystemRupSet rupSet,
+			Collection<Integer> rups, double minMag) {
+		List<Double> probs = Lists.newArrayList();
+		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
+			int rupID = erf.getFltSysRupIndexForSource(sourceID);
+			if (rups.contains(rupID) && rupSet.getMagForRup(rupID) >= minMag)
+				probs.add(erf.getSource(sourceID).computeTotalProb());
+		}
+		
+		return FaultSysSolutionERF_Calc.calcSummedProbs(probs);
 	}
 
 	@Override
@@ -117,6 +226,10 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		Option aveNormTSOption = new Option("nts", "ave-norm-time-since", true, "Average Normalized Time Since (boolean)");
 		aveNormTSOption.setRequired(false);
 		options.addOption(aveNormTSOption);
+		
+		Option mainFaultsOption = new Option("faults", "main-faults", false, "Flag for doing main faults calculation instead");
+		mainFaultsOption.setRequired(false);
+		options.addOption(mainFaultsOption);
 		
 		return options;
 	}

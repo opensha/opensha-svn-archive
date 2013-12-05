@@ -153,8 +153,8 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		
 		ArrayList<RectangularElement> elements = tools.getElementsList();
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
-		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, minMag, subSectBuilder);
-		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, durationYears);
+		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, subSectBuilder);
+		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);
 		System.out.println("Precombine sol has "+rupSet.getNumRuptures()+" rups");
 		sol = combineIdenticalRups(sol);
 		rupSet = sol.getRupSet();
