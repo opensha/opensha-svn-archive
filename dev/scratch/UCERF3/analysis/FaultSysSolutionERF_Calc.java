@@ -934,9 +934,12 @@ public class FaultSysSolutionERF_Calc {
 		int numMag = 4;
 		double deltaMag = 0.5;
 		
+		double duration = erf.getTimeSpan().getDuration();
+		
 		FaultSystemSolution sol = erf.getSolution();
 		
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.getTimeSpan().setDuration(duration);
 		erf.updateForecast();
 		
 		EvenlyDiscretizedFunc[] poissonFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
@@ -945,6 +948,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		// TODO historical open interval?
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(duration);
 		erf.updateForecast();
 		
 		EvenlyDiscretizedFunc[] bptFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
@@ -968,7 +972,6 @@ public class FaultSysSolutionERF_Calc {
 		if (!prefix.isEmpty() && !prefix.endsWith("_"))
 			prefix += "_";
 		
-		double duration = erf.getTimeSpan().getDuration();
 		prefix += (int)duration+"yr";
 		
 		for (int i=0; i<numMag+2; i++) {
