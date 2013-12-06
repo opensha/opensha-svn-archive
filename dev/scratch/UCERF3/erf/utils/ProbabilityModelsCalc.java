@@ -41,6 +41,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
@@ -345,7 +346,9 @@ public class ProbabilityModelsCalc {
 //		System.out.println("getAveDateOfLastEventWhereKnown");
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
+		int numWithDateOfLast=0;
 		allSectionsHadDateOfLast = true;
+		noSectionsHadDateOfLast = false;
 		double sumDateOfLast = 0;
 		for(int s:fltSysRupSet.getSectionsIndicesForRup(fltSystRupIndex)) {
 			long dateOfLast = dateOfLastForSect[s];
@@ -354,12 +357,13 @@ public class ProbabilityModelsCalc {
 			if(dateOfLast != Long.MIN_VALUE) {
 				sumDateOfLast += (double)dateOfLast*area;
 				totRupAreaWithDateOfLast += area;
+				numWithDateOfLast+=1;
 			}
 			else {
 				allSectionsHadDateOfLast = false;
 			}
 		}
-		if(totRupAreaWithDateOfLast>0.0)
+		if(numWithDateOfLast>0)
 			return Math.round(sumDateOfLast/totRupAreaWithDateOfLast);  // epoch millis
 		else {
 			noSectionsHadDateOfLast=true;
@@ -392,6 +396,8 @@ public class ProbabilityModelsCalc {
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
 		allSectionsHadDateOfLast = true;
+		int numWithDateOfLast=0;
+		noSectionsHadDateOfLast = false;
 		double sumNormTimeSinceLast = 0;
 		for(int s : fltSysRupSet.getSectionsIndicesForRup(fltSystRupIndex)) {
 			long dateOfLast = dateOfLastForSect[s];
@@ -400,12 +406,13 @@ public class ProbabilityModelsCalc {
 			if(dateOfLast != Long.MIN_VALUE) {
 				sumNormTimeSinceLast += area*((double)(presentTimeMillis-dateOfLast)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[s];
 				totRupAreaWithDateOfLast += area;
+				numWithDateOfLast += 1;
 			}
 			else {
 				allSectionsHadDateOfLast = false;
 			}
 		}
-		if(totRupAreaWithDateOfLast>0.0)
+		if(numWithDateOfLast>0)
 			return sumNormTimeSinceLast/totRupAreaWithDateOfLast; 
 		else {
 			noSectionsHadDateOfLast=true;
@@ -429,6 +436,38 @@ public class ProbabilityModelsCalc {
 		return numWith;
 	}
 	
+	
+	public void writeInfoForRupsOnSect(int sectID) {
+		String fileName = "RupInfoForSect"+sectID+".txt";
+		if(!dataDir.exists())
+			dataDir.mkdir();
+		File dataFile = new File(dataDir,File.separator+fileName);
+		String sectName = fltSysRupSet.getFaultSectionData(sectID).getName();
+		try {
+			FileWriter fileWriter = new FileWriter(dataFile);
+			fileWriter.write("rupID\trate\tyrsSince\tfracWithDateOfLast\t"+sectName+"\n");
+			for(int r=0;r<fltSysRupSet.getNumRuptures();r++) {
+				if(fltSysRupSet.getSectionsIndicesForRup(r).contains(sectID)) {
+					double rate = longTermRateOfFltSysRup[r];
+					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(r);
+					double yrsSinceLast = ((2014-1970)*MILLISEC_PER_YEAR-(double)aveDateOfLastMillis)/MILLISEC_PER_YEAR;
+					String line = r+"\t"+rate+"\t"+yrsSinceLast+"\t"+(totRupAreaWithDateOfLast/totRupArea)+"\n";
+					fileWriter.write(line);
+					
+					if(r==156620) { // test rup
+						List<Integer> indices = fltSysRupSet.getSectionsIndicesForRup(r);
+						System.out.println(fltSysRupSet.getFaultSectionData(indices.get(0)).getName()+"\tTO\t"+
+								fltSysRupSet.getFaultSectionData(indices.get(indices.size()-1)).getName());
+					}
+				}
+			}
+			fileWriter.close();
+
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 	
 	
 	/**
@@ -492,19 +531,36 @@ public class ProbabilityModelsCalc {
 		
 		double expNum = durationYears/aveCondRecurInterval;
 		
+//// test
+//if(fltSysRupIndex==156620) {
+//			System.out.println("fltSysRupIndex==156620:\n\n"+
+//					"\thistOpenInterval="+histOpenInterval+
+//					"\taveCondRecurInterval="+aveCondRecurInterval+
+//					"\taveTimeSinceLastWhereKnownYears="+aveTimeSinceLastWhereKnownYears+
+//					"\tfractAreaWithTimeSince="+(totRupAreaWithDateOfLast/totRupArea)+
+//					"\texpNum="+expNum
+//					);
+//}
+		
+
+		
 		double probGain;
 
 		if(onlyIfAllSectionsHaveDateOfLast && !allSectionsHadDateOfLast) {
 			probGain = Double.NaN;
+// if(fltSysRupIndex==156620) System.out.println("Here1");
 		}
 		else if(allSectionsHadDateOfLast) {
-			probGain = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears, rupMag)/expNum;					
+			probGain = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLastWhereKnownYears, durationYears, rupMag)/expNum;	
+// if(fltSysRupIndex==156620) System.out.println("Here2");
 		}
 		else if (noSectionsHadDateOfLast) {
 			probGain = computeBPT_ProbForUnknownDateOfLastFast(aveCondRecurInterval, histOpenInterval, durationYears, rupMag)/expNum;
+// if(fltSysRupIndex==156620) System.out.println("Here3");
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
-			
+// if(fltSysRupIndex==156620) System.out.println("Here4");
+
 			// set normBPT_CDF based on magnitude
 			EvenlyDiscretizedFunc normBPT_CDF=normBPT_CDF_Array[getAperIndexForRupMag(rupMag)];
 			
@@ -521,6 +577,12 @@ public class ProbabilityModelsCalc {
 					sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
 //					sumCondProbGain+=computeBPT_ProbGainFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag)*relProbForTimeSinceLast;
 					totWeight += relProbForTimeSinceLast;
+					
+//// test
+//if(fltSysRupIndex==156620) {
+//		System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+(float)condProb+"\t"+(float)(condProb/expNum)+"\t"+(float)relProbForTimeSinceLast);
+//}
+
 				}
 			}
 			probGain = sumCondProbGain/totWeight;
@@ -3026,8 +3088,13 @@ public class ProbabilityModelsCalc {
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
 		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
 		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
+		
+//		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
 		erf.updateForecast();
+
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		
+//		testCalc.writeInfoForRupsOnSect(1837);
 		
 //		System.out.println(testCalc.getInfoAboutRupsOnSection(295, "tempRupOnSectInfo.txt"));
 		
@@ -3040,7 +3107,7 @@ public class ProbabilityModelsCalc {
 //		// Biggest gain diff between viable approaches
 //		System.out.println(testCalc.getInfoAboutRupture(240628, erf.getTimeSpan().getStartTimeInMillis()));
 		
-		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
+//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
 		
 		
 		
