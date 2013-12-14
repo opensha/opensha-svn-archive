@@ -15,6 +15,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
@@ -78,6 +79,12 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 		}
 		
+		if (cmd.hasOption("hist")) {
+			double histBasis = Double.parseDouble(cmd.getOptionValue("hist"));
+			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-histBasis));
+		}
+		
 		
 		outputDir = new File(cmd.getOptionValue("dir"));
 		if (rank == 0) {
@@ -106,14 +113,18 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			LogicTreeBranch branch = branches.get(index);
 			String name = branch.buildFileName();
 			
+			File subOutputFile = new File(outputDir, name+"_subs.csv");
+			File parentOutputFile = new File(outputDir, name+"_parents.csv");
+			File mainOutputFile = new File(outputDir, name+"_main_faults.csv");
+			
+			if (mainFaults && mainOutputFile.exists() || !mainFaults && parentOutputFile.exists())
+				continue;
+			
 			FaultSystemSolution sol = cfss.getSolution(branch);
 			erf.setSolution(sol);
 			erf.getTimeSpan().setDuration(duration);
 			
 			if (!mainFaults) {
-				File subOutputFile = new File(outputDir, name+"_subs.csv");
-				File parentOutputFile = new File(outputDir, name+"_parents.csv");
-				
 				FaultSysSolutionERF_Calc.writeSubSectionTimeDependenceCSV(erf, subOutputFile);
 				FaultSysSolutionERF_Calc.writeParentSectionTimeDependenceCSV(erf, parentOutputFile);
 			} else {
@@ -160,7 +171,7 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 					}
 					csv.addLine(line);
 				}
-				csv.writeToFile(new File(outputDir, name+"_main_faults.csv"));
+				csv.writeToFile(mainOutputFile);
 			}
 		}
 	}
@@ -218,6 +229,10 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		Option aperiodOption = new Option("cov", "aperiodicity", true, "Aperiodicity enum name");
 		aperiodOption.setRequired(false);
 		options.addOption(aperiodOption);
+		
+		Option histOption = new Option("hist", "hist-open-interval-basis", true, "Historical Open Interval Basis (year, e.g. 1875)");
+		histOption.setRequired(false);
+		options.addOption(histOption);
 		
 		Option aveRIOption = new Option("averi", "ave-ri", true, "Average RI's (boolean)");
 		aveRIOption.setRequired(false);
