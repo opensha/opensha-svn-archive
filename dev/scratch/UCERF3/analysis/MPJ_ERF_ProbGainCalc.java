@@ -82,9 +82,10 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		if (cmd.hasOption("hist")) {
 			double histBasis = Double.parseDouble(cmd.getOptionValue("hist"));
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-histBasis));
+			double calcOpen = (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-histBasis);
+			System.out.println("Setting historical open interval to "+calcOpen+" (basis="+histBasis+")");
+			erf.setParameter(HistoricOpenIntervalParam.NAME, calcOpen);
 		}
-		
 		
 		outputDir = new File(cmd.getOptionValue("dir"));
 		if (rank == 0) {
@@ -123,6 +124,10 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			FaultSystemSolution sol = cfss.getSolution(branch);
 			erf.setSolution(sol);
 			erf.getTimeSpan().setDuration(duration);
+			
+			erf.updateForecast();
+			System.out.println("Hist interval: "+erf.getParameter(HistoricOpenIntervalParam.NAME).getValue());
+			abortAndExit(0);
 			
 			if (!mainFaults) {
 				FaultSysSolutionERF_Calc.writeSubSectionTimeDependenceCSV(erf, subOutputFile);
