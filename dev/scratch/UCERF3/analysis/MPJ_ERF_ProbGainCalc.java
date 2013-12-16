@@ -125,9 +125,9 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 			erf.setSolution(sol);
 			erf.getTimeSpan().setDuration(duration);
 			
-			erf.updateForecast();
-			System.out.println("Hist interval: "+erf.getParameter(HistoricOpenIntervalParam.NAME).getValue());
-			abortAndExit(0);
+//			erf.updateForecast();
+//			System.out.println("Hist interval: "+erf.getParameter(HistoricOpenIntervalParam.NAME).getValue());
+//			abortAndExit(0);
 			
 			if (!mainFaults) {
 				FaultSysSolutionERF_Calc.writeSubSectionTimeDependenceCSV(erf, subOutputFile);
