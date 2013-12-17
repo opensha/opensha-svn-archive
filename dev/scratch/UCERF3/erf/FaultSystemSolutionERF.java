@@ -191,6 +191,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	public void testSetBPT_CalcType(boolean aveRecurIntervalsInU3_BPTcalc,boolean aveNormTimeSinceLastInU3_BPTcalc) {
 		this.aveRecurIntervalsInU3_BPTcalc=aveRecurIntervalsInU3_BPTcalc;
 		this.aveNormTimeSinceLastInU3_BPTcalc=aveNormTimeSinceLastInU3_BPTcalc;
+		histOpenIntervalChanged = true; // to ensure probabilities are updated
 	}
 
 	
