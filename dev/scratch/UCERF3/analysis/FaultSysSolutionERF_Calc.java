@@ -1247,8 +1247,8 @@ public class FaultSysSolutionERF_Calc {
 		int numMag = 4;
 		double deltaMag = 0.5;
 		double duration = erf.getTimeSpan().getDuration();
+		System.out.println("Duration: "+duration);
 		
-		// TODO historical open interval?
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		erf.getTimeSpan().setDuration(duration);
 		erf.updateForecast();
@@ -2546,10 +2546,12 @@ public class FaultSysSolutionERF_Calc {
 		
 		String opsStr = "aveRI_aveNTS";
 		boolean[] opsBools = { true, true };
-		File[] csvDirs = { new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_27-ucerf3-prob-gains-5yr"),
-				new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_22-ucerf3-prob-gains-30yr")};
-		File[] csvMainFaultDirs = { new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_03-ucerf3-prob-gains-main-5yr"),
-				new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_03-ucerf3-prob-gains-main-30yr")};
+		File[] csvDirs = { new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-5yr"),
+				new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-30yr")};
+		File[] csvMainFaultDirs = { new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-main-5yr"),
+				new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-main-30yr")};
+		int def_hist_open_ref = 1875;
+//		int def_hist_open_ref = FaultSystemSolutionERF.START_TIME_DEFAULT;
 		
 		// write metadata file
 		FileWriter fw = new FileWriter(new File(webDir, "metadata.txt"));
@@ -2577,23 +2579,13 @@ public class FaultSysSolutionERF_Calc {
 			File csvZipFile = new File(csvDirs[i], opsStr+".zip");
 			File csvMainFualtZipFile = new File(csvMainFaultDirs[i], opsStr+".zip");
 			
-			// average cov's
-			HashSet<MagDependentAperiodicityOptions> covsToInclude = null;
-			System.out.println("Loading all parent sect results from "+csvZipFile.getAbsolutePath());
-			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> parentMaps =
-					loadBranchCSVVals(csvZipFile, csvMagRangeIndexes, true, covsToInclude);
-			System.out.println("Loading all sub sect results from "+csvZipFile.getAbsolutePath());
-			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> subSectMaps =
-					loadBranchCSVVals(csvZipFile, csvMagRangeIndexes, false, covsToInclude);
-			System.out.println("Loading all main fault results from "+csvZipFile.getAbsolutePath());
-			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> mainFaultMaps =
-					loadBranchFaultCSVVals(csvMainFualtZipFile, csvFaultMagRangeIndexes, covsToInclude);
-			
-			FaultSystemSolutionERF meanERF = new FaultSystemSolutionERF(meanSol);
-			meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-			meanERF.getTimeSpan().setDuration(duration);
 			File avgTempDir = null;
 			if (!skipAvgMethods) {
+				FaultSystemSolutionERF meanERF = new FaultSystemSolutionERF(meanSol);
+				meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-def_hist_open_ref));
+				meanERF.getTimeSpan().setDuration(duration);
+				
 				// TRUE: RI, NTS
 				// FALSE: Rate, TS
 				List<boolean[]> avgBools = Lists.newArrayList();
@@ -2613,9 +2605,22 @@ public class FaultSysSolutionERF_Calc {
 				meanERF.testSetBPT_CalcType(opsBools[0], opsBools[1]);
 			}
 			
+			// average cov's
+			HashSet<MagDependentAperiodicityOptions> covsToInclude = null;
+			System.out.println("Loading all parent sect results from "+csvZipFile.getAbsolutePath());
+			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> parentMaps =
+					loadBranchCSVVals(csvZipFile, csvMagRangeIndexes, true, covsToInclude);
+			System.out.println("Loading all sub sect results from "+csvZipFile.getAbsolutePath());
+			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> subSectMaps =
+					loadBranchCSVVals(csvZipFile, csvMagRangeIndexes, false, covsToInclude);
+			System.out.println("Loading all main fault results from "+csvZipFile.getAbsolutePath());
+			List<Map<MagDependentAperiodicityOptions, Map<LogicTreeBranch, SectProbGainResults[]>>> mainFaultMaps =
+					loadBranchFaultCSVVals(csvMainFualtZipFile, csvFaultMagRangeIndexes, covsToInclude);
+			
 			for (int j = 0; j < minMags.length; j++) {
-				meanERF = new FaultSystemSolutionERF(meanSol);
+				FaultSystemSolutionERF meanERF = new FaultSystemSolutionERF(meanSol);
 				meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-def_hist_open_ref));
 				meanERF.getTimeSpan().setDuration(duration);
 				
 				double minMag = minMags[j];
@@ -2744,16 +2749,25 @@ public class FaultSysSolutionERF_Calc {
 							Files.copy(file, new File(avgMethodDir, file.getName()));
 				}
 				
-				// historic open interval (ratio of none to 1850)
-				meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1850));
-				meanERF.updateForecast();
-				EvenlyDiscretizedFunc[] histOpenResults = calcSubSectSupraSeisMagProbDists(meanERF, minMag, 1, 0.5d);
-				ratios = new double[baProbs.length];
-				for (int k=0; k<baProbs.length; k++)
-					ratios[k] = baProbs[k] / histOpenResults[k].getY(0);
-				FaultBasedMapGen.makeFaultPlot(wideRatioCPT, faults, ratios, region,
-						sensTestDir, "Hist_Open_Interval_Test", false, true,
-						"UCERF3 BPT No Hist Open Interval / 1850");
+				int[] comps = { FaultSystemSolutionERF.START_TIME_DEFAULT, 1850, 1900 };
+				
+				for (int comp : comps) {
+					// historic open interval (ratio of none to 1850)
+					meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-comp));
+					meanERF.updateForecast();
+					EvenlyDiscretizedFunc[] histOpenResults = calcSubSectSupraSeisMagProbDists(meanERF, minMag, 1, 0.5d);
+					ratios = new double[baProbs.length];
+					for (int k=0; k<baProbs.length; k++)
+						ratios[k] = histOpenResults[k].getY(0) / baProbs[k];
+					String compStr;
+					if (comp == FaultSystemSolutionERF.START_TIME_DEFAULT)
+						compStr = "None";
+					else
+						compStr = comp+""; 
+					FaultBasedMapGen.makeFaultPlot(wideRatioCPT, faults, ratios, region,
+							sensTestDir, "Hist_Open_Interval_Test_"+compStr, false, true,
+							"UCERF3 BPT Hist Open Interval "+compStr+" / "+def_hist_open_ref);
+				}
 				// clear out png files
 				for (File file : sensTestDir.listFiles())
 					if (file.getName().endsWith(".png"))
@@ -2818,6 +2832,55 @@ public class FaultSysSolutionERF_Calc {
 		out.close();
 	}
 	
+	private static void debugAvgMethods() throws IOException, DocumentException {
+		debugAvgMethods(FaultSystemIO.loadSol(
+				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")));
+	}
+	
+	private static void debugAvgMethods(FaultSystemSolution sol) {
+		// choose a subsection, lets do first subsection on Mojave as that lights up in the map
+		// debugging: http://opensha.usc.edu/ftp/kmilner/ucerf3/TimeDependent_preview/m6.7_30yr/
+		// 		OtherSensitivityTests/AveragingMethods/30.0yr_6.7+_AveRate_AveNormTS_vs_AveRI_AveTS.pdf
+		int subSectIndex = -1;
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList()) {
+			if (sect.getName().contains("Mojave")) {
+				subSectIndex = sect.getSectionId();
+				break;
+			}
+		}
+		Preconditions.checkState(subSectIndex >= 0);
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+		
+		// TRUE: RI, NTS
+		// FALSE: Rate, TS
+		
+		// first for AveRI&AveTS, the denominator
+		erf.testSetBPT_CalcType(true, false);
+		erf.updateForecast();
+		double denomProb = calcSubSectSupraSeisMagProbDists(erf, 0, 1, 0.1)[subSectIndex].getY(0);
+		
+		// start with a clean slate to be safe
+		erf = new FaultSystemSolutionERF(sol);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+		
+		// TRUE: RI, NTS
+		// FALSE: Rate, TS
+		
+		// first for AveRate&AveNTS, the numerator
+		erf.testSetBPT_CalcType(false, true);
+		erf.updateForecast();
+		double numProb = calcSubSectSupraSeisMagProbDists(erf, 0, 1, 0.1)[subSectIndex].getY(0);
+		
+		double probGain = numProb / denomProb;
+		
+		System.out.println("Subsection "+subSectIndex+" results: "+numProb+"/"+denomProb+" = "+probGain);
+	}
+	
 	/**
 	 * @param args
 	 * @throws DocumentException 
@@ -2827,15 +2890,17 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		
-		makeWG02_FaultProbMaps();
+//		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
-		System.exit(0);
+//		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);
-//		writeTimeDepPlotsForWeb(true);
-//		System.exit(0);
+		debugAvgMethods();
+		System.exit(0);
+		writeTimeDepPlotsForWeb(false);
+		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");
 //		String opsStr = "aveRI_aveNTS";
@@ -2925,15 +2990,15 @@ public class FaultSysSolutionERF_Calc {
 				covSaveDir.mkdir();
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
-			// this will write the parent section CSV file
-			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
-			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
-			
-			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
-			if (!fltGainDir.exists())
-				fltGainDir.mkdir();
-			
-			makeFaultProbGainMaps(erf, fltGainDir, dirName);
+//			// this will write the parent section CSV file
+//			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
+//			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
+//			
+//			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
+//			if (!fltGainDir.exists())
+//				fltGainDir.mkdir();
+//			
+//			makeFaultProbGainMaps(erf, fltGainDir, dirName);
 
 			// this will generate prob gain maps for BPT parameters
 			File bptGainDir = new File(covSaveDir, "bpt_calc_prob_gains");
