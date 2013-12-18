@@ -521,6 +521,7 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 				}
 			}
 			
+			
 //			System.out.println("Type-A fault segmented source names");
 //			System.out.println(sectionsForTypeA_RupsMap.keySet());
 
@@ -562,9 +563,19 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 //						System.out.println("Ignored source: " + name);
 				}
 			}
+
 			
 			// now populate the maps with the results of this branch
 			double branchWt = ucerf2EpistemicList.getERF_RelativeWeight(branch);
+			
+			
+			String testName = "Garlock (Central)";
+			SummedMagFreqDist testMFD = mfd_ForSectName_Map.get(testName);
+//			System.out.println(testMFD);
+			double testRate = testMFD.getCumRate(6.75);
+			double equivProb = 1-Math.exp(-30*testRate);
+			System.out.println(branch+"\t"+testName+"\t"+testRate+"\t"+equivProb+"\t"+branchWt+"\t"+erf.getAdjustableParameterList());
+
 			for(String name:mfd_ForSectName_Map.keySet()) {
 				int id = sectionIDfromNameMap.get(name);
 				// add lists if it's the first element
@@ -991,6 +1002,7 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 	private static UCERF2_TimeDependentEpistemicList getUCERF2_TimeDependentEpistemicList() {
 		UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
 		ucerf2EpistemicList.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
+		System.out.println(ucerf2EpistemicList.getAdjustableParameterList().toString());
 		return ucerf2EpistemicList;
 	}
 	
@@ -1090,10 +1102,14 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 	 */
 	public static void main(String[] args) {
 		
+		System.out.println(getUCERF2_TimeDependentEpistemicList().getERF(0).getTimeSpan().getStartTimeYear());
 		
-		UCERF2_Section_TimeDepMFDsCalc test = new UCERF2_Section_TimeDepMFDsCalc(true);
-		test.saveAllTestMFD_Plots(true);
-		test.saveAllTestMFD_Plots(false);
+		
+//		UCERF2_Section_TimeDepMFDsCalc test = new UCERF2_Section_TimeDepMFDsCalc(true);
+//		test.saveAllTestMFD_Plots(true);
+//		test.saveAllTestMFD_Plots(false);
+		
+		
 //		UCERF2_Section_TimeDepMFDsCalc test = new UCERF2_Section_TimeDepMFDsCalc(false);
 //		test.saveAllTestMFD_Plots(false);
 //		test.saveAllTestMFD_Plots(true);

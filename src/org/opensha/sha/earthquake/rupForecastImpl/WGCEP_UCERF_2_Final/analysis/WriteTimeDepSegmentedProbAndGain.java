@@ -49,7 +49,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A
  *
  */
 public class WriteTimeDepSegmentedProbAndGain {
-	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/files/";
+	private final static String PATH = "src/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/files/";
 
 	
 	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag≥6.7, "+

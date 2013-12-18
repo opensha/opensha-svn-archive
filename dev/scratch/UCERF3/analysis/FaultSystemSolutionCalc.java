@@ -238,6 +238,29 @@ public class FaultSystemSolutionCalc {
 
 	}
 	
+	
+	public static void countNumRupsOnSubSectionForFM3pt1(int sectID) {
+		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		File file = new File(f);
+		FaultSystemSolution fss=null;
+		try {
+			fss = FaultSystemIO.loadSol(file);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (DocumentException e1) {
+			e1.printStackTrace();
+		}
+		
+		int num=0;
+		FaultSystemRupSet rupSet = fss.getRupSet();
+		for(int r=0;r<rupSet.getNumRuptures();r++)
+			if(rupSet.getSectionsIndicesForRup(r).contains(sectID))
+				num+=1;
+		
+		System.out.println("sectID="+sectID+" has "+num+" ruptures; sectName is "+rupSet.getFaultSectionData(sectID).getName());
+
+	}
+	
 	public static void writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT() {
 		
 		String fileName = "fm3pt1_forGMT.txt";
@@ -354,7 +377,9 @@ public class FaultSystemSolutionCalc {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		
-		writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT();
+		countNumRupsOnSubSectionForFM3pt1(1886);	// Mojave subsection 0
+		
+//		writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT();
 		
 //		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
 //		String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3";
