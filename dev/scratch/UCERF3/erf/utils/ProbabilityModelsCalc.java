@@ -3070,29 +3070,29 @@ public class ProbabilityModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-//		TestModel2_FSS testFSS = new TestModel2_FSS();
-//		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
-//			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
-//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
-//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-//		boolean aveRecurIntervalsInU3_BPTcalc=true;
-//		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-//		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
-//		erf.updateForecast();
-//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-////		testCalc.testER_Simulation(null, null, erf,100000d, "SimpleFaultTestRun5");
+		TestModel2_FSS testFSS = new TestModel2_FSS();
+		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
+			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+
+		erf.updateForecast();
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.testER_Simulation(null, null, erf,1000000d, "SimpleFaultTestRun1_Dec18");
 //		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
 		
 
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 
 		
 //		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
-		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
+//		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
 //		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
@@ -3100,16 +3100,14 @@ public class ProbabilityModelsCalc {
 //		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimulation", 1000000);
 
 		
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-		boolean aveRecurIntervalsInU3_BPTcalc=true;
-		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
-		erf.updateForecast();
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+//		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		
+//		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
+//		erf.updateForecast();
 
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		
