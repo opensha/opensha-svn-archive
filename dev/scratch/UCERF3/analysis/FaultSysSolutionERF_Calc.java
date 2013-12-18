@@ -2967,6 +2967,249 @@ public class FaultSysSolutionERF_Calc {
 		System.out.println("Subsection "+subSectIndex+" results: "+numProb+"/"+denomProb+" = "+probGain);
 	}
 	
+	
+	/**
+	 * This generates test plots for different averaging methods
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	public static void testAveragingMethodsForProbMaps() throws GMT_MapException, RuntimeException, IOException {
+		double minMag = 6.7;
+		int numMag = 4;
+		double deltaMag = 0.5;
+		
+		String prefix = "aveMethodsMidAper";
+		String dirName = "AveMethods_tests_MidAper";
+		File saveDir = new File(dirName);
+		if (!saveDir.exists())
+			saveDir.mkdir();
+		
+		
+		FaultSystemSolution meanSol=null;
+		try {
+			meanSol = FaultSystemIO.loadSol(
+					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+							"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		double duration = 30d;
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+		erf.getTimeSpan().setDuration(duration);
+
+		
+		FaultSystemSolution sol = erf.getSolution();
+		
+		// NoOpenInterval
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
+//		erf.setParameter(HistoricOpenIntervalParam.NAME, 0d);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, 2014d-1850d);
+
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] aveRI_aveNTS_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] aveRI_aveNTS_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+	
+		// Change calc type
+		aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] aveRI_aveTS_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] aveRI_aveTS_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+
+		// log space
+		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
+//		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
+//		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
+//		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
+		CPT ratioCPT = getScaledLinearRatioCPT(0.02, 0.8d, 1.2d);
+		
+		List<LocationList> faults = Lists.newArrayList();
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+			faults.add(sect.getFaultTrace());
+		
+		Region region = new CaliforniaRegions.RELM_COLLECTION();
+		
+		if (prefix == null)
+			prefix = "";
+		if (!prefix.isEmpty() && !prefix.endsWith("_"))
+			prefix += "_";
+		
+		prefix += (int)duration+"yr";
+		
+		for (int i=0; i<numMag+1; i++) {
+			
+			double[] aveRI_aveNTS_Vals;
+			double[] aveRI_aveTS_Vals;
+			String myPrefix;
+			String magStr;
+			if (i == numMag) {
+				aveRI_aveNTS_Vals = extractYVals(aveRI_aveNTS_AllMags, 0);
+				aveRI_aveTS_Vals =  extractYVals(aveRI_aveTS_AllMags, 0);
+				myPrefix = prefix+"_supra_seis";
+				magStr = "Supra Seis";
+			} else {
+				aveRI_aveNTS_Vals = extractYVals(aveRI_aveNTS_Funcs, i);
+				aveRI_aveTS_Vals =  extractYVals(aveRI_aveTS_Funcs, 0);
+				double mag = aveRI_aveNTS_Funcs[0].getX(i);
+				myPrefix = prefix+"_"+(float)mag+"+";
+				magStr = "M>="+(float)mag;
+			}
+			
+			double[] aveRI_aveTS_over_aveRI_aveNTS_ratio = new double[aveRI_aveNTS_Vals.length];
+			for (int j=0; j<aveRI_aveTS_over_aveRI_aveNTS_ratio.length; j++) {
+				aveRI_aveTS_over_aveRI_aveNTS_ratio[j] = aveRI_aveTS_Vals[j]/aveRI_aveNTS_Vals[j];
+			}
+			
+			// no open int
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(aveRI_aveNTS_Vals), region,
+					saveDir, myPrefix+"_aveRI_aveNTS", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" aveRI_aveNTS)");
+			// no open int
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(aveRI_aveTS_Vals), region,
+					saveDir, myPrefix+"_aveRI_aveTS", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" aveRI_aveTS)");
+			// ratio
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRI_aveTS_over_aveRI_aveNTS_ratio, region,
+					saveDir, myPrefix+"_aveRI_aveTS_over_aveRI_aveNTS_ratio", false, true,
+					(float)duration+" yr "+magStr+" aveRI_aveTS_over_aveRI_aveNTS_ratio");
+			
+//			if(magStr.equals("M>=6.7")) {
+//				for(int s=0;s<aveRI_aveTS_over_aveRI_aveNTS_ratio.length;s++) {
+//					System.out.println(s+"\t"+aveRI_aveTS_over_aveRI_aveNTS_ratio[s]+"\t"+meanSol.getRupSet().getFaultSectionData(s).getName());
+//				}
+//			}
+		}
+	}
+
+	
+	/**
+	 * This generates test plots for historic open interval
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	public static void testHistOpenIntervalFaultProbMaps() throws GMT_MapException, RuntimeException, IOException {
+		double minMag = 6.7;
+		int numMag = 4;
+		double deltaMag = 0.5;
+		
+		String prefix = "openIntTest_MidAper";
+		String dirName = "OpenInterval_tests_MidAper";
+		File saveDir = new File(dirName);
+		if (!saveDir.exists())
+			saveDir.mkdir();
+		
+		
+		FaultSystemSolution meanSol=null;
+		try {
+			meanSol = FaultSystemIO.loadSol(
+					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+							"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		double duration = 30d;
+		String durStr = (int)duration+"yr";
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+		erf.getTimeSpan().setDuration(duration);
+
+		
+		FaultSystemSolution sol = erf.getSolution();
+		
+		// NoOpenInterval
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] noOpenIntFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] noOpenIntAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+	
+		// Open Since 1850
+		erf.setParameter(HistoricOpenIntervalParam.NAME, 2014d-1850d);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] openIntFuncs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] openIntAllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+
+		// log space
+		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
+//		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
+//		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
+		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
+		
+		List<LocationList> faults = Lists.newArrayList();
+		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+			faults.add(sect.getFaultTrace());
+		
+		Region region = new CaliforniaRegions.RELM_COLLECTION();
+		
+		if (prefix == null)
+			prefix = "";
+		if (!prefix.isEmpty() && !prefix.endsWith("_"))
+			prefix += "_";
+		
+		prefix += (int)duration+"yr";
+		
+		for (int i=0; i<numMag+1; i++) {
+			
+			double[] poissonVals;
+			double[] noOpenIntVals;
+			double[] openIntVals;
+			String myPrefix;
+			String magStr;
+			if (i == numMag) {
+				noOpenIntVals = extractYVals(noOpenIntAllMags, 0);
+				openIntVals =  extractYVals(openIntAllMags, 0);
+				myPrefix = prefix+"_supra_seis";
+				magStr = "Supra Seis";
+			} else {
+				noOpenIntVals = extractYVals(noOpenIntFuncs, i);
+				openIntVals =  extractYVals(openIntFuncs, 0);
+				double mag = noOpenIntFuncs[0].getX(i);
+				myPrefix = prefix+"_"+(float)mag+"+";
+				magStr = "M>="+(float)mag;
+			}
+			
+			double[] openIntOverNoOpenIntRatio = new double[noOpenIntVals.length];
+			for (int j=0; j<openIntOverNoOpenIntRatio.length; j++) {
+				openIntOverNoOpenIntRatio[j] = openIntVals[j]/noOpenIntVals[j];
+			}
+			
+			// no open int
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(noOpenIntVals), region,
+					saveDir, myPrefix+"_NoOpenInt", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" NoOpenInt)");
+			// no open int
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(openIntVals), region,
+					saveDir, myPrefix+"_OpenInt", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" OpenInt)");
+			// ratio
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, openIntOverNoOpenIntRatio, region,
+					saveDir, myPrefix+"_OpenIntOverNoOpenIntRatio", false, true,
+					(float)duration+" yr "+magStr+" OpenIntOverNoOpenIntRatio");
+			
+			if(magStr.equals("M>=6.7")) {
+				for(int s=0;s<openIntOverNoOpenIntRatio.length;s++) {
+					System.out.println(s+"\t"+openIntOverNoOpenIntRatio[s]+"\t"+meanSol.getRupSet().getFaultSectionData(s).getName());
+				}
+			}
+		}
+	}
+
+	
 	/**
 	 * @param args
 	 * @throws DocumentException 
@@ -2975,7 +3218,13 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
-		
+
+//		writeDiffAveragingMethodsRupProbGains();
+//		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
+
+//		testAveragingMethodsForProbMaps();
+//		testHistOpenIntervalFaultProbMaps();
+
 //		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
