@@ -226,7 +226,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		
 		StateBasedCatalogBuilder.findPossibleStates(fromState, 0, totalStatesDataset, possibilities);
 		
-		PossibleStates states = new PossibleStates();
+		PossibleStates states = new PossibleStates(fromState);
 		
 		System.out.println("Stuck at a dead end! FromState="+Joiner.on(",").join(Ints.asList(fromState)));
 		

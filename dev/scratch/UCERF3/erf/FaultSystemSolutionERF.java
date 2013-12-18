@@ -27,6 +27,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
@@ -97,7 +99,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 
 	public static final String NAME = "Fault System Solution ERF";
 	private String name = NAME;
@@ -118,6 +120,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //	private BPT_AperiodicityParam bpt_AperiodicityParam;
 	private MagDependentAperiodicityParam magDepAperiodicityParam;
 	private HistoricOpenIntervalParam histOpenIntervalParam;
+	private BPTAveragingTypeParam averagingTypeParam;
 
 	
 	// The primitive versions of parameters; and values here are the param defaults: (none for fileParam)
@@ -187,14 +190,6 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	// if true, it will be assumed that the FSS already has date of last event data and we shouldn't load it
 	private boolean useFSSDateOfLastEvents = false;
 	
-	
-	public void testSetBPT_CalcType(boolean aveRecurIntervalsInU3_BPTcalc,boolean aveNormTimeSinceLastInU3_BPTcalc) {
-		this.aveRecurIntervalsInU3_BPTcalc=aveRecurIntervalsInU3_BPTcalc;
-		this.aveNormTimeSinceLastInU3_BPTcalc=aveNormTimeSinceLastInU3_BPTcalc;
-		histOpenIntervalChanged = true; // to ensure probabilities are updated
-	}
-
-	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
 	 * from the adjustable parameter list (to prevent changes after instantiation).
@@ -243,6 +238,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //		bpt_AperiodicityParam = new BPT_AperiodicityParam();
 		magDepAperiodicityParam = new MagDependentAperiodicityParam();
 		histOpenIntervalParam = new HistoricOpenIntervalParam();
+		averagingTypeParam = new BPTAveragingTypeParam();
 
 
 		// set listeners
@@ -257,6 +253,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //		bpt_AperiodicityParam.addParameterChangeListener(this);
 		magDepAperiodicityParam.addParameterChangeListener(this);
 		histOpenIntervalParam.addParameterChangeListener(this);
+		averagingTypeParam.addParameterChangeListener(this);
 
 		
 		// set parameters to the primitive values
@@ -271,6 +268,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //		bpt_AperiodicityParam.setValue(bpt_Aperiodicity);
 		magDepAperiodicityParam.setValue(magDepAperiodicity);
 		histOpenIntervalParam.setValue(histOpenInterval);
+		// this will set the averaging method from the default value of the parameter
+		updateBPTAveragingMethod();
 
 		createParamList();
 	}
@@ -296,6 +295,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if(!probModelParam.getValue().equals(ProbabilityModelOptions.POISSON)) {
 			adjustableParams.addParameter(magDepAperiodicityParam);	
 			adjustableParams.addParameter(histOpenIntervalParam);
+		}
+		if (probModelParam.getValue().equals(ProbabilityModelOptions.U3_BPT)) {
+			adjustableParams.addParameter(averagingTypeParam);
 		}
 	}
 
@@ -431,9 +433,18 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		} else if (paramName.equals(histOpenIntervalParam.getName())) {
 			histOpenInterval = histOpenIntervalParam.getValue();
 			histOpenIntervalChanged = true;
+		} else if (paramName.equals(averagingTypeParam.getName())) {
+			updateBPTAveragingMethod();
 		} else {
 			throw new RuntimeException("parameter name not recognized");
 		}
+	}
+	
+	private void updateBPTAveragingMethod() {
+		BPTAveragingTypeOptions types = averagingTypeParam.getValue();
+		this.aveRecurIntervalsInU3_BPTcalc = types.isAveRI();
+		this.aveNormTimeSinceLastInU3_BPTcalc = types.isAveNTS();
+		histOpenIntervalChanged = true; // to ensure probabilities are updated
 	}
 
 	/**

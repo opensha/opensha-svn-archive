@@ -44,8 +44,6 @@ public class SynchParamCalculator {
 	
 	// inputs
 	private MarkovChainBuilder chain;
-	private int m;
-	private int n;
 	private int lag;
 	
 	// results
@@ -65,35 +63,37 @@ public class SynchParamCalculator {
 	private File synch2DPlotFile;
 	private File scatterPlotFile;
 	
-	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
-		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
-		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
-			int[] myInd = { indices[m], indices[n] };
-			IndicesKey key = new IndicesKey(myInd);
-			List<int[]> binned = binnedIndices.get(key);
-			if (binned == null) {
-				binned = Lists.newArrayList();
-				binnedIndices.put(key, binned);
-			}
-			binned.add(indices);
-		}
-		return binnedIndices;
-	}
+	private static int m = 0;
+	private static int n = 1;
+	
+//	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
+//		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
+//		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
+//			int[] myInd = { indices[m], indices[n] };
+//			IndicesKey key = new IndicesKey(myInd);
+//			List<int[]> binned = binnedIndices.get(key);
+//			if (binned == null) {
+//				binned = Lists.newArrayList();
+//				binnedIndices.put(key, binned);
+//			}
+//			binned.add(indices);
+//		}
+//		return binnedIndices;
+//	}
 	
 	public SynchParamCalculator(MarkovChainBuilder chain, int m, int n, int lag) {
-		this(chain, m, n, lag, getBinnedIndices(chain, m, n));
+		this(chain.getCollapsedChain(m, n), lag);
 	}
 	
-	public SynchParamCalculator(MarkovChainBuilder chain, int m, int n, int lag, Map<IndicesKey, List<int[]>> binnedIndices) {
+	public SynchParamCalculator(MarkovChainBuilder chain, int lag) {
+		Preconditions.checkArgument(chain.getNDims() == 2, "Chain must be collapsed");
 		this.chain = chain;
-		this.m = m;
-		this.n = n;
 		this.lag = lag;
 		
-		calculate(binnedIndices);
+		calculate();
 	}
 	
-	private void calculate(Map<IndicesKey, List<int[]>> binnedIndices) {
+	private void calculate() {
 		int numSums = 0;
 		int numPossibleSums = 0;
 		int numSubSums = 0;
@@ -103,58 +103,91 @@ public class SynchParamCalculator {
 		Map<Integer, Double> mIndepProbs = null;
 		Map<Integer, Double> nIndepProbs = null;
 		if (useIndepProbs) {
-			mIndepProbs = calcIndepProbs(binnedIndices, m);
-			nIndepProbs = calcIndepProbs(binnedIndices, n);
+			mIndepProbs = calcIndepProbs(m);
+			nIndepProbs = calcIndepProbs(n);
 		}
 		
-		for (IndicesKey indicesKey : binnedIndices.keySet()) {
-			List<int[]> indicesList = binnedIndices.get(indicesKey);
+		for (int[] fromState : chain.getStateTransitionDataset().getPopulatedIndices()) {
+			PossibleStates possible = chain.getStateTransitionDataset().get(fromState);
+			if (possible == null || possible.getStates() == null || possible.getTot() == 0) {
+				// last state in the catalog can be a dead end if never reached earlier
+				numSubBails++;
+				continue;
+			}
+			
 			double freqM = 0;
 			double freqN = 0;
 			double freqMN = 0;
 			double freqEither = 0;
-			double tot = 0;
-			for (int[] indices : indicesList) {
-				PossibleStates possible = chain.getStateTransitionDataset().get(indices);
-				if (possible == null || possible.getStates() == null || possible.getTot() == 0) {
-					// last state in the catalog can be a dead end if never reached earlier
-					numSubBails++;
-					continue;
-				}
-				
-				for (int[] state : possible.getStates()) {
+			double tot = possible.getTot();
+			
+			for (int[] state : possible.getStates()) {
+				// frequency that we transition to state
+				double freq = possible.getFrequency(state);
+				if (lag == 0) {
+					// simple case, no lag
+					if (state[m] == 0)
+						freqM += freq;
+					if (state[n] == 0)
+						freqN += freq;
+					if (state[m] == 0 && state[n] == 0)
+						freqMN += freq;
+					if (state[m] == 0 || state[n] == 0)
+						freqEither += freq;
+				} else {
 					// incorporates lag
-					int mCheckIndex, nCheckIndex;
-					if (lag == 0) {
-						mCheckIndex = 0;
-						nCheckIndex = 0;
-					} else if (lag < 0) {
+					if (lag < 0) {
 						// n precedes m
 						// we want m=0, and n=abs(lag)
-						mCheckIndex = 0;
-						nCheckIndex = -lag; 
+						double probNBefore = calcProbRupturedBefore(-lag, 1, state, fromState, chain);
+						double freqNBefore = probNBefore*freq;
+						Preconditions.checkState((float)freqNBefore <= (float)freq,
+								"FreqNBefore > Freq!: "+freqNBefore+">"+freq);
+						if (state[m] == 0) {
+							freqM += freq;
+							freqMN += freqNBefore;
+							freqEither += freq;
+						} else {
+							freqEither += freqNBefore;
+						}
+						freqN += freqNBefore;
 					} else {
-						// lag > 0
 						// m precedes n
 						// we want n=0, and m=lag
-						nCheckIndex = 0;
-						mCheckIndex = lag; 
+						double probMBefore = calcProbRupturedBefore(lag, 0, state, fromState, chain);
+						double freqMBefore = probMBefore*freq;
+						Preconditions.checkState((float)freqMBefore <= (float)freq,
+								"FreqMBefore > Freq!: "+freqMBefore+">"+freq);
+						if (state[n] == 0) {
+							freqN += freq;
+							freqMN += freqMBefore;
+							freqEither += freq;
+						} else {
+							freqEither += freqMBefore;
+						}
+						freqM += freqMBefore;
 					}
-					double freq = possible.getFrequency(state);
-					if (state[m] == mCheckIndex)
-						freqM += freq;
-					if (state[n] == nCheckIndex)
-						freqN += freq;
-					if (state[m] == mCheckIndex && state[n] == nCheckIndex)
-						freqMN += freq;
-					if (state[m] == mCheckIndex || state[n] == nCheckIndex)
-						freqEither += freq;
 				}
+//				int mCheckIndex, nCheckIndex;
+//				if (lag == 0) {
+//					mCheckIndex = 0;
+//					nCheckIndex = 0;
+//				} else if (lag < 0) {
+//					// n precedes m
+//					// we want m=0, and n=abs(lag)
+//					mCheckIndex = 0;
+//					nCheckIndex = -lag;
+//				} else {
+//					// lag > 0
+//					// m precedes n
+//					// we want n=0, and m=lag
+//					nCheckIndex = 0;
+//					mCheckIndex = lag;
+//				}
 				
-				numSubSums++;
-				
-				tot += possible.getTot();
 			}
+			
+			numSubSums++;
 			
 			// convert to probs
 			freqM /= tot;
@@ -162,8 +195,10 @@ public class SynchParamCalculator {
 			freqMN /= tot;
 			
 			if (useIndepProbs) {
-				int mIndex = indicesKey.indices[0];
-				int nIndex = indicesKey.indices[1];
+//				int mIndex = indicesKey.indices[0];
+//				int nIndex = indicesKey.indices[1];
+				int mIndex = 0;
+				int nIndex = 1;
 				if (mIndepProbs.containsKey(mIndex))
 					freqM = mIndepProbs.get(mIndex);
 				else
@@ -189,7 +224,7 @@ public class SynchParamCalculator {
 				
 				synchs.add(synch);
 				freqEithers.add(freqEither);
-				synch_indices.add(indicesKey);
+				synch_indices.add(new IndicesKey(fromState));
 				
 				probMs.add(freqM);
 				probNs.add(freqN);
@@ -204,13 +239,12 @@ public class SynchParamCalculator {
 		gBar = gBar_numerator/gBar_denominator;
 	}
 	
-	private Map<Integer, Double> calcIndepProbs(Map<IndicesKey, List<int[]>> binnedIndices, int index) {
+	private Map<Integer, Double> calcIndepProbs(int index) {
 		Map<Integer, Double> freqs = Maps.newHashMap();
 		Map<Integer, Double> tots = Maps.newHashMap();
 		
-		for (IndicesKey key : binnedIndices.keySet()) {
-			List<int[]> binned = binnedIndices.get(key);
-			int myIndex = binned.get(0)[index];
+		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
+			int myIndex = indices[index];
 			double tot, freq;
 			if (freqs.containsKey(myIndex)) {
 				freq = freqs.get(myIndex);
@@ -219,13 +253,11 @@ public class SynchParamCalculator {
 				freq = 0;
 				tot = 0;
 			}
-			for (int[] indices : binned) {
-				PossibleStates poss = chain.getStateTransitionDataset().get(indices);
-				tot += poss.getTot();
-				for (int[] state : poss.getStates()) {
-					if (state[index] == 0)
-						freq += poss.getFrequency(state);
-				}
+			PossibleStates poss = chain.getStateTransitionDataset().get(indices);
+			tot += poss.getTot();
+			for (int[] state : poss.getStates()) {
+				if (state[index] == 0)
+					freq += poss.getFrequency(state);
 			}
 			freqs.put(myIndex, freq);
 			tots.put(myIndex, tot);
@@ -484,9 +516,9 @@ public class SynchParamCalculator {
 			
 			for (int m=0; m<nDims; m++) {
 				for (int n=0; n<nDims; n++) {
-					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
+//					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
 					
-					SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag, binnedIndices);
+					SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
 					
 					gBars[m][n][t] = calc.getGBar();
 				}
@@ -609,7 +641,7 @@ public class SynchParamCalculator {
 				// TODO start at m+1?
 				for (int n=m; n<nDims; n++) {
 					// first bin by only the indices we care about
-					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
+//					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
 					
 					String name1 = idens.get(m).getName();
 					String name2 = idens.get(n).getName();
@@ -619,7 +651,7 @@ public class SynchParamCalculator {
 					EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
 					
 					for (int lag=-lagMax; lag<=lagMax; lag++) {
-						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag, binnedIndices);
+						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
 						
 						double gBar = calc.getGBar();
 						
@@ -655,13 +687,19 @@ public class SynchParamCalculator {
 					for (int i=0; i<synchLagFunc.getNum(); i++)
 						lnSynchFunch.set(i, Math.log(synchLagFunc.getY(i)));
 					PlotSpec spec = new PlotSpec(asList(lnSynchFunch), lagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
-					double annY = lagYRange.getUpperBound()*0.95;
+					double annY = lagYRange.getLowerBound()*0.95;
 					double annX = lagXRange.getLowerBound()*0.9;
 					Font font = new Font(Font.SERIF, Font.PLAIN, 14);
-					XYTextAnnotation leftAnn = new XYTextAnnotation(name1+" vs "+name2, annX, annY);
+					XYTextAnnotation leftAnn = new XYTextAnnotation(name2+" BEFORE", annX, annY);
 					leftAnn.setFont(font);
-					leftAnn.setTextAnchor(TextAnchor.TOP_LEFT);
-					List<XYTextAnnotation> annotations = Lists.newArrayList(leftAnn);
+					leftAnn.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+					XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" AFTER", -annX, annY);
+					rightAnn.setFont(font);
+					rightAnn.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
+					XYTextAnnotation centerAnn = new XYTextAnnotation(name1+" at t=0", 0d, annY*0.75);
+					centerAnn.setFont(font);
+					centerAnn.setTextAnchor(TextAnchor.BOTTOM_CENTER);
+					List<XYTextAnnotation> annotations = Lists.newArrayList(leftAnn, rightAnn, centerAnn);
 					spec.setPlotAnnotations(annotations);
 					lagSpecs.add(spec);
 				}
@@ -785,6 +823,32 @@ public class SynchParamCalculator {
 		return Lists.newArrayList(elems);
 	}
 	
+	private static double calcProbRupturedBefore(int numStatesBefore, int index, int[] transDestSate, int[] transFromState, MarkovChainBuilder chain) {
+		int[] toState;
+		if (index == 0)
+			toState = new int[] {0, -1};
+		else if (index == 1)
+			toState = new int[] {-1, 0};
+		else
+			throw new IllegalStateException("Index must be 0 or 1");
+		
+		double prob;
+		if (transFromState == null)
+			prob = chain.getActualTransPathsProbBetweenStates(transDestSate, toState, -numStatesBefore);
+		else
+			prob = chain.getActualTransPathsProbBetweenStates(transDestSate, toState, -numStatesBefore, transFromState);
+//		double prob = (double)count/timesInState;
+//		Preconditions.checkState(prob <= 1d, "Bad prob: "+prob+", count="+count+", times="+timesInState);
+		return prob;
+	}
+	
+	private static final String getPathStr(List<int[]> path, int[] start) {
+		String str = "PATH: ["+start[0]+","+start[1]+"]";
+		for (int[] elem : path)
+			str += " ["+elem[0]+","+elem[1]+"]";
+		return str;
+	}
+	
 	public static void main(String[] args) throws IOException {
 		double minMag = 7;
 		double maxMag = 10d;
@@ -835,13 +899,35 @@ public class SynchParamCalculator {
 		// generate Markov Chain
 		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, events, matchesLists);
 		
+		// tests
+//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);
+//		int numStates = 3;
+//		int[] fromState = {0, 0};
+//		int[] toState = {numStates, numStates};
+//		System.out.println("Paths from [0,0] to [3,3]:");
+//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, toState, numStates)) {
+//			String str = getPathStr(path, fromState);
+//			System.out.println("\t"+str);
+//		}
+//		System.out.println("Paths from [0,0] to [x,3]:");
+//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, new int[] {-1,numStates}, numStates)) {
+//			String str = getPathStr(path, fromState);
+//			System.out.println("\t"+str);
+//		}
+//		double tot = collapsed.getStateTransitionDataset().get(toState).tot;
+//		double freqMBefore = calcFreqRupturedBefore(numStates+10, 0, toState, collapsed);
+//		double freqNBefore = calcFreqRupturedBefore(numStates+10, 1, toState, collapsed);
+//		System.out.println("Freq M before: "+freqMBefore+"/"+tot);
+//		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
+//		System.exit(0);
+		
 		// write synch CSV
 		File synchCSVFile = new File(writeDir, "synch_params.csv");
 		writeSynchParamsTable(synchCSVFile, rupIdens, chain);
 		
 		// now write std devs
-		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
-		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 50, distSpacing);
+//		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
+//		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 50, distSpacing);
 	}
 
 }

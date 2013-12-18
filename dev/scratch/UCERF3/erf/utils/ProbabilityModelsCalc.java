@@ -40,6 +40,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
@@ -3087,7 +3089,8 @@ public class ProbabilityModelsCalc {
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
 		boolean aveRecurIntervalsInU3_BPTcalc=true;
 		boolean aveNormTimeSinceLastInU3_BPTcalc=false;
-		erf.testSetBPT_CalcType(aveRecurIntervalsInU3_BPTcalc,aveNormTimeSinceLastInU3_BPTcalc);
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 		
 //		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
 		erf.updateForecast();

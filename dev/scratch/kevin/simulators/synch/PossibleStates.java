@@ -11,6 +11,11 @@ public class PossibleStates {
 	private Map<IndicesKey, Integer> stateIndexMap = Maps.newHashMap();
 	List<Double> frequencies = Lists.newArrayList();
 	double tot = 0d;
+	int[] fromState;
+	
+	public PossibleStates(int[] fromState) {
+		this.fromState = fromState;
+	}
 	
 	public void add(int[] state, double frequency) {
 		IndicesKey key = new IndicesKey(state);
@@ -54,5 +59,9 @@ public class PossibleStates {
 	
 	public int getNumStates() {
 		return states.size();
+	}
+	
+	public int[] getFromState() {
+		return fromState;
 	}
 }
