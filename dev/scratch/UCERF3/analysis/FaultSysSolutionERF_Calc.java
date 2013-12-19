@@ -2969,7 +2969,7 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	/**
-	 * This generates test plots for different averaging methods
+	 * This generates test plots for two of the averaging methods
 	 * @throws GMT_MapException
 	 * @throws RuntimeException
 	 * @throws IOException
@@ -3030,8 +3030,8 @@ public class FaultSysSolutionERF_Calc {
 		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
 //		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
 //		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
-//		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
-		CPT ratioCPT = getScaledLinearRatioCPT(0.02, 0.8d, 1.2d);
+		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
+//		CPT ratioCPT = getScaledLinearRatioCPT(0.02, 0.8d, 1.2d);
 		
 		List<LocationList> faults = Lists.newArrayList();
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
@@ -3222,13 +3222,13 @@ public class FaultSysSolutionERF_Calc {
 //		writeDiffAveragingMethodsRupProbGains();
 //		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
 
-//		testAveragingMethodsForProbMaps();
+		testAveragingMethodsForProbMaps();
 //		testHistOpenIntervalFaultProbMaps();
 
 //		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
-//		System.exit(0);
+		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);
