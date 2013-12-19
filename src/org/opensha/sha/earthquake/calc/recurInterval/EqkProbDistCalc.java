@@ -165,10 +165,14 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	
 	public EvenlyDiscretizedFunc getCondProbGainFunc() {
 		EvenlyDiscretizedFunc func = getCondProbFunc();
-		double poisProb = 1.0-Math.exp(-duration/mean);
-		func.scale(1.0/poisProb);
+//		double poisProb = 1.0-Math.exp(-duration/mean);
+//		func.scale(1.0/poisProb);
+//		func.setName(NAME+" Conditional Probability Gain Function");
+//		func.setInfo("Relative to Poisson probability of one or more events.\n"+adjustableParams.toString());
+
+		func.scale(mean/duration);
 		func.setName(NAME+" Conditional Probability Gain Function");
-		func.setInfo("Relative to Poisson probability of one or more events.\n"+adjustableParams.toString());
+		func.setInfo("Defined as cond prob divided by expected number (duration/mean="+(float)(duration/mean)+").\n"+adjustableParams.toString());
 		
 		return func;
 	}

@@ -1677,6 +1677,45 @@ public class FaultSysSolutionERF_Calc {
 				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_HighApers.txt");
 	}
 	
+	
+	
+	
+	/**
+	 * This writes out the rupture gains for the different averaging methods, 
+	 * for rups that utilize the given section, and for the hard-coded erf.
+	 */
+	public static void writeDiffAveragingMethodsRupProbGains(int subSectIndex) {
+		
+		 
+		String erfFileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(erfFileName);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+		
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
+		erf.updateForecast();
+		String fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_LowApers.txt";
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
+		
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		erf.updateForecast();
+		fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_MidApers.txt";
+		testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
+		
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
+		erf.updateForecast();
+		fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_HighApers.txt";
+		testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
+				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
+	}
+
+	
 	private static CPT getScaledLinearRatioCPT(double fractToWashOut) throws IOException {
 		return getScaledLinearRatioCPT(fractToWashOut, 0d, 2d);
 	}
@@ -3221,8 +3260,9 @@ public class FaultSysSolutionERF_Calc {
 
 //		writeDiffAveragingMethodsRupProbGains();
 //		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
+		writeDiffAveragingMethodsRupProbGains(1837);
 
-		testAveragingMethodsForProbMaps();
+//		testAveragingMethodsForProbMaps();
 //		testHistOpenIntervalFaultProbMaps();
 
 //		makeWG02_FaultProbMaps();

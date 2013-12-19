@@ -3816,7 +3816,6 @@ public class ProbabilityModelsCalc {
 
 	}
 	
-	
 	/**
 	 * This writes out the rupture probability gains for the 4 different averaging 
 	 * combinations to a file, along with other info about the rupture
@@ -3825,10 +3824,34 @@ public class ProbabilityModelsCalc {
 	 * @param fileName
 	 */
 	public void writeRupProbGainsForDiffAveragingMethods(long presentTimeMillis, double durationYears, String fileName) {
+		writeRupProbGainsForDiffAveragingMethods(presentTimeMillis, durationYears, fileName, -1);
+	}
+
+	
+	
+	/**
+	 * This writes out the rupture probability gains for the 4 different averaging 
+	 * combinations to a file, along with other info about the rupture
+	 * @param presentTimeMillis
+	 * @param durationYears
+	 * @param fileName
+	 * @param subSectIndex - only include ruptures that utilize this subsection (set as -1 for all subsections)
+	 */
+	public void writeRupProbGainsForDiffAveragingMethods(long presentTimeMillis, double durationYears, String fileName, int subSectIndex) {
 		boolean[] aveRI_array = {true,false};
 		boolean[] aveNormTS_array = {true,false};
 		File dataFile = new File(fileName);
-		FileWriter fileWriter;		
+		FileWriter fileWriter;	
+		
+		String sectName = fltSysRupSet.getFaultSectionData(subSectIndex).getName();
+		System.out.println("Working on ruptures for section "+subSectIndex+"; "+sectName);
+
+		
+		// make list of ruptures that use the given subsection
+		List<Integer> rupIndexList = null;
+		if(subSectIndex != -1)
+			rupIndexList = fltSysRupSet.getRupturesForSection(subSectIndex);
+		
 		try {
 			fileWriter = new FileWriter(dataFile);
 			fileWriter.write("rupIndex\tRI_NTS\tRI_TS\tRateNTS\tRateTS\tcondRI_RI\tcondRI_Rate\tlongTermRate\tmaxOverMin\tMaxMinusMin\tsigDiff\trupMag\trupAper\trupName\n");
@@ -3855,7 +3878,10 @@ public class ProbabilityModelsCalc {
 							"\t"+(max/min)+"\t"+(max-min)+"\t"+sigDiff+
 							"\t"+rupMag+"\t"+aperValues[getAperIndexForRupMag(rupMag)]+
 							"\t"+name;
-					fileWriter.write(line+"\n");
+					if(subSectIndex == -1)
+						fileWriter.write(line+"\n");
+					else if (rupIndexList.contains(fltSystRupIndex))
+						fileWriter.write(line+"\n");
 				}
 			}
 			fileWriter.close();
@@ -3868,6 +3894,7 @@ public class ProbabilityModelsCalc {
 	}
 	
 	
+	
 	public String getInfoAboutRupture(int fltSystRupIndex, long presentTimeMillis) {
 		String info = "fltSystRupIndex="+fltSystRupIndex+"\n";
 		info += "mag="+fltSysRupSet.getMagForRup(fltSystRupIndex)+"\n";
@@ -3875,7 +3902,10 @@ public class ProbabilityModelsCalc {
 		List<Integer> sectIndicesList = fltSysRupSet.getSectionsIndicesForRup(fltSystRupIndex);
 		for(int sectIndex:sectIndicesList) {
 			FaultSectionPrefData fltData = fltSysRupSet.getFaultSectionData(sectIndex);
-			double yrsSinceLast = ((double)(presentTimeMillis-fltData.getDateOfLastEvent()))/MILLISEC_PER_YEAR;
+			long dateOfLastMillis = fltData.getDateOfLastEvent();
+			double yrsSinceLast = Double.NaN;
+			if(dateOfLastMillis != Long.MIN_VALUE)
+				yrsSinceLast = ((double)(presentTimeMillis-dateOfLastMillis))/MILLISEC_PER_YEAR;
 			info+=sectIndex+"\t"+(1.0/longTermPartRateForSectArray[sectIndex])+"\t"+longTermPartRateForSectArray[sectIndex]+"\t"+
 			yrsSinceLast+"\t"+yrsSinceLast*longTermPartRateForSectArray[sectIndex]+"\t"+sectionArea[sectIndex]+"\t"+fltData.getName()+"\n";
 		}
@@ -3954,7 +3984,11 @@ public class ProbabilityModelsCalc {
 
 //		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
 		
-		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);
+//		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);
+		
+//		// Biggest prob diff between viable approaches on Mojave sections
+		System.out.println(testCalc.getInfoAboutRupture(884, erf.getTimeSpan().getStartTimeInMillis()));
+
 
 		
 //		testCalc.writeInfoForRupsOnSect(1886);
