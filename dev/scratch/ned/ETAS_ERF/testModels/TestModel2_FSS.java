@@ -60,6 +60,7 @@ public class TestModel2_FSS extends FaultSystemSolution {
 	double[] magForRup;
 	double[] areaForRup;	// square-meters
 	double[] aveSlipForRup;	// meters
+	double[] distFromCenterForRupWeight;	// meters
 	int[] firstSubSectForRup;
 	int[] lastSubSectForRup;
 	
@@ -140,6 +141,7 @@ public class TestModel2_FSS extends FaultSystemSolution {
 		aveSlipForRup = new double[totNumRups];	// meters
 		firstSubSectForRup = new int[totNumRups];
 		lastSubSectForRup = new int[totNumRups];
+		distFromCenterForRupWeight = new double[totNumRups];
 		
 		int rupIndex=0;
 		for(int s=minNumSectInRup;s<subSectionData.size()+1;s++) {
@@ -151,21 +153,45 @@ public class TestModel2_FSS extends FaultSystemSolution {
 				double mag = hbMagArea.getMedianMag(rupArea);
 				mag = ((double)Math.round(mag*100))/100;
 				double aveSlip = FaultMomentCalc.getSlip(rupArea*1e6, MagUtils.magToMoment(mag));
-				magNumDist.add(mag, numRups);
+				magNumDist.add(mag, 1.0);	// use this if weighting by distance from end of fault
+//				magNumDist.add(mag, numRups);
 				if(D) {
 					System.out.println("\tMag="+(float)mag+" for "+s+" sub sections; numRups="+numRups);
 				}
+				int tempRupIndex = rupIndex;
+				double totWeight=0;
 				for(int r=0;r<numRups;r++) {
 					magForRup[rupIndex] = mag;
 					aveSlipForRup[rupIndex]=aveSlip;
 					areaForRup[rupIndex]=rupArea*1e6;	// converted to meters-squared
 					firstSubSectForRup[rupIndex]=r;
 					lastSubSectForRup[rupIndex]=r+s-1;
+					double relDistFromCenter = Math.abs(((double)lastSubSectForRup[rupIndex]+(double)firstSubSectForRup[rupIndex])/2d - (double)subSectionData.size()/2d);	// rup midpoint minus fault center
+					relDistFromCenter = (relDistFromCenter)/((double)subSectionData.size()/2d);
+					if(relDistFromCenter>=1.0)
+						throw new RuntimeException();
+					if(firstSubSectForRup[rupIndex]==0 || lastSubSectForRup[rupIndex] == subSectionData.size()-1)
+						distFromCenterForRupWeight[rupIndex] = 1e-2;
+					else
+						distFromCenterForRupWeight[rupIndex] = 1.0;
+
+//					distFromCenterForRupWeight[rupIndex] = Math.sqrt(Math.cos(relDistFromCenter*Math.PI/2d));
+//					distFromCenterForRupWeight[rupIndex] = Math.pow(10,-Math.abs(relDistFromCenter)/30d);	// ~10-4 reduction at edges
+					totWeight += distFromCenterForRupWeight[rupIndex];
 					if(D) {
 						System.out.println("\t\t"+(float)magForRup[rupIndex]+"\t"+Math.round(areaForRup[rupIndex])+"\t"+
-								(float)aveSlipForRup[rupIndex]+"\t"+firstSubSectForRup[rupIndex]+"\t"+lastSubSectForRup[rupIndex]);
+								(float)aveSlipForRup[rupIndex]+"\t"+firstSubSectForRup[rupIndex]+"\t"+lastSubSectForRup[rupIndex]+"\t"+relDistFromCenter);
 					}
 					rupIndex+=1;
+				}
+				// normalize weights so they sum to 1.0
+				double testTotWt=0;
+				for(int r=0;r<numRups;r++) {
+					distFromCenterForRupWeight[tempRupIndex+r] /= totWeight;
+					testTotWt+=distFromCenterForRupWeight[tempRupIndex+r];
+				}
+				if(D) {
+					System.out.println("\t\ttestTotWt="+(float)testTotWt);
 				}
 			}
 		}
@@ -196,10 +222,12 @@ public class TestModel2_FSS extends FaultSystemSolution {
 		
 		ArbIncrementalMagFreqDist testMFD = new ArbIncrementalMagFreqDist(roundedMinMag, roundedMaxMag, numPts2);
 		testMFD.setName("testMFD");
+		testMFD.setInfo("Implied by model; should equal faultGR");
 
 		for(int r=0; r<totNumRups;r++) {
 			int index = faultGR.getClosestXIndex(magForRup[r]);
-			rateForRup[r] = faultGR.getY(index)/magNumDist.getY(magForRup[r]);
+			rateForRup[r] = distFromCenterForRupWeight[r]*faultGR.getY(index)/magNumDist.getY(magForRup[r]);	// apply dist from center weight
+//			rateForRup[r] = faultGR.getY(index)/magNumDist.getY(magForRup[r]);
 			testMFD.add(index, rateForRup[r]);
 		}
 
@@ -218,6 +246,7 @@ public class TestModel2_FSS extends FaultSystemSolution {
 
 			System.out.println("MomentRates: "+totMoRate+"\t"+faultGR.getTotalMomentRate()
 					+"\t"+targetFaultGR.getTotalMomentRate());
+
 		}
 		
 		List<List<Integer>> sectionForRups = Lists.newArrayList();
@@ -236,6 +265,16 @@ public class TestModel2_FSS extends FaultSystemSolution {
 		System.out.println("rupSet.getNumRuptures()="+rupSet.getNumRuptures());
 		
 		init(rupSet, rateForRup, null);
+		
+		if(D) {
+			double[] partRateArray = calcParticRateForAllSects(0d, 10d);
+			EvenlyDiscretizedFunc partRateFunc = new EvenlyDiscretizedFunc(0d,partRateArray.length,1.0);
+			for(int i=0;i<partRateArray.length;i++)
+				partRateFunc.set(i,partRateArray[i]);
+			partRateFunc.setName("Section Participation Rates");
+			partRateFunc.setInfo("Max/Min="+(float)(partRateFunc.getMaxY()/partRateFunc.getMinY()));
+			GraphWindow graph2 = new GraphWindow(partRateFunc, "Section Participation Rates");
+		}
 	}
 	
 	/**
