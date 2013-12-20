@@ -667,6 +667,11 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		case U3_BPT:
 			probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, 
 					aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), duration);
+// TEST FOR CONSIDERING ONLY RUPS WITH DATE OF LAST EVENT ON ALL SECTIONS
+//probGain = probModelsCalc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, true, aveRecurIntervalsInU3_BPTcalc, 
+//		aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), duration);
+//if(Double.isNaN(probGain))
+//		probGain=0;
 			break;
 		case WG02_BPT:
 			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), duration);

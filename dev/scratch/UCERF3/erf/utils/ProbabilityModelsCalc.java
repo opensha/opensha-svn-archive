@@ -328,7 +328,38 @@ public class ProbabilityModelsCalc {
 
 	
 	
-	
+	/**
+	 * This computes average conditional recurrent interval using only sections that
+	 * lack a date of last event, either by averaging section recurrence intervals 
+	 * (aveRI_CalcType=true) or by computing one over the average section
+	 * rate (aveRI_CalcType=false), both are weighted by section area.  Double.NaN is
+	 * returned if all sections have a date of last event.
+	 * 
+	 * @return
+	 */
+	private double computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(int fltSysRupIndex, boolean aveRI_CalcType) {
+			List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataForRupture(fltSysRupIndex);
+			double ave=0, totArea=0;
+			for(FaultSectionPrefData data:fltData) {
+				if(data.getDateOfLastEvent() == Long.MIN_VALUE) {
+					int sectID = data.getSectionId();
+					double area = sectionArea[sectID];
+					totArea += area;
+					// ave RIs or rates depending on which is set
+					if(aveRI_CalcType)
+						ave += area/longTermPartRateForSectArray[sectID];  // this one averages RIs; wt averaged by area
+					else
+						ave += longTermPartRateForSectArray[sectID]*area;  // this one averages rates; wt averaged by area					
+				}
+			}
+			if(totArea == 0.0)
+				return Double.NaN;
+			else if(aveRI_CalcType)
+				return ave/totArea;	// this one averages RIs
+			else
+				return 1.0/(ave/totArea); // this one averages rates
+	}
+
 	
 	
 	/**
@@ -517,8 +548,9 @@ public class ProbabilityModelsCalc {
 		
 		// get aveTimeSinceLastWhereKnownYears
 		double aveTimeSinceLastWhereKnownYears;
+		double aveNormTimeSinceLastEventWhereKnown=Double.NaN;
 		if(aveNormTimeSinceLast) {
-			double aveNormTimeSinceLastEventWhereKnown = getAveNormTimeSinceLastEventWhereKnown(fltSysRupIndex, presentTimeMillis);
+			aveNormTimeSinceLastEventWhereKnown = getAveNormTimeSinceLastEventWhereKnown(fltSysRupIndex, presentTimeMillis);
 			aveTimeSinceLastWhereKnownYears = aveNormTimeSinceLastEventWhereKnown*aveCondRecurInterval;
 //			if(aveTimeSinceLastWhereKnownYears<0)
 //				throw new RuntimeException("1st "+aveTimeSinceLastWhereKnownYears);
@@ -543,15 +575,19 @@ public class ProbabilityModelsCalc {
 //	System.out.println("fltSysRupIndex="+fltSysRupIndex+" has no date of last data");
 //	System.exit(0);
 //}
+		
 // test
 //int testRupID = 156778;	// ~half sectuibs have date if last
 //int testRupID = 151834;	// all sections have date of last
 //int testRupID = 0;	// no sections have date of last
+//int testRupID = 884;
+//int testRupID = 249574;
 //if(fltSysRupIndex==testRupID) {
 //			System.out.println("fltSysRupIndex="+testRupID+":\n\n"+
 //					"\thistOpenInterval="+histOpenInterval+
 //					"\taveCondRecurInterval="+aveCondRecurInterval+
 //					"\taveTimeSinceLastWhereKnownYears="+aveTimeSinceLastWhereKnownYears+
+//					"\taveNormTimeSinceLastEventWhereKnown="+aveNormTimeSinceLastEventWhereKnown+
 //					"\tfractAreaWithTimeSince="+(totRupAreaWithDateOfLast/totRupArea)+
 //					"\texpNum="+expNum
 //					);
@@ -574,39 +610,62 @@ public class ProbabilityModelsCalc {
 // if(fltSysRupIndex==testRupID) System.out.println("Here3");
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
-// if(fltSysRupIndex==testRupID) System.out.println("Here4");
+ // if(fltSysRupIndex==testRupID) System.out.println("Here4");
 
 			// set normBPT_CDF based on magnitude
 			EvenlyDiscretizedFunc normBPT_CDF=normBPT_CDF_Array[getAperIndexForRupMag(rupMag)];
-			
 			double sumCondProbGain=0;
 			double totWeight=0;
-			for(int i=0;i<normBPT_CDF.getNum();i++) {
-				double timeSinceYears = normBPT_CDF.getX(i)*aveCondRecurInterval;
-				double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
-				if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
-					// average the time since last between known and unknown sections
-					double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
-					double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
-					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag);
-					sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
-//					sumCondProbGain+=computeBPT_ProbGainFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag)*relProbForTimeSinceLast;
-					totWeight += relProbForTimeSinceLast;
-					
-//// test
+			
+			double condRecurIntWhereUnknown = computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(fltSysRupIndex, aveRecurIntervals);
+//			double condRecurIntWhereUnknown = aveCondRecurInterval;
+			
+			if(aveNormTimeSinceLast) {
+				for(int i=0;i<normBPT_CDF.getNum();i++) {
+					double normTimeSinceYears = normBPT_CDF.getX(i);
+					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
+					if(normTimeSinceYears*condRecurIntWhereUnknown>=histOpenInterval && relProbForTimeSinceLast>0.0) {
+						double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+						double aveNormTS = (normTimeSinceYears*areaWithOutDateOfLast + aveNormTimeSinceLastEventWhereKnown*totRupAreaWithDateOfLast)/totRupArea;
+						double condProb = computeBPT_ProbFast(1.0, aveNormTS, durationYears/aveCondRecurInterval, rupMag);
+						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
+						totWeight += relProbForTimeSinceLast;
+						
 //if(fltSysRupIndex==testRupID) {
-//		System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+"\t"+(float)relProbForTimeSinceLast);
+//		System.out.println("\t"+i+"\t"+(float)normTimeSinceYears+"\t"+(float)aveNormTS+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+//				"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
 //}
-
+					}
 				}
 			}
+			else {	// average date of last event
+				for(int i=0;i<normBPT_CDF.getNum();i++) {
+					double timeSinceYears = normBPT_CDF.getX(i)*condRecurIntWhereUnknown;
+					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
+					if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
+						// average the time since last between known and unknown sections
+						double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+						double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
+						double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag);
+						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
+						totWeight += relProbForTimeSinceLast;
+						
+//// test
+//if(fltSysRupIndex==testRupID) {
+//			System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+//					"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
+//}
+					}
+				}	
+			}
+			
 			probGain = sumCondProbGain/totWeight;
 		}
 		
-//	// test
+//// test
 //		if(fltSysRupIndex==testRupID) {
 //				System.out.println("\tprobGain="+probGain);
-//	}
+//}
 
 		
 		if(simulationMode) {
@@ -3972,22 +4031,25 @@ public class ProbabilityModelsCalc {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
 //		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 //		
 //		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
 		erf.updateForecast();
 
-		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 
 //		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
 		
 //		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);
 		
 //		// Biggest prob diff between viable approaches on Mojave sections
-		System.out.println(testCalc.getInfoAboutRupture(884, erf.getTimeSpan().getStartTimeInMillis()));
+//		System.out.println(testCalc.getInfoAboutRupture(884, erf.getTimeSpan().getStartTimeInMillis()));
+		
+		// Biggest prob diff between viable approaches on Owens Valley sections
+//		System.out.println(testCalc.getInfoAboutRupture(249574, erf.getTimeSpan().getStartTimeInMillis()));
 
 
 		

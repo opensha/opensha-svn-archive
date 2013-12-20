@@ -3008,7 +3008,7 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	/**
-	 * This generates test plots for two of the averaging methods
+	 * This generates test plots for three of the averaging methods
 	 * @throws GMT_MapException
 	 * @throws RuntimeException
 	 * @throws IOException
@@ -3046,8 +3046,8 @@ public class FaultSysSolutionERF_Calc {
 		// NoOpenInterval
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
-//		erf.setParameter(HistoricOpenIntervalParam.NAME, 0d);
-		erf.setParameter(HistoricOpenIntervalParam.NAME, 2014d-1850d);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, 0d);
+//		erf.setParameter(HistoricOpenIntervalParam.NAME, 2014d-1875d);
 
 		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
@@ -3065,7 +3065,16 @@ public class FaultSysSolutionERF_Calc {
 		EvenlyDiscretizedFunc[] aveRI_aveTS_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
 		EvenlyDiscretizedFunc[] aveRI_aveTS_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
 
+		// Change calc type
+		aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+		erf.updateForecast();
+		
+		EvenlyDiscretizedFunc[] aveRate_aveNTS_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
+		EvenlyDiscretizedFunc[] aveRate_aveNTS_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
+
 		// log space
+		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-0.1, 0.1);
 		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
 //		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
 //		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
@@ -3089,44 +3098,64 @@ public class FaultSysSolutionERF_Calc {
 			
 			double[] aveRI_aveNTS_Vals;
 			double[] aveRI_aveTS_Vals;
+			double[] aveRate_aveNTS_Vals;
 			String myPrefix;
 			String magStr;
 			if (i == numMag) {
 				aveRI_aveNTS_Vals = extractYVals(aveRI_aveNTS_AllMags, 0);
 				aveRI_aveTS_Vals =  extractYVals(aveRI_aveTS_AllMags, 0);
+				aveRate_aveNTS_Vals = extractYVals(aveRate_aveNTS_AllMags, 0);
 				myPrefix = prefix+"_supra_seis";
 				magStr = "Supra Seis";
 			} else {
 				aveRI_aveNTS_Vals = extractYVals(aveRI_aveNTS_Funcs, i);
-				aveRI_aveTS_Vals =  extractYVals(aveRI_aveTS_Funcs, 0);
+				aveRI_aveTS_Vals =  extractYVals(aveRI_aveTS_Funcs, i);
+				aveRate_aveNTS_Vals = extractYVals(aveRate_aveNTS_Funcs, i);
+
 				double mag = aveRI_aveNTS_Funcs[0].getX(i);
 				myPrefix = prefix+"_"+(float)mag+"+";
 				magStr = "M>="+(float)mag;
 			}
 			
 			double[] aveRI_aveTS_over_aveRI_aveNTS_ratio = new double[aveRI_aveNTS_Vals.length];
+			double[] aveRate_aveNTS_over_aveRI_aveNTS_ratio = new double[aveRI_aveNTS_Vals.length];
+			double[] aveRI_aveTS_over_aveRI_aveNTS_diff = new double[aveRI_aveNTS_Vals.length];
+			double[] aveRate_aveNTS_over_aveRI_aveNTS_diff = new double[aveRI_aveNTS_Vals.length];
 			for (int j=0; j<aveRI_aveTS_over_aveRI_aveNTS_ratio.length; j++) {
 				aveRI_aveTS_over_aveRI_aveNTS_ratio[j] = aveRI_aveTS_Vals[j]/aveRI_aveNTS_Vals[j];
+				aveRate_aveNTS_over_aveRI_aveNTS_ratio[j] = aveRate_aveNTS_Vals[j]/aveRI_aveNTS_Vals[j];
+				aveRI_aveTS_over_aveRI_aveNTS_diff[j] = aveRI_aveTS_Vals[j]-aveRI_aveNTS_Vals[j];
+				aveRate_aveNTS_over_aveRI_aveNTS_diff[j] = aveRate_aveNTS_Vals[j]-aveRI_aveNTS_Vals[j];
 			}
 			
-			// no open int
+			// 
 			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(aveRI_aveNTS_Vals), region,
 					saveDir, myPrefix+"_aveRI_aveNTS", false, true,
 					"Log10("+(float)duration+" yr "+magStr+" aveRI_aveNTS)");
-			// no open int
+			// 
 			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(aveRI_aveTS_Vals), region,
 					saveDir, myPrefix+"_aveRI_aveTS", false, true,
 					"Log10("+(float)duration+" yr "+magStr+" aveRI_aveTS)");
-			// ratio
+			// 
+			FaultBasedMapGen.makeFaultPlot(probCPT, faults, FaultBasedMapGen.log10(aveRate_aveNTS_Vals), region,
+					saveDir, myPrefix+"_aveRate_aveNTS", false, true,
+					"Log10("+(float)duration+" yr "+magStr+" aveRate_aveNTS)");
+			// 
 			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRI_aveTS_over_aveRI_aveNTS_ratio, region,
 					saveDir, myPrefix+"_aveRI_aveTS_over_aveRI_aveNTS_ratio", false, true,
 					(float)duration+" yr "+magStr+" aveRI_aveTS_over_aveRI_aveNTS_ratio");
+			// 
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRate_aveNTS_over_aveRI_aveNTS_ratio, region,
+					saveDir, myPrefix+"_aveRate_aveNTS_over_aveRI_aveNTS_ratio", false, true,
+					(float)duration+" yr "+magStr+" aveRate_aveNTS_over_aveRI_aveNTS_ratio");
+			FaultBasedMapGen.makeFaultPlot(diffCPT, faults, aveRI_aveTS_over_aveRI_aveNTS_diff, region,
+					saveDir, myPrefix+"_aveRI_aveTS_minus_aveRI_aveNTS_diff", false, true,
+					(float)duration+" yr "+magStr+" aveRI_aveTS_minus_aveRI_aveNTS_diff");
+			// 
+			FaultBasedMapGen.makeFaultPlot(diffCPT, faults, aveRate_aveNTS_over_aveRI_aveNTS_diff, region,
+					saveDir, myPrefix+"_aveRate_aveNTS_minus_aveRI_aveNTS_diff", false, true,
+					(float)duration+" yr "+magStr+" aveRate_aveNTS_minus_aveRI_aveNTS_diff");
 			
-//			if(magStr.equals("M>=6.7")) {
-//				for(int s=0;s<aveRI_aveTS_over_aveRI_aveNTS_ratio.length;s++) {
-//					System.out.println(s+"\t"+aveRI_aveTS_over_aveRI_aveNTS_ratio[s]+"\t"+meanSol.getRupSet().getFaultSectionData(s).getName());
-//				}
-//			}
 		}
 	}
 
@@ -3260,9 +3289,10 @@ public class FaultSysSolutionERF_Calc {
 
 //		writeDiffAveragingMethodsRupProbGains();
 //		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
-		writeDiffAveragingMethodsRupProbGains(1837);
+//		writeDiffAveragingMethodsRupProbGains(1837);	// Mojave section
+//		writeDiffAveragingMethodsRupProbGains(1486);
 
-//		testAveragingMethodsForProbMaps();
+		testAveragingMethodsForProbMaps();
 //		testHistOpenIntervalFaultProbMaps();
 
 //		makeWG02_FaultProbMaps();
