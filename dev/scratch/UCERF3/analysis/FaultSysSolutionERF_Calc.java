@@ -1650,31 +1650,36 @@ public class FaultSysSolutionERF_Calc {
 	/**
 	 * This writes out the rupture gains for the different averaging methods, and for the hard-coded erf.
 	 */
-	public static void writeDiffAveragingMethodsRupProbGains() {
+	public static void writeDiffAveragingMethodsRupProbGains(double yrForOpenInterval) {
 
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getTimeSpan().setDuration(30d);
+		int startYear = erf.getTimeSpan().getStartTimeYear();
+		double openIntervalYrs = (double)startYear-yrForOpenInterval;
+		System.out.println("ERF startYear="+startYear+": openIntervalYrs="+openIntervalYrs);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, openIntervalYrs);
+
 
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
 		erf.updateForecast();
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
-				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_LowApers.txt");
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_LowApers"+"_HistOpenInt"+Math.round(openIntervalYrs)+".txt");
 		
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 		erf.updateForecast();
 		testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
-				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_MidApers.txt");
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_MidApers"+"_HistOpenInt"+Math.round(openIntervalYrs)+".txt");
 		
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
 		erf.updateForecast();
 		testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
-				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_HighApers.txt");
+				erf.getTimeSpan().getDuration(), "RupProbGainsForDiffAveMethods30yrs_HighApers"+"_HistOpenInt"+Math.round(openIntervalYrs)+".txt");
 	}
 	
 	
@@ -1682,9 +1687,11 @@ public class FaultSysSolutionERF_Calc {
 	
 	/**
 	 * This writes out the rupture gains for the different averaging methods, 
-	 * for rups that utilize the given section, and for the hard-coded erf.
+	 * for rups that utilize the given section, and for the mean fault system solution:
+	 * 2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
+	 * 
 	 */
-	public static void writeDiffAveragingMethodsRupProbGains(int subSectIndex) {
+	public static void writeDiffAveragingMethodsRupProbGains(int subSectIndex, double yrForOpenInterval) {
 		
 		 
 		String erfFileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
@@ -1692,24 +1699,29 @@ public class FaultSysSolutionERF_Calc {
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getTimeSpan().setDuration(30d);
+		int startYear = erf.getTimeSpan().getStartTimeYear();
+		double openIntervalYrs = (double)startYear-yrForOpenInterval;
+		System.out.println("ERF startYear="+startYear+": openIntervalYrs="+openIntervalYrs);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, openIntervalYrs);
+
 		
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
 		erf.updateForecast();
-		String fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_LowApers.txt";
+		String fileName = "sect"+subSectIndex+"_HistOpenInt"+Math.round(openIntervalYrs)+"_RupProbGainsForDiffAveMethods30yrs_LowApers.txt";
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
 				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
 		
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 		erf.updateForecast();
-		fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_MidApers.txt";
+		fileName = "sect"+subSectIndex+"_HistOpenInt"+Math.round(openIntervalYrs)+"_RupProbGainsForDiffAveMethods30yrs_MidApers.txt";
 		testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
 				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
 		
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.HIGH_VALUES);
 		erf.updateForecast();
-		fileName = "sect"+subSectIndex+"_RupProbGainsForDiffAveMethods30yrs_HighApers.txt";
+		fileName = "sect"+subSectIndex+"_HistOpenInt"+Math.round(openIntervalYrs)+"_RupProbGainsForDiffAveMethods30yrs_HighApers.txt";
 		testCalc = new ProbabilityModelsCalc(erf);
 		testCalc.writeRupProbGainsForDiffAveragingMethods(erf.getTimeSpan().getStartTimeInMillis(), 
 				erf.getTimeSpan().getDuration(), fileName,subSectIndex);
@@ -1745,7 +1757,19 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	
-	public static void writeDiffAveragingMethodsSubSectionTimeDependenceCSV(File outputDir) throws IOException {
+	/**
+	 * This writes a csv file with info on sub-section time dependencies for the branch averaged solution:
+	 * 2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
+	 * 
+	 * @param outputDir
+	 * @param yrForOpenInterval - year for historic open interval
+	 * @throws IOException
+	 */
+	public static void writeDiffAveragingMethodsSubSectionTimeDependenceCSV(File outputDir, double yrForOpenInterval) throws IOException {
+		
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		
 		FaultSystemSolution meanSol;
 		try {
 			meanSol = FaultSystemIO.loadSol(new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
@@ -1754,12 +1778,17 @@ public class FaultSysSolutionERF_Calc {
 			throw ExceptionUtils.asRuntimeException(e);
 		}				
 		
+		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
 		double duration = 30d;
 		erf.getTimeSpan().setDuration(duration);
 		String durStr = (int)duration+"yr";
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		int startYear = erf.getTimeSpan().getStartTimeYear();
+		double openIntervalYrs = (double)startYear-yrForOpenInterval;
+		System.out.println("ERF startYear="+startYear+": openIntervalYrs="+openIntervalYrs);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, openIntervalYrs);
 		
 		MagDependentAperiodicityOptions[] covFuncs = { MagDependentAperiodicityOptions.LOW_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES };
@@ -1774,7 +1803,7 @@ public class FaultSysSolutionERF_Calc {
 				erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 				String calcType = aveType.getFileSafeLabel();
 				System.out.println("working on "+calcType);
-				File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+calcType+".csv");
+				File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+calcType+"_HistOpenInt"+Math.round(openIntervalYrs)+".csv");
 				writeSubSectionTimeDependenceCSV(erf, csvFile);
 				
 				// keep track of settings and parse the CSV file
@@ -1829,7 +1858,7 @@ public class FaultSysSolutionERF_Calc {
 					magStr = "supra_seis";
 				else
 					magStr = (float)minMag+"+";
-				File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+magStr+"_combined.csv");
+				File csvFile = new File(outputDir, "SubSectProbData_"+durStr+"_"+cov.name()+"_COVs_"+magStr+"_HistOpenInt"+Math.round(openIntervalYrs)+"_combined.csv");
 				csv.writeToFile(csvFile);
 			}
 		}
@@ -3008,21 +3037,21 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	/**
-	 * This generates test plots for three of the averaging methods
+	 * This generates tests 30-yr plots for three of the averaging methods for
+	 * 2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
+	 * 
+	 * @param yrForOpenInterval - the year assumed for the open interval (e,g, 1875)
 	 * @throws GMT_MapException
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public static void testAveragingMethodsForProbMaps() throws GMT_MapException, RuntimeException, IOException {
+	public static void testAveragingMethodsForProbMaps(double yrForOpenInterval) throws GMT_MapException, RuntimeException, IOException {
+
+		// these are the magnitude thresholds (all rups included below too)
 		double minMag = 6.7;
 		int numMag = 4;
 		double deltaMag = 0.5;
 		
-		String prefix = "aveMethodsMidAper";
-		String dirName = "AveMethods_tests_MidAper";
-		File saveDir = new File(dirName);
-		if (!saveDir.exists())
-			saveDir.mkdir();
 		
 		
 		FaultSystemSolution meanSol=null;
@@ -3040,14 +3069,24 @@ public class FaultSysSolutionERF_Calc {
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
 		erf.getTimeSpan().setDuration(duration);
 
-		
 		FaultSystemSolution sol = erf.getSolution();
 		
 		// NoOpenInterval
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
-		erf.setParameter(HistoricOpenIntervalParam.NAME, 0d);
-//		erf.setParameter(HistoricOpenIntervalParam.NAME, 2014d-1875d);
+		
+		int startYear = erf.getTimeSpan().getStartTimeYear();
+		double openIntervalYrs = (double)startYear-yrForOpenInterval;
+		System.out.println("ERF startYear="+startYear+": openIntervalYrs="+openIntervalYrs);
+		erf.setParameter(HistoricOpenIntervalParam.NAME, openIntervalYrs);
+		
+		String prefix = "aveMethodsMidAper_OpenInt"+Math.round(openIntervalYrs);
+		String dirName = "AveMethods_tests_MidAper_OpenInt"+Math.round(openIntervalYrs);
+		File saveDir = new File(dirName);
+		if (!saveDir.exists())
+			saveDir.mkdir();
+		
+		// now do the three cases:
 
 		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
@@ -3073,13 +3112,10 @@ public class FaultSysSolutionERF_Calc {
 		EvenlyDiscretizedFunc[] aveRate_aveNTS_Funcs = calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag);
 		EvenlyDiscretizedFunc[] aveRate_aveNTS_AllMags = calcSubSectSupraSeisMagProbDists(erf, 0d, 1, deltaMag);
 
-		// log space
+		// set CPT files
 		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-0.1, 0.1);
 		CPT probCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4, 0);
-//		CPT ratioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-0.5, 0.5);
-//		CPT ratioCPT = FaultBasedMapGen.getLinearRatioCPT();
 		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
-//		CPT ratioCPT = getScaledLinearRatioCPT(0.02, 0.8d, 1.2d);
 		
 		List<LocationList> faults = Lists.newArrayList();
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
@@ -3288,11 +3324,13 @@ public class FaultSysSolutionERF_Calc {
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 
 //		writeDiffAveragingMethodsRupProbGains();
-//		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(null);
+		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt139"), 1875);	// 139 = 2014-1875
+		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt0"), 2014);
 //		writeDiffAveragingMethodsRupProbGains(1837);	// Mojave section
 //		writeDiffAveragingMethodsRupProbGains(1486);
 
-		testAveragingMethodsForProbMaps();
+//		testAveragingMethodsForProbMaps(2014);
+//		testAveragingMethodsForProbMaps(1875);
 //		testHistOpenIntervalFaultProbMaps();
 
 //		makeWG02_FaultProbMaps();

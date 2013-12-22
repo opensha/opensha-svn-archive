@@ -1247,9 +1247,7 @@ public class ProbabilityModelsCalc {
 		double origStartYear = ((double)origStartTimeMillis)/MILLISEC_PER_YEAR+1970.0;
 		System.out.println("orig start time: "+origStartTimeMillis+ " millis ("+origStartYear+" yrs)");
 		System.out.println("numYears: "+numYears);
-		
-		double simDuration = 1.0;	// 1 year; this could be the expected time to next event?
-		
+				
 		// initialize some things
 		ArrayList<Double> normalizedRupRecurIntervals = new ArrayList<Double>();
 		ArrayList<Double> normalizedSectRecurIntervals = new ArrayList<Double>();
@@ -1331,6 +1329,8 @@ public class ProbabilityModelsCalc {
 		System.out.println("totalRate long term = "+totalRate);
 		
 		double totalLongTermRate = totalRate;
+		
+		double simDuration = 1/totalLongTermRate;
 		
 
 		// Make local sectIndexArrayForSrcList for faster simulations
@@ -1445,14 +1445,14 @@ public class ProbabilityModelsCalc {
 				if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
 					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
 						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-						probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, 1.0/totalRate);
+						probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, simDuration);
 					}
 				}
 				else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT) {
 					sectionGainArray=null; // set this null so it gets updated
 					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
 						int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-						probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, 1.0/totalRate);
+						probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, simDuration);
 					}
 				}		
 				// now update totalRate and ruptureSampler (for all rups since start time changed)
