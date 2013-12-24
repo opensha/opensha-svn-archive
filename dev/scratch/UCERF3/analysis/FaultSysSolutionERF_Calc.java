@@ -129,6 +129,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_TimeDepMFDsCalc;
+import scratch.kevin.ucerf3.TestPDFCombine;
 
 public class FaultSysSolutionERF_Calc {
 	
@@ -2984,6 +2985,75 @@ public class FaultSysSolutionERF_Calc {
 		out = new FileOutputStream(new File(outputDir, "main_fault_probabilities.xls"));
 		wb.write(out);
 		out.close();
+		
+		doFinalWebPlotAssembly(outputDir, aveTypes.size()>1);
+	}
+	
+	private static void doFinalWebPlotAssembly(File dir, boolean defaultAve) throws IOException {
+		writeStringToFile(new File(dir, "HEADER.html"),
+				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
+				+ "UCERF3 Time Dependent Supplementary Figures</h1>\n"
+				+"\n"
+				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
+				+ "Each directory contains results for a different magnitude range and time span. For example, 'm6.7_5yr' "
+				+ "refers to 5 year results for M >= 6.7 ruptures and 'all_30yr' refers to 30 year results for all "
+				+ "supra-seismogenic ruptures.</p>");
+		
+		String aveTypeStr;
+		if (defaultAve)
+			aveTypeStr = "default BPT averaging type";
+		else
+			aveTypeStr = "the corresponding BPT averaging type";
+		
+		for (File subDir : dir.listFiles()) {
+			String name = subDir.getName();
+			if (!subDir.isDirectory() || name.startsWith("."))
+				continue;
+			String label;
+			if (name.equals("all_5yr"))
+				label = "All Supra-Seismogenic Ruptures, 5 Year Forecast";
+			else if (name.equals("all_30yr"))
+				label = "All Supra-Seismogenic Ruptures, 30 Year Forecast";
+			else if (name.equals("m6.7_5yr"))
+				label = "All M>=6.7 Ruptures, 5 Year Forecast";
+			else if (name.equals("m6.7_30yr"))
+				label = "All M>=6.7 Ruptures, 30 Year Forecast";
+			else if (name.equals("m7.7_5yr"))
+				label = "All M>=7.7 Ruptures, 5 Year Forecast";
+			else if (name.equals("m7.7_30yr"))
+				label = "All M>=7.7 Ruptures, 30 Year Forecast";
+			else
+				throw new IllegalStateException("Unexpected directory: "+name);
+			
+			writeStringToFile(new File(subDir, "HEADER.html"),
+					"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
+					+ label+" Figures</h1>\n"
+					+"\n"
+					+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
+					+ "<b><i>BranchAveragedResults</i></b>: Results/Comparisons with UCERF2, aggregated across all logic tree branches"
+					+ "<br><b><i>BranchSensitivityMaps</i></b>: Sensitivity of Time Dependent Probabilities to each logic tree branch choice"
+					+ "<br><b><i>OtherSensitivityTests</i></b>: Miscelaneous sensitivity tests using the branch averaged solution, Mid COV values, and "+aveTypeStr+"</p>");
+			
+			File sensDir = new File(subDir, "BranchSensitivityMaps");
+			try {
+				for (File pdfFile : sensDir.listFiles())
+					if (pdfFile.getName().endsWith("_combined.pdf"))
+						pdfFile.delete();
+				TestPDFCombine.combine(sensDir, sensDir);
+			} catch (com.lowagie.text.DocumentException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			
+			File avgSensDir = new File(new File(subDir, "OtherSensitivityTests"), "AveragingMethods");
+			if (avgSensDir.listFiles() == null || avgSensDir.listFiles().length == 0)
+				avgSensDir.delete();
+		}
+	}
+	
+	private static void writeStringToFile(File file, String string) throws IOException {
+		FileWriter fw = new FileWriter(file);
+		fw.write(string+"\n");
+		fw.close();
 	}
 	
 	private static void debugAvgMethods() throws IOException, DocumentException {
@@ -3345,6 +3415,13 @@ public class FaultSysSolutionERF_Calc {
 		
 //		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875";
 		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_17-ucerf3-prob-gains-open1875";
+		// just do metadata and such
+		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), false);
+		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), false);
+		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_TIME_SINCE"), false);
+		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_ALL"), true);
+		System.exit(0);
+		
 		// each individually
 		// default
 		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,

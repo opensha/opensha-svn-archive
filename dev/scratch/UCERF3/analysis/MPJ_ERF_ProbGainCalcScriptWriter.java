@@ -33,15 +33,15 @@ public class MPJ_ERF_ProbGainCalcScriptWriter {
 		// it is assumed that this file is also stored locally in InversionSolutions!
 		String compoundFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
 		
-//		RunSites site = RunSites.HPCC;
-//		int nodes = 20;
-//		int jobMins = 10*60; // TODO
-//		int threads = 1;
+		RunSites site = RunSites.HPCC;
+		int nodes = 20;
+		int jobMins = 10*60; // TODO
+		int threads = 1;
 		
-		RunSites site = RunSites.STAMPEDE;
-		int nodes = 60;
-		int jobMins = 2*60; // TODO
-		int threads = 3;
+//		RunSites site = RunSites.STAMPEDE;
+//		int nodes = 60;
+//		int jobMins = 2*60; // TODO
+//		int threads = 3;
 		
 //		String threadsArg = "";
 		// trailing space is important
