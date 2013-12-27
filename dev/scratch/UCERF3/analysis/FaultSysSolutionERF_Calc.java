@@ -2677,12 +2677,17 @@ public class FaultSysSolutionERF_Calc {
 	public static void writeTimeDepPlotsForWeb(List<BPTAveragingTypeOptions> aveTypes, boolean skipAvgMethods,
 			String dirPrefix, File outputDir)
 			throws IOException, DocumentException, GMT_MapException, RuntimeException {
-		if (!outputDir.exists())
-			outputDir.mkdir();
-		
 		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
 				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		writeTimeDepPlotsForWeb(aveTypes, skipAvgMethods, dirPrefix, outputDir, meanSol);
+	}
+	
+	public static void writeTimeDepPlotsForWeb(List<BPTAveragingTypeOptions> aveTypes, boolean skipAvgMethods,
+			String dirPrefix, File outputDir, FaultSystemSolution meanSol)
+			throws IOException, DocumentException, GMT_MapException, RuntimeException {
+		if (!outputDir.exists())
+			outputDir.mkdir();
 		
 		double[] minMags = { 0d, 6.7d, 7.7d };
 		int[] csvMagRangeIndexes = { 4, 0, 2 };
@@ -3394,8 +3399,8 @@ public class FaultSysSolutionERF_Calc {
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 
 //		writeDiffAveragingMethodsRupProbGains();
-		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt139"), 1875);	// 139 = 2014-1875
-		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt0"), 2014);
+//		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt139"), 1875);	// 139 = 2014-1875
+//		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt0"), 2014);
 //		writeDiffAveragingMethodsRupProbGains(1837);	// Mojave section
 //		writeDiffAveragingMethodsRupProbGains(1486);
 
@@ -3406,7 +3411,7 @@ public class FaultSysSolutionERF_Calc {
 //		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
-		System.exit(0);
+//		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);
@@ -3414,25 +3419,35 @@ public class FaultSysSolutionERF_Calc {
 //		System.exit(0);
 		
 //		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875";
-		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_17-ucerf3-prob-gains-open1875";
+//		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_17-ucerf3-prob-gains-open1875";
+//		File outputMainDir = new File("/home/kevin/OpenSHA/UCERF3");
+//		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+//				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+//						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		String dirPrefix = "/home/scec-02/kmilner/ucerf3/prob_gains/2013_12_24-ucerf3-prob-gains-open1875";
+		File outputMainDir = new File("/var/www/html/ftp/kmilner/ucerf3");
+		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+				new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/"
+						+ "2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_"
+						+ "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		// just do metadata and such
-		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), false);
-		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), false);
-		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_TIME_SINCE"), false);
-		doFinalWebPlotAssembly(new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_ALL"), true);
-		System.exit(0);
+//		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), false);
+//		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), false);
+//		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), false);
+//		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_ALL"), true);
+//		System.exit(0);
 		
 		// each individually
 		// default
 		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
-				dirPrefix, new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"));
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
 		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
-				dirPrefix, new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"));
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
 		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
-				dirPrefix, new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_RI_AVE_TIME_SINCE"));
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots
 		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
-				dirPrefix, new File("/home/kevin/OpenSHA/UCERF3/TimeDependent_AVE_ALL"));
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
 		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");
@@ -3482,9 +3497,9 @@ public class FaultSysSolutionERF_Calc {
 		
 		
 		
-		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
-				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+//				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+//						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
 		double duration = 30d;
 		String durStr = (int)duration+"yr";
