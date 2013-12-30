@@ -582,16 +582,17 @@ public class ProbabilityModelsCalc {
 //int testRupID = 0;	// no sections have date of last
 //int testRupID = 884;
 //int testRupID = 249574;
-//if(fltSysRupIndex==testRupID) {
-//			System.out.println("fltSysRupIndex="+testRupID+":\n\n"+
-//					"\thistOpenInterval="+histOpenInterval+
-//					"\taveCondRecurInterval="+aveCondRecurInterval+
-//					"\taveTimeSinceLastWhereKnownYears="+aveTimeSinceLastWhereKnownYears+
-//					"\taveNormTimeSinceLastEventWhereKnown="+aveNormTimeSinceLastEventWhereKnown+
-//					"\tfractAreaWithTimeSince="+(totRupAreaWithDateOfLast/totRupArea)+
-//					"\texpNum="+expNum
-//					);
-//}
+int testRupID = 198219;
+if(fltSysRupIndex==testRupID) {
+			System.out.println("fltSysRupIndex="+testRupID+":\n\n"+
+					"\thistOpenInterval="+histOpenInterval+
+					"\taveCondRecurInterval="+aveCondRecurInterval+
+					"\taveTimeSinceLastWhereKnownYears="+aveTimeSinceLastWhereKnownYears+
+					"\taveNormTimeSinceLastEventWhereKnown="+aveNormTimeSinceLastEventWhereKnown+
+					"\tfractAreaWithTimeSince="+(totRupAreaWithDateOfLast/totRupArea)+
+					"\texpNum="+expNum
+					);
+}
 		
 
 		
@@ -610,7 +611,7 @@ public class ProbabilityModelsCalc {
 // if(fltSysRupIndex==testRupID) System.out.println("Here3");
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
- // if(fltSysRupIndex==testRupID) System.out.println("Here4");
+  if(fltSysRupIndex==testRupID) System.out.println("Here4");
 
 			// set normBPT_CDF based on magnitude
 			EvenlyDiscretizedFunc normBPT_CDF=normBPT_CDF_Array[getAperIndexForRupMag(rupMag)];
@@ -631,10 +632,10 @@ public class ProbabilityModelsCalc {
 						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
 						totWeight += relProbForTimeSinceLast;
 						
-//if(fltSysRupIndex==testRupID) {
-//		System.out.println("\t"+i+"\t"+(float)normTimeSinceYears+"\t"+(float)aveNormTS+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
-//				"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
-//}
+if(fltSysRupIndex==testRupID) {
+		System.out.println("\t"+i+"\t"+(float)normTimeSinceYears+"\t"+(float)aveNormTS+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+				"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
+}
 					}
 				}
 			}
@@ -650,11 +651,11 @@ public class ProbabilityModelsCalc {
 						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
 						totWeight += relProbForTimeSinceLast;
 						
-//// test
-//if(fltSysRupIndex==testRupID) {
-//			System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
-//					"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
-//}
+// test
+if(fltSysRupIndex==testRupID) {
+			System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+					"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
+}
 					}
 				}	
 			}
@@ -662,10 +663,10 @@ public class ProbabilityModelsCalc {
 			probGain = sumCondProbGain/totWeight;
 		}
 		
-//// test
-//		if(fltSysRupIndex==testRupID) {
-//				System.out.println("\tprobGain="+probGain);
-//}
+// test
+		if(fltSysRupIndex==testRupID) {
+				System.out.println("\tprobGain="+probGain);
+}
 
 		
 		if(simulationMode) {
@@ -4031,9 +4032,9 @@ public class ProbabilityModelsCalc {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
 //		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 //		
 //		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
@@ -4044,6 +4045,9 @@ public class ProbabilityModelsCalc {
 //		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
 		
 //		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);
+		
+		// Biggest prob diff between viable approaches on Imperial section 0
+//		System.out.println(testCalc.getInfoAboutRupture(198219, erf.getTimeSpan().getStartTimeInMillis()));
 		
 //		// Biggest prob diff between viable approaches on Mojave sections
 //		System.out.println(testCalc.getInfoAboutRupture(884, erf.getTimeSpan().getStartTimeInMillis()));
