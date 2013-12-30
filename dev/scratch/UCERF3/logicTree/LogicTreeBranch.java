@@ -268,7 +268,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof LogicTreeBranch))
 			return false;
 		LogicTreeBranch other = (LogicTreeBranch) obj;
 		if (branch == null) {

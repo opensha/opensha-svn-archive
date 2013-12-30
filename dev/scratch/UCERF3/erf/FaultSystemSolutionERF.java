@@ -277,7 +277,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	/**
 	 * Put parameters in theParameterList
 	 */
-	private void createParamList() {
+	protected void createParamList() {
 		adjustableParams = new ParameterList();
 		if(includeFileParam)
 			adjustableParams.addParameter(fileParam);

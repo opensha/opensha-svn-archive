@@ -53,13 +53,18 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 			return true;
 		if (!super.equals(obj))
 			return false;
-		if (getClass() != obj.getClass())
+		if (!(obj instanceof LogicTreeBranch))
 			return false;
-		VariableLogicTreeBranch other = (VariableLogicTreeBranch) obj;
-		if (variations == null) {
-			if (other.variations != null)
+		LogicTreeBranch other = (LogicTreeBranch) obj;
+		List<String> oVariations;
+		if (other instanceof VariableLogicTreeBranch)
+			oVariations = ((VariableLogicTreeBranch)other).variations;
+		else
+			oVariations = null;
+		if (variations == null || variations.isEmpty()) {
+			if (oVariations != null && !oVariations.isEmpty())
 				return false;
-		} else if (!variations.equals(other.variations))
+		} else if (!variations.equals(oVariations))
 			return false;
 		return true;
 	}

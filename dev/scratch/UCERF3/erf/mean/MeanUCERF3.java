@@ -159,7 +159,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 				"\nsections with upper depths within the given tolerance of the mean will be combined in order" +
 				"\nto reduce the overall section and rupture count.");
 		upperDepthTolParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(upperDepthTolParam);
 		upperDepthTol = upperDepthTolParam.getValue();
 		
 		upperDepthUseMeanParam = new BooleanParameter("Use Mean Upper Depth", true);
@@ -168,7 +167,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 				"\nNote that averaging does not incorporate participation rates, it is an unweighted mean" +
 				"\nand may not be representative.");
 		upperDepthUseMeanParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(upperDepthUseMeanParam);
 		upperDepthUseMean = upperDepthUseMeanParam.getValue();
 		
 		magTolParam = new DoubleParameter("Rup Mag Averaging Tolerance", 0d, 1d);
@@ -178,7 +176,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 				"\ncount. Magnitudes are averaged weighted by their rate. Set to '1' to average all mags" +
 				"\nfor each rupture.");
 		magTolParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(magTolParam);
 		magTol = magTolParam.getValue();
 		
 		ArrayList<String> rakeBasisStrs = Lists.newArrayList(RAKE_BASIS_NONE, RAKE_BASIS_MEAN);
@@ -191,7 +188,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 				"\nbe reduced by either using the rate-averaged rake or rakes from a specific" +
 				"\ndeformation model.");
 		rakeBasisParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(rakeBasisParam);
 		rakeBasisStr = rakeBasisParam.getValue();
 		loadRakeBasis();
 		
@@ -203,20 +199,33 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		faultModelParam.setInfo("There are two equally weighted Fault Models in UCERF3. You can optionally" +
 				"\nselect a single fault model with this parameter.");
 		faultModelParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(faultModelParam);
 		faultModelStr = faultModelParam.getValue();
 		
 		ignoreCacheParam = new BooleanParameter("Ignore Cache", false);
 		ignoreCacheParam.setInfo("MeanUCERF3 caches reduced solutions to save time. Setting this to" +
 				"\ntrue will disable loading cached versions.");
 		ignoreCacheParam.addParameterChangeListener(this);
-		adjustableParams.addParameter(ignoreCacheParam);
 		ignoreCache = ignoreCacheParam.getValue();
 		
 		// ensure disabled by default
 		aleatoryMagAreaStdDevParam.setValue(0d);
 		
-		adjustableParams.removeParameter(fileParam);
+		createParamList();
+	}
+	
+	@Override
+	protected void createParamList() {
+		super.createParamList();
+		
+		adjustableParams.addParameter(upperDepthTolParam);
+		adjustableParams.addParameter(upperDepthUseMeanParam);
+		adjustableParams.addParameter(magTolParam);
+		adjustableParams.addParameter(rakeBasisParam);
+		adjustableParams.addParameter(faultModelParam);
+		adjustableParams.addParameter(ignoreCacheParam);
+		
+		if (adjustableParams.containsParameter(FILE_PARAM_NAME))
+			adjustableParams.removeParameter(fileParam);
 	}
 	
 	@Override
