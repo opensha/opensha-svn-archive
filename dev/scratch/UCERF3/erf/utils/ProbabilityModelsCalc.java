@@ -582,17 +582,7 @@ public class ProbabilityModelsCalc {
 //int testRupID = 0;	// no sections have date of last
 //int testRupID = 884;
 //int testRupID = 249574;
-int testRupID = 198219;
-if(fltSysRupIndex==testRupID) {
-			System.out.println("fltSysRupIndex="+testRupID+":\n\n"+
-					"\thistOpenInterval="+histOpenInterval+
-					"\taveCondRecurInterval="+aveCondRecurInterval+
-					"\taveTimeSinceLastWhereKnownYears="+aveTimeSinceLastWhereKnownYears+
-					"\taveNormTimeSinceLastEventWhereKnown="+aveNormTimeSinceLastEventWhereKnown+
-					"\tfractAreaWithTimeSince="+(totRupAreaWithDateOfLast/totRupArea)+
-					"\texpNum="+expNum
-					);
-}
+// int testRupID = 198219; Imperial rup
 		
 
 		
@@ -611,12 +601,14 @@ if(fltSysRupIndex==testRupID) {
 // if(fltSysRupIndex==testRupID) System.out.println("Here3");
 		}
 		else {	// case where some have date of last; loop over all possibilities for those that don't.
-  if(fltSysRupIndex==testRupID) System.out.println("Here4");
+//  if(fltSysRupIndex==testRupID) System.out.println("Here4");
 
 			// set normBPT_CDF based on magnitude
 			EvenlyDiscretizedFunc normBPT_CDF=normBPT_CDF_Array[getAperIndexForRupMag(rupMag)];
 			double sumCondProbGain=0;
 			double totWeight=0;
+			double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+
 			
 			double condRecurIntWhereUnknown = computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(fltSysRupIndex, aveRecurIntervals);
 //			double condRecurIntWhereUnknown = aveCondRecurInterval;
@@ -625,17 +617,16 @@ if(fltSysRupIndex==testRupID) {
 				for(int i=0;i<normBPT_CDF.getNum();i++) {
 					double normTimeSinceYears = normBPT_CDF.getX(i);
 					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
-					if(normTimeSinceYears*condRecurIntWhereUnknown>=histOpenInterval && relProbForTimeSinceLast>0.0) {
-						double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
+					if(normTimeSinceYears*condRecurIntWhereUnknown>=histOpenInterval && relProbForTimeSinceLast>1e-15) {
 						double aveNormTS = (normTimeSinceYears*areaWithOutDateOfLast + aveNormTimeSinceLastEventWhereKnown*totRupAreaWithDateOfLast)/totRupArea;
 						double condProb = computeBPT_ProbFast(1.0, aveNormTS, durationYears/aveCondRecurInterval, rupMag);
 						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
 						totWeight += relProbForTimeSinceLast;
 						
-if(fltSysRupIndex==testRupID) {
-		System.out.println("\t"+i+"\t"+(float)normTimeSinceYears+"\t"+(float)aveNormTS+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
-				"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
-}
+//if(fltSysRupIndex==testRupID) {
+//		System.out.println("\t"+i+"\t"+(float)normTimeSinceYears+"\t"+(float)aveNormTS+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+//				"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
+//}
 					}
 				}
 			}
@@ -643,30 +634,52 @@ if(fltSysRupIndex==testRupID) {
 				for(int i=0;i<normBPT_CDF.getNum();i++) {
 					double timeSinceYears = normBPT_CDF.getX(i)*condRecurIntWhereUnknown;
 					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
-					if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>0.0) {
+//if(fltSysRupIndex==testRupID) {
+//	System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown+
+//			"\t"+(timeSinceYears>=histOpenInterval)+"\t"+(relProbForTimeSinceLast>0.0));
+//}
+
+					if(timeSinceYears>=histOpenInterval && relProbForTimeSinceLast>1e-15) {
 						// average the time since last between known and unknown sections
-						double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
 						double aveTimeSinceLast = (timeSinceYears*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
 						double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag);
 						sumCondProbGain += (condProb/expNum)*relProbForTimeSinceLast;
 						totWeight += relProbForTimeSinceLast;
 						
 // test
-if(fltSysRupIndex==testRupID) {
-			System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
-					"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
-}
+//if(fltSysRupIndex==testRupID) {
+//			System.out.println("\t"+i+"\t"+(float)timeSinceYears+"\t"+(float)aveTimeSinceLast+"\t"+(float)condProb+"\t"+(float)(condProb/expNum)+
+//					"\t"+(float)relProbForTimeSinceLast+"\t"+(float)condRecurIntWhereUnknown);
+//}
 					}
 				}	
 			}
 			
-			probGain = sumCondProbGain/totWeight;
+			if(totWeight>0) {
+				probGain = sumCondProbGain/totWeight;
+			}
+			else {	// deal with case where there was no viable time since last; use exactly historic open interval
+//List<FaultSectionPrefData> fltDataList = fltSysRupSet.getFaultSectionDataForRupture(fltSysRupIndex);
+//System.out.println("FIXING: "+fltDataList.get(0).getName()+" to "+fltDataList.get(fltDataList.size()-1).getName()+
+//		"\tFractAreaUnknown="+(areaWithOutDateOfLast/totRupArea));
+				if(aveNormTimeSinceLast) {
+					double normTimeSinceYearsUnknown = histOpenInterval/condRecurIntWhereUnknown;
+					double aveNormTS = (normTimeSinceYearsUnknown*areaWithOutDateOfLast + aveNormTimeSinceLastEventWhereKnown*totRupAreaWithDateOfLast)/totRupArea;
+					double condProb = computeBPT_ProbFast(1.0, aveNormTS, durationYears/aveCondRecurInterval, rupMag);
+					probGain = condProb/expNum;
+				}
+				else {
+					double aveTimeSinceLast = (histOpenInterval*areaWithOutDateOfLast + aveTimeSinceLastWhereKnownYears*totRupAreaWithDateOfLast)/totRupArea;
+					double condProb = computeBPT_ProbFast(aveCondRecurInterval, aveTimeSinceLast, durationYears, rupMag);
+					probGain = condProb/expNum;
+				}
+			}
 		}
 		
-// test
-		if(fltSysRupIndex==testRupID) {
-				System.out.println("\tprobGain="+probGain);
-}
+//// test
+//		if(fltSysRupIndex==testRupID) {
+//				System.out.println("\tprobGain="+probGain);
+//}
 
 		
 		if(simulationMode) {
@@ -700,6 +713,9 @@ if(fltSysRupIndex==testRupID) {
 					simProbGainForMagAbove7_Hist.add(probGain, longTermRateOfFltSysRup[fltSysRupIndex]);
 			}
 		}
+		
+//		if(Double.isNaN(probGain))
+//			throw new RuntimeException("NaN fltSysRupIndex="+fltSysRupIndex);
 		
 		return probGain;
 
