@@ -73,7 +73,9 @@ public class StringParameter extends AbstractParameter<String> {
      * Constructor doesn't specify a constraint, all values allowed. This
      * constructor sets the name of this parameter.
      */
-    public StringParameter( String name ) { this.name = name; }
+    public StringParameter( String name ) {
+    	this(name, null, null, null);
+    }
 
 
     /**
@@ -114,8 +116,7 @@ public class StringParameter extends AbstractParameter<String> {
      * @param  value  value of this parameter
      */
     public StringParameter( String name, String value ) {
-        this.name = name;
-        this.value = value;
+    	this(name, null, null, value);
     }
 
 

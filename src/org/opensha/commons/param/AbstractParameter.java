@@ -115,8 +115,8 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 	 */
 	private transient ArrayList<ParameterChangeFailListener> failListeners;
 
-	/** Empty no-arg constructor. Does nothing but initialize object. */
-	public AbstractParameter() {}
+	/** Empty no-arg constructor. Does nothing but initialize object, should only be used for cloning */
+	protected AbstractParameter() {}
 
 	/**
 	 * If the editable boolean is set to true, the parameter value can be
