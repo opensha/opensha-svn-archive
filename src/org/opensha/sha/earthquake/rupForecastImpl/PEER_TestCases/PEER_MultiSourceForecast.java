@@ -39,6 +39,7 @@ import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 
 /**
@@ -72,7 +73,7 @@ public class PEER_MultiSourceForecast extends AbstractERF{
   private GutenbergRichterMagFreqDist dist_gr_A_orig;
 
   // the GR distribution used for the gridded points of the area source
-  private GutenbergRichterMagFreqDist dist_GR;
+  private IncrementalMagFreqDist dist_GR;
 
   // the YC distribution used for faults B & C
   private YC_1985_CharMagFreqDist dist_yc_B;
@@ -247,7 +248,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       int numLocs = locationList.size();
 
-      dist_GR = (GutenbergRichterMagFreqDist) dist_gr_A_orig.deepClone();
+      dist_GR = dist_gr_A_orig.deepClone();
 
       double cumRate = dist_GR.getCumRate((int) 0);
       cumRate /= numLocs;
