@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.ParamOptions;
 
 /**
@@ -16,6 +17,14 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.P
  *
  */
 public class UCERF2_TimeDependentEpistemicList extends UCERF2_TimeIndependentEpistemicList{
+	public UCERF2_TimeDependentEpistemicList() {
+		super();
+		// we need a time dependent time span
+		timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+		timeSpan.setDuration(DURATION_DEFAULT);
+		timeSpan.addParameterChangeListener(this);
+	}
+
 	/**
 	 * Paramters that are adjusted in the runs
 	 *
@@ -91,10 +100,12 @@ public class UCERF2_TimeDependentEpistemicList extends UCERF2_TimeIndependentEpi
 	
 	public static void main(String[] args) {
 		UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+		ucerf2EpistemicList.getTimeSpan().setStartTime(2013);
 		int numERFs = ucerf2EpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
 		for(int i=0; i<numERFs; ++i) {
 			System.out.println("Weight of Branch "+i+"=\t"+ucerf2EpistemicList.getERF_RelativeWeight(i));
+			ucerf2EpistemicList.getERF(i);
 			//System.out.println("Parameters of Branch "+i+":");
 			//System.out.println(ucerf2EpistemicList.getERF(i).getAdjustableParameterList().getParameterListMetadataString("\n"));
 			

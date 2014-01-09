@@ -49,7 +49,7 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 	protected ArrayList<String> logicTreeParamNames; // parameters that are adjusted for logic tree
 	protected ArrayList<ParamOptions> logicTreeParamValues; // paramter values and their weights
 	private int lastParamIndex;
-	private final static double DURATION_DEFAULT = 30;
+	final static double DURATION_DEFAULT = 30;
 	private StringParameter backSeisParam, backSeisRupParam, floaterTypeParam;
 	
 	public UCERF2_TimeIndependentEpistemicList() {
@@ -283,7 +283,13 @@ public class UCERF2_TimeIndependentEpistemicList extends AbstractEpistemicListER
 		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, backSeisParam.getValue());
 		if(this.adjustableParams.containsParameter(backSeisRupParam)) ucerf2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, this.backSeisRupParam.getValue());
 		ucerf2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, this.floaterTypeParam.getValue());
-		ucerf2.getTimeSpan().setDuration(this.timeSpan.getDuration());
+		TimeSpan u2TimeSpan = ucerf2.getTimeSpan();
+		u2TimeSpan.setDuration(this.timeSpan.getDuration());
+		if (u2TimeSpan.getStartTimePrecision().equals(TimeSpan.YEARS) && timeSpan.getStartTimePrecision().equals(TimeSpan.YEARS)) {
+			// Time Dependent ERF
+			System.out.println("Setting Start Time for branch "+index);
+			u2TimeSpan.setStartTime(this.timeSpan.getStartTimeYear());
+		}
 		return ucerf2;
 	}
 	
