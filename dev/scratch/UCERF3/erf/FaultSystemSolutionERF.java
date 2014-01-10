@@ -737,7 +737,9 @@ public class FaultSystemSolutionERF extends AbstractERF {
 					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
 			Preconditions.checkState(src.getNumRuptures() > 0,
 					"Source has zero rups! Mag="+meanMag+", aleatoryMagAreaStdDev="+aleatoryMagAreaStdDev
-					+", fssRate="+faultSysSolution.getRateForRup(fltSystRupIndex)+", adjRupRate="+rupRate);
+					+", fssRate="+faultSysSolution.getRateForRup(fltSystRupIndex)+", adjRupRate="+rupRate
+					+", bptRupProb="+(aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration)
+					+", probGain="+probGain);
 		}
 		// make and set the name
 		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(fltSystRupIndex);
