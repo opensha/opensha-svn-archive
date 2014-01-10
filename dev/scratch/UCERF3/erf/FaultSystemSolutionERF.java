@@ -683,7 +683,19 @@ public class FaultSystemSolutionERF extends AbstractERF {
 
 		boolean isPoisson = true;		// this is for setting the source type
 		
-		if(aleatoryMagAreaStdDev == 0) {
+		double myAleatoryMagAreaStdDev = aleatoryMagAreaStdDev;
+		if (myAleatoryMagAreaStdDev != 0) {
+			// this tests if the rate will be zero when converted to a rate due to double precision issues
+			// with tiny probabilities. if so, turn off variability as it would result in an empty source
+			double rupProb = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
+			double rupRate = -Math.log(1-rupProb)/duration;
+			if (rupRate == 0d) {
+				// turn aleatory off for this rupture
+				myAleatoryMagAreaStdDev = 0d;
+			}
+		}
+		
+		if(myAleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
 			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
@@ -730,16 +742,15 @@ public class FaultSystemSolutionERF extends AbstractERF {
 				rupRate = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex);
 			}
 			double totMoRate = rupRate*MagUtils.magToMoment(meanMag);
-			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,meanMag,aleatoryMagAreaStdDev,totMoRate,2.0,2);
+			GaussianMagFreqDist srcMFD = new GaussianMagFreqDist(5.05,8.65,37,meanMag,myAleatoryMagAreaStdDev,totMoRate,2.0,2);
 			// this also sets the source as Poisson for U3; does this matter? TODO
 			src = new FaultRuptureSource(srcMFD, 
 					rupSet.getSurfaceForRupupture(fltSystRupIndex, faultGridSpacing, quadSurfaces),
 					rupSet.getAveRakeForRup(fltSystRupIndex), timeSpan.getDuration());
 			Preconditions.checkState(src.getNumRuptures() > 0,
-					"Source has zero rups! Mag="+meanMag+", aleatoryMagAreaStdDev="+aleatoryMagAreaStdDev
+					"Source has zero rups! Mag="+meanMag+", aleatoryMagAreaStdDev="+myAleatoryMagAreaStdDev
 					+", fssRate="+faultSysSolution.getRateForRup(fltSystRupIndex)+", adjRupRate="+rupRate
-					+", bptRupProb="+(aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration)
-					+", probGain="+probGain);
+					+", probGain="+probGain+", mft.getNum()="+srcMFD.getNum());
 		}
 		// make and set the name
 		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(fltSystRupIndex);
@@ -966,7 +977,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-
+		
 		erf.updateForecast();
 		
 		System.out.println("run took "+runtime/(1000*60)+" minutes");

@@ -28,7 +28,7 @@ public class UCERF3_EAL_ScriptGen {
 			writeDir.mkdir();
 		
 //		String runSubDirName = "2013_11_04-eal-calc-small-test";
-		String runSubDirName = "2013_11_05-ucerf3-eal-calc-CB-2013";
+		String runSubDirName = "2014_01_09-ucerf3-eal-calc-CB-2013";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -48,17 +48,17 @@ public class UCERF3_EAL_ScriptGen {
 		int maxHeapMB = 26000;
 		
 		String meanSolFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip";
-		File meanSolFile = new File(remoteSubDir, meanSolFileName);
+		File meanSolFile = new File(remoteMainDir, meanSolFileName);
 		
 		String vulnFileName = "2012_01_02_VUL06.txt";
-		File vulnFile = new File(remoteSubDir, vulnFileName);
+		File vulnFile = new File(remoteMainDir, vulnFileName);
 		
 		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv";
 //		String portfolioFileName = "small_test_port.csv";
-		File portfolioFile = new File(remoteSubDir, portfolioFileName);
+		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
-				LogicTreePBSWriter.getClasspath(remoteSubDir, remoteSubDir), mpjHome, false);
+				LogicTreePBSWriter.getClasspath(remoteMainDir, remoteSubDir), mpjHome, false);
 		
 //		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, maxHeapMB,
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));

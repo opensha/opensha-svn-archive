@@ -474,6 +474,9 @@ public class FSS_ERF_ParamTest {
 						assertEquals(applyMessage, source.getNumRuptures(), rupMFDs[invRup].getNum());
 				} else {
 					// make sure greater than 1 and evenly spaced
+					if (source.computeTotalProb() < 1e-15 && source.getNumRuptures() == 1)
+						// check for the disable case for tiny probs
+						continue;
 					assertTrue(applyMessage, source.getNumRuptures() > 1);
 					double spacing = Double.NaN;
 					for (int rupIndex=1; rupIndex<source.getNumRuptures(); rupIndex++) {

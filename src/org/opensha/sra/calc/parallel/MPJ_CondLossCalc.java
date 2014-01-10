@@ -115,7 +115,20 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		}
 		
 		// TODO mag thresh func
-		ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
+//		OpenSHA default
+//		0, 5.25,  5.75, 6.25,  6.75, 7.25,  9
+//		0, 25,    40,   60,    80,   100,   500
+//		ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
+		
+		// from Keith 1/9/14
+//		5.25  60 km
+//		7.25 200 km
+//		9.00 500 km
+		ArbitrarilyDiscretizedFunc magThreshFunc = new ArbitrarilyDiscretizedFunc();
+		magThreshFunc.set(0d,	0.00);
+		magThreshFunc.set(60d,	5.25);
+		magThreshFunc.set(200d,	7.25);
+		magThreshFunc.set(500d,	9.00);
 		
 		calc = new ThreadedCondLossCalc(assets, erfs, imrs, this, magThreshFunc);
 		
