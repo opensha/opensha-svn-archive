@@ -32,13 +32,13 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 	@Override
 	public boolean isKnownBug(BugReport bug) {
 		Throwable t = bug.getThrowable();
-		return isExceptoinMatch(t);
+		return isExceptionMatch(t);
 	}
 	
-	private boolean isExceptoinMatch(Throwable t) {
+	private boolean isExceptionMatch(Throwable t) {
 		if (t == null)
 			return false;
-		if (t.getCause() != null && isExceptoinMatch(t.getCause()))
+		if (t.getCause() != null && isExceptionMatch(t.getCause()))
 			return true;
 		if (t.getClass().equals(exceptionClass)) {
 			// if the exception type is a match, then return true if our message

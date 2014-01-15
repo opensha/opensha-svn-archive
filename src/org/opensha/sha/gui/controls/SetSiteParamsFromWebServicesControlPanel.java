@@ -159,7 +159,8 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     catch (Exception ee) {
       ee.printStackTrace();
       JOptionPane.showMessageDialog(this,
-          "Server is down for maintenance, please try again later",
+          "Server is down for maintenance, please try again later. If the problem persists, make sure"
+					+ " you are using the latest version of our applications.",
                                     "Server Problem",
                                     JOptionPane.INFORMATION_MESSAGE);
       return;

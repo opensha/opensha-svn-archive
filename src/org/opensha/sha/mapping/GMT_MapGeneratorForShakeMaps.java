@@ -388,7 +388,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				throw (RuntimeException)messageFromServlet;
 		}catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("Server is down , please try again later");
+			throw new RuntimeException("Server is down, please try again later. If the problem persists, make sure"
+					+ " you are using the latest version of our applications.");
 		}
 		return webaddr;
 	}
