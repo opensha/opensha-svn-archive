@@ -130,9 +130,13 @@
 		-->
 
 		<schedule interval="3600">
-			<!-- This test runs hourly, making sure the system is operational (servlets, should check RMI) -->
+			<!-- This test runs hourly, making sure the system is operational (servlets, DB) -->
 			<ant uselogger="true" antscript="${ant.bin}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
+						target="run.operational.tests" />
+			<!-- Now test released applications making sure the system is operational (servlets, should check RMI) -->
+			<ant uselogger="true" antscript="${ant.bin}"
+						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="run.operational.tests" />
 		</schedule>
 

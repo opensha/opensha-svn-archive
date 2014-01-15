@@ -33,7 +33,6 @@
 	<!-- Called by the OpenSHA-continuous CC project -->
 	<target name="svn.build.run.common.tests" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.common.tests"/>
-		<ant antfile="/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/ant/test.xml" target="run.common.tests"/>
 	</target>
 	
 	<!-- Called by the OpenSHA-operational CC project -->
