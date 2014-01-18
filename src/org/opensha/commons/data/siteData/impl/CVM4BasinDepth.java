@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.opensha.commons.data.siteData.AbstractCVMBasinDepth;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.SiteData;
@@ -101,14 +102,14 @@ public class CVM4BasinDepth extends AbstractCVMBasinDepth {
 	}
 	
 	@Override
-	File getDefaultFile(String type) {
+	protected File getDefaultFile(String type) {
 		if (type.equals(TYPE_DEPTH_TO_1_0))
 			return new File(DEPTH_1_0_FILE);
 		return new File(DEPTH_2_5_FILE);
 	}
 
 	@Override
-	String getServletURL(String type) {
+	protected String getServletURL(String type) {
 		if (type.equals(TYPE_DEPTH_TO_1_0))
 			return SERVLET_1_0_URL;
 		return SERVLET_2_5_URL;

@@ -1,4 +1,4 @@
-package org.opensha.commons.data.siteData.impl;
+package org.opensha.commons.data.siteData;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -16,7 +15,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
-abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
+public abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 	
 	private int nx;
 	private int ny;
@@ -29,13 +28,13 @@ abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 	protected boolean useServlet;
 	protected File dataFile; 
 	
-	GeolocatedRectangularBinaryMesh2DCalculator calc;
+	protected GeolocatedRectangularBinaryMesh2DCalculator calc;
 	private SiteDataServletAccessor<Double> servlet = null;
 	private RandomAccessFile file;
 	private byte[] recordBuffer;
 	private FloatBuffer floatBuff;
 	
-	long maxFilePos;
+	protected long maxFilePos;
 	
 	public AbstractCVMBasinDepth(int nx, int ny, double minLat, double minLon,
 			double gridSpacing, boolean startBottom, boolean startLeft,
@@ -82,9 +81,9 @@ abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 		this.dataFile = dataFile;
 	}
 	
-	abstract File getDefaultFile(String type);
+	protected abstract File getDefaultFile(String type);
 	
-	abstract String getServletURL(String type);
+	protected abstract String getServletURL(String type);
 	
 	public final Region getApplicableRegion() {
 		return calc.getApplicableRegion();
@@ -112,7 +111,7 @@ abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 		}
 	}
 	
-	Double getValue(long pos) throws IOException {
+	protected Double getValue(long pos) throws IOException {
 		if (pos > maxFilePos || pos < 0)
 			return Double.NaN;
 		

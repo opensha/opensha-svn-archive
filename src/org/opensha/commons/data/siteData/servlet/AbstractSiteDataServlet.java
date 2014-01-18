@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -108,9 +109,9 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 					fail(out, "Invalid location!");
 				Element e = data.getValue(loc);
 				out.writeObject(e);
-			} else if (obj instanceof ArrayList) {
+			} else if (obj instanceof List) {
 				// this is a multiple location request
-				ArrayList<double[]> pts = (ArrayList<double[]>)obj;
+				List<double[]> pts = (List<double[]>)obj;
 				LocationList locs = new LocationList();
 				for (double[] pt : pts) {
 					Location loc = getLocation(pt);
@@ -130,7 +131,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 					}
 					Location loc = (Location)obj;
 					Location close = data.getClosestDataLocation(loc);
-					out.writeObject(loc);
+					out.writeObject(close);
 				} else {
 					fail(out, "Unknown operation: " + op);
 					return;

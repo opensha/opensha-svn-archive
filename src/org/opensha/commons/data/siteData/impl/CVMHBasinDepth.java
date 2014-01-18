@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.opensha.commons.data.siteData.AbstractCVMBasinDepth;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.ServerPrefUtils;
 
@@ -61,14 +62,14 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth {
 	}
 
 	@Override
-	File getDefaultFile(String type) {
+	protected File getDefaultFile(String type) {
 		if (type.equals(TYPE_DEPTH_TO_1_0))
 			return new File(DEPTH_1_0_FILE);
 		return new File(DEPTH_2_5_FILE);
 	}
 
 	@Override
-	String getServletURL(String type) {
+	protected String getServletURL(String type) {
 		if (type.equals(TYPE_DEPTH_TO_1_0))
 			return SERVLET_1_0_URL;
 		return SERVLET_2_5_URL;
