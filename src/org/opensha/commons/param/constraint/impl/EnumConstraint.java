@@ -1,6 +1,8 @@
 package org.opensha.commons.param.constraint.impl;
 
 import static com.google.common.base.Preconditions.*;
+
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -37,7 +39,8 @@ public class EnumConstraint<E extends Enum<E>> extends
 		checkNotNull(values, "Supplied value set is null");
 		checkArgument(!values.isEmpty(), "Supplied value set is empty");
 		setNullAllowed(allowsNull);
-		this.values = ImmutableList.copyOf(values);
+		// switched from ImmutableList, see ticket #451
+		this.values = Collections.unmodifiableList(Lists.newArrayList(values));
 	}
 
 	@Override
