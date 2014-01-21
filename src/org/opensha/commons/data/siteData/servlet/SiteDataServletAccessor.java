@@ -26,17 +26,21 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
+import org.opensha.commons.data.siteData.ServletEnabledSiteData;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.param.ParameterList;
 
 public class SiteDataServletAccessor<Element> {
 	
 	private String url;
+	private ServletEnabledSiteData<Element> data;
 	
 	private int maxLocsPerRequest = 100000;
 	
-	public SiteDataServletAccessor(String servletURL) {
+	public SiteDataServletAccessor(ServletEnabledSiteData<Element> data, String servletURL) {
 		this.url = servletURL;
+		this.data = data;
 	}
 	
 	public int getMaxLocsPerRequest() {
@@ -87,10 +91,13 @@ public class SiteDataServletAccessor<Element> {
 		ObjectOutputStream outputToServlet = new
 				ObjectOutputStream(servletConnection.getOutputStream());
 		
+		ParameterList serverParams = data.getServerSideParams();
+		if (serverParams != null && serverParams.size() > 0)
+			outputToServlet.writeObject(serverParams);
+		
 		// we have an operation to specify
-		if (operation != null && operation.length() > 0) {
+		if (operation != null && operation.length() > 0)
 			outputToServlet.writeObject(operation);
-		}
 		
 		outputToServlet.writeObject(request);
 		

@@ -88,7 +88,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+			servlet = new SiteDataServletAccessor<Double>(this, SERVLET_URL);
 		} else {
 			file = new RandomAccessFile(fileName, "r");
 			

@@ -33,9 +33,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opensha.commons.data.siteData.ServletEnabledSiteData;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ServerPrefUtils;
 
 public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
@@ -44,11 +47,11 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
 	public static String OP_GET_CLOSEST = "Get Closest Location";
 	
-	private SiteData<Element> data;
+	private ServletEnabledSiteData<Element> data;
 	
 	private String debugName;
 	
-	public AbstractSiteDataServlet(SiteData<Element> data) {
+	public AbstractSiteDataServlet(ServletEnabledSiteData<Element> data) {
 		super();
 		
 		this.data = data;
@@ -59,7 +62,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 		// if you use this, you better set the data!
 	}
 	
-	public void setData(SiteData<Element> data) {
+	public void setData(ServletEnabledSiteData<Element> data) {
 		this.data = data;
 		this.debugName = data.getShortName() + " servlet";
 	}
@@ -81,7 +84,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	}
 	
 	// Process the HTTP Get request
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public synchronized void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		debug("Handling GET");
 		
 		// get an input stream from the applet
@@ -91,6 +94,25 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 		// get the location or location list object
 		try {
 			Object obj = in.readObject();
+			
+			ParameterList serverParams = data.getServerSideParams();
+			if (serverParams != null && serverParams.size() > 0) {
+				// this site data has parameters
+				if (!(obj instanceof ParameterList))
+					fail(out, data.getShortName()+" requires "+serverParams.size()+", none given");
+				ParameterList incomingParams = (ParameterList)obj;
+				if (incomingParams.size() != serverParams.size())
+					fail(out, data.getShortName()+" requires "+serverParams.size()+", "+incomingParams.size()+" given");
+				
+				for (Parameter param : serverParams) {
+					if (!incomingParams.containsParameter(param))
+						fail(out, data.getShortName()+" requires parameter '"+param.getName()+"' which wasn't supplied.");
+					param.setValue(incomingParams.getParameter(param.getName()).getValue());
+				}
+				
+				// now get next next object in stream
+				obj = in.readObject();
+			}
 			
 			if (obj instanceof Location) {
 				// this is a single location request

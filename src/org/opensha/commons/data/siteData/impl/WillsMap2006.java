@@ -92,7 +92,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		applicableRegion = calc.getApplicableRegion();
 		
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+			servlet = new SiteDataServletAccessor<Double>(this, SERVLET_URL);
 		} else {
 			file = new RandomAccessFile(new File(dataFile), "r");
 			

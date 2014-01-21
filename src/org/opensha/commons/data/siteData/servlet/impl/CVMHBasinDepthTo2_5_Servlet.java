@@ -30,10 +30,10 @@ import org.opensha.commons.util.ServerPrefUtils;
 public class CVMHBasinDepthTo2_5_Servlet extends
 		AbstractSiteDataServlet<Double> {
 	
-	private static final File FILE = new File(ServerPrefUtils.SERVER_PREFS.getTomcatDir()
-										+CVMHBasinDepth.DEPTH_2_5_FILE);
+	private static final File DIR = new File(ServerPrefUtils.SERVER_PREFS.getTomcatDir()
+										+CVMHBasinDepth.DEFAULT_DATA_DIR);
 	
 	public CVMHBasinDepthTo2_5_Servlet() throws IOException {
-		super(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5, FILE, false));
+		super(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5, DIR, false));
 	}
 }

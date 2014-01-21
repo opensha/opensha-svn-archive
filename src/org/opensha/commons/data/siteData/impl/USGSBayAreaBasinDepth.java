@@ -97,9 +97,9 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		
 		if (useServlet) {
 			if (type.equals(TYPE_DEPTH_TO_1_0))
-				servlet = new SiteDataServletAccessor<Double>(SERVLET_1_0_URL);
+				servlet = new SiteDataServletAccessor<Double>(this, SERVLET_1_0_URL);
 			else
-				servlet = new SiteDataServletAccessor<Double>(SERVLET_2_5_URL);
+				servlet = new SiteDataServletAccessor<Double>(this, SERVLET_2_5_URL);
 		} else {
 			if (dataFile == null) {
 				if (type.equals(TYPE_DEPTH_TO_1_0))

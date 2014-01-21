@@ -78,7 +78,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 //			e.printStackTrace();
 //		}
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<String>(SERVLET_URL);
+			servlet = new SiteDataServletAccessor<String>(this, SERVLET_URL);
 			servlet.setMaxLocsPerRequest(10000);
 		}
 	}

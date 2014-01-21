@@ -80,7 +80,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 	private SRTM30TopoSlope(String fileName, boolean useServlet) throws IOException {
 		this.useServlet = useServlet;
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+			servlet = new SiteDataServletAccessor<Double>(this, SERVLET_URL);
 		} else {
 			file = new RandomAccessFile(new File(fileName), "r");
 			

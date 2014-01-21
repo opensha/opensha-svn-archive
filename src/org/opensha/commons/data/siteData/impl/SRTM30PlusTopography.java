@@ -78,7 +78,7 @@ public class SRTM30PlusTopography extends AbstractSiteData<Double> {
 	private SRTM30PlusTopography(String fileName, boolean useServlet) throws IOException {
 		this.useServlet = useServlet;
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+			servlet = new SiteDataServletAccessor<Double>(this, SERVLET_URL);
 		} else {
 			file = new RandomAccessFile(new File(fileName), "r");
 			

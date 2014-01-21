@@ -1,6 +1,7 @@
 package org.opensha.commons.data.siteData;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -15,7 +16,11 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
+import com.google.common.base.Preconditions;
+
 public abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
+	
+	protected static final String s = File.separator;
 	
 	private int nx;
 	private int ny;
@@ -57,7 +62,7 @@ public abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 				DataType.FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
-			servlet = new SiteDataServletAccessor<Double>(getServletURL(type));
+			servlet = new SiteDataServletAccessor<Double>(this, getServletURL(type));
 		} else {
 			if (dataFile == null) {
 				dataFile = getDefaultFile(type);
@@ -84,6 +89,19 @@ public abstract class AbstractCVMBasinDepth extends AbstractSiteData<Double> {
 	protected abstract File getDefaultFile(String type);
 	
 	protected abstract String getServletURL(String type);
+	
+	/**
+	 * This can be called to change the datafile in the case of a parameter change
+	 * @param dataFile
+	 * @throws FileNotFoundException
+	 */
+	protected void setDataFile(File dataFile) throws FileNotFoundException {
+		Preconditions.checkNotNull(dataFile, "data file cannot be null.");
+		Preconditions.checkArgument(dataFile.exists(), dataFile.getAbsolutePath()+" doesn't exist!");
+//		System.out.println("Set data file to: "+dataFile.getAbsolutePath());
+		this.dataFile = dataFile;
+		file = new RandomAccessFile(dataFile, "r");
+	}
 	
 	public final Region getApplicableRegion() {
 		return calc.getApplicableRegion();

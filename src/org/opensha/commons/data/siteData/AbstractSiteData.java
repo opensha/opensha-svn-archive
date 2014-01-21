@@ -45,10 +45,12 @@ import org.opensha.commons.param.impl.DoubleParameter;
  *
  * @param <Element>
  */
-public abstract class AbstractSiteData<Element> implements SiteData<Element> {
+public abstract class AbstractSiteData<Element> implements ServletEnabledSiteData<Element> {
 	
 	protected ParameterList paramList;
 	protected ParameterListEditor paramEdit = null;
+	
+	protected ParameterList serverParamsList;
 	
 	public static final String PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME = "Minimum Basin Depth";
 	public static final Double PARAM_MIN_BASIN_DEPTH_DOUBLE_MIN = 0.0d;
@@ -100,6 +102,7 @@ public abstract class AbstractSiteData<Element> implements SiteData<Element> {
 	
 	public AbstractSiteData() {
 		paramList = new ParameterList();
+		serverParamsList = new ParameterList();
 	}
 	
 	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException {
@@ -330,6 +333,13 @@ public abstract class AbstractSiteData<Element> implements SiteData<Element> {
 		}
 		
 		return provider;
+	}
+
+	@Override
+	public ParameterList getServerSideParams() {
+		if (serverParamsList.size() > 0)
+			return serverParamsList;
+		return null;
 	}
 	
 }
