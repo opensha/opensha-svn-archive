@@ -98,7 +98,7 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterCh
 		gtlParam = new BooleanParameter(GTL_PARAM_NAME, GTL_PARAM_DEFAULT);
 		gtlParam.addParameterChangeListener(this);
 		paramList.addParameter(gtlParam);
-		serverParamsList.addParameter(versionParam);
+		serverParamsList.addParameter(gtlParam);
 		
 		updateFile();
 	}
