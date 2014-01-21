@@ -93,10 +93,12 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterCh
 				EnumSet.allOf(Version.class), VERSION_DEFAULT, null);
 		versionParam.addParameterChangeListener(this);
 		paramList.addParameter(versionParam);
+		serverParamsList.addParameter(versionParam);
 		
 		gtlParam = new BooleanParameter(GTL_PARAM_NAME, GTL_PARAM_DEFAULT);
 		gtlParam.addParameterChangeListener(this);
 		paramList.addParameter(gtlParam);
+		serverParamsList.addParameter(versionParam);
 		
 		updateFile();
 	}
