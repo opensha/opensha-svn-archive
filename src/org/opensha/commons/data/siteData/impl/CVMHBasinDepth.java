@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterCh
 	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVMH_1_0";
 	
 	// versions
-	private enum Version {
+	public enum Version implements Serializable {
 		VER_11_9_1("11.9.1 accessed 1/17/14 with UCVM 13.9.0", "11.9.1", new boolean[] { true, false}),
 		VER_11_9_0("11.9.0 accessed 5/29/12 with UCVM 12.2.0", "11.9.0", new boolean[] { true });
 		
