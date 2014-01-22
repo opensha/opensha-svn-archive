@@ -222,6 +222,31 @@ public class ParameterList implements Serializable, Iterable<Parameter<?>> {
 			throw new ParameterException(S + "No parameter exists named " + name);
 		}
 	}
+	
+	/**
+	 * Returns the parameter at the given index
+	 * @param index
+	 * @return
+	 */
+	public Parameter getByIndex(int index) {
+		return params.get(index);
+	}
+	
+	public boolean isEmpty() {
+		return params.isEmpty();
+	}
+	
+	/**
+	 * Returns a Parameter at the given index, cast to the given type.
+	 * 
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> Parameter<T> getByIndex(Class<T> type, int index) {
+		return (Parameter<T>)getByIndex(index);
+	}
 
 	/** Set's a new value to a Parameter in the list if it exists, else throws exception. */
 	public void setValue(String name, Object value) throws ParameterException, ConstraintException {

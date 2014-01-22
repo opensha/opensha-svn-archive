@@ -100,15 +100,12 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 				// this site data has parameters
 				if (!(obj instanceof ParameterList))
 					fail(out, data.getShortName()+" requires "+serverParams.size()+", none given");
-				ParameterList incomingParams = (ParameterList)obj;
-				if (incomingParams.size() != serverParams.size())
-					fail(out, data.getShortName()+" requires "+serverParams.size()+", "+incomingParams.size()+" given");
+				List<Object> incomingParamVals = (List<Object>)obj;
+				if (incomingParamVals.size() != serverParams.size())
+					fail(out, data.getShortName()+" requires "+serverParams.size()+", "+incomingParamVals.size()+" given");
 				
-				for (Parameter param : serverParams) {
-					if (!incomingParams.containsParameter(param))
-						fail(out, data.getShortName()+" requires parameter '"+param.getName()+"' which wasn't supplied.");
-					param.setValue(incomingParams.getParameter(param.getName()).getValue());
-				}
+				for (int i=0; i<serverParams.size(); i++)
+					serverParams.getByIndex(i).setValue(incomingParamVals.get(i));
 				
 				// now get next next object in stream
 				obj = in.readObject();

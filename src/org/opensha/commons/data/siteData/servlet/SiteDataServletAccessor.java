@@ -25,11 +25,15 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.siteData.ServletEnabledSiteData;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+
+import com.google.common.collect.Lists;
 
 public class SiteDataServletAccessor<Element> {
 	
@@ -92,8 +96,12 @@ public class SiteDataServletAccessor<Element> {
 				ObjectOutputStream(servletConnection.getOutputStream());
 		
 		ParameterList serverParams = data.getServerSideParams();
-		if (serverParams != null && serverParams.size() > 0)
-			outputToServlet.writeObject(serverParams);
+		if (serverParams != null && serverParams.size() > 0) {
+			List<Object> paramVals = Lists.newArrayList();
+			for (Parameter param : serverParams)
+				paramVals.add(param.getValue());
+			outputToServlet.writeObject(paramVals);
+		}
 		
 		// we have an operation to specify
 		if (operation != null && operation.length() > 0)
