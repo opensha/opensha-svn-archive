@@ -98,7 +98,7 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 			ParameterList serverParams = data.getServerSideParams();
 			if (serverParams != null && serverParams.size() > 0) {
 				// this site data has parameters
-				if (!(obj instanceof ParameterList))
+				if (!(obj instanceof List))
 					fail(out, data.getShortName()+" requires "+serverParams.size()+", none given");
 				List<Object> incomingParamVals = (List<Object>)obj;
 				if (incomingParamVals.size() != serverParams.size())
