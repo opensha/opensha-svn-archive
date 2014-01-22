@@ -47,7 +47,7 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterCh
 	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVMH_1_0";
 	
 	// versions
-	private enum Version {
+	public enum Version {
 		VER_11_9_1("11.9.1 accessed 1/17/14 with UCVM 13.9.0", "11.9.1", new boolean[] { true, false}),
 		VER_11_9_0("11.9.0 accessed 5/29/12 with UCVM 12.2.0", "11.9.0", new boolean[] { true });
 		
@@ -71,13 +71,13 @@ public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterCh
 	
 	private File dataDir;
 	
-	private static final String VERSION_PARAM_NAME = "Version";
+	public static final String VERSION_PARAM_NAME = "Version";
 	private EnumParameter<Version> versionParam;
-	private static final Version VERSION_DEFAULT = Version.VER_11_9_1;
+	public static final Version VERSION_DEFAULT = Version.VER_11_9_1;
 	
-	private static final String GTL_PARAM_NAME = "Include Geotechnical Layer (GTL)";
+	public static final String GTL_PARAM_NAME = "Include Geotechnical Layer (GTL)";
 	private BooleanParameter gtlParam;
-	private static final Boolean GTL_PARAM_DEFAULT = true;
+	public static final Boolean GTL_PARAM_DEFAULT = true;
 	
 	public CVMHBasinDepth(String type) throws IOException {
 		this(type, null, true);

@@ -61,6 +61,7 @@ import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
+import org.opensha.commons.data.siteData.impl.ConstantValueDataProvider;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
@@ -237,17 +238,22 @@ public class HazardCurvePlotter {
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
-			} else if (velModelID == 2 || velModelID == 4) {
+			} else if (velModelID == 2 || velModelID == 4 || velModelID == 7) {
 				/*		CVMH Depth to 2.5					 */
+				boolean includeGTL = velModelID != 7;
 				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
 				
 				/*		CVMH Depth to 1.0					 */
 				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
@@ -265,6 +271,12 @@ public class HazardCurvePlotter {
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
+			} else if (velModelID == 6) {
+				// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
+						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
+						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
 			} else {
 				System.err.println("Unknown Velocity Model ID: "+velModelID);
 				System.exit(1);

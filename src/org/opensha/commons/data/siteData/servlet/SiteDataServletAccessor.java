@@ -100,6 +100,7 @@ public class SiteDataServletAccessor<Element> {
 			List<Object> paramVals = Lists.newArrayList();
 			for (Parameter param : serverParams)
 				paramVals.add(param.getValue());
+//			System.out.println("Sending params: "+paramVals.size());
 			outputToServlet.writeObject(paramVals);
 		}
 		
