@@ -101,13 +101,13 @@ public class Idriss_2013 {
 
 	// Aleatory uncertainty model
 	private double calcStdDev(Coeffs c, double Mw) {
-		double s1 = 0.05;
+		double s1 = 0.035;
 		Double T = c.imt().getPeriod();
 		s1 *= (T == null || T <= 0.05) ? log(0.05) : (T < 3.0) ? log(T)
 			: log(3d);
-		double s2 = 0.08;
+		double s2 = 0.06;
 		s2 *= (Mw <= 5.0) ? 5.0 : (Mw < 7.5) ? Mw : 7.5;
-		return 1.28 + s1 - s2;
+		return 1.18 + s1 - s2;
 	}
 	
 	public Collection<IMT> getSupportedIMTs() {
