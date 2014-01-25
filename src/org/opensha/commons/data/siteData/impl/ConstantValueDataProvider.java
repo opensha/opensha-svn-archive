@@ -35,7 +35,7 @@ public class ConstantValueDataProvider<Element> extends
 
 	@Override
 	public Region getApplicableRegion() {
-		return null;
+		return Region.getGlobalRegion();
 	}
 
 	@Override
