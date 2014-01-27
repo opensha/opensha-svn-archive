@@ -68,6 +68,7 @@
 		<antcall target="build.gmt" />
 		<antcall target="build.mfd" />
 		<antcall target="build.site.data" />
+		<antcall target="build.prob.dist" />
 	</target>
 	
 	<target name="build.wgcep">
