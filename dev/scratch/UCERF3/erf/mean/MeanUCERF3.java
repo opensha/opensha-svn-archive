@@ -217,6 +217,10 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	protected void createParamList() {
 		super.createParamList();
 		
+		if (upperDepthTolParam == null)
+			// called during super constructor, wait until next time
+			return;
+		
 		adjustableParams.addParameter(upperDepthTolParam);
 		adjustableParams.addParameter(upperDepthUseMeanParam);
 		adjustableParams.addParameter(magTolParam);
@@ -483,6 +487,17 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			progress.dispose();
 		}
 		return file;
+	}
+	
+	public static void main(String[] args) {
+		File solFile = new File(getStoreDir(), "mean_ucerf3_sol.zip");
+		FaultSystemSolution sol;
+		try {
+			sol = FaultSystemIO.loadSol(solFile);
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		MeanUCERF3 muc3 = new MeanUCERF3(sol);
 	}
 
 }
