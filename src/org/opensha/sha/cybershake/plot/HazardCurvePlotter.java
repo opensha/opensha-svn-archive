@@ -217,69 +217,73 @@ public class HazardCurvePlotter {
 		if (dataProviders == null) {
 			ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 			
-			/*		Wills 2006 Map (2000 as backup)	 */
-			// try the 2006 map first
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
-			if (velModelID == 1) {
-				/*		CVM4 Depth to 2.5					 */
-				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-				
-				/*		CVM4 Depth to 1.0					 */
-				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			} else if (velModelID == 2 || velModelID == 4 || velModelID == 7) {
-				/*		CVMH Depth to 2.5					 */
-				boolean includeGTL = velModelID != 7;
-				try {
-					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
-					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
-					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-				
-				/*		CVMH Depth to 1.0					 */
-				try {
-					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
-					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
-					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			} else if (velModelID == 5) {
-				/*		CVM4i26 Depth to 2.5					 */
-				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-				
-				/*		CVM4i26 Depth to 1.0					 */
-				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			} else if (velModelID == 6) {
+			if (velModelID == 6) {
 				// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
 				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
 						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
 				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
 						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
+						SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
 			} else {
-				System.err.println("Unknown Velocity Model ID: "+velModelID);
-				System.exit(1);
+				/*		Wills 2006 Map (2000 as backup)	 */
+				// try the 2006 map first
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				if (velModelID == 1) {
+					/*		CVM4 Depth to 2.5					 */
+					try {
+						providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+					
+					/*		CVM4 Depth to 1.0					 */
+					try {
+						providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+				} else if (velModelID == 2 || velModelID == 4 || velModelID == 7) {
+					/*		CVMH Depth to 2.5					 */
+					boolean includeGTL = velModelID != 7;
+					try {
+						CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+						cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+						providers.add(new CachedSiteDataWrapper<Double>(cvmh));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+					
+					/*		CVMH Depth to 1.0					 */
+					try {
+						CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+						cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+						providers.add(new CachedSiteDataWrapper<Double>(cvmh));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+				} else if (velModelID == 5) {
+					/*		CVM4i26 Depth to 2.5					 */
+					try {
+						providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+					
+					/*		CVM4i26 Depth to 1.0					 */
+					try {
+						providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+					} catch (IOException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+				} else {
+					System.err.println("Unknown Velocity Model ID: "+velModelID);
+					System.exit(1);
+				}
 			}
 			
 			dataProviders = new OrderedSiteDataProviderList(providers);
