@@ -82,7 +82,7 @@ public class Idriss_2013 {
 		coeffsHi.set(imt);
 		coeffsLo.set(imt);
 		
-		Coeffs c = (Mw <= 3.75) ? coeffsLo : coeffsHi;
+		Coeffs c = (Mw <= 6.75) ? coeffsLo : coeffsHi;
 		
 		double mean = calcMean(c, Mw, rRup, vs30, style);
 		double stdDev = calcStdDev(c, Mw);
