@@ -225,6 +225,14 @@ public class HazardCurvePlotter {
 						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
 				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
 						SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
+			} else if (velModelID == 8) {
+				// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
+						SiteData.TYPE_FLAG_INFERRED, 0.0225d, "BBP 1-D LA model", "BBP-1D"));
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
+						SiteData.TYPE_FLAG_INFERRED, 3.500d, "BBP 1-D LA model", "BBP-1D"));
+				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
+						SiteData.TYPE_FLAG_INFERRED, 843.189d, "BBP 1-D LA model Vs30", "BBP-1D"));
 			} else {
 				/*		Wills 2006 Map (2000 as backup)	 */
 				// try the 2006 map first
