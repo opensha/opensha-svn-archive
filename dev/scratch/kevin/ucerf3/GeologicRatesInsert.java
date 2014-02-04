@@ -37,10 +37,17 @@ public class GeologicRatesInsert {
 //				fw.write(data.getSectionId()+"\t"+data.getSectionName()+"\n");
 //			fw.close();
 //			System.exit(0);
+			
+			boolean validateOnly = false;
 				
+			DB_AccessAPI db;
 //			DB_AccessAPI db = DB_ConnectionPool.getLatestReadWriteConn();
-			DB_AccessAPI db = DB_ConnectionPool.getDirectLatestReadWriteConnection();
-			DB_ConnectionPool.authenticateDBConnection(true, false);
+			if (!validateOnly) {
+				db = DB_ConnectionPool.getDirectLatestReadWriteConnection();
+				DB_ConnectionPool.authenticateDBConnection(true, false);
+			} else {
+				db = DB_ConnectionPool.getLatestReadOnlyConn();
+			}
 			
 			FaultSectionVer2_DB_DAO fs2db = new FaultSectionVer2_DB_DAO(db);
 			
@@ -81,6 +88,17 @@ public class GeologicRatesInsert {
 				double pref = FaultUtils.getLengthBasedAngleAverage(prefSection.getLocsAsTrace(), prefSection.getSlips());
 				double min = FaultUtils.getLengthBasedAngleAverage(lowerSection.getLocsAsTrace(), lowerSection.getSlips());
 				double max = FaultUtils.getLengthBasedAngleAverage(upperSection.getLocsAsTrace(), upperSection.getSlips());
+				
+				if (validateOnly) {
+					MinMaxPrefEstimate origEst = (MinMaxPrefEstimate)sect.getAveLongTermSlipRateEst().getEstimate();
+					if ((float)pref != (float)origEst.getPreferred())
+						System.out.println(sect.getName()+" pref discrep: "+pref+" != "+origEst.getPreferred());
+					if ((float)min != (float)origEst.getMin())
+						System.out.println(sect.getName()+" min discrep: "+min+" != "+origEst.getMin());
+					if ((float)max != (float)origEst.getMax())
+						System.out.println(sect.getName()+" max discrep: "+max+" != "+origEst.getMax());
+					continue;
+				}
 				
 				MinMaxPrefEstimate slipEst = new MinMaxPrefEstimate(min, max, pref, minProb, maxProb, prefProb);
 				

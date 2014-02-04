@@ -6,24 +6,24 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 
 import com.google.common.collect.Lists;
 
-public class LogicalAndRupIden extends AbstractRuptureIdentifier {
+public class LogicalOrRupIden extends AbstractRuptureIdentifier {
 	
 	private Collection<RuptureIdentifier> rupIdens;
 
-	public LogicalAndRupIden(RuptureIdentifier... rupIdens) {
+	public LogicalOrRupIden(RuptureIdentifier... rupIdens) {
 		this(Lists.newArrayList(rupIdens));
 	}
 	
-	public LogicalAndRupIden(Collection<RuptureIdentifier> rupIdens) {
+	public LogicalOrRupIden(Collection<RuptureIdentifier> rupIdens) {
 		this.rupIdens = rupIdens;
 	}
 
 	@Override
 	public boolean isMatch(EQSIM_Event event) {
 		for (RuptureIdentifier rupIden : rupIdens)
-			if (!rupIden.isMatch(event))
-				return false;
-		return true;
+			if (rupIden.isMatch(event))
+				return true;
+		return false;
 	}
 
 	@Override

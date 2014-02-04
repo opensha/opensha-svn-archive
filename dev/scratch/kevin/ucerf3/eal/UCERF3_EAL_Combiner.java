@@ -110,6 +110,14 @@ public class UCERF3_EAL_Combiner {
 			double[] mags = fetcher.getMags(branch);
 			List<Integer> meanRupIndexes = mappings.get(branch);
 			
+			CSVFile<String> debugFaultCSV = null;
+			DefaultXY_DataSet debugFaultScatter = null;
+			if (i == 0 && debug_write) {
+				debugFaultCSV = new CSVFile<String>(false);
+				debugFaultCSV.addLine("Rup Index", "Mag", "Rate", "Cond. Loss", "Rup EAL");
+				debugFaultScatter = new DefaultXY_DataSet();
+			}
+			
 			for (int r=0; r<rates.length; r++) {
 				int meanRupIndex = meanRupIndexes.get(r);
 				double rate = rates[r];
@@ -148,11 +156,28 @@ public class UCERF3_EAL_Combiner {
 				
 				// TODO aftershock removal, time dependence
 				double rupEAL = rupLoss * rate;
+				if (debugFaultCSV != null) {
+					debugFaultCSV.addLine(r+"", mag+"", rate+"", rupLoss+"", rupEAL+"");
+					debugFaultScatter.set(rate, rupEAL);
+				}
 				faultEALs[i] += rupEAL;
+			}
+			
+			if (debugFaultCSV != null) {
+				debugFaultCSV.writeToFile(new File("/tmp/eals_fault_branch0.csv"));
+				writeDebugScatter(debugFaultScatter, "Fault EAL Dist", new File("/tmp/eals_fault_scatter.png"));
 			}
 			
 			// now gridded
 			if (griddedLosses != null) {
+				CSVFile<String> debugGridCSV = null;
+				DefaultXY_DataSet debugGridScatter = null;
+				if (i == 0 && debug_write) {
+					debugGridCSV = new CSVFile<String>(false);
+					debugGridCSV.addLine("Grid Node", "Mag", "Rate", "Cond. Loss", "Rup EAL");
+					debugGridScatter = new DefaultXY_DataSet();
+				}
+				
 				GridSourceProvider gridProv;
 				if (fetcher instanceof CompoundFaultSystemSolution)
 					gridProv = ((CompoundFaultSystemSolution)fetcher).loadGridSourceProviderFile(branch);
@@ -212,12 +237,32 @@ public class UCERF3_EAL_Combiner {
 							continue;
 						// TODO aftershock removal
 						double rupEAL = loss * rate;
+						if (debugGridCSV != null) {
+							debugGridCSV.addLine(n+"", mag+"", rate+"", loss+"", rupEAL+"");
+							debugGridScatter.set(rate, rupEAL);
+						}
 						griddedEALs[i] += rupEAL;
 					}
+				}
+				
+				if (debugGridCSV != null) {
+					debugGridCSV.writeToFile(new File("/tmp/eals_gridded_branch0.csv"));
+					writeDebugScatter(debugGridScatter, "Gridded EAL Dist", new File("/tmp/eals_gridded_scatter.png"));
 				}
 			}
 			totalEALs[i] = faultEALs[i] + griddedEALs[i];
 		}
+	}
+	
+	private static void writeDebugScatter(DefaultXY_DataSet dataset, String title, File pngFile) throws IOException {
+		List<PlotElement> elems = Lists.newArrayList();
+		elems.add(dataset);
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.BLACK));
+		GraphWindow gw = new GraphWindow(elems, title, chars);
+		gw.setX_AxisLabel("Rupture Rate");
+		gw.setY_AxisLabel("Rupture EAL");
+		gw.saveAsPNG(pngFile.getAbsolutePath());
 	}
 
 	public List<LogicTreeBranch> getBranches() {
@@ -259,6 +304,8 @@ public class UCERF3_EAL_Combiner {
 		}
 		return results;
 	}
+	
+	private static final boolean debug_write = true;
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		File invSolDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
@@ -269,8 +316,13 @@ public class UCERF3_EAL_Combiner {
 //		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_index.bin");
 //		File rupGriddedFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_gridded.bin");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013/");
-		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_09-ucerf3-eal-calc-CB-2013/");
-		String prefix = "CB_2013";
+//		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_09-ucerf3-eal-calc-CB-2013/");
+		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
+//		String prefix = "CB_2013";
+//		String prefix = "ASK_2013";
+//		String prefix = "BSSA_2013";
+//		String prefix = "CY_2013";
+		String prefix = "Idriss_2013";
 		File rupLossesFile = new File(jobDir, prefix+"_fss_index.bin");
 		File rupGriddedFile = new File(jobDir, prefix+"_fss_gridded.bin");
 //		File validateDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013-validate/");

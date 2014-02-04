@@ -59,6 +59,14 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private FaultPolyMgr() {}
 	
 	/**
+	 * Returns the region used by this fault polygon manager
+	 * @return
+	 */
+	public GriddedRegion getRegion() {
+		return region;
+	}
+	
+	/**
 	 * Returns a map of nodes (indices of nodes intersected by faults) to the
 	 * fraction of each node that intersects faults.
 	 * @return the node extent map

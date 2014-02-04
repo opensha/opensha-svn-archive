@@ -328,7 +328,8 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 //		File dir = new File("/tmp/compound_tests_data/subset/");
 //		FileBasedFSSIterator it = FileBasedFSSIterator.forDirectory(dir, 1, Lists.newArrayList(FileBasedFSSIterator.TAG_BUILD_MEAN));
 		
-		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_IND_RUNS.zip");
 //		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
 		Stopwatch watch = new Stopwatch();
 //		watch.start();

@@ -1,6 +1,7 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,12 +31,16 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.dom4j.DocumentException;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.NamedComparator;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.WeightedFuncList;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
@@ -47,7 +53,9 @@ import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.impl.CPTParameter;
@@ -82,6 +90,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
@@ -115,6 +124,7 @@ import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
+import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
@@ -761,7 +771,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 	
-	private static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
+	static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
 		int numMag = cmlMFD.getNum();
 		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(cmlMFD.getMinX(), numMag, cmlMFD.getDelta());
 		
@@ -1729,11 +1739,11 @@ public class FaultSysSolutionERF_Calc {
 	}
 
 	
-	private static CPT getScaledLinearRatioCPT(double fractToWashOut) throws IOException {
+	public static CPT getScaledLinearRatioCPT(double fractToWashOut) throws IOException {
 		return getScaledLinearRatioCPT(fractToWashOut, 0d, 2d);
 	}
 	
-	private static CPT getScaledLinearRatioCPT(double fractToWashOut, double min, double max) throws IOException {
+	public static CPT getScaledLinearRatioCPT(double fractToWashOut, double min, double max) throws IOException {
 		Preconditions.checkArgument(fractToWashOut >= 0 && fractToWashOut < 1);
 		CPT ratioCPT = GMT_CPT_Files.UCERF3_HAZ_RATIO_P3.instance().rescale(min, max);
 		CPT belowCPT = new CPT();
@@ -2235,6 +2245,9 @@ public class FaultSysSolutionERF_Calc {
 				continue;
 			String className = ClassUtils.getClassNameWithoutPackage(clazz);
 			LogicTreeBranchNode<?>[] choices = clazz.getEnumConstants();
+			List<HistogramFunction> hists = Lists.newArrayList();
+			// for std dev
+			List<Double> allVals = Lists.newArrayList();
 			for (LogicTreeBranchNode<?> choice : choices) {
 				if (choice.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) <= 0)
 					continue;
@@ -2270,10 +2283,21 @@ public class FaultSysSolutionERF_Calc {
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
+				
+				// now histograms
+				hists.add(generateRatioHistogram(ratios, choice.getShortName()));
+				allVals.addAll(getNonNanInfinites(ratios));
 			}
+			// write hists
+			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
+			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
 		// now do it for COV values
 		if (meanBPT_COVVals != null) {
+			String className = "MagDepAperiodicity";
+			List<HistogramFunction> hists = Lists.newArrayList();
+			// for std dev
+			List<Double> allVals = Lists.newArrayList();
 			for (MagDependentAperiodicityOptions theCOV : meanBPT_COVVals.keySet()) {
 				double[] choiceVals = meanBPT_COVVals.get(theCOV);
 				double[] ratios = new double[choiceVals.length];
@@ -2284,10 +2308,20 @@ public class FaultSysSolutionERF_Calc {
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
+				
+				hists.add(generateRatioHistogram(ratios, theCOV.name()));
+				allVals.addAll(getNonNanInfinites(ratios));
 			}
+			// write hists
+			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
+			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
 		// now do it for Ave Type values
 		if (meanBPT_CalcVals != null) {
+			String className = "BPTAveType";
+			List<HistogramFunction> hists = Lists.newArrayList();
+			// for std dev
+			List<Double> allVals = Lists.newArrayList();
 			for (BPTAveragingTypeOptions theAve : meanBPT_CalcVals.keySet()) {
 				double[] choiceVals = meanBPT_CalcVals.get(theAve);
 				double[] ratios = new double[choiceVals.length];
@@ -2298,7 +2332,13 @@ public class FaultSysSolutionERF_Calc {
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
+				
+				hists.add(generateRatioHistogram(ratios, theAve.getFileSafeLabel()));
+				allVals.addAll(getNonNanInfinites(ratios));
 			}
+			// write hists
+			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
+			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
 		
 		// now do min/mean/max prob maps
@@ -2314,6 +2354,94 @@ public class FaultSysSolutionERF_Calc {
 				outputDir, "gain_u3", false, true, "UCERF3 Mean BPT/Poisson Prob Gain");
 		
 		return meanMap;
+	}
+	
+	private static List<Double> getNonNanInfinites(double[] vals) {
+		List<Double> nonNanRatios = Lists.newArrayList();
+		for (double ratio : vals) {
+			if (!Double.isNaN(ratio) && !Double.isInfinite(ratio)) {
+				nonNanRatios.add(ratio);
+			}
+		}
+		return nonNanRatios;
+	}
+	
+	private static HistogramFunction generateRatioHistogram(double[] ratios, String choiceName) {
+		HistogramFunction ratioHist = new HistogramFunction(0d, 21, 0.1);
+		for (double ratio : getNonNanInfinites(ratios))
+			ratioHist.add(ratioHist.getClosestXIndex(ratio), 1d);
+		ratioHist.setName(choiceName);
+		return ratioHist;
+	}
+	
+//	private static PlotSpec generateRatioHistogram(double[] ratios, String className, String choiceName) {
+//		HistogramFunction ratioHist = new HistogramFunction(0d, 21, 0.1);
+//		List<Double> nonNanRatios = Lists.newArrayList();
+//		for (double ratio : getNonNanInfinites(ratios))
+//			ratioHist.add(ratioHist.getClosestXIndex(ratio), 1d);
+//		
+//		ratioHist.normalizeBySumOfY_Vals();
+//		
+//		List<PlotElement> funcs = Lists.newArrayList();
+//		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//		
+//		funcs.add(ratioHist);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+//		XY_DataSet centerLine = new DefaultXY_DataSet();
+//		centerLine.set(1d, 0d);
+//		centerLine.set(1d, 1d);
+//		double mean = StatUtils.mean(Doubles.toArray(nonNanRatios));
+//		XY_DataSet meanLine = new DefaultXY_DataSet();
+//		meanLine.set(mean, 0d);
+//		meanLine.set(mean, 1d);
+//		funcs.add(centerLine);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+//		funcs.add(meanLine);
+//		if (mean > 1)
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+//		else
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+//		
+//		double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(nonNanRatios)));
+//		PlotSpec spec = new PlotSpec(funcs, chars, className, "Ratio", "Density");
+//		XYTextAnnotation ann = new XYTextAnnotation(choiceName+"\nmean="+(float)mean+"\nstdDev="+(float)stdDev, 0.05, 0.95);
+//		ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+//		ann.setTextAnchor(TextAnchor.TOP_LEFT);
+//		spec.setPlotAnnotations(Lists.newArrayList(ann));
+//		
+//		return spec;
+//	}
+	
+	private static void writeRatioHists(File comparePlotsDir, List<HistogramFunction> hists,
+			String className, double stdDev) throws IOException {
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		CommandLineInversionRunner.setFontSizes(gp);
+		
+		List<HistogramFunction> stackedHists = HistogramFunction.getStackedHists(hists, true);
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//		List<Color> colors = GraphWindow.generateDefaultColors();
+		List<Color> colors = Lists.newArrayList(
+				Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.CYAN, Color.ORANGE);
+		for (int i=0; i<stackedHists.size(); i++)
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
+		
+		PlotSpec spec = new PlotSpec(stackedHists, chars, className, "Ratio", "Density");
+		
+		XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
+		ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+		ann.setTextAnchor(TextAnchor.TOP_LEFT);
+		spec.setPlotAnnotations(Lists.newArrayList(ann));
+		
+		gp.drawGraphPanel(spec, false, false, new Range(0d, 2d), new Range(0d, 1d));
+
+		File file = new File(comparePlotsDir, className+"_hists");
+		gp.getCartPanel().setSize(1000, 600);
+		gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
+		gp.saveAsPNG(file.getAbsolutePath() + ".png");
+		file = new File(file.getAbsolutePath()+"_small");
+		gp.getCartPanel().setSize(500, 400);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 	
 	private static void writeBranchAggregatedFaultResults(
@@ -2724,10 +2852,16 @@ public class FaultSysSolutionERF_Calc {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-		double[] minMags = { 0d, 6.7d, 7.7d };
-		int[] csvMagRangeIndexes = { 4, 0, 2 };
-		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
-		double[] durations = { 5d, 30d };
+//		double[] minMags = { 0d, 6.7d, 7.7d };
+//		int[] csvMagRangeIndexes = { 4, 0, 2 };
+//		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
+//		double[] durations = { 5d, 30d };
+		
+		// just 6.7, 30yr
+		double[] minMags = { 6.7d };
+		int[] csvMagRangeIndexes = { 0 };
+		int[] csvFaultMagRangeIndexes = { 1 };
+		double[] durations = { 30d };
 		
 		Preconditions.checkState(aveTypes.size() >= 1);
 		String[] csvZipNames = new String[aveTypes.size()];
@@ -3461,6 +3595,37 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 
+	public static void writeFullModelRegionalMagProbDists(String dirPrefix, BPTAveragingTypeOptions[] avgTypes,
+			File outputDir, FaultSystemRupSet fm31RupSet, FaultSystemRupSet fm32RupSet) {
+		File[] csvDirs = { new File(dirPrefix+"-5yr"), new File(dirPrefix+"-30yr")};
+		
+		
+//		if (cache == null)
+//			cache = new FSSRupsInRegionCache(erf);
+//		
+//		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+//		
+//		// this tracks the rupture probabilities for each mag bin
+//		List<List<Double>> probsList = Lists.newArrayList();
+//		for (int m=0; m<numMag; m++)
+//			probsList.add(new ArrayList<Double>());
+//		
+//		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
+//			ProbEqkSource source = erf.getSource(sourceID);
+//			if (!cache.isRupInRegion(source, source.getRupture(0), sourceID, 0, region))
+//				// source is just for a single rupture, if the first rup isn't in the region none are
+//				continue;
+//			for (ProbEqkRupture rup : source) {
+//				double prob = rup.getProbability();
+//				double mag = rup.getMag();
+//				populateProbList(mag, prob, probsList, result);
+//			}
+//		}
+//		
+//		// now sum the probabilities as:
+//		calcSummedProbs(probsList, result);
+//		return result;
+	}
 	
 	/**
 	 * @param args
@@ -3520,14 +3685,15 @@ public class FaultSysSolutionERF_Calc {
 		
 		// each individually
 		// default
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
+		// TODO set back to false
+		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), true,
 				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
 		System.exit(0);
 		

@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -441,6 +443,7 @@ public class TablesAndPlotsGen {
 		// first make combined on/off hist
 		
 		totOnHist.setName("On Fault Histogram");
+		totOnHist.setInfo("Mean: "+totOnHist.computeMean()+"\nStd Dev: "+totOnHist.computeStdDev());
 		funcs.add(totOnHist);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.BLUE));
 		
@@ -467,6 +470,7 @@ public class TablesAndPlotsGen {
 		}
 		
 		totOffHist.setName("Off Fault Histogram");
+		totOffHist.setInfo("Mean: "+totOffHist.computeMean()+"\nStd Dev: "+totOffHist.computeStdDev());
 		funcs.add(totOffHist);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.GRAY));
 		
@@ -516,6 +520,7 @@ public class TablesAndPlotsGen {
 		chars = Lists.newArrayList();
 		
 		totTotHist.setName("Total Histogram");
+		totTotHist.setInfo("Mean: "+totTotHist.computeMean()+"\nStd Dev: "+totTotHist.computeStdDev());
 		funcs.add(totTotHist);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 10f, Color.BLACK));
 		
@@ -759,6 +764,9 @@ public class TablesAndPlotsGen {
 			}
 		}
 		
+		FileWriter u2FW = new FileWriter(new File(outputDir, "slip_misfit_u2_vals.txt"));
+		FileWriter u3FW = new FileWriter(new File(outputDir, "slip_misfit_u3_vals.txt"));
+		
 		mainLoop:
 		for (int f=0; f<u2Misfits.getFaults().size(); f++) {
 			double value = u2Misfits.getFaultValues()[f];
@@ -776,16 +784,26 @@ public class TablesAndPlotsGen {
 				}
 			}
 			u2Hist.add(Math.abs(value), 1d);
+			u2FW.write(Math.abs(value)+"\n");
 		}
 		
 		for (double value : u3Misfits.getFaultValues()) {
 			u3Hist.add(Math.abs(value), 1d);
+			u3FW.write(Math.abs(value)+"\n");
 		}
+		
+		u2FW.close();
+		u3FW.close();
 		
 		if (norm) {
 			u3Hist.normalizeBySumOfY_Vals();
 			u2Hist.normalizeBySumOfY_Vals();
 		}
+		
+		u2Hist.setName("UCERF2 Slip Rate Misfit Histogram");
+		u2Hist.setInfo("Mean: "+u2Hist.computeMean()+"\nStd Dev: "+u2Hist.computeStdDev());
+		u3Hist.setName("UCERF3 Slip Rate Misfit Histogram");
+		u3Hist.setInfo("Mean: "+u3Hist.computeMean()+"\nStd Dev: "+u3Hist.computeStdDev());
 		
 		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(u3Hist);
@@ -811,13 +829,12 @@ public class TablesAndPlotsGen {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		file = new File(file.getAbsolutePath()+"_small");
 		gp.getCartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
-	
-	
 	
 	public static void makeRenewalModelNoDateOfLastPlots() {
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
@@ -986,14 +1003,14 @@ public class TablesAndPlotsGen {
 	public static void main(String[] args) throws IOException, DocumentException {
 		
 //		plotCumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals();
-		makeRenewalModelHistoricOpenIntervalPlots();
+//		makeRenewalModelHistoricOpenIntervalPlots();
 //		makeRenewalModelNoDateOfLastPlots();
 		
-//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 //		
-//		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
-//				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
-//		System.exit(0);
+		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
+				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
+		System.exit(0);
 		
 //		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
@@ -1002,11 +1019,11 @@ public class TablesAndPlotsGen {
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 		
-//		File compoundFile = new File(invDir,
-//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
-//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-//		makeCompoundFSSMomentRatesTable(cfss,
-//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+		File compoundFile = new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+		makeCompoundFSSMomentRatesTable(cfss,
+				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 //		
 //		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		

@@ -3,8 +3,15 @@
  */
 package org.opensha.commons.data.function;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * This class sets the tolerance high so that it can be used to construct histograms.
@@ -96,6 +103,72 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		return computeStdDev()/computeMean();
 	}
 	
+	public static HistogramFunction fromData(double[] data, double minBin, int num, double delta) {
+		HistogramFunction hist = new HistogramFunction(minBin, num, delta);
+		
+		for (double val : data)
+			hist.add(val, 1d);
+		
+		return hist;
+	}
+	
+	/**
+	 * This returns stacked histograms for display. Histograms will be stacked in the order that they
+	 * are passed in, with the last one on top, and must all have the same x values.
+	 * @param hists
+	 * @param normalize
+	 * @return
+	 */
+	public static List<HistogramFunction> getStackedHists(List<HistogramFunction> hists, boolean normalize) {
+		Preconditions.checkArgument(hists.size() > 1, "Must supply at least 2 histograms");
+		hists = Lists.newArrayList(hists);
+		// flip it so that last is on top
+		Collections.reverse(hists);
+		
+		List<HistogramFunction> stacked = Lists.newArrayList();
+		
+		// make sure they're all the same x values
+		for (int i=1; i<hists.size(); i++) {
+			HistogramFunction h1 = hists.get(i-1);
+			HistogramFunction h2 = hists.get(i);
+			
+			Preconditions.checkArgument(h1.getNum() == h2.getNum(),
+					"Histogram x values inconsistent!");
+			Preconditions.checkArgument((float)h1.getMinX() == (float)h2.getMinX(),
+					"Histogram x values inconsistent!");
+			Preconditions.checkArgument((float)h1.getDelta() == (float)h2.getDelta(),
+					"Histogram x values inconsistent!");
+		}
+		
+		int numX = hists.get(0).getNum();
+		
+		// this keeps track of the running total
+		double[] binTots = new double[numX];
+		for (HistogramFunction hist : hists) {
+			HistogramFunction stackHist = new HistogramFunction(hist.getMinX(), hist.getNum(), hist.getDelta());
+			stackHist.setName(hist.getName()+" (STACKED)");
+			
+			for (int i=0; i<hist.getNum(); i++) {
+				double y = hist.getY(i);
+				stackHist.set(i, y+binTots[i]);
+				binTots[i] += y;
+			}
+			
+			stacked.add(stackHist);
+		}
+		
+		if (normalize) {
+			double overallTot = StatUtils.sum(binTots);
+			double ratio = 1d/overallTot;
+			for (HistogramFunction hist : stacked)
+				for (int i=0; i<hist.getNum(); i++)
+					hist.set(i, hist.getY(i)*ratio);
+		}
+		
+		// flip it back
+		Collections.reverse(stacked);
+		return stacked;
+	}
 	
 	// test of compute methods
 	public static void main(String[] args) {

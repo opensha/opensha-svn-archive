@@ -23,6 +23,7 @@ import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMagProbPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
@@ -39,6 +40,7 @@ import scratch.UCERF3.analysis.CompoundFSSPlots.PlotSolComputeTask;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.SlipRatePlots;
+import scratch.UCERF3.analysis.CompoundFSSPlots.TimeDepGriddedParticipationProbPlot;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
@@ -300,10 +302,20 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		gridParticsOption.setRequired(false);
 		options.addOption(gridParticsOption);
 		
+		Option gridParticsProbsOption = new Option("gridparticprobs", "plot-gridded-partic-probs", false,
+				"Flag for plotting gridded participation probabilities");
+		gridParticsProbsOption.setRequired(false);
+		options.addOption(gridParticsProbsOption);
+		
 		Option erfMFDsOption = new Option("erfmfds", "plot-erf-mfds", false,
 				"Flag for plotting gridded participations");
 		erfMFDsOption.setRequired(false);
 		options.addOption(erfMFDsOption);
+		
+		Option erfProbsOption = new Option("erfmpds", "plot-erf-prob-dists", false,
+				"Flag for erf prob dists");
+		erfProbsOption.setRequired(false);
+		options.addOption(erfProbsOption);
 		
 		Option miniSectRIsOption = new Option("miniris", "plot-mini-sect-ris", false,
 				"Flag for creating mini section RIs tables");
@@ -474,8 +486,18 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				plots.add(partics);
 			}
 			
+			if (plotAll || cmd.hasOption("gridparticprobs")) {
+				TimeDepGriddedParticipationProbPlot partics = new TimeDepGriddedParticipationProbPlot(weightProvider);
+				plots.add(partics);
+			}
+			
 			if (plotAll || cmd.hasOption("erfmfds")) {
 				ERFBasedRegionalMFDPlot erfMFDs = new ERFBasedRegionalMFDPlot(weightProvider);
+				plots.add(erfMFDs);
+			}
+			
+			if (plotAll || cmd.hasOption("plot-erf-prob-dists")) {
+				ERFBasedRegionalMagProbPlot erfMFDs = new ERFBasedRegionalMagProbPlot(weightProvider);
 				plots.add(erfMFDs);
 			}
 			

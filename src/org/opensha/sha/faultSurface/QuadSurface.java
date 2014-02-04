@@ -593,6 +593,7 @@ public class QuadSurface implements RuptureSurface {
 				double strikeDirRad = LocationUtils.azimuthRad(startPt, endPt);
 				double reverseStrikeDirRad = LocationUtils.azimuthRad(endPt, startPt);
 				double dist_x_pad_dist = 1e-6;
+//				double dist_x_pad_dist = 1000;
 				x_trace.add(LocationUtils.location(startPt, reverseStrikeDirRad, dist_x_pad_dist));
 				x_trace.addAll(trace);
 				x_trace.add(LocationUtils.location(endPt, strikeDirRad, dist_x_pad_dist));

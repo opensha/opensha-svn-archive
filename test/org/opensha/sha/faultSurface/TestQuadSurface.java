@@ -142,7 +142,7 @@ public class TestQuadSurface {
 				continue;
 			
 			assertTrue(fsd.getFaultTrace().getName()+" "+dist+" calc outside tolerance:\tgrd="
-					+dist_gridded+"\tquad="+dist_quad+"\tdiff="+diff+"\tpDiff="+pDiff+"%", pDiff <= tol);
+					+dist_gridded+"\tquad="+dist_quad+"\tdiff="+diff+"\tpDiff="+pDiff+"%", diff <= tol);
 		}
 	}
 	
@@ -236,7 +236,7 @@ public class TestQuadSurface {
 	
 	private static void runTestGriddedPlot(FaultSectionPrefData fsd, FaultTrace gridded_trace,
 			Dist dist, int num, double tol) {
-		GriddedRegion grid_reg = new GriddedRegion(fsd.getFaultTrace(), test_trace_radius, grid_disc/5d, null);
+		GriddedRegion grid_reg = new GriddedRegion(fsd.getFaultTrace(), test_trace_radius, 0.05, null);
 		GriddedGeoDataSet pDiffXYZ = new GriddedGeoDataSet(grid_reg, false);
 		GriddedGeoDataSet diffXYZ = new GriddedGeoDataSet(grid_reg, false);
 		GriddedGeoDataSet gridDistsXYZ = new GriddedGeoDataSet(grid_reg, false);
@@ -349,7 +349,8 @@ public class TestQuadSurface {
 		
 		Dist dist = Dist.RUP;
 		int num = 500;
-		double tol = 0.5d;
+//		double tol = 0.5d;
+		double tol = grid_disc;
 		
 		// first test at the surface
 		
@@ -386,7 +387,8 @@ public class TestQuadSurface {
 		
 		Dist dist = Dist.SEIS;
 		int num = 1000;
-		double tol = 0.5d;
+//		double tol = 0.5d;
+		double tol = grid_disc;
 		
 		// complex vertical fault above
 		runTest(buildFSD(jagged_trace, Math.random()*3d, 10d, 90), jagged_trace_gridded, dist, num, tol);
@@ -407,7 +409,8 @@ public class TestQuadSurface {
 		
 		Dist dist = Dist.JB;
 		int num = 1000;
-		double tol = 0.5d;
+//		double tol = 0.5d;
+		double tol = grid_disc;
 		
 		// complex vertical fault
 		runTest(buildFSD(jagged_trace, 0d, 10d, 90), jagged_trace_gridded, dist, num, tol);
@@ -443,7 +446,8 @@ public class TestQuadSurface {
 		// note - only tests with site on surface
 		Dist dist = Dist.X;
 		int num = 1000;
-		double tol = 0.5d;
+//		double tol = 0.5d;
+		double tol = grid_disc;
 		
 		// simple vertical fault
 		runTest(buildFSD(straight_trace, Math.random()*4d, 10d, 90), straight_trace_gridded, dist, num, tol);
