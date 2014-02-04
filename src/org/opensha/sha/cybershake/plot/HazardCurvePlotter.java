@@ -520,6 +520,7 @@ public class HazardCurvePlotter {
 		}
 		
 		boolean noVMColors = cmd.hasOption("no-vm-colors");
+		boolean sgtColor = cmd.hasOption("sgt-colors");
 		
 //		String optStr = null;
 //		for (Option opt : cmd.getOptions()) {
@@ -580,7 +581,7 @@ public class HazardCurvePlotter {
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == PlotType.TXT;
 			ArrayList<DiscretizedFunc> curves = this.plotCurve(curveID, run,
-					compCurveIDs, runCompares, textOnly, noVMColors);
+					compCurveIDs, runCompares, textOnly, noVMColors, sgtColor);
 			if (curves == null) {
 				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
 				continue;
@@ -764,13 +765,14 @@ public class HazardCurvePlotter {
 	}
 	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run) {
-		return plotCurve(curveID, run, false, false);
+		return plotCurve(curveID, run, false, false, false);
 	}
 	
 	ArrayList<String> curveNames = new ArrayList<String>();
 	
-	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly, boolean noVMColor) {
-		return plotCurve(curveID, run, null, null, textOnly, noVMColor);
+	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly,
+			boolean noVMColor, boolean sgtColor) {
+		return plotCurve(curveID, run, null, null, textOnly, noVMColor, sgtColor);
 	}
 	
 	private static List<Color> csPlotColors;
@@ -827,8 +829,49 @@ public class HazardCurvePlotter {
 		}
 	}
 	
+	/**
+	 * Used with the --sgt-symbol option
+	 * @param sgtID
+	 * @return
+	 */
+	private static Color getColorForSGTID(int sgtID) {
+//		switch (sgtID) {
+//		case 5:
+//			return PlotSymbol.FILLED_CIRCLE;
+//		case 6:
+//			return PlotSymbol.FILLED_TRIANGLE;
+//		case 7:
+//			return PlotSymbol.FILLED_SQUARE;
+//		case 8:
+//			return PlotSymbol.FILLED_INV_TRIANGLE;
+//		case 9:
+//			return PlotSymbol.FILLED_DIAMOND;
+//		default:
+//			System.out.println("WARNING: SGT Symbol coloring enabled but no symbol hardcoded for SGT ID "+sgtID);
+//			return PlotSymbol.CIRCLE;
+//		}
+		switch (sgtID) {
+		case 5:
+			return Color.BLUE;
+		case 6:
+			return Color.RED;
+		case 7:
+			return Color.GREEN;
+		case 8:
+			return Color.MAGENTA;
+		case 9:
+			return Color.ORANGE;
+		case 10:
+			return Color.CYAN;
+		default:
+			System.out.println("WARNING: SGT Coloring enabled but no color hardcoded for SGT ID "+sgtID);
+			return Color.BLACK;
+		}
+	}
+	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
-			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly, boolean noVMColors) {
+			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly,
+			boolean noVMColors, boolean sgtColors) {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
@@ -860,6 +903,8 @@ public class HazardCurvePlotter {
 		PlotSymbol curveSymbol = this.plotChars.getCyberShakeSymbol();
 		if (curveSymbol == null)
 			curveSymbol = getSymbolForRupVarScenID(run.getRupVarScenID());
+		if (sgtColors)
+			curveColor = getColorForSGTID(run.getSgtVarID());
 		chars.add(new PlotCurveCharacterstics(curveLineType, plotChars.getLineWidth(),
 				curveSymbol, plotChars.getLineWidth()*4f, curveColor));
 		
@@ -1364,6 +1409,9 @@ public class HazardCurvePlotter {
 		
 		Option noVMChars = new Option("novm", "no-vm-colors", false, "Disables Velocity Model coloring");
 		ops.addOption(noVMChars);
+		
+		Option sgtSymbols = new Option("sgtsym", "sgt-colors", false, "Enables SGT specific symbols");
+		ops.addOption(sgtSymbols);
 		
 		return ops;
 	}
