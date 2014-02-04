@@ -64,6 +64,7 @@ import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_ERF.testModels.TestModel2_FSS;
+import scratch.ned.ETAS_ERF.testModels.TestModel3_FSS;
 
 
 /**
@@ -1863,10 +1864,11 @@ public class ProbabilityModelsCalc {
 			}
 		}
 
+		boolean doThis=true;
 		
 
 		// 	plot simNormTimeSinceLastHist & simProbGainHist - these are weighted by long-term rates
-		if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
+		if(probTypeEnum == ProbabilityModelOptions.U3_BPT && doThis) {
 //			int numObs = (int)Math.round(simNormTimeSinceLastHist.calcSumOfY_Vals());
 			simNormTimeSinceLastHist.scale(1.0/(simNormTimeSinceLastHist.calcSumOfY_Vals()*simNormTimeSinceLastHist.getDelta())); // makes it a density function
 			ArrayList<EvenlyDiscretizedFunc> funcListForSimNormTimeSinceLastHist = ProbModelsPlottingUtils.addBPT_Fit(simNormTimeSinceLastHist);
@@ -4013,6 +4015,28 @@ public class ProbabilityModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
+		// THIS CODE WAS RUN ON JAN 30
+		TestModel3_FSS testFSS = new TestModel3_FSS();	// this one is perfectly segmented
+		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
+			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+		erf.updateForecast();
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		testCalc.testER_Simulation(null, null, erf,1000000d, "SimpleFaultTestRun1_Jan30");
+//		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
+
+		System.exit(0);
+		
+		
+		
 		// THIS CODE WAS RUN ON DEC 18
 //		TestModel2_FSS testFSS = new TestModel2_FSS();
 //		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
@@ -4033,7 +4057,7 @@ public class ProbabilityModelsCalc {
 		
 
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 
 		
@@ -4048,7 +4072,7 @@ public class ProbabilityModelsCalc {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
 //		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 //		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
@@ -4070,6 +4094,18 @@ public class ProbabilityModelsCalc {
 		
 		// Biggest prob diff between viable approaches on Owens Valley sections
 //		System.out.println(testCalc.getInfoAboutRupture(249574, erf.getTimeSpan().getStartTimeInMillis()));
+
+		// Biggest prob diff between RI_TS and RI_NTS on "San Andreas (Mojave S), Subsection 3"	1840
+//		System.out.println(testCalc.getInfoAboutRupture(194929, erf.getTimeSpan().getStartTimeInMillis()));
+		
+		// Biggest diff between RI_TS and RI_NTS on "White Wolf, subsection 0" 2568
+//		System.out.println(testCalc.getInfoAboutRupture(248296, erf.getTimeSpan().getStartTimeInMillis()));
+		
+		// NSAF Offshore:
+		System.out.println(testCalc.getInfoAboutRupture(160395, erf.getTimeSpan().getStartTimeInMillis()));
+
+		
+
 
 
 		

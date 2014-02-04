@@ -3285,11 +3285,21 @@ public class FaultSysSolutionERF_Calc {
 			double[] aveRate_aveNTS_over_aveRI_aveNTS_ratio = new double[aveRI_aveNTS_Vals.length];
 			double[] aveRI_aveTS_over_aveRI_aveNTS_diff = new double[aveRI_aveNTS_Vals.length];
 			double[] aveRate_aveNTS_over_aveRI_aveNTS_diff = new double[aveRI_aveNTS_Vals.length];
+			
+			double[] aveRI_aveTS_over_Mean_ratio = new double[aveRI_aveNTS_Vals.length];
+			double[] aveRI_aveNTS_over_Mean_ratio = new double[aveRI_aveNTS_Vals.length];
+			double[] aveRate_aveNTS_over_Mean_ratio = new double[aveRI_aveNTS_Vals.length];
+
 			for (int j=0; j<aveRI_aveTS_over_aveRI_aveNTS_ratio.length; j++) {
 				aveRI_aveTS_over_aveRI_aveNTS_ratio[j] = aveRI_aveTS_Vals[j]/aveRI_aveNTS_Vals[j];
 				aveRate_aveNTS_over_aveRI_aveNTS_ratio[j] = aveRate_aveNTS_Vals[j]/aveRI_aveNTS_Vals[j];
 				aveRI_aveTS_over_aveRI_aveNTS_diff[j] = aveRI_aveTS_Vals[j]-aveRI_aveNTS_Vals[j];
 				aveRate_aveNTS_over_aveRI_aveNTS_diff[j] = aveRate_aveNTS_Vals[j]-aveRI_aveNTS_Vals[j];
+				
+				double mean = (aveRI_aveNTS_Vals[j]+aveRI_aveTS_Vals[j]+aveRate_aveNTS_Vals[j])/3.0;
+				aveRI_aveTS_over_Mean_ratio[j]=aveRI_aveTS_Vals[j]/mean;
+				aveRI_aveNTS_over_Mean_ratio[j]=aveRI_aveNTS_Vals[j]/mean;
+				aveRate_aveNTS_over_Mean_ratio[j]=aveRate_aveNTS_Vals[j]/mean;
 			}
 			
 			// 
@@ -3312,6 +3322,7 @@ public class FaultSysSolutionERF_Calc {
 			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRate_aveNTS_over_aveRI_aveNTS_ratio, region,
 					saveDir, myPrefix+"_aveRate_aveNTS_over_aveRI_aveNTS_ratio", false, true,
 					(float)duration+" yr "+magStr+" aveRate_aveNTS_over_aveRI_aveNTS_ratio");
+			//
 			FaultBasedMapGen.makeFaultPlot(diffCPT, faults, aveRI_aveTS_over_aveRI_aveNTS_diff, region,
 					saveDir, myPrefix+"_aveRI_aveTS_minus_aveRI_aveNTS_diff", false, true,
 					(float)duration+" yr "+magStr+" aveRI_aveTS_minus_aveRI_aveNTS_diff");
@@ -3320,6 +3331,15 @@ public class FaultSysSolutionERF_Calc {
 					saveDir, myPrefix+"_aveRate_aveNTS_minus_aveRI_aveNTS_diff", false, true,
 					(float)duration+" yr "+magStr+" aveRate_aveNTS_minus_aveRI_aveNTS_diff");
 			
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRI_aveTS_over_Mean_ratio, region,
+					saveDir, myPrefix+"_aveRI_aveTS_over_Mean_ratio", false, true,
+					(float)duration+" yr "+magStr+" aveRI_aveTS_over_Mean_ratio");
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRI_aveNTS_over_Mean_ratio, region,
+					saveDir, myPrefix+"_aveRI_aveNTS_over_Mean_ratio", false, true,
+					(float)duration+" yr "+magStr+" aveRI_aveNTS_over_Mean_ratio");
+			FaultBasedMapGen.makeFaultPlot(ratioCPT, faults, aveRate_aveNTS_over_Mean_ratio, region,
+					saveDir, myPrefix+"_aveRate_aveNTS_over_Mean_ratio", false, true,
+					(float)duration+" yr "+magStr+" aveRate_aveNTS_over_Mean_ratio");
 		}
 	}
 
@@ -3461,6 +3481,9 @@ public class FaultSysSolutionERF_Calc {
 //		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(new File("SubSectProbData_HistOpenInt0"), 2014);
 //		writeDiffAveragingMethodsRupProbGains(1837);	// Mojave section
 //		writeDiffAveragingMethodsRupProbGains(1486);
+//		writeDiffAveragingMethodsRupProbGains(1840, 1875); // "San Andreas (Mojave S), Subsection 3"	1840
+//		writeDiffAveragingMethodsRupProbGains(2568, 1875); //  subsection #2568 is "White Wolf, Subsection 0
+		writeDiffAveragingMethodsRupProbGains(1919, 1875); // San Andreas (Offshore) 2011 CFM, Subsection 23	1919
 
 //		testAveragingMethodsForProbMaps(2014);
 //		testAveragingMethodsForProbMaps(1875);
@@ -3469,7 +3492,7 @@ public class FaultSysSolutionERF_Calc {
 //		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
-//		System.exit(0);
+		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);
