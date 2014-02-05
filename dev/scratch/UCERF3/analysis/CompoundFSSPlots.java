@@ -1499,7 +1499,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 		 * branches than UCERF2 this can take a little while).
 		 */
 		private void checkCalcAllUCERF2MFDs() {
-			// TODO re-enable check
 			for (int erfIndex = 0; erfIndex < numUCEF2_ERFs; erfIndex++) {
 				for (double duration : durations) {
 					if (ucerf2DepMPDs.get(duration).get(0)[erfIndex] == null)

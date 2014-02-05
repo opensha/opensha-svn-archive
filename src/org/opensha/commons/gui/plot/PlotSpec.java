@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.ui.RectangleEdge;
 import org.opensha.commons.data.function.DiscretizedFunc;
 
 import com.google.common.collect.Lists;
@@ -25,6 +27,10 @@ public class PlotSpec implements Serializable {
 	private List<PlotCurveCharacterstics> chars;
 	private String title, xAxisLabel, yAxisLabel;
 	private List<? extends XYAnnotation> annotations;
+	
+	private boolean legend = false;
+	private RectangleEdge legendLocation = RectangleEdge.BOTTOM;
+	private LegendItemCollection customLegendCollection = null;
 	
 	/**
 	 * 
@@ -116,5 +122,42 @@ public class PlotSpec implements Serializable {
 	
 	public void setYAxisLabel(String yAxisLabel) {
 		this.yAxisLabel = yAxisLabel;
+	}
+
+	public boolean isLegendVisible() {
+		return legend;
+	}
+
+	/**
+	 * Used to enable the legend (disabled by default)
+	 * @param legend
+	 */
+	public void setLegendVisible(boolean legend) {
+		this.legend = legend;
+	}
+
+	public RectangleEdge getLegendLocation() {
+		return legendLocation;
+	}
+
+	/**
+	 * Sets the location of the Legend if visible. Default is BOTTOM
+	 * @param legendLocation
+	 */
+	public void setLegendLocation(RectangleEdge legendLocation) {
+		this.legendLocation = legendLocation;
+	}
+
+	public LegendItemCollection getCustomLegendCollection() {
+		return customLegendCollection;
+	}
+
+	/**
+	 * Can be used to set a custom list of Legend items, or null for auto legend.
+	 * @param customLegendCollection
+	 */
+	public void setCustomLegendCollection(
+			LegendItemCollection customLegendCollection) {
+		this.customLegendCollection = customLegendCollection;
 	}
 }

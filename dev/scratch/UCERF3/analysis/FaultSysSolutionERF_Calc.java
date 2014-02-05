@@ -33,6 +33,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
@@ -2426,6 +2427,8 @@ public class FaultSysSolutionERF_Calc {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
 		
 		PlotSpec spec = new PlotSpec(stackedHists, chars, className, "Ratio", "Density");
+		spec.setLegendVisible(true);
+		spec.setLegendLocation(RectangleEdge.BOTTOM);
 		
 		XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
 		ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
@@ -3648,7 +3651,7 @@ public class FaultSysSolutionERF_Calc {
 //		writeDiffAveragingMethodsRupProbGains(1486);
 //		writeDiffAveragingMethodsRupProbGains(1840, 1875); // "San Andreas (Mojave S), Subsection 3"	1840
 //		writeDiffAveragingMethodsRupProbGains(2568, 1875); //  subsection #2568 is "White Wolf, Subsection 0
-		writeDiffAveragingMethodsRupProbGains(1919, 1875); // San Andreas (Offshore) 2011 CFM, Subsection 23	1919
+//		writeDiffAveragingMethodsRupProbGains(1919, 1875); // San Andreas (Offshore) 2011 CFM, Subsection 23	1919
 
 //		testAveragingMethodsForProbMaps(2014);
 //		testAveragingMethodsForProbMaps(1875);
@@ -3657,7 +3660,7 @@ public class FaultSysSolutionERF_Calc {
 //		makeWG02_FaultProbMaps();
 		
 //		testProbSumMethods();
-		System.exit(0);
+//		System.exit(0);
 //		loadBranchFaultCSVVals(new File("/home/kevin/OpenSHA/UCERF3/probGains/"
 //				+ "2013_12_03-ucerf3-prob-gains-main-30yr/aveRI_aveNTS.zip"), new int[] { 0, 1, 3 }, null);
 //		System.exit(0);

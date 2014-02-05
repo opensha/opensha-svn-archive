@@ -50,6 +50,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItemCollection;
+import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.TickUnits;
@@ -59,7 +61,9 @@ import org.jfree.chart.plot.CombinedRangeXYPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.WeightedFuncListforPlotting;
@@ -366,6 +370,7 @@ public class GraphPanel extends JSplitPane {
 		int axisFontSize = plotPrefs.getAxisLabelFontSize();
 		//getting the tick label font size
 		int tickFontSize = plotPrefs.getTickLabelFontSize();
+		int legendFontSize = plotPrefs.getLegendFontSize();
 
 		//create the standard ticks so that smaller values too can plotted on the chart
 		TickUnits units = MyTickUnits.createStandardTickUnits();
@@ -490,6 +495,11 @@ public class GraphPanel extends JSplitPane {
 		
 		List<PlotCurveCharacterstics> plottedChars = Lists.newArrayList();
 		
+		// legend items. will be set to non null if at least one sub plot has a legend
+		LegendItemCollection legendItems = null;
+		// location set by FIRST spec with a legend
+		RectangleEdge legendLocation = null;
+		
 		for (int p=0; p<specs.size(); p++) {
 			PlotSpec plotSpec = specs.get(p);
 			
@@ -581,6 +591,19 @@ public class GraphPanel extends JSplitPane {
 				for (XYAnnotation a : plotSpec.getPlotAnnotations())
 					subPlot.addAnnotation(a);
 			
+			// add any legend
+			if (plotSpec.isLegendVisible()) {
+				LegendItemCollection subLegend = plotSpec.getCustomLegendCollection();
+				if (subLegend == null)
+					subLegend = subPlot.getLegendItems();
+				
+				if (legendItems == null) {
+					legendItems = new LegendItemCollection();
+					legendLocation = plotSpec.getLegendLocation();
+				}
+				legendItems.addAll(subLegend);
+			}
+			
 			// multiple plots
 			if (plot instanceof CombinedRangeXYPlot)
 				((CombinedRangeXYPlot)plot).add(subPlot);
@@ -603,6 +626,23 @@ public class GraphPanel extends JSplitPane {
 		JFreeChart chart = new JFreeChart(specs.get(0).getTitle(), newPlotLabelFont, plot, false );
 
 		chart.setBackgroundPaint( backgroundColor );
+		
+		if (legendItems != null) {
+			// must be final to be used below. we use this one as some subplots may/may not have legends enabled
+			final LegendItemCollection legendItemsFin = legendItems;
+			LegendTitle chartLegend = new LegendTitle(new LegendItemSource() {
+				
+				@Override
+				public LegendItemCollection getLegendItems() {
+					// TODO Auto-generated method stub
+					return legendItemsFin;
+				}
+			});
+			chartLegend.setPosition(legendLocation);
+			Font legendFont = chartLegend.getItemFont();
+			chartLegend.setItemFont(new Font(legendFont.getName(), legendFont.getStyle(), legendFontSize));
+			chart.addLegend(chartLegend);
+		}
 
 		// Put into a panel
 		chartPanel = new ChartPanel(chart, true, true, true, true, false);
