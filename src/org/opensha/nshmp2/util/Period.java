@@ -34,6 +34,8 @@ public enum Period {
 	GM0P75(0.75, Values.per0p75, "1.5Hz"),
 	/** Ground motions for SA at 1.0 sec. */
 	GM1P00(1.00, Values.per1p00, "1Hz"),
+	/** Ground motions for SA at 1.5 sec. */
+	GM1P50(1.50, Values.per1p50, "1.5sec"),
 	/** Ground motions for SA at 2.0 sec. */
 	GM2P00(2.00, Values.per2p00, "2sec"),
 	/** Ground motions for SA at 3.0 sec. */
@@ -133,16 +135,20 @@ public enum Period {
 	}
 
 	private static class Values {
+//		static double[] per0p00 = { 0.0050, 0.0070, 0.0098, 0.0137, 0.0192, 0.0269, 0.0376, 0.0527, 0.0738, 0.103, 0.145, 0.203, 0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.13 };
+		// TODO temp change to match PGA to Steve Harmsens expanded PGA values
 		static double[] per0p00 = { 0.0050, 0.0070, 0.0098, 0.0137, 0.0192, 0.0269, 0.0376, 0.0527, 0.0738, 0.103, 0.145, 0.203, 0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.13 };
 		static double[] per0p10 = { 0.0025, 0.0060, 0.0098, 0.0137, 0.0192, 0.0269, 0.0376, 0.0527, 0.0738, 0.103, 0.145, 0.203, 0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.13, 3.3 };
 		static double[] per0p20 = { 0.0050, 0.0075, 0.0113, 0.0169, 0.0253, 0.0380, 0.0570, 0.0854, 0.128, 0.192, 0.288, 0.432, 0.649, 0.973, 1.46, 2.19, 3.28, 4.92, 7.38 };
 		static double[] per0p30 = { 0.0025, 0.0050, 0.0075, 0.0113, 0.0169, 0.0253, 0.0380, 0.0570, 0.0854, 0.128, 0.192, 0.288, 0.432, 0.649, 0.973, 1.46, 2.19, 3.28, 4.92, 7.38 };
 		static double[] per0p50 = per0p30;
-		static double[] per0p75 = per0p10;
 		static double[] per1p00 = { 0.0025, 0.00375, 0.00563, 0.00844, 0.0127, 0.0190, 0.0285, 0.0427, 0.0641, 0.0961, 0.144, 0.216, 0.324, 0.487, 0.730, 1.09, 1.64, 2.46, 3.69, 5.54 };
-		static double[] per2p00 = per0p10;
-		static double[] per3p00 = per0p10;
-		static double[] per4p00 = per0p10;
-		static double[] per5p00 = per0p10;
+		static double[] per1p50 = per1p00; // all periods below used to be 0.1 sec following the 2008 NSHMP
+		static double[] per2p00 = per1p00; // and 0.75 sec below
+		static double[] per3p00 = per1p00;
+		static double[] per4p00 = per1p00;
+		static double[] per5p00 = per1p00;
+		// out of order
+		static double[] per0p75 = per1p00;
 	}
 }
