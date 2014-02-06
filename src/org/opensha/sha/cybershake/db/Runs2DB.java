@@ -23,6 +23,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 public class Runs2DB {
 	
@@ -257,6 +260,14 @@ public class Runs2DB {
 		return getVelocityModels(null);
 	}
 	
+	public Map<Integer, CybershakeVelocityModel> getVelocityModelMap() {
+		Map<Integer, CybershakeVelocityModel> map = Maps.newHashMap();
+		ArrayList<CybershakeVelocityModel> models = getVelocityModels(null);
+		for (CybershakeVelocityModel model : models)
+			map.put(model.getID(), model);
+		return map;
+	}
+	
 	public CybershakeVelocityModel getVelocityModel(int id) {
 		String whereClause = "Velocity_Model_ID="+id;
 		ArrayList<CybershakeVelocityModel> models = getVelocityModels(whereClause);
@@ -294,6 +305,108 @@ public class Runs2DB {
 //		for (CybershakeVelocityModel vel : vels)
 //			System.out.println("Loaded vel model: "+vel);
 		return vels;
+	}
+	
+	public ArrayList<CybershakeRuptureVariation> getRuptureVariations() {
+		return getRuptureVariations(null);
+	}
+	
+	public Map<Integer, CybershakeRuptureVariation> getRuptureVariationsMap() {
+		Map<Integer, CybershakeRuptureVariation> map = Maps.newHashMap();
+		ArrayList<CybershakeRuptureVariation> models = getRuptureVariations(null);
+		for (CybershakeRuptureVariation model : models)
+			map.put(model.getID(), model);
+		return map;
+	}
+	
+	public CybershakeRuptureVariation getRuptureVariation(int id) {
+		String whereClause = "Velocity_Model_ID="+id;
+		ArrayList<CybershakeRuptureVariation> models = getRuptureVariations(whereClause);
+		if (models == null)
+			return null;
+		else
+			return models.get(0);
+	}
+	
+	private ArrayList<CybershakeRuptureVariation> getRuptureVariations(String whereClause) {
+		String sql = "SELECT * FROM Rupture_Variation_Scenario_IDs";
+		if (whereClause != null && whereClause.length() > 0)
+			sql += " WHERE " + whereClause;
+		
+		System.out.println(sql);
+		
+		ArrayList<CybershakeRuptureVariation> rvs = new ArrayList<CybershakeRuptureVariation>();
+		
+		try {
+			ResultSet rs = db.selectData(sql);
+			boolean valid = rs.first();
+			
+			while (valid) {
+				rvs.add(CybershakeRuptureVariation.fromResultSet(rs));
+				
+				valid = rs.next();
+			}
+			
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+//		for (CybershakeVelocityModel vel : vels)
+//			System.out.println("Loaded vel model: "+vel);
+		return rvs;
+	}
+	
+	public ArrayList<CybershakeSGTVariation> getSGTVars() {
+		return getSGTVars(null);
+	}
+	
+	public Map<Integer, CybershakeSGTVariation> getSGTVarsMap() {
+		Map<Integer, CybershakeSGTVariation> map = Maps.newHashMap();
+		ArrayList<CybershakeSGTVariation> models = getSGTVars(null);
+		for (CybershakeSGTVariation model : models)
+			map.put(model.getID(), model);
+		return map;
+	}
+	
+	public CybershakeSGTVariation getSGTVar(int id) {
+		String whereClause = "SGT_Variation_ID="+id;
+		ArrayList<CybershakeSGTVariation> models = getSGTVars(whereClause);
+		if (models == null)
+			return null;
+		else
+			return models.get(0);
+	}
+	
+	private ArrayList<CybershakeSGTVariation> getSGTVars(String whereClause) {
+		String sql = "SELECT * FROM SGT_Variation_IDs";
+		if (whereClause != null && whereClause.length() > 0)
+			sql += " WHERE " + whereClause;
+		
+		System.out.println(sql);
+		
+		ArrayList<CybershakeSGTVariation> sgts = new ArrayList<CybershakeSGTVariation>();
+		
+		try {
+			ResultSet rs = db.selectData(sql);
+			boolean valid = rs.first();
+			
+			while (valid) {
+				sgts.add(CybershakeSGTVariation.fromResultSet(rs));
+				
+				valid = rs.next();
+			}
+			
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+//		for (CybershakeVelocityModel vel : vels)
+//			System.out.println("Loaded vel model: "+vel);
+		return sgts;
 	}
 	
 	public static void main(String args[]) {

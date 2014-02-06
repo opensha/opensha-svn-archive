@@ -34,9 +34,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -50,6 +52,7 @@ import org.dom4j.DocumentException;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -72,6 +75,7 @@ import org.opensha.commons.gui.plot.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotPreferences;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
@@ -82,6 +86,8 @@ import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
+import org.opensha.sha.cybershake.db.CybershakeRuptureVariation;
+import org.opensha.sha.cybershake.db.CybershakeSGTVariation;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -141,7 +147,7 @@ public class HazardCurvePlotter {
 	
 	private SiteTranslator siteTranslator = new SiteTranslator();
 	
-	private 	HazardCurveCalculator calc;
+	private HazardCurveCalculator calc;
 	
 //	CybershakeERF selectedERF;
 	
@@ -768,8 +774,6 @@ public class HazardCurvePlotter {
 		return plotCurve(curveID, run, false, false, false);
 	}
 	
-	ArrayList<String> curveNames = new ArrayList<String>();
-	
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly,
 			boolean noVMColor, boolean sgtColor) {
 		return plotCurve(curveID, run, null, null, textOnly, noVMColor, sgtColor);
@@ -797,13 +801,13 @@ public class HazardCurvePlotter {
 			return Color.BLUE;
 		case 2:
 			return Color.RED;
-		case 3:
-			return Color.GREEN;
 		case 4:
 			return Color.MAGENTA;
 		case 5:
 			return Color.ORANGE;
-		case 6:
+		case 7:
+			return Color.GREEN;
+		case 8:
 			return Color.CYAN;
 		default:
 			return Color.BLACK;
@@ -872,7 +876,6 @@ public class HazardCurvePlotter {
 	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
 			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly,
 			boolean noVMColors, boolean sgtColors) {
-		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
 		
@@ -924,7 +927,25 @@ public class HazardCurvePlotter {
 		
 		ArrayList<DiscretizedFunc> curves = new ArrayList<DiscretizedFunc>();
 		curves.add(curve);
-		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString());
+		curve.setInfo("CyberShake Hazard Curve. Site: " + csSite.toString());
+		
+		// these are used to determine which fields are common
+		Map<Integer, CybershakeRuptureVariation> rvNamesMap = runs2db.getRuptureVariationsMap();
+		Map<Integer, CybershakeSGTVariation> sgtNamesMap = runs2db.getSGTVarsMap();
+		Map<Integer, CybershakeVelocityModel> velModelNamesMap = runs2db.getVelocityModelMap();
+		
+		List<Integer> runIDs = Lists.newArrayList(run.getRunID());
+		List<String> siteNames = Lists.newArrayList(csSite.short_name);
+		List<String> erfNames = Lists.newArrayList("ERF"+run.getERFID());
+		List<String> rvNames = Lists.newArrayList(rvNamesMap.get(run.getRupVarScenID()).getName());
+		List<String> sgtNames = Lists.newArrayList(sgtNamesMap.get(run.getSgtVarID()).getName());
+		List<String> velModelNames = Lists.newArrayList(velModelNamesMap.get(run.getVelModelID()).getName());
+		
+		boolean siteNamesCommon = true;
+		boolean erfNamesCommon = true;
+		boolean rvNamesCommon = true;
+		boolean sgtNamesCommon = true;
+		boolean velNamesCommon = true;
 		
 		if (compCurves != null && !compCurves.isEmpty()) {
 			for (int i=0; i<compCurves.size(); i++) {
@@ -933,7 +954,23 @@ public class HazardCurvePlotter {
 				DiscretizedFunc compCurve = compCurves.get(i);
 				curves.add(compCurve);
 				CybershakeSite compSite = site2db.getSiteFromDB(compRun.getSiteID());
-				String curveName = "CyberShake Comparison Hazard Curve. Site: " + compSite.toString();
+				compCurve.setInfo("CyberShake Comparison Hazard Curve. Site: " + compSite.toString());
+				
+				runIDs.add(compRun.getRunID());
+				siteNamesCommon = siteNamesCommon && compSite.name.equals(siteNames.get(0));
+				siteNames.add(compSite.name);
+				String erfName = "ERF"+compRun.getERFID();
+				erfNamesCommon = erfNamesCommon && erfName.equals(erfNames.get(0));
+				erfNames.add(erfName);
+				String rvName = rvNamesMap.get(compRun.getRupVarScenID()).getName();
+				rvNamesCommon = rvNamesCommon && rvName.equals(rvNames.get(0));
+				rvNames.add(rvName);
+				String sgtName = sgtNamesMap.get(compRun.getSgtVarID()).getName();
+				sgtNamesCommon = sgtNamesCommon && sgtName.equals(sgtNames.get(0));
+				sgtNames.add(sgtName);
+				String velName = velModelNamesMap.get(compRun.getVelModelID()).getName();
+				velNamesCommon = velNamesCommon && velName.equals(velModelNames.get(0));
+				velModelNames.add(velName);
 				
 				PlotLineType compCurveLineType = this.plotChars.getCyberShakeLineType();
 				PlotSymbol compSymbol = this.plotChars.getCyberShakeSymbol();
@@ -942,7 +979,6 @@ public class HazardCurvePlotter {
 //					compCurveLineType = PlotLineType.SOLID;
 				if (compSymbol == null)
 					compSymbol = getSymbolForRupVarScenID(compRun.getRupVarScenID());
-				curveNames.add(curveName);
 				Color compCurveColor = plotChars.getCyberShakeColor();
 				if (compCurveColor == null)
 					if (noVMColors)
@@ -957,19 +993,53 @@ public class HazardCurvePlotter {
 			}
 		}
 		
+		// now flush out curve names
+		String title = "";
+		for (int i=0; i<curves.size(); i++) {
+			String name = "";
+			if (siteNamesCommon) {
+				if (i == 0)
+					title += siteNames.get(i);
+			} else {
+				if (i == 0)
+					title += "Multiple Sites";
+				name += siteNames.get(i);
+			}
+			// always add run ID to the name
+			if (!name.isEmpty())
+				name += ", ";
+			name += "CS Run "+runIDs.get(i);
+			
+			// both name and title guarenteed to be non empty now
+			if (!erfNamesCommon)
+				name += ", "+erfNames.get(i);
+			else if (i == 0)
+				title += ", "+erfNames.get(i);
+			if (!rvNamesCommon)
+				name += ", "+rvNames.get(i);
+			else if (i == 0)
+				title += ", "+rvNames.get(i);
+			if (!sgtNamesCommon)
+				name += ", "+sgtNames.get(i);
+			else if (i == 0)
+				title += ", "+sgtNames.get(i);
+			if (!velNamesCommon)
+				name += ", "+velModelNames.get(i);
+			else if (i == 0)
+				title += ", "+velModelNames.get(i);
+			curves.get(i).setName(name);
+		}
+		
 		if (erf != null && attenRels.size() > 0) {
 			System.out.println("Plotting comparisons!");
-			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars, run));
+			this.plotComparisions(curves, im, curveID, chars, run);
 		}
 		
 		CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
 		curve.setInfo(getCyberShakeCurveInfo(curveID, csSite, run, velModel, im, curveColor, curveLineType, curveSymbol));
 		
-		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
-		
-		for (int i=0; i<curves.size(); i++) {
-			curves.get(i).setName(curveNames.get(i));
-		}
+		// old version
+//		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
 		if (!textOnly) {
 			System.out.println("Plotting Curve!");
@@ -997,10 +1067,6 @@ public class HazardCurvePlotter {
 	private void plotCurvesToTXT(String outFile, ArrayList<DiscretizedFunc> curves) throws IOException {
 		System.out.println("Saving TXT to: " + outFile);
 		
-		boolean useNames = false;
-		if (curves.size() == curveNames.size())
-			useNames = true;
-		
 		FileWriter fw = new FileWriter(outFile);
 		
 		fw.write("# Curves: " + curves.size() + "\n");
@@ -1008,11 +1074,7 @@ public class HazardCurvePlotter {
 		for (int i=0; i<curves.size(); i++) {
 			DiscretizedFunc curve = curves.get(i);
 			
-			String header = "# Name: ";
-			if (useNames)
-				header += curveNames.get(i);
-			else
-				header += "Curve " + i;
+			String header = "# Name: "+curve.getName();
 			
 			fw.write(header + "\n");
 			
@@ -1042,8 +1104,11 @@ public class HazardCurvePlotter {
 			yRange = null;
 		}
 		
-		this.gp.drawGraphPanel(xAxisName, plotChars.getYAxisLabel(), curves, chars, plotChars.isXLog(),
-				plotChars.isYLog(), title, xRange, yRange);
+		PlotSpec spec = new PlotSpec(curves, chars, title, xAxisName, plotChars.getYAxisLabel());
+		spec.setLegendVisible(true);
+		spec.setLegendLocation(RectangleEdge.BOTTOM);
+		
+		this.gp.drawGraphPanel(spec, plotChars.isXLog(), plotChars.isYLog(), xRange, yRange);
 		this.gp.setVisible(true);
 		
 		this.gp.validate();
@@ -1058,7 +1123,7 @@ public class HazardCurvePlotter {
 		return period_format.format(period);
 	}
 	
-	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID,
+	private void plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID,
 			ArrayList<PlotCurveCharacterstics> chars, CybershakeRun run) {
 		ArrayList<String> names = new ArrayList<String>();
 		System.out.println("Setting ERF Params");
@@ -1083,13 +1148,12 @@ public class HazardCurvePlotter {
 			ArbitrarilyDiscretizedFunc logHazFunction = this.getLogFunction(curve);
 			calc.getHazardCurve(logHazFunction, site, attenRel, erf);
 			curve = this.unLogFunction(curve, logHazFunction);
+			curve.setName(attenRel.getShortName());
 			curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
 			System.out.println("done!");
 			curves.add(curve);
-			names.add(attenRel.getName());
 			i++;
 		}
-		return names;
 	}
 	
 	public static String getCyberShakeCurveInfo(int curveID, CybershakeSite site, CybershakeRun run,
