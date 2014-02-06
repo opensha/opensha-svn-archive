@@ -5,6 +5,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis;
 
 import java.awt.Color;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -18,6 +19,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -47,7 +49,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
  *
  */
 public class ProbabilityDistHistogramPlotter {
-	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/probContr/";
+	private final static String PATH = "src/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/analysis/probContr/";
 	private final static double MIN_PROB= 0.025;
 	private final static double MAX_PROB= 0.975;
 	private final static double DELTA_PROB= 0.05;
@@ -461,7 +463,8 @@ public class ProbabilityDistHistogramPlotter {
 
 		// Open the excel file
 		try {
-			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(inputFileName));
+			InputStream is = getClass().getClassLoader().getResourceAsStream(inputFileName);
+			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet paramSettingSheet = wb.getSheetAt(0);
 			int numSheets = wb.getNumberOfSheets();
@@ -895,20 +898,20 @@ public class ProbabilityDistHistogramPlotter {
 		//plotter.generateProbContributionsExcelSheet(true, 1, PATH+"ProbabilityContributions_1yr_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(true, 15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
-		 //plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new EvenlyGriddedWG07_LA_Box_Region());
+//		 plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new CaliforniaRegions.LA_BOX());
 
 		/**/
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_NoCal.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_SoCal.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_NoCal.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_SoCal.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
+//		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_LA_Box.xls");
 		 
 		
