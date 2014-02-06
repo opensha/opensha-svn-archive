@@ -1695,6 +1695,50 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	
+	public static void testAftershockInclusionOnProbs() {
+		String erfFileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(erfFileName);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+		int startYear = erf.getTimeSpan().getStartTimeYear();
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		
+		
+		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(true);
+		erf.updateForecast();
+		
+		int numRups = erf.getTotNumRups();
+		double[] probWith = new double[numRups];
+		double[] probWithout = new double[numRups];
+		double[] ratio = new double[numRups];
+
+		for(int r=0; r<numRups; r++)
+			probWithout[r]=erf.getNthRupture(r).getProbability();
+		
+		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+		erf.updateForecast();
+		
+		for(int r=0; r<numRups; r++) {
+			probWith[r] = erf.getNthRupture(r).getProbability();
+			ratio[r] = probWithout[r]/probWith[r];
+		}
+		
+		double ave=0;
+		int num=0;
+		for(double val:ratio){
+			if(!Double.isNaN(val) && !Double.isInfinite(val)) {
+				ave += val;
+				num +=1;
+			}
+		}
+		
+		for(int i=0; i<10;i++)
+			System.out.println(ratio[i]);
+		
+		System.out.println("Average:\t"+ave/num);
+		System.out.println("num="+num+"; ratio.length="+ratio.length);
+	}
 	
 	
 	/**
@@ -3638,6 +3682,9 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
+		
+		testAftershockInclusionOnProbs();
+		
 //		try {
 //			Thread.sleep(15*60*1000);
 //		} catch (InterruptedException e) {
