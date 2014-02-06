@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis;
 
 import java.awt.Color;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -463,7 +464,8 @@ public class ProbabilityDistHistogramPlotter {
 
 		// Open the excel file
 		try {
-			InputStream is = getClass().getClassLoader().getResourceAsStream(inputFileName);
+			
+			InputStream is = new FileInputStream(inputFileName);
 			POIFSFileSystem fs = new POIFSFileSystem(is);
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet paramSettingSheet = wb.getSheetAt(0);
@@ -898,7 +900,7 @@ public class ProbabilityDistHistogramPlotter {
 		//plotter.generateProbContributionsExcelSheet(true, 1, PATH+"ProbabilityContributions_1yr_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(true, 15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
-//		 plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new CaliforniaRegions.LA_BOX());
+		 plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new CaliforniaRegions.LA_BOX());
 
 		/**/
 //		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
@@ -912,7 +914,7 @@ public class ProbabilityDistHistogramPlotter {
 //		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
 //		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 //		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_LA_Box.xls");
+			plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_LA_Box.xls");
 		 
 		
 
