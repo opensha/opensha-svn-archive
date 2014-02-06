@@ -22,7 +22,9 @@ public class UCERF2_TimeDependentEpistemicList extends UCERF2_TimeIndependentEpi
 		// we need a time dependent time span
 		timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 		timeSpan.setDuration(DURATION_DEFAULT);
+		timeSpan.setStartTime(UCERF2.START_TIME_DEFAULT);
 		timeSpan.addParameterChangeListener(this);
+		System.out.println("timeSpan.getStartTimeYear()="+timeSpan.getStartTimeYear());
 	}
 
 	/**

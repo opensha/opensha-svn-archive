@@ -385,7 +385,7 @@ public class UCERF2 extends AbstractERF {
 	private final static double DURATION_MAX = 100;
 
 	//start time
-	private final static int START_TIME_DEFAULT = 2007;
+	public final static int START_TIME_DEFAULT = 2007;
 	private final static int START_TIME_MIN = 2007;
 	private final static int START_TIME_MAX = 2107;
 
