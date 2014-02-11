@@ -11,6 +11,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.RuptureSurface;
@@ -26,6 +28,8 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
+import com.google.common.base.Preconditions;
+
 import scratch.peter.newcalc.ScalarGroundMotion;
 import scratch.peter.nga.FaultStyle;
 import scratch.peter.nga.IMT;
@@ -37,7 +41,7 @@ import scratch.peter.nga.TransitionalGMPE;
  * @author kevin
  *
  */
-public class TransitionalGMPEWrapper extends AttenuationRelationship {
+public class TransitionalGMPEWrapper extends AttenuationRelationship implements ParameterChangeListener {
 	
 	private String shortName;
 	private TransitionalGMPE gmpe;
@@ -237,7 +241,11 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 		}
 		periodConstraint.setNonEditable();
 		saPeriodParam = new PeriodParam(periodConstraint);
+		saPeriodParam.setValueAsDefault();
+		saPeriodParam.addParameterChangeListener(this);
 		saDampingParam = new DampingParam();
+		saDampingParam.setValueAsDefault();
+		saDampingParam.addParameterChangeListener(this);
 		saParam = new SA_Param(saPeriodParam, saDampingParam);
 		saParam.setNonEditable();
 		saParam.addParameterChangeWarningListener(listener);
@@ -303,6 +311,11 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship {
 		tectonicRegionTypeParam.setConstraint(options);
 	    tectonicRegionTypeParam.setDefaultValue(gmpe.get_TRT().toString());
 	    tectonicRegionTypeParam.setValueAsDefault();
+	}
+
+	@Override
+	public void parameterChange(ParameterChangeEvent event) {
+		update();
 	}
 
 }
