@@ -109,6 +109,7 @@ public class UCERF2 extends AbstractERF {
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
 	public final static String BACK_SEIS_RUP_FINITE = new String ("One Random Strike Fault");
 	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Two perpendicular faults");
+	public final static String BACK_SEIS_RUP_NSHMP_2013 = new String ("NSHMP 2013"); // see PointSource13b
 	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_CROSSHAIR;
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;

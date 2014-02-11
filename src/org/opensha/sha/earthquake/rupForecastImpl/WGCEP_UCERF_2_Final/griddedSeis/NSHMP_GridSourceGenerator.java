@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -14,12 +16,16 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.nshmp2.erf.source.PointSource13b;
+import org.opensha.nshmp2.util.FocalMech;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import com.google.common.collect.Maps;
 
 
 
@@ -275,6 +281,21 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 		}
 		return sources;
 	}
+	
+	/**
+	 * Get all NSHMP 2013 styled grid sources.
+	 * 
+	 * @param duration
+	 * @return
+	 */ 
+	public List<ProbEqkSource> getAllNSHMP13_GriddedSources(double duration) {
+		int numSources =  region.getNodeCount();
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int i=0; i<numSources; ++i) {
+			sources.add(this.getNSHMP13_GriddedSource(i, duration));
+		}
+		return sources;
+	}
 
 	/**
 	 * Get the random strike gridded source at a specified index (this ignores the fixed-strike contribution)
@@ -301,6 +322,29 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 		return new Point2Vert_FaultPoisSource(region.locationForIndex(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
 				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex], true);
 	}
+	
+	private static final double[] DEPTHS = new double[] {5.0, 1.0};
+	
+	/**
+	 * Returns a NSHMP 2013 style gridded source that is compatible with all
+	 * NGAW2 relationships.
+	 * @param srcIndex
+	 * @param duration
+	 * @return the source
+	 */
+	public ProbEqkSource getNSHMP13_GriddedSource(int srcIndex, double duration) {
+		boolean includeDeeps = false;
+		//boolean includeDeeps = true;
+		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, includeDeeps);
+		Map<FocalMech, Double> mechMap = Maps.newEnumMap(FocalMech.class);
+		mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip[srcIndex]);
+		mechMap.put(FocalMech.NORMAL, fracNormal[srcIndex]);
+		mechMap.put(FocalMech.REVERSE, fracReverse[srcIndex]);
+		return new PointSource13b(region.locationForIndex(srcIndex), mfdAtLoc,
+			duration, DEPTHS, mechMap);
+	}
+	
+
 
 
 	/**

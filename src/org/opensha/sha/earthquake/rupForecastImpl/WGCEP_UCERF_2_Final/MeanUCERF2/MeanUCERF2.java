@@ -198,6 +198,7 @@ public class MeanUCERF2 extends AbstractERF {
 		
 		// backgroud treated as point sources/finite sources
 		ArrayList<String> backSeisRupStrings = new ArrayList<String>();
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_NSHMP_2013);
 		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_POINT);
 		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_FINITE);
 		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_CROSSHAIR);
@@ -275,7 +276,7 @@ public class MeanUCERF2 extends AbstractERF {
 			if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR)) {
 				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());				
 			}
-			else {
+			else if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_FINITE)) {
 /*/ Debugging 
 				Location locOfInterest = new Location(37,-121.4);
 				int indexOfInterest = nshmp_gridSrcGen.getNearestLocationIndex(locOfInterest);
@@ -288,6 +289,8 @@ public class MeanUCERF2 extends AbstractERF {
 				}
 // Debugging */
 				return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+			} else {
+				return nshmp_gridSrcGen.getNSHMP13_GriddedSource(iSource - allSources.size(), timeSpan.getDuration());
 			}
 		}
 	}
@@ -320,12 +323,16 @@ public class MeanUCERF2 extends AbstractERF {
 		boolean isBackground = backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE) ||
 				backSeisParam.getValue().equals(UCERF2.BACK_SEIS_ONLY);
 		
-		if( isBackground &&
-				this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
-			sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
-		else if(isBackground)
-			sourceList.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+		if( isBackground ) {
+			if (this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR)) {
+				sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+			} else if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR)) {
+				sourceList.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+			} else {
+				sourceList.addAll(nshmp_gridSrcGen.getAllNSHMP13_GriddedSources(timeSpan.getDuration()));
+			}
 
+		}
 		return sourceList;
 	}
 
@@ -434,9 +441,9 @@ public class MeanUCERF2 extends AbstractERF {
 			String backSeisRup = backSeisRupParam.getValue();
 			if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 				nshmp_gridSrcGen.setAsPointSources(true);
-			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
-				nshmp_gridSrcGen.setAsPointSources(false);
-			} else { // Cross hair ruptures
+//			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
+//				nshmp_gridSrcGen.setAsPointSources(false);
+			} else { // All others
 				nshmp_gridSrcGen.setAsPointSources(false);
 			}
 			
