@@ -40,6 +40,8 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
+import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
@@ -4008,6 +4010,143 @@ public class ProbabilityModelsCalc {
 		}
 		return info;
 	}
+	
+	
+	/**
+	 * Two segment/section example, where zeroeth rupture only uses section 0, and 1st rup uses both section 0 and 1.
+	 * 
+	 * @param numSimulatedRups
+	 */
+	public static void simpleModelTest(int numSimulatedRups) {
+		double aper = 0.2;
+		
+		int[] sampledRupArray = new int[numSimulatedRups];
+		double[] yearOfSampledRupArray = new double[numSimulatedRups];
+				
+		double rup1_RI = 50;
+		double rup2_RI = 200;
+		double[] longTermRupRateArray = {1.0/rup1_RI,1.0/rup2_RI};
+		double[] longTermSectRateArray = new double[2];
+		longTermSectRateArray[0] = 1.0/rup1_RI + 1.0/rup2_RI;
+		longTermSectRateArray[1] = 1.0/rup2_RI;
+		double[] sectYearOfLastArray = {-1.0/longTermSectRateArray[0], -1.0/longTermSectRateArray[1]};	// start of one sect RI since last
+
+		
+		double[] condRI_Array = new double[2];
+		condRI_Array[0] = 1.0/longTermSectRateArray[0];
+		condRI_Array[1] = (1.0/longTermSectRateArray[0]+1.0/longTermSectRateArray[1])/2.0;	// ave section RIs
+		// To test alternative cond RI calculation:
+//		condRI_Array[1] = 1.0/((longTermSectRateArray[0]+longTermSectRateArray[1])/2.0);	// ave section RIs
+		
+		System.out.println("longTermRupRateArray: "+longTermRupRateArray[0]+", "+longTermRupRateArray[1]);
+		System.out.println("longTermSectRateArray: "+longTermSectRateArray[0]+", "+longTermSectRateArray[1]);
+		System.out.println("condRI_Array: "+condRI_Array[0]+", "+condRI_Array[1]);
+
+		double[] aveNormTimeSinceArray = new double[2];
+		double[] condProbArray = new double[2];
+		double[] tdRupRateArray = new double[2];
+		double year = 0;
+		int nthRup = 0;
+		int num0thRups=0;
+		
+		CalcProgressBar progressBar = new CalcProgressBar("simpleModelTest","Num Rups Done");
+		progressBar.showProgress(true);
+
+		// For BPT
+//		BPT_DistCalc bptRefCalc = getRef_BPT_DistCalc(aper);
+		
+		// For lognormal or weibull:
+		int numPts = (int)Math.round((9*refRI)/deltaT);
+		LognormalDistCalc bptRefCalc = new LognormalDistCalc();
+//		WeibullDistCalc bptRefCalc = new WeibullDistCalc();
+		bptRefCalc.setAll(refRI, aper, deltaT, numPts);
+
+		
+		
+		
+		double stepDurationYears = 1.0;
+		
+		IntegerPDF_FunctionSampler nthRupRandomSampler = new IntegerPDF_FunctionSampler(2);
+		RandomDataGenerator randomDataSampler = new RandomDataGenerator();
+		
+		ArrayList<Double> normalizedRupRecurIntervals = new ArrayList<Double>();
+		ArrayList<Double> normalizedSectRecurIntervals = new ArrayList<Double>();
+
+		while(nthRup<numSimulatedRups) {
+
+			progressBar.updateProgress(nthRup, numSimulatedRups);
+
+			aveNormTimeSinceArray[0] = (year-sectYearOfLastArray[0])*longTermSectRateArray[0];
+			aveNormTimeSinceArray[1] = ((year-sectYearOfLastArray[0])*longTermSectRateArray[0]+(year-sectYearOfLastArray[1])*longTermSectRateArray[1])/2;
+			condProbArray[0] = bptRefCalc.getCondProb(aveNormTimeSinceArray[0], stepDurationYears*refRI/condRI_Array[0]);
+			condProbArray[1] = bptRefCalc.getCondProb(aveNormTimeSinceArray[1], stepDurationYears*refRI/condRI_Array[1]);
+			tdRupRateArray[0] = (condProbArray[0]/(stepDurationYears/condRI_Array[0])) * (1.0/rup1_RI);	// (gain)*(longTermRate)
+			tdRupRateArray[1] = (condProbArray[1]/(stepDurationYears/condRI_Array[1])) * (1.0/rup2_RI);	// (gain)*(longTermRate)
+
+//			 Poisson test
+//			tdRupRateArray[0] = (1.0/rup1_RI);	// (gain=1)*(longTermRate)
+//			tdRupRateArray[1] = (1.0/rup2_RI);	// (gain=1)*(longTermRate)
+
+			nthRupRandomSampler.set(0,tdRupRateArray[0]);
+			nthRupRandomSampler.set(1,tdRupRateArray[1]);
+
+			double totRate = tdRupRateArray[0]+tdRupRateArray[1];
+
+			double timeToNextInYrs = randomDataSampler.nextExponential(1.0/totRate);
+
+			if(timeToNextInYrs<stepDurationYears) {
+				// sample a rup
+				int r = nthRupRandomSampler.getRandomInt();
+				sampledRupArray[nthRup]=r;
+				yearOfSampledRupArray[nthRup]=year+timeToNextInYrs;
+				// reset date of last event on sections
+				if(r==0) {
+					normalizedRupRecurIntervals.add(aveNormTimeSinceArray[0]);
+					normalizedSectRecurIntervals.add((year-sectYearOfLastArray[0])*longTermSectRateArray[0]);
+					sectYearOfLastArray[0] = year+timeToNextInYrs;
+					num0thRups+=1;
+				}
+				else {
+					normalizedRupRecurIntervals.add(aveNormTimeSinceArray[1]);
+					normalizedSectRecurIntervals.add((year-sectYearOfLastArray[0])*longTermSectRateArray[0]);
+					normalizedSectRecurIntervals.add((year-sectYearOfLastArray[1])*longTermSectRateArray[1]);
+					sectYearOfLastArray[0] = year+timeToNextInYrs;
+					sectYearOfLastArray[1] = year+timeToNextInYrs;
+				}
+				year += timeToNextInYrs;
+				nthRup+=1;
+			}
+			else {
+				year += stepDurationYears;
+			}
+		}
+		
+		double simRate = numSimulatedRups/year;
+		double expectedRate = (longTermRupRateArray[0]+longTermRupRateArray[1]);
+		
+		System.out.println("simulated rate = "+simRate+"\t("+(simRate/expectedRate)+")");
+		System.out.println("expected rate = "+expectedRate);
+		System.out.println("simulated rate 0th rup = "+(num0thRups/year)+"\t("+((num0thRups/year)/longTermRupRateArray[0])+")");
+		System.out.println("expected rate 0th rup = "+longTermRupRateArray[0]);
+		System.out.println("simulated rate 1st rup = "+((numSimulatedRups-num0thRups)/year)+"\t("+(((numSimulatedRups-num0thRups)/year)/longTermRupRateArray[1])+")");
+		System.out.println("expected rate 1st rup = "+longTermRupRateArray[1]);
+		
+		ArrayList<EvenlyDiscretizedFunc> funcList = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedRupRecurIntervals, aper);
+		GraphWindow grapha_a = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcList, "Normalized Rupture RIs; "+"simple problem");
+		String infoString="";
+		infoString += "\nRup "+funcList.get(0).getName()+":";
+		infoString += "\n"+funcList.get(0).getInfo();
+		
+		ArrayList<EvenlyDiscretizedFunc> funcListSect = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedSectRecurIntervals, aper);
+		GraphWindow grapha_b = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcListSect, "Normalized Section RIs; "+"simple problem");
+		infoString += "\n\nSect "+funcListSect.get(0).getName()+":";
+		infoString += "\n"+funcListSect.get(0).getInfo();
+
+		System.out.println("infoString: \n"+infoString);
+
+		progressBar.dispose();
+
+	}
 
 	
 	/**
@@ -4015,25 +4154,27 @@ public class ProbabilityModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		// THIS CODE WAS RUN ON JAN 30
-		TestModel3_FSS testFSS = new TestModel3_FSS();	// this one is perfectly segmented
-		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
-			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.updateForecast();
-		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-		testCalc.testER_Simulation(null, null, erf,1000000d, "SimpleFaultTestRun1_Jan30");
-//		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
+		simpleModelTest(1000000);
 
-		System.exit(0);
+//		// THIS CODE WAS RUN ON JAN 30
+//		TestModel3_FSS testFSS = new TestModel3_FSS();	// this one is perfectly segmented
+//		for(FaultSectionPrefData fltData : testFSS.getRupSet().getFaultSectionDataList())
+//			fltData.setDateOfLastEvent(-Math.round(270*MILLISEC_PER_YEAR));
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(testFSS);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+////		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.LOW_VALUES);
+////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+//		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		erf.updateForecast();
+//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+//		testCalc.testER_Simulation(null, null, erf,1000000d, "SimpleFaultTestRun1_Jan30");
+////		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
+//
+//		System.exit(0);
 		
 		
 		
@@ -4056,29 +4197,29 @@ public class ProbabilityModelsCalc {
 ////		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
 		
 
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-
-		
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
-//		erf.updateForecast();
-//		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-////		testCalc.testER_Simulation(null, null, erf,200000d);
-//		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimulation", 1000000);
-
-//		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
-		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+////		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+//
 //		
-//		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
-		erf.updateForecast();
+////		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+////		erf.updateForecast();
+////		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+//////		testCalc.testER_Simulation(null, null, erf,200000d);
+////		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimulation", 1000000);
+//
+////		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
+//		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+////		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
+////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+//		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+////		
+////		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
+//		erf.updateForecast();
 
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 
@@ -4102,7 +4243,7 @@ public class ProbabilityModelsCalc {
 //		System.out.println(testCalc.getInfoAboutRupture(248296, erf.getTimeSpan().getStartTimeInMillis()));
 		
 		// NSAF Offshore:
-		System.out.println(testCalc.getInfoAboutRupture(160395, erf.getTimeSpan().getStartTimeInMillis()));
+//		System.out.println(testCalc.getInfoAboutRupture(160395, erf.getTimeSpan().getStartTimeInMillis()));
 
 		
 
