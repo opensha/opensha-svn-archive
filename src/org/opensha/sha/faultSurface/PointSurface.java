@@ -80,6 +80,12 @@ public class PointSurface implements RuptureSurface {
 	 * particular scientific caculations. Initially set to NaN.
 	 */
 	protected double aveDip=Double.NaN;
+	
+	/**
+	 * The average width of the surface. Although most ground motion models
+	 * are not concerned with rupture width, some newer models require a
+	 * reasonable estimate to function properly (e.g. ASK_2013). */
+	protected double aveWidth = 0.0;
 
 	/** The name of this point source.  */
 	protected String name;
@@ -334,9 +340,13 @@ public class PointSurface implements RuptureSurface {
 		return 0;
 	}
 
+	public void setAveWidth(double aveWidth) {
+		this.aveWidth = aveWidth;
+	}
+	
 	@Override
 	public double getAveWidth() {
-		return 0;
+		return aveWidth;
 	}
 	
 	private LocationList getLocationList() {

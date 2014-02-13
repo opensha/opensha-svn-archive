@@ -19,11 +19,15 @@
 
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis;
 
+import static java.lang.Math.min;
+import static java.lang.Math.sin;
+
 import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -368,6 +372,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 					new Location(loc.getLatitude(), loc.getLongitude(), depth));
 			ptSurface.setAveStrike(strike);
 			ptSurface.setAveDip(dip);
+			double width = calcWidth(mag, depth, dip);
+			ptSurface.setAveWidth(width);
 			probEqkRupture.setRuptureSurface(ptSurface);
 		}
 		else { // set finite surface
@@ -501,4 +507,20 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	public boolean isCrossHair() {
 		return isCrossHair;
 	}
+	
+	
+	private static final MagLengthRelationship WC94 = 
+			new WC1994_MagLengthRelationship();
+
+	/*
+	 * Returns the minimum of the aspect ratio width (based on WC94) length
+	 * and the allowable down-dip width.
+	 */
+	private double calcWidth(double mag, double depth, double dip) {
+		double length = WC94.getMedianLength(mag);
+		double aspectWidth = length / 1.5;
+		double ddWidth = (14.0 - depth) / sin(dip * GeoTools.TO_RAD);
+		return min(aspectWidth, ddWidth);
+	}
+
 }
