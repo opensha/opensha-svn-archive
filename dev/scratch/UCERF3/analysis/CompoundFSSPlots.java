@@ -21,16 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -59,8 +54,6 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
@@ -101,14 +94,12 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
-import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc.SectProbGainResults;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FSSRupsInRegionCache;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -143,15 +134,14 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 import scratch.kevin.DeadlockDetectionThread;
+import scratch.kevin.ucerf3.TestPDFCombine;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
-import com.google.common.collect.Table.Cell;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -1180,8 +1170,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 			for (String faultName : ERFBasedRegionalMagProbPlot.mainFaultsCombinedPFDNames)
 				faultSmallPDFs.add(new File(
 						smallFaultsDir, faultName.replaceAll("\\W+", "_")+"_"+(int)duration+"yr_small"+".pdf"));
-			combinePDFs(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"));
-			combinePDFs(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"));
+			try {
+				TestPDFCombine.combine(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"),
+						2, 0.5, false, 0.03, 0.05);
+				TestPDFCombine.combine(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"),
+						2, 0.43, false, 0.06, 0.03);
+			} catch (com.lowagie.text.DocumentException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
 		}
 		
 		// write metadata
@@ -1201,6 +1197,37 @@ public abstract class CompoundFSSPlots implements Serializable {
 					+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n");
 			
 			fw.close();
+		}
+	}
+	
+	private static void recombineMagProbDistPDFs(File smallMPDDir, File smallFaultsDir, String prefix)
+			throws IOException {
+		List<Region> regions = ERFBasedRegionalMagProbPlot.getDefaultRegions();
+		for (double duration : ERFBasedRegionalMagProbPlot.durations) {
+			List<File> regSmallPDFs = Lists.newArrayList();
+			List<File> faultSmallPDFs = Lists.newArrayList();
+			
+			for (int i = 0; i < regions.size(); i++) {
+				Region region = regions.get(i);
+				
+				String fname = prefix+"_"+(int)duration+"yr_MPD_ERF";
+				fname += "_" + region.getName().replaceAll("\\W+", "_");
+				
+				regSmallPDFs.add(new File(smallMPDDir, fname + "_small.pdf"));
+			}
+			for (String faultName : ERFBasedRegionalMagProbPlot.mainFaultsCombinedPFDNames)
+				faultSmallPDFs.add(new File(
+						smallFaultsDir, faultName.replaceAll("\\W+", "_")+"_"+(int)duration+"yr_small"+".pdf"));
+//			Collections.reverse(regSmallPDFs);
+//			Collections.reverse(faultSmallPDFs);
+			try {
+				TestPDFCombine.combine(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"),
+						2, 0.5, false, 0.03, 0.05);
+				TestPDFCombine.combine(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"),
+						2, 0.43, false, 0.06, 0.03);
+			} catch (com.lowagie.text.DocumentException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
 		}
 	}
 	
@@ -5769,7 +5796,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 							+"UCERF3 data uses default BPT averaging method and UCERF3 Preferred Blend for "
 								+"the time dependence. This historical open interval is set as "
 								+FaultSystemSolutionERF.START_TIME_DEFAULT+" - 1875 = "
-								+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n";
+								+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n"
+							+"\n"
+							+"UCERF3 fault probabilities are spread over their respective fault polygon"
+							+ " (and UCERF2 faults are not).\n";
 					plots.add(plot);
 					
 					funcs = new XY_DataSetList();
@@ -6940,25 +6970,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 			throw new IllegalStateException(
 					"Should not be called if usesERFs() == false");
 	}
-	
-	private static void combinePDFs(List<File> pdfFiles, File outputFile) throws IOException {
-		PDDocument document = new PDDocument();
-		List<PDDocument> subDocs = Lists.newArrayList();
-		for (File pdfFile : pdfFiles) {
-			PDDocument part = PDDocument.load(pdfFile);
-			List<PDPage> list = part.getDocumentCatalog().getAllPages();
-			document.addPage(list.get(0));
-			subDocs.add(part);
-		}
-		try {
-			document.save(outputFile);
-		} catch (COSVisitorException e) {
-			ExceptionUtils.throwAsRuntimeException(e);
-		}
-		document.close();
-		for (PDDocument doc : subDocs)
-			doc.close();
-	}
 
 	private static String hostname;
 
@@ -7441,6 +7452,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
+//		recombineMagProbDistPDFs(new File("/tmp/asdf/small_MPD_plots/"),
+//				new File("/tmp/asdf/small_MPD_faults/"), "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL");
+//		System.exit(0);
 		if (args.length >= 3) {
 			File dir = new File(args[0]);
 			String prefix = args[1];

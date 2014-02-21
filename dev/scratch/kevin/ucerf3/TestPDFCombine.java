@@ -20,13 +20,15 @@ import com.lowagie.text.pdf.PdfWriter;
 
 public class TestPDFCombine {
 	
-	private static void combine(List<File> inputFiles, File outputFile) throws IOException, DocumentException {
+	public static void combine(List<File> inputFiles, File outputFile) throws IOException, DocumentException {
 		int num = inputFiles.size();
 		Preconditions.checkState(num>=2);
 		int cols;
 		if (num == 2)
 			cols = 2;
-		else if (num == 5)
+		else if (num >= 7)
+			cols = 2;
+		else if (num >= 5)
 			cols = 3;
 		else
 			cols = 2;
@@ -43,6 +45,44 @@ public class TestPDFCombine {
 		}
 		System.out.println(num+": "+rows+"x"+cols);
 		
+		double scale = 1d/(double)rows;
+		scale *= 0.95;
+		
+		System.out.println("Scale: "+scale);
+		
+		boolean rotate = false;
+		if (cols > 2) {
+			rotate = true;
+			scale *= 0.8;
+		}
+		if (num == 2) {
+			rotate = true;
+			scale *= 0.65;
+		}
+		
+		combine(inputFiles, outputFile, cols, scale, rotate, 0d, 0d);
+	}
+	
+	public static void combine(List<File> inputFiles, File outputFile, int cols, double scale, boolean rotate,
+			double xBuffFract, double yBuffFract) throws IOException, DocumentException {
+		int num = inputFiles.size();
+		Preconditions.checkState(num>=2);
+		
+		int numAccountedFor = 0;
+		int rows = 1;
+		int numOnCurRow = 0;
+		while (numAccountedFor < num) {
+			if (numOnCurRow == cols) {
+				numOnCurRow = 0;
+				rows++;
+			}
+			numOnCurRow++;
+			numAccountedFor++;
+		}
+		
+		Rectangle size = PageSize.LETTER;
+		if (rotate)
+			size = size.rotate();
 //		List<PDPage> pages = Lists.newArrayList();
 //		for (File file : inputFiles) {
 //			PDDocument part = PDDocument.load(file);
@@ -56,21 +96,6 @@ public class TestPDFCombine {
 //		PDPage combPage = new PDPage();
 //		PDPageContentStream contentStream = new PDPageContentStream(document, combPage);
 //		contentStream.
-		
-		double scale = 1d/(double)rows;
-		scale *= 0.95;
-		
-		System.out.println("Scale: "+scale);
-		
-		Rectangle size = PageSize.LETTER;
-		if (cols == 3) {
-			size = size.rotate();
-			scale *= 0.8;
-		}
-		if (num == 2) {
-			size = size.rotate();
-			scale *= 0.65;
-		}
 		
 		Document doc = new Document(size);
 		PdfWriter writer = PdfWriter.getInstance(doc, new FileOutputStream(outputFile));
@@ -91,12 +116,17 @@ public class TestPDFCombine {
 			PdfImportedPage page = writer.getImportedPage(reader, 1);
 //			cb.addTemplate(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
 			
+			// now flip it so that we're reading from top left
+			int myRow = rows-row-1;
+			
 			double x = maxX * (double)col / (double)cols;
 			x *= 1.05;
 			if (cols == 1)
 				x = maxX*0.25;
-			double y = maxY * (double)row / (double)rows;
+			x += xBuffFract*maxX;
+			double y = maxY * (double)myRow / (double)rows;
 			y *= 0.95;
+			y += yBuffFract*maxY;
 			
 			System.out.println("doc at x="+x+", y="+y);
 			

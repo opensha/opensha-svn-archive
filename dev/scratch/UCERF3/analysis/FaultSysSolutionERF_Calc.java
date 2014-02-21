@@ -2757,24 +2757,29 @@ public class FaultSysSolutionERF_Calc {
 		Preconditions.checkState((float)totCellWeight == 1f, "Total cell weight != 1: "+totCellWeight
 				+", isWeightedMultiCOV="+isWeightedMultiCOV);
 		
-		Map<String, DiscretizedFunc[]> u2MPDs = null;
+		Map<String, DiscretizedFunc[]> u2DepMPDs = null;
+		Map<String, DiscretizedFunc[]> u2IndepMPDs = null;
 		int u2FuncIndex = -1;
 		if ((float)duration == 30f) {
-			u2MPDs = loadUCERF2MainFaultMPDs(true, true);
+			u2DepMPDs = loadUCERF2MainFaultMPDs(true, true);
+			u2IndepMPDs = loadUCERF2MainFaultMPDs(true, false);
 			// now make sure the mag is supported
-			u2FuncIndex = u2MPDs.values().iterator().next()[0].getXIndex(minMag);
-			if (u2FuncIndex < 0)
+			u2FuncIndex = u2DepMPDs.values().iterator().next()[0].getXIndex(minMag);
+			if (u2FuncIndex < 0) {
 				// mag not supported
-				u2MPDs = null;
+				u2DepMPDs = null;
+				u2IndepMPDs = null;
+			}
 		}
 		
 		// aggregated CSV file
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList("Name", "U3 Mean Time Dep", "U3 Min", "U3 Max",
 				"U3 Time Indep", "U3 Time Dep/Time Indep");
-		if (u2MPDs != null) {
+		if (u2DepMPDs != null) {
 			// we have UCERF2 values
-			header.addAll(Lists.newArrayList("U2 Mean Time Dep", "U2 Min", "U2 Max", "U3 Time Dep / U2 Time Dep"));
+			header.addAll(Lists.newArrayList("U2 Mean Time Dep", "U2 Min", "U2 Max",
+					"U2 Mean Time Indep", "U2 Time Dep/Time Indep", "U3 Time Dep / U2 Time Dep"));
 		}
 		csv.addLine(header);
 		
@@ -2844,16 +2849,21 @@ public class FaultSysSolutionERF_Calc {
 			
 			List<String> line = Lists.newArrayList(name, meanBPT+"", minBPT+"", maxBPT+"", meanPois+"", gainU3+"");
 			
-			if (u2MPDs != null) {
-				DiscretizedFunc[] u2Funcs = u2MPDs.get(name); // organized as min, max, mean
+			if (u2DepMPDs != null) {
+				DiscretizedFunc[] u2Funcs = u2DepMPDs.get(name); // organized as min, max, mean
+				DiscretizedFunc[] u2IndepFuncs = u2IndepMPDs.get(name); // organized as min, max, mean
 				double minU2 = u2Funcs[0].getY(u2FuncIndex);
 				double maxU2 = u2Funcs[1].getY(u2FuncIndex);
 				double meanU2 = u2Funcs[2].getY(u2FuncIndex);
+				double meanIndepU2 = u2IndepFuncs[2].getY(u2FuncIndex);
 			
-				// "U2 Mean Time Dep", "U2 Min", "U2 Max", "U3 Time Dep / U2 Time Dep"
+				// "U2 Mean Time Dep", "U2 Min", "U2 Max"
+				// "U2 Mean Time Indep", "U2 Time Dep/Time Indep", "U3 Time Dep / U2 Time Dep"
 				line.add(meanU2+"");
 				line.add(minU2+"");
 				line.add(maxU2+"");
+				line.add(meanIndepU2+"");
+				line.add((meanU2/meanIndepU2)+"");
 				line.add((meanBPT/meanU2)+"");
 			}
 			

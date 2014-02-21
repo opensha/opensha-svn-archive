@@ -648,8 +648,11 @@ public class FSS_ERF_ParamTest {
 				}
 			}
 		} else if (paramName.equals(MagDependentAperiodicityParam.NAME)) {
-			assertTrue("Non poisson and doesn't have MagDependentAperiodicityParam", !timeDep || containsParam);
-			if (!timeDep && !containsParam)
+			// can skip for pref blend
+			boolean shouldntHaveParam = !timeDep || probModel == ProbabilityModelOptions.U3_PREF_BLEND;
+			assertTrue("Non poisson and doesn't have MagDependentAperiodicityParam",
+					shouldntHaveParam || containsParam);
+			if (shouldntHaveParam && !containsParam)
 				return;
 			// first check directly
 			MagDependentAperiodicityOptions val = (MagDependentAperiodicityOptions) paramVal;
