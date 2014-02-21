@@ -2,6 +2,7 @@ package scratch.UCERF3.analysis;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
@@ -24,8 +25,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -54,6 +59,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
@@ -69,8 +75,13 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
@@ -90,6 +101,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc.SectProbGainResults;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
@@ -139,6 +151,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -1096,6 +1109,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		File subDir = new File(dir, "erf_mag_prob_plots");
 		if (!subDir.exists())
 			subDir.mkdir();
+		File smallMPDDir = new File(dir, "small_MPD_plots");
+		if (!smallMPDDir.exists())
+			smallMPDDir.mkdir();
+		File smallFaultsDir = new File(dir, "small_MPD_faults");
+		if (!smallFaultsDir.exists())
+			smallFaultsDir.mkdir();
 
 		int unnamedRegionCnt = 0;
 
@@ -1103,15 +1122,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 			File durDir = new File(subDir, (int)duration+"yr");
 			if (!durDir.exists())
 				durDir.mkdir();
+			List<File> regSmallPDFs = Lists.newArrayList();
+			List<File> faultSmallPDFs = Lists.newArrayList();
 			for (int i = 0; i < regions.size(); i++) {
 				PlotSpec spec = specs.get(duration).get(i);
 				Region region = regions.get(i);
 
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				CommandLineInversionRunner.setFontSizes(gp);
-				gp.setYLog(true);
+//				gp.setYLog(true);
 //				gp.setUserBounds(5d, 9d, 1e-6, 1e0);
-				gp.setUserBounds(5d, 9d, 1e-5, 1e0);
+//				gp.setUserBounds(5d, 9d, 1e-5, 1e0);
+				gp.setUserBounds(5d, 9d, 0d, 1d);
 
 				gp.drawGraphPanel(spec);
 
@@ -1126,13 +1148,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 				gp.saveAsPNG(file.getAbsolutePath() + ".png");
 				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
-				File smallDir = new File(dir, "small_MPD_plots");
-				if (!smallDir.exists())
-					smallDir.mkdir();
-				file = new File(smallDir, fname + "_small");
+				file = new File(smallMPDDir, fname + "_small");
 				gp.getCartPanel().setSize(500, 400);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
+				regSmallPDFs.add(new File(file.getAbsolutePath()+".pdf"));
 			}
 			File faultDir = new File(durDir, "faults");
 			if (!faultDir.exists())
@@ -1145,21 +1165,42 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 				gp.drawGraphPanel(spec);
 
-				String fname = spec.getTitle().replaceAll("\\W+", "_");
+				String fname = spec.getTitle().replaceAll("\\W+", "_")+"_"+(int)duration+"yr";
 
 				File file = new File(faultDir, fname);
 				gp.getCartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 				gp.saveAsPNG(file.getAbsolutePath() + ".png");
 				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
-				File smallDir = new File(dir, "small_MPD_faults");
-				if (!smallDir.exists())
-					smallDir.mkdir();
-				file = new File(smallDir, fname + "_small");
+				file = new File(smallFaultsDir, fname + "_small");
 				gp.getCartPanel().setSize(500, 400);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 			}
+			for (String faultName : ERFBasedRegionalMagProbPlot.mainFaultsCombinedPFDNames)
+				faultSmallPDFs.add(new File(
+						smallFaultsDir, faultName.replaceAll("\\W+", "_")+"_"+(int)duration+"yr_small"+".pdf"));
+			combinePDFs(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"));
+			combinePDFs(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"));
+		}
+		
+		// write metadata
+		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+		for (File d : new File[] {subDir, smallFaultsDir, smallMPDDir}) {
+			File mFile = new File(d, "metadata.txt");
+			
+			FileWriter fw = new FileWriter(mFile);
+			
+			fw.write("ERF Based Regional/Fault Probability Distributions\n");
+			fw.write("Generated on: "+df.format(new Date())+"\n");
+			fw.write("Generated by: "+ERFBasedRegionalMagProbPlot.class.getName()+"\n");
+			fw.write("\n");
+			fw.write("All data INCLUDES aftershocks. UCERF3 data uses default BPT averaging"
+					+ " method and UCERF3 Preferred Blend for the time dependence. This historical"
+					+ " open interval is set as "+FaultSystemSolutionERF.START_TIME_DEFAULT+" - 1875 = "
+					+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n");
+			
+			fw.close();
 		}
 	}
 	
@@ -1235,48 +1276,56 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public static List<Region> getDefaultRegions() {
 			List<Region> regions = Lists.newArrayList();
 			regions.add(new CaliforniaRegions.RELM_TESTING());
-			regions.add(new CaliforniaRegions.LA_BOX());
-			regions.add(new CaliforniaRegions.SF_BOX());
 			regions.add(new CaliforniaRegions.RELM_NOCAL());
 			regions.add(new CaliforniaRegions.RELM_SOCAL());
+			regions.add(new CaliforniaRegions.SF_BOX());
+			regions.add(new CaliforniaRegions.LA_BOX());
 			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
 			return regions;
 		}
 		
 		private static final boolean infer_off_fault = false;
 		private static boolean INCLUDE_AFTERSHOCKS = true;
+		private static boolean NUCLEATION_PROBS = false;
 		
-		private static double[] durations = {5d, 30d};
+//		private static double[] durations = {5d, 30d};
+		private static double[] durations = {30d, 5d};
 
 		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
 		private Map<Double, List<Double>> weights;
-		private double[] ucerf2Weights;
+		private double[] ucerf2DepWeights;
+		private double[] ucerf2IndepWeights;
 
 		// none (except min/mean/max which are always included)
 		private double[] fractiles;
+		
+		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.LOW_VALUES,
+				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES, null};
 
-		// these are organized as (region, solution)
-		private Map<Double, List<XY_DataSetList>> solDepMPDs = Maps.newHashMap();
-		private Map<Double, List<XY_DataSetList>> solDepOnMPDs = Maps.newHashMap();
-		private Map<Double, List<XY_DataSetList>> solDepOffMPDs = Maps.newHashMap();
-		private Map<Double, List<XY_DataSetList>> solIndepMPDs = Maps.newHashMap();
-		private  Map<Double, List<XY_DataSetList>> solIndepOnMPDs = Maps.newHashMap();
-		private Map<Double, List<XY_DataSetList>> solIndepOffMPDs = Maps.newHashMap();
+		// these are organized as duration: (region, cov: solution)
+		private Map<Double, List<Map<MagDependentAperiodicityOptions, XY_DataSetList>>>
+				solMPDs = Maps.newHashMap();
+		private Map<Double, List<Map<MagDependentAperiodicityOptions, XY_DataSetList>>>
+				solOnMPDs = Maps.newHashMap();
+		private Map<Double, List<Map<MagDependentAperiodicityOptions, XY_DataSetList>>>
+				solOffMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOnMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOffMPDs = Maps.newHashMap();
+		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2IndepMPDs = Maps.newHashMap();
 		
 		// now "main faults"
 		// organized as duration, name, mfds
-		private Map<Double, Map<String, XY_DataSetList>> solDepMainFaults = Maps.newHashMap();
-		private Map<Double, Map<String, XY_DataSetList>> solIndepMainFaults = Maps.newHashMap();
+		private Map<Double, Map<MagDependentAperiodicityOptions, Map<String, XY_DataSetList>>>
+				solMainFaults = Maps.newHashMap();
 //		private Map<Double, Map<String, XY_DataSetList>> ucerf2DepMainFaults = Maps.newHashMap();
 
-		private transient Deque<UCERF2_TimeDependentEpistemicList> ucerf2_erf_lists =
+		private transient Deque<UCERF2_TimeDependentEpistemicList> ucerf2_dep_erf_lists =
 				new ArrayDeque<UCERF2_TimeDependentEpistemicList>();
-		// private transient UCERF2_TimeIndependentEpistemicList
-		// ucerf2_erf_list;
+		
+		private transient Deque<UCERF2_TimeIndependentEpistemicList> ucerf2_indep_erf_lists =
+				new ArrayDeque<UCERF2_TimeIndependentEpistemicList>();
 
 		private static final double minX = 5.05d;
 		private static final double maxX = 9.05d;
@@ -1286,13 +1335,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<Double, List<PlotSpec>> specs;
 		private Map<Double, List<PlotSpec>> faultSpecs;
 
-		private int numUCEF2_ERFs;
+		private int numUCEF2_DepERFs;
+		private int numUCEF2_IndepERFs;
 
 		private transient Map<FaultModels, FSSRupsInRegionCache> rupInRegionsCaches = Maps
 				.newHashMap();
 		
 		private Map<String, List<Integer>> mainFaultsMap;
 		private List<String> mainFaultsSorted;
+		private static List<String> mainFaultsCombinedPFDNames;
+		static {
+			mainFaultsCombinedPFDNames = Lists.newArrayList(); // custom order
+			mainFaultsCombinedPFDNames.add("S. San Andreas");
+			mainFaultsCombinedPFDNames.add("N. San Andreas");
+			mainFaultsCombinedPFDNames.add("Hayward-Rodgers Creek");
+			mainFaultsCombinedPFDNames.add("Calaveras");
+			mainFaultsCombinedPFDNames.add("San Jacinto");
+			mainFaultsCombinedPFDNames.add("Garlock");
+			mainFaultsCombinedPFDNames.add("Elsinore");
+		}
 		private Map<FaultModels, Map<String, HashSet<Integer>>> mainFaultsRuptures;
 
 		private static double[] getDefaultFractiles() {
@@ -1316,10 +1377,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 			this.regions = regions;
 			this.fractiles = fractiles;
 
-			UCERF2_TimeDependentEpistemicList ucerf2_erf_list = checkOutUCERF2_ERF();
-			numUCEF2_ERFs = ucerf2_erf_list.getNumERFs();
-			returnUCERF2_ERF(ucerf2_erf_list);
+			UCERF2_TimeDependentEpistemicList ucerf2_erf_list = checkOutUCERF2_DepERF();
+			numUCEF2_DepERFs = ucerf2_erf_list.getNumERFs();
+			returnUCERF2_DepERF(ucerf2_erf_list);
 			ucerf2_erf_list = null;
+
+			UCERF2_TimeIndependentEpistemicList ucerf2_indep_erf_list = checkOutUCERF2_IndepERF();
+			numUCEF2_IndepERFs = ucerf2_indep_erf_list.getNumERFs();
+			returnUCERF2_IndepERF(ucerf2_indep_erf_list);
+			ucerf2_indep_erf_list = null;
 			
 			try {
 				mainFaultsMap = FaultModels.parseNamedFaultsAltFile(UCERF3_DataUtils.getReader("FaultModels",
@@ -1337,39 +1403,45 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			
 			for (double duration : durations) {
-				solDepMPDs.put(duration, buildPopulatedList(regions.size()));
-				solDepOnMPDs.put(duration, buildPopulatedList(regions.size()));
-				solDepOffMPDs.put(duration, buildPopulatedList(regions.size()));
-				solIndepMPDs.put(duration, buildPopulatedList(regions.size()));
-				solIndepOnMPDs.put(duration, buildPopulatedList(regions.size()));
-				solIndepOffMPDs.put(duration, buildPopulatedList(regions.size()));
-				ucerf2DepMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_ERFs));
-				ucerf2DepOnMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_ERFs));
-				ucerf2DepOffMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_ERFs));
+				solMPDs.put(duration, buildPopulatedList(regions.size()));
+				solOnMPDs.put(duration, buildPopulatedList(regions.size()));
+				solOffMPDs.put(duration, buildPopulatedList(regions.size()));
+				ucerf2DepMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
+				ucerf2DepOnMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
+				ucerf2DepOffMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
+				ucerf2IndepMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_IndepERFs));
 				
-				solDepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
-				solIndepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
+				solMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 //				ucerf2DepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 			}
 			
 			weights = Maps.newHashMap();
 			for (double duration : durations)
 				weights.put(duration, new ArrayList<Double>());
-			ucerf2Weights = new double[numUCEF2_ERFs];
+			ucerf2DepWeights = new double[numUCEF2_DepERFs];
+			ucerf2IndepWeights = new double[numUCEF2_IndepERFs];
 		}
 		
-		private static List<XY_DataSetList> buildPopulatedList(int num) {
-			List<XY_DataSetList> l = Lists.newArrayList();
-			for (int i=0; i<num; i++)
-				l.add(new XY_DataSetList());
+		private static List<Map<MagDependentAperiodicityOptions, XY_DataSetList>> buildPopulatedList(int num) {
+			List<Map<MagDependentAperiodicityOptions, XY_DataSetList>> l = Lists.newArrayList();
+			for (int i=0; i<num; i++) {
+				Map<MagDependentAperiodicityOptions, XY_DataSetList> map = Maps.newHashMap();
+				for (MagDependentAperiodicityOptions cov : covs)
+					map.put(cov, new XY_DataSetList());
+				l.add(map);
+			}
 			return l;
 		}
 		
-		private static Map<String, XY_DataSetList> buildPopulatedMainFaultMap(
+		private static Map<MagDependentAperiodicityOptions, Map<String, XY_DataSetList>> buildPopulatedMainFaultMap(
 				Map<String, List<Integer>> mainFaultsMap) {
-			Map<String, XY_DataSetList> map = Maps.newHashMap();
-			for (String fault : mainFaultsMap.keySet())
-				map.put(fault, new XY_DataSetList());
+			Map<MagDependentAperiodicityOptions, Map<String, XY_DataSetList>> map = Maps.newHashMap();
+			for (MagDependentAperiodicityOptions cov : covs) {
+				Map<String, XY_DataSetList> faultMap = Maps.newHashMap();
+				for (String fault : mainFaultsMap.keySet())
+					faultMap.put(fault, new XY_DataSetList());
+				map.put(cov, faultMap);
+			}
 			return map;
 		}
 		
@@ -1385,8 +1457,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		 * returned via the returnUCERF2_ERF method
 		 * @return
 		 */
-		private synchronized UCERF2_TimeDependentEpistemicList checkOutUCERF2_ERF() {
-			if (ucerf2_erf_lists.isEmpty()) {
+		private synchronized UCERF2_TimeDependentEpistemicList checkOutUCERF2_DepERF() {
+			if (ucerf2_dep_erf_lists.isEmpty()) {
 				// TODO Params?
 				UCERF2_TimeDependentEpistemicList ucerf2_erf_list = new UCERF2_TimeDependentEpistemicList();
 				ucerf2_erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME,
@@ -1397,32 +1469,60 @@ public abstract class CompoundFSSPlots implements Serializable {
 						UCERF2.BACK_SEIS_RUP_POINT);
 				return ucerf2_erf_list;
 			}
-			return ucerf2_erf_lists.pop();
+			return ucerf2_dep_erf_lists.pop();
+		}
+
+		/**
+		 * We store one UCERF2 comparison ERF per thread. Once checked out, and ERF should be 
+		 * returned via the returnUCERF2_ERF method
+		 * @return
+		 */
+		private synchronized UCERF2_TimeIndependentEpistemicList checkOutUCERF2_IndepERF() {
+			if (ucerf2_indep_erf_lists.isEmpty()) {
+				// TODO Params?
+				UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = new UCERF2_TimeIndependentEpistemicList();
+				ucerf2_erf_list.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME,
+						UCERF2.FULL_DDW_FLOATER);
+				ucerf2_erf_list.setParameter(UCERF2.BACK_SEIS_NAME,
+						UCERF2.BACK_SEIS_INCLUDE);
+				ucerf2_erf_list.setParameter(UCERF2.BACK_SEIS_RUP_NAME,
+						UCERF2.BACK_SEIS_RUP_POINT);
+				return ucerf2_erf_list;
+			}
+			return ucerf2_indep_erf_lists.pop();
 		}
 
 		/**
 		 * Return the ERF to the stack for a future thread to use
 		 * @param erf
 		 */
-		private synchronized void returnUCERF2_ERF(
+		private synchronized void returnUCERF2_DepERF(
 				UCERF2_TimeDependentEpistemicList erf) {
-			ucerf2_erf_lists.push(erf);
+			ucerf2_dep_erf_lists.push(erf);
+		}
+
+		/**
+		 * Return the ERF to the stack for a future thread to use
+		 * @param erf
+		 */
+		private synchronized void returnUCERF2_IndepERF(
+				UCERF2_TimeIndependentEpistemicList erf) {
+			ucerf2_indep_erf_lists.push(erf);
 		}
 
 		/**
 		 * Calculate UCERF2 MFDs for the given index (up to the total number of UCERF2 branches).
 		 * @param erfIndex
 		 */
-		private void calcUCERF2MFDs(int erfIndex, double duration) {
-			UCERF2_TimeDependentEpistemicList ucerf2_erf_list = checkOutUCERF2_ERF();
-			// TODO start year?
+		private void calcUCERF2_DepMFDs(int erfIndex, double duration) {
+			UCERF2_TimeDependentEpistemicList ucerf2_erf_list = checkOutUCERF2_DepERF();
 			ucerf2_erf_list.getTimeSpan().setDuration(duration);
 			ucerf2_erf_list.getTimeSpan().setStartTime(2007);
 			Preconditions.checkState(ucerf2_erf_list.getTimeSpan().getDuration() == duration);
 			ucerf2_erf_list.updateForecast();
 			ERF erf = ucerf2_erf_list.getERF(erfIndex);
 			
-			ucerf2Weights[erfIndex] = ucerf2_erf_list
+			ucerf2DepWeights[erfIndex] = ucerf2_erf_list
 					.getERF_RelativeWeight(erfIndex);
 			
 			// replace following as sum of on- and off-fault MFDs below
@@ -1445,10 +1545,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 			EvenlyDiscretizedFunc[] onCmlMFDs = new EvenlyDiscretizedFunc[regions.size()];
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
-				SummedMagFreqDist mfdPart = ERF_Calculator
+				SummedMagFreqDist mfdPart;
+				if (NUCLEATION_PROBS)
+					mfdPart = ERF_Calculator.getMagFreqDistInRegionFaster(erf, region, minX, num, delta, true);
+				else
+					mfdPart = ERF_Calculator
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS)
-					mfdPart.scale(1.0/FaultSystemSolutionPoissonERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+					mfdPart.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
 				onCmlMFDs[regionIndex] = mfdPart.getCumRateDistWithOffset();
 				ucerf2DepOnMPDs.get(duration).get(regionIndex)[erfIndex] =
 						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(onCmlMFDs[regionIndex], duration);
@@ -1461,7 +1565,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			EvenlyDiscretizedFunc[] offCmlMFDs = new EvenlyDiscretizedFunc[regions.size()];
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
-				IncrementalMagFreqDist mfdPart = ERF_Calculator
+				IncrementalMagFreqDist mfdPart;
+				if (NUCLEATION_PROBS)
+					mfdPart = ERF_Calculator.getMagFreqDistInRegionFaster(erf, region, minX, num, delta, true);
+				else
+					mfdPart = ERF_Calculator
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS) {
 					// it's a summed, turn it into an incremental to allow set operation
@@ -1491,7 +1599,55 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
 			
-			returnUCERF2_ERF(ucerf2_erf_list);
+			returnUCERF2_DepERF(ucerf2_erf_list);
+		}
+
+		/**
+		 * Calculate UCERF2 MFDs for the given index (up to the total number of UCERF2 branches).
+		 * @param erfIndex
+		 */
+		private void calcUCERF2_IndepMFDs(int erfIndex, double duration) {
+			UCERF2_TimeIndependentEpistemicList ucerf2_erf_list = checkOutUCERF2_IndepERF();
+			ucerf2_erf_list.getTimeSpan().setDuration(duration);
+			Preconditions.checkState(ucerf2_erf_list.getTimeSpan().getDuration() == duration);
+			ucerf2_erf_list.updateForecast();
+			ERF erf = ucerf2_erf_list.getERF(erfIndex);
+			
+			ucerf2IndepWeights[erfIndex] = ucerf2_erf_list
+					.getERF_RelativeWeight(erfIndex);
+			
+			// replace following as sum of on- and off-fault MFDs below
+//			System.out.println("Calculating UCERF2 MFDs for branch "
+//					+ erfIndex + ", "+regions.size()+" regions");
+//			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+//				Region region = regions.get(regionIndex);
+//				SummedMagFreqDist mfdPart = ERF_Calculator
+//						.getParticipationMagFreqDistInRegion(erf, region, minX,
+//								num, delta, true);
+//				ucerf2MFDs.get(regionIndex)[erfIndex] = mfdPart
+//						.getCumRateDistWithOffset();
+//			}
+			
+			System.out.println("Calculating UCERF2 Time Independent MFDs for branch "
+					+ erfIndex + ", "+regions.size()+" regions");
+			// total
+			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
+			erf = ucerf2_erf_list.getERF(erfIndex);
+			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+				Region region = regions.get(regionIndex);
+				SummedMagFreqDist mfdPart;
+				if (NUCLEATION_PROBS)
+					mfdPart = ERF_Calculator.getMagFreqDistInRegionFaster(erf, region, minX, num, delta, true);
+				else
+					mfdPart = ERF_Calculator
+						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
+				if(INCLUDE_AFTERSHOCKS)
+					mfdPart.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+				ucerf2IndepMPDs.get(duration).get(regionIndex)[erfIndex] =
+						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfdPart.getCumRateDistWithOffset(), duration);
+			}
+			
+			returnUCERF2_IndepERF(ucerf2_erf_list);
 		}
 
 		/**
@@ -1499,10 +1655,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 		 * branches than UCERF2 this can take a little while).
 		 */
 		private void checkCalcAllUCERF2MFDs() {
-			for (int erfIndex = 0; erfIndex < numUCEF2_ERFs; erfIndex++) {
+			if (hostname.startsWith("steel")) {
+				System.out.println("Skipping UCERF2 finish as local test");
+				return;
+			}
+			for (int erfIndex = 0; erfIndex < numUCEF2_DepERFs; erfIndex++) {
 				for (double duration : durations) {
 					if (ucerf2DepMPDs.get(duration).get(0)[erfIndex] == null)
-						calcUCERF2MFDs(erfIndex, duration);
+						calcUCERF2_DepMFDs(erfIndex, duration);
+				}
+			}
+			for (int erfIndex = 0; erfIndex < numUCEF2_IndepERFs; erfIndex++) {
+				for (double duration : durations) {
+					if (ucerf2IndepMPDs.get(duration).get(0)[erfIndex] == null)
+						calcUCERF2_IndepMFDs(erfIndex, duration);
 				}
 			}
 		}
@@ -1512,15 +1678,38 @@ public abstract class CompoundFSSPlots implements Serializable {
 				InversionFaultSystemSolution sol, int solIndex) {
 			throw new IllegalStateException("Should not be called, ERF plot!");
 		}
+		
+		public static void calcFaultProbs(EvenlyDiscretizedFunc func, FaultSystemSolutionERF erf,
+				FaultSystemRupSet rupSet, Collection<Integer> faultRups) {
+			List<List<Double>> probs = Lists.newArrayList();
+			for (int i=0; i<func.getNum(); i++)
+				probs.add(new ArrayList<Double>());
+			for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
+				int rupID = erf.getFltSysRupIndexForSource(sourceID);
+				if (faultRups.contains(rupID)) {
+					double prob = erf.getSource(sourceID).computeTotalProb();
+					double mag = rupSet.getMagForRup(rupID);
+					for (int i=0; i<func.getNum(); i++) {
+						if (mag >= func.getX(i))
+							probs.get(i).add(prob);
+					}
+				}
+			}
+			for (int i=0; i<func.getNum(); i++) 
+				func.set(i, FaultSysSolutionERF_Calc.calcSummedProbs(probs.get(i)));
+		}
 
 		@Override
 		protected void processERF(LogicTreeBranch branch,
 				FaultSystemSolutionERF erf, int solIndex) {
 			debug(solIndex, "checking UCERF2");
 			// do UCERF2 if applicable so that we don't have to do them all single threaded at the end
-			for (double duration : durations)
-				if (solIndex < numUCEF2_ERFs)
-					calcUCERF2MFDs(solIndex, duration);
+			for (double duration : durations) {
+				if (solIndex < numUCEF2_DepERFs)
+					calcUCERF2_DepMFDs(solIndex, duration);
+				if (solIndex < numUCEF2_IndepERFs)
+					calcUCERF2_IndepMFDs(solIndex, duration);
+			}
 			debug(solIndex, " done UCERF2");
 
 			FaultModels fm = branch.getValue(FaultModels.class);
@@ -1564,36 +1753,22 @@ public abstract class CompoundFSSPlots implements Serializable {
 			debug(solIndex, "done cache");
 			
 			for (double duration : durations) {
-				List<EvenlyDiscretizedFunc> depMFDs = Lists.newArrayList();
-				List<EvenlyDiscretizedFunc> depOffMFDs = Lists.newArrayList();
-				List<EvenlyDiscretizedFunc> depOnMFDs = Lists.newArrayList();
-				Map<String, EvenlyDiscretizedFunc> depFaultMPDs = Maps.newHashMap();
+				Map<MagDependentAperiodicityOptions, List<EvenlyDiscretizedFunc>> mfds = Maps.newHashMap();
+				Map<MagDependentAperiodicityOptions, List<EvenlyDiscretizedFunc>> offMFDs = Maps.newHashMap();
+				Map<MagDependentAperiodicityOptions, List<EvenlyDiscretizedFunc>> onMFDs = Maps.newHashMap();
+				Map<MagDependentAperiodicityOptions, Map<String, EvenlyDiscretizedFunc>> faultMPDs = Maps.newHashMap();
 				
-				List<EvenlyDiscretizedFunc> indepMFDs = Lists.newArrayList();
-				List<EvenlyDiscretizedFunc> indepOffMFDs = Lists.newArrayList();
-				List<EvenlyDiscretizedFunc> indepOnMFDs = Lists.newArrayList();
-				Map<String, EvenlyDiscretizedFunc> indepFaultMPDs = Maps.newHashMap();
-				
-				for (boolean timeDep : new boolean [] { true, false }) {
-					List<EvenlyDiscretizedFunc> mfds;
-					List<EvenlyDiscretizedFunc> offMFDs;
-					List<EvenlyDiscretizedFunc> onMFDs;
-					Map<String, EvenlyDiscretizedFunc> mainFaultMPDs;
-					// TODO alternative COVs or calc types?
-					if (timeDep) {
-						mfds = depMFDs;
-						offMFDs = depOffMFDs;
-						onMFDs = depOnMFDs;
-						mainFaultMPDs = depFaultMPDs;
-						
-						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-					} else {
-						mfds = indepMFDs;
-						offMFDs = indepOffMFDs;
-						onMFDs = indepOnMFDs;
-						mainFaultMPDs = indepFaultMPDs;
-						
+				for (MagDependentAperiodicityOptions cov : covs) {
+					mfds.put(cov, new ArrayList<EvenlyDiscretizedFunc>());
+					offMFDs.put(cov, new ArrayList<EvenlyDiscretizedFunc>());
+					onMFDs.put(cov, new ArrayList<EvenlyDiscretizedFunc>());
+					faultMPDs.put(cov, new HashMap<String, EvenlyDiscretizedFunc>());
+					
+					if (cov == null) {
 						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+					} else {
+						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+						erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 					}
 					double origDuration = erf.getTimeSpan().getDuration();
 					erf.getTimeSpan().setDuration(duration);
@@ -1602,26 +1777,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 					
 					// main faults
 					for (String faultName : mainFaultsSorted) {
-						List<List<Double>> probs = Lists.newArrayList();
-						for (int i=0; i<num; i++)
-							probs.add(new ArrayList<Double>());
 						HashSet<Integer> faultRups = fmRups.get(faultName);
 						// shift since this is cumulative
 						EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX-delta*0.5, num, delta);
-						for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
-							int rupID = erf.getFltSysRupIndexForSource(sourceID);
-							if (faultRups.contains(rupID)) {
-								double prob = erf.getSource(sourceID).computeTotalProb();
-								double mag = rupSet.getMagForRup(rupID);
-								for (int i=0; i<func.getNum(); i++) {
-									if (mag >= func.getX(i))
-										probs.get(i).add(prob);
-								}
-							}
-						}
-						for (int i=0; i<num; i++) 
-							func.set(i, FaultSysSolutionERF_Calc.calcSummedProbs(probs.get(i)));
-						mainFaultMPDs.put(faultName, func);
+						calcFaultProbs(func, erf, rupSet, faultRups);
+						faultMPDs.get(cov).put(faultName, func);
 					}
 					
 					// get total MFD
@@ -1642,7 +1802,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 						// +solIndex+" region "+r+" ("+region.getName()+")");
 
-						mfds.add(ucerf3_Part.getCumRateDistWithOffset());
+						mfds.get(cov).add(ucerf3_Part.getCumRateDistWithOffset());
 					}
 
 					erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
@@ -1666,18 +1826,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 						// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 						// +solIndex+" region "+r+" ("+region.getName()+")");
 
-						onMFDs.add(ucerf3_Part.getCumRateDistWithOffset());
+						onMFDs.get(cov).add(ucerf3_Part.getCumRateDistWithOffset());
 					}
 					
 					// get off fault - we can either infer off fault from total and on or calculate it again
 					if (infer_off_fault) {
 						for (int r = 0; r < regions.size(); r++) {
-							DiscretizedFunc totMFD = mfds.get(r);
-							DiscretizedFunc onMFD = mfds.get(r);
+							DiscretizedFunc totMFD = mfds.get(cov).get(r);
+							DiscretizedFunc onMFD = mfds.get(cov).get(r);
 							EvenlyDiscretizedFunc offMFD = new EvenlyDiscretizedFunc(totMFD.getMinX(), totMFD.getMaxX(), totMFD.getNum());
 							for (int i=0; i<totMFD.getNum(); i++)
 								offMFD.set(i, totMFD.getY(i) - onMFD.getY(i));
-							offMFDs.add(offMFD);
+							offMFDs.get(cov).add(offMFD);
 						}
 					} else {
 						erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);
@@ -1692,7 +1852,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 							// System.out.println("Calculating branch "+solIndex+" region "+r);
 							SummedMagFreqDist ucerf3_Part = ERF_Calculator
 									.getParticipationMagFreqDistInRegion(erf, region, minX,
-											num, delta, true, rupsCache);
+											num, delta, true, null);
 							watch.stop();
 							debug(solIndex,
 									"done region (OFF FAULT) " + r + " ("
@@ -1700,7 +1860,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 							// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 							// +solIndex+" region "+r+" ("+region.getName()+")");
 
-							offMFDs.add(ucerf3_Part.getCumRateDistWithOffset());
+							offMFDs.get(cov).add(ucerf3_Part.getCumRateDistWithOffset());
 						}
 					}
 					
@@ -1714,22 +1874,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 					// store results
 					weights.get(duration).add(weightProvider.getWeight(branch));
 					for (int r = 0; r < regions.size(); r++) {
-						solDepMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(depMFDs.get(r), duration));
-						solDepOnMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(depOnMFDs.get(r), duration));
-						solDepOffMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(depOffMFDs.get(r), duration));
-						solIndepMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(indepMFDs.get(r), duration));
-						solIndepOnMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(indepOnMFDs.get(r), duration));
-						solIndepOffMPDs.get(duration).get(r).add(
-								FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(indepOffMFDs.get(r), duration));
+						for (MagDependentAperiodicityOptions cov : covs) {
+							solMPDs.get(duration).get(r).get(cov).add(
+									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfds.get(cov).get(r), duration));
+							solOnMPDs.get(duration).get(r).get(cov).add(
+									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(onMFDs.get(cov).get(r), duration));
+							solOffMPDs.get(duration).get(r).get(cov).add(
+									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(offMFDs.get(cov).get(r), duration));
+						}
 					}
 					for (String faultName : mainFaultsSorted) {
-						solDepMainFaults.get(duration).get(faultName).add(depFaultMPDs.get(faultName));
-						solIndepMainFaults.get(duration).get(faultName).add(indepFaultMPDs.get(faultName));
+						for (MagDependentAperiodicityOptions cov : covs)
+							solMainFaults.get(duration).get(cov).get(faultName).add(faultMPDs.get(cov).get(faultName));
 					}
 				}
 				debug(solIndex, " archiving done");
@@ -1745,23 +1901,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 				ERFBasedRegionalMagProbPlot o = (ERFBasedRegionalMagProbPlot) otherCalc;
 				for (double duration : durations) {
 					for (int r = 0; r < regions.size(); r++) {
-						solDepMPDs.get(duration).get(r).addAll(o.solDepMPDs.get(duration).get(r));
-						solDepOnMPDs.get(duration).get(r).addAll(o.solDepOnMPDs.get(duration).get(r));
-						solDepOffMPDs.get(duration).get(r).addAll(o.solDepOffMPDs.get(duration).get(r));
-						solIndepMPDs.get(duration).get(r).addAll(o.solIndepMPDs.get(duration).get(r));
-						solIndepOnMPDs.get(duration).get(r).addAll(o.solIndepOnMPDs.get(duration).get(r));
-						solIndepOffMPDs.get(duration).get(r).addAll(o.solIndepOffMPDs.get(duration).get(r));
+						for (MagDependentAperiodicityOptions cov : covs) {
+							solMPDs.get(duration).get(r).get(cov).addAll(
+									o.solMPDs.get(duration).get(r).get(cov));
+							solOnMPDs.get(duration).get(r).get(cov).addAll(
+									o.solOnMPDs.get(duration).get(r).get(cov));
+							solOffMPDs.get(duration).get(r).get(cov).addAll(
+									o.solOffMPDs.get(duration).get(r).get(cov));
+						}
 					}
 					for (String faultName : mainFaultsSorted) {
-						solDepMainFaults.get(duration).get(faultName).addAll(
-								o.solDepMainFaults.get(duration).get(faultName));
-						solIndepMainFaults.get(duration).get(faultName).addAll(
-								o.solIndepMainFaults.get(duration).get(faultName));
+						for (MagDependentAperiodicityOptions cov : covs)
+							solMainFaults.get(duration).get(cov).get(faultName).addAll(
+									o.solMainFaults.get(duration).get(cov).get(faultName));
 					}
 					weights.get(duration).addAll(o.weights.get(duration));
 				}
 
-				for (int e = 0; e < numUCEF2_ERFs; e++) {
+				for (int e = 0; e < numUCEF2_DepERFs; e++) {
 					for (double duration : durations) {
 						if (o.ucerf2DepMPDs.get(duration).get(0)[e] != null) {
 							for (int r = 0; r < regions.size(); r++) {
@@ -1769,7 +1926,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 								ucerf2DepOnMPDs.get(duration).get(r)[e] = o.ucerf2DepOnMPDs.get(duration).get(r)[e];
 								ucerf2DepOffMPDs.get(duration).get(r)[e] = o.ucerf2DepOffMPDs.get(duration).get(r)[e];
 							}
-							ucerf2Weights[e] = o.ucerf2Weights[e];
+							ucerf2DepWeights[e] = o.ucerf2DepWeights[e];
+						}
+					}
+				}
+				for (int e = 0; e < numUCEF2_IndepERFs; e++) {
+					for (double duration : durations) {
+						if (o.ucerf2IndepMPDs.get(duration).get(0)[e] != null) {
+							for (int r = 0; r < regions.size(); r++) {
+								ucerf2IndepMPDs.get(duration).get(r)[e] = o.ucerf2IndepMPDs.get(duration).get(r)[e];
+							}
+							ucerf2IndepWeights[e] = o.ucerf2IndepWeights[e];
 						}
 					}
 				}
@@ -1794,9 +1961,30 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					UCERF2.BACK_SEIS_RUP_POINT);
 //			erf.getTimeSpan().setDuration(1d);
 //			erf.updateForecast();
+			
+			Map<String, DiscretizedFunc[]> u2DepFaultVals = null;
+			Map<String, DiscretizedFunc[]> u2IndepFaultVals = null;
+			try {
+				u2DepFaultVals = FaultSysSolutionERF_Calc.loadUCERF2MainFaultMPDs(true, true);
+				// now fix for Elsinore
+				u2DepFaultVals.put("Elsinore", u2DepFaultVals.get("Elsinore FM3.1"));
+				u2IndepFaultVals = FaultSysSolutionERF_Calc.loadUCERF2MainFaultMPDs(true, false);
+				// now fix for Elsinore
+				u2IndepFaultVals.put("Elsinore", u2DepFaultVals.get("Elsinore FM3.1"));
+			} catch (IOException e1) {
+				ExceptionUtils.throwAsRuntimeException(e1);
+			}
 
 			for (double duration : durations) {
-				List<Double> weights = this.weights.get(duration);
+				List<Double> origWeights = this.weights.get(duration);
+				
+				// this adds in each individual COV weight including poisson
+				List<Double> weights = Lists.newArrayList();
+				for (MagDependentAperiodicityOptions cov : covs) {
+					double covWeight = FaultSystemSolutionERF.getWeightForCOV(cov);
+					for (double weight : origWeights)
+						weights.add(covWeight*weight);
+				}
 				List<PlotSpec> durSpecs = Lists.newArrayList();
 				specs.put(duration, durSpecs);
 				for (int r = 0; r < regions.size(); r++) {
@@ -1813,39 +2001,71 @@ public abstract class CompoundFSSPlots implements Serializable {
 							ucerf2Funcs.add(ucerf2DepMPDs.get(duration).get(r)[e]);
 							ucerf2OnFuncs.add(ucerf2DepOnMPDs.get(duration).get(r)[e]);
 							ucerf2OffFuncs.add(ucerf2DepOffMPDs.get(duration).get(r)[e]);
-							ucerf2Weights.add(this.ucerf2Weights[e]);
+							ucerf2Weights.add(this.ucerf2DepWeights[e]);
 						}
+					}
+					XY_DataSetList ucerf2IndepFuncs = new XY_DataSetList();
+					ArrayList<Double> ucerf2IndepWeights = new ArrayList<Double>();
+					for (int e = 0; e < ucerf2IndepMPDs.get(duration).get(r).length; e++) {
+						DiscretizedFunc mfd = ucerf2IndepMPDs.get(duration).get(r)[e];
+						if (mfd != null) {
+							ucerf2IndepFuncs.add(ucerf2IndepMPDs.get(duration).get(r)[e]);
+							ucerf2IndepWeights.add(this.ucerf2IndepWeights[e]);
+						}
+					}
+					
+					// these will include each COV branch as well
+					XY_DataSetList ucerf3Funcs = new XY_DataSetList();
+					XY_DataSetList ucerf3OnFuncs = new XY_DataSetList();
+					XY_DataSetList ucerf3OffFuncs = new XY_DataSetList();
+					XY_DataSetList ucerf3IndepFuncs = new XY_DataSetList();
+					
+					for (MagDependentAperiodicityOptions cov : covs) {
+						ucerf3Funcs.addAll(solMPDs.get(duration).get(r).get(cov));
+						ucerf3OnFuncs.addAll(solOnMPDs.get(duration).get(r).get(cov));
+						ucerf3OffFuncs.addAll(solOffMPDs.get(duration).get(r).get(cov));
+						
+						if (cov == null)
+							ucerf3IndepFuncs.addAll(solMPDs.get(duration).get(r).get(cov));
 					}
 
 					ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 					ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 					
 					funcs.addAll(getFractiles(ucerf2OnFuncs, ucerf2Weights,
-							"UCERF2 Epistemic List On Fault MPDs", fractiles));
+							"UCERF2 Time Dependent On Fault MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.GREEN, fractiles.length));
 					
 					funcs.addAll(getFractiles(ucerf2OffFuncs, ucerf2Weights,
-							"UCERF2 Epistemic List Off Fault MPDs", fractiles));
+							"UCERF2 Time Dependent Off Fault MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.MAGENTA, fractiles.length));
 					
 					// UCERF3 time DEPENDENT
 					
-					funcs.addAll(getFractiles(solDepOnMPDs.get(duration).get(r), weights,
-							"UCERF3 On Fault MPDs", fractiles));
+					funcs.addAll(getFractiles(ucerf3OnFuncs, weights,
+							"UCERF3 Time Dependent On Fault MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.ORANGE, fractiles.length));
 					
-					funcs.addAll(getFractiles(solDepOffMPDs.get(duration).get(r), weights,
-							"UCERF3 Off Fault MPDs", fractiles));
+					funcs.addAll(getFractiles(ucerf3OffFuncs, weights,
+							"UCERF3 Time Dependent Off Fault MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
+					
+					// UCERF2
+					funcs.add(getFractiles(ucerf2IndepFuncs, ucerf2IndepWeights,
+							"UCERF2 Time Independent Total MPDs", fractiles).get(fractiles.length));
+					PlotCurveCharacterstics u2IndepChar = getFractileChars(
+							Color.DARK_GRAY, fractiles.length).get(fractiles.length);
+					u2IndepChar.setLineWidth(2f);
+					chars.add(u2IndepChar);
 
 					funcs.addAll(getFractiles(ucerf2Funcs, ucerf2Weights,
-							"UCERF2 Epistemic List", fractiles));
+							"UCERF2 Time Dependent Total MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.RED, fractiles.length));
 					
-					// UCERF3 on fault time INDEPENDENT
+					// UCERF3 total time INDEPENDENT
 					// only a mean line
-					funcs.add(getFractiles(solIndepOnMPDs.get(duration).get(r), weights,
-							"UCERF3 Time Independent On Fault MPDs", fractiles).get(fractiles.length));
+					funcs.add(getFractiles(ucerf3IndepFuncs, origWeights,
+							"UCERF3 Time Independent Total MPDs", fractiles).get(fractiles.length));
 					PlotCurveCharacterstics indepChar = getFractileChars(
 							Color.BLACK, fractiles.length).get(fractiles.length);
 					indepChar.setLineWidth(2f);
@@ -1860,8 +2080,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f,
 //							Color.BLUE));
 
-					funcs.addAll(getFractiles(solDepMPDs.get(duration).get(r), weights,
-							"UCERF3 MPDs", fractiles));
+					funcs.addAll(getFractiles(ucerf3Funcs, weights,
+							"UCERF3 Time Dependent Total MPDs", fractiles));
 					chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
 
 					String title = region.getName();
@@ -1883,16 +2103,47 @@ public abstract class CompoundFSSPlots implements Serializable {
 					ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 					ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 					
-					XY_DataSetList depMPDs = solDepMainFaults.get(duration).get(faultName);
-					XY_DataSetList indepMPDs = solIndepMainFaults.get(duration).get(faultName);
+					XY_DataSetList depMPDs = new XY_DataSetList();
+					XY_DataSetList indepMPDs = new XY_DataSetList();
 					
-					// indep on bottom
-					funcs.addAll(getFractiles(indepMPDs, weights, faultName+" Time Independent", fractiles));
-					chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
+					for (MagDependentAperiodicityOptions cov : covs) {
+						depMPDs.addAll(solMainFaults.get(duration).get(cov).get(faultName));
+						if (cov == null)
+							indepMPDs.addAll(solMainFaults.get(duration).get(cov).get(faultName));
+					}
+					
+					if ((float)duration == 30f) {
+						// we can do a UCERF3 comparison
+						DiscretizedFunc[] u2DepMPDs = u2DepFaultVals.get(faultName);
+						DiscretizedFunc[] u2IndepMPDs = u2IndepFaultVals.get(faultName);
+						// organized as [min max mean]
+						if (u2DepMPDs != null) {
+							// mean indep
+							funcs.add(u2IndepMPDs[2]);
+							chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.DARK_GRAY));
+							// min
+							funcs.add(u2DepMPDs[0]);
+							chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+							// max
+							funcs.add(u2DepMPDs[1]);
+							chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+							// mean
+							funcs.add(u2DepMPDs[2]);
+							chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.RED));
+						}
+					}
+					
+					// indep on bottom, only mean
+					funcs.add(getFractiles(indepMPDs, origWeights, faultName+" Time Independent", fractiles)
+							.get(fractiles.length));
+					PlotCurveCharacterstics indepChar = getFractileChars(
+							Color.BLACK, fractiles.length).get(fractiles.length);
+					indepChar.setLineWidth(2f);
+					chars.add(indepChar);
 					
 					// dep on top
 					funcs.addAll(getFractiles(depMPDs, weights, faultName+" Time Dependent", fractiles));
-					chars.addAll(getFractileChars(Color.BLACK, fractiles.length));
+					chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
 
 					String title = faultName;
 
@@ -1914,6 +2165,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected boolean isApplyAftershockFilter() {
 			return !INCLUDE_AFTERSHOCKS;
+		}
+
+		@Override
+		protected boolean isTimeDependent() {
+			return true;
 		}
 
 		protected Map<Double, List<PlotSpec>> getSpecs() {
@@ -5094,9 +5350,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private List<double[]> ranges;
 		private double spacing;
 
+		// organized as: duration: branch, magRange
 		private Map<Double, List<List<GeoDataSet>>> particDepDatas;
 		private Map<Double, List<List<GeoDataSet>>> particIndepDatas;
 		private Map<Double, List<Double>> weights;
+		
+		//organized as: duration: branch, magRange
+		private Map<Double, List<GriddedGeoDataSet>> meanU2IndepDatas;
+		private Map<Double, List<GriddedGeoDataSet>> meanU2DepDatas;
+		
 		private GriddedRegion griddedRegion;
 
 		private transient Map<FaultModels, FSSRupNodesCache> rupNodesCache = Maps.newHashMap();
@@ -5142,6 +5404,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			particIndepDatas = Maps.newHashMap();
 			weights = Maps.newHashMap();
 			
+			meanU2DepDatas = Maps.newHashMap();
+			meanU2IndepDatas = Maps.newHashMap();
+			
 			for (double duration : durations) {
 				particDepDatas.put(duration, new ArrayList<List<GeoDataSet>>());
 				particIndepDatas.put(duration, new ArrayList<List<GeoDataSet>>());
@@ -5179,6 +5444,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			FSSRupNodesCache cache = rupNodesCache.get(fm);
 			
 			double origDur = erf.getTimeSpan().getDuration();
+			
+			if (solIndex == 0)
+				calcUCERF2();
 			
 			for (double duration : durations) {
 				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
@@ -5223,7 +5491,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					debug(solIndex, "done partic range " + i);
 //				}
 				erf.getTimeSpan().setDuration(origDur);
-				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
 				debug(solIndex, "archive");
 				synchronized (this) {
 					particDepDatas.get(duration).add(particDepData);
@@ -5317,6 +5585,37 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return datas;
 		}
 		
+		private void calcUCERF2() {
+			MeanUCERF2 erf = new MeanUCERF2();
+			for (double duration : durations) {
+				for (boolean timeDep : new Boolean[] { true, false }) {
+					if (timeDep) {
+						erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
+						erf.getTimeSpan().setDuration(duration);
+					} else {
+						erf.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+						erf.getTimeSpan().setDuration(duration);
+					}
+					erf.updateForecast();
+					
+					List<GriddedGeoDataSet> datas = Lists.newArrayList();
+					
+					for (int i=0; i<ranges.size(); i++) {
+						double minMag = ranges.get(i)[0];
+						double maxMag = ranges.get(i)[1];
+						
+						datas.add(getAsProbs(ERF_Calculator.getParticipationRatesInRegion(erf,
+								griddedRegion, minMag, maxMag, null), duration));
+					}
+					
+					if (timeDep)
+						meanU2DepDatas.put(duration, datas);
+					else
+						meanU2IndepDatas.put(duration, datas);
+				}
+			}
+		}
+		
 		private GriddedGeoDataSet getAsProbs(GriddedGeoDataSet ratesData, double duration) {
 			GriddedGeoDataSet probsData = new GriddedGeoDataSet(ratesData.getRegion(), ratesData.isLatitudeX());
 			for (int i=0; i<ratesData.size(); i++) {
@@ -5331,11 +5630,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 		protected void combineDistributedCalcs(
 				Collection<CompoundFSSPlots> otherCalcs) {
 			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				TimeDepGriddedParticipationProbPlot o = (TimeDepGriddedParticipationProbPlot) otherCalc;
 				for (double duration : durations) {
-					TimeDepGriddedParticipationProbPlot o = (TimeDepGriddedParticipationProbPlot) otherCalc;
 					particDepDatas.get(duration).addAll(o.particDepDatas.get(duration));
 					particIndepDatas.get(duration).addAll(o.particIndepDatas.get(duration));
 					weights.get(duration).addAll(o.weights.get(duration));
+				}
+				if (!o.meanU2DepDatas.isEmpty()) {
+					meanU2DepDatas.putAll(o.meanU2DepDatas);
+					meanU2IndepDatas.putAll(o.meanU2IndepDatas);
 				}
 			}
 		}
@@ -5360,10 +5663,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 			ratioCPT.setNanColor(ratioCPT.getColor(1f));
 //			ratioCPT.setAboveMaxColor(Color.BLACK);
 			
+			// write metadata
+			SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+			
 			for (double duration : durations) {
 				for (int r = 0; r < ranges.size(); r++) {
 					List<List<GeoDataSet>> depDatas = particDepDatas.get(duration);
 					List<List<GeoDataSet>> indepDatas = particIndepDatas.get(duration);
+					
+					GriddedGeoDataSet meanU2DepData = meanU2DepDatas.get(duration).get(r);
+					GriddedGeoDataSet meanU2IndepData = meanU2IndepDatas.get(duration).get(r);
 					
 					if (depDatas.get(0).size() <= r) {
 						debug(-1, "SKIPPING r="+r);
@@ -5438,6 +5747,29 @@ public abstract class CompoundFSSPlots implements Serializable {
 					MapPlotData plot = new MapPlotData(particCPT, logData, true,
 							title, name);
 					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					
+					// add metadata to this one
+//					fw.write("ERF Basede Regional/Fault Probability Distributions\n");
+//					fw.write("Generated on: "+df.format(new Date())+"\n");
+//					fw.write("Generated by: "+ERFBasedRegionalMagProbPlot.class.getName()+"\n");
+//					fw.write("\n");
+//					fw.write("All data INCLUDES aftershocks. UCERF3 data uses default BPT averaging"
+//							+ " method and UCERF3 Preferred Blend for the time dependence. This historical"
+//							+ " open interval is set as "+FaultSystemSolutionERF.START_TIME_DEFAULT+" - 1875 = "
+//							+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n");
+					if (r == 0)
+						plot.metadata = "ERF Based Time Dependend Gridded Participation Probability Plots\n"
+							+"Generated on: "+df.format(new Date())+"\n"
+							+"Generated by: "+TimeDepGriddedParticipationProbPlot.class.getName()+"\n"
+							+"Forecast Duration: "+(int)duration+"\n"
+							+"\n"
+							+"All UCERF3 data INCLUDES aftershocks. UCERF2 data is from MeanUCERF3 and DOES"
+								+ " NOT INCLUDE AFTERSHOCKS.\n"
+							+"\n"
+							+"UCERF3 data uses default BPT averaging method and UCERF3 Preferred Blend for "
+								+"the time dependence. This historical open interval is set as "
+								+FaultSystemSolutionERF.START_TIME_DEFAULT+" - 1875 = "
+								+(FaultSystemSolutionERF.START_TIME_DEFAULT-1875)+".\n";
 					plots.add(plot);
 					
 					funcs = new XY_DataSetList();
@@ -5488,7 +5820,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 //					ratios.log10();
 					
-					name = (int)duration+"_gridded_partic_ratio_" + (float) minMag;
+					name = (int)duration+"_gridded_partic_u3_ratio_" + (float) minMag;
 					title = "Time Dep/Indep Participation Prob Ratio " + (float) +minMag;
 					
 					if (maxMag < 9) {
@@ -5501,6 +5833,114 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					title += ")";
 
 					plot = new MapPlotData(ratioCPT, ratios, spacing,
+							griddedRegion, true, title, name);
+					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					plots.add(plot);
+					
+					// now UCERF2
+					// UCERF2 Time Dep
+					GriddedGeoDataSet logU2DepVals = meanU2DepData.copy();
+					logU2DepVals.log10();
+					
+					name = (int)duration+"_u2_timedep_gridded_partic_prob_" + (float) minMag;
+					title = "Log10(U2 Time Dep Participation Probs " + (float) +minMag;
+					
+					if (maxMag < 9) {
+						name += "_" + (float) maxMag;
+						title += "=>" + (float) maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+					title += ")";
+
+					plot = new MapPlotData(particCPT, logU2DepVals,
+							spacing, griddedRegion, true, title, name);
+					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					plots.add(plot);
+					// UCERF2 Time Indep
+					GriddedGeoDataSet logU2IndepVals = meanU2IndepData.copy();
+					logU2IndepVals.log10();
+					
+					name = (int)duration+"_u2_timeindep_gridded_partic_prob_" + (float) minMag;
+					title = "Log10(U2 Time Indep Participation Probs " + (float) +minMag;
+					
+					if (maxMag < 9) {
+						name += "_" + (float) maxMag;
+						title += "=>" + (float) maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+					title += ")";
+
+					plot = new MapPlotData(particCPT, logU2IndepVals,
+							spacing, griddedRegion, true, title, name);
+					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					plots.add(plot);
+					
+					// UCERF2 only ratios
+					GeoDataSet u2Ratios = GeoDataSetMath.divide(meanU2DepData, meanU2IndepData);
+
+//					ratios.log10();
+					
+					name = (int)duration+"_gridded_partic_u2_ratio_" + (float) minMag;
+					title = "U2 Time Dep/Indep Participation Prob Ratio " + (float) +minMag;
+					
+					if (maxMag < 9) {
+						name += "_" + (float) maxMag;
+						title += "=>" + (float) maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+//					title += ")";
+
+					plot = new MapPlotData(ratioCPT, u2Ratios, spacing,
+							griddedRegion, true, title, name);
+					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					plots.add(plot);
+					
+					// U3/U2 Time Dep Ratio
+					GeoDataSet u3u2DepRatios = GeoDataSetMath.divide(data, meanU2DepData);
+
+//					ratios.log10();
+					
+					name = (int)duration+"_gridded_partic_u3_u2_dep_ratio_" + (float) minMag;
+					title = "Time Dep U3/U2 Participation Prob Ratio " + (float) +minMag;
+					
+					if (maxMag < 9) {
+						name += "_" + (float) maxMag;
+						title += "=>" + (float) maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+//					title += ")";
+
+					plot = new MapPlotData(ratioCPT, u3u2DepRatios, spacing,
+							griddedRegion, true, title, name);
+					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
+					plots.add(plot);
+					
+					// U3/U2 Time Indep Ratio
+					GeoDataSet u3u2IndepRatios = GeoDataSetMath.divide(indepVals, meanU2IndepData);
+
+//					ratios.log10();
+					
+					name = (int)duration+"_gridded_partic_u3_u2_indep_ratio_" + (float) minMag;
+					title = "Time Indep U3/U2 Participation Prob Ratio " + (float) +minMag;
+					
+					if (maxMag < 9) {
+						name += "_" + (float) maxMag;
+						title += "=>" + (float) maxMag;
+					} else {
+						name += "+";
+						title += "+";
+					}
+//					title += ")";
+
+					plot = new MapPlotData(ratioCPT, u3u2IndepRatios, spacing,
 							griddedRegion, true, title, name);
 					plot.subDirName = "gridded_time_dep_participation_prob_plots_"+(int)duration;
 					plots.add(plot);
@@ -5551,7 +5991,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		@Override
 		protected boolean isApplyAftershockFilter() {
-			return true;
+			return false;
 		}
 
 		@Override
@@ -6017,6 +6457,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private String label;
 		private String fileName;
 		private String subDirName;
+		
+		private String metadata;
 
 		public MapPlotData(CPT cpt, List<LocationList> faults,
 				double[] faultValues, Region region, boolean skipNans,
@@ -6112,6 +6554,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					griddedData, spacing, region, skipNans, label, fileName);
 			if (subDirName != null)
 				data.subDirName = subDirName.getStringValue();
+			Attribute metadataAtt = xml.attribute("metadata");
+			if (metadataAtt != null) {
+				data.metadata = metadataAtt.getStringValue().replaceAll("<br>", "\n");
+			}
 
 			return data;
 		}
@@ -6159,6 +6605,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			xml.addAttribute("fileName", fileName);
 			if (subDirName != null)
 				xml.addAttribute("subDir", subDirName);
+			if (metadata != null && !metadata.isEmpty())
+				xml.addAttribute("metadata", metadata.replaceAll("\n", "<br>"));
 
 			return root;
 		}
@@ -6193,6 +6641,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		public double[] getFaultValues() {
 			return faultValues;
+		}
+		
+		public String getMetadata() {
+			return metadata;
 		}
 	}
 
@@ -6357,6 +6809,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 						FaultBasedMapGen.buildMap(plot.cpt, null, null,
 								plot.griddedData, plot.spacing, plot.region,
 								plot.skipNans, plot.label));
+			String metadata = plot.getMetadata();
+			if (metadata != null && !metadata.isEmpty() && plot.subDirName != null) {
+				File metadataFile = new File(writeDir, "metadata.txt");
+				System.out.println("Writing plot metadata to: "+metadataFile.getAbsolutePath());
+				FileWriter fw = new FileWriter(metadataFile);
+				fw.write(metadata+"\n");
+				fw.close();
+			}
 			System.out.println("DONE.");
 		}
 		
@@ -6479,6 +6939,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 		else
 			throw new IllegalStateException(
 					"Should not be called if usesERFs() == false");
+	}
+	
+	private static void combinePDFs(List<File> pdfFiles, File outputFile) throws IOException {
+		PDDocument document = new PDDocument();
+		List<PDDocument> subDocs = Lists.newArrayList();
+		for (File pdfFile : pdfFiles) {
+			PDDocument part = PDDocument.load(pdfFile);
+			List<PDPage> list = part.getDocumentCatalog().getAllPages();
+			document.addPage(list.get(0));
+			subDocs.add(part);
+		}
+		try {
+			document.save(outputFile);
+		} catch (COSVisitorException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		document.close();
+		for (PDDocument doc : subDocs)
+			doc.close();
 	}
 
 	private static String hostname;
@@ -6665,34 +7144,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 					if (plot.usesERFs()) {
 						// if it's an ERF plot we need to make sure the ERF has been built and set
 						// any parameters
-						boolean update = false;
 						overheadWatch.start();
 						if (erf == null) {
 							debug("Building ERF");
 							erf = new FaultSystemSolutionERF(sol);
-							update = true;
 						}
 						// some plots want the aftershock filter and some don't
 						// make sure that the ERF will be correct for this plot
-						boolean shouldApplyFilter = plot.isApplyAftershockFilter();
-						BooleanParameter applyFilterParam = (BooleanParameter)erf.getParameter(
-								ApplyGardnerKnopoffAftershockFilterParam.NAME);
-						boolean timeDep = plot.isTimeDependent();
-						if (applyFilterParam.getValue().booleanValue() != shouldApplyFilter) {
-							update = true;
-							applyFilterParam.setValue(shouldApplyFilter);
+						erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, plot.isApplyAftershockFilter());
+						if (plot.isTimeDependent()) {
+							erf.getParameter(ProbabilityModelParam.NAME).setValue(
+									ProbabilityModelOptions.U3_PREF_BLEND);
+							erf.setParameter(HistoricOpenIntervalParam.NAME,
+									(double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
+							erf.setParameter(BPTAveragingTypeParam.NAME,
+									BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE);
+						} else {
+							erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 						}
-						boolean erfTimeDep = erf.getParameter(ProbabilityModelParam.NAME).getValue()
-								== ProbabilityModelOptions.U3_BPT;
-						if (erfTimeDep != timeDep) {
-							update = true;
-							if (timeDep)
-								erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-							else
-								erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
-						}
-						if (update)
-							erf.updateForecast();
+						erf.updateForecast();
 						overheadWatch.stop();
 						debug("Processing ERF plot: "
 								+ ClassUtils.getClassNameWithoutPackage(plot
@@ -6892,9 +7362,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 	}
 	
-	private static void writeU2RegProbTable(File csvFile) throws ZipException, IOException {
+	private static void writeU2RegProbTable(File csvFile, boolean nucleation) throws ZipException, IOException {
 		File compoundFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		
+		ERFBasedRegionalMagProbPlot.NUCLEATION_PROBS = nucleation;
 		
 		FaultSystemSolutionFetcher fetch = CompoundFaultSystemSolution
 				.fromZipFile(compoundFile);
@@ -6943,7 +7415,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					DiscretizedFunc mfd = prob.ucerf2DepMPDs.get(duration).get(i)[e];
 					if (mfd != null) {
 						ucerf2Funcs.add(prob.ucerf2DepMPDs.get(duration).get(i)[e]);
-						ucerf2Weights.add(prob.ucerf2Weights[e]);
+						ucerf2Weights.add(prob.ucerf2DepWeights[e]);
 					}
 				}
 				
@@ -6969,8 +7441,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
-		writeU2RegProbTable(new File("/tmp/u2_reg_probs.csv"));
-		System.exit(0);
 		if (args.length >= 3) {
 			File dir = new File(args[0]);
 			String prefix = args[1];
@@ -7014,10 +7484,32 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 4;
-		int threads = 2;
+		int sols = 3;
+		int threads = 3;
 		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
 				FaultModels.FM3_1);
+		
+		// if true, only use instances of the mean fault system solution
+		boolean meanDebug = false;
+		if (meanDebug) {
+			final Collection<LogicTreeBranch> branches = fetch.getBranches();
+			final InversionFaultSystemSolution meanSol = FaultSystemIO.loadInvSol(
+					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+							"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+			
+			fetch = new FaultSystemSolutionFetcher() {
+				
+				@Override
+				public Collection<LogicTreeBranch> getBranches() {
+					return branches;
+				}
+				
+				@Override
+				protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+					return meanSol;
+				}
+			};
+		}
 
 		new DeadlockDetectionThread(3000).start();
 
@@ -7047,8 +7539,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
-//		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
-		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
+		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
+//		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));
 //		plots.add(new RupJumpPlot(weightProvider));

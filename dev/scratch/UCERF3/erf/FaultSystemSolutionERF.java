@@ -53,6 +53,7 @@ import scratch.UCERF3.utils.LastEventData;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * This class represents an ERF for a given FaultSystemSolution (FSS).  Each "rupture" in the FaultSystemSolution
@@ -186,6 +187,15 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected List<FaultRuptureSource> faultSourceList;
 	
 	ProbabilityModelsCalc probModelsCalc;
+	
+	// preferred blend weights
+	public static final double PREF_BLEND_COV_LOW_WEIGHT = 0.1;
+	public static final double PREF_BLEND_COV_MID_WEIGHT = 0.4;
+	public static final double PREF_BLEND_COV_HIGH_WEIGHT = 0.3;
+	public static final double PREF_BLEND_POISSON_WEIGHT = 0.2;
+	
+	// map of weight to each ProbabilityModelsCalc instance. null value means Poisson
+	Map<ProbabilityModelsCalc, Double> prefBlendProbModelsCalc;
 	protected boolean datesOfLastEventsAddedToSections = false;
 	// if true, it will be assumed that the FSS already has date of last event data and we shouldn't load it
 	private boolean useFSSDateOfLastEvents = false;
@@ -293,10 +303,12 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		}
 		adjustableParams.addParameter(probModelParam);
 		if(!probModelParam.getValue().equals(ProbabilityModelOptions.POISSON)) {
-			adjustableParams.addParameter(magDepAperiodicityParam);	
+			if(!probModelParam.getValue().equals(ProbabilityModelOptions.U3_PREF_BLEND))
+				adjustableParams.addParameter(magDepAperiodicityParam);	
 			adjustableParams.addParameter(histOpenIntervalParam);
 		}
-		if (probModelParam.getValue().equals(ProbabilityModelOptions.U3_BPT)) {
+		if (probModelParam.getValue().equals(ProbabilityModelOptions.U3_BPT)
+				|| probModelParam.getValue().equals(ProbabilityModelOptions.U3_PREF_BLEND)) {
 			adjustableParams.addParameter(averagingTypeParam);
 		}
 	}
@@ -358,6 +370,23 @@ public class FaultSystemSolutionERF extends AbstractERF {
 					int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
 					System.out.println(numSectWith+" sections had date of last");
 				}
+				
+				// now do preferred blend
+				prefBlendProbModelsCalc = Maps.newHashMap();
+				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+						MagDependentAperiodicityOptions.LOW_VALUES), PREF_BLEND_COV_LOW_WEIGHT);
+				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+						MagDependentAperiodicityOptions.MID_VALUES), PREF_BLEND_COV_MID_WEIGHT);
+				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+						MagDependentAperiodicityOptions.HIGH_VALUES), PREF_BLEND_COV_HIGH_WEIGHT);
+				// Poisson
+				prefBlendProbModelsCalc.put(null, PREF_BLEND_POISSON_WEIGHT);
+				
+				// double check that it all sums to 1
+				double sum = 0;
+				for (Double weight : prefBlendProbModelsCalc.values())
+					sum += weight;
+				Preconditions.checkState((float)sum == 1f, "Preferred Blend weights don't sum to 1!");
 			}
 		}
 
@@ -395,6 +424,22 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			System.out.println("getNumSources()="+this.getNumSources());
 		}
 		
+	}
+	
+	public static double getWeightForCOV(MagDependentAperiodicityOptions cov) {
+		if (cov == null)
+			return PREF_BLEND_POISSON_WEIGHT;
+		switch (cov) {
+		case LOW_VALUES:
+			return PREF_BLEND_COV_LOW_WEIGHT;
+		case MID_VALUES:
+			return PREF_BLEND_COV_MID_WEIGHT;
+		case HIGH_VALUES:
+			return PREF_BLEND_COV_HIGH_WEIGHT;
+
+		default:
+			return 0d;
+		}
 	}
 	
 	@Override
@@ -445,6 +490,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		this.aveRecurIntervalsInU3_BPTcalc = types.isAveRI();
 		this.aveNormTimeSinceLastInU3_BPTcalc = types.isAveNTS();
 		histOpenIntervalChanged = true; // to ensure probabilities are updated
+		if (D) System.out.println("Ave type updated: isRI: "+aveRecurIntervalsInU3_BPTcalc
+				+" is NTS: "+aveNormTimeSinceLastInU3_BPTcalc);
 	}
 
 	/**
@@ -577,7 +624,10 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	private void setSolution(FaultSystemSolution sol, boolean clearFileParam) {
 		this.faultSysSolution = sol;
-		this.gridSources = sol.getGridSourceProvider();
+		if (sol == null)
+			this.gridSources = null;
+		else
+			this.gridSources = sol.getGridSourceProvider();
 		if (clearFileParam) {
 			// this means that the method was called manually, clear the file param so that
 			// any subsequent sets to the file parameter trigger an update and override this
@@ -673,6 +723,21 @@ public class FaultSystemSolutionERF extends AbstractERF {
 //if(Double.isNaN(probGain))
 //		probGain=0;
 			break;
+		case U3_PREF_BLEND:
+			probGain = 0;
+			for (ProbabilityModelsCalc calc : prefBlendProbModelsCalc.keySet()) {
+				double weight = prefBlendProbModelsCalc.get(calc);
+				double subProbGain;
+				if (calc == null) {
+					// poisson
+					subProbGain = 1d;
+				} else {
+					subProbGain = calc.getU3_ProbGainForRup(fltSystRupIndex, histOpenInterval, false, aveRecurIntervalsInU3_BPTcalc, 
+							aveNormTimeSinceLastInU3_BPTcalc, timeSpan.getStartTimeInMillis(), duration);
+				}
+				probGain += weight*subProbGain;
+			}
+			break;
 		case WG02_BPT:
 			probGain = probModelsCalc.getWG02_ProbGainForRup(fltSystRupIndex, false, timeSpan.getStartTimeInMillis(), duration);
 			break;
@@ -701,7 +766,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
 				// set source type
 				double prob;
-				if(probModel == ProbabilityModelOptions.U3_BPT) {
+				if(probModel == ProbabilityModelOptions.U3_BPT || probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
 					prob = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
 					isPoisson = false;	// this is only the probability of the next event
 				}
@@ -714,7 +779,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 			} else {
 					// apply aftershock and/or gain corrections
 				DiscretizedFunc rupMFDcorrected = rupMFD.deepClone();
-				if(probModel == ProbabilityModelOptions.U3_BPT) {
+				if(probModel == ProbabilityModelOptions.U3_BPT || probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
 					for(int i=0;i<rupMFDcorrected.getNum();i++) {
 						double origRate = rupMFDcorrected.getY(i);
 						double prob = aftRateCorr*probGain*origRate*duration;
@@ -734,7 +799,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		} else {
 			// this currently only uses the mean magnitude
 			double rupRate;
-			if(probModel == ProbabilityModelOptions.U3_BPT) {
+			if(probModel == ProbabilityModelOptions.U3_BPT || probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
 				double rupProb = aftRateCorr*probGain*faultSysSolution.getRateForRup(fltSystRupIndex)*duration;
 				rupRate = -Math.log(1-rupProb)/duration;
 			}

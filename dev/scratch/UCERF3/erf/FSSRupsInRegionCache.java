@@ -9,6 +9,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RupInRegionCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
@@ -81,7 +82,7 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 			invIndex = -1;
 		else
 			invIndex = erf.getFltSysRupIndexForSource(srcIndex);
-		if (invIndex >= 0) {
+		if (invIndex >= 0 && source instanceof FaultRuptureSource) {
 			ConcurrentMap<Integer, Boolean> regRupMap = rupMap
 					.get(region);
 			ConcurrentMap<Integer, Boolean> regSectMap = sectMap

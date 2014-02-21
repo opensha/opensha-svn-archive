@@ -14,7 +14,7 @@ public class BPTAveragingTypeParam extends EnumParameter<BPTAveragingTypeOptions
 
 	public BPTAveragingTypeParam() {
 		super(NAME, EnumSet.allOf(BPTAveragingTypeOptions.class),
-				BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE, null);
+				BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE, null);
 		setInfo(INFO);
 	}
 

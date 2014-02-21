@@ -26,6 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -38,6 +39,7 @@ import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.NamedComparator;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -119,6 +121,7 @@ import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.FSSRupsInRegionCache;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
@@ -1957,6 +1960,31 @@ public class FaultSysSolutionERF_Calc {
 		return writeBranchAggregatedTimeDepFigs(table, outputDir, parents, minMag, duration);
 	}
 	
+	static Map<LogicTreeBranch, SectProbGainResults[]> calcPoissonValues(
+			Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
+			Map<LogicTreeBranch, SectProbGainResults[]>> table) {
+		Map<LogicTreeBranch, SectProbGainResults[]> poisMap;
+		
+		// bpt is the same among all, so it doesn't matter which one we get
+		Map<LogicTreeBranch, SectProbGainResults[]> refMap =
+				table.get(table.rowKeySet().iterator().next(), table.columnKeySet().iterator().next());
+		poisMap = Maps.newHashMap();
+		for (LogicTreeBranch branch : refMap.keySet()) {
+			SectProbGainResults[] refResults = refMap.get(branch);
+			SectProbGainResults[] poisResults = new SectProbGainResults[refResults.length];
+			for (int i=0; i<refResults.length; i++) {
+				SectProbGainResults ref = refResults[i];
+				double recurrInt = 1d/ref.pPois;
+				// only put pPois as pTimeDep
+				poisResults[i] = new SectProbGainResults(recurrInt, ref.openInt, ref.pPois, ref.pPois, 1d, ref.implGain);
+			}
+			// now add it in
+			poisMap.put(branch, poisResults);
+		}
+		
+		return poisMap;
+	}
+	
 	public static Map<Integer, List<Double>> writeBranchAggregatedTimeDepFigs(
 			Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 			Map<LogicTreeBranch, SectProbGainResults[]>> table, File outputDir,
@@ -1965,11 +1993,49 @@ public class FaultSysSolutionERF_Calc {
 		
 		Map<LogicTreeBranch, SectProbGainResults[]> branchVals;
 		branchVals = Maps.newHashMap();
-		// TODO non-equal weighting?
-		double cellWeight = 1d/(double)table.size();
+		double avgTypeWeight = 1d/(double)table.columnKeySet().size();
+		double totCellWeight = 0d; // check that it all adds up to 1
+		
+		// if true, average along with poisson according to weights
+		boolean isWeightedMultiCOV = table.rowKeySet().size() == 3
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.LOW_VALUES)
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.MID_VALUES)
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.HIGH_VALUES);
+		Map<LogicTreeBranch, SectProbGainResults[]> poisMap;
+		if (isWeightedMultiCOV) {
+			// calculate the Poisson branch
+			System.out.println("Multiple/Weighted COV!");
+			// bpt is the same among all, so it doesn't matter which one we get
+			poisMap = calcPoissonValues(table);
+			// now add it in
+			double pw = FaultSystemSolutionERF.PREF_BLEND_POISSON_WEIGHT;
+			for (LogicTreeBranch branch : poisMap.keySet()) {
+				SectProbGainResults[] poisResults = poisMap.get(branch);
+				SectProbGainResults[] scaledResults = new SectProbGainResults[poisResults.length];
+				for (int i=0; i<poisResults.length; i++) {
+					SectProbGainResults pois = poisResults[i];
+					scaledResults[i] = new SectProbGainResults(pw*pois.recurrInt, pw*pois.openInt,
+							pw*pois.pPois, pw*pois.pTimeDep, pw*pois.pGain, pw*pois.implGain);
+				}
+
+				// now add it in
+				branchVals.put(branch, scaledResults);
+			}
+			// add in the weighting from poisson that we just added in
+			totCellWeight += pw;
+		}
 		HashSet<LogicTreeBranch> mojaveNaNBranches = new HashSet<LogicTreeBranch>();
 		for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 				Map<LogicTreeBranch, SectProbGainResults[]>> cell : table.cellSet()) {
+			double cellWeight = avgTypeWeight;
+			if (isWeightedMultiCOV) {
+				cellWeight *= FaultSystemSolutionERF.getWeightForCOV(cell.getRowKey());
+				if (cellWeight == 0)
+					throw new IllegalStateException("Multiple COV's only supported with low/mid/high (and all 3 must be present).");
+			} else {
+				// equal weighting
+				cellWeight *= 1d/(double)table.rowKeySet().size();
+			}
 			Map<LogicTreeBranch, SectProbGainResults[]> subBranchMap = cell.getValue();
 			for (LogicTreeBranch branch : subBranchMap.keySet()) {
 				SectProbGainResults[] vals = subBranchMap.get(branch);
@@ -1985,16 +2051,19 @@ public class FaultSysSolutionERF_Calc {
 					curVals[j].recurrInt += vals[j].recurrInt*cellWeight;
 					curVals[j].openInt += vals[j].openInt*cellWeight;
 					curVals[j].pPois += vals[j].pPois*cellWeight;
-					curVals[j].pBPT += vals[j].pBPT*cellWeight;
+					curVals[j].pTimeDep += vals[j].pTimeDep*cellWeight;
 					curVals[j].pGain += vals[j].pGain*cellWeight;
 					curVals[j].implGain += vals[j].implGain*cellWeight;
 				}
-				if (branch.equals(LogicTreeBranch.DEFAULT) && parents)
-					System.out.println("REF BRANCH. Mojave S="+vals[230].pBPT+", running avg="+curVals[230].pBPT);
-				if (debug_saf_nan_check && parents && Double.isNaN(vals[230].pBPT))
+//				if (branch.equals(LogicTreeBranch.DEFAULT) && parents)
+//					System.out.println("REF BRANCH. Mojave S="+vals[230].pBPT+", running avg="+curVals[230].pBPT);
+				if (debug_saf_nan_check && parents && Double.isNaN(vals[230].pTimeDep))
 					mojaveNaNBranches.add(branch);
 			}
+			totCellWeight += cellWeight;
 		}
+		Preconditions.checkState((float)totCellWeight == 1f, "Total cell weight != 1: "+totCellWeight
+				+", isWeightedMultiCOV="+isWeightedMultiCOV);
 		
 		if (debug_saf_nan_check && parents) {
 			System.out.println("Branches:");
@@ -2092,9 +2161,9 @@ public class FaultSysSolutionERF_Calc {
 		List<FaultTraceComparable> traceComps = Lists.newArrayList(tracesSet);
 		Collections.sort(traceComps);
 		List<LocationList> traces = Lists.newArrayList();
-		double[] meanBPTVals = new double[traceComps.size()];
-		double[] minBPTVals = new double[traceComps.size()];
-		double[] maxBPTVals = new double[traceComps.size()];
+		double[] meanTimeDepVals = new double[traceComps.size()];
+		double[] minTimeDepVals = new double[traceComps.size()];
+		double[] maxTimeDepVals = new double[traceComps.size()];
 		double[] gainU3Vals = new double[traceComps.size()];
 		double[] gainU3U2Vals = new double[traceComps.size()];
 		Map<MagDependentAperiodicityOptions, double[]> meanBPT_COVVals = null;
@@ -2103,6 +2172,8 @@ public class FaultSysSolutionERF_Calc {
 			meanBPT_COVVals = Maps.newHashMap();
 			for (MagDependentAperiodicityOptions theCOV : table.rowKeySet())
 				meanBPT_COVVals.put(theCOV, new double[traceComps.size()]);
+			if (isWeightedMultiCOV)
+				meanBPT_COVVals.put(null, new double[traceComps.size()]);
 		}
 		if (table.columnKeySet().size() > 1) {
 			meanBPT_CalcVals = Maps.newHashMap();
@@ -2124,10 +2195,11 @@ public class FaultSysSolutionERF_Calc {
 		// aggregated CSV file
 		CSVFile<String> csv = new CSVFile<String>(true);
 		// TODO
-		List<String> header = Lists.newArrayList("Name", "Fract With Years Since", "Average Years Since", "U3 Mean pBPT",
-				"U3 Min", "U3 Max", "U3 pPois", "U3 pBPT/pPois");
+		List<String> header = Lists.newArrayList("Name", "Fract With Years Since", "Average Years Since", "U3 Mean Time Dep Prob",
+				"U3 Min", "U3 Max", "U3 Time Indep Prob", "U3 Time Dep/Indep");
 		if (parents)
-			header.addAll(Lists.newArrayList("U2 Mean", "U2 min", "U2 max", "U2 pPois", "MeanU3/MeanU2"));
+			header.addAll(Lists.newArrayList("U2 Mean Time Dep Prob", "U2 min", "U2 max", "U2 Time Indep Prob",
+					"MeanU3 Time Dep/MeanU2 Time Dep"));
 		csv.addLine(header);
 		
 		// this is what gets returned
@@ -2135,7 +2207,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		for (int i = 0; i < traceComps.size(); i++) {
 			FaultTraceComparable trace = traceComps.get(i);
-			List<Double> bptVals = Lists.newArrayList();
+			List<Double> timeDepVals = Lists.newArrayList();
 			List<Double> poisVals = Lists.newArrayList();
 			List<Double> gainVals = Lists.newArrayList();
 			List<Double> weights = Lists.newArrayList();
@@ -2153,7 +2225,7 @@ public class FaultSysSolutionERF_Calc {
 				if (index == null)
 					continue;
 				SectProbGainResults val = branchVals.get(branch)[index];
-				bptVals.add(val.pBPT);
+				timeDepVals.add(val.pTimeDep);
 				poisVals.add(val.pPois);
 				gainVals.add(val.pGain);
 				weights.add(weightProv.getWeight(branch));
@@ -2161,21 +2233,44 @@ public class FaultSysSolutionERF_Calc {
 					for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 							Map<LogicTreeBranch, SectProbGainResults[]>> cell : table.cellSet())
 						bptOpsValsTable.get(cell.getRowKey(), cell.getColumnKey()).add(
-								table.get(cell.getRowKey(), cell.getColumnKey()).get(branch)[index].pBPT);
+								table.get(cell.getRowKey(), cell.getColumnKey()).get(branch)[index].pTimeDep);
 				}
 			}
-			double[] bptValsArray = Doubles.toArray(bptVals);
+			double[] timeDepValsArray = Doubles.toArray(timeDepVals);
 			double[] poisValsArray = Doubles.toArray(poisVals);
 			double[] weightsArray = Doubles.toArray(weights);
+			
+			// now do min/max over all COV branches as well!
+			double[] timeDepAllValsArray;
+			if (table.rowKeySet().size() == 1) {
+				timeDepAllValsArray = timeDepValsArray;
+			} else {
+				List<Double> timeDepAllVals = Lists.newArrayList();
+				// loop over everything. weights not important as only used for min/max
+				for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions, Map<LogicTreeBranch,
+						SectProbGainResults[]>> cell : table.cellSet()) {
+					Map<LogicTreeBranch, SectProbGainResults[]> cellMap = cell.getValue();
+					for (LogicTreeBranch branch : cellMap.keySet()) {
+						FaultModels fm = branch.getValue(FaultModels.class);
+						Integer index = fmIndexMaps.get(fm).get(trace);
+						if (index == null)
+							continue;
+						timeDepAllVals.add(cellMap.get(branch)[index].pTimeDep);
+					}
+				}
+				// add poisson values as well
+				timeDepAllVals.addAll(poisVals);
+				timeDepAllValsArray = Doubles.toArray(timeDepAllVals);
+			}
 			
 //			double meanBPT = weightedAvgNonZero(bptVals, weights);
 //			double minBPT = minNonZero(bptVals);
 //			double maxBPT = maxNonZero(bptVals);
 //			double meanPois = weightedAvgNonZero(poisVals, weights);
-			double meanBPT = FaultSystemSolutionFetcher.calcScaledAverage(
-					bptValsArray, weightsArray);
-			double minBPT = StatUtils.min(bptValsArray);
-			double maxBPT = StatUtils.max(bptValsArray);
+			double meanTimeDep = FaultSystemSolutionFetcher.calcScaledAverage(
+					timeDepValsArray, weightsArray);
+			double minTimeDep = StatUtils.min(timeDepAllValsArray);
+			double maxTimeDep = StatUtils.max(timeDepAllValsArray);
 			double meanPois = FaultSystemSolutionFetcher.calcScaledAverage(
 					poisValsArray, weightsArray);
 			double gainU3 = weightedAvgNonZero(gainVals, weights);
@@ -2192,7 +2287,7 @@ public class FaultSysSolutionERF_Calc {
 			}
 			
 			List<String> line = Lists.newArrayList(trace.name, fractWith+"", oi+"",
-					meanBPT+"", minBPT+"", maxBPT+"", meanPois+"", gainU3+"");
+					meanTimeDep+"", minTimeDep+"", maxTimeDep+"", meanPois+"", gainU3+"");
 			
 			if (parents) {
 				// 
@@ -2201,31 +2296,43 @@ public class FaultSysSolutionERF_Calc {
 				double minU2 = Double.NaN;
 				double maxU2 = Double.NaN;
 				double meanU2pois = Double.NaN;
+				// this gets loaded each time, no need to clone
 				ArrayList<IncrementalMagFreqDist> mfds =
 						UCERF2_Section_TimeDepMFDsCalc.getMeanMinAndMaxMFD(trace.parentID, true, true);
 				if (mfds != null) {
+					// include aftershocks
+					IncrementalMagFreqDist meanU2MFD = mfds.get(0);
+					IncrementalMagFreqDist minU2MFD = mfds.get(1);
+					IncrementalMagFreqDist maxU2MFD = mfds.get(2);
+					IncrementalMagFreqDist meanU2IndepMFD = UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(
+							trace.parentID, true, true).get(0);
+					meanU2MFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+					minU2MFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+					maxU2MFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+					meanU2IndepMFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
 					// cumulative mfd so get the first above
-					meanU2 = calcProbAboveMagFromMFD(mfds.get(0), minMag, duration);
-					minU2 = calcProbAboveMagFromMFD(mfds.get(1), minMag, duration);
-					maxU2 = calcProbAboveMagFromMFD(mfds.get(2), minMag, duration);
-					meanU2pois = calcProbAboveMagFromMFD(UCERF2_Section_MFDsCalc.getMeanMinAndMaxMFD(
-							trace.parentID, true, true).get(0), minMag, duration);
+					meanU2 = calcProbAboveMagFromMFD(meanU2MFD, minMag, duration);
+					minU2 = calcProbAboveMagFromMFD(minU2MFD, minMag, duration);
+					maxU2 = calcProbAboveMagFromMFD(maxU2MFD, minMag, duration);
+					meanU2pois = calcProbAboveMagFromMFD(meanU2IndepMFD, minMag, duration);
 				}
 				
-				double gainU3U2 = meanBPT / meanU2;
+				double gainU3U2 = meanTimeDep / meanU2;
 				gainU3U2Vals[i] = gainU3U2;
 				
 				line.addAll(Lists.newArrayList(meanU2+"", minU2+"", maxU2+"", meanU2pois+"", gainU3U2+""));
 			}
 			csv.addLine(line);
 			
-			meanBPTVals[i] = meanBPT;
-			minBPTVals[i] = minBPT;
-			maxBPTVals[i] = maxBPT;
+			meanTimeDepVals[i] = meanTimeDep;
+			minTimeDepVals[i] = minTimeDep;
+			maxTimeDepVals[i] = maxTimeDep;
 			gainU3Vals[i] = gainU3;
 			
 			if (meanBPT_COVVals != null) {
 				for (MagDependentAperiodicityOptions theCOV : meanBPT_COVVals.keySet()) {
+					if (theCOV == null) // poisson
+						continue;
 					List<Double> avgVals = Lists.newArrayList();
 					for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,List<Double>> cell
 							: bptOpsValsTable.cellSet()) {
@@ -2237,6 +2344,21 @@ public class FaultSysSolutionERF_Calc {
 					}
 					Preconditions.checkState(!avgVals.isEmpty());
 					meanBPT_COVVals.get(theCOV)[i] = StatUtils.mean(Doubles.toArray(avgVals));
+				}
+				// now add in Poisson
+				if (isWeightedMultiCOV) {
+					List<Double> branchPoisVals = Lists.newArrayList();
+					for (LogicTreeBranch branch : branchVals.keySet()) {
+						FaultModels fm = branch.getValue(FaultModels.class);
+						Integer index = fmIndexMaps.get(fm).get(trace);
+						if (index == null)
+							continue;
+						SectProbGainResults val = branchVals.get(branch)[index];
+						branchPoisVals.add(val.pPois);
+					}
+					
+					meanBPT_COVVals.get(null)[i] = FaultSystemSolutionFetcher.calcScaledAverage(
+							Doubles.toArray(branchPoisVals), weightsArray);
 				}
 			}
 			
@@ -2261,7 +2383,7 @@ public class FaultSysSolutionERF_Calc {
 				parentVals = Lists.newArrayList();
 				meanMap.put(trace.parentID, parentVals);
 			}
-			parentVals.add(meanBPT);
+			parentVals.add(meanTimeDep);
 		}
 		
 		File csvFile;
@@ -2276,7 +2398,7 @@ public class FaultSysSolutionERF_Calc {
 		
 		if (parents) {
 			FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, gainU3U2Vals, region,
-					outputDir, "gain_u3_u2", false, true, "UCERF3/UCERF2 BPT Ratio");
+					outputDir, "gain_u3_u2", false, true, "UCERF3/UCERF2 Time Dep Ratio");
 			return meanMap;
 		}
 		
@@ -2285,19 +2407,20 @@ public class FaultSysSolutionERF_Calc {
 		if (!comparePlotsDir.exists())
 			comparePlotsDir.mkdir();
 		
+		BranchSensitivityHistogram branchSensHist = new BranchSensitivityHistogram("Ratio", 0d, 21, 0.1);
+		
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
 			if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
 				continue;
 			String className = ClassUtils.getClassNameWithoutPackage(clazz);
 			LogicTreeBranchNode<?>[] choices = clazz.getEnumConstants();
-			List<HistogramFunction> hists = Lists.newArrayList();
 			// for std dev
 			List<Double> allVals = Lists.newArrayList();
 			for (LogicTreeBranchNode<?> choice : choices) {
 				if (choice.getRelativeWeight(InversionModels.CHAR_CONSTRAINED) <= 0)
 					continue;
-				double[] choiceVals = new double[meanBPTVals.length];
-				double[] weightTots = new double[meanBPTVals.length];
+				double[] choiceVals = new double[meanTimeDepVals.length];
+				double[] weightTots = new double[meanTimeDepVals.length];
 				for (LogicTreeBranch branch : branchVals.keySet()) {
 					if (branch.getValueUnchecked(clazz) != choice)
 						continue;
@@ -2309,7 +2432,7 @@ public class FaultSysSolutionERF_Calc {
 						Integer index = fmIndexMaps.get(fm).get(trace);
 						if (index == null)
 							continue;
-						double val = vals[index].pBPT;
+						double val = vals[index].pTimeDep;
 						if (Double.isNaN(val))
 							continue;
 						choiceVals[i] += val*weight;
@@ -2322,79 +2445,147 @@ public class FaultSysSolutionERF_Calc {
 				
 				double[] ratios = new double[choiceVals.length];
 				for (int i=0; i<ratios.length; i++)
-					ratios[i] = choiceVals[i] / meanBPTVals[i];
+					ratios[i] = choiceVals[i] / meanTimeDepVals[i];
 				String prefix = className+"_"+choice.encodeChoiceString();
 				String plotLabel = choice.encodeChoiceString()+"/Mean";
+				
+				double choiceWeight = choice.getRelativeWeight(InversionModels.CHAR_CONSTRAINED);
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
 				
 				// now histograms
-				hists.add(generateRatioHistogram(ratios, choice.getShortName()));
+				for (double ratio : ratios)
+					if (Doubles.isFinite(ratio))
+						branchSensHist.addValue(className, choice.getShortName(), ratio, choiceWeight);
 				allVals.addAll(getNonNanInfinites(ratios));
 			}
 			// write hists
 			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
-			writeRatioHists(comparePlotsDir, hists, className, stdDev);
+			System.out.println(className+" orig sigma: "+stdDev);
+//			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
 		// now do it for COV values
 		if (meanBPT_COVVals != null) {
 			String className = "MagDepAperiodicity";
-			List<HistogramFunction> hists = Lists.newArrayList();
 			// for std dev
 			List<Double> allVals = Lists.newArrayList();
 			for (MagDependentAperiodicityOptions theCOV : meanBPT_COVVals.keySet()) {
+				String name;
+				if (theCOV == null)
+					name = "POISSON";
+				else
+					name = theCOV.name();
 				double[] choiceVals = meanBPT_COVVals.get(theCOV);
 				double[] ratios = new double[choiceVals.length];
 				for (int i=0; i<ratios.length; i++)
-					ratios[i] = choiceVals[i] / meanBPTVals[i];
-				String prefix = "MagDepAperiodicity_"+theCOV.name();
-				String plotLabel = theCOV.name()+"/Mean";
+					ratios[i] = choiceVals[i] / meanTimeDepVals[i];
+				String prefix = "MagDepAperiodicity_"+name;
+				String plotLabel = name+"/Mean";
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
 				
-				hists.add(generateRatioHistogram(ratios, theCOV.name()));
+//				hists.add(generateRatioHistogram(ratios, theCOV.name()));
+				double weight = FaultSystemSolutionERF.getWeightForCOV(theCOV);
+				for (double ratio : ratios)
+					if (Doubles.isFinite(ratio))
+						branchSensHist.addValue(className, name, ratio, weight);
 				allVals.addAll(getNonNanInfinites(ratios));
 			}
 			// write hists
 			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
-			writeRatioHists(comparePlotsDir, hists, className, stdDev);
+			System.out.println(className+" orig sigma: "+stdDev);
+//			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
 		// now do it for Ave Type values
 		if (meanBPT_CalcVals != null) {
 			String className = "BPTAveType";
-			List<HistogramFunction> hists = Lists.newArrayList();
 			// for std dev
 			List<Double> allVals = Lists.newArrayList();
 			for (BPTAveragingTypeOptions theAve : meanBPT_CalcVals.keySet()) {
 				double[] choiceVals = meanBPT_CalcVals.get(theAve);
 				double[] ratios = new double[choiceVals.length];
 				for (int i=0; i<ratios.length; i++)
-					ratios[i] = choiceVals[i] / meanBPTVals[i];
+					ratios[i] = choiceVals[i] / meanTimeDepVals[i];
 				String prefix = "BPTAveType_"+theAve.getFileSafeLabel();
 				String plotLabel = theAve.getCompactLabel()+"/Mean";
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
-				
-				hists.add(generateRatioHistogram(ratios, theAve.getFileSafeLabel()));
+
+				for (double ratio : ratios)
+					if (Doubles.isFinite(ratio))
+						branchSensHist.addValue(className, theAve.getFileSafeLabel(), ratio, 1d); // equal weighting
+//				hists.add(generateRatioHistogram(ratios, theAve.getFileSafeLabel()));
 				allVals.addAll(getNonNanInfinites(ratios));
 			}
 			// write hists
 			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
-			writeRatioHists(comparePlotsDir, hists, className, stdDev);
+			System.out.println(className+" orig sigma: "+stdDev);
+//			writeRatioHists(comparePlotsDir, hists, className, stdDev);
+		}
+		
+//		BranchSensitivityHistogram branchSensHist = new BranchSensitivityHistogram("Ratio", 0d, 21, 0.1);
+//		String covCategoryName = "MagDepAperiodicity";
+//		String aveCategoryName = "BPTAveType";
+//		for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
+//				Map<LogicTreeBranch, SectProbGainResults[]>> cell : table.cellSet()) {
+//			String covChoiceName = cell.getRowKey().name();
+//			String aveChoiceName = cell.getColumnKey().getFileSafeLabel();
+//			
+//			Map<LogicTreeBranch, SectProbGainResults[]> valMap = cell.getValue();
+//			
+//			for (LogicTreeBranch branch : valMap.keySet()) {
+//				SectProbGainResults[] vals = valMap.get(branch);
+//				for (int i=0; i<vals.length; i++) {
+//					double ratio = vals[i].pBPT / meanBPTVals[i];
+//					// TODO COV weight?
+//					double weight = weightProv.getWeight(branch);
+//					branchSensHist.addValues(branch, ratio, weight, covCategoryName, covChoiceName, aveCategoryName, aveChoiceName);
+//				}
+//			}
+//		}
+		
+		// write the ratio hists
+		Map<String, PlotSpec> histPlots = branchSensHist.getStackedHistPlots();
+		for (String categoryName : histPlots.keySet()) {
+			PlotSpec spec = histPlots.get(categoryName);
+			
+			double mean = branchSensHist.calcMean(categoryName);
+			double stdDev = branchSensHist.calcStdDev(categoryName);
+			
+			System.out.println(categoryName+": mean="+mean+", sigma="+stdDev);
+			
+			XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
+			ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+			ann.setTextAnchor(TextAnchor.TOP_LEFT);
+			spec.setPlotAnnotations(Lists.newArrayList(ann));
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			CommandLineInversionRunner.setFontSizes(gp);
+			
+			gp.drawGraphPanel(spec, false, false, new Range(0d, 2d), new Range(0d, 1d));
+
+			File file = new File(comparePlotsDir, categoryName+"_hists");
+			gp.getCartPanel().setSize(1000, 600);
+			gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
+			gp.saveAsPNG(file.getAbsolutePath() + ".png");
+			file = new File(file.getAbsolutePath()+"_small");
+			gp.getCartPanel().setSize(500, 400);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
 		
 		// now do min/mean/max prob maps
 		CPT logProbCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4d, 0d);
 		
-		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(meanBPTVals), region,
-				outputDir, "mean_bpt_prob", false, true, "UCERF3 Mean BPT Prob");
-		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(minBPTVals), region,
-				outputDir, "min_bpt_prob", false, true, "UCERF3 Min BPT Prob");
-		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(maxBPTVals), region,
-				outputDir, "max_bpt_prob", false, true, "UCERF3 Max BPT Prob");
+		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(meanTimeDepVals), region,
+				outputDir, "mean_time_dep_prob", false, true, "UCERF3 Mean Time Dep Prob");
+		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(minTimeDepVals), region,
+				outputDir, "min_time_dep_prob", false, true, "UCERF3 Min Time Dep Prob");
+		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(maxTimeDepVals), region,
+				outputDir, "max_time_dep_prob", false, true, "UCERF3 Max Time Dep Prob");
 		FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, gainU3Vals, region,
 				outputDir, "gain_u3", false, true, "UCERF3 Mean BPT/Poisson Prob Gain");
 		
@@ -2411,13 +2602,13 @@ public class FaultSysSolutionERF_Calc {
 		return nonNanRatios;
 	}
 	
-	private static HistogramFunction generateRatioHistogram(double[] ratios, String choiceName) {
-		HistogramFunction ratioHist = new HistogramFunction(0d, 21, 0.1);
-		for (double ratio : getNonNanInfinites(ratios))
-			ratioHist.add(ratioHist.getClosestXIndex(ratio), 1d);
-		ratioHist.setName(choiceName);
-		return ratioHist;
-	}
+//	private static HistogramFunction generateRatioHistogram(double[] ratios, String choiceName) {
+//		HistogramFunction ratioHist = new HistogramFunction(0d, 21, 0.1);
+//		for (double ratio : getNonNanInfinites(ratios))
+//			ratioHist.add(ratioHist.getClosestXIndex(ratio), 1d);
+//		ratioHist.setName(choiceName);
+//		return ratioHist;
+//	}
 	
 //	private static PlotSpec generateRatioHistogram(double[] ratios, String className, String choiceName) {
 //		HistogramFunction ratioHist = new HistogramFunction(0d, 21, 0.1);
@@ -2457,39 +2648,39 @@ public class FaultSysSolutionERF_Calc {
 //		return spec;
 //	}
 	
-	private static void writeRatioHists(File comparePlotsDir, List<HistogramFunction> hists,
-			String className, double stdDev) throws IOException {
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		CommandLineInversionRunner.setFontSizes(gp);
-		
-		List<HistogramFunction> stackedHists = HistogramFunction.getStackedHists(hists, true);
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
-//		List<Color> colors = GraphWindow.generateDefaultColors();
-		List<Color> colors = Lists.newArrayList(
-				Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.CYAN, Color.ORANGE);
-		for (int i=0; i<stackedHists.size(); i++)
-			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
-		
-		PlotSpec spec = new PlotSpec(stackedHists, chars, className, "Ratio", "Density");
-		spec.setLegendVisible(true);
-		spec.setLegendLocation(RectangleEdge.BOTTOM);
-		
-		XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
-		ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
-		ann.setTextAnchor(TextAnchor.TOP_LEFT);
-		spec.setPlotAnnotations(Lists.newArrayList(ann));
-		
-		gp.drawGraphPanel(spec, false, false, new Range(0d, 2d), new Range(0d, 1d));
-
-		File file = new File(comparePlotsDir, className+"_hists");
-		gp.getCartPanel().setSize(1000, 600);
-		gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
-		gp.saveAsPNG(file.getAbsolutePath() + ".png");
-		file = new File(file.getAbsolutePath()+"_small");
-		gp.getCartPanel().setSize(500, 400);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-	}
+//	private static void writeRatioHists(File comparePlotsDir, List<HistogramFunction> hists,
+//			String className, double stdDev) throws IOException {
+//		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+//		CommandLineInversionRunner.setFontSizes(gp);
+//		
+//		List<HistogramFunction> stackedHists = HistogramFunction.getStackedHists(hists, true);
+//		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+////		List<Color> colors = GraphWindow.generateDefaultColors();
+//		List<Color> colors = Lists.newArrayList(
+//				Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.CYAN, Color.ORANGE);
+//		for (int i=0; i<stackedHists.size(); i++)
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
+//		
+//		PlotSpec spec = new PlotSpec(stackedHists, chars, className, "Ratio", "Density");
+//		spec.setLegendVisible(true);
+//		spec.setLegendLocation(RectangleEdge.BOTTOM);
+//		
+//		XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
+//		ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+//		ann.setTextAnchor(TextAnchor.TOP_LEFT);
+//		spec.setPlotAnnotations(Lists.newArrayList(ann));
+//		
+//		gp.drawGraphPanel(spec, false, false, new Range(0d, 2d), new Range(0d, 1d));
+//
+//		File file = new File(comparePlotsDir, className+"_hists");
+//		gp.getCartPanel().setSize(1000, 600);
+//		gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath() + ".png");
+//		file = new File(file.getAbsolutePath()+"_small");
+//		gp.getCartPanel().setSize(500, 400);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//	}
 	
 	private static void writeBranchAggregatedFaultResults(
 			Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
@@ -2498,10 +2689,50 @@ public class FaultSysSolutionERF_Calc {
 		
 		Map<LogicTreeBranch, SectProbGainResults[]> branchVals;
 		branchVals = Maps.newHashMap();
-		// TODO non-equal weighting?
-		double cellWeight = 1d/(double)table.size();
+		double avgTypeWeight = 1d/(double)table.columnKeySet().size();
+		double totCellWeight = 0d; // check that it all adds up to 1
+		
+		// if true, average along with poisson according to weights
+		boolean isWeightedMultiCOV = table.rowKeySet().size() == 3
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.LOW_VALUES)
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.MID_VALUES)
+					&& table.rowKeySet().contains(MagDependentAperiodicityOptions.HIGH_VALUES);
+		Map<LogicTreeBranch, SectProbGainResults[]> poisMap;
+		if (isWeightedMultiCOV) {
+			// calculate the Poisson branch
+			System.out.println("Multiple/Weighted COV!");
+			// bpt is the same among all, so it doesn't matter which one we get
+			poisMap = calcPoissonValues(table);
+			// now add it in
+			double pw = FaultSystemSolutionERF.PREF_BLEND_POISSON_WEIGHT;
+			for (LogicTreeBranch branch : poisMap.keySet()) {
+				SectProbGainResults[] poisResults = poisMap.get(branch);
+				SectProbGainResults[] scaledResults = new SectProbGainResults[poisResults.length];
+				for (int i=0; i<poisResults.length; i++) {
+					SectProbGainResults pois = poisResults[i];
+					scaledResults[i] = new SectProbGainResults(pw*pois.recurrInt, pw*pois.openInt,
+							pw*pois.pPois, pw*pois.pTimeDep, pw*pois.pGain, pw*pois.implGain);
+				}
+
+				// now add it in
+				branchVals.put(branch, scaledResults);
+			}
+			// add in the weighting from poisson that we just added in
+			totCellWeight += pw;
+		}
+		
 		for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 				Map<LogicTreeBranch, SectProbGainResults[]>> cell : table.cellSet()) {
+			double cellWeight = avgTypeWeight;
+			if (isWeightedMultiCOV) {
+				cellWeight *= FaultSystemSolutionERF.getWeightForCOV(cell.getRowKey());
+				if (cellWeight == 0)
+					throw new IllegalStateException("Multiple COV's only supported with low/mid/high (and all 3 must be present).");
+			} else {
+				// equal weighting
+				cellWeight *= 1d/(double)table.rowKeySet().size();
+			}
+			totCellWeight += cellWeight;
 			Map<LogicTreeBranch, SectProbGainResults[]> subBranchMap = cell.getValue();
 			for (LogicTreeBranch branch : subBranchMap.keySet()) {
 				SectProbGainResults[] vals = subBranchMap.get(branch);
@@ -2517,16 +2748,35 @@ public class FaultSysSolutionERF_Calc {
 					curVals[j].recurrInt += vals[j].recurrInt*cellWeight;
 					curVals[j].openInt += vals[j].openInt*cellWeight;
 					curVals[j].pPois += vals[j].pPois*cellWeight;
-					curVals[j].pBPT += vals[j].pBPT*cellWeight;
+					curVals[j].pTimeDep += vals[j].pTimeDep*cellWeight;
 					curVals[j].pGain += vals[j].pGain*cellWeight;
 					curVals[j].implGain += vals[j].implGain*cellWeight;
 				}
 			}
 		}
+		Preconditions.checkState((float)totCellWeight == 1f, "Total cell weight != 1: "+totCellWeight
+				+", isWeightedMultiCOV="+isWeightedMultiCOV);
+		
+		Map<String, DiscretizedFunc[]> u2MPDs = null;
+		int u2FuncIndex = -1;
+		if ((float)duration == 30f) {
+			u2MPDs = loadUCERF2MainFaultMPDs(true, true);
+			// now make sure the mag is supported
+			u2FuncIndex = u2MPDs.values().iterator().next()[0].getXIndex(minMag);
+			if (u2FuncIndex < 0)
+				// mag not supported
+				u2MPDs = null;
+		}
 		
 		// aggregated CSV file
 		CSVFile<String> csv = new CSVFile<String>(true);
-		csv.addLine("Name", "U3 Mean pBPT", "U3 Min", "U3 Max", "U3 pPois", "U3 pBPT/pPois");
+		List<String> header = Lists.newArrayList("Name", "U3 Mean Time Dep", "U3 Min", "U3 Max",
+				"U3 Time Indep", "U3 Time Dep/Time Indep");
+		if (u2MPDs != null) {
+			// we have UCERF2 values
+			header.addAll(Lists.newArrayList("U2 Mean Time Dep", "U2 Min", "U2 Max", "U3 Time Dep / U2 Time Dep"));
+		}
+		csv.addLine(header);
 		
 		List<String> faultNames = Lists.newArrayList(FaultModels.parseNamedFaultsAltFile(
 				UCERF3_DataUtils.getReader("FaultModels", "MainFaultsForTimeDepComparison.txt")).keySet());
@@ -2546,9 +2796,9 @@ public class FaultSysSolutionERF_Calc {
 						|| (name.contains("FM3.2") && fm == FaultModels.FM3_1))
 					continue;
 				SectProbGainResults val = branchVals.get(branch)[i];
-				if (Double.isNaN(val.pBPT))
+				if (Double.isNaN(val.pTimeDep))
 					continue;
-				bptVals.add(val.pBPT);
+				bptVals.add(val.pTimeDep);
 				poisVals.add(val.pPois);
 				gainVals.add(val.pGain);
 				weights.add(weightProv.getWeight(branch));
@@ -2557,19 +2807,57 @@ public class FaultSysSolutionERF_Calc {
 			double[] poisValsArray = Doubles.toArray(poisVals);
 			double[] weightsArray = Doubles.toArray(weights);
 			
+			// now do min/max over all COV branches as well!
+			double[] timeDepAllValsArray;
+			if (table.rowKeySet().size() == 1) {
+				timeDepAllValsArray = bptValsArray;
+			} else {
+				List<Double> timeDepAllVals = Lists.newArrayList();
+				// loop over everything. weights not important as only used for min/max
+				for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions, Map<LogicTreeBranch,
+						SectProbGainResults[]>> cell : table.cellSet()) {
+					Map<LogicTreeBranch, SectProbGainResults[]> cellMap = cell.getValue();
+					for (LogicTreeBranch branch : cellMap.keySet()) {
+						FaultModels fm = branch.getValue(FaultModels.class);
+						if ((name.contains("FM3.1") && fm == FaultModels.FM3_2)
+								|| (name.contains("FM3.2") && fm == FaultModels.FM3_1))
+							continue;
+						timeDepAllVals.add(cellMap.get(branch)[i].pTimeDep);
+					}
+				}
+				// add poisson values as well
+				timeDepAllVals.addAll(poisVals);
+				timeDepAllValsArray = Doubles.toArray(timeDepAllVals);
+			}
+			
 //			double meanBPT = weightedAvgNonZero(bptVals, weights);
 //			double minBPT = minNonZero(bptVals);
 //			double maxBPT = maxNonZero(bptVals);
 //			double meanPois = weightedAvgNonZero(poisVals, weights);
 			double meanBPT = FaultSystemSolutionFetcher.calcScaledAverage(
 					bptValsArray, weightsArray);
-			double minBPT = StatUtils.min(bptValsArray);
-			double maxBPT = StatUtils.max(bptValsArray);
+			double minBPT = StatUtils.min(timeDepAllValsArray);
+			double maxBPT = StatUtils.max(timeDepAllValsArray);
 			double meanPois = FaultSystemSolutionFetcher.calcScaledAverage(
 					poisValsArray, weightsArray);
 			double gainU3 = weightedAvgNonZero(gainVals, weights);
 			
-			csv.addLine(name, meanBPT+"", minBPT+"", maxBPT+"", meanPois+"", gainU3+"");
+			List<String> line = Lists.newArrayList(name, meanBPT+"", minBPT+"", maxBPT+"", meanPois+"", gainU3+"");
+			
+			if (u2MPDs != null) {
+				DiscretizedFunc[] u2Funcs = u2MPDs.get(name); // organized as min, max, mean
+				double minU2 = u2Funcs[0].getY(u2FuncIndex);
+				double maxU2 = u2Funcs[1].getY(u2FuncIndex);
+				double meanU2 = u2Funcs[2].getY(u2FuncIndex);
+			
+				// "U2 Mean Time Dep", "U2 Min", "U2 Max", "U3 Time Dep / U2 Time Dep"
+				line.add(meanU2+"");
+				line.add(minU2+"");
+				line.add(maxU2+"");
+				line.add((meanBPT/meanU2)+"");
+			}
+			
+			csv.addLine(line);
 		}
 		
 		File csvFile = new File(outputDir, "branch_aggregated_main_faults.csv");
@@ -2673,8 +2961,8 @@ public class FaultSysSolutionERF_Calc {
 		
 	}
 	
-	private static class SectProbGainResults {
-		double recurrInt, openInt, pPois, pBPT, pGain, implGain;
+	public static class SectProbGainResults {
+		double recurrInt, openInt, pPois, pTimeDep, pGain, implGain;
 
 		public SectProbGainResults(double recurrInt, double openInt,
 				double pPois, double pBPT, double pGain, double implGain) {
@@ -2682,7 +2970,7 @@ public class FaultSysSolutionERF_Calc {
 			this.recurrInt = recurrInt;
 			this.openInt = openInt;
 			this.pPois = pPois;
-			this.pBPT = pBPT;
+			this.pTimeDep = pBPT;
 			this.pGain = pGain;
 			this.implGain = implGain;
 		}
@@ -2784,10 +3072,79 @@ public class FaultSysSolutionERF_Calc {
 		return maps;
 	}
 	
+	private static void writeOpenIntTableComparisons() throws IOException, DocumentException,
+	GMT_MapException, RuntimeException {
+		// m6.7 30 year comparisons between:
+		// ver 9 / ver 8
+		// ver 9 with RCF / ver 9
+		
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		Map<Integer, List<LastEventData>> ver9Data = LastEventData.load(UCERF3_DataUtils.locateResourceAsStream(
+				"paleoRateData", "UCERF3_OpenIntervals_ver9.xls"), new int[] {0,1});
+		
+		Map<Integer, List<LastEventData>> ver9RCFData = LastEventData.load(UCERF3_DataUtils.locateResourceAsStream(
+				"paleoRateData", "UCERF3_OpenIntervals_ver9.xls"), new int[] {0,2});
+		
+		Map<Integer, List<LastEventData>> ver8Data = LastEventData.load(UCERF3_DataUtils.locateResourceAsStream(
+				"paleoRateData", "UCERF3_OpenIntervals_ver8.xls"), new int[] {0,1});
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		// make it use passed in open interval data
+		erf.setUseFSSDateOfLastEvents(true);
+		
+		LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), ver9Data);
+		
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		erf.getTimeSpan().setDuration(30d);
+		
+		EvenlyDiscretizedFunc[] ver9Vals = calcSubSectSupraSeisMagProbDists(erf, 6.7d, 1, 0.1d);
+		
+		LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), ver8Data);
+		
+		// make it update
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		
+		EvenlyDiscretizedFunc[] ver8Vals = calcSubSectSupraSeisMagProbDists(erf, 6.7d, 1, 0.1d);
+		
+		LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), ver9RCFData);
+		
+		// make it update
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+		
+		EvenlyDiscretizedFunc[] ver9RCFVals = calcSubSectSupraSeisMagProbDists(erf, 6.7d, 1, 0.1d);
+		
+		double[] ver9_8_ratios = new double[ver9Vals.length];
+		double[] ver9RCF_9_ratios = new double[ver9Vals.length];
+		for (int i=0; i<ver9Vals.length; i++) {
+			ver9_8_ratios[i] = ver9Vals[i].getY(0) / ver8Vals[i].getY(0);
+			ver9RCF_9_ratios[i] = ver9RCFVals[i].getY(0) / ver9Vals[i].getY(0);
+		}
+		
+		CPT ratioCPT = getScaledLinearRatioCPT(0.02);
+		ArrayList<LocationList> traces = FaultBasedMapGen.getTraces(sol.getRupSet().getFaultSectionDataList());
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		
+		File dir = new File("/tmp");
+		FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ver9_8_ratios, region,
+				dir, "oi_table_m6.7_30yr_ver9_ver8_ratio", false, true,
+				"M>=6.7 30yr Prob, OI Table Ver9 / Ver8");
+//				"OI Ver9 / Ver8");
+		
+		FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ver9RCF_9_ratios, region,
+				dir, "oi_table_m6.7_30yr_ver9_RCF_ver9_ratio", false, true,
+				"M>=6.7 30yr Prob, OI Table Ver9_RCF / Ver9");
+//				"OI Ver9_RCF / Ver9");
+	}
+	
 	private static final boolean debug_zip_file_check = false;
 	private static final boolean debug_saf_nan_check = false;
 
-	private static List<Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
+	public static List<Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 	Map<LogicTreeBranch, SectProbGainResults[]>>>
 	loadBranchFaultCSVVals(File[] files, int[] magRangeIndexes) throws ZipException, IOException {
 		int[] colStarts = new int[magRangeIndexes.length];
@@ -2899,16 +3256,16 @@ public class FaultSysSolutionERF_Calc {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-//		double[] minMags = { 0d, 6.7d, 7.7d };
-//		int[] csvMagRangeIndexes = { 4, 0, 2 };
-//		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
-//		double[] durations = { 5d, 30d };
+		double[] minMags = { 0d, 6.7d, 7.7d };
+		int[] csvMagRangeIndexes = { 4, 0, 2 };
+		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
+		double[] durations = { 5d, 30d };
 		
 		// just 6.7, 30yr
-		double[] minMags = { 6.7d };
-		int[] csvMagRangeIndexes = { 0 };
-		int[] csvFaultMagRangeIndexes = { 1 };
-		double[] durations = { 30d };
+//		double[] minMags = { 6.7d };
+//		int[] csvMagRangeIndexes = { 0 };
+//		int[] csvFaultMagRangeIndexes = { 1 };
+//		double[] durations = { 30d };
 		
 		Preconditions.checkState(aveTypes.size() >= 1);
 		String[] csvZipNames = new String[aveTypes.size()];
@@ -2973,6 +3330,7 @@ public class FaultSysSolutionERF_Calc {
 				FaultSystemSolutionERF meanERF = new FaultSystemSolutionERF(meanSol);
 				meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 				meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-def_hist_open_ref));
+				meanERF.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
 				meanERF.getTimeSpan().setDuration(duration);
 				
 				// TRUE: RI, NTS
@@ -3008,8 +3366,9 @@ public class FaultSysSolutionERF_Calc {
 			
 			for (int j = 0; j < minMags.length; j++) {
 				FaultSystemSolutionERF meanERF = new FaultSystemSolutionERF(meanSol);
-				meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+				meanERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
 				meanERF.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-def_hist_open_ref));
+				meanERF.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
 				if (csvZipNames.length == 1)
 					// we have only one avg method, make sure mean erf uses that one. otherwise use default
 					meanERF.setParameter(BPTAveragingTypeParam.NAME, aveTypes.get(0));
@@ -3046,9 +3405,9 @@ public class FaultSysSolutionERF_Calc {
 				System.out.println("Copying "+label+" sub section plots");
 				
 				// copy over branch averaged appropriate files
-				Files.copy(new File(tmpResultsDir, "mean_bpt_prob.pdf"), new File(branchDir, "U3_BPT_Mean.pdf"));
-				Files.copy(new File(tmpResultsDir, "min_bpt_prob.pdf"), new File(branchDir, "U3_BPT_Min.pdf"));
-				Files.copy(new File(tmpResultsDir, "max_bpt_prob.pdf"), new File(branchDir, "U3_BPT_Max.pdf"));
+				Files.copy(new File(tmpResultsDir, "mean_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Mean.pdf"));
+				Files.copy(new File(tmpResultsDir, "min_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Min.pdf"));
+				Files.copy(new File(tmpResultsDir, "max_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Max.pdf"));
 				Files.copy(new File(tmpResultsDir, "gain_u3.pdf"), new File(branchDir, "U3_Gain.pdf"));
 				
 				// copy over branch sensitivity maps
@@ -3074,7 +3433,7 @@ public class FaultSysSolutionERF_Calc {
 				System.out.println("Copying "+label+" parent section plots");
 				File parentsDestCSV = new File(subDir, "parent_section_probabilities.csv");
 				Files.copy(new File(tmpResultsDir, "branch_aggregated_parents.csv"), parentsDestCSV);
-				Files.copy(new File(tmpResultsDir, "gain_u3_u2.pdf"), new File(branchDir, "U3_U2_BPT_Ratio.pdf"));
+				Files.copy(new File(tmpResultsDir, "gain_u3_u2.pdf"), new File(branchDir, "U3_U2_TimeDep_Ratio.pdf"));
 				labels.add(label);
 				parentSectFiles.add(parentsDestCSV);
 				
@@ -3122,7 +3481,7 @@ public class FaultSysSolutionERF_Calc {
 				}
 				FaultBasedMapGen.makeFaultPlot(wideRatioCPT, faults, ratios, region,
 						sensTestDir, "Branch_Averaged_vs_Mean_Ratio", false, true,
-						"UCERF3 BPT Branch Averaged / True Mean");
+						"UCERF3 TimeDep Branch Averaged / True Mean");
 				
 				// mean ratios for each averaging method
 				File avgMethodDir = new File(sensTestDir, "AveragingMethods");
@@ -3158,7 +3517,7 @@ public class FaultSysSolutionERF_Calc {
 						compStr = comp+""; 
 					FaultBasedMapGen.makeFaultPlot(wideRatioCPT, faults, ratios, region,
 							sensTestDir, "Hist_Open_Interval_Test_"+compStr, false, true,
-							"UCERF3 BPT Hist Open Interval "+compStr+" / "+def_hist_open_ref);
+							"UCERF3 Time Dep Hist Open Interval "+compStr+" / "+def_hist_open_ref);
 				}
 				// clear out png files
 				for (File file : sensTestDir.listFiles())
@@ -3236,7 +3595,9 @@ public class FaultSysSolutionERF_Calc {
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
 				+ "Each directory contains results for a different magnitude range and time span. For example, 'm6.7_5yr' "
 				+ "refers to 5 year results for M >= 6.7 ruptures and 'all_30yr' refers to 30 year results for all "
-				+ "supra-seismogenic ruptures.</p>");
+				+ "supra-seismogenic ruptures.<br>Each calculation includes aftershocks. UCERF2 results, "
+				+ "where presented, have been scaled to include aftershocks as: "
+				+ "newProb = 1 - exp((1/0.97)*ln(1-oldProb))</p>");
 		
 		String aveTypeStr;
 		if (defaultAve)
@@ -3293,6 +3654,89 @@ public class FaultSysSolutionERF_Calc {
 		FileWriter fw = new FileWriter(file);
 		fw.write(string+"\n");
 		fw.close();
+	}
+	
+	/**
+	 * Loads the UCERF2 main fault MPDs from the UCERF2 report table. They can be scaled to include aftershocks.
+	 * 
+	 * Names will be matched to the respective UCERF3 names, and each function array is organized as: [min max mean]
+	 * @param includeAftershocks
+	 * @param timeDep
+	 * @return
+	 * @throws IOException
+	 */
+	public static Map<String, DiscretizedFunc[]> loadUCERF2MainFaultMPDs(
+			boolean includeAftershocks, boolean timeDep) throws IOException {
+		CSVFile<String> csv;
+		if (timeDep)
+			csv = CSVFile.readStream(UCERF3_DataUtils.locateResourceAsStream(
+					"UCERF2_Section_TimeDepMFDs", "UCERF2_Main_Fault_TimeDep_Probs.csv"), false);
+		else
+			csv = CSVFile.readStream(UCERF3_DataUtils.locateResourceAsStream(
+					"UCERF2_Section_MFDs", "UCERF2_Main_Fault_TimeIndep_Probs.csv"), false);
+		
+		Set<String> u3MainFaultNames = FaultModels.parseNamedFaultsAltFile(UCERF3_DataUtils.getReader("FaultModels",
+				"MainFaultsForTimeDepComparison.txt")).keySet();
+		
+		double aftMult = 1d/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS;
+		
+		// get the x values (magnitudes) from the first column
+		double[] xVals = new double[csv.getNumRows()-2];
+		for (int row=2; row<csv.getNumRows(); row++)
+			xVals[row-2] = Double.parseDouble(csv.get(row, 0));
+		
+		Map<String, DiscretizedFunc[]> map = Maps.newHashMap();
+		
+		for (int col=1; col<csv.getLine(0).size(); col+=3) {
+			DiscretizedFunc[] funcs = new DiscretizedFunc[3]; // organized as min max mean
+			
+			String name = csv.get(0, col);
+			
+			// now map the name to the UCERF3 names
+			int longestMatch = 6; // must be at least 7 long to be a match
+			List<String> closestNames = null;
+			for (String u3Name : u3MainFaultNames) {
+				int length = StringUtils.getCommonPrefix(name, u3Name).length();
+				if (length > longestMatch) {
+					longestMatch = length;
+					closestNames = Lists.newArrayList(u3Name);
+				} else if (length == longestMatch && closestNames != null) {
+					closestNames.add(u3Name);
+				}
+			}
+			if (closestNames == null) {
+				System.out.println("No match for "+name);
+				continue;
+			}
+			System.out.println("Mapped "+name+" to "+Joiner.on(",").join(closestNames));
+			
+			ArbitrarilyDiscretizedFunc minFunc = new ArbitrarilyDiscretizedFunc();
+			minFunc.setName("UCERF2 "+name+" (min)");
+			ArbitrarilyDiscretizedFunc maxFunc = new ArbitrarilyDiscretizedFunc();
+			maxFunc.setName("UCERF2 "+name+" (max)");
+			ArbitrarilyDiscretizedFunc meanFunc = new ArbitrarilyDiscretizedFunc();
+			meanFunc.setName("UCERF2 "+name+" (mean)");
+			
+			funcs[0] = minFunc;
+			funcs[1] = maxFunc;
+			funcs[2] = meanFunc;
+			
+			for (int i=0; i<funcs.length; i++) {
+				int c = col+i;
+				for (int j=0; j<xVals.length; j++) {
+					int row = j+2;
+					double prob = Double.parseDouble(csv.get(row, c));
+					if (includeAftershocks)
+						prob = 1 - Math.exp(aftMult*Math.log(1-prob));
+					funcs[i].set(xVals[j], prob);
+				}
+			}
+			
+			for (String u3Name : closestNames)
+				map.put(u3Name, funcs);
+		}
+		
+		return map;
 	}
 	
 	private static void debugAvgMethods() throws IOException, DocumentException {
@@ -3682,8 +4126,11 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws GMT_MapException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
-		
-		testAftershockInclusionOnProbs();
+//		System.out.println(loadUCERF2MainFaultMPDs(true).size());
+//		System.exit(0);
+//		writeOpenIntTableComparisons();
+//		System.exit(0);
+//		testAftershockInclusionOnProbs();
 		
 //		try {
 //			Thread.sleep(15*60*1000);
@@ -3715,7 +4162,7 @@ public class FaultSysSolutionERF_Calc {
 //		System.exit(0);
 		
 //		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875";
-		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_01_01-ucerf3-prob-gains-open1875";
+		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_02_15-ucerf3-prob-gains-open1875";
 		File outputMainDir = new File("/home/kevin/OpenSHA/UCERF3");
 		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
 				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
@@ -3737,14 +4184,13 @@ public class FaultSysSolutionERF_Calc {
 		// default
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
-//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
-//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
+		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
-		// do all of them including avg sensitivity plots
-		// TODO set back to false
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), true,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
+//		// do all of them including avg sensitivity plots
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
 		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");
@@ -3835,15 +4281,17 @@ public class FaultSysSolutionERF_Calc {
 				covSaveDir.mkdir();
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
-//			// this will write the parent section CSV file
-//			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
-//			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
-//			
-//			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
-//			if (!fltGainDir.exists())
-//				fltGainDir.mkdir();
-//			
-//			makeFaultProbGainMaps(erf, fltGainDir, dirName);
+			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
+			erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+			// this will write the parent section CSV file
+			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
+			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
+			
+			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
+			if (!fltGainDir.exists())
+				fltGainDir.mkdir();
+			
+			makeFaultProbGainMaps(erf, fltGainDir, dirName);
 
 			// this will generate prob gain maps for BPT parameters
 			File bptGainDir = new File(covSaveDir, "bpt_calc_prob_gains");

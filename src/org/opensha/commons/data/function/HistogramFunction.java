@@ -125,6 +125,10 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		// flip it so that last is on top
 		Collections.reverse(hists);
 		
+		double overallTot = 0d;
+		for (HistogramFunction hist : hists)
+			overallTot += hist.calcSumOfY_Vals();
+		
 		List<HistogramFunction> stacked = Lists.newArrayList();
 		
 		// make sure they're all the same x values
@@ -146,7 +150,18 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		double[] binTots = new double[numX];
 		for (HistogramFunction hist : hists) {
 			HistogramFunction stackHist = new HistogramFunction(hist.getMinX(), hist.getNum(), hist.getDelta());
-			stackHist.setName(hist.getName()+" (STACKED)");
+			stackHist.setName(hist.getName());
+			String info = hist.getInfo();
+			if (info == null || info.isEmpty())
+				info = "";
+			else
+				info += "\n";
+			info += "(stacked histogram, y value data relative to histogram below, not zero)";
+			if (normalize)
+				info += "\nSum of unstacked y values: "+(float)(hist.calcSumOfY_Vals()/overallTot);
+			else
+				info += "\nSum of unstacked y values: "+(float)hist.calcSumOfY_Vals();
+			stackHist.setInfo(info);
 			
 			for (int i=0; i<hist.getNum(); i++) {
 				double y = hist.getY(i);
@@ -158,7 +173,6 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		}
 		
 		if (normalize) {
-			double overallTot = StatUtils.sum(binTots);
 			double ratio = 1d/overallTot;
 			for (HistogramFunction hist : stacked)
 				for (int i=0; i<hist.getNum(); i++)

@@ -19,6 +19,7 @@ import org.apache.commons.cli.Options;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
@@ -72,6 +73,8 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		for (int i=0; i<numThreads; i++) {
 			erfs[i] = new FaultSystemSolutionERF();
 			FaultSystemSolutionERF erf = erfs[i];
+			
+			erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
 			
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 			
@@ -254,7 +257,7 @@ public class MPJ_ERF_ProbGainCalc extends MPJTaskCalculator {
 		return bptTable;
 	}
 	
-	private static double calcFaultProb(FaultSystemSolutionERF erf, FaultSystemRupSet rupSet,
+	public static double calcFaultProb(FaultSystemSolutionERF erf, FaultSystemRupSet rupSet,
 			Collection<Integer> rups, double minMag) {
 		List<Double> probs = Lists.newArrayList();
 		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {

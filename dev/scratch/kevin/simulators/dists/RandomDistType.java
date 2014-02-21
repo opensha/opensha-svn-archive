@@ -1,9 +1,11 @@
 package scratch.kevin.simulators.dists;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.kevin.simulators.PeriodicityPlotter;
@@ -184,6 +186,76 @@ public enum RandomDistType {
 			@Override
 			public CatalogBuilder getBuilder() {
 				return new ProbabalisticCatalogBuilder();
+			}
+		},
+		PROBABILISTIC_SHUFFLE("Prob. Shuffle", "rand_prob_shuffle") {
+			@Override
+			public RandomReturnPeriodProvider instance(
+					RuptureIdentifier rupIden, double[] rps,
+					List<EQSIM_Event> events) {
+				final double rate = (rps.length+1d)/(events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears());
+				return new ProbabilisticReturnPeriodProvider() {
+					
+					@Override
+					public double getReturnPeriod() {
+						return Double.NaN;
+					}
+					
+					@Override
+					public double getPreferredWindowLength() {
+						return 1d;
+					}
+					
+					@Override
+					public PossibleRupture getPossibleRupture(List<EQSIM_Event> prevEvents,
+							double windowStart, double windowEnd) {
+						double duration = windowEnd - windowStart;
+						double prob = 1-Math.exp(-rate*duration);
+						return new PossibleRupture(prob, windowStart+0.5*duration);
+					}
+				};
+			}
+
+			@Override
+			public CatalogBuilder getBuilder() {
+				return new ProbabalisticCatalogBuilder();
+			}
+		},
+		TRUE_SHUFFLE("True Shuffle", "rand_true_shuffle") {
+			@Override
+			public RandomReturnPeriodProvider instance(
+					RuptureIdentifier rupIden, double[] rps,
+					List<EQSIM_Event> events) {
+				return null;
+			}
+
+			@Override
+			public CatalogBuilder getBuilder() {
+				return new CatalogBuilder() {
+					
+					@Override
+					public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
+							List<RandomReturnPeriodProvider> randomRPsList,
+							List<List<EQSIM_Event>> eventListsToResample) {
+						
+						double startTime = events.get(0).getTime();
+						double endTime = events.get(events.size()-1).getTime();
+						
+						double duration = endTime - startTime;
+						
+						List<EQSIM_Event> randEvents = Lists.newArrayList();
+						for (EQSIM_Event event : events) {
+							double newTime = Math.random()*duration + startTime;
+							randEvents.add(EventsInWindowsMatcher.cloneNewTime(event, newTime, event.getID()));
+						}
+						Collections.sort(randEvents);
+						int eventID = 0;
+						for (EQSIM_Event e : randEvents)
+							e.setID(eventID++);
+						
+						return randEvents;
+					}
+				};
 			}
 		};
 		

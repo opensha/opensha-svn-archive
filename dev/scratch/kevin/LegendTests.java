@@ -24,7 +24,7 @@ public class LegendTests {
 	
 	public static void main(String[] args) throws IOException {
 		List<PlotSpec> specs = Lists.newArrayList();
-		int numSpecs = 2;
+		int numSpecs = 1;
 		boolean hist = true;
 		
 		for (int s=0; s<numSpecs; s++) {

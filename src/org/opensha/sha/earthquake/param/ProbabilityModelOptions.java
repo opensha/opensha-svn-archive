@@ -9,6 +9,7 @@ package org.opensha.sha.earthquake.param;
 public enum ProbabilityModelOptions {
 	POISSON("Poisson"),
 	U3_BPT("UCERF3 BPT"),
+	U3_PREF_BLEND("UCERF3 Preferred Blend"),
 	WG02_BPT("WG02 BPT");
 	
 	private String label;

@@ -42,9 +42,10 @@ public class LastEventData {
 	// sub directory of UCERF3/data
 	private static final String SUB_DIR = "paleoRateData";
 	// file name
-	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver8.xls";
+	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver10.xls";
 	// sheet in the workbook, zero based
-	private static final int[] SHEET_NUMS = {0,1}; //"Well resolved historical" and "Paleo-well resolved"
+	//"Well resolved historical","Paleo-well resolved", and "Unique to FM3.2"
+	private static final int[] SHEET_NUMS = {0,1,2};
 	
 	private static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(2013, 0, 0);
 	private static final double MATCH_LOCATION_TOLERANCE = 1d;
@@ -140,7 +141,12 @@ public class LastEventData {
 	 */
 	public static void populateSubSects(List<FaultSectionPrefData> sects,
 			Map<Integer, List<LastEventData>> datas) {
+		// clear any old last event data
+		for (FaultSectionPrefData sect : sects)
+			sect.setDateOfLastEvent(Long.MIN_VALUE);
+		
 		int populated = 0;
+		int duplicates = 0;
 		// start/end location tolerance (km)
 		HashSet<LastEventData> usedDatas = new HashSet<LastEventData>();
 		for (FaultSectionPrefData sect : sects) {
@@ -152,7 +158,10 @@ public class LastEventData {
 			// now find closest
 			for (LastEventData data : parentDatas) {
 				if (data.matchesLocation(sect, MATCH_LOCATION_TOLERANCE)) {
-					Preconditions.checkState(!usedDatas.contains(data), "Duplicate on: "+data.getSectName());
+					// no duplicate check
+					if (usedDatas.contains(data))
+						duplicates++;
+//					Preconditions.checkState(!usedDatas.contains(data), "Duplicate on: "+data.getSectName());
 					sect.setDateOfLastEvent(data.getDateOfLastEvent().getTimeInMillis());
 					sect.setSlipInLastEvent(data.getLastOffset());
 					populated++;
@@ -169,7 +178,8 @@ public class LastEventData {
 				if (!usedDatas.contains(data))
 					unusedData.add(data.getSectName());
 		}
-		System.out.println("Populated "+populated+"/"+sects.size()+" sects from "+numDatas+" last event data");
+		System.out.println("Populated "+populated+"/"+sects.size()+" sects from "+numDatas
+				+" last event data ("+duplicates+" duplicates)");
 		System.out.println("Unused: "+Joiner.on(",").join(unusedData));
 	}
 	
@@ -341,13 +351,19 @@ public class LastEventData {
 		File solDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File(solDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-		
 		File csvFile = new File("/tmp/open_interval_ratios.csv");
 		writeOpenRecurrRatioTable(csvFile, sol);
 		
-		csvFile = new File("/tmp/open_interval_ratios_unused.csv");
-		int[] sheets_unused = {2,3};
-		writeOpenRecurrRatioTable(csvFile, sol, sheets_unused);
+//		csvFile = new File("/tmp/open_interval_ratios_unused.csv");
+//		int[] sheets_unused = {2,3};
+//		writeOpenRecurrRatioTable(csvFile, sol, sheets_unused);
+		
+		// now try normal methods with each FM
+		Map<Integer, List<LastEventData>> datas = load();
+		populateSubSects(sol.getRupSet().getFaultSectionDataList(), datas);
+		populateSubSects(FaultSystemIO.loadSol(new File(solDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"))
+				.getRupSet().getFaultSectionDataList(), datas);
 	}
 
 }

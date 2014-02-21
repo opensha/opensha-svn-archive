@@ -41,12 +41,15 @@ import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.SlipRatePlots;
 import scratch.UCERF3.analysis.CompoundFSSPlots.TimeDepGriddedParticipationProbPlot;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.UCERF3p2BranchWeightProvider;
 import scratch.UCERF3.logicTree.UniformBranchWeightProvider;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
@@ -381,6 +384,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		randomSampleOption.setRequired(false);
 		options.addOption(randomSampleOption);
 		
+		Option meanSampleOption = new Option("mean", "mean-sol", true,
+				"If supplied along with --random-sample, the given solution will be loaded and used for each sample");
+		meanSampleOption.setRequired(false);
+		options.addOption(meanSampleOption);
+		
 		Option nameGrepsOption = new Option("ng", "name-grep", true,
 				"If supplied, logic tree branches will be only be included out based on grepping for these comma separated " +
 				"strings.");
@@ -432,7 +440,27 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			FaultSystemSolutionFetcher fetcher = CompoundFaultSystemSolution.fromZipFile(inputFile);
 			if (cmd.hasOption("rand")) {
 				int num = Integer.parseInt(cmd.getOptionValue("rand"));
-				fetcher = FaultSystemSolutionFetcher.getRandomSample(fetcher, num);
+				if (cmd.hasOption("mean")) {
+					final InversionFaultSystemSolution meanSol =
+							FaultSystemIO.loadInvSol(new File(cmd.getOptionValue("mean")));
+					fetcher = FaultSystemSolutionFetcher.getRandomSample(fetcher, num,
+							meanSol.getLogicTreeBranch().getValue(FaultModels.class));
+					final Collection<LogicTreeBranch> branches = fetcher.getBranches();
+					fetcher = new FaultSystemSolutionFetcher() {
+						
+						@Override
+						public Collection<LogicTreeBranch> getBranches() {
+							return branches;
+						}
+						
+						@Override
+						protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+							return meanSol;
+						}
+					};
+				} else {
+					fetcher = FaultSystemSolutionFetcher.getRandomSample(fetcher, num);
+				}
 			}
 			
 			BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
