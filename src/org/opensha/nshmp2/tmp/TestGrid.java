@@ -33,6 +33,8 @@ public enum TestGrid {
 		new double[] {-125.4, -113.1}),
 	CA_RELM(
 		new CaliforniaRegions.RELM_TESTING_GRIDDED()),
+	CA_NSHMP(
+		getCA_NSHMP()),
 	LOS_ANGELES(
 		new double[] {35.15,34.23,32.94,33.86},
 		new double[] {-119.07,-116.70,-117.42,-119.80}),
@@ -122,7 +124,7 @@ public enum TestGrid {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(TestGrid.NATIONAL_POLY.grid(0.1).getNodeCount());
+		System.out.println(TestGrid.CA_NSHMP.grid(0.05).getNodeCount());
 //		System.out.println();
 //		RegionUtils.locListToKML(getNationalPoly(), "NationalPoly", Color.ORANGE);
 		
@@ -186,6 +188,29 @@ public enum TestGrid {
 		locs.add(new Location(28.6, -101.3));
 		locs.add(new Location(26.2, -99.5));
 		locs.add(new Location(25.6, -98.2));
+		return locs;
+	}
+	
+	private static GriddedRegion getCA_NSHMP() {
+		return new GriddedRegion(getCA_NSHMP_Poly(), BorderType.MERCATOR_LINEAR,
+			0.1, GriddedRegion.ANCHOR_0_0);
+	}
+
+	private static LocationList getCA_NSHMP_Poly() {
+		LocationList locs = new LocationList();
+		locs.add(new Location(45.0,-125.2));
+		locs.add(new Location(45.0,-116.5));
+		locs.add(new Location(40.5,-116.5));
+		locs.add(new Location(36.5,-111.5));
+		locs.add(new Location(31.5,-111.5));
+		locs.add(new Location(31.5,-117.1));
+		locs.add(new Location(31.9,-117.9));
+		locs.add(new Location(32.8,-118.4));
+		locs.add(new Location(33.7,-121.0));
+		locs.add(new Location(34.2,-121.6));
+		locs.add(new Location(37.7,-123.8));
+		locs.add(new Location(40.2,-125.4));
+		locs.add(new Location(40.5,-125.4));	
 		return locs;
 	}
 

@@ -67,14 +67,14 @@ public class TestCalcWUSflt {
 	private static ScalarIMR imr;
 	private static Period per = Period.GM1P00;
 	private static double distance = 200;
-	private static NEHRP_TestCity city = NEHRP_TestCity.SALT_LAKE_CITY;
+	private static NEHRP_TestCity city = NEHRP_TestCity.LOS_ANGELES;
 	
 	public static void main(String[] args) {
 		
 		System.out.println("init erf");
 
-//		erf = Sources.getFault("bFault.ch.in");
-		erf = Sources.getFault("wasatch.3dip.ch.in");
+		erf = Sources.getFault("bFault.ch.in");
+//		erf = Sources.getFault("wasatch.3dip.ch.in");
 		erf.updateForecast();
 		
 //		erf = new MeanUCERF2();
