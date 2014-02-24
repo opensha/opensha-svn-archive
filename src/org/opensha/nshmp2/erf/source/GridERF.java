@@ -244,7 +244,7 @@ public class GridERF extends NSHMP_ERF {
 		return (faultCode == FIXED)
 				? new FixedStrikeSource(locs.get(idx), mfds.get(idx), MLR,
 					timeSpan.getDuration(), depths, mechWtMap, strike)
-				: new PointSource(locs.get(idx), mfds.get(idx),
+				: new PointSource13b(locs.get(idx), mfds.get(idx),
 					timeSpan.getDuration(), depths, mechWtMap);
 		// @formatter:on
 	}

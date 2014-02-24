@@ -7,7 +7,9 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.impl.EnumParameter;
+import org.opensha.nshmp2.erf.source.ClusterERF;
 import org.opensha.nshmp2.erf.source.FaultERF;
 import org.opensha.nshmp2.erf.source.GridERF;
 import org.opensha.nshmp2.erf.source.NSHMP_ERF;
@@ -114,6 +116,24 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		return erf;
 	}
 	
+	/**
+	 * Same as createCalifornia (above) but includes Cascadia and CA 'deep'
+	 * sources. 
+	 * @return
+	 */
+	public static NSHMP2008 createCaliforniaNW() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		erf.addERFs(Sources.getGridList(CA));
+		erf.addERFs(Sources.getFaultList(CA));
+		erf.addERFs(Sources.getSubductionList(CASC));
+		// add additional WUS gridded sources
+		erf.addERF(Sources.get("EXTmap.ch.in"));
+		erf.addERF(Sources.get("EXTmap.gr.in"));
+		erf.addERF(Sources.get("WUSmap.ch.in"));
+		erf.addERF(Sources.get("WUSmap.gr.in"));
+		return erf;
+	}
+
 	/**
 	 * Creates a forecast that is limited to those CA, WUS, and CASC sources
 	 * that will contribute to event rates is the bins of the CA RELM testing
@@ -222,6 +242,24 @@ public class NSHMP2008 extends NSHMP_ListERF {
 		erf.addERF(Sources.get("WUSmap.gr.in"));
 		return erf;
 	}
+	
+	public static NSHMP2008 createCUES_Memphis() {
+		NSHMP2008 erf = new NSHMP2008(null);
+		
+		erf.addERF(Sources.get("CEUS.2007all8.AB.in"));
+		erf.addERF(Sources.get("CEUS.2007all8.J.in"));
+
+		erf.addERF(Sources.get("newmad.500.cluster.in"));
+		erf.addERF(Sources.get("newmad.750.cluster.in"));
+		erf.addERF(Sources.get("newmad.1000.cluster.in"));
+		erf.addERF(Sources.get("newmad.1500.cluster.in"));
+
+		erf.addERF(Sources.get("NMSZnocl.500yr.5branch.in"));
+		erf.addERF(Sources.get("NMSZnocl.1000yr.5branch.in"));
+		
+		
+		return erf;
+	}
 
 //	erf.addERF(Sources.get("CAmap.24.ch.in"));
 //	erf.addERF(Sources.get("CAmap.21.ch.in"));
@@ -327,23 +365,18 @@ public class NSHMP2008 extends NSHMP_ListERF {
 	}
 	
 	public static void main(String[] args) {
-		EpistemicListERF erf = createCalifornia();
-		System.out.println(erf.toString());
-//
-//		WUS_ERF wus = new WUS_ERF();
-//		wus.updateForecast();
-//		System.out.println(wus);
+		NSHMP2008 erf = createCUES_Memphis();
+		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+		ts.setDuration(1);
+		erf.setTimeSpan(ts);
 		
-		
+		erf.updateForecast();
 
-//		while (true) {
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//					e.printStackTrace();
-//			}
-//				
-//		}
+		System.out.println(erf.getSourceCount());
+		System.out.println(erf.getRuptureCount());
+		
+		
+		
 	}
 
 }

@@ -53,7 +53,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @version $Id:$
  */
 
-public class FixedStrikeSource extends PointSource {
+public class FixedStrikeSource extends PointSource13 {
 
 	private static final String NAME = "NSHMP Fixed Strike Source";
 	private static final String RUP_NAME = "NSHMP Fixed Strike Fault";
@@ -99,7 +99,7 @@ public class FixedStrikeSource extends PointSource {
 
 	@Override
 	protected void updateRupture(double mag, double dip, double rake,
-			double depth) {
+			double depth, double width, boolean footwall) {
 		if (mag >= M_FINITE_CUT) {
 			// finite rupture
 			double halfLen = mlr.getMedianLength(mag) / 2;
@@ -122,7 +122,7 @@ public class FixedStrikeSource extends PointSource {
 			probEqkRupture.setRuptureSurface(surface);
 		} else {
 			// point rupture
-			super.updateRupture(mag, dip, rake, depth);
+			super.updateRupture(mag, dip, rake, depth, width, footwall);
 		}
 	}
 

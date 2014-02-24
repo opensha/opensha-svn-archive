@@ -471,11 +471,11 @@ public class GridParser {
 
 		List<SourceFile> sources = Lists.newArrayList();
 //		sources.addAll(SourceFileMgr.get(null, GRIDDED));
-		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
+//		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "mojave.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "sangorg.in"));
-//		sources.addAll(SourceFileMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "EXTmap.ch.in"));
+		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));
+//		sources.addAll(SourceMgr.get(WUS, GRIDDED, "EXTmap.ch.in"));
 //		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "pnwdeep.in"));
 
 		for (SourceFile sf : sources) {
@@ -490,8 +490,8 @@ public class GridParser {
 //			System.out.println(gs.getRegion().getNodeCount());
 //			System.out.println(gs.getRegion().indexForLocation(loc));
 //			System.out.println(gs.getMFD(loc));
-			System.out.println(erf.getMFD(new Location(35.6, -90.4)));
-			System.out.println(erf.getMFD(new Location(35.2, -90.1)));
+//			System.out.println(erf.getMFD(new Location(35.6, -90.4)));
+//			System.out.println(erf.getMFD(new Location(35.2, -90.1)));
 		}
 		
 	}
