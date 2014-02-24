@@ -22,9 +22,11 @@ import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.calc.HazardResultWriterSites;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.SourceIMR;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.base.Enums;
@@ -47,6 +49,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 	private String solPath;
 	private Map<String, Location> locMap;
 	private LocationList locs;
+	private SourceIMR imrRef;
 	private List<String> branches;
 	private List<Period> periods;
 	private IncludeBackgroundOption bg;
@@ -65,9 +68,9 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 		super(cmd);
 		shuffle = false;
 		
-		if (args.length < 6) {
+		if (args.length < 7) {
 			System.err.println("USAGE: UC3_CalcMPJ_CurveCompound [<options>] "
-				+ "<solfile> <sitefile> <branchfile> <periods> <bgOption> <outDir>");
+				+ "<solfile> <sitefile> <branchfile> <imr> <periods> <bgOption> <outDir>");
 			abortAndExit(2);
 		}
 
@@ -83,9 +86,10 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 			locs.add(loc);
 		}
 		branches = UC3_CalcUtils.readBranchFile(args[2]);
-		periods = readArgAsList(args[3], Period.class);
-		bg = IncludeBackgroundOption.valueOf(args[4]);
-		outDir = args[5];
+		imrRef = SourceIMR.valueOf(args[3]);
+		periods = readArgAsList(args[4], Period.class);
+		bg = IncludeBackgroundOption.valueOf(args[5]);
+		outDir = args[6];
 
 		// init executor
 		int numProc = Runtime.getRuntime().availableProcessors();
@@ -105,7 +109,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 		for (int brIdx : indices) {
 
 			// init erf for branch
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
 				branches.get(brIdx), bg, false,
 				true, 1.0);
 			erf.updateForecast();
@@ -120,8 +124,8 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 				writer.writeHeader(period);
 				for (Location loc : locs) {
 					Site site = new Site(loc);
-					HazardCalc hc = HazardCalc.create(wrappedERF, site, period,
-						epiUncert);
+					HazardCalc hc = HazardCalc.create(wrappedERF, imrRef, site,
+						 period, epiUncert, true);
 					ecs.submit(hc);
 				}
 			}

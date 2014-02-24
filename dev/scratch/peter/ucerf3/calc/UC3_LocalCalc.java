@@ -29,6 +29,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -59,7 +60,7 @@ public class UC3_LocalCalc {
 		Map<String, Location> siteMap, Period[] periods, boolean epi)
 			throws IOException, InterruptedException, ExecutionException {
 
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(
 			solSetPath, solIdx, IncludeBackgroundOption.EXCLUDE,false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);

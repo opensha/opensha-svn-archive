@@ -4,6 +4,7 @@ import static org.opensha.nshmp2.util.Period.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.Site;
@@ -13,16 +14,20 @@ import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EpistemicListERF;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Add comments here
@@ -37,7 +42,7 @@ public class TestCalc {
 
 	TestCalc(String solSetPath, List<Location> locs,
 		Period period, boolean epi) {
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
 			IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
@@ -67,17 +72,59 @@ public class TestCalc {
 			);
 
 		try {
-//			String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
-//			String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipWt0.1_VarSlipWtUnNorm10.0_VarPaleo1.2_VarMFDWt10.0_VarSectNuclMFDWt0.01_VarSmoothPaleoSect1000";
 			
-			String path = "tmp/UC33/src/bravg/FM-DM-MS/UC33brAvg_FM31_ABM_ELLB.zip";
-//			String branch="FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2";
-			
-			// init erf for branch
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(path,
+			String path = "tmp/UC33/src/mean/mean_ucerf3_sol.zip";
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getNSHMP_UC3_ERF(path,
 				IncludeBackgroundOption.INCLUDE, false,
 				true, 1.0);
 			erf.updateForecast();
+			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
+			Site site = new Site(NEHRP_TestCity.LOS_ANGELES.location());
+			HazardCalc hc = HazardCalc.create(wrappedERF, site, period, epi);
+			HazardResult result = hc.call();
+			System.out.println(result.curve());
+
+////			String path = "tmp/UC33/src/vars/2013_05_09-ucerf3p3-branch-wt-test_COMPOUND_SOL.zip";
+////			String branch = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3_VarSlipWt0.1_VarSlipWtUnNorm10.0_VarPaleo1.2_VarMFDWt10.0_VarSectNuclMFDWt0.01_VarSmoothPaleoSect1000";
+//			
+//			String path = "tmp/UC33/src/bravg/FM-DM-MS/UC33brAvg_FM31_ABM_ELLB.zip";
+////			String branch="FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2";
+//			
+//			// init erf for branch
+//			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(path,
+//				IncludeBackgroundOption.EXCLUDE, false,
+//				true, 1.0);
+//			erf.updateForecast();
+//			
+//			List<FaultSectionPrefData> sectData = erf.getSolution().getRupSet().getFaultSectionDataList();
+//			Map<String, Integer> parentSectMap = Maps.newTreeMap();
+//			for (FaultSectionPrefData fspd : sectData) {
+//				String name = fspd.getParentSectionName();
+//				if (parentSectMap.containsKey(name)) continue;
+//				parentSectMap.put(name, fspd.getParentSectionId());
+//			}
+//			for (String key : parentSectMap.keySet()) {
+//				System.out.println(parentSectMap.get(key) + " " + key);
+//			}
+//			
+//			FaultSystemSolution fss = erf.getSolution();
+//			FaultSystemRupSet rupSet = fss.getRupSet();
+//			double[] rates = fss.getRateForAllRups();
+//			
+//			List<Integer> IDs = Lists.newArrayList(719, 720); //, 721);
+//			for (int id : IDs) {
+//				System.out.println("======= " + id + " =======");
+//				List<Integer> rupIDs = rupSet.getRupturesForParentSection(id);
+//				for (int rupID : rupIDs) {
+//					List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(rupID);
+//					rates[rupID] = 0.0;
+//					String name = data.size()+" SECTIONS BETWEEN "+data.get(0).getName()+" AND "+data.get(data.size()-1).getName();
+//					
+//					System.out.println(rupID + " " + erf.getSolution().getRateForRup(rupID) + " " + name);
+//				}
+//			}
+//			List<FaultSectionPrefData> sectData = erf.getSolution().getRupSet().
+
 			
 //			new TestCalc(solSetPath, locs, period, epi);
 //			mendoTest(solSetPath);

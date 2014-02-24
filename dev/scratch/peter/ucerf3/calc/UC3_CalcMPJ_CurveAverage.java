@@ -26,6 +26,7 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.base.Enums;
@@ -103,7 +104,7 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 		for (int idx : indices) {
 
 			// init erf for branch
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
 				idx, bg, false,
 				true, 1.0);
 			erf.updateForecast();

@@ -59,6 +59,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -212,7 +213,7 @@ public class UC3_DeaggWrapper {
 		String outPath = OUT_DIR + S;
 		String sitePath = "tmp/curves/sites/palo-verde.txt";
 		Map<String,Location> siteMap = UC3_CalcUtils.readSiteFile(sitePath);
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(
 			solSetPath, IncludeBackgroundOption.EXCLUDE,
 			false, true, 1.0);
 		erf.updateForecast();

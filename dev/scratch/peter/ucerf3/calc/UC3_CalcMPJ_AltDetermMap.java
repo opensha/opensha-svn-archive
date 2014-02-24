@@ -1,45 +1,38 @@
 package scratch.peter.ucerf3.calc;
 
-import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.Collection;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
-import org.opensha.nshmp.util.RegionUtil;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardResultWriter;
-import org.opensha.nshmp2.calc.HazardResultWriterLocal;
-import org.opensha.nshmp2.calc.HazardResultWriterMPJ;
 import org.opensha.nshmp2.calc.ThreadedHazardCalc;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.SourceIMR;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.EpistemicListERF;
 
-import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.peter.nshmp.HazardResultWriterMPJ_NSHMP;
+import scratch.peter.nshmp.HazardResultWriterMPJ_NSHMP_Det;
+import scratch.peter.ucerf3.NSHMP13_DeterminisiticERF;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Flushables;
-import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
 
-public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
+public class UC3_CalcMPJ_AltDetermMap extends MPJTaskCalculator {
 	
 	private static final String S = File.separator;
 	private ThreadedHazardCalc calc;
@@ -49,21 +42,15 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 	// node during doFinalAssembly(); ignored on other nodes
 	private File outDir;
 	private Period period;
-	private IncludeBackgroundOption bg;
-	private boolean nshmp;
-	private boolean epi;
 	
-	// FOR USE WITH SINGLE SOLUTIONS: DOES NOT EXPECT A BRANCH IDENTIFIER BUT
-	// TAKES A NAME INSTEAD THAT IS USED FOR OUTPUT
-	
-	public UC3_CalcMPJ_Map(CommandLine cmd, String[] args)
+	public UC3_CalcMPJ_AltDetermMap(CommandLine cmd, String[] args)
 			throws IOException, InvocationTargetException, FileNotFoundException {
 		
 		super(cmd);
-		if (args.length != 9) {
-			System.err.println("USAGE: UC3_CalcMPJ_Map [<options>] " +
-					"<solPath> <imr> <grid> <spacing> <period> <bgInclude> " +
-					"<outPath> <nshmp> <epi>");
+		if (args.length != 6) {
+			System.err.println("ARGS: " + Arrays.toString(args));
+			System.err.println("USAGE: UC3_CalcMPJ_AltDetermMap [<options>] " +
+					"<imr> <grid> <spacing> <period> <outPath> <alea>");
 			abortAndExit(2);
 		}
 
@@ -71,25 +58,23 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 				"threads must be >= 1. you supplied: "+getNumThreads());
 		debug(rank, null, "setup for "+getNumThreads()+" threads");
 		
-		String solPath = args[0];
-		String solName = nameFromPath(args[0]);
-		SourceIMR imr = SourceIMR.valueOf(args[1]);
-		TestGrid grid = TestGrid.valueOf(args[2]);
-		double spacing = Double.parseDouble(args[3]);
+		SourceIMR imr = SourceIMR.valueOf(args[0]);
+		TestGrid grid = TestGrid.valueOf(args[1]);
+		double spacing = Double.parseDouble(args[2]);
 		locs = grid.grid(spacing).getNodeList();
-		period = Period.valueOf(args[4]);
-		bg = IncludeBackgroundOption.valueOf(args[5]);
-		String outPath = args[6];
-		nshmp = Boolean.parseBoolean(args[7]);
-		epi = Boolean.parseBoolean(args[8]);
+		period = Period.valueOf(args[3]);
+		String outPath = args[4];
+		boolean alea = Boolean.parseBoolean(args[5]);
 
-		outDir = new File(outPath + S + solName + S + grid + S + period);
+		outDir = new File(outPath + S + grid + S + period);
 		
-		// use nshmp if fualts only and nshmp; outputs deterministic
-		HazardResultWriter writer = nshmp && bg == IncludeBackgroundOption.EXCLUDE ? 
-			new HazardResultWriterMPJ_NSHMP(outDir) :
-			new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(solPath, imr, locs, period, epi, bg, writer, nshmp);
+		// only output deterministic
+		HazardResultWriter writer = new HazardResultWriterMPJ_NSHMP_Det(outDir);
+		AbstractERF erf = NSHMP13_DeterminisiticERF.create(alea);
+		EpistemicListERF wrapped = ERF_ID.wrapInList(erf);
+		wrapped.updateForecast();
+		
+		calc = new ThreadedHazardCalc(wrapped, imr, locs, period, false, writer, true);
 	}
 	
 	@Override
@@ -106,8 +91,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
-		if (rank == 0) aggregateResults(outDir, period,
-			nshmp && bg == IncludeBackgroundOption.EXCLUDE);
+		if (rank == 0) aggregateResults(outDir, period, true);
 	}
 	
 	
@@ -131,9 +115,9 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 		
 		try {
 			Options options = createOptions();
-			CommandLine cmd = parse(options, args, UC3_CalcMPJ_Map.class);
+			CommandLine cmd = parse(options, args, UC3_CalcMPJ_AltDetermMap.class);
 			args = cmd.getArgs();
-			UC3_CalcMPJ_Map driver = new UC3_CalcMPJ_Map(cmd, args);
+			UC3_CalcMPJ_AltDetermMap driver = new UC3_CalcMPJ_AltDetermMap(cmd, args);
 			driver.run();
 			finalizeMPJ();
 			System.exit(0);
@@ -150,28 +134,28 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 	 * @param period for which curves were calculated
 	 */
 	public static void aggregateResults(File dir, Period period, boolean determ) {
-		if (determ) {
+//		if (determ) {
 			try {
-				File[] pFiles = dir.listFiles(new FileFilter() {
-					@Override public boolean accept(File f) {
-						return f.getName().endsWith("prob.txt");
-					}
-				});
-				File curves = new File(dir, "curves.csv");
-				BufferedWriter brP = Files.newWriter(curves, Charsets.US_ASCII);
-				HazardResultWriterLocal.writeCurveHeader(brP, period);
-				for (File file : pFiles) {
-					StringBuilder sb = new StringBuilder();
-					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
-						file.getName(), "_"), '_', ',');
-					sb.append(latlon).append(",");
-					Files.copy(file, Charsets.US_ASCII, sb);
-					brP.write(sb.toString());
-					brP.newLine();
-					file.delete();
-				}
-				Flushables.flushQuietly(brP);
-				Closeables.closeQuietly(brP);
+//				File[] pFiles = dir.listFiles(new FileFilter() {
+//					@Override public boolean accept(File f) {
+//						return f.getName().endsWith("prob.txt");
+//					}
+//				});
+//				File curves = new File(dir, "curves.csv");
+//				BufferedWriter brP = Files.newWriter(curves, Charsets.US_ASCII);
+//				HazardResultWriterLocal.writeCurveHeader(brP, period);
+//				for (File file : pFiles) {
+//					StringBuilder sb = new StringBuilder();
+//					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
+//						file.getName(), "_"), '_', ',');
+//					sb.append(latlon).append(",");
+//					Files.copy(file, Charsets.US_ASCII, sb);
+//					brP.write(sb.toString());
+//					brP.newLine();
+//					file.delete();
+//				}
+//				Flushables.flushQuietly(brP);
+//				Closeables.closeQuietly(brP);
 
 				File[] dFiles = dir.listFiles(new FileFilter() {
 					@Override public boolean accept(File f) {
@@ -197,29 +181,29 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 				e.printStackTrace();
 			}
 			
-		} else {
-			String[] exts = {"txt"};
-			try {
-				Collection<File> files = FileUtils.listFiles(dir, exts, false);
-				File curves = new File(dir, "curves.csv");
-				BufferedWriter br = Files.newWriter(curves, Charsets.US_ASCII);
-				HazardResultWriterLocal.writeCurveHeader(br, period);
-				for (File file : files) {
-					StringBuilder sb = new StringBuilder();
-					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
-						file.getName(), "."), '_', ',');
-					sb.append(latlon).append(",");
-					Files.copy(file, Charsets.US_ASCII, sb);
-					br.write(sb.toString());
-					br.newLine();
-					file.delete();
-				}
-				Flushables.flushQuietly(br);
-				Closeables.closeQuietly(br);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+//		} else {
+//			String[] exts = {"txt"};
+//			try {
+//				Collection<File> files = FileUtils.listFiles(dir, exts, false);
+//				File curves = new File(dir, "curves.csv");
+//				BufferedWriter br = Files.newWriter(curves, Charsets.US_ASCII);
+//				HazardResultWriterLocal.writeCurveHeader(br, period);
+//				for (File file : files) {
+//					StringBuilder sb = new StringBuilder();
+//					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
+//						file.getName(), "."), '_', ',');
+//					sb.append(latlon).append(",");
+//					Files.copy(file, Charsets.US_ASCII, sb);
+//					br.write(sb.toString());
+//					br.newLine();
+//					file.delete();
+//				}
+//				Flushables.flushQuietly(br);
+//				Closeables.closeQuietly(br);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 	
 	private static String nameFromPath(String solPath) {

@@ -13,7 +13,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.ArrayUtil;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.Interpolate;
+import org.opensha.nshmp2.tmp.TestGrid;
+import org.opensha.nshmp2.util.Period;
 
 import scratch.peter.curves.ProbOfExceed;
 
@@ -39,7 +43,29 @@ public class Utils {
 //		String fileName = "DisaggregationPlot.png";
 //		consolidateFiles(fileName, dirName);
 		
-		interpolateTest();
+//		interpolateTest();
+//		findMissing();
+//		combineCurves();
+		GriddedRegion gr = TestGrid.CA_NSHMP.grid(0.05);
+		System.out.println(gr.getNodeCount());
+	}
+	
+	// finds missing locations in big NSHMP13B runs
+	private static void findMissing() {
+		String path = "tmp/UC33/maps/src/NSHMP13B-epi/mean_ucerf3_sol/CA_NSHMP/GM3P00/curves";
+		GriddedRegion grid = TestGrid.CA_NSHMP.grid(0.1);
+		String format = "%.3f";
+		for (Location loc : grid) {
+			String fName = String.format(format, loc.getLatitude()) + "_" +
+					String.format(format, loc.getLongitude()) + ".txt";
+			File f = new File(path, fName);
+			if (!f.exists()) System.out.println(loc);
+		}
+	}
+	
+	private static void combineCurves() {
+		String path = "tmp/UC33/maps/src/NSHMP13B-epi/mean_ucerf3_sol/CA_NSHMP/GM3P00/curves";
+		UC3_CalcMPJ_Map.aggregateResults(new File(path), Period.GM0P20, false);
 	}
 	
 	

@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.collections.MultiMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
@@ -83,13 +84,13 @@ public class UC3_MapMaker {
 	private static final String SUFFIX = "_0p1";
 
 	public static void main(String[] args) throws IOException {
-		generateBranchList();
+//		generateBranchList();
 //		buildMaps();
 //		makeMultiBranchMap();
 //		buildMapsUC32();
 //		makeCoulombTestMaps();
 //		makeLocalHazardMaps();
-//		makeLocalRatioMaps();
+		makeLocalRatioMaps();
 //		makeLocalMapsLoRes();
 //		makeDefModelSpatialSeisMap();
 //		makeLittleSalmonPlots();
@@ -501,13 +502,13 @@ public class UC3_MapMaker {
 		String srcDir = ROOT + "src/SF-LA-0p02/";
 		String outDir = ROOT + "mapsUC32local/ratiosWithFaults/";
 				
-		List<Period> allPeriods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
-		Multimap<ProbOfExceed, Period> pePeriodMap = ArrayListMultimap.create();
-		pePeriodMap.putAll(PE2IN50, allPeriods);
-		pePeriodMap.putAll(PE10IN50, allPeriods);
-		pePeriodMap.put(PE40IN50, GM0P00);
-		List<String> srcTypes = Lists.newArrayList("all", "flt", "bg");
-		List<TestGrid> grids = Lists.newArrayList(SAN_FRANCISCO, LOS_ANGELES);
+//		List<Period> allPeriods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+//		Multimap<ProbOfExceed, Period> pePeriodMap = ArrayListMultimap.create();
+//		pePeriodMap.putAll(PE2IN50, allPeriods);
+//		pePeriodMap.putAll(PE10IN50, allPeriods);
+//		pePeriodMap.put(PE40IN50, GM0P00);
+//		List<String> srcTypes = Lists.newArrayList("all", "flt", "bg");
+//		List<TestGrid> grids = Lists.newArrayList(SAN_FRANCISCO, LOS_ANGELES);
 		
 //		for (ProbOfExceed pe : pePeriodMap.keySet()) {
 //			for (Period p : pePeriodMap.get(pe)) {
@@ -519,7 +520,7 @@ public class UC3_MapMaker {
 //				}
 //			}
 //		}
-		makeLocalRatioMap(srcDir, "all", LOS_ANGELES, spacing, PE2IN50, GM0P00, outDir, true);
+		makeLocalRatioMap(srcDir, "all", SAN_FRANCISCO, spacing, PE2IN50, GM0P00, outDir, true);
 
 	}
 	
@@ -556,9 +557,9 @@ public class UC3_MapMaker {
 		// ratio map
 		GeoDataSet xyz = GeoDataSetMath.divide(UC32xyz, NSHMxyz);
 		String label = "Ratio " + pe + " " + p.getLabel() + " (g)";
-		dlDir += dlDirNameRatio(grid, pe, p, srcType) + "-p1" + S;
+		dlDir += dlDirNameRatio(grid, pe, p, srcType) + "-p1";
 		
-		makeRatioPlot(xyz, spacing, grid.bounds(), dlDir, label, true, true, showFaults);
+		makeRatioPlotNSHMP(xyz, spacing, grid.bounds(), dlDir, label, showFaults);
 
 	}
 
@@ -1240,6 +1241,34 @@ public class UC3_MapMaker {
 		makeRatioPlot(xyz, spacing, grid.bounds(), dlDir, title, log, smooth, showFaults);
 	}
 		
+	public static void makeRatioPlotNSHMP(GeoDataSet xyz, double spacing,
+			double[] bounds, String dlDir, String title, boolean showFaults) {
+		GMT_MapGenerator mapGen = NSHMP_PlotUtils.create(bounds);
+		mapGen.setParameter(COLOR_SCALE_MIN_PARAM_NAME, 0.5);
+		mapGen.setParameter(COLOR_SCALE_MAX_PARAM_NAME, 2.0);
+		mapGen.setParameter(GRID_SPACING_PARAM_NAME, spacing);
+		CPTParameter cptParam = (CPTParameter) mapGen.getAdjustableParamsList()
+				.getParameter(CPT_PARAM_NAME);
+		GMT_CPT_Files cpt = GMT_CPT_Files.NSHMP_RATIO;
+		cptParam.setValue(cpt.getFileName());
+		mapGen.setParameter(LOG_PLOT_NAME, false);
+		
+		try {
+			GMT_Map map = mapGen.getGMTMapSpecification(xyz);
+			map.setCustomLabel(title);
+			map.setRescaleCPT(false);
+			if (showFaults) {
+				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
+			}
+			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
+			savePDF(dlDir);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
 	public static void makeRatioPlot(GeoDataSet xyz, double spacing, double[] bounds,
 			String dlDir, String title, boolean log, boolean smooth, boolean showFaults) {
 		double scale = log ? 0.1 : 0.2;
@@ -1357,5 +1386,16 @@ public class UC3_MapMaker {
 	// make composite map across FM-DM-MS-DSR
 	// need to get weight for each map and normalize wprior to summing
 	
+	// moves/renames pdf one level up and deletes other map files
+	private static void savePDF(String dir) {
+		try {
+			File pdfFrom = new File(dir, "map.pdf");
+			File pdfTo = new File(dir + ".pdf");
+			Files.copy(pdfFrom, pdfTo);
+			FileUtils.deleteDirectory(new File(dir));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 
 }

@@ -16,6 +16,7 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.base.Enums;
@@ -37,7 +38,7 @@ public class UC3_CalcCurve {
 		List<Period> periods, boolean epiUncert)
 			throws IOException, InterruptedException, ExecutionException {
 
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
 				IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
@@ -53,8 +54,8 @@ public class UC3_CalcCurve {
 			HazardResultWriterSites writer = new HazardResultWriterSites(outPath,
 				siteMap);
 			writer.writeHeader(period);
-			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
-				period, epiUncert, writer);
+			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, null, locs,
+				period, epiUncert, writer, false);
 			thc.calculate(null);
 		}
 	}

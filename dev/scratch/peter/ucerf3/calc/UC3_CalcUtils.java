@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.dom4j.DocumentException;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
@@ -25,11 +26,13 @@ import com.google.common.io.Files;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.peter.nshmp.NSHMP_UCERF3_ERF;
 
 /**
  * Add comments here
@@ -56,15 +59,29 @@ public class UC3_CalcUtils {
 	 * @param duration
 	 * @return a UC3 erf
 	 */
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
+	public static FaultSystemSolutionERF getUC3_ERF(
 			String solPath,
 			IncludeBackgroundOption bgOpt,
 			boolean aleatoryMagArea,
 			boolean filterAftShk,
 			double duration) {
 		
-		InversionFaultSystemSolution fss = getSolution(solPath);
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+		InversionFaultSystemSolution fss = getInvSolution(solPath);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fss);
+		erf.setName(nameFromPath(solPath));
+		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
+		return erf;
+	}
+	
+	public static FaultSystemSolutionERF getNSHMP_UC3_ERF(
+			String solPath,
+			IncludeBackgroundOption bgOpt,
+			boolean aleatoryMagArea,
+			boolean filterAftShk,
+			double duration) {
+		
+		FaultSystemSolution fss = getSolution(solPath);
+		FaultSystemSolutionERF erf = new NSHMP_UCERF3_ERF(fss);
 		erf.setName(nameFromPath(solPath));
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
@@ -84,7 +101,7 @@ public class UC3_CalcUtils {
 	 * @param duration
 	 * @return a UC3 erf
 	 */
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
+	public static FaultSystemSolutionERF getUC3_ERF(
 			String solPath,
 			int idx,
 			IncludeBackgroundOption bgOpt,
@@ -95,7 +112,7 @@ public class UC3_CalcUtils {
 		AverageFaultSystemSolution afss = getAvgSolution(solPath);
 		InversionFaultSystemSolution fss = (idx == -1) ? afss : afss.getSolution(idx);
 		String erfName = nameFromPath(solPath) + "_" + idx;
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fss);
 		erf.setName(erfName);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
@@ -115,7 +132,7 @@ public class UC3_CalcUtils {
 	 * @param duration
 	 * @return a UC3 erf
 	 */
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF_Compound(
+	public static FaultSystemSolutionERF getUC3_ERF_Compound(
 			String solPath,
 			int idx,
 			IncludeBackgroundOption bgOpt,
@@ -130,7 +147,7 @@ public class UC3_CalcUtils {
 		LogicTreeBranch branch = branches.get(idx);
 		InversionFaultSystemSolution ifss = cfss.getSolution(branch);
 		String erfName = branch.buildFileName();
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(ifss);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(ifss);
 		erf.setName(erfName);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
@@ -150,7 +167,7 @@ public class UC3_CalcUtils {
 	 * @param duration
 	 * @return a UC3 erf
 	 */
-	public static UCERF3_FaultSysSol_ERF getUC3_ERF(
+	public static FaultSystemSolutionERF getUC3_ERF(
 			String solPath,
 			String branchID,
 			IncludeBackgroundOption bgOpt,
@@ -169,14 +186,14 @@ public class UC3_CalcUtils {
 			branch = VariableLogicTreeBranch.fromFileName(branchID);
 			fss = cfss.getSolution(branch);
 		}
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fss);
 		erf.setName(branchID);
 		initUC3(erf, bgOpt, aleatoryMagArea, filterAftShk, duration);
 		return erf;
 	}
 		
 	private static String nameFromPath(String solPath) {
-		int ssIdx1 = StringUtils.lastIndexOf(solPath, "/");
+		int ssIdx1 = StringUtils.lastIndexOf(solPath, "/") + 1;
 		int ssIdx2 = StringUtils.lastIndexOf(solPath, ".");
 		return solPath.substring(ssIdx1, ssIdx2);
 	}
@@ -191,7 +208,7 @@ public class UC3_CalcUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void initUC3(
-		UCERF3_FaultSysSol_ERF erf,
+		FaultSystemSolutionERF erf,
 		IncludeBackgroundOption bg,
 		boolean aleatoryMagArea,
 		boolean filterAftershocks,
@@ -210,7 +227,22 @@ public class UC3_CalcUtils {
 	 * @param path
 	 * @return an AFSS
 	 */
-	public static InversionFaultSystemSolution getSolution(String path) {
+	public static FaultSystemSolution getSolution(String path) {
+		try {
+			File file = new File(path);
+			return FaultSystemIO.loadSol(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Returns an average fault system solution at the specified path.
+	 * @param path
+	 * @return an AFSS
+	 */
+	public static InversionFaultSystemSolution getInvSolution(String path) {
 		try {
 			File file = new File(path);
 			return FaultSystemIO.loadInvSol(file);
@@ -219,7 +251,7 @@ public class UC3_CalcUtils {
 			return null;
 		}
 	}
-	
+		
 	/**
 	 * Returns an average fault system solution at the specified path.
 	 * @param path
@@ -279,18 +311,28 @@ public class UC3_CalcUtils {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, DocumentException {
 //		String solPath = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/tree/2013_01_14-UC32-COMPOUND_SOL.zip";
 //		String branch = "FM3_1_ABM_Shaw09Mod_DsrUni_CharConst_M5Rate7.6_MMaxOff7.2_NoFix_SpatSeisU2";
 //		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
 //			branch, IncludeBackgroundOption.INCLUDE, false,
 //			true, 1.0);
 //		erf.updateForecast();
-		String solPath = "tmp/UC33/src/bravg/2013_01_14-stampede_3p2_production_runs_fm3p1_dm_scale_subset_MEAN_BRANCH_AVG_SOL.zip";
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solPath,
-			IncludeBackgroundOption.INCLUDE, false,
-			true, 1.0);
+//		String solPath = "tmp/UC33/src/bravg/2013_01_14-stampede_3p2_production_runs_fm3p1_dm_scale_subset_MEAN_BRANCH_AVG_SOL.zip";
+//		String solPath = "tmp/UC33/src/bravg/FM/UC33brAvg_FM32.zip";
+		
+		// getNSHMP_UC3_ERF requires total mean solution
+
+		String solPath = "tmp/UC33/src/mean/mean_ucerf3_sol.zip";
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getNSHMP_UC3_ERF(solPath,
+			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erf.updateForecast();
+		
+//		String solPath = "tmp/UC33/src/mean/mean_ucerf3_sol.zip";
+//		File file = new File(solPath);
+//		FaultSystemSolution mfss = FaultSystemIO.loadSol(file);
+//		MeanUCERF3 muc3 = new MeanUCERF3(mfss);
+
 
 	}
 }
