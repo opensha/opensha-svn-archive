@@ -26,7 +26,7 @@ import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
  */
 class GeoMat_MagLenthRelationship extends MagLengthRelationship {
 
-	private final static String NAME = "NSHMP CA Mag-Area Relation";
+	private final static String NAME = "NSHMP Subduction Mag-Length Relation";
 
 	GeoMat_MagLenthRelationship() {
 		rake = Double.NaN;
