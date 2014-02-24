@@ -201,8 +201,8 @@ public class CurveCalcTest {
 			HazardResultWriterSites writer = new HazardResultWriterSites(outPath,
 				siteMap);
 			writer.writeHeader(period);
-			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, locs,
-				period, epiUncert, writer);
+			ThreadedHazardCalc thc = new ThreadedHazardCalc(wrappedERF, null, locs,
+				period, epiUncert, writer, false);
 			thc.calculate(null);
 		}
 	}
