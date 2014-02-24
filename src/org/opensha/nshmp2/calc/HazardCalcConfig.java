@@ -1,7 +1,5 @@
 package org.opensha.nshmp2.calc;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +8,7 @@ import java.util.Properties;
 
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
-
-import com.google.common.io.Resources;
+import org.opensha.nshmp2.util.SourceIMR;
 
 /**
  * Wrapper for NSHMP calculation configuration.
@@ -26,6 +23,7 @@ public class HazardCalcConfig {
 	double spacing;
 	Period period;
 	ERF_ID erfID;
+	SourceIMR imr;
 	boolean epiUnc;
 	String outDir;
 	boolean singleFile;
@@ -48,6 +46,7 @@ public class HazardCalcConfig {
 		spacing = Double.parseDouble(props.getProperty("spacing"));
 		period = Period.valueOf(props.getProperty("period"));
 		erfID = ERF_ID.valueOf(props.getProperty("erfID"));
+		imr = SourceIMR.valueOf(props.getProperty("imr"));
 		epiUnc = Boolean.valueOf(props.getProperty("epiUnc"));
 		outDir = props.getProperty("outDir");
 		singleFile = Boolean.valueOf(props.getProperty("singleFile"));

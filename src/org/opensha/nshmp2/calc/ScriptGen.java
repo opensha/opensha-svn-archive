@@ -46,11 +46,12 @@ public class ScriptGen {
 	 *         $OUTDIR $EPI $HRS $NODES $QUEUE
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length < 9) {
+		if (args.length < 12) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(ScriptGen.class) +
-					" <name> <grids> <spacing ><periods> <erfIDs> <libDir> <outDir> <epi> <hours> <nodes> <queue>");
+					" <name> <grids> <spacing> <periods> <erfIDs> <imr>" + 
+					" <libDir> <outDir> <epi> <hours> <nodes> <queue>");
 			System.exit(1);
 		}
 
@@ -72,27 +73,31 @@ public class ScriptGen {
 		String erfID = args[4];
 		System.out.println(erfID);
 		
-		String libDir = args[5];
+		String imr = args[5];
+		System.out.println(imr);
+
+		String libDir = args[6];
 		System.out.println(libDir);
 
-		String outDir = args[6];
+		String outDir = args[7];
 		System.out.println(outDir);
 		
-		boolean epi = Boolean.parseBoolean(args[7]);
+		boolean epi = Boolean.parseBoolean(args[8]);
 		System.out.println(epi);
 		
-		int hours = Integer.parseInt(args[8]);
+		int hours = Integer.parseInt(args[9]);
 		System.out.println(hours);
 		
-		int nodes = Integer.parseInt(args[9]);
+		int nodes = Integer.parseInt(args[10]);
 		System.out.println(nodes);
 
-		String queue = args[10];
+		String queue = args[11];
 		System.out.println(queue);
 		
 		for (TestGrid grid : gridList) {
 			for (Period period : periodList) {
-				File props = writeProps(outDir, name, grid, spacingVal, period, erfID, epi);
+				File props = writeProps(outDir, name, grid, spacingVal, period,
+					erfID, imr, epi);
 				writeScript(libDir, props, hours, nodes, queue);
 			}
 		}
@@ -115,7 +120,7 @@ public class ScriptGen {
 	}
 	
 	private static File writeProps(String outDir, String name, TestGrid grid, double spacing,
-			Period period, String erfID, boolean epi) {
+			Period period, String erfID, String imr, boolean epi) {
 		File pFile = null;
 		try {
 			String freq = period.equals(Period.GM0P00) ? "pga" : period
@@ -131,6 +136,7 @@ public class ScriptGen {
 			props.setProperty("spacing", Double.toString(spacing));
 			props.setProperty("period", period.name());
 			props.setProperty("erfID", erfID);
+			props.setProperty("imr", imr);
 			props.setProperty("epiUnc", Boolean.toString(epi));
 			props.setProperty("outDir", outDir);
 			props.setProperty("singleFile", "false"); // ignored in MPJ clacs

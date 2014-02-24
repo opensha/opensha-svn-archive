@@ -3,6 +3,9 @@ package org.opensha.nshmp2.calc;
 import static org.opensha.nshmp2.util.SourceType.CLUSTER;
 import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
+import static org.opensha.nshmp2.util.Period.*;
+import static org.opensha.nshmp.NEHRP_TestCity.*;
+
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.erf.NSHMP_ListERF;
@@ -44,6 +49,10 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
+import scratch.peter.curves.ProbOfExceed;
+import scratch.peter.nshmp.DeterministicResult;
+import scratch.peter.nshmp.HazardCurveCalculatorNSHMP;
+
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
@@ -58,12 +67,16 @@ import com.google.common.collect.Lists;
 public class HazardCalc implements Callable<HazardResult> {
 
 	private EpistemicListERF erfList;
+	private SourceIMR imrRef;
 	private Site site;
 	private Period period;
 	private boolean epiUncert;
 	private DiscretizedFunc curve;
+
+	private boolean determ = false;
+	private DeterministicResult detData = null;
 	
-	private HazardCurveCalculator calc;
+	private HazardCurveCalculatorNSHMP calc;
 	
 	private HazardCalc() {}
 	
@@ -89,31 +102,48 @@ public class HazardCalc implements Callable<HazardResult> {
 		return hc;
 	}
 	
+	public static HazardCalc create(EpistemicListERF erfList, SourceIMR imrRef, 
+			Site site, Period period, boolean epiUncert, boolean determ) {
+		HazardCalc hc = new HazardCalc();
+		hc.erfList = erfList;
+		hc.site = site;
+		hc.period = period;
+		hc.epiUncert = epiUncert;
+		hc.imrRef = imrRef;
+		hc.determ = determ;
+		return hc;
+	}
+	
 	@Override
 	public HazardResult call() {
 		initSite(site); // ensure required site parameters are set
 		curve = period.getFunction(); // init output function
 		Utils.zeroFunc(curve);
-		calc = new HazardCurveCalculator(); // init calculator
+		calc = new HazardCurveCalculatorNSHMP(); // init calculator
 		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
+//		callCalc();
 		if (erfList instanceof NSHMP_ListERF) {
 			callNSHMP((NSHMP_ListERF) erfList);
 		} else {
 			callCalc();
 		}
 
-		return new HazardResult(period, site.getLocation(), curve);
+		return new HazardResult(period, site.getLocation(), curve, detData);
 	}
 	
 	private void callCalc() {
-		ScalarIMR imr = SourceIMR.WUS_FAULT.instance(period);
+		ScalarIMR imr = (imrRef != null) ?
+			imrRef.instance(period) :
+			SourceIMR.WUS_FAULT_13.instance(period);
 		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
 			epiUncert);
 		imr.setSite(site);
 		DiscretizedFunc f = period.getFunction(); // utility function
+		if (determ) detData = new DeterministicResult();
+
 		for (int i=0; i<erfList.getNumERFs(); i++) {
 			ERF erf = erfList.getERF(i);
-			f = basicCalc(calc, f, site, imr, erf);
+			f = basicCalc(calc, f, site, imr, erf, detData);
 			f.scale(erfList.getERF_RelativeWeight(i));
 			Utils.addFunc(curve, f);
 		}
@@ -141,7 +171,7 @@ public class HazardCalc implements Callable<HazardResult> {
 				// set max distance on calculator first
 				calc.getAdjustableParams().getParameter(MaxDistanceParam.NAME)
 					.setValue(erf.getMaxDistance());
-				f = basicCalc(calc, f, site, imr, erf);
+				f = basicCalc(calc, f, site, imr, erf, null);
 			}
 			f.scale(erf.getSourceWeight());
 			Utils.addFunc(curve, f);
@@ -184,13 +214,14 @@ public class HazardCalc implements Callable<HazardResult> {
 	}
 	
 	private static DiscretizedFunc basicCalc(
-			HazardCurveCalculator c,
+			HazardCurveCalculatorNSHMP c,
 			DiscretizedFunc f,
 			Site s,
 			ScalarIMR imr,
-			ERF erf) {
+			ERF erf,
+			DeterministicResult detResult) {
 		
-		c.getHazardCurve(f, s, imr, erf);
+		c.getHazardCurve(f, s, imr, erf, detResult, null);
 		// convert to annual rate
 		for (Point2D p : f) {
 			f.set(p.getX(), NSHMP_Utils.probToRate(p.getY(), 1));
@@ -215,7 +246,6 @@ public class HazardCalc implements Callable<HazardResult> {
 			if (dist > maxDistance) {
 				continue;
 			}
-
 			// assemble list of PE curves for each cluster segment
 			List<DiscretizedFunc> fltFuncList = Lists.newArrayList();
 
@@ -263,7 +293,7 @@ public class HazardCalc implements Callable<HazardResult> {
 		return firstFunc;
 	}
 	
-	private void initSite(Site s) {
+	public static void initSite(Site s) {
 		
 		// CY AS
 		DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
@@ -310,29 +340,37 @@ public class HazardCalc implements Callable<HazardResult> {
 	}
 	
 	public static void main(String[] args) {
-		Stopwatch sw = new Stopwatch();
-		sw.start();
 		
-		TimeUnit tu = TimeUnit.MILLISECONDS;
-//		WUS_ERF erf = new WUS_ERF();
-//		EpistemicListERF erf = ERF_ID.MEAN_UCERF2.instance();
-		EpistemicListERF erf = NSHMP2008.create();
-//		EpistemicListERF erf = NSHMP2008.createSingleSource("mendo.in");
-		erf.updateForecast();
-		System.out.println(erf);
-		sw.stop();
-		System.out.println("Seconds: " + sw.elapsedTime(tu));
-		Period p = Period.GM0P00;
+////		WUS_ERF erf = new WUS_ERF();
+////		EpistemicListERF erf = ERF_ID.MEAN_UCERF2.instance();
+////		EpistemicListERF erf = NSHMP2008.createCalifornia();
+//		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.ch.in");
+//		erf.updateForecast();
+//		System.out.println(erf);
+//		Period p = Period.GM0P00;
+//
+//		Site site;
+//		HazardCalc hc;
+////		Site site = new Site(new Location(34.1, -118.1));
+//		
+//		// 2008 calc
+////		site = new Site(NEHRP_TestCity.LOS_ANGELES.location());
+////		hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT, site, p, false);
+//		
+//		// 2013 calc
+//		site = new Site(NEHRP_TestCity.LOS_ANGELES.location());
+//		hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT, site, p, false, false);
+//		
+//		HazardResult result = hc.call();
+//		System.out.println(result.curve());
+//		System.out.println(result.curve().getFirstInterpolatedX_inLogXLogYDomain(ProbOfExceed.PE2IN50.annualRate()));
+		
+//		site = new Site(new Location(34.15, -118.15));
+//		hc = HazardCalc.create(erf, site, p, true);
+//		result = hc.call();
+//		System.out.println(result.curve());
+//		System.out.println(result.curve().getFirstInterpolatedX_inLogXLogYDomain(ProbOfExceed.PE2IN50.annualRate()));
 
-		sw.reset().start();
-		Site site = new Site(NEHRP_TestCity.LOS_ANGELES.shiftedLocation());
-//		Site site = new Site(new Location(40.3, -125.0));
-		HazardCalc hc = HazardCalc.create(erf, site, p, false);
-		HazardResult result = hc.call();
-		System.out.println(result.curve());
-		sw.stop();
-		System.out.println("Seconds: " + sw.elapsedTime(tu));
-		
 //		Set<NEHRP_TestCity> cities = EnumSet.of(
 //			NEHRP_TestCity.LOS_ANGELES,
 //			NEHRP_TestCity.SEATTLE,
@@ -350,6 +388,34 @@ public class HazardCalc implements Callable<HazardResult> {
 //			System.out.println("Time: " + sw.elapsedTime(TimeUnit.SECONDS) + " sec");
 //		}
 		
+		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.ch.in");
+		erf.updateForecast();
+		System.out.println(erf);
+		List<Period> periods = Lists.newArrayList(GM0P00);//, GM0P20,GM1P00);
+		List<NEHRP_TestCity> cities = Lists.newArrayList(LOS_ANGELES);//, SAN_FRANCISCO, OAKLAND);
+
+		for (Period p : periods) {
+			System.out.println("Period: " + p.getLabel());
+			for (NEHRP_TestCity city : cities) {
+				Site site = new Site(city.location());
+				HazardCalc hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT_13_BS, 
+					site, p, false, false);
+				HazardResult result = hc.call();
+				System.out.println(city);
+				System.out.println(result.curve());
+				
+				System.out.println(result.curve().getFirstInterpolatedX_inLogXLogYDomain(ProbOfExceed.PE2IN50.annualRate()));
+			}
+		}
+		
+		ArbitrarilyDiscretizedFunc f2 = new ArbitrarilyDiscretizedFunc();
+		
+//		double[] xs = new double[] {0.005000,0.007000,0.009800,0.013700,0.019200,0.026900,0.037600,0.052700,0.073800,0.103000,0.145000,0.203000,0.284000,0.397000,0.556000,0.778000,1.090000,1.520000,2.200000,3.300000};
+//		double[] ys = new double[] {0.47147E-01,0.45436E-01,0.43057E-01,0.39983E-01,0.36170E-01,0.31674E-01,0.26671E-01,0.21415E-01,0.16442E-01,0.12197E-01,0.87027E-02,0.60197E-02,0.39228E-02,0.23271E-02,0.12039E-02,0.52755E-03,0.18905E-03,0.54112E-04,0.93344E-05,0.64881E-06};
+//		for (int i=0; i<xs.length; i++) {
+//			f2.set(xs[i], ys[i]);
+//		}
+//		System.out.println(f2.getFirstInterpolatedX_inLogXLogYDomain(ProbOfExceed.PE2IN50.annualRate()));
 		System.exit(0);
 
 	}

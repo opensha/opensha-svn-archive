@@ -18,6 +18,7 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
+import org.opensha.nshmp2.util.SourceIMR;
 
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
@@ -67,6 +68,8 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		ERF_ID erfID = config.erfID;
 		
+		SourceIMR imr = config.imr;
+		
 		boolean epi = config.epiUnc;
 		
 		String out = config.outDir;
@@ -75,7 +78,7 @@ public class HazardCalcDriverMPJ extends MPJTaskCalculator {
 		
 		// mpj flag ignored in this case
 		HazardResultWriter writer = new HazardResultWriterMPJ(outDir);
-		calc = new ThreadedHazardCalc(erfID, locs, period, epi, writer);
+		calc = new ThreadedHazardCalc(erfID, imr, locs, period, epi, writer);
 	}
 	
 	@Override
