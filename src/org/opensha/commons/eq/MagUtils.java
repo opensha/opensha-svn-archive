@@ -1,7 +1,5 @@
 package org.opensha.commons.eq;
 
-import org.apache.commons.lang3.time.StopWatch;
-
 /**
  * Utility class for working with magnitudes.
  * 
@@ -42,5 +40,6 @@ public class MagUtils {
 	public static double gr_rate(double a, double b, double M) {
 		return Math.pow(10, a - b * M);
 	}
+	
 	
 }
