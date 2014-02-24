@@ -20,6 +20,14 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
+import scratch.peter.nga.NSHMP13_WUS;
+import scratch.peter.nga.single.NSHMP13_WUS_ASK;
+import scratch.peter.nga.single.NSHMP13_WUS_BSSA;
+import scratch.peter.nga.single.NSHMP13_WUS_CB;
+import scratch.peter.nga.single.NSHMP13_WUS_CY;
+import scratch.peter.nga.single.NSHMP13_WUS_GK;
+import scratch.peter.nga.single.NSHMP13_WUS_Idriss;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
@@ -43,6 +51,18 @@ public enum SourceIMR {
 	 * {@link SourceType#FAULT} sources.
 	 */
 	WUS_FAULT(NSHMP08_WUS.class),
+
+	/**
+	 * Used for {@link SourceRegion#WUS} and {@link SourceRegion#CA}
+	 * {@link SourceType#FAULT} sources.
+	 */
+	WUS_FAULT_13(NSHMP13_WUS.class),
+	WUS_FAULT_13_AS(NSHMP13_WUS_ASK.class),
+	WUS_FAULT_13_BS(NSHMP13_WUS_BSSA.class),
+	WUS_FAULT_13_CB(NSHMP13_WUS_CB.class),
+	WUS_FAULT_13_CY(NSHMP13_WUS_CY.class),
+	WUS_FAULT_13_GK(NSHMP13_WUS_GK.class),
+	WUS_FAULT_13_ID(NSHMP13_WUS_Idriss.class),
 
 	/**
 	 * Used for {@link SourceRegion#WUS} and {@link SourceRegion#CA}
@@ -108,6 +128,7 @@ public enum SourceIMR {
 			}  catch (ConstraintException ce) { /* do nothing */ }
 			return imr;
 		} catch (Exception e) {
+			System.out.println(e.getCause());
 			throw Throwables.propagate(e);
 		}
 	}

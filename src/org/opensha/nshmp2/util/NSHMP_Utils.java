@@ -243,9 +243,12 @@ public class NSHMP_Utils {
 	 * to the NSHMP grid files that are stored from top left to bottom right,
 	 * reading across. The nodes in OpenSHA <code>GriddedRegion</code>s are
 	 * stored from bottom left to top right, also reading across. This method
-	 * places values at their proper index. <i><b>NOTE</b></i>: NSHMP binary
-	 * grid files are all currently little-endian. The grid files in some other
-	 * parts of the USGS seismic hazard world are big-endian. Beware.
+	 * places values at their proper index.
+	 * 
+	 * <p><b>Note</b>: NSHMP binary grid files are all currently little-endian.
+	 * The grid files in some other parts of the USGS seismic hazard world are
+	 * big-endian. Beware.</p>
+	 * 
 	 * @param url to read
 	 * @param nRows
 	 * @param nCols
@@ -275,6 +278,7 @@ public class NSHMP_Utils {
 	 * 4*128000 bytes, the CEUS mMax files are used in cra.f when generating so
 	 * only 4*127755 are filled. The reamining slots are false and not
 	 * considered.
+	 * 
 	 * @param url to read
 	 * @param nRows
 	 * @param nCols
