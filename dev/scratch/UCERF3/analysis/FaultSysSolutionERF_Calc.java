@@ -4128,6 +4128,91 @@ public class FaultSysSolutionERF_Calc {
 //		return result;
 	}
 	
+	
+	
+	public static void testNuclVsPartMFDsInRegion(Region region) {
+		
+		// new CaliforniaRegions.SF_BOX()
+		
+		ArrayList<XY_DataSet> funcsIncr = new ArrayList<XY_DataSet>();
+		ArrayList<XY_DataSet> funcsCum = new ArrayList<XY_DataSet>();
+		
+//		MeanUCERF3 erf = new MeanUCERF3();
+//		erf.setMeanParams(10d, true, 0d, MeanUCERF3.RAKE_BASIS_MEAN);
+//		System.out.println(erf.getAdjustableParameterList().toString());
+//		erf.updateForecast();
+		
+		System.out.println("Instantiating ERF...");
+		// average solution for FM 3.1
+		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		File file = new File(f);
+		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+//		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+		erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
+		System.out.println("ADJUSTABLE PARAM SETTINGS:\n"+erf.getAdjustableParameterList().toString());
+		erf.updateForecast();
+
+		SummedMagFreqDist nuclMFD_U3 = ERF_Calculator.getMagFreqDistInRegionFaster(erf, region, 5.05, 40, 0.1, true);
+		SummedMagFreqDist partMFD_U3 = ERF_Calculator.getParticipationMagFreqDistInRegion(erf, region, 5.05, 40, 0.1, true);
+		nuclMFD_U3.setName("UCERF3 Nucleation MFD");
+		partMFD_U3.setName("UCERF3 Participation MFD");
+
+		// Now mean UCERF2
+		MeanUCERF2 erfU2= new MeanUCERF2();
+		erfU2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		erfU2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
+		erfU2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		erfU2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		erfU2.updateForecast();
+		SummedMagFreqDist nuclMFD_U2 = ERF_Calculator.getMagFreqDistInRegionFaster(erfU2, region, 5.05, 40, 0.1, true);
+		SummedMagFreqDist partMFD_U2 = ERF_Calculator.getParticipationMagFreqDistInRegion(erfU2, region, 5.05, 40, 0.1, true);
+		nuclMFD_U2.setName("UCERF2 Nucleation MFD");
+		partMFD_U2.setName("UCERF2 Participation MFD");
+		
+		funcsIncr.add(nuclMFD_U2);
+		funcsIncr.add(partMFD_U2);
+		funcsIncr.add(nuclMFD_U3);
+		funcsIncr.add(partMFD_U3);
+
+		funcsCum.add(nuclMFD_U2.getCumRateDistWithOffset());
+		funcsCum.add(partMFD_U2.getCumRateDistWithOffset());
+		funcsCum.add(nuclMFD_U3.getCumRateDistWithOffset());
+		funcsCum.add(partMFD_U3.getCumRateDistWithOffset());
+		
+    	ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 2f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 2f, null, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, null, 1f, Color.BLUE));
+
+
+		GraphWindow graphIncr = new GraphWindow(funcsIncr, "Incremental MFDs in "+region.getName(), plotChars); 
+		graphIncr.setX_AxisLabel("Magnitude");
+		graphIncr.setY_AxisLabel("Rate (per year)");
+		graphIncr.setPlotLabelFontSize(18);
+		graphIncr.setAxisLabelFontSize(18);
+		graphIncr.setTickLabelFontSize(16);
+		graphIncr.setX_AxisRange(5, 8.5);
+		graphIncr.setY_AxisRange(1e-6, 10);
+		graphIncr.setYLog(true);
+
+		GraphWindow graphCum = new GraphWindow(funcsCum, "Cumulative MFDs in "+region.getName(), plotChars); 
+		graphCum.setX_AxisLabel("Magnitude");
+		graphCum.setY_AxisLabel("Rate (per year)");
+		graphCum.setPlotLabelFontSize(18);
+		graphCum.setAxisLabelFontSize(18);
+		graphCum.setTickLabelFontSize(16);
+		graphCum.setX_AxisRange(5, 8.5);
+		graphCum.setY_AxisRange(1e-6, 10);
+		graphCum.setYLog(true);
+
+	}
+
+	
+	
+	
+	
 	/**
 	 * @param args
 	 * @throws DocumentException 

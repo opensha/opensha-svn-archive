@@ -106,18 +106,18 @@ public class simulatorAnalysisUtils {
 	public static void runAll() {
 		
 		// Set the simulator Geometry file
-//		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/allcal2_1-7-11");
-		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File geomFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/allcal2_1-7-11");
+//		File geomFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		File geomFile = new File(geomFileDir, "ALLCAL2_1-7-11_Geometry.dat");
 		
 		// Set the dir for simulator event files 
-//		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/simulatorDataFiles");
-		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
+		File simEventFileDir = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/ProbModels/ElasticRebound/Files/simulatorDataFiles");
+//		File simEventFileDir = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/simulatorDataFiles");
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// RSQSim
-//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall",	// the long file from Kevin
+//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// RSQSim
+				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall",	// the long file from Kevin
 //				"ALLCAL2_no-creep_dt-08_st-10_110912_471207_events_slip-map-5.5_eid-fix.dat" //,
 //				"ALLCAL2-30k-output[3-24-11].converted",
 //				"Fred-allcal2-7june11.txt"
@@ -178,8 +178,8 @@ public class simulatorAnalysisUtils {
 //						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
 //					}
 //					// total MFD
-//					System.out.println("Working on computeTotalMagFreqDist(*)");
-//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+					System.out.println("Working on computeTotalMagFreqDist(*)");
+					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
 
 //					// norm RI dist for surface elements
 //					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
@@ -202,9 +202,9 @@ public class simulatorAnalysisUtils {
 //					plotRI_DistsAtObsPaleoRateSites(tools, true);
 					
 					// all the time & slip predictability tests (plus other things):
-					System.out.println("Working on testTimePredictability(*)");
-					String info = tools.testTimePredictability(magThresh, true, null, false);
-					infoStrings.add(info);
+//					System.out.println("Working on testTimePredictability(*)");
+//					String info = tools.testTimePredictability(magThresh, true, null, false);
+//					infoStrings.add(info);
 
 					try {
 						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");

@@ -4053,13 +4053,13 @@ public class ProbabilityModelsCalc {
 		progressBar.showProgress(true);
 
 		// For BPT
-//		BPT_DistCalc bptRefCalc = getRef_BPT_DistCalc(aper);
+		BPT_DistCalc bptRefCalc = getRef_BPT_DistCalc(aper);
 		
-		// For lognormal or weibull:
-		int numPts = (int)Math.round((9*refRI)/deltaT);
-		LognormalDistCalc bptRefCalc = new LognormalDistCalc();
-//		WeibullDistCalc bptRefCalc = new WeibullDistCalc();
-		bptRefCalc.setAll(refRI, aper, deltaT, numPts);
+//		// For lognormal or weibull:
+//		int numPts = (int)Math.round((9*refRI)/deltaT);
+//		LognormalDistCalc bptRefCalc = new LognormalDistCalc();
+////		WeibullDistCalc bptRefCalc = new WeibullDistCalc();
+//		bptRefCalc.setAll(refRI, aper, deltaT, numPts);
 
 		
 		
@@ -4082,6 +4082,9 @@ public class ProbabilityModelsCalc {
 			condProbArray[1] = bptRefCalc.getCondProb(aveNormTimeSinceArray[1], stepDurationYears*refRI/condRI_Array[1]);
 			tdRupRateArray[0] = (condProbArray[0]/(stepDurationYears/condRI_Array[0])) * (1.0/rup1_RI);	// (gain)*(longTermRate)
 			tdRupRateArray[1] = (condProbArray[1]/(stepDurationYears/condRI_Array[1])) * (1.0/rup2_RI);	// (gain)*(longTermRate)
+			
+			if(year<10000)
+				System.out.println((condProbArray[0]/(stepDurationYears/condRI_Array[0]))+"\t"+(condProbArray[1]/(stepDurationYears/condRI_Array[1])));
 
 //			 Poisson test
 //			tdRupRateArray[0] = (1.0/rup1_RI);	// (gain=1)*(longTermRate)
