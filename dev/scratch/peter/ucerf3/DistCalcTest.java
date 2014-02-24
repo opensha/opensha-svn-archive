@@ -29,6 +29,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
@@ -47,7 +48,7 @@ public class DistCalcTest {
 
 	DistCalcTest(String solSetPath, String branchID, List<Location> locs,
 		Period period, boolean epi) {
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
 			branchID, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
@@ -64,7 +65,7 @@ public class DistCalcTest {
 
 	DistCalcTest(String solSetPath, List<Location> locs,
 		Period period, boolean epi) {
-		UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
+		FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(solSetPath,
 			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
