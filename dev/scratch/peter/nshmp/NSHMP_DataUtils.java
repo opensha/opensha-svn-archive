@@ -387,8 +387,8 @@ public class NSHMP_DataUtils {
 			// interpolation. In either case set ground motion value to 0
 			
 			double gm = 0;
+			DiscretizedFunc f = cc.getCurve(loc);
 			try {
-				DiscretizedFunc f = cc.getCurve(loc);
 				gm = f.getFirstInterpolatedX_inLogXLogYDomain(targetRate);
 			} catch (Exception e) {
 				System.out.println("Problem location: " + loc);

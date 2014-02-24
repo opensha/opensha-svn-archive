@@ -5,10 +5,12 @@ import static scratch.peter.nshmp.NSHMP_UtilsDev.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
@@ -16,6 +18,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
+import org.opensha.nshmp2.util.Period;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -25,11 +28,13 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
+import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -68,7 +73,14 @@ public class CurveContainer implements Iterable<Location> {
 		}
 		return f;
 	}
-	
+
+	public List<Double> getValues(Location loc) {
+		int idx = region.indexForLocation(loc);
+		Preconditions.checkArgument(
+			idx != -1, "Location is out of range: " + loc);
+		return ysMap.get(idx);
+	}
+
 	/**
 	 * Returns the number of curves stored in this container.
 	 * @return the container size
@@ -98,7 +110,53 @@ public class CurveContainer implements Iterable<Location> {
 	public void add(CurveContainer cc) {
 		checkArgument(region.equals(cc.region));
 		for (Integer idx : ysMap.keySet()) {
-			DataUtils.add(ysMap.get(idx), cc.ysMap.get(idx)) ;
+			DataUtils.add(ysMap.get(idx), cc.ysMap.get(idx));
+		}
+	}
+	
+	/**
+	 * Adds the curves in the supplied container to this.
+	 * 
+	 * NOTE be careful using this: Supplied container shoudl be equivalent or
+	 * HIGHER resolution than this, otherwise curves will be 
+	 * @param cc
+	 */
+	public void union(CurveContainer cc) {
+		checkArgument(xs.size() == cc.xs.size(), "Curve container size: %s != %s", xs.size(), cc.xs.size());
+//		boolean padCC = false; // expectation is that cc.xs will be smaller for PGA only because of SH increase
+//		if (xs.size() != cc.xs.size()) {
+//			System.out.println("CC: this.xs.size()=" + xs.size() + 
+//				" cc.xs.size()=" + cc.xs.size() +" padding...");
+//			padCC = true;
+//		}
+		
+		for (Location loc : this) {
+			int idxFrom = cc.region.indexForLocation(loc);
+			int idxTo = region.indexForLocation(loc);
+			if (idxFrom != -1) {
+				List<Double> fromYs = cc.ysMap.get(idxFrom);
+//				if (padCC) fromYs.add(0.0);
+				DataUtils.add(ysMap.get(idxTo), fromYs);
+			}
+		}
+	}
+		
+	/**
+	 * Adds the curves as available from the supplied NSHMP container.
+	 * @param cc
+	 */
+	public void addNSHMP(CurveContainer cc) {
+		for (Location loc : this) {
+			DiscretizedFunc f = null;
+			try {
+				f = cc.getCurve(loc);
+			} catch (IllegalArgumentException iae) {
+				System.out.println("Swallowed");
+				continue;
+			}
+			int idx = region.indexForLocation(loc);
+			DataUtils.add(ysMap.get(idx), 
+				f.yValues().subList(0, xs.size())) ;
 		}
 	}
 
@@ -139,7 +197,7 @@ public class CurveContainer implements Iterable<Location> {
 		}
 		return curves;
 	}
-	
+		
 	/**
 	 * Creates a curve container for a localized area from supplied data file,
 	 * region, and grid spacing. The data locations should match the nodes in
@@ -162,8 +220,99 @@ public class CurveContainer implements Iterable<Location> {
 		return curves;
 	}
 	
+	// create an empty curve container; all curves are zero-0valued
+	public static CurveContainer create(GriddedRegion gr, List<Double> xs) {
+		CurveContainer cc = new CurveContainer();
+		cc.xs = ImmutableList.copyOf(xs);
+		cc.ysMap = Maps.newHashMap();
+		cc.region = gr;
+		for (int i=0; i<gr.getNodeCount(); i++) {
+			cc.ysMap.put(i, Doubles.asList(new double[xs.size()]));
+		}
+		return cc;
+	}
+	
+	// create cc for binary nshmp curve file
+	public static CurveContainer create(URL url) throws IOException {
+		LittleEndianDataInputStream in = 
+				new LittleEndianDataInputStream(url.openStream());
+
+		CurveContainer cc = new CurveContainer();
+
+		// read names 6 * char(128)
+		int n = 128;
+		for (int i=0; i<6; i++) {
+			byte[] nameDat = new byte[n];
+			in.read(nameDat, 0, n);
+//			System.out.println(new String(nameDat));
+		}
+		float period = in.readFloat();
+		int nX = in.readInt();
+		Period p = Period.valueForPeriod(period);
+//		System.out.println("period: " + period);
+//		System.out.println("nX: " + nX);
+		
+		// read x-vals real*4 * 20
+		cc.xs = Lists.newArrayList();
+		for (int i=0; i<20; i++) {
+			double val = Precision.round((double) in.readFloat(), 3);
+//			System.out.println(val);
+			// need to read 20 values to advance caret, but only save ones used
+			if (i<nX) cc.xs.add(val);
+		}
+//		System.out.println("xVals: " + cc.xs);
+
+		// read extras real*4 * 10
+		List<Double> extras = Lists.newArrayList();
+		for (int i=0; i<10; i++) {
+			double val = Precision.round((double) in.readFloat(), 2);
+			extras.add(val);
+ 		}
+//		System.out.println("extras: " + extras);
+		double minLon = extras.get(1);
+		double maxLon = extras.get(2);
+		double spacing = extras.get(3);
+		double minLat = extras.get(4);
+		double maxLat = extras.get(5);
+		Location nwLoc = new Location(maxLat, minLon);
+		Location seLoc = new Location(minLat, maxLon);
+		
+		cc.region = new GriddedRegion(nwLoc, seLoc, spacing,
+			GriddedRegion.ANCHOR_0_0);
+//		System.out.println(gr.getNodeCount());
+		int nRows = (int) Math.rint((maxLat - minLat) / spacing) + 1;
+		int nCols = (int) Math.rint((maxLon - minLon) / spacing) + 1;
+
+		cc.ysMap = Maps.newHashMapWithExpectedSize(cc.region.getNodeCount());
+		
+		for (int i=0; i<cc.region.getNodeCount(); i++) {
+			// read nX values for each i
+			List<Double> vals = Lists.newArrayList();
+			for (int j=0; j<nX; j++) {
+				vals.add((double) in.readFloat());
+			}
+			int regionIdx = calcIndex(i, nRows, nCols);
+			cc.ysMap.put(regionIdx, vals);
+		}
+		
+		in.close();
+		return cc;
+	}
+	
+	/*
+	 * This method converts an NSHMP index to the correct GriddedRegion index
+	 */
+	private static int calcIndex(int idx, int nRows, int nCols) {
+		return (nRows - (idx / nCols) - 1) * nCols + (idx % nCols);
+		// compact form of:
+		// int col = idx % nCols;
+		// int row = idx / nCols;
+		// int targetRow = nRows - row - 1;
+		// return targetRow * nCols + col;
+	}
 
 
+	// reads from ascii curve files
 	static class CurveFileProcessor_NSHMP implements LineProcessor<CurveContainer> {
 		
 		private Splitter split;
@@ -248,7 +397,7 @@ public class CurveContainer implements Iterable<Location> {
 				firstLine = false;
 				return true;
 			}
-									
+			
 			addCurve(line);
 			return true;
 		}
@@ -274,7 +423,7 @@ public class CurveContainer implements Iterable<Location> {
 	 * Test
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 //		File f = new File("/Volumes/Scratch/nshmp-sources/FortranLatest/GM0P00/curves_us_all.pga");
 //		GriddedRegion gr = getNSHMP_Region();
 //		System.out.println("region created: " + gr.getNodeCount());
@@ -332,16 +481,23 @@ public class CurveContainer implements Iterable<Location> {
 //		GriddedRegion gr = TestGrid.MEMPHIS.grid();
 //		System.out.println(gr.indexForLocation(NEHRP_TestCity.MEMPHIS.location()));
 		
-		LogicTreeBranch branch = LogicTreeBranch.fromFileName("FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2");
-		System.out.println(branch);
-		System.out.println(branch.getValue(DeformationModels.class));
-		System.out.println(branch.getAprioriBranchWt());
-		if (branch.getValue(DeformationModels.class).equals(DeformationModels.ZENG)) {
-			branch.setValue(DeformationModels.ZENGBB);
-		}
-		System.out.println(branch);
-		System.out.println(branch.getValue(DeformationModels.class));
-		System.out.println(branch.getAprioriBranchWt());
+//		LogicTreeBranch branch = LogicTreeBranch.fromFileName("FM3_1_ZENG_EllB_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU2");
+//		System.out.println(branch);
+//		System.out.println(branch.getValue(DeformationModels.class));
+//		System.out.println(branch.getAprioriBranchWt());
+//		if (branch.getValue(DeformationModels.class).equals(DeformationModels.ZENG)) {
+//			branch.setValue(DeformationModels.ZENGBB);
+//		}
+//		System.out.println(branch);
+//		System.out.println(branch.getValue(DeformationModels.class));
+//		System.out.println(branch.getAprioriBranchWt());
+		
+		String srcDir = "/Users/pmpowers/projects/NSHMP/tmp/out";
+		String srcFile = "sub.2014.pga";
+		File curveFile = new File(srcDir, srcFile);
+		URL url = curveFile.toURI().toURL();
+
+		CurveContainer.create(url);
 	}
 
 }
