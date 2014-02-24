@@ -17,6 +17,7 @@ OUTDIR=$BASEDIR/UC33/maps/$JOBGROUP
 
 # Calc config
 SOL_FILE=$SRCDIR/UC33brAvg_FM31_ABM_ELLB.zip
+IMR=WUS_FAULT_13
 GRID='CA_RELM'
 SPACING='0.1'
 PERIOD='GM0P00'
@@ -28,7 +29,7 @@ BG=INCLUDE
 java -cp $DIST_LOCAL/OpenSHA_complete.jar:$LIB_LOCAL/commons-cli-1.2.jar \
 	scratch.peter.ucerf3.scripts.MapsFromSolution \
 	$QUEUE $NODES $HRS $JAVADIR $SCRIPT \
-	$SOL_FILE $GRID $SPACING $PERIOD $BG $OUTDIR
+	$SOL_FILE $IMR $GRID $SPACING $PERIOD $BG $OUTDIR
 
 if [[ $? == 0 ]] ; then
 	echo 'PBS script is here:'

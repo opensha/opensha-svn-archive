@@ -55,9 +55,9 @@ public class Utils {
 		// generateFullTreeBranchList("UC32tree1440");
 		// generateBranchList("UC32-FM-DM-MS-U2-1sec");
 		// buildEqnSetWtList();
-//		curveCheck();
+		curveCheck();
 //		mapCheck();
-		invRunCheck(9);
+//		invRunCheck(9);
 	}
 
 	private static final String LF = IOUtils.LINE_SEPARATOR;
@@ -156,10 +156,10 @@ public class Utils {
 
 	// checks to see if curve set is complete and report missing data
 	static Set<Period> periods = Sets
-		.newHashSet(GM0P00, GM0P20, GM1P00, GM4P00);
+		.newHashSet(GM0P00, GM0P20); //, GM1P00, GM4P00);
 
 	private static void curveCheck() throws IOException {
-		String srcPath = "tmp/UC33/curves/UC33tree";
+		String srcPath = "tmp/UC33/curves/src/UC33tree13";
 		File srcDir = new File(srcPath);
 		File[] branchDirs = srcDir.listFiles();
 		for (File branchDir : branchDirs) {

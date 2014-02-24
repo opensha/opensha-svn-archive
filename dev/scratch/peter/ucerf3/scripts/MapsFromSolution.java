@@ -36,13 +36,13 @@ public class MapsFromSolution {
 	}
 
 	public static void main(String[] args) throws IOException {
-		if (args.length != 11) {
+		if (args.length != 13) {
 			System.out
 				.println("USAGE: " +
 					ClassUtils.getClassNameWithoutPackage(MapsFromSolution.class) +
 					" <queue> <nodes> <hours> <libDir> <scriptPath>" +
-					" <solPath> <grid> <spacing> <period> <bgOption>" +
-					" <outDir>");
+					" <solPath> <imr> <grid> <spacing> <period> <bgOption>" +
+					" <outDir> <nshmp>");
 			System.exit(1);
 		}
 
