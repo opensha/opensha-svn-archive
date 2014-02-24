@@ -29,7 +29,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.UpdatedUCERF2.GridSources;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
@@ -87,7 +87,7 @@ public class PVNGS_Utils {
 		}
 
 		for (String branch : branchList) {
-			UCERF3_FaultSysSol_ERF erf = UC3_CalcUtils.getUC3_ERF(UC32solPath, branch,
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(UC32solPath, branch,
 				IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 			erf.updateForecast();
 			EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);

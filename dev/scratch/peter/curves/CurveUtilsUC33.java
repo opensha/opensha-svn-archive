@@ -6,10 +6,23 @@ import static org.opensha.nshmp2.util.Period.*;
 import static org.opensha.sra.rtgm.RTGM.Frequency.*;
 import static scratch.peter.curves.ProbOfExceed.*;
 
+import static scratch.UCERF3.enumTreeBranches.DeformationModels.*;
+import static scratch.UCERF3.enumTreeBranches.FaultModels.*;
+import static scratch.UCERF3.enumTreeBranches.InversionModels.*;
+import static scratch.UCERF3.enumTreeBranches.MaxMagOffFault.*;
+import static scratch.UCERF3.enumTreeBranches.MomentRateFixes.*;
+import static scratch.UCERF3.enumTreeBranches.ScalingRelationships.*;
+import static scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels.*;
+import static scratch.UCERF3.enumTreeBranches.SpatialSeisPDF.*;
+import static scratch.UCERF3.enumTreeBranches.TotalMag5Rate.*;
+
 import java.awt.geom.Point2D;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -21,8 +34,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -33,6 +49,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.Interpolate;
+import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -42,6 +59,16 @@ import org.opensha.sra.rtgm.RTGM.Frequency;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
@@ -50,6 +77,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.peter.nshmp.CurveContainer;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -64,7 +92,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 import com.google.common.io.Files;
+import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -103,10 +133,17 @@ public class CurveUtilsUC33 {
 	private static final String ROOT = "tmp/UC33/";
 	
 	public static void main(String[] args) throws IOException {
-		
+
 		File src = null, out = null, locs = null;
 		Set<Period> periods = EnumSet.of(GM0P00, GM0P20, GM1P00, GM4P00);
 		Set<ProbOfExceed> PEs = EnumSet.of(PE2IN50, PE1IN100);
+		
+		
+//		create node flag table for Matlab stacked histogram building
+//		only one table needed as branches are always ordered the same
+//		src = new File(ROOT + "curves/src-reduce/UC33/GM0P00/LOS_ANGELES/params.csv");
+//		out = new File(ROOT + "curves/src-reduce/UC33/nodeFlags.csv");
+//		buildNodeFlagTable(src, out);
 		
 //		src = new File(ROOT + "curves/src/tree/");
 //		out = new File(ROOT + "curves/src-reduce/UC33/");
@@ -149,10 +186,10 @@ public class CurveUtilsUC33 {
 //			runInvRunSummaries(out.getPath(), periods,locs.getPath());
 //		}
 				
-		String locPath = ROOT + "curvejobs/sites/noPBR.txt";
-		String outPath = ROOT + "curves/src-reduce/UC33-invRuns/";
-		periods = EnumSet.of(GM0P00, GM3P00);
-		consolidateFractileData(outPath, periods, locPath);
+//		String locPath = ROOT + "curvejobs/sites/noPBR.txt";
+//		String outPath = ROOT + "curves/src-reduce/UC33-invRuns/";
+//		periods = EnumSet.of(GM0P00, GM3P00);
+//		consolidateFractileData(outPath, periods, locPath);
 
 		
 //		src = new File(ROOT + "curves/src/tree-bg/");
@@ -258,6 +295,8 @@ public class CurveUtilsUC33 {
 //		String locFile = treePath + "sites.txt";
 //		extractFaultCurves(totSrc, bgSrc, fltDest, locFile);
 		
+//		readBinaryCurves();
+//		readBinaries();
 	}
 	
 	private static void renameCurveFiles(File dir) throws IOException {
@@ -712,6 +751,87 @@ public class CurveUtilsUC33 {
 					torRTGM_File, tor2in50_File, tor10in50_File, p);
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static List<? extends LogicTreeBranchNode<?>> UC33nodeList = 
+			Lists.newArrayList(
+				FM3_1, FM3_2,
+				ABM, GEOLOGIC, NEOKINEMA, ZENGBB,
+				SHAW_2009_MOD, HANKS_BAKUN_08, ELLSWORTH_B, ELLB_SQRT_LENGTH, SHAW_CONST_STRESS_DROP,
+				UNIFORM, TAPERED,
+				RATE_6p5, RATE_7p9, RATE_9p6,
+				MAG_7p3, MAG_7p6, MAG_7p9,
+				UCERF2, UCERF3);
+	
+	@SuppressWarnings("unchecked")
+	private static List<? extends Class<? extends LogicTreeBranchNode<?>>> UC33classList =
+			Lists.newArrayList(
+				FaultModels.class,
+				DeformationModels.class,
+				ScalingRelationships.class,
+				SlipAlongRuptureModels.class,
+				TotalMag5Rate.class,
+				MaxMagOffFault.class,
+				SpatialSeisPDF.class);
+
+	// creates and writes a table of flags indicating which nodes are used
+	// in a branch; this simplifies process of building histograms in Matlab
+	private static void buildNodeFlagTable(File branchFile, File flagFile)
+			throws IOException {
+		
+		// branch list and index reverse lookup 
+		List<String> branchLines = Files.readLines(branchFile, US_ASCII);
+		List<String> branchList = Lists.newArrayList();
+		// fill branch list and index lookup map
+		for (String line : Iterables.skip(branchLines, 1)) {
+			Iterable<String> vals = SPLIT.split(line);
+			String branchName = Iterables.get(vals, 1);
+			branchList.add(branchName);
+		}
+
+		// want to redraw total GM distribution as stacked components of nodes
+		// on each branch - need a table of all branch nodes at top, a column of
+		// ground motion, a column of weight, and flags [0,1] for each indicating
+		// if used on the branch at index.
+		
+		// intialize table of branches and nodes to false
+		ArrayTable<String, LogicTreeBranchNode<?>, Boolean> nodeTable = 
+				ArrayTable.create(branchList, UC33nodeList);
+		for (String branchID : nodeTable.rowKeySet()) {
+			for (LogicTreeBranchNode<?> nodeID : nodeTable.columnKeySet()) {
+				nodeTable.put(branchID, nodeID, false);
+			}
+		}
+		
+		// set trues
+		for (String branchID : branchList) {
+			LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchID);
+			for (Class<? extends LogicTreeBranchNode<?>> clazz : UC33classList) {
+				LogicTreeBranchNode<?> node = branch.getValueUnchecked(clazz);
+				nodeTable.put(branchID, node, true);
+			}
+		}
+		
+		// write file
+		String nodeHeader = JOIN.join(Iterables.transform(UC33nodeList,
+			new Function<LogicTreeBranchNode<?>, String>() {
+				@Override public String apply(LogicTreeBranchNode<?> nodeID) {
+					return nodeID.name();
+				}
+			}
+		)) + LF;
+		Files.write(nodeHeader, flagFile, US_ASCII);
+		for (String branchID : nodeTable.rowKeyList()) {
+			List<Integer> flags = Lists.newArrayList();
+			Map<LogicTreeBranchNode<?>, Boolean>  row = nodeTable.row(branchID);
+			for (LogicTreeBranchNode<?> nodeID : nodeTable.columnKeyList()) {
+				flags.add(row.get(nodeID) ? 1 : 0);
+			}
+			String flagLine = JOIN.join(flags) + LF;
+			Files.append(flagLine, flagFile, US_ASCII);
+		}
+		
 	}
 
 
@@ -1202,8 +1322,9 @@ public class CurveUtilsUC33 {
 			double fssRupMag = fss.getRupSet().getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
-			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
+//			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+//			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(convSolPath, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 			erf.updateForecast();
 			int srcIdx = -1;
 			for (int j=0; j<erf.getNumFaultSystemSources(); j++) {
@@ -1296,6 +1417,17 @@ public class CurveUtilsUC33 {
 			strs.add(Double.toString(d));
 		}
 		return strs;
+	}
+	
+	
+	private static void readBinaries() throws IOException {
+		String srcDir = "/Users/pmpowers/projects/NSHMP/tmp/out";
+		String srcFile = "CAdeep_2014.pga";
+		File curveFile = new File(srcDir, srcFile);
+		URL url = curveFile.toURI().toURL();
+		CurveContainer cc = CurveContainer.create(url);
+		System.out.println(NEHRP_TestCity.SANTA_ROSA.location());
+		System.out.println(cc.getCurve(NEHRP_TestCity.SANTA_ROSA.location()));
 	}
 	
 	

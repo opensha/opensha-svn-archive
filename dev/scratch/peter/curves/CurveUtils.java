@@ -53,6 +53,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
@@ -904,8 +905,9 @@ public class CurveUtils {
 			double fssRupMag = fss.getRupSet().getMagForRup(fssRupIdx);
 			System.out.println(fssRupRate + "\t" + fssRupMag);
 		
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
-			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
+//			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+//			UC3_CalcUtils.initUC3(erf, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
+			FaultSystemSolutionERF erf = UC3_CalcUtils.getUC3_ERF(convSolPath, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 			erf.updateForecast();
 			int srcIdx = -1;
 			for (int j=0; j<erf.getNumFaultSystemSources(); j++) {
