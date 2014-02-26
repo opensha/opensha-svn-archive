@@ -8,6 +8,7 @@ import java.util.zip.ZipException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
@@ -51,7 +52,7 @@ public class ERFInsideSpeedTest {
 			private ConcurrentMap<Region, ConcurrentMap<String, Boolean>> map = Maps.newConcurrentMap();
 
 			@Override
-			public boolean isRupInRegion(ProbEqkSource src, EqkRupture rup, int srcIndex, int rupIndex,
+			public boolean isRupInRegion(ERF erf, ProbEqkSource src, EqkRupture rup, int srcIndex, int rupIndex,
 					Region region) {
 				RuptureSurface surf = rup.getRuptureSurface();
 				if (surf instanceof CompoundSurface) {

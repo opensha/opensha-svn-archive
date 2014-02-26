@@ -241,8 +241,8 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			// this means that we have to load/build the solution (parameter change or never loaded)
 			fetchSolution();
 		}
-		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
-			throw new IllegalStateException("MeanUCERF3 not yet tested with time dependence and seems inconsistent.");
+//		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
+//			throw new IllegalStateException("MeanUCERF3 not yet tested with time dependence and seems inconsistent.");
 		super.updateForecast();
 	}
 

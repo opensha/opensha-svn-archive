@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.FaultGridSpacingParam;
@@ -31,33 +32,33 @@ import com.google.common.collect.Maps;
  */
 public class FSSRupsInRegionCache implements RupInRegionCache {
 	
-	private FaultSystemSolutionERF erf;
-	public FSSRupsInRegionCache(FaultSystemSolutionERF erf) {
-		Preconditions.checkNotNull(erf);
-		this.erf = erf;
-	}
-	private FaultSystemSolution sol;
 	private ConcurrentMap<Region, boolean[]> sectsInRegions = Maps.newConcurrentMap();
 	
+	private int numRups = -1;
 	private ConcurrentMap<Region, ConcurrentMap<Integer, Boolean>> rupMap = Maps
 			.newConcurrentMap();
 	private ConcurrentMap<Region, ConcurrentMap<Integer, Boolean>> sectMap = Maps
 			.newConcurrentMap();
 
 	@Override
-	public boolean isRupInRegion(ProbEqkSource source, EqkRupture rup,
+	public boolean isRupInRegion(ERF erf, ProbEqkSource source, EqkRupture rup,
 			int srcIndex, int rupIndex, Region region) {
+		Preconditions.checkArgument(erf instanceof FaultSystemSolutionERF, "ERF must be a FaultSystemSolutionERF");
+		FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
+		FaultSystemSolution sol = fssERF.getSolution();
+		Preconditions.checkNotNull(sol, "FSS ERF has null solution");
 		synchronized (this) {
-			// check if the solution has changed in the ERF
-			if (sol != erf.getSolution()) {
+			// check if the solution has changed
+			if (numRups != sol.getRupSet().getNumRuptures()) {
 				rupMap.clear();
-				sol = erf.getSolution();
+				sectMap.clear();
+				numRups = sol.getRupSet().getNumRuptures();
 			}
 		}
 		synchronized (region) {
 			if (!sectsInRegions.containsKey(region)) {
 				// calculate sections in regions
-				double erfGridSpacing = (Double)erf.getParameter(FaultGridSpacingParam.NAME).getValue();
+				double erfGridSpacing = (Double)fssERF.getParameter(FaultGridSpacingParam.NAME).getValue();
 				FaultSystemRupSet rupSet = sol.getRupSet();
 				boolean[] sects = new boolean[rupSet.getNumSections()];
 				for (int i=0; i<sects.length; i++) {
@@ -78,11 +79,13 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 		boolean[] sects = sectsInRegions.get(region);
 		RuptureSurface surf = rup.getRuptureSurface();
 		int invIndex;
-		if (srcIndex >= erf.getNumFaultSystemSources())
+		if (srcIndex >= fssERF.getNumFaultSystemSources())
 			invIndex = -1;
 		else
-			invIndex = erf.getFltSysRupIndexForSource(srcIndex);
+			invIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
 		if (invIndex >= 0 && source instanceof FaultRuptureSource) {
+			Preconditions.checkState(source.getName().contains(invIndex+""),
+					"Bad mapping of inv index "+invIndex+" for source name: "+source.getName());
 			ConcurrentMap<Integer, Boolean> regRupMap = rupMap
 					.get(region);
 			ConcurrentMap<Integer, Boolean> regSectMap = sectMap

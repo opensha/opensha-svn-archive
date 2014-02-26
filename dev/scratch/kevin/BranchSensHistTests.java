@@ -28,7 +28,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class BranchSensHistTests {
 
 	public static void main(String[] args) throws ZipException, IOException {
-		BranchSensitivityHistogram hists = new BranchSensitivityHistogram("Ratio", 0d, 21, 0.1);
+		BranchSensitivityHistogram hists = new BranchSensitivityHistogram("Ratio");
 		
 		// use CFSS for branch
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(
@@ -57,7 +57,7 @@ public class BranchSensHistTests {
 			outputDir.mkdir();
 		
 		// write the ratio hists
-		Map<String, PlotSpec> histPlots = hists.getStackedHistPlots();
+		Map<String, PlotSpec> histPlots = hists.getStackedHistPlots(0d, 21, 0.1);
 		for (String categoryName : histPlots.keySet()) {
 			PlotSpec spec = histPlots.get(categoryName);
 			

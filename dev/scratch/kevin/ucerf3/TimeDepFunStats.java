@@ -16,6 +16,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -104,7 +105,7 @@ public class TimeDepFunStats {
 				probsList.add(new ArrayList<Double>());
 			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 				ProbEqkSource source = erf.getSource(sourceID);
-				if (!rupInRegionCache.isRupInRegion(source, source.getRupture(0), sourceID, 0, reg))
+				if (!rupInRegionCache.isRupInRegion(erf, source, source.getRupture(0), sourceID, 0, reg))
 					continue;
 				String srcName = source.getName();
 				int rupIndex = Integer.parseInt(srcName.substring(srcName.indexOf("#")+1, srcName.indexOf(";")));
@@ -144,7 +145,7 @@ public class TimeDepFunStats {
 			Table<Integer, Integer, Boolean> cache = HashBasedTable.create();
 			
 			@Override
-			public boolean isRupInRegion(ProbEqkSource source, EqkRupture rup,
+			public boolean isRupInRegion(ERF erf, ProbEqkSource source, EqkRupture rup,
 					int srcIndex, int rupIndex, Region region) {
 				Boolean val = cache.get(srcIndex, rupIndex);
 				if (val  == null) {
@@ -178,7 +179,7 @@ public class TimeDepFunStats {
 				ProbEqkSource source = u2erf.getSource(sourceID);
 				for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
 					ProbEqkRupture rup = source.getRupture(rupID);
-					if (!u2Cache.isRupInRegion(source, source.getRupture(0), sourceID, rupID, reg))
+					if (!u2Cache.isRupInRegion(erf, source, source.getRupture(0), sourceID, rupID, reg))
 						continue;
 					double mag = rup.getMag();
 					int magIndex = xyz.getYIndex(mag);

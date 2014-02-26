@@ -721,7 +721,7 @@ public class FaultSysSolutionERF_Calc {
 		} else {
 			// calc from each source itself
 			if (cache == null)
-				cache = new FSSRupsInRegionCache(erf);
+				cache = new FSSRupsInRegionCache();
 			
 			EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
 			
@@ -732,7 +732,7 @@ public class FaultSysSolutionERF_Calc {
 			
 			for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
 				ProbEqkSource source = erf.getSource(sourceID);
-				if (!cache.isRupInRegion(source, source.getRupture(0), sourceID, 0, region))
+				if (!cache.isRupInRegion(erf, source, source.getRupture(0), sourceID, 0, region))
 					// source is just for a single rupture, if the first rup isn't in the region none are
 					continue;
 				for (ProbEqkRupture rup : source) {
@@ -763,7 +763,7 @@ public class FaultSysSolutionERF_Calc {
 		double minMag = 5d;
 		int numMag = 40;
 		double deltaMag = 0.1;
-		FSSRupsInRegionCache cache = new FSSRupsInRegionCache(erf);
+		FSSRupsInRegionCache cache = new FSSRupsInRegionCache();
 		EvenlyDiscretizedFunc mfdVals = calcMagProbDist(erf, region, minMag, numMag, deltaMag, true, cache);
 		EvenlyDiscretizedFunc sumVals = calcMagProbDist(erf, region, minMag, numMag, deltaMag, true, cache);
 		
@@ -840,7 +840,7 @@ public class FaultSysSolutionERF_Calc {
 		return calcSubSectSupraSeisMagProbDists(erf, minMag, numMag, deltaMag, 10d);
 	}
 	
-	private static EvenlyDiscretizedFunc[] calcSubSectSupraSeisMagProbDists(
+	public static EvenlyDiscretizedFunc[] calcSubSectSupraSeisMagProbDists(
 			FaultSystemSolutionERF erf, double minMag, int numMag, double deltaMag, double overallMaxMag) {
 		erf.updateForecast();
 		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
@@ -1397,7 +1397,7 @@ public class FaultSysSolutionERF_Calc {
 					numDuration, numMag, minDuration, minMag, deltaDuration, deltaMag);
 		}
 		
-		FSSRupsInRegionCache cache = new FSSRupsInRegionCache(erf);
+		FSSRupsInRegionCache cache = new FSSRupsInRegionCache();
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		
 		populateMagDurationXYZ(erf, poissonXYZs, regions, cache);
@@ -2407,7 +2407,7 @@ public class FaultSysSolutionERF_Calc {
 		if (!comparePlotsDir.exists())
 			comparePlotsDir.mkdir();
 		
-		BranchSensitivityHistogram branchSensHist = new BranchSensitivityHistogram("Ratio", 0d, 21, 0.1);
+		BranchSensitivityHistogram branchSensHist = new BranchSensitivityHistogram("Ratio");
 		
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
 			if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
@@ -2548,7 +2548,7 @@ public class FaultSysSolutionERF_Calc {
 //		}
 		
 		// write the ratio hists
-		Map<String, PlotSpec> histPlots = branchSensHist.getStackedHistPlots();
+		Map<String, PlotSpec> histPlots = branchSensHist.getStackedHistPlots(0d, 21, 0.1);
 		for (String categoryName : histPlots.keySet()) {
 			PlotSpec spec = histPlots.get(categoryName);
 			
@@ -2577,6 +2577,12 @@ public class FaultSysSolutionERF_Calc {
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
 		
+		try {
+			combineBranchSensHists(comparePlotsDir);
+		} catch (com.lowagie.text.DocumentException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
 		// now do min/mean/max prob maps
 		CPT logProbCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4d, 0d);
 		
@@ -2590,6 +2596,46 @@ public class FaultSysSolutionERF_Calc {
 				outputDir, "gain_u3", false, true, "UCERF3 Mean BPT/Poisson Prob Gain");
 		
 		return meanMap;
+	}
+	
+	public static void combineBranchSensHists(File dir) throws IOException, com.lowagie.text.DocumentException {
+		List<File> pdfFiles = Lists.newArrayList();
+		
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
+			if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
+				continue;
+			File pdfFile = new File(dir, ClassUtils.getClassNameWithoutPackage(clazz)+"_hists_small.pdf");
+			Preconditions.checkState(pdfFile.exists(), "File doesn't exist: "+pdfFile.getAbsolutePath());
+			pdfFiles.add(pdfFile);
+		}
+		
+		// now try cov
+		File covFile = new File(dir, "MagDepAperiodicity_hists_small.pdf");
+		if (covFile.exists())
+			pdfFiles.add(covFile);
+		
+		// now try bpt ave
+		File bptFile = new File(dir, "BPTAveType_hists_small.pdf");
+		if (bptFile.exists())
+			pdfFiles.add(bptFile);
+		
+		File outputFile = new File(dir, "histograms_combined.pdf");
+		combineBranchSensHists(pdfFiles, outputFile);
+	}
+	
+	public static void combineBranchSensHists(List<File> pdfFiles, File outputFile)
+			throws IOException, com.lowagie.text.DocumentException {
+		
+		int cols = 3;
+		double scale = 0.4;
+		boolean rotate = false;
+		double xMarginBuffFract = 0.02;
+		double yMarginBuffFract = 0.05;
+		double xPosMult = 0.96;
+		double yPosMult = 0.95;
+		
+		TestPDFCombine.combine(pdfFiles, outputFile, cols, scale, rotate,
+				xMarginBuffFract, yMarginBuffFract, xPosMult, yPosMult);
 	}
 	
 	private static List<Double> getNonNanInfinites(double[] vals) {

@@ -32,6 +32,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 import com.google.common.primitives.Doubles;
 
 /**
@@ -46,15 +47,9 @@ public class BranchSensitivityHistogram implements Serializable {
 	private Table<String, String, List<Double>> weightsTable;
 	
 	private String xAxisName;
-	private double min;
-	private int num;
-	private double delta;
 	
-	public BranchSensitivityHistogram(String xAxisName, double min, int num, double delta) {
+	public BranchSensitivityHistogram(String xAxisName) {
 		this.xAxisName = xAxisName;
-		this.min = min;
-		this.num = num;
-		this.delta = delta;
 		
 		valsTable = HashBasedTable.create();
 		weightsTable = HashBasedTable.create();
@@ -106,7 +101,20 @@ public class BranchSensitivityHistogram implements Serializable {
 		weightsTable.get(categoryName, choiceName).add(weight);
 	}
 	
-	private HistogramFunction generateHist(String categoryName, String choiceName) {
+	public void addAll(BranchSensitivityHistogram o) {
+		for (Cell<String, String, List<Double>> cell : valsTable.cellSet()) {
+			String categoryName = cell.getRowKey();
+			String choiceName = cell.getColumnKey();
+			List<Double> value = cell.getValue();
+			for (int i = 0; i < value.size(); i++) {
+				double val = value.get(i);
+				double weight = weightsTable.get(categoryName, choiceName).get(i);
+				addValue(categoryName, choiceName, val, weight);
+			}
+		}
+	}
+	
+	private HistogramFunction generateHist(String categoryName, String choiceName, double min, int num, double delta) {
 		// values above/below included in last/first bin
 		
 		HistogramFunction hist = new HistogramFunction(min, num, delta);
@@ -240,30 +248,46 @@ public class BranchSensitivityHistogram implements Serializable {
 		return Math.sqrt(var);
 	}
 	
+	public Range getRange() {
+		double min = Double.POSITIVE_INFINITY;
+		double max = Double.NEGATIVE_INFINITY;
+		
+		for (Cell<String, String, List<Double>> cell : valsTable.cellSet()) {
+			for (double val : cell.getValue()) {
+				if (val < min)
+					min = val;
+				if (val > max)
+					max = val;
+			}
+		}
+		
+		return new Range(min, max);
+	}
+	
 	public Set<String> getChoices(String categoryName) {
 		return valsTable.row(categoryName).keySet();
 	}
 	
-	public Map<String, PlotSpec> getStackedHistPlots() {
+	public Map<String, PlotSpec> getStackedHistPlots(double min, int num, double delta) {
 		Map<String, PlotSpec> map = Maps.newHashMap();
 		
 		for (String categoryName : valsTable.rowKeySet()) {
 			if (valsTable.row(categoryName).size() > 1)
 				// only include if there are at least 2 choices at this level
-				map.put(categoryName, getStackedHistPlot(categoryName));
+				map.put(categoryName, getStackedHistPlot(categoryName, min, num, delta));
 		}
 		
 		return map;
 	}
 	
-	public PlotSpec getStackedHistPlot(String categoryName) {
+	public PlotSpec getStackedHistPlot(String categoryName, double min, int num, double delta) {
 		List<HistogramFunction> hists = Lists.newArrayList();
 		
 		List<String> choiceNames = Lists.newArrayList(getChoices(categoryName));
 		Collections.sort(choiceNames);
 		
 		for (String choiceName : choiceNames)
-			hists.add(generateHist(categoryName, choiceName));
+			hists.add(generateHist(categoryName, choiceName, min, num, delta));
 		
 		List<HistogramFunction> stackedHists = HistogramFunction.getStackedHists(hists, true);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();

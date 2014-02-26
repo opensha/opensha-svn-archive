@@ -90,8 +90,11 @@ public class FSS_ERF_ParamTest {
 				rupSet1.getRupturesForClusters(), rupSet1.getSectionsForClusters());
 		
 		double[] rates1 = new double[rupSet1.getNumRuptures()];
-		for (int r=0; r<rupSet1.getNumRuptures(); r++)
+		for (int r=0; r<rupSet1.getNumRuptures(); r++) {
 			rates1[r] = Math.random()*1e-4;
+			if (Math.random() < 0.05)
+				rates1[r] = 0;
+		}
 		double[] rates2 = new double[rupSet2.getNumRuptures()];
 		for (int r=0; r<rupSet2.getNumRuptures(); r++)
 			rates2[r] = Math.random()*1e-4;
@@ -668,6 +671,20 @@ public class FSS_ERF_ParamTest {
 			assertEquals(setMessage,
 					val, (Double)erf.getParameter(paramName).getValue());
 			// TODO check actually applied!!!
+		}
+	}
+	
+	@Test
+	public void testInvIndex() {
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(ivfss_1);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+		erf.updateForecast();
+		
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			int invIndex = erf.getFltSysRupIndexForSource(sourceID);
+			String sourceName = erf.getSource(sourceID).getName();
+			assertTrue("Index "+invIndex+" not found in name: "+sourceName, sourceName.contains(invIndex+""));
 		}
 	}
 

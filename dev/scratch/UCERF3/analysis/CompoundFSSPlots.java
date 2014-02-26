@@ -1,18 +1,21 @@
 package scratch.UCERF3.analysis;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
@@ -30,10 +33,14 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.data.Range;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -49,11 +56,13 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
@@ -96,6 +105,8 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FSSRupsInRegionCache;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -137,6 +148,7 @@ import scratch.kevin.DeadlockDetectionThread;
 import scratch.kevin.ucerf3.TestPDFCombine;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -1093,7 +1105,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 	}
 
 	public static void writeERFBasedRegionalProbDistPlots(Map<Double, List<PlotSpec>> specs,
-			Map<Double, List<PlotSpec>> faultSpecs,
+			Map<Double, List<PlotSpec>> faultSpecs, Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists,
 			List<Region> regions, File dir, String prefix) throws IOException {
 		
 		File subDir = new File(dir, "erf_mag_prob_plots");
@@ -1105,6 +1117,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		File smallFaultsDir = new File(dir, "small_MPD_faults");
 		if (!smallFaultsDir.exists())
 			smallFaultsDir.mkdir();
+		File regionM6p7Dir = new File(dir, "region_m6p7_branch_hists");
+		if (!regionM6p7Dir.exists())
+			regionM6p7Dir.mkdir();
 
 		int unnamedRegionCnt = 0;
 
@@ -1114,6 +1129,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				durDir.mkdir();
 			List<File> regSmallPDFs = Lists.newArrayList();
 			List<File> faultSmallPDFs = Lists.newArrayList();
+			
+			File regionM6p7DurDir = new File(regionM6p7Dir, (int)duration+"yr");
+			if (!regionM6p7DurDir.exists())
+				regionM6p7DurDir.mkdir();
+			
 			for (int i = 0; i < regions.size(); i++) {
 				PlotSpec spec = specs.get(duration).get(i);
 				Region region = regions.get(i);
@@ -1126,12 +1146,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 				gp.setUserBounds(5d, 9d, 0d, 1d);
 
 				gp.drawGraphPanel(spec);
-
-				String fname = prefix+"_"+(int)duration+"yr_MPD_ERF";
+				String regNameFileSafe;
 				if (region.getName() != null && !region.getName().isEmpty())
-					fname += "_" + region.getName().replaceAll("\\W+", "_");
+					regNameFileSafe = region.getName().replaceAll("\\W+", "_");
 				else
-					fname += "_UNNAMED_REGION_" + (++unnamedRegionCnt);
+					regNameFileSafe = "UNNAMED_REGION_" + (++unnamedRegionCnt);
+
+				String fname = prefix+"_"+(int)duration+"yr_MPD_ERF_"+regNameFileSafe;
 
 				File file = new File(durDir, fname);
 				gp.getCartPanel().setSize(1000, 800);
@@ -1143,6 +1164,117 @@ public abstract class CompoundFSSPlots implements Serializable {
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				regSmallPDFs.add(new File(file.getAbsolutePath()+".pdf"));
+				
+				// branch sensitivity hists
+				File regionHistDir = new File(regionM6p7DurDir, regNameFileSafe);
+				if (!regionHistDir.exists())
+					regionHistDir.mkdir();
+				
+				BranchSensitivityHistogram sensHist = regionM6p7Hists.get(duration).get(i);
+				Range range = sensHist.getRange();
+				double delta = 0.025;
+				// round down
+				double min = Math.floor(range.getLowerBound()/delta) * delta;
+				int num = (int)((range.getUpperBound() - min) / delta + 0.5);
+				Map<String, PlotSpec> histSpecs = sensHist.getStackedHistPlots(min, num, delta);
+				List<File> histPDFs = Lists.newArrayList();
+				List<String> names = Lists.newArrayList();
+				for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
+					if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
+						continue;
+					names.add(ClassUtils.getClassNameWithoutPackage(LogicTreeBranch.getEnumEnclosingClass(clazz)));
+				}
+				names.add("MagDepAperiodicity");
+				System.out.println("Histograms for "+regNameFileSafe+", duration="+(int)duration);
+				for (String name : names) {
+					PlotSpec histSpec = histSpecs.get(name);
+					Preconditions.checkNotNull(histSpec, "No plot found for: "+name);
+					List<PlotElement> elems = Lists.newArrayList(histSpec.getPlotElems());
+					histSpec.setPlotElems(elems);
+					List<PlotCurveCharacterstics> chars = histSpec.getChars();
+					
+					// this code here is just to get a legend that doesn't include the lines that will be added later
+					gp = new HeadlessGraphPanel();
+					CommandLineInversionRunner.setFontSizes(gp);
+					gp.setUserBounds(min-0.5*delta, min+(num+0.5)*delta, 0, 1);
+					gp.drawGraphPanel(histSpec);
+					histSpec.setCustomLegendCollection(gp.getPlot().getLegendItems());
+					
+					double maxY = 0;
+					for (PlotElement func : elems) {
+						double myMax = ((DiscretizedFunc)func).getMaxY();
+						if (myMax > maxY)
+							maxY = myMax;
+					}
+					double plotMaxY = maxY * 1.3;
+					if (plotMaxY > 1)
+						plotMaxY = 1;
+					
+					double mean = sensHist.calcMean(name);
+					double stdDev = sensHist.calcStdDev(name);
+					
+					System.out.println(name+": mean="+mean+", sigma="+stdDev);
+					
+					List<String> choiceNames = Lists.newArrayList(sensHist.getChoices(name));
+					// sort to get in plot order for color selection
+					Collections.sort(choiceNames);
+					
+					List<Double> choiceMeans = Lists.newArrayList();
+					List<Color> choiceColors = Lists.newArrayList();
+					
+					for (int j=0; j<choiceNames.size(); j++) {
+						String choiceName = choiceNames.get(j);
+						double choiceMean = sensHist.calcMean(name, choiceName);
+						Color choiceColor = chars.get(j).getColor();
+						
+						choiceMeans.add(choiceMean);
+						choiceColors.add(choiceColor);
+					
+					}
+					// add black thicker lines as a backing to make them visible
+					for (int j=0; j<choiceNames.size(); j++) {
+						double choiceMean = choiceMeans.get(j);
+						DefaultXY_DataSet line = new DefaultXY_DataSet();
+						line.set(choiceMean, 0);
+						line.set(choiceMean, plotMaxY);
+						line.setName("(line mask)");
+						elems.add(line);
+						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
+					}
+					for (int j=0; j<choiceNames.size(); j++) {
+						double choiceMean = choiceMeans.get(j);
+						Color choiceColor = choiceColors.get(j);
+						String choiceName = choiceNames.get(j);
+						DefaultXY_DataSet line = new DefaultXY_DataSet();
+						line.set(choiceMean, 0);
+						line.set(choiceMean, plotMaxY);
+						line.setName(choiceName+" (mean="+(float)choiceMean+")");
+						elems.add(line);
+						chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 4f, choiceColor));
+					}
+					
+//					XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
+//					ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+//					ann.setTextAnchor(TextAnchor.TOP_LEFT);
+//					histSpec.setPlotAnnotations(Lists.newArrayList(ann));
+					
+					gp = new HeadlessGraphPanel();
+					CommandLineInversionRunner.setFontSizes(gp);
+					gp.setUserBounds(min-0.5*delta, min+(num+0.5)*delta, 0, plotMaxY);
+					
+					gp.drawGraphPanel(histSpec);
+					file = new File(regionHistDir, name);
+					gp.getCartPanel().setSize(500, 400);
+					gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+					gp.saveAsPNG(file.getAbsolutePath()+".png");
+					histPDFs.add(new File(file.getAbsolutePath()+".pdf"));
+				}
+				
+				try {
+					FaultSysSolutionERF_Calc.combineBranchSensHists(histPDFs, new File(regionHistDir, "histograms_combined.pdf"));
+				} catch (com.lowagie.text.DocumentException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
 			}
 			File faultDir = new File(durDir, "faults");
 			if (!faultDir.exists())
@@ -1171,10 +1303,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				faultSmallPDFs.add(new File(
 						smallFaultsDir, faultName.replaceAll("\\W+", "_")+"_"+(int)duration+"yr_small"+".pdf"));
 			try {
-				TestPDFCombine.combine(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"),
-						2, 0.5, false, 0.03, 0.05);
-				TestPDFCombine.combine(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"),
-						2, 0.43, false, 0.06, 0.03);
+				if (regSmallPDFs.size() > 1)
+					TestPDFCombine.combine(regSmallPDFs, new File(smallMPDDir, (int)duration+"yr_combined.pdf"),
+							2, 0.5, false, 0.03, 0.05);
+				if (faultSmallPDFs.size() > 1)
+					TestPDFCombine.combine(faultSmallPDFs, new File(smallFaultsDir, (int)duration+"yr_combined.pdf"),
+							2, 0.43, false, 0.06, 0.03);
 			} catch (com.lowagie.text.DocumentException e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
@@ -1253,7 +1387,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				.newConcurrentMap();
 
 		@Override
-		public boolean isRupInRegion(ProbEqkSource source, EqkRupture rup,
+		public boolean isRupInRegion(ERF erf, ProbEqkSource source, EqkRupture rup,
 				int srcIndex, int rupIndex, Region region) {
 			RuptureSurface surf = rup.getRuptureSurface();
 			if (surf instanceof CompoundSurface) {
@@ -1317,10 +1451,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 //		private static double[] durations = {5d, 30d};
 		private static double[] durations = {30d, 5d};
+//		private static double[] durations = {30d};
 
 		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
 		private Map<Double, List<Double>> weights;
+		private Map<Double, List<LogicTreeBranch>> branches;
 		private double[] ucerf2DepWeights;
 		private double[] ucerf2IndepWeights;
 
@@ -1341,6 +1477,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOnMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOffMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2IndepMPDs = Maps.newHashMap();
+		
+		// duration: regions
+		private Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists = Maps.newHashMap();
 		
 		// now "main faults"
 		// organized as duration, name, mfds
@@ -1440,11 +1579,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				solMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 //				ucerf2DepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
+				
+				List<BranchSensitivityHistogram> hists = Lists.newArrayList();
+				for (int r=0; r<regions.size(); r++)
+					hists.add(new BranchSensitivityHistogram("Probability"));
+				regionM6p7Hists.put(duration, hists);
 			}
 			
 			weights = Maps.newHashMap();
-			for (double duration : durations)
+			branches = Maps.newHashMap();
+			for (double duration : durations) {
 				weights.put(duration, new ArrayList<Double>());
+				branches.put(duration, new ArrayList<LogicTreeBranch>());
+			}
 			ucerf2DepWeights = new double[numUCEF2_DepERFs];
 			ucerf2IndepWeights = new double[numUCEF2_IndepERFs];
 		}
@@ -1746,7 +1893,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			if (rupsCache == null) {
 				synchronized (this) {
 					if (!rupInRegionsCaches.containsKey(fm)) {
-						rupInRegionsCaches.put(fm, new FSSRupsInRegionCache(erf));
+						rupInRegionsCaches.put(fm, new FSSRupsInRegionCache());
 					}
 				}
 				rupsCache = rupInRegionsCaches.get(fm);
@@ -1899,11 +2046,21 @@ public abstract class CompoundFSSPlots implements Serializable {
 				debug(solIndex, " archiving");
 				synchronized (this) {
 					// store results
-					weights.get(duration).add(weightProvider.getWeight(branch));
-					for (int r = 0; r < regions.size(); r++) {
-						for (MagDependentAperiodicityOptions cov : covs) {
-							solMPDs.get(duration).get(r).get(cov).add(
-									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfds.get(cov).get(r), duration));
+					double branchWeight = weightProvider.getWeight(branch);
+					weights.get(duration).add(branchWeight);
+					branches.get(duration).add(branch);
+					for (MagDependentAperiodicityOptions cov : covs) {
+						double subBranchWeight = branchWeight * FaultSystemSolutionERF.getWeightForCOV(cov);
+						for (int r = 0; r < regions.size(); r++) {
+							EvenlyDiscretizedFunc probs = FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfds.get(cov).get(r), duration);
+							solMPDs.get(duration).get(r).get(cov).add(probs);
+							double prob6p7 = probs.getClosestY(6.7d);
+							String covName;
+							if (cov == null)
+								covName = "POISSON";
+							else
+								covName = cov.name();
+							regionM6p7Hists.get(duration).get(r).addValues(branch, prob6p7, subBranchWeight, "MagDepAperiodicity", covName);
 							solOnMPDs.get(duration).get(r).get(cov).add(
 									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(onMFDs.get(cov).get(r), duration));
 							solOffMPDs.get(duration).get(r).get(cov).add(
@@ -1936,6 +2093,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 							solOffMPDs.get(duration).get(r).get(cov).addAll(
 									o.solOffMPDs.get(duration).get(r).get(cov));
 						}
+						regionM6p7Hists.get(duration).get(r).addAll(o.regionM6p7Hists.get(duration).get(r));
 					}
 					for (String faultName : mainFaultsSorted) {
 						for (MagDependentAperiodicityOptions cov : covs)
@@ -1943,6 +2101,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 									o.solMainFaults.get(duration).get(cov).get(faultName));
 					}
 					weights.get(duration).addAll(o.weights.get(duration));
+					branches.get(duration).addAll(o.branches.get(duration));
 				}
 
 				for (int e = 0; e < numUCEF2_DepERFs; e++) {
@@ -1969,11 +2128,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 			}
 		}
+		
+//		private CSVFile<String> sfDebugCSV;
 
 		@Override
 		protected void doFinalizePlot() {
 			specs = Maps.newHashMap();
 			faultSpecs = Maps.newHashMap();
+			
+//			sfDebugCSV = new CSVFile<String>(true);
+//			sfDebugCSV.addLine("index", "branch", "weight", "prob", "equivRate");
 
 			// make sure we've calculated all UCERF2 MFDs
 			checkCalcAllUCERF2MFDs();
@@ -2004,6 +2168,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 			for (double duration : durations) {
 				List<Double> origWeights = this.weights.get(duration);
+				List<LogicTreeBranch> origBranches = this.branches.get(duration);
 				
 				// this adds in each individual COV weight including poisson
 				List<Double> weights = Lists.newArrayList();
@@ -2051,10 +2216,22 @@ public abstract class CompoundFSSPlots implements Serializable {
 						ucerf3Funcs.addAll(solMPDs.get(duration).get(r).get(cov));
 						ucerf3OnFuncs.addAll(solOnMPDs.get(duration).get(r).get(cov));
 						ucerf3OffFuncs.addAll(solOffMPDs.get(duration).get(r).get(cov));
-						
-						if (cov == null)
-							ucerf3IndepFuncs.addAll(solMPDs.get(duration).get(r).get(cov));
 					}
+					ucerf3IndepFuncs.addAll(solMPDs.get(duration).get(r).get(null));
+					
+//					if (region.getName().toUpperCase().contains("SF") && (int)duration == 30) {
+////						List<String> sfVals = Lists.newArrayList();
+//						for (int i=0; i<ucerf3IndepFuncs.size(); i++) {
+//							XY_DataSet func = ucerf3IndepFuncs.get(i);
+//							double weight = origWeights.get(i);
+////							sfVals.add("["+func.getClosestY(6.7d)+"*"+weight+"]");
+//							double prob = func.getClosestY(6.7d);
+//							double equivRate = -Math.log(1-prob)/duration;
+//							sfDebugCSV.addLine(i+"", origBranches.get(i).buildFileName(),
+//									weight+"", prob+"", equivRate+"");
+//						}
+////						System.out.println("SF Indep Vals: "+Joiner.on(",").join(sfVals));
+//					}
 
 					ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
 					ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -2182,6 +2359,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 					faultSpecList.add(spec);
 				}
 			}
+			
+//			sfDebugCSV.sort(1, 1, new Comparator<String>() {
+//
+//				@Override
+//				public int compare(String o1, String o2) {
+//					return o1.compareTo(o2);
+//				}
+//				
+//			});
 		}
 
 		@Override
@@ -5643,7 +5829,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 		
-		private GriddedGeoDataSet getAsProbs(GriddedGeoDataSet ratesData, double duration) {
+		public static GriddedGeoDataSet getAsProbs(GriddedGeoDataSet ratesData, double duration) {
 			GriddedGeoDataSet probsData = new GriddedGeoDataSet(ratesData.getRegion(), ratesData.isLatitudeX());
 			for (int i=0; i<ratesData.size(); i++) {
 				double rate = ratesData.get(i);
@@ -7322,8 +7508,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						prefix);
 			} else if (plot instanceof ERFBasedRegionalMagProbPlot) {
 				ERFBasedRegionalMagProbPlot mfd = (ERFBasedRegionalMagProbPlot) plot;
-				writeERFBasedRegionalProbDistPlots(mfd.specs, mfd.faultSpecs, mfd.regions, dir,
-						prefix);
+				writeERFBasedRegionalProbDistPlots(mfd.specs, mfd.faultSpecs, mfd.regionM6p7Hists,
+						mfd.regions, dir, prefix);
+//				if (mfd.sfDebugCSV != null)
+//					mfd.sfDebugCSV.writeToFile(new File(dir, "sf_debug_"+System.currentTimeMillis()+".csv"));
 			} else if (plot instanceof PaleoFaultPlot) {
 				PaleoFaultPlot paleo = (PaleoFaultPlot) plot;
 				File paleoPlotsDir = new File(dir,
@@ -7445,6 +7633,21 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		csv.writeToFile(csvFile);
 	}
+	
+	private static boolean hasBothFMs(FaultSystemSolutionFetcher fetch) {
+		boolean has31 = false;
+		boolean has32 = false;
+		for (LogicTreeBranch branch : fetch.getBranches()) {
+			FaultModels fm = branch.getValue(FaultModels.class);
+			if (fm == FaultModels.FM3_1)
+				has31 = true;
+			if (fm == FaultModels.FM3_2)
+				has32 = true;
+			if (has31 && has32)
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * @param args
@@ -7498,10 +7701,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 3;
-		int threads = 3;
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
-				FaultModels.FM3_1);
+		int sols = 16;
+		int threads = 4;
+		// For one FM
+//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
+//				FaultModels.FM3_1);
+		
+		// For both FMs
+		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+		while (!hasBothFMs(fetch))
+			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
 		
 		// if true, only use instances of the mean fault system solution
 		boolean meanDebug = false;

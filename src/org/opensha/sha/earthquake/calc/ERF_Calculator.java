@@ -243,7 +243,7 @@ public class ERF_Calculator {
 						}
 					}
 				else
-					isInside = rupInRegionCache.isRupInRegion(source, rupture, srcIndex, rupIndex, region);
+					isInside = rupInRegionCache.isRupInRegion(erf, source, rupture, srcIndex, rupIndex, region);
 				
 				if(isInside) {
 					double equivRate = rupture.getMeanAnnualRate(duration);

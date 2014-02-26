@@ -64,7 +64,14 @@ public class TestPDFCombine {
 	}
 	
 	public static void combine(List<File> inputFiles, File outputFile, int cols, double scale, boolean rotate,
-			double xBuffFract, double yBuffFract) throws IOException, DocumentException {
+			double xMarginBuffFract, double yMarginBuffFract)
+					throws IOException, DocumentException {
+		combine(inputFiles, outputFile, cols, scale, rotate, xMarginBuffFract, yMarginBuffFract, 1.05, 0.95);
+	}
+	
+	public static void combine(List<File> inputFiles, File outputFile, int cols, double scale, boolean rotate,
+			double xMarginBuffFract, double yMarginBuffFract, double xPosMult, double yPosMult)
+					throws IOException, DocumentException {
 		int num = inputFiles.size();
 		Preconditions.checkState(num>=2);
 		
@@ -120,13 +127,13 @@ public class TestPDFCombine {
 			int myRow = rows-row-1;
 			
 			double x = maxX * (double)col / (double)cols;
-			x *= 1.05;
+			x *= xPosMult;
 			if (cols == 1)
 				x = maxX*0.25;
-			x += xBuffFract*maxX;
+			x += xMarginBuffFract*maxX;
 			double y = maxY * (double)myRow / (double)rows;
-			y *= 0.95;
-			y += yBuffFract*maxY;
+			y *= yPosMult;
+			y += yMarginBuffFract*maxY;
 			
 			System.out.println("doc at x="+x+", y="+y);
 			
@@ -155,6 +162,8 @@ public class TestPDFCombine {
 			for (File file : pdfDir.listFiles()) {
 				String name = file.getName();
 				if (!name.endsWith(".pdf") || !name.startsWith(prefix))
+					continue;
+				if (name.contains("_hist"))
 					continue;
 				files.add(file);
 			}
