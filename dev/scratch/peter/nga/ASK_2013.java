@@ -303,6 +303,9 @@ public class ASK_2013 {
 		return 1500.0;
 	}
 	
+	// used for interpolation in calcSoilTerm(), below
+	private static final double[] VS_BINS = {150d, 250d, 400d, 700d, 1000d};
+		
 	// Soil depth model adapted from CY13 form
 	private static double calcSoilTerm(Coeffs c, double vs30, double z1p0) {
 		if (Double.isNaN(z1p0)) return 0.0;
@@ -314,9 +317,8 @@ public class ASK_2013 {
 //					 (vs30 > 200.0) ? c.a44 : c.a43;
 
 		// new interpolation algorithm
-		double[] vsBins = {150.0, 250.0, 400.0, 700.0, 1000.0}; // TODO finalize
 		double[] vsCoeff = {c.a43, c.a44, c.a45, c.a46, c.a46};
-		double z1c = Interpolate.findY(vsBins, vsCoeff, vs30);
+		double z1c = Interpolate.findY(VS_BINS, vsCoeff, vs30);
 		
 		return z1c * log((z1p0 + 0.01) / (z1ref + 0.01));
 	}
