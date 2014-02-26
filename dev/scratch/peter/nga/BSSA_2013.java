@@ -208,7 +208,7 @@ public class BSSA_2013 {
 		double phiMR = phiM;
 		if (rJB > c.R2) {
 			phiMR += c.dPhiR;
-		} else if (rJB > c.R2) {
+		} else if (rJB > c.R1) {
 			phiMR += c.dPhiR * (log(rJB / c.R1) / log(c.R2 / c.R1));
 		}
 		
