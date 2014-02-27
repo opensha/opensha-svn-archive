@@ -1519,7 +1519,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				gmtCommandLines.add(commandLine);
 			}
 
-			commandLine = JAVA_PATH + " -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + " " + 
+			commandLine = JAVA_PATH + " -Xmx4G -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + " " + 
 						gEarth_psFileName + " " + gEarth_kmz_name +
 						" " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
 			gmtCommandLines.add(commandLine);
