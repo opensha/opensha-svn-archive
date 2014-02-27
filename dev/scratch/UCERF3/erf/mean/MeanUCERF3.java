@@ -86,6 +86,7 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	public static final String RAKE_BASIS_MEAN = "Def. Model Mean";
 	private Map<Set<String>, Double> rakeBasis;
 	
+	public static final String FAULT_MODEL_PARAM_NAME = "Fault Model(s)";
 	private StringParameter faultModelParam;
 	private String faultModelStr;
 	public static final String FAULT_MODEL_BOTH = "Both";
@@ -197,7 +198,7 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		for (FaultModels fm : FaultModels.values())
 			if (fm.getRelativeWeight(null) > 0)
 				faultModelStrs.add(fm.name());
-		faultModelParam = new StringParameter("Fault Model(s)", faultModelStrs, FAULT_MODEL_BOTH);
+		faultModelParam = new StringParameter(FAULT_MODEL_PARAM_NAME, faultModelStrs, FAULT_MODEL_BOTH);
 		faultModelParam.setInfo("There are two equally weighted Fault Models in UCERF3. You can optionally" +
 				"\nselect a single fault model with this parameter.");
 		faultModelParam.addParameterChangeListener(this);
@@ -241,8 +242,8 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			// this means that we have to load/build the solution (parameter change or never loaded)
 			fetchSolution();
 		}
-//		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
-//			throw new IllegalStateException("MeanUCERF3 not yet tested with time dependence and seems inconsistent.");
+		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
+			throw new IllegalStateException("MeanUCERF3 not yet tested with time dependence and seems inconsistent.");
 		super.updateForecast();
 	}
 
