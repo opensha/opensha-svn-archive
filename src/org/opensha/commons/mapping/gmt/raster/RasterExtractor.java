@@ -69,7 +69,7 @@ public class RasterExtractor {
 		
 		int curLine = 0;
 		
-		String asciiImage = "";
+		StringBuilder asciiImage = null;
 		
 		HashSet<Integer> statusLines = new HashSet<Integer>();
 		// every 5 percent
@@ -138,6 +138,7 @@ public class RasterExtractor {
 					
 					reading = true;
 					ascii85 = true;
+					asciiImage = new StringBuilder();
 					continue;
 				}
 			}
@@ -146,7 +147,8 @@ public class RasterExtractor {
 					if (line.startsWith(">> image"))
 						continue;
 					
-					asciiImage += line + "\n";
+//					asciiImage += line + "\n";
+					asciiImage.append(line+"\n");
 					
 					if (line.contains("~>")) {
 //						System.out.println(line);
@@ -170,7 +172,7 @@ public class RasterExtractor {
 		
 		
 		if (ascii85) {
-			InputStream is = new ByteArrayInputStream(asciiImage.getBytes("UTF-8"));
+			InputStream is = new ByteArrayInputStream(asciiImage.toString().getBytes("UTF-8"));
 			ASCII85InputStream ais = new ASCII85InputStream(is);
 			
 //			System.out.println(asciiImage);
@@ -186,6 +188,7 @@ public class RasterExtractor {
 			if (lzwDecode) {
 				bytes = PdfReader.LZWDecode(bytes);
 			}
+			ais.close();
 		}
 		
 		System.out.println("Read in " + byteCount + " bytes...expected: " + expected);
