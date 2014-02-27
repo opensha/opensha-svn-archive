@@ -223,24 +223,31 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			parentMFDCompare.run();
 		}
 		
-		List<List<CompoundFSSPlots>> otherPlotsList = Lists.newArrayList();
-		for (int p=0; p<numPlots; p++)
-			otherPlotsList.add(new ArrayList<CompoundFSSPlots>());
+//		List<List<CompoundFSSPlots>> otherPlotsList = Lists.newArrayList();
+//		for (int p=0; p<numPlots; p++)
+//			otherPlotsList.add(new ArrayList<CompoundFSSPlots>());
 		if (rank == 0) {
 			for (int source=1; source<size; source++) {
 				System.out.println("Receiving from "+source);
 				MPI.COMM_WORLD.Recv(sendbuf, 0, sendbuf.length, MPI.OBJECT, source, 0);
-				for (int p=0; p<numPlots; p++)
-					if (sendbuf[p] != null)
-						otherPlotsList.get(p).add(sendbuf[p]);
+				for (int p=0; p<numPlots; p++) {
+					if (sendbuf[p] != null) {
+						CompoundFSSPlots plot = plots.get(p);
+						CompoundFSSPlots oPlot = sendbuf[p];
+						plot.combineDistributedCalcs(Lists.newArrayList(oPlot));
+						plot.addToComputeTimeCount(oPlot.getComputeTimeCount());
+						sendbuf[p] = null;
+					}
+				}
+				System.gc();
 			}
-			for (int p=0; p<numPlots; p++) {
-				CompoundFSSPlots plot = plots.get(p);
-				List<CompoundFSSPlots> oPlots = otherPlotsList.get(p);
-				plot.combineDistributedCalcs(oPlots);
-				for (CompoundFSSPlots oPlot : oPlots)
-					plot.addToComputeTimeCount(oPlot.getComputeTimeCount());
-			}
+//			for (int p=0; p<numPlots; p++) {
+//				CompoundFSSPlots plot = plots.get(p);
+//				List<CompoundFSSPlots> oPlots = otherPlotsList.get(p);
+//				plot.combineDistributedCalcs(oPlots);
+//				for (CompoundFSSPlots oPlot : oPlots)
+//					plot.addToComputeTimeCount(oPlot.getComputeTimeCount());
+//			}
 			
 			for (CompoundFSSPlots plot : plots) {
 				plot.finalizePlot();

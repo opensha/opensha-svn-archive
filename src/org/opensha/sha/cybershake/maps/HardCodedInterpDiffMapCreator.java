@@ -213,6 +213,7 @@ public class HardCodedInterpDiffMapCreator {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Loading basemap, will save cache to: "+cacheFile.getAbsolutePath());
 		
 		AttenRelCurves2DB curves2db = new AttenRelCurves2DB(db);
 		GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true);
@@ -304,9 +305,9 @@ public class HardCodedInterpDiffMapCreator {
 			int imTypeID = 21;
 			int velModelID = 1;
 			// the main dataset(s) that we're plotting
-			List<Integer> datasetIDs = Lists.newArrayList(25);
+			List<Integer> datasetIDs = Lists.newArrayList(38);
 			// comparison dataset for ratio maps
-			List<Integer> compDatasetIDs = Lists.newArrayList(26);
+			List<Integer> compDatasetIDs = Lists.newArrayList(35);
 //			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
@@ -338,14 +339,14 @@ public class HardCodedInterpDiffMapCreator {
 			double val = 0.0004;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
-//			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2013.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2013.instance(null);
-			ScalarIMR baseMapIMR = AttenRelRef.CB_2013.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.CB_2013.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2013.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.Idriss_2013.instance(null);
 			// GMPE params
@@ -511,7 +512,7 @@ public class HardCodedInterpDiffMapCreator {
 		
 		System.out.println("Making map...");
 		String ratioAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
-		return diffAddr+" "+ratioAddr;
+		return "diff: "+diffAddr+" ratio: "+ratioAddr;
 	}
 
 }

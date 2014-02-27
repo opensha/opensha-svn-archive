@@ -151,6 +151,7 @@ import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
@@ -1104,9 +1105,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 	}
 
-	public static void writeERFBasedRegionalProbDistPlots(Map<Double, List<PlotSpec>> specs,
-			Map<Double, List<PlotSpec>> faultSpecs, Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists,
-			List<Region> regions, File dir, String prefix) throws IOException {
+	public static void writeERFBasedRegionalProbDistPlots(ERFBasedRegionalMagProbPlot plot, File dir, String prefix)
+			throws IOException {
+		
+		Map<Double, List<PlotSpec>> specs = plot.specs;
+		Map<Double, List<PlotSpec>> faultSpecs = plot.faultSpecs;
+		Map<Double, List<Map<LogicTreeBranch, Map<MagDependentAperiodicityOptions, Double>>>> regionM6p7Vals =
+				plot.regionM6p7Vals;
+		List<Region> regions = plot.regions;
 		
 		File subDir = new File(dir, "erf_mag_prob_plots");
 		if (!subDir.exists())
@@ -1170,7 +1176,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if (!regionHistDir.exists())
 					regionHistDir.mkdir();
 				
-				BranchSensitivityHistogram sensHist = regionM6p7Hists.get(duration).get(i);
+				BranchSensitivityHistogram sensHist =
+						ERFBasedRegionalMagProbPlot.buildHist(regionM6p7Vals.get(duration).get(i), plot.weightProvider);
 				Range range = sensHist.getRange();
 				double delta = 0.025;
 				// round down
@@ -1436,12 +1443,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		public static List<Region> getDefaultRegions() {
 			List<Region> regions = Lists.newArrayList();
-			regions.add(new CaliforniaRegions.RELM_TESTING());
-			regions.add(new CaliforniaRegions.RELM_NOCAL());
-			regions.add(new CaliforniaRegions.RELM_SOCAL());
+//			regions.add(new CaliforniaRegions.RELM_TESTING());
+//			regions.add(new CaliforniaRegions.RELM_NOCAL());
+//			regions.add(new CaliforniaRegions.RELM_SOCAL());
 			regions.add(new CaliforniaRegions.SF_BOX());
 			regions.add(new CaliforniaRegions.LA_BOX());
-			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
+//			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
 			return regions;
 		}
 		
@@ -1479,7 +1486,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2IndepMPDs = Maps.newHashMap();
 		
 		// duration: regions
-		private Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists = Maps.newHashMap();
+//		private Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists = Maps.newHashMap();
+		private Map<Double, List<Map<LogicTreeBranch, Map<MagDependentAperiodicityOptions, Double>>>>
+				regionM6p7Vals = Maps.newHashMap();
 		
 		// now "main faults"
 		// organized as duration, name, mfds
@@ -1580,10 +1589,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 				solMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 //				ucerf2DepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 				
-				List<BranchSensitivityHistogram> hists = Lists.newArrayList();
-				for (int r=0; r<regions.size(); r++)
-					hists.add(new BranchSensitivityHistogram("Probability"));
-				regionM6p7Hists.put(duration, hists);
+//				List<BranchSensitivityHistogram> hists = Lists.newArrayList();
+//				for (int r=0; r<regions.size(); r++)
+//					hists.add(new BranchSensitivityHistogram("Probability"));
+//				regionM6p7Hists.put(duration, hists);
+				List<Map<LogicTreeBranch, Map<MagDependentAperiodicityOptions, Double>>> maps = Lists.newArrayList();
+				for (int r=0; r<regions.size(); r++) {
+					Map<LogicTreeBranch, Map<MagDependentAperiodicityOptions, Double>> map = Maps.newHashMap();
+					maps.add(map);
+				}
+				regionM6p7Vals.put(duration, maps);
 			}
 			
 			weights = Maps.newHashMap();
@@ -2049,23 +2064,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 					double branchWeight = weightProvider.getWeight(branch);
 					weights.get(duration).add(branchWeight);
 					branches.get(duration).add(branch);
-					for (MagDependentAperiodicityOptions cov : covs) {
-						double subBranchWeight = branchWeight * FaultSystemSolutionERF.getWeightForCOV(cov);
-						for (int r = 0; r < regions.size(); r++) {
+					for (int r = 0; r < regions.size(); r++) {
+						Map<MagDependentAperiodicityOptions, Double> map6p7 = Maps.newHashMap();
+						for (MagDependentAperiodicityOptions cov : covs) {
 							EvenlyDiscretizedFunc probs = FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfds.get(cov).get(r), duration);
 							solMPDs.get(duration).get(r).get(cov).add(probs);
 							double prob6p7 = probs.getClosestY(6.7d);
-							String covName;
-							if (cov == null)
-								covName = "POISSON";
-							else
-								covName = cov.name();
-							regionM6p7Hists.get(duration).get(r).addValues(branch, prob6p7, subBranchWeight, "MagDepAperiodicity", covName);
+							map6p7.put(cov, prob6p7);
 							solOnMPDs.get(duration).get(r).get(cov).add(
 									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(onMFDs.get(cov).get(r), duration));
 							solOffMPDs.get(duration).get(r).get(cov).add(
 									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(offMFDs.get(cov).get(r), duration));
 						}
+						regionM6p7Vals.get(duration).get(r).put(branch, map6p7);
 					}
 					for (String faultName : mainFaultsSorted) {
 						for (MagDependentAperiodicityOptions cov : covs)
@@ -2093,7 +2104,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 							solOffMPDs.get(duration).get(r).get(cov).addAll(
 									o.solOffMPDs.get(duration).get(r).get(cov));
 						}
-						regionM6p7Hists.get(duration).get(r).addAll(o.regionM6p7Hists.get(duration).get(r));
+						regionM6p7Vals.get(duration).get(r).putAll(o.regionM6p7Vals.get(duration).get(r));
+//						regionM6p7Hists.get(duration).get(r).addAll(o.regionM6p7Hists.get(duration).get(r));
 					}
 					for (String faultName : mainFaultsSorted) {
 						for (MagDependentAperiodicityOptions cov : covs)
@@ -2129,10 +2141,36 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 		
+		static BranchSensitivityHistogram buildHist(
+				Map<LogicTreeBranch, Map<MagDependentAperiodicityOptions, Double>> map,
+				BranchWeightProvider weightProv) {
+			BranchSensitivityHistogram hist = new BranchSensitivityHistogram("Prob M>=6.7");
+			for (LogicTreeBranch branch : map.keySet()) {
+				double branchWeight = weightProv.getWeight(branch);
+				Map<MagDependentAperiodicityOptions, Double> covMap = map.get(branch);
+				for (MagDependentAperiodicityOptions cov : covMap.keySet()) {
+					double prob6p7 = covMap.get(cov);
+					String covName;
+					if (cov == null)
+						covName = "POISSON";
+					else
+						covName = cov.name();
+					double subBranchWeight = branchWeight * FaultSystemSolutionERF.getWeightForCOV(cov);
+					hist.addValues(branch, prob6p7, subBranchWeight, "MagDepAperiodicity", covName);
+				}
+			}
+			
+			return hist;
+		}
+		
 //		private CSVFile<String> sfDebugCSV;
 
 		@Override
 		protected void doFinalizePlot() {
+			ucerf2_dep_erf_lists.clear();
+			ucerf2_indep_erf_lists.clear();
+			System.gc();
+			
 			specs = Maps.newHashMap();
 			faultSpecs = Maps.newHashMap();
 			
@@ -6862,6 +6900,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public String getMetadata() {
 			return metadata;
 		}
+		
+		public double getSpacing() {
+			return spacing;
+		}
 	}
 
 	/**
@@ -7508,8 +7550,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						prefix);
 			} else if (plot instanceof ERFBasedRegionalMagProbPlot) {
 				ERFBasedRegionalMagProbPlot mfd = (ERFBasedRegionalMagProbPlot) plot;
-				writeERFBasedRegionalProbDistPlots(mfd.specs, mfd.faultSpecs, mfd.regionM6p7Hists,
-						mfd.regions, dir, prefix);
+				writeERFBasedRegionalProbDistPlots(mfd, dir, prefix);
 //				if (mfd.sfDebugCSV != null)
 //					mfd.sfDebugCSV.writeToFile(new File(dir, "sf_debug_"+System.currentTimeMillis()+".csv"));
 			} else if (plot instanceof PaleoFaultPlot) {

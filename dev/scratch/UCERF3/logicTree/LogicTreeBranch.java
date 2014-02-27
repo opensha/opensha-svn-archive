@@ -554,7 +554,7 @@ public class LogicTreeBranch implements Iterable<LogicTreeBranchNode<? extends E
 	 * @param im
 	 * @return normalized weight for the given node
 	 */
-	static double getNormalizedWt(
+	public static double getNormalizedWt(
 			LogicTreeBranchNode<? extends Enum<?>> node, InversionModels im) {
 		if (classWeightTotals == null) {
 			synchronized(LogicTreeBranch.class) {

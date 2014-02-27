@@ -71,19 +71,7 @@ public class RasterExtractor {
 		
 		StringBuilder asciiImage = null;
 		
-		HashSet<Integer> statusLines = new HashSet<Integer>();
-		// every 5 percent
-		for (double fract=0d; fract<=1d; fract += 0.05d) {
-			int index = (int)fract*lines.size();
-			statusLines.add(index);
-		}
-		
-		for (int l=0; l<lines.size(); l++) {
-			if (statusLines.contains(l)) {
-				double percent = (double)(l)/(lines.size())*100d; 
-				System.out.println("line "+l+"/"+lines.size()+" ("+(float)percent+" %)");
-			}
-			String line = lines.get(l);
+		for (String line : lines) {
 			if (!reading) {
 				if (line.contains("false 3 colorimage")) {
 					reading = true;

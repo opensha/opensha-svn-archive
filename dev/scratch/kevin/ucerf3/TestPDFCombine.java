@@ -152,7 +152,7 @@ public class TestPDFCombine {
 			String name = file.getName();
 			if (!name.endsWith(".pdf") || !name.contains("_"))
 				continue;
-			if (name.contains("_hist"))
+			if (name.contains("hist") || name.contains("combined"))
 				continue;
 			String prefix = name.substring(0, name.indexOf("_"));
 			prefixes.add(prefix);

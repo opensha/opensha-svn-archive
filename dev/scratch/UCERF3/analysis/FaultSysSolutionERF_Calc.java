@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -59,8 +60,11 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
+import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils;
@@ -94,6 +98,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_Tim
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
@@ -114,6 +119,8 @@ import com.google.common.primitives.Doubles;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MapPlotData;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
@@ -349,6 +356,118 @@ public class FaultSysSolutionERF_Calc {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * This makes the iconic figure of U3 Time Dependence, gridded participation probability maps, where section probabilities
+	 * are properly mapped onto polygon grid nodes, and topography is included. Aftershocks are included.
+	 * Results are in OpenSHA/dev/scratch/UCERF3/data/scratch/GMT/time_dep_fig_1
+	 */
+	public static void makeIconicFigureForU3TimeDependence() throws Exception {
+		File gmtDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "GMT");
+		if (!gmtDir.exists())
+			gmtDir.mkdir();
+		File outputDir = new File(gmtDir, "time_dep_fig_1");
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		
+		File xmlInputFile = new File(outputDir, "gridded_participation_prob_plots.xml");
+		if (!xmlInputFile.exists())
+			// download XML file from web
+			FileUtils.downloadURL("http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/"
+					+ "gridded_participation_prob_plots.xml", xmlInputFile);
+		
+		double minMag = 6.7;	// 5, 6.7, 7.7, 8 supported
+		double duration = 30;	// only 5 or 30 supported
+		
+		// display figure along with saving it?
+		boolean display = false;
+		
+		makeIconicFigureForU3TimeDependence(xmlInputFile, outputDir, minMag, duration, display);
+	}
+	
+	/**
+	 * This makes the iconic figure of U3 Time Dependence, gridded participation probability maps, where section probabilities
+	 * are properly mapped onto polygon grid nodes, and topography is included. Aftershocks are included.
+	 * @param xmlInputFile
+	 * @param outputDir
+	 * @param minMag
+	 * @param duration
+	 * @param display
+	 * @throws Exception
+	 */
+	public static void makeIconicFigureForU3TimeDependence(File xmlInputFile, File outputDir,
+			double minMag, double duration, boolean display) throws Exception {
+		Preconditions.checkState(xmlInputFile.exists(), "XML Input file doesn't exist: "+xmlInputFile.getAbsolutePath());
+		
+		List<MapPlotData> mapDatas = MapBasedPlot.loadPlotData(xmlInputFile);
+		String plotFileName = (int)duration+"_timedep_gridded_partic_prob_"+(float)minMag+"+";
+		MapPlotData mapData = null;
+		List<String> availableDatasets = Lists.newArrayList();
+		for (MapPlotData data : mapDatas) {
+			if (!data.getFileName().contains("timedep_gridded_partic_prob"))
+				continue;
+			availableDatasets.add(data.getFileName());
+			if (data.getFileName().equals(plotFileName)) {
+				mapData = data;
+				break;
+			}
+		}
+		if (mapData == null)
+			throw new IllegalArgumentException("Selected dataset '"+plotFileName
+					+"' not found in xml input file. Available files:\n"+Joiner.on("\n\t").join(availableDatasets));
+		
+		CPT cpt = mapData.getCPT();
+		// this is required for any 0 spots
+		cpt.setBelowMinColor(cpt.getMinColor());
+		GeoDataSet data = mapData.getGriddedData();
+		// convert any NaN holes in the middle to the min color
+		for (int index=0; index<data.size(); index++)
+			if (!Doubles.isFinite(data.get(index)))
+				data.set(index, cpt.getMinValue());
+		
+		GMT_Map map = new GMT_Map(mapData.getRegion(), data, mapData.getSpacing(), cpt);
+		map.setCustomScaleMax(null);
+		map.setCustomScaleMax(null);
+		map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
+		map.setUseGMTSmoothing(true);
+		map.setDpi(300);
+		map.setBlackBackground(false);
+		map.setGenerateKML(true);
+		map.setCustomLabel(mapData.getLabel());
+		map.setRescaleCPT(false);
+		map.setCustomScaleMin((double)cpt.getMinValue());
+		map.setCustomScaleMax((double)cpt.getMaxValue());
+		
+		GMT_MapGenerator gmt = new GMT_MapGenerator();
+		gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.LOG_PLOT_NAME).setValue(false);
+		gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME).setValue(false);
+		
+		String url = gmt.makeMapUsingServlet(map, "metadata", null);
+		System.out.println(url);
+		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
+		String baseURL = url.substring(0, url.lastIndexOf('/')+1);
+		
+		File pngFile = new File(outputDir, plotFileName+".png");
+		FileUtils.downloadURL(baseURL+"map.png", pngFile);
+		
+		File pdfFile = new File(outputDir, plotFileName+".pdf");
+		FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
+		
+		// download KMZ file
+		File kmzFile = new File(outputDir, plotFileName+".kmz");
+		FileUtils.downloadURL(baseURL+"map.kmz", kmzFile);
+		
+//		File zipFile = new File(downloadDir, "allFiles.zip");
+//		// construct zip URL
+//		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+//		FileUtils.downloadURL(zipURL, zipFile);
+//		FileUtils.unzipFile(zipFile, downloadDir);
+		
+		if (display) {
+			new ImageViewerWindow(url,metadata, true);
 		}
 	}
 
@@ -3475,6 +3594,7 @@ public class FaultSysSolutionERF_Calc {
 					if (!name.endsWith(".pdf"))
 						continue;
 					Files.copy(file, new File(branchSensDir, name));
+//					System.out.println("Copying: "+file.getAbsolutePath()+" to "+branchSensDir.getAbsolutePath());
 				}
 				
 				// copy over sub sect vals
@@ -3692,9 +3812,6 @@ public class FaultSysSolutionERF_Calc {
 			
 			File sensDir = new File(subDir, "BranchSensitivityMaps");
 			try {
-				for (File pdfFile : sensDir.listFiles())
-					if (pdfFile.getName().endsWith("_combined.pdf"))
-						pdfFile.delete();
 				TestPDFCombine.combine(sensDir, sensDir);
 			} catch (com.lowagie.text.DocumentException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -4267,12 +4384,11 @@ public class FaultSysSolutionERF_Calc {
 	
 	/**
 	 * @param args
-	 * @throws DocumentException 
-	 * @throws IOException 
-	 * @throws RuntimeException 
-	 * @throws GMT_MapException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
+	public static void main(String[] args) throws Exception {
+		makeIconicFigureForU3TimeDependence();
+		System.exit(0);
 //		System.out.println(loadUCERF2MainFaultMPDs(true).size());
 //		System.exit(0);
 //		writeOpenIntTableComparisons();
@@ -4335,7 +4451,7 @@ public class FaultSysSolutionERF_Calc {
 				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
-//		// do all of them including avg sensitivity plots
+		// do all of them including avg sensitivity plots
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
 		System.exit(0);

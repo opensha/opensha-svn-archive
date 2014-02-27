@@ -15,6 +15,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
@@ -45,6 +46,7 @@ public class ParticProbMeanERFTest {
 				(double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
 		erf.setParameter(BPTAveragingTypeParam.NAME,
 				BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE);
+		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
 		
 		double duration = 30d;
 		erf.getTimeSpan().setDuration(duration);
