@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Point2D;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -460,11 +461,11 @@ public class FaultSysSolutionERF_Calc {
 		File kmzFile = new File(outputDir, plotFileName+".kmz");
 		FileUtils.downloadURL(baseURL+"map.kmz", kmzFile);
 		
-//		File zipFile = new File(downloadDir, "allFiles.zip");
-//		// construct zip URL
-//		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
-//		FileUtils.downloadURL(zipURL, zipFile);
-//		FileUtils.unzipFile(zipFile, downloadDir);
+		// now extract projected file
+		ZipFile zip = new ZipFile(kmzFile);
+		ZipEntry entry = zip.getEntry("map.png");
+		FileOutputStream fout = new FileOutputStream(new File(outputDir, plotFileName+"_scec_vdo.png"));
+		FileUtils.copyInputStream(new BufferedInputStream(zip.getInputStream(entry)), new BufferedOutputStream(fout));
 		
 		if (display) {
 			new ImageViewerWindow(url,metadata, true);

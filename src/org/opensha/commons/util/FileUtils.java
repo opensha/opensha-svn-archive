@@ -360,7 +360,7 @@ public class FileUtils {
 		zip.close();
 	}
 	
-	private static final void copyInputStream(InputStream in, OutputStream out)
+	public static final void copyInputStream(InputStream in, OutputStream out)
 			throws IOException {
 		byte[] buffer = new byte[1024];
 		int len;
