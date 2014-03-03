@@ -13,7 +13,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.calc.hazardMap.CurveAverager;
+import org.opensha.sha.calc.hazardMap.AsciiCurveAverager;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ERFTestSubset;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -312,7 +312,7 @@ public class MultiIMR_CalcTest {
 			hc.getHazardCurve(singleCurve, site, imr, erf);
 			singleCurves.add(singleCurve);
 		}
-		DiscretizedFunc averageCurve = CurveAverager.averageCurves(singleCurves);
+		DiscretizedFunc averageCurve = AsciiCurveAverager.averageCurves(singleCurves);
 		averageCurve.setName("Average value curve");
 		setIMT(multi, imt, period);
 		DiscretizedFunc multiCurve = imtInfo.getDefaultHazardCurve(imt);

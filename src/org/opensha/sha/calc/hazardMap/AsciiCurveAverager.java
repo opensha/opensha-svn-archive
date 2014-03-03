@@ -22,17 +22,27 @@ package org.opensha.sha.calc.hazardMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
+import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 
-public class CurveAverager {
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+public class AsciiCurveAverager {
 	
 	private ArrayList<String> dirs;
 	private String outputDir;
 	
-	public CurveAverager(ArrayList<String> dirs, String outputDir) {
+	public AsciiCurveAverager(ArrayList<String> dirs, String outputDir) {
 		File outputDirFile = new File(outputDir);
 		
 		if (!outputDirFile.exists())
@@ -138,7 +148,7 @@ public class CurveAverager {
 			System.exit(2);
 		}
 		
-		CurveAverager ave = new CurveAverager(dirs, outputDir);
+		AsciiCurveAverager ave = new AsciiCurveAverager(dirs, outputDir);
 		try {
 			ave.averageDirs();
 		} catch (IOException e) {

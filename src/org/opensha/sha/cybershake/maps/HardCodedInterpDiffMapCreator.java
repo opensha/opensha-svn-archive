@@ -303,11 +303,13 @@ public class HardCodedInterpDiffMapCreator {
 		try {
 			boolean logPlot = false;
 			int imTypeID = 21;
-			int velModelID = 1;
+			// Velocity model ID - REMEMBER TO UPDATE THIS!!!
+			int velModelID = 5; // CVM-S4i26
+//			int velModelID = 8; // BBP
 			// the main dataset(s) that we're plotting
-			List<Integer> datasetIDs = Lists.newArrayList(38);
+			List<Integer> datasetIDs = Lists.newArrayList(35);
 			// comparison dataset for ratio maps
-			List<Integer> compDatasetIDs = Lists.newArrayList(35);
+			List<Integer> compDatasetIDs = Lists.newArrayList(25);
 //			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G

@@ -27,8 +27,8 @@ import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.gui.infoTools.IMT_Info;
-import org.opensha.sra.riskmaps.BinaryHazardCurveReader;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

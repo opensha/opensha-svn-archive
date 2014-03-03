@@ -126,7 +126,25 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 					}
 
 					// now fill the rest with nans
-					int recLen = calcRecordLen(numXVals);
+//					int recLen = calcRecordLen(numXVals);
+//					Preconditions.checkState(recLen % 8 == 0);
+//					int numNans = recLen / 8;
+//					double[] nanVals = new double[numNans];
+//					for (int i=0; i<nanVals.length; i++)
+//						nanVals[i] = Double.NaN;
+//					byte[] recordNans = new byte[recLen];
+//
+//					record = ByteBuffer.wrap(recordNans);
+//					record.order(byteOrder);
+//
+//					DoubleBuffer recordNanBuff = record.asDoubleBuffer();
+//					recordNanBuff.put(nanVals, 0, numNans);
+//					for (int i=0; i<numSites; i++) {
+//						file.seek(pos);
+//						file.write(recordNans);
+//						pos += recLen;
+//					}
+					int recLen = numSites*calcRecordLen(numXVals);
 					Preconditions.checkState(recLen % 8 == 0);
 					int numNans = recLen / 8;
 					double[] nanVals = new double[numNans];
@@ -139,11 +157,9 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 
 					DoubleBuffer recordNanBuff = record.asDoubleBuffer();
 					recordNanBuff.put(nanVals, 0, numNans);
-					for (int i=0; i<numSites; i++) {
-						file.seek(pos);
-						file.write(recordNans);
-						pos += recLen;
-					}
+					file.seek(pos);
+					file.write(recordNans);
+					pos += recLen;
 
 					Preconditions.checkState(pos == fileSize);
 

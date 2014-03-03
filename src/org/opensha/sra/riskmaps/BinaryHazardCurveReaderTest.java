@@ -1,6 +1,7 @@
 package org.opensha.sra.riskmaps;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 
 public class BinaryHazardCurveReaderTest {
 	

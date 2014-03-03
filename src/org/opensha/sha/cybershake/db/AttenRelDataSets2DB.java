@@ -1,6 +1,9 @@
 package org.opensha.sha.cybershake.db;
 
+import java.sql.SQLException;
 import java.util.Date;
+
+import org.opensha.commons.util.ExceptionUtils;
 
 public class AttenRelDataSets2DB {
 	
@@ -26,6 +29,27 @@ public class AttenRelDataSets2DB {
 			sql += " AND Time_Span_Start_Date='"+DBAccess.SQL_DATE_FORMAT.format(date)+"'";
 		
 		return DB_Utils.getSingleInt(db, sql);
+	}
+	
+	public int addDataSetID(int attenRelID, int erfID, int velModelID, int probModelID, int timeSpanID, Date date,
+			double minLat, double maxLat, double minLon, double maxLon, double gridSpacing) {
+		String dateStr;
+		if (date == null)
+			dateStr = "NULL";
+		else
+			dateStr = DBAccess.SQL_DATE_FORMAT.format(date);
+		String sql = "INSERT INTO "+TABLE_NAME+" (AR_ID,ERF_ID,Velocity_Model_ID,Prob_Model_ID,Time_Span_ID,Time_Span_Start_Date"
+				+ ",Min_Lat,Max_Lat,Min_Lon,Max_Lon,Grid_Spacing)"
+				+ " VALUES ("+attenRelID+","+erfID+","+velModelID+","+probModelID+","+timeSpanID+","+dateStr
+				+ ","+(float)minLat+","+(float)maxLat+","+(float)minLon+","+(float)maxLon+","+(float)gridSpacing+")";
+		
+		try {
+			db.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		
+		return getDataSetID(attenRelID, erfID, velModelID, probModelID, timeSpanID, date);
 	}
 
 }

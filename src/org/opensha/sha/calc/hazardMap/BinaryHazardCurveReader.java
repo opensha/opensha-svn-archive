@@ -1,4 +1,4 @@
-package org.opensha.sra.riskmaps;
+package org.opensha.sha.calc.hazardMap;
 
 import java.io.DataInputStream;
 import java.io.EOFException;

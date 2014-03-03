@@ -21,6 +21,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
@@ -31,7 +32,6 @@ import org.opensha.sha.cybershake.maps.InterpDiffMap;
 import org.opensha.sha.cybershake.maps.ProbGainCalc;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
-import org.opensha.sra.riskmaps.BinaryHazardCurveReader;
 
 public class BatchBaseMapPlot {
 
@@ -41,21 +41,24 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_08-cvm4-cs-nga2-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_08-cvm4-cs-nga-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga2-5sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga-5sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga-5sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-bbp-cs-nga-3sec");
 		
 //		String imtFileLabel = "1sec";
 //		String label = "1sec SA, 2% in 50 yrs";
 //		String imtFileLabel = "pga";
 //		String label = "PGA, 2% in 50 yrs";
-		String imtFileLabel = "5sec";
-		String label = "5sec SA, 2% in 50 yrs";
+		String imtFileLabel = "3sec";
+		String label = "3sec SA, 2% in 50 yrs";
+//		String imtFileLabel = "5sec";
+//		String label = "5sec SA, 2% in 50 yrs";
 		
 		boolean isProbAt_IML = false;
 		double val = 0.0004;
 		
 		Double customMin = 0d;
-		Double customMax = 1d; // for 5 sec
-//		Double customMax = 1.4; // for 3 sec
+//		Double customMax = 1d; // for 5 sec
+		Double customMax = 1.4; // for 3 sec
 //		Double customMax = 3d; // for 1 sec
 //		Double customMax = 3d; // for PGA
 		

@@ -96,7 +96,7 @@ public class CurveMultiplier {
 			System.exit(2);
 		}
 		
-		CurveAverager ave = new CurveAverager(dirs, outputDir);
+		AsciiCurveAverager ave = new AsciiCurveAverager(dirs, outputDir);
 		try {
 			ave.averageDirs();
 		} catch (IOException e) {

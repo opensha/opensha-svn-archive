@@ -6,9 +6,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.db.AttenRelCurves2DB;
 import org.opensha.sha.cybershake.db.AttenRelDataSets2DB;
@@ -24,10 +30,21 @@ public class ARCurveInserter {
 	
 	private static int MAX_CURVES_TO_INSERT = -1;
 	
-	private static HashMap<Location, ArbitrarilyDiscretizedFunc> loadCurves(File dir) {
+	private static Map<Location, ArbitrarilyDiscretizedFunc> loadCurves(File dir) {
 		System.out.println("Loading curves form: "+dir.getAbsolutePath());
 		HashMap<Location, ArbitrarilyDiscretizedFunc> map =
 			new HashMap<Location, ArbitrarilyDiscretizedFunc>();
+		
+		if (dir.isFile() && dir.getName().endsWith(".bin")) {
+			// binary format
+			
+			try {
+				BinaryHazardCurveReader reader = new BinaryHazardCurveReader(dir.getAbsolutePath());
+				return reader.getCurveMap();
+			} catch (Exception e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+		}
 		
 		for (File file : dir.listFiles()) {
 			if (MAX_CURVES_TO_INSERT >= 0 && map.size() >= MAX_CURVES_TO_INSERT)
@@ -72,25 +89,27 @@ public class ARCurveInserter {
 	public static void main(String[] args) throws IOException {
 //		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
-		String dir = "/home/kevin/CyberShake/baseMaps/2013_11_07-cvm4-cs-nga2/CY2013/curves/imrs1/";
-		boolean deleteOld = true;
-		ScalarIMR imr = AttenRelRef.CY_2013.instance(null);
+//		String dir = "/home/kevin/CyberShake/baseMaps/2013_11_07-cvm4-cs-nga2/CY2013/curves/imrs1/";
+		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_03-bbp-cs-nga-3sec/AVE2008/curves/imrs1.bin";
+		boolean deleteOld = false;
+		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
-		int velModelID = 1;
+//		int velModelID = 1;
+		int velModelID = 8; // BBP 1D
 		int probModelID = 1;
 		int timeSpanID = 1;
 		int imTypeID = 21;
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2013, 11, 07);
+		cal.set(2014, 3, 3);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests
 //		MAX_CURVES_TO_INSERT = 0;
 		
 		// load the curves
-		HashMap<Location, ArbitrarilyDiscretizedFunc> curves = loadCurves(new File(dir));
+		Map<Location, ArbitrarilyDiscretizedFunc> curves = loadCurves(new File(dir));
 		System.out.println("Loaded "+curves.size()+" curves");
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, true);
@@ -105,8 +124,32 @@ public class ARCurveInserter {
 				throw new RuntimeException("AR not found!");
 			
 			int datasetID = arDataSets2DB.getDataSetID(arID, erfID, velModelID, probModelID, timeSpanID, timeSpanDate);
-			if (datasetID < 0)
-				throw new RuntimeException("AR Dataset not found!");
+			if (datasetID < 0) {
+				int ret = JOptionPane.showConfirmDialog(null, "Add new Dataset ID?", "Dataset ID not found", JOptionPane.YES_NO_OPTION);
+				if (ret == JOptionPane.YES_OPTION) {
+					double gridSpacing = Double.POSITIVE_INFINITY;
+					MinMaxAveTracker latTrack = new MinMaxAveTracker();
+					MinMaxAveTracker lonTrack = new MinMaxAveTracker();
+					Location prevLoc = null;
+					for (Location loc : curves.keySet()) {
+						double lat = loc.getLatitude();
+						double lon = loc.getLongitude();
+						latTrack.addValue(lat);
+						lonTrack.addValue(lon);
+						if (prevLoc != null) {
+							double diff = Math.abs(lon - prevLoc.getLongitude());
+							if (diff < gridSpacing && (float)diff > 0f)
+								gridSpacing = diff;
+						}
+						
+						prevLoc = loc;
+					}
+					datasetID = arDataSets2DB.addDataSetID(arID, erfID, velModelID, probModelID, timeSpanID, timeSpanDate,
+							latTrack.getMin(), latTrack.getMax(), lonTrack.getMin(), lonTrack.getMax(), gridSpacing);
+				} else {
+					System.exit(1);
+				}
+			}
 			
 			if (deleteOld)
 				arCurves2DB.deleteAllCurvesFromDataset(datasetID, imTypeID);

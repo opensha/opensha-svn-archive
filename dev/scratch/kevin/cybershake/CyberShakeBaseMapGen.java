@@ -13,6 +13,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
@@ -53,7 +54,7 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/BBP> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/BBP/CVM4i26> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
 			System.exit(2);
 		}
 		
@@ -97,6 +98,9 @@ public class CyberShakeBaseMapGen {
 		if (cvmName.toLowerCase().equals("cvm4")) {
 			provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} else if (cvmName.toLowerCase().equals("cvm4i26")) {
+			provs.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+			provs.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));

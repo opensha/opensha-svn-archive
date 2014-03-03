@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
 
 public class NSHMPRiskMapTest {
