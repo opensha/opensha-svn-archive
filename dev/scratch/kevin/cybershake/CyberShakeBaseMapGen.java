@@ -29,6 +29,7 @@ import org.opensha.sha.calc.hazardMap.components.CurveResultsArchiver;
 import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
 import org.opensha.sha.calc.hazus.parallel.HazusJobWriter;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
+import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.imr.AttenRelRef;
@@ -52,7 +53,7 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/BBP> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
 			System.exit(2);
 		}
 		
@@ -90,7 +91,7 @@ public class CyberShakeBaseMapGen {
 			imrs.add(imr);
 		}
 		
-		ArrayList<SiteData<?>> provs = Lists.newArrayList();
+		List<SiteData<?>> provs = Lists.newArrayList();
 		provs.add(new WillsMap2006());
 		boolean nullBasin = false;
 		if (cvmName.toLowerCase().equals("cvm4")) {
@@ -99,6 +100,9 @@ public class CyberShakeBaseMapGen {
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} else if (cvmName.toLowerCase().equals("bbp")) {
+			// this will also clear Wills 2006 from the list
+			provs = HazardCurvePlotter.getBBP_1D_Providers();
 		} else if (cvmName.toLowerCase().equals("null")){
 			nullBasin = true;
 		} else {
