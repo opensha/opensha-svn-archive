@@ -122,10 +122,6 @@ public class CY_2013 {
 	// Seismic Source Scaling -- Equation 3.7
 	private double calcLnSAref(Coeffs c, double Mw, double rJB, double rRup,
 			double rX, double dip, double zTop, FaultStyle style) {
-
-		// adjust zTop
-		double mzTop = calcMwZtop(style, Mw);
-		zTop = Double.isNaN(zTop) ? mzTop : zTop;
 		
 		// Magnitude scaling
 		double r1 = c.c1 + C2 * (Mw - 6.0) + ((C2 - c.c3) / c.cn) *
@@ -141,7 +137,8 @@ public class CY_2013 {
 		// Scaling with other source variables
 		double coshM = cosh(2 * max(Mw - 4.5, 0));
 		double cosDelta = cos(dip * TO_RAD);
-		double deltaZtop = zTop - mzTop; // Center zTop on the zTop-M relation in Eqns (2.4) & (2.5)
+		// Center zTop on the zTop-M relation in Eqns (2.4) & (2.5)
+		double deltaZtop = zTop - calcMwZtop(style, Mw);
 		double r4 = (c.c7 + c.c7b / coshM) * deltaZtop + 
 				    (C11 + c.c11b / coshM) * cosDelta * cosDelta;
 		r4 += (style == REVERSE) ? (c.c1a + c.c1c / coshM) : 
