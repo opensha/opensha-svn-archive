@@ -40,9 +40,9 @@ import com.google.common.collect.Maps;
 public class LastEventData {
 	
 	// sub directory of UCERF3/data
-	private static final String SUB_DIR = "paleoRateData";
+	public static final String SUB_DIR = "paleoRateData";
 	// file name
-	private static final String FILE_NAME = "UCERF3_OpenIntervals_ver11.xls";
+	public static final String FILE_NAME = "UCERF3_OpenIntervals_ver11.xls";
 	// sheet in the workbook, zero based
 	//"Well resolved historical","Paleo-well resolved", and "Unique to FM3.2"
 	private static final int[] SHEET_NUMS = {0,1,2};

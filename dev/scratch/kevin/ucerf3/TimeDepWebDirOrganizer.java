@@ -1,12 +1,16 @@
 package scratch.kevin.ucerf3;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
+import scratch.UCERF3.utils.LastEventData;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.io.Files;
 
@@ -17,7 +21,7 @@ public class TimeDepWebDirOrganizer {
 		File timeDepAveDir = new File("/var/www/html/ftp/kmilner/ucerf3/TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE");
 		File compoundPlotDir = new File("/var/www/html/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs");
 		File hazMapDir = new File("/var/www/html/ftp/pmpowers/UC-TimeDep/");
-		File figsZipFile = new File("/var/www/html/ftp/kmilner/ucerf3/PaperFigsHighResPDFs.zip");
+		File figsZipFile = new File("/var/www/html/ftp/kmilner/ucerf3/Figures_From_Report.zip");
 		File parentSectExcelFile = new File("/var/www/html/ftp/kmilner/ucerf3/ParentSectProbs_04.xlsx");
 		
 		if (dir.exists())
@@ -35,13 +39,11 @@ public class TimeDepWebDirOrganizer {
 				+ "where presented, have been scaled to include aftershocks as: "
 				+ "newProb = 1 - exp((1/0.97)*ln(1-oldProb))</p>"
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
-				+ "<b>Files:</b>"
-				+ "<br><b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
-				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
-				+ "<br><b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
+				+ "<b>Other Files:</b>"
+				+ "<b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
+				+ "<br><b><i>Magnitude_Probabilty_Distributions</i></b>: Region and fault magnitude probability distributions."
 				+ "<br><b><i>Parent_Section_Probabilities.xlsx</i></b>: Excel file with participation probabilities on each parent fault section."
-				+ "<br><b><i>Region_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for a number of Regions for the given duration."
-				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
+				+ "<br><b><i>"+LastEventData.FILE_NAME+"</i></b>: Excel file with date of last event data on each subsection where known."
 				+"</p>");
 		
 		String aveTypeStr = "default BPT averaging type";
@@ -206,38 +208,64 @@ public class TimeDepWebDirOrganizer {
 		// copy over hazard maps
 		File copiedMapDir = new File(dir, "HazardMaps");
 		org.apache.commons.io.FileUtils.copyDirectory(hazMapDir, copiedMapDir);
+//		FaultSysSolutionERF_Calc.writeStringToFile(new File(copiedMapDir, "HEADER.html"),
+//				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
+//				+ "Hazard Maps</h1>\n"
+//				+"\n"
+//				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
+//				+ "UCERF3 results calculated with branch averaged ERF (all rupture mags/probs are averaged), UCERF2 results"
+//				+ " calculated with MeanUCER2. Hazard calculated with NGA2West IMR and then averaged."
+//				+"</p>"
+//				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
+//				+ "<b><i>UC2_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF2 Time Dependent and Time Independent 2% in 50 year"
+//				+ " hazard for the specified IMT."
+//				+ "<br><br><b><i>UC2_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF2 Time Dependent and Time Independent 2% in 50 year"
+//				+ " hazard for the specified IMT."
+//				+ "<br><b><i>UC3_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF3 Time Dependent and Time Independent 2% in 50 year"
+//				+ " hazard for the specified IMT."
+//				+ "<br><br><b><i>UC3_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF3 Time Dependent and Time Independent 2% in 50 year"
+//				+ " hazard for the specified IMT."
+//				+"</p>");
 		FaultSysSolutionERF_Calc.writeStringToFile(new File(copiedMapDir, "HEADER.html"),
-				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
-				+ "Hazard Maps</h1>\n"
+				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">Time Dependent Comparisions</h1>"
 				+"\n"
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
-				+ "UCERF3 results calculated with branch averaged ERF (all rupture mags/probs are averaged), UCERF2 results"
-				+ " calculated with MeanUCER2. Hazard calculated with NGA2West IMR and then averaged."
-				+"</p>"
-				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
-				+ "<b><i>UC2_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF2 Time Dependent and Time Independent 2% in 50 year"
-				+ " hazard for the specified IMT."
-				+ "<br><br><b><i>UC2_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF2 Time Dependent and Time Independent 2% in 50 year"
-				+ " hazard for the specified IMT."
-				+ "<br><b><i>UC3_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF3 Time Dependent and Time Independent 2% in 50 year"
-				+ " hazard for the specified IMT."
-				+ "<br><br><b><i>UC3_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF3 Time Dependent and Time Independent 2% in 50 year"
-				+ " hazard for the specified IMT."
-				+"</p>");
+				+ "The files below show the ratio of and difference between time-dependent and time-independent "
+				+ "versions of the UCERF3 model. UCERF2 comparisons are provided for reference. For each UCERF3 map, "
+				+ "time-dependent and time-independent hazard curves were computed using the five NGAW2 ground motion "
+				+ "models that are being used in the 2014 national seismic hazard map; the three NGAW1 models that were "
+				+ "used in the 2008 NSHMP were used to compute UCERF2 curves. The maps are the ratio, or difference, of "
+				+ "the peak horizontal ground acceleration (PGA) and 5-Hz and 1-Hz spectral accelerations with a 2% "
+				+ "probability of being exceeded in 50 years.</p>");
+		
+		File mpdDir = new File(dir, "Magnitude_Probabilty_Distributions");
+		mpdDir.mkdir();
+		FaultSysSolutionERF_Calc.writeStringToFile(new File(mpdDir, "HEADER.html"),
+				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">Time Dependent Comparisions</h1>"
+				+"\n"
+				+ "<b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
+				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
+				+ "<br><b><i>Region_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for a number of Regions for the given duration."
+				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray).");
 		
 		// copy over fault probs
 		Files.copy(new File(new File(compoundPlotDir, "small_MPD_faults"), "5yr_combined.pdf"),
-				new File(dir, "Fault_Probabilities_5yr.pdf"));
+				new File(mpdDir, "Fault_Probabilities_5yr.pdf"));
 		Files.copy(new File(new File(compoundPlotDir, "small_MPD_faults"), "30yr_combined.pdf"),
-				new File(dir, "Fault_Probabilities_30yr.pdf"));
+				new File(mpdDir, "Fault_Probabilities_30yr.pdf"));
 		// copy over region probs
 		Files.copy(new File(new File(compoundPlotDir, "small_MPD_plots"), "5yr_combined.pdf"),
-				new File(dir, "Region_Probabilities_5yr.pdf"));
+				new File(mpdDir, "Region_Probabilities_5yr.pdf"));
 		Files.copy(new File(new File(compoundPlotDir, "small_MPD_plots"), "30yr_combined.pdf"),
-				new File(dir, "Region_Probabilities_30yr.pdf"));
+				new File(mpdDir, "Region_Probabilities_30yr.pdf"));
 		
 		Files.copy(figsZipFile, new File(dir, "Figures_From_Report.zip"));
 		Files.copy(parentSectExcelFile, new File(dir, "Parent_Section_Probabilities.xlsx"));
+		
+		// copy over last event data (extract via input stream
+		InputStream lastEventStream = UCERF3_DataUtils.locateResourceAsStream(LastEventData.SUB_DIR, LastEventData.FILE_NAME);
+		File lastEventTargetFile = new File(dir, LastEventData.FILE_NAME);
+		FileUtils.copyInputStream(lastEventStream, new FileOutputStream(lastEventTargetFile));
 	}
 
 }
