@@ -316,10 +316,18 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		try {
 			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
+			// remove any zeros
+			for (int i=imVals.size(); --i>=0;)
+				if (imVals.get(i) == 0d)
+					imVals.remove(i);
 		} catch (SQLException e) {
 			//			e.printStackTrace();
 			return 0;
 		}
+		
+		if (imVals.size() == 0)
+			// all zeros
+			return 0d;
 		
 		ArbitrarilyDiscretizedFunc logFunc = getLogX_OneMinusYCumDistFunction(imVals);
 		
