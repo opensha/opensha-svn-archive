@@ -268,7 +268,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	
 	private void oneMinusYFunction(ArbitrarilyDiscretizedFunc func) {
 		for (int i=0; i<func.getNum(); i++) {
-			func.set(func.getX(i), 1 - func.getY(i));
+			func.set(i, 1 - func.getY(i));
 		}
 	}
 	
