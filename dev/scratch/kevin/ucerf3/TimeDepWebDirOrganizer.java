@@ -40,7 +40,8 @@ public class TimeDepWebDirOrganizer {
 				+ "newProb = 1 - exp((1/0.97)*ln(1-oldProb))</p>"
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
 				+ "<b>Other Files:</b>"
-				+ "<b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
+				+ "<br><b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
+				+ "<br><b><i>HazardMaps</i></b>: Time dependent hazard maps for UCERF3 and UCERF2"
 				+ "<br><b><i>Magnitude_Probabilty_Distributions</i></b>: Region and fault magnitude probability distributions."
 				+ "<br><b><i>Parent_Section_Probabilities.xlsx</i></b>: Excel file with participation probabilities on each parent fault section."
 				+ "<br><b><i>"+LastEventData.FILE_NAME+"</i></b>: Excel file with date of last event data on each subsection where known."
@@ -241,7 +242,7 @@ public class TimeDepWebDirOrganizer {
 		File mpdDir = new File(dir, "Magnitude_Probabilty_Distributions");
 		mpdDir.mkdir();
 		FaultSysSolutionERF_Calc.writeStringToFile(new File(mpdDir, "HEADER.html"),
-				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">Time Dependent Comparisions</h1>"
+				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">Fault/Region Magnitude Probaiblity Distributions</h1>"
 				+"\n"
 				+ "<b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
 				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
