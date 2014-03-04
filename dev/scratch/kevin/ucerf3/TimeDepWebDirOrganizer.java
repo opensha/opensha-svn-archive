@@ -33,7 +33,8 @@ public class TimeDepWebDirOrganizer {
 				+ "where presented, have been scaled to include aftershocks as: "
 				+ "newProb = 1 - exp((1/0.97)*ln(1-oldProb))</p>"
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
-				+ "<b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
+				+ "<b>Files:</b>"
+				+ "<br><b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
 				+ "<br><b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
 				+ "<br><b><i>Parent_Section_Probabilities.xlsx</i></b>: Excel file with participation probabilities on each parent fault section."
 				+ "<br><b><i>Region_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for a number of Regionsfor the given duration."
@@ -102,6 +103,7 @@ public class TimeDepWebDirOrganizer {
 			
 			// now add gridded
 			File griddedDir = new File(copiedDir, "GriddedParticipationMaps");
+			griddedDir.mkdir();
 			FaultSysSolutionERF_Calc.writeStringToFile(new File(griddedDir, "HEADER.html"),
 					"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
 					+ "M"+fileMagGrep+", "+fileDurGrep+" Gridded Participation Probability Figures</h1>\n"
