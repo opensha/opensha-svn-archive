@@ -28,6 +28,7 @@ import java.util.Date;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.gui.BatchSiteAddGUI.CybershakeCutoffSite;
 
 public class HazardCurve2DB {
@@ -569,8 +570,7 @@ public class HazardCurve2DB {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
 //			TODO Auto-generated catch block
-			e.printStackTrace();
-			return -1;
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
 		return this.getHazardCurveID(runID, imTypeID);
@@ -591,8 +591,7 @@ public class HazardCurve2DB {
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
-//			TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 	}
 	
