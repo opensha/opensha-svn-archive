@@ -3824,7 +3824,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 	
-	private static void writeStringToFile(File file, String string) throws IOException {
+	public static void writeStringToFile(File file, String string) throws IOException {
 		FileWriter fw = new FileWriter(file);
 		fw.write(string+"\n");
 		fw.close();
