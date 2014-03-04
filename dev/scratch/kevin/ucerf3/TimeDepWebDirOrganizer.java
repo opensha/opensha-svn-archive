@@ -19,6 +19,8 @@ public class TimeDepWebDirOrganizer {
 		File figsZipFile = new File("/var/www/html/ftp/kmilner/ucerf3/PaperFigsHighResPDFs.zip");
 		File parentSectExcelFile = new File("/var/www/html/ftp/kmilner/ucerf3/ParentSectProbs_04.xlsx");
 		
+		if (!dir.exists())
+			dir.mkdir();
 		
 		FaultSysSolutionERF_Calc.writeStringToFile(new File(dir, "HEADER.html"),
 				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
@@ -90,17 +92,6 @@ public class TimeDepWebDirOrganizer {
 					+ "<br><b><i>OtherSensitivityTests</i></b>: Miscelaneous sensitivity tests using the branch averaged solution, Mid COV values, and "+aveTypeStr
 					+ "<br><b><i>SubsectionProbabilityMaps</i></b>: Results/Comparisons with UCERF2, aggregated across all logic tree branches"
 					+"</p>");
-			
-			File sensDir = new File(subDir, "BranchSensitivityMaps");
-			try {
-				TestPDFCombine.combine(sensDir, sensDir);
-			} catch (com.lowagie.text.DocumentException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
-			
-			File avgSensDir = new File(new File(subDir, "OtherSensitivityTests"), "AveragingMethods");
-			if (avgSensDir.listFiles() == null || avgSensDir.listFiles().length == 0)
-				avgSensDir.delete();
 			
 			// copy it over
 			File copiedDir = new File(dir, subDir.getName());
