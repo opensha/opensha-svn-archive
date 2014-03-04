@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FileUtils;
 
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 
@@ -19,8 +20,9 @@ public class TimeDepWebDirOrganizer {
 		File figsZipFile = new File("/var/www/html/ftp/kmilner/ucerf3/PaperFigsHighResPDFs.zip");
 		File parentSectExcelFile = new File("/var/www/html/ftp/kmilner/ucerf3/ParentSectProbs_04.xlsx");
 		
-		if (!dir.exists())
-			dir.mkdir();
+		if (dir.exists())
+			FileUtils.deleteRecursive(dir);
+		dir.mkdir();
 		
 		FaultSysSolutionERF_Calc.writeStringToFile(new File(dir, "HEADER.html"),
 				"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
@@ -35,9 +37,11 @@ public class TimeDepWebDirOrganizer {
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
 				+ "<b>Files:</b>"
 				+ "<br><b><i>Fault_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for each Fault for the given duration."
+				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
 				+ "<br><b><i>Figures_From_Report.zip</i></b>: Zip file with all figures from the report."
 				+ "<br><b><i>Parent_Section_Probabilities.xlsx</i></b>: Excel file with participation probabilities on each parent fault section."
-				+ "<br><b><i>Region_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for a number of Regionsfor the given duration."
+				+ "<br><b><i>Region_Probabilities_[duration].pdf</i></b>: Magnitude/Probability distributions for a number of Regions for the given duration."
+				+ " UCERF3 mean/min/max shown in blue (time independent in black) and UCERF2 mean/min/max shown in red (time independent in dark gray)."
 				+"</p>");
 		
 		String aveTypeStr = "default BPT averaging type";
@@ -97,9 +101,23 @@ public class TimeDepWebDirOrganizer {
 			// copy it over
 			File copiedDir = new File(dir, subDir.getName());
 			org.apache.commons.io.FileUtils.copyDirectory(subDir, copiedDir);
+			
 			// rename BranchAveragedResults to SubsectionProbabilityMaps
+			File subSectCopiedDir = new File(copiedDir, "SubsectionProbabilityMaps");
 			org.apache.commons.io.FileUtils.moveDirectory(
-					new File(copiedDir, "BranchAveragedResults"), new File(copiedDir, "SubsectionProbabilityMaps"));
+					new File(copiedDir, "BranchAveragedResults"), subSectCopiedDir);
+			FaultSysSolutionERF_Calc.writeStringToFile(new File(subSectCopiedDir, "HEADER.html"),
+					"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
+					+ label+" Sub Section Participation Probabilities</h1>\n"
+					+"\n"
+					+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
+					+ "<b><i>U3_Gain.pdf</i></b>: UCERF3 Time Dependent Subsection Probability Gain"
+					+ "<br><b><i>U3_TimeDep_Max.pdf</i></b>: UCERF3 Time Dependent Subsection Maximum Probability"
+					+ "<br><b><i>U3_TimeDep_Mean.pdf</i></b>: UCERF3 Time Dependent Subsection Mean Probability"
+					+ "<br><b><i>U3_TimeDep_Min.pdf</i></b>: UCERF3 Time Dependent Subsection Minimum Probability"
+					+ "<br><b><i>U3_U2_TimeDep_Ratio.pdf</i></b>: UCERF3/UCERF2 Time Dependent parent section participation "
+					+ "probability ratio on faults that existed in UCERF2."
+					+"</p>");
 			
 			// now add gridded
 			File griddedDir = new File(copiedDir, "GriddedParticipationMaps");
@@ -125,9 +143,10 @@ public class TimeDepWebDirOrganizer {
 					+ "<br><b><i>U3_U2_TimeIndep_Ratio.pdf</i></b>: UCERF3/UCERF2 Time Independent Probability Ratio"
 					+ "</p>");
 			griddedDir.mkdir();
+			Files.copy(new File(gridParticDir, "metadata.txt"), new File(griddedDir, "metadata.txt"));
 			for (File file : gridParticDir.listFiles()) {
 				String fname = file.getName();
-				if (!fname.endsWith(".pdf") || !fname.contains(fileMagGrep) || !fname.contains(fileDurGrep))
+				if (!fname.endsWith(".pdf") || !fname.contains(fileMagGrep) || !fname.startsWith(fileDurGrep.replaceAll("yr", "")))
 					continue;
 				String outName;
 				if (fname.contains("gridded_partic_u2_ratio"))
@@ -153,6 +172,10 @@ public class TimeDepWebDirOrganizer {
 			
 			// clean up BranchSensitivityMaps
 			File newSensDir = new File(copiedDir, "BranchSensitivityMaps");
+			for (File file : newSensDir.listFiles()) {
+				if (file.isFile() && !file.getName().contains("combined"))
+					file.delete();
+			}
 			FaultSysSolutionERF_Calc.writeStringToFile(new File(newSensDir, "HEADER.html"),
 					"<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
 					+ label+" Branch Sensitivity Figures</h1>\n"
@@ -164,10 +187,6 @@ public class TimeDepWebDirOrganizer {
 					+ "<br><b><i>histograms_combined.pdf</i></b>: Histograms showing the spread of subsection participation ratio"
 					+ " values for each of the above maps."
 					+"</p>");
-			for (File file : newSensDir.listFiles()) {
-				if (file.isFile() && !file.getName().contains("combined"))
-					file.delete();
-			}
 			
 			// clean up OtherSensitivityTests
 			File newOtherSensDir = new File(copiedDir, "OtherSensitivityTests");
@@ -198,11 +217,11 @@ public class TimeDepWebDirOrganizer {
 				+"<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:540px;\">"
 				+ "<b><i>UC2_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF2 Time Dependent and Time Independent 2% in 50 year"
 				+ " hazard for the specified IMT."
-				+ "<br><b><i>UC2_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF2 Time Dependent and Time Independent 2% in 50 year"
+				+ "<br><br><b><i>UC2_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF2 Time Dependent and Time Independent 2% in 50 year"
 				+ " hazard for the specified IMT."
-				+ "<b><i>UC3_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF3 Time Dependent and Time Independent 2% in 50 year"
+				+ "<br><b><i>UC3_diff-[IMT]-2in50.pdf</i></b>: Difference between UCERF3 Time Dependent and Time Independent 2% in 50 year"
 				+ " hazard for the specified IMT."
-				+ "<br><b><i>UC3_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF3 Time Dependent and Time Independent 2% in 50 year"
+				+ "<br><br><b><i>UC3_ratio-[IMT]-2in50.pdf</i></b>: Ratio between UCERF3 Time Dependent and Time Independent 2% in 50 year"
 				+ " hazard for the specified IMT."
 				+"</p>");
 		
