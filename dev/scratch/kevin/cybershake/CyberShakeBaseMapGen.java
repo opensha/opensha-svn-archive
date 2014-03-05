@@ -54,7 +54,7 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/BBP/CVM4i26> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
 			System.exit(2);
 		}
 		
@@ -104,6 +104,13 @@ public class CyberShakeBaseMapGen {
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} else if (cvmName.toLowerCase().equals("cvmhngtl")) {
+			CVMHBasinDepth z25 = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+			CVMHBasinDepth z10 = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+			z25.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, false);
+			z10.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, false);
+			provs.add(z25);
+			provs.add(z10);
 		} else if (cvmName.toLowerCase().equals("bbp")) {
 			// this will also clear Wills 2006 from the list
 			provs = HazardCurvePlotter.getBBP_1D_Providers();
