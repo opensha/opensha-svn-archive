@@ -426,8 +426,10 @@ public class HardCodedInterpDiffMapCreator {
 		
 		InterpDiffMapType[] mapTypes = normPlotTypes;
 		
+//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+//				"/resources/cpt/MaxSpectrum2.cpt"));
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/resources/cpt/MaxSpectrum2.cpt"));
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
 		
 		AbstractGeoDataSet refScatter = null;
 		if (probGain) {
@@ -494,6 +496,8 @@ public class HardCodedInterpDiffMapCreator {
 		map.setXyzFileName("diff_map.xyz");
 		map.setCustomScaleMin((double)diffCPT.getMinValue());
 		map.setCustomScaleMax((double)diffCPT.getMaxValue());
+		map.setCPTEqualSpacing(true);
+		map.setRescaleCPT(false);
 		
 		String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 						"val: " + val + "\n" +
@@ -511,6 +515,8 @@ public class HardCodedInterpDiffMapCreator {
 		map.setXyzFileName("ratio_map.xyz");
 		map.setCustomScaleMin((double)ratioCPT.getMinValue());
 		map.setCustomScaleMax((double)ratioCPT.getMaxValue());
+		map.setCPTEqualSpacing(true);
+		map.setRescaleCPT(false);
 		
 		System.out.println("Making map...");
 		String ratioAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);

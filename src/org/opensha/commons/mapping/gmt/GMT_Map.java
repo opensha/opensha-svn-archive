@@ -85,6 +85,8 @@ public class GMT_Map implements Serializable {
 	private Double customScaleMin = null;
 	private Double customScaleMax = null;
 	
+	private boolean cptEqualSpacing = false;
+	
 	private int dpi = 72;
 	
 	private boolean useGMTSmoothing = true;
@@ -177,6 +179,14 @@ public class GMT_Map implements Serializable {
 	
 	public void setRescaleCPT(boolean rescaleCPT) {
 		this.rescaleCPT = rescaleCPT;
+	}
+	
+	public boolean isCPTEqualSpacing() {
+		return cptEqualSpacing;
+	}
+	
+	public void setCPTEqualSpacing(boolean cptEqualSpacing) {
+		this.cptEqualSpacing = cptEqualSpacing;
 	}
 
 	public double getGriddedDataInc() {

@@ -74,15 +74,19 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	}
 	
 	public static CPT getRatioCPT() throws IOException {
-		CPT ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
-		ratioCPT = ratioCPT.rescale(0, 2);
-		return ratioCPT;
+//		CPT ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//		ratioCPT = ratioCPT.rescale(0, 2);
+//		return ratioCPT;
+		return CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
 	}
 	
 	public static CPT getDiffCPT() throws IOException {
-		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
-		diffCPT = diffCPT.rescale(-0.8, 0.8);
-		return diffCPT;
+//		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
+//		diffCPT = diffCPT.rescale(-0.8, 0.8);
+//		return diffCPT;
+		return CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_diff.cpt"));
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {
@@ -403,6 +407,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			double myCPTMax = colorScaleMax;
 			CPT myCPT = cpt;
 			String scaleLabel = map.getCustomLabel();
+			boolean cptEqualSpacing = map.isCPTEqualSpacing();
 			if (mapType == InterpDiffMapType.BASEMAP) {
 				grdFile = baseGRD;
 				scaleLabel = "GMPE Basemap, "+scaleLabel;
@@ -431,6 +436,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				myCPT = ratioCPT;
 				grdFile = interpRatioSampledGRD;
 				scaleLabel = "Ratio Map, "+scaleLabel;
+				cptEqualSpacing = true;
 			}
 			
 			if (markers && myCPT != null && myCPT.get(0).minColor.equals(Color.BLUE)
@@ -486,7 +492,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			GMT_MapGenerator.addSpecialElements(gmtCommandLines, map, region, proj, psFile);
 			
 			GMT_MapGenerator.addColorbarCommand(gmtCommandLines, scaleLabel, map.isLogPlot(),
-					myCPTMin, myCPTMax, myCPTFileName, psFile);
+					myCPTMin, myCPTMax, myCPTFileName, psFile, cptEqualSpacing);
 			
 			gmtCommandLines.add("# basemap");
 			commandLine = "${GMT_PATH}psbasemap -B0.5/0.5eWNs"+region+proj+"-O >> "+psFile;
