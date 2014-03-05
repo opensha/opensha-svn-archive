@@ -337,14 +337,20 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		// set some defaults
-		String pageColor;
-		if (map.isBlackBackground())
-			pageColor = "0/0/0";
+//		String pageColor;
+//		if (map.isBlackBackground())
+//			pageColor = "0/0/0";
+//		else
+//			pageColor = "255/255/255";
+//		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR" +
+//				" "+pageColor+" PAGE_ORIENTATION portrait PAPER_MEDIA csmap BASEMAP_FRAME_RGB 255/255/255" +
+//				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//		gmtCommandLines.add(commandLine+"\n");
+		gmtCommandLines.add("# Set GMT paper/font defaults");
+		if(map.isBlackBackground())
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		else
-			pageColor = "255/255/255";
-		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR" +
-				" "+pageColor+" PAGE_ORIENTATION portrait PAPER_MEDIA csmap BASEMAP_FRAME_RGB 255/255/255" +
-				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		String interpPlotGRD;
