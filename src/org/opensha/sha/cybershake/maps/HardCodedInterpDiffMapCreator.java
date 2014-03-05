@@ -429,7 +429,7 @@ public class HardCodedInterpDiffMapCreator {
 //		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
 //				"/resources/cpt/MaxSpectrum2.cpt"));
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
 		
 		AbstractGeoDataSet refScatter = null;
 		if (probGain) {
