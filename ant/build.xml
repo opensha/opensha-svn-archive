@@ -334,7 +334,7 @@
 	<target name="resource.cybershake">
 		<copy todir="${build}/org/opensha/sha/cybershake/conf/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/cybershake/conf/">
-				<include name="*.xml" />
+				<include name="**/*" />
 			</fileset>
 		</copy>
 	</target>
