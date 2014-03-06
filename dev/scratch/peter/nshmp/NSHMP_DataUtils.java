@@ -399,6 +399,37 @@ public class NSHMP_DataUtils {
 		return gDat;
 	}
 	
+	/**
+	 * Flavor of method above that just takes a probability; assumes supplied
+	 * curves are probabilistic.
+	 * @param cc
+	 * @param region
+	 * @param prob
+	 * @return
+	 */
+	public static GeoDataSet extractPE(CurveContainer cc,
+			GriddedRegion region, double prob) {
+		GriddedGeoDataSet gDat = new GriddedGeoDataSet(region, true);
+		for (Location loc : region) {
+			
+			// two possible problems can arise here: (1) the region to extract
+			// has points outside the data source region and (2) the data
+			// source curve may have uniform very low values and fails
+			// interpolation. In either case set ground motion value to 0
+			
+			double gm = 0;
+			DiscretizedFunc f = cc.getCurve(loc);
+			try {
+				gm = f.getFirstInterpolatedX_inLogXLogYDomain(prob);
+			} catch (Exception e) {
+				System.out.println("Problem location: " + loc);
+				// do nothing; let gm be 0
+			}
+			gDat.set(loc, gm);
+		}
+		return gDat;
+	}
+
 
 	/**
 	 * Utility method to extract RTGM values from a RTGM data set
