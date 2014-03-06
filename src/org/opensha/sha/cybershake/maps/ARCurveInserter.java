@@ -90,20 +90,22 @@ public class ARCurveInserter {
 //		String dir = "/home/kevin/CyberShake/baseMaps/ave2008/curves_3sec";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2013_11_07-cvm4-cs-nga2/CY2013/curves/imrs1/";
-		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec/CB2008/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec/CB2008/curves/imrs1.bin";
+		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec/AVE2008/curves/imrs1.bin";
 		boolean deleteOld = false;
-		ScalarIMR imr = AttenRelRef.CB_2008.instance(null);
+		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
 		imr.setParamDefaults();
 		setTruncation(imr, 3.0);
 		int erfID = 35;
 //		int velModelID = 1;
 //		int velModelID = 8; // BBP 1D
-		int velModelID = 5; // CVMS-4i26
+//		int velModelID = 5; // CVMS-4i26
+		int velModelID = 7; // CVM-H 11.9 no gtl
 		int probModelID = 1;
 		int timeSpanID = 1;
 		int imTypeID = 21;
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2014, 3, 3);
+		cal.set(2014, 3, 5);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests

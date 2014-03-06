@@ -73,20 +73,36 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		return tracker;
 	}
 	
+	public static final Color OUTSIDE_REGION_COLOR = Color.GRAY;
+//	public static final Color OUTSIDE_REGION_COLOR = Color.WHITE;
+	
+	public static CPT getHazardCPT() throws IOException {
+//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+//				"/resources/cpt/MaxSpectrum2.cpt"));
+		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+		cpt.setNanColor(OUTSIDE_REGION_COLOR);
+		return cpt;
+	}
+	
 	public static CPT getRatioCPT() throws IOException {
 //		CPT ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 //		ratioCPT = ratioCPT.rescale(0, 2);
 //		return ratioCPT;
-		return CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
 				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
+		cpt.setNanColor(OUTSIDE_REGION_COLOR);
+		return cpt;
 	}
 	
 	public static CPT getDiffCPT() throws IOException {
 //		CPT diffCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 //		diffCPT = diffCPT.rescale(-0.8, 0.8);
 //		return diffCPT;
-		return CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
 				"/org/opensha/sha/cybershake/conf/cpt/cptFile_diff.cpt"));
+		cpt.setNanColor(OUTSIDE_REGION_COLOR);
+		return cpt;
 	}
 	
 	public ArrayList<String> getGMT_ScriptLines(InterpDiffMap map, String dir) throws GMT_MapException {

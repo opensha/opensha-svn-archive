@@ -51,6 +51,7 @@ public class InterpDiffMap extends GMT_Map {
 		this.scatter = scatter;
 		this.interpSettings = interpSettings;
 		this.mapTypes = mapTypes;
+		this.setBlackBackground(false);
 	}
 
 	public GeoDataSet getScatter() {

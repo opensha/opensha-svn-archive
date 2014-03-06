@@ -302,19 +302,33 @@ public class HardCodedInterpDiffMapCreator {
 	public static void main(String[] args){
 		try {
 			boolean logPlot = false;
-			int imTypeID = 21;
-			// Velocity model ID - REMEMBER TO UPDATE THIS!!!
-			int velModelID = 5; // CVM-S4i26
-//			int velModelID = 8; // BBP
+			int imTypeID = 21; // 3 sec SA
 			// the main dataset(s) that we're plotting
-			List<Integer> datasetIDs = Lists.newArrayList(35);
+			
+			// CVM-S4i26, AWP CPU
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(37);
+			
+			// CVM-S4i26, AWP GPU
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(35);
+			
+			// BBP 1D, AWP GPU
+			int velModelID = 8;
+			List<Integer> datasetIDs = Lists.newArrayList(38);
+			
+			// CVM-S4i26, AWP CPU
+//			int velModelID = 7;
+//			List<Integer> datasetIDs = Lists.newArrayList(34);
+			
 			// comparison dataset for ratio maps
-			List<Integer> compDatasetIDs = Lists.newArrayList(19);
-//			List<Integer> compDatasetIDs = null;
+//			List<Integer> compDatasetIDs = Lists.newArrayList(25);
+			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
-			Double customMax = 1.4;
+//			Double customMax = 1.4;
+			Double customMax = 1.0;
 			
 			
 //			boolean isProbAt_IML = true;
@@ -426,10 +440,7 @@ public class HardCodedInterpDiffMapCreator {
 		
 		InterpDiffMapType[] mapTypes = normPlotTypes;
 		
-//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-//				"/resources/cpt/MaxSpectrum2.cpt"));
-		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+		CPT cpt = CyberShake_GMT_MapGenerator.getHazardCPT();
 		
 		AbstractGeoDataSet refScatter = null;
 		if (probGain) {
