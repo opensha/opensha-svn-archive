@@ -133,7 +133,9 @@ public class UC33_MapMaker {
 //		buildUC2_NSHMP_binaries();
 //		build_UC3_GMM08_binary();
 		
-		
+		// time dependence
+		buildUCtimeDependentMaps();
+						
 //		testNSHMP();
 //		buildUC3_NSHMP_versionMaps();
 //		build_NSHMP_comp1();
@@ -387,6 +389,47 @@ public class UC33_MapMaker {
 		String srcPath = SRC + dir + S + grid.name() + S + p + S + "curves.csv";
 		File srcFile = new File(srcPath);
 		return CurveContainer.create(srcFile, grid, spacing);
+	}
+	
+	
+	// builds UC2 and UC3 ratio and difference maps for timeDep and Indep data
+	// the curves sources for this are 50 year forecasts and are probabilistic,
+	// not rate based.
+	private static void buildUCtimeDependentMaps() {
+		TestGrid grid = TestGrid.CA_RELM;
+		double spacing = 0.1;
+		
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+//		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50); //, PE10IN50);
+		String path = SRC + "UC-TimeDep/";
+		double prob = 0.02;
+		
+		// UC2
+		for (Period p : periods) {
+			GeoDataSet xyzOver = loadSingle(path + "UC2-TD", prob, grid, p, spacing);
+			GeoDataSet xyzUnder = loadSingle(path + "UC2-TI", prob, grid, p, spacing);
+			String id = p.getLabel() + "-" + String.format("%.0fin50", prob * 100);
+			GeoDataSet ratio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+			GeoDataSet diff = GeoDataSetMath.subtract(xyzOver, xyzUnder);
+			String ratioDir = ROOT + "TimeDep/UC2_ratio-" + id;
+			String diffDir = ROOT + "TimeDep/UC2_diff-" + id;
+			makeRatioPlotNSHMP(ratio, spacing, grid.bounds(), ratioDir, "UC2 ratio " + id, false);
+			makeDiffPlotNSHMP(diff, spacing, grid.bounds(), diffDir, "UC2 diff " + id, false);
+		}
+
+		// UC3
+		for (Period p : periods) {
+			GeoDataSet xyzOver = loadSingle(path + "UC3-FM31-TD", prob, grid, p, spacing);
+			GeoDataSet xyzUnder = loadSingle(path + "UC3-FM31-TI", prob, grid, p, spacing);
+			String id = p.getLabel() + "-" + String.format("%.0fin50", prob * 100);
+			GeoDataSet ratio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+			GeoDataSet diff = GeoDataSetMath.subtract(xyzOver, xyzUnder);
+			String ratioDir = ROOT + "TimeDep/UC3_ratio-" + id;
+			String diffDir = ROOT + "TimeDep/UC3_diff-" + id;
+			makeRatioPlotNSHMP(ratio, spacing, grid.bounds(), ratioDir, "UC3 ratio " + id, false);
+			makeDiffPlotNSHMP(diff, spacing, grid.bounds(), diffDir, "UC3 diff " + id, false);
+		}
+
 	}
 	
 	
@@ -1784,6 +1827,14 @@ public class UC33_MapMaker {
 		return NSHMP_DataUtils.extractPE(cc, gr, pe);
 	}
 	
+	private static GeoDataSet loadSingle(String dir, double prob,
+			TestGrid grid, Period p, double spacing) {
+		File curves = new File(dir + S + grid + S + p + S + "curves.csv");
+		CurveContainer cc = CurveContainer.create(curves, grid, spacing);
+		GriddedRegion gr = grid.grid(spacing);
+		return NSHMP_DataUtils.extractPE(cc, gr, prob);
+	}
+
 	private static GeoDataSet loadMulti(String srcDir, File branchListFile,
 			ProbOfExceed pe, TestGrid grid, Period p, String suffix)
 			throws IOException {
