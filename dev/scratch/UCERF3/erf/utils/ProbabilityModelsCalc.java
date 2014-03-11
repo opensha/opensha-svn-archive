@@ -300,7 +300,7 @@ public class ProbabilityModelsCalc {
 	 * section recurrence intervals (typeCalc=1) or by computing one over the average section
 	 * rate (typeCalc=2), both are weighted by section area.
 	 * 
-	 * @param typeCalc - set as 1 to average RIs, and 2 to average rates
+	 * @param typeCalc - set as 1 to average RIs, 2 to average rates, 3 for max sect RI
 	 * @return
 	 */
 	private double[] computeAveCondRecurIntervalForFltSysRups(int typeCalc) {
@@ -308,11 +308,13 @@ public class ProbabilityModelsCalc {
 		double[] aveCondRecurIntervalForFltSysRups = new double[numRupsInFaultSystem];
 		for(int r=0;r<numRupsInFaultSystem; r++) {
 			List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataForRupture(r);
-			double ave=0, totArea=0;
+			double ave=0, totArea=0, maxRI=0;
 			for(FaultSectionPrefData data:fltData) {
 				int sectID = data.getSectionId();
 				double area = sectionArea[sectID];
 				totArea += area;
+				if(1.0/longTermPartRateForSectArray[sectID] > maxRI)
+					maxRI = 1.0/longTermPartRateForSectArray[sectID];
 				// ave RIs or rates depending on which is set
 				if(typeCalc==1)
 					ave += area/longTermPartRateForSectArray[sectID];  // this one averages RIs; wt averaged by area
@@ -325,6 +327,8 @@ public class ProbabilityModelsCalc {
 				aveCondRecurIntervalForFltSysRups[r] = ave/totArea;	// this one averages RIs
 			else
 				aveCondRecurIntervalForFltSysRups[r] = 1/(ave/totArea); // this one averages rates
+// temp overide:
+// aveCondRecurIntervalForFltSysRups[r] = maxRI;
 		}
 		return aveCondRecurIntervalForFltSysRups;
 	}
@@ -3305,6 +3309,7 @@ public class ProbabilityModelsCalc {
 			while(currentYear <= origStartYear+forecastDurationYrs) { 
 				
 				double thisDuration = 1.0/totalTargetRate;	// make the duration the expected time to next event
+// System.out.println(nthCatalog+"\t"+currentYear+"\t"+thisDuration);
 
 				// update gains and sampler if not Poisson
 				if(probTypeEnum != ProbabilityModelOptions.POISSON) {
@@ -3341,6 +3346,9 @@ public class ProbabilityModelsCalc {
 					}
 					totalTargetRate = nthRupRandomSampler.getSumOfY_vals();				
 				}
+				
+// System.out.println("done with gain calc");
+
 
 				// sample time of next event
 				double timeToNextInYrs = randomDataSampler.nextExponential(1.0/totalTargetRate);
@@ -4150,6 +4158,23 @@ public class ProbabilityModelsCalc {
 		progressBar.dispose();
 
 	}
+	
+	public void plotRatioHistOfRupCondProbs(){
+		aveCondRecurIntervalForFltSysRups_type1 = computeAveCondRecurIntervalForFltSysRups(1);
+		aveCondRecurIntervalForFltSysRups_type2 = computeAveCondRecurIntervalForFltSysRups(2);
+		HistogramFunction hist = new HistogramFunction(0.0, 20, 0.1);
+		for(int r=0;r<aveCondRecurIntervalForFltSysRups_type1.length;r++) {
+			double ratio = aveCondRecurIntervalForFltSysRups_type2[r]/aveCondRecurIntervalForFltSysRups_type1[r];
+			if(ratio < hist.getMaxX()+hist.getDelta()/2)
+				hist.add(ratio, longTermRateOfFltSysRup[r]);
+			else
+				System.out.println(ratio);
+		}
+		hist.setInfo("mean="+(float)hist.computeMean());
+		GraphWindow graphMagHist = new GraphWindow(hist, "Ratio of aveRate to aveRI Cond RI values"); 
+
+
+	}
 
 	
 	/**
@@ -4157,7 +4182,7 @@ public class ProbabilityModelsCalc {
 	 */
 	public static void main(String[] args) {
 		
-		simpleModelTest(1000000);
+//		simpleModelTest(1000000);
 
 //		// THIS CODE WAS RUN ON JAN 30
 //		TestModel3_FSS testFSS = new TestModel3_FSS();	// this one is perfectly segmented
@@ -4200,33 +4225,37 @@ public class ProbabilityModelsCalc {
 ////		testCalc.testER_Next50yrSimulation(erf, "SimpleFaultTest_Next50yrSimBPT_100yrTestGainFix", null, 5000);
 		
 
-//		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-////		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
-//		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
-//
-//		
-////		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
-////		erf.updateForecast();
-////		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
-//////		testCalc.testER_Simulation(null, null, erf,200000d);
-////		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimulation", 1000000);
-//
-////		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
-//		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
-//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-////		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-////		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
-//		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-////		
-////		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+
+		
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
-
 //		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+////		testCalc.testER_Simulation(null, null, erf,200000d);
+//		testCalc.testER_Next50yrSimulation(erf, "TestER_Next50yrSimulation", 1000000);
+//
+//		String timeSinceLastFileNamePois = "timeSinceLastForSimulationPois.txt";
+		String timeSinceLastFileName = "timeSinceLastForSimulation.txt";
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+//		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		
+//		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
+		erf.updateForecast();
 
-//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 200000d, "Nov20");
+		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
+		
+//		testCalc.plotRatioHistOfRupCondProbs();
+
+//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 20000d, "March10_testMaxRI_2");
+		testCalc.testER_NextXyrSimulation(erf, "TestXyrSim_2", null, 500, 30);
+
 		
 //		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);
 		
@@ -4257,7 +4286,6 @@ public class ProbabilityModelsCalc {
 		
 //		System.out.println(testCalc.getInfoAboutRupsOnSection(295, "tempRupOnSectInfo.txt"));
 		
-//		testCalc.testER_NextXyrSimulation(erf, "TestXyrSim_2", null, 500, 50);
 
 		
 //		// Biggest gain ratio diff between viable approaches

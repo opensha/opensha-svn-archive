@@ -377,7 +377,8 @@ public class FaultSystemSolutionCalc {
 	 */
 	public static void main(String[] args) throws ZipException, IOException {
 		
-		countNumRupsOnSubSectionForFM3pt1(1886);	// Mojave subsection 0
+//		countNumRupsOnSubSectionForFM3pt1(1886);	// Mojave subsection 0
+		countNumRupsOnSubSectionForFM3pt1(1935);	// Center of Peninsula SAF (subsect #7, I think)
 		
 //		writeFM3pt1_SubSectionOutlinesWithPartRatesForGMT();
 		
