@@ -33,11 +33,11 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
 import scratch.peter.nga.FaultStyle;
 import scratch.peter.nga.IMT;
 import scratch.peter.nga.Idriss_2013;
 import scratch.peter.nga.NGAW2_GMM;
+import scratch.peter.nga.ScalarGroundMotion;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

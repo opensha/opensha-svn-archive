@@ -1,4 +1,4 @@
-package scratch.peter.newcalc;
+package scratch.peter.nga;
 
 /**
  * Wrapper class for ground motion prediction equation (GMPE) results.

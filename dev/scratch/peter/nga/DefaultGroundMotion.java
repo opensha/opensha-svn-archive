@@ -1,6 +1,5 @@
 package scratch.peter.nga;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
  * Default wrapper for ground motion prediction equation (GMPE) results.

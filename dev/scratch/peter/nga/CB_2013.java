@@ -39,8 +39,6 @@ import java.util.Set;
 
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * Preliminary implementation of the Campbell & Bozorgnia (2013) next generation attenuation
  * relationship developed as part of NGA West II.

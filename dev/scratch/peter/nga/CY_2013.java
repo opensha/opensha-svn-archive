@@ -38,8 +38,6 @@ import java.util.Collection;
 
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * Preliminary implementation of the Chiou & Youngs (2013) next generation
  * attenuation relationship developed as part of NGA West II.

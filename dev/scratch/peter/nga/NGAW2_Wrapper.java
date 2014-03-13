@@ -30,8 +30,6 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.base.Preconditions;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * This wraps Peter's NGA implementation to conform to the AttenuationRelationship construct
  * 

@@ -5,8 +5,6 @@ import java.util.Collection;
 import org.opensha.commons.data.Named;
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * Interface for NGAW2 ground motion models.
  * 

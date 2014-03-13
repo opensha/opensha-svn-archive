@@ -34,8 +34,6 @@ import java.util.Collection;
 
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * Preliminary implementation of the Boore, Stewart, Seyhan, &amp; Atkinson
  * (2013) next generation attenuation relationship developed as part of NGA West

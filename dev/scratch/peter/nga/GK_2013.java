@@ -31,8 +31,6 @@ import java.util.Set;
 
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.peter.newcalc.ScalarGroundMotion;
-
 /**
  * Preliminary implementation of the Graizer &amp; Kalkan (2013) GMPE.
  * 
