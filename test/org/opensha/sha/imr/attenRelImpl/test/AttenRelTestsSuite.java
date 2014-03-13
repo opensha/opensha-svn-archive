@@ -20,7 +20,9 @@
 package org.opensha.sha.imr.attenRelImpl.test;
 
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;;
+import org.junit.runners.Suite;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Tests;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_WrapperTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -41,7 +43,10 @@ import org.junit.runners.Suite;;
 	ZhaoEtAl_2006_test.class,
 	GeneralIMR_ParameterTests.class,
 	MultiIMR_CalcTest.class,
-	MultiIMR_ParamTest.class
+	MultiIMR_ParamTest.class,
+	
+	NGAW2_WrapperTest.class,
+	NGAW2_Tests.class
 })
 
 
