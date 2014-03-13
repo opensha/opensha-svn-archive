@@ -1,4 +1,4 @@
-package scratch.kevin.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static org.junit.Assert.*;
 
@@ -25,6 +25,10 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenRelRef;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.ScalarGroundMotion;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
@@ -32,10 +36,6 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.collect.Lists;
-
-import scratch.peter.newcalc.ScalarGroundMotion;
-import scratch.peter.nga.IMT;
-import scratch.peter.nga.TransitionalGMPE;
 
 /**
  * This tests that the GMPE wrapper is working correctly in setting paremters
@@ -45,8 +45,8 @@ import scratch.peter.nga.TransitionalGMPE;
 @RunWith(Parameterized.class)
 public class TransitionalGMPEWrapperTest {
 	
-	private TransitionalGMPEWrapper wrapper;
-	private TransitionalGMPE gmpe;
+	private NGAW2_Wrapper wrapper;
+	private NGAW2_GMM gmpe;
 	
 	private static ERF wrapper_erf;
 	private static ERF gmpe_erf;
@@ -59,7 +59,7 @@ public class TransitionalGMPEWrapperTest {
 	private static final double tol = 1e-10;
 	
 	public TransitionalGMPEWrapperTest(AttenRelRef ref) {
-		wrapper = (TransitionalGMPEWrapper)ref.instance(null);
+		wrapper = (NGAW2_Wrapper)ref.instance(null);
 		wrapper.setParamDefaults();
 		gmpe = wrapper.getGMPE();
 		
@@ -83,7 +83,7 @@ public class TransitionalGMPEWrapperTest {
 	public static Collection<AttenRelRef[]> data() {
 		ArrayList<AttenRelRef[]> ret = new ArrayList<AttenRelRef[]>();
 		for (AttenRelRef imr : AttenRelRef.values()) {
-			if (!TransitionalGMPEWrapper.class.isAssignableFrom(imr.getAttenRelClass()))
+			if (!NGAW2_Wrapper.class.isAssignableFrom(imr.getAttenRelClass()))
 				continue;
 			AttenRelRef[] array = { imr };
 			ret.add(array);
@@ -186,7 +186,7 @@ public class TransitionalGMPEWrapperTest {
 				else
 					gmpe.set_z1p0(z10);
 				
-				gmpe.set_fault(TransitionalGMPEWrapper.getFaultStyle(gmpe_rup.getAveRake()));
+				gmpe.set_fault(NGAW2_Wrapper.getFaultStyle(gmpe_rup.getAveRake()));
 				
 				double wrapper_mean = wrapper.getMean();
 				double wrapper_std_dev = wrapper.getStdDev();
