@@ -24,6 +24,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMagProbPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedSiteHazardHistPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
@@ -160,7 +161,7 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
 		try {
-			comp.computThreaded(threads);
+			comp.computeThreaded(threads);
 		} catch (InterruptedException e) {
 			debug("Exception computing threaded: "+e.getMessage());
 			ExceptionUtils.throwAsRuntimeException(e);
@@ -170,6 +171,8 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
+		for (CompoundFSSPlots plot : plots)
+			plot.flushResults();
 		System.out.println(rank+". My number of calcs: "+myCalcs);
 		int numPlots = plots.size();
 		
@@ -326,6 +329,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				"Flag for erf prob dists");
 		erfProbsOption.setRequired(false);
 		options.addOption(erfProbsOption);
+		
+		Option erfHazOption = new Option("erfhaz", "plot-erf-hazard", false,
+				"Flag for erf hazard histograms");
+		erfHazOption.setRequired(false);
+		options.addOption(erfHazOption);
 		
 		Option miniSectRIsOption = new Option("miniris", "plot-mini-sect-ris", false,
 				"Flag for creating mini section RIs tables");
@@ -534,6 +542,12 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("plot-erf-prob-dists")) {
 				ERFBasedRegionalMagProbPlot erfMFDs = new ERFBasedRegionalMagProbPlot(weightProvider);
 				plots.add(erfMFDs);
+			}
+			
+			if (plotAll || cmd.hasOption("erfhaz")) {
+				ERFBasedSiteHazardHistPlot erfHaz = new ERFBasedSiteHazardHistPlot(
+						weightProvider, new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetcher.getBranches().size());
+				plots.add(erfHaz);
 			}
 			
 			if (plotAll || cmd.hasOption("miniris")) {

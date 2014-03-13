@@ -2,6 +2,7 @@ package scratch.kevin.simulators.synch;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -14,8 +15,11 @@ import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
@@ -31,14 +35,17 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
+import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.RandomDistType;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 public class SynchParamCalculator {
 	
@@ -65,6 +72,21 @@ public class SynchParamCalculator {
 	
 	private static int m = 0;
 	private static int n = 1;
+	
+	double cov;
+	
+	private boolean useIndepProbs = false; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
+	
+	private enum WeightingScheme {
+		FREQ_EITHERS,
+		TOT_OCCUPANCY,
+		FREQ_MNs,
+		FREQ_AVG,
+		LAG_DEPENDENT_EITHER,
+		LAG_DEPENDENT_AVG;
+	}
+	
+	private WeightingScheme weightingScheme = WeightingScheme.LAG_DEPENDENT_AVG;
 	
 //	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
 //		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
@@ -99,13 +121,45 @@ public class SynchParamCalculator {
 		int numSubSums = 0;
 		int numSubBails = 0;
 		
-		boolean useIndepProbs = false;
-		Map<Integer, Double> mIndepProbs = null;
-		Map<Integer, Double> nIndepProbs = null;
-		if (useIndepProbs) {
-			mIndepProbs = calcIndepProbs(m);
-			nIndepProbs = calcIndepProbs(n);
+		int totOccupancy = 0;
+		
+		Map<Integer, Double> mIndepFreqs;
+		Map<Integer, Double> nIndepFreqs;
+		Map<Integer, Double> mIndepProbs;
+		Map<Integer, Double> nIndepProbs;
+		if (lag == 0) {
+			mIndepProbs = calcIndepProbs(m, 0, false);
+			nIndepProbs = calcIndepProbs(n, 0, false);
+			mIndepFreqs = calcIndepProbs(m, 0, true);
+			nIndepFreqs = calcIndepProbs(n, 0, true);
+		} else if (lag < 0) {
+			// n precedes m
+			// we want m=0, and n=abs(lag)
+			mIndepProbs = calcIndepProbs(m, 0, false);
+			nIndepProbs = calcIndepProbs(n, -lag, false);
+			mIndepFreqs = calcIndepProbs(m, 0, true);
+			nIndepFreqs = calcIndepProbs(n, -lag, true);
+		} else {
+			// m precedes n
+			// we want n=0, and m=lag
+			mIndepProbs = calcIndepProbs(m, lag, false);
+			nIndepProbs = calcIndepProbs(n, 0, false);
+			mIndepFreqs = calcIndepProbs(m, lag, true);
+			nIndepFreqs = calcIndepProbs(n, 0, true);
 		}
+		
+		List<Double> allFreqMs = Lists.newArrayList();
+		List<Double> allFreqNs = Lists.newArrayList();
+		List<Double> allFreqMNs = Lists.newArrayList();
+		List<Double> allFreqEithers = Lists.newArrayList();
+		List<Double> allTots = Lists.newArrayList();
+		List<int[]> allStates = Lists.newArrayList();
+		double allTotOccupancy = 0;
+		
+		List<int[]> usedStates = Lists.newArrayList();
+		
+		List<Double> weightNumerators = Lists.newArrayList();
+		double weightDenominator = 0d;
 		
 		for (int[] fromState : chain.getStateTransitionDataset().getPopulatedIndices()) {
 			PossibleStates possible = chain.getStateTransitionDataset().get(fromState);
@@ -187,12 +241,20 @@ public class SynchParamCalculator {
 				
 			}
 			
+			allFreqMs.add(freqM);
+			allFreqNs.add(freqN);
+			allFreqMNs.add(freqMN);
+			allFreqEithers.add(freqEither);
+			allStates.add(fromState);
+			allTotOccupancy += possible.getTot();
+			allTots.add(tot);
+			
 			numSubSums++;
 			
 			// convert to probs
-			freqM /= tot;
-			freqN /= tot;
-			freqMN /= tot;
+			double probM = freqM / tot;
+			double probN = freqN / tot;
+			double probMN = freqMN / tot;
 			
 			if (useIndepProbs) {
 //				int mIndex = indicesKey.indices[0];
@@ -200,23 +262,23 @@ public class SynchParamCalculator {
 				int mIndex = 0;
 				int nIndex = 1;
 				if (mIndepProbs.containsKey(mIndex))
-					freqM = mIndepProbs.get(mIndex);
+					probM = mIndepProbs.get(mIndex);
 				else
-					freqM = 0;
+					probM = 0;
 				if (nIndepProbs.containsKey(nIndex))
-					freqN = nIndepProbs.get(nIndex);
+					probN = nIndepProbs.get(nIndex);
 				else
-					freqN = 0;
+					probN = 0;
 			}
 			
-			double synch = freqMN/(freqM*freqN);
+			double synch = probMN/(probM*probN);
 //			double prob_state = tot / totStateCount;
 			
 			numPossibleSums++;
 			
 //			if (!Double.isInfinite(synch) && !Double.isNaN(synch)) {
 //			if (freqEither > 0) {
-			if (freqM > 0 && freqN > 0) {
+			if (probM > 0 && probN > 0) {
 				if (Double.isInfinite(synch) || Double.isNaN(synch))
 					synch = 0d;
 				totEithers += freqEither;
@@ -226,20 +288,127 @@ public class SynchParamCalculator {
 				freqEithers.add(freqEither);
 				synch_indices.add(new IndicesKey(fromState));
 				
-				probMs.add(freqM);
-				probNs.add(freqN);
-				probMNs.add(freqMN);
+				probMs.add(probM);
+				probNs.add(probN);
+				probMNs.add(probMN);
+				
+				usedStates.add(fromState);
+				totOccupancy += possible.getTot();
+				
+				switch (weightingScheme) {
+				case FREQ_EITHERS:
+					weightNumerators.add(freqEither);
+					weightDenominator += freqEither;
+					break;
+				case TOT_OCCUPANCY:
+					weightNumerators.add(possible.getTot());
+					weightDenominator += possible.getTot();
+					break;
+				case FREQ_MNs:
+					weightNumerators.add(freqMN);
+					weightDenominator += freqMN;
+					break;
+				case FREQ_AVG:
+					double avg = 0.5*(freqM+freqN);
+					weightNumerators.add(avg);
+					weightDenominator += avg;
+					break;
+				case LAG_DEPENDENT_EITHER:
+					if (lag == 0) {
+						weightNumerators.add(freqEither);
+						weightDenominator += freqEither;
+					} else if (lag < 0) {
+						// n precedes m
+						// we want m=0, and n=abs(lag)
+						weightNumerators.add(freqM);
+						weightDenominator += freqM;
+					} else {
+						// m precedes n
+						// we want n=0, and m=lag
+						weightNumerators.add(freqN);
+						weightDenominator += freqN;
+					}
+					break;
+				case LAG_DEPENDENT_AVG:
+					if (lag == 0) {
+						avg = 0.5*(freqM+freqN);
+						weightNumerators.add(avg);
+						weightDenominator += avg;
+					} else if (lag < 0) {
+						// n precedes m
+						// we want m=0, and n=abs(lag)
+						weightNumerators.add(freqM);
+						weightDenominator += freqM;
+					} else {
+						// m precedes n
+						// we want n=0, and m=lag
+						weightNumerators.add(freqN);
+						weightDenominator += freqN;
+					}
+					break;
+				default:
+					throw new IllegalStateException("Weight not implemented: "+weightingScheme);
+				}
+				
+				Preconditions.checkState(Doubles.isFinite(synch),
+						"Non finite synch param. lag="+lag+", synch="+probMN+"/("+probM+"*"+probN+")="+synch);
 			}
 		}
+		List<Double> weights = Lists.newArrayList();
+		double totWeight = 0;
 		for (int i=0; i<synchs.size(); i++) {
-			double weight = freqEithers.get(i)/totEithers;
+			double weight = weightNumerators.get(i)/weightDenominator;
+			totWeight += weight;
+			weights.add(weight);
 			gBar_numerator += synchs.get(i)*weight;
 			gBar_denominator += weight;
 		}
+		Preconditions.checkState(synchs.size() == 0 || (float)totWeight == (float)1f,
+				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
+				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
 		gBar = gBar_numerator/gBar_denominator;
+		
+		// now calculate cov
+//		cov = 0;
+//		for (int i=0; i<synchs.size(); i++) {
+//			double weight = weights.get(i);
+//			int mIndex = usedStates.get(i)[m];
+//			int nIndex = usedStates.get(i)[n];
+//			if (mIndepProbs.containsKey(mIndex))
+//				expectedM = mIndepProbs.get(mIndex);
+//			else
+//				expectedM = 0;
+//			if (nIndepProbs.containsKey(nIndex))
+//				expectedN = nIndepProbs.get(nIndex);
+//			else
+//				expectedN = 0;
+//			cov += weight*(probMs.get(i) - expectedM)*(probNs.get(i) - expectedN);
+//		}
+		cov = 0;
+		for (int i=0; i<allStates.size(); i++) {
+			double freqM = allFreqMs.get(i);
+			double freqN = allFreqNs.get(i);
+			double freqMN = allFreqMNs.get(i);
+			double tot = allTots.get(i);
+			int mIndex = allStates.get(i)[m];
+			int nIndex = allStates.get(i)[n];
+			double expectedM, expectedN;
+			if (mIndepProbs.containsKey(mIndex))
+				expectedM = mIndepProbs.get(mIndex);
+			else
+				expectedM = 0;
+			if (nIndepProbs.containsKey(nIndex))
+				expectedN = nIndepProbs.get(nIndex);
+			else
+				expectedN = 0;
+			cov += tot*(freqM/tot - expectedM)*(freqN/tot - expectedN);
+		}
+//		cov /= totEithers;
+		cov /= allTotOccupancy;
+		Preconditions.checkState(Doubles.isFinite(cov), "COV isn't finite: "+cov);
 	}
 	
-	private Map<Integer, Double> calcIndepProbs(int index) {
+	private Map<Integer, Double> calcIndepProbs(int index, int target, boolean isFreq) {
 		Map<Integer, Double> freqs = Maps.newHashMap();
 		Map<Integer, Double> tots = Maps.newHashMap();
 		
@@ -256,12 +425,19 @@ public class SynchParamCalculator {
 			PossibleStates poss = chain.getStateTransitionDataset().get(indices);
 			tot += poss.getTot();
 			for (int[] state : poss.getStates()) {
-				if (state[index] == 0)
-					freq += poss.getFrequency(state);
+				if (target == 0) {
+					if (state[index] == 0)
+						freq += poss.getFrequency(state);
+				} else {
+					freq += calcProbRupturedBefore(target, index, state, indices, chain)*poss.getFrequency(state);
+				}
 			}
 			freqs.put(myIndex, freq);
 			tots.put(myIndex, tot);
 		}
+		
+		if (isFreq)
+			return freqs;
 		
 		Map<Integer, Double> probs = Maps.newHashMap();
 		
@@ -527,6 +703,7 @@ public class SynchParamCalculator {
 		
 		double[][] stdDevs = new double[nDims][nDims];
 		double[][] means = new double[nDims][nDims];
+		double totBias = 0;
 		for (int m=0; m<nDims; m++) {
 			for (int n=0; n<nDims; n++) {
 				double[] lnVals = new double[numTrials];
@@ -536,8 +713,11 @@ public class SynchParamCalculator {
 				double var = StatUtils.variance(lnVals, mean);
 				stdDevs[m][n] = Math.sqrt(var);
 				means[m][n] = mean;
+				totBias += mean;
 			}
 		}
+		
+		System.out.println("Total Bias: "+totBias);
 		
 		List<String> header = Lists.newArrayList("");
 		for (RuptureIdentifier iden : rupIdens)
@@ -603,7 +783,9 @@ public class SynchParamCalculator {
 		}
 	}
 
-	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain) throws IOException {
+//	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain) throws IOException {
+	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain,
+			boolean cov, Map<IDPairing, HistogramFunction[]> catDensFuncs) throws IOException {
 			int nDims = chain.getNDims();
 			
 			int lagMax = 20;
@@ -620,12 +802,21 @@ public class SynchParamCalculator {
 					new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 			String lagTitle = "Synchronization Lag Functions";
 			String lagXAxisLabel = "Lag (years)";
-			String lagYAxisLabel = "Ln(Synchronization)";
+			String lagYAxisLabel;
+			if (cov)
+				lagYAxisLabel = "Covariance";
+			else
+				lagYAxisLabel = "Ln(Synchronization)";
 	
 			double lagFuncMin = -lagMax*chain.getDistSpacing();
 			
 			Range lagXRange = new Range(lagFuncMin, -lagFuncMin);
-			Range lagYRange = new Range(-2, 2);
+			Range lagYRange;
+			if (cov)
+//				lagYRange = new Range(-0.1, 0.1);
+				lagYRange = new Range(0d, 600d);
+			else
+				lagYRange = new Range(-2, 2);
 			
 			List<File> synch2DPDFs = Lists.newArrayList();
 			File synchXYZDir = new File(file.getParentFile(), "synch_xyz_param_plots");
@@ -655,10 +846,16 @@ public class SynchParamCalculator {
 						
 						double gBar = calc.getGBar();
 						
-						params[m][n][lagIndex] = gBar;
-						params[n][m][lagIndex] = gBar;
+						if (cov) {
+							params[m][n][lagIndex] = calc.cov;
+							params[n][m][lagIndex] = calc.cov;
+							synchLagFunc.set(lagIndex, calc.cov);
+						} else {
+							params[m][n][lagIndex] = gBar;
+							params[n][m][lagIndex] = gBar;
+							synchLagFunc.set(lagIndex, gBar);
+						}
 						
-						synchLagFunc.set(lagIndex, gBar);
 						lagIndex++;
 						
 						if (lag != 0)
@@ -682,11 +879,67 @@ public class SynchParamCalculator {
 					
 					// lag plot spec
 	//				String title = "Synch Param "+name1+" vs "+name2+" ("+nDims+"D): "+params[m][n];
-					EvenlyDiscretizedFunc lnSynchFunch = new EvenlyDiscretizedFunc(
-							synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
-					for (int i=0; i<synchLagFunc.getNum(); i++)
-						lnSynchFunch.set(i, Math.log(synchLagFunc.getY(i)));
-					PlotSpec spec = new PlotSpec(asList(lnSynchFunch), lagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
+					List<DiscretizedFunc> lagFuncs;
+					PlotSpec spec;
+					if (cov) {
+						lagFuncs = Lists.newArrayList();
+						lagFuncs.add(synchLagFunc);
+					} else {
+						EvenlyDiscretizedFunc lnSynchFunch = new EvenlyDiscretizedFunc(
+								synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
+						for (int i=0; i<synchLagFunc.getNum(); i++)
+							lnSynchFunch.set(i, Math.log(synchLagFunc.getY(i)));
+						lagFuncs = Lists.newArrayList();
+						lagFuncs.add(lnSynchFunch);
+					}
+					List<PlotCurveCharacterstics> myLagChars = Lists.newArrayList(lagChars);
+					spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
+					
+					if (catDensFuncs != null) {
+						DiscretizedFunc plotSynchFunc = lagFuncs.get(0);
+						
+						HistogramFunction hists[] = catDensFuncs.get(new IDPairing(m, n));
+						HistogramFunction corups = hists[0];
+						HistogramFunction ccdf = hists[1];
+						ArbitrarilyDiscretizedFunc scaledCombined = new ArbitrarilyDiscretizedFunc();
+						for (Point2D pt : ccdf)
+							scaledCombined.set(pt.getX(), pt.getY());
+						// there should only be coruptures at pt 0;
+						double numCorups = corups.getY(0d);
+						if (ccdf.hasPoint(0d, 0d)) {
+							// we have a point at zero in the ccdf, just add in the coruptures
+							for (Point2D pt : corups) {
+								if (pt.getY() > 0) {
+									double x = pt.getX();
+									double y = pt.getY();
+									if (scaledCombined.hasPoint(pt))
+										y += scaledCombined.getY(scaledCombined.getXIndex(x));
+									scaledCombined.set(x, y);
+								}
+							}
+						} else {
+							// CCDF doesn't have a point at zero but we want one. average in the bin before/after zero and add in corups
+							double ccdf_at_zero = ccdf.getClosestY(-0.5*chain.getDistSpacing())+ccdf.getClosestY(0.5*chain.getDistSpacing());
+							ccdf_at_zero = ccdf_at_zero*0.5 + numCorups;
+							scaledCombined.set(0d, ccdf_at_zero);
+						}
+
+						double synchMax = Math.max(Math.abs(plotSynchFunc.getMaxY()), Math.abs(plotSynchFunc.getMinY()));
+						// subtract the average
+						double ccdfAvg = 0d;
+						for (Point2D pt : scaledCombined)
+							ccdfAvg += pt.getY();
+						ccdfAvg /= scaledCombined.getNum();
+						for (int i=0; i<scaledCombined.getNum(); i++)
+							scaledCombined.set(i, scaledCombined.getY(i)-ccdfAvg);
+						// it's now centered about 0
+						double ccdfMax = Math.max(Math.abs(scaledCombined.getMaxY()), Math.abs(scaledCombined.getMinY()));
+						// scale it to match the synch func
+						scaledCombined.scale(synchMax/ccdfMax);
+						lagFuncs.add(0, scaledCombined);
+						myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY));
+					}
+					
 					double annY = lagYRange.getLowerBound()*0.95;
 					double annX = lagXRange.getLowerBound()*0.9;
 					Font font = new Font(Font.SERIF, Font.PLAIN, 14);
@@ -702,6 +955,8 @@ public class SynchParamCalculator {
 					List<XYTextAnnotation> annotations = Lists.newArrayList(leftAnn, rightAnn, centerAnn);
 					spec.setPlotAnnotations(annotations);
 					lagSpecs.add(spec);
+					
+					System.out.println(name1+" vs "+name2+": Lag Func Range: ["+synchLagFunc.getMinY()+", "+synchLagFunc.getMaxY()+"]");
 				}
 			}
 			
@@ -771,31 +1026,60 @@ public class SynchParamCalculator {
 			
 			for (int type=0; type<3; type++) {
 				double[][] myParams;
-				switch (type) {
-				case 0:
-					csv.addLine("Linear");
-					myParams = new double[nDims][nDims];
-					for (int m=0; m<nDims; m++)
-						for (int n=0; n<nDims; n++)
-							myParams[m][n] = params[m][n][lag0Index];
-					break;
-				case 1:
-					csv.addLine("Log10");
-					myParams = new double[nDims][nDims];
-					for (int m=0; m<nDims; m++)
-						for (int n=0; n<nDims; n++)
-							myParams[m][n] = Math.log10(params[m][n][lag0Index]);
-					break;
-				case 2:
-					csv.addLine("Ln");
-					myParams = new double[nDims][nDims];
-					for (int m=0; m<nDims; m++)
-						for (int n=0; n<nDims; n++)
-							myParams[m][n] = Math.log(params[m][n][lag0Index]);
-					break;
-	
-				default:
-					throw new IllegalStateException();
+				if (cov) {
+					switch (type) {
+					case 0:
+						csv.addLine("Covariance");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = params[m][n][lag0Index];
+						break;
+					case 1:
+						csv.addLine("Log10(Covariance + 1)");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = Math.log10(params[m][n][lag0Index]+1);
+						break;
+					case 2:
+						csv.addLine("Ln(Covariance + 1)");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = Math.log(params[m][n][lag0Index]+1);
+						break;
+
+					default:
+						throw new IllegalStateException();
+					}
+				} else {
+					switch (type) {
+					case 0:
+						csv.addLine("Linear");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = params[m][n][lag0Index];
+						break;
+					case 1:
+						csv.addLine("Log10");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = Math.log10(params[m][n][lag0Index]);
+						break;
+					case 2:
+						csv.addLine("Ln");
+						myParams = new double[nDims][nDims];
+						for (int m=0; m<nDims; m++)
+							for (int n=0; n<nDims; n++)
+								myParams[m][n] = Math.log(params[m][n][lag0Index]);
+						break;
+
+					default:
+						throw new IllegalStateException();
+					}
 				}
 				addTableToCSV(csv, header, myParams, true);
 				csv.addLine("");
@@ -862,13 +1146,18 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
 				};
 		boolean gen_2d_corr_pdfs = false;
+		boolean cov = false;
 		
 		RandomDistType origScrambleDist = null;
 //		RandomDistType origScrambleDist = RandomDistType.ACTUAL;
 		
 		RandomDistType randDistType = RandomDistType.STATE_BASED;
 		
-		File writeDir = new File("/tmp");
+		File writeDir;
+		if (cov)
+			writeDir = new File("/tmp/synch_cov");
+		else
+			writeDir = new File("/tmp");
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
@@ -921,13 +1210,25 @@ public class SynchParamCalculator {
 //		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
 //		System.exit(0);
 		
+		// ccdfs/acdfs
+		File ccdfDir = new File(writeDir, "ccdfs");
+		if (!ccdfDir.exists())
+			ccdfDir.mkdir();
+		
+		System.out.println("Generating CCDFs...");
+		Map<IDPairing, HistogramFunction[]> catDensFuncs =
+				PeriodicityPlotter.plotACDF_CCDFs(ccdfDir, events, rupIdens, colors,
+						null, null, 2000d, 10d);
+		
+		System.out.println("Calculating Synch Params");
 		// write synch CSV
 		File synchCSVFile = new File(writeDir, "synch_params.csv");
-		writeSynchParamsTable(synchCSVFile, rupIdens, chain);
+		writeSynchParamsTable(synchCSVFile, rupIdens, chain, cov, catDensFuncs);
 		
 		// now write std devs
-//		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
-//		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 50, distSpacing);
+		System.out.println("Calculating Synch Std Dev/Biases");
+		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
+		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 50, distSpacing);
 	}
 
 }

@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Element;
@@ -15,6 +16,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.ExceptionUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -84,6 +86,13 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 		singleDoubleBuff = record.asDoubleBuffer();
 	}
 	
+	private static byte[] cloneBytes(byte[] in) {
+		byte[] out = new byte[in.length];
+		for (int i=0; i<in.length; i++)
+			out[i] = in[i];
+		return out;
+	}
+	
 	/**
 	 * This method should be called by exactly one process. In a distributed environment it should be called
 	 * only on the root node, before any curves have been calculated. It creates each binary file and initialized
@@ -111,17 +120,20 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 					RandomAccessFile file = new RandomAccessFile(outputFile, "rws");
 					long pos = 0;
 
-					file.seek(pos);
+					List<byte[]> toBeWrittern = Lists.newArrayList();
+//					file.seek(pos);
 					intBuff.put(0, numXVals);
 
-					file.write(intRecordBuffer);
+//					file.write(intRecordBuffer);
+					toBeWrittern.add(cloneBytes(intRecordBuffer));
 
 					pos += 4;
 
 					for (int i=0; i<numXVals; i++) {
-						file.seek(pos);
+//						file.seek(pos);
 						singleDoubleBuff.put(0, xVals.getX(i));
-						file.write(singleDoubleRecordBuffer);
+//						file.write(singleDoubleRecordBuffer);
+						toBeWrittern.add(cloneBytes(singleDoubleRecordBuffer));
 						pos += 8;
 					}
 
@@ -157,9 +169,18 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 
 					DoubleBuffer recordNanBuff = record.asDoubleBuffer();
 					recordNanBuff.put(nanVals, 0, numNans);
-					file.seek(pos);
-					file.write(recordNans);
+//					file.seek(pos);
+//					file.write(recordNans);
+					toBeWrittern.add(cloneBytes(recordNans));
 					pos += recLen;
+					
+					byte[] total = new byte[(int)pos];
+					int pos1 = 0;
+					for (byte[] section : toBeWrittern) {
+						for (int i=0; i<section.length; i++)
+							total[pos1++] = section[i];
+					}
+					file.write(total);
 
 					Preconditions.checkState(pos == fileSize);
 

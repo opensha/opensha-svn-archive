@@ -22,9 +22,11 @@ import org.dom4j.Element;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.LightFixedXFunc;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -394,6 +396,17 @@ public class FaultSystemIO {
 //						new BufferedInputStream(zip.getInputStream(rupSectionSlipsEntry)));
 //			else
 //				rupSectionSlips = null;
+			
+
+			
+			// set dates of last events in fault sections 
+			Map<Integer, List<LastEventData>> data;
+			try {
+				data = LastEventData.load();
+				LastEventData.populateSubSects(rupSet.getFaultSectionDataList(), data);
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
 			
 			if (DD) System.out.println("instantiationg IFSRS");
 			return new InversionFaultSystemRupSet(rupSet, branch, filter, rupAveSlips, closeSections, clusterRups, clusterSects);

@@ -1,12 +1,14 @@
 package scratch.UCERF3.logicTree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.dom4j.Element;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 
 public class VariableLogicTreeBranch extends LogicTreeBranch {
@@ -69,6 +71,25 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		return true;
 	}
 	
+	@Override
+	public int compareTo(LogicTreeBranch o) {
+		int lBranchComp = super.compareTo(o);
+		if (lBranchComp != 0)
+			return lBranchComp;
+		if (!(o instanceof VariableLogicTreeBranch))
+			return 1;
+		VariableLogicTreeBranch other = (VariableLogicTreeBranch)o;
+		Preconditions.checkState(other.variations.size() == variations.size(), "Num variations inconsistent!");
+		for (int i=0; i<variations.size(); i++) {
+			String val = variations.get(i);
+			String oval = other.variations.get(i);
+			int cmp = val.compareTo(oval);
+			if (cmp != 0)
+				return cmp;
+		}
+		return 0;
+	}
+	
 	private static List<String> parseVariations(String name) {
 		ArrayList<String> vars = null;
 		while (name.contains("_Var")) {
@@ -118,6 +139,23 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		VariableLogicTreeBranch branch = VariableLogicTreeBranch.fromFileName(name);
 		for (String var : branch.getVariations())
 			System.out.println(var);
+		
+		// test sorting
+		List<LogicTreeBranch> branches = Lists.newArrayList();
+		
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPOISSON_VarABCD"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarMID_VarABCD"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarHIGH_VarCB2008"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_1_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPOISSON_Var2190"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_2_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPOISSON_VarABCD"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_2_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarMID_VarABCD"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_2_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarHIGH_VarCB2008"));
+		branches.add(VariableLogicTreeBranch.fromFileName("FM3_2_ZENG_HB08_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarPOISSON_Var2190"));
+		
+		Collections.shuffle(branches);
+		Collections.sort(branches);
+		for (LogicTreeBranch b : branches)
+			System.out.println(b.buildFileName());
 	}
 	
 	public static VariableLogicTreeBranch fromXMLMetadata(Element branchEl) {

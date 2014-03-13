@@ -112,7 +112,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		comp.setProgressTimer(this, 1);
 		int procs = Runtime.getRuntime().availableProcessors();
 		System.out.println("Starting calculation with " + procs + " processors!");
-		comp.computThreaded(procs);
+		comp.computeThreaded(procs);
 		System.out.println("DONE!");
 		
 		taskProgressUpdate(tasks.size(), 0, tasks.size());

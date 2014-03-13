@@ -16,11 +16,14 @@ import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -137,6 +140,10 @@ public class BranchSensitivityHistogram implements Serializable {
 			double weight = weights.get(i);
 			// use this to map below/above values
 			int index = hist.getClosestXIndex(val);
+			Preconditions.checkState(val <= hist.getMaxX()+0.5*delta,
+					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
+			Preconditions.checkState(val >= hist.getMinX()-0.5*delta,
+					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
 			
 //			hist.add(index, weight*weightMult);
 			hist.add(index, weight);
@@ -145,6 +152,10 @@ public class BranchSensitivityHistogram implements Serializable {
 		hist.setName(choiceName);
 		
 		return hist;
+	}
+	
+	public List<Double> getVals(String categoryName, String choiceName) {
+		return Collections.unmodifiableList(valsTable.get(categoryName, choiceName));
 	}
 	
 	/**
@@ -182,6 +193,8 @@ public class BranchSensitivityHistogram implements Serializable {
 		double weightedSum = 0d;
 //		double nonWeightMean = 0d;
 		
+		MinMaxAveTracker track = new MinMaxAveTracker();
+		
 		for (int i=0; i<vals.size(); i++) {
 			double val = vals.get(i);
 			double weight = weights.get(i);
@@ -193,11 +206,18 @@ public class BranchSensitivityHistogram implements Serializable {
 			
 			sumWeight += weight;
 			weightedSum += val*weight;
+			
+			track.addValue(val);
 		}
 		
 //		System.out.println("calcMean="+(weightedSum / sumWeight)+" nonWeight="+(nonWeightMean/(double)vals.size()));
 		
-		return weightedSum / sumWeight;
+		double mean = weightedSum / sumWeight;
+		
+		Preconditions.checkState(mean >= track.getMin() && mean <= track.getMax(),
+				"Mean not within min/max: mean="+mean+", min="+track.getMin()+", max="+track.getMax());
+		
+		return mean;
 	}
 	
 	/**
@@ -264,23 +284,49 @@ public class BranchSensitivityHistogram implements Serializable {
 		return new Range(min, max);
 	}
 	
+	/**
+	 * Calculates a nicely rounded range that will exactly cover the data range with the given discretization.
+	 * Histogram num points can be calculated as num = (range.getUpperBound()-range.getLowerBound())/delta + 1;
+	 * @param delta
+	 * @return
+	 */
+	public Range calcSmartHistRange(double delta) {
+		Range range = getRange();
+		double min = Math.floor(range.getLowerBound()/delta) * delta;
+		// it's possible that this was too conservative and that the bin above could hold the range min val
+		// due to the bin width
+		if (min + 0.5*delta < range.getLowerBound())
+			min += delta;
+		double max = min;
+		while (max+0.5*delta < range.getUpperBound())
+			max += delta;
+		
+		return new Range(min, max);
+	}
+	
 	public Set<String> getChoices(String categoryName) {
 		return valsTable.row(categoryName).keySet();
 	}
-	
-	public Map<String, PlotSpec> getStackedHistPlots(double min, int num, double delta) {
+
+	public Map<String, PlotSpec> getStackedHistPlots(boolean meanLines, double delta) {
+		Range range = calcSmartHistRange(delta);
+		int num = (int)Math.round((range.getUpperBound()-range.getLowerBound())/delta) + 1;
+		System.out.println("Smart range: "+range+", num="+num);
+		return getStackedHistPlots(meanLines, range.getLowerBound(), num, delta);
+	}
+	public Map<String, PlotSpec> getStackedHistPlots(boolean meanLines, double min, int num, double delta) {
 		Map<String, PlotSpec> map = Maps.newHashMap();
 		
 		for (String categoryName : valsTable.rowKeySet()) {
 			if (valsTable.row(categoryName).size() > 1)
 				// only include if there are at least 2 choices at this level
-				map.put(categoryName, getStackedHistPlot(categoryName, min, num, delta));
+				map.put(categoryName, getStackedHistPlot(categoryName, meanLines, min, num, delta));
 		}
 		
 		return map;
 	}
 	
-	public PlotSpec getStackedHistPlot(String categoryName, double min, int num, double delta) {
+	public PlotSpec getStackedHistPlot(String categoryName, boolean meanLines, double min, int num, double delta) {
 		List<HistogramFunction> hists = Lists.newArrayList();
 		
 		List<String> choiceNames = Lists.newArrayList(getChoices(categoryName));
@@ -289,18 +335,62 @@ public class BranchSensitivityHistogram implements Serializable {
 		for (String choiceName : choiceNames)
 			hists.add(generateHist(categoryName, choiceName, min, num, delta));
 		
-		List<HistogramFunction> stackedHists = HistogramFunction.getStackedHists(hists, true);
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		funcs.addAll(HistogramFunction.getStackedHists(hists, true));
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 //		List<Color> colors = GraphWindow.generateDefaultColors();
 		List<Color> colors = Lists.newArrayList(
 				Color.BLACK, Color.BLUE, Color.RED, Color.GREEN, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.PINK, Color.YELLOW);
 		Preconditions.checkState(hists.size() <= colors.size(), "Only have enough colors for "+colors.size()+" hists.");
-		for (int i=0; i<stackedHists.size(); i++)
+		for (int i=0; i<funcs.size(); i++)
 			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, colors.get(i)));
 		
-		PlotSpec spec = new PlotSpec(stackedHists, chars, categoryName, xAxisName, "Density");
+		PlotSpec spec = new PlotSpec(funcs, chars, categoryName, xAxisName, "Density");
 		spec.setLegendVisible(true);
 		spec.setLegendLocation(RectangleEdge.BOTTOM);
+		
+		if (meanLines) {
+			// this code here is just to get a legend that doesn't include the lines that will be added later
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			CommandLineInversionRunner.setFontSizes(gp);
+			
+			gp.drawGraphPanel(spec);
+			spec.setCustomLegendCollection(gp.getPlot().getLegendItems());
+			
+			List<Double> choiceMeans = Lists.newArrayList();
+			List<Color> choiceColors = Lists.newArrayList();
+			
+			for (int j=0; j<choiceNames.size(); j++) {
+				String choiceName = choiceNames.get(j);
+				double choiceMean = calcMean(categoryName, choiceName);
+				Color choiceColor = chars.get(j).getColor();
+				
+				choiceMeans.add(choiceMean);
+				choiceColors.add(choiceColor);
+			
+			}
+			// add black thicker lines as a backing to make them visible
+			for (int j=0; j<choiceNames.size(); j++) {
+				double choiceMean = choiceMeans.get(j);
+				DefaultXY_DataSet line = new DefaultXY_DataSet();
+				line.set(choiceMean, 0d);
+				line.set(choiceMean, 1d);
+				line.setName("(line mask)");
+				funcs.add(line);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
+			}
+			for (int j=0; j<choiceNames.size(); j++) {
+				double choiceMean = choiceMeans.get(j);
+				Color choiceColor = choiceColors.get(j);
+				String choiceName = choiceNames.get(j);
+				DefaultXY_DataSet line = new DefaultXY_DataSet();
+				line.set(choiceMean, 0);
+				line.set(choiceMean, 1d);
+				line.setName(choiceName+" (mean="+(float)choiceMean+")");
+				funcs.add(line);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 4f, choiceColor));
+			}
+		}
 		
 		return spec;
 	}

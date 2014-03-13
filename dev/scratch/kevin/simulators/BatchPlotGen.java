@@ -267,7 +267,7 @@ public class BatchPlotGen {
 		}
 		
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
-		comp.computThreaded();
+		comp.computeThreaded();
 	}
 	
 	private static String getParticRangeStr(double[] particRange) {

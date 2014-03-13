@@ -131,6 +131,8 @@ public class GK_2013 {
 	private static final double c11 = 0.345;
 	private static final double Q = 150.0; // California specific (is 156.6 in SH code)
 	// TODO Q, above, needs to be updated to 205 outside CA
+
+	public static final String SHORT_NAME = "GK2013";
 	
 	private static final double calcLnPGA(double Mw, double rRup, double vs30,
 			double dBasin, double F) {

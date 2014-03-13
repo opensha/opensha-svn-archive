@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -227,6 +228,8 @@ public class Site extends ParameterList implements Named,Serializable,XMLSaveabl
 		siteEl = getLocation().toXMLMetadata(siteEl);
 		Element paramsEl = siteEl.addElement(XML_PARAMS_NAME);
 		ListIterator<Parameter<?>> paramIt = getParametersIterator();
+		if (name != null && !name.isEmpty())
+			siteEl.addAttribute("name", name);
 		while (paramIt.hasNext()) {
 			Parameter param = paramIt.next();
 			paramsEl = param.toXMLMetadata(paramsEl);
@@ -238,6 +241,10 @@ public class Site extends ParameterList implements Named,Serializable,XMLSaveabl
 		Element locEl = siteEl.element(Location.XML_METADATA_NAME);
 		Location loc = Location.fromXMLMetadata(locEl);
 		Site site = new Site(loc);
+		
+		Attribute nameAtt = siteEl.attribute("name");
+		if (nameAtt != null)
+			site.setName(nameAtt.getStringValue());
 		
 		for (Parameter param : paramsToAdd) {
 			site.addParameter((Parameter)param.clone());

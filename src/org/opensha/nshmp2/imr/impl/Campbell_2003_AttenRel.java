@@ -64,7 +64,7 @@ import com.google.common.collect.Maps;
 public class Campbell_2003_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	private final static String SHORT_NAME = "Campbell2003";
+	public final static String SHORT_NAME = "Campbell2003";
 	private static final long serialVersionUID = 1234567890987654353L;
 	public final static String NAME = "Campbell (2003)";
 

@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 
+import mpi.MPI;
+
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -38,8 +40,10 @@ import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -70,7 +74,14 @@ import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
+import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.nshmp2.util.Period;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
+import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
+import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -95,6 +106,9 @@ import org.opensha.sha.faultSurface.RupInRegionCache;
 import org.opensha.sha.faultSurface.RupNodesCache;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.imr.AttenRelRef;
+import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -155,6 +169,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -1180,10 +1195,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						ERFBasedRegionalMagProbPlot.buildHist(regionM6p7Vals.get(duration).get(i), plot.weightProvider);
 				Range range = sensHist.getRange();
 				double delta = 0.025;
-				// round down
-				double min = Math.floor(range.getLowerBound()/delta) * delta;
-				int num = (int)((range.getUpperBound() - min) / delta + 0.5);
-				Map<String, PlotSpec> histSpecs = sensHist.getStackedHistPlots(min, num, delta);
+				Map<String, PlotSpec> histSpecs = sensHist.getStackedHistPlots(true, delta);
 				List<File> histPDFs = Lists.newArrayList();
 				List<String> names = Lists.newArrayList();
 				for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
@@ -1196,69 +1208,27 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (String name : names) {
 					PlotSpec histSpec = histSpecs.get(name);
 					Preconditions.checkNotNull(histSpec, "No plot found for: "+name);
-					List<PlotElement> elems = Lists.newArrayList(histSpec.getPlotElems());
-					histSpec.setPlotElems(elems);
-					List<PlotCurveCharacterstics> chars = histSpec.getChars();
 					
-					// this code here is just to get a legend that doesn't include the lines that will be added later
-					gp = new HeadlessGraphPanel();
-					CommandLineInversionRunner.setFontSizes(gp);
-					gp.setUserBounds(min-0.5*delta, min+(num+0.5)*delta, 0, 1);
-					gp.drawGraphPanel(histSpec);
-					histSpec.setCustomLegendCollection(gp.getPlot().getLegendItems());
+					List<? extends PlotElement> elems = histSpec.getPlotElems();
 					
 					double maxY = 0;
+					double min = 0d;
+					int num = -1;
 					for (PlotElement func : elems) {
-						double myMax = ((DiscretizedFunc)func).getMaxY();
-						if (myMax > maxY)
-							maxY = myMax;
+						if (func instanceof DiscretizedFunc) {
+							double myMax = ((DiscretizedFunc)func).getMaxY();
+							if (myMax > maxY)
+								maxY = myMax;
+							if (num < 0 && func instanceof EvenlyDiscretizedFunc) {
+								EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
+								num = eFunc.getNum();
+								min = eFunc.getMinX();
+							}
+						}
 					}
 					double plotMaxY = maxY * 1.3;
 					if (plotMaxY > 1)
 						plotMaxY = 1;
-					
-					double mean = sensHist.calcMean(name);
-					double stdDev = sensHist.calcStdDev(name);
-					
-					System.out.println(name+": mean="+mean+", sigma="+stdDev);
-					
-					List<String> choiceNames = Lists.newArrayList(sensHist.getChoices(name));
-					// sort to get in plot order for color selection
-					Collections.sort(choiceNames);
-					
-					List<Double> choiceMeans = Lists.newArrayList();
-					List<Color> choiceColors = Lists.newArrayList();
-					
-					for (int j=0; j<choiceNames.size(); j++) {
-						String choiceName = choiceNames.get(j);
-						double choiceMean = sensHist.calcMean(name, choiceName);
-						Color choiceColor = chars.get(j).getColor();
-						
-						choiceMeans.add(choiceMean);
-						choiceColors.add(choiceColor);
-					
-					}
-					// add black thicker lines as a backing to make them visible
-					for (int j=0; j<choiceNames.size(); j++) {
-						double choiceMean = choiceMeans.get(j);
-						DefaultXY_DataSet line = new DefaultXY_DataSet();
-						line.set(choiceMean, 0);
-						line.set(choiceMean, plotMaxY);
-						line.setName("(line mask)");
-						elems.add(line);
-						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.GRAY));
-					}
-					for (int j=0; j<choiceNames.size(); j++) {
-						double choiceMean = choiceMeans.get(j);
-						Color choiceColor = choiceColors.get(j);
-						String choiceName = choiceNames.get(j);
-						DefaultXY_DataSet line = new DefaultXY_DataSet();
-						line.set(choiceMean, 0);
-						line.set(choiceMean, plotMaxY);
-						line.setName(choiceName+" (mean="+(float)choiceMean+")");
-						elems.add(line);
-						chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 4f, choiceColor));
-					}
 					
 //					XYTextAnnotation ann = new XYTextAnnotation("StdDev="+new DecimalFormat("0.00").format(stdDev), 0.05, 0.95);
 //					ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
@@ -1267,7 +1237,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					
 					gp = new HeadlessGraphPanel();
 					CommandLineInversionRunner.setFontSizes(gp);
-					gp.setUserBounds(min-0.5*delta, min+(num+0.5)*delta, 0, plotMaxY);
+//					gp.setUserBounds(min-0.5*delta, min+(num-0.5)*delta, 0, plotMaxY);
+					gp.setUserBounds(min-0.5*delta - 0.5*delta, min+(num-0.5)*delta + 0.5*delta, 0, plotMaxY);
 					
 					gp.drawGraphPanel(histSpec);
 					file = new File(regionHistDir, name);
@@ -1443,12 +1414,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		public static List<Region> getDefaultRegions() {
 			List<Region> regions = Lists.newArrayList();
-//			regions.add(new CaliforniaRegions.RELM_TESTING());
-//			regions.add(new CaliforniaRegions.RELM_NOCAL());
-//			regions.add(new CaliforniaRegions.RELM_SOCAL());
+			regions.add(new CaliforniaRegions.RELM_TESTING());
+			regions.add(new CaliforniaRegions.RELM_NOCAL());
+			regions.add(new CaliforniaRegions.RELM_SOCAL());
 			regions.add(new CaliforniaRegions.SF_BOX());
 			regions.add(new CaliforniaRegions.LA_BOX());
-//			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
+			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
 			return regions;
 		}
 		
@@ -2427,6 +2398,622 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return specs;
 		}
 
+	}
+	
+	public static void writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot plot, File dir) throws IOException {
+		writeERFBasedSiteHazardHists(plot.plotsMap, dir);
+	}
+	
+	public static void writeERFBasedSiteHazardHists(
+			Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap, File dir) throws IOException {
+		File subDir = new File(dir, "site_hazard_hists");
+		if (!subDir.exists())
+			subDir.mkdir();
+		
+		File tempDir = Files.createTempDir();
+		
+		for (Site site : plotsMap.keySet()) {
+			Table<Period, Double, Map<String, PlotSpec>> sitePlots = plotsMap.get(site);
+			File siteDir = new File(subDir, site.getName());
+			if (!siteDir.exists())
+				siteDir.mkdir();
+			for (Period period : sitePlots.rowKeySet()) {
+				for (double prob : sitePlots.columnKeySet()) {
+					String prefix = (int)(prob*100d)+"in"+(int)ERFBasedSiteHazardHistPlot.duration+"_"+period.getLabel();
+					Map<String, PlotSpec> specs = sitePlots.get(period, prob);
+					
+					List<File> histPDFs = Lists.newArrayList();
+					List<String> names = Lists.newArrayList();
+					for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
+						if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
+							continue;
+						names.add(ClassUtils.getClassNameWithoutPackage(LogicTreeBranch.getEnumEnclosingClass(clazz)));
+					}
+					names.add("MagDepAperiodicity");
+					names.add("GMPE");
+					for (String name : names) {
+						PlotSpec histSpec = specs.get(name);
+						if (histSpec == null) {
+							System.out.println("WARNING: no spec found for "+name);
+							continue;
+						}
+						Preconditions.checkNotNull(histSpec, "No plot found for: "+name);
+						
+						List<? extends PlotElement> elems = histSpec.getPlotElems();
+						
+						HeadlessGraphPanel gp = new HeadlessGraphPanel();
+						CommandLineInversionRunner.setFontSizes(gp);
+						EvenlyDiscretizedFunc f1 = (EvenlyDiscretizedFunc) elems.get(0);
+						double min = f1.getMinX();
+						double delta = f1.getDelta();
+						int num = f1.getNum();
+						double plotMaxY = 0d;
+						for (int i=0; i<elems.size(); i++) {
+							if (elems.get(i) instanceof DiscretizedFunc) {
+								double max = ((XY_DataSet)elems.get(i)).getMaxY();
+								if (max > plotMaxY)
+									plotMaxY = max;
+							}
+						}
+						plotMaxY *= 1.3;
+						if (plotMaxY > 1d)
+							plotMaxY = 1d;
+						// pad by a delta
+						gp.setUserBounds(min-0.5*delta - 0.5*delta, min+(num-0.5)*delta + 0.5*delta, 0, plotMaxY);
+						
+						gp.drawGraphPanel(histSpec);
+						File file = new File(tempDir, name);
+						gp.getCartPanel().setSize(500, 400);
+						gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+						gp.saveAsPNG(file.getAbsolutePath()+".png");
+						histPDFs.add(new File(file.getAbsolutePath()+".pdf"));
+					}
+					
+					try {
+						FaultSysSolutionERF_Calc.combineBranchSensHists(histPDFs, new File(siteDir, prefix+".pdf"));
+					} catch (com.lowagie.text.DocumentException e) {
+						throw ExceptionUtils.asRuntimeException(e);
+					}
+				}
+			}
+		}
+	}
+	
+	private static class SiteHazardCalcJob implements Task {
+		
+		private ERFBasedSiteHazardHistPlot plot;
+		private BinaryCurveArchiver archiver;
+		private ERF erf;
+		private AttenRelRef ref;
+		private Site site;
+		private Period period;
+		private String prefix;
+		private DiscretizedFunc func;
+		private int solIndex;
+		
+		public SiteHazardCalcJob(ERFBasedSiteHazardHistPlot plot, BinaryCurveArchiver archiver,
+				ERF erf, AttenRelRef ref, Site site, Period period, String prefix, DiscretizedFunc xVals, int solIndex) {
+			this.plot = plot;
+			this.archiver = archiver;
+			this.erf = erf;
+			this.ref = ref;
+			this.site = site;
+			this.period = period;
+			this.prefix = prefix;
+			this.func = xVals.deepClone();
+			this.solIndex = solIndex;
+		}
+
+		@Override
+		public void compute() {
+			HazardCurveCalculator calc = new HazardCurveCalculator(); // init calculator
+			
+			ScalarIMR imr = plot.getIMRInstance(ref);
+			if (period == Period.GM0P00) {
+				imr.setIntensityMeasure("PGA");
+			} else {
+				imr.setIntensityMeasure("SA");
+				imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
+			}
+			
+			Stopwatch watch = new Stopwatch();
+			watch.start();
+			plot.debug(solIndex, "calculating curve: "+site.getName()+". "+prefix);
+			calc.getHazardCurve(func, site, imr, erf);
+			watch.stop();
+			plot.debug(solIndex, "archiving curve: "+site.getName()+". "+prefix+" ("+watch.elapsed(TimeUnit.SECONDS)+" s)");
+			
+			// un-log it
+			ArbitrarilyDiscretizedFunc unLogged = new ArbitrarilyDiscretizedFunc();
+			for (int j=0; j<func.getNum(); j++)
+				unLogged.set(Math.exp(func.getX(j)), func.getY(j));
+			
+			CurveMetadata meta = new CurveMetadata(site, solIndex, null	, prefix);
+			try {
+				archiver.archiveCurve(unLogged, meta);
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			plot.debug(solIndex, "done archiving curve: "+site.getName()+". "+prefix);
+			plot.returnIMRInstance(ref, imr);
+		}
+		
+	}
+	
+	public static class ERFBasedSiteHazardHistPlot extends CompoundFSSPlots {
+		
+		private static List<Site> getSites() {
+			List<Site> sites = Lists.newArrayList();
+			
+//			sites.add(NEHRP_TestCity.LOS_ANGELES.getSite()); // will add params
+//			sites.add(NEHRP_TestCity.SAN_FRANCISCO.getSite()); // will add params
+			
+			for (NEHRP_TestCity nCity : NEHRP_TestCity.getCA())
+				sites.add(nCity.getSite()); // will add params
+			
+			return sites;
+		}
+		
+		private static Map<AttenRelRef, Double> buildIMRMap() {
+			AttenRelRef[] imrs = {AttenRelRef.CB_2008, AttenRelRef.BA_2008, AttenRelRef.CY_2008, AttenRelRef.AS_2008};
+//			AttenRelRef[] imrs = {AttenRelRef.CB_2008};
+			
+			Map<AttenRelRef, Double> map = Maps.newHashMap();
+			
+			for (AttenRelRef ref : imrs) {
+				map.put(ref, 1d/(double)imrs.length); // equal weight for now
+			}
+			
+			return map;
+		}
+		
+		private static List<Period> getPeriods() {
+			List<Period> periods = Lists.newArrayList();
+			
+			periods.add(Period.GM0P00); // PGA
+			periods.add(Period.GM4P00); // 4 sec SA
+			periods.add(Period.GM1P00); // 1 sec SA
+			periods.add(Period.GM0P20); // 0.2 sec SA
+			
+			return periods;
+		}
+
+		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.LOW_VALUES,
+			MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES, null};
+//		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.MID_VALUES, null};
+		
+		private BranchWeightProvider weightProv;
+		
+		private List<Site> sites;
+		private Map<AttenRelRef, Double> imrs;
+		private List<Period> periods;
+		private List<DiscretizedFunc> xValsList;
+		
+//		private Map<Site, Table<AttenRelRef, Period,
+//			Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>> resultsTables;
+		private File curveDir;
+		private Map<Site, BinaryCurveArchiver> archivers;
+		private LogicTreeBranch[] branches;
+		private double[] branchWeights;
+		
+		protected static final String DEFAULT_CACHE_DIR_NAME = "site_hazard_curve_cache";
+		
+		private static final double duration = 50d;
+		private static final double[] probLevels = { 0.02, 0.1 };
+		
+		public ERFBasedSiteHazardHistPlot(BranchWeightProvider weightProv, File curveDir, int numBranches) {
+			debug(-1, "ERFBasedSiteHazardHistPlot START constructor");
+			this.weightProv = weightProv;
+			this.curveDir = curveDir;
+			if (MPI.COMM_WORLD == null || MPI.COMM_WORLD.Rank() == 0) {
+				if (!curveDir.exists())
+					curveDir.mkdir();
+				File metadataFile = new File(curveDir, "metadata.xml");
+				if (metadataFile.exists())
+					metadataFile.delete();
+			}
+			
+			this.sites = getSites();
+			this.imrs = buildIMRMap();
+			this.periods = getPeriods();
+			this.xValsList = Lists.newArrayList();
+			for (Period period : periods)
+				xValsList.add(period.getLogFunction());
+			
+//			resultsTables = Maps.newHashMap();
+			archivers = Maps.newHashMap();
+			debug(-1, "ERFBasedSiteHazardHistPlot Building Archivers");
+			for (Site site : sites) {
+//				HashBasedTable<AttenRelRef, Period,Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>
+//					resultsTable = HashBasedTable.create();
+//				resultsTables.put(site, resultsTable);
+				Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
+				for (Period period : periods) {
+					for (AttenRelRef imr : imrs.keySet()) {
+//						Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>> covMap = Maps.newHashMap();
+						for (MagDependentAperiodicityOptions cov : covs) {
+//							covMap.put(cov, new ArrayList<DiscretizedFunc>());
+							String prefix = buildBinFilePrefix(imr, period, cov);
+							xValsMap.put(prefix, period.getFunction());
+//							archivers.put(site, prefix, new BinaryCurveArchiver(outputDir, numBranches, xValsMap))
+						}
+//						resultsTable.put(imr, period, covMap);
+					}
+				}
+				File siteDir = new File(curveDir, site.getName());
+				
+				if (MPI.COMM_WORLD == null || MPI.COMM_WORLD.Rank() == 0) {
+					if (!siteDir.exists()) {
+						siteDir.mkdir();
+					}
+				} else {
+					// this is MPI and we're not rank zero
+					// wait until it has been created
+					while (!siteDir.exists()) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							ExceptionUtils.throwAsRuntimeException(e);
+						}
+					}
+				}
+				BinaryCurveArchiver archiver = new BinaryCurveArchiver(siteDir, numBranches, xValsMap);
+				archivers.put(site, archiver);
+				// initialize
+				if (MPI.COMM_WORLD == null || MPI.COMM_WORLD.Rank() == 0) {
+					// if this is an MPJ job, only initialize if rank 0
+					
+					// first delete any preexisting curve files
+					debug(-1, "ERFBasedSiteHazardHistPlot Initializing an archiver for: "+site.getName());
+					for (String prefix : xValsMap.keySet()) {
+						File file = new File(siteDir, prefix+".bin");
+						if (file.exists())
+							file.delete();
+					}
+					archiver.initialize();
+				}
+			}
+			branches = new LogicTreeBranch[numBranches];
+			branchWeights = new double[numBranches];
+			
+			debug(-1, "ERFBasedSiteHazardHistPlot END constructor");
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				InversionFaultSystemSolution sol, int solIndex) {
+			throw new IllegalStateException("Should never be called, ERF plot");
+		}
+		
+		private synchronized ScalarIMR getIMRInstance(AttenRelRef ref) {
+			Deque<ScalarIMR> list = imrsCache.get(ref);
+			if (list == null) {
+				list = new ArrayDeque<ScalarIMR>();
+				imrsCache.put(ref, list);
+			}
+			ScalarIMR imr;
+			if (list.isEmpty()) {
+				imr = ref.instance(null);
+				imr.setParamDefaults();
+			} else {
+				imr = list.pop();
+			}
+			return imr;
+		}
+		
+		private synchronized void returnIMRInstance(AttenRelRef ref, ScalarIMR imr) {
+			imrsCache.get(ref).push(imr);
+		}
+		
+		private transient Map<AttenRelRef, Deque<ScalarIMR>> imrsCache = Maps.newHashMap();
+		
+		private static String buildBinFilePrefix(AttenRelRef imr, Period period, MagDependentAperiodicityOptions cov) {
+			String str = imr.name()+"_"+period.getLabel()+"_";
+			if (cov == null)
+				str += "POISSON";
+			else
+				str += cov.name();
+			return str;
+		}
+
+		@Override
+		protected void processERF(LogicTreeBranch branch,
+				FaultSystemSolutionERF erf, int solIndex) {
+			erf.getTimeSpan().setDuration(duration);
+			erf.updateForecast();
+			
+//			Map<MagDependentAperiodicityOptions, Map<Site, Table<AttenRelRef, Period, DiscretizedFunc>>>
+//					myResultsTables = Maps.newHashMap();
+			
+			for (MagDependentAperiodicityOptions cov : covs) {
+				if (cov == null) {
+					erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+				} else {
+					erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+					erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
+				}
+				double origDuration = erf.getTimeSpan().getDuration();
+				erf.getTimeSpan().setDuration(duration);
+				debug(solIndex, "updating forecast for cov="+cov);
+				erf.updateForecast();
+				debug(solIndex, "done updating forecast for cov="+cov);
+				
+//				Map<Site, Table<AttenRelRef, Period, DiscretizedFunc>> covTable = Maps.newHashMap();
+//				myResultsTables.put(cov, covTable);
+				for (Site site : sites) {
+					List<Task> tasks = Lists.newArrayList();
+//					Table<AttenRelRef, Period, DiscretizedFunc> myResultsTable = HashBasedTable.create();
+//					covTable.put(site, myResultsTable);
+					BinaryCurveArchiver archiver = archivers.get(site);
+					for (AttenRelRef ref : imrs.keySet()) {
+						for (int i=0; i<periods.size(); i++) {
+							Period period = periods.get(i);
+							String prefix = buildBinFilePrefix(ref, period, cov);
+							DiscretizedFunc xVals = xValsList.get(i);
+							tasks.add(new SiteHazardCalcJob(this, archiver, erf, ref, site, period, prefix, xVals, solIndex));
+						}
+					}
+					
+					try {
+						new ThreadedTaskComputer(tasks).computeThreaded();
+					} catch (InterruptedException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+				}
+			}
+			
+			branches[solIndex] = branch;
+			branchWeights[solIndex] = weightProv.getWeight(branch);
+			
+//			synchronized(this) {
+//				double weight = weightProv.getWeight(branch);
+//				for (Site site : sites) {
+//					for (MagDependentAperiodicityOptions cov : covs) {
+//						Table<AttenRelRef, Period, Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>
+//						resultsTable = resultsTables.get(site);
+//						Table<AttenRelRef, Period, DiscretizedFunc> myResultsTable = myResultsTables.get(cov).get(site);
+//						for (AttenRelRef imr : imrs.keySet())
+//							for (Period period : periods)
+//								resultsTable.get(imr, period).get(cov).add(myResultsTable.get(imr, period));
+//					}
+//				}
+//				branches.add(branch);
+//				branchWeights.add(weight);
+//			}
+		}
+		
+		@Override
+		protected void flushResults() {
+			for (BinaryCurveArchiver archiver : archivers.values())
+				archiver.close();
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots other : otherCalcs) {
+				ERFBasedSiteHazardHistPlot o = (ERFBasedSiteHazardHistPlot)other;
+				
+				Preconditions.checkState(branches.length == o.branches.length);
+				
+				for (int i=0; i<o.branches.length; i++) {
+					if (o.branches[i] != null) {
+						Preconditions.checkState(branches[i] == null);
+						branches[i] = o.branches[i];
+						branchWeights[i] = o.branchWeights[i];
+					}
+				}
+				
+//				for (Site site : sites) {
+//					Table<AttenRelRef, Period, Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>
+//						resultsTable = resultsTables.get(site);
+//					Table<AttenRelRef, Period, Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>
+//						oResultsTable = null;
+//					for (Site oSite : o.resultsTables.keySet()) {
+//						if (oSite.getName().equals(site.getName())) {
+//							oResultsTable = o.resultsTables.get(oSite);
+//							break;
+//						}
+//					}
+//					if (oResultsTable == null) {
+//						System.out.println("Didn't find a match for: "+site);
+//						System.out.println("Candidates:");
+//						for (Site oSite : o.resultsTables.keySet())
+//							System.out.println("\t"+oSite);
+//					}
+//					Preconditions.checkNotNull(oResultsTable, "No match for site: "+site);
+//					for (AttenRelRef imr : imrs.keySet()) {
+//						for (Period period : periods) {
+//							Preconditions.checkNotNull(resultsTable);
+//							Preconditions.checkNotNull(resultsTable.get(imr, period));
+//							Preconditions.checkNotNull(oResultsTable.get(imr, period));
+//							for (MagDependentAperiodicityOptions cov : covs)
+//								resultsTable.get(imr, period).get(cov).addAll(oResultsTable.get(imr, period).get(cov));
+//						}
+//					}
+//				}
+//				
+//				branches.addAll(o.branches);
+//				branchWeights.addAll(o.branchWeights);
+			}
+		}
+		
+		// site : <period, probLevel, branchLevel:plot>
+		private Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap;
+
+		@Override
+		protected void doFinalizePlot() {
+			Document doc = XMLUtils.createDocumentWithRoot();
+			Element root = doc.getRootElement();
+			
+			// sites
+			Site.writeSitesToXML(sites, root);
+			
+			// periods
+			Element periodsEl = root.addElement("Periods");
+			for (Period period : periods) {
+				Element subEl = periodsEl.addElement("Period");
+				subEl.addAttribute("name", period.name());
+			}
+			
+			// imrs
+			Element imrsEl = root.addElement("IMRs");
+			for (AttenRelRef imr : imrs.keySet()) {
+				Element subEl = imrsEl.addElement("IMR");
+				subEl.addAttribute("name", imr.name());
+				subEl.addAttribute("weight", imrs.get(imr).toString());
+			}
+			
+			// imrs
+			Element branchesEl = root.addElement("Branches");
+			branchesEl.addAttribute("num", branches.length+"");
+			for (int i=0; i<branches.length; i++) {
+				Element subEl = branchesEl.addElement("Branch");
+				subEl.addAttribute("index", i+"");
+				subEl.addAttribute("name", branches[i].buildFileName());
+				subEl.addAttribute("weight", branchWeights[i]+"");
+			}
+			
+			File xmlFile = new File(curveDir, "metadata.xml");
+			try {
+				XMLUtils.writeDocumentToFile(xmlFile, doc);
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+			
+			plotsMap = doFinalizePlot(curveDir, sites, periods, imrs, branches, branchWeights);
+		}
+		
+		protected static  Map<Site, Table<Period, Double, Map<String, PlotSpec>>> doFinalizePlot(
+				File curveDir) {
+			File xmlFile = new File(curveDir, "metadata.xml");
+			Document doc;
+			try {
+				doc = XMLUtils.loadDocument(xmlFile);
+			} catch (Exception e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+			Element root = doc.getRootElement();
+			
+			List<Site> sites = Site.loadSitesFromXML(root.element(Site.XML_METADATA_LIST_NAME), new ArrayList<Parameter<?>>());
+			
+			List<Period> periods = Lists.newArrayList();
+			for (Element periodEl : (List<Element>)root.element("Periods").elements())
+				periods.add(Period.valueOf(periodEl.attributeValue("name")));
+			
+			Map<AttenRelRef, Double> imrs = Maps.newHashMap();
+			for (Element imrEl : (List<Element>)root.element("IMRs").elements()) {
+				AttenRelRef imr = AttenRelRef.valueOf(imrEl.attributeValue("name"));
+				double weight = Double.parseDouble(imrEl.attributeValue("weight"));
+				imrs.put(imr, weight);
+			}
+			
+			Element branchesEl = root.element("Branches");
+			int numBranches = Integer.parseInt(branchesEl.attributeValue("num"));
+			LogicTreeBranch[] branches = new LogicTreeBranch[numBranches];
+			double[] branchWeights = new double[numBranches];
+			for (Element branchEl : (List<Element>)branchesEl.elements()) {
+				LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchEl.attributeValue("name"));
+				double weight = Double.parseDouble(branchEl.attributeValue("weight"));
+				int index = Integer.parseInt(branchEl.attributeValue("index"));
+				branches[index] = branch;
+				branchWeights[index] = weight;
+			}
+			return doFinalizePlot(curveDir, sites, periods, imrs, branches, branchWeights);
+		}
+		
+		protected static  Map<Site, Table<Period, Double, Map<String, PlotSpec>>> doFinalizePlot(
+				File curveDir, List<Site> sites, List<Period> periods, Map<AttenRelRef, Double> imrs,
+				LogicTreeBranch[] branches, double[] branchWeights) {
+			Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap = Maps.newHashMap();
+			for (Site site : sites) {
+				Table<Period, Double, Map<String, PlotSpec>> sitePlots = HashBasedTable.create();
+				plotsMap.put(site, sitePlots);
+				for (Period period : periods) {
+					for (double prob : probLevels) {
+						String periodName;
+						if (period == Period.GM0P00)
+							periodName = "PGA";
+						else
+							periodName = (float)period.getValue()+"s SA";
+						String xAxisName = periodName+", "+(int)(prob*100d)+"% in "+(int)duration+"yr";
+						BranchSensitivityHistogram hist = new BranchSensitivityHistogram(xAxisName);
+						for (MagDependentAperiodicityOptions cov : covs) {
+							double covWeight = FaultSystemSolutionERF.getWeightForCOV(cov);
+							String covName;
+							if (cov == null)
+								covName = "POISSON";
+							else
+								covName = cov.name();
+							for (AttenRelRef imr : imrs.keySet()) {
+								double imrWeight = imrs.get(imr);
+								String binFilePrefix = buildBinFilePrefix(imr, period, cov);
+								File binFile = new File(new File(curveDir, site.getName()), binFilePrefix+".bin");
+								Preconditions.checkState(binFile.exists(), "Bin file not found: "+binFile.getAbsolutePath());
+								List<DiscretizedFunc> curves = Lists.newArrayList();
+								try {
+									BinaryHazardCurveReader reader = new BinaryHazardCurveReader(binFile.getAbsolutePath());
+									DiscretizedFunc readCurve = reader.nextCurve();
+									while (readCurve != null) {
+										curves.add(readCurve);
+										readCurve = reader.nextCurve();
+									}
+								} catch (Exception e) {
+									ExceptionUtils.throwAsRuntimeException(e);
+								}
+//								List<DiscretizedFunc> curves = resultsTables.get(site).get(imr, period).get(cov);
+								for (int i=0; i<branches.length; i++) {
+									LogicTreeBranch branch = branches[i];
+									double weight = branchWeights[i]*imrWeight*covWeight;
+									
+									DiscretizedFunc curve = curves.get(i);
+									double val = HazardDataSetLoader.getCurveVal(curve, false, prob);
+									
+									hist.addValues(branch, val, weight, "MagDepAperiodicity", covName,
+											"GMPE", imr.getShortName());
+								}
+							}
+						}
+						Range range = hist.getRange();
+						double delta = 0.02;
+//						// round down
+//						double min = Math.floor(range.getLowerBound()/delta) * delta;
+//						System.out.println("Vals Range: "+range);
+//						System.out.println("Hist Delta: "+0.02);
+//						System.out.println("Calc Min: "+min);
+//						int num = (int)((range.getUpperBound() - min) / delta + 0.5)+1;
+//						System.out.println("Calc Num: "+num);
+//						Preconditions.checkState(min-0.5*delta <= range.getLowerBound(), "Range less than hist min!");
+//						double max = min + delta*num;
+//						System.out.println("Calc Max: "+max);
+//						System.out.flush();
+//						Preconditions.checkState(max+0.5*delta >= range.getUpperBound(), "Range greater than hist max!");
+						Map<String, PlotSpec> histSpecs = hist.getStackedHistPlots(true, delta);
+						
+						sitePlots.put(period, prob, histSpecs);
+						hist = null;
+						System.gc();
+					}
+				}
+			}
+			return plotsMap;
+		}
+
+		@Override
+		protected boolean usesERFs() {
+			return true;
+		}
+
+		@Override
+		protected boolean isApplyAftershockFilter() {
+			return false;
+		}
+
+		@Override
+		protected boolean isTimeDependent() {
+			return true;
+		}
+		
 	}
 
 	/*
@@ -7145,6 +7732,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 */
 	protected abstract void combineDistributedCalcs(
 			Collection<CompoundFSSPlots> otherCalcs);
+	
+	/**
+	 * Can be overridded to flush results after calculation has completed but before distributed results
+	 * are combined or plots finalized
+	 */
+	protected void flushResults() {
+		
+	}
 
 	/**
 	 * Called at the end to finalize the plot. This should handle assembly of PlotSpecs.
@@ -7457,10 +8052,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
 		try {
-			comp.computThreaded(threads);
+			comp.computeThreaded(threads);
 		} catch (InterruptedException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
+		
+		for (CompoundFSSPlots plot : plots)
+			plot.flushResults();
 
 		for (CompoundFSSPlots plot : plots)
 			plot.finalizePlot();
@@ -7553,6 +8151,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 				writeERFBasedRegionalProbDistPlots(mfd, dir, prefix);
 //				if (mfd.sfDebugCSV != null)
 //					mfd.sfDebugCSV.writeToFile(new File(dir, "sf_debug_"+System.currentTimeMillis()+".csv"));
+			} else if (plot instanceof ERFBasedSiteHazardHistPlot) {
+				ERFBasedSiteHazardHistPlot haz = (ERFBasedSiteHazardHistPlot) plot;
+				writeERFBasedSiteHazardHists(haz, dir);
 			} else if (plot instanceof PaleoFaultPlot) {
 				PaleoFaultPlot paleo = (PaleoFaultPlot) plot;
 				File paleoPlotsDir = new File(dir,
@@ -7696,6 +8297,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
+		writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot.doFinalizePlot(
+				new File("/tmp/comp_plots/site_hazard_curve_cache")), new File("/tmp/comp_plots"));
+		System.exit(0);
 //		recombineMagProbDistPDFs(new File("/tmp/asdf/small_MPD_plots/"),
 //				new File("/tmp/asdf/small_MPD_faults/"), "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL");
 //		System.exit(0);
@@ -7742,7 +8346,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 16;
+		int sols = 12;
 		int threads = 4;
 		// For one FM
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
@@ -7803,7 +8407,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
-		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
+//		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
+		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
+				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
 //		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));

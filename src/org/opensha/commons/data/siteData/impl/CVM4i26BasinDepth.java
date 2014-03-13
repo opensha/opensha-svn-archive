@@ -49,7 +49,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 public class CVM4i26BasinDepth extends AbstractCVMBasinDepth {
 	
 	public static final String NAME = "SCEC Community Velocity Model Version 4, Iteration 26, Basin Depth";
-	public static final String SHORT_NAME = "CVM4";
+	public static final String SHORT_NAME = "CVM4i26";
 	
 	public static final double minLat = 31;
 	public static final double minLon = -121;

@@ -305,6 +305,8 @@ public class ASK_2013 {
 	
 	// used for interpolation in calcSoilTerm(), below
 	private static final double[] VS_BINS = {150d, 250d, 400d, 700d, 1000d};
+
+	public static final String SHORT_NAME = "ASK2013";
 		
 	// Soil depth model adapted from CY13 form
 	private static double calcSoilTerm(Coeffs c, double vs30, double z1p0) {

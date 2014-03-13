@@ -38,11 +38,11 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class MeanUCERF3_CurveCompareTest {
 	
 	public static void main(String[] args) throws IOException, DocumentException {
-		File dir = new File("/tmp/timeDep");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/MeanUCERF3-timedep-tests");
 		
 		FaultModels fm = FaultModels.FM3_1;
 		double udTol = 10d;
-		boolean branchAveragedSol = true;
+		boolean branchAveragedSol = false;
 		
 		FaultSystemSolutionERF erf;
 		if (branchAveragedSol) {
@@ -107,6 +107,8 @@ public class MeanUCERF3_CurveCompareTest {
 			erf.getTimeSpan().setDuration(30d);
 			erf.updateForecast();
 			
+			System.out.println("Calculating Time Dep Curve with "+erf.getNumSources()+" sources");
+			
 			meanTimeDepCurve = xVals.deepClone();
 			calc.getHazardCurve(meanTimeDepCurve, site, imr, erf);
 			
@@ -121,6 +123,8 @@ public class MeanUCERF3_CurveCompareTest {
 			
 			erf.getTimeSpan().setDuration(30d);
 			erf.updateForecast();
+			
+			System.out.println("Calculating Time Indep Curve with "+erf.getNumSources()+" sources");
 			
 			meanPoissonCurve = xVals.deepClone();
 			calc.getHazardCurve(meanPoissonCurve, site, imr, erf);

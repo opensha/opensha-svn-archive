@@ -2668,7 +2668,7 @@ public class FaultSysSolutionERF_Calc {
 //		}
 		
 		// write the ratio hists
-		Map<String, PlotSpec> histPlots = branchSensHist.getStackedHistPlots(0d, 21, 0.1);
+		Map<String, PlotSpec> histPlots = branchSensHist.getStackedHistPlots(false, 0d, 21, 0.1);
 		for (String categoryName : histPlots.keySet()) {
 			PlotSpec spec = histPlots.get(categoryName);
 			
@@ -3268,8 +3268,6 @@ public class FaultSysSolutionERF_Calc {
 				"paleoRateData", "UCERF3_OpenIntervals_ver8.xls"), new int[] {0,1});
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
-		// make it use passed in open interval data
-		erf.setUseFSSDateOfLastEvents(true);
 		
 		LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), ver9Data);
 		

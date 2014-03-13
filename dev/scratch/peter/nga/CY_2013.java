@@ -65,6 +65,8 @@ public class CY_2013 {
 	private static final double CRBsq = CRB * CRB;
 	private static final double C11 = 0.0;
 
+	public static final String SHORT_NAME = "CY2013";
+
 	private final Coeffs coeffs;
 
 	private class Coeffs extends Coefficients {

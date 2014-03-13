@@ -60,8 +60,8 @@ public class ThreadedTaskComputer implements Runnable {
 	 * @param numThreads
 	 * @throws InterruptedException
 	 */
-	public void computThreaded() throws InterruptedException {
-		computThreaded(Runtime.getRuntime().availableProcessors());
+	public void computeThreaded() throws InterruptedException {
+		computeThreaded(Runtime.getRuntime().availableProcessors());
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public class ThreadedTaskComputer implements Runnable {
 	 * @param numThreads
 	 * @throws InterruptedException
 	 */
-	public void computThreaded(int numThreads) throws InterruptedException {
+	public void computeThreaded(int numThreads) throws InterruptedException {
 		if (numThreads < 2) {
 			computeSingleThread();
 			return;

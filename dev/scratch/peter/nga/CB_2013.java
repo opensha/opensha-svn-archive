@@ -56,6 +56,8 @@ public class CB_2013 {
 	private final Coeffs coeffsPGA;
 	
 	private static final Set<IMT> SHORT_PERIODS = EnumSet.range(SA0P01, SA0P25);
+
+	public static final String SHORT_NAME = "CB2013";
 	
 	private static class Coeffs extends Coefficients {
 		

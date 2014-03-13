@@ -60,7 +60,7 @@ import com.google.common.collect.Maps;
 public class SilvaEtAl_2002_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	private final static String SHORT_NAME = "SilvaEtAl2002";
+	public final static String SHORT_NAME = "SilvaEtAl2002";
 	private static final long serialVersionUID = 1234567890987654353L;
 	public final static String NAME = "Silva et al. (2002)";
 

@@ -57,7 +57,7 @@ public class BranchSensHistTests {
 			outputDir.mkdir();
 		
 		// write the ratio hists
-		Map<String, PlotSpec> histPlots = hists.getStackedHistPlots(0d, 21, 0.1);
+		Map<String, PlotSpec> histPlots = hists.getStackedHistPlots(true, 0d, 21, 0.1);
 		for (String categoryName : histPlots.keySet()) {
 			PlotSpec spec = histPlots.get(categoryName);
 			

@@ -393,7 +393,7 @@ public class RupSetValidator {
 			}
 			
 			ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
-			comp.computThreaded(6);
+			comp.computeThreaded(6);
 			
 			int minRups = Integer.MAX_VALUE;
 			int cnt = 0;

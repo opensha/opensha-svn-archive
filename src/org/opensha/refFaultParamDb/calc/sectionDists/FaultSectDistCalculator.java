@@ -84,7 +84,7 @@ public class FaultSectDistCalculator implements Runnable {
 		ThreadedTaskComputer threaded = new ThreadedTaskComputer(tasks, true);
 		
 		long start = System.currentTimeMillis();
-		threaded.computThreaded(numThreads);
+		threaded.computeThreaded(numThreads);
 		calcTimeSecs = (System.currentTimeMillis() - start) / 1000d;
 	}
 	

@@ -63,7 +63,7 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		debug(rank, null, "loading inputs for "+getNumThreads()+" threads");
 		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
 		// initialize binary curve writer if applicable
-		if (rank ==0 && inputs[0].getArchiver() instanceof BinaryCurveArchiver) {
+		if (rank == 0 && inputs[0].getArchiver() instanceof BinaryCurveArchiver) {
 			((BinaryCurveArchiver)inputs[0].getArchiver()).initialize();
 		}
 		sites = inputs[0].getSites();

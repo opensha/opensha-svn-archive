@@ -74,7 +74,7 @@ import com.google.common.io.Resources;
 public class FrankelEtAl_1996_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	private final static String SHORT_NAME = "FrankelEtAl1996";
+	public final static String SHORT_NAME = "FrankelEtAl1996";
 	private static final long serialVersionUID = 1234567890987654353L;
 	public final static String NAME = "Frankel et al. (1996)";
 

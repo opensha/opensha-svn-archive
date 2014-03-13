@@ -250,7 +250,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 			tasks.add(new AverageFaultSystemSolution.ParticipationComputeTask(rates, output, i, partic, magLow, magHigh, rupSet));
 		
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks);
-		comp.computThreaded();
+		comp.computeThreaded();
 	}
 	
 	public IncrementalMagFreqDist[] calcSectionNucleationMFDs(int sectionID) {
@@ -307,7 +307,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		}
 		
 		try {
-			new ThreadedTaskComputer(tasks).computThreaded();
+			new ThreadedTaskComputer(tasks).computeThreaded();
 		} catch (InterruptedException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}

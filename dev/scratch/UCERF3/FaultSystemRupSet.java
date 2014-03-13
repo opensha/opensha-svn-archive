@@ -499,6 +499,10 @@ public class FaultSystemRupSet implements Serializable {
 		return datas;
 	}
 	
+	private transient double prevGridSpacing = Double.NaN;
+	private transient boolean prevQuadSurface = false;
+	private transient Map<Integer, RuptureSurface> rupSurfaceCache = Maps.newHashMap();
+	
 	/**
 	 * This creates a CompoundGriddedSurface for the specified rupture.  This applies aseismicity as
 	 * a reduction of area and sets preserveGridSpacingExactly=false (for evenly gridded) so there are
@@ -508,7 +512,15 @@ public class FaultSystemRupSet implements Serializable {
 	 * @param quadRupSurface use quad surfaces (otherwise evenly gridded)
 	 * @return
 	 */
-	public RuptureSurface getSurfaceForRupupture(int rupIndex, double gridSpacing, boolean quadRupSurface) {
+	public synchronized RuptureSurface getSurfaceForRupupture(int rupIndex, double gridSpacing, boolean quadRupSurface) {
+		if (prevGridSpacing != gridSpacing || prevQuadSurface != quadRupSurface) {
+			rupSurfaceCache.clear();
+			prevGridSpacing = gridSpacing;
+			prevQuadSurface = quadRupSurface;
+		}
+		RuptureSurface surf = rupSurfaceCache.get(rupIndex);
+		if (surf != null)
+			return surf;
 		List<RuptureSurface> rupSurfs = Lists.newArrayList();
 		if (quadRupSurface) {
 			for(FaultSectionPrefData fltData: getFaultSectionDataForRupture(rupIndex))
@@ -518,8 +530,11 @@ public class FaultSystemRupSet implements Serializable {
 				rupSurfs.add(fltData.getStirlingGriddedSurface(gridSpacing, false, true));
 		}
 		if (rupSurfs.size() == 1)
-			return rupSurfs.get(0);
-		return new CompoundSurface(rupSurfs);
+			surf = rupSurfs.get(0);
+		else
+			surf = new CompoundSurface(rupSurfs);
+		rupSurfaceCache.put(rupIndex, surf);
+		return surf;
 	}
 	
 	/**

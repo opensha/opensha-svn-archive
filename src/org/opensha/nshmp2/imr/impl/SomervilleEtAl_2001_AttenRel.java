@@ -64,7 +64,7 @@ import com.google.common.collect.Maps;
 public class SomervilleEtAl_2001_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	private final static String SHORT_NAME = "SomervilleEtAl2001";
+	public final static String SHORT_NAME = "SomervilleEtAl2001";
 	private static final long serialVersionUID = 1234567890987654353L;
 	public final static String NAME = "Somerville et al. (2001)";
 

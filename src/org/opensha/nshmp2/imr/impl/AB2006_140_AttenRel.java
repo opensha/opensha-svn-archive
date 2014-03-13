@@ -56,7 +56,7 @@ import com.google.common.collect.Maps;
 public class AB2006_140_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	private final static String SHORT_NAME = "AB2006_140";
+	public final static String SHORT_NAME = "AB2006_140";
 	private static final long serialVersionUID = 1234567890987654353L;
 	public final static String NAME = "Atkinson and Boore (2002) 140bar";
 

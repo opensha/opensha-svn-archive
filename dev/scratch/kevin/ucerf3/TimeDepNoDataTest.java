@@ -40,7 +40,6 @@ public class TimeDepNoDataTest {
 		depERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
 		depERF.getTimeSpan().setDuration(duration);
 		depERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-		depERF.setUseFSSDateOfLastEvents(true);
 		System.out.println("Updating time dep forecast");
 		depERF.updateForecast();
 		System.out.println("Done updating time dep forecast");

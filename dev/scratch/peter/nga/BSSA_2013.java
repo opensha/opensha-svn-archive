@@ -53,6 +53,8 @@ public class BSSA_2013 {
 	private static final double A = pow(570.94, 4);
 	private static final double B = pow(1360, 4) + A;
 
+	public static final String SHORT_NAME = "BSSA2013";
+
 	private final Coeffs coeffs;
 	private final Coeffs coeffsPGA;
 

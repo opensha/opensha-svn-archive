@@ -46,6 +46,8 @@ import scratch.peter.newcalc.ScalarGroundMotion;
 public class Idriss_2013 {
 
 	public static final String NAME = "Idriss (2013)";
+
+	public static final String SHORT_NAME = "Idriss2013";
 	
 	private final Coeffs coeffsLo;
 	private final Coeffs coeffsHi;

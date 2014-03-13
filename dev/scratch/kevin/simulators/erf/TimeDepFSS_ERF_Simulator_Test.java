@@ -216,7 +216,6 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			indepERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 			indepERF.getTimeSpan().setDuration(forecastDuration);
 			// this will make it use the simulator dates of last events
-			indepERF.setUseFSSDateOfLastEvents(true);
 			indepERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 			indepERF.updateForecast();
 		}
@@ -257,8 +256,6 @@ public class TimeDepFSS_ERF_Simulator_Test {
 				erf.getTimeSpan().setDuration(forecastDuration);
 				// make sure this didn't clear the start year
 				Preconditions.checkState(erf.getTimeSpan().getStartTimeYear() == timeSpanStartYear);
-				// this will make it use the simulator dates of last events
-				erf.setUseFSSDateOfLastEvents(true);
 				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 				erf.updateForecast();
 			}

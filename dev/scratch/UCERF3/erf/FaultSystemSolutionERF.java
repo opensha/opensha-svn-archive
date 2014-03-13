@@ -196,9 +196,6 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	
 	// map of weight to each ProbabilityModelsCalc instance. null value means Poisson
 	Map<ProbabilityModelsCalc, Double> prefBlendProbModelsCalc;
-	protected boolean datesOfLastEventsAddedToSections = false;
-	// if true, it will be assumed that the FSS already has date of last event data and we shouldn't load it
-	private boolean useFSSDateOfLastEvents = false;
 	
 	/**
 	 * This creates the ERF from the given FaultSystemSolution.  FileParameter is removed 
@@ -347,46 +344,37 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		if (faultSysSolutionChanged) {	
 			makeMiscFSS_Arrays(); 
 			numFaultRupsChanged = true;	// not necessarily true, but a safe assumption
-			datesOfLastEventsAddedToSections = false;
-		}
-		
-		// set dates of last events in fault sections
-		if(!useFSSDateOfLastEvents && datesOfLastEventsAddedToSections == false && probModel != ProbabilityModelOptions.POISSON) {
-			// 
-			Map<Integer, List<LastEventData>> data;
-			try {
-				data = LastEventData.load();
-				LastEventData.populateSubSects(faultSysSolution.getRupSet().getFaultSectionDataList(), data);
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
 		}
 		
 		// update prob model calculator if needed
-		if (faultSysSolutionChanged || magDepAperiodicityChanged || timeSpanChangeFlag || probModelChanged) {
+		if (faultSysSolutionChanged || magDepAperiodicityChanged || probModelChanged) {
+			probModelsCalc = null;
+			prefBlendProbModelsCalc = null;
 			if(probModel != ProbabilityModelOptions.POISSON) {
-				probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, magDepAperiodicity);
-				if(D) {
-					int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
-					System.out.println(numSectWith+" sections had date of last");
+				if (probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
+					// now do preferred blend
+					prefBlendProbModelsCalc = Maps.newHashMap();
+					prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+							MagDependentAperiodicityOptions.LOW_VALUES), PREF_BLEND_COV_LOW_WEIGHT);
+					prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+							MagDependentAperiodicityOptions.MID_VALUES), PREF_BLEND_COV_MID_WEIGHT);
+					prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
+							MagDependentAperiodicityOptions.HIGH_VALUES), PREF_BLEND_COV_HIGH_WEIGHT);
+					// Poisson
+					prefBlendProbModelsCalc.put(null, PREF_BLEND_POISSON_WEIGHT);
+					
+					// double check that it all sums to 1
+					double sum = 0;
+					for (Double weight : prefBlendProbModelsCalc.values())
+						sum += weight;
+					Preconditions.checkState((float)sum == 1f, "Preferred Blend weights don't sum to 1!");
+				} else {
+					probModelsCalc = new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF, magDepAperiodicity);
+					if(D) {
+						int numSectWith = probModelsCalc.writeSectionsWithDateOfLastEvent();
+						System.out.println(numSectWith+" sections had date of last");
+					}
 				}
-				
-				// now do preferred blend
-				prefBlendProbModelsCalc = Maps.newHashMap();
-				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
-						MagDependentAperiodicityOptions.LOW_VALUES), PREF_BLEND_COV_LOW_WEIGHT);
-				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
-						MagDependentAperiodicityOptions.MID_VALUES), PREF_BLEND_COV_MID_WEIGHT);
-				prefBlendProbModelsCalc.put(new ProbabilityModelsCalc(faultSysSolution, longTermRateOfFltSysRupInERF,
-						MagDependentAperiodicityOptions.HIGH_VALUES), PREF_BLEND_COV_HIGH_WEIGHT);
-				// Poisson
-				prefBlendProbModelsCalc.put(null, PREF_BLEND_POISSON_WEIGHT);
-				
-				// double check that it all sums to 1
-				double sum = 0;
-				for (Double weight : prefBlendProbModelsCalc.values())
-					sum += weight;
-				Preconditions.checkState((float)sum == 1f, "Preferred Blend weights don't sum to 1!");
 			}
 		}
 
@@ -643,16 +631,6 @@ public class FaultSystemSolutionERF extends AbstractERF {
 		// have to set fileParamChanged to false in case you set the file param and then call
 		// setSolution manually before doing an update forecast
 		fileParamChanged = false;
-	}
-	
-	/**
-	 * You may want to use pre-loaded date of last event data instead of fetching
-	 * the UCERF3 values. If so, call this method and set it to true before updating
-	 * the forecast for the first time!
-	 * @param useFSSDateOfLastEvents
-	 */
-	public void setUseFSSDateOfLastEvents(boolean useFSSDateOfLastEvents) {
-		this.useFSSDateOfLastEvents = useFSSDateOfLastEvents;
 	}
 	
 	public FaultSystemSolution getSolution() {
