@@ -59,14 +59,12 @@ import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
 
-import scratch.kevin.nga.NGAWrappers.ASK_2013_Wrapper;
-import scratch.kevin.nga.NGAWrappers.BSSA_2013_Wrapper;
-import scratch.kevin.nga.NGAWrappers.CB_2013_Wrapper;
-import scratch.kevin.nga.NGAWrappers.CY_2013_Wrapper;
-import scratch.kevin.nga.NGAWrappers.GK_2013_Wrapper;
-import scratch.kevin.nga.NGAWrappers.Idriss_2013_Wrapper;
-
-import com.sun.xml.rpc.processor.generator.writer.EnumerationSerializerWriter;
+import scratch.peter.nga.NGAW2_Wrappers.ASK_2013_Wrapper;
+import scratch.peter.nga.NGAW2_Wrappers.BSSA_2013_Wrapper;
+import scratch.peter.nga.NGAW2_Wrappers.CB_2013_Wrapper;
+import scratch.peter.nga.NGAW2_Wrappers.CY_2013_Wrapper;
+import scratch.peter.nga.NGAW2_Wrappers.GK_2013_Wrapper;
+import scratch.peter.nga.NGAW2_Wrappers.Idriss_2013_Wrapper;
 
 /**
  * This <code>enum</code> supplies references to

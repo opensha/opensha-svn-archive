@@ -1,4 +1,4 @@
-package scratch.kevin.nga;
+package scratch.peter.nga;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,9 +31,6 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import com.google.common.base.Preconditions;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
-import scratch.peter.nga.FaultStyle;
-import scratch.peter.nga.IMT;
-import scratch.peter.nga.NGAW2_GMM;
 
 /**
  * This wraps Peter's NGA implementation to conform to the AttenuationRelationship construct

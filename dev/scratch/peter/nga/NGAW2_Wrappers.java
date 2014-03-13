@@ -1,14 +1,6 @@
-package scratch.kevin.nga;
+package scratch.peter.nga;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
-
-import scratch.peter.nga.ASK_2013;
-import scratch.peter.nga.BSSA_2013;
-import scratch.peter.nga.CB_2013;
-import scratch.peter.nga.CY_2013;
-import scratch.peter.nga.GK_2013;
-import scratch.peter.nga.Idriss_2013;
-import scratch.peter.nga.NGAW2_GMM;
 
 @SuppressWarnings("javadoc")
 public class NGAW2_Wrappers {
