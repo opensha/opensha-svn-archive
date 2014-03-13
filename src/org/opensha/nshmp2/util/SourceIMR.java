@@ -16,11 +16,11 @@ import org.opensha.nshmp2.imr.NSHMP08_SUB_SlabGrid;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.NSHMP08_WUS_Grid;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NSHMP13_WUS;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-import scratch.peter.nga.NSHMP13_WUS;
 import scratch.peter.nga.single.NSHMP13_WUS_ASK;
 import scratch.peter.nga.single.NSHMP13_WUS_BSSA;
 import scratch.peter.nga.single.NSHMP13_WUS_CB;

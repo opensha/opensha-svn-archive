@@ -1,4 +1,4 @@
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static com.google.common.base.Charsets.US_ASCII;
 import static com.google.common.base.Preconditions.checkNotNull;

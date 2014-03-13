@@ -1,4 +1,4 @@
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 /**
  * Wrapper class for ground motion prediction equation (GMPE) results.

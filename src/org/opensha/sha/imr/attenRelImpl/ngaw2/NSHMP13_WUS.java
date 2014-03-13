@@ -1,12 +1,12 @@
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static java.lang.Double.NaN;
 import static java.lang.Math.sin;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static scratch.peter.nga.FaultStyle.NORMAL;
-import static scratch.peter.nga.FaultStyle.REVERSE;
-import static scratch.peter.nga.FaultStyle.STRIKE_SLIP;
-import static scratch.peter.nga.FaultStyle.UNKNOWN;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.NORMAL;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.REVERSE;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.STRIKE_SLIP;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.UNKNOWN;
 
 import java.util.List;
 import java.util.Map;

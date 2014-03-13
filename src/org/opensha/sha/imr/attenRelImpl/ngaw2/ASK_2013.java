@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static java.lang.Double.NaN;
 import static java.lang.Math.cos;
@@ -26,9 +26,9 @@ import static java.lang.Math.log;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static scratch.peter.nga.FaultStyle.NORMAL;
-import static scratch.peter.nga.FaultStyle.UNKNOWN;
-import static scratch.peter.nga.IMT.PGA;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.NORMAL;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.UNKNOWN;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.IMT.PGA;
 
 import java.util.Collection;
 

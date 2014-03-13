@@ -58,13 +58,12 @@ import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
-
-import scratch.peter.nga.NGAW2_Wrappers.ASK_2013_Wrapper;
-import scratch.peter.nga.NGAW2_Wrappers.BSSA_2013_Wrapper;
-import scratch.peter.nga.NGAW2_Wrappers.CB_2013_Wrapper;
-import scratch.peter.nga.NGAW2_Wrappers.CY_2013_Wrapper;
-import scratch.peter.nga.NGAW2_Wrappers.GK_2013_Wrapper;
-import scratch.peter.nga.NGAW2_Wrappers.Idriss_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.ASK_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.BSSA_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CB_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CY_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.GK_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2013_Wrapper;
 
 /**
  * This <code>enum</code> supplies references to
@@ -206,17 +205,17 @@ public enum AttenRelRef {
 	/** Cybershake fake attnuation relation */
 	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, CyberShakeIMR.SHORT_NAME, EXPERIMENTAL),
 	
-	ASK_2013(ASK_2013_Wrapper.class,scratch.peter.nga.ASK_2013.NAME,  scratch.peter.nga.ASK_2013.SHORT_NAME, EXPERIMENTAL),
+	ASK_2013(ASK_2013_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2013.NAME,  org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2013.SHORT_NAME, EXPERIMENTAL),
 	
-	BSSA_2013(BSSA_2013_Wrapper.class, scratch.peter.nga.BSSA_2013.NAME, scratch.peter.nga.BSSA_2013.SHORT_NAME, EXPERIMENTAL),
+	BSSA_2013(BSSA_2013_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2013.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2013.SHORT_NAME, EXPERIMENTAL),
 	
-	CB_2013(CB_2013_Wrapper.class,scratch.peter.nga.CB_2013.NAME, scratch.peter.nga.CB_2013.SHORT_NAME, EXPERIMENTAL),
+	CB_2013(CB_2013_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2013.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2013.SHORT_NAME, EXPERIMENTAL),
 	
-	CY_2013(CY_2013_Wrapper.class, scratch.peter.nga.CY_2013.NAME, scratch.peter.nga.CY_2013.SHORT_NAME, EXPERIMENTAL),
+	CY_2013(CY_2013_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2013.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2013.SHORT_NAME, EXPERIMENTAL),
 	
-	GK_2013(GK_2013_Wrapper.class, scratch.peter.nga.GK_2013.NAME, scratch.peter.nga.GK_2013.SHORT_NAME, EXPERIMENTAL),
+	GK_2013(GK_2013_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2013.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2013.SHORT_NAME, EXPERIMENTAL),
 	
-	Idriss_2013(Idriss_2013_Wrapper.class, scratch.peter.nga.Idriss_2013.NAME, scratch.peter.nga.Idriss_2013.SHORT_NAME, EXPERIMENTAL),
+	Idriss_2013(Idriss_2013_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2013.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2013.SHORT_NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 

@@ -3,10 +3,10 @@ package scratch.peter.nga.single;
 import static java.lang.Double.NaN;
 import static java.lang.Math.sin;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static scratch.peter.nga.FaultStyle.NORMAL;
-import static scratch.peter.nga.FaultStyle.REVERSE;
-import static scratch.peter.nga.FaultStyle.STRIKE_SLIP;
-import static scratch.peter.nga.FaultStyle.UNKNOWN;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.NORMAL;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.REVERSE;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.STRIKE_SLIP;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.UNKNOWN;
 
 import java.util.List;
 import java.util.Map;
@@ -27,17 +27,16 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2013;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.ScalarGroundMotion;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-
-import scratch.peter.nga.BSSA_2013;
-import scratch.peter.nga.FaultStyle;
-import scratch.peter.nga.IMT;
-import scratch.peter.nga.NGAW2_GMM;
-import scratch.peter.nga.ScalarGroundMotion;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -17,13 +17,13 @@
  * limitations under the License.
  ******************************************************************************/
 
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static java.lang.Double.NaN;
 import static java.lang.Math.*;
-import static scratch.peter.nga.IMT.*;
-import static scratch.peter.nga.FaultStyle.REVERSE;
-import static scratch.peter.nga.FaultStyle.UNKNOWN;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.REVERSE;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle.UNKNOWN;
+import static org.opensha.sha.imr.attenRelImpl.ngaw2.IMT.*;
 
 import java.util.Collection;
 import java.util.EnumSet;

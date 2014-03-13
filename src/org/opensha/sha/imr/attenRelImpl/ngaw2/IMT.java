@@ -1,4 +1,4 @@
-package scratch.peter.nga;
+package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import org.apache.commons.math3.util.Precision;
 
