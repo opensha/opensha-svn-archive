@@ -34,7 +34,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
-import scratch.peter.nga.CB_2013_Transitional;
+import scratch.peter.nga.CB_2013;
 import scratch.peter.nga.FaultStyle;
 import scratch.peter.nga.IMT;
 import scratch.peter.nga.NGAW2_GMM;
@@ -135,7 +135,7 @@ public class NSHMP13_WUS_CB extends AttenuationRelationship implements
 		
 	void initGMPEmap() {
 		gmpeMap = Maps.newHashMap();
-		gmpeMap.put(new CB_2013_Transitional(), 1.0);
+		gmpeMap.put(new CB_2013(), 1.0);
 	}
 	
 	@Override
