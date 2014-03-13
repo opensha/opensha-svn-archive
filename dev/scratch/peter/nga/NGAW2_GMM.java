@@ -8,12 +8,12 @@ import org.opensha.sha.util.TectonicRegionType;
 import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
- * Wrapper interface for NGAW2 ground motion models.
+ * Interface for NGAW2 ground motion models.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public interface TransitionalGMPE extends Named {
+public interface NGAW2_GMM extends Named {
 	
 	public ScalarGroundMotion calc();
 	

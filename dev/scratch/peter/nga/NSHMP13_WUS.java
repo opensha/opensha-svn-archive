@@ -99,7 +99,7 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 //	private final static double VS30_WARN_MAX = 1300;
 
 	// imr weight maps
-	Map<TransitionalGMPE, Double> gmpeMap;
+	Map<NGAW2_GMM, Double> gmpeMap;
 	
 	// custom params
 	public static final String IMR_UNCERT_PARAM_NAME = "IMR uncertainty";
@@ -253,7 +253,7 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 	}
 	
 	private void initGMPEs() {
-		for (TransitionalGMPE gmpe : gmpeMap.keySet()) {
+		for (NGAW2_GMM gmpe : gmpeMap.keySet()) {
 
 			gmpe.set_IMT(imt);
 			
@@ -290,7 +290,7 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 		double mean = 0;
 //		updateArgs(); // not needed for NSHMP map determinisitic calcs
 //		initGMPEs();
-		for (TransitionalGMPE gmpe : gmpeMap.keySet()) {
+		for (NGAW2_GMM gmpe : gmpeMap.keySet()) {
 			mean += gmpeMap.get(gmpe) * gmpe.calc().mean();
 		}
 		return mean;
@@ -335,7 +335,7 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 		double[] weights = new double[curveCount];
 		
 		int idx = 0;
-		for (TransitionalGMPE gmpe : gmpeMap.keySet()) {
+		for (NGAW2_GMM gmpe : gmpeMap.keySet()) {
 			ScalarGroundMotion sgm = gmpe.calc();
 			double m = sgm.mean();
 			double s = sgm.stdDev();

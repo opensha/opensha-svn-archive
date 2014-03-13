@@ -15,7 +15,7 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * @author Peter Powers
  * @version $Id:$
  */
-public class GK_2013_Transitional implements TransitionalGMPE {
+public class GK_2013_Transitional implements NGAW2_GMM {
 
 	private GK_2013 impl = new GK_2013();
 
