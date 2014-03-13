@@ -327,7 +327,7 @@
 			<fileset dir="${src}/resources/data/nshmp" />
 		</copy>
 		<copy todir="${build}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" overwrite="true">
-			<fileset dir="${dev}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" />
+			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" />
 		</copy>
 	</target>
 	
