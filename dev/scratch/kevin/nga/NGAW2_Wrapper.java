@@ -33,7 +33,7 @@ import com.google.common.base.Preconditions;
 import scratch.peter.newcalc.ScalarGroundMotion;
 import scratch.peter.nga.FaultStyle;
 import scratch.peter.nga.IMT;
-import scratch.peter.nga.TransitionalGMPE;
+import scratch.peter.nga.NGAW2_GMM;
 
 /**
  * This wraps Peter's NGA implementation to conform to the AttenuationRelationship construct
@@ -41,13 +41,13 @@ import scratch.peter.nga.TransitionalGMPE;
  * @author kevin
  *
  */
-public class TransitionalGMPEWrapper extends AttenuationRelationship implements ParameterChangeListener {
+public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterChangeListener {
 	
 	private String shortName;
-	private TransitionalGMPE gmpe;
+	private NGAW2_GMM gmpe;
 	private ScalarGroundMotion gm;
 	
-	public TransitionalGMPEWrapper(String shortName, TransitionalGMPE gmpe) {
+	public NGAW2_Wrapper(String shortName, NGAW2_GMM gmpe) {
 		this.shortName = shortName;
 		this.gmpe = gmpe;
 		
@@ -56,7 +56,7 @@ public class TransitionalGMPEWrapper extends AttenuationRelationship implements 
 		initOtherParams();
 	}
 	
-	TransitionalGMPE getGMPE() {
+	NGAW2_GMM getGMPE() {
 		return gmpe;
 	}
 

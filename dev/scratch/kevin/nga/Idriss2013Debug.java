@@ -24,7 +24,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.collect.Maps;
 
-import scratch.kevin.nga.NGAWrappers.Idriss_2013_Wrapper;
+import scratch.kevin.nga.NGAW2_Wrappers.Idriss_2013_Wrapper;
 
 public class Idriss2013Debug {
 
