@@ -18,8 +18,6 @@ import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.util.NSHMP_Utils;
 import org.opensha.nshmp2.util.Period;
 
-import scratch.peter.nga.Functions2;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -105,13 +103,13 @@ public class JordanMadridCalc {
 		System.out.println(lines.size());
 		
 		Iterable<Double> Xs = Iterables.transform(
-			Iterables.skip(S.split(lines.get(0)), 2), Functions2.STR_2_DBL);
+			Iterables.skip(S.split(lines.get(0)), 2), STR_2_DBL);
 //		System.out.println(Iterables.toString(Xs));
 		
 		for (String line : Iterables.skip(lines, 1)) {
 
 			Iterable<Double> values = Iterables.transform(
-				Iterables.skip(S.split(line), 1), Functions2.STR_2_DBL);
+				Iterables.skip(S.split(line), 1), STR_2_DBL);
 			weights.add(Iterables.get(values, 0));
 			Iterable<Double> Ys = Iterables.transform(Iterables.skip(values, 1), new ToProbFunction());
 //			System.out.println(Iterables.toString(Iterables.skip(values, 1)));
@@ -186,6 +184,22 @@ public class JordanMadridCalc {
 			return NSHMP_Utils.rateToProb(annRate, 1);
 		}
 	}
+	
+	/**
+	 * Instance of a {@code Function} that parses a {@code String} to {@code Double}
+	 * using {@link Double#valueOf(String)} throwing
+	 * {@code NumberFormatException}s and {@code NullPointerException}s for
+	 * invalid and {@code null} arguments.
+	 */
+	public static final Function<String, Double> STR_2_DBL = StringToDouble.INSTANCE;
+
+	// enum singleton patterns
+	// @formatter:off
+	private enum StringToDouble implements Function<String, Double> {
+		INSTANCE;
+		@Override public Double apply(String s) { return Double.valueOf(s); }
+	}
+
 
 
 }

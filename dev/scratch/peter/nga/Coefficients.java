@@ -2,27 +2,20 @@ package scratch.peter.nga;
 
 import static com.google.common.base.Charsets.US_ASCII;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static scratch.peter.nga.Functions2.STR_2_DBL;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha.sha.util.NSHMP_Util;
-
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
 
 /**
@@ -139,5 +132,21 @@ public abstract class Coefficients {
 		}
 		return table;
 	}
+	
+	/**
+	 * Instance of a {@code Function} that parses a {@code String} to {@code Double}
+	 * using {@link Double#valueOf(String)} throwing
+	 * {@code NumberFormatException}s and {@code NullPointerException}s for
+	 * invalid and {@code null} arguments.
+	 */
+	public static final Function<String, Double> STR_2_DBL = StringToDouble.INSTANCE;
+
+	// enum singleton patterns
+	// @formatter:off
+	private enum StringToDouble implements Function<String, Double> {
+		INSTANCE;
+		@Override public Double apply(String s) { return Double.valueOf(s); }
+	}
+
 	
 }
