@@ -1,4 +1,4 @@
-package scratch.peter.nga.single;
+package org.opensha.nshmp2.imr.ngaw2;
 
 import static java.lang.Double.NaN;
 import static java.lang.Math.sin;
@@ -27,9 +27,9 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
-import org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2013;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2013;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.ScalarGroundMotion;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
@@ -85,7 +85,7 @@ import com.google.common.collect.Maps;
  * @version $Id:$
  */
 //@formatter:on
-public class NSHMP13_WUS_CB extends AttenuationRelationship implements
+public class NSHMP13_WUS_Idriss extends AttenuationRelationship implements
 		ParameterChangeListener {
 
 	public final static String NAME = "NSHMP 2013 Western US Combined";
@@ -110,7 +110,7 @@ public class NSHMP13_WUS_CB extends AttenuationRelationship implements
 	 * @param epi flag for additional epistemic distnace and magnitude dependent
 	 * epistemic uncertainty on ground motions.
 	 */
-	public NSHMP13_WUS_CB() {
+	public NSHMP13_WUS_Idriss() {
 		initGMPEmap();
 		
 		BooleanParameter imrUncertParam = new BooleanParameter(
@@ -134,7 +134,7 @@ public class NSHMP13_WUS_CB extends AttenuationRelationship implements
 		
 	void initGMPEmap() {
 		gmpeMap = Maps.newHashMap();
-		gmpeMap.put(new CB_2013(), 1.0);
+		gmpeMap.put(new Idriss_2013(), 1.0);
 	}
 	
 	@Override
