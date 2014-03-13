@@ -120,6 +120,8 @@ public class UC33_MapMaker {
 		
 //		createCAxyzFiles();
 		
+		buildGMEP14changes();
+		
 //		buildGMEP13comparisons();
 //		buildGMEP13comparisonsBinaries();
 //		buildIdrissComparison();
@@ -134,7 +136,7 @@ public class UC33_MapMaker {
 //		build_UC3_GMM08_binary();
 		
 		// time dependence
-		buildUCtimeDependentMaps();
+//		buildUCtimeDependentMaps();
 						
 //		testNSHMP();
 //		buildUC3_NSHMP_versionMaps();
@@ -1138,6 +1140,41 @@ public class UC33_MapMaker {
 		}
 	}
 
+	// build ratio maps of the 'final' (or close to it) NGAW2 ground motion
+	// models relative to those that were used to date (3/10/2014) for the
+	// NSHMP; these only used the single FM3.1 brAvg solution (720 branches)
+	private static void buildGMEP14changes() {
+		TestGrid grid = CA_RELM;
+		double spacing = 0.1;
+		String outDir = ROOT + "NSHMP13B" + S + "GMPE13-14Change" + S;
+		String brSol = "UC33brAvg_FM31";
+		
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50); //, PE10IN50);
+		List<String> gmpes = Lists.newArrayList("AS", "BS","CB","CY","ID");
+		
+		for (Period p : periods) {
+			for (ProbOfExceed pe : PEs) {				
+				for (String gmpe : gmpes) {
+					String srcOver = SRC + "NSHMP13-GMPE14" + S + gmpe + S + brSol;
+					GeoDataSet over = loadSingle(srcOver, pe, grid, p, spacing);
+
+					String srcUnder = SRC + "NSHMP13-GMPE13" + S + gmpe + S + brSol;
+					GeoDataSet under = loadSingle(srcUnder, pe, grid, p, spacing);
+					
+					GeoDataSet ratio = GeoDataSetMath.divide(over, under);
+					String ratioDir = outDir + "ratio_" + p.getLabel() + S + gmpe;
+//					makeRatioPlotNSHMP(ratio, 0.1, grid.bounds(), ratioDir, "2% in 50 " + p.getLabel() + " ratio " + gmpe + " 14/13", true);
+					makeRatioPlot(ratio, 0.1, grid.bounds(), ratioDir, "2% in 50 " + p.getLabel() + " ratio " + gmpe + " 14/13", true, 0.01, true, false);
+
+//					GeoDataSet diff = GeoDataSetMath.subtract(over, under);
+//					String diffDir = outDir + "diff_" + p.getLabel() + S + gmpe;
+//					makeDiffPlotNSHMP(diff, 0.1, grid.bounds(), diffDir, "2% in 50 " + p.getLabel() + " diff " + gmpe + " 14-13", true);
+				}
+			}
+		}
+	}
+
 	
 	// build ratio maps of the each individual 2013 GMPE to the weighted combo
 	// these only used the single FM3.1 brAvg solution (720 branches)
@@ -1736,7 +1773,7 @@ public class UC33_MapMaker {
 		try {
 			GMT_Map map = mapGen.getGMTMapSpecification(xyz);
 			map.setCustomLabel(title);
-			map.setRescaleCPT(false);
+			map.setRescaleCPT(true);
 			if (showFaults) {
 //				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
 				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
