@@ -43,7 +43,7 @@ import com.google.common.collect.Lists;
  *
  */
 @RunWith(Parameterized.class)
-public class TransitionalGMPEWrapperTest {
+public class NGAW2_WrapperTest {
 	
 	private NGAW2_Wrapper wrapper;
 	private NGAW2_GMM gmpe;
@@ -58,7 +58,7 @@ public class TransitionalGMPEWrapperTest {
 	
 	private static final double tol = 1e-10;
 	
-	public TransitionalGMPEWrapperTest(AttenRelRef ref) {
+	public NGAW2_WrapperTest(AttenRelRef ref) {
 		wrapper = (NGAW2_Wrapper)ref.instance(null);
 		wrapper.setParamDefaults();
 		gmpe = wrapper.getGMPE();
