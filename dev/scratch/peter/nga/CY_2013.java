@@ -50,13 +50,8 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class CY_2013 {
 
-	public static final String NAME = "Chiou & Youngs (2013)";
+	public static final String NAME = "Chiou \u0026 Youngs (2014)";
 
-	// implementation constants
-	private static final double A = pow(571, 4);
-	private static final double B = pow(1360, 4) + A;
-
-	// author declared constants
 	private static final double C2 = 1.06;
 	private static final double C4 = -2.1;
 	private static final double C4A = -0.5;
@@ -64,6 +59,9 @@ public class CY_2013 {
 	private static final double CRB = 50.0;
 	private static final double CRBsq = CRB * CRB;
 	private static final double C11 = 0.0;
+	private static final double PHI6 = 300.0;
+	private static final double A = pow(571, 4);
+	private static final double B = pow(1360, 4) + A;
 
 	public static final String SHORT_NAME = "CY2013";
 
@@ -74,11 +72,17 @@ public class CY_2013 {
 		// TODO inline constance coeffs with final statics
 
 		double c1, c1a, c1b, c1c, c1d, c3, c5, c6, c7, c7b, c8b, c9, c9a, c9b,
-				c11b, cn, cM, cHM, cgamma1, cgamma2, cgamma3, phi1, phi2, phi3,
-				phi4, phi5, phi6, tau1, tau2, sigma1, sigma2, sigma3;
+		c11b, cn, cM, cHM, cgamma1, cgamma2, cgamma3, phi1, phi2, phi3,
+		phi4, phi5, tau1, tau2, sigma1, sigma2, sigma3;
+
+		// same for all periods; replaced with constant
+		double c2, c4, c4a, c11, cRB, phi6;
+		// unused regional and other coeffs
+		double c8, c8a, sigma2_JP, gamma_JP_IT, gamma_WN, phi1_JP, phi5_JP,
+				phi6_JP;
 
 		Coeffs() {
-			super("CY13.csv");
+			super("CY14.csv");
 			set(PGA);
 		}
 	}
@@ -112,18 +116,18 @@ public class CY_2013 {
 		coeffs.set(imt);
 		
 		// terms used by both mean and stdDev
-		double lnSAref = calcLnSAref(coeffs, Mw, rJB, rRup, rX, dip, zTop, style);
+		double saRef = calcSAref(coeffs, Mw, rJB, rRup, rX, dip, zTop, style);
 		double soilNonLin = calcSoilNonLin(coeffs, vs30);
 		
-		double mean = calcMean(coeffs, vs30, z1p0, soilNonLin, lnSAref);
-		double stdDev = calcStdDev(coeffs, Mw, vsInferred, soilNonLin, lnSAref);
+		double mean = calcMean(coeffs, vs30, z1p0, soilNonLin, saRef);
+		double stdDev = calcStdDev(coeffs, Mw, vsInferred, soilNonLin, saRef);
 
 		return new DefaultGroundMotion(mean, stdDev);
 	}
 
-	// Seismic Source Scaling -- Equation 3.7
-	private double calcLnSAref(Coeffs c, double Mw, double rJB, double rRup,
-			double rX, double dip, double zTop, FaultStyle style) {
+	// Seismic Source Scaling -- Equation 11
+	private static final double calcSAref(Coeffs c, double Mw, double rJB,
+			double rRup, double rX, double dip, double zTop, FaultStyle style) {
 		
 		// Magnitude scaling
 		double r1 = c.c1 + C2 * (Mw - 6.0) + ((C2 - c.c3) / c.cn) *
@@ -139,7 +143,7 @@ public class CY_2013 {
 		// Scaling with other source variables
 		double coshM = cosh(2 * max(Mw - 4.5, 0));
 		double cosDelta = cos(dip * TO_RAD);
-		// Center zTop on the zTop-M relation in Eqns (2.4) & (2.5)
+		// Center zTop on the zTop-M relation
 		double deltaZtop = zTop - calcMwZtop(style, Mw);
 		double r4 = (c.c7 + c.c7b / coshM) * deltaZtop + 
 				    (C11 + c.c11b / coshM) * cosDelta * cosDelta;
@@ -156,42 +160,42 @@ public class CY_2013 {
 
 		// Directivity effect (not implemented)
 		// cDPP = centered DPP (direct point directivity parameter)
-		//double c8 = 2.154;
+		//double c8 = 0.2154; // corrected from 2.154 12/3/13 per email from Sanaz
 		//double c8a = 0.2695;
 		//double Mc8 = Mw-c.c8b;
 		//double r6 = c8 * exp(-c8a * Mc8 * Mc8) *
 		//	max(0.0, 1.0 - max(0, rRup - 40.0) / 30.0) *
 		//	min(max(0, Mw - 5.5) / 0.8, 1.0) * cDPP;
 
-		return r1 + r2 + r3 + r4 + r5;
+		return exp(r1 + r2 + r3 + r4 + r5);
 	}
 	
-	private double calcSoilNonLin(Coeffs c, double vs30) {
+	private static final double calcSoilNonLin(Coeffs c, double vs30) {
 		double exp1 = exp(c.phi3 * (min(vs30, 1130.0) - 360.0));
 		double exp2 = exp(c.phi3 * (1130.0 - 360.0));
 		return c.phi2 * (exp1 - exp2);
 	}
 
-	// Mean ground motion model -- Equation 3.8
-	private double calcMean(Coeffs c, double vs30, double z1p0, double snl, 
-			double lnSAref) {
+	// Mean ground motion model -- Equation 12
+	private static final double calcMean(Coeffs c, double vs30, double z1p0,
+			double snl, double saRef) {
 
 		// Soil effect: linear response
 		double sl = c.phi1 * min(log(vs30 / 1130.0), 0.0);
 
 		// Soil effect: nonlinear response (base passed in)
-		snl *= log((exp(lnSAref) + c.phi4) / c.phi4);
+		snl *= log((saRef + c.phi4) / c.phi4);
 
 		// Soil effect: sediment thickness
 		double dZ1 = calcDeltaZ1(z1p0, vs30);
-		double rkdepth = c.phi5 * (1.0 - exp(-dZ1 / c.phi6));
+		double rkdepth = c.phi5 * (1.0 - exp(-dZ1 / PHI6));
 
 		// total model
-		return lnSAref + sl + snl + rkdepth;
+		return log(saRef) + sl + snl + rkdepth;
 	}
 
-	// Center zTop on the zTop-M relation in Eqns (2.4) & (2.5)
-	private static double calcMwZtop(FaultStyle style, double Mw) {
+	// Center zTop on the zTop-M relation -- Equations 4, 5
+	private static final double calcMwZtop(FaultStyle style, double Mw) {
 		double mzTop = 0.0;
 		if (style == REVERSE) {
 			mzTop = (Mw <= 5.849) ? 2.704 : max(2.704 - 1.226 * (Mw - 5.849), 0);
@@ -201,20 +205,19 @@ public class CY_2013 {
 		return mzTop * mzTop;
 	}
 	
-	private static double calcDeltaZ1(double z1p0, double vs30) {
+	// -- Equation 1
+	private static final double calcDeltaZ1(double z1p0, double vs30) {
 		if (Double.isNaN(z1p0)) return 0.0;
 		double vsPow4 = vs30 * vs30 * vs30 * vs30;
 		return z1p0 * 1000.0 - exp(-7.15 / 4 * log((vsPow4 + A) / B));
 	}
 
 	// Aleatory uncertainty model -- Equation 3.9
-	private double calcStdDev(Coeffs c, double Mw, boolean vsInferred,
-			double snl, double lnSAref) {
-
-		double SAref = exp(lnSAref);
+	private static final double calcStdDev(Coeffs c, double Mw, boolean vsInf,
+			double snl, double saRef) {
 
 		// Response Term - linear vs. non-linear
-		double NL0 = snl * SAref / (SAref + c.phi4);
+		double NL0 = snl * saRef / (saRef + c.phi4);
 
 		// Magnitude thresholds
 		double mTest = min(max(Mw, 5.0), 6.5) - 5.0;
@@ -224,7 +227,7 @@ public class CY_2013 {
 
 		// Intra-event term
 		double sigmaNL0 = c.sigma1 + (c.sigma2 - c.sigma1) / 1.5 * mTest;
-		double vsTerm = vsInferred ? c.sigma3 : 0.7;
+		double vsTerm = vsInf ? c.sigma3 : 0.7;
 		double NL0sq = (1 + NL0) * (1 + NL0);
 		sigmaNL0 *= sqrt(vsTerm + NL0sq);
 

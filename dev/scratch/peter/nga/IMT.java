@@ -23,7 +23,9 @@ public enum IMT {
 	SA0P05,
 	SA0P075,
 	SA0P1,
+	SA0P12,
 	SA0P15,
+	SA0P17,
 	SA0P2,
 	SA0P25,
 	SA0P3,
@@ -36,6 +38,7 @@ public enum IMT {
 	SA3P0,
 	SA4P0,
 	SA5P0,
+	SA6P0,
 	SA7P5,
 	SA10P0;
 
@@ -67,6 +70,15 @@ public enum IMT {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns true if this IMT is some flavor of spectral acceleration.
+	 * @return {@code true} if this is a spectral period, {@code false}
+	 *         otherwise
+	 */
+	public boolean isSA() {
+		return ordinal() > 2;
 	}
 
 	/**

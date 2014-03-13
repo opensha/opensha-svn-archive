@@ -2,36 +2,18 @@ package scratch.peter.nga;
 
 import java.util.Collection;
 
+import org.opensha.commons.data.Named;
 import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
 /**
- * 
- * These are seom notes on efficiencies in the NGAW2 GMPE's that are not related
- * to this class directly.
- * 
- * CB13 is probably the most cumbersome as both mean and std depend on a pgaRock
- * value which requires looping through the calcMean() with PGA coeffs.
- * That said... pgaRock is only used if vs30 is below a certain value (c.k1)
- * and can/should be short-circuited; at 5Hz, 1Hz and 3s k1<760; not for PGA
- * though.
- * DONE
- * 
- * AS13 uses saRock, the use of which is conditiond on vs < c.Vlin, and which
- * is dependent only on 1 or two terms and can therefore be computed inline.
- * Hoever, it is required by std so mean and std should be combined.
- * DONE
- * 
- * CY13 precomputes a non-site-specific reference term and can't be optimized
- * further.
- * 
- * BSSA13 conditions on PGArock
+ * Wrapper interface for NGAW2 ground motion models.
  * 
  * @author Peter Powers
  * @version $Id:$
  */
-public interface TransitionalGMPE extends org.opensha.commons.data.Named {
+public interface TransitionalGMPE extends Named {
 	
 	public ScalarGroundMotion calc();
 	

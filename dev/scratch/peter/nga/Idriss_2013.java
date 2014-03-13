@@ -45,15 +45,15 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  */
 public class Idriss_2013 {
 
-	public static final String NAME = "Idriss (2013)";
+	public static final String NAME = "Idriss (2014)";
 
 	public static final String SHORT_NAME = "Idriss2013";
 	
-	private final Coeffs coeffsLo;
-	private final Coeffs coeffsHi;
+	private final Coeffs coeffs;
 	
 	private static class Coeffs extends Coefficients {
-		double a1, a2, a3, b1, b2, xi, gamma, phi;
+		double a1_lo, a2_lo, a1_hi, a2_hi, a3, b1_lo, b2_lo, b1_hi, b2_hi, xi,
+		gamma, phi;
 		Coeffs(String cName) {
 			super(cName);
 		}
@@ -63,10 +63,8 @@ public class Idriss_2013 {
 	 * Constructs a new instance of this attenuation relationship.
 	 */
 	public Idriss_2013() {
-		coeffsLo = new Coeffs("Idriss13loM.csv");
-		coeffsLo.set(PGA);
-		coeffsHi = new Coeffs("Idriss13hiM.csv");
-		coeffsHi.set(PGA);
+		coeffs = new Coeffs("Idriss14.csv");
+		coeffs.set(PGA);
 	}
 
 	/**
@@ -81,28 +79,33 @@ public class Idriss_2013 {
 	public final ScalarGroundMotion calc(IMT imt, double Mw,
 			double rRup, double vs30, FaultStyle style) {
 
-		coeffsHi.set(imt);
-		coeffsLo.set(imt);
+		coeffs.set(imt);
 		
-		Coeffs c = (Mw <= 6.75) ? coeffsLo : coeffsHi;
-		
-		double mean = calcMean(c, Mw, rRup, vs30, style);
-		double stdDev = calcStdDev(c, Mw);
+		double mean = calcMean(coeffs, Mw, rRup, style, vs30);
+		double stdDev = calcStdDev(coeffs, Mw);
 
 		return new DefaultGroundMotion(mean, stdDev);
 	}
 	
 	// Mean ground motion model - cap of Vs = 1200 m/s
-	private double calcMean(Coeffs c, double Mw, double rRup, double vs30,
-			FaultStyle style) {
-		return c.a1 + c.a2 * Mw + c.a3 * (8.5 - Mw) * (8.5 - Mw) -
-			(c.b1 + c.b2 * Mw) * log(rRup + 10.0) +
+	private static final double calcMean(Coeffs c, double Mw, double rRup,
+			FaultStyle style, double vs30) {
+		
+		double a1 = c.a1_lo, a2 = c.a2_lo;
+		double b1 = c.b1_lo, b2 = c.b2_lo;
+		if (Mw > 6.75) {
+			a1 = c.a1_hi; a2 = c.a2_hi;
+			b1 = c.b1_hi; b2 = c.b2_hi;
+		}
+
+		return a1 + a2 * Mw + c.a3 * (8.5 - Mw) * (8.5 - Mw) -
+			(b1 + b2 * Mw) * log(rRup + 10.0) +
 			c.xi * log(min(vs30, 1200.0)) + 
 			c.gamma * rRup + (style == REVERSE ? c.phi : 0.0);
 	}
 
 	// Aleatory uncertainty model
-	private double calcStdDev(Coeffs c, double Mw) {
+	private static final double calcStdDev(Coeffs c, double Mw) {
 		double s1 = 0.035;
 		Double T = c.imt().getPeriod();
 		s1 *= (T == null || T <= 0.05) ? log(0.05) : (T < 3.0) ? log(T)
@@ -113,14 +116,14 @@ public class Idriss_2013 {
 	}
 	
 	public Collection<IMT> getSupportedIMTs() {
-		return coeffsLo.getSupportedIMTs();
+		return coeffs.getSupportedIMTs();
 	}
 	
 	public static void main(String[] args) {
 		Idriss_2013 id = new Idriss_2013();
 		
 		FaultStyle style = FaultStyle.NORMAL;
-		double mag = 5.05;
+		double mag = 7.05;
 		ScalarGroundMotion sgm;
 		
 		System.out.println("PGA");
