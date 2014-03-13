@@ -15,12 +15,10 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.BooleanParameter;
-import org.opensha.nshmp2.erf.source.PointSource13b.PointSurface13b;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -33,22 +31,14 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
-import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
-import scratch.peter.nga.ASK_2013_Transitional;
-import scratch.peter.nga.BSSA_2013_Transitional;
-import scratch.peter.nga.CB_2013_Transitional;
-import scratch.peter.nga.CY_2013_Transitional;
 import scratch.peter.nga.FaultStyle;
-import scratch.peter.nga.GK_2013_Transitional;
 import scratch.peter.nga.IMT;
 import scratch.peter.nga.Idriss_2013_Transitional;
 import scratch.peter.nga.NGAW2_GMM;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

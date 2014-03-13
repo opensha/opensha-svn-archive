@@ -19,11 +19,16 @@
 
 package scratch.peter.nga;
 
-import static java.lang.Math.*;
-import static scratch.peter.nga.IMT.PGA;
+import static java.lang.Double.NaN;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
 import static scratch.peter.nga.FaultStyle.REVERSE;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
+import static scratch.peter.nga.IMT.PGA;
 
 import java.util.Collection;
+
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -40,14 +45,11 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class Idriss_2013 {
+public class Idriss_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Idriss (2014)";
-
-	public static final String SHORT_NAME = "Idriss2013";
+	public static final String SHORT_NAME = "Idriss2014";
 	
 	private final Coeffs coeffs;
 	
@@ -66,7 +68,51 @@ public class Idriss_2013 {
 		coeffs = new Coeffs("Idriss14.csv");
 		coeffs.set(PGA);
 	}
+	
+	
+	private IMT imt = null;
+	private double Mw = NaN;
+	private double rRup = NaN;
+	private double vs30 = NaN;
+	private FaultStyle style = UNKNOWN;
 
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rRup, vs30, style);
+	}
+
+	@Override public String getName() { return NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) {} // not used
+	@Override public void set_rRup(double rRup) { this.rRup = rRup; }
+	@Override public void set_rX(double rX) {} // not used
+	
+	@Override public void set_dip(double dip) {} // not used
+	@Override public void set_width(double width) {} // not used
+	@Override public void set_zTop(double zTop) {} // not used
+	@Override public void set_zHyp(double zHyp) {} // not used
+	
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) {} // not used
+	@Override public void set_z2p5(double z2p5) {} // not used
+	@Override public void set_z1p0(double z1p0) {} // not used
+
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
+	}
+	
 	/**
 	 * Returns the ground motion for the supplied arguments.
 	 * @param imt intensity measure type
@@ -115,34 +161,4 @@ public class Idriss_2013 {
 		return 1.18 + s1 - s2;
 	}
 	
-	public Collection<IMT> getSupportedIMTs() {
-		return coeffs.getSupportedIMTs();
-	}
-	
-	public static void main(String[] args) {
-		Idriss_2013 id = new Idriss_2013();
-		
-		FaultStyle style = FaultStyle.NORMAL;
-		double mag = 7.05;
-		ScalarGroundMotion sgm;
-		
-		System.out.println("PGA");
-		sgm = id.calc(PGA, mag, 4.629, 760.0, style);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("5Hz");
-//		sgm = id.calc(IMT.SA0P2, mag,5.0249376, 760.0, style);
-		sgm = id.calc(IMT.SA0P2, mag, 4.629, 760.0, style);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("1Hz");
-		sgm = id.calc(IMT.SA1P0, mag, 4.629, 760.0, style);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-
-//		ScalarGroundMotion sgm = id.calc(PGA, 7.06, 27.08, 760.0, FaultStyle.STRIKE_SLIP);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-	}
-
 }

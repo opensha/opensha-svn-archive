@@ -18,15 +18,21 @@
 
 package scratch.peter.nga;
 
+import static java.lang.Double.NaN;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+import static scratch.peter.nga.FaultStyle.NORMAL;
+import static scratch.peter.nga.FaultStyle.REVERSE;
+import static scratch.peter.nga.FaultStyle.STRIKE_SLIP;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
 import static scratch.peter.nga.IMT.PGA;
-import static scratch.peter.nga.IMT.PGV;
-import static java.lang.Math.*;
-import static scratch.peter.nga.FaultStyle.*;
 
 import java.util.Collection;
-import java.util.List;
 
-import com.google.common.collect.Lists;
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -42,12 +48,11 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class BSSA_2013 {
+public class BSSA_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Boore, Stewart, Seyhan \u0026 Atkinson (2014)";
+	public static final String SHORT_NAME = "BSSA2014";
 
 	// implementation constants
 	private static final double A = pow(570.94, 4);
@@ -60,8 +65,6 @@ public class BSSA_2013 {
 	private static final double F3 = 0.1;
 	private static final double V1 = 225;
 	private static final double V2 = 300;
-
-	public static final String SHORT_NAME = "BSSA2013";
 
 	private final Coeffs coeffs;
 	private final Coeffs coeffsPGA;
@@ -91,6 +94,52 @@ public class BSSA_2013 {
 	}
 
 	// TODO limit supplied z1p0 to 0-3 km
+	
+	private IMT imt = null;
+
+	private double Mw = NaN;
+	private double rJB = NaN;
+	private double vs30 = NaN;
+	private double z1p0 = NaN;
+	private FaultStyle style = UNKNOWN;
+
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rJB, vs30, z1p0, style);
+	}
+
+	@Override public String getName() { return BSSA_2013.NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) { this.rJB = rJB; }
+	@Override public void set_rRup(double rRup) {} // not used
+	@Override public void set_rX(double rX) {} // not used
+	
+	@Override public void set_dip(double dip) {} // not used
+	@Override public void set_width(double width) {} // not used
+	@Override public void set_zTop(double zTop) {} // not used
+	@Override public void set_zHyp(double zHyp) {} // not used
+	
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) {} // not used
+	@Override public void set_z2p5(double z2p5) {} // not used
+	@Override public void set_z1p0(double z1p0) { this.z1p0 = z1p0; }
+
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
+	}
+
 	
 	/**
 	 * Returns the ground motion for the supplied arguments.
@@ -219,37 +268,4 @@ public class BSSA_2013 {
 		return sqrt(phiMRV * phiMRV + tau * tau);
 	}
 	
-	public Collection<IMT> getSupportedIMTs() {
-		List<IMT> imts = Lists.newArrayList();
-		imts.addAll(coeffs.getSupportedIMTs());
-		imts.addAll(coeffsPGA.getSupportedIMTs());
-		return imts;
-	}
-
-	public static void main(String[] args) {
-		BSSA_2013 bssa = new BSSA_2013();
-		
-//		GMM_Input in = GMM_Input.create(7.0, 5.0, 5.1, 5.0, 90.0, 15.0, 6.0, 8.0, 0.0, 270, false, 1.983, 0.479);
-//		ScalarGroundMotion sgm;
-
-		System.out.println("PGA");
-		ScalarGroundMotion sgm = bssa.calc(PGA, 7.0, 5.0, 270.0, 0.479, FaultStyle.STRIKE_SLIP);
-		System.out.println(Math.exp(sgm.mean()));
-		System.out.println(sgm.stdDev());
-		System.out.println("5Hz");
-		sgm = bssa.calc(IMT.SA0P2, 7.0, 5.0, 270.0, 0.479, FaultStyle.STRIKE_SLIP);
-		System.out.println(Math.exp(sgm.mean()));
-		System.out.println(sgm.stdDev());
-		System.out.println("1Hz");
-		sgm = bssa.calc(IMT.SA1P0, 7.0, 5.0, 270.0, 0.479, FaultStyle.STRIKE_SLIP);
-		System.out.println(Math.exp(sgm.mean()));
-		System.out.println(sgm.stdDev());
-
-//		ScalarGroundMotion sgm = bssa.calc(IMT.SA0P2, 6.06, 27.08, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-		
-//		BSSA2013May(0,7.06,27.08,0,0,1,0,760,-999)
-	}
-
 }

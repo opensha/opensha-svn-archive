@@ -18,19 +18,25 @@
 
 package scratch.peter.nga;
 
-import static java.lang.Math.*;
+import static java.lang.Double.NaN;
+import static java.lang.Math.cos;
+import static java.lang.Math.cosh;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.tanh;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
+import static scratch.peter.nga.FaultStyle.NORMAL;
+import static scratch.peter.nga.FaultStyle.REVERSE;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
 import static scratch.peter.nga.IMT.PGA;
-import static scratch.peter.nga.IMT.PGD;
-import static scratch.peter.nga.IMT.PGV;
-import static scratch.peter.nga.FaultStyle.*;
 
 import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.Lists;
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -45,12 +51,11 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class CY_2013 {
+public class CY_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Chiou \u0026 Youngs (2014)";
+	public static final String SHORT_NAME = "CY2014";
 
 	private static final double C2 = 1.06;
 	private static final double C4 = -2.1;
@@ -62,8 +67,6 @@ public class CY_2013 {
 	private static final double PHI6 = 300.0;
 	private static final double A = pow(571, 4);
 	private static final double B = pow(1360, 4) + A;
-
-	public static final String SHORT_NAME = "CY2013";
 
 	private final Coeffs coeffs;
 
@@ -93,6 +96,60 @@ public class CY_2013 {
 	public CY_2013() {
 		coeffs = new Coeffs();
 	}
+	
+	
+	private IMT imt = null;
+
+	private double Mw = NaN;
+	private double rJB = NaN;
+	private double rRup = NaN;
+	private double rX = NaN;
+	private double dip = NaN;
+	private double zTop = NaN;
+	private double vs30 = NaN;
+	private boolean vsInf = true;
+	private double z1p0 = NaN;
+	private FaultStyle style = UNKNOWN;
+
+	
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rJB, rRup, rX, dip, zTop, vs30, vsInf, 
+			z1p0, style);
+	}
+
+	@Override public String getName() { return CY_2013.NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) { this.rJB = rJB; }
+	@Override public void set_rRup(double rRup) { this.rRup = rRup; }
+	@Override public void set_rX(double rX) { this.rX = rX; }
+	
+	@Override public void set_dip(double dip) { this.dip = dip; }
+	@Override public void set_width(double width) {} // not used
+	@Override public void set_zTop(double zTop) { this.zTop = zTop; }
+	@Override public void set_zHyp(double zHyp) {} // not used
+
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) { this.vsInf = vsInf; }
+	@Override public void set_z2p5(double z2p5) {} // not used
+	@Override public void set_z1p0(double z1p0) { this.z1p0 = z1p0; }
+	
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
+	}
+
 
 	/**
 	 * Returns the ground motion for the supplied arguments.
@@ -234,10 +291,6 @@ public class CY_2013 {
 		return sqrt(tau * tau * NL0sq + sigmaNL0 * sigmaNL0);
 	}
 	
-	public Collection<IMT> getSupportedIMTs() {
-		return coeffs.getSupportedIMTs();
-	}
-
 	public static void main(String[] args) {
 		CY_2013 cy = new CY_2013();
 

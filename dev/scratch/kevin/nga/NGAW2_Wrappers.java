@@ -2,14 +2,15 @@ package scratch.kevin.nga;
 
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
-import scratch.peter.nga.ASK_2013_Transitional;
-import scratch.peter.nga.BSSA_2013_Transitional;
-import scratch.peter.nga.CB_2013_Transitional;
-import scratch.peter.nga.CY_2013_Transitional;
-import scratch.peter.nga.GK_2013_Transitional;
-import scratch.peter.nga.Idriss_2013_Transitional;
+import scratch.peter.nga.ASK_2013;
+import scratch.peter.nga.BSSA_2013;
+import scratch.peter.nga.CB_2013;
+import scratch.peter.nga.CY_2013;
+import scratch.peter.nga.GK_2013;
+import scratch.peter.nga.Idriss_2013;
 import scratch.peter.nga.NGAW2_GMM;
 
+@SuppressWarnings("javadoc")
 public class NGAW2_Wrappers {
 	public static class ASK_2013_Wrapper extends NGAW2_Wrapper {
 		
@@ -18,7 +19,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public ASK_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("ASK2013", new ASK_2013_Transitional());
+			super("ASK2013", new ASK_2013());
 			this.listener = l;
 		}
 		
@@ -30,7 +31,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public BSSA_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("BSSA2013", new BSSA_2013_Transitional());
+			super("BSSA2013", new BSSA_2013());
 			this.listener = l;
 		}
 		
@@ -42,7 +43,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public CB_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("CB2013", new CB_2013_Transitional());
+			super("CB2013", new CB_2013());
 			this.listener = l;
 		}
 		
@@ -54,7 +55,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public CY_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("CY2013", new CY_2013_Transitional());
+			super("CY2013", new CY_2013());
 			this.listener = l;
 		}
 		
@@ -66,7 +67,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public GK_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("GK2013", new GK_2013_Transitional());
+			super("GK2013", new GK_2013());
 			this.listener = l;
 		}
 		
@@ -78,7 +79,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public Idriss_2013_Wrapper(ParameterChangeWarningListener l) {
-			super("Idriss2013", new Idriss_2013_Transitional());
+			super("Idriss2013", new Idriss_2013());
 			this.listener = l;
 		}
 		

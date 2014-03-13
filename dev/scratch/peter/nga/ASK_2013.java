@@ -19,14 +19,21 @@
 
 package scratch.peter.nga;
 
-import static java.lang.Math.*;
+import static java.lang.Double.NaN;
+import static java.lang.Math.cos;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
+import static scratch.peter.nga.FaultStyle.NORMAL;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
 import static scratch.peter.nga.IMT.PGA;
-import static scratch.peter.nga.FaultStyle.*;
 
 import java.util.Collection;
 
 import org.opensha.commons.util.Interpolate;
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -41,12 +48,11 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class ASK_2013 {
+public class ASK_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Abrahamson, Silva \u0026 Kamai (2014)";
+	public static final String SHORT_NAME = "ASK2014";
 	
 	private final Coeffs coeffs;
 		
@@ -95,6 +101,60 @@ public class ASK_2013 {
 	 */
 	public ASK_2013() {
 		coeffs = new Coeffs();
+	}
+
+	
+	private IMT imt = null;
+	
+	private double Mw = NaN;
+	private double rJB = NaN;
+	private double rRup = NaN;
+	private double rX = NaN;
+	private double rY0 = -1.0;
+	private double dip = NaN;
+	private double width = NaN;
+	private double zTop = NaN;
+	private double vs30 = NaN;
+	private boolean vsInf = true;
+	private double z1p0 = NaN;
+	private FaultStyle style = UNKNOWN;
+	
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rJB, rRup, rX, rY0, dip, width, zTop, vs30,
+			vsInf, z1p0, style);
+	}
+	
+	@Override public String getName() { return ASK_2013.NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) { this.rJB = rJB; }
+	@Override public void set_rRup(double rRup) { this.rRup = rRup; }
+	@Override public void set_rX(double rX) { this.rX = rX; }
+	
+	@Override public void set_dip(double dip) { this.dip = dip; }
+	@Override public void set_width(double width) { this.width = width; }
+	@Override public void set_zTop(double zTop) { this.zTop = zTop; }
+	@Override public void set_zHyp(double zHyp) {} // not used
+	
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) { this.vsInf = vsInf; }
+	@Override public void set_z2p5(double z2p5) {} // not used
+	@Override public void set_z1p0(double z1p0) { this.z1p0 = z1p0; }
+
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
 	}
 
 	/**
@@ -289,8 +349,6 @@ public class ASK_2013 {
 	
 	// used for interpolation in calcSoilTerm(), below
 	private static final double[] VS_BINS = {150d, 250d, 400d, 700d, 1000d};
-
-	public static final String SHORT_NAME = "ASK2013";
 		
 	// Soil depth model adapted from CY13 form -- Equation 17
 	private static final double calcSoilTerm(Coeffs c, double vs30, double z1p0) {
@@ -333,40 +391,4 @@ public class ASK_2013 {
 			    (b * saRock) / (saRock + c * pow(vs30 / vLin, N));
 	}	
 	
-	public Collection<IMT> getSupportedIMTs() {
-		return coeffs.getSupportedIMTs();
-	}
-	
-	// @formatter:on
-	
-	
-	public static void main(String[] args) {
-		ASK_2013 as = new ASK_2013();
-		
-		System.out.println("PGA");
-		ScalarGroundMotion sgm = as.calc(
-			PGA, 6.80, 0.0, 4.629, 5.963, -1.0, 27.0, 28.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("5Hz");
-		sgm = as.calc(
-			IMT.SA0P2, 6.80, 0.0, 4.629, 5.963, -1.0, 27.0, 28.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("1Hz");
-		sgm = as.calc(
-			IMT.SA1P0, 6.80, 0.0, 4.629, 5.963, -1.0, 27.0, 28.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-
-
-//		ScalarGroundMotion sgm = as.calc(PGA, 7.06, 27.08, 18, 27.08, 45.0, 14.0, 0.0, 760.0, Double.NaN, FaultStyle.NORMAL);
-//		ScalarGroundMotion sgm = as.calc(PGA,6.85, 59.75, 59.758, 0.0, 90.0, 6.0, 1.0, 760.0, Double.NaN, FaultStyle.STRIKE_SLIP);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-		
-		// PGA,6.85,59.75,59.75836761492067,0.0,90.0,0.0,1.0,1.0,760.0,true,NaN,NaN,Strike-Slip
-		
-	}
-
 }

@@ -19,12 +19,17 @@
 
 package scratch.peter.nga;
 
+import static java.lang.Double.NaN;
 import static java.lang.Math.*;
 import static scratch.peter.nga.IMT.*;
 import static scratch.peter.nga.FaultStyle.REVERSE;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
+
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -38,12 +43,11 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class GK_2013 {
+public class GK_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Graizer & Kalkan (2013)";
+	public static final String SHORT_NAME = "GK2013";
 	
 	static final Set<IMT> IMTS = EnumSet.complementOf(EnumSet.of(PGV, PGD));
 		
@@ -52,6 +56,50 @@ public class GK_2013 {
 	 */
 	public GK_2013() {}
 
+	private IMT imt = null;
+	private double Mw = NaN;
+	private double rRup = NaN;
+	private double vs30 = NaN;
+	private FaultStyle style = UNKNOWN;
+
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rRup, vs30, style);
+	}
+
+	@Override public String getName() { return NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) {} // not used
+	@Override public void set_rRup(double rRup) { this.rRup = rRup; }
+	@Override public void set_rX(double rX) {} // not used
+	
+	@Override public void set_dip(double dip) {} // not used
+	@Override public void set_width(double width) {} // not used
+	@Override public void set_zTop(double zTop) {} // not used
+	@Override public void set_zHyp(double zHyp) {} // not used
+	
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) {} // not used
+	@Override public void set_z2p5(double z2p5) {} // not used
+	@Override public void set_z1p0(double z1p0) {} // not used
+
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return IMTS;
+	}
+
+	
 	/**
 	 * Returns the ground motion for the supplied arguments.
 	 * @param imt intensity measure type
@@ -132,8 +180,6 @@ public class GK_2013 {
 	private static final double Q = 150.0; // California specific (is 156.6 in SH code)
 	// TODO Q, above, needs to be updated to 205 outside CA
 
-	public static final String SHORT_NAME = "GK2013";
-	
 	private static final double calcLnPGA(double Mw, double rRup, double vs30,
 			double dBasin, double F) {
 
@@ -163,33 +209,4 @@ public class GK_2013 {
 		return F1 + F2 + F3 + F4 + F5;
 	}
 	
-	public static void main(String[] args) {
-		GK_2013 gk = new GK_2013();
-
-		System.out.println("PGA");
-		ScalarGroundMotion sgm = gk.calc(PGA, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("5Hz");
-		sgm = gk.calc(SA0P2, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		System.out.println("1Hz");
-		sgm = gk.calc(SA1P0, 6.80, 4.629, 760.0, FaultStyle.REVERSE);
-		System.out.println(sgm.mean());
-		System.out.println(sgm.stdDev());
-		
-//		ScalarGroundMotion sgm = gk.calc(PGA, 7.06, 27.08, 760.0, FaultStyle.STRIKE_SLIP);
-//		Set<IMT> IMTs = EnumSet.complementOf(EnumSet.of(PGV, PGD)); 
-//		for (IMT imt : IMTs) {
-////			ScalarGroundMotion sgm = gk.calc(imt, 7.06, 27.08, 760.0, FaultStyle.STRIKE_SLIP);
-//			ScalarGroundMotion sgm = gk.calc(imt, 6.5, 5.0, 760.0, FaultStyle.REVERSE);
-//			System.out.println(String.format("%s\t%.4f\t%.4f", imt, sgm.mean(), sgm.stdDev()));
-//		}
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-
-//		GK2013(0,7.06,27.08,760.0,1,0,150)
-	}
-
 }

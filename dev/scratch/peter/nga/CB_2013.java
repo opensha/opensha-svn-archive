@@ -19,18 +19,25 @@
 
 package scratch.peter.nga;
 
-import static java.lang.Math.*;
+import static java.lang.Double.NaN;
+import static java.lang.Math.cos;
+import static java.lang.Math.exp;
+import static java.lang.Math.log;
+import static java.lang.Math.max;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
-import static scratch.peter.nga.IMT.*;
-import static scratch.peter.nga.FaultStyle.*;
+import static scratch.peter.nga.FaultStyle.NORMAL;
+import static scratch.peter.nga.FaultStyle.UNKNOWN;
+import static scratch.peter.nga.IMT.PGA;
+import static scratch.peter.nga.IMT.SA0P01;
+import static scratch.peter.nga.IMT.SA0P25;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import org.opensha.sha.util.TectonicRegionType;
 
 import scratch.peter.newcalc.ScalarGroundMotion;
 
@@ -45,19 +52,16 @@ import scratch.peter.newcalc.ScalarGroundMotion;
  * Not thread safe -- create new instances as needed
  * 
  * @author Peter Powers
- * @created November 2012
- * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
-public class CB_2013 {
+public class CB_2013 implements NGAW2_GMM {
 
 	public static final String NAME = "Campbell \u0026 Bozorgnia (2014)";
+	public static final String SHORT_NAME = "CB2014";
 	
 	private final Coeffs coeffs;
 	private final Coeffs coeffsPGA;
 	
 	private static final Set<IMT> SHORT_PERIODS = EnumSet.range(SA0P01, SA0P25);
-
-	public static final String SHORT_NAME = "CB2013";
 	
 	// implementation constants
 	private static final double H4 = 1.0;
@@ -89,7 +93,6 @@ public class CB_2013 {
 			phi_hi_PGA = get(PGA, "phi2");
 			phi_lo_PGA = get(PGA, "phi1");
 		}
-		
 	}
 	
 	/**
@@ -100,8 +103,58 @@ public class CB_2013 {
 		coeffsPGA = new Coeffs();
 	}
 
-	// currently unexposed japan flag
-	private final double JP = 0;
+	private IMT imt = null;
+
+	private double Mw = NaN;
+	private double rJB = NaN;
+	private double rRup = NaN;
+	private double rX = NaN;
+	private double dip = NaN;
+	private double width = NaN;
+	private double zTop = NaN;
+	private double zHyp = NaN;
+	private double vs30 = NaN;
+	private double z2p5 = NaN;
+	private FaultStyle style = UNKNOWN;
+
+	@Override
+	public ScalarGroundMotion calc() {
+		return calc(imt, Mw, rJB, rRup, rX, dip, width, zTop, zHyp, vs30, 
+			z2p5, style);
+	}
+	
+	@Override public String getName() { return CB_2013.NAME; }
+
+	@Override public void set_IMT(IMT imt) { this.imt = imt; }
+
+	@Override public void set_Mw(double Mw) { this.Mw = Mw; }
+	
+	@Override public void set_rJB(double rJB) { this.rJB = rJB; }
+	@Override public void set_rRup(double rRup) { this.rRup = rRup; }
+	@Override public void set_rX(double rX) { this.rX = rX; }
+	
+	@Override public void set_dip(double dip) { this.dip = dip; }
+	@Override public void set_width(double width) { this.width = width; }
+	@Override public void set_zTop(double zTop) { this.zTop = zTop; }
+	@Override public void set_zHyp(double zHyp) { this.zHyp = zHyp; }
+	
+	@Override public void set_vs30(double vs30) { this.vs30 = vs30; }
+	@Override public void set_vsInf(boolean vsInf) {} // not used
+	@Override public void set_z2p5(double z2p5) { this.z2p5 = z2p5; }
+	@Override public void set_z1p0(double z1p0) {} // not used
+
+	@Override public void set_fault(FaultStyle style) { this.style = style; }
+
+	@Override
+	public TectonicRegionType get_TRT() {
+		return TectonicRegionType.ACTIVE_SHALLOW;
+	}
+
+	@Override
+	public Collection<IMT> getSupportedIMTs() {
+		return coeffs.getSupportedIMTs();
+	}
+
 	
 	/**
 	 * Returns the ground motion for the supplied arguments.
@@ -301,58 +354,4 @@ public class CB_2013 {
 		return hi + (lo - hi) * (5.5 - Mw);
 	}
 	
-	public Collection<IMT> getSupportedIMTs() {
-		List<IMT> imts = Lists.newArrayList();
-		imts.addAll(coeffs.getSupportedIMTs());
-		imts.addAll(coeffsPGA.getSupportedIMTs());
-		return imts;
-	}
-	
-	public static void main(String[] args) {
-
-		CB_2013 cb = new CB_2013();
-		
-//		6.0	8.0	12.1	15.0	45.0	10.0	2.0	5.5	90	760	1	NaN	NaN
-		
-		System.out.println("PGA");
-//		ScalarGroundMotion sgm = cb.calc(PGA, 6.0, 8.0, 12.1, 15, 45.0, 10.0, 2.0, 5.5, 760.0, Double.NaN, FaultStyle.REVERSE);
-		ScalarGroundMotion sgm = cb.calc(PGA, 7.0, 4.5, 11.3, 15.0, 45.0, 15.0, 1.0, 6.2, 760.0, Double.NaN, FaultStyle.REVERSE);
-		System.out.println(Math.exp(sgm.mean()));
-		System.out.println(sgm.stdDev());
-		
-//		ScalarGroundMotion sgm = cb.calc(PGA, 7.06, 27.08, 22, 27.08, 60.0, 14.0, 0.0, 5, 760.0, Double.NaN, FaultStyle.NORMAL);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-		//6.5600004       0.0000000       4.6288643       5.9628415       27.000000       28.000000       2.0999999       10.100000       760.00000      0.60682398       1.0000000       0.0
-		
-		// FORT params 6.80	0.000	4.629	5.963	27.0	28.0	2.100	10.100	760.0	0.6068	1	0
-		
-//		System.out.println("PGA");
-//		ScalarGroundMotion sgm = cb.calc(PGA, 6.0, 0.0, 2.0,0.0, 45.0, 10.0, 2.0, 5.5, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(Math.exp(sgm.mean()));
-//		System.out.println(sgm.stdDev());
-
-		
-//		System.out.println("PGA");
-//		ScalarGroundMotion sgm = cb.calc(PGA, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-//		System.out.println("5Hz");
-//		sgm = cb.calc(IMT.SA0P2, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-//		System.out.println("1Hz");
-//		sgm = cb.calc(IMT.SA1P0, 6.80, 0.0, 4.629,5.963, 27.0, 28.0, 2.1, 8.456, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-		
-//		sgm = cb.calc(PGA, 6.56, 0.0, 4.6288643, 5.9628415, 27.0, 28.0, 2.1, 8.455866996353654, 760.0, Double.NaN, FaultStyle.REVERSE);
-//		System.out.println(sgm.mean());
-//		System.out.println(sgm.stdDev());
-		
-//		         T0,M,Rrup,Rjb,Rx,FRV,FNM,ZTOR,Hhyp,W,dip,Vs30,Z25,SJ,iSpec)
-//		CB2013May(0,6.56,4.6288643,0.0,5.9628415,1,0,2.1,28,27,760,0.60682398,0,0)
-
-	}
-
 }
