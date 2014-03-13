@@ -126,7 +126,7 @@ public class PointSource13b extends ProbEqkSource {
 	 */
 	protected ProbEqkRupture probEqkRupture;
 
-
+	
 	/**
 	 * Constructs a new point earthquake source.
 	 * 
@@ -169,6 +169,7 @@ public class PointSource13b extends ProbEqkSource {
 		double zTop = depthForMag(mag);
 		double dipRad = mech.dip() * TO_RAD;
 		double widthDD = calcWidth(mag, zTop, dipRad);
+		double zHyp = zTop + sin(dipRad) * widthDD / 2.0;
 
 		surface.setAveDip(mech.dip()); // technically not needed
 		surface.widthDD = widthDD;
@@ -182,7 +183,9 @@ public class PointSource13b extends ProbEqkSource {
 		probEqkRupture.setAveRake(mech.rake());
 		double rate = wt * mfd.getY(magIdx);
 		probEqkRupture.setProbability(rateToProb(rate, duration));
-		
+		probEqkRupture.setHypocenterLocation(new Location(loc.getLatitude(),
+			loc.getLongitude(), zHyp));
+				
 		return probEqkRupture;
 	}
 	
