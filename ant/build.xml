@@ -326,8 +326,8 @@
 		<copy todir="${build}/resources/data/nshmp" overwrite="true">
 			<fileset dir="${src}/resources/data/nshmp" />
 		</copy>
-		<copy todir="${build}/scratch/peter/nga/coeff" overwrite="true">
-			<fileset dir="${dev}/scratch/peter/nga/coeff" />
+		<copy todir="${build}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" overwrite="true">
+			<fileset dir="${dev}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" />
 		</copy>
 	</target>
 	
