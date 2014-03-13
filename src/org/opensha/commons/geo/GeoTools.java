@@ -94,10 +94,10 @@ public class GeoTools {
 	public static final double TO_DEG = Math.toDegrees(1.0);
 	
 	/** Convenience constant for 2 * PI */
-	public static final double TWOPI = 2*PI;
+	public static final double TWOPI = 2 * PI;
 	
 	/** Convenience constant for PI / 2 */
-	public static final double PI_BY_2 = PI/2;
+	public static final double PI_BY_2 = PI / 2;
 	
 	/** Convenience constant for arcseconds per degree (3600). */
 	public static final double SECONDS_PER_DEGREE = 3600;
