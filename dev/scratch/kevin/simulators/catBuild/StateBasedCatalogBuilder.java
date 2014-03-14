@@ -60,7 +60,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 	@Override
 	public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
 			List<RandomReturnPeriodProvider> randomRPsList,
-			List<List<EQSIM_Event>> matchesLists) {
+			List<List<EQSIM_Event>> matchesLists, boolean trim) {
 		
 		distSpacing = 10d;
 		
@@ -185,7 +185,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 						eventsToReuseIndexes[n] = 0;
 					
 					EQSIM_Event e = myEvents.get(eventsToReuseIndexes[n]++);
-					EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, rupTimeSecs, eventID++);
+					EQSIM_Event newE = e.cloneNewTime(rupTimeSecs, eventID++);
 					randomizedEvents.add(newE);
 					
 					counts[n]++;
@@ -618,7 +618,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 				String name2 = rupIdens.get(j).getName();
 				System.out.println("Writing PDF for "+name1+" vs "+name2);
 				StateBasedCatalogBuilder builder = new StateBasedCatalogBuilder();
-				builder.buildCatalog(events, null, Lists.newArrayList(matchesLists.get(i), matchesLists.get(j)));
+				builder.buildCatalog(events, null, Lists.newArrayList(matchesLists.get(i), matchesLists.get(j)), false);
 				pdfs.addAll(builder.write2DDists(pdfDir, i, name1, matchesLists.get(i), j, name2, matchesLists.get(j)));
 				
 				
@@ -650,7 +650,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		
 		
 		StateBasedCatalogBuilder builder = new StateBasedCatalogBuilder();
-		builder.buildCatalog(events, null, matchesLists);
+		builder.buildCatalog(events, null, matchesLists, false);
 //		builder.writeTransitionStats(null);
 		
 		// testing time
@@ -660,7 +660,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		subMatchesLists.add(matchesLists.get(m));
 		subMatchesLists.add(matchesLists.get(n));
 		StateBasedCatalogBuilder test = new StateBasedCatalogBuilder();
-		test.buildCatalog(events, null, subMatchesLists);
+		test.buildCatalog(events, null, subMatchesLists, false);
 		
 		// first bin by only the indices we care about
 		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();

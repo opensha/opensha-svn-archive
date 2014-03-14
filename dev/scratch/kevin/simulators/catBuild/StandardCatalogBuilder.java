@@ -17,7 +17,7 @@ public class StandardCatalogBuilder implements CatalogBuilder {
 	public List<EQSIM_Event> buildCatalog(
 			List<EQSIM_Event> events,
 			List<RandomReturnPeriodProvider> randomRPsList,
-			List<List<EQSIM_Event>> eventListsToResample) {
+			List<List<EQSIM_Event>> eventListsToResample, boolean trim) {
 		
 		int eventID = 0;
 		
@@ -28,7 +28,7 @@ public class StandardCatalogBuilder implements CatalogBuilder {
 			double time = Math.random() * randomRP.getReturnPeriod();
 			for (EQSIM_Event e : eventListsToResample.get(i)) {
 				double timeSecs = time * General_EQSIM_Tools.SECONDS_PER_YEAR;
-				EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs, eventID++);
+				EQSIM_Event newE = e.cloneNewTime(timeSecs, eventID++);
 				newList.add(newE);
 				
 				// move forward one RP
@@ -40,19 +40,21 @@ public class StandardCatalogBuilder implements CatalogBuilder {
 		Collections.sort(newList);
 		
 		System.out.println("New matches size: "+newList.size());
-		int origListSize = newList.size();
-		
-		double oldLastTime = events.get(events.size()-1).getTimeInYears()-events.get(0).getTimeInYears();
-		
-		int numRemoved = 0;
-		for (int i=newList.size(); --i>=0;) {
-			if (newList.get(i).getTimeInYears() > oldLastTime) {
-				numRemoved++;
-				newList.remove(i);
+		if (trim) {
+			int origListSize = newList.size();
+
+			double oldLastTime = events.get(events.size()-1).getTimeInYears()-events.get(0).getTimeInYears();
+
+			int numRemoved = 0;
+			for (int i=newList.size(); --i>=0;) {
+				if (newList.get(i).getTimeInYears() > oldLastTime) {
+					numRemoved++;
+					newList.remove(i);
+				}
 			}
+
+			System.out.println("Removed "+numRemoved+"/"+origListSize+" at tail of random catalog");
 		}
-		
-		System.out.println("Removed "+numRemoved+"/"+origListSize+" at tail of random catalog");
 		return newList;
 	}
 	

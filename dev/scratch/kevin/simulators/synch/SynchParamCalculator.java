@@ -55,6 +55,7 @@ public class SynchParamCalculator {
 	
 	// results
 	private List<Double> synchs = Lists.newArrayList();
+	private List<Double> weights = Lists.newArrayList();
 	private List<Double> probMs = Lists.newArrayList();
 	private List<Double> probNs = Lists.newArrayList();
 	private List<Double> probMNs = Lists.newArrayList();
@@ -82,11 +83,12 @@ public class SynchParamCalculator {
 		TOT_OCCUPANCY,
 		FREQ_MNs,
 		FREQ_AVG,
+		FREQ_PROD,
 		LAG_DEPENDENT_EITHER,
 		LAG_DEPENDENT_AVG;
 	}
 	
-	private WeightingScheme weightingScheme = WeightingScheme.LAG_DEPENDENT_AVG;
+	private WeightingScheme weightingScheme = WeightingScheme.FREQ_PROD;
 	
 //	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
 //		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
@@ -313,6 +315,11 @@ public class SynchParamCalculator {
 					weightNumerators.add(avg);
 					weightDenominator += avg;
 					break;
+				case FREQ_PROD:
+					double prod = freqM*freqN;
+					weightNumerators.add(prod);
+					weightDenominator += prod;
+					break;
 				case LAG_DEPENDENT_EITHER:
 					if (lag == 0) {
 						weightNumerators.add(freqEither);
@@ -354,7 +361,7 @@ public class SynchParamCalculator {
 						"Non finite synch param. lag="+lag+", synch="+probMN+"/("+probM+"*"+probN+")="+synch);
 			}
 		}
-		List<Double> weights = Lists.newArrayList();
+		weights = Lists.newArrayList();
 		double totWeight = 0;
 		for (int i=0; i<synchs.size(); i++) {
 			double weight = weightNumerators.get(i)/weightDenominator;
@@ -363,9 +370,9 @@ public class SynchParamCalculator {
 			gBar_numerator += synchs.get(i)*weight;
 			gBar_denominator += weight;
 		}
-		Preconditions.checkState(synchs.size() == 0 || (float)totWeight == (float)1f,
-				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
-				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
+//		Preconditions.checkState(synchs.size() == 0 || (float)totWeight == (float)1f,
+//				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
+//				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
 		gBar = gBar_numerator/gBar_denominator;
 		
 		// now calculate cov
@@ -463,26 +470,27 @@ public class SynchParamCalculator {
 		double highestContrib = Double.NEGATIVE_INFINITY;
 		int contribIndex = -1;
 		
-		EvenlyDiscrXYZ_DataSet freqXYZ = new EvenlyDiscrXYZ_DataSet(
+		EvenlyDiscrXYZ_DataSet gXYZ = new EvenlyDiscrXYZ_DataSet(
 				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
 		
-		EvenlyDiscrXYZ_DataSet rXYZ = new EvenlyDiscrXYZ_DataSet(
+		EvenlyDiscrXYZ_DataSet weightXYZ = new EvenlyDiscrXYZ_DataSet(
 				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
 		
-		EvenlyDiscrXYZ_DataSet weightedR_XYZ = new EvenlyDiscrXYZ_DataSet(
+		EvenlyDiscrXYZ_DataSet gWeightedXYZ = new EvenlyDiscrXYZ_DataSet(
 				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
 		
-		for (int x=0; x<rXYZ.getNumX(); x++) {
-			for (int y=0; y<rXYZ.getNumY(); y++) {
-				freqXYZ.set(x, y, Double.NaN);
-				rXYZ.set(x, y, Double.NaN);
-				weightedR_XYZ.set(x, y, Double.NaN);
+		for (int x=0; x<gXYZ.getNumX(); x++) {
+			for (int y=0; y<gXYZ.getNumY(); y++) {
+				gXYZ.set(x, y, Double.NaN);
+				weightXYZ.set(x, y, Double.NaN);
+				gWeightedXYZ.set(x, y, Double.NaN);
 			}
 		}
 		
 		for (int i=0; i<synchs.size(); i++) {
 			double synch = synchs.get(i);
-			double weight = freqEithers.get(i)/totEithers;
+//			double weight = freqEithers.get(i)/totEithers;
+			double weight = weights.get(i);
 			
 			double rBar_without = (gBar_numerator - synch*weight)/(gBar_denominator - weight);
 			double contrib = gBar - rBar_without;
@@ -493,13 +501,13 @@ public class SynchParamCalculator {
 			}
 			
 			int[] indices = synch_indices.get(i).getIndices();
-			if (indices[0] < freqXYZ.getNumX() && indices[1] < freqXYZ.getNumY()) {
-				freqXYZ.set(indices[0], indices[1], freqEithers.get(i));
-				rXYZ.set(indices[0], indices[1], synch);
+			if (indices[0] < gXYZ.getNumX() && indices[1] < gXYZ.getNumY()) {
+				gXYZ.set(indices[0], indices[1], synch);
+				weightXYZ.set(indices[0], indices[1], weight);
 				if (synch == 0)
-					weightedR_XYZ.set(indices[0], indices[1], 1e-14);
+					gWeightedXYZ.set(indices[0], indices[1], 1e-14);
 				else
-					weightedR_XYZ.set(indices[0], indices[1], synch*weight);
+					gWeightedXYZ.set(indices[0], indices[1], synch*weight);
 			}
 			
 			if (synch == 0)
@@ -510,53 +518,53 @@ public class SynchParamCalculator {
 			contribFunc.set(synch, contrib);
 		}
 		
-		CPT freqCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, freqXYZ.getMaxZ());
-		freqCPT.setNanColor(Color.WHITE);
-		CPT rCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-1, 1);
-		rXYZ.log10();
-		rCPT.setNanColor(Color.WHITE);
-		CPT weightedCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-3, -1);
-		weightedR_XYZ.log10();
+		CPT weightCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, weightXYZ.getMaxZ());
+		weightCPT.setNanColor(Color.WHITE);
+		CPT gCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-2, 2);
+		gXYZ.log();
+		gCPT.setNanColor(Color.WHITE);
+		CPT weightedCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-5, -2);
+		gWeightedXYZ.log();
 		weightedCPT.setNanColor(Color.WHITE);
-		String title = name1+" vs "+name2;
+		String title = name1+" vs "+name2+" (Ln(Gbar)="+(float)Math.log(getGBar())+")";
 		String xAxisLabel = "Years since prev "+name1;
 		String yAxisLabel = "Years since prev "+name2;
-		XYZPlotSpec freqSpec = new XYZPlotSpec(freqXYZ, freqCPT, title, xAxisLabel, yAxisLabel, null);
 //		title = "r: freqMN/(freqM*freqN)";
-		XYZPlotSpec rSpec = new XYZPlotSpec(rXYZ, rCPT, title, xAxisLabel, yAxisLabel, null);
-		XYZPlotSpec rWeightedSpec = new XYZPlotSpec(weightedR_XYZ, weightedCPT, title, xAxisLabel, yAxisLabel, null);
+		XYZPlotSpec gSpec = new XYZPlotSpec(gXYZ, gCPT, title, xAxisLabel, yAxisLabel, "Ln(G)");
+		XYZPlotSpec weightSpec = new XYZPlotSpec(weightXYZ, weightCPT, title, xAxisLabel, yAxisLabel, "Weight ("+weightingScheme.name()+")");
+		XYZPlotSpec gWeightedSpec = new XYZPlotSpec(gWeightedXYZ, weightedCPT, title, xAxisLabel, yAxisLabel, "Ln(G*Weight)");
 		
-		Range xyzXRange = new Range(0d, rXYZ.getMaxX()+0.5*distSpacing);
-		Range xyzYRange = new Range(0d, 0.6*rXYZ.getMaxX()+0.5*distSpacing);
+		Range xyzXRange = new Range(0d, gXYZ.getMaxX()+0.5*distSpacing);
+		Range xyzYRange = new Range(0d, 0.6*gXYZ.getMaxX()+0.5*distSpacing);
 		List<Range> xyzXRanges = Lists.newArrayList(xyzXRange);
 		List<Range> xyzYRanges = Lists.newArrayList(xyzYRange, xyzYRange, xyzYRange);
 		
 		double annX = xyzXRange.getUpperBound()*0.95;
 		double annY = xyzYRange.getUpperBound()*0.9;
 		Font font = new Font(Font.SERIF, Font.PLAIN, 18);
-		XYTextAnnotation freqAnn = new XYTextAnnotation("Freq A OR B", annX, annY);
-		freqAnn.setFont(font);
-		freqAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
-		freqSpec.setPlotAnnotations(Lists.newArrayList(freqAnn));
-		XYTextAnnotation rAnn = new XYTextAnnotation("Log10(r=freqMN/(freqM*freqN))", annX, annY);
+		XYTextAnnotation rAnn = new XYTextAnnotation("Ln(G=freqMN/(freqM*freqN))", annX, annY);
 		rAnn.setFont(font);
 		rAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
-		rSpec.setPlotAnnotations(Lists.newArrayList(rAnn));
-		XYTextAnnotation weightedAnn = new XYTextAnnotation("Log10(r*weight)", annX, annY);
+		gSpec.setPlotAnnotations(Lists.newArrayList(rAnn));
+		XYTextAnnotation weightedAnn = new XYTextAnnotation("Ln(G*weight)", annX, annY);
 		weightedAnn.setFont(font);
 		weightedAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
-		rWeightedSpec.setPlotAnnotations(Lists.newArrayList(weightedAnn));
+		gWeightedSpec.setPlotAnnotations(Lists.newArrayList(weightedAnn));
+		XYTextAnnotation weightAnn = new XYTextAnnotation("Weight", annX, annY);
+		weightAnn.setFont(font);
+		weightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
+		weightSpec.setPlotAnnotations(Lists.newArrayList(weightAnn));
 		
 		if (name2.toLowerCase().contains("garlock")) {
 			System.out.println("SWAPPING!!!");
 			title = name2+" vs "+name1;
 			// swap
-			freqSpec = swapSpec(freqSpec);
-			rSpec = swapSpec(rSpec);
-			rWeightedSpec = swapSpec(rWeightedSpec);
+			gSpec = swapSpec(gSpec);
+			gWeightedSpec = swapSpec(gWeightedSpec);
+			weightSpec = swapSpec(weightSpec);
 		}
 		
-		List<XYZPlotSpec> xyzSpecs = Lists.newArrayList(rSpec, freqSpec, rWeightedSpec);
+		List<XYZPlotSpec> xyzSpecs = Lists.newArrayList(gSpec, weightSpec, gWeightedSpec);
 		XYZGraphPanel xyzGP = new XYZGraphPanel();
 		xyzGP.drawPlot(xyzSpecs, false, false, xyzXRanges, xyzYRanges, null);
 		xyzGP.getChartPanel().setSize(1000, 1500);
@@ -571,6 +579,8 @@ public class SynchParamCalculator {
 					+synchs.get(contribIndex).floatValue()+", Weight(Sij)="+(float)(freqEithers.get(contribIndex)/totEithers));
 		}
 		
+		if (synchScatterDir == null)
+			return;
 		
 		File scatterPlotFile = new File(synchScatterDir, "synch_scatter_"
 				+PeriodicityPlotter.getFileSafeString(name1)+"_"
@@ -624,8 +634,8 @@ public class SynchParamCalculator {
 			// G
 			xyzGP = new XYZGraphPanel();
 			xyzXRange = xyzYRange;
-			rSpec.setTitle("Gain Factor");
-			xyzGP.drawPlot(rSpec, false, false, xyzXRange, xyzYRange);
+			gSpec.setTitle("Gain Factor");
+			xyzGP.drawPlot(gSpec, false, false, xyzXRange, xyzYRange);
 			xyzGP.getChartPanel().setSize(1000, 1000);
 			File gPlotFile = new File(synchXYZDir, "gain_"+PeriodicityPlotter.getFileSafeString(name1)
 					+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
@@ -651,7 +661,7 @@ public class SynchParamCalculator {
 			occCPT.setNanColor(Color.WHITE);
 			
 			XYZPlotSpec occSpec = new XYZPlotSpec(occFreqXYZ, occCPT, "State Occupancy Frequency",
-					rSpec.getXAxisLabel(), rSpec.getYAxisLabel(), null);
+					gSpec.getXAxisLabel(), gSpec.getYAxisLabel(), null);
 			
 			xyzGP = new XYZGraphPanel();
 			xyzXRange = xyzYRange;
@@ -682,7 +692,9 @@ public class SynchParamCalculator {
 		RandomDistType dist = RandomDistType.ACTUAL;
 		
 		for (int t=0; t<numTrials; t++) {
-			List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true);
+			System.out.println("Random trial "+(t+1)+"/"+numTrials);
+			
+			List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, 1000);
 			
 			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 			for (RuptureIdentifier rupIden : rupIdens)
@@ -695,6 +707,13 @@ public class SynchParamCalculator {
 //					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
 					
 					SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
+					
+					if (m == 3 && n == 4 && t < 10) {
+						File subDir = new File(stdDevCSV.getParentFile(), "synch_xyz_rand");
+						if (!subDir.exists())
+							subDir.mkdir();
+						calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
+					}
 					
 					gBars[m][n][t] = calc.getGBar();
 				}

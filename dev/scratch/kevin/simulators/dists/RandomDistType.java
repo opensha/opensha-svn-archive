@@ -236,7 +236,7 @@ public enum RandomDistType {
 					@Override
 					public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
 							List<RandomReturnPeriodProvider> randomRPsList,
-							List<List<EQSIM_Event>> eventListsToResample) {
+							List<List<EQSIM_Event>> eventListsToResample, boolean trim) {
 						
 						double startTime = events.get(0).getTime();
 						double endTime = events.get(events.size()-1).getTime();
@@ -246,7 +246,7 @@ public enum RandomDistType {
 						List<EQSIM_Event> randEvents = Lists.newArrayList();
 						for (EQSIM_Event event : events) {
 							double newTime = Math.random()*duration + startTime;
-							randEvents.add(EventsInWindowsMatcher.cloneNewTime(event, newTime, event.getID()));
+							randEvents.add(event.cloneNewTime( newTime, event.getID()));
 						}
 						Collections.sort(randEvents);
 						int eventID = 0;

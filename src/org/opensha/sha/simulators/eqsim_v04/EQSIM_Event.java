@@ -471,5 +471,14 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 		}
 		return aveSlip/totalArea;
 	}
+	
+	public EQSIM_Event cloneNewTime(double timeSeconds, int newID) {
+		EQSIM_Event o = new EQSIM_Event(get(0));
+		for (int i=1; i<size(); i++)
+			o.add(get(i));
+		o.time = timeSeconds;
+		o.event_id = newID;
+		return o;
+	}
 
 }

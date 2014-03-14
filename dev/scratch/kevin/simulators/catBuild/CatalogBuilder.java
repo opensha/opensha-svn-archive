@@ -9,5 +9,5 @@ import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
 public interface CatalogBuilder {
 	public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
 			List<RandomReturnPeriodProvider> randomRPsList,
-			List<List<EQSIM_Event>> eventListsToResample);
+			List<List<EQSIM_Event>> eventListsToResample, boolean trim);
 }

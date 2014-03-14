@@ -2592,7 +2592,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		private Map<Site, Table<AttenRelRef, Period,
 //			Map<MagDependentAperiodicityOptions, List<DiscretizedFunc>>>> resultsTables;
 		private File curveDir;
-		private Map<Site, BinaryCurveArchiver> archivers;
+		private transient Map<Site, BinaryCurveArchiver> archivers;
 		private LogicTreeBranch[] branches;
 		private double[] branchWeights;
 		

@@ -38,6 +38,11 @@ public class RandomCatalogBuilder {
 		public static List<EQSIM_Event> getRandomResampledCatalog(
 				List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
 				RandomDistType distType, boolean splitMultis) {
+			return getRandomResampledCatalog(events, rupIdens, distType, splitMultis, 1);
+		}
+		public static List<EQSIM_Event> getRandomResampledCatalog(
+				List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+				RandomDistType distType, boolean splitMultis, int lengthMult) {
 			System.out.println("Generating randomized catalog. DistType: "+distType.getName());
 			
 			int numRupIdens = rupIdens.size();
@@ -171,20 +176,32 @@ public class RandomCatalogBuilder {
 				List<EQSIM_Event> eventsToResample = Lists.newArrayList(matchesLists.get(i));
 				Collections.sort(eventsToResample);
 				eventsToResample.removeAll(multiEventsSet);
-				eventListsToResample.add(eventsToResample);
 				double[] rps = PeriodicityPlotter.getRPs(eventsToResample);
+				if (lengthMult>1) {
+					List<EQSIM_Event> origEventsToResample = eventsToResample;
+					eventsToResample = Lists.newArrayList();
+					for (int j=0; j<lengthMult; j++)
+						eventsToResample.addAll(origEventsToResample);
+				}
+				eventListsToResample.add(eventsToResample);
 				randomRPsList.add(RandomCatalogBuilder.getReturnPeriodProvider(rupIdens.get(i), distType, events, rps, totTime));
 			}
 			
 			for (int i=0; i<multiEvents.size(); i++) {
 				List<EQSIM_Event> eventsToResample = Lists.newArrayList(multiEvents.get(i));
 				Collections.sort(eventsToResample);
-				eventListsToResample.add(eventsToResample);
 				double[] rps = PeriodicityPlotter.getRPs(eventsToResample);
+				if (lengthMult>1) {
+					List<EQSIM_Event> origEventsToResample = eventsToResample;
+					eventsToResample = Lists.newArrayList();
+					for (int j=0; j<lengthMult; j++)
+						eventsToResample.addAll(origEventsToResample);
+				}
+				eventListsToResample.add(eventsToResample);
 				randomRPsList.add(RandomCatalogBuilder.getReturnPeriodProvider(null, distType, events, rps, totTime));
 			}
 			
-			List<EQSIM_Event> newList = distType.getBuilder().buildCatalog(events, randomRPsList, eventListsToResample);
+			List<EQSIM_Event> newList = distType.getBuilder().buildCatalog(events, randomRPsList, eventListsToResample, lengthMult <= 1);
 			
 			System.out.println("Orig start="+events.get(0).getTimeInYears()+", end="+events.get(events.size()-1).getTimeInYears());
 			System.out.println("Rand start="+newList.get(0).getTimeInYears()+", end="+newList.get(newList.size()-1).getTimeInYears());

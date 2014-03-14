@@ -41,21 +41,6 @@ public class EventsInWindowsMatcher {
 		update();
 	}
 	
-	public static EQSIM_Event cloneNewTime(EQSIM_Event e, double timeSecs, int newID) {
-		EQSIM_Event r = new EQSIM_Event(e.get(0));
-		if (e.size() > 1)
-			r.addAll(e.subList(1, e.size()));
-		double[] origTimes = new double[e.size()];
-		for (int i=0; i<e.size(); i++)
-			origTimes[i] = e.get(i).getTime();
-		r.setTime(timeSecs);
-		r.setID(newID);
-		// this also sets it in the EventRecord instances themselves - reset it
-		for (int i=0; i<e.size(); i++)
-			r.get(i).setTime(origTimes[i]);
-		return r;
-	}
-	
 	private List<EQSIM_Event> update() {
 		eventsInWindows = Lists.newArrayList();
 		timeFromStarts = Lists.newArrayList();
@@ -71,7 +56,7 @@ public class EventsInWindowsMatcher {
 			
 			for (EQSIM_Event e : events) {
 				double time = startTime+Math.random()*simDuration;
-				EQSIM_Event r = cloneNewTime(e, time, e.getID());
+				EQSIM_Event r = e.cloneNewTime(time, e.getID());
 				randomizedEvents.add(r);
 			}
 			

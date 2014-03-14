@@ -28,7 +28,7 @@ public class ProbabalisticCatalogBuilder implements CatalogBuilder {
 		@Override
 		public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
 				List<RandomReturnPeriodProvider> randomRPsList,
-				List<List<EQSIM_Event>> eventListsToResample) {
+				List<List<EQSIM_Event>> eventListsToResample, boolean trim) {
 			
 			// separate standard from regular
 			List<RandomReturnPeriodProvider> standardRPs = Lists.newArrayList();
@@ -51,7 +51,7 @@ public class ProbabalisticCatalogBuilder implements CatalogBuilder {
 			// first populate any standard ones
 			List<EQSIM_Event> standardEvents;
 			if (!standardRPs.isEmpty())
-				standardEvents = standardBuild.buildCatalog(events, standardRPs, standardEventLists);
+				standardEvents = standardBuild.buildCatalog(events, standardRPs, standardEventLists, true);
 			else
 				standardEvents = Lists.newArrayList();
 			
@@ -118,8 +118,7 @@ public class ProbabalisticCatalogBuilder implements CatalogBuilder {
 					EQSIM_Event e = standardEvents.get(i);
 					if (e.getTimeInYears()<=windowEnd) {
 //						runningEvents.add(e);
-						EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(
-								e, 0.5*(windowStart+windowEnd)*General_EQSIM_Tools.SECONDS_PER_YEAR, eventID++);
+						EQSIM_Event newE = e.cloneNewTime(0.5*(windowStart+windowEnd)*General_EQSIM_Tools.SECONDS_PER_YEAR, eventID++);
 						runningEvents.add(newE);
 						standardEventIndex = i+1;
 					} else {
@@ -172,7 +171,7 @@ public class ProbabalisticCatalogBuilder implements CatalogBuilder {
 //							}
 //						}
 						double timeSecs = rupTime * General_EQSIM_Tools.SECONDS_PER_YEAR;
-						EQSIM_Event newE = EventsInWindowsMatcher.cloneNewTime(e, timeSecs, eventID++);
+						EQSIM_Event newE = e.cloneNewTime(timeSecs, eventID++);
 
 						boolean inserted = false;
 						for (int checkIndex=runningEvents.size(); --checkIndex>=0;) {
