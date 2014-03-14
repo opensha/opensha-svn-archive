@@ -1,12 +1,15 @@
 package scratch.UCERF3.erf.utils;
 
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import javax.swing.JFrame;
 
@@ -26,6 +29,11 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.ArbDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.geo.BorderType;
+import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -36,12 +44,15 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.LognormalDistCalc;
 import org.opensha.sha.earthquake.calc.recurInterval.WeibullDistCalc;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupOrigTimeComparator;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
 import org.opensha.sha.earthquake.param.BPT_AperiodicityParam;
@@ -52,6 +63,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
@@ -60,6 +72,10 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbModelsPlottingUtils;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -3303,12 +3319,13 @@ public class ProbabilityModelsCalc {
 			long currentTimeMillis = origStartTimeMillis;
 			dateOfLastForSect = origDateOfLastForSect.clone();
 
+			// make the simDuration one over orig target rate (exact value shouldn't matter much)
+			double simDuration = 1.0/totalTargetRate;
 
 			// start sampling of events
 			numRups=0;
 			while(currentYear <= origStartYear+forecastDurationYrs) { 
 				
-				double thisDuration = 1.0/totalTargetRate;	// make the duration the expected time to next event
 // System.out.println(nthCatalog+"\t"+currentYear+"\t"+thisDuration);
 
 				// update gains and sampler if not Poisson
@@ -3317,14 +3334,14 @@ public class ProbabilityModelsCalc {
 					if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
 						for(int s=0;s<erf.getNumFaultSystemSources();s++) {
 							int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-							probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, thisDuration);
+							probGainForFaultSystemSource[s] = getU3_ProbGainForRup(fltSysRupIndex, 0.0, false, aveRecurIntervals, aveNormTimeSinceLast, currentTimeMillis, simDuration);
 						}
 					}
 					else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT) {
 						sectionGainArray=null; // set this null so it gets updated
 						for(int s=0;s<erf.getNumFaultSystemSources();s++) {
 							int fltSysRupIndex = erf.getFltSysRupIndexForSource(s);
-							probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, thisDuration);
+							probGainForFaultSystemSource[s] = getWG02_ProbGainForRup(fltSysRupIndex, false, currentTimeMillis, simDuration);
 						}
 					}		
 					// now update totalRate and ruptureSampler (for all rups since start time changed)
@@ -4159,6 +4176,10 @@ public class ProbabilityModelsCalc {
 
 	}
 	
+	
+	/**
+	 * This plot a histogram of the ratio of aveRate vs aveRI conditional RIs, over all ruptures, where each is weighted by their long-term rate.
+	 */
 	public void plotRatioHistOfRupCondProbs(){
 		aveCondRecurIntervalForFltSysRups_type1 = computeAveCondRecurIntervalForFltSysRups(1);
 		aveCondRecurIntervalForFltSysRups_type2 = computeAveCondRecurIntervalForFltSysRups(2);
@@ -4175,6 +4196,21 @@ public class ProbabilityModelsCalc {
 
 
 	}
+	
+	/**
+	 * This sets values in dateOfLastForSect for the given rupture and date. 
+	 * @param fltSysRupIndex
+	 * @param epoch
+	 */
+	public void setFltSystemRupOccurranceTime(int fltSysRupIndex, Long epoch) {
+		for(int sectIndex : fltSysRupSet.getSectionsIndicesForRup(fltSysRupIndex)) {
+			dateOfLastForSect[sectIndex] = epoch;
+		}
+	}
+
+	
+	
+
 
 	
 	/**

@@ -85,8 +85,7 @@ import com.google.common.collect.Maps;
  * 
  * TODO: 
  * 
- * 1) evaluate whether pre-computing fault-based sources (rather than creating dynamically 
- * in the getSource() method) is really an advantage given memory consumption.
+ * 1) 
  * 
  * 
  */
@@ -230,6 +229,31 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	public FaultSystemSolutionERF() {
 		initParams();
 		initTimeSpan(); // must be done after the above because this depends on probModelParam
+	}
+	
+	
+	/**
+	 * This sets the date of last event on the sections associated with the given source
+	 * @param srcIndex
+	 * @param epoch
+	 */
+	public void setFltSystemSourceOccurranceTime(int srcIndex, Long epoch) {
+		// set it in the fault section data objects
+		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
+		int fltSysRupIndex = getFltSysRupIndexForSource(srcIndex);
+		List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
+		for(int sectIndex : sectIndexList) {
+			rupSet.getFaultSectionData(sectIndex).setDateOfLastEvent(epoch);
+		}
+		// set it in the ProbModelCalc objects
+		if(probModelsCalc != null) {
+			probModelsCalc.setFltSystemRupOccurranceTime(fltSysRupIndex, epoch);
+		}
+		if(prefBlendProbModelsCalc != null) {
+			for(ProbabilityModelsCalc calc : prefBlendProbModelsCalc.keySet()) {
+				calc.setFltSystemRupOccurranceTime(fltSysRupIndex, epoch);
+			}
+		}
 	}
 	
 	
