@@ -178,9 +178,9 @@ public class LastEventData {
 				if (!usedDatas.contains(data))
 					unusedData.add(data.getSectName());
 		}
-		System.out.println("Populated "+populated+"/"+sects.size()+" sects from "+numDatas
-				+" last event data ("+duplicates+" duplicates)");
-		System.out.println("Unused: "+Joiner.on(",").join(unusedData));
+//		System.out.println("Populated "+populated+"/"+sects.size()+" sects from "+numDatas
+//				+" last event data ("+duplicates+" duplicates)");
+//		System.out.println("Unused: "+Joiner.on(",").join(unusedData));
 	}
 	
 	/**
