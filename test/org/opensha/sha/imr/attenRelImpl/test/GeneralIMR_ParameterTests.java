@@ -4,14 +4,17 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.opensha.commons.data.NamedComparator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
@@ -32,6 +35,8 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class does general parameter setting tests for each IMR included in our applications.
@@ -81,15 +86,15 @@ public class GeneralIMR_ParameterTests {
 	}
 
 	@Parameters
-	public static Collection<ScalarIMR[]> data() {
-		List<? extends ScalarIMR> imrs = AttenRelRef.instanceList(null, true,
-				DevStatus.PRODUCTION, DevStatus.DEVELOPMENT);
+	public static Collection<AttenRelRef[]> data() {
+		List<AttenRelRef> refs = Lists.newArrayList(AttenRelRef.get(DevStatus.PRODUCTION, DevStatus.DEVELOPMENT));
+		Collections.sort(refs, new NamedComparator());
 
-		ArrayList<ScalarIMR[]> ret = new ArrayList<ScalarIMR[]>();
+		ArrayList<AttenRelRef[]> ret = new ArrayList<AttenRelRef[]>();
 
-		for (ScalarIMR imr : imrs) {
-			ScalarIMR[] theIMR = { imr };
-			ret.add(theIMR);
+		for (AttenRelRef ref : refs) {
+			AttenRelRef[] theRef = { ref };
+			ret.add(theRef);
 		}
 
 		return ret;
@@ -97,12 +102,12 @@ public class GeneralIMR_ParameterTests {
 
 	private String name;
 	private String shortName;
-	private ScalarIMR imr;
+	private AttenRelRef ref;
 
-	public GeneralIMR_ParameterTests(ScalarIMR imr) {
-		this.imr = imr;
-		this.name = imr.getName();
-		this.shortName = imr.getShortName();
+	public GeneralIMR_ParameterTests(AttenRelRef ref) {
+		this.ref = ref;
+		this.name = ref.getName();
+		this.shortName = ref.getShortName();
 	}
 
 	private static void addAllForIt(ParameterList list, Iterator<Parameter<?>> it) {
@@ -139,6 +144,7 @@ public class GeneralIMR_ParameterTests {
 
 	@Test
 	public void testParamsInit() {
+		ScalarIMR imr = ref.instance(null);
 		imr.setParamDefaults();
 
 		ParameterList params = getAllIMRParams(imr);
@@ -158,6 +164,8 @@ public class GeneralIMR_ParameterTests {
 	
 	@Test
 	public void testSupportedIMs() {
+		ScalarIMR imr = ref.instance(null);
+		imr.setParamDefaults();
 		for (Parameter<?> im : imr.getSupportedIntensityMeasures()) {
 			try {
 				imr.setIntensityMeasure(im);
@@ -167,7 +175,7 @@ public class GeneralIMR_ParameterTests {
 		}
 	}
 	
-	private Site createSite(Location loc) {
+	private Site createSite(ScalarIMR imr, Location loc) {
 		Site site = new Site(loc);
 		
 		for (Parameter<?> param : imr.getSiteParams()) {
@@ -194,16 +202,17 @@ public class GeneralIMR_ParameterTests {
 	
 	@Test
 	public void testSetSiteRup() {
+		ScalarIMR imr = ref.instance(null);
 		imr.setParamDefaults();
 		
 		Parameter<?> im = imr.getSupportedIntensityMeasuresIterator().next();
 		
-		Site site = createSite(new Location(34, -118));
+		Site site = createSite(imr, new Location(34, -118));
 		
 		imr.setSite(site);
 		assertEquals(shortName+": setSite didn't change the site object", site, imr.getSite());
 		
-		Site site2 = createSite(new Location(35.1, -118.5));
+		Site site2 = createSite(imr, new Location(35.1, -118.5));
 		
 		imr.setSite(site2);
 		assertEquals(shortName+": setSite didn't change the site object", site2, imr.getSite());
@@ -221,7 +230,7 @@ public class GeneralIMR_ParameterTests {
 		
 	}
 	
-	private void verifyRupParams(EqkRupture rup) {
+	private void verifyRupParams(ScalarIMR imr, EqkRupture rup) {
 		RuptureSurface surf = rup.getRuptureSurface();
 		try {
 			DipParam dipParam = (DipParam)imr.getParameter(DipParam.NAME);
@@ -247,19 +256,20 @@ public class GeneralIMR_ParameterTests {
 	 */
 	@Test
 	public void testSetRupParams() {
+		ScalarIMR imr = ref.instance(null);
 		imr.setParamDefaults();
 		
 		imr.setEqkRupture(rup1);
-		verifyRupParams(rup1);
+		verifyRupParams(imr, rup1);
 		
 		imr.setEqkRupture(rup2);
-		verifyRupParams(rup2);
+		verifyRupParams(imr, rup2);
 		
 		imr.setEqkRupture(rup1);
-		verifyRupParams(rup1);
+		verifyRupParams(imr, rup1);
 	}
 	
-	private void verifySiteParams(Site site) {
+	private void verifySiteParams(ScalarIMR imr, Site site) {
 		Iterator<Parameter<?>> it = site.getParametersIterator();
 		while (it.hasNext()) {
 			Parameter<?> param = it.next();
@@ -271,17 +281,20 @@ public class GeneralIMR_ParameterTests {
 	
 	@Test
 	public void testSetSiteParams() {
-		Site site1 = createSite(new Location(34, -118));
-		Site site2 = createSite(new Location(34.5, -118.3));
+		ScalarIMR imr = ref.instance(null);
+		imr.setParamDefaults();
+		
+		Site site1 = createSite(imr, new Location(34, -118));
+		Site site2 = createSite(imr, new Location(34.5, -118.3));
 		
 		imr.setSite(site1);
-		verifySiteParams(site1);
+		verifySiteParams(imr, site1);
 		
 		imr.setSite(site2);
-		verifySiteParams(site2);
+		verifySiteParams(imr, site2);
 		
 		imr.setSite(site1);
-		verifySiteParams(site1);
+		verifySiteParams(imr, site1);
 	}
 
 }

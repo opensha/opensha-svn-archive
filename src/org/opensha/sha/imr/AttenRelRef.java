@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.util.DevStatus;
 import org.opensha.commons.util.ServerPrefs;
@@ -76,7 +77,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2013_Wrapper
  * @author Peter Powers
  * @version $Id$
  */
-public enum AttenRelRef {
+public enum AttenRelRef implements Named {
 
 	// PRODUCTION
 
