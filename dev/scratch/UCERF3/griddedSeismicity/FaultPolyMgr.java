@@ -38,7 +38,7 @@ import com.google.common.collect.Table;
  */
 public class FaultPolyMgr implements Iterable<Area> {
 
-	private static boolean log = true;
+	private static boolean log = false;
 	
 	private SectionPolygons polys;
 	
