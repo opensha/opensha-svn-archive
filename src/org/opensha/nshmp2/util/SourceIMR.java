@@ -15,14 +15,14 @@ import org.opensha.nshmp2.imr.NSHMP08_SUB_Interface;
 import org.opensha.nshmp2.imr.NSHMP08_SUB_SlabGrid;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.NSHMP08_WUS_Grid;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_ASK;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_BSSA;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_CB;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_CY;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_GK;
-import org.opensha.nshmp2.imr.ngaw2.NSHMP13_WUS_Idriss;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_ASK;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_BSSA;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CB;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CY;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_GK;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_Idriss;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.attenRelImpl.ngaw2.NSHMP13_WUS;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NSHMP14_WUS;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -55,13 +55,13 @@ public enum SourceIMR {
 	 * Used for {@link SourceRegion#WUS} and {@link SourceRegion#CA}
 	 * {@link SourceType#FAULT} sources.
 	 */
-	WUS_FAULT_13(NSHMP13_WUS.class),
-	WUS_FAULT_13_AS(NSHMP13_WUS_ASK.class),
-	WUS_FAULT_13_BS(NSHMP13_WUS_BSSA.class),
-	WUS_FAULT_13_CB(NSHMP13_WUS_CB.class),
-	WUS_FAULT_13_CY(NSHMP13_WUS_CY.class),
-	WUS_FAULT_13_GK(NSHMP13_WUS_GK.class),
-	WUS_FAULT_13_ID(NSHMP13_WUS_Idriss.class),
+	WUS_FAULT_14(NSHMP14_WUS.class),
+	WUS_FAULT_14_AS(NSHMP14_WUS_ASK.class),
+	WUS_FAULT_14_BS(NSHMP14_WUS_BSSA.class),
+	WUS_FAULT_14_CB(NSHMP14_WUS_CB.class),
+	WUS_FAULT_14_CY(NSHMP14_WUS_CY.class),
+	WUS_FAULT_14_GK(NSHMP14_WUS_GK.class),
+	WUS_FAULT_14_ID(NSHMP14_WUS_Idriss.class),
 
 	/**
 	 * Used for {@link SourceRegion#WUS} and {@link SourceRegion#CA}

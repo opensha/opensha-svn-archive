@@ -80,11 +80,11 @@ import com.google.common.collect.Maps;
  * @version $Id:$
  */
 //@formatter:on
-public class NSHMP13_WUS extends AttenuationRelationship implements
+public class NSHMP14_WUS extends AttenuationRelationship implements
 		ParameterChangeListener {
 
-	public final static String NAME = "NSHMP 2013 Western US Combined";
-	public final static String SHORT_NAME = "NSHMP13_WUS";
+	public final static String NAME = "NSHMP 2014 Western US Combined";
+	public final static String SHORT_NAME = "NSHMP14_WUS";
 //	private static final long serialVersionUID = 1L;
 
 	// this is the minimum range of vs30 spanned by BA, CB, & CY (the NGA's)
@@ -105,7 +105,7 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 	 * @param epi flag for additional epistemic distnace and magnitude dependent
 	 * epistemic uncertainty on ground motions.
 	 */
-	public NSHMP13_WUS() {
+	public NSHMP14_WUS() {
 		initGMPEmap();
 		
 		BooleanParameter imrUncertParam = new BooleanParameter(
@@ -129,11 +129,11 @@ public class NSHMP13_WUS extends AttenuationRelationship implements
 		
 	void initGMPEmap() {
 		gmpeMap = Maps.newHashMap();
-		gmpeMap.put(new CB_2013(), 0.22);
-		gmpeMap.put(new CY_2013(), 0.22);
-		gmpeMap.put(new ASK_2013(), 0.22);
-		gmpeMap.put(new BSSA_2013(), 0.22);
-		gmpeMap.put(new Idriss_2013(), 0.12);
+		gmpeMap.put(new CB_2014(), 0.22);
+		gmpeMap.put(new CY_2014(), 0.22);
+		gmpeMap.put(new ASK_2014(), 0.22);
+		gmpeMap.put(new BSSA_2014(), 0.22);
+		gmpeMap.put(new Idriss_2014(), 0.12);
 	}
 	
 	@Override

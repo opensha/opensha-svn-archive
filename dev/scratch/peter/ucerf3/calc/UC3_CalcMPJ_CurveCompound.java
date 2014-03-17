@@ -55,8 +55,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 	private IncludeBackgroundOption bg;
 	private String outDir;
 	
-
-	private boolean epiUncert = false;
+	private boolean epiUncert = true;
 
 	private ExecutorService ex;
 	private ExecutorCompletionService<HazardResult> ecs;
@@ -125,7 +124,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 				for (Location loc : locs) {
 					Site site = new Site(loc);
 					HazardCalc hc = HazardCalc.create(wrappedERF, imrRef, site,
-						 period, epiUncert, true);
+						 period, epiUncert, false);
 					ecs.submit(hc);
 				}
 			}

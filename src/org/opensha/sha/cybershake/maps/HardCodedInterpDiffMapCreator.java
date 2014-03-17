@@ -360,11 +360,11 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.ASK_2013.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2013.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.CB_2013.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.CY_2013.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.Idriss_2013.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.CB_2014.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.CY_2014.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.IDRISS_2014.instance(null);
 			// GMPE params
 			baseMapIMR.setParamDefaults();
 			setTruncation(baseMapIMR, 3.0);

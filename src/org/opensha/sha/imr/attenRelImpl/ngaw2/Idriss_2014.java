@@ -44,7 +44,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * 
  * @author Peter Powers
  */
-public class Idriss_2013 implements NGAW2_GMM {
+public class Idriss_2014 implements NGAW2_GMM {
 
 	public static final String NAME = "Idriss (2014)";
 	public static final String SHORT_NAME = "Idriss2014";
@@ -62,7 +62,7 @@ public class Idriss_2013 implements NGAW2_GMM {
 	/**
 	 * Constructs a new instance of this attenuation relationship.
 	 */
-	public Idriss_2013() {
+	public Idriss_2014() {
 		coeffs = new Coeffs("Idriss14.csv");
 		coeffs.set(PGA);
 	}

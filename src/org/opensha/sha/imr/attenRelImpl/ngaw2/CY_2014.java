@@ -50,7 +50,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * 
  * @author Peter Powers
  */
-public class CY_2013 implements NGAW2_GMM {
+public class CY_2014 implements NGAW2_GMM {
 
 	public static final String NAME = "Chiou \u0026 Youngs (2014)";
 	public static final String SHORT_NAME = "CY2014";
@@ -91,7 +91,7 @@ public class CY_2013 implements NGAW2_GMM {
 	/**
 	 * Constructs a new instance of this attenuation relationship.
 	 */
-	public CY_2013() {
+	public CY_2014() {
 		coeffs = new Coeffs();
 	}
 	
@@ -116,7 +116,7 @@ public class CY_2013 implements NGAW2_GMM {
 			z1p0, style);
 	}
 
-	@Override public String getName() { return CY_2013.NAME; }
+	@Override public String getName() { return CY_2014.NAME; }
 
 	@Override public void set_IMT(IMT imt) { this.imt = imt; }
 
@@ -290,7 +290,7 @@ public class CY_2013 implements NGAW2_GMM {
 	}
 	
 	public static void main(String[] args) {
-		CY_2013 cy = new CY_2013();
+		CY_2014 cy = new CY_2014();
 
 		System.out.println("PGA");
 		ScalarGroundMotion sgm = cy.calc(PGA, 6.80, 0.0, 4.629, 5.963, 27.0, 2.1, 760.0, true, Double.NaN, FaultStyle.REVERSE);

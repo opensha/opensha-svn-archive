@@ -47,7 +47,7 @@ import org.opensha.sha.util.TectonicRegionType;
  * 
  * @author Peter Powers
  */
-public class BSSA_2013 implements NGAW2_GMM {
+public class BSSA_2014 implements NGAW2_GMM {
 
 	public static final String NAME = "Boore, Stewart, Seyhan \u0026 Atkinson (2014)";
 	public static final String SHORT_NAME = "BSSA2014";
@@ -86,7 +86,7 @@ public class BSSA_2013 implements NGAW2_GMM {
 	/**
 	 * Constructs a new instance of this attenuation relationship.
 	 */
-	public BSSA_2013() {
+	public BSSA_2014() {
 		coeffs = new Coeffs();
 		coeffsPGA = new Coeffs();
 	}
@@ -106,7 +106,7 @@ public class BSSA_2013 implements NGAW2_GMM {
 		return calc(imt, Mw, rJB, vs30, z1p0, style);
 	}
 
-	@Override public String getName() { return BSSA_2013.NAME; }
+	@Override public String getName() { return BSSA_2014.NAME; }
 
 	@Override public void set_IMT(IMT imt) { this.imt = imt; }
 

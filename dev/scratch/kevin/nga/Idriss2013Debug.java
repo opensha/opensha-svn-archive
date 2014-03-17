@@ -15,7 +15,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
-import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2013_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2014_Wrapper;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
@@ -29,7 +29,7 @@ public class Idriss2013Debug {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Idriss_2013_Wrapper imr = new Idriss_2013_Wrapper();
+		Idriss_2014_Wrapper imr = new Idriss_2014_Wrapper();
 		imr.setParamDefaults();
 		Parameter<Double> imt = imr.getParameter(PGA_Param.NAME);
 		

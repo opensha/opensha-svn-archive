@@ -86,9 +86,9 @@ public class UCERF3_EAL_Validate_ScriptGen {
 //		String className = MPJ_CondLossCalc.class.getName();
 		String className = MPJ_EAL_Calc.class.getName();
 		
-//		AttenRelRef[] imrs = { AttenRelRef.CB_2013, AttenRelRef.CY_2013,
-//				AttenRelRef.ASK_2013, AttenRelRef.BSSA_2013, AttenRelRef.Idriss_2013 };
-		AttenRelRef[] imrs = { AttenRelRef.CB_2013 };
+//		AttenRelRef[] imrs = { AttenRelRef.CB_2014, AttenRelRef.CY_2014,
+//				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
+		AttenRelRef[] imrs = { AttenRelRef.CB_2014 };
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
 		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);

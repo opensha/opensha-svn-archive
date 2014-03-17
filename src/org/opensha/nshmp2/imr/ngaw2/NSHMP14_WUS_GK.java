@@ -27,8 +27,8 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
-import org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2013;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2014;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.ScalarGroundMotion;
@@ -85,11 +85,11 @@ import com.google.common.collect.Maps;
  * @version $Id:$
  */
 //@formatter:on
-public class NSHMP13_WUS_CB extends AttenuationRelationship implements
+public class NSHMP14_WUS_GK extends AttenuationRelationship implements
 		ParameterChangeListener {
 
 	public final static String NAME = "NSHMP 2013 Western US Combined";
-	public final static String SHORT_NAME = "NSHMP13_WUS";
+	public final static String SHORT_NAME = "NSHMP14_WUS";
 //	private static final long serialVersionUID = 1L;
 
 	// this is the minimum range of vs30 spanned by BA, CB, & CY (the NGA's)
@@ -110,7 +110,7 @@ public class NSHMP13_WUS_CB extends AttenuationRelationship implements
 	 * @param epi flag for additional epistemic distnace and magnitude dependent
 	 * epistemic uncertainty on ground motions.
 	 */
-	public NSHMP13_WUS_CB() {
+	public NSHMP14_WUS_GK() {
 		initGMPEmap();
 		
 		BooleanParameter imrUncertParam = new BooleanParameter(
@@ -134,7 +134,7 @@ public class NSHMP13_WUS_CB extends AttenuationRelationship implements
 		
 	void initGMPEmap() {
 		gmpeMap = Maps.newHashMap();
-		gmpeMap.put(new CB_2013(), 1.0);
+		gmpeMap.put(new GK_2014(), 1.0);
 	}
 	
 	@Override

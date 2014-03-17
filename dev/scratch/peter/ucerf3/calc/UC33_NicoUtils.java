@@ -94,7 +94,7 @@ public class UC33_NicoUtils {
 					IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 				erf.updateForecast();
 				EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-				SourceIMR imr = SourceIMR.WUS_FAULT_13;
+				SourceIMR imr = SourceIMR.WUS_FAULT_14;
 				System.out.println("Starting erf: " + solPath);
 				
 				for (Period p : periods) {
@@ -165,7 +165,7 @@ public class UC33_NicoUtils {
 		// init erf
 		EpistemicListERF erf = NSHMP2008.createCalifornia();
 		erf.updateForecast();
-		SourceIMR imr = SourceIMR.WUS_FAULT_13;
+		SourceIMR imr = SourceIMR.WUS_FAULT_14;
 		System.out.println("Starting erf: " + erf.getName());
 		
 		ExecutorService ex = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -266,7 +266,7 @@ public class UC33_NicoUtils {
 		for (Period p : periods) {
 
 			System.out.println("   Starting period: " + p);
-			ScalarIMR imr = SourceIMR.WUS_FAULT_13.instance(p);
+			ScalarIMR imr = SourceIMR.WUS_FAULT_14.instance(p);
 
 			File out = new File("tmp/forNico/det/" + p.name() + "top10.text");
 			Files.write(LF, out, US_ASCII);

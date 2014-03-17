@@ -150,7 +150,7 @@ public class JordanMadridHazardCalc implements Callable<HazardResult> {
 
 	private void callCalc() {
 		ScalarIMR imr = (imrRef != null) ? imrRef.instance(period)
-			: SourceIMR.WUS_FAULT_13.instance(period);
+			: SourceIMR.WUS_FAULT_14.instance(period);
 		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(epiUncert);
 		imr.setSite(site);
 		DiscretizedFunc f = period.getFunction(); // utility function

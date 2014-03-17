@@ -186,7 +186,7 @@ public class AttenRels2DB {
 //		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
-			ScalarIMR imr = AttenRelRef.Idriss_2013.instance(null);
+			ScalarIMR imr = AttenRelRef.IDRISS_2014.instance(null);
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);

@@ -124,7 +124,8 @@ public enum TestGrid {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(TestGrid.CA_NSHMP.grid(0.05).getNodeCount());
+		System.out.println(TestGrid.LOS_ANGELES.grid(0.01).getNodeCount());
+		System.out.println(TestGrid.SAN_FRANCISCO.grid(0.01).getNodeCount());
 //		System.out.println();
 //		RegionUtils.locListToKML(getNationalPoly(), "NationalPoly", Color.ORANGE);
 		

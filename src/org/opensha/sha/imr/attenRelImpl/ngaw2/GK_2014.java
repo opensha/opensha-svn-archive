@@ -42,7 +42,8 @@ import org.opensha.sha.util.TectonicRegionType;
  * 
  * @author Peter Powers
  */
-public class GK_2013 implements NGAW2_GMM {
+@Deprecated
+public class GK_2014 implements NGAW2_GMM {
 
 	public static final String NAME = "Graizer & Kalkan (2013)";
 	public static final String SHORT_NAME = "GK2013";
@@ -52,7 +53,7 @@ public class GK_2013 implements NGAW2_GMM {
 	/**
 	 * Constructs a new instance of this attenuation relationship.
 	 */
-	public GK_2013() {}
+	public GK_2014() {}
 
 	private IMT imt = null;
 	private double Mw = NaN;

@@ -318,11 +318,11 @@ public class UCERF3_EAL_Combiner {
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013/");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_09-ucerf3-eal-calc-CB-2013/");
 		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
-//		String prefix = "CB_2013";
-//		String prefix = "ASK_2013";
-//		String prefix = "BSSA_2013";
-//		String prefix = "CY_2013";
-		String prefix = "Idriss_2013";
+//		String prefix = "CB_2014";
+//		String prefix = "ASK_2014";
+//		String prefix = "BSSA_2014";
+//		String prefix = "CY_2014";
+		String prefix = "Idriss_2014";
 		File rupLossesFile = new File(jobDir, prefix+"_fss_index.bin");
 		File rupGriddedFile = new File(jobDir, prefix+"_fss_gridded.bin");
 //		File validateDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013-validate/");

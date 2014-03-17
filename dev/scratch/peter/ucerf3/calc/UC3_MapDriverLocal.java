@@ -67,7 +67,7 @@ public class UC3_MapDriverLocal {
 		Period p = Period.GM0P00;
 		IncludeBackgroundOption bg = INCLUDE;
 		
-		SourceIMR imr = SourceIMR.WUS_FAULT_13;
+		SourceIMR imr = SourceIMR.WUS_FAULT_14;
 		
 		outDir += (bg == INCLUDE) ? "all/" : (bg == EXCLUDE) ? "flt/" : "bg/";
 		

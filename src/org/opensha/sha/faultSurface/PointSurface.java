@@ -84,7 +84,7 @@ public class PointSurface implements RuptureSurface {
 	/**
 	 * The average width of the surface. Although most ground motion models
 	 * are not concerned with rupture width, some newer models require a
-	 * reasonable estimate to function properly (e.g. ASK_2013). */
+	 * reasonable estimate to function properly (e.g. ASK_2014). */
 	protected double aveWidth = 0.0;
 
 	/** The name of this point source.  */

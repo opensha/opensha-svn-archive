@@ -107,15 +107,15 @@ public class NGAW2_Tests {
     private static NGAW2_GMM getGMM(String gmmId) {
     	NGAW2_GMM gmm = null;
     	if (gmmId.equals("ASK_14")) {
-    		gmm = new ASK_2013();
+    		gmm = new ASK_2014();
     	} else if (gmmId.equals("BSSA_14")) {
-    		gmm = new BSSA_2013();
+    		gmm = new BSSA_2014();
     	} else if (gmmId.equals("CB_14")) {
-    		gmm = new CB_2013();
+    		gmm = new CB_2014();
     	} else if (gmmId.equals("CY_14")) {
-    		gmm = new CY_2013();
+    		gmm = new CY_2014();
     	} else if (gmmId.equals("IDRISS_14")) {
-    		gmm = new Idriss_2013();
+    		gmm = new Idriss_2014();
     	} else {
     		throw new IllegalStateException("Bad gmm identifier: " + gmmId);
     	}

@@ -134,7 +134,7 @@ public class HazardCalc implements Callable<HazardResult> {
 	private void callCalc() {
 		ScalarIMR imr = (imrRef != null) ?
 			imrRef.instance(period) :
-			SourceIMR.WUS_FAULT_13.instance(period);
+			SourceIMR.WUS_FAULT_14.instance(period);
 		imr.getParameter(NSHMP08_WUS.IMR_UNCERT_PARAM_NAME).setValue(
 			epiUncert);
 		imr.setSite(site);
@@ -398,7 +398,7 @@ public class HazardCalc implements Callable<HazardResult> {
 			System.out.println("Period: " + p.getLabel());
 			for (NEHRP_TestCity city : cities) {
 				Site site = new Site(city.location());
-				HazardCalc hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT_13_BS, 
+				HazardCalc hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT_14_BS, 
 					site, p, false, false);
 				HazardResult result = hc.call();
 				System.out.println(city);
