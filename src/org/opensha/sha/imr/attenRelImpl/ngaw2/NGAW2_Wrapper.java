@@ -1,5 +1,8 @@
 package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
+import static java.lang.Math.sin;
+import static org.opensha.commons.geo.GeoTools.TO_RAD;
+
 import java.util.HashSet;
 import java.util.List;
 
@@ -167,11 +170,14 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 			gmpe.set_dip(surf.getAveDip());
 			gmpe.set_width(surf.getAveWidth());
 			gmpe.set_zTop(surf.getAveRupTopDepth());
-			if (eqkRupture.getHypocenterLocation() != null)
+			if (eqkRupture.getHypocenterLocation() != null) {
 				gmpe.set_zHyp(eqkRupture.getHypocenterLocation().getDepth());
-			else
-				gmpe.set_zHyp(Double.NaN);
-
+			} else {
+				double zHyp = surf.getAveRupTopDepth() +
+					Math.sin(surf.getAveDip() * TO_RAD) * surf.getAveWidth() /
+					2.0;
+				gmpe.set_zHyp(zHyp);
+			}
 			gmpe.set_vs30(vs30Param.getValue());
 			gmpe.set_vsInf(vs30_TypeParam.getValue().equals(Vs30_TypeParam.VS30_TYPE_INFERRED));
 			if (depthTo2pt5kmPerSecParam.getValue() == null)
