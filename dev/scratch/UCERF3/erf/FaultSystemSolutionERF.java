@@ -130,7 +130,7 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	protected IncludeBackgroundOption bgInclude = IncludeBackgroundOption.INCLUDE;
 	protected BackgroundRupType bgRupType = BackgroundRupType.POINT;
 	private boolean quadSurfaces = false;
-	private ProbabilityModelOptions probModel = ProbabilityModelOptions.POISSON;
+	protected ProbabilityModelOptions probModel = ProbabilityModelOptions.POISSON;
 //	private double bpt_Aperiodicity=0.3;
 	private MagDependentAperiodicityOptions magDepAperiodicity = MagDependentAperiodicityOptions.MID_VALUES;
 	private double histOpenInterval=0;

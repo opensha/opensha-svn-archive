@@ -4203,6 +4203,7 @@ public class ProbabilityModelsCalc {
 	 * @param epoch
 	 */
 	public void setFltSystemRupOccurranceTime(int fltSysRupIndex, Long epoch) {
+//System.out.println("setFltSystemRupOccurranceTime was called for fltSysRupIndex="+fltSysRupIndex+";  epoch="+epoch);
 		for(int sectIndex : fltSysRupSet.getSectionsIndicesForRup(fltSysRupIndex)) {
 			dateOfLastForSect[sectIndex] = epoch;
 		}

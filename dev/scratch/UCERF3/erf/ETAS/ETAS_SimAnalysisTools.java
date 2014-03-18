@@ -27,7 +27,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
-import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSampler;
+import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -226,6 +226,8 @@ public class ETAS_SimAnalysisTools {
 			for(Location loc: regionBorder) {
 				regBorderFunc.set(loc.getLongitude(), loc.getLatitude());
 			}
+			// close the polygon:
+			regBorderFunc.set(regBorderFunc.get(0).getX(), regBorderFunc.get(0).getY());
 			funcs.add(regBorderFunc);
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
@@ -248,9 +250,9 @@ public class ETAS_SimAnalysisTools {
 			graph.setY_AxisRange(minLat, newMaxLat);
 		}
 		
-		// ****** HACK FOR SSA TALK ************ (delete next two lines when done)
-		graph.setX_AxisRange(-120, -116);
-		graph.setY_AxisRange(35, 37);
+//		// ****** HACK FOR SSA TALK ************ (delete next two lines when done)
+//		graph.setX_AxisRange(-120, -116);
+//		graph.setY_AxisRange(35, 37);
 
 		
 		graph.setPlotChars(plotChars);
@@ -308,20 +310,20 @@ public class ETAS_SimAnalysisTools {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
 
 		
-		// HACK FOR SSA TALK ******************
-		TestModel1_FSS temp = new TestModel1_FSS();
-		GutenbergRichterMagFreqDist targetMFD = temp.getTargetFaultGR(); 
-		targetMFD.normalizeByTotalRate();
-		targetMFD.scale(ETAS_Utils.getDefaultExpectedNumEvents(6.93, 0, 360.25));
-		System.out.println("targetMFD.getTotalIncrRate()"+targetMFD.getTotalIncrRate());
-		targetMFD.setName("Target Primary MFD");
-		targetMFD.setInfo(" ");
-		magProbDists.add(targetMFD);
-		magProbDists.add(targetMFD.getCumRateDistWithOffset());
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
-
-		//****************************
+//		// HACK FOR SSA TALK ******************
+//		TestModel1_FSS temp = new TestModel1_FSS();
+//		GutenbergRichterMagFreqDist targetMFD = temp.getTargetFaultGR(); 
+//		targetMFD.normalizeByTotalRate();
+//		targetMFD.scale(ETAS_Utils.getDefaultExpectedNumEvents(6.93, 0, 360.25));
+//		System.out.println("targetMFD.getTotalIncrRate()"+targetMFD.getTotalIncrRate());
+//		targetMFD.setName("Target Primary MFD");
+//		targetMFD.setInfo(" ");
+//		magProbDists.add(targetMFD);
+//		magProbDists.add(targetMFD.getCumRateDistWithOffset());
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
+//
+//		//****************************
 
 				
 		// Plot these MFDs
@@ -346,82 +348,6 @@ public class ETAS_SimAnalysisTools {
 
 	}
 
-	
-	/**
-	 * 
-	 * @param info - string describing the given mainShock (below)
-	 * @param pdf_FileName - full path name of PDF files to save to (leave null if not wanted)
-	 * @param simulatedRupsQueue - list of sampled events
-	 * @param sampler - one of the samplers for getting the expected distance decay
-	 * @param mainShock - distances of all aftershocks  will be computed to this event if it's not null
-	 */
-	public static void oldPlotDistDecayForAshocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
-			ETAS_PrimaryEventSampler sampler, EqkRupture mainShock) {
-		
-		double delta = 10;
-		ArrayList<EvenlyDiscretizedFunc> distDecayFuncs = sampler.getDistDecayTestFuncs(delta);
-		distDecayFuncs.get(0).setName("Approx Expected Distance Decay for Primary Aftershocks of "+info);
-		distDecayFuncs.get(0).setInfo("Diff from theoretical mostly due to no events to sample outside RELM region, but also spatially variable a-values");
-		distDecayFuncs.get(1).setName("Theoretical Distance Decay");
-		distDecayFuncs.get(1).setInfo("(dist+minDist)^-distDecay, where minDist="+sampler.getMinDist()+" and distDecay="+
-				sampler.getDistDecay()+", and where finite discretization accounted for");
-		EvenlyDiscretizedFunc tempFunc = distDecayFuncs.get(0);
-		EvenlyDiscretizedFunc obsPrimaryDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.getNum(), tempFunc.getDelta());
-		obsPrimaryDistHist.setTolerance(tempFunc.getTolerance());
-		EvenlyDiscretizedFunc obsAllDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.getNum(), tempFunc.getDelta());
-		obsAllDistHist.setTolerance(tempFunc.getTolerance());
-		double totAllNum = 0, totPrimaryNum = 0;
-		for (ETAS_EqkRupture event : simulatedRupsQueue) {
-			if(event.getGeneration()>0) {	// skip spontaneous events
-//if(event.getGeneration() == 1) {
-				obsPrimaryDistHist.add(event.getDistanceToParent(), 1.0);
-				totPrimaryNum += 1;	
-//}
-				if(mainShock != null) {
-					double dist = LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), mainShock.getRuptureSurface());
-					obsAllDistHist.add(dist, 1.0);
-					totAllNum += 1;
-				}
-			}
-		}
-		
-		obsPrimaryDistHist.scale(1.0/(double)totPrimaryNum);
-		if(mainShock != null)
-			obsAllDistHist.scale(1.0/(double)totAllNum);					// convert to PDF
-
-		obsPrimaryDistHist.setName("Sampled Distance-Decay Histogram for all Primary Aftershocks; "+info);
-		obsPrimaryDistHist.setInfo("(filled circles)");
-		distDecayFuncs.add(obsPrimaryDistHist);
-		if(mainShock != null) {
-			obsAllDistHist.setName("Sampled Distance-Decay Histogram for All Aftershocks from "+info);
-			obsAllDistHist.setInfo("(Crosses, and these are distances to the main shock, not to the parent)");
-			distDecayFuncs.add(obsAllDistHist);			
-		}
-
-		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay for Aftershocks of "+info); 
-		graph.setX_AxisLabel("Distance (km)");
-		graph.setY_AxisLabel("Fraction of Aftershocks");
-		graph.setX_AxisRange(0.4, 1200);
-		graph.setY_AxisRange(1e-6, 1);
-		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
-		if(mainShock != null)
-			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
-		graph.setPlotChars(plotChars);
-		graph.setYLog(true);
-		graph.setXLog(true);
-		if(pdf_FileName != null)
-			try {
-				graph.saveAsPDF(pdf_FileName);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-	}
-	
 	
 	
 	
@@ -530,6 +456,31 @@ public class ETAS_SimAnalysisTools {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	}
+	
+	
+	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, EqkRupture rupture) {
+		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedMFD(rupture);
+		// convert MFD to probability density function
+		mfd.scale(1.0/(mfd.getTotalIncrRate()*mfd.getDelta()));
+		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);
+		GraphWindow magProbDistsGraph = new GraphWindow(mfd, "Expected Primary Aftershock MFD"); 
+		magProbDistsGraph.setX_AxisLabel("Mag");
+		magProbDistsGraph.setY_AxisLabel("Probability Density");
+		magProbDistsGraph.setY_AxisRange(10e-9, 10e-1);
+		magProbDistsGraph.setX_AxisRange(2., 9.);
+		magProbDistsGraph.setYLog(true);
+		magProbDistsGraph.setPlotLabelFontSize(22);
+		magProbDistsGraph.setAxisLabelFontSize(20);
+		magProbDistsGraph.setTickLabelFontSize(18);			
+		if(pdf_FileName != null)
+			try {
+				magProbDistsGraph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 	}
 
 
