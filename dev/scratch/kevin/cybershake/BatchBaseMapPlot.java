@@ -10,6 +10,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
@@ -43,8 +44,15 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga2-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-bbp-cs-nga-3sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_17-cvm4i26-cs-nga2-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-1sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-5sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-pga");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-1sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-5sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-pga");
 		
 //		String imtFileLabel = "1sec";
 //		String label = "1sec SA, 2% in 50 yrs";
@@ -112,8 +120,8 @@ public class BatchBaseMapPlot {
 		
 		// now site data
 		checkMakeSiteDataPlot(new WillsMap2006(), dir);
-		checkMakeSiteDataPlot(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0), dir);
-		checkMakeSiteDataPlot(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5), dir);
+		checkMakeSiteDataPlot(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0), dir);
+		checkMakeSiteDataPlot(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5), dir);
 	}
 	
 	private static void plot(File outputFile, GeoDataSet baseMap, Double customMin, Double customMax, String label, String metadata) throws IOException, ClassNotFoundException {

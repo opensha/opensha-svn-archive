@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -292,7 +294,14 @@ public class UC3_CalcUtils {
 	 */
 	public static Map<String, Location> readSiteFile(String path) throws IOException {
 		File f = new File(path);
-		List<String> lines = Files.readLines(f, US_ASCII);
+		return readSiteFile(Files.readLines(f, US_ASCII));
+	}
+	
+	public static Map<String, Location> readSiteFile(URL url) throws IOException {
+		return readSiteFile(Resources.readLines(url, US_ASCII));
+	}
+	
+	private static Map<String, Location> readSiteFile(List<String> lines) throws IOException {
 		Map<String, Location> siteMap = Maps.newHashMap();
 		for (String line : lines) {
 			if (line.startsWith("#")) continue;

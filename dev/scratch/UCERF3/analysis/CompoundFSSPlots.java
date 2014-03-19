@@ -2,6 +2,7 @@ package scratch.UCERF3.analysis;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -109,6 +111,10 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -161,6 +167,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetch
 import scratch.kevin.DeadlockDetectionThread;
 import scratch.kevin.ucerf3.TestPDFCombine;
 import scratch.kevin.ucerf3.inversion.MiniSectRecurrenceGen;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -2395,19 +2402,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 	}
 	
 	public static void writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot plot, File dir) throws IOException {
-		writeERFBasedSiteHazardHists(plot.plotsMap, dir);
+		writeERFBasedSiteHazardHists(plot.plots, dir);
 	}
 	
 	public static void writeERFBasedSiteHazardHists(
-			Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap, File dir) throws IOException {
+			SiteHazardResults results, File dir) throws IOException {
 		File subDir = new File(dir, "site_hazard_hists");
 		if (!subDir.exists())
 			subDir.mkdir();
+		
+		Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap = results.plotsMap;
+		Map<Site, Table<Period, Double, CSVFile<String>>> csvsMap = results.csvsMap;
 		
 		File tempDir = Files.createTempDir();
 		
 		for (Site site : plotsMap.keySet()) {
 			Table<Period, Double, Map<String, PlotSpec>> sitePlots = plotsMap.get(site);
+			Table<Period, Double, CSVFile<String>> siteCSVs = csvsMap.get(site);
 			File siteDir = new File(subDir, site.getName());
 			if (!siteDir.exists())
 				siteDir.mkdir();
@@ -2453,7 +2464,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 						if (plotMaxY > 1d)
 							plotMaxY = 1d;
 						// pad by a delta
-						gp.setUserBounds(min-0.5*delta - 0.5*delta, min+(num-0.5)*delta + 0.5*delta, 0, plotMaxY);
+						double plotMinX = min-0.5*delta - 0.5*delta;
+						double plotMaxX = min+(num-0.5)*delta + 0.5*delta;
+						gp.setUserBounds(plotMinX, plotMaxX, 0, plotMaxY);
+						if (plotMinX >= plotMaxX) {
+							System.out.println("Data bounds: "+f1.getMinX()+" "+f1.getMaxX()
+									+" "+f1.getMinY()+" "+f1.getMaxY());
+							System.out.println("Plot bounds: "+plotMinX+" "+plotMaxX+" 0 "+plotMaxY);
+							System.out.println("Delta="+delta);
+							System.out.println(f1);
+						}
 						
 						gp.drawGraphPanel(histSpec);
 						File file = new File(tempDir, name);
@@ -2468,6 +2488,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 					} catch (com.lowagie.text.DocumentException e) {
 						throw ExceptionUtils.asRuntimeException(e);
 					}
+					
+					CSVFile<String> csv = siteCSVs.get(period, prob);
+					csv.writeToFile(new File(siteDir, prefix+".csv"));
 				}
 			}
 		}
@@ -2534,16 +2557,61 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 	}
 	
+	private static class SiteHazardResults {
+		private Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap;
+		private Map<Site, Table<Period, Double, CSVFile<String>>> csvsMap;
+	}
+	
 	public static class ERFBasedSiteHazardHistPlot extends CompoundFSSPlots {
 		
-		private static List<Site> getSites() {
+		public static List<Site> getSites() {
 			List<Site> sites = Lists.newArrayList();
 			
 //			sites.add(NEHRP_TestCity.LOS_ANGELES.getSite()); // will add params
 //			sites.add(NEHRP_TestCity.SAN_FRANCISCO.getSite()); // will add params
 			
-			for (NEHRP_TestCity nCity : NEHRP_TestCity.getCA())
-				sites.add(nCity.getSite()); // will add params
+//			for (NEHRP_TestCity nCity : NEHRP_TestCity.getCA())
+//				sites.add(nCity.getSite()); // will add params
+			
+			try {
+				Map<String, Location> locs = UC3_CalcUtils.readSiteFile(
+						UCERF3_DataUtils.locateResource("misc", "srp_sites_no_pbr.txt"));
+//				EnumSet<NEHRP_TestCity> nehrpCA = NEHRP_TestCity.getCA();
+//				siteLoop:
+				for (String name : locs.keySet()) {
+					Location loc = locs.get(name);
+					
+					// only additional ones now
+//					for (NEHRP_TestCity n : nehrpCA) {
+//						if (loc.equals(n.location()))
+//							continue siteLoop;
+//					}
+					
+					Site s = new Site(loc, name);
+					
+					// CY AS
+					DepthTo1pt0kmPerSecParam d10p = new DepthTo1pt0kmPerSecParam(null,
+						0, 1000, true);
+					d10p.setValueAsDefault();
+					s.addParameter(d10p);
+					// CB
+					DepthTo2pt5kmPerSecParam d25p = new DepthTo2pt5kmPerSecParam(null,
+						0, 1000, true);
+					d25p.setValueAsDefault();
+					s.addParameter(d25p);
+					// all
+					Vs30_Param vs30p = new Vs30_Param(760);
+					vs30p.setValueAsDefault();
+					s.addParameter(vs30p);
+					// AS CY
+					Vs30_TypeParam vs30tp = new Vs30_TypeParam();
+					s.addParameter(vs30tp);
+					
+					sites.add(s);
+				}
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
 			
 			return sites;
 		}
@@ -2561,7 +2629,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return map;
 		}
 		
-		private static List<Period> getPeriods() {
+		public static List<Period> getPeriods() {
 			List<Period> periods = Lists.newArrayList();
 			
 			periods.add(Period.GM0P00); // PGA
@@ -2833,10 +2901,33 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 		
 		// site : <period, probLevel, branchLevel:plot>
-		private Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap;
+//		private Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap;
+		private transient SiteHazardResults plots;
 
 		@Override
 		protected void doFinalizePlot() {
+			writeMetadataFile(curveDir, sites, periods, imrs, branches, branchWeights);
+			
+			plots = doFinalizePlot(curveDir, sites, periods, imrs, branches, branchWeights);
+		}
+		
+		private static void writeMetadataFileForAllBranches(
+				List<LogicTreeBranch> branches, BranchWeightProvider prov, File curveDir) {
+			BranchWeightProvider weightProv = new APrioriBranchWeightProvider();
+			
+			LogicTreeBranch[] branchArray = new LogicTreeBranch[branches.size()];
+			double[] branchWeights = new double[branches.size()];
+			for (int i=0; i<branches.size(); i++) {
+				LogicTreeBranch branch = branches.get(i);
+				branchArray[i] = branch;
+				branchWeights[i] = weightProv.getWeight(branch);
+			}
+			
+			writeMetadataFile(curveDir, getSites(), getPeriods(), buildIMRMap(), branchArray, branchWeights);
+		}
+		
+		private static void writeMetadataFile(File curveDir, List<Site> sites, List<Period> periods, Map<AttenRelRef, Double> imrs,
+				LogicTreeBranch[] branches, double[] branchWeights) {
 			Document doc = XMLUtils.createDocumentWithRoot();
 			Element root = doc.getRootElement();
 			
@@ -2874,11 +2965,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} catch (IOException e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
-			
-			plotsMap = doFinalizePlot(curveDir, sites, periods, imrs, branches, branchWeights);
 		}
 		
-		protected static  Map<Site, Table<Period, Double, Map<String, PlotSpec>>> doFinalizePlot(
+		protected static  SiteHazardResults doFinalizePlot(
 				File curveDir) {
 			File xmlFile = new File(curveDir, "metadata.xml");
 			Document doc;
@@ -2916,13 +3005,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 			return doFinalizePlot(curveDir, sites, periods, imrs, branches, branchWeights);
 		}
 		
-		protected static  Map<Site, Table<Period, Double, Map<String, PlotSpec>>> doFinalizePlot(
+		protected static SiteHazardResults doFinalizePlot(
 				File curveDir, List<Site> sites, List<Period> periods, Map<AttenRelRef, Double> imrs,
 				LogicTreeBranch[] branches, double[] branchWeights) {
-			Map<Site, Table<Period, Double, Map<String, PlotSpec>>> plotsMap = Maps.newHashMap();
+			SiteHazardResults results = new SiteHazardResults();
+			results.plotsMap = Maps.newHashMap();
+			results.csvsMap = Maps.newHashMap();
 			for (Site site : sites) {
 				Table<Period, Double, Map<String, PlotSpec>> sitePlots = HashBasedTable.create();
-				plotsMap.put(site, sitePlots);
+				Table<Period, Double, CSVFile<String>> siteCSVs = HashBasedTable.create();
+				results.plotsMap.put(site, sitePlots);
+				results.csvsMap.put(site, siteCSVs);
 				for (Period period : periods) {
 					for (double prob : probLevels) {
 						String periodName;
@@ -2961,28 +3054,62 @@ public abstract class CompoundFSSPlots implements Serializable {
 									double weight = branchWeights[i]*imrWeight*covWeight;
 									
 									DiscretizedFunc curve = curves.get(i);
+									// make sure it's not NaNs
+									String metadata = "site="+site.getName()+", prefix="+binFilePrefix
+											+", branch="+i+", "+branch.buildFileName();
+									validateCurve(curve, metadata);
+//									for (Point2D pt : curve) {
+//										if (Double.isNaN(pt.getY())) {
+//											System.out.println("NaN found for site="+site.getName()+", prefix="+binFilePrefix
+//													+", branch="+i+", pt="+pt);
+//											break;
+//										}
+////										Preconditions.checkState(!Double.isNaN(pt.getY()),
+////												"NaN found for site="+site.getName()+", prefix="+binFilePrefix
+////												+", branch="+i+", pt="+pt);
+//									}
 									double val = HazardDataSetLoader.getCurveVal(curve, false, prob);
+									
+									if (Double.isNaN(val)) {
+										System.err.flush();
+										System.out.println("NaN probability value! site="+site.getName()+", prefix="+binFilePrefix
+													+", branch="+i+", "+branch.buildFileName());
+										System.out.print("\tx:");
+										for (Point2D pt : curve)
+											System.out.print("\t"+(float)pt.getX());
+										System.out.println();
+										System.out.print("\ty:");
+										for (Point2D pt : curve)
+											System.out.print("\t"+(float)pt.getY());
+										System.out.println();
+										val = curve.getMaxX();
+										System.out.flush();
+										System.err.println("Using max val="+val);
+										System.err.flush();
+									}
+									
+									Preconditions.checkState(Doubles.isFinite(val), "Non finite val: "+val+". "+metadata);
 									
 									hist.addValues(branch, val, weight, "MagDepAperiodicity", covName,
 											"GMPE", imr.getShortName());
 								}
 							}
 						}
-						Range range = hist.getRange();
 						double delta = 0.02;
-//						// round down
-//						double min = Math.floor(range.getLowerBound()/delta) * delta;
-//						System.out.println("Vals Range: "+range);
-//						System.out.println("Hist Delta: "+0.02);
-//						System.out.println("Calc Min: "+min);
-//						int num = (int)((range.getUpperBound() - min) / delta + 0.5)+1;
-//						System.out.println("Calc Num: "+num);
-//						Preconditions.checkState(min-0.5*delta <= range.getLowerBound(), "Range less than hist min!");
-//						double max = min + delta*num;
-//						System.out.println("Calc Max: "+max);
-//						System.out.flush();
-//						Preconditions.checkState(max+0.5*delta >= range.getUpperBound(), "Range greater than hist max!");
+						
+						// make sure we get at least 5 bins
+						
 						Map<String, PlotSpec> histSpecs = hist.getStackedHistPlots(true, delta);
+						
+						DiscretizedFunc f1 = (DiscretizedFunc) histSpecs.get(histSpecs.keySet().iterator().next()).getPlotElems().get(0);
+						while (f1.getNum() < 5) {
+							delta /= 2;
+							histSpecs = hist.getStackedHistPlots(true, delta);
+							
+							f1 = (DiscretizedFunc) histSpecs.get(histSpecs.keySet().iterator().next()).getPlotElems().get(0);
+						}
+						
+						siteCSVs.put(period, prob, hist.getStaticsticsCSV());
 						
 						sitePlots.put(period, prob, histSpecs);
 						hist = null;
@@ -2990,7 +3117,31 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 				}
 			}
-			return plotsMap;
+			return results;
+		}
+		
+		private static void validateCurve(DiscretizedFunc curve, String metadata) {
+			Preconditions.checkState(curve.getNum() > 1,
+					"Hazard curve has too few points ("+curve.getNum()+")! "+metadata);
+			double sumY = 0d;
+			for (int i=0; i<curve.getNum(); i++) {
+				Point2D pt = curve.get(i);
+				// Y checks
+				if (!Doubles.isFinite(pt.getY()))
+					throw new IllegalStateException("Non finite Y value at index "+i+": "+pt+". "+metadata);
+				if ((float)pt.getY() < 0f || (float)pt.getY() > 1f)
+					throw new IllegalStateException("Y value not in range [0 1] at index "+i+": "+pt+". "+metadata);
+				if (i > 1 && (float)pt.getY() > (float)curve.getY(i-1))
+					throw new IllegalStateException("Y value not monotonically decreasing at index "+i+": "
+							+pt+" > "+curve.get(i-1)+". "+metadata);
+				sumY += pt.getY();
+				// X checks
+				if (!Doubles.isFinite(pt.getX()))
+					throw new IllegalStateException("Non finite X value at index "+i+": "+pt+". "+metadata);
+				if ((float)pt.getY() < 0f)
+					throw new IllegalStateException("X value < 0 at index "+i+": "+pt+". "+metadata);
+			}
+			Preconditions.checkState(sumY > 0, "Hazard curve is all zeros! "+metadata);
 		}
 
 		@Override
@@ -8291,8 +8442,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
+		File curveDir = new File("/tmp/comp_plots/site_hazard_curve_cache");
+		ERFBasedSiteHazardHistPlot.writeMetadataFileForAllBranches(Lists.newArrayList(CompoundFaultSystemSolution
+				.fromZipFile(new File("/tmp/comp_plots/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip")).getBranches()),
+				new APrioriBranchWeightProvider(), curveDir);
 		writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot.doFinalizePlot(
-				new File("/tmp/comp_plots/site_hazard_curve_cache")), new File("/tmp/comp_plots"));
+				curveDir), new File("/tmp/comp_plots"));
 		System.exit(0);
 //		recombineMagProbDistPDFs(new File("/tmp/asdf/small_MPD_plots/"),
 //				new File("/tmp/asdf/small_MPD_faults/"), "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL");

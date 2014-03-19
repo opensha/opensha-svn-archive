@@ -298,7 +298,7 @@ public class General_EQSIM_Tools {
 					currEvent = event;
 				} else { // check whether this is part of currEvent (same ID)
 					if(currEvent.isSameEvent(evRec)) {
-						currEvent.add(evRec);
+						currEvent.addEventRecord(evRec);
 					}
 					else { // it's a new event
 // if(currEvent.getID()==1214) System.out.println(currEvent.getID()+"\t"+currEvent.getAllElementIDs().length);

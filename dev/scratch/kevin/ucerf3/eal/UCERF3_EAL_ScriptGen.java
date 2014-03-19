@@ -28,7 +28,8 @@ public class UCERF3_EAL_ScriptGen {
 			writeDir.mkdir();
 		
 //		String runSubDirName = "2013_11_04-eal-calc-small-test";
-		String runSubDirName = "2014_01_15-ucerf3-eal-calc-NGA2s-2013";
+//		String runSubDirName = "2014_01_15-ucerf3-eal-calc-NGA2s-2013";
+		String runSubDirName = "2014_03_19-ucerf3-eal-calc-CB2014-recalc";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -72,9 +73,9 @@ public class UCERF3_EAL_ScriptGen {
 		
 //		AttenRelRef[] imrs = { AttenRelRef.CB_2014, AttenRelRef.CY_2014,
 //				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
-//		AttenRelRef[] imrs = { AttenRelRef.CB_2014 };
-		AttenRelRef[] imrs = { AttenRelRef.CY_2014,
-				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
+		AttenRelRef[] imrs = { AttenRelRef.CB_2014 };
+//		AttenRelRef[] imrs = { AttenRelRef.CY_2014,
+//				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
 		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, meanSolFile);

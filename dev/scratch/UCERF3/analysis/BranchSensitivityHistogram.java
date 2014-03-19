@@ -16,6 +16,7 @@ import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -164,29 +165,28 @@ public class BranchSensitivityHistogram implements Serializable {
 	 * @return
 	 */
 	public double calcMean(String categoryName) {
-		return calcMean(categoryName, null);
+		return calcMean(categoryName, new String[0]);
 	}
 	
 	/**
 	 * calculate the weighted mean of all values across the given choice in the given category,
 	 * or across all choices if choiceName is null
 	 * @param categoryName
-	 * @param choiceName
+	 * @param choiceNames
 	 * @return
 	 */
-	public double calcMean(String categoryName, String choiceName) {
-		List<Double> vals, weights;
-		if (choiceName == null) {
-			// over all choices. each list is independent
-			vals = Lists.newArrayList();
-			weights = Lists.newArrayList();
-			for (String choice : getChoices(categoryName)) {
-				vals.addAll(valsTable.get(categoryName, choice));
-				weights.addAll(weightsTable.get(categoryName, choice));
-			}
-		} else {
-			vals = valsTable.get(categoryName, choiceName);
-			weights = weightsTable.get(categoryName, choiceName);
+	public double calcMean(String categoryName, String... choiceNames) {
+		if (choiceNames == null || choiceNames.length == 0) {
+			List<String> choices = Lists.newArrayList(getChoices(categoryName));
+			choiceNames = new String[choices.size()];
+			for (int i=0; i<choiceNames.length; i++)
+				choiceNames[i] = choices.get(i);
+		}
+		List<Double> vals = Lists.newArrayList();
+		List<Double> weights = Lists.newArrayList();
+		for (String choice : choiceNames) {
+			vals.addAll(valsTable.get(categoryName, choice));
+			weights.addAll(weightsTable.get(categoryName, choice));
 		}
 		
 		double sumWeight = 0d;
@@ -226,33 +226,32 @@ public class BranchSensitivityHistogram implements Serializable {
 	 * @return
 	 */
 	public double calcStdDev(String categoryName) {
-		return calcStdDev(categoryName, null);
+		return calcStdDev(categoryName, new String[0]);
 	}
 	
 	/**
 	 * calculate the weighted std dev of all values across the given choice in the given category,
 	 * or across all choices if choiceName is null
 	 * @param categoryName
-	 * @param choiceName
+	 * @param choiceNames
 	 * @return
 	 */
-	public double calcStdDev(String categoryName, String choiceName) {
-		List<Double> vals, weights;
-		if (choiceName == null) {
-			// over all choices. each list is independent
-			vals = Lists.newArrayList();
-			weights = Lists.newArrayList();
-			for (String choice : getChoices(categoryName)) {
-				vals.addAll(valsTable.get(categoryName, choice));
-				weights.addAll(weightsTable.get(categoryName, choice));
-			}
-		} else {
-			vals = valsTable.get(categoryName, choiceName);
-			weights = weightsTable.get(categoryName, choiceName);
+	public double calcStdDev(String categoryName, String... choiceNames) {
+		if (choiceNames == null || choiceNames.length == 0) {
+			List<String> choices = Lists.newArrayList(getChoices(categoryName));
+			choiceNames = new String[choices.size()];
+			for (int i=0; i<choiceNames.length; i++)
+				choiceNames[i] = choices.get(i);
+		}
+		List<Double> vals = Lists.newArrayList();
+		List<Double> weights = Lists.newArrayList();
+		for (String choice : choiceNames) {
+			vals.addAll(valsTable.get(categoryName, choice));
+			weights.addAll(weightsTable.get(categoryName, choice));
 		}
 		
 		double sumWeight = 0d;
-		double mean = calcMean(categoryName, choiceName);
+		double mean = calcMean(categoryName, choiceNames);
 		double var = 0;
 		for(int i=0; i<vals.size(); i++) {
 			double val = vals.get(i);
@@ -393,6 +392,53 @@ public class BranchSensitivityHistogram implements Serializable {
 		}
 		
 		return spec;
+	}
+	
+	public CSVFile<String> getStaticsticsCSV() {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		csv.addLine("Category", "Choice", "Choice Mean", "Choice Std Dev",
+				"Mean WITHOUT Choice", "Std Dev WITHOUT Choice");
+		
+		List<String> categories = Lists.newArrayList(valsTable.rowKeySet());
+		Collections.sort(categories);
+		
+		for (String categoryName : categories) {
+			List<String> choices = Lists.newArrayList(getChoices(categoryName));
+			Collections.sort(choices);
+			
+			for (String choiceName : choices) {
+				List<String> line = Lists.newArrayList(categoryName, choiceName);
+				
+				double choiceMean = calcMean(categoryName, choiceName);
+				double choiceStdDev = calcStdDev(categoryName, choiceName);
+				
+				String[] namesWithout = new String[choices.size()-1];
+				int cnt = 0;
+				for (String oChoice : choices) {
+					if (oChoice.equals(choiceName))
+						continue;
+					namesWithout[cnt++] = oChoice;
+				}
+				
+				double withoutMean = calcMean(categoryName, namesWithout);
+				double withoutStdDev = calcStdDev(categoryName, namesWithout);
+				
+				line.add(choiceMean+"");
+				line.add(choiceStdDev+"");
+				line.add(withoutMean+"");
+				line.add(withoutStdDev+"");
+				csv.addLine(line);
+			}
+		}
+		
+		// add TOTAL
+		// identical for each category, equally distributed
+		double overallMean = calcMean(categories.get(0));
+		double overallStdDev = calcStdDev(categories.get(0));
+		csv.addLine("TOTAL", "N/A", overallMean+"", overallStdDev+"", Double.NaN+"", Double.NaN+"");
+		
+		return csv;
 	}
 
 }

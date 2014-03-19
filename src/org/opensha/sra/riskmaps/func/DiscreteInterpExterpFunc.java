@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 
 /**
  * This class behaves much like the <code>DiscreteFunction</code> class, however
@@ -323,7 +324,7 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 		isx.fillInStackTrace(); throw isx;
 	}
 	
-	public static DiscreteInterpExterpFunc fromArbDistFunc(ArbitrarilyDiscretizedFunc func) {
+	public static DiscreteInterpExterpFunc fromArbDistFunc(DiscretizedFunc func) {
 		int size = func.getNum();
 		double xVals[] = new double[size];
 		double yVals[] = new double[size];

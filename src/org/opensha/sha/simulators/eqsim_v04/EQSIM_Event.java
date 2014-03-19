@@ -1,28 +1,41 @@
 package org.opensha.sha.simulators.eqsim_v04;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 import org.opensha.commons.geo.Location;
+
+import com.google.common.collect.Lists;
 
 /**
  * Event records are ordered such that the first is where the event nucleated
  * @author field
  *
  */
-public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQSIM_Event> {
+public class EQSIM_Event implements Comparable<EQSIM_Event>, Iterable<EventRecord>, Serializable {
 	
 	int event_id;			
 	double magnitude;		// (same for all records for the event)
 	double time;			// seconds from start of simulation (same for all records for the event)
 	double duration;		// seconds (same for all records for the event)
+	
+	private List<EventRecord> records;
 
 	public EQSIM_Event(EventRecord eventRecord) {
-		this.add(eventRecord);
+		this.records = Lists.newArrayList();
+		records.add(eventRecord);
 		this.event_id = eventRecord.getID();
 		this.magnitude=eventRecord.getMagnitude();
 		this.time=eventRecord.getTime();
 		this.duration=eventRecord.getDuration();
+	}
+	
+	// for cloning/serialization purposes
+	private EQSIM_Event() {
+		
 	}
 	
 	public String toString() {
@@ -61,7 +74,7 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	
 	public void addEventRecord(EventRecord eventRecord){
 		if(isSameEvent(eventRecord))
-			add(eventRecord);
+			records.add(eventRecord);
 		else throw new RuntimeException("Can't add because event IDs differ");
 	}
 	
@@ -473,12 +486,28 @@ public class EQSIM_Event extends ArrayList<EventRecord> implements Comparable<EQ
 	}
 	
 	public EQSIM_Event cloneNewTime(double timeSeconds, int newID) {
-		EQSIM_Event o = new EQSIM_Event(get(0));
-		for (int i=1; i<size(); i++)
-			o.add(get(i));
+		EQSIM_Event o = new EQSIM_Event();
+//		for (int i=1; i<size(); i++)
+//			o.add(get(i));
 		o.time = timeSeconds;
 		o.event_id = newID;
+		o.magnitude = magnitude;
+		o.duration = duration;
+		o.records = records;
 		return o;
+	}
+
+	@Override
+	public Iterator<EventRecord> iterator() {
+		return records.iterator();
+	}
+	
+	public int size() {
+		return records.size();
+	}
+	
+	public EventRecord get(int index) {
+		return records.get(index);
 	}
 
 }
