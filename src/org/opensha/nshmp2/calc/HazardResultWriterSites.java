@@ -54,6 +54,7 @@ public class HazardResultWriterSites implements HazardResultWriter {
 		String cityLine = JOIN.join(cityData) + N;
 		String outPath = outDir + S + period + S + "curves.csv";
 		File outFile = new File(outPath);
+		Files.createParentDirs(outFile);
 		Files.append(cityLine, outFile, US_ASCII);
 	}
 
