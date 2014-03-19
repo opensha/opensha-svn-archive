@@ -746,7 +746,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		return CB_2008_AttenRel.FLT_TYPE_STRIKE_SLIP;
 	}
 	
-	class NSHMP_BA_2008 extends BA_2008_AttenRel {
+	public class NSHMP_BA_2008 extends BA_2008_AttenRel {
 		
 		public NSHMP_BA_2008() {
 			super(null);
@@ -759,7 +759,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		}
 	}
 	
-	class NSHMP_CB_2008 extends CB_2008_AttenRel {
+	public class NSHMP_CB_2008 extends CB_2008_AttenRel {
 		
 		public NSHMP_CB_2008() {
 			super(null);
@@ -866,7 +866,7 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		
 	}
 
-	class NSHMP_CY_2008 extends CY_2008_AttenRel {
+	public class NSHMP_CY_2008 extends CY_2008_AttenRel {
 		
 		public NSHMP_CY_2008() {
 			super(null);
