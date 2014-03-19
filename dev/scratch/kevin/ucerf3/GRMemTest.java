@@ -1,6 +1,7 @@
 package scratch.kevin.ucerf3;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -54,7 +55,7 @@ public class GRMemTest {
 			else
 				gen.generateInputs();
 			System.out.println("Done generating inputs after "
-				+(watch.elapsedMillis() / 1000d / 60d)+" mins.");
+				+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d / 60d)+" mins.");
 			
 			System.gc();
 			
@@ -64,7 +65,7 @@ public class GRMemTest {
 			gen.columnCompress();
 			
 			System.out.println("Done column compressing after "
-					+(watch.elapsedMillis() / 1000d / 60d)+" mins.");
+					+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d / 60d)+" mins.");
 			
 			System.gc();
 			

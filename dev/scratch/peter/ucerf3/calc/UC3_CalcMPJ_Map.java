@@ -171,7 +171,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 					file.delete();
 				}
 				Flushables.flushQuietly(brP);
-				Closeables.closeQuietly(brP);
+				Closeables.close(brP, true);
 
 				File[] dFiles = dir.listFiles(new FileFilter() {
 					@Override public boolean accept(File f) {
@@ -191,7 +191,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 					file.delete();
 				}
 				Flushables.flushQuietly(brD);
-				Closeables.closeQuietly(brD);
+				Closeables.close(brD, true);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -215,7 +215,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 					file.delete();
 				}
 				Flushables.flushQuietly(br);
-				Closeables.closeQuietly(br);
+				Closeables.close(br, true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

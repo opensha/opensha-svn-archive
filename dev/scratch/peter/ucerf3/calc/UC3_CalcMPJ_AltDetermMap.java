@@ -175,7 +175,7 @@ public class UC3_CalcMPJ_AltDetermMap extends MPJTaskCalculator {
 					file.delete();
 				}
 				Flushables.flushQuietly(brD);
-				Closeables.closeQuietly(brD);
+				Closeables.close(brD, true);
 
 			} catch (Exception e) {
 				e.printStackTrace();

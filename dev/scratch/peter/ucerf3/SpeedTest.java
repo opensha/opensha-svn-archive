@@ -3,6 +3,7 @@ package scratch.peter.ucerf3;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.Site;
 import org.opensha.nshmp.NEHRP_TestCity;
@@ -84,7 +85,7 @@ public class SpeedTest {
 			
 			HazardCalc calc = HazardCalc.create(erfList, site, period, epiUncert);
 			HazardResult hr = calc.call();
-			System.out.println(sw.stop().elapsedMillis());
+			System.out.println(sw.stop().elapsed(TimeUnit.MILLISECONDS));
 			System.out.println(hr.curve());
 			
 //			return wrapInList(erf);

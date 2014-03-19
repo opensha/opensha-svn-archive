@@ -53,7 +53,6 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
@@ -409,8 +408,8 @@ public class FrankelEtAl_1996_AttenRel extends AttenuationRelationship implement
 
 	static class GM_Table {
 
-		static final Range<Double> mRange = Ranges.closed(4.4, 8.2);
-		static final Range<Double> dRange = Ranges.closed(1.0, 3.0);
+		static final Range<Double> mRange = Range.closed(4.4, 8.2);
+		static final Range<Double> dRange = Range.closed(1.0, 3.0);
 		static final int M_IDX = 19;
 		static final int D_IDX = 20;
 

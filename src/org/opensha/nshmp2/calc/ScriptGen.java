@@ -145,7 +145,7 @@ public class ScriptGen {
 			BufferedWriter writer = Files.newWriter(pFile, Charsets.US_ASCII);
 			props.store(writer, comment);
 			Flushables.flushQuietly(writer);
-			Closeables.closeQuietly(writer);
+			Closeables.close(writer, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

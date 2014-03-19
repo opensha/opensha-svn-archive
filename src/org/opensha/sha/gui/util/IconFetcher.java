@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -83,11 +84,10 @@ public class IconFetcher {
 	private static BufferedImage loadWithTimeout(URL url, long timeout) {
 		ImageReadThread t = new ImageReadThread(url);
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		t.start();
 		
-		while (t.isAlive() && watch.elapsedMillis() < timeout) {
+		while (t.isAlive() && watch.elapsed(TimeUnit.MILLISECONDS) < timeout) {
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {

@@ -902,8 +902,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			for (int r = 0; r < regions.size(); r++) {
 				Region region = regions.get(r);
 
-				Stopwatch watch = new Stopwatch();
-				watch.start();
+				Stopwatch watch = Stopwatch.createStarted();
 				debug(solIndex, "calculating region (COMBINED) " + r);
 				// System.out.println("Calculating branch "+solIndex+" region "+r);
 				SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -912,7 +911,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				watch.stop();
 				debug(solIndex,
 						"done region (COMBINED) " + r + " ("
-								+ (watch.elapsedMillis() / 1000d) + " s)");
+								+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 				// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 				// +solIndex+" region "+r+" ("+region.getName()+")");
 
@@ -926,8 +925,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			for (int r = 0; r < regions.size(); r++) {
 				Region region = regions.get(r);
 
-				Stopwatch watch = new Stopwatch();
-				watch.start();
+				Stopwatch watch = Stopwatch.createStarted();
 				debug(solIndex, "calculating region (ON FAULT) " + r);
 				// System.out.println("Calculating branch "+solIndex+" region "+r);
 				SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -936,7 +934,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				watch.stop();
 				debug(solIndex,
 						"done region (ON FAULT) " + r + " ("
-								+ (watch.elapsedMillis() / 1000d) + " s)");
+								+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 				// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 				// +solIndex+" region "+r+" ("+region.getName()+")");
 
@@ -960,8 +958,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (int r = 0; r < regions.size(); r++) {
 					Region region = regions.get(r);
 
-					Stopwatch watch = new Stopwatch();
-					watch.start();
+					Stopwatch watch = Stopwatch.createStarted();
 					debug(solIndex, "calculating region (OFF FAULT) " + r);
 					// System.out.println("Calculating branch "+solIndex+" region "+r);
 					SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -970,7 +967,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					watch.stop();
 					debug(solIndex,
 							"done region (OFF FAULT) " + r + " ("
-									+ (watch.elapsedMillis() / 1000d) + " s)");
+									+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 					// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 					// +solIndex+" region "+r+" ("+region.getName()+")");
 
@@ -1948,8 +1945,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					for (int r = 0; r < regions.size(); r++) {
 						Region region = regions.get(r);
 
-						Stopwatch watch = new Stopwatch();
-						watch.start();
+						Stopwatch watch = Stopwatch.createStarted();
 						debug(solIndex, "calculating region (COMBINED) " + r);
 						// System.out.println("Calculating branch "+solIndex+" region "+r);
 						SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -1958,7 +1954,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						watch.stop();
 						debug(solIndex,
 								"done region (COMBINED) " + r + " ("
-										+ (watch.elapsedMillis() / 1000d) + " s)");
+										+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 						// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 						// +solIndex+" region "+r+" ("+region.getName()+")");
 
@@ -1972,8 +1968,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					for (int r = 0; r < regions.size(); r++) {
 						Region region = regions.get(r);
 
-						Stopwatch watch = new Stopwatch();
-						watch.start();
+						Stopwatch watch = Stopwatch.createStarted();
 						debug(solIndex, "calculating region (ON FAULT) " + r);
 						// System.out.println("Calculating branch "+solIndex+" region "+r);
 						SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -1982,7 +1977,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						watch.stop();
 						debug(solIndex,
 								"done region (ON FAULT) " + r + " ("
-										+ (watch.elapsedMillis() / 1000d) + " s)");
+										+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 						// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 						// +solIndex+" region "+r+" ("+region.getName()+")");
 
@@ -2006,8 +2001,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						for (int r = 0; r < regions.size(); r++) {
 							Region region = regions.get(r);
 
-							Stopwatch watch = new Stopwatch();
-							watch.start();
+							Stopwatch watch = Stopwatch.createStarted();
 							debug(solIndex, "calculating region (OFF FAULT) " + r);
 							// System.out.println("Calculating branch "+solIndex+" region "+r);
 							SummedMagFreqDist ucerf3_Part = ERF_Calculator
@@ -2016,7 +2010,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 							watch.stop();
 							debug(solIndex,
 									"done region (OFF FAULT) " + r + " ("
-											+ (watch.elapsedMillis() / 1000d) + " s)");
+											+ watch.elapsed(TimeUnit.SECONDS) + " s)");
 							// System.out.println("Took "+(watch.elapsedMillis()/1000d)+" secst for branch "
 							// +solIndex+" region "+r+" ("+region.getName()+")");
 

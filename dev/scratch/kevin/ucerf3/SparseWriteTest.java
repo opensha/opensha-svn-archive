@@ -29,13 +29,13 @@ public class SparseWriteTest {
 //		DoubleMatrix2D mat = MatrixIO.loadSparse(input, SparseCCDoubleMatrix2D.class);
 		DoubleMatrix2D mat = MatrixIO.loadSparse(input, SparseDoubleMatrix2D.class);
 		watch.stop();
-		System.out.println("Loading took "+watch.elapsedTime(TimeUnit.SECONDS)+" secs");
+		System.out.println("Loading took "+watch.elapsed(TimeUnit.SECONDS)+" secs");
 		System.out.println("Saving...");
 		watch.reset();
 		watch.start();
 		MatrixIO.saveSparse(mat, output);
 		watch.stop();
-		System.out.println("Saving took "+watch.elapsedTime(TimeUnit.SECONDS)+" secs");
+		System.out.println("Saving took "+watch.elapsed(TimeUnit.SECONDS)+" secs");
 		System.out.println("DONE.");
 	}
 

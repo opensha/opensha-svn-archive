@@ -141,7 +141,7 @@ public class UC3_CalcMPJ_MapCompound extends MPJTaskCalculator {
 				file.delete();
 			}
 			Flushables.flushQuietly(br);
-			Closeables.closeQuietly(br);
+			Closeables.close(br, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

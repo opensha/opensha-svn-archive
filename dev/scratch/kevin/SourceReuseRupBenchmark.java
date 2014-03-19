@@ -1,5 +1,7 @@
 package scratch.kevin;
 
+import java.util.concurrent.TimeUnit;
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
@@ -45,8 +47,7 @@ public class SourceReuseRupBenchmark {
 		
 		ArbitrarilyDiscretizedFunc func = IMT_Info.getUSGS_PGA_Function();
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		for (int i=0; i<num; i++) {
 			System.out.print("  "+i);
 			calc.getHazardCurve(func, site, imr, erf);
@@ -54,7 +55,7 @@ public class SourceReuseRupBenchmark {
 		watch.stop();
 		System.out.println();
 		
-		double secs = (double)watch.elapsedMillis() / 1000d;
+		double secs = (double)watch.elapsed(TimeUnit.MILLISECONDS) / 1000d;
 		System.out.println("Time: "+secs+" secs");
 	}
 

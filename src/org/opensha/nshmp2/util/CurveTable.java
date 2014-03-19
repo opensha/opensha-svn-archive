@@ -360,7 +360,7 @@ public class CurveTable {
 		sw.stop();
 		
 		System.out.println(table.curves.size());
-		System.out.println(sw.elapsedTime(TimeUnit.MILLISECONDS));
+		System.out.println(sw.elapsed(TimeUnit.MILLISECONDS));
 		System.out.println(table.get(12.0, 6.55));
 		System.out.println(table.curves.at(0,0));
 

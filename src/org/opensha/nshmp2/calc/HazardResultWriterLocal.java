@@ -49,9 +49,9 @@ public class HazardResultWriterLocal implements HazardResultWriter {
 	}
 
 	@Override
-	public void close() {
+	public void close() throws IOException {
 		Flushables.flushQuietly(writer);
-		Closeables.closeQuietly(writer);
+		Closeables.close(writer, true);
 	}
 
 	private static String formatResult(HazardResult result) {

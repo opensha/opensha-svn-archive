@@ -319,7 +319,7 @@ public class TestCalc {
 			pOut.set(i, 1 - Math.exp(rOut.getY(i)));
 		}
 		sw.stop();
-		System.out.println("NSHMP: " + sw.elapsedTime(TimeUnit.SECONDS));
+		System.out.println("NSHMP: " + sw.elapsed(TimeUnit.SECONDS));
 		
 		sw.reset().start();
 		// SHA
@@ -335,7 +335,7 @@ public class TestCalc {
 			pOut.set(i, 1 - pOut.getY(i));
 		}
 		sw.stop();
-		System.out.println("  SHA: " + sw.elapsedTime(TimeUnit.SECONDS));
+		System.out.println("  SHA: " + sw.elapsed(TimeUnit.SECONDS));
 		
 		
 	}

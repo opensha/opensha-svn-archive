@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.StatUtils;
@@ -486,8 +487,8 @@ public class PaleoFitPlotter {
 			}
 			watch.stop();
 			
-			System.out.println("Calc Times:\ttotal="+(watch.elapsedMillis()/1000f)+"\tpaleo="+(paleoWatch.elapsedMillis()/1000f)
-					+"\tslip="+(slipsWatch.elapsedMillis()/1000f)+"\taveSlip="+(aveSlipsWatch.elapsedMillis()/1000f));
+			System.out.println("Calc Times:\ttotal="+watch.elapsed(TimeUnit.SECONDS)+"\tpaleo="+paleoWatch.elapsed(TimeUnit.SECONDS)
+					+"\tslip="+slipsWatch.elapsed(TimeUnit.SECONDS)+"\taveSlip="+aveSlipsWatch.elapsed(TimeUnit.SECONDS));
 			return data;
 		}
 	}

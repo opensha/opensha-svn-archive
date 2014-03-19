@@ -44,16 +44,16 @@ public class Utils {
 //		consolidateFiles(fileName, dirName);
 		
 //		interpolateTest();
-//		findMissing();
+		findMissing();
 //		combineCurves();
-		GriddedRegion gr = TestGrid.CA_NSHMP.grid(0.05);
-		System.out.println(gr.getNodeCount());
+//		GriddedRegion gr = TestGrid.CA_NSHMP.grid(0.05);
+//		System.out.println(gr.getNodeCount());
 	}
 	
 	// finds missing locations in big NSHMP13B runs
 	private static void findMissing() {
-		String path = "tmp/UC33/maps/src/NSHMP13B-epi/mean_ucerf3_sol/CA_NSHMP/GM3P00/curves";
-		GriddedRegion grid = TestGrid.CA_NSHMP.grid(0.1);
+		String path = "tmp/UC33/maps/src/NSHMP14/LOCAL/LOS_ANGELES/GM0P20/curves";
+		GriddedRegion grid = TestGrid.LOS_ANGELES.grid(0.02);
 		String format = "%.3f";
 		for (Location loc : grid) {
 			String fName = String.format(format, loc.getLatitude()) + "_" +

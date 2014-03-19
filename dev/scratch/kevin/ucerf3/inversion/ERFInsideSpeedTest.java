@@ -3,6 +3,7 @@ package scratch.kevin.ucerf3.inversion;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -91,7 +92,7 @@ public class ERFInsideSpeedTest {
 			watch.start();
 			ERF_Calculator.getParticipationMagFreqDistInRegion(erf, r, 5.05, 40, 0.1, true, cache);
 			watch.stop();
-			System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" secs for "+r.getName());
+			System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs for "+r.getName());
 		}
 		
 		for (Region r : RegionalMFDPlot.getDefaultRegions()) {
@@ -99,7 +100,7 @@ public class ERFInsideSpeedTest {
 			watch.start();
 			ERF_Calculator.getParticipationMagFreqDistInRegion(erf, r, 5.05, 40, 0.1, true, cache);
 			watch.stop();
-			System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" secs for "+r.getName());
+			System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs for "+r.getName());
 		}
 	}
 

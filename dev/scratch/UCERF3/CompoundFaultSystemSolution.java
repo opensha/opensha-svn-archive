@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -331,14 +332,12 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 //		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
 		File compoundFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_IND_RUNS.zip");
 //		File compoundFile = new File(dir, "subset_COMPOUND_SOL.zip");
-		Stopwatch watch = new Stopwatch();
+		Stopwatch watch = Stopwatch.createStarted();
 //		watch.start();
 //		toZipFile(compoundFile, it);
 //		watch.stop();
 //		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to save");
 		
-		watch.reset();
-		watch.start();
 		CompoundFaultSystemSolution compoundSol = fromZipFile(compoundFile);
 //		System.exit(0);
 		
@@ -347,7 +346,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 			System.out.println(ClassUtils.getClassNameWithoutPackage(
 					compoundSol.getSolution(branch).getClass()));
 		}
-		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" seconds to load");
+		System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+" seconds to load");
 	}
 
 }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -164,7 +165,7 @@ public class RTGM_Container implements Iterable<Location> {
 		sw.start();
 		RTGM_Container rc = RTGM_Container.create(f);
 		sw.stop();
-		System.out.println("time: " + sw.elapsedMillis());
+		System.out.println("time: " + sw.elapsed(TimeUnit.MILLISECONDS));
 		System.out.println("size: " + rc.size());
 		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.shiftedLocation(), Frequency.SA_0P20));
 		System.out.println(rc.getValue(NEHRP_TestCity.MEMPHIS.shiftedLocation(), Frequency.SA_1P00));

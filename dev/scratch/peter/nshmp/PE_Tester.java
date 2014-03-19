@@ -2,6 +2,8 @@ package scratch.peter.nshmp;
 
 import static org.opensha.nshmp2.util.GaussTruncation.ONE_SIDED;
 
+import java.util.concurrent.TimeUnit;
+
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -38,14 +40,14 @@ public class PE_Tester {
 			getExceedProbability(iml, mean+r, std, false, 0.0);
 		}
 		sw.stop();
-		System.out.println("nshmp: " + sw.elapsedMillis());
+		System.out.println("nshmp: " + sw.elapsed(TimeUnit.MILLISECONDS));
 		sw.reset().start();
 		for (int i=0; i<1000000; i++) {
 			double r = (Math.random() - 0.5) * 0.1;
 			getExceedProbability(mean+r, std, iml, 1);
 		}
 		sw.stop();
-		System.out.println("  sha: " + sw.elapsedMillis());
+		System.out.println("  sha: " + sw.elapsed(TimeUnit.MILLISECONDS));
 
 	}
 	

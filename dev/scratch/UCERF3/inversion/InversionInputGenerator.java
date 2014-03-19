@@ -1351,7 +1351,7 @@ public class InversionInputGenerator {
 	}
 	
 	private static String getTimeStr(Stopwatch watch) {
-		return (float)(watch.elapsedMillis() / 1000d)+" seconds";
+		return (float) watch.elapsed(TimeUnit.SECONDS) + " seconds";
 	}
 	
 	private static DoubleMatrix2D buildMatrix(Class<? extends DoubleMatrix2D> clazz, int rows, int cols) {

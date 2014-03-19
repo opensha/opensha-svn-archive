@@ -2,6 +2,7 @@ package scratch.kevin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.util.ClassUtils;
 
@@ -16,14 +17,13 @@ import cern.colt.matrix.tdouble.impl.SparseDoubleMatrix2D;
 public class MatrixIOBench {
 	
 	private static float getSecs(Stopwatch watch) {
-		return (float)(watch.elapsedMillis() / 1000d);
+		return (float)(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d);
 	}
 	
 	private static void ioBench(File a_file, Class<? extends DoubleMatrix2D> clazz) throws IOException {
 		String cname = ClassUtils.getClassNameWithoutPackage(clazz);
-		Stopwatch watch = new Stopwatch();
 		System.out.println(cname+": loading");
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		DoubleMatrix2D mat = MatrixIO.loadSparse(a_file, clazz);
 		watch.stop();
 		System.out.println(cname+": took "+getSecs(watch)+" secs to load.");

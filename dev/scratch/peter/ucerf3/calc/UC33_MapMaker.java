@@ -120,7 +120,7 @@ public class UC33_MapMaker {
 		
 //		createCAxyzFiles();
 		
-		buildGMEP14changes();
+//		buildGMEP14changes();
 		
 //		buildGMEP13comparisons();
 //		buildGMEP13comparisonsBinaries();
@@ -132,6 +132,7 @@ public class UC33_MapMaker {
 		
 		// for Morgan:
 //		buildUC3_NSHMP_binariesMorgan();
+		buildUC3_NSHMP_binariesMorgan2();
 //		buildUC2_NSHMP_binaries();
 //		build_UC3_GMM08_binary();
 		
@@ -845,6 +846,26 @@ public class UC33_MapMaker {
 			File outFlt = new File("tmp/morgan/curves/CA13-" + p.getLabel() + "-FLT-0p1.curves");
 			BinaryCurves.writeUC3(fltCC, p, spacing, "UCERF3.3 FLT Sources", outFlt);
 			File outBg = new File("tmp/morgan/curves/CA13-" + p.getLabel() + "-BG-0p1.curves");
+			BinaryCurves.writeUC3(bgCC, p, spacing, "UCERF3.3 BG Sources", outBg);
+		}
+	}
+
+	// flt and bg curves for combination (for figures only)
+	private static void buildUC3_NSHMP_binariesMorgan2() throws IOException {
+		TestGrid grid = TestGrid.CA_NSHMP;
+		double spacing = 0.1;
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		
+		for (Period p : periods) {
+			// separate fault and bg files
+			File fltDir = new File(SRC + "NSHMP14" + S + "FLT-noEpi" + S + grid + S + p + S + "curves.csv");
+			CurveContainer fltCC = CurveContainer.create(fltDir, grid, spacing);
+			File bgDir = new File(SRC + "NSHMP14" + S + "BG-noEpi" + S + grid + S + p + S + "curves.csv");
+			CurveContainer bgCC = CurveContainer.create(bgDir, grid, spacing);
+
+			File outFlt = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-FLT-0p1.curves");
+			BinaryCurves.writeUC3(fltCC, p, spacing, "UCERF3.3 FLT Sources", outFlt);
+			File outBg = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-BG-0p1.curves");
 			BinaryCurves.writeUC3(bgCC, p, spacing, "UCERF3.3 BG Sources", outBg);
 		}
 	}

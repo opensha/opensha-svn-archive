@@ -3,6 +3,11 @@
 	<classpathentry excluding="**/_nobuild/*|junk/*|scratch/UCERF3/data/scratch/" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry exported="true" kind="lib" path="lib/guava-16.0.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
@@ -84,11 +89,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jxlayer.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-3.8-20120326.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-14.0-rc1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/pdfbox-app-1.8.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://pdfbox.apache.org/apidocs/"/>

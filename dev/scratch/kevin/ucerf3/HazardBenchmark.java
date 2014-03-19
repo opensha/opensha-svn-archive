@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
@@ -86,17 +87,17 @@ public class HazardBenchmark {
 		watch.start();
 		calc.getHazardCurve(curve, site, imr, erf);
 		watch.stop();
-		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" secs to calculate");
+		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs to calculate");
 		watch.reset();
 		watch.start();
 		calc.getHazardCurve(curve, site, imr, erf);
 		watch.stop();
-		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" secs to calculate again");
+		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs to calculate again");
 		watch.reset();
 		watch.start();
 		calc.getHazardCurve(curve, site, imr, erf);
 		watch.stop();
-		System.out.println("Took "+(watch.elapsedMillis() / 1000d)+" secs to calculate again");
+		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs to calculate again");
 	}
 
 }

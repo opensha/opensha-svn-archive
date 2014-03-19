@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 
 import org.dom4j.DocumentException;
@@ -64,12 +65,11 @@ public class RupSetDiffMaker {
 //		laughTest.getCoulombFilter().setMinIndividualProb(0.1);
 //		laughTest.getCoulombFilter().setMinAverageProb(0.1);
 //		laughTest.getCoulombFilter().setMinimumStressExclusionCeiling(1.5);
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		InversionFaultSystemRupSet rupSet1 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
 		watch.stop();
 		FaultSystemIO.writeRupSet(rupSet1, new File("/tmp/rupSet1.zip"));
-		double secsNew = watch.elapsedMillis() / 1000d;
+		double secsNew = watch.elapsed(TimeUnit.MILLISECONDS) / 1000d;
 		rupSet1.setInfoString("");
 //		laughTest.clearLaughTests();
 //		laughTest = LaughTestFilter.getUCERF3p2Filter();
@@ -90,7 +90,7 @@ public class RupSetDiffMaker {
 		watch.start();
 		InversionFaultSystemRupSet rupSet2 = InversionFaultSystemRupSetFactory.forBranch(laughTest, 0.1, FaultModels.FM3_1);
 		watch.stop();
-		double secsOld = watch.elapsedMillis() / 1000d;
+		double secsOld = watch.elapsed(TimeUnit.MILLISECONDS) / 1000d;
 		
 		System.out.println("New method: "+rupSet1.getNumRuptures()+" rups ("+(float)secsNew+" s)");
 		System.out.println("Old method: "+rupSet2.getNumRuptures()+" rups ("+(float)secsOld+" s)");

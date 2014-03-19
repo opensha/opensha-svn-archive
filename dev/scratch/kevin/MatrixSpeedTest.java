@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.util.ClassUtils;
 
@@ -24,15 +25,14 @@ public class MatrixSpeedTest {
 	private static void doMults(DoubleMatrix2D A, DoubleMatrix1D x, int num) {
 		DenseDoubleMatrix1D syn = new DenseDoubleMatrix1D(A.rows());
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		
 		for (int i=0; i<num; i++)
 			A.zMult(x, syn);
 		
 		watch.stop();
 		
-		double milis = watch.elapsedMillis();
+		double milis = watch.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println(ClassUtils.getClassNameWithoutPackage(A.getClass())
 				+" x "+ClassUtils.getClassNameWithoutPackage(x.getClass())+" ("+num+"):\t"+(milis/1000d));
 	}
@@ -40,14 +40,13 @@ public class MatrixSpeedTest {
 	private static void setSparse(int[] rows, int[] cols, double[] vals, DoubleMatrix2D A) {
 		
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		
 		for (int i=0; i<rows.length; i++)
 			A.set(rows[i], cols[i], vals[i]);
 		
 		watch.stop();
-		double milis = watch.elapsedMillis();
+		double milis = watch.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println(ClassUtils.getClassNameWithoutPackage(A.getClass())
 				+" set time: "+(milis/1000d));
 	}
@@ -55,11 +54,10 @@ public class MatrixSpeedTest {
 	private static void saveSparse(DoubleMatrix2D A) throws IOException {
 		File file = File.createTempFile("openSHA", "a_matrix.bin");
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		MatrixIO.saveSparse(A, file);
 		watch.stop();
-		double milis = watch.elapsedMillis();
+		double milis = watch.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println(ClassUtils.getClassNameWithoutPackage(A.getClass())
 				+" save time: "+(milis/1000d));
 		

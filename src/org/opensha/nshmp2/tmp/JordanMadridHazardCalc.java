@@ -144,7 +144,11 @@ public class JordanMadridHazardCalc implements Callable<HazardResult> {
 		} else {
 			callCalc();
 		}
-		resWriter.close();
+		try {
+			resWriter.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 		return new HazardResult(period, site.getLocation(), curve, detData);
 	}
 
@@ -459,9 +463,9 @@ public class JordanMadridHazardCalc implements Callable<HazardResult> {
 			return J.join(dat);
 		}
 
-		public void close() {
+		public void close() throws IOException {
 			Flushables.flushQuietly(writer);
-			Closeables.closeQuietly(writer);
+			Closeables.close(writer, true);
 		}
 
 	}
