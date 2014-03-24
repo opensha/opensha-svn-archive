@@ -86,7 +86,7 @@ public enum PlotLineType {
 	 * @return true if the line type is compatible with symbols, false otherwise
 	 */
 	public boolean isSymbolCompatible() {
-		return !(this == HISTOGRAM || this == STACKED_BAR);
+		return !(this == HISTOGRAM || this == STACKED_BAR || this == SOLID_BAR);
 	}
 	
 	public static void checkValidConfiguration(PlotLineType plt, PlotSymbol sym) {
