@@ -26,7 +26,8 @@ public enum PlotLineType {
 	DASHED("Dashed"),
 	DOTTED_AND_DASHED("Dotted & Dashed"),
 	HISTOGRAM("Histogram"),
-	STACKED_BAR("Stacked Bar");
+	STACKED_BAR("Stacked Bar"),
+	SOLID_BAR("Solid Bar");
 	
 	private String desc;
 	
@@ -124,6 +125,8 @@ public enum PlotLineType {
 				StackedXYBarRenderer sbRend = new StackedXYBarRenderer();
 				sbRend.setShadowVisible(false);
 				renderer = sbRend;
+			} else if (plt == SOLID_BAR) {
+				renderer = new XYSolidBarRenderer(lineWidth);
 			} else {
 				renderer = lineShpRend;
 				Stroke stroke = plt.buildStroke(lineWidth);
