@@ -72,6 +72,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
@@ -153,6 +154,7 @@ import scratch.UCERF3.utils.DeformationModelFileParser.DeformationSection;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
 import scratch.UCERF3.utils.IDPairing;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.UCERF2_Section_MFDs.UCERF2_Section_MFDsCalc;
@@ -2494,6 +2496,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 			}
 		}
+		FileUtils.deleteRecursive(tempDir);
 	}
 	
 	private static class SiteHazardCalcJob implements Task {
@@ -3142,6 +3145,139 @@ public abstract class CompoundFSSPlots implements Serializable {
 					throw new IllegalStateException("X value < 0 at index "+i+": "+pt+". "+metadata);
 			}
 			Preconditions.checkState(sumY > 0, "Hazard curve is all zeros! "+metadata);
+		}
+
+		@Override
+		protected boolean usesERFs() {
+			return true;
+		}
+
+		@Override
+		protected boolean isApplyAftershockFilter() {
+			return false;
+		}
+
+		@Override
+		protected boolean isTimeDependent() {
+			return true;
+		}
+		
+	}
+	
+	public static void writeERFProbModelsFile(File dir,
+			Table<Double, LogicTreeBranch, Map<MagDependentAperiodicityOptions, double[]>> probsTable) throws IOException {
+		File tempDir = Files.createTempDir();
+		
+		if (!dir.exists())
+			dir.mkdir();
+		
+		for (double duration : ERFProbModelCalc.durations) {
+			for (MagDependentAperiodicityOptions cov : ERFProbModelCalc.covs) {
+				List<String> binFileNames = Lists.newArrayList();
+				
+				for (LogicTreeBranch branch : probsTable.columnKeySet()) {
+					double[] probs = probsTable.get(duration, branch).get(cov);
+					
+					File binFile = new File(tempDir, branch.buildFileName()+".bin");
+					
+					MatrixIO.doubleArrayToFile(probs, binFile);
+					
+					binFileNames.add(binFile.getName());
+				}
+				
+				String covStr;
+				if (cov == null)
+					covStr = "POISSON";
+				else
+					covStr = cov.name();
+				
+				File zipFile = new File(dir, "probs_"+(int)duration+"yr_"+covStr+".zip");
+				
+				FileUtils.createZipFile(zipFile.getAbsolutePath(), tempDir.getAbsolutePath(), binFileNames);
+			}
+		}
+		
+		FileUtils.deleteRecursive(tempDir);
+	}
+	
+	public static class ERFProbModelCalc extends CompoundFSSPlots {
+
+		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.LOW_VALUES,
+			MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES, null};
+//		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.MID_VALUES, null};
+		
+		private static final double[] durations = { 1d };
+		
+		// duration, branch: prob[rupIndex]
+		private Table<Double, LogicTreeBranch, Map<MagDependentAperiodicityOptions, double[]>> probsTable;
+		
+		public ERFProbModelCalc() {
+			probsTable = HashBasedTable.create();
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch,
+				InversionFaultSystemSolution sol, int solIndex) {
+			throw new IllegalStateException("Should never be called, ERF plot");
+		}
+
+		@Override
+		protected void processERF(LogicTreeBranch branch,
+				FaultSystemSolutionERF erf, int solIndex) {
+			debug(solIndex, "processing ERF for "+branch.buildFileName());
+			double origDuration = erf.getTimeSpan().getDuration();
+			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+			
+			int numRups = erf.getSolution().getRupSet().getNumRuptures();
+			for (double duration : durations) {
+				Map<MagDependentAperiodicityOptions, double[]> covProbs = Maps.newHashMap();
+				for (MagDependentAperiodicityOptions cov : covs) {
+					if (cov == null) {
+						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+					} else {
+						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+						erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
+					}
+					erf.getTimeSpan().setDuration(duration);
+					debug(solIndex, "updating forecast for cov="+cov);
+					erf.updateForecast();
+					debug(solIndex, "done updating forecast for cov="+cov);
+					
+					double[] probs = new double[numRups];
+					
+					for (int rupID=0; rupID<numRups; rupID++) {
+						int sourceID = erf.getSrcIndexForFltSysRup(rupID);
+						if (sourceID < 0)
+							continue;
+						
+						ProbEqkSource source = erf.getSource(sourceID);
+						Preconditions.checkState(source.getNumRuptures() == 1);
+						probs[rupID] = source.computeTotalProb();
+					}
+					
+					covProbs.put(cov, probs);
+				}
+				synchronized (this) {
+					probsTable.put(duration, branch, covProbs);
+				}
+			}
+			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
+			erf.getTimeSpan().setDuration(origDuration);
+		}
+
+		@Override
+		protected void combineDistributedCalcs(
+				Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots other : otherCalcs) {
+				ERFProbModelCalc o = (ERFProbModelCalc)other;
+				
+				probsTable.putAll(o.probsTable);
+			}
+		}
+		
+		@Override
+		protected void doFinalizePlot() {
+			
 		}
 
 		@Override
@@ -8299,6 +8435,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof ERFBasedSiteHazardHistPlot) {
 				ERFBasedSiteHazardHistPlot haz = (ERFBasedSiteHazardHistPlot) plot;
 				writeERFBasedSiteHazardHists(haz, dir);
+			} else if (plot instanceof ERFProbModelCalc) {
+				ERFProbModelCalc prob = (ERFProbModelCalc)plot;
+				File probModelDir = new File(dir, "time_dep_rup_probs");
+				writeERFProbModelsFile(probModelDir, prob.probsTable);
 			} else if (plot instanceof PaleoFaultPlot) {
 				PaleoFaultPlot paleo = (PaleoFaultPlot) plot;
 				File paleoPlotsDir = new File(dir,
@@ -8442,13 +8582,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * @throws ZipException
 	 */
 	public static void main(String[] args) throws ZipException, Exception {
-		File curveDir = new File("/tmp/comp_plots/site_hazard_curve_cache");
-		ERFBasedSiteHazardHistPlot.writeMetadataFileForAllBranches(Lists.newArrayList(CompoundFaultSystemSolution
-				.fromZipFile(new File("/tmp/comp_plots/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip")).getBranches()),
-				new APrioriBranchWeightProvider(), curveDir);
-		writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot.doFinalizePlot(
-				curveDir), new File("/tmp/comp_plots"));
-		System.exit(0);
+//		File curveDir = new File("/tmp/comp_plots/site_hazard_curve_cache");
+//		ERFBasedSiteHazardHistPlot.writeMetadataFileForAllBranches(Lists.newArrayList(CompoundFaultSystemSolution
+//				.fromZipFile(new File("/tmp/comp_plots/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip")).getBranches()),
+//				new APrioriBranchWeightProvider(), curveDir);
+//		writeERFBasedSiteHazardHists(ERFBasedSiteHazardHistPlot.doFinalizePlot(
+//				curveDir), new File("/tmp/comp_plots"));
+//		System.exit(0);
 //		recombineMagProbDistPDFs(new File("/tmp/asdf/small_MPD_plots/"),
 //				new File("/tmp/asdf/small_MPD_faults/"), "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL");
 //		System.exit(0);
@@ -8495,7 +8635,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 12;
+		int sols = 4;
 		int threads = 4;
 		// For one FM
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
@@ -8505,6 +8645,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
 		while (!hasBothFMs(fetch))
 			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+		System.out.println("How has "+fetch.getBranches().size()+" branches");
 		
 		// if true, only use instances of the mean fault system solution
 		boolean meanDebug = false;
@@ -8557,8 +8698,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
 //		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
-		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
-				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
+//		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
+//				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
+		plots.add(new ERFProbModelCalc());
 //		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));

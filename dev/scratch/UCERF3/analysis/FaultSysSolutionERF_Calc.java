@@ -2618,6 +2618,7 @@ public class FaultSysSolutionERF_Calc {
 			System.out.println(className+" orig sigma: "+stdDev);
 //			writeRatioHists(comparePlotsDir, hists, className, stdDev);
 		}
+		
 		// now do it for Ave Type values
 		if (meanBPT_CalcVals != null) {
 			String className = "BPTAveType";
@@ -2633,6 +2634,24 @@ public class FaultSysSolutionERF_Calc {
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
+				
+				prefix = "BPTAveType_diff_"+theAve.getFileSafeLabel();
+
+				double[] diffs = new double[choiceVals.length];
+				for (int i=0; i<diffs.length; i++)
+					diffs[i] = choiceVals[i] - meanTimeDepVals[i];
+				double maxDiff = Math.max(Math.abs(StatUtils.max(diffs)), Math.abs(StatUtils.min(diffs)));
+				// round to nearest 0.05
+				maxDiff = Math.ceil(maxDiff * 100d)/100d;
+				CPT diffCPT = ratioCPT.rescale(-maxDiff, maxDiff);
+				FaultBasedMapGen.makeFaultPlot(diffCPT, traces, diffs, region,
+						comparePlotsDir, prefix, false, true, plotLabel);
+				
+				CSVFile<String> diffCSV = new CSVFile<String>(true);
+				diffCSV.addLine("Subsection Index", "Ave Type Val", "Mean Val", "Diff", "Ratio");
+				for (int i=0; i<diffs.length; i++)
+					diffCSV.addLine(i+"", choiceVals[i]+"", meanTimeDepVals[i]+"", diffs[i]+"", ratios[i]+"");
+				diffCSV.writeToFile(new File(comparePlotsDir, prefix+".csv"));
 
 				for (double ratio : ratios)
 					if (Doubles.isFinite(ratio))
@@ -3590,7 +3609,7 @@ public class FaultSysSolutionERF_Calc {
 					branchSensDir.mkdir();
 				for (File file : new File(tmpResultsDir, "branch_ratios").listFiles()) {
 					String name = file.getName();
-					if (!name.endsWith(".pdf"))
+					if (!name.endsWith(".pdf") && !name.endsWith(".csv"))
 						continue;
 					Files.copy(file, new File(branchSensDir, name));
 //					System.out.println("Copying: "+file.getAbsolutePath()+" to "+branchSensDir.getAbsolutePath());
@@ -4386,8 +4405,8 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		makeIconicFigureForU3TimeDependence();
-		System.exit(0);
+//		makeIconicFigureForU3TimeDependence();
+//		System.exit(0);
 //		System.out.println(loadUCERF2MainFaultMPDs(true).size());
 //		System.exit(0);
 //		writeOpenIntTableComparisons();
@@ -4446,13 +4465,14 @@ public class FaultSysSolutionERF_Calc {
 		// default
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
+		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_ALL"), true);
 		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");

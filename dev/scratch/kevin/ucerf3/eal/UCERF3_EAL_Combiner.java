@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.stat.StatUtils;
@@ -25,27 +27,15 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.param.BackgroundRupType;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sra.calc.parallel.MPJ_CondLossCalc;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
-import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.mean.TrueMeanBuilder;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -54,7 +44,14 @@ import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.LogicTreeBranchNode;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 /**
  * This class will combine the expected loss for each rupture in the true mean solution to get branch
@@ -78,14 +75,26 @@ public class UCERF3_EAL_Combiner {
 	private double[] griddedEALs;
 	private double[] totalEALs;
 	
+	private double erfProbsDuration;
+	private ZipFile erfProbsZipFile;
+	
 	public UCERF3_EAL_Combiner(FaultSystemSolutionFetcher fetcher, Map<LogicTreeBranch, List<Integer>> mappings,
 			FaultSystemSolution trueMeanSol, double[][] fssLosses, DiscretizedFunc[] griddedLosses)
+					throws DocumentException, IOException {
+		this(fetcher, mappings, trueMeanSol, fssLosses, griddedLosses, null, Double.NaN);
+	}
+	
+	public UCERF3_EAL_Combiner(FaultSystemSolutionFetcher fetcher, Map<LogicTreeBranch, List<Integer>> mappings,
+			FaultSystemSolution trueMeanSol, double[][] fssLosses, DiscretizedFunc[] griddedLosses,
+			ZipFile erfProbsZipFile, double erfProbsDuration)
 					throws DocumentException, IOException {
 		this.fetcher = fetcher;
 		this.mappings = mappings;
 		this.trueMeanSol = trueMeanSol;
 		this.faultLosses = fssLosses;
 		this.griddedLosses = griddedLosses;
+		this.erfProbsZipFile = erfProbsZipFile;
+		this.erfProbsDuration = erfProbsDuration;
 		
 		// get list of branches sorted by name
 		branches = Lists.newArrayList(mappings.keySet());
@@ -109,6 +118,21 @@ public class UCERF3_EAL_Combiner {
 			double[] rates = fetcher.getRates(branch);
 			double[] mags = fetcher.getMags(branch);
 			List<Integer> meanRupIndexes = mappings.get(branch);
+			
+			if (erfProbsZipFile != null) {
+				// get the rate from the zip file
+				String eName = branch.buildFileName()+".bin";
+				ZipEntry probsEntry = erfProbsZipFile.getEntry(eName);
+				Preconditions.checkNotNull(probsEntry, "Entry not found in zip: "+eName);
+				double[] probs = MatrixIO.doubleArrayFromInputStream(
+						erfProbsZipFile.getInputStream(probsEntry), probsEntry.getSize());
+				Preconditions.checkState(probs.length == rates.length,
+						"Prob length mismatch, expected "+rates.length+", got "+probs.length);
+				
+				rates = new double[probs.length];
+				for (int r=0; r<probs.length; r++)
+					rates[r] = -Math.log(1 - probs[r])/erfProbsDuration;
+			}
 			
 			CSVFile<String> debugFaultCSV = null;
 			DefaultXY_DataSet debugFaultScatter = null;
@@ -163,7 +187,7 @@ public class UCERF3_EAL_Combiner {
 				faultEALs[i] += rupEAL;
 			}
 			
-			if (debugFaultCSV != null) {
+			if (debugFaultCSV != null && plots) {
 				debugFaultCSV.writeToFile(new File("/tmp/eals_fault_branch0.csv"));
 				writeDebugScatter(debugFaultScatter, "Fault EAL Dist", new File("/tmp/eals_fault_scatter.png"));
 			}
@@ -305,24 +329,32 @@ public class UCERF3_EAL_Combiner {
 		return results;
 	}
 	
-	private static final boolean debug_write = true;
+	private static final boolean debug_write = false;
+	private static final boolean plots = false;
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException, DocumentException {
 		File invSolDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 		File trueMeanSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 		File compoundSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_GRIDDED.zip");
+		
+		File probsZipDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_20-ucerf3-erf-probs");
+		
 //		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_index.bin");
 //		File rupGriddedFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_gridded.bin");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013/");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_09-ucerf3-eal-calc-CB-2013/");
 		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
+//		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_19-ucerf3-eal-calc-CB2014-recalc");
+		MagDependentAperiodicityOptions[] covs = { null, MagDependentAperiodicityOptions.HIGH_VALUES,
+				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.LOW_VALUES };
 //		String prefix = "CB_2014";
 //		String prefix = "ASK_2014";
 //		String prefix = "BSSA_2014";
 //		String prefix = "CY_2014";
-		String prefix = "Idriss_2014";
+		String prefix = "IDRISS_2014";
 		File rupLossesFile = new File(jobDir, prefix+"_fss_index.bin");
 		File rupGriddedFile = new File(jobDir, prefix+"_fss_gridded.bin");
 //		File validateDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013-validate/");
@@ -331,128 +363,146 @@ public class UCERF3_EAL_Combiner {
 //		BackgroundRupType gridType = BackgroundRupType.CROSSHAIR;
 		boolean isFSSMapped = true; // if false, then organized as erf source/rup. else, fss rup/mag
 		BranchWeightProvider weightProv = new APrioriBranchWeightProvider();
-		File csvFile = new File(jobDir, prefix+"_eals.csv");
 		
-		System.out.println("Loading true mean/compound");
-		FaultSystemSolution trueMeanSol = FaultSystemIO.loadSol(trueMeanSolFile);
-		// now load in the mappings
-		Map<LogicTreeBranch, List<Integer>> mappings = TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile);
-		DiscretizedFunc[] rupMFDs = trueMeanSol.getRupMagDists();
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
 		
-		// now load in rupture expected losses
-		System.out.println("Loading losses");
-		double[][] expectedLosses = MPJ_CondLossCalc.loadResults(rupLossesFile);
-		if (!isFSSMapped) {
-			System.out.println("Remapping losses");
-//			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(trueMeanSol);
-//			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-//			erf.updateForecast();
-//			expectedLosses = MPJ_EAL_Rupcalc.mapResultsToFSS(erf, expectedLosses);
-			double[][] mappedLosses = new double[trueMeanSol.getRupSet().getNumRuptures()][];
-			int sourceCount = 0;
-			for (int i=0; i<mappedLosses.length; i++) {
-				double rate = trueMeanSol.getRateForRup(i);
-				if (rate > 0)
-					mappedLosses[i] = expectedLosses[sourceCount++];
-				else
-					mappedLosses[i] = new double[0];
+		for (MagDependentAperiodicityOptions cov : covs) {
+			String covName;
+			if (cov == null)
+				covName = "POISSON";
+			else
+				covName = cov.name();
+			File csvFile = new File(jobDir, prefix+"_"+covName+"_eals.csv");
+			
+			ZipFile erfProbsZipFile = new ZipFile(new File(probsZipDir, "probs_1yr_"+covName+".zip"));
+			double erfProbsDuration = 1d;
+			
+			System.out.println("Loading true mean/compound");
+			FaultSystemSolution trueMeanSol = FaultSystemIO.loadSol(trueMeanSolFile);
+			// now load in the mappings
+			Map<LogicTreeBranch, List<Integer>> mappings = TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile);
+			DiscretizedFunc[] rupMFDs = trueMeanSol.getRupMagDists();
+			CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundSolFile);
+			
+			// now load in rupture expected losses
+			System.out.println("Loading losses");
+			double[][] expectedLosses = MPJ_CondLossCalc.loadResults(rupLossesFile);
+			if (!isFSSMapped) {
+				System.out.println("Remapping losses");
+//				FaultSystemSolutionERF erf = new FaultSystemSolutionERF(trueMeanSol);
+//				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+//				erf.updateForecast();
+//				expectedLosses = MPJ_EAL_Rupcalc.mapResultsToFSS(erf, expectedLosses);
+				double[][] mappedLosses = new double[trueMeanSol.getRupSet().getNumRuptures()][];
+				int sourceCount = 0;
+				for (int i=0; i<mappedLosses.length; i++) {
+					double rate = trueMeanSol.getRateForRup(i);
+					if (rate > 0)
+						mappedLosses[i] = expectedLosses[sourceCount++];
+					else
+						mappedLosses[i] = new double[0];
+				}
+				Preconditions.checkState(sourceCount == expectedLosses.length);
+				expectedLosses = mappedLosses;
 			}
-			Preconditions.checkState(sourceCount == expectedLosses.length);
-			expectedLosses = mappedLosses;
-		}
-		DiscretizedFunc[] griddedFuncs = null;
-		if (rupGriddedFile != null) {
-			griddedFuncs = MPJ_CondLossCalc.loadGridSourcesFile(rupGriddedFile,
-					trueMeanSol.getGridSourceProvider().getGriddedRegion());
-			double totCond = 0;
-			int gridNonNull = 0;
-			for (DiscretizedFunc func : griddedFuncs) {
-				if (func != null) {
-					gridNonNull++;
-					for (Point2D pt : func)
-						totCond += pt.getY();
+			DiscretizedFunc[] griddedFuncs = null;
+			if (rupGriddedFile != null) {
+				griddedFuncs = MPJ_CondLossCalc.loadGridSourcesFile(rupGriddedFile,
+						trueMeanSol.getGridSourceProvider().getGriddedRegion());
+				double totCond = 0;
+				int gridNonNull = 0;
+				for (DiscretizedFunc func : griddedFuncs) {
+					if (func != null) {
+						gridNonNull++;
+						for (Point2D pt : func)
+							totCond += pt.getY();
+					}
+				}
+				System.out.println("Tot grid conditional "+totCond+" ("+gridNonNull+" non null)");
+			}
+			
+			double trueMeanEAL = 0;
+			for (int r=0; r<expectedLosses.length; r++) {
+				if (expectedLosses[r] == null)
+					continue;
+				DiscretizedFunc mfd = rupMFDs[r];
+				for (int m=0; m<expectedLosses[r].length; m++) {
+					trueMeanEAL += mfd.getY(m)*expectedLosses[r][m];
 				}
 			}
-			System.out.println("Tot grid conditional "+totCond+" ("+gridNonNull+" non null)");
-		}
-		
-		double trueMeanEAL = 0;
-		for (int r=0; r<expectedLosses.length; r++) {
-			if (expectedLosses[r] == null)
-				continue;
-			DiscretizedFunc mfd = rupMFDs[r];
-			for (int m=0; m<expectedLosses[r].length; m++) {
-				trueMeanEAL += mfd.getY(m)*expectedLosses[r][m];
+			
+			UCERF3_EAL_Combiner comb = new UCERF3_EAL_Combiner(cfss, mappings, trueMeanSol, expectedLosses, griddedFuncs,
+					erfProbsZipFile, erfProbsDuration);
+			
+			double[] eals = comb.getFaultEALs();
+			double[] gridEALs = comb.getGriddedEALs();
+			
+			List<LogicTreeBranch> branches = comb.getBranches();
+			
+			double totWeights = 0d;
+			for (int i=0; i<branches.size(); i++)
+				totWeights += weightProv.getWeight(branches.get(i));
+			System.out.println("Tot weight: "+totWeights);
+			double[] branchWeights = new double[branches.size()];
+			for (int i=0; i<branches.size(); i++) {
+				LogicTreeBranch branch = branches.get(i);
+				branchWeights[i] = weightProv.getWeight(branch)/totWeights;
 			}
-		}
-		
-		UCERF3_EAL_Combiner comb = new UCERF3_EAL_Combiner(cfss, mappings, trueMeanSol, expectedLosses, griddedFuncs);
-		
-		double[] eals = comb.getFaultEALs();
-		double[] gridEALs = comb.getGriddedEALs();
-		
-		List<LogicTreeBranch> branches = comb.getBranches();
-		
-		double totWeights = 0d;
-		for (int i=0; i<branches.size(); i++)
-			totWeights += weightProv.getWeight(branches.get(i));
-		System.out.println("Tot weight: "+totWeights);
-		double[] branchWeights = new double[branches.size()];
-		for (int i=0; i<branches.size(); i++) {
-			LogicTreeBranch branch = branches.get(i);
-			branchWeights[i] = weightProv.getWeight(branch)/totWeights;
-		}
-		
-		System.out.println("'true mean fault eal'="+trueMeanEAL);
-		plotDist(eals, branchWeights, "UCERF3 Fault Based Indep EAL Distribution",
-				new File(jobDir, prefix+"_fault_hist.png"));
-		if (griddedFuncs != null)
-			plotDist(gridEALs, branchWeights, "UCERF3 Gridded Indep EAL Distribution",
-					new File(jobDir, prefix+"_gridded_hist.png"));
-		double[] combEALs = comb.getTotalEALs();
-		for (int i=0; i<eals.length; i++)
-			combEALs[i] = eals[i]+gridEALs[i];
-		plotDist(combEALs, branchWeights, "UCERF3 Total Indep EAL Distribution",
-				new File(jobDir, prefix+"_total_hist.png"));
-		
-		CSVFile<String> csv = new CSVFile<String>(true);
-		List<String> header = Lists.newArrayList("Index", "Branch Weight", "Total EAL", "Fault EAL", "Gridded EAL");
-		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
-			header.add(ClassUtils.getClassNameWithoutPackage(clazz));
-		csv.addLine(header);
-		for (int i=0; i<branches.size(); i++) {
-			LogicTreeBranch branch = branches.get(i);
-			double weight = branchWeights[i];
-			List<String> line = Lists.newArrayList();
-			line.add(i+"");
-			line.add(weight+"");
-			line.add(combEALs[i]+"");
-			line.add(eals[i]+"");
-			line.add(gridEALs[i]+"");
-			for (LogicTreeBranchNode<?> node : branch)
-				line.add(node.getShortName());
-			csv.addLine(line);
-		}
-		csv.writeToFile(csvFile);
-		
-		if (validateDir != null) {
-			Map<LogicTreeBranch, Double> gridValidate = loadValidateRuns(validateDir, prefix, true);
-			Map<LogicTreeBranch, Double> faultValidate = loadValidateRuns(validateDir, prefix, false);
+			
+			System.out.println("'true mean fault eal'="+trueMeanEAL);
+			if (plots)
+				plotDist(eals, branchWeights, "UCERF3 Fault Based Indep EAL Distribution",
+						new File(jobDir, prefix+"_fault_hist.png"));
+			if (griddedFuncs != null && plots)
+				plotDist(gridEALs, branchWeights, "UCERF3 Gridded Indep EAL Distribution",
+						new File(jobDir, prefix+"_gridded_hist.png"));
+			double[] combEALs = comb.getTotalEALs();
+			for (int i=0; i<eals.length; i++)
+				combEALs[i] = eals[i]+gridEALs[i];
+			if (plots)
+				plotDist(combEALs, branchWeights, "UCERF3 Total Indep EAL Distribution",
+						new File(jobDir, prefix+"_total_hist.png"));
+			
+			CSVFile<String> csv = new CSVFile<String>(true);
+			List<String> header = Lists.newArrayList("Index", "Branch Weight", "Total EAL", "Fault EAL", "Gridded EAL");
+			for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses())
+				header.add(ClassUtils.getClassNameWithoutPackage(clazz));
+			csv.addLine(header);
+			for (int i=0; i<branches.size(); i++) {
+				LogicTreeBranch branch = branches.get(i);
+				double weight = branchWeights[i];
+				List<String> line = Lists.newArrayList();
+				line.add(i+"");
+				line.add(weight+"");
+				line.add(combEALs[i]+"");
+				line.add(eals[i]+"");
+				line.add(gridEALs[i]+"");
+				for (LogicTreeBranchNode<?> node : branch)
+					line.add(node.getShortName());
+				csv.addLine(line);
+			}
+			csv.writeToFile(csvFile);
+			
+			if (!plots)
+				continue;
+			
+			if (validateDir != null) {
+				Map<LogicTreeBranch, Double> gridValidate = loadValidateRuns(validateDir, prefix, true);
+				Map<LogicTreeBranch, Double> faultValidate = loadValidateRuns(validateDir, prefix, false);
 
-			if (!gridValidate.isEmpty())
-				plotValidates(gridValidate, "Gridded Validate", branches, gridEALs,
-						new File(validateDir, prefix+"_validate_gridded.png"));
-			if (!faultValidate.isEmpty())
-				plotValidates(faultValidate, "Fault Validate", branches, eals,
-						new File(validateDir, prefix+"_validate_fault.png"));
+				if (!gridValidate.isEmpty())
+					plotValidates(gridValidate, "Gridded Validate", branches, gridEALs,
+							new File(validateDir, prefix+"_validate_gridded.png"));
+				if (!faultValidate.isEmpty())
+					plotValidates(faultValidate, "Fault Validate", branches, eals,
+							new File(validateDir, prefix+"_validate_fault.png"));
+			}
+			
+			// now print the mag dist threshold for reference
+			ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
+			GraphWindow gw = new GraphWindow(magThreshFunc, "Mag/Distance Function");
+			gw.setX_AxisLabel("Max Distance");
+			gw.setY_AxisLabel("Magnitude");
 		}
-		
-		// now print the mag dist threshold for reference
-		ArbitrarilyDiscretizedFunc magThreshFunc = new MagDistCutoffParam().getDefaultValue();
-		GraphWindow gw = new GraphWindow(magThreshFunc, "Mag/Distance Function");
-		gw.setX_AxisLabel("Max Distance");
-		gw.setY_AxisLabel("Magnitude");
 	}
 	
 	private static void plotValidates(Map<LogicTreeBranch, Double> validate, String title,

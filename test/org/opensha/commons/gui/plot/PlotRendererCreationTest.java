@@ -32,6 +32,8 @@ public class PlotRendererCreationTest {
 				assertTrue(msg, renderer instanceof XYBarRenderer);
 			else if (plt == PlotLineType.STACKED_BAR)
 				assertTrue(msg, renderer instanceof StackedXYBarRenderer);
+			else if (plt == PlotLineType.SOLID_BAR)
+				assertTrue(msg, renderer instanceof XYSolidBarRenderer);
 		}
 	}
 	

@@ -10,6 +10,6 @@ import org.opensha.commons.data.xyz.XYZSuite;
 })
 public class PlotSuite {
 	public static void main(String args[]) {
-		org.junit.runner.JUnitCore.runClasses(XYZSuite.class);
+		org.junit.runner.JUnitCore.runClasses(PlotSuite.class);
 	}
 }

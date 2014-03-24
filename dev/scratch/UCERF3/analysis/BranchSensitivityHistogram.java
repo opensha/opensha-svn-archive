@@ -23,6 +23,7 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.jfreechart.tornado.TornadoDiagram;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -49,6 +50,9 @@ public class BranchSensitivityHistogram implements Serializable {
 	
 	private Table<String, String, List<Double>> valsTable;
 	private Table<String, String, List<Double>> weightsTable;
+	
+	// keeps track of each category, in the order added
+	private List<String> categoryAddedOrder = Lists.newArrayList();
 	
 	private String xAxisName;
 	
@@ -98,6 +102,9 @@ public class BranchSensitivityHistogram implements Serializable {
 	
 	public synchronized void addValue(String categoryName, String choiceName, Double val, Double weight) {
 		if (!valsTable.contains(categoryName, choiceName)) {
+			// new category?
+			if (!valsTable.rowKeySet().contains(categoryName))
+				categoryAddedOrder.add(categoryName);
 			valsTable.put(categoryName, choiceName, new ArrayList<Double>());
 			weightsTable.put(categoryName, choiceName, new ArrayList<Double>());
 		}
@@ -141,10 +148,10 @@ public class BranchSensitivityHistogram implements Serializable {
 			double weight = weights.get(i);
 			// use this to map below/above values
 			int index = hist.getClosestXIndex(val);
-			Preconditions.checkState(val <= hist.getMaxX()+0.5*delta,
-					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
-			Preconditions.checkState(val >= hist.getMinX()-0.5*delta,
-					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
+//			Preconditions.checkState(val <= hist.getMaxX()+0.5*delta,
+//					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
+//			Preconditions.checkState(val >= hist.getMinX()-0.5*delta,
+//					"val outside of range: "+val+" range=["+hist.getMinX()+","+hist.getMaxX()+"]");
 			
 //			hist.add(index, weight*weightMult);
 			hist.add(index, weight);
@@ -157,6 +164,59 @@ public class BranchSensitivityHistogram implements Serializable {
 	
 	public List<Double> getVals(String categoryName, String choiceName) {
 		return Collections.unmodifiableList(valsTable.get(categoryName, choiceName));
+	}
+	
+	/**
+	 * calculate the weighted mean of all values across each choice in each category
+	 * @return
+	 */
+	public double calcOverallMean() {
+		double weightTot = 0d;
+		double mean = 0d;
+		
+		for (Cell<String, String, List<Double>> cell : valsTable.cellSet()) {
+			List<Double> vals = cell.getValue();
+			List<Double> weights = weightsTable.get(cell.getRowKey(), cell.getColumnKey());
+			
+			for (int i=0; i<weights.size(); i++) {
+				double val = vals.get(i);
+				if (!Doubles.isFinite(val))
+					continue;
+				double weight = weights.get(i);
+				
+				mean += val*weight;
+				weightTot += weight;
+			}
+		}
+		
+		return mean/weightTot;
+	}
+	
+	/**
+	 * calculate the weighted mean of all values across each choice in each category
+	 * @return
+	 */
+	public double calcOverallStdDev() {
+		double weightTot = 0d;
+		double mean = calcOverallMean();
+		double var = 0;
+		
+		for (Cell<String, String, List<Double>> cell : valsTable.cellSet()) {
+			List<Double> vals = cell.getValue();
+			List<Double> weights = weightsTable.get(cell.getRowKey(), cell.getColumnKey());
+			
+			for (int i=0; i<weights.size(); i++) {
+				double val = vals.get(i);
+				if (!Doubles.isFinite(val))
+					continue;
+				double weight = weights.get(i);
+				
+				var += (val-mean)*(val-mean)*weight;
+				weightTot += weight;
+			}
+		}
+		var /= weightTot;
+		return Math.sqrt(var);
 	}
 	
 	/**
@@ -221,6 +281,24 @@ public class BranchSensitivityHistogram implements Serializable {
 	}
 	
 	/**
+	 * calculate the weighted mean of all values across each choice except the given in the given category
+	 * @param categoryName
+	 * @return
+	 */
+	public double calcMeanWithout(String categoryName, String choiceName) {
+		Set<String> choices = getChoices(categoryName);
+		String[] namesWithout = new String[choices.size()-1];
+		int cnt = 0;
+		for (String oChoice : choices) {
+			if (oChoice.equals(choiceName))
+				continue;
+			namesWithout[cnt++] = oChoice;
+		}
+		
+		return calcMean(categoryName, namesWithout);
+	}
+	
+	/**
 	 * calculate the weighted std dev of all values across each choice in the given category
 	 * @param categoryName
 	 * @return
@@ -265,6 +343,24 @@ public class BranchSensitivityHistogram implements Serializable {
 		}
 		var /= sumWeight;
 		return Math.sqrt(var);
+	}
+	
+	/**
+	 * calculate the weighted std dev of all values across each choice except the given in the given category
+	 * @param categoryName
+	 * @return
+	 */
+	public double calcStdDevWithout(String categoryName, String choiceName) {
+		Set<String> choices = getChoices(categoryName);
+		String[] namesWithout = new String[choices.size()-1];
+		int cnt = 0;
+		for (String oChoice : choices) {
+			if (oChoice.equals(choiceName))
+				continue;
+			namesWithout[cnt++] = oChoice;
+		}
+		
+		return calcStdDev(categoryName, namesWithout);
 	}
 	
 	public Range getRange() {
@@ -400,10 +496,7 @@ public class BranchSensitivityHistogram implements Serializable {
 		csv.addLine("Category", "Choice", "Choice Mean", "Choice Std Dev",
 				"Mean WITHOUT Choice", "Std Dev WITHOUT Choice");
 		
-		List<String> categories = Lists.newArrayList(valsTable.rowKeySet());
-		Collections.sort(categories);
-		
-		for (String categoryName : categories) {
+		for (String categoryName : categoryAddedOrder) {
 			List<String> choices = Lists.newArrayList(getChoices(categoryName));
 			Collections.sort(choices);
 			
@@ -413,16 +506,8 @@ public class BranchSensitivityHistogram implements Serializable {
 				double choiceMean = calcMean(categoryName, choiceName);
 				double choiceStdDev = calcStdDev(categoryName, choiceName);
 				
-				String[] namesWithout = new String[choices.size()-1];
-				int cnt = 0;
-				for (String oChoice : choices) {
-					if (oChoice.equals(choiceName))
-						continue;
-					namesWithout[cnt++] = oChoice;
-				}
-				
-				double withoutMean = calcMean(categoryName, namesWithout);
-				double withoutStdDev = calcStdDev(categoryName, namesWithout);
+				double withoutMean = calcMeanWithout(categoryName, choiceName);
+				double withoutStdDev = calcStdDevWithout(categoryName, choiceName);
 				
 				line.add(choiceMean+"");
 				line.add(choiceStdDev+"");
@@ -434,11 +519,46 @@ public class BranchSensitivityHistogram implements Serializable {
 		
 		// add TOTAL
 		// identical for each category, equally distributed
-		double overallMean = calcMean(categories.get(0));
-		double overallStdDev = calcStdDev(categories.get(0));
+		double overallMean = calcOverallMean();
+		double overallStdDev = calcOverallStdDev();
 		csv.addLine("TOTAL", "N/A", overallMean+"", overallStdDev+"", Double.NaN+"", Double.NaN+"");
 		
 		return csv;
+	}
+	
+	public TornadoDiagram getTornadoDiagram(String title, boolean useMeanShift) {
+		double overallMean = calcOverallMean();
+		TornadoDiagram t;
+		if (useMeanShift)
+			t = new TornadoDiagram(title, "Mean With - Mean Without, "+xAxisName, "Branch Level", 0d);
+		else
+			t = new TornadoDiagram(title, "Mean "+xAxisName, "Branch Level", overallMean);
+		
+		for (String categoryName : categoryAddedOrder) {
+			Set<String> choices = getChoices(categoryName);
+			if (choices.size() == 1)
+				continue;
+			for (String choiceName : choices) {
+				double choiceMean = calcMean(categoryName, choiceName);
+				double val;
+				
+				if (useMeanShift) {
+					double withoutMean = calcMeanWithout(categoryName, choiceName);
+					val = choiceMean - withoutMean;
+				} else {
+					// just use mean
+					val = choiceMean;
+				}
+				
+				t.addTornadoValue(categoryName, choiceName, val);
+			}
+		}
+		
+		return t;
+	}
+	
+	public List<String> getCategoriesInAddedOrder() {
+		return categoryAddedOrder;
 	}
 
 }

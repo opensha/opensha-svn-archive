@@ -25,6 +25,7 @@ import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMagProbPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedSiteHazardHistPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ERFProbModelCalc;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
@@ -325,15 +326,20 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		erfMFDsOption.setRequired(false);
 		options.addOption(erfMFDsOption);
 		
-		Option erfProbsOption = new Option("erfmpds", "plot-erf-prob-dists", false,
+		Option erfProbDistsOption = new Option("erfmpds", "plot-erf-prob-dists", false,
 				"Flag for erf prob dists");
-		erfProbsOption.setRequired(false);
-		options.addOption(erfProbsOption);
+		erfProbDistsOption.setRequired(false);
+		options.addOption(erfProbDistsOption);
 		
 		Option erfHazOption = new Option("erfhaz", "plot-erf-hazard", false,
 				"Flag for erf hazard histograms");
 		erfHazOption.setRequired(false);
 		options.addOption(erfHazOption);
+		
+		Option erfProbsOption = new Option("erfprob", "plot-erf-probs", false,
+				"Flag for erf probability models calc");
+		erfProbsOption.setRequired(false);
+		options.addOption(erfProbsOption);
 		
 		Option miniSectRIsOption = new Option("miniris", "plot-mini-sect-ris", false,
 				"Flag for creating mini section RIs tables");
@@ -542,6 +548,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			if (plotAll || cmd.hasOption("plot-erf-prob-dists")) {
 				ERFBasedRegionalMagProbPlot erfMFDs = new ERFBasedRegionalMagProbPlot(weightProvider);
 				plots.add(erfMFDs);
+			}
+			
+			if (plotAll || cmd.hasOption("plot-erf-probs")) {
+				ERFProbModelCalc erfProbs = new ERFProbModelCalc();
+				plots.add(erfProbs);
 			}
 			
 			if (plotAll || cmd.hasOption("erfhaz")) {

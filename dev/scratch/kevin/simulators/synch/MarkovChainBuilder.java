@@ -37,7 +37,7 @@ public class MarkovChainBuilder {
 	
 	private transient Map<IndicesKey, Collection<int[]>> parentStatesMap;
 	
-	private transient MarkovChainBuilder reversed;
+//	private transient MarkovChainBuilder reversed;
 	
 	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events, List<List<EQSIM_Event>> matchesLists) {
 		this.distSpacing = distSpacing;
@@ -82,6 +82,8 @@ public class MarkovChainBuilder {
 		
 		stepLoop:
 		for (int step=startStep; step<numSteps; step++) {
+//			if (step % 1000 == 0)
+//				System.out.println("Markov Step "+step);
 			double windowStart = startTime + distSpacing*step;
 			double windowEnd = windowStart + distSpacing;
 			

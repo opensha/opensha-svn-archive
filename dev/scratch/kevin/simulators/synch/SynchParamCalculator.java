@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,10 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.threads.Task;
+import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
@@ -71,12 +75,12 @@ public class SynchParamCalculator {
 	private File synch2DPlotFile;
 	private File scatterPlotFile;
 	
-	private static int m = 0;
-	private static int n = 1;
+	private final int m = 0;
+	private final int n = 1;
 	
 	double cov;
 	
-	private boolean useIndepProbs = false; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
+	private boolean useIndepProbs = true; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
 	
 	private enum WeightingScheme {
 		FREQ_EITHERS,
@@ -85,7 +89,8 @@ public class SynchParamCalculator {
 		FREQ_AVG,
 		FREQ_PROD,
 		LAG_DEPENDENT_EITHER,
-		LAG_DEPENDENT_AVG;
+		LAG_DEPENDENT_AVG,
+		LAG_DEPENDENT_PROD;
 	}
 	
 	private WeightingScheme weightingScheme = WeightingScheme.FREQ_PROD;
@@ -116,6 +121,8 @@ public class SynchParamCalculator {
 		
 		calculate();
 	}
+	
+	private static boolean lag_debug = false;
 	
 	private void calculate() {
 		int numSums = 0;
@@ -207,6 +214,9 @@ public class SynchParamCalculator {
 							freqEither += freqNBefore;
 						}
 						freqN += freqNBefore;
+						if (lag_debug && freqNBefore > 0 && state[m] == 0) {
+							System.out.println("Lag Debug. freq="+freq+", freqNBefore="+freqNBefore+" freqMThis="+freq);
+						}
 					} else {
 						// m precedes n
 						// we want n=0, and m=lag
@@ -243,6 +253,10 @@ public class SynchParamCalculator {
 				
 			}
 			
+			if (lag_debug && freqN > 0 && freqM > 0) {
+				System.out.println("Lag Debug. freqM="+freqM+", freqN="+freqN+" freqMN="+freqMN);
+			}
+			
 			allFreqMs.add(freqM);
 			allFreqNs.add(freqN);
 			allFreqMNs.add(freqMN);
@@ -263,12 +277,12 @@ public class SynchParamCalculator {
 //				int nIndex = indicesKey.indices[1];
 				int mIndex = 0;
 				int nIndex = 1;
-				if (mIndepProbs.containsKey(mIndex))
-					probM = mIndepProbs.get(mIndex);
+				if (mIndepProbs.containsKey(fromState[mIndex]))
+					probM = mIndepProbs.get(fromState[mIndex]);
 				else
 					probM = 0;
-				if (nIndepProbs.containsKey(nIndex))
-					probN = nIndepProbs.get(nIndex);
+				if (nIndepProbs.containsKey(fromState[nIndex]))
+					probN = nIndepProbs.get(fromState[nIndex]);
 				else
 					probN = 0;
 			}
@@ -280,6 +294,7 @@ public class SynchParamCalculator {
 			
 //			if (!Double.isInfinite(synch) && !Double.isNaN(synch)) {
 //			if (freqEither > 0) {
+//			if (freqM > 0 && freqN > 0) {
 			if (probM > 0 && probN > 0) {
 				if (Double.isInfinite(synch) || Double.isNaN(synch))
 					synch = 0d;
@@ -316,7 +331,26 @@ public class SynchParamCalculator {
 					weightDenominator += avg;
 					break;
 				case FREQ_PROD:
-					double prod = freqM*freqN;
+					double prod;
+					if (useIndepProbs) {
+//						int mIndex = indicesKey.indices[0];
+//						int nIndex = indicesKey.indices[1];
+						int mIndex = 0;
+						int nIndex = 1;
+						double myFreqM;
+						if (mIndepFreqs.containsKey(fromState[mIndex]))
+							myFreqM = mIndepFreqs.get(fromState[mIndex]);
+						else
+							myFreqM = 0;
+						double myFreqN;
+						if (nIndepFreqs.containsKey(fromState[nIndex]))
+							myFreqN = nIndepFreqs.get(fromState[nIndex]);
+						else
+							myFreqN = 0;
+						prod = myFreqM * myFreqN;
+					} else {
+						prod = freqM*freqN;
+					}
 					weightNumerators.add(prod);
 					weightDenominator += prod;
 					break;
@@ -353,6 +387,23 @@ public class SynchParamCalculator {
 						weightDenominator += freqN;
 					}
 					break;
+				case LAG_DEPENDENT_PROD:
+					if (lag == 0) {
+						prod = freqM*freqN;
+						weightNumerators.add(prod);
+						weightDenominator += prod;
+					} else if (lag < 0) {
+						// n precedes m
+						// we want m=0, and n=abs(lag)
+						weightNumerators.add(freqM);
+						weightDenominator += freqM;
+					} else {
+						// m precedes n
+						// we want n=0, and m=lag
+						weightNumerators.add(freqN);
+						weightDenominator += freqN;
+					}
+					break;
 				default:
 					throw new IllegalStateException("Weight not implemented: "+weightingScheme);
 				}
@@ -370,9 +421,9 @@ public class SynchParamCalculator {
 			gBar_numerator += synchs.get(i)*weight;
 			gBar_denominator += weight;
 		}
-//		Preconditions.checkState(synchs.size() == 0 || (float)totWeight == (float)1f,
-//				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
-//				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
+		Preconditions.checkState(synchs.size() == 0 || (float)totWeight == (float)1f,
+				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
+				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
 		gBar = gBar_numerator/gBar_denominator;
 		
 		// now calculate cov
@@ -462,6 +513,8 @@ public class SynchParamCalculator {
 	}
 	
 	public void generatePlots(File synchXYZDir, File synchScatterDir, String name1, String name2) throws IOException {
+		if (synchs.size() == 0)
+			return;
 		double distSpacing = chain.getDistSpacing();
 		
 		DefaultXY_DataSet synchFunc = new DefaultXY_DataSet();
@@ -542,15 +595,18 @@ public class SynchParamCalculator {
 		double annX = xyzXRange.getUpperBound()*0.95;
 		double annY = xyzYRange.getUpperBound()*0.9;
 		Font font = new Font(Font.SERIF, Font.PLAIN, 18);
-		XYTextAnnotation rAnn = new XYTextAnnotation("Ln(G=freqMN/(freqM*freqN))", annX, annY);
+		String lagAdd = "";
+		if (lag != 0)
+			lagAdd = " lag="+lag;
+		XYTextAnnotation rAnn = new XYTextAnnotation("Ln(G=freqMN/(freqM*freqN))"+lagAdd, annX, annY);
 		rAnn.setFont(font);
 		rAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
 		gSpec.setPlotAnnotations(Lists.newArrayList(rAnn));
-		XYTextAnnotation weightedAnn = new XYTextAnnotation("Ln(G*weight)", annX, annY);
+		XYTextAnnotation weightedAnn = new XYTextAnnotation("Ln(G*weight)"+lagAdd, annX, annY);
 		weightedAnn.setFont(font);
 		weightedAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
 		gWeightedSpec.setPlotAnnotations(Lists.newArrayList(weightedAnn));
-		XYTextAnnotation weightAnn = new XYTextAnnotation("Weight", annX, annY);
+		XYTextAnnotation weightAnn = new XYTextAnnotation("Weight"+lagAdd, annX, annY);
 		weightAnn.setFont(font);
 		weightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
 		weightSpec.setPlotAnnotations(Lists.newArrayList(weightAnn));
@@ -570,6 +626,9 @@ public class SynchParamCalculator {
 		xyzGP.getChartPanel().setSize(1000, 1500);
 		synch2DPlotFile = new File(synchXYZDir, PeriodicityPlotter.getFileSafeString(name1)
 				+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
+		if (synchXYZDir.getName().contains("lag"));
+			// lag plot, output a png as well
+			xyzGP.saveAsPNG(synch2DPlotFile.getAbsolutePath().replaceAll("pdf", "png"));
 		xyzGP.saveAsPDF(synch2DPlotFile.getAbsolutePath());
 		
 		if (contribIndex >= 0) {
@@ -683,18 +742,44 @@ public class SynchParamCalculator {
 		return scatterPlotFile;
 	}
 	
-	public static double[][] writeSynchParamsStdDev(
-			File stdDevCSV, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
-			int lag, int numTrials, double distSpacing) throws IOException {
-		int nDims = rupIdens.size();
+	private static class SynchRandTask implements Task {
 		
-		double[][][] gBars = new double[nDims][nDims][numTrials];
-		RandomDistType dist = RandomDistType.ACTUAL;
+		private List<EQSIM_Event> events;
+		private List<RuptureIdentifier> rupIdens;
+		private int lag;
+		private int numTrials;
+		private double distSpacing;
+		private int nDims;
+		private double[][][] gBars;
+		private RandomDistType dist;
+		private int t;
 		
-		for (int t=0; t<numTrials; t++) {
+		public SynchRandTask(List<EQSIM_Event> events,
+				List<RuptureIdentifier> rupIdens, int lag, int numTrials,
+				double distSpacing, int nDims, double[][][] gBars,
+				RandomDistType dist, int t) {
+			this.events = events;
+			this.rupIdens = rupIdens;
+			this.lag = lag;
+			this.numTrials = numTrials;
+			this.distSpacing = distSpacing;
+			this.nDims = nDims;
+			this.gBars = gBars;
+			this.dist = dist;
+			this.t = t;
+		}
+		
+//		private static int numThreads = 1;
+//		private static int catLenMult = 10;
+		
+		private static int catLenMult = 1;
+		private static int numThreads = Runtime.getRuntime().availableProcessors();
+
+		@Override
+		public void compute() {
 			System.out.println("Random trial "+(t+1)+"/"+numTrials);
 			
-			List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, 1000);
+			List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
 			
 			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 			for (RuptureIdentifier rupIden : rupIdens)
@@ -704,21 +789,67 @@ public class SynchParamCalculator {
 			
 			for (int m=0; m<nDims; m++) {
 				for (int n=0; n<nDims; n++) {
-//					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
+//						Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
 					
 					SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
 					
 					if (m == 3 && n == 4 && t < 10) {
-						File subDir = new File(stdDevCSV.getParentFile(), "synch_xyz_rand");
+						File subDir = new File("/tmp/synch_xyz_rand");
 						if (!subDir.exists())
 							subDir.mkdir();
-						calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
+						try {
+							calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
+						} catch (IOException e) {
+							ExceptionUtils.throwAsRuntimeException(e);
+						}
 					}
 					
 					gBars[m][n][t] = calc.getGBar();
 				}
 			}
 		}
+		
+	}
+	
+	public static double[][] writeSynchParamsStdDev(
+			File stdDevCSV, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+			int lag, int numTrials, double distSpacing) throws IOException {
+		int nDims = rupIdens.size();
+		
+		double[][][] gBars = new double[nDims][nDims][numTrials];
+		RandomDistType dist = RandomDistType.ACTUAL;
+		
+		List<SynchRandTask> tasks = Lists.newArrayList();
+		for (int t=0; t<numTrials; t++)
+			tasks.add(new SynchRandTask(events, rupIdens, lag, numTrials, distSpacing,
+					nDims, gBars, dist, t));
+		Collections.reverse(tasks);
+		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks, false); // false = don't shuffle
+		try {
+			comp.computeThreaded(SynchRandTask.numThreads);
+		} catch (InterruptedException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+		
+		List<List<String>> allValsLines = Lists.newArrayList();
+		for (int i=0; i<=numTrials; i++) {
+			List<String> line = Lists.newArrayList();
+			if (i == 0)
+				line.add("Trial");
+			else
+				line.add(i+"");
+			allValsLines.add(line);
+		}
+		for (int m=0; m<nDims; m++) {
+			for (int n=m+1; n<nDims; n++) {
+				String name = rupIdens.get(m).getName()+" vs "+rupIdens.get(n).getName();
+				allValsLines.get(0).add(name);
+				for (int i=0; i<numTrials; i++)
+					allValsLines.get(i+1).add(gBars[m][n][i]+"");
+			}
+		}
+		CSVFile<String> allValsCSV = new CSVFile<String>(allValsLines, true);
+		allValsCSV.writeToFile(new File(stdDevCSV.getParentFile(), "synch_params_trials.csv"));
 		
 		double[][] stdDevs = new double[nDims][nDims];
 		double[][] means = new double[nDims][nDims];
@@ -861,7 +992,9 @@ public class SynchParamCalculator {
 					EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
 					
 					for (int lag=-lagMax; lag<=lagMax; lag++) {
+						lag_debug = lag == -1 && name1.contains("Coachella") && name2.contains("Jacinto");
 						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
+						lag_debug = false;
 						
 						double gBar = calc.getGBar();
 						
@@ -876,6 +1009,27 @@ public class SynchParamCalculator {
 						}
 						
 						lagIndex++;
+						
+						if (name1.contains("Coachella") && name2.contains("Jacinto")) {
+							File coachJacintoLagDir = new File(file.getParentFile(), "synch_lag_xyz_coach_jacinto");
+							if (!coachJacintoLagDir.exists())
+								coachJacintoLagDir.mkdir();
+							String lagName1, lagName2;
+							if (lag < 0) {
+								lagName1 = name1;
+								lagName2 = name2+" "+lag+" before";
+							} else if (lag > 0) {
+								lagName1 = name1+" "+lag+" before";
+								lagName2 = name2;
+							} else {
+								lagName1 = name1;
+								lagName2 = name2;
+							}
+							lagName1 = lagIndex+" "+lagName1;
+							if (lagIndex < 10)
+								lagName1 = "0"+lagName1;
+							calc.generatePlots(coachJacintoLagDir, null, lagName1, lagName2);
+						}
 						
 						if (lag != 0)
 							continue;
@@ -1247,7 +1401,7 @@ public class SynchParamCalculator {
 		// now write std devs
 		System.out.println("Calculating Synch Std Dev/Biases");
 		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
-		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 50, distSpacing);
+		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 100, distSpacing);
 	}
 
 }
