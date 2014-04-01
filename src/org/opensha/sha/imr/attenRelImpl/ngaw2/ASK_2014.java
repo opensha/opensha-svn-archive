@@ -241,7 +241,7 @@ public class ASK_2014 implements NGAW2_GMM {
 			double dM = Mw - 6.5;
 			double T2 = (Mw >= 6.5) ?
 					1 + A2_HW * dM :
-					1 + A2_HW * dM + (1 - A2_HW) * dM * dM;
+					1 + A2_HW * dM - (1 - A2_HW) * dM * dM;
 			
 			// ... rX taper -- Equation 13
 			double T3 = 0.0;
