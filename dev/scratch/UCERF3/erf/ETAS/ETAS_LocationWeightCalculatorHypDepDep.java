@@ -29,12 +29,12 @@ import org.opensha.commons.gui.plot.GraphWindow;
  */
 public class ETAS_LocationWeightCalculatorHypDepDep {
 	
-	final static boolean D = false;
+	final static boolean D = true;
 	
 	int numLatLon, numDepth;
-	double maxLatLonDeg, maxDepthKm, latLonDiscrDeg, depthDiscr, midLat, maxDistKm;
+	double maxLatLonDeg, maxDepthKm, latLonDiscrDeg, depthDiscrKm, midLat, maxDistKm;
 	
-	double distDecay, minDist;
+	double etasDistDecay, etasMinDist;
 	
 	double cosMidLat;
 	
@@ -42,9 +42,10 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 	
 	double[][][] pointWt;
 	
-	double histLogMin=-2.0;	// log10 distance
-	double histLogMax = 4.0;	// log10 distance
-	int histNum = 31;
+	double histLogMinDistKm=Double.NaN;	// log10 distance; old=-2.0
+	double histLogMaxDistKm = 4.0;	// log10 distance; 10,000 km
+	double histLogDeltaDistKm = 0.2;
+	int histNum;				// old=31
 	
 	LocationList[][][] subLocsArray;
 	IntegerPDF_FunctionSampler[][][] subLocSamplerArray;
@@ -52,21 +53,21 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 	int[] numSubDistances = {100,20,10,5,2,2};
 	
 	EvenlyDiscretizedFunc targetLogDistDecay;
-	EvenlyDiscretizedFunc logDistWeightHist;
+	EvenlyDiscretizedFunc logDistWeightHist, logDistHist;
 	
 	/**
 	 * 
 	 * @param maxDistKm - the maximum distance for sampling in km
 	 * @param maxDepthKm - the max seismogenic thickness
 	 * @param latLonDiscrDeg - the lat and lon discretization in degrees (0.2 is recommented)
-	 * @param depthDiscr - the depth discretization in km (2.0 is recommended)
+	 * @param depthDiscrKm - the depth discretization in km (2.0 is recommended)
 	 * @param midLat - the mid latitude used to compute bin widths (since widths decrease with latitude)
-	 * @param distDecay - the ETAS distance decay parameter
-	 * @param minDist - the ETAS min distance
+	 * @param etasDistDecay - the ETAS distance decay parameter
+	 * @param etasMinDist - the ETAS min distance
 	 * @param iHypoDep - index of parent depth (which has a range of numDepth+1, since parent depth is half way between points here
 	 */
-	public ETAS_LocationWeightCalculatorHypDepDep(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscr, 
-			double midLat, double distDecay, double minDist, int iHypoDep) {
+	public ETAS_LocationWeightCalculatorHypDepDep(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscrKm, 
+			double midLat, double etasDistDecay, double etasMinDist, int iHypoDep) {
 		
 		cosMidLat = Math.cos(midLat*Math.PI/180);
 		double aveLatLonDiscrKm = (latLonDiscrDeg+cosMidLat*latLonDiscrDeg)*111/2.0;
@@ -75,14 +76,14 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		
 		this.maxDepthKm = maxDepthKm;
 		this.latLonDiscrDeg = latLonDiscrDeg;
-		this.depthDiscr = depthDiscr;
+		this.depthDiscrKm = depthDiscrKm;
 		this.midLat = midLat;
-		this.distDecay=distDecay;
-		this.minDist=minDist;
+		this.etasDistDecay=etasDistDecay;
+		this.etasMinDist=etasMinDist;
 						
 		// the number of points in each direction
 		numLatLon = (int)Math.round(maxLatLonDeg/latLonDiscrDeg);
-		numDepth = (int)Math.round(maxDepthKm/depthDiscr);
+		numDepth = (int)Math.round(maxDepthKm/depthDiscrKm);
 	
 		this.iHypoDep = iHypoDep;
 		this.iTestHypo = Math.min(iHypoDep, numDepth-iHypoDep); // test for knowing when relDepth applies to two layers
@@ -102,9 +103,21 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		pointWt = new double[numLatLon][numLatLon][numDepth];
 		
 		// make distances weight histogram for the various log distances
-		logDistWeightHist = new EvenlyDiscretizedFunc(histLogMin,histLogMax,histNum);
-		logDistWeightHist.setTolerance(logDistWeightHist.getDelta());
+		EvenlyDiscretizedFunc tempFunc = new EvenlyDiscretizedFunc(-2.0,histLogMaxDistKm,31);
+		
 		double[] distances=null;
+
+		// find minimum distance that will be sampled, and then find appropriate first bin
+		double minDistSampled = Double.POSITIVE_INFINITY;
+		for(double val : getSubDistances(0, 0, 0, numSubDistances[0]))
+			if(val<minDistSampled) minDistSampled=val;
+		histLogMinDistKm = Math.ceil(Math.log10(minDistSampled)/histLogDeltaDistKm)*histLogDeltaDistKm;
+		histNum = Math.round((float)((histLogMaxDistKm-histLogMinDistKm)/histLogDeltaDistKm)) +1;
+		if(D) System.out.println("minDistSampled="+minDistSampled+"\thistNum="+histNum);
+		logDistWeightHist = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
+		logDistWeightHist.setTolerance(logDistWeightHist.getDelta());
+		logDistHist = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
+		logDistHist.setTolerance(logDistWeightHist.getDelta());
 		if(D) System.out.println("\niHypoDep="+iHypoDep);
 		for(int iLat=0;iLat<numLatLon; iLat++) {
 			for(int iLon=0;iLon<numLatLon; iLon++) {
@@ -121,19 +134,24 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 						distances = getSubDistances(iLat, iLon, iDep, numSubDistances[maxIndex]);
 						for(int i=0;i<distances.length;i++) {
 							double dist = distances[i];
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay)/distances.length;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay)/distances.length;
 							double logDist = Math.log10(dist);
-							if(logDist<logDistWeightHist.getX(0))	// in case it's below the first bin
+							if(logDist<logDistWeightHist.getX(0)) {	// in case it's below the first bin
 								logDistWeightHist.add(0, wt);
-							else if (dist<maxDistKm)
+								logDistHist.add(0, 1);
+							}
+							else if (dist<maxDistKm) {
 								logDistWeightHist.add(logDist,wt);
+								logDistHist.add(logDist,1);
+							}
 						}
 					}
 					else {
 						double dist = getDistance(iLat, iLon, iDep);
 						if(dist<maxDistKm) {
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay);;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay);;
 							logDistWeightHist.add(Math.log10(dist),wt);							
+							logDistHist.add(Math.log10(dist),1);							
 						}
 					}
 
@@ -154,19 +172,24 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 						distances = getSubDistances(iLat, iLon, iDep, numSubDistances[maxIndex]);
 						for(int i=0;i<distances.length;i++) {
 							double dist = distances[i];
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay)/distances.length;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay)/distances.length;
 							double logDist = Math.log10(dist);
-							if(logDist<logDistWeightHist.getX(0))	// in case it's below the first bin
+							if(logDist<logDistWeightHist.getX(0)) {	// in case it's below the first bin
 								logDistWeightHist.add(0, wt);
-							else if (dist<maxDistKm)
+								logDistHist.add(0, 1);
+							}
+							else if (dist<maxDistKm) {
 								logDistWeightHist.add(logDist,wt);
+								logDistHist.add(logDist,1);
+							}
 						}
 					}
 					else {
 						double dist = getDistance(iLat, iLon, iDep);
 						if(dist<maxDistKm) {
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay);;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay);;
 							logDistWeightHist.add(Math.log10(dist),wt);							
+							logDistHist.add(Math.log10(dist),1);							
 						}
 					}
 				}
@@ -177,11 +200,15 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 
 		// plot to check for any zero bins
 		if (D) {
-			GraphWindow graph = new GraphWindow(logDistWeightHist, "test hist"); 
+			GraphWindow graph = new GraphWindow(logDistWeightHist, "logDistWeightHist"); 
+			GraphWindow graph3 = new GraphWindow(logDistHist, "logDistHist"); 
 		}
 
 		// make target distances decay histogram (this is what we will match_
-		targetLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
+		targetLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMinDistKm, histLogMaxDistKm, histNum, etasDistDecay, etasMinDist);
+		if (D) {
+			GraphWindow graph2 = new GraphWindow(targetLogDistDecay, "targetLogDistDecay"); 
+		}
 		
 		// normalize
 		double tot = targetLogDistDecay.calcSumOfY_Vals();
@@ -201,7 +228,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 						distances = getSubDistances(iLat, iLon, iDep, numSubDistances[maxIndex]);
 						for(int i=0;i<distances.length;i++) {
 							double dist = distances[i];
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay)/distances.length;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay)/distances.length;
 							double logDist = Math.log10(dist);
 							if(logDist<logDistWeightHist.getX(0))	// in case it's below the first bin
 								pointWt[iLat][iLon][iDep] += wt*targetLogDistDecay.getY(0)/logDistWeightHist.getY(0);
@@ -212,7 +239,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 					else {
 						double dist = getDistance(iLat, iLon, iDep);
 						if(dist<maxDistKm) {
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay);
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay);
 							double logDist = Math.log10(dist);
 							pointWt[iLat][iLon][iDep] += wt*targetLogDistDecay.getY(logDist)/logDistWeightHist.getY(logDist);							
 						}
@@ -228,7 +255,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 						distances = getSubDistances(iLat, iLon, iDep, numSubDistances[maxIndex]);
 						for(int i=0;i<distances.length;i++) {
 							double dist = distances[i];
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay)/distances.length;
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay)/distances.length;
 							double logDist = Math.log10(dist);
 							if(logDist<logDistWeightHist.getX(0))	// in case it's below the first bin
 								pointWt[iLat][iLon][iDep] += wt*targetLogDistDecay.getY(0)/logDistWeightHist.getY(0);
@@ -239,7 +266,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 					else {
 						double dist = getDistance(iLat, iLon, iDep);
 						if(dist<maxDistKm) {
-							double wt = ETAS_Utils.getDistDecayValue(dist, minDist, -distDecay);
+							double wt = ETAS_Utils.getDistDecayValue(dist, etasMinDist, -etasDistDecay);
 							double logDist = Math.log10(dist);
 							pointWt[iLat][iLon][iDep] += wt*targetLogDistDecay.getY(logDist)/logDistWeightHist.getY(logDist);							
 						}
@@ -288,7 +315,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		if(maxIndex<numSubDistances.length) {
 			int numSubLoc = numSubDistances[maxIndex];
 			deltaSubLatLon = latLonDiscrDeg/numSubLoc;
-			deltaDepth = depthDiscr/numSubLoc;
+			deltaDepth = depthDiscrKm/numSubLoc;
 	
 
 			if(subLocsArray[iLat][iLon][iDep] == null) {
@@ -304,11 +331,11 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 					for(int iSubLon = 0; iSubLon < numSubLoc; iSubLon++) {
 						double lon = (midLon-latLonDiscrDeg/2) + iSubLon*deltaSubLatLon + deltaSubLatLon/2;
 						for(int iSubDep = 0; iSubDep < numSubLoc; iSubDep++) {
-							double dep = (midDepth-depthDiscr/2) + iSubDep*deltaDepth + deltaDepth/2;
+							double dep = (midDepth-depthDiscrKm/2) + iSubDep*deltaDepth + deltaDepth/2;
 							locList.add(new Location(lat-midLat,lon-midLon,dep-midDepth));	// add the deltaLoc to list
 							double dist = getDistance(lat, lon, dep);
 							double logDist = Math.log10(dist);
-							double wt = ETAS_Utils.getDistDecayValue(dist,minDist, -distDecay);
+							double wt = ETAS_Utils.getDistDecayValue(dist,etasMinDist, -etasDistDecay);
 							double normWt;
 							if(logDist<logDistWeightHist.getX(0))
 								normWt = targetLogDistDecay.getY(0)/logDistWeightHist.getY(0);
@@ -328,7 +355,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		}
 		else {
 			deltaSubLatLon = latLonDiscrDeg;
-			deltaDepth = depthDiscr;
+			deltaDepth = depthDiscrKm;
 			loc = new Location(0, 0, 0);	// no delta
 		}
 		// Add an additional random element
@@ -404,11 +431,11 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 	}
 
 	private double getDepth(int iDep) {
-		return iDep*depthDiscr+depthDiscr/2.0;
+		return iDep*depthDiscrKm+depthDiscrKm/2.0;
 	}
 	
 	private int getDepthIndex(double relDepth) {
-		return (int)Math.round((relDepth-depthDiscr/2.0)/depthDiscr);
+		return (int)Math.round((relDepth-depthDiscrKm/2.0)/depthDiscrKm);
 	}
 
 
@@ -442,7 +469,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		}
 		
 		// create histogram
-		EvenlyDiscretizedFunc testLogHistogram = new EvenlyDiscretizedFunc(histLogMin,histLogMax,histNum);
+		EvenlyDiscretizedFunc testLogHistogram = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
 		testLogHistogram.setTolerance(testLogHistogram.getDelta());
 		
 		EvenlyDiscretizedFunc testHistogram = new EvenlyDiscretizedFunc(0.5 , 1009.5, 1010);
@@ -452,8 +479,8 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(0.5 , 999.5, 1000);
 		double halfDelta=targetHist.getDelta()/2;
 		for(int i=0;i<targetHist.getNum();i++) {
-			double upper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, targetHist.getX(i)+halfDelta);
-			double lower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, targetHist.getX(i)-halfDelta);
+			double upper = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)+halfDelta);
+			double lower = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)-halfDelta);
 			targetHist.set(i,upper-lower);
 		}
 		
@@ -472,7 +499,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 				double logDist = Math.log10(dist);
 				if(logDist<testLogHistogram.getX(0))
 					testLogHistogram.add(0, 1.0/numSamples);
-				else if (logDist<histLogMax)
+				else if (logDist<histLogMaxDistKm)
 					testLogHistogram.add(logDist,1.0/numSamples);
 			}
 		}
@@ -526,7 +553,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		double midLon = getLon(iLon);
 		double midDepth = getDepth(iDep);
 		double deltaSubLatLon = latLonDiscrDeg/numDiscr;
-		double deltaDepth = depthDiscr/numDiscr;
+		double deltaDepth = depthDiscrKm/numDiscr;
 		int index=0;
 //System.out.println("midLat="+midLat+"\tmidLon="+midLon+"\tmidDepth="+midDepth);
 //System.out.println("relLat\trelLon\trelDepth\tdist");
@@ -536,7 +563,7 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 			for(int lonIndex = 0; lonIndex < numDiscr; lonIndex++) {
 				double relLon = (midLon-latLonDiscrDeg/2) + lonIndex*deltaSubLatLon + deltaSubLatLon/2;
 				for(int depIndex = 0; depIndex < numDiscr; depIndex++) {
-					double relDep = (midDepth-depthDiscr/2) + depIndex*deltaDepth + deltaDepth/2;
+					double relDep = (midDepth-depthDiscrKm/2) + depIndex*deltaDepth + deltaDepth/2;
 					distances[index] = getDistance(relLat, relLon, relDep);
 //System.out.println((float)relLat+"\t"+(float)relLon+"\t"+(float)relDep+"\t"+(float)distances[index]);
 
@@ -557,18 +584,19 @@ public class ETAS_LocationWeightCalculatorHypDepDep {
 		double maxDistKm=1000.0;
 		double maxDepthKm=24;
 //		double latLonDiscrDeg=0.005;
-//		double depthDiscr=0.5;
-		double latLonDiscrDeg=0.02;
-		double depthDiscr=2.0;
+//		double depthDiscrKm=0.5;
+		double latLonDiscrDeg=0.05;
+//		double latLonDiscrDeg=0.02;
+		double depthDiscrKm=2.0;
 		double midLat=37.25;
-		double distDecay=2;
-		double minDist=0.3;
+		double etasDistDecay=2;
+		double etasMinDist=0.3;
 		
 		ArrayList<ETAS_LocationWeightCalculatorHypDepDep>  calcList = new ArrayList<ETAS_LocationWeightCalculatorHypDepDep>();
-		for(int iParDep=0;iParDep<13;iParDep ++) {
-//		for(int iParDep=0;iParDep<1;iParDep ++) {
+//		for(int iParDep=0;iParDep<13;iParDep ++) {
+		for(int iParDep=0;iParDep<1;iParDep ++) {
 			ETAS_LocationWeightCalculatorHypDepDep calc = new ETAS_LocationWeightCalculatorHypDepDep(maxDistKm, maxDepthKm, 
-					latLonDiscrDeg, depthDiscr, midLat, distDecay, minDist, iParDep);
+					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist, iParDep);
 			calc.testRandomSamples(100000);
 			calcList.add(calc);
 		}

@@ -559,8 +559,8 @@ public class ETAS_Simulator {
 		
 		
 		// get the rupture index of a Landers or Northridge like rupture
-		ProbEqkRupture rupFromERF = erf.getSource(246139).getRupture(0);	// Landers
-//		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
+//		ProbEqkRupture rupFromERF = erf.getSource(246139).getRupture(0);	// Landers
+		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		
@@ -591,7 +591,7 @@ public class ETAS_Simulator {
 		
 		System.out.println("Starting testETAS_Simulation");
 		try {
-			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Landers_5");
+			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Northridge_1");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
