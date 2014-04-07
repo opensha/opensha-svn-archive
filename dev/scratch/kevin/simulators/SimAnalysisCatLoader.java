@@ -10,6 +10,7 @@ import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class SimAnalysisCatLoader {
@@ -34,8 +35,21 @@ public class SimAnalysisCatLoader {
 		init(longCat);
 	}
 	
+	private static List<File> dirsToCheck = Lists.newArrayList();
+	static {
+		dirsToCheck.add(new File("/home/kevin/Simulators"));
+		dirsToCheck.add(new File("/home/scec-02/kmilner/simulators"));
+	}
+	
 	private void init(boolean longCat) throws IOException {
-		File dir = new File("/home/kevin/Simulators");
+		File dir = null;
+		for (File testDir : dirsToCheck) {
+			if (testDir.exists()) {
+				dir = testDir;
+				break;
+			}
+		}
+		Preconditions.checkNotNull(dir, "Simulator data files not found!");
 		File geomFile = new File(dir, "ALLCAL2_1-7-11_Geometry.dat");
 		System.out.println("Loading geometry...");
 		General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);

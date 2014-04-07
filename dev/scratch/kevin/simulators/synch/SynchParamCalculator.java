@@ -21,6 +21,7 @@ import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.UncertainArbDiscDataset;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
@@ -80,9 +81,9 @@ public class SynchParamCalculator {
 	
 	double cov;
 	
-	private boolean useIndepProbs = true; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
+	protected static final boolean useIndepProbs = true; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
 	
-	private enum WeightingScheme {
+	enum WeightingScheme {
 		FREQ_EITHERS,
 		TOT_OCCUPANCY,
 		FREQ_MNs,
@@ -93,7 +94,7 @@ public class SynchParamCalculator {
 		LAG_DEPENDENT_PROD;
 	}
 	
-	private WeightingScheme weightingScheme = WeightingScheme.FREQ_PROD;
+	protected static final WeightingScheme weightingScheme = WeightingScheme.FREQ_PROD;
 	
 //	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
 //		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
@@ -746,21 +747,21 @@ public class SynchParamCalculator {
 		
 		private List<EQSIM_Event> events;
 		private List<RuptureIdentifier> rupIdens;
-		private int lag;
+		private int[] lags;
 		private int numTrials;
 		private double distSpacing;
 		private int nDims;
-		private double[][][] gBars;
+		private double[][][][] gBars;
 		private RandomDistType dist;
 		private int t;
 		
 		public SynchRandTask(List<EQSIM_Event> events,
-				List<RuptureIdentifier> rupIdens, int lag, int numTrials,
-				double distSpacing, int nDims, double[][][] gBars,
+				List<RuptureIdentifier> rupIdens, int[] lags, int numTrials,
+				double distSpacing, int nDims, double[][][][] gBars,
 				RandomDistType dist, int t) {
 			this.events = events;
 			this.rupIdens = rupIdens;
-			this.lag = lag;
+			this.lags = lags;
 			this.numTrials = numTrials;
 			this.distSpacing = distSpacing;
 			this.nDims = nDims;
@@ -772,56 +773,66 @@ public class SynchParamCalculator {
 //		private static int numThreads = 1;
 //		private static int catLenMult = 10;
 		
-		private static int catLenMult = 1;
 		private static int numThreads = Runtime.getRuntime().availableProcessors();
 
 		@Override
 		public void compute() {
 			System.out.println("Random trial "+(t+1)+"/"+numTrials);
 			
-			List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
-			
-			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-			for (RuptureIdentifier rupIden : rupIdens)
-				matchesLists.add(rupIden.getMatches(randEvents));
-			
-			MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, matchesLists);
+			MarkovChainBuilder chain = createRandomizedChain(events, rupIdens, dist, distSpacing);
 			
 			for (int m=0; m<nDims; m++) {
-				for (int n=0; n<nDims; n++) {
+				for (int n=m; n<nDims; n++) {
 //						Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
-					
-					SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
-					
-					if (m == 3 && n == 4 && t < 10) {
-						File subDir = new File("/tmp/synch_xyz_rand");
-						if (!subDir.exists())
-							subDir.mkdir();
-						try {
-							calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
-						} catch (IOException e) {
-							ExceptionUtils.throwAsRuntimeException(e);
-						}
+					for (int i=0; i<lags.length; i++) {
+						int lag = lags[i];
+						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
+						
+//						if (m == 3 && n == 4 && t < 10 && lag == 0) {
+//							File subDir = new File("/tmp/synch_xyz_rand");
+//							if (!subDir.exists())
+//								subDir.mkdir();
+//							try {
+//								calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
+//							} catch (IOException e) {
+//								ExceptionUtils.throwAsRuntimeException(e);
+//							}
+//						}
+						
+						gBars[m][n][t][i] = calc.getGBar();
+						gBars[n][m][t][i] = calc.getGBar();
 					}
-					
-					gBars[m][n][t] = calc.getGBar();
 				}
 			}
 		}
 		
 	}
 	
-	public static double[][] writeSynchParamsStdDev(
-			File stdDevCSV, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
-			int lag, int numTrials, double distSpacing) throws IOException {
+	private static int catLenMult = 1;
+	public static MarkovChainBuilder createRandomizedChain(List<EQSIM_Event> events,
+			List<RuptureIdentifier> rupIdens, RandomDistType dist, double distSpacing) {
+		List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
+		
+		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
+		for (RuptureIdentifier rupIden : rupIdens)
+			matchesLists.add(rupIden.getMatches(randEvents));
+		
+		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, matchesLists);
+		
+		return chain;
+	}
+	
+	public static void writeSynchParamsStdDev(
+			File dir, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+			MarkovChainBuilder origChain, int[] lags, int numTrials, double distSpacing) throws IOException {
 		int nDims = rupIdens.size();
 		
-		double[][][] gBars = new double[nDims][nDims][numTrials];
+		double[][][][] gBars = new double[nDims][nDims][numTrials][lags.length];
 		RandomDistType dist = RandomDistType.ACTUAL;
 		
 		List<SynchRandTask> tasks = Lists.newArrayList();
 		for (int t=0; t<numTrials; t++)
-			tasks.add(new SynchRandTask(events, rupIdens, lag, numTrials, distSpacing,
+			tasks.add(new SynchRandTask(events, rupIdens, lags, numTrials, distSpacing,
 					nDims, gBars, dist, t));
 		Collections.reverse(tasks);
 		ThreadedTaskComputer comp = new ThreadedTaskComputer(tasks, false); // false = don't shuffle
@@ -831,86 +842,108 @@ public class SynchParamCalculator {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
-		List<List<String>> allValsLines = Lists.newArrayList();
-		for (int i=0; i<=numTrials; i++) {
-			List<String> line = Lists.newArrayList();
-			if (i == 0)
-				line.add("Trial");
-			else
-				line.add(i+"");
-			allValsLines.add(line);
-		}
-		for (int m=0; m<nDims; m++) {
-			for (int n=m+1; n<nDims; n++) {
-				String name = rupIdens.get(m).getName()+" vs "+rupIdens.get(n).getName();
-				allValsLines.get(0).add(name);
-				for (int i=0; i<numTrials; i++)
-					allValsLines.get(i+1).add(gBars[m][n][i]+"");
+		doWriteSynchStdDevParams(dir, rupIdens, origChain, lags, numTrials,
+				distSpacing, nDims, gBars);
+		
+//		return stdDevs;
+	}
+
+	static void doWriteSynchStdDevParams(File dir,
+			List<RuptureIdentifier> rupIdens, MarkovChainBuilder origChain,
+			int[] lags, int numTrials, double distSpacing, int nDims,
+			double[][][][] gBars) throws IOException {
+		for (int l=0; l<lags.length; l++) {
+			int lag = lags[l];
+			File stdDevCSV;
+			if (lag == 0) {
+				stdDevCSV = new File(dir, "synch_params_std_devs.csv");
+			} else {
+				File lagDir = new File(dir, "lag_stats");
+				if (!lagDir.exists())
+					lagDir.mkdir();
+				stdDevCSV = new File(lagDir, "synch_params_std_devs_lag_"+lag+".csv");
 			}
-		}
-		CSVFile<String> allValsCSV = new CSVFile<String>(allValsLines, true);
-		allValsCSV.writeToFile(new File(stdDevCSV.getParentFile(), "synch_params_trials.csv"));
-		
-		double[][] stdDevs = new double[nDims][nDims];
-		double[][] means = new double[nDims][nDims];
-		double totBias = 0;
-		for (int m=0; m<nDims; m++) {
-			for (int n=0; n<nDims; n++) {
-				double[] lnVals = new double[numTrials];
-				for (int t=0; t<numTrials; t++)
-					lnVals[t] = Math.log(gBars[m][n][t]);
-				double mean = StatUtils.mean(lnVals);
-				double var = StatUtils.variance(lnVals, mean);
-				stdDevs[m][n] = Math.sqrt(var);
-				means[m][n] = mean;
-				totBias += mean;
-			}
-		}
-		
-		System.out.println("Total Bias: "+totBias);
-		
-		List<String> header = Lists.newArrayList("");
-		for (RuptureIdentifier iden : rupIdens)
-			header.add(iden.getName());
-		
-		CSVFile<String> csv = new CSVFile<String>(false);
-		
-		csv.addLine("Std Dev of "+numTrials+" rand realizations (in Ln space)");
-		addTableToCSV(csv, header, stdDevs, true);
-		csv.addLine("");
-		csv.addLine("");
-		csv.addLine("Mean of "+numTrials+" rand realizations (in Ln space)");
-		addTableToCSV(csv, header, means, true);
-		csv.addLine("");
-		csv.addLine("");
-		csv.addLine("Print ready +/- (in Ln space)");
-		csv.addLine(header);
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (RuptureIdentifier rupIden : rupIdens)
-			matchesLists.add(rupIden.getMatches(events));
-		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, events, matchesLists);
-		
-		DecimalFormat df = new DecimalFormat("0.00");
-		for (int i=0; i<nDims; i++) {
-			List<String> line = Lists.newArrayList();
 			
-			line.add(header.get(i+1));
-			for (int j=0; j<nDims; j++) {
-				if (i == j)
-					line.add("");
-				else {
-					double stdDev = stdDevs[i][j];
-					double mean = Math.log(new SynchParamCalculator(chain, i, j, lag).getGBar());
-					line.add(df.format(mean)+" ± "+df.format(stdDev));
+			File randTrialsDir = new File(dir, "rand_trials");
+			if (!randTrialsDir.exists())
+				randTrialsDir.mkdir();
+			
+			List<List<String>> allValsLines = Lists.newArrayList();
+			for (int i=0; i<=numTrials; i++) {
+				List<String> line = Lists.newArrayList();
+				if (i == 0)
+					line.add("Trial");
+				else
+					line.add(i+"");
+				allValsLines.add(line);
+			}
+			for (int m=0; m<nDims; m++) {
+				for (int n=m+1; n<nDims; n++) {
+					String name = rupIdens.get(m).getName()+" vs "+rupIdens.get(n).getName();
+					allValsLines.get(0).add(name);
+					for (int i=0; i<numTrials; i++)
+						allValsLines.get(i+1).add(gBars[m][n][i][l]+"");
+				}
+			}
+			CSVFile<String> allValsCSV = new CSVFile<String>(allValsLines, true);
+			allValsCSV.writeToFile(new File(randTrialsDir, "synch_params_"+numTrials+"_trials_lag"+lag+".csv"));
+			
+			double[][] stdDevs = new double[nDims][nDims];
+			double[][] means = new double[nDims][nDims];
+			double totBias = 0;
+			for (int m=0; m<nDims; m++) {
+				for (int n=0; n<nDims; n++) {
+					double[] lnVals = new double[numTrials];
+					for (int t=0; t<numTrials; t++)
+						lnVals[t] = Math.log(gBars[m][n][t][l]);
+					double mean = StatUtils.mean(lnVals);
+					double var = StatUtils.variance(lnVals, mean);
+					stdDevs[m][n] = Math.sqrt(var);
+					means[m][n] = mean;
+					if (n > m)
+						totBias += mean;
 				}
 			}
 			
-			csv.addLine(line);
+			System.out.println("Total Bias: "+totBias);
+			
+			List<String> header = Lists.newArrayList("");
+			for (RuptureIdentifier iden : rupIdens)
+				header.add(iden.getName());
+			
+			CSVFile<String> csv = new CSVFile<String>(false);
+			
+			csv.addLine("Std Dev of "+numTrials+" rand realizations (in Ln space)");
+			addTableToCSV(csv, header, stdDevs, true);
+			csv.addLine("");
+			csv.addLine("");
+			csv.addLine("Mean of "+numTrials+" rand realizations (in Ln space)");
+			addTableToCSV(csv, header, means, true);
+			csv.addLine("");
+			csv.addLine("");
+			csv.addLine("Print ready +/- (in Ln space)");
+			csv.addLine(header);
+			
+			DecimalFormat df = new DecimalFormat("0.00");
+			for (int i=0; i<nDims; i++) {
+				List<String> line = Lists.newArrayList();
+				
+				line.add(header.get(i+1));
+				for (int j=0; j<nDims; j++) {
+					if (i == j)
+						line.add("");
+					else {
+						double stdDev = stdDevs[i][j];
+						double mean = Math.log(new SynchParamCalculator(origChain, i, j, lag).getGBar());
+						line.add(df.format(mean)+" ± "+df.format(stdDev));
+					}
+				}
+				
+				csv.addLine(line);
+			}
+			
+			csv.writeToFile(stdDevCSV);
 		}
-		
-		csv.writeToFile(stdDevCSV);
-		
-		return stdDevs;
 	}
 	
 	private static void addTableToCSV(CSVFile<String> csv, List<String> header, double[][] table, boolean skipIdentities) {
@@ -978,6 +1011,92 @@ public class SynchParamCalculator {
 			if (!synchScatterDir.exists())
 				synchScatterDir.mkdir();
 			
+			File trialDir = new File(file.getParentFile(), "rand_trials");
+			String trialPrefix = null;
+			int maxTrialsFound = 0;
+			if (trialDir.exists() && !cov) {
+				for (File f : trialDir.listFiles()) {
+					String name = f.getName();
+					if (!name.endsWith(".csv") || !name.startsWith("synch_params_"))
+						continue;
+					
+					// parse number of trials
+					int trials = Integer.parseInt(name.substring("synch_params_".length(), name.indexOf("_trials")));
+					if (trials > maxTrialsFound) {
+						maxTrialsFound = trials;
+						trialPrefix = name.substring(0, name.indexOf("_lag"));
+					}
+				}
+			}
+			
+			Map<IDPairing, UncertainArbDiscDataset> lagUncertainties = null;
+			if (trialPrefix != null) {
+				System.out.println("Loading "+maxTrialsFound+" trials for each with prefix: "+trialPrefix);
+				Map<IDPairing, EvenlyDiscretizedFunc> upperFuncs = Maps.newHashMap();
+				Map<IDPairing, EvenlyDiscretizedFunc> lowerFuncs = Maps.newHashMap();
+				Map<IDPairing, EvenlyDiscretizedFunc> meanFuncs = Maps.newHashMap();
+				int[] myLags = rangeInclusive(-lagMax, lagMax);
+				for (int l=0; l<myLags.length; l++) {
+					int lag = myLags[l];
+					File trialCSVFile = new File(trialDir, trialPrefix+"_lag"+lag+".csv");
+					Preconditions.checkState(trialCSVFile.exists(), "Trials CSV doesn't exist: "+trialCSVFile.getAbsolutePath());
+					CSVFile<String> trialCSV = CSVFile.readFile(trialCSVFile, true);
+					
+					Map<String, Integer> colNamesMap = Maps.newHashMap();
+					List<String> header = trialCSV.getLine(0);
+					for (int i=0; i<header.size(); i++)
+						colNamesMap.put(header.get(i), i);
+					
+					for (int m=0; m<nDims; m++) {
+						for (int n=m+1; n<nDims; n++) {
+							String colName = idens.get(m).getName()+" vs "+idens.get(n).getName();
+							Integer col = colNamesMap.get(colName);
+							if (col == null) {
+								System.out.println("WARNING: lag file doesn't contain: "+colName);
+								continue;
+							}
+							double[] vals = new double[maxTrialsFound];
+							for (int i=0; i<vals.length; i++)
+								vals[i] = Double.parseDouble(trialCSV.get(i+1, col));
+							
+							// TODO calc from normal dist?
+							double mean = StatUtils.mean(vals);
+							double upper = StatUtils.percentile(vals, 97.5);
+							double lower = StatUtils.percentile(vals, 2.5);
+							
+							IDPairing pair = new IDPairing(m, n);
+							EvenlyDiscretizedFunc upperFunc;
+							EvenlyDiscretizedFunc lowerFunc;
+							EvenlyDiscretizedFunc meanFunc;
+							if (upperFuncs.containsKey(pair)) {
+								upperFunc = upperFuncs.get(pair);
+								lowerFunc = lowerFuncs.get(pair);
+								meanFunc = meanFuncs.get(pair);
+							} else {
+								upperFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+								upperFuncs.put(pair, upperFunc);
+								upperFuncs.put(pair.getReversed(), upperFunc);
+								lowerFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+								lowerFuncs.put(pair, lowerFunc);
+								lowerFuncs.put(pair.getReversed(), lowerFunc);
+								meanFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+								meanFuncs.put(pair, meanFunc);
+								meanFuncs.put(pair.getReversed(), meanFunc);
+							}
+							
+							upperFunc.set(l, Math.log(upper));
+							lowerFunc.set(l, Math.log(lower));
+							meanFunc.set(l, Math.log(mean));
+						}
+					}
+				}
+				lagUncertainties = Maps.newHashMap();
+				for (IDPairing pairing : upperFuncs.keySet()) {
+					lagUncertainties.put(pairing, new UncertainArbDiscDataset(
+							meanFuncs.get(pairing), lowerFuncs.get(pairing), upperFuncs.get(pairing)));
+				}
+			}
+			
 			for (int m=0; m<nDims; m++) {
 				// TODO start at m+1?
 				for (int n=m; n<nDims; n++) {
@@ -992,7 +1111,7 @@ public class SynchParamCalculator {
 					EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
 					
 					for (int lag=-lagMax; lag<=lagMax; lag++) {
-						lag_debug = lag == -1 && name1.contains("Coachella") && name2.contains("Jacinto");
+						lag_debug = lag == -1 && name1.contains("Coachella") && name2.contains("Jacinto") && false;
 						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
 						lag_debug = false;
 						
@@ -1052,20 +1171,18 @@ public class SynchParamCalculator {
 					
 					// lag plot spec
 	//				String title = "Synch Param "+name1+" vs "+name2+" ("+nDims+"D): "+params[m][n];
-					List<DiscretizedFunc> lagFuncs;
+					List<DiscretizedFunc> lagFuncs = Lists.newArrayList();
+					List<PlotCurveCharacterstics> myLagChars = Lists.newArrayList(lagChars);
 					PlotSpec spec;
 					if (cov) {
-						lagFuncs = Lists.newArrayList();
 						lagFuncs.add(synchLagFunc);
 					} else {
 						EvenlyDiscretizedFunc lnSynchFunch = new EvenlyDiscretizedFunc(
 								synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
 						for (int i=0; i<synchLagFunc.getNum(); i++)
 							lnSynchFunch.set(i, Math.log(synchLagFunc.getY(i)));
-						lagFuncs = Lists.newArrayList();
 						lagFuncs.add(lnSynchFunch);
 					}
-					List<PlotCurveCharacterstics> myLagChars = Lists.newArrayList(lagChars);
 					spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
 					
 					if (catDensFuncs != null) {
@@ -1111,6 +1228,16 @@ public class SynchParamCalculator {
 						scaledCombined.scale(synchMax/ccdfMax);
 						lagFuncs.add(0, scaledCombined);
 						myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY));
+					}
+					
+					if (lagUncertainties != null && lagUncertainties.containsKey(new IDPairing(m, n))) {
+						System.out.println("We have an uncertainty function!");
+						UncertainArbDiscDataset uncertainFunc = lagUncertainties.get(new IDPairing(m, n));
+//						for (int i=0; i<uncertainFunc.getNum(); i++)
+//							System.out.println("\t"+uncertainFunc.getLowerY(i)
+//									+"\t"+uncertainFunc.getY(i)+"\t"+uncertainFunc.getUpperY(i));
+						lagFuncs.add(0, uncertainFunc);
+						myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN_TRANS, 1f, Color.BLUE));
 					}
 					
 					double annY = lagYRange.getLowerBound()*0.95;
@@ -1306,6 +1433,16 @@ public class SynchParamCalculator {
 		return str;
 	}
 	
+	static int[] rangeInclusive(int min, int max) {
+		Preconditions.checkArgument(min <= max);
+		int[] ret = new int[max-min+1];
+		int cnt = 0;
+		for (int i=min; i<=max; i++) {
+			ret[cnt++] = i;
+		}
+		return ret;
+	}
+	
 	public static void main(String[] args) throws IOException {
 		double minMag = 7;
 		double maxMag = 10d;
@@ -1326,11 +1463,21 @@ public class SynchParamCalculator {
 		
 		RandomDistType randDistType = RandomDistType.STATE_BASED;
 		
-		File writeDir;
+		File mainDir;
 		if (cov)
-			writeDir = new File("/tmp/synch_cov");
+			mainDir = new File("/home/kevin/Simulators/synch_cov");
 		else
-			writeDir = new File("/tmp");
+			mainDir = new File("/home/kevin/Simulators/synch");
+		if (!mainDir.exists())
+			mainDir.mkdir();
+		
+		String indepStr;
+		if (useIndepProbs)
+			indepStr = "indep";
+		else
+			indepStr = "dep";
+		
+		File writeDir = new File(mainDir, "weight_"+weightingScheme.name()+"_"+indepStr);
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
@@ -1399,9 +1546,12 @@ public class SynchParamCalculator {
 		writeSynchParamsTable(synchCSVFile, rupIdens, chain, cov, catDensFuncs);
 		
 		// now write std devs
-		System.out.println("Calculating Synch Std Dev/Biases");
-		File stdDevCSVFile = new File(writeDir, "synch_params_std_devs.csv");
-		writeSynchParamsStdDev(stdDevCSVFile, events, rupIdens, 0, 100, distSpacing);
+//		System.out.println("Calculating Synch Std Dev/Biases");
+//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, new int[] {0}, 100, distSpacing);
+		
+		// now do std devs for each lag
+//		System.out.println("Calculating Synch Lag Std Devs/Biases");
+//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
 	}
 
 }

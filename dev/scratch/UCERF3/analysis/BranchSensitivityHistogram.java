@@ -544,7 +544,7 @@ public class BranchSensitivityHistogram implements Serializable {
 				
 				if (useMeanShift) {
 					double withoutMean = calcMeanWithout(categoryName, choiceName);
-					val = choiceMean - withoutMean;
+					val = overallMean - withoutMean;
 				} else {
 					// just use mean
 					val = choiceMean;

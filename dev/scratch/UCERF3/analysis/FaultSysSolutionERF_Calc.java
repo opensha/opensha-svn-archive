@@ -2485,6 +2485,7 @@ public class FaultSysSolutionERF_Calc {
 			if (meanBPT_CalcVals != null) {
 				for (BPTAveragingTypeOptions theAve : meanBPT_CalcVals.keySet()) {
 					List<Double> avgVals = Lists.newArrayList();
+					List<Double> cellWeights = Lists.newArrayList();
 					for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,List<Double>> cell
 							: bptOpsValsTable.cellSet()) {
 						if (cell.getColumnKey() != theAve)
@@ -2492,9 +2493,23 @@ public class FaultSysSolutionERF_Calc {
 						double[] bptCOV_ValsArray = Doubles.toArray(cell.getValue());
 						avgVals.add(FaultSystemSolutionFetcher.calcScaledAverage(
 							bptCOV_ValsArray, weightsArray));
+						if (isWeightedMultiCOV)
+							cellWeights.add(FaultSystemSolutionERF.getWeightForCOV(cell.getRowKey()));
+						else
+							cellWeights.add(1d);
 					}
+					if (isWeightedMultiCOV) {
+						// add in poisson now
+						avgVals.add(meanPois);
+						cellWeights.add(FaultSystemSolutionERF.getWeightForCOV(null));
+						Preconditions.checkState(avgVals.size() == 4);
+						Preconditions.checkState(cellWeights.size() == 4);
+					}
+					
+					double mean = FaultSystemSolutionFetcher.calcScaledAverage(
+							Doubles.toArray(avgVals), Doubles.toArray(cellWeights));
 					Preconditions.checkState(!avgVals.isEmpty());
-					meanBPT_CalcVals.get(theAve)[i] = StatUtils.mean(Doubles.toArray(avgVals));
+					meanBPT_CalcVals.get(theAve)[i] = mean;
 				}
 			}
 			
@@ -2622,6 +2637,12 @@ public class FaultSysSolutionERF_Calc {
 		// now do it for Ave Type values
 		if (meanBPT_CalcVals != null) {
 			String className = "BPTAveType";
+			
+			double maxDiff = 0;
+			List<double[]> diffVals = Lists.newArrayList();
+			List<String> diffLabels = Lists.newArrayList();
+			List<String> diffPrefixes = Lists.newArrayList();
+			
 			// for std dev
 			List<Double> allVals = Lists.newArrayList();
 			for (BPTAveragingTypeOptions theAve : meanBPT_CalcVals.keySet()) {
@@ -2634,18 +2655,14 @@ public class FaultSysSolutionERF_Calc {
 				
 				FaultBasedMapGen.makeFaultPlot(ratioCPT, traces, ratios, region,
 						comparePlotsDir, prefix, false, true, plotLabel);
-				
-				prefix = "BPTAveType_diff_"+theAve.getFileSafeLabel();
 
 				double[] diffs = new double[choiceVals.length];
 				for (int i=0; i<diffs.length; i++)
 					diffs[i] = choiceVals[i] - meanTimeDepVals[i];
-				double maxDiff = Math.max(Math.abs(StatUtils.max(diffs)), Math.abs(StatUtils.min(diffs)));
-				// round to nearest 0.05
-				maxDiff = Math.ceil(maxDiff * 100d)/100d;
-				CPT diffCPT = ratioCPT.rescale(-maxDiff, maxDiff);
-				FaultBasedMapGen.makeFaultPlot(diffCPT, traces, diffs, region,
-						comparePlotsDir, prefix, false, true, plotLabel);
+				maxDiff = Math.max(maxDiff, Math.max(Math.abs(StatUtils.max(diffs)), Math.abs(StatUtils.min(diffs))));
+				diffVals.add(diffs);
+				diffLabels.add(theAve.getCompactLabel()+" - Mean");
+				diffPrefixes.add("BPTAveType_diff_"+theAve.getFileSafeLabel());
 				
 				CSVFile<String> diffCSV = new CSVFile<String>(true);
 				diffCSV.addLine("Subsection Index", "Ave Type Val", "Mean Val", "Diff", "Ratio");
@@ -2663,6 +2680,15 @@ public class FaultSysSolutionERF_Calc {
 			double stdDev = Math.sqrt(StatUtils.variance(Doubles.toArray(allVals)));
 			System.out.println(className+" orig sigma: "+stdDev);
 //			writeRatioHists(comparePlotsDir, hists, className, stdDev);
+			
+			// write diff plots
+			
+			// round up to nearest 0.05
+			maxDiff = Math.ceil(maxDiff * 100d)/100d;
+			CPT diffCPT = ratioCPT.rescale(-maxDiff, maxDiff);
+			for (int i=0; i<diffVals.size(); i++)
+				FaultBasedMapGen.makeFaultPlot(diffCPT, traces, diffVals.get(i), region,
+						comparePlotsDir, diffPrefixes.get(i), false, true, diffLabels.get(i));
 		}
 		
 //		BranchSensitivityHistogram branchSensHist = new BranchSensitivityHistogram("Ratio", 0d, 21, 0.1);
@@ -4470,9 +4496,9 @@ public class FaultSysSolutionERF_Calc {
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots
-//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
-//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
-		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_ALL"), true);
+		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
+//		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_ALL"), true);
 		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");

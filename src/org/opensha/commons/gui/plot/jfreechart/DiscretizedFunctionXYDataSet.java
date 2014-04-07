@@ -221,6 +221,10 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 		return Double.NaN;
 
 	}
+	
+	public XY_DataSet getXYDataset(int series) {
+		return functions.get(series);
+	}
 
 	/**
 	 * XYDatasetAPI - Returns the y-value for an item within a series. <P>

@@ -27,7 +27,9 @@ public enum PlotLineType {
 	DOTTED_AND_DASHED("Dotted & Dashed"),
 	HISTOGRAM("Histogram"),
 	STACKED_BAR("Stacked Bar"),
-	SOLID_BAR("Solid Bar");
+	SOLID_BAR("Solid Bar"),
+	SHADED_UNCERTAIN("Shaded Uncertain Dataset"),
+	SHADED_UNCERTAIN_TRANS("Shaded Transparent Uncertain Dataset");
 	
 	private String desc;
 	
@@ -86,7 +88,8 @@ public enum PlotLineType {
 	 * @return true if the line type is compatible with symbols, false otherwise
 	 */
 	public boolean isSymbolCompatible() {
-		return !(this == HISTOGRAM || this == STACKED_BAR || this == SOLID_BAR);
+		return !(this == HISTOGRAM || this == STACKED_BAR || this == SOLID_BAR
+				|| this == SHADED_UNCERTAIN_TRANS || this == SHADED_UNCERTAIN);
 	}
 	
 	public static void checkValidConfiguration(PlotLineType plt, PlotSymbol sym) {
@@ -114,7 +117,7 @@ public enum PlotLineType {
 		XYLineAndShapeRenderer lineShpRend = new XYLineAndShapeRenderer(plt != null, sym != null);
 		lineShpRend.setDrawSeriesLineAsPath(true);
 		if (plt != null) {
-			Preconditions.checkArgument(lineWidth > 0, "line widht must be >0");
+			Preconditions.checkArgument(plt ==  SHADED_UNCERTAIN || lineWidth > 0, "line widht must be > 0");
 			if (plt == HISTOGRAM) {
 				XYBarRenderer xyRend = new XYBarRenderer();
 				xyRend.setShadowVisible(false);
@@ -127,6 +130,10 @@ public enum PlotLineType {
 				renderer = sbRend;
 			} else if (plt == SOLID_BAR) {
 				renderer = new XYSolidBarRenderer(lineWidth);
+			} else if (plt == SHADED_UNCERTAIN) {
+				renderer = new XYShadedUncertainLineRenderer();
+			} else if (plt == SHADED_UNCERTAIN_TRANS) {
+				renderer = new XYShadedUncertainLineRenderer(0.5);
 			} else {
 				renderer = lineShpRend;
 				Stroke stroke = plt.buildStroke(lineWidth);

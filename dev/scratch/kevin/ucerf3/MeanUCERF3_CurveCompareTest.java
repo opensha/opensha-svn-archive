@@ -3,6 +3,9 @@ package scratch.kevin.ucerf3;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
@@ -24,6 +27,10 @@ import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -41,8 +48,10 @@ public class MeanUCERF3_CurveCompareTest {
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/MeanUCERF3-timedep-tests");
 		
 		FaultModels fm = FaultModels.FM3_1;
-		double udTol = 10d;
-		boolean branchAveragedSol = false;
+		double udTol = 100d;
+		boolean branchAveragedSol = true;
+		
+		boolean clearCache = true;
 		
 		FaultSystemSolutionERF erf;
 		if (branchAveragedSol) {
@@ -55,7 +64,7 @@ public class MeanUCERF3_CurveCompareTest {
 		} else {
 			erf = new MeanUCERF3();
 //			erf.setMeanParams(0d, false, 0d, MeanUCERF3.RAKE_BASIS_NONE);
-			((MeanUCERF3)erf).setMeanParams(udTol, false, 0d, MeanUCERF3.RAKE_BASIS_NONE);
+			((MeanUCERF3)erf).setMeanParams(udTol, false, 1d, MeanUCERF3.RAKE_BASIS_MEAN);
 			if (fm != null)
 				erf.getParameter(MeanUCERF3.FAULT_MODEL_PARAM_NAME).setValue(fm.name());
 		}
@@ -94,7 +103,7 @@ public class MeanUCERF3_CurveCompareTest {
 		DiscretizedFunc meanTimeDepCurve, meanPoissonCurve;
 		
 		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		if (meanTimeDepFile.exists()) {
+		if (meanTimeDepFile.exists() && !clearCache) {
 			meanTimeDepCurve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(meanTimeDepFile.getAbsolutePath());
 		} else {
 			erf.getParameter(ProbabilityModelParam.NAME).setValue(
@@ -106,6 +115,23 @@ public class MeanUCERF3_CurveCompareTest {
 			
 			erf.getTimeSpan().setDuration(30d);
 			erf.updateForecast();
+			FaultSystemSolution sol = erf.getSolution();
+			FaultSystemRupSet rupSet = sol.getRupSet();
+			System.out.println("Num Sol Ruptures: "+rupSet.getNumRuptures());
+			HashSet<String> uniqueRups = new HashSet<String>();
+			int numNonzero = 0;
+			List<List<Integer>> sectionIndicesForAllRups = rupSet.getSectionIndicesForAllRups();
+			for (int i = 0; i < sectionIndicesForAllRups.size(); i++) {
+				List<Integer> rup = sectionIndicesForAllRups.get(i);
+				rup = Lists.newArrayList(rup);
+				Collections.sort(rup);
+				String str = Joiner.on(",").join(rup);
+				uniqueRups.add(str);
+				if (sol.getRateForRup(i) > 0)
+					numNonzero++;
+			}
+			System.out.println("Num Unique Rups: "+uniqueRups.size());
+			System.out.println("Num Nonzero Rups: "+numNonzero);
 			
 			System.out.println("Calculating Time Dep Curve with "+erf.getNumSources()+" sources");
 			
@@ -115,7 +141,7 @@ public class MeanUCERF3_CurveCompareTest {
 			ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(meanTimeDepCurve, meanTimeDepFile);
 		}
 		
-		if (meanPoissonFile.exists()) {
+		if (meanPoissonFile.exists() && !clearCache) {
 			meanPoissonCurve = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(meanPoissonFile.getAbsolutePath());
 		} else {
 			erf.getParameter(ProbabilityModelParam.NAME).setValue(
@@ -123,6 +149,7 @@ public class MeanUCERF3_CurveCompareTest {
 			
 			erf.getTimeSpan().setDuration(30d);
 			erf.updateForecast();
+			System.out.println("Num Sources: "+erf.getNumSources());
 			
 			System.out.println("Calculating Time Indep Curve with "+erf.getNumSources()+" sources");
 			

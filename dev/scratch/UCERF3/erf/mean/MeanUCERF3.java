@@ -242,14 +242,14 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			// this means that we have to load/build the solution (parameter change or never loaded)
 			fetchSolution();
 		}
-		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
-			throw new IllegalStateException("MeanUCERF3 is not compatible with time dependence. Certain"
-					+ " parameter combination should be compatible in theory but this needs further testing."
-					+ " Long story short, MeanUCERF3 creates multiple instances of each subsection, each of"
-					+ " which has a portion of the rate, and thus a longer recurrence interval. This throws"
-					+ " off the BPT calculations which use the subsection recurrence interval. Things get worse"
-					+ " when you combine fault models, as the section participation rates are halved for each"
-					+ " section unique to a FM.");
+//		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
+//			throw new IllegalStateException("MeanUCERF3 is not compatible with time dependence. Certain"
+//					+ " parameter combination should be compatible in theory but this needs further testing."
+//					+ " Long story short, MeanUCERF3 creates multiple instances of each subsection, each of"
+//					+ " which has a portion of the rate, and thus a longer recurrence interval. This throws"
+//					+ " off the BPT calculations which use the subsection recurrence interval. Things get worse"
+//					+ " when you combine fault models, as the section participation rates are halved for each"
+//					+ " section unique to a FM.");
 		super.updateForecast();
 	}
 
