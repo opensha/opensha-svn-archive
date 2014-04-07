@@ -1,13 +1,22 @@
 package org.opensha.commons.data.function;
 
-import java.awt.geom.Point2D;
-
 import org.jfree.data.Range;
-import org.opensha.commons.exceptions.Point2DException;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Represents an uncertain discretized function which has both an upper and lower bound. Can be used in
+ * conjunction with PlotLineType.SHADED_UNCERTAIN to show shaded uncertainty bounds, or plotted normally.
+ * 
+ * @author kevin
+ *
+ */
 public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private UnmodifiableDiscrFunc lowerFunc;
 	private UnmodifiableDiscrFunc upperFunc;

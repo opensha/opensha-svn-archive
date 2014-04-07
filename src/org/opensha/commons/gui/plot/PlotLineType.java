@@ -28,7 +28,13 @@ public enum PlotLineType {
 	HISTOGRAM("Histogram"),
 	STACKED_BAR("Stacked Bar"),
 	SOLID_BAR("Solid Bar"),
+	/**
+	 * Shaded uncertainty bounds, can only be used with UncertainArbDiscDataset
+	 */
 	SHADED_UNCERTAIN("Shaded Uncertain Dataset"),
+	/**
+	 * Shaded uncertainty bounds with default 50% transparency, can only be used with UncertainArbDiscDataset
+	 */
 	SHADED_UNCERTAIN_TRANS("Shaded Transparent Uncertain Dataset");
 	
 	private String desc;
