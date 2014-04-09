@@ -385,7 +385,7 @@ public class MatrixIO {
 	 * @param file
 	 * @throws IOException
 	 */
-	public static void intListListToFile(List<List<Integer>> list, File file) throws IOException {
+	public static void intListListToFile(List<? extends List<Integer>> list, File file) throws IOException {
 		Preconditions.checkNotNull(list, "list cannot be null!");
 		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
 
