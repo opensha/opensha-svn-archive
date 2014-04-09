@@ -516,4 +516,83 @@ public class MatrixIO {
 			return Ints.asList(intArray);
 	}
 
+	/**
+	 * Writes the given list of integer arrays to a file. All values are stored big endian. Output format is identical
+	 * to {@link MatrixIO.intListListToFile}.
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void intArraysListToFile(List<int[]> list, File file) throws IOException {
+		Preconditions.checkNotNull(list, "list cannot be null!");
+		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
+
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+
+		out.writeInt(list.size());
+
+		for (int[] ints : list) {
+			Preconditions.checkNotNull(ints, "list cannot be null!");
+			//			Preconditions.checkState(!ints.isEmpty(), "list cannot be empty!");
+			out.writeInt(ints.length);
+			for (int val : ints)
+				out.writeInt(val);
+		}
+
+		out.close();
+	}
+
+	/**
+	 * Reads a file created by {@link MatrixIO.intListListToFile} or {@link MatrixIO.intArraysListToFile}
+	 * into an integer array list.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<int[]> intArraysListFromFile(File file) throws IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+
+		long len = file.length();
+		Preconditions.checkState(len > 0, "file is empty!");
+		Preconditions.checkState(len % 4 == 0, "file size isn't evenly divisible by 4, " +
+		"thus not a sequence of double & integer values.");
+
+		return intArraysListFromInputStream(new FileInputStream(file));
+	}
+
+	/**
+	 * Reads a file created by {@link MatrixIO.intListListToFile} or {@link MatrixIO.intArraysListToFile}
+	 * into an integer array list.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<int[]> intArraysListFromInputStream(
+			InputStream is) throws IOException {
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
+
+		DataInputStream in = new DataInputStream(is);
+
+		int size = in.readInt();
+
+		Preconditions.checkState(size > 0, "Size must be > 0!");
+
+		ArrayList<int[]> list = Lists.newArrayList();
+
+		for (int i=0; i<size; i++) {
+			int listSize = in.readInt();
+
+			// use shorts if possible
+			int[] intArray = new int[listSize];
+			list.add(intArray);
+		}
+
+		in.close();
+
+		return list;
+	}
+
 }
