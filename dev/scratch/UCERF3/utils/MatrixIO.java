@@ -313,6 +313,120 @@ public class MatrixIO {
 		return list;
 	}
 	
+	
+	/**
+	 * Writes the given list of float arrays to a file. All values are stored big endian. Output format contains
+	 * first an integer, specifying the size of the list, then for each element in the list, an integer, denoting
+	 * the size (n) of the array, followed by n float values (the array values). 
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void floatArraysListToFile(List<float[]> list, File file) throws IOException {
+		Preconditions.checkNotNull(list, "list cannot be null!");
+		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
+
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+
+		out.writeInt(list.size());
+
+		for (float[] array : list) {
+			Preconditions.checkNotNull(array, "array cannot be null!");
+//			Preconditions.checkState(array.length > 0, "array cannot be empty!"); // actually it can be!
+			out.writeInt(array.length);
+			for (float val : array)
+				out.writeFloat(val);
+		}
+
+		out.close();
+	}
+	
+	
+	/**
+	 * Writes the given list of float lists to a file. All values are stored big endian. Output format contains
+	 * first an integer, specifying the size of the list, then for each element in the list, an integer, denoting
+	 * the size (n) of the array, followed by n float values (the array values). 
+	 * @param list
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void floatListListToFile(List<? extends List<Float>> list, File file) throws IOException {
+		Preconditions.checkNotNull(list, "list cannot be null!");
+		Preconditions.checkArgument(!list.isEmpty(), "list cannot be empty!");
+
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+
+		out.writeInt(list.size());
+
+		for (List<Float> floatList : list) {
+			Preconditions.checkNotNull(floatList, "array cannot be null!");
+//			Preconditions.checkState(array.length > 0, "array cannot be empty!"); // actually it can be!
+			out.writeInt(floatList.size());
+			for (float val : floatList)
+				out.writeFloat(val);
+		}
+
+		out.close();
+	}
+
+
+	/**
+	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a float array.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<float[]> floatArraysListFromFile(File file) throws IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+
+		long len = file.length();
+		Preconditions.checkState(len > 0, "file is empty!");
+		Preconditions.checkState(len % 4 == 0, "file size isn't evenly divisible by 4, " +
+		"thus not a sequence of float & integer values.");
+
+		return floatArraysListFromInputStream(new FileInputStream(file));
+	}
+
+	/**
+	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a float array.
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<float[]> floatArraysListFromInputStream(InputStream is) throws IOException {
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
+
+		DataInputStream in = new DataInputStream(is);
+
+		int size = in.readInt();
+
+		Preconditions.checkState(size > 0, "Size must be > 0!");
+
+		ArrayList<float[]> list = new ArrayList<float[]>(size);
+
+		for (int i=0; i<size; i++) {
+			int arraySize = in.readInt();
+
+			float[] array = new float[arraySize];
+			for (int j=0; j<arraySize; j++)
+				array[j] = in.readFloat();
+
+			list.add(array);
+		}
+
+		in.close();
+
+		return list;
+	}
+
+	
+	
+	
+
+	
 	/**
 	 * This writes the discretized functions to a file. No metadata is preserved.
 	 * 
@@ -541,6 +655,8 @@ public class MatrixIO {
 
 		out.close();
 	}
+	
+	
 
 	/**
 	 * Reads a file created by {@link MatrixIO.intListListToFile} or {@link MatrixIO.intArraysListToFile}
