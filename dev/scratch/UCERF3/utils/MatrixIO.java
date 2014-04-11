@@ -371,7 +371,7 @@ public class MatrixIO {
 
 
 	/**
-	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a float array.
+	 * Reads a file created by {@link MatrixIO.floatArraysListFromFile} into a float array.
 	 * @param file
 	 * @return
 	 * @throws IOException
@@ -389,7 +389,7 @@ public class MatrixIO {
 	}
 
 	/**
-	 * Reads a file created by {@link MatrixIO.doubleArraysListFromFile} into a float array.
+	 * Reads a file created by {@link MatrixIO.floatArraysListFromFile} into a float array.
 	 * @param is
 	 * @return
 	 * @throws IOException
@@ -619,7 +619,7 @@ public class MatrixIO {
 		boolean shortSafe = true;
 		for (int j=0; j<listSize; j++) {
 			int val = otherArray.get(j);
-			shortSafe = shortSafe && val < Short.MAX_VALUE;
+			shortSafe = shortSafe && ((val >= 0 && val < Short.MAX_VALUE) || (val < 0 && -val < Short.MAX_VALUE));
 			intArray[j] = val;
 			shortArray[j] = (short)val;
 		}
@@ -701,8 +701,11 @@ public class MatrixIO {
 		for (int i=0; i<size; i++) {
 			int listSize = in.readInt();
 
-			// use shorts if possible
 			int[] intArray = new int[listSize];
+			for (int j=0; j<listSize; j++) {
+				int val = in.readInt();
+				intArray[j] = val;
+			}
 			list.add(intArray);
 		}
 
