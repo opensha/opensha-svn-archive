@@ -15,6 +15,7 @@ import java.util.List;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.apache.commons.math3.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -48,7 +49,112 @@ public class ETAS_Utils {
 		strings.add("magMin="+magMin_DEFAULT);
 		return strings;
 	}
+
 	
+	/**
+	 * This computes the density of aftershocks for the given distance according to equations (5) to (8) of
+	 * Hardebeck (2013; http://pubs.usgs.gov/of/2013/1165/pdf/ofr2013-1165_appendixS.pdf) using default
+	 * parameters (and assuming max distance of 1000 km and seismogenic thickness of 12 km, as she does in her
+	 * paper).
+	 * @param distance (km)
+	 * @return
+	 */
+	public static double getDefaultHardebeckDensity(double distance) {
+		double maxDist = 1000d;
+		double seismoThickness = 24d;
+		if(distance>maxDist) {
+			return 0d;
+		}
+		double oneMinusDecay = 1-distDecay_DEFAULT;
+		double cs = oneMinusDecay/(Math.pow(maxDist+minDist_DEFAULT,oneMinusDecay)-Math.pow(minDist_DEFAULT,oneMinusDecay));
+		if(distance < seismoThickness/2d) {
+			return cs*Math.pow(distance+minDist_DEFAULT, -distDecay_DEFAULT)/(4*Math.PI*distance*distance);
+		}
+		else {
+			return cs*Math.pow(distance+minDist_DEFAULT, -distDecay_DEFAULT)/(2*Math.PI*distance*seismoThickness);
+		}
+	}
+	
+	
+	public static void testDefaultHardebeckDensity() {
+		double histLogMinDistKm=-2,histLogMaxDistKm=3;
+		int histNum=31;
+		
+		EvenlyDiscretizedFunc targetLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMinDistKm, histLogMaxDistKm, histNum, distDecay_DEFAULT, minDist_DEFAULT);
+		EvenlyDiscretizedFunc testLogHistogram = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
+		EvenlyDiscretizedFunc numLogHistogram = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
+		testLogHistogram.setTolerance(testLogHistogram.getDelta());
+		numLogHistogram.setTolerance(numLogHistogram.getDelta());
+
+		double totWt=0, totVol=0;
+		double[] minXY = {0d, 1d, 4d};
+		double[] maxXY = {1d, 4d, 1000d};
+		double[] minZ = {0d, 1d, 4d};
+		double[] maxZ = {1d, 4d, 6d};
+		double[] discr = {0.005, 0.01, 0.5};
+		int totNumX = 0;
+		for(int i=0;i<minXY.length;i++)
+			totNumX += (maxXY[i]-minXY[i])/discr[i];
+		CalcProgressBar progressBar = new CalcProgressBar("testDefaultHardebeckDensity()", "junk");
+		progressBar.showProgress(true);
+		for(int i=0;i<minXY.length;i++) {
+			System.out.println(i);
+			int numXY = (int)Math.round((maxXY[i]-minXY[i])/discr[i]);
+			int numZ =  (int)Math.round((maxZ[i]-minZ[i])/discr[i]);
+			for(int x=0; x<numXY;x++) {
+				progressBar.updateProgress(x, totNumX);
+				for(int y=0; y<numXY;y++) {
+					for(int z=0; z<numZ;z++) {
+						double xDist=minXY[i]+x*discr[i]+discr[i]/2;
+						double yDist=minXY[i]+y*discr[i]+discr[i]/2;
+						double zDist=minZ[i]+z*discr[i]+discr[i]/2;
+						double dist = Math.pow(xDist*xDist+yDist*yDist+zDist*zDist,0.5);
+						double vol = discr[i]*discr[i]*discr[i];
+						double wt = 8d*getDefaultHardebeckDensity(dist)*vol;	// 8 is for the other area of space
+						totWt += wt;
+						if(dist<=1000)
+							totVol += vol;
+						double logDist = Math.log10(dist);
+						if(logDist<testLogHistogram.getX(0)){
+							testLogHistogram.add(0, wt);
+							numLogHistogram.add(0, 1d);
+						}
+						else if (logDist<histLogMaxDistKm) {
+							testLogHistogram.add(logDist,wt);
+							numLogHistogram.add(logDist, 1d);
+						}
+
+
+//						if(dist<20)
+//							System.out.println((float)xDist+"\t"+(float)yDist+"\t"+(float)zDist);
+					}
+				}
+			}			
+		}
+		progressBar.showProgress(false);
+		System.out.println("totWt="+totWt);
+		double expVol = Math.PI*1000d*1000d*12d;
+		System.out.println("totVol="+totVol*8+"\texpVol="+expVol);
+		
+		ArrayList funcs1 = new ArrayList();
+		funcs1.add(testLogHistogram);
+		funcs1.add(targetLogDistDecay);
+
+		GraphWindow graph = new GraphWindow(funcs1, "testLogHistogram"); 
+		graph.setAxisRange(-2, 3, 1e-6, 1);
+		graph.setYLog(true);
+
+		EvenlyDiscretizedFunc testLogFunction = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
+		for(int i=0;i<testLogFunction.getNum();i++) {
+			double dist = Math.pow(10d, testLogFunction.getX(i));
+			testLogFunction.set(i,getDefaultHardebeckDensity(dist));
+		}
+		GraphWindow graph2 = new GraphWindow(testLogFunction, "testLogFunction"); 
+		GraphWindow graph3 = new GraphWindow(numLogHistogram, "numLogHistogram"); 
+
+		
+	}
+
 	/**
 	 * This computes the fraction of events inside a distance from the hypocenter analytically
 	 * @param distDecay
@@ -305,27 +411,38 @@ public class ETAS_Utils {
 
 	
 	public static void main(String[] args) {
-		System.out.println("k_DEFAULT: "+ETAS_Utils.k_DEFAULT);
-		System.out.println("c_DEFAULT: "+ETAS_Utils.c_DEFAULT);
-		System.out.println("p_DEFAULT: "+ETAS_Utils.p_DEFAULT);
-		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
-		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
 		
-//		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
-		EvenlyDiscretizedFunc cumDecayFunc1 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-		EvenlyDiscretizedFunc cumDecayFunc2 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-		EvenlyDiscretizedFunc cumDecayFunc3 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-		for(int i=0;i<cumDecayFunc1.getNum();i++) {
-			double dist = Math.pow(10d, cumDecayFunc1.getX(i));
-			cumDecayFunc1.set(i,getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, dist));
-			cumDecayFunc2.set(i,getDecayFractionInsideDistance(1.8,0.63, dist));
-			cumDecayFunc2.set(i,getDecayFractionInsideDistance(5.4,10d, dist));
-		}
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(cumDecayFunc1);
-		funcs.add(cumDecayFunc2);
-		funcs.add(cumDecayFunc3);
-		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
+		testDefaultHardebeckDensity();
+
+		
+//		EvenlyDiscretizedFunc distDecay = getTargetDistDecayFunc(-2, 3, 51, distDecay_DEFAULT, minDist_DEFAULT);
+//		double sum=0;
+//		for(int i=0;i<distDecay.getNum();i++) {
+//			sum += distDecay.getY(i);
+//			System.out.println((float)distDecay.getX(i)+"\t"+(float)distDecay.getY(i)+"\t"+(float)(1d-sum));
+//		}
+		
+//		System.out.println("k_DEFAULT: "+ETAS_Utils.k_DEFAULT);
+//		System.out.println("c_DEFAULT: "+ETAS_Utils.c_DEFAULT);
+//		System.out.println("p_DEFAULT: "+ETAS_Utils.p_DEFAULT);
+//		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
+//		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
+//		
+////		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
+//		EvenlyDiscretizedFunc cumDecayFunc1 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+//		EvenlyDiscretizedFunc cumDecayFunc2 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+//		EvenlyDiscretizedFunc cumDecayFunc3 = new EvenlyDiscretizedFunc(-3d,25,0.25);
+//		for(int i=0;i<cumDecayFunc1.getNum();i++) {
+//			double dist = Math.pow(10d, cumDecayFunc1.getX(i));
+//			cumDecayFunc1.set(i,getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, dist));
+//			cumDecayFunc2.set(i,getDecayFractionInsideDistance(1.8,0.63, dist));
+//			cumDecayFunc2.set(i,getDecayFractionInsideDistance(5.4,10d, dist));
+//		}
+//		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+//		funcs.add(cumDecayFunc1);
+//		funcs.add(cumDecayFunc2);
+//		funcs.add(cumDecayFunc3);
+//		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
 
 		
 		
