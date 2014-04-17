@@ -1,66 +1,122 @@
 package scratch.UCERF3.erf.ETAS;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
 
 public class SeisDepthDistribution {
 	
 	double[] depthVals = {0.0, 3.0, 6.0, 12.0, 24.0};
 	double[] relWtVals = {0.0, 1.0, 10.0, 2.0, 0.0};
 	ArbitrarilyDiscretizedFunc depthDistFunc;
+	ArbitrarilyDiscretizedFunc inverseCumDepthDistFunc;
+	HistogramFunction cumHistFunc;
 
 	public SeisDepthDistribution() {
 		depthDistFunc = new ArbitrarilyDiscretizedFunc();
-		double tot=0;
 		for(int i=0;i<depthVals.length;i++) {
 			depthDistFunc.set(depthVals[i], relWtVals[i]);		
-			tot += relWtVals[i];
 		}
 		double totArea = 0;
 		for(int i=1;i<depthVals.length;i++) {
 			totArea += 0.5*(depthVals[i]-depthVals[i-1])*Math.abs(relWtVals[i]-relWtVals[i-1])+Math.min(relWtVals[i],relWtVals[i-1])*(depthVals[i]-depthVals[i-1]);			
 		}
-		depthDistFunc.scale(1.0/totArea);
+		depthDistFunc.scale(1.0/totArea);	// make it a density function; area of 1.0
+		depthDistFunc.setName("Depth Distribution Function");
 		
 		HistogramFunction histFunc = new HistogramFunction(0.05, 240,0.1);
 		for(int i=0;i<histFunc.getNum();i++)
 			histFunc.set(i,depthDistFunc.getInterpolatedY(histFunc.getX(i)));
 		
-		HistogramFunction cumHistFunc = histFunc.getCumulativeDistFunction();
+		cumHistFunc = histFunc.getCumulativeDistFunctionWithHalfBinOffset();
 		cumHistFunc.scale(1.0/cumHistFunc.getMaxY());
 		
-		ArbitrarilyDiscretizedFunc inverseCumDepthDistFunc = new ArbitrarilyDiscretizedFunc();
+		inverseCumDepthDistFunc = new ArbitrarilyDiscretizedFunc();
 		for(int i=0;i<cumHistFunc.getNum();i++) {
-			if(i==0)
-				inverseCumDepthDistFunc.set(0.0,cumHistFunc.getX(i));
-			else
-				inverseCumDepthDistFunc.set(cumHistFunc.getY(i),cumHistFunc.getX(i));
+			inverseCumDepthDistFunc.set(cumHistFunc.getY(i),cumHistFunc.getX(i));
 		}
 		
-		
+//		GraphWindow graph3 = new GraphWindow(histFunc, "histFunc"); 
+//		GraphWindow graph4 = new GraphWindow(cumHistFunc, "cumHistFunc"); 
+//		GraphWindow graph2 = new GraphWindow(inverseCumDepthDistFunc, "inverseCumDepthDistFunc"); 
+
+	}
+	
+	/**
+	 * This returns a function giving the relative rate (density) as a function of depth (km)
+	 * @return
+	 */
+	public ArbitrarilyDiscretizedFunc getDepthDistributionFunction() {
+		return depthDistFunc;
+	}
+	
+	/**
+	 * This returns the relative rate of events at the given depth
+	 * @param depth (km, positive number)
+	 * @return
+	 */
+	public double getProbAtDepth(double depth) {
+		return depthDistFunc.getInterpolatedY(depth);
+	}
+	
+	/**
+	 * This returns the relative rate of events at the given depth
+	 * @param depth (km, positive number)
+	 * @return
+	 */
+	public double getProbBetweenDepths(double depth1, double depth2) {
+		return cumHistFunc.getInterpolatedY(depth2)-cumHistFunc.getInterpolatedY(depth1);
+	}
+
+
+	/**
+	 * This returns a random depth from the depth distribution
+	 * @return
+	 */
+	public double getRandomDepth() {
+		// this is a little faster
+		return inverseCumDepthDistFunc.getInterpolatedY(Math.random());
+//		double randDepth = cumHistFunc.getFirstInterpolatedX(Math.random());
+	}
+	
+	public void plotBinnedDepthDistribution() {
+		double delta=2;
+		HistogramFunction binnedDepthDistFunc = new HistogramFunction(1d, 12,delta);
+		for(int i=0;i<binnedDepthDistFunc.getNum();i++) {
+			double prob = getProbBetweenDepths(binnedDepthDistFunc.getX(i)-delta/2d,binnedDepthDistFunc.getX(i)+delta/2d);
+			binnedDepthDistFunc.set(i,prob);
+		}
+		System.out.println("totBinnedProb="+binnedDepthDistFunc.calcSumOfY_Vals());
+		PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK);
+		GraphWindow graph2 = new GraphWindow(binnedDepthDistFunc, "binnedDepthDistFunc", plotChar); 		
+	}
+	
+	
+	public void testRandomDepth(int numSamples) {
 		HistogramFunction testRandHistFunc = new HistogramFunction(0.05, 240,0.1);
-		int numSamples = 1000000;
+		long st = System.currentTimeMillis();
 		for(int i=0;i<numSamples;i++) {
-			double randDepth = inverseCumDepthDistFunc.getInterpolatedY(Math.random());
-			testRandHistFunc.add(randDepth, 1.0);
+			testRandHistFunc.add(getRandomDepth(), 1.0);
 		}
 		testRandHistFunc.scale(1.0/(numSamples*0.1));
+		System.out.println("That took "+(System.currentTimeMillis()-st)+" millisec");
+		testRandHistFunc.setName("Randome Depth Distribution Histogram");
 
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
 		funcs.add(depthDistFunc);
 		funcs.add(testRandHistFunc);
-		GraphWindow graph3 = new GraphWindow(histFunc, "histFunc"); 
-		GraphWindow graph4 = new GraphWindow(histFunc.getCumulativeDistFunction(), "histFunc.getCumulativeDistFunction()"); 
-		GraphWindow graph2 = new GraphWindow(inverseCumDepthDistFunc, "inverseCumDepthDistFunc"); 
-		GraphWindow graph1 = new GraphWindow(funcs, "depthDistFunc"); 
-
-
+		GraphWindow graph1 = new GraphWindow(funcs, "Test Random Depths"); 
+		graph1.setX_AxisLabel("Depth (km)");
+		graph1.setY_AxisLabel("Density");
 	}
-
+	
 
 	/**
 	 * @param args
@@ -68,6 +124,10 @@ public class SeisDepthDistribution {
 	public static void main(String[] args) {
 		
 		SeisDepthDistribution test = new SeisDepthDistribution();
+		
+		test.plotBinnedDepthDistribution();
+		
+//		test.testRandomDepth(10000000);
 
 	}
 
