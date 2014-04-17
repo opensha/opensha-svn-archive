@@ -68,6 +68,10 @@ public class GraphWindow extends JFrame {
 		this(Lists.newArrayList(elem), plotTitle);
 	}
 	
+	public GraphWindow(PlotElement elem, String plotTitle, PlotCurveCharacterstics plotChar) {
+		this(Lists.newArrayList(elem), plotTitle, Lists.newArrayList(plotChar));
+	}
+	
 	public GraphWindow(List<? extends PlotElement> elems, String plotTitle) {
 		this(elems, plotTitle, generateDefaultChars(elems));
 	}
