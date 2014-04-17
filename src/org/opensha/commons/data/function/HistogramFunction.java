@@ -65,6 +65,23 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 	}
 	
 	/**
+	 * This returns the cumulative distribution function (total number less than and equal to each x-axis value),
+	 * where the bins are offset on the x-axis by a half width to be more accurate (this has one more point than
+	 * what's returned by getCumulativeDistFunction())
+	 * @return
+	 */
+	public HistogramFunction getCumulativeDistFunctionWithHalfBinOffset() {
+		HistogramFunction cumHist = new HistogramFunction(getMinX()-getDelta()/2d, getNum()+1, getDelta());
+		double sum=0;
+		cumHist.set(0,0d);
+		for(int i=1;i<cumHist.getNum();i++) {
+			sum+=getY(i-1);
+			cumHist.set(i,sum);
+		}
+		return cumHist;
+	}
+	
+	/**
 	 * This returns the x-axis value corresponding to the maximum y-axis value
 	 * @return
 	 */
