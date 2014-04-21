@@ -63,7 +63,7 @@ public class GriddedSeisUtils {
 	 * @return the pdf value
 	 */
 	public double pdfValForSection(int idx) {
-		Map<Integer, Double> nodeMap = polyMgr.getSectFractions(idx);
+		Map<Integer, Double> nodeMap = polyMgr.getScaledNodeFractions(idx);
 		double sum = 0.0;
 		for (int iNode : nodeMap.keySet()) {
 			sum += pdf[iNode] * nodeMap.get(iNode);

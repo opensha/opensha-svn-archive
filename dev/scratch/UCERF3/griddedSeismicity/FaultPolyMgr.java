@@ -12,10 +12,8 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.geo.RegionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -43,8 +41,12 @@ public class FaultPolyMgr implements Iterable<Area> {
 	private SectionPolygons polys;
 	
 	// both are Table<SubSectionID, NodeIndex, Value>
-	private Table<Integer, Integer, Double> sectInNodePartic;
+	//
+	// the percentage of each node spanned by each fault sub-section
 	private Table<Integer, Integer, Double> nodeInSectPartic;
+	// same as above, scaled with percentage scaled to account for
+	// multiple overlapping sub-sections
+	private Table<Integer, Integer, Double> sectInNodePartic;
 	
 	// utility collections
 	private Multimap<Integer, Integer> sectToProbNodes;
@@ -91,10 +93,14 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * Returns a map of the indices of nodes that intersect the fault-section at
 	 * {@code idx} where the values are the (weighted) fraction of the area of
 	 * the node occupied by the fault-section.
+	 * 
+	 * <p>Use this method when distributing some property of a node across the fault
+	 * sections it intersects.</p>
+	 * 
 	 * @param idx fault-section index
 	 * @return a map of fault-section participation in nodes
 	 */
-	public Map<Integer, Double> getSectFractions(int idx) {
+	public Map<Integer, Double> getScaledNodeFractions(int idx) {
 		return sectInNodePartic.row(idx);
 	}
 	
@@ -102,6 +108,10 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * Returns a map of the indices of nodes that intersect the fault-section at
 	 * {@code idx} where the values are the fraction of the area of the
 	 * fault-section occupied by each node. The values in the map sum to 1.
+	 * 
+	 * <p>Use this method when distributing some property of a fault section across
+	 * the nodes it intersects.</p>
+	 * 
 	 * @param idx section index
 	 * @return a map of node participation in a fault-section
 	 */
