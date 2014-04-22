@@ -79,15 +79,18 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(FaultSystemSolutionERF_ETAS erf, GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
 			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName) throws IOException {
 		
-		// directory fo saving results
+
+		SeisDepthDistribution seisDepthDistribution = new SeisDepthDistribution();
+		
+		// directory for saving results
 		String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 		File resultsDir = new File(dirNameForSavingFiles);
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		
 		// file for writing simulations info
-		FileWriter info_fr=null;
-		info_fr = new FileWriter(dirNameForSavingFiles+"infoString.txt");
-//			info_fr.close();
+		FileWriter info_fr= new FileWriter(dirNameForSavingFiles+"infoString.txt");
+		FileWriter simulatedEventsFileWriter = new FileWriter(dirNameForSavingFiles+"simulatedEvents.txt");
+
 
 		info_fr.write(simulationName+"\n");
 		info_fr.write("\nobsEqkRuptureList.size()="+obsEqkRuptureList.size()+"\n");
@@ -104,10 +107,7 @@ public class ETAS_Simulator {
 		info_fr.write("\nERF StartTime: "+startTimeString+"\n");
 		info_fr.write("\nERF TimeSpan Duration: "+erf.getTimeSpan().getDuration()+" years\n");
 			
-		
-		FaultSystemRupSet fltSysRupSet = erf.getSolution().getRupSet();
-		
-		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
+		// this will store the simulated aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
 		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);
 		
@@ -120,67 +120,55 @@ public class ETAS_Simulator {
 		long simEndTime = erf.getTimeSpan().getEndTimeCalendar().getTimeInMillis();
 		double simDuration = erf.getTimeSpan().getDuration();
 		
-		if(D) System.out.println("Updating forecast (twice)");
+		if(D) System.out.println("Updating forecast in testETAS_Simulation");
 		// get the total rate over the duration of the forecast
 		erf.updateForecast();	// do this to get annual rate over the entire forecast (used to sample spontaneous events)
+		if(D) System.out.println("Done updating forecast in testETAS_Simulation");
 		
-		// fill in totalRate, longTermRateOfNthRups, magOfNthRups, and longTermSlipRateForSectArray
+		//Compute origTotRate; this calculation include rates outside region, 
+		// but this is dominated by gridded seis so shouldn't matter; using 
+		// ERF_Calculator.getTotalRateInRegion(erf, griddedRegion, 0.0) takes way too long.
+		if(D) System.out.println("Computing origTotRate");
+		long st = System.currentTimeMillis();
 		double origTotRate=0;
-		IntegerPDF_FunctionSampler spontaneousRupSampler = new IntegerPDF_FunctionSampler(erf.getTotNumRups());
-//		double[] longTermRateOfNthRups = new double[erf.getTotNumRups()];
-//		double[] magOfNthRups = new double[erf.getTotNumRups()];
-//		double[] longTermSlipRateForSectArray = new double[numSections];
-		int nthRup=0;
 		for(ProbEqkSource src:erf) {
 			for(ProbEqkRupture rup:src) {
-				double rate = rup.getMeanAnnualRate(erf.getTimeSpan().getDuration());
-//				longTermRateOfNthRups[nthRup] = rate;
-//				magOfNthRups[nthRup] = rup.getMag();
-				origTotRate += rate;
-				spontaneousRupSampler.set(nthRup, rate);	// TODO this should be updated after supra-seis events?
-//				if(erf.getSrcIndexForNthRup(nthRup)<erf.getNumFaultSystemSources()) {
-//					// slip rates
-//					int fltSysIndex = erf.getFltSysRupIndexForNthRup(nthRup);
-//					List<Integer> sectIndices = fltSysRupSet.getSectionsIndicesForRup(fltSysIndex);
-//					double slips[];
-//					if(fltSysRupSet instanceof InversionFaultSystemRupSet) {
-//						slips = ((InversionFaultSystemRupSet) fltSysRupSet).getSlipOnSectionsForRup(erf.getFltSysRupIndexForNthRup(nthRup));
-//					}
-//					else {	// apply ave to all sections
-//						double mag = fltSysRupSet.getMagForRup(erf.getFltSysRupIndexForNthRup(nthRup));
-//						double area = fltSysRupSet.getAreaForRup(erf.getFltSysRupIndexForNthRup(nthRup));
-//						double aveSlip = FaultMomentCalc.getSlip(area, MagUtils.magToMoment(mag));
-//						slips = new double[sectIndices.size()];
-//						for(int i=0;i<slips.length;i++)
-//							slips[i]=aveSlip;
-//					}
-//					for(int s=0;s<sectIndices.size();s++) {
-//						int sectID = sectIndices.get(s);
-//						longTermSlipRateForSectArray[sectID] += rate*slips[s];
-//					}					
-//				}
-				nthRup+=1;
+				origTotRate += rup.getMeanAnnualRate(erf.getTimeSpan().getDuration());
 			}
 		}
-		if (D) System.out.println("origTotRate="+origTotRate);
+		if (D) System.out.println("\torigTotRate="+(float)origTotRate+"; that took (sec): "+(float)(System.currentTimeMillis()-st)/1000f);
 		info_fr.write("\nExpected mean annual rate over timeSpan (per year) = "+(float)origTotRate+"\n");
-
-		
-		
 		
 		// set to yearly probabilities for simulation forecast (in case input was not a 1-year forecast)
 		erf.getTimeSpan().setDuration(1.0);	// TODO make duration expected time to next supra seis event?
 		erf.updateForecast();
 		
 		
+		if(D) System.out.println("Computing original spontaneousRupSampler & sourceRates[s]");
+		st = System.currentTimeMillis();
+		double sourceRates[] = new double[erf.getNumSources()];
+		double duration = erf.getTimeSpan().getDuration();
+		IntegerPDF_FunctionSampler spontaneousRupSampler = new IntegerPDF_FunctionSampler(erf.getTotNumRups());
+		int nthRup=0;
+		for(int s=0;s<erf.getNumSources();s++) {
+			ProbEqkSource src = erf.getSource(s);
+			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
+			for(ProbEqkRupture rup:src) {
+				spontaneousRupSampler.set(nthRup, rup.getMeanAnnualRate(duration));
+				nthRup+=1;
+			}
+		}
+		if(D) System.out.println("\tspontaneousRupSampler.calcSumOfY_Vals()="+(float)spontaneousRupSampler.calcSumOfY_Vals() +
+				"; that took (sec): "+(float)(System.currentTimeMillis()-st)/1000f);
+		
 		ETAS_Utils etas_utils = new ETAS_Utils();
 
-		// Make list of primary events for given list of obs quakes 
+		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, and parentID, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
 		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);	// not sure about the first field
-		HashMap<Integer,ObsEqkRupture> mainshockHashMap = new HashMap<Integer,ObsEqkRupture>(); // this stores the active mainshocks
-		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a mainshock needs to generate
+		HashMap<Integer,ObsEqkRupture> mainshockHashMap = new HashMap<Integer,ObsEqkRupture>(); // this stores the active main shocks
+		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a main shock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
 		for(ObsEqkRupture rup: obsEqkRuptureList) {
@@ -212,7 +200,6 @@ public class ETAS_Simulator {
 			double fractionNonTriggered=0.5;	// really need to solve for this value
 			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
 			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
-			int tempNum=eventsToProcess.size();
 			for(int r=0;r<numSpontEvents;r++) {
 				ETAS_EqkRupture rup = new ETAS_EqkRupture();
 				double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
@@ -233,23 +220,17 @@ public class ETAS_Simulator {
 
 
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
-		long st = System.currentTimeMillis();
-		// first make array of rates for each source
-		double sourceRates[] = new double[erf.getNumSources()];
-		double duration = erf.getTimeSpan().getDuration();
-		for(int s=0;s<erf.getNumSources();s++)
-			sourceRates[s] = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
+		st = System.currentTimeMillis();
 
-		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(regionForRates, erf, sourceRates, 
+		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(regionForRates, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates);
-		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(System.currentTimeMillis()-st)/60000+ " min");
+		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 
-		
+		// TODO this could be based on supraseis rupture (or rups with more than one point on surface)
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", dirNameForSavingFiles+"firstObsRupExpPrimMFD.pdf", etas_PrimEventSampler, obsEqkRuptureList.get(0));
 		}
-		
 		
 		double etasDistDecay = etas_PrimEventSampler.getDistDecay();
 		double etasMinDist = etas_PrimEventSampler.getMinDist();
@@ -262,7 +243,7 @@ public class ETAS_Simulator {
 			etas_PrimEventSampler.testRates();
 		}
 		// time consuming:
-//		etas_PrimEventSampler.testMagFreqDist();
+//		etas_PrimEventSampler.testMagFreqDist(); TODO what is this?
 
 
 //		System.out.println("sleeping for 10 secs");
@@ -282,9 +263,11 @@ public class ETAS_Simulator {
 
 		st = System.currentTimeMillis();
 		
+		int numSimulatedEvents = 0;
+		
 		while(eventsToProcess.size()>0) {
 			
-			progressBar.updateProgress(simulatedRupsQueue.size(), eventsToProcess.size()+simulatedRupsQueue.size());
+			progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
 			
 			ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 			
@@ -300,14 +283,13 @@ public class ETAS_Simulator {
 				LocationList surfPts = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 				if(surfPts.size() == 1) {// point source
 					Location ptLoc = surfPts.get(0);
-					// FOLLOWING ASSUMES A GRID SPACING OF 0.1 FOR BACKGROUND SEIS, AND UNIFORM DIST OF DEPTHS UP TO maxDepthKm
-					// "0.99" is to keep it in cell
+					// FOLLOWING ASSUMES A GRID SPACING OF 0.1 FOR BACKGROUND SEIS; "0.99" is to keep it in cell
 					hypoLoc = new Location(ptLoc.getLatitude()+(Math.random()-0.5)*0.1*0.99,
 							ptLoc.getLongitude()+(Math.random()-0.5)*0.1*0.99,
-							Math.random()*maxDepthKm*0.999);
+							seisDepthDistribution.getRandomDepth());
 				}
 				else {
-					int hypIndex = (int)(Math.random()*(double)surfPts.size());	// choose random loc; randomize more if point source!
+					int hypIndex = (int)(Math.random()*(double)surfPts.size());	// choose random loc assuming uniform probability among points
 					hypoLoc = surfPts.get(hypIndex);
 				}
 				
@@ -329,11 +311,11 @@ public class ETAS_Simulator {
 			}
 
 			// add the rupture to the list
-			simulatedRupsQueue.add(rup);
-				
-			// this isn't working:
-// 			progressBar.setProgressMessage((float)rup.getMag()+"\t");
+			simulatedRupsQueue.add(rup);	// this storage does not take much memory during the simulations
+			numSimulatedEvents += 1;
 			
+			ETAS_SimAnalysisTools.writeEventToFile(simulatedEventsFileWriter, rup);
+				
 			// update num to process or remove mainshock if this is zero
 			if(parID != -1) {	// if not spontaneous
 				if(numToProcess == 0) {
@@ -370,9 +352,9 @@ public class ETAS_Simulator {
 			
 			// if it was a fault system rupture, need to update time span, rup rates, block, and samplers.
 			nthRup = rup.getNthERF_Index();
-			int src = erf.getSrcIndexForNthRup(nthRup);
+			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 
-			if(src<erf.getNumFaultSystemSources()) {
+			if(srcIndex<erf.getNumFaultSystemSources()) {
 				
 				nthFaultSysRupAftershocks.add(nthRup);
 				int fltSysRupIndex = erf.getFltSysRupIndexForNthRup(nthRup);
@@ -383,29 +365,37 @@ public class ETAS_Simulator {
 				Toolkit.getDefaultToolkit().beep();
 				if(D) System.out.println("GOT A FAULT SYSTEM RUPTURE!");
 				TimeSpan ts = erf.getTimeSpan();
-				String rupString = "\t"+ts.getStartTimeMonth()+"/"+ts.getStartTimeDay()+"/"+ts.getStartTimeYear()+"\tmag="+(float)rup.getMag()+"\t"+erf.getSource(src).getName()
-						+"\t"+nthRup+","+src+","+erf.getRupIndexInSourceForNthRup(nthRup)+","+fltSysRupIndex;
+				String rupString = "\t"+ts.getStartTimeMonth()+"/"+ts.getStartTimeDay()+"/"+ts.getStartTimeYear()+"\tmag="+(float)rup.getMag()+"\t"+erf.getSource(srcIndex).getName()
+						+"\t"+nthRup+","+srcIndex+","+erf.getRupIndexInSourceForNthRup(nthRup)+","+fltSysRupIndex;
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
 				// set the date of last event and slip for this rupture
-				erf.setFltSystemSourceOccurranceTime(src, rupOT);
+				erf.setFltSystemSourceOccurranceTime(srcIndex, rupOT);
 
 				// now update source rates for etas_PrimEventSampler
-				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler; ");
+				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
 				Long st2 = System.currentTimeMillis();
 				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
 					erf.updateForecast();
 					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
+						ProbEqkSource src = erf.getSource(s);
 						double oldRate = sourceRates[s];
-						sourceRates[s] = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
+						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
 						double newRate = sourceRates[s];
 						// TEST THAT RATE CHANGED PROPERLY
 						if(s == erf.getSrcIndexForNthRup(nthRup)) {
 							if(D)System.out.print("for rup that occurred, oldRate="+(float)oldRate+" & newRate = "+(float)newRate);			
 						}
+						// update the spontaneous event sampler with new rupture rates
+						for(int r=0 ; r<src.getNumRuptures(); r++) {
+							ProbEqkRupture rupInSrc = src.getRupture(r);
+							double rate = rupInSrc.getMeanAnnualRate(duration);
+							spontaneousRupSampler.set(erf.getIndexN_ForSrcAndRupIndices(s, r), rate);
+						}
+
 					}
-					// now update the sampler
+					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();	
 				}
 				String tempFileName = dirNameForSavingFiles+"fltSysRup"+fltSysRupIndex+"_ExpPrimMFD.pdf";
@@ -419,24 +409,7 @@ public class ETAS_Simulator {
 		if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs");
 		info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
 
-
-//		System.out.println("Fault System Aftershocks:\n");
-//		info_fr.write("Fault System Aftershocks:\n\n");
-//
-//		if(nthFaultSysRupAftershocks.size()>0) {
-//			for(Integer n : nthFaultSysRupAftershocks) {
-//				int s=erf.getSrcIndexForNthRup(n);
-//				if (D) System.out.println("\t"+n+"\t"+s+"\t"+erf.getRupIndexInSourceForNthRup(n)+"\t"+erf.getFltSysRupIndexForNthRup(n)+
-//						"\tmag="+erf.getNthRupture(n).getMag()+"\t"+erf.getSource(s).getName());
-//				info_fr.write("\t"+n+"\t"+s+"\t"+erf.getRupIndexInSourceForNthRup(n)+"\t"+erf.getFltSysRupIndexForNthRup(n)+
-//						"\tmag="+erf.getNthRupture(n).getMag()+"\t"+erf.getSource(s).getName()+"\n");
-//			}			
-//		}
-//		else {
-//			System.out.println("\tNone\n");
-//		}
-
-//		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
+//		ETAS_SimAnalysisTools.writeEventDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
@@ -461,8 +434,9 @@ public class ETAS_Simulator {
 		info_fr.write("Total num ruptures: "+simulatedRupsQueue.size()+"\n");
 		
 		info_fr.close();
+		simulatedEventsFileWriter.close();
 
-
+		ETAS_SimAnalysisTools.writeMemoryUse("Memory at end of simultation");
 	}
 	
 	
@@ -500,6 +474,8 @@ public class ETAS_Simulator {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+		System.out.println("Starting ERF instantiation");
+		Long st = System.currentTimeMillis();
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
 
@@ -544,6 +520,10 @@ public class ETAS_Simulator {
 		erf.getTimeSpan().setDuration(1);
 		
 		erf.updateForecast();
+		
+		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
+		System.out.println("ERF instantiation took "+timeSec+" sec");
+
 		
 		// This was to find the landers like rupture, which is src=246139	InvRupIndex=246711; 13 SECTIONS BETWEEN Camp Rock 2011, Subsection 2 AND Johnson Valley (No) 2011 rev, Subsection 0
 //		writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
@@ -591,11 +571,16 @@ public class ETAS_Simulator {
 		
 		System.out.println("Starting testETAS_Simulation");
 		try {
-			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Northridge_1");
+			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Northridge_1");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		float timeMin = (float)(System.currentTimeMillis()-st)/60000f;
+		System.out.println("Total simulation took "+timeMin+" min");
+
 
 	}
 

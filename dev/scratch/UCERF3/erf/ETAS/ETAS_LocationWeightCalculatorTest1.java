@@ -588,10 +588,13 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		double etasDistDecay=ETAS_Utils.distDecay_DEFAULT;
 		double etasMinDist=ETAS_Utils.minDist_DEFAULT;
 		
+		ETAS_SimAnalysisTools.writeMemoryUse("before");
 		ETAS_LocationWeightCalculatorTest1 calc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepthKm, 
 					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist);
-		for(int i=0; i<=12;i++)
-			calc.testRandomSamples(100000, i*2);
+		ETAS_SimAnalysisTools.writeMemoryUse("after");
+
+//		for(int i=0; i<=12;i++)
+//			calc.testRandomSamples(100000, i*2);
 	}
 
 }

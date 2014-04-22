@@ -2976,7 +2976,7 @@ numSpontEvents=0;
 
 		String fileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/hypoTest.pdf";
 		
-		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
+		ETAS_SimAnalysisTools.writeEventDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);
@@ -3715,7 +3715,7 @@ numSpontEvents=0;
 
 		String fileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/hypoTest.pdf";
 		
-		ETAS_SimAnalysisTools.writeDataToFile("testRightHere.txt", simulatedRupsQueue);
+		ETAS_SimAnalysisTools.writeEventDataToFile("testRightHere.txt", simulatedRupsQueue);
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);

@@ -62,9 +62,11 @@ import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.MatrixIO;
 
-public class ETAS_PrimaryEventSampler {
+public class ETAS_PrimaryEventSamplerTest1 {
 	
 	final static boolean D=true;
+	
+	boolean applyGR_Corr = true;
 	
 	// these define the points in space
 	int numRateDepths, numRegLocsForRatesInSpace, numPointsForRates,  numPointsForParLocs, numParDepths;
@@ -97,10 +99,15 @@ public class ETAS_PrimaryEventSampler {
 	IntegerPDF_FunctionSampler pointSampler;
 	
 	IntegerPDF_FunctionSampler[] cachedSamplers;
-	
+	int numCachedSamplers=0;
+	int incrForReportingNumCachedSamplers=100;
+	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
+
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
-	ETAS_LocationWeightCalculatorHypDepDep[]  etasLocWtCalclist;
+	ETAS_LocationWeightCalculatorTest1 etas_LocWeightCalc;
+	
+	SummedMagFreqDist[] mfdForSrcArray;
 	
 	boolean includeERF_Rates, includeSpatialDecay;
 	
@@ -123,7 +130,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeERF_Rates
 	 * @param includeSpatialDecay
 	 */
-	public ETAS_PrimaryEventSampler(Region regionForRates, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerTest1(Region regionForRates, FaultSystemSolutionERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates) {
 
 		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
@@ -149,7 +156,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
 	 * @throws IOException 
 	 */
-	public ETAS_PrimaryEventSampler(Region regionForRates, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerTest1(Region regionForRates, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
 		
@@ -270,8 +277,10 @@ public class ETAS_PrimaryEventSampler {
 //		if(D) writeMemoryUse();
 
 		if(D) System.out.println("Running makeETAS_LocWtCalcList()");
-		makeETAS_LocWtCalcList();
-		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading makeETAS_LocWtCalcList");
+		double maxDistKm=1000;
+		double midLat = (gridRegForRatesInSpace.getMaxLat() + gridRegForRatesInSpace.getMinLat())/2.0;
+		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, regSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist);
+		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making etas_LocWeightCalc");
 		if(D) System.out.println("Done running makeETAS_LocWtCalcList()");
 		
 		// write results to file
@@ -398,8 +407,6 @@ public class ETAS_PrimaryEventSampler {
 	
 
 	
-	
-	
 	/**
 	 * This loops over all points on the rupture surface and creates a net (average) point sampler.
 	 * @param mainshock
@@ -452,6 +459,8 @@ public class ETAS_PrimaryEventSampler {
 		
 		// now loop over all the points for rates
 		double total = 0;
+		int ptAtLowestCorr=-1;
+		double lowestCorrVal=Double.POSITIVE_INFINITY;
 		for(int i=0;i <numPointsForRates;i++) {
 			int[] sources = srcAtPointList.get(i);
 			if(sources.length==0) {
@@ -464,8 +473,20 @@ public class ETAS_PrimaryEventSampler {
 				float[] fracts = fractionSrcAtPointList.get(i);
 				// compute the relative probability of each source at this point
 				double[] relProb = new double[sources.length];
-				for(int s=0; s<sources.length;s++)
-					relProb[s] = sourceRates[sources[s]]*(double)fracts[s];
+				if(applyGR_Corr) {
+					double[] grCorr = this.getImposeGR_CorrectionFactors(i);
+					for(double val : grCorr)
+						if(val<lowestCorrVal && val > 0.0) {
+							lowestCorrVal=val;
+							ptAtLowestCorr = i;
+						}
+					for(int s=0; s<sources.length;s++)
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorr[s];										
+				}
+				else {
+					for(int s=0; s<sources.length;s++)
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];					
+				}
 				total=0;
 				for(int s=0; s<sources.length;s++)	// sum for normalization
 					total += relProb[s];
@@ -478,7 +499,8 @@ public class ETAS_PrimaryEventSampler {
 		for(int s=0; s<trigProb.length; s++)
 			testSum += trigProb[s];
 		
-System.out.println("testSum="+testSum);
+		// System.out.println("testSum="+(float)testSum);
+		System.out.println("lowestCorrVal="+lowestCorrVal+"\tptAtLowestCorr="+ptAtLowestCorr);
 		
 		return trigProb;
 	}
@@ -544,8 +566,15 @@ System.out.println("testSum="+testSum);
 		
 		// set the sampler
 		int parRegIndex = gridRegForParentLocs.indexForLocation(parentLoc);
-		if(parRegIndex <0)
-			throw new RuntimeException("parRegIndex<0");
+		
+		// Check for problem region index
+		if(parRegIndex <0) {
+			if(mainshock instanceof ETAS_EqkRupture) {
+				System.out.println("Problem event generation: "+((ETAS_EqkRupture)mainshock).getGeneration());
+			}
+			throw new RuntimeException("parRegIndex<0; parentLoc="+parentLoc.toString()+
+					"\tNum pts on main shock surface: "+mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+		}
 		int parDepIndex = getParDepthIndex(parentLoc.getDepth());
 		int locIndexForPar = parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
 		Location tempLoc = gridRegForParentLocs.getLocation(parRegIndex);
@@ -600,7 +629,8 @@ System.out.println("testSum="+testSum);
 			double relLon = lonForRatesPoint[aftShPointIndex]-translatedParLoc.getLongitude();
 			double relDep = depthForRatesPoint[aftShPointIndex]-translatedParLoc.getDepth();
 						
-			Location deltaLoc = etasLocWtCalclist[parDepIndex].getRandomDeltaLoc(Math.abs(relLat), Math.abs(relLon), Math.abs(relDep));
+			Location deltaLoc = etas_LocWeightCalc.getRandomDeltaLoc(Math.abs(relLat), Math.abs(relLon), 
+					depthForRatesPoint[aftShPointIndex],translatedParLoc.getDepth());
 			
 			double newLat, newLon, newDep;
 			if(relLat<0.0)	// neg value
@@ -611,10 +641,8 @@ System.out.println("testSum="+testSum);
 				newLon = lonForRatesPoint[aftShPointIndex]-deltaLoc.getLongitude();
 			else 
 				newLon = lonForRatesPoint[aftShPointIndex]+deltaLoc.getLongitude();
-			if(relDep<0.0)	// neg value
-				newDep = depthForRatesPoint[aftShPointIndex]-deltaLoc.getDepth();
-			else 
-				newDep = depthForRatesPoint[aftShPointIndex]+deltaLoc.getDepth();
+
+			newDep = depthForRatesPoint[aftShPointIndex]+deltaLoc.getDepth();
 
 			Location randLoc = new Location(newLat,newLon,newDep);
 			
@@ -676,6 +704,7 @@ System.out.println("testSum="+testSum);
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
 				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];
@@ -689,6 +718,7 @@ System.out.println("testSum="+testSum);
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithOnlyDistDecay(translatedParLoc);
 				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 //System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
 			}
 			else {
@@ -696,30 +726,34 @@ System.out.println("testSum="+testSum);
 			}
 
 		}
+		if(D) {
+			if(numCachedSamplers==nextNumCachedSamplers) {
+				System.out.println("numCachedSamplers="+numCachedSamplers);
+				nextNumCachedSamplers += incrForReportingNumCachedSamplers;
+			}
+		}
 		return sampler;
 	}
 	
 	
 	
-	private void makeETAS_LocWtCalcList() {
-		double maxDistKm=1000.0;
-		double midLat = (gridRegForRatesInSpace.getMaxLat() + gridRegForRatesInSpace.getMinLat())/2.0;
-//		if(D) System.out.println("midLat="+midLat);
-		etasLocWtCalclist = new ETAS_LocationWeightCalculatorHypDepDep[numParDepths];
-		for(int iParDep=0;iParDep<numParDepths;iParDep ++) {
-			etasLocWtCalclist[iParDep] = new ETAS_LocationWeightCalculatorHypDepDep(maxDistKm, maxDepth, 
-											regSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, iParDep);
-//			etasLocWtCalclist[iParDep].testRandomSamples(1000000);
-		}
-	}
-	
-	
+
 	/**
-	 * This will force updating of all the samplers
+	 * This will force updating of all the samplers and other things
 	 */
 	public void declareRateChange() {
+		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory before discarding chached Samplers");
 		pointSampler = null;
 		cachedSamplers = new IntegerPDF_FunctionSampler[numPointsForParLocs];
+		numCachedSamplers=0;
+		nextNumCachedSamplers=incrForReportingNumCachedSamplers;
+		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
+			for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
+			}
+		}
+		System.gc();
+		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory after discarding chached Samplers");
 	}
 	
 	
@@ -747,12 +781,10 @@ System.out.println("testSum="+testSum);
 	private IntegerPDF_FunctionSampler getPointSamplerWithDistDecay(Location srcLoc) {
 		getPointSamplerWithERF_RatesOnly();	// this makes sure it is updated
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numRateDepths*numRegLocsForRatesInSpace);
-		ETAS_LocationWeightCalculatorHypDepDep etasLocWtCalc = etasLocWtCalclist[getParDepthIndex(srcLoc.getDepth())];
 		for(int index=0; index<numPointsForRates; index++) {
 			double relLat = Math.abs(srcLoc.getLatitude()-latForRatesPoint[index]);
 			double relLon = Math.abs(srcLoc.getLongitude()-lonForRatesPoint[index]);
-			double relDep = Math.abs(srcLoc.getDepth()-depthForRatesPoint[index]);
-			sampler.set(index,etasLocWtCalc.getProbAtPoint(relLat, relLon, relDep)*pointSampler.getY(index));
+			sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForRatesPoint[index], srcLoc.getDepth())*pointSampler.getY(index));
 		}
 		return sampler;
 	}
@@ -765,17 +797,13 @@ System.out.println("testSum="+testSum);
 	 */
 	private IntegerPDF_FunctionSampler getPointSamplerWithOnlyDistDecay(Location parLoc) {
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numPointsForRates);
-//System.out.println("parDepthIndex="+parDepthIndex+" (depth="+parLoc.getDepth()+")");
-		ETAS_LocationWeightCalculatorHypDepDep etasLocWtCalc = etasLocWtCalclist[getParDepthIndex(parLoc.getDepth())];
-// etasLocWtCalc.testRandomSamples(1000000);
 //		try{
 //			FileWriter fw1 = new FileWriter("test123.txt");
 //			fw1.write("relLat\trelLon\trelDep\twt\n");
 			for(int index=0; index<numPointsForRates; index++) {
 				double relLat = Math.abs(parLoc.getLatitude()-latForRatesPoint[index]);
 				double relLon = Math.abs(parLoc.getLongitude()-lonForRatesPoint[index]);
-				double relDep = Math.abs(parLoc.getDepth()-depthForRatesPoint[index]);
-				sampler.set(index,etasLocWtCalc.getProbAtPoint(relLat, relLon, relDep));
+				sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForRatesPoint[index], parLoc.getDepth()));
 //				if(relLat<0.25 && relLon<0.25)
 //					fw1.write((float)relLat+"\t"+(float)relLon+"\t"+(float)relDep+"\t"+(float)sampler.getY(index)+"\n");
 			}
@@ -805,23 +833,84 @@ System.out.println("testSum="+testSum);
 		else {
 			float[] fracts = fractionSrcAtPointList.get(ptIndex);
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
-			for(int s=0; s<sources.length;s++) 
-				sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);
+			if(applyGR_Corr) {
+				double[] grCorr = getImposeGR_CorrectionFactors(ptIndex);
+				for(int s=0; s<sources.length;s++) 
+					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorr[s]);				
+			}
+			else {
+				for(int s=0; s<sources.length;s++) 
+					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);				
+			}
 			return sources[sampler.getRandomInt()];
-			
-//			int randInt=-1;
-//			try {
-//				randInt = sampler.getRandomInt();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				System.out.println(sampler);
-//				System.exit(0);
-//				e.printStackTrace();
-//			}
-//			return sources[randInt];			
 		}
 	}
+	
+	
+	/**
+	 * This returns a correction array that will make the total MFD at the point less than or equal to GR
+	 * at each magnitude.
+	 * @param ptIndex
+	 * @return
+	 */
+	public double[] getImposeGR_CorrectionFactors(int ptIndex) {
+		// get the total MFD at this point
+		SummedMagFreqDist magDist = getOrigNucleationMFD_AtPoint(ptIndex);
+		int[] sources = srcAtPointList.get(ptIndex);
+		// now make correction array
+		double[] corrArray = new double[sources.length];
+		double rateAtM5pt5 = magDist.getY(5.05);
+//		if(rateAtM5pt5<10e-14)
+//			System.out.println("rateAtM5pt5="+rateAtM5pt5+" at ptIndex="+ptIndex+"; loc: "+getLocationForSamplerIndex(ptIndex));
+		for(int s=0; s<sources.length;s++) {
+			if(sources[s]<erf.getNumFaultSystemSources()) {
+				double meanMag = 0;
+				int numMag = 0;
+				for(ProbEqkRupture rup : erf.getSource(sources[s])) {
+					meanMag += rup.getMag();
+					numMag +=1;
+				}
+				meanMag /= numMag;
+				double ratio = magDist.getClosestY(meanMag)/(rateAtM5pt5*Math.pow(10, 5.05-meanMag)); // assumes b-value=1.0.
+				if(ratio>1.0)
+					corrArray[s] = 1.0/ratio;
+				else
+					corrArray[s] = 1.0;				
+			}
+			else {
+				corrArray[s] = 1.0;				
+			}
+		}
+		return corrArray;
+	}
 
+	/**
+	 * "Orig" means this does not have any GR imposition
+	 * @return
+	 */
+	public SummedMagFreqDist getOrigNucleationMFD_AtPoint(int ptIndex) {
+		// make MFD for each source if it doesn't exist
+		if(mfdForSrcArray == null) {
+			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+			for(int s=0; s<erf.getNumSources();s++) {
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
+			}
+		}
+		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05, 8.95, 40);
+		int[] sources = srcAtPointList.get(ptIndex);
+		float[] fracts = fractionSrcAtPointList.get(ptIndex);
+		for(int s=0; s<sources.length;s++) {
+			SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
+			for(int m=0;m<mfd.getNum();m++)
+				magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+		}
+		magDist.setName("Nucleation MFD at ptIndex="+ptIndex);
+		String info = "Loc: "+getLocationForSamplerIndex(ptIndex)+"\n";
+		for(int s=0; s<sources.length;s++)
+			info += s+"\t"+erf.getSource(sources[s]).getName()+"\n";
+		magDist.setInfo(info);
+		return magDist;
+	}
 	
 	/**
 	 * Region index is first element, and depth index is second
@@ -878,28 +967,46 @@ System.out.println("testSum="+testSum);
 	
 	
 	/**
-	 * This compares the MFD represented here to that in the ERF
+	 * This compares the MFD represented here to that in the ERF.
+	 * What about one including sources outside the region?
 	 * @param erf
 	 */
 	public void testMagFreqDist() {
 		
 		System.out.println("Running testMagFreqDist()");
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
-//		getPointSampler();	// make sure it exisits
 		double duration = erf.getTimeSpan().getDuration();
+		if(mfdForSrcArray == null) {
+			long st = System.currentTimeMillis();
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory before mfdForSrcArray");
+			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+			for(int s=0; s<erf.getNumSources();s++) {
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, 2.05, 8.95, 70, true);
+			}
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
+		}
+//		getPointSampler();	// make sure it exisits
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+
 		for(int i=0; i<numPointsForRates;i++) {
+			progressBar.updateProgress(i, numPointsForRates);
 			int[] sources = srcAtPointList.get(i);
 			float[] fracts = fractionSrcAtPointList.get(i);
 			for(int s=0; s<sources.length;s++) {
-				SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(sources[s]), duration, 2.05, 8.95, 70, true);
-				mfd.scale((double)fracts[s]);
-				magDist.addIncrementalMagFreqDist(mfd);
-				if(s>erf.getNumFaultSystemSources()) {
-					System.out.println("source "+s+"\n"+mfd);
-					System.exit(0);
-				}
+				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
+				for(int m=0;m<mfd.getNum();m++)
+					magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+//				mfd.scale((double)fracts[s]);
+//				magDist.addIncrementalMagFreqDist(mfd);
+//				if(s>erf.getNumFaultSystemSources()) {
+//					System.out.println("source "+s+"\n"+mfd);
+//					System.exit(0);
+//				}
 			}
 		}
+		progressBar.showProgress(false);
+
 		magDist.setName("MFD from EqksAtPoint list");
 		ArrayList<EvenlyDiscretizedFunc> magDistList = new ArrayList<EvenlyDiscretizedFunc>();
 		magDistList.add(magDist);
@@ -1000,9 +1107,14 @@ System.out.println("testSum="+testSum);
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
-		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(regionForRates, erf, sourceRates, 
+		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(regionForRates, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates);
 		
+		GraphWindow magProbDistsGraph = new GraphWindow(etas_PrimEventSampler.getOrigNucleationMFD_AtPoint(143069), "Test MFD at Point"); 
+
+		
+		
+//		etas_PrimEventSampler.testMagFreqDist();
 		
 		// OLD STUFF BELOW
 		
@@ -1038,6 +1150,9 @@ System.out.println("testSum="+testSum);
 	}
 	
 	/**
+	 * This is a potentially more memory efficient way of reading/storing the int value, where there is
+	 * only one int value/object for each index; turns out its not better than using int[] with duplicates.
+	 * 
 	 * Reads a file created by {@link MatrixIO.intListListToFile} or {@link MatrixIO.intArraysListToFile}
 	 * into an integer array list.
 	 * @param file

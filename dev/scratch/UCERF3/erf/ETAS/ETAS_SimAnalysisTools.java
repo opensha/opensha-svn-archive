@@ -3,6 +3,7 @@ package scratch.UCERF3.erf.ETAS;
 import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.PriorityQueue;
@@ -459,7 +460,7 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
-	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, EqkRupture rupture) {
+	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler, EqkRupture rupture) {
 		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedMFD(rupture);
 		// convert MFD to probability density function
 		mfd.scale(1.0/(mfd.getTotalIncrRate()*mfd.getDelta()));
@@ -618,7 +619,7 @@ public class ETAS_SimAnalysisTools {
 	
 	
 	
-	public static void writeDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
+	public static void writeEventDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
 		try{
 			FileWriter fw1 = new FileWriter(fileName);
 //			fw1.write("ID\tparID\tGen\tOrigTime\tdistToPar\n");
@@ -635,5 +636,38 @@ public class ETAS_SimAnalysisTools {
 
 		}
 	}
+	
+	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) {
+		try{
+			Location hypoLoc = rup.getHypocenterLocation();
+			fileWriter.write(rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
+					rup.getOriginTime()//+"\t"+rup.getDistanceToParent()
+					+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
+		}catch(Exception e) {
+			e.printStackTrace();
+
+		}
+	}
+
+	
+	public static void writeMemoryUse(String info) {
+		Runtime runtime = Runtime.getRuntime();
+
+	    NumberFormat format = NumberFormat.getInstance();
+
+	    StringBuilder sb = new StringBuilder();
+	    long maxMemory = runtime.maxMemory();
+	    long allocatedMemory = runtime.totalMemory();
+	    long freeMemory = runtime.freeMemory();
+
+	    System.out.println(info);
+	    System.out.println("\tin use memory: " + format.format((allocatedMemory-freeMemory) / 1024));
+	    System.out.println("\tfree memory: " + format.format(freeMemory / 1024));
+	    System.out.println("\tallocated memory: " + format.format(allocatedMemory / 1024));
+	    System.out.println("\tmax memory: " + format.format(maxMemory / 1024));
+	    System.out.println("\ttotal free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
+	}
+	
+
 
 }
