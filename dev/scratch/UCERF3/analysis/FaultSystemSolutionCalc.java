@@ -220,7 +220,7 @@ public class FaultSystemSolutionCalc {
 	public static void checkFinalSubseisOnFaultRates(InversionFaultSystemSolution invSol) {
 
 		System.out.println("Starting check");
-
+		
 		if(invSol instanceof InversionFaultSystemSolution) {
 			List<GutenbergRichterMagFreqDist>  grList = invSol.getFinalSubSeismoOnFaultMFD_List();
 			for(int s=0;s<grList.size();s++) {
