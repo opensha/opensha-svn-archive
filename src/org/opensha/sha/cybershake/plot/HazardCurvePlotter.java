@@ -808,11 +808,11 @@ public class HazardCurvePlotter {
 		case 1:
 			return Color.BLUE;
 		case 2:
-			return Color.RED;
+			return Color.ORANGE;
 		case 4:
 			return Color.MAGENTA;
 		case 5:
-			return Color.ORANGE;
+			return Color.RED;
 		case 7:
 			return Color.GREEN;
 		case 8:
