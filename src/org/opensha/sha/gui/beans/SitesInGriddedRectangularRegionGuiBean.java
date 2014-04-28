@@ -405,7 +405,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			try{
 				setSiteParamsFromCVM();
 			}catch(Exception e){
-				throw new RuntimeException("Server is down , please try again later");
+				throw new RuntimeException("Server is down , please try again later", e);
 			}
 			ArrayList defaultSiteParams = new ArrayList();
 			for(int i=0;i<siteParams.size();++i){

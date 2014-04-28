@@ -860,7 +860,7 @@ public class RuptureCombiner {
 		}
 	}
 	
-	private static class SubsetRupSet extends FaultSystemRupSet {
+	public static class SubsetRupSet extends FaultSystemRupSet {
 
 		public SubsetRupSet(FaultSystemRupSet rupSet, List<Integer> rups) {
 			super(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(), rupSet.getSlipRateForAllSections(),

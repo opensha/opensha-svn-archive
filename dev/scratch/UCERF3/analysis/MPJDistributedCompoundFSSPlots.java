@@ -1,12 +1,9 @@
 package scratch.UCERF3.analysis;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import mpi.MPI;
 
@@ -16,25 +13,24 @@ import org.apache.commons.cli.Options;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.AveSlipMapPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
+import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMagProbPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedSiteHazardHistPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ERFProbModelCalc;
+import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.BranchAvgFSSBuilder;
+import scratch.UCERF3.analysis.CompoundFSSPlots.MiniSectRIPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MisfitTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MultiFaultParticPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
-import scratch.UCERF3.analysis.CompoundFSSPlots.ERFBasedRegionalMFDPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.GriddedParticipationMapPlot;
-import scratch.UCERF3.analysis.CompoundFSSPlots.MiniSectRIPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoFaultPlot;
+import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoRatesTable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.PaleoSiteCorrelationPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ParentSectMFDsPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.ParticipationMapPlot;
@@ -44,7 +40,6 @@ import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.SlipRatePlots;
 import scratch.UCERF3.analysis.CompoundFSSPlots.TimeDepGriddedParticipationProbPlot;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
@@ -52,7 +47,6 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.logicTree.UCERF3p2BranchWeightProvider;
 import scratch.UCERF3.logicTree.UniformBranchWeightProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
-import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;

@@ -44,33 +44,36 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga2-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2013_11_11-cvm4-cs-nga-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-bbp-cs-nga-3sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_17-cvm4i26-cs-nga2-3sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-1sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-5sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga2-pga");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-1sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-5sec");
-//		File dir = new File("/home/kevin/CyberShake/baseMaps//2014_03_18-cvm4i26-cs-nga-pga");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_17-cvm4i26-cs-nga2-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga2-1sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga2-5sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga2-pga");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-1sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-pga");
 		
 //		String imtFileLabel = "1sec";
 //		String label = "1sec SA, 2% in 50 yrs";
-//		String imtFileLabel = "pga";
-//		String label = "PGA, 2% in 50 yrs";
-		String imtFileLabel = "3sec";
-		String label = "3sec SA, 2% in 50 yrs";
+//		Double customMax = 3d; // for 1 sec
+		
+		String imtFileLabel = "pga";
+		String label = "PGA, 2% in 50 yrs";
+		Double customMax = 3d; // for PGA
+		
+//		String imtFileLabel = "3sec";
+//		String label = "3sec SA, 2% in 50 yrs";
+//		Double customMax = 1.4; // for 3 sec
+		
 //		String imtFileLabel = "5sec";
 //		String label = "5sec SA, 2% in 50 yrs";
+//		Double customMax = 1d; // for 5 sec
 		
 		boolean isProbAt_IML = false;
 		double val = 0.0004;
 		
 		Double customMin = 0d;
-//		Double customMax = 1d; // for 5 sec
-		Double customMax = 1.4; // for 3 sec
-//		Double customMax = 3d; // for 1 sec
-//		Double customMax = 3d; // for PGA
 		
 		for (File subDir : dir.listFiles()) {
 			// this will be the IMR name

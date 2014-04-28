@@ -34,6 +34,7 @@ import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
@@ -97,6 +98,8 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	private File storeDir;
 	private FaultSystemSolution meanTotalSol;
 	private DiscretizedFunc[] meanTotalMFDs;
+	
+	private Map<Integer, List<LastEventData>> lastEventData;
 	
 	public static File getStoreDir() {
 		// first check user prop
@@ -241,6 +244,16 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		if (getSolution() == null) {
 			// this means that we have to load/build the solution (parameter change or never loaded)
 			fetchSolution();
+		}
+		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+			if (lastEventData == null) {
+				try {
+					lastEventData = LastEventData.load();
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+			LastEventData.populateSubSects(getSolution().getRupSet().getFaultSectionDataList(), lastEventData);
 		}
 //		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
 //			throw new IllegalStateException("MeanUCERF3 is not compatible with time dependence. Certain"

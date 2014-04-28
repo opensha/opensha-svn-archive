@@ -2,6 +2,7 @@ package scratch.kevin.simulators.synch;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,13 @@ public class MarkovChainBuilder {
 	
 //	private transient MarkovChainBuilder reversed;
 	
-	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events, List<List<EQSIM_Event>> matchesLists) {
+	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events,
+			List<List<EQSIM_Event>> matchesLists) {
+		this(distSpacing, events, matchesLists, 0d);
+	}
+	
+	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events,
+			List<List<EQSIM_Event>> matchesLists, double startTimeOffset) {
 		this.distSpacing = distSpacing;
 		this.firstBinCenter = distSpacing*0.5;
 		
@@ -49,7 +56,25 @@ public class MarkovChainBuilder {
 		stateTransitionDataset = new SparseNDimensionalHashDataset<PossibleStates>(nDims, firstBinCenter, distSpacing);
 		
 		double maxTime = events.get(events.size()-1).getTimeInYears();
-		double startTime = events.get(0).getTimeInYears();
+		
+		double startTime = events.get(0).getTimeInYears() + startTimeOffset;
+		
+		Preconditions.checkState(startTimeOffset >= 0);
+		if (startTimeOffset > 0) {
+			List<List<EQSIM_Event>> myMatches = Lists.newArrayList();
+			
+			for (List<EQSIM_Event> matches : matchesLists) {
+				List<EQSIM_Event> newList = Lists.newArrayList(matches);
+				while (newList.size() > 0) {
+					if (newList.get(0).getTimeInYears() < startTime)
+						newList.remove(0);
+					else
+						break;
+				}
+				myMatches.add(newList);
+				matchesLists = myMatches;
+			}
+		}
 		int numSteps = (int)((maxTime - startTime)/distSpacing);
 		
 		fullPath = Lists.newArrayList();
@@ -265,6 +290,99 @@ public class MarkovChainBuilder {
 		return collapsedState;
 	}
 	
+	/**
+	 * Returns a new Markov chain where the states have been shifted by the given amount.
+	 * @param shifts
+	 * @return
+	 */
+	public MarkovChainBuilder getShiftedChain(int... shifts) {
+		Preconditions.checkArgument(shifts.length == nDims,
+				"must supply shift for each dimension (0 means no shift in that dimension)");
+		List<int[]> newPath = Lists.newArrayList();
+		
+		Map<IndicesKey, List<Integer>> newStateIndexesMap = Maps.newHashMap();
+		
+		stateLoop:
+		for (int i=0; i<fullPath.size(); i++) {
+			int[] newState = new int[nDims];
+			for (int n=0; n<nDims; n++) {
+				int index = i + shifts[n];
+				if (index < 0)
+					continue stateLoop;
+				if (index >= fullPath.size())
+					break stateLoop;
+				newState[n] = fullPath.get(index)[n];
+			}
+			newPath.add(newState);
+			
+			IndicesKey key = new IndicesKey(newState);
+			List<Integer> indexesForState = newStateIndexesMap.get(key);
+			if (indexesForState == null) {
+				indexesForState = Lists.newArrayList();
+				newStateIndexesMap.put(key, indexesForState);
+			}
+			indexesForState.add(newPath.size()-1);
+		}
+		
+//		System.out.println("Shifted chain has "+newPath.size()+" states (orig had "+fullPath.size()+")");
+		Preconditions.checkState(newPath.size() > 1);
+		
+		// now buid the chain
+		SparseNDimensionalHashDataset<Double> newTotalStatesDataset =
+				new SparseNDimensionalHashDataset<Double>(nDims, firstBinCenter, distSpacing);
+		SparseNDimensionalHashDataset<PossibleStates> newStateTransitionDataset =
+				new SparseNDimensionalHashDataset<PossibleStates>(nDims, firstBinCenter, distSpacing);
+		
+		int[] lastMatchIndexBeforeWindowEnd = new int[nDims];
+		for (int i=0; i<nDims; i++)
+			lastMatchIndexBeforeWindowEnd[i] = -1;
+		
+		int[] prevState = newPath.get(0);
+		
+		PossibleStates newPossibleInitialStates = new PossibleStates(null);
+		
+//		System.out.println("Assembling state transition probabilities");
+		
+		for (int i=1; i<newPath.size(); i++) {
+			int[] curState = newPath.get(i);
+			
+			// register current state
+			Double stateCount = newTotalStatesDataset.get(curState);
+			if (stateCount == null)
+				stateCount = 0d;
+			stateCount += 1d;
+			newTotalStatesDataset.set(curState, stateCount);
+
+			// register this state as a transition from the previous state
+			if (prevState != null) {
+				PossibleStates possibilities = newStateTransitionDataset.get(prevState);
+				if (possibilities == null) {
+					possibilities = new PossibleStates(prevState);
+					newStateTransitionDataset.set(prevState, possibilities);
+				}
+				possibilities.add(curState, 1d);
+				newPossibleInitialStates.add(curState, 1d);
+			}
+			
+			prevState = curState;
+		}
+		
+		// debug
+//		List<int[]> populatedIndices = newStateTransitionDataset.getPopulatedIndices();
+//		Collections.shuffle(populatedIndices);
+//		for (int i=0; i<3; i++) {
+//			int[] state = populatedIndices.get(i);
+//			System.out.print("Debug for ["+state[0]+","+state[1]+"]. occup="+newTotalStatesDataset.get(state)+", dest states: ");
+//			PossibleStates possible = newStateTransitionDataset.get(state);
+//			for (int[] dest : possible.getStates())
+//				System.out.print(" "+possible.getFrequency(dest)+"["+dest[0]+","+dest[1]+"]");
+//			System.out.println();
+//		}
+		
+		return new MarkovChainBuilder(nDims, distSpacing, firstBinCenter, newTotalStatesDataset,
+				newStateTransitionDataset, newPossibleInitialStates, newPath, newStateIndexesMap);
+	}
+	
 	// TODO must implement fullPath to be re-enabled
 //	/**
 //	 * This gets a reversed Markov chian with origination frequencies, instead of transition frequencies
@@ -475,6 +593,10 @@ public class MarkovChainBuilder {
 		if (Double.isNaN(prob))
 			return 0d;
 		return prob;
+	}
+	
+	public List<int[]> getFullPath() {
+		return Collections.unmodifiableList(fullPath);
 	}
 
 }

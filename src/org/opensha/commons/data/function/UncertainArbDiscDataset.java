@@ -33,10 +33,10 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 			double x = meanFunc.getX(i);
 			double y = meanFunc.getY(i);
 			
-			Preconditions.checkArgument((float)x == lowerFunc.getX(i), "X inconsistent in lower func");
-			Preconditions.checkArgument((float)x == upperFunc.getX(i), "X inconsistent in lower func");
-			Preconditions.checkArgument((float)y >= lowerFunc.getY(i), "Lower func must be <= mean func");
-			Preconditions.checkArgument((float)y <= upperFunc.getY(i), "Upper func must be >= mean func");
+			Preconditions.checkArgument((float)x == (float)lowerFunc.getX(i), "X inconsistent in lower func");
+			Preconditions.checkArgument((float)x == (float)upperFunc.getX(i), "X inconsistent in lower func");
+			Preconditions.checkArgument((float)y >= (float)lowerFunc.getY(i), "Lower func must be <= mean func");
+			Preconditions.checkArgument((float)y <= (float)upperFunc.getY(i), "Upper func must be >= mean func");
 		}
 	}
 	
@@ -62,6 +62,22 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 
 	public double getLowerY(double x) {
 		return getLowerY(getXIndex(x));
+	}
+	
+	public double getUpperMaxY() {
+		return upperFunc.getMaxY();
+	}
+	
+	public double getUpperMinY() {
+		return upperFunc.getMinY();
+	}
+	
+	public double getLowerMaxY() {
+		return lowerFunc.getMaxY();
+	}
+	
+	public double getLowerMinY() {
+		return lowerFunc.getMinY();
 	}
 	
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
@@ -29,6 +30,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -38,8 +40,10 @@ import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
+import scratch.UCERF3.erf.mean.RuptureCombiner;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class MeanUCERF3_CurveCompareTest {
@@ -49,24 +53,40 @@ public class MeanUCERF3_CurveCompareTest {
 		
 		FaultModels fm = FaultModels.FM3_1;
 		double udTol = 100d;
-		boolean branchAveragedSol = true;
+		boolean branchAveragedSol = false;
+		boolean meanAsAvg = false;
 		
 		boolean clearCache = true;
+		
+		FaultSystemSolution baSol = FaultSystemIO.loadSol(
+				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
 		FaultSystemSolutionERF erf;
 		if (branchAveragedSol) {
 			udTol = 0d;
 			fm = FaultModels.FM3_1;
-			FaultSystemSolution baSol = FaultSystemIO.loadSol(
-					new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-							"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+			baSol = new FaultSystemSolution(baSol.getRupSet(), baSol.getRateForAllRups());
+			baSol = getRandomOrder(baSol);
 			erf = new FaultSystemSolutionERF(baSol);
 		} else {
 			erf = new MeanUCERF3();
-//			erf.setMeanParams(0d, false, 0d, MeanUCERF3.RAKE_BASIS_NONE);
-			((MeanUCERF3)erf).setMeanParams(udTol, false, 1d, MeanUCERF3.RAKE_BASIS_MEAN);
+			((MeanUCERF3)erf).setMeanParams(0d, false, 0d, MeanUCERF3.RAKE_BASIS_MEAN);
+//			((MeanUCERF3)erf).setMeanParams(udTol, false, 1d, MeanUCERF3.RAKE_BASIS_MEAN);
 			if (fm != null)
 				erf.getParameter(MeanUCERF3.FAULT_MODEL_PARAM_NAME).setValue(fm.name());
+			if (meanAsAvg) {
+				erf.updateForecast();
+//				compareSolutions(baSol, erf.getSolution());
+				FaultSystemSolution sol = erf.getSolution();
+//				sol = copyMagsFrom(sol, baSol);
+				sol = getRandomOrder(sol);
+				getBASubsetSol(sol, baSol);
+				// this uses the BA sol but only rups that are in the mean sol
+				Map<Integer, List<LastEventData>> lastEventData = LastEventData.load();
+				LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
+				erf = new FaultSystemSolutionERF(sol);
+			}
 		}
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
 		
@@ -134,6 +154,10 @@ public class MeanUCERF3_CurveCompareTest {
 			System.out.println("Num Nonzero Rups: "+numNonzero);
 			
 			System.out.println("Calculating Time Dep Curve with "+erf.getNumSources()+" sources");
+			int totNumERFRups = 0;
+			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++)
+				totNumERFRups += erf.getNumRuptures(sourceID);
+			System.out.println("Calculating Time Dep Curve with "+erf.getNumSources()+" sources ("+totNumERFRups+" tot rups)");
 			
 			meanTimeDepCurve = xVals.deepClone();
 			calc.getHazardCurve(meanTimeDepCurve, site, imr, erf);
@@ -172,6 +196,7 @@ public class MeanUCERF3_CurveCompareTest {
 	private static DiscretizedFunc calcMean(File curvesDir, FaultModels fm) throws FileNotFoundException, IOException {
 		DiscretizedFunc curve = null;
 		double totWeight = 0;
+		int numAvg = 0;
 		for (File file : curvesDir.listFiles()) {
 			String name = file.getName();
 			if (!name.endsWith(".txt"))
@@ -199,11 +224,13 @@ public class MeanUCERF3_CurveCompareTest {
 			double weight = fmWeight * dmWeight * scaleWeight;
 			totWeight += weight;
 			
+			numAvg++;
+			
 			for (int i=0; i<curve.getNum(); i++)
 				curve.set(i, curve.getY(i) + weight*func.getY(i));
 		}
 		
-		System.out.println("Tot weight for "+curvesDir.getName()+": "+totWeight);
+		System.out.println("Tot weight for "+curvesDir.getName()+": "+totWeight+" ("+numAvg+" curves)");
 		
 		return curve;
 	}
@@ -229,6 +256,179 @@ public class MeanUCERF3_CurveCompareTest {
 		
 		System.out.println("Max discrep: "+(float)+maxDiscrep);
 		System.out.println("Max pDiff: "+(float)+maxDiscrepPercent+" %");
+	}
+	
+	public static FaultSystemSolution getRandomOrder(final FaultSystemSolution other) {
+		final FaultSystemRupSet origRupSet = other.getRupSet();
+		List<Integer> rupIDs = Lists.newArrayList();
+		for (int i=0; i<origRupSet.getNumRuptures(); i++)
+			rupIDs.add(i);
+		Collections.shuffle(rupIDs);
+		
+		List<List<Integer>> sectionForRups = Lists.newArrayList();
+		for (int r : rupIDs)
+			sectionForRups.add(origRupSet.getSectionsIndicesForRup(r));
+		
+		FaultSystemRupSet newRupSet = new FaultSystemRupSet(origRupSet.getFaultSectionDataList(),
+				origRupSet.getSlipRateForAllSections(), origRupSet.getSlipRateStdDevForAllSections(),
+				origRupSet.getAreaForAllSections(), sectionForRups,
+				getResortedArray(origRupSet.getMagForAllRups(), rupIDs),
+				getResortedArray(origRupSet.getAveRakeForAllRups(), rupIDs),
+				getResortedArray(origRupSet.getAreaForAllRups(), rupIDs),
+				getResortedArray(origRupSet.getLengthForAllRups(), rupIDs), origRupSet.getInfoString());
+		
+		return new FaultSystemSolution(newRupSet, getResortedArray(other.getRateForAllRups(), rupIDs));
+	}
+	
+	private static double[] getResortedArray(double[] orig, List<Integer> order) {
+		if (orig == null)
+			return null;
+		double[] ret = new double[orig.length];
+		for (int i=0; i<orig.length; i++)
+			ret[i] = orig[order.get(i)];
+		return ret;
+	}
+	
+	private static class Rupture implements Comparable<Rupture> {
+		private HashSet<Integer> sects;
+		private double mag;
+		private double rate;
+		private double area;
+		private double rake;
+		
+		public Rupture(HashSet<Integer> sects, double mag, double rate,
+				double area, double rake) {
+			super();
+			this.sects = sects;
+			this.mag = mag;
+			this.rate = rate;
+			this.area = area;
+			this.rake = rake;
+		}
+		
+		@Override
+		public int compareTo(Rupture o) {
+			// sort by rate, decreasing
+			return -Double.compare(rate, o.rate);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((sects == null) ? 0 : sects.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Rupture other = (Rupture) obj;
+			if (sects == null) {
+				if (other.sects != null)
+					return false;
+			} else if (!sects.equals(other.sects))
+				return false;
+			return true;
+		}
+	}
+	
+	private static void compareSolutions(FaultSystemSolution avgSol, FaultSystemSolution meanSol) {
+		Map<String, Integer> avgMap = getRupsMap(avgSol);
+		Map<String, Integer> meanMap = getRupsMap(meanSol);
+		
+		for (String rup : avgMap.keySet()) {
+			int avgIndex = avgMap.get(rup);
+			printStats(avgSol, avgIndex);
+			Integer meanIndex = meanMap.get(rup);
+			if (meanIndex == null)
+				System.out.println("\t -- NONE --");
+			else
+				printStats(meanSol, meanIndex);
+			System.out.println();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private static void printStats(FaultSystemSolution sol, int index) {
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		System.out.println("\t"+index+".\t"+(float)rupSet.getMagForRup(index)+"\t"+(float)rupSet.getAveRakeForRup(index)
+				+"\t"+(float)rupSet.getAreaForRup(index)+"\t"+(float)sol.getRateForRup(index));
+	}
+	
+	private static Map<String, Integer> getRupsMap(FaultSystemSolution sol) {
+		Map<String, Integer> map = Maps.newHashMap();
+		
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		for (int i=0; i<rupSet.getNumRuptures(); i++) {
+			List<String> subSects = Lists.newArrayList();
+			for (int sect : rupSet.getSectionsIndicesForRup(i)) {
+				String name = rupSet.getFaultSectionData(sect).getName();
+				if (name.contains(" (instance"))
+					name = name.substring(0, name.indexOf(" (instance"));
+				subSects.add(name);
+			}
+			Collections.sort(subSects);
+			map.put(Joiner.on(",").join(subSects), i);
+		}
+		
+		return map;
+	}
+	
+	private static FaultSystemSolution copyMagsFrom(FaultSystemSolution meanSol, FaultSystemSolution baSol) {
+		Map<String, Integer> avgMap = getRupsMap(baSol);
+		Map<String, Integer> meanMap = getRupsMap(meanSol);
+		
+		FaultSystemRupSet meanRupSet = meanSol.getRupSet();
+		
+		double[] baMags = baSol.getRupSet().getMagForAllRups();
+		double[] meanNewMags = new double[meanRupSet.getNumRuptures()];
+		
+		for (String rup : meanMap.keySet()) {
+			int meanIndex = meanMap.get(rup);
+			int avgIndex = avgMap.get(rup);
+			
+			meanNewMags[meanIndex] = baMags[avgIndex];
+		}
+		
+		return new FaultSystemSolution(new FaultSystemRupSet(
+				meanRupSet.getFaultSectionDataList(), meanRupSet.getSlipRateForAllSections(),
+				meanRupSet.getSlipRateStdDevForAllSections(), meanRupSet.getAreaForAllSections(),
+				meanRupSet.getSectionIndicesForAllRups(), meanNewMags, meanRupSet.getAveRakeForAllRups(),
+				meanRupSet.getAreaForAllRups(), meanRupSet.getLengthForAllRups(), meanSol.getInfoString()),
+				meanSol.getRateForAllRups());
+	}
+	
+	private static FaultSystemSolution getBASubsetSol(FaultSystemSolution meanSol, FaultSystemSolution baSol) {
+		Map<String, Integer> avgMap = getRupsMap(baSol);
+		Map<String, Integer> meanMap = getRupsMap(meanSol);
+		
+		List<Integer> indexesToKeep = Lists.newArrayList();
+		
+		for (String rup : avgMap.keySet()) {
+			int avgIndex = avgMap.get(rup);
+			Integer meanIndex = meanMap.get(rup);
+			
+			if (meanIndex != null)
+				indexesToKeep.add(avgIndex);
+		}
+		
+		FaultSystemRupSet rupSet = new RuptureCombiner.SubsetRupSet(baSol.getRupSet(), indexesToKeep);
+		double[] newRates = new double[indexesToKeep.size()];
+		for (int i=0; i<newRates.length; i++)
+			newRates[i] = baSol.getRateForRup(indexesToKeep.get(i));
+		
+		return new FaultSystemSolution(rupSet, newRates);
 	}
 
 }

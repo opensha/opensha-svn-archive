@@ -40,6 +40,7 @@ public class UCERF3_EALHistGen {
 		
 		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
 		File cbRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_19-ucerf3-eal-calc-CB2014-recalc");
+		File askRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
 		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
@@ -48,7 +49,7 @@ public class UCERF3_EALHistGen {
 		Map<AttenRelRef, File> imrResultsDirMap = Maps.newHashMap();
 		imrResultsDirMap.put(AttenRelRef.CB_2014, cbRerunDir);
 		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
+		imrResultsDirMap.put(AttenRelRef.ASK_2014, askRerunDir);
 		imrResultsDirMap.put(AttenRelRef.BSSA_2014, origRunDir);
 		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
 		

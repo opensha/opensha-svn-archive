@@ -37,7 +37,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	
 	private int nDims;
 	
-	private static int[] lags = SynchParamCalculator.rangeInclusive(-20, 20);
+	private static int[] lags = SynchParamCalculator.rangeInclusive(-30, 30);
 	
 	private File outputDir;
 	
@@ -122,7 +122,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 		}
 	}
 	
-	private static class SynchCalc implements Task {
+	static class SynchCalc implements Task {
 		
 		private MarkovChainBuilder chain;
 		private int m, n, l;
@@ -140,7 +140,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 		@Override
 		public void compute() {
 			int lag = lags[l];
-			double gBar = new SynchParamCalculator(chain, m, n, lag).getGBar();
+			double gBar = SynchParamCalculator.calcGBar(chain, m, n, lag);
 			
 			gBars[m][n][l] = gBar;
 			gBars[n][m][l] = gBar;
@@ -177,18 +177,12 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 							gBars[m][n][t][l] = trialGBars[m][n][l];
 			}
 			
-			String indepStr;
-			if (SynchParamCalculator.useIndepProbs)
-				indepStr = "indep";
-			else
-				indepStr = "dep";
-			
-			File writeDir = new File(outputDir, "weight_"+SynchParamCalculator.weightingScheme.name()+"_"+indepStr);
+			File writeDir = new File(outputDir, SynchParamCalculator.getDirName());
 			if (!writeDir.exists())
 				writeDir.mkdir();
 			
 			checkBuildOrigChain();
-			SynchParamCalculator.doWriteSynchStdDevParams(writeDir, rupIdens, origChain, lags, numTrials, distSpacing, nDims, gBars);
+			SynchParamCalculator.doWriteSynchStdDevParams(writeDir, rupIdens, origChain, lags, numTrials, nDims, gBars);
 		}
 	}
 	

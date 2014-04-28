@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
@@ -19,6 +20,8 @@ public class SimAnalysisCatLoader {
 	private List<Color> rupIdenColors;
 	private List<EQSIM_Event> events;
 	
+	private General_EQSIM_Tools tools;
+	
 	public SimAnalysisCatLoader(boolean longCat, int[] include_elems, double idenMinMag, double idenMaxMag) throws IOException {
 		if (include_elems != null && include_elems.length > 0) {
 			rupIdens = Lists.newArrayList();
@@ -27,12 +30,17 @@ public class SimAnalysisCatLoader {
 			loadElemMagIdens(include_elems, rupIdens, rupIdenColors, idenMinMag, idenMaxMag);
 		}
 		
-		init(longCat);
+		init(longCat, false);
 	}
 	
 	public SimAnalysisCatLoader(boolean longCat, List<RuptureIdentifier> rupIdens) throws IOException {
 		this.rupIdens = rupIdens;
-		init(longCat);
+		init(longCat, false);
+	}
+	
+	// geom only
+	private SimAnalysisCatLoader() throws IOException {
+		init(false, true);
 	}
 	
 	private static List<File> dirsToCheck = Lists.newArrayList();
@@ -41,7 +49,7 @@ public class SimAnalysisCatLoader {
 		dirsToCheck.add(new File("/home/scec-02/kmilner/simulators"));
 	}
 	
-	private void init(boolean longCat) throws IOException {
+	private void init(boolean longCat, boolean noEvents) throws IOException {
 		File dir = null;
 		for (File testDir : dirsToCheck) {
 			if (testDir.exists()) {
@@ -52,7 +60,9 @@ public class SimAnalysisCatLoader {
 		Preconditions.checkNotNull(dir, "Simulator data files not found!");
 		File geomFile = new File(dir, "ALLCAL2_1-7-11_Geometry.dat");
 		System.out.println("Loading geometry...");
-		General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+		tools = new General_EQSIM_Tools(geomFile);
+		if (noEvents)
+			return;
 		File eventFile;
 		if (longCat)
 			eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
@@ -62,6 +72,10 @@ public class SimAnalysisCatLoader {
 		System.out.println("Loading events...");
 		tools.read_EQSIMv04_EventsFile(eventFile, rupIdens);
 		events = tools.getEventsList();
+	}
+	
+	public static List<RectangularElement> loadGeomOnly() throws IOException {
+		return new SimAnalysisCatLoader().tools.getElementsList();
 	}
 	
 	private static String getMagStr(double mag) {

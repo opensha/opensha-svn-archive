@@ -919,7 +919,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 	
-	static double calcSummedProbs(List<Double> probs) {
+	public static double calcSummedProbs(List<Double> probs) {
 		double totOneMinus = 1;
 		for (double prob : probs) {
 			totOneMinus *= (1-prob);

@@ -41,6 +41,7 @@ import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.UCERF3.utils.IDPairing;
+import scratch.kevin.DistSpeedTest;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
@@ -53,11 +54,11 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 public class SynchParamCalculator {
-	
+
 	// inputs
 	private MarkovChainBuilder chain;
 	private int lag;
-	
+
 	// results
 	private List<Double> synchs = Lists.newArrayList();
 	private List<Double> weights = Lists.newArrayList();
@@ -67,25 +68,30 @@ public class SynchParamCalculator {
 	private List<Double> freqEithers = Lists.newArrayList();
 	private List<IndicesKey> synch_indices = Lists.newArrayList();
 	private double totEithers = 0d;
-	
+
 	private double gBar_numerator;
 	private double gBar_denominator;
 	private double gBar;
-	
+
 	// plot files if generated
 	private File synch2DPlotFile;
 	private File scatterPlotFile;
-	
+
 	private final int m = 0;
 	private final int n = 1;
-	
-	double cov;
-	
-	protected static final boolean useIndepProbs = true; // if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
-	
+
+	//	double cov;
+
+	// if true, gain factor divides by P(Em|k)*P(En|l) instead of P(Em|k,l)*P(En|k,l)
+	protected static final boolean useIndepProbs = true;
+
+	// if true, lags are calculated by shifting the markov chain and computing as normal
+	protected static final boolean doLagByShift = true;
+
 	enum WeightingScheme {
 		FREQ_EITHERS,
 		TOT_OCCUPANCY,
+		CATALOG_G,
 		FREQ_MNs,
 		FREQ_AVG,
 		FREQ_PROD,
@@ -93,46 +99,52 @@ public class SynchParamCalculator {
 		LAG_DEPENDENT_AVG,
 		LAG_DEPENDENT_PROD;
 	}
-	
-	protected static final WeightingScheme weightingScheme = WeightingScheme.FREQ_PROD;
-	
-//	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
-//		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
-//		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
-//			int[] myInd = { indices[m], indices[n] };
-//			IndicesKey key = new IndicesKey(myInd);
-//			List<int[]> binned = binnedIndices.get(key);
-//			if (binned == null) {
-//				binned = Lists.newArrayList();
-//				binnedIndices.put(key, binned);
-//			}
-//			binned.add(indices);
-//		}
-//		return binnedIndices;
-//	}
-	
+
+	protected static final WeightingScheme weightingScheme = WeightingScheme.CATALOG_G;
+
+	//	public static Map<IndicesKey, List<int[]>> getBinnedIndices(MarkovChainBuilder chain, int m, int n) {
+	//		Map<IndicesKey, List<int[]>> binnedIndices = Maps.newHashMap();
+	//		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
+	//			int[] myInd = { indices[m], indices[n] };
+	//			IndicesKey key = new IndicesKey(myInd);
+	//			List<int[]> binned = binnedIndices.get(key);
+	//			if (binned == null) {
+	//				binned = Lists.newArrayList();
+	//				binnedIndices.put(key, binned);
+	//			}
+	//			binned.add(indices);
+	//		}
+	//		return binnedIndices;
+	//	}
+
 	public SynchParamCalculator(MarkovChainBuilder chain, int m, int n, int lag) {
 		this(chain.getCollapsedChain(m, n), lag);
 	}
-	
+
 	public SynchParamCalculator(MarkovChainBuilder chain, int lag) {
 		Preconditions.checkArgument(chain.getNDims() == 2, "Chain must be collapsed");
 		this.chain = chain;
 		this.lag = lag;
-		
+
 		calculate();
 	}
-	
+
 	private static boolean lag_debug = false;
-	
+
 	private void calculate() {
+		if (weightingScheme == WeightingScheme.CATALOG_G) {
+			Preconditions.checkState(lag == 0, "Must use shift lag for catalog G");
+			gBar = calcCatalogG(chain, 0, 1);
+			return;
+		}
+		
 		int numSums = 0;
 		int numPossibleSums = 0;
 		int numSubSums = 0;
 		int numSubBails = 0;
-		
+
 		int totOccupancy = 0;
-		
+
 		Map<Integer, Double> mIndepFreqs;
 		Map<Integer, Double> nIndepFreqs;
 		Map<Integer, Double> mIndepProbs;
@@ -157,7 +169,7 @@ public class SynchParamCalculator {
 			mIndepFreqs = calcIndepProbs(m, lag, true);
 			nIndepFreqs = calcIndepProbs(n, 0, true);
 		}
-		
+
 		List<Double> allFreqMs = Lists.newArrayList();
 		List<Double> allFreqNs = Lists.newArrayList();
 		List<Double> allFreqMNs = Lists.newArrayList();
@@ -165,12 +177,12 @@ public class SynchParamCalculator {
 		List<Double> allTots = Lists.newArrayList();
 		List<int[]> allStates = Lists.newArrayList();
 		double allTotOccupancy = 0;
-		
+
 		List<int[]> usedStates = Lists.newArrayList();
-		
+
 		List<Double> weightNumerators = Lists.newArrayList();
 		double weightDenominator = 0d;
-		
+
 		for (int[] fromState : chain.getStateTransitionDataset().getPopulatedIndices()) {
 			PossibleStates possible = chain.getStateTransitionDataset().get(fromState);
 			if (possible == null || possible.getStates() == null || possible.getTot() == 0) {
@@ -178,13 +190,13 @@ public class SynchParamCalculator {
 				numSubBails++;
 				continue;
 			}
-			
+
 			double freqM = 0;
 			double freqN = 0;
 			double freqMN = 0;
 			double freqEither = 0;
 			double tot = possible.getTot();
-			
+
 			for (int[] state : possible.getStates()) {
 				// frequency that we transition to state
 				double freq = possible.getFrequency(state);
@@ -198,6 +210,11 @@ public class SynchParamCalculator {
 						freqMN += freq;
 					if (state[m] == 0 || state[n] == 0)
 						freqEither += freq;
+					//				} else if (useNewTomNotation) {
+					//					if (state[m] == 0)
+					//						freqM += freq;
+					//					if (state[n] == 0)
+					//						freqN += freq;
 				} else {
 					// incorporates lag
 					if (lag < 0) {
@@ -235,29 +252,29 @@ public class SynchParamCalculator {
 						freqM += freqMBefore;
 					}
 				}
-//				int mCheckIndex, nCheckIndex;
-//				if (lag == 0) {
-//					mCheckIndex = 0;
-//					nCheckIndex = 0;
-//				} else if (lag < 0) {
-//					// n precedes m
-//					// we want m=0, and n=abs(lag)
-//					mCheckIndex = 0;
-//					nCheckIndex = -lag;
-//				} else {
-//					// lag > 0
-//					// m precedes n
-//					// we want n=0, and m=lag
-//					nCheckIndex = 0;
-//					mCheckIndex = lag;
-//				}
-				
+				//				int mCheckIndex, nCheckIndex;
+				//				if (lag == 0) {
+				//					mCheckIndex = 0;
+				//					nCheckIndex = 0;
+				//				} else if (lag < 0) {
+				//					// n precedes m
+				//					// we want m=0, and n=abs(lag)
+				//					mCheckIndex = 0;
+				//					nCheckIndex = -lag;
+				//				} else {
+				//					// lag > 0
+				//					// m precedes n
+				//					// we want n=0, and m=lag
+				//					nCheckIndex = 0;
+				//					mCheckIndex = lag;
+				//				}
+
 			}
-			
+
 			if (lag_debug && freqN > 0 && freqM > 0) {
 				System.out.println("Lag Debug. freqM="+freqM+", freqN="+freqN+" freqMN="+freqMN);
 			}
-			
+
 			allFreqMs.add(freqM);
 			allFreqNs.add(freqN);
 			allFreqMNs.add(freqMN);
@@ -265,17 +282,17 @@ public class SynchParamCalculator {
 			allStates.add(fromState);
 			allTotOccupancy += possible.getTot();
 			allTots.add(tot);
-			
+
 			numSubSums++;
-			
+
 			// convert to probs
 			double probM = freqM / tot;
 			double probN = freqN / tot;
 			double probMN = freqMN / tot;
-			
+
 			if (useIndepProbs) {
-//				int mIndex = indicesKey.indices[0];
-//				int nIndex = indicesKey.indices[1];
+				//				int mIndex = indicesKey.indices[0];
+				//				int nIndex = indicesKey.indices[1];
 				int mIndex = 0;
 				int nIndex = 1;
 				if (mIndepProbs.containsKey(fromState[mIndex]))
@@ -287,32 +304,38 @@ public class SynchParamCalculator {
 				else
 					probN = 0;
 			}
-			
+
 			double synch = probMN/(probM*probN);
-//			double prob_state = tot / totStateCount;
-			
+			//			double prob_state = tot / totStateCount;
+
 			numPossibleSums++;
 			
-//			if (!Double.isInfinite(synch) && !Double.isNaN(synch)) {
-//			if (freqEither > 0) {
-//			if (freqM > 0 && freqN > 0) {
-			if (probM > 0 && probN > 0) {
+			boolean inclusionCondition;
+			if (weightingScheme == WeightingScheme.TOT_OCCUPANCY)
+				inclusionCondition = true;
+			else
+				inclusionCondition = probM > 0 && probN > 0;
+
+			//			if (!Double.isInfinite(synch) && !Double.isNaN(synch)) {
+			//			if (freqEither > 0) {
+			//			if (freqM > 0 && freqN > 0) {
+			if (inclusionCondition) {
 				if (Double.isInfinite(synch) || Double.isNaN(synch))
-					synch = 0d;
+					synch = 1d;
 				totEithers += freqEither;
 				numSums++;
-				
+
 				synchs.add(synch);
 				freqEithers.add(freqEither);
 				synch_indices.add(new IndicesKey(fromState));
-				
+
 				probMs.add(probM);
 				probNs.add(probN);
 				probMNs.add(probMN);
-				
+
 				usedStates.add(fromState);
 				totOccupancy += possible.getTot();
-				
+
 				switch (weightingScheme) {
 				case FREQ_EITHERS:
 					weightNumerators.add(freqEither);
@@ -334,8 +357,8 @@ public class SynchParamCalculator {
 				case FREQ_PROD:
 					double prod;
 					if (useIndepProbs) {
-//						int mIndex = indicesKey.indices[0];
-//						int nIndex = indicesKey.indices[1];
+						//						int mIndex = indicesKey.indices[0];
+						//						int nIndex = indicesKey.indices[1];
 						int mIndex = 0;
 						int nIndex = 1;
 						double myFreqM;
@@ -408,7 +431,7 @@ public class SynchParamCalculator {
 				default:
 					throw new IllegalStateException("Weight not implemented: "+weightingScheme);
 				}
-				
+
 				Preconditions.checkState(Doubles.isFinite(synch),
 						"Non finite synch param. lag="+lag+", synch="+probMN+"/("+probM+"*"+probN+")="+synch);
 			}
@@ -426,51 +449,52 @@ public class SynchParamCalculator {
 				"Weights don't add up: totWeight="+(float)totWeight+", num="+synchs.size()
 				+", nums=["+Joiner.on(",").join(weightNumerators)+"], denom="+weightDenominator);
 		gBar = gBar_numerator/gBar_denominator;
-		
+
 		// now calculate cov
-//		cov = 0;
-//		for (int i=0; i<synchs.size(); i++) {
-//			double weight = weights.get(i);
-//			int mIndex = usedStates.get(i)[m];
-//			int nIndex = usedStates.get(i)[n];
-//			if (mIndepProbs.containsKey(mIndex))
-//				expectedM = mIndepProbs.get(mIndex);
-//			else
-//				expectedM = 0;
-//			if (nIndepProbs.containsKey(nIndex))
-//				expectedN = nIndepProbs.get(nIndex);
-//			else
-//				expectedN = 0;
-//			cov += weight*(probMs.get(i) - expectedM)*(probNs.get(i) - expectedN);
-//		}
-		cov = 0;
-		for (int i=0; i<allStates.size(); i++) {
-			double freqM = allFreqMs.get(i);
-			double freqN = allFreqNs.get(i);
-			double freqMN = allFreqMNs.get(i);
-			double tot = allTots.get(i);
-			int mIndex = allStates.get(i)[m];
-			int nIndex = allStates.get(i)[n];
-			double expectedM, expectedN;
-			if (mIndepProbs.containsKey(mIndex))
-				expectedM = mIndepProbs.get(mIndex);
-			else
-				expectedM = 0;
-			if (nIndepProbs.containsKey(nIndex))
-				expectedN = nIndepProbs.get(nIndex);
-			else
-				expectedN = 0;
-			cov += tot*(freqM/tot - expectedM)*(freqN/tot - expectedN);
-		}
-//		cov /= totEithers;
-		cov /= allTotOccupancy;
-		Preconditions.checkState(Doubles.isFinite(cov), "COV isn't finite: "+cov);
+		//		cov = 0;
+		//		for (int i=0; i<synchs.size(); i++) {
+		//			double weight = weights.get(i);
+		//			int mIndex = usedStates.get(i)[m];
+		//			int nIndex = usedStates.get(i)[n];
+		//			if (mIndepProbs.containsKey(mIndex))
+		//				expectedM = mIndepProbs.get(mIndex);
+		//			else
+		//				expectedM = 0;
+		//			if (nIndepProbs.containsKey(nIndex))
+		//				expectedN = nIndepProbs.get(nIndex);
+		//			else
+		//				expectedN = 0;
+		//			cov += weight*(probMs.get(i) - expectedM)*(probNs.get(i) - expectedN);
+		//		}
+		// newer, still diabled
+		//		cov = 0;
+		//		for (int i=0; i<allStates.size(); i++) {
+		//			double freqM = allFreqMs.get(i);
+		//			double freqN = allFreqNs.get(i);
+		//			double freqMN = allFreqMNs.get(i);
+		//			double tot = allTots.get(i);
+		//			int mIndex = allStates.get(i)[m];
+		//			int nIndex = allStates.get(i)[n];
+		//			double expectedM, expectedN;
+		//			if (mIndepProbs.containsKey(mIndex))
+		//				expectedM = mIndepProbs.get(mIndex);
+		//			else
+		//				expectedM = 0;
+		//			if (nIndepProbs.containsKey(nIndex))
+		//				expectedN = nIndepProbs.get(nIndex);
+		//			else
+		//				expectedN = 0;
+		//			cov += tot*(freqM/tot - expectedM)*(freqN/tot - expectedN);
+		//		}
+		////		cov /= totEithers;
+		//		cov /= allTotOccupancy;
+		//		Preconditions.checkState(Doubles.isFinite(cov), "COV isn't finite: "+cov);
 	}
-	
+
 	private Map<Integer, Double> calcIndepProbs(int index, int target, boolean isFreq) {
 		Map<Integer, Double> freqs = Maps.newHashMap();
 		Map<Integer, Double> tots = Maps.newHashMap();
-		
+
 		for (int[] indices : chain.getStateTransitionDataset().getPopulatedIndices()) {
 			int myIndex = indices[index];
 			double tot, freq;
@@ -494,17 +518,17 @@ public class SynchParamCalculator {
 			freqs.put(myIndex, freq);
 			tots.put(myIndex, tot);
 		}
-		
+
 		if (isFreq)
 			return freqs;
-		
+
 		Map<Integer, Double> probs = Maps.newHashMap();
-		
+
 		for (Integer key : freqs.keySet())
 			probs.put(key, freqs.get(key)/tots.get(key));
 		return probs;
 	}
-	
+
 	/**
 	 * Returns the synchronization parameter, gBar in linear space
 	 * @return
@@ -512,27 +536,29 @@ public class SynchParamCalculator {
 	public double getGBar() {
 		return gBar;
 	}
-	
+
 	public void generatePlots(File synchXYZDir, File synchScatterDir, String name1, String name2) throws IOException {
 		if (synchs.size() == 0)
 			return;
 		double distSpacing = chain.getDistSpacing();
-		
+
 		DefaultXY_DataSet synchFunc = new DefaultXY_DataSet();
 		DefaultXY_DataSet contribFunc = new DefaultXY_DataSet();
-		
+
 		double highestContrib = Double.NEGATIVE_INFINITY;
 		int contribIndex = -1;
-		
+
+		int plotNum = 1000 / (int)distSpacing;
+
 		EvenlyDiscrXYZ_DataSet gXYZ = new EvenlyDiscrXYZ_DataSet(
-				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
-		
+				plotNum, plotNum, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
+
 		EvenlyDiscrXYZ_DataSet weightXYZ = new EvenlyDiscrXYZ_DataSet(
-				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
-		
+				plotNum, plotNum, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
+
 		EvenlyDiscrXYZ_DataSet gWeightedXYZ = new EvenlyDiscrXYZ_DataSet(
-				100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
-		
+				plotNum, plotNum, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
+
 		for (int x=0; x<gXYZ.getNumX(); x++) {
 			for (int y=0; y<gXYZ.getNumY(); y++) {
 				gXYZ.set(x, y, Double.NaN);
@@ -540,20 +566,20 @@ public class SynchParamCalculator {
 				gWeightedXYZ.set(x, y, Double.NaN);
 			}
 		}
-		
+
 		for (int i=0; i<synchs.size(); i++) {
 			double synch = synchs.get(i);
-//			double weight = freqEithers.get(i)/totEithers;
+			//			double weight = freqEithers.get(i)/totEithers;
 			double weight = weights.get(i);
-			
+
 			double rBar_without = (gBar_numerator - synch*weight)/(gBar_denominator - weight);
 			double contrib = gBar - rBar_without;
-			
+
 			if (contrib > highestContrib) {
 				highestContrib = contrib;
 				contribIndex = i;
 			}
-			
+
 			int[] indices = synch_indices.get(i).getIndices();
 			if (indices[0] < gXYZ.getNumX() && indices[1] < gXYZ.getNumY()) {
 				gXYZ.set(indices[0], indices[1], synch);
@@ -563,7 +589,7 @@ public class SynchParamCalculator {
 				else
 					gWeightedXYZ.set(indices[0], indices[1], synch*weight);
 			}
-			
+
 			if (synch == 0)
 				synch = 1e-14;
 			synchFunc.set(synch, weight);
@@ -571,7 +597,7 @@ public class SynchParamCalculator {
 				continue;
 			contribFunc.set(synch, contrib);
 		}
-		
+
 		CPT weightCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, weightXYZ.getMaxZ());
 		weightCPT.setNanColor(Color.WHITE);
 		CPT gCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-2, 2);
@@ -583,16 +609,16 @@ public class SynchParamCalculator {
 		String title = name1+" vs "+name2+" (Ln(Gbar)="+(float)Math.log(getGBar())+")";
 		String xAxisLabel = "Years since prev "+name1;
 		String yAxisLabel = "Years since prev "+name2;
-//		title = "r: freqMN/(freqM*freqN)";
+		//		title = "r: freqMN/(freqM*freqN)";
 		XYZPlotSpec gSpec = new XYZPlotSpec(gXYZ, gCPT, title, xAxisLabel, yAxisLabel, "Ln(G)");
 		XYZPlotSpec weightSpec = new XYZPlotSpec(weightXYZ, weightCPT, title, xAxisLabel, yAxisLabel, "Weight ("+weightingScheme.name()+")");
 		XYZPlotSpec gWeightedSpec = new XYZPlotSpec(gWeightedXYZ, weightedCPT, title, xAxisLabel, yAxisLabel, "Ln(G*Weight)");
-		
+
 		Range xyzXRange = new Range(0d, gXYZ.getMaxX()+0.5*distSpacing);
 		Range xyzYRange = new Range(0d, 0.6*gXYZ.getMaxX()+0.5*distSpacing);
 		List<Range> xyzXRanges = Lists.newArrayList(xyzXRange);
 		List<Range> xyzYRanges = Lists.newArrayList(xyzYRange, xyzYRange, xyzYRange);
-		
+
 		double annX = xyzXRange.getUpperBound()*0.95;
 		double annY = xyzYRange.getUpperBound()*0.9;
 		Font font = new Font(Font.SERIF, Font.PLAIN, 18);
@@ -611,7 +637,7 @@ public class SynchParamCalculator {
 		weightAnn.setFont(font);
 		weightAnn.setTextAnchor(TextAnchor.TOP_RIGHT);
 		weightSpec.setPlotAnnotations(Lists.newArrayList(weightAnn));
-		
+
 		if (name2.toLowerCase().contains("garlock")) {
 			System.out.println("SWAPPING!!!");
 			title = name2+" vs "+name1;
@@ -620,7 +646,7 @@ public class SynchParamCalculator {
 			gWeightedSpec = swapSpec(gWeightedSpec);
 			weightSpec = swapSpec(weightSpec);
 		}
-		
+
 		List<XYZPlotSpec> xyzSpecs = Lists.newArrayList(gSpec, weightSpec, gWeightedSpec);
 		XYZGraphPanel xyzGP = new XYZGraphPanel();
 		xyzGP.drawPlot(xyzSpecs, false, false, xyzXRanges, xyzYRanges, null);
@@ -628,31 +654,31 @@ public class SynchParamCalculator {
 		synch2DPlotFile = new File(synchXYZDir, PeriodicityPlotter.getFileSafeString(name1)
 				+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
 		if (synchXYZDir.getName().contains("lag"));
-			// lag plot, output a png as well
-			xyzGP.saveAsPNG(synch2DPlotFile.getAbsolutePath().replaceAll("pdf", "png"));
+		// lag plot, output a png as well
+		xyzGP.saveAsPNG(synch2DPlotFile.getAbsolutePath().replaceAll("pdf", "png"));
 		xyzGP.saveAsPDF(synch2DPlotFile.getAbsolutePath());
-		
+
 		if (contribIndex >= 0) {
 			System.out.println("Highest contrib of "+(float)highestContrib+" at "+synch_indices.get(contribIndex)+". r="
 					+probMNs.get(contribIndex).floatValue()+"/("+probMs.get(contribIndex).floatValue()
 					+"*"+probNs.get(contribIndex).floatValue()+")="
 					+synchs.get(contribIndex).floatValue()+", Weight(Sij)="+(float)(freqEithers.get(contribIndex)/totEithers));
 		}
-		
+
 		if (synchScatterDir == null)
 			return;
-		
+
 		File scatterPlotFile = new File(synchScatterDir, "synch_scatter_"
 				+PeriodicityPlotter.getFileSafeString(name1)+"_"
 				+PeriodicityPlotter.getFileSafeString(name2));
-		
+
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));
 		title = "Synch Param "+name1+" vs "+name2+": "+gBar;
 		xAxisLabel = "r: freqMN/(freqM*freqN)";
 		yAxisLabel = "Weight";
 		PlotSpec spec = new PlotSpec(asList(synchFunc), chars, title, xAxisLabel, yAxisLabel);
-		
+
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setTickLabelFontSize(14);
@@ -662,12 +688,12 @@ public class SynchParamCalculator {
 		Range xRange = new Range(1e-15, 1e3);
 		Range yRange = new Range(1e-6, 1e-0);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
-		
+
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(scatterPlotFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
 		this.scatterPlotFile = new File(scatterPlotFile.getAbsolutePath()+".pdf");
-		
+
 		File contribScatterFile = new File(synchScatterDir, "synch_scatter_contrib_"
 				+PeriodicityPlotter.getFileSafeString(name1)+"_"
 				+PeriodicityPlotter.getFileSafeString(name2));
@@ -675,22 +701,22 @@ public class SynchParamCalculator {
 		xAxisLabel = "r: freqMN/(freqM*freqN)";
 		yAxisLabel = "Contribution: rBar - rBar(without point)";
 		spec = new PlotSpec(asList(contribFunc), chars, title, xAxisLabel, yAxisLabel);
-		
+
 		gp = new HeadlessGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setTickLabelFontSize(14);
 		gp.setAxisLabelFontSize(16);
 		gp.setPlotLabelFontSize(18);
-		
+
 		yRange = new Range(1e-6, 1e1);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
-		
+
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(contribScatterFile.getAbsolutePath()+".png");
-		
+
 		if (name1.contains("Mojave") && name2.contains("Coachella")) {
 			// write poster images
-			
+
 			// G
 			xyzGP = new XYZGraphPanel();
 			xyzXRange = xyzYRange;
@@ -700,7 +726,7 @@ public class SynchParamCalculator {
 			File gPlotFile = new File(synchXYZDir, "gain_"+PeriodicityPlotter.getFileSafeString(name1)
 					+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
 			xyzGP.saveAsPDF(gPlotFile.getAbsolutePath());
-			
+
 			// Occupancy
 			EvenlyDiscrXYZ_DataSet occFreqXYZ = new EvenlyDiscrXYZ_DataSet(
 					100, 100, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
@@ -716,13 +742,13 @@ public class SynchParamCalculator {
 				for (int y=0; y<occFreqXYZ.getNumY(); y++)
 					if (occFreqXYZ.get(x, y) == 0)
 						occFreqXYZ.set(x, y, Double.NaN);
-			
+
 			CPT occCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, occFreqXYZ.getMaxZ());
 			occCPT.setNanColor(Color.WHITE);
-			
+
 			XYZPlotSpec occSpec = new XYZPlotSpec(occFreqXYZ, occCPT, "State Occupancy Frequency",
 					gSpec.getXAxisLabel(), gSpec.getYAxisLabel(), null);
-			
+
 			xyzGP = new XYZGraphPanel();
 			xyzXRange = xyzYRange;
 			xyzGP.drawPlot(occSpec, false, false, xyzXRange, xyzYRange);
@@ -730,11 +756,11 @@ public class SynchParamCalculator {
 			File freqPlotFile = new File(synchXYZDir, "freq_"+PeriodicityPlotter.getFileSafeString(name1)
 					+"_"+PeriodicityPlotter.getFileSafeString(name2)+".pdf");
 			xyzGP.saveAsPDF(freqPlotFile.getAbsolutePath());
-			
-			
+
+
 		}
 	}
-	
+
 	public File getSynch2DPlotFile() {
 		return synch2DPlotFile;
 	}
@@ -742,9 +768,9 @@ public class SynchParamCalculator {
 	public File getScatterPlotFile() {
 		return scatterPlotFile;
 	}
-	
+
 	private static class SynchRandTask implements Task {
-		
+
 		private List<EQSIM_Event> events;
 		private List<RuptureIdentifier> rupIdens;
 		private int[] lags;
@@ -754,7 +780,7 @@ public class SynchParamCalculator {
 		private double[][][][] gBars;
 		private RandomDistType dist;
 		private int t;
-		
+
 		public SynchRandTask(List<EQSIM_Event> events,
 				List<RuptureIdentifier> rupIdens, int[] lags, int numTrials,
 				double distSpacing, int nDims, double[][][][] gBars,
@@ -769,67 +795,67 @@ public class SynchParamCalculator {
 			this.dist = dist;
 			this.t = t;
 		}
-		
-//		private static int numThreads = 1;
-//		private static int catLenMult = 10;
-		
+
+		//		private static int numThreads = 1;
+		//		private static int catLenMult = 10;
+
 		private static int numThreads = Runtime.getRuntime().availableProcessors();
 
 		@Override
 		public void compute() {
 			System.out.println("Random trial "+(t+1)+"/"+numTrials);
-			
+
 			MarkovChainBuilder chain = createRandomizedChain(events, rupIdens, dist, distSpacing);
-			
+
 			for (int m=0; m<nDims; m++) {
 				for (int n=m; n<nDims; n++) {
-//						Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
+					//						Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
 					for (int i=0; i<lags.length; i++) {
 						int lag = lags[i];
 						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
-						
-//						if (m == 3 && n == 4 && t < 10 && lag == 0) {
-//							File subDir = new File("/tmp/synch_xyz_rand");
-//							if (!subDir.exists())
-//								subDir.mkdir();
-//							try {
-//								calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
-//							} catch (IOException e) {
-//								ExceptionUtils.throwAsRuntimeException(e);
-//							}
-//						}
-						
+
+						//						if (m == 3 && n == 4 && t < 10 && lag == 0) {
+						//							File subDir = new File("/tmp/synch_xyz_rand");
+						//							if (!subDir.exists())
+						//								subDir.mkdir();
+						//							try {
+						//								calc.generatePlots(subDir, null, "Mojave", "Coachella_rand"+t);
+						//							} catch (IOException e) {
+						//								ExceptionUtils.throwAsRuntimeException(e);
+						//							}
+						//						}
+
 						gBars[m][n][t][i] = calc.getGBar();
 						gBars[n][m][t][i] = calc.getGBar();
 					}
 				}
 			}
 		}
-		
+
 	}
-	
+
 	private static int catLenMult = 1;
 	public static MarkovChainBuilder createRandomizedChain(List<EQSIM_Event> events,
 			List<RuptureIdentifier> rupIdens, RandomDistType dist, double distSpacing) {
 		List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
-		
+
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 		for (RuptureIdentifier rupIden : rupIdens)
 			matchesLists.add(rupIden.getMatches(randEvents));
-		
+
 		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, matchesLists);
-		
+
 		return chain;
 	}
-	
+
 	public static void writeSynchParamsStdDev(
 			File dir, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
 			MarkovChainBuilder origChain, int[] lags, int numTrials, double distSpacing) throws IOException {
 		int nDims = rupIdens.size();
-		
+
 		double[][][][] gBars = new double[nDims][nDims][numTrials][lags.length];
 		RandomDistType dist = RandomDistType.ACTUAL;
-		
+
 		List<SynchRandTask> tasks = Lists.newArrayList();
 		for (int t=0; t<numTrials; t++)
 			tasks.add(new SynchRandTask(events, rupIdens, lags, numTrials, distSpacing,
@@ -841,17 +867,33 @@ public class SynchParamCalculator {
 		} catch (InterruptedException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
-		
+
 		doWriteSynchStdDevParams(dir, rupIdens, origChain, lags, numTrials,
-				distSpacing, nDims, gBars);
-		
-//		return stdDevs;
+				nDims, gBars);
+
+		//		return stdDevs;
 	}
 
 	static void doWriteSynchStdDevParams(File dir,
 			List<RuptureIdentifier> rupIdens, MarkovChainBuilder origChain,
-			int[] lags, int numTrials, double distSpacing, int nDims,
-			double[][][][] gBars) throws IOException {
+			int[] lags, int numTrials, int nDims,
+			double[][][][] trialGBars) throws IOException {
+		double[][][] origGBars = new double[nDims][nDims][lags.length];
+		for (int l=0; l<lags.length; l++) {
+			for (int i=0; i<nDims; i++) {
+				for (int j=i+1; j<nDims; j++) {
+					double gBar = calcGBar(origChain, i, j, lags[l]);
+					origGBars[i][j][l] = gBar;
+					origGBars[j][i][l] = gBar;
+				}
+			}
+		}
+		doWriteSynchStdDevParams(dir, rupIdens, lags, numTrials, nDims, trialGBars, origGBars);
+	}
+
+	static void doWriteSynchStdDevParams(File dir,
+			List<RuptureIdentifier> rupIdens, int[] lags, int numTrials, int nDims,
+			double[][][][] trialGBars, double[][][] origGBars) throws IOException {
 		for (int l=0; l<lags.length; l++) {
 			int lag = lags[l];
 			File stdDevCSV;
@@ -863,11 +905,11 @@ public class SynchParamCalculator {
 					lagDir.mkdir();
 				stdDevCSV = new File(lagDir, "synch_params_std_devs_lag_"+lag+".csv");
 			}
-			
+
 			File randTrialsDir = new File(dir, "rand_trials");
 			if (!randTrialsDir.exists())
 				randTrialsDir.mkdir();
-			
+
 			List<List<String>> allValsLines = Lists.newArrayList();
 			for (int i=0; i<=numTrials; i++) {
 				List<String> line = Lists.newArrayList();
@@ -882,12 +924,12 @@ public class SynchParamCalculator {
 					String name = rupIdens.get(m).getName()+" vs "+rupIdens.get(n).getName();
 					allValsLines.get(0).add(name);
 					for (int i=0; i<numTrials; i++)
-						allValsLines.get(i+1).add(gBars[m][n][i][l]+"");
+						allValsLines.get(i+1).add(trialGBars[m][n][i][l]+"");
 				}
 			}
 			CSVFile<String> allValsCSV = new CSVFile<String>(allValsLines, true);
 			allValsCSV.writeToFile(new File(randTrialsDir, "synch_params_"+numTrials+"_trials_lag"+lag+".csv"));
-			
+
 			double[][] stdDevs = new double[nDims][nDims];
 			double[][] means = new double[nDims][nDims];
 			double totBias = 0;
@@ -895,7 +937,7 @@ public class SynchParamCalculator {
 				for (int n=0; n<nDims; n++) {
 					double[] lnVals = new double[numTrials];
 					for (int t=0; t<numTrials; t++)
-						lnVals[t] = Math.log(gBars[m][n][t][l]);
+						lnVals[t] = Math.log(trialGBars[m][n][t][l]);
 					double mean = StatUtils.mean(lnVals);
 					double var = StatUtils.variance(lnVals, mean);
 					stdDevs[m][n] = Math.sqrt(var);
@@ -904,15 +946,15 @@ public class SynchParamCalculator {
 						totBias += mean;
 				}
 			}
-			
+
 			System.out.println("Total Bias: "+totBias);
-			
+
 			List<String> header = Lists.newArrayList("");
 			for (RuptureIdentifier iden : rupIdens)
 				header.add(iden.getName());
-			
+
 			CSVFile<String> csv = new CSVFile<String>(false);
-			
+
 			csv.addLine("Std Dev of "+numTrials+" rand realizations (in Ln space)");
 			addTableToCSV(csv, header, stdDevs, true);
 			csv.addLine("");
@@ -923,37 +965,48 @@ public class SynchParamCalculator {
 			csv.addLine("");
 			csv.addLine("Print ready +/- (in Ln space)");
 			csv.addLine(header);
-			
+
 			DecimalFormat df = new DecimalFormat("0.00");
 			for (int i=0; i<nDims; i++) {
 				List<String> line = Lists.newArrayList();
-				
+
 				line.add(header.get(i+1));
 				for (int j=0; j<nDims; j++) {
 					if (i == j)
 						line.add("");
 					else {
 						double stdDev = stdDevs[i][j];
-						double mean = Math.log(new SynchParamCalculator(origChain, i, j, lag).getGBar());
+						double gBar = origGBars[i][j][l];
+						double mean = Math.log(gBar);
 						line.add(df.format(mean)+" ± "+df.format(stdDev));
 					}
 				}
-				
+
 				csv.addLine(line);
 			}
-			
+
 			csv.writeToFile(stdDevCSV);
 		}
 	}
-	
+
+	public static double calcGBar(MarkovChainBuilder chain, int m, int n, int lag) {
+		SynchParamCalculator calc;
+		if (doLagByShift && lag != 0) {
+			calc = new SynchParamCalculator(chain.getCollapsedChain(m, n).getShiftedChain(0, lag), 0);
+		} else {
+			calc = new SynchParamCalculator(chain, m, n, lag);
+		}
+		return calc.getGBar();
+	}
+
 	private static void addTableToCSV(CSVFile<String> csv, List<String> header, double[][] table, boolean skipIdentities) {
 		int nDims = table.length;
 		csv.addLine(header);
 		for (int i=0; i<nDims; i++) {
 			List<String> line = Lists.newArrayList();
-			
+
 			Preconditions.checkState(table[i].length == nDims, "table not square!");
-			
+
 			line.add(header.get(i+1));
 			for (int j=0; j<nDims; j++) {
 				if (skipIdentities && i == j)
@@ -961,433 +1014,668 @@ public class SynchParamCalculator {
 				else
 					line.add(table[i][j]+"");
 			}
-			
+
 			csv.addLine(line);
 		}
 	}
 
-//	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain) throws IOException {
+	private static DecimalFormat twoDeimalPlaces = new DecimalFormat("0.00");
+
+	//	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain) throws IOException {
 	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain,
-			boolean cov, Map<IDPairing, HistogramFunction[]> catDensFuncs) throws IOException {
-			int nDims = chain.getNDims();
-			
-			int lagMax = 20;
-			int lags = lagMax*2+1;
-			
-			double[][][] params = new double[nDims][nDims][lags];
-			
-	//		double totStateCount = 0;
-	//		for (int[] indices : totalStatesDataset.getPopulatedIndices())
-	//			totStateCount += totalStatesDataset.get(indices);
-			
-			List<PlotSpec> lagSpecs = Lists.newArrayList();
-			List<PlotCurveCharacterstics> lagChars = Lists.newArrayList(
-					new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-			String lagTitle = "Synchronization Lag Functions";
-			String lagXAxisLabel = "Lag (years)";
-			String lagYAxisLabel;
-			if (cov)
-				lagYAxisLabel = "Covariance";
-			else
-				lagYAxisLabel = "Ln(Synchronization)";
-	
-			double lagFuncMin = -lagMax*chain.getDistSpacing();
-			
-			Range lagXRange = new Range(lagFuncMin, -lagFuncMin);
-			Range lagYRange;
-			if (cov)
-//				lagYRange = new Range(-0.1, 0.1);
-				lagYRange = new Range(0d, 600d);
-			else
-				lagYRange = new Range(-2, 2);
-			
-			List<File> synch2DPDFs = Lists.newArrayList();
-			File synchXYZDir = new File(file.getParentFile(), "synch_xyz_param_plots");
-			if (!synchXYZDir.exists())
-				synchXYZDir.mkdir();
-			
-			List<File> synchScatterPDFs = Lists.newArrayList();
-			File synchScatterDir = new File(file.getParentFile(), "synch_scatter_plots");
-			if (!synchScatterDir.exists())
-				synchScatterDir.mkdir();
-			
-			File trialDir = new File(file.getParentFile(), "rand_trials");
-			String trialPrefix = null;
-			int maxTrialsFound = 0;
-			if (trialDir.exists() && !cov) {
-				for (File f : trialDir.listFiles()) {
-					String name = f.getName();
-					if (!name.endsWith(".csv") || !name.startsWith("synch_params_"))
-						continue;
-					
-					// parse number of trials
-					int trials = Integer.parseInt(name.substring("synch_params_".length(), name.indexOf("_trials")));
-					if (trials > maxTrialsFound) {
-						maxTrialsFound = trials;
-						trialPrefix = name.substring(0, name.indexOf("_lag"));
-					}
+			Map<IDPairing, HistogramFunction[]> catDensFuncs, int lagMax) throws IOException {
+		int nDims = chain.getNDims();
+
+		//			int lagMax = 20;
+		int lags = lagMax*2+1;
+
+		double[][][] params = new double[nDims][nDims][lags];
+
+		//		double totStateCount = 0;
+		//		for (int[] indices : totalStatesDataset.getPopulatedIndices())
+		//			totStateCount += totalStatesDataset.get(indices);
+
+		List<PlotSpec> lagSpecs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> lagChars = Lists.newArrayList(
+				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		String lagTitle = "Synchronization Lag Functions";
+		String lagXAxisLabel = "Lag (years)";
+		String lagYAxisLabel;
+		//			if (cov)
+		//				lagYAxisLabel = "Covariance";
+		//			else
+		lagYAxisLabel = "Ln(Synchronization)";
+
+		double lagFuncMin = -lagMax*chain.getDistSpacing();
+
+		Range lagXRange = new Range(lagFuncMin, -lagFuncMin);
+		Range lagYRange;
+		//			if (cov)
+		////				lagYRange = new Range(-0.1, 0.1);
+		//				lagYRange = new Range(0d, 600d);
+		//			else
+		lagYRange = new Range(-2, 2);
+
+		List<File> synch2DPDFs = Lists.newArrayList();
+		File synchXYZDir = new File(file.getParentFile(), "synch_xyz_param_plots");
+		if (!synchXYZDir.exists())
+			synchXYZDir.mkdir();
+
+		List<File> synchScatterPDFs = Lists.newArrayList();
+		File synchScatterDir = new File(file.getParentFile(), "synch_scatter_plots");
+		if (!synchScatterDir.exists())
+			synchScatterDir.mkdir();
+
+		File trialDir = new File(file.getParentFile(), "rand_trials");
+		String trialPrefix = null;
+		int maxTrialsFound = 0;
+		if (trialDir.exists()) {
+			for (File f : trialDir.listFiles()) {
+				String name = f.getName();
+				if (!name.endsWith(".csv") || !name.startsWith("synch_params_"))
+					continue;
+
+				// make sure has all lags so only consider the maximum
+				if (!name.endsWith("_lag"+lagMax+".csv"))
+					continue;
+
+				// parse number of trials
+				int trials = Integer.parseInt(name.substring("synch_params_".length(), name.indexOf("_trials")));
+				if (trials > maxTrialsFound) {
+					maxTrialsFound = trials;
+					trialPrefix = name.substring(0, name.indexOf("_lag"));
 				}
 			}
-			
-			Map<IDPairing, UncertainArbDiscDataset> lagUncertainties = null;
-			if (trialPrefix != null) {
-				System.out.println("Loading "+maxTrialsFound+" trials for each with prefix: "+trialPrefix);
-				Map<IDPairing, EvenlyDiscretizedFunc> upperFuncs = Maps.newHashMap();
-				Map<IDPairing, EvenlyDiscretizedFunc> lowerFuncs = Maps.newHashMap();
-				Map<IDPairing, EvenlyDiscretizedFunc> meanFuncs = Maps.newHashMap();
-				int[] myLags = rangeInclusive(-lagMax, lagMax);
-				for (int l=0; l<myLags.length; l++) {
-					int lag = myLags[l];
-					File trialCSVFile = new File(trialDir, trialPrefix+"_lag"+lag+".csv");
-					Preconditions.checkState(trialCSVFile.exists(), "Trials CSV doesn't exist: "+trialCSVFile.getAbsolutePath());
-					CSVFile<String> trialCSV = CSVFile.readFile(trialCSVFile, true);
-					
-					Map<String, Integer> colNamesMap = Maps.newHashMap();
-					List<String> header = trialCSV.getLine(0);
-					for (int i=0; i<header.size(); i++)
-						colNamesMap.put(header.get(i), i);
-					
-					for (int m=0; m<nDims; m++) {
-						for (int n=m+1; n<nDims; n++) {
-							String colName = idens.get(m).getName()+" vs "+idens.get(n).getName();
-							Integer col = colNamesMap.get(colName);
-							if (col == null) {
-								System.out.println("WARNING: lag file doesn't contain: "+colName);
-								continue;
-							}
-							double[] vals = new double[maxTrialsFound];
-							for (int i=0; i<vals.length; i++)
-								vals[i] = Double.parseDouble(trialCSV.get(i+1, col));
-							
-							// TODO calc from normal dist?
-							double mean = StatUtils.mean(vals);
-							double upper = StatUtils.percentile(vals, 97.5);
-							double lower = StatUtils.percentile(vals, 2.5);
-							
-							IDPairing pair = new IDPairing(m, n);
-							EvenlyDiscretizedFunc upperFunc;
-							EvenlyDiscretizedFunc lowerFunc;
-							EvenlyDiscretizedFunc meanFunc;
-							if (upperFuncs.containsKey(pair)) {
-								upperFunc = upperFuncs.get(pair);
-								lowerFunc = lowerFuncs.get(pair);
-								meanFunc = meanFuncs.get(pair);
-							} else {
-								upperFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
-								upperFuncs.put(pair, upperFunc);
-								upperFuncs.put(pair.getReversed(), upperFunc);
-								lowerFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
-								lowerFuncs.put(pair, lowerFunc);
-								lowerFuncs.put(pair.getReversed(), lowerFunc);
-								meanFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
-								meanFuncs.put(pair, meanFunc);
-								meanFuncs.put(pair.getReversed(), meanFunc);
-							}
-							
-							upperFunc.set(l, Math.log(upper));
-							lowerFunc.set(l, Math.log(lower));
-							meanFunc.set(l, Math.log(mean));
-						}
-					}
-				}
-				lagUncertainties = Maps.newHashMap();
-				for (IDPairing pairing : upperFuncs.keySet()) {
-					lagUncertainties.put(pairing, new UncertainArbDiscDataset(
-							meanFuncs.get(pairing), lowerFuncs.get(pairing), upperFuncs.get(pairing)));
-				}
-			}
-			
-			for (int m=0; m<nDims; m++) {
-				// TODO start at m+1?
-				for (int n=m; n<nDims; n++) {
-					// first bin by only the indices we care about
-//					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
-					
-					String name1 = idens.get(m).getName();
-					String name2 = idens.get(n).getName();
-					
-					int lagIndex = 0;
-	//				EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc((double)-lagMax, lags, 1d);
-					EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
-					
-					for (int lag=-lagMax; lag<=lagMax; lag++) {
-						lag_debug = lag == -1 && name1.contains("Coachella") && name2.contains("Jacinto") && false;
-						SynchParamCalculator calc = new SynchParamCalculator(chain, m, n, lag);
-						lag_debug = false;
-						
-						double gBar = calc.getGBar();
-						
-						if (cov) {
-							params[m][n][lagIndex] = calc.cov;
-							params[n][m][lagIndex] = calc.cov;
-							synchLagFunc.set(lagIndex, calc.cov);
-						} else {
-							params[m][n][lagIndex] = gBar;
-							params[n][m][lagIndex] = gBar;
-							synchLagFunc.set(lagIndex, gBar);
-						}
-						
-						lagIndex++;
-						
-						if (name1.contains("Coachella") && name2.contains("Jacinto")) {
-							File coachJacintoLagDir = new File(file.getParentFile(), "synch_lag_xyz_coach_jacinto");
-							if (!coachJacintoLagDir.exists())
-								coachJacintoLagDir.mkdir();
-							String lagName1, lagName2;
-							if (lag < 0) {
-								lagName1 = name1;
-								lagName2 = name2+" "+lag+" before";
-							} else if (lag > 0) {
-								lagName1 = name1+" "+lag+" before";
-								lagName2 = name2;
-							} else {
-								lagName1 = name1;
-								lagName2 = name2;
-							}
-							lagName1 = lagIndex+" "+lagName1;
-							if (lagIndex < 10)
-								lagName1 = "0"+lagName1;
-							calc.generatePlots(coachJacintoLagDir, null, lagName1, lagName2);
-						}
-						
-						if (lag != 0)
+		}
+
+		Map<IDPairing, UncertainArbDiscDataset> lagUncertainties = null;
+		if (trialPrefix != null) {
+			System.out.println("Loading "+maxTrialsFound+" trials for each with prefix: "+trialPrefix);
+			Map<IDPairing, EvenlyDiscretizedFunc> upperFuncs = Maps.newHashMap();
+			Map<IDPairing, EvenlyDiscretizedFunc> lowerFuncs = Maps.newHashMap();
+			Map<IDPairing, EvenlyDiscretizedFunc> meanFuncs = Maps.newHashMap();
+			int[] myLags = rangeInclusive(-lagMax, lagMax);
+			for (int l=0; l<myLags.length; l++) {
+				int lag = myLags[l];
+				File trialCSVFile = new File(trialDir, trialPrefix+"_lag"+lag+".csv");
+				Preconditions.checkState(trialCSVFile.exists(), "Trials CSV doesn't exist: "+trialCSVFile.getAbsolutePath());
+				CSVFile<String> trialCSV = CSVFile.readFile(trialCSVFile, true);
+
+				Map<String, Integer> colNamesMap = Maps.newHashMap();
+				List<String> header = trialCSV.getLine(0);
+				for (int i=0; i<header.size(); i++)
+					colNamesMap.put(header.get(i), i);
+
+				for (int m=0; m<nDims; m++) {
+					for (int n=m+1; n<nDims; n++) {
+						String colName = idens.get(m).getName()+" vs "+idens.get(n).getName();
+						Integer col = colNamesMap.get(colName);
+						if (col == null) {
+							System.out.println("WARNING: lag file doesn't contain: "+colName);
 							continue;
-						
-						System.out.println(name1+" vs "+name2+": "+gBar);
-	//					System.out.println(numerator+"/"+denominator+" = "+params[n][m][lagIndex-1]);
-	//					System.out.println("Sums: "+numSums+"/"+numPossibleSums
-	//							+" ("+numSubSums+" sub, "+numSubBails+" bails)");
-						
-						if (m == n)
-							continue;
-						
-						calc.generatePlots(synchXYZDir, synchScatterDir, name1, name2);
-						
-						synch2DPDFs.add(calc.getSynch2DPlotFile());
-						synchScatterPDFs.add(calc.getScatterPlotFile());
-					}
-					if (m == n)
-						continue;
-					
-					// lag plot spec
-	//				String title = "Synch Param "+name1+" vs "+name2+" ("+nDims+"D): "+params[m][n];
-					List<DiscretizedFunc> lagFuncs = Lists.newArrayList();
-					List<PlotCurveCharacterstics> myLagChars = Lists.newArrayList(lagChars);
-					PlotSpec spec;
-					if (cov) {
-						lagFuncs.add(synchLagFunc);
-					} else {
-						EvenlyDiscretizedFunc lnSynchFunch = new EvenlyDiscretizedFunc(
-								synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
-						for (int i=0; i<synchLagFunc.getNum(); i++)
-							lnSynchFunch.set(i, Math.log(synchLagFunc.getY(i)));
-						lagFuncs.add(lnSynchFunch);
-					}
-					spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
-					
-					if (catDensFuncs != null) {
-						DiscretizedFunc plotSynchFunc = lagFuncs.get(0);
-						
-						HistogramFunction hists[] = catDensFuncs.get(new IDPairing(m, n));
-						HistogramFunction corups = hists[0];
-						HistogramFunction ccdf = hists[1];
-						ArbitrarilyDiscretizedFunc scaledCombined = new ArbitrarilyDiscretizedFunc();
-						for (Point2D pt : ccdf)
-							scaledCombined.set(pt.getX(), pt.getY());
-						// there should only be coruptures at pt 0;
-						double numCorups = corups.getY(0d);
-						if (ccdf.hasPoint(0d, 0d)) {
-							// we have a point at zero in the ccdf, just add in the coruptures
-							for (Point2D pt : corups) {
-								if (pt.getY() > 0) {
-									double x = pt.getX();
-									double y = pt.getY();
-									if (scaledCombined.hasPoint(pt))
-										y += scaledCombined.getY(scaledCombined.getXIndex(x));
-									scaledCombined.set(x, y);
-								}
-							}
+						}
+						double[] vals = new double[maxTrialsFound];
+						for (int i=0; i<vals.length; i++)
+							vals[i] = Double.parseDouble(trialCSV.get(i+1, col));
+
+						// TODO calc from normal dist?
+						double mean = StatUtils.mean(vals);
+						double upper = StatUtils.percentile(vals, 97.5);
+						double lower = StatUtils.percentile(vals, 2.5);
+
+						IDPairing pair = new IDPairing(m, n);
+						EvenlyDiscretizedFunc upperFunc;
+						EvenlyDiscretizedFunc lowerFunc;
+						EvenlyDiscretizedFunc meanFunc;
+						if (upperFuncs.containsKey(pair)) {
+							upperFunc = upperFuncs.get(pair);
+							lowerFunc = lowerFuncs.get(pair);
+							meanFunc = meanFuncs.get(pair);
 						} else {
-							// CCDF doesn't have a point at zero but we want one. average in the bin before/after zero and add in corups
-							double ccdf_at_zero = ccdf.getClosestY(-0.5*chain.getDistSpacing())+ccdf.getClosestY(0.5*chain.getDistSpacing());
-							ccdf_at_zero = ccdf_at_zero*0.5 + numCorups;
-							scaledCombined.set(0d, ccdf_at_zero);
+							upperFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+							upperFuncs.put(pair, upperFunc);
+							upperFuncs.put(pair.getReversed(), upperFunc);
+							lowerFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+							lowerFuncs.put(pair, lowerFunc);
+							lowerFuncs.put(pair.getReversed(), lowerFunc);
+							meanFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+							meanFuncs.put(pair, meanFunc);
+							meanFuncs.put(pair.getReversed(), meanFunc);
 						}
 
-						double synchMax = Math.max(Math.abs(plotSynchFunc.getMaxY()), Math.abs(plotSynchFunc.getMinY()));
-						// subtract the average
-						double ccdfAvg = 0d;
-						for (Point2D pt : scaledCombined)
-							ccdfAvg += pt.getY();
-						ccdfAvg /= scaledCombined.getNum();
+						upperFunc.set(l, Math.log(upper));
+						lowerFunc.set(l, Math.log(lower));
+						meanFunc.set(l, Math.log(mean));
+					}
+				}
+			}
+			lagUncertainties = Maps.newHashMap();
+			for (IDPairing pairing : upperFuncs.keySet()) {
+				lagUncertainties.put(pairing, new UncertainArbDiscDataset(
+						meanFuncs.get(pairing), lowerFuncs.get(pairing), upperFuncs.get(pairing)));
+			}
+		}
+
+		File synchLagDir = new File(file.getParentFile(), "synch_lag");
+		if (!synchLagDir.exists())
+			synchLagDir.mkdir();
+		File synchLagIndvDir = new File(synchLagDir, "individual");
+		if (!synchLagIndvDir.exists())
+			synchLagIndvDir.mkdir();
+
+		for (int m=0; m<nDims; m++) {
+			// TODO start at m+1?
+			for (int n=m; n<nDims; n++) {
+				// first bin by only the indices we care about
+				//					Map<IndicesKey, List<int[]>> binnedIndices = getBinnedIndices(chain, m, n);
+
+				String name1 = idens.get(m).getName();
+				String name2 = idens.get(n).getName();
+
+				int lagIndex = 0;
+				//				EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc((double)-lagMax, lags, 1d);
+				EvenlyDiscretizedFunc synchLagFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+
+				for (int lag=-lagMax; lag<=lagMax; lag++) {
+					lag_debug = lag == -1 && name1.contains("Coachella") && name2.contains("Jacinto") && false;
+					SynchParamCalculator calc;
+					if (doLagByShift && lag != 0) {
+						calc = new SynchParamCalculator(chain.getCollapsedChain(m, n).getShiftedChain(0, lag), 0);
+					} else {
+						calc = new SynchParamCalculator(chain, m, n, lag);
+					}
+					lag_debug = false;
+
+					double gBar = calc.getGBar();
+
+					//						if (cov) {
+					//							params[m][n][lagIndex] = calc.cov;
+					//							params[n][m][lagIndex] = calc.cov;
+					//							synchLagFunc.set(lagIndex, calc.cov);
+					//						} else {
+					params[m][n][lagIndex] = gBar;
+					params[n][m][lagIndex] = gBar;
+					synchLagFunc.set(lagIndex, gBar);
+					//						}
+
+					lagIndex++;
+
+					if (name1.contains("Coachella") && name2.contains("Jacinto")) {
+						File coachJacintoLagDir = new File(file.getParentFile(), "synch_lag_xyz_coach_jacinto");
+						if (!coachJacintoLagDir.exists())
+							coachJacintoLagDir.mkdir();
+						String lagName1, lagName2;
+						if (lag < 0) {
+							lagName1 = name1;
+							lagName2 = name2+" "+lag+" before";
+						} else if (lag > 0) {
+							lagName1 = name1+" "+lag+" before";
+							lagName2 = name2;
+						} else {
+							lagName1 = name1;
+							lagName2 = name2;
+						}
+						lagName1 = lagIndex+" "+lagName1;
+						if (lagIndex < 10)
+							lagName1 = "0"+lagName1;
+						calc.generatePlots(coachJacintoLagDir, null, lagName1, lagName2);
+					}
+
+					if (lag != 0)
+						continue;
+
+					System.out.println(name1+" vs "+name2+": "+gBar);
+					//					System.out.println(numerator+"/"+denominator+" = "+params[n][m][lagIndex-1]);
+					//					System.out.println("Sums: "+numSums+"/"+numPossibleSums
+					//							+" ("+numSubSums+" sub, "+numSubBails+" bails)");
+
+					if (m == n || weightingScheme == WeightingScheme.CATALOG_G)
+						continue;
+
+					calc.generatePlots(synchXYZDir, synchScatterDir, name1, name2);
+
+					synch2DPDFs.add(calc.getSynch2DPlotFile());
+					synchScatterPDFs.add(calc.getScatterPlotFile());
+				}
+				if (m == n)
+					continue;
+
+				// lag plot spec
+				//				String title = "Synch Param "+name1+" vs "+name2+" ("+nDims+"D): "+params[m][n];
+				List<DiscretizedFunc> lagFuncs = Lists.newArrayList();
+				List<PlotCurveCharacterstics> myLagChars = Lists.newArrayList(lagChars);
+				PlotSpec spec;
+				//					if (cov) {
+				//						lagFuncs.add(synchLagFunc);
+				//					} else {
+				EvenlyDiscretizedFunc lnSynchFunc = new EvenlyDiscretizedFunc(
+						synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
+				for (int i=0; i<synchLagFunc.getNum(); i++)
+					lnSynchFunc.set(i, Math.log(synchLagFunc.getY(i)));
+				lagFuncs.add(lnSynchFunc);
+				double lnSynchAvg = lnSynchFunc.calcSumOfY_Vals()/lnSynchFunc.getNum();
+				double linearSynchAvg = synchLagFunc.calcSumOfY_Vals()/synchLagFunc.getNum();
+				//					}
+				spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
+
+				if (catDensFuncs != null) {
+					DiscretizedFunc plotSynchFunc = lagFuncs.get(0);
+
+					HistogramFunction hists[] = catDensFuncs.get(new IDPairing(m, n));
+					HistogramFunction corups = hists[0];
+					HistogramFunction ccdf = hists[1];
+					ArbitrarilyDiscretizedFunc scaledCombined = new ArbitrarilyDiscretizedFunc();
+					for (Point2D pt : ccdf)
+						scaledCombined.set(pt.getX(), pt.getY());
+					// there should only be coruptures at pt 0;
+					double numCorups = corups.getY(0d);
+					if (ccdf.hasPoint(0d, 0d)) {
+						// we have a point at zero in the ccdf, just add in the coruptures
+						for (Point2D pt : corups) {
+							if (pt.getY() > 0) {
+								double x = pt.getX();
+								double y = pt.getY();
+								if (scaledCombined.hasPoint(pt))
+									y += scaledCombined.getY(scaledCombined.getXIndex(x));
+								scaledCombined.set(x, y);
+							}
+						}
+					} else {
+						// CCDF doesn't have a point at zero but we want one. average in the bin before/after zero and add in corups
+						double ccdf_at_zero = ccdf.getClosestY(-0.5*chain.getDistSpacing())+ccdf.getClosestY(0.5*chain.getDistSpacing());
+						ccdf_at_zero = ccdf_at_zero*0.5 + numCorups;
+						scaledCombined.set(0d, ccdf_at_zero);
+					}
+
+					double synchMax = Math.max(Math.abs(plotSynchFunc.getMaxY()), Math.abs(plotSynchFunc.getMinY()));
+					boolean logCCDF = false;
+					if (logCCDF)
 						for (int i=0; i<scaledCombined.getNum(); i++)
-							scaledCombined.set(i, scaledCombined.getY(i)-ccdfAvg);
-						// it's now centered about 0
-						double ccdfMax = Math.max(Math.abs(scaledCombined.getMaxY()), Math.abs(scaledCombined.getMinY()));
-						// scale it to match the synch func
-						scaledCombined.scale(synchMax/ccdfMax);
-						lagFuncs.add(0, scaledCombined);
-						myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY));
-					}
-					
-					if (lagUncertainties != null && lagUncertainties.containsKey(new IDPairing(m, n))) {
-						System.out.println("We have an uncertainty function!");
-						UncertainArbDiscDataset uncertainFunc = lagUncertainties.get(new IDPairing(m, n));
-//						for (int i=0; i<uncertainFunc.getNum(); i++)
-//							System.out.println("\t"+uncertainFunc.getLowerY(i)
-//									+"\t"+uncertainFunc.getY(i)+"\t"+uncertainFunc.getUpperY(i));
-						lagFuncs.add(0, uncertainFunc);
-						myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN_TRANS, 1f, Color.BLUE));
-					}
-					
-					double annY = lagYRange.getLowerBound()*0.95;
-					double annX = lagXRange.getLowerBound()*0.9;
-					Font font = new Font(Font.SERIF, Font.PLAIN, 14);
-					XYTextAnnotation leftAnn = new XYTextAnnotation(name2+" BEFORE", annX, annY);
-					leftAnn.setFont(font);
-					leftAnn.setTextAnchor(TextAnchor.BOTTOM_LEFT);
-					XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" AFTER", -annX, annY);
-					rightAnn.setFont(font);
-					rightAnn.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
-					XYTextAnnotation centerAnn = new XYTextAnnotation(name1+" at t=0", 0d, annY*0.75);
-					centerAnn.setFont(font);
-					centerAnn.setTextAnchor(TextAnchor.BOTTOM_CENTER);
-					List<XYTextAnnotation> annotations = Lists.newArrayList(leftAnn, rightAnn, centerAnn);
-					spec.setPlotAnnotations(annotations);
-					lagSpecs.add(spec);
-					
-					System.out.println(name1+" vs "+name2+": Lag Func Range: ["+synchLagFunc.getMinY()+", "+synchLagFunc.getMaxY()+"]");
+							scaledCombined.set(i, Math.log(scaledCombined.getY(i)));
+					// subtract the average
+					double ccdfAvg = 0d;
+					for (Point2D pt : scaledCombined)
+						ccdfAvg += pt.getY();
+					ccdfAvg /= scaledCombined.getNum();
+					for (int i=0; i<scaledCombined.getNum(); i++)
+						scaledCombined.set(i, scaledCombined.getY(i)-ccdfAvg);
+					// it's now centered about 0
+					double ccdfMax = Math.max(Math.abs(scaledCombined.getMaxY()), Math.abs(scaledCombined.getMinY()));
+					// scale it to match the synch func
+					scaledCombined.scale(synchMax/ccdfMax);
+					lagFuncs.add(0, scaledCombined);
+					myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY));
 				}
-			}
-			
-			List<List<PlotSpec>> lagSpecPages = Lists.newArrayList();
-			lagSpecPages.add(new ArrayList<PlotSpec>());
-			int specsToBin = 4;
-			for (int i=0; i<lagSpecs.size(); i++) {
-				PlotSpec spec = lagSpecs.get(i);
-				List<PlotSpec> specs = lagSpecPages.get(lagSpecPages.size()-1);
-				if (specs.size() == specsToBin) {
-					specs = Lists.newArrayList();
-					lagSpecPages.add(specs);
+
+				if (lagUncertainties != null && lagUncertainties.containsKey(new IDPairing(m, n))) {
+					System.out.println("We have an uncertainty function!");
+					UncertainArbDiscDataset uncertainFunc = lagUncertainties.get(new IDPairing(m, n));
+					//						for (int i=0; i<uncertainFunc.getNum(); i++)
+					//							System.out.println("\t"+uncertainFunc.getLowerY(i)
+					//									+"\t"+uncertainFunc.getY(i)+"\t"+uncertainFunc.getUpperY(i));
+					lagFuncs.add(0, uncertainFunc);
+					myLagChars.add(0, new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN_TRANS, 1f, Color.BLUE));
 				}
-				specs.add(spec);
-			}
-			
-			File synchLagDir = new File(file.getParentFile(), "synch_lag");
-			if (!synchLagDir.exists())
-				synchLagDir.mkdir();
-			List<File> synchLagFiles = Lists.newArrayList();
-			EvenlyDiscretizedFunc blankFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
-			List<PlotCurveCharacterstics> lagBlankChars = Lists.newArrayList(
-					new PlotCurveCharacterstics(PlotLineType.SOLID, 0f, Color.BLACK));
-			List<Range> lagXRanges = Lists.newArrayList(lagXRange);
-			List<Range> lagYRanges = Lists.newArrayList();
-			for (int i=0; i<specsToBin; i++)
-				lagYRanges.add(lagYRange);
-			for (int i=0; i<lagSpecPages.size(); i++) {
-				List<PlotSpec> lagSpecPage = lagSpecPages.get(i);
-				while (lagSpecPage.size() < specsToBin) {
-					// add blank plots
-					lagSpecPage.add(new PlotSpec(asList(blankFunc),
-							lagBlankChars, lagTitle, lagXAxisLabel, lagYAxisLabel));
-				}
-				
-				File synchLagFile = new File(synchLagDir, "synch_lag_page"+i+".pdf");
-				
+
+				double annY = lagYRange.getLowerBound()*0.95;
+				double annX = lagXRange.getLowerBound()*0.9;
+				Font font = new Font(Font.SERIF, Font.PLAIN, 14);
+				XYTextAnnotation leftAnn = new XYTextAnnotation(name2+" BEFORE", annX, annY);
+				leftAnn.setFont(font);
+				leftAnn.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+				XYTextAnnotation rightAnn = new XYTextAnnotation(name2+" AFTER", -annX, annY);
+				rightAnn.setFont(font);
+				rightAnn.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
+				XYTextAnnotation centerAnn = new XYTextAnnotation(name1+" at t=0", 0d, annY*0.75);
+				centerAnn.setFont(font);
+				centerAnn.setTextAnchor(TextAnchor.BOTTOM_CENTER);
+				List<XYTextAnnotation> annotations = Lists.newArrayList(leftAnn, rightAnn, centerAnn);
+
+				// now add min/max/avg annotations
+				XYTextAnnotation lnStatsAvg = new XYTextAnnotation("Ln: ["+twoDeimalPlaces.format(lnSynchFunc.getMinY())
+						+" "+twoDeimalPlaces.format(lnSynchFunc.getMaxY())
+						+"], avg="+twoDeimalPlaces.format(lnSynchAvg), annX, -annY);
+				lnStatsAvg.setFont(font);
+				lnStatsAvg.setTextAnchor(TextAnchor.TOP_LEFT);
+				annotations.add(lnStatsAvg);
+				XYTextAnnotation linearStatsAvg = new XYTextAnnotation("Linear: ["+twoDeimalPlaces.format(synchLagFunc.getMinY())
+						+" "+twoDeimalPlaces.format(synchLagFunc.getMaxY())
+						+"], avg="+twoDeimalPlaces.format(linearSynchAvg), annX, -annY*0.75);
+				linearStatsAvg.setFont(font);
+				linearStatsAvg.setTextAnchor(TextAnchor.TOP_LEFT);
+				annotations.add(linearStatsAvg);
+
+				spec.setPlotAnnotations(annotations);
+				lagSpecs.add(spec);
+
+				// now write individual function
+				File subLagFile = new File(synchLagIndvDir, PeriodicityPlotter.getFileSafeString(name1)
+						+"_"+PeriodicityPlotter.getFileSafeString(name2));
+				System.out.println(name1+" vs "+name2+": Lag Func Range: ["+synchLagFunc.getMinY()+", "+synchLagFunc.getMaxY()+"]");
+
 				HeadlessGraphPanel gp = new HeadlessGraphPanel();
 				gp.setBackgroundColor(Color.WHITE);
 				gp.setTickLabelFontSize(14);
 				gp.setAxisLabelFontSize(16);
 				gp.setPlotLabelFontSize(18);
-				
+
 				gp.setCombinedOnYAxis(false);
-	
-				gp.drawGraphPanel(lagSpecPage, false, false, lagXRanges, lagYRanges);
-				
+
+				gp.drawGraphPanel(spec, false, false, lagXRange, lagYRange);
+
 				// 8.5x11
-				gp.getCartPanel().setSize(850, 1100);
-				gp.saveAsPDF(synchLagFile.getAbsolutePath());
-				synchLagFiles.add(synchLagFile);
+				gp.getCartPanel().setSize(800, 300);
+				gp.saveAsPDF(subLagFile.getAbsolutePath()+".pdf");
+				gp.saveAsPNG(subLagFile.getAbsolutePath()+".png");
 			}
-			if (!synchLagFiles.isEmpty())
-				PeriodicityPlotter.combinePDFs(synchLagFiles, new File(synchLagDir, "synch_lags.pdf"));
-			if (!synch2DPDFs.isEmpty())
-				PeriodicityPlotter.combinePDFs(synch2DPDFs, new File(synchXYZDir, "synch_xyzs.pdf"));
-			if (!synchScatterPDFs.isEmpty())
-				PeriodicityPlotter.combinePDFs(synchScatterPDFs, new File(synchScatterDir, "synch_scatters.pdf"));
-			
-			CSVFile<String> csv = new CSVFile<String>(false);
-			
-			List<String> header = Lists.newArrayList("");
-			for (RuptureIdentifier iden : idens)
-				header.add(iden.getName());
-			
-			int lag0Index = lagMax;
-			
-			for (int type=0; type<3; type++) {
-				double[][] myParams;
-				if (cov) {
-					switch (type) {
-					case 0:
-						csv.addLine("Covariance");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = params[m][n][lag0Index];
-						break;
-					case 1:
-						csv.addLine("Log10(Covariance + 1)");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = Math.log10(params[m][n][lag0Index]+1);
-						break;
-					case 2:
-						csv.addLine("Ln(Covariance + 1)");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = Math.log(params[m][n][lag0Index]+1);
-						break;
+		}
 
-					default:
-						throw new IllegalStateException();
-					}
-				} else {
-					switch (type) {
-					case 0:
-						csv.addLine("Linear");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = params[m][n][lag0Index];
-						break;
-					case 1:
-						csv.addLine("Log10");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = Math.log10(params[m][n][lag0Index]);
-						break;
-					case 2:
-						csv.addLine("Ln");
-						myParams = new double[nDims][nDims];
-						for (int m=0; m<nDims; m++)
-							for (int n=0; n<nDims; n++)
-								myParams[m][n] = Math.log(params[m][n][lag0Index]);
-						break;
+		List<List<PlotSpec>> lagSpecPages = Lists.newArrayList();
+		lagSpecPages.add(new ArrayList<PlotSpec>());
+		int specsToBin = 4;
+		for (int i=0; i<lagSpecs.size(); i++) {
+			PlotSpec spec = lagSpecs.get(i);
+			List<PlotSpec> specs = lagSpecPages.get(lagSpecPages.size()-1);
+			if (specs.size() == specsToBin) {
+				specs = Lists.newArrayList();
+				lagSpecPages.add(specs);
+			}
+			specs.add(spec);
+		}
 
-					default:
-						throw new IllegalStateException();
+		List<File> synchLagFiles = Lists.newArrayList();
+		EvenlyDiscretizedFunc blankFunc = new EvenlyDiscretizedFunc(lagFuncMin, lags, chain.getDistSpacing());
+		List<PlotCurveCharacterstics> lagBlankChars = Lists.newArrayList(
+				new PlotCurveCharacterstics(PlotLineType.SOLID, 0f, Color.BLACK));
+		List<Range> lagXRanges = Lists.newArrayList(lagXRange);
+		List<Range> lagYRanges = Lists.newArrayList();
+		for (int i=0; i<specsToBin; i++)
+			lagYRanges.add(lagYRange);
+		for (int i=0; i<lagSpecPages.size(); i++) {
+			List<PlotSpec> lagSpecPage = lagSpecPages.get(i);
+			while (lagSpecPage.size() < specsToBin) {
+				// add blank plots
+				lagSpecPage.add(new PlotSpec(asList(blankFunc),
+						lagBlankChars, lagTitle, lagXAxisLabel, lagYAxisLabel));
+			}
+
+			File synchLagFile = new File(synchLagDir, "synch_lag_page"+i+".pdf");
+
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setBackgroundColor(Color.WHITE);
+			gp.setTickLabelFontSize(14);
+			gp.setAxisLabelFontSize(16);
+			gp.setPlotLabelFontSize(18);
+
+			gp.setCombinedOnYAxis(false);
+
+			gp.drawGraphPanel(lagSpecPage, false, false, lagXRanges, lagYRanges);
+
+			// 8.5x11
+			gp.getCartPanel().setSize(850, 1100);
+			gp.saveAsPDF(synchLagFile.getAbsolutePath());
+			synchLagFiles.add(synchLagFile);
+		}
+		if (!synchLagFiles.isEmpty())
+			PeriodicityPlotter.combinePDFs(synchLagFiles, new File(synchLagDir, "synch_lags_"+lagMax+".pdf"));
+		if (!synch2DPDFs.isEmpty())
+			PeriodicityPlotter.combinePDFs(synch2DPDFs, new File(synchXYZDir, "synch_xyzs.pdf"));
+		if (!synchScatterPDFs.isEmpty())
+			PeriodicityPlotter.combinePDFs(synchScatterPDFs, new File(synchScatterDir, "synch_scatters.pdf"));
+
+		CSVFile<String> csv = new CSVFile<String>(false);
+
+		List<String> header = Lists.newArrayList("");
+		for (RuptureIdentifier iden : idens)
+			header.add(iden.getName());
+
+		int lag0Index = lagMax;
+
+		int num;
+		if (lagUncertainties == null)
+			num = 3;
+		else
+			num = 5;
+
+		for (int type=0; type<num; type++) {
+			double[][] myParams;
+			//				if (cov) {
+			//					switch (type) {
+			//					case 0:
+			//						csv.addLine("Covariance");
+			//						myParams = new double[nDims][nDims];
+			//						for (int m=0; m<nDims; m++)
+			//							for (int n=0; n<nDims; n++)
+			//								myParams[m][n] = params[m][n][lag0Index];
+			//						break;
+			//					case 1:
+			//						csv.addLine("Log10(Covariance + 1)");
+			//						myParams = new double[nDims][nDims];
+			//						for (int m=0; m<nDims; m++)
+			//							for (int n=0; n<nDims; n++)
+			//								myParams[m][n] = Math.log10(params[m][n][lag0Index]+1);
+			//						break;
+			//					case 2:
+			//						csv.addLine("Ln(Covariance + 1)");
+			//						myParams = new double[nDims][nDims];
+			//						for (int m=0; m<nDims; m++)
+			//							for (int n=0; n<nDims; n++)
+			//								myParams[m][n] = Math.log(params[m][n][lag0Index]+1);
+			//						break;
+			//
+			//					default:
+			//						throw new IllegalStateException();
+			//					}
+			//				} else {
+			switch (type) {
+			case 0:
+				csv.addLine("Linear");
+				myParams = new double[nDims][nDims];
+				for (int m=0; m<nDims; m++)
+					for (int n=0; n<nDims; n++)
+						myParams[m][n] = params[m][n][lag0Index];
+				break;
+			case 1:
+				csv.addLine("Log10");
+				myParams = new double[nDims][nDims];
+				for (int m=0; m<nDims; m++)
+					for (int n=0; n<nDims; n++)
+						myParams[m][n] = Math.log10(params[m][n][lag0Index]);
+				break;
+			case 2:
+				csv.addLine("Ln");
+				myParams = new double[nDims][nDims];
+				for (int m=0; m<nDims; m++)
+					for (int n=0; n<nDims; n++)
+						myParams[m][n] = Math.log(params[m][n][lag0Index]);
+				break;
+			case 3:
+				csv.addLine("Ln Upper 95%");
+				myParams = new double[nDims][nDims];
+				for (int m=0; m<nDims; m++) {
+					for (int n=m+1; n<nDims; n++) {
+						IDPairing pair = new IDPairing(m, n);
+						UncertainArbDiscDataset func = lagUncertainties.get(pair);
+						double val = func.getUpperY(0d);
+						myParams[m][n] = val;
+						myParams[n][m] = val;
 					}
 				}
-				addTableToCSV(csv, header, myParams, true);
-				csv.addLine("");
-				csv.addLine("");
+				break;
+			case 4:
+				csv.addLine("Ln Lower 95%");
+				myParams = new double[nDims][nDims];
+				for (int m=0; m<nDims; m++) {
+					for (int n=m+1; n<nDims; n++) {
+						IDPairing pair = new IDPairing(m, n);
+						UncertainArbDiscDataset func = lagUncertainties.get(pair);
+						double val = func.getLowerY(0d);
+						myParams[m][n] = val;
+						myParams[n][m] = val;
+					}
+				}
+				break;
+
+			default:
+				throw new IllegalStateException();
+			}
+			//				}
+			addTableToCSV(csv, header, myParams, true);
+			csv.addLine("");
+			csv.addLine("");
+		}
+
+		csv.writeToFile(file);
+	}
+	
+	public static void writeSynchVsProbTable(File file, List<EQSIM_Event> events,
+			List<RuptureIdentifier> idens, MarkovChainBuilder chain)
+					throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		// used to have: , boolean includeCorupInGain
+		
+		double distSpacing = chain.getDistSpacing();
+		double halfSpacing = distSpacing*0.5;
+		
+		csv.addLine("Fault 1", "Fault 2", "Gbar",
+//				"G(1 | 2), "+(int)distSpacing+"yr", "G(2 | 1), "+(int)distSpacing+"yr",
+//				"G(1 | 2), "+(int)halfSpacing+"yr", "G(2 | 1), "+(int)halfSpacing+"yr",
+//				"G(1 within "+(int)halfSpacing+"yr of 2)", "G(2 within "+(int)halfSpacing+"y of 1)");
+				"Catalog G");
+		
+		for (int m=0; m<idens.size(); m++) {
+			RuptureIdentifier iden1 = idens.get(m);
+			for (int n=m+1; n<idens.size(); n++) {
+				RuptureIdentifier iden2 = idens.get(n);
+				
+				double gBar = new SynchParamCalculator(chain, m, n, 0).getGBar();
+				
+//				double gain_10_1_2 = calcProbGain(events, iden2, iden1, distSpacing, includeCorupInGain);
+//				double gain_10_2_1 = calcProbGain(events, iden1, iden2, distSpacing, includeCorupInGain);
+//				double gain_5_1_2 = calcProbGain(events, iden2, iden1, 0.5*distSpacing, includeCorupInGain);
+//				double gain_5_2_1 = calcProbGain(events, iden1, iden2, 0.5*distSpacing, includeCorupInGain);
+//				double gain_within5_1_2 = calcProbGainWithinWindow(events, iden2, iden1, 5d);
+//				double gain_within5_2_1 = calcProbGainWithinWindow(events, iden1, iden2, 5d);
+//				
+//				csv.addLine(iden1.getName(), iden2.getName(), (float)gBar+"",
+//						(float)gain_10_1_2+"", (float)gain_10_2_1+"",
+//						(float)gain_5_1_2+"", (float)gain_5_2_1+"",
+//						(float)gain_within5_1_2+"", (float)gain_within5_2_1+"");
+				
+				double catG = calcCatalogG(chain, m, n);
+				csv.addLine(iden1.getName(), iden2.getName(), (float)gBar+"", (float)catG+"");
+			}
+		}
+		
+		csv.writeToFile(file);
+	}
+	
+	private static double calcCatalogG(MarkovChainBuilder chain, int m, int n) {
+		int numWindows = 0;
+		int numMN = 0;
+		int numM = 0;
+		int numN = 0;
+		
+		List<int[]> path = chain.getFullPath();
+		
+		for (int[] state : path) {
+			numWindows++;
+			if (state[m] == 0 && state[n] == 0)
+				numMN++;
+			if (state[m] == 0)
+				numM++;
+			if (state[n] == 0)
+				numN++;
+		}
+		double probMN = (double)numMN/(double)(numWindows);
+		double probM = (double)numM/(double)(numWindows);
+		double probN = (double)numN/(double)(numWindows);
+//		return probMN / (probM * probN);
+		
+		return (double)numWindows * (double)numMN/(double)(numM*numN);
+	}
+	
+	private static double calcProbGain(List<EQSIM_Event> events, RuptureIdentifier first,
+			RuptureIdentifier second, double years, boolean includeCorupInGain) {
+		List<EQSIM_Event> firstMatches = first.getMatches(events);
+		List<EQSIM_Event> secondMatches = second.getMatches(events);
+		
+		double catStart = events.get(0).getTimeInYears();
+		double catEnd = events.get(events.size()-1).getTimeInYears();
+		double catLen = catEnd - catStart;
+		double annualRate = (double)secondMatches.size()/catLen;
+		double binRate = annualRate * years;
+		
+		int indexInSecond = 0;
+		
+		double totExpected = 0;
+		double totObserved = 0;
+		
+		for (EQSIM_Event firstE : firstMatches) {
+			double binStart = firstE.getTimeInYears();
+			double binEnd = binStart + years;
+			int numSecondMatches = 0;
+			for (int i=indexInSecond; i<secondMatches.size(); i++) {
+				EQSIM_Event secondE = secondMatches.get(i);
+				double eventYears = secondE.getTimeInYears();
+				if (eventYears < binStart) {
+					indexInSecond = i;
+					continue;
+				} else if (eventYears > binEnd) {
+					break;
+				}
+				// this means it's in the window
+				if (firstE.getID() == secondE.getID() && !includeCorupInGain)
+					continue;
+				numSecondMatches++;
 			}
 			
-			csv.writeToFile(file);
+			totExpected += binRate;
+			totObserved += numSecondMatches;
 		}
+		
+		return totObserved / totExpected;
+	}
+	
+	private static double calcProbGainWithinWindow(List<EQSIM_Event> events, RuptureIdentifier first,
+			RuptureIdentifier second, double years) {
+		List<EQSIM_Event> firstMatches = first.getMatches(events);
+		List<EQSIM_Event> secondMatches = second.getMatches(events);
+		
+		double catStart = events.get(0).getTimeInYears();
+		double catEnd = events.get(events.size()-1).getTimeInYears();
+		double catLen = catEnd - catStart;
+		double annualRate = (double)secondMatches.size()/catLen;
+		double binRate = annualRate * years * 2d;
+		
+		int indexInSecond = 0;
+		
+		double totExpected = 0;
+		double totObserved = 0;
+		
+		for (EQSIM_Event firstE : firstMatches) {
+			double binStart = firstE.getTimeInYears() - years;
+			double binEnd = binStart + years;
+			int numSecondMatches = 0;
+			for (int i=indexInSecond; i<secondMatches.size(); i++) {
+				EQSIM_Event secondE = secondMatches.get(i);
+				double eventYears = secondE.getTimeInYears();
+				if (eventYears < binStart) {
+					indexInSecond = i;
+					continue;
+				} else if (eventYears > binEnd) {
+					break;
+				}
+				// this means it's in the window
+				numSecondMatches++;
+			}
+			
+			totExpected += binRate;
+			totObserved += numSecondMatches;
+		}
+		
+		return totObserved / totExpected;
+	}
 
 	private static XYZPlotSpec swapSpec(XYZPlotSpec spec) {
 		EvenlyDiscrXYZ_DataSet orig = (EvenlyDiscrXYZ_DataSet) spec.getXYZ_Data();
@@ -1396,17 +1684,17 @@ public class SynchParamCalculator {
 		for (int x=0; x<orig.getNumX(); x++)
 			for (int y=0; y<orig.getNumY(); y++)
 				swapped.set(y, x, orig.get(x, y));
-		
+
 		XYZPlotSpec swappedSpec = new XYZPlotSpec(swapped, spec.getCPT(), spec.getTitle(),
 				spec.getYAxisLabel(), spec.getXAxisLabel(), spec.getZAxisLabel());
 		swappedSpec.setPlotAnnotations(spec.getPlotAnnotations());
 		return swappedSpec;
 	}
-	
+
 	private static List<PlotElement> asList(PlotElement... elems) {
 		return Lists.newArrayList(elems);
 	}
-	
+
 	private static double calcProbRupturedBefore(int numStatesBefore, int index, int[] transDestSate, int[] transFromState, MarkovChainBuilder chain) {
 		int[] toState;
 		if (index == 0)
@@ -1415,24 +1703,24 @@ public class SynchParamCalculator {
 			toState = new int[] {-1, 0};
 		else
 			throw new IllegalStateException("Index must be 0 or 1");
-		
+
 		double prob;
 		if (transFromState == null)
 			prob = chain.getActualTransPathsProbBetweenStates(transDestSate, toState, -numStatesBefore);
 		else
 			prob = chain.getActualTransPathsProbBetweenStates(transDestSate, toState, -numStatesBefore, transFromState);
-//		double prob = (double)count/timesInState;
-//		Preconditions.checkState(prob <= 1d, "Bad prob: "+prob+", count="+count+", times="+timesInState);
+		//		double prob = (double)count/timesInState;
+		//		Preconditions.checkState(prob <= 1d, "Bad prob: "+prob+", count="+count+", times="+timesInState);
 		return prob;
 	}
-	
+
 	private static final String getPathStr(List<int[]> path, int[] start) {
 		String str = "PATH: ["+start[0]+","+start[1]+"]";
 		for (int[] elem : path)
 			str += " ["+elem[0]+","+elem[1]+"]";
 		return str;
 	}
-	
+
 	static int[] rangeInclusive(int min, int max) {
 		Preconditions.checkArgument(min <= max);
 		int[] ret = new int[max-min+1];
@@ -1442,11 +1730,11 @@ public class SynchParamCalculator {
 		}
 		return ret;
 	}
-	
+
 	public static void main(String[] args) throws IOException {
 		double minMag = 7;
 		double maxMag = 10d;
-		
+
 		int[] include_elems = {
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
@@ -1454,15 +1742,16 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
-				};
+		};
 		boolean gen_2d_corr_pdfs = false;
 		boolean cov = false;
-		
+		double distSpacing = 10d;
+
 		RandomDistType origScrambleDist = null;
-//		RandomDistType origScrambleDist = RandomDistType.ACTUAL;
-		
+		//		RandomDistType origScrambleDist = RandomDistType.ACTUAL;
+
 		RandomDistType randDistType = RandomDistType.STATE_BASED;
-		
+
 		File mainDir;
 		if (cov)
 			mainDir = new File("/home/kevin/Simulators/synch_cov");
@@ -1470,22 +1759,21 @@ public class SynchParamCalculator {
 			mainDir = new File("/home/kevin/Simulators/synch");
 		if (!mainDir.exists())
 			mainDir.mkdir();
-		
-		String indepStr;
-		if (useIndepProbs)
-			indepStr = "indep";
-		else
-			indepStr = "dep";
-		
-		File writeDir = new File(mainDir, "weight_"+weightingScheme.name()+"_"+indepStr);
+
+		String name = getDirName();
+
+		if (distSpacing != 10d)
+			name += "_"+(int)distSpacing+"yr";
+
+		File writeDir = new File(mainDir, name);
 		if (!writeDir.exists())
 			writeDir.mkdir();
-		
+
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
 		List<Color> colors = Lists.newArrayList();
-		
+
 		SimAnalysisCatLoader.loadElemMagIdens(include_elems, rupIdens, colors, minMag, maxMag);
-		
+
 		int[] all_elems = {
 				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
@@ -1493,65 +1781,83 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
-				};
+		};
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
-		
+
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens).getEvents();
-		
+
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 		for (int i=0; i<rupIdens.size(); i++)
 			matchesLists.add(rupIdens.get(i).getMatches(events));
-		
-		double distSpacing = 10d;
-		
+
 		// generate Markov Chain
 		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, events, matchesLists);
-		
+
 		// tests
-//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);
-//		int numStates = 3;
-//		int[] fromState = {0, 0};
-//		int[] toState = {numStates, numStates};
-//		System.out.println("Paths from [0,0] to [3,3]:");
-//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, toState, numStates)) {
-//			String str = getPathStr(path, fromState);
-//			System.out.println("\t"+str);
-//		}
-//		System.out.println("Paths from [0,0] to [x,3]:");
-//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, new int[] {-1,numStates}, numStates)) {
-//			String str = getPathStr(path, fromState);
-//			System.out.println("\t"+str);
-//		}
-//		double tot = collapsed.getStateTransitionDataset().get(toState).tot;
-//		double freqMBefore = calcFreqRupturedBefore(numStates+10, 0, toState, collapsed);
-//		double freqNBefore = calcFreqRupturedBefore(numStates+10, 1, toState, collapsed);
-//		System.out.println("Freq M before: "+freqMBefore+"/"+tot);
-//		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
-//		System.exit(0);
-		
+		//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);
+		//		int numStates = 3;
+		//		int[] fromState = {0, 0};
+		//		int[] toState = {numStates, numStates};
+		//		System.out.println("Paths from [0,0] to [3,3]:");
+		//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, toState, numStates)) {
+		//			String str = getPathStr(path, fromState);
+		//			System.out.println("\t"+str);
+		//		}
+		//		System.out.println("Paths from [0,0] to [x,3]:");
+		//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, new int[] {-1,numStates}, numStates)) {
+		//			String str = getPathStr(path, fromState);
+		//			System.out.println("\t"+str);
+		//		}
+		//		double tot = collapsed.getStateTransitionDataset().get(toState).tot;
+		//		double freqMBefore = calcFreqRupturedBefore(numStates+10, 0, toState, collapsed);
+		//		double freqNBefore = calcFreqRupturedBefore(numStates+10, 1, toState, collapsed);
+		//		System.out.println("Freq M before: "+freqMBefore+"/"+tot);
+		//		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
+		//		System.exit(0);
+
 		// ccdfs/acdfs
 		File ccdfDir = new File(writeDir, "ccdfs");
 		if (!ccdfDir.exists())
 			ccdfDir.mkdir();
-		
+
 		System.out.println("Generating CCDFs...");
 		Map<IDPairing, HistogramFunction[]> catDensFuncs =
 				PeriodicityPlotter.plotACDF_CCDFs(ccdfDir, events, rupIdens, colors,
-						null, null, 2000d, 10d);
-		
+						null, null, 2000d, distSpacing);
+
+		int lagMax = 30;
+
 		System.out.println("Calculating Synch Params");
 		// write synch CSV
 		File synchCSVFile = new File(writeDir, "synch_params.csv");
-		writeSynchParamsTable(synchCSVFile, rupIdens, chain, cov, catDensFuncs);
+		writeSynchParamsTable(synchCSVFile, rupIdens, chain, catDensFuncs, lagMax);
 		
+		writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain.csv"),
+				events, rupIdens, chain);
+//		writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain_excl_corup.csv"),
+//				events, rupIdens, chain, false);
+
 		// now write std devs
-//		System.out.println("Calculating Synch Std Dev/Biases");
-//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, new int[] {0}, 100, distSpacing);
-		
+		//		System.out.println("Calculating Synch Std Dev/Biases");
+		//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, new int[] {0}, 100, distSpacing);
+
 		// now do std devs for each lag
-//		System.out.println("Calculating Synch Lag Std Devs/Biases");
-//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
+		//		System.out.println("Calculating Synch Lag Std Devs/Biases");
+		//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
+	}
+
+	protected static String getDirName() {
+		String indepStr;
+		if (useIndepProbs)
+			indepStr = "indep";
+		else
+			indepStr = "dep";
+
+		String name = "weight_"+weightingScheme.name()+"_"+indepStr;
+		if (doLagByShift)
+			name += "_shiftLag";
+		return name;
 	}
 
 }
