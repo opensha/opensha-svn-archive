@@ -105,7 +105,7 @@ public class CVM_Vs30 extends AbstractBinarySiteDataLoader implements ParameterC
 
 	@Override
 	public String getMetadata() {
-		return getDataType()+", CVMH 11.9.0 extracted with UCVM 12.2.0 on May 21 2012 by Patrick Small";
+		return getDataType()+", Vs30 from various CVM models extracted with UCVM by David Gill";
 	}
 
 	@Override

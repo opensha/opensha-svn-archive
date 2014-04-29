@@ -79,11 +79,17 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 			
 			floatBuff = record.asFloatBuffer();
 		}
-		initDefaultBasinParams();
-		this.paramList.addParameter(minBasinDoubleParam);
-		this.paramList.addParameter(maxBasinDoubleParam);
+		if (isBasinDepth()) {
+			initDefaultBasinParams();
+			this.paramList.addParameter(minBasinDoubleParam);
+			this.paramList.addParameter(maxBasinDoubleParam);
+		}
 		
 		this.dataFile = dataFile;
+	}
+	
+	private boolean isBasinDepth() {
+		return getDataType().equals(TYPE_DEPTH_TO_1_0) || getDataType().equals(TYPE_DEPTH_TO_2_5);
 	}
 	
 	protected abstract File getDefaultFile(String type);
@@ -121,7 +127,10 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 	
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-			return certifyMinMaxBasinDepth(servlet.getValue(loc));
+			if (isBasinDepth())
+				return certifyMinMaxBasinDepth(servlet.getValue(loc));
+			else
+				return servlet.getValue(loc);
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -139,16 +148,21 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 		// this is in meters
 		double val = floatBuff.get(0);
 		
-		// convert to KM
-		Double dobVal = (double)val / 1000d;
-		return certifyMinMaxBasinDepth(dobVal);
+		if (isBasinDepth()) {
+			// convert to KM
+			Double dobVal = (double)val / 1000d;
+			return certifyMinMaxBasinDepth(dobVal);
+		}
+		return val;
 	}
 	
 	public final ArrayList<Double> getValues(LocationList locs) throws IOException {
 		if (useServlet) {
 			ArrayList<Double> vals = servlet.getValues(locs);
-			for (int i=0; i<vals.size(); i++) {
-				vals.set(i, certifyMinMaxBasinDepth(vals.get(i)));
+			if (isBasinDepth()) {
+				for (int i=0; i<vals.size(); i++) {
+					vals.set(i, certifyMinMaxBasinDepth(vals.get(i)));
+				}
 			}
 			return vals;
 		} else {
