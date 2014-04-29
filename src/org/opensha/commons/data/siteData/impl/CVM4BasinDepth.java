@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.commons.data.siteData.AbstractCVMBasinDepth;
+import org.opensha.commons.data.siteData.AbstractBinarySiteDataLoader;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.SiteData;
@@ -46,7 +46,7 @@ import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalcula
 import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 
-public class CVM4BasinDepth extends AbstractCVMBasinDepth {
+public class CVM4BasinDepth extends AbstractBinarySiteDataLoader {
 	
 	public static final String NAME = "SCEC Community Velocity Model Version 4 Basin Depth";
 	public static final String SHORT_NAME = "CVM4";

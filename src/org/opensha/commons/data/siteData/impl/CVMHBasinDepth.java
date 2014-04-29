@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Map;
 
-import org.opensha.commons.data.siteData.AbstractCVMBasinDepth;
+import org.opensha.commons.data.siteData.AbstractBinarySiteDataLoader;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Booleans;
 
-public class CVMHBasinDepth extends AbstractCVMBasinDepth implements ParameterChangeListener {
+public class CVMHBasinDepth extends AbstractBinarySiteDataLoader implements ParameterChangeListener {
 	
 	public static final String NAME = "SCEC/Harvard Community Velocity Model Version 11.9.0 Basin Depth"; // TODO
 	public static final String SHORT_NAME = "CVMH";
