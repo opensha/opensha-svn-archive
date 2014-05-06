@@ -64,9 +64,13 @@ import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM_Vs30;
 import org.opensha.commons.data.siteData.impl.ConstantValueDataProvider;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.CVM_Vs30.CVM;
+import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.UserAuthDialog;
@@ -118,6 +122,8 @@ public class HazardCurvePlotter {
 	public static final PlotType PLOT_TYPE_DEFAULT = PlotType.PDF;
 	
 	protected static final String default_periods = "3";
+	
+	private static final boolean use_cvm_vs30 = false;
 	
 	private double maxSourceDistance = 200;
 	
@@ -247,6 +253,25 @@ public class HazardCurvePlotter {
 						SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
 			} else if (velModelID == 8) {
 				providers.addAll(getBBP_1D_Providers());
+			} else if (velModelID == 5 && use_cvm_vs30) {
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM_Vs30(CVM.CVMS4i26)));
+				} catch (IOException e1) {
+					ExceptionUtils.throwAsRuntimeException(e1);
+				}
+				/*		CVM4i26 Depth to 2.5					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				
+				/*		CVM4i26 Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
 			} else {
 				/*		Wills 2006 Map (2000 as backup)	 */
 				// try the 2006 map first
@@ -1241,7 +1266,11 @@ public class HazardCurvePlotter {
 //		DoubleParameter truncLevelParam = (DoubleParameter)attenRel.getParameter(SigmaTruncLevelParam.NAME);
 //		truncLevelParam.setValue(3.0);
 		
-		attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+		try {
+			attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+		} catch (ParameterException e1) {
+			// do nothing, IMR doesn't have this parameter
+		}
 		
 		// set IMT
 		attenRel.setIntensityMeasure(SA_Param.NAME);
