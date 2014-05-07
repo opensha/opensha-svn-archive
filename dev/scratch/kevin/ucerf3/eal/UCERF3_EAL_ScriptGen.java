@@ -30,7 +30,7 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2013_11_04-eal-calc-small-test";
 //		String runSubDirName = "2014_01_15-ucerf3-eal-calc-NGA2s-2013";
 //		String runSubDirName = "2014_03_19-ucerf3-eal-calc-CB2014-recalc";
-		String runSubDirName = "2014_04_07-ucerf3-eal-calc-ASK2014-recalc";
+		String runSubDirName = "2014_05_05-ucerf3-eal-calc-wald-vs30";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -55,7 +55,8 @@ public class UCERF3_EAL_ScriptGen {
 		String vulnFileName = "2012_01_02_VUL06.txt";
 		File vulnFile = new File(remoteMainDir, vulnFileName);
 		
-		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv";
+//		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv";
+		String portfolioFileName = "Porter (05 May 2014) CEA proxy portfolio 2013 values Wald-Allen Vs30.csv";
 //		String portfolioFileName = "small_test_port.csv";
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
@@ -72,10 +73,10 @@ public class UCERF3_EAL_ScriptGen {
 		
 		String className = MPJ_CondLossCalc.class.getName();
 		
-//		AttenRelRef[] imrs = { AttenRelRef.CB_2014, AttenRelRef.CY_2014,
-//				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
+		AttenRelRef[] imrs = { AttenRelRef.CB_2014, AttenRelRef.CY_2014,
+				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
 //		AttenRelRef[] imrs = { AttenRelRef.CB_2014 };
-		AttenRelRef[] imrs = { AttenRelRef.ASK_2014 };
+//		AttenRelRef[] imrs = { AttenRelRef.ASK_2014 };
 //		AttenRelRef[] imrs = { AttenRelRef.CY_2014,
 //				AttenRelRef.ASK_2014, AttenRelRef.BSSA_2014, AttenRelRef.IDRISS_2014 };
 		
