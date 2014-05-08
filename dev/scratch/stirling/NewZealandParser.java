@@ -5,8 +5,19 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.util.TectonicRegionType;
 
 import com.google.common.base.Charsets;
@@ -20,7 +31,7 @@ import com.google.common.primitives.Doubles;
 
 /**
  * Add comments here
- *
+ * 
  * @author Peter Powers
  */
 public class NewZealandParser {
@@ -29,9 +40,13 @@ public class NewZealandParser {
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
 	private static final String gridPath = "data" + S + "backgroundGrid.txt";
 	private static final String faultPath = "data" + S + "FUN1111.DAT";
-	
-	public static void loadFaultSources() throws IOException {
 
+	// TODO implement floor background rate 8*10^-4 for M>=4
+
+	public static List<ProbEqkSource> loadFaultSources(double spacing, double duration) throws IOException {
+
+		// @formatter:off
+		//
 		// Example input:
 		//
 		// AhuririR rv											fault-name
@@ -42,6 +57,8 @@ public class NewZealandParser {
 		// 44 12.8 169 37.4 44 17.9 169 36.8					...
 		// 44 17.9 169 36.8 44 26.7 169 41.5
 		// -1													end	
+		//
+		// @formatter:on
 
 		// aggregator lists
 		List<String> names = Lists.newArrayList();
@@ -53,97 +70,224 @@ public class NewZealandParser {
 		List<Double> dipDirs = Lists.newArrayList();
 		List<Double> zTops = Lists.newArrayList();
 		List<Double> zBots = Lists.newArrayList();
-		List<LocationList> traces = Lists.newArrayList();
-		
-//		List<EvenlyGriddedSurface> surfaces = Lists.newArrayList();
+		List<FaultTrace> traces = Lists.newArrayList();
+
+		// List<EvenlyGriddedSurface> surfaces = Lists.newArrayList();
 
 		URL url = Resources.getResource(NewZealandParser.class, faultPath);
 		List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
-		Iterator<String> lineIterator = Iterables.skip(lines, 3).iterator(); // skip a and b data
-		
+		Iterator<String> lineIterator = Iterables.skip(lines, 3).iterator(); // skip
+																				// a
+																				// and
+																				// b
+																				// data
+
 		while (lineIterator.hasNext()) {
-			
+
 			// get name and slip style
 			List<String> nameSlip = SPLIT.splitToList(lineIterator.next());
-			names.add(nameSlip.get(0));
+			String name = nameSlip.get(0);
+			names.add(name);
 			NZ_SourceID id = NZ_SourceID.fromString(nameSlip.get(1));
 			trts.add(id.tectonicType());
 			rakes.add(id.rake());
-			
+
 			// get section count
 			String sizeID = lineIterator.next().trim();
 			int dIndex = sizeID.indexOf("D");
 			String sizeStr = sizeID.substring(0, dIndex);
 			int size = Integer.parseInt(sizeStr);
-			
+
 			// get geometry data
 			List<Double> geomValues = lineToDoubleList(lineIterator.next());
 			dips.add(geomValues.get(0));
 			dipDirs.add(geomValues.get(1));
 			zTops.add(geomValues.get(3));
 			zBots.add(geomValues.get(2));
-			
+
 			// trace endpoint specification -- mostly ignored
 			List<Double> traceData = lineToDoubleList(lineIterator.next());
 			mags.add(traceData.get(8));
 			recurs.add(traceData.get(9));
-			
+
 			// build trace
-			LocationList locs = new LocationList();
-			for (int i=0; i<size; i++) {
+			FaultTrace trace = new FaultTrace(name);
+			for (int i = 0; i < size; i++) {
 				String locLine = lineIterator.next();
-				locs.add(parseLocation(locLine));
+				trace.add(parseLocation(locLine));
 				if (i == size - 1) {
-					locs.add(parseLocation2(locLine));
+					trace.add(parseLocation2(locLine));
 				}
 			}
-			traces.add(locs);
-			
+			traces.add(trace);
+
 			// skip closing -1
 			lineIterator.next();
-			
+
 		}
-		
-		for (int i=0; i<names.size(); i++) {
-			System.out.println();
-			System.out.println("  Name: " + names.get(i));
-			System.out.println("   Mag: " + mags.get(i));
-			System.out.println("   TRT: " + trts.get(i));
-			System.out.println(" Recur: " + recurs.get(i));
-			System.out.println("   Dip: " + dips.get(i));
-			System.out.println("DipDir: " + dipDirs.get(i));
-			System.out.println("  Rake: " + rakes.get(i));
-			System.out.println("  zTop: " + zTops.get(i));
-			System.out.println("  zBot: " + zBots.get(i));
-			System.out.println(" Trace: " + traces.get(i));
+
+		// for (int i=0; i<names.size(); i++) {
+		// System.out.println();
+		// System.out.println("  Name: " + names.get(i));
+		// System.out.println("   Mag: " + mags.get(i));
+		// System.out.println("   TRT: " + trts.get(i));
+		// System.out.println(" Recur: " + recurs.get(i));
+		// System.out.println("   Dip: " + dips.get(i));
+		// System.out.println("DipDir: " + dipDirs.get(i));
+		// System.out.println("  Rake: " + rakes.get(i));
+		// System.out.println("  zTop: " + zTops.get(i));
+		// System.out.println("  zBot: " + zBots.get(i));
+		// System.out.println(" Trace: " + traces.get(i));
+		// }
+
+		// now make sources
+		List<ProbEqkSource> sources = Lists.newArrayList();
+
+		for (int i = 0; i < names.size(); i++) {
+
+			EvenlyGriddedSurface surface = new StirlingGriddedSurface(traces.get(i), dips.get(i),
+				zTops.get(i), zBots.get(i), spacing);
+
+			double mag = mags.get(i);
+			IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(mag, mag, 1);
+
+			// IncrementalMagFreqDist magDist = new GaussianMagFreqDist(MIN_MAG,
+			// MAX_MAG, NUM_MAGS,
+			// this.sourceMags.get(srcIndex), this.sourceSigmas.get(srcIndex),
+			// this.sourceMoRates.get(srcIndex));
+			FaultRuptureSource rupSource = new FaultRuptureSource(mfd, surface, rakes.get(i),
+				duration);
+			rupSource.setName(names.get(i));
+			sources.add(rupSource);
 		}
+		return sources;
 	}
-	
+
 	// All incoming lats need to be converted to southern hemi values.
 	private static Location parseLocation(String line) {
 		List<Double> vals = lineToDoubleList(line);
 		double lat = vals.get(0) + vals.get(1) / 60.0;
 		double lon = vals.get(2) + vals.get(3) / 60.0;
-		return new Location(lat, lon);
+		return new Location(-lat, lon);
 	}
-	
+
 	// reads the second location; only used at last section
 	private static Location parseLocation2(String line) {
 		List<Double> vals = lineToDoubleList(line);
 		double lat = vals.get(4) + vals.get(5) / 60.0;
 		double lon = vals.get(6) + vals.get(7) / 60.0;
-		return new Location(lat, lon);
+		return new Location(-lat, lon);
 	}
-	
+
 	// convert line of space delimited numbers to list of double values
 	private static List<Double> lineToDoubleList(String line) {
-		return FluentIterable
-				.from(SPLIT.splitToList(line))
-				.transform(Doubles.stringConverter())
-				.toList();
+		return FluentIterable.from(SPLIT.splitToList(line)).transform(Doubles.stringConverter())
+			.toList();
 	}
-	
+
+	private static final double M_MIN = 5.05;
+	private static final double D_MAG = 0.1;
+	private static final double D_MAG_BY_2 = 0.05;
+
+	/**
+	 * Note that for this prevliminary implementation there are a few grid
+	 * sources at lon > 180. These have been commented out for now.
+	 * 
+	 * @throws IOException
+	 */
+	public static void loadGridSources() throws IOException {
+
+		List<IncrementalMagFreqDist> mfds = Lists.newArrayList();
+		List<Location> locs = Lists.newArrayList();
+		List<NZ_SourceID> ids = Lists.newArrayList();
+
+		// @formatter:off
+		//
+		// 1          2          3        4    5   6    7  8    9    10     11      12
+		// 0.000000   0.000000   0.000000 1.12 7.2 1.00 nn 0.00 0.00 34.200 173.000 10.0
+		//
+		// 1 = # events >= M4   for period 1964 to 2009 inclusive
+		// 2 = # events >= M5   for period 1940 to 1963 inclusive
+		// 3 = # events >= M6.5 for period 1840 to 1939 inclusive
+		// 4 = b-value
+		// 5 = mMax
+		// 6 = (not used)
+		// 7 = slip type (may be absent; use 'sr')
+		// 8 = (not used)
+		// 9 = (not used)
+		// 10 = lat (needs to be converted to negative)
+		// 11 = lon
+		// 12 = depth (file includes depths: 10, 30, 50, 70 , and 90 km)
+		//
+		// @formatter:on
+
+		URL url = Resources.getResource(NewZealandParser.class, gridPath);
+		List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
+
+		for (String line : lines) {
+			if (line.startsWith("#")) continue;
+			List<String> values = SPLIT.splitToList(line);
+			double m4rate = Double.parseDouble(values.get(0));
+			double m5rate = Double.parseDouble(values.get(1));
+			double m6p5rate = Double.parseDouble(values.get(2));
+			double bVal = Double.parseDouble(values.get(3));
+			double mMax = Double.parseDouble(values.get(4)) - D_MAG_BY_2;
+
+			// compute a-value and MFD
+			double aVal = aValueCalc(m4rate, m5rate, m6p5rate, bVal); // a @ M=0
+			double aValMinM = MagUtils.gr_rate(aVal, bVal, M_MIN);
+			int nMag = (int) ((mMax - M_MIN) / D_MAG + 1.4);
+			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(M_MIN, nMag, D_MAG);
+			mfd.setAllButTotMoRate(M_MIN, mMax, aValMinM, bVal);
+			mfds.add(mfd);
+
+			// get source type id; ise 'sr' for empty value and offset indexing
+			NZ_SourceID id = NZ_SourceID.SR;
+			int offset = 0;
+			try {
+				id = NZ_SourceID.fromString(values.get(6));
+			} catch (IllegalArgumentException iae) {
+				offset = -1;
+			}
+			ids.add(id);
+
+			// get location and depth
+			double lat = -Double.parseDouble(values.get(9 + offset));
+			double lon = Double.parseDouble(values.get(10 + offset));
+			double depth = Double.parseDouble(values.get(11 + offset));
+			Location loc = new Location(lat, lon, depth);
+			locs.add(loc);
+
+			if (line.startsWith("  0.765237   0.065634   0.000432")) {
+				System.out.println(m4rate);
+				System.out.println(m5rate);
+				System.out.println(m6p5rate);
+				System.out.println(aVal);
+				System.out.println(mfd);
+			}
+		}
+
+	}
+
+	// catalog time before's
+	private static final double CT_M4 = 46; // 2009-1964 (inclusive) so +1
+	private static final double CT_M5 = 25; // 1963-1940 (inclusive) so +1
+	private static final double CT_M6P5 = 101; // 1939-1840 (inclusive) so +1
+
+	/*
+	 * Maximum likelihood a-value calculation for multiple catalogs with
+	 * variable mMin
+	 */
+	private static double aValueCalc(double rate_m4, double rate_m5, double rate_m6p5, double b) {
+		// a value formulation
+		double tb1 = CT_M4 * Math.pow(10, 4.0 * b);
+		double tb2 = CT_M5 * Math.pow(10, 5.0 * b);
+		double tb3 = CT_M6P5 * Math.pow(10, 6.5 * b);
+		return Math.log10(rate_m4 + rate_m5 + rate_m6p5) / (tb1 + tb2 + tb3);
+	}
+
 	public static void main(String[] args) throws IOException {
-		loadFaultSources();
+		// loadFaultSources();
+		loadGridSources();
 	}
 }
