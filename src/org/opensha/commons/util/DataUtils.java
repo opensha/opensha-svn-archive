@@ -616,7 +616,7 @@ public class DataUtils {
 		boolean expression = valNaN || both ? true : minNaN
 			? value <= max : maxNaN ? value >= min : value >= min &&
 				value <= max;
-		checkArgument(expression, "value");
+		checkArgument(expression, "Value [%s] out of range [%s ,%s]", value, min, max);
 	}
 	
 	/**
