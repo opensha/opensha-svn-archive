@@ -8,6 +8,7 @@ import java.util.List;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
@@ -23,6 +24,7 @@ import org.opensha.sha.util.TectonicRegionType;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.StandardSystemProperty;
+import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -34,7 +36,7 @@ import com.google.common.primitives.Doubles;
  * 
  * @author Peter Powers
  */
-public class NewZealandParser {
+class NewZealandParser {
 
 	private static final Splitter SPLIT = Splitter.on(" ").omitEmptyStrings();
 	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
@@ -43,8 +45,37 @@ public class NewZealandParser {
 
 	// TODO implement floor background rate 8*10^-4 for M>=4
 
-	public static List<ProbEqkSource> loadFaultSources(double spacing, double duration) throws IOException {
+    static {
+		initFaults();
+		initGrid();
+	}
+	
 
+	// fault data aggregators
+    private static List<String> names;
+    private static List<TectonicRegionType> trts;
+    private static List<Double> rakes;
+    private static List<Double> mags;
+    private static List<Double> recurs;
+    private static List<Double> dips;
+    private static List<Double> dipDirs;
+    private static List<Double> zTops;
+    private static List<Double> zBots;
+    private static List<FaultTrace> traces;
+
+    private static void initFaults() {
+    	
+    	names = Lists.newArrayList();
+    	trts = Lists.newArrayList();
+    	rakes = Lists.newArrayList();
+    	mags = Lists.newArrayList();
+    	recurs = Lists.newArrayList();
+    	dips = Lists.newArrayList();
+    	dipDirs = Lists.newArrayList();
+    	zTops = Lists.newArrayList();
+    	zBots = Lists.newArrayList();
+    	traces = Lists.newArrayList();
+    	
 		// @formatter:off
 		//
 		// Example input:
@@ -60,27 +91,14 @@ public class NewZealandParser {
 		//
 		// @formatter:on
 
-		// aggregator lists
-		List<String> names = Lists.newArrayList();
-		List<TectonicRegionType> trts = Lists.newArrayList();
-		List<Double> rakes = Lists.newArrayList();
-		List<Double> mags = Lists.newArrayList();
-		List<Double> recurs = Lists.newArrayList();
-		List<Double> dips = Lists.newArrayList();
-		List<Double> dipDirs = Lists.newArrayList();
-		List<Double> zTops = Lists.newArrayList();
-		List<Double> zBots = Lists.newArrayList();
-		List<FaultTrace> traces = Lists.newArrayList();
-
-		// List<EvenlyGriddedSurface> surfaces = Lists.newArrayList();
-
 		URL url = Resources.getResource(NewZealandParser.class, faultPath);
-		List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
-		Iterator<String> lineIterator = Iterables.skip(lines, 3).iterator(); // skip
-																				// a
-																				// and
-																				// b
-																				// data
+		List<String> lines = null;
+		try {
+			lines = Resources.readLines(url, Charsets.US_ASCII);
+		} catch (IOException ioe) {
+			Throwables.propagate(ioe);
+		}
+		Iterator<String> lineIterator = Iterables.skip(lines, 3).iterator(); // skip a and b data
 
 		while (lineIterator.hasNext()) {
 
@@ -123,24 +141,10 @@ public class NewZealandParser {
 
 			// skip closing -1
 			lineIterator.next();
-
 		}
-
-		// for (int i=0; i<names.size(); i++) {
-		// System.out.println();
-		// System.out.println("  Name: " + names.get(i));
-		// System.out.println("   Mag: " + mags.get(i));
-		// System.out.println("   TRT: " + trts.get(i));
-		// System.out.println(" Recur: " + recurs.get(i));
-		// System.out.println("   Dip: " + dips.get(i));
-		// System.out.println("DipDir: " + dipDirs.get(i));
-		// System.out.println("  Rake: " + rakes.get(i));
-		// System.out.println("  zTop: " + zTops.get(i));
-		// System.out.println("  zBot: " + zBots.get(i));
-		// System.out.println(" Trace: " + traces.get(i));
-		// }
-
-		// now make sources
+	}
+	
+	List<ProbEqkSource> getFaultSources(double spacing, double duration) {
 		List<ProbEqkSource> sources = Lists.newArrayList();
 
 		for (int i = 0; i < names.size(); i++) {
@@ -149,16 +153,16 @@ public class NewZealandParser {
 				zTops.get(i), zBots.get(i), spacing);
 
 			double mag = mags.get(i);
-			IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(mag, mag, 1);
-
+			SingleMagFreqDist smfd = new SingleMagFreqDist(mag, mag, 1);
+			smfd.setMagAndRate(mag, 1 / recurs.get(i));
+//			System.out.println(smfd);
 			// IncrementalMagFreqDist magDist = new GaussianMagFreqDist(MIN_MAG,
 			// MAX_MAG, NUM_MAGS,
 			// this.sourceMags.get(srcIndex), this.sourceSigmas.get(srcIndex),
 			// this.sourceMoRates.get(srcIndex));
-			FaultRuptureSource rupSource = new FaultRuptureSource(mfd, surface, rakes.get(i),
-				duration);
-			rupSource.setName(names.get(i));
-			sources.add(rupSource);
+			FaultRuptureSource src = new FaultRuptureSource(smfd, surface, rakes.get(i), duration);
+			src.setName(names.get(i));
+			sources.add(src);
 		}
 		return sources;
 	}
@@ -189,18 +193,17 @@ public class NewZealandParser {
 	private static final double D_MAG = 0.1;
 	private static final double D_MAG_BY_2 = 0.05;
 
-	/**
-	 * Note that for this prevliminary implementation there are a few grid
-	 * sources at lon > 180. These have been commented out for now.
-	 * 
-	 * @throws IOException
-	 */
-	public static void loadGridSources() throws IOException {
+	// grid data aggregators
+	private static List<IncrementalMagFreqDist> mfds;
+	private static List<Location> locs;
+	private static List<NZ_SourceID> ids;
 
-		List<IncrementalMagFreqDist> mfds = Lists.newArrayList();
-		List<Location> locs = Lists.newArrayList();
-		List<NZ_SourceID> ids = Lists.newArrayList();
-
+	private static void initGrid() {
+		
+		 mfds = Lists.newArrayList();
+		 locs = Lists.newArrayList();
+		 ids = Lists.newArrayList();
+		 
 		// @formatter:off
 		//
 		// 1          2          3        4    5   6    7  8    9    10     11      12
@@ -222,10 +225,14 @@ public class NewZealandParser {
 		// @formatter:on
 
 		URL url = Resources.getResource(NewZealandParser.class, gridPath);
-		List<String> lines = Resources.readLines(url, Charsets.US_ASCII);
+		List<String> lines = null;
+		try {
+			lines = Resources.readLines(url, Charsets.US_ASCII);
+		} catch (IOException ioe) {
+			Throwables.propagate(ioe);
+		}
 
 		for (String line : lines) {
-			if (line.startsWith("#")) continue;
 			List<String> values = SPLIT.splitToList(line);
 			double m4rate = Double.parseDouble(values.get(0));
 			double m5rate = Double.parseDouble(values.get(1));
@@ -242,6 +249,7 @@ public class NewZealandParser {
 			mfds.add(mfd);
 
 			// get source type id; ise 'sr' for empty value and offset indexing
+			// KLUDGY -- probably should just use substrings to extract values
 			NZ_SourceID id = NZ_SourceID.SR;
 			int offset = 0;
 			try {
@@ -257,16 +265,22 @@ public class NewZealandParser {
 			double depth = Double.parseDouble(values.get(11 + offset));
 			Location loc = new Location(lat, lon, depth);
 			locs.add(loc);
-
-			if (line.startsWith("  0.765237   0.065634   0.000432")) {
-				System.out.println(m4rate);
-				System.out.println(m5rate);
-				System.out.println(m6p5rate);
-				System.out.println(aVal);
-				System.out.println(mfd);
-			}
 		}
+	}
 
+	List<ProbEqkSource> getGridSources(double duration) {
+		List<ProbEqkSource> sources = Lists.newArrayList();
+		for (int i=0; i<locs.size(); i++) {
+			Location loc = locs.get(i);
+			PointSource13b ptSrc = new PointSource13b(
+				loc,
+				mfds.get(i),
+				duration,
+				new double[] {loc.getDepth(), loc.getDepth()},
+				ids.get(i).mechWtMap());
+			sources.add(ptSrc);
+		}
+		return sources;
 	}
 
 	// catalog time before's
@@ -288,6 +302,6 @@ public class NewZealandParser {
 
 	public static void main(String[] args) throws IOException {
 		// loadFaultSources();
-		loadGridSources();
+//		loadGridSources();
 	}
 }

@@ -1,14 +1,23 @@
 package scratch.stirling;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.util.bugReports.DefaultExceptoinHandler;
+import org.opensha.nshmp2.erf.source.FaultSource;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.gui.HazardCurveApplication;
+import org.opensha.sha.gui.util.IconFetcher;
 
 /**
  * An ERF for New Zealand using updated 2012 sources.
@@ -24,29 +33,23 @@ public class NewZealandERF_2012 extends AbstractERF {
 	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
 	private StringParameter backSeisParam;
 	
-	private static final double FAULT_SPACING = 0.1;
-	private static final double DURATION = 50.0;
+	private static final double FAULT_SPACING = 1.0;
+	private static final double DEFAULT_DURATION = 50.0;
+	
+	private static NewZealandParser parser = new NewZealandParser();
 	
 	private List<ProbEqkSource> faultSources;
 	private List<ProbEqkSource> gridSources;
+	
 
 	public NewZealandERF_2012() {
 		
 		//create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
-		timeSpan.setDuration(50);
+		timeSpan.setDuration(DEFAULT_DURATION);
 		timeSpan.addParameterChangeListener(this);
-
-		initSources();
-	}
-	
-	private void initSources() {
-		try {
-			faultSources = NewZealandParser.loadFaultSources(FAULT_SPACING, DURATION);
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			
-		}
+		
+		initAdjParams();
 	}
 	
 	private void initAdjParams() {
@@ -57,31 +60,27 @@ public class NewZealandERF_2012 extends AbstractERF {
 		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_ONLY);
 		backSeisParam = new StringParameter(UCERF2.BACK_SEIS_NAME, backSeisOptionsStrings, UCERF2.BACK_SEIS_DEFAULT);
 		backSeisParam.setInfo("Background source enabler");
-
 	}
 
 	@Override
 	public int getNumSources() {
-		return faultSources.size();
-		// TODO do nothing
-		
+		return faultSources.size() + gridSources.size();
 	}
 
 	@Override
 	public ProbEqkSource getSource(int idx) {
-		return faultSources.get(idx);
+		checkElementIndex(idx, getNumSources());
+		if (idx < faultSources.size()) {
+			return faultSources.get(idx);
+		}
+		return gridSources.get(idx - faultSources.size());
 	}
 
 	@Override
 	public void updateForecast() {
 		if(parameterChangeFlag) {
-			System.out.println("parameter changed");
-//			allSources = new ArrayList<ProbEqkSource>();
-//			mkFaultSources();
-//			String bgVal = (String)backSeisParam.getValue();
-//			if(bgVal.equals(BACK_SEIS_INCLUDE)){
-//				mkBackRegion();
-//			}
+			faultSources = parser.getFaultSources(FAULT_SPACING, timeSpan.getDuration());
+			gridSources = parser.getGridSources(timeSpan.getDuration());
 		}
 		parameterChangeFlag = false;
 	}
@@ -91,4 +90,19 @@ public class NewZealandERF_2012 extends AbstractERF {
 		return NAME;
 	}
 	
+	public static void main(String[] args) {
+		NewZealandERF_2012 erf = new NewZealandERF_2012();
+		erf.updateForecast();
+		for (ProbEqkSource source : erf) {
+			System.out.println(source.getName() + " " + source.getNumRuptures());
+		}
+		
+//		testApp();
+	}
+	
+	private static void testApp() {
+		HazardCurveApplication applet = new HazardCurveApplication("NZ Test");
+		applet.init();
+		applet.setVisible(true);
+	}
 }
