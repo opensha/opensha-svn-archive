@@ -128,11 +128,12 @@ public final class LocationUtils {
 	 * <code>horzDistance()</code>, but is imprecise at large distances. Method
 	 * uses the latitudinal and longitudinal differences between the points as
 	 * the sides of a right triangle. The longitudinal distance is scaled by the
-	 * cosine of the mean latitude.<br/>
-	 * <br/>
-	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
-	 * #177;180&#176; and fails where the numeric angle exceeds 180&#176;. Use
-	 * {@link #horzDistance(Location, Location)} in such instances.
+	 * cosine of the mean latitude.
+	 * 
+	 * <p><b>Note:</b> This method does <i>NOT</i> support values spanning
+	 * #177;180&#176; and fails where the numeric angle exceeds 180&#176;.
+	 * Convert data to the 0-360&#176; interval or use
+	 * {@link #horzDistance(Location, Location)} in such instances.</p>
 	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
@@ -196,6 +197,9 @@ public final class LocationUtils {
 	 * separation distance is not known in advance use
 	 * {@link #linearDistance(Location, Location)} for more reliable results.
 	 * 
+	 * <p><b>Note:</b> This method fails for values spanning &#177;180&#176;;
+	 * see {@link #horzDistanceFast(Location, Location)}.
+	 * 
 	 * @param p1 the first <code>Location</code> point
 	 * @param p2 the second <code>Location</code> point
 	 * @return the distance in km between the points
@@ -255,15 +259,17 @@ public final class LocationUtils {
 	 * line points are scaled by the cosine of latitude; it is only appropriate
 	 * for use over short distances (e.g. &lt;200 km). The sign of the result
 	 * indicates which side of the supplied line <code>p3</code> is on
-	 * (right:[+] left:[-]).<br/>
-	 * <br/>
-	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
-	 * &#177;180&#176; and results for such input values are not guaranteed. <br/>
-	 * <br/>
-	 * If the line should instead be treated as a segment such that the result
+	 * (right:[+] left:[-]).
+	 * 
+	 * <p><b>Note:</b> This method does <i>NOT</i> support values spanning
+	 * &#177;180&#176; and results for such input values are not guaranteed.
+	 * Convert data to the 0-360&#176; interval or use
+	 * {@link #distanceToLine(Location, Location, Location)} in such instances.</p>
+	 * 
+	 * <p>If the line should instead be treated as a segment such that the result
 	 * will be a distance to an endpoint if <code>p3</code> does not project
 	 * onto the segment, use
-	 * {@link #distanceToLineSegmentFast(Location, Location, Location)} instead.
+	 * {@link #distanceToLineSegmentFast(Location, Location, Location)} instead.</p>
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line
@@ -323,6 +329,9 @@ public final class LocationUtils {
 	 * the <code>EventlyGridddedSurface</code> by looping over all the locations
 	 * in the surface and returning the smallest one determined by
 	 * {@link #horzDistanceFast(Location, Location)}.
+	 * 
+	 * <p><b>Note:</b> This method fails for values spanning &#177;180&#176;;
+	 * see {@link #horzDistanceFast(Location, Location)}.
 	 * 
 	 * @param loc a <code>Location</code>
 	 * @param rupSurf an EvenlyGriddedSurfaceAPI
@@ -395,14 +404,14 @@ public final class LocationUtils {
 	 * component of each <code>Location</code> is ignored. This is a fast,
 	 * geometric, cartesion (flat-earth approximation) solution in which
 	 * longitude of the line points are scaled by the cosine of latitude; it is
-	 * only appropriate for use over short distances (e.g. &lt;200 km). <br/>
-	 * <br/>
-	 * <b>Note:</b> This method does <i>NOT</i> support values spanning
-	 * &#177;180&#176; and results for such input values are not guaranteed.
-	 * This method always returns a positive result.<br/>
-	 * <br/>
-	 * If the line should instead be treated as infinite, use
-	 * {@link #distanceToLineFast(Location, Location, Location)} instead.
+	 * only appropriate for use over short distances (e.g. &lt;200 km). This
+	 * method always returns a positive result.
+	 * 
+	 * <p><b>Note:</b> This method fails for values spanning &#177;180&#176;;
+	 * see {@link #distanceToLineFast(Location, Location, Location)}.</p>
+	 * 
+	 * <p>If the line should instead be treated as infinite, use
+	 * {@link #distanceToLineFast(Location, Location, Location)} instead.</p>
 	 * 
 	 * @param p1 the first <code>Location</code> point on the line
 	 * @param p2 the second <code>Location</code> point on the line

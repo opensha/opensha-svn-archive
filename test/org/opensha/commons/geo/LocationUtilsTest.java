@@ -143,6 +143,16 @@ public class LocationUtilsTest {
 		assertEquals(43.7518411, horzDistance(L4,L3), sdD);
 	}
 
+	// same locations, different reference frame
+	// distance between 1 and 2 should be the same as between 4 and 5
+	// P3 and P6 are used to test distanceToLineFast
+	private static Location P1 = new Location(32.0, -160.0, 2.0);
+	private static Location P2 = new Location(31.0, -163.0, 0.0);
+	private static Location P3 = new Location(33.0, -164.0, 0.0);
+	private static Location P4 = new Location(32.0,  200.0, 2.0);
+	private static Location P5 = new Location(31.0,  197.0, 0.0);
+	private static Location P6 = new Location(33.0,  196.0, 0.0);
+
 	@Test
 	public final void testHorzDistanceFast() {
 		assertEquals(  6474.888, horzDistanceFast(L5,L1), ldD);
@@ -155,6 +165,11 @@ public class LocationUtilsTest {
 		assertEquals(60.6200022, horzDistanceFast(L2,L3), sdD);
 		assertEquals(48.2952403, horzDistanceFast(L4,L2), sdD);
 		assertEquals(43.7518956, horzDistanceFast(L4,L3), sdD);
+		
+		// test change to allow lon values up to 360
+		double original = horzDistanceFast(P1,  P2);
+		double updated = horzDistanceFast(P4,  P5);
+		assertEquals(original, updated, sdD);
 	}
 
 	@Test
@@ -207,6 +222,11 @@ public class LocationUtilsTest {
 		double ld13 = linearDistanceFast(L1,L3);	// 21.395182516
 		assertEquals(15.256271986, ld12, delta);
 		assertEquals(21.395182516, ld13, delta);
+		
+		// test change to allow lon values up to 360
+		double original = linearDistanceFast(P1,  P2);
+		double updated = linearDistanceFast(P4,  P5);
+		assertEquals(original, updated, sdD);
 	}
 	
 	// additional locoations for line and segment tests
@@ -238,7 +258,7 @@ public class LocationUtilsTest {
 		assertEquals(110.7718788389617, distanceToLine(l1, l2, p6), 0);
 		assertEquals(111.04264791008788, distanceToLine(l1, l2, p7), 0);
 		assertEquals(111.17811504377575, distanceToLine(l1, l2, p8), 0);
-	}
+	}	
 	
 	@Test
 	public final void testDistanceToLineFast() {
@@ -256,6 +276,11 @@ public class LocationUtilsTest {
 		assertEquals(110.92418674948573, distanceToLineFast(l1, l2, p6), 0);
 		assertEquals(111.04266335361307, distanceToLineFast(l1, l2, p7), 0);
 		assertEquals(111.12731528678844, distanceToLineFast(l1, l2, p8), 0);
+		
+		// test change to allow lon values up to 360
+		double original = distanceToLineFast(P2, P3, P1);
+		double updated = distanceToLineFast(P5, P6, P4);
+		assertEquals(original, updated, sdD);
 	}
 	
 	@Test
@@ -292,6 +317,11 @@ public class LocationUtilsTest {
 		assertEquals(157.0621369518209, distanceToLineSegmentFast(l1, l2, p6), 0);
 		assertEquals(111.04266335361307, distanceToLineSegmentFast(l1, l2, p7), 0);
 		assertEquals(157.2056610325692, distanceToLineSegmentFast(l1, l2, p8), 0);
+		
+		// test change to allow lon values up to 360
+		double original = distanceToLineSegmentFast(P2, P3, P1);
+		double updated = distanceToLineSegmentFast(P5, P6, P4);
+		assertEquals(original, updated, sdD);
 	}
 
 	@Test

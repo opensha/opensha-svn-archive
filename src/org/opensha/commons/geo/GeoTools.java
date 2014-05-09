@@ -72,7 +72,7 @@ public class GeoTools {
     /** 
      * Maximum longitude value (180&#176;) used for range checking.
      */
-    public static final double LON_MAX = 180.0;
+    public static final double LON_MAX = 360.0;
     
     /** 
      * Minimum earthquake depth value (-5 km) used for range checking.
