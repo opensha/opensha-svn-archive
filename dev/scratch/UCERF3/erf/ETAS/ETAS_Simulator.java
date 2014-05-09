@@ -50,6 +50,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.analysis.FaultBasedMapGen;
+import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
+import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -216,13 +219,10 @@ public class ETAS_Simulator {
 			info_fr.write("\n"+spEvStringInfo);
 		}
 		
-		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
-
-
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		st = System.currentTimeMillis();
 
-		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(regionForRates, erf, sourceRates, 
+		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates);
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
@@ -523,6 +523,8 @@ public class ETAS_Simulator {
 		
 		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
 		System.out.println("ERF instantiation took "+timeSec+" sec");
+		
+		
 
 		
 		// This was to find the landers like rupture, which is src=246139	InvRupIndex=246711; 13 SECTIONS BETWEEN Camp Rock 2011, Subsection 2 AND Johnson Valley (No) 2011 rev, Subsection 0
@@ -535,7 +537,41 @@ public class ETAS_Simulator {
 //		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 0.05, 8.95, 90, true);
 //		GraphWindow graph = new GraphWindow(mfd, "Test ERF MFD"); 
 		
+		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+
+		
+		
+		// make bulge plots:
+		try {
+			GMT_CA_Maps.plotBulgeFromFirstGenAftershocksMap(erf, "testBulge", "test bulge", "testBulgeDir");
+			FaultBasedMapGen.plotBulgeFromFirstGenAftershocksMap((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+			FaultBasedMapGen.plotBulgeForM6pt7_Map((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+		// examine bulge reduction scaling factors
+//		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), griddedRegion);
+//		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), griddedRegion);
+//		ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[5739], subMFD_Array[5739]);
+//		System.out.println("Location for min scaleFactor: "+griddedRegion.getLocation(5739));
+		
+//		double min=Double.MAX_VALUE;
+//		int minIndex=-1;
+//		for(int i=0;i<subMFD_Array.length ;i++) {
+//			if(subMFD_Array[i] != null) {
+//				double scaleFactor = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+//				if(scaleFactor<min) {
+//					min = scaleFactor;
+//					minIndex=i;
+//				}
+////				break;
+//			}
+//		}
+//		System.out.println("maxIndex="+minIndex+"; max="+min);
+
 		
 		
 		// get the rupture index of a Landers or Northridge like rupture

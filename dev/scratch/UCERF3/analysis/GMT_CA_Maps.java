@@ -20,12 +20,15 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.RELM_RegionUtils;
@@ -568,6 +571,8 @@ public class GMT_CA_Maps {
 	 * a GR distribution with the given b-value (like shown in figure 19 of the UCERF2 report). 
 	 * There is no version of this that takes a FaultSystemSolution because you need smaller events to
 	 * make the plot meaningful.
+	 * Note - this plot is misleading for UCERF3 because subseismo events are distributed over grid nodes
+	 * inside polygons but supra-seismo events are not.
 	 * @param erf
 	 * @param mag - magnitude for the ratio
 	 * @param bValue - b-value used for extrapolation
@@ -589,11 +594,49 @@ public class GMT_CA_Maps {
 		makeMap(bulgeDataSet, scaleLabel, metadata, dirName, gen);
 
 	}
+	
+	
+	public static void plotBulgeFromFirstGenAftershocksMap(FaultSystemSolutionERF erf, String scaleLabel, String metadata, String dirName) throws IOException {
+		
+		GriddedGeoDataSet bulgeDataSet = new GriddedGeoDataSet(defaultGridRegion, true);
+		
+		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
+		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
+
+		for(int i=0;i<bulgeDataSet.size();i++) {
+			if(subMFD_Array[i] != null) {
+				
+				// test correction
+//				double corr = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+//				if(corr<1.0)
+//					supraMFD_Array[i].scale(corr);
+				
+				double val = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+//				double val = Math.log10(1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]));
+				bulgeDataSet.set(i, val);
+			}
+			else
+				bulgeDataSet.set(i, 1.0/0.0);	// this plots as white
+		}
+
+		GMT_MapGenerator gen = getDefaultGMT_MapGenerator();
+		CPTParameter cptParam = (CPTParameter )gen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.UCERF3_RATIOS.getFileName());
+		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -2.0);
+		gen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,  2.0);
+
+		makeMap(bulgeDataSet, scaleLabel, metadata, dirName, gen);
+
+	}
+
 
 	
 	/**
 	 * This computes a GriddedGeoDataSet for the ratio of M>=mag rates to the rate projected from M 5.0 to mag using
 	 * a GR distribution with the given b-value (like shown in figure 19 of the UCERF2 report). 
+	 * 
+	 * Note - this calculation is misleading for UCERF3 because sub-seismo events are distributed over grid 
+	 * nodes inside polygons, but supra-seismo events are not.
 	 * @param erf
 	 * @param mag - magnitude for the ratio
 	 * @param bValue - b-value used for extrapolation

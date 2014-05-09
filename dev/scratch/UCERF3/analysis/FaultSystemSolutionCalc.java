@@ -13,9 +13,12 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -24,8 +27,10 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
@@ -41,6 +46,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 public class FaultSystemSolutionCalc {
+	
+	final static boolean D = true;  // debug flag
 	
 	
 	/**
@@ -215,6 +222,111 @@ public class FaultSystemSolutionCalc {
 		}
 
 	}
+	
+	
+	/**
+	 * This returns the total sub-seismogenic on-fault MFD in each grid cell, where the MFDs are not spread over
+	 * all cells within fault-zone polygon, but put into the cell that contains the fault surface points.
+	 * @param invSol
+	 * @param griddedRegion
+	 * @return
+	 */
+	public static SummedMagFreqDist[] getSubSeismNucleationMFD_inGridNotes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
+		
+		double minMag = 2.05;
+		double maxMag = 8.95;
+		int numMag = 70;
+		int numGridCells = griddedRegion.getNumLocations();
+		SummedMagFreqDist[] mfdInCellArray = new SummedMagFreqDist[numGridCells];
+		
+		// get Subseismo nucleation MFD for each subsection
+		List<GutenbergRichterMagFreqDist> subSeisMFD_List = invSol.getFinalSubSeismoOnFaultMFD_List();
+		
+		// loop over each
+		for(int s=0; s<subSeisMFD_List.size(); s++ ) {
+			LocationList locList = invSol.getRupSet().getFaultSectionData(s).getStirlingGriddedSurface(1.0, false, true).getEvenlyDiscritizedListOfLocsOnSurface();
+			GutenbergRichterMagFreqDist sectMFD = subSeisMFD_List.get(s);
+			sectMFD.scale(1.0/(double)locList.size());
+			for(Location loc: locList) {
+				int regIndex = griddedRegion.indexForLocation(loc);
+				if(regIndex != -1) {
+					if(mfdInCellArray[regIndex] == null)
+						mfdInCellArray[regIndex] = new SummedMagFreqDist(minMag,maxMag,numMag);
+					mfdInCellArray[regIndex].addIncrementalMagFreqDist(sectMFD);
+				}
+				else
+					if(D) System.out.println("Not in region: "+invSol.getRupSet().getFaultSectionData(s).getName());
+	
+			}
+			sectMFD.scale((double)locList.size());
+
+		}
+		
+		// count number of non-null cells
+		int numNonNull=0;
+		for(SummedMagFreqDist mfd:mfdInCellArray)
+			if(mfd != null)
+				numNonNull += 1;
+		
+		if(D) System.out.println("getSubSeismNucleationMFD_inGridNotes numNonNull="+numNonNull+" (out of "+subSeisMFD_List.size()+")");
+
+		return mfdInCellArray;
+		
+	}
+	
+	
+	/**
+	 * This returns the total supra-seismogenic on-fault MFD in each grid cell.
+	 * Values are null if there are no such ruptures in the cell
+	 * @param invSol
+	 * @param griddedRegion
+	 * @return
+	 */
+	public static SummedMagFreqDist[] getSupraSeismNucleationMFD_inGridNotes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
+		
+		double minMag = 5.05;
+		double maxMag = 8.95;
+		int numMag = 40;
+		int numGridCells = griddedRegion.getNumLocations();
+		SummedMagFreqDist[] mfdInCellArray = new SummedMagFreqDist[numGridCells];
+		
+		// get Subseismo nucleation MFD for each subsection
+		List<IncrementalMagFreqDist> supraSeisMFD_List = invSol.getFinalSupraSeismoOnFaultMFD_List(minMag, maxMag, numMag);
+		
+		// loop over each
+		for(int s=0; s<supraSeisMFD_List.size(); s++ ) {
+			LocationList locList = invSol.getRupSet().getFaultSectionData(s).getStirlingGriddedSurface(1.0, false, true).getEvenlyDiscritizedListOfLocsOnSurface();
+			IncrementalMagFreqDist sectMFD = supraSeisMFD_List.get(s);
+			sectMFD.scale(1.0/(double)locList.size());
+			for(Location loc: locList) {
+				int regIndex = griddedRegion.indexForLocation(loc);
+				if(regIndex != -1) {
+					if(mfdInCellArray[regIndex] == null)
+						mfdInCellArray[regIndex] = new SummedMagFreqDist(minMag,maxMag,numMag);
+					mfdInCellArray[regIndex].addIncrementalMagFreqDist(sectMFD);
+				}
+				else
+					if(D) System.out.println("Not in region: "+invSol.getRupSet().getFaultSectionData(s).getName());
+	
+			}
+			sectMFD.scale((double)locList.size());
+
+		}
+		
+		// count number of non-null cells
+		int numNonNull=0;
+		for(SummedMagFreqDist mfd:mfdInCellArray)
+			if(mfd != null)
+				numNonNull += 1;
+		
+		if(D) System.out.println("getSupraSeismNucleationMFD_inGridNotes numNonNull="+numNonNull+" (out of "+supraSeisMFD_List.size()+")");
+
+		return mfdInCellArray;
+		
+	}
+
+		
+
 	
 	
 	public static void checkFinalSubseisOnFaultRates(InversionFaultSystemSolution invSol) {

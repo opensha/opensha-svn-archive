@@ -25,6 +25,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -692,6 +693,44 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		}
 		return subSeisMFD_list;
 	}
+	
+	
+	/**
+	 * This returns the list of final supra-seismo nucleation MFDs for each fault section, where
+	 * each comes from the calcNucleationMFD_forSect(*) method of the parent.  
+	 * @param minMag - lowest mag in MFD
+	 * @param maxMag - highest mag in MFD
+	 * @param numMag - number of mags in MFD
+	 * @return List<IncrementalMagFreqDist>
+	 */
+	public List<IncrementalMagFreqDist> getFinalSupraSeismoOnFaultMFD_List(double minMag, double maxMag, int numMag) {
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		for(int s=0; s<rupSet.getNumSections();s++)
+			mfdList.add(calcNucleationMFD_forSect(s, minMag, maxMag, numMag));
+		return mfdList;
+	}
+
+	
+	/**
+	 * This returns the sum of the supra-seis and sub-seis MFDs for the section
+	 * @param sectIndex
+	 * @param minMag
+	 * @param maxMag
+	 * @param numMag
+	 * @return
+	 */
+	public  IncrementalMagFreqDist getFinalTotalNucleationMFD_forSect(int sectIndex, double minMag, double maxMag, int numMag) {
+		IncrementalMagFreqDist supraMFD = this.calcNucleationMFD_forSect(sectIndex, minMag, maxMag, numMag);
+		GutenbergRichterMagFreqDist subSeisMFD = getFinalSubSeismoOnFaultMFD_List().get(sectIndex);
+//		System.out.println("Subseismo:\n"+subSeisMFD+"\nsupra-seismo\n"+supraMFD);
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
+		for(int i=0;i<numMag;i++) {
+			double mag = mfd.getX(i);
+			mfd.set(i,supraMFD.getY(mag)+subSeisMFD.getY(mag));
+		}
+		return mfd;
+	}
+
 	
 	
 	/**

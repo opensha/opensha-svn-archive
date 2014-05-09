@@ -16,6 +16,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -31,6 +32,7 @@ import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.FileUtils;
@@ -39,6 +41,9 @@ import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -49,6 +54,8 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.inversion.InversionConfiguration;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
@@ -208,6 +215,97 @@ public class FaultBasedMapGen {
 	private static double calcFractionalDifferentce(double target, double comparison) {
 		return (comparison - target) / target;
 	}
+	
+	
+	
+	public static void plotBulgeFromFirstGenAftershocksMap(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio) 
+			throws GMT_MapException, RuntimeException, IOException {
+
+		List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
+
+		List<GutenbergRichterMagFreqDist> subSeisMFD_List = sol.getFinalSubSeismoOnFaultMFD_List();
+		List<IncrementalMagFreqDist> supraSeisMFD_List = sol.getFinalSupraSeismoOnFaultMFD_List(5.05, 8.95, 40);
+
+		double[] values = new double[faults.size()];
+		
+//		ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD_List.get(1), subSeisMFD_List.get(1));
+
+		for(int i=0;i<subSeisMFD_List.size();i++) {
+			values[i] = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD_List.get(i), subSeisMFD_List.get(i));
+		}
+		
+		CPT cpt;
+		prefix += "_bulgeFrom1stGenAft";
+		String name = "BulgeFrom1stGenAftershocks";
+		if (logRatio) {
+			values = log10(values);
+			cpt = getLogRatioCPT().rescale(-2, 2);
+			prefix += "_log";
+			name = "Log10("+name+")";
+		} else {
+			cpt = getLinearRatioCPT();
+		}
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix, display, false, name);
+
+	}
+	
+	public static void plotBulgeForM6pt7_Map(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio) 
+			throws GMT_MapException, RuntimeException, IOException {
+
+		double mag = 6.75;
+		List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
+
+		List<GutenbergRichterMagFreqDist> subSeisMFD_List = sol.getFinalSubSeismoOnFaultMFD_List();
+		List<IncrementalMagFreqDist> supraSeisMFD_List = sol.getFinalSupraSeismoOnFaultMFD_List(5.05, 8.95, 40);
+
+		double[] values = new double[faults.size()];
+		
+//		ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD_List.get(1), subSeisMFD_List.get(1));
+
+		for(int i=0;i<subSeisMFD_List.size();i++) {
+			
+			GutenbergRichterMagFreqDist subSeisMFD = subSeisMFD_List.get(i);
+			IncrementalMagFreqDist supraSeisMFD = supraSeisMFD_List.get(i);
+			double minMag = subSeisMFD.getMinX();
+			double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+			if(maxMagWithNonZeroRate >= mag) {
+				int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
+				GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+				gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
+				SummedMagFreqDist sumDist = new SummedMagFreqDist(minMag, maxMagWithNonZeroRate,numMag);
+				sumDist.addIncrementalMagFreqDist(subSeisMFD);
+				sumDist.addIncrementalMagFreqDist(supraSeisMFD);
+				values[i] = sumDist.getCumRate(mag)/gr.getCumRate(mag);
+			}
+			else {
+				values[i] = 1.0/0.0;
+			}
+
+//			if(sumDist.getXIndex(mag) == -1) {
+//				System.out.println(sumDist);
+//			}
+//			if(gr.getXIndex(mag) == -1) {
+//				System.out.println(gr);
+//			}
+
+		}
+		
+		CPT cpt;
+		prefix += "_bulgeForM6pt7";
+		String name = "BulgeForM6pt7";
+		if (logRatio) {
+			values = log10(values);
+			cpt = getLogRatioCPT().rescale(-2, 2);
+			prefix += "_log";
+			name = "Log10("+name+")";
+		} else {
+			cpt = getLinearRatioCPT();
+		}
+		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix, display, false, name);
+
+	}
+
+
 	
 	public static void plotSolutionSlipMisfit(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio)
 			throws GMT_MapException, RuntimeException, IOException {

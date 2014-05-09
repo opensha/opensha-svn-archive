@@ -17,6 +17,8 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.apache.commons.math3.random.RandomDataImpl;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -492,6 +494,132 @@ public class ETAS_Utils {
 			fw.write(line+"\n");
 		
 		fw.close();
+	}
+	
+	
+	
+	/**
+	 * This returns the 
+	 * 
+	 * @param supraSeisMFD
+	 * @param subSeisMFD
+	 * @return
+	 */
+	public static double getScalingFactorToImposeGR(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD) {
+		
+		
+		double minMag = subSeisMFD.getMinX();
+		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
+		
+		// Since b=1 (and a=1, as implicit in Felzer, and explicit in equation (3) of http://pubs.usgs.gov/of/2013/1165/pdf/ofr2013-1165_appendixS.pdf),
+		// each magnitude has an equal number of expected
+		
+		double expNumGR = 0;
+		for(int i=0;i<gr.getNum();i++) {
+			double mag = gr.getX(i);
+			expNumGR += gr.getY(i)*Math.pow(10, mag);
+		}
+		
+		double expNumSubSeis = 0;
+		for(int i=0;i<subSeisMFD.getNum();i++) {
+			double mag = subSeisMFD.getX(i);
+			expNumSubSeis += subSeisMFD.getY(i)*Math.pow(10, mag);
+		}
+
+		double expNumSupraSeis = 0;
+		for(int i=0;i<supraSeisMFD.getNum();i++) {
+			double mag = supraSeisMFD.getX(i);
+			expNumSupraSeis += supraSeisMFD.getY(i)*Math.pow(10, mag);
+		}
+		double result = (expNumGR-expNumSubSeis)/expNumSupraSeis;
+	
+//		ArrayList<IncrementalMagFreqDist> funcs = new ArrayList<IncrementalMagFreqDist>();
+//		funcs.add(supraSeisMFD);
+//		funcs.add(subSeisMFD);
+//		funcs.add(gr);
+//		GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR "+result);
+//		graph.setX_AxisLabel("Mag");
+//		graph.setY_AxisLabel("Incr Rate");
+//
+//		System.out.println("result="+(expNumGR-expNumSubSeis)/expNumSupraSeis);
+		
+		return result;
+		
+//	
+//	File dataFile = new File("testRightHere.txt");
+//	FileWriter fw;
+//	try {
+//		fw = new FileWriter(dataFile);
+//		for(int s=0; s<invSol.getRupSet().getNumSections();s++) {
+//			IncrementalMagFreqDist sectMFD = invSol.getFinalTotalNucleationMFD_forSect(s, minMag, maxMag, numMag);
+//			
+//			double maxMagWithNonZeroRate = sectMFD.getMaxMagWithNonZeroRate();
+//			int numMagAlt = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
+//			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMagAlt);
+//			gr.scaleToIncrRate(5.05, sectMFD.getY(5.05));
+//			
+//			EvenlyDiscretizedFunc sectMFD_Cum = sectMFD.getCumRateDistWithOffset();
+//			EvenlyDiscretizedFunc grCum = gr.getCumRateDistWithOffset();
+//			
+//			double magWithMaxValue=0;
+//			double maxValue2=0;
+//			
+//			for(int i=0;i<grCum.getNum();i++) {
+//				double mag = grCum.getX(i);
+//				if(grCum.getY(mag) == 0.0)
+//					continue;
+//				int mag2_index = sectMFD_Cum.getClosestXIndex(mag);
+//				double mag2 = sectMFD_Cum.getX(mag2_index);
+//				double ratio = sectMFD_Cum.getY(mag2)/grCum.getY(mag);
+//				if(ratio >maxValue) {
+//					sectWithMax=s;
+//					maxValue = ratio;
+//				}
+//				if(ratio>maxValue2) {
+//					maxValue2=ratio;
+//					magWithMaxValue = mag;
+//				}
+//			}
+//			
+//			// write out info for section
+//			String name = invSol.getRupSet().getFaultSectionData(s).getName();
+//			double maxSubSeisMag = invSol.getFinalSubSeismoOnFaultMFD_List().get(s).getMaxMagWithNonZeroRate();
+//			String line = s+"\t"+(float)maxValue2+"\t"+(float)magWithMaxValue+"\t"+(float)maxSubSeisMag+"\t"+name+"\n";
+//			fw.write(line);
+//		}
+//		
+//		fw.close ();
+//
+//	} catch (IOException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+//
+//
+//	
+//	System.out.println(maxValue+"\t"+sectWithMax+"\t"+invSol.getRupSet().getFaultSectionData(sectWithMax).getName());
+//	System.out.println("maxSubSeismo Mag: "+invSol.getFinalSubSeismoOnFaultMFD_List().get(sectWithMax).getMaxMagWithNonZeroRate());
+//	
+//	IncrementalMagFreqDist sectMFD = invSol.getFinalTotalNucleationMFD_forSect(sectWithMax, minMag, maxMag, numMag);
+//	
+//	double maxMagWithNonZeroRate = sectMFD.getMaxMagWithNonZeroRate();
+//	int numMagAlt = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
+//	GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMagAlt);
+//	gr.scaleToIncrRate(5.05, sectMFD.getY(5.05));
+//	
+//	EvenlyDiscretizedFunc sectMFD_Cum = sectMFD.getCumRateDistWithOffset();
+//	EvenlyDiscretizedFunc grCum = gr.getCumRateDistWithOffset();
+//	
+//	for(int i=0;i<grCum.getNum();i++) {
+//		double mag = grCum.getX(i);
+//		int mag2_index = sectMFD_Cum.getClosestXIndex(mag);
+//		double mag2 = sectMFD_Cum.getX(mag2_index);
+//		System.out.println((float)mag+"\t"+(float)mag2+"\t"+(float)sectMFD_Cum.getY(mag2)+"\t"+(float)grCum.getY(mag)+"\t"+(float)(sectMFD_Cum.getY(mag2)/grCum.getY(mag)));
+//	}
+
 	}
 	
 	

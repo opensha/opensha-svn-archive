@@ -55,11 +55,13 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 
 public class ETAS_PrimaryEventSamplerTest1 {
@@ -71,6 +73,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	// these define the points in space
 	int numRateDepths, numRegLocsForRatesInSpace, numPointsForRates,  numPointsForParLocs, numParDepths;
 	double maxDepth, depthDiscr;
+	GriddedRegion origGriddedRegion;
 	GriddedRegion gridRegForRatesInSpace;
 	GriddedRegion gridRegForParentLocs;
 	double regSpacing;
@@ -102,6 +105,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	int numCachedSamplers=0;
 	int incrForReportingNumCachedSamplers=100;
 	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
+	
+	double[] grCorrFactorForCellArray;
 
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
@@ -130,10 +135,10 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param includeERF_Rates
 	 * @param includeSpatialDecay
 	 */
-	public ETAS_PrimaryEventSamplerTest1(Region regionForRates, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates) {
 
-		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
+		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true);
 //		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 //				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, true, false);
@@ -156,11 +161,12 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
 	 * @throws IOException 
 	 */
-	public ETAS_PrimaryEventSamplerTest1(Region regionForRates, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
 		
 
+		origGriddedRegion = griddedRegion;
 		this.regSpacing = pointSrcDiscr/numPtSrcSubPts;
 		
 		this.numPtSrcSubPts = numPtSrcSubPts;
@@ -170,6 +176,9 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		this.depthDiscr=depthDiscr;
 		this.pointSrcDiscr = pointSrcDiscr;
 		numRateDepths = (int)Math.round(maxDepth/depthDiscr);
+		
+		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
+
 		
 		// need to set the region anchors so that the gridRegForRatesInSpace sub-regions fall completely inside the griddes seis regions
 		//this assumes the point sources have an anchor of GriddedRegion.ANCHOR_0_0)
@@ -190,6 +199,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 		numParDepths = numRateDepths+1;
 		numPointsForParLocs = gridRegForParentLocs.getNumLocations()*numParDepths;
+		
+		grCorrFactorForCellArray = getGR_CorrFactorsForGridCells();
 		
 		// write out some gridding values
 //		if(D) {
@@ -459,8 +470,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 		// now loop over all the points for rates
 		double total = 0;
-		int ptAtLowestCorr=-1;
-		double lowestCorrVal=Double.POSITIVE_INFINITY;
 		for(int i=0;i <numPointsForRates;i++) {
 			int[] sources = srcAtPointList.get(i);
 			if(sources.length==0) {
@@ -473,19 +482,15 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				float[] fracts = fractionSrcAtPointList.get(i);
 				// compute the relative probability of each source at this point
 				double[] relProb = new double[sources.length];
-				if(applyGR_Corr) {
-					double[] grCorr = this.getImposeGR_CorrectionFactors(i);
-					for(double val : grCorr)
-						if(val<lowestCorrVal && val > 0.0) {
-							lowestCorrVal=val;
-							ptAtLowestCorr = i;
-						}
-					for(int s=0; s<sources.length;s++)
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorr[s];										
-				}
-				else {
-					for(int s=0; s<sources.length;s++)
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];					
+				
+				int indexForOrigGriddedRegion = -1;
+				if(applyGR_Corr)
+					indexForOrigGriddedRegion = getRegAndDepIndicesForSamplerIndex(i)[0];
+				for(int s=0; s<sources.length;s++) {
+					if(applyGR_Corr && s<erf.getNumFaultSystemSources())
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];										
+					else
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];		
 				}
 				total=0;
 				for(int s=0; s<sources.length;s++)	// sum for normalization
@@ -498,9 +503,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		double testSum=0;
 		for(int s=0; s<trigProb.length; s++)
 			testSum += trigProb[s];
-		
-		// System.out.println("testSum="+(float)testSum);
-		System.out.println("lowestCorrVal="+lowestCorrVal+"\tptAtLowestCorr="+ptAtLowestCorr);
 		
 		return trigProb;
 	}
@@ -833,84 +835,108 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		else {
 			float[] fracts = fractionSrcAtPointList.get(ptIndex);
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
-			if(applyGR_Corr) {
-				double[] grCorr = getImposeGR_CorrectionFactors(ptIndex);
-				for(int s=0; s<sources.length;s++) 
-					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorr[s]);				
-			}
-			else {
-				for(int s=0; s<sources.length;s++) 
-					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);				
+			int indexForOrigGriddedRegion = -1;
+			if(applyGR_Corr)
+				indexForOrigGriddedRegion = getRegAndDepIndicesForSamplerIndex(ptIndex)[0];
+			for(int s=0; s<sources.length;s++) {
+				if(applyGR_Corr && s<erf.getNumFaultSystemSources())
+					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion]);		
+				else
+					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);		
 			}
 			return sources[sampler.getRandomInt()];
 		}
 	}
 	
 	
-	/**
-	 * This returns a correction array that will make the total MFD at the point less than or equal to GR
-	 * at each magnitude.
-	 * @param ptIndex
-	 * @return
-	 */
-	public double[] getImposeGR_CorrectionFactors(int ptIndex) {
-		// get the total MFD at this point
-		SummedMagFreqDist magDist = getOrigNucleationMFD_AtPoint(ptIndex);
-		int[] sources = srcAtPointList.get(ptIndex);
-		// now make correction array
-		double[] corrArray = new double[sources.length];
-		double rateAtM5pt5 = magDist.getY(5.05);
-//		if(rateAtM5pt5<10e-14)
-//			System.out.println("rateAtM5pt5="+rateAtM5pt5+" at ptIndex="+ptIndex+"; loc: "+getLocationForSamplerIndex(ptIndex));
-		for(int s=0; s<sources.length;s++) {
-			if(sources[s]<erf.getNumFaultSystemSources()) {
-				double meanMag = 0;
-				int numMag = 0;
-				for(ProbEqkRupture rup : erf.getSource(sources[s])) {
-					meanMag += rup.getMag();
-					numMag +=1;
-				}
-				meanMag /= numMag;
-				double ratio = magDist.getClosestY(meanMag)/(rateAtM5pt5*Math.pow(10, 5.05-meanMag)); // assumes b-value=1.0.
-				if(ratio>1.0)
-					corrArray[s] = 1.0/ratio;
-				else
-					corrArray[s] = 1.0;				
-			}
-			else {
-				corrArray[s] = 1.0;				
-			}
-		}
-		return corrArray;
-	}
+	public double[] getGR_CorrFactorsForGridCells() {
+		
+		double[] grCorrFactorForCellArray = new double[origGriddedRegion.getNodeCount()];
+		
+		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
+		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
 
-	/**
-	 * "Orig" means this does not have any GR imposition
-	 * @return
-	 */
-	public SummedMagFreqDist getOrigNucleationMFD_AtPoint(int ptIndex) {
-		// make MFD for each source if it doesn't exist
-		if(mfdForSrcArray == null) {
-			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-			for(int s=0; s<erf.getNumSources();s++) {
-				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
+		for(int i=0;i<subMFD_Array.length;i++) {
+			if(supraMFD_Array[i] != null) {
+				double val = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+				if(val<1.0)
+					grCorrFactorForCellArray[i]=val;
+				else
+					grCorrFactorForCellArray[i]=1.0;
+			}
+			else {	// no supra-seismogenic ruptures
+				grCorrFactorForCellArray[i]=1.0;
 			}
 		}
-		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05, 8.95, 40);
-		int[] sources = srcAtPointList.get(ptIndex);
-		float[] fracts = fractionSrcAtPointList.get(ptIndex);
-		for(int s=0; s<sources.length;s++) {
-			SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
-			for(int m=0;m<mfd.getNum();m++)
-				magDist.add(m, mfd.getY(m)*(double)fracts[s]);
-		}
-		magDist.setName("Nucleation MFD at ptIndex="+ptIndex);
-		String info = "Loc: "+getLocationForSamplerIndex(ptIndex)+"\n";
-		for(int s=0; s<sources.length;s++)
-			info += s+"\t"+erf.getSource(sources[s]).getName()+"\n";
-		magDist.setInfo(info);
-		return magDist;
+		return grCorrFactorForCellArray;
 	}
+	
+// NO LONGER NEEDED 	
+	
+//	/**
+//	 * This returns a correction array that will make the total MFD at the point less than or equal to GR
+//	 * at each magnitude.
+//	 * @param ptIndex
+//	 * @return
+//	 */
+//	public double[] getImposeGR_CorrectionFactors(int ptIndex) {
+//		// get the total MFD at this point
+//		SummedMagFreqDist magDist = getOrigNucleationMFD_AtPoint(ptIndex);
+//		int[] sources = srcAtPointList.get(ptIndex);
+//		// now make correction array
+//		double[] corrArray = new double[sources.length];
+//		double rateAtM5pt5 = magDist.getY(5.05);
+////		if(rateAtM5pt5<10e-14)
+////			System.out.println("rateAtM5pt5="+rateAtM5pt5+" at ptIndex="+ptIndex+"; loc: "+getLocationForSamplerIndex(ptIndex));
+//		for(int s=0; s<sources.length;s++) {
+//			if(sources[s]<erf.getNumFaultSystemSources()) {
+//				double meanMag = 0;
+//				int numMag = 0;
+//				for(ProbEqkRupture rup : erf.getSource(sources[s])) {
+//					meanMag += rup.getMag();
+//					numMag +=1;
+//				}
+//				meanMag /= numMag;
+//				double ratio = magDist.getClosestY(meanMag)/(rateAtM5pt5*Math.pow(10, 5.05-meanMag)); // assumes b-value=1.0.
+//				if(ratio>1.0)
+//					corrArray[s] = 1.0/ratio;
+//				else
+//					corrArray[s] = 1.0;				
+//			}
+//			else {
+//				corrArray[s] = 1.0;				
+//			}
+//		}
+//		return corrArray;
+//	}
+//
+//	/**
+//	 * "Orig" means this does not have any GR imposition
+//	 * @return
+//	 */
+//	public SummedMagFreqDist getOrigNucleationMFD_AtPoint(int ptIndex) {
+//		// make MFD for each source if it doesn't exist
+//		if(mfdForSrcArray == null) {
+//			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+//			for(int s=0; s<erf.getNumSources();s++) {
+//				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
+//			}
+//		}
+//		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05, 8.95, 40);
+//		int[] sources = srcAtPointList.get(ptIndex);
+//		float[] fracts = fractionSrcAtPointList.get(ptIndex);
+//		for(int s=0; s<sources.length;s++) {
+//			SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
+//			for(int m=0;m<mfd.getNum();m++)
+//				magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+//		}
+//		magDist.setName("Nucleation MFD at ptIndex="+ptIndex);
+//		String info = "Loc: "+getLocationForSamplerIndex(ptIndex)+"\n";
+//		for(int s=0; s<sources.length;s++)
+//			info += s+"\t"+erf.getSource(sources[s]).getName()+"\n";
+//		magDist.setInfo(info);
+//		return magDist;
+//	}
 	
 	/**
 	 * Region index is first element, and depth index is second
@@ -1095,7 +1121,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		erf.updateForecast();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
-		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
 
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
@@ -1107,11 +1132,9 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
-		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(regionForRates, erf, sourceRates, 
+		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates);
 		
-		GraphWindow magProbDistsGraph = new GraphWindow(etas_PrimEventSampler.getOrigNucleationMFD_AtPoint(143069), "Test MFD at Point"); 
-
 		
 		
 //		etas_PrimEventSampler.testMagFreqDist();
