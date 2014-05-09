@@ -91,13 +91,13 @@ public class NewZealandERF_2012 extends AbstractERF {
 	}
 	
 	public static void main(String[] args) {
-		NewZealandERF_2012 erf = new NewZealandERF_2012();
-		erf.updateForecast();
-		for (ProbEqkSource source : erf) {
-			System.out.println(source.getName() + " " + source.getNumRuptures());
-		}
+//		NewZealandERF_2012 erf = new NewZealandERF_2012();
+//		erf.updateForecast();
+//		for (ProbEqkSource source : erf) {
+//			System.out.println(source.getName() + " " + source.getNumRuptures());
+//		}
 		
-//		testApp();
+		testApp();
 	}
 	
 	private static void testApp() {

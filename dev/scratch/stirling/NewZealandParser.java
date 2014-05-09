@@ -43,8 +43,6 @@ class NewZealandParser {
 	private static final String gridPath = "data" + S + "backgroundGrid.txt";
 	private static final String faultPath = "data" + S + "FUN1111.DAT";
 
-	// TODO implement floor background rate 8*10^-4 for M>=4
-
     static {
 		initFaults();
 		initGrid();
@@ -243,10 +241,16 @@ class NewZealandParser {
 			// compute a-value and MFD
 			double aVal = aValueCalc(m4rate, m5rate, m6p5rate, bVal); // a @ M=0
 			double aValMinM = MagUtils.gr_rate(aVal, bVal, M_MIN);
+			
+			
 			int nMag = (int) ((mMax - M_MIN) / D_MAG + 1.4);
 			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(M_MIN, nMag, D_MAG);
 			mfd.setAllButTotMoRate(M_MIN, mMax, aValMinM, bVal);
 			mfds.add(mfd);
+			
+			// TODO implement floor background rate 0.08 for M>=4
+
+
 
 			// get source type id; ise 'sr' for empty value and offset indexing
 			// KLUDGY -- probably should just use substrings to extract values
@@ -265,6 +269,9 @@ class NewZealandParser {
 			double depth = Double.parseDouble(values.get(11 + offset));
 			Location loc = new Location(lat, lon, depth);
 			locs.add(loc);
+
+			System.out.println(MagUtils.gr_rate(aVal, bVal, 4.0) + " " + loc);
+
 		}
 	}
 
@@ -294,14 +301,18 @@ class NewZealandParser {
 	 */
 	private static double aValueCalc(double rate_m4, double rate_m5, double rate_m6p5, double b) {
 		// a value formulation
-		double tb1 = CT_M4 * Math.pow(10, 4.0 * b);
-		double tb2 = CT_M5 * Math.pow(10, 5.0 * b);
-		double tb3 = CT_M6P5 * Math.pow(10, 6.5 * b);
-		return Math.log10(rate_m4 + rate_m5 + rate_m6p5) / (tb1 + tb2 + tb3);
+		double tb1 = CT_M4 * Math.pow(10, 4.0 * -b);
+		double tb2 = CT_M5 * Math.pow(10, 5.0 * -b);
+		double tb3 = CT_M6P5 * Math.pow(10, 6.5 * -b);
+		return Math.log10((rate_m4 + rate_m5 + rate_m6p5) / (tb1 + tb2 + tb3));
 	}
 
 	public static void main(String[] args) throws IOException {
 		// loadFaultSources();
-//		loadGridSources();
+		NewZealandParser parser = new NewZealandParser();
+//		List<ProbEqkSource> sources = parser.getGridSources(1.0);
+//		for (ProbEqkSource src : sources) {
+//			System.out.println(src);
+//		}
 	}
 }
