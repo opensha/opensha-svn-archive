@@ -48,7 +48,9 @@ import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
 
 
+
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
+import scratch.stirling.NewZealandERF_2012;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF3_CompoundSol_ERF;
@@ -173,6 +175,7 @@ public enum ERF_Ref {
 	STEP_ALASKA(STEP_AlaskanPipeForecast.class, STEP_AlaskanPipeForecast.NAME, DEVELOPMENT, false),
 	
 	// add NZ?
+	NEW_ZEALAND_2012(NewZealandERF_2012.class, NewZealandERF_2012.NAME, DEVELOPMENT, false),
 	
 	// EXPERIMENTAL
 	
