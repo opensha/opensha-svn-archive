@@ -44,9 +44,11 @@ class NewZealandParser {
 	private static final String gridPath = "data" + S + "backgroundGrid.txt";
 	private static final String faultPath = "data" + S + "FUN1111.DAT";
 
+	private static final double M4_FLOOR = 0.0008;
+	
     static {
 		initFaults();
-//		initGrid();
+		initGrid();
 	}
 	
 
@@ -140,10 +142,6 @@ class NewZealandParser {
 			// dip direction derived from the trace as reported. If not,
 			// the trace is reversed. We do not preserve dip direction data
 			// after parsing.
-			//
-			// TODO is the above ok? the dip directions reported in the input
-			// file are best estimates and often deviate by as much as 15deg
-			// from the dip direction derived from the fault trace.
 			traces.add(validateTrace(trace, dipDir));
 
 			// skip closing -1
@@ -247,20 +245,23 @@ class NewZealandParser {
 			double bVal = Double.parseDouble(values.get(3));
 			double mMax = Double.parseDouble(values.get(4)) - D_MAG_BY_2;
 
-			// compute a-value and MFD
+			// compute a-value
 			double aVal = aValueCalc(m4rate, m5rate, m6p5rate, bVal); // a @ M=0
+			
+			// if rate at M=4 < 0.0008, scale 
+			double m4test = MagUtils.gr_rate(aVal, bVal, 4.0);
+			if (m4test < M4_FLOOR) {
+				double aScale = Math.log10(M4_FLOOR) - Math.log10(m4test);
+				aVal += aScale;
+			}
+			
+			// build mfd
 			double aValMinM = MagUtils.gr_rate(aVal, bVal, M_MIN);
-			
-			
 			int nMag = (int) ((mMax - M_MIN) / D_MAG + 1.4);
 			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(M_MIN, nMag, D_MAG);
 			mfd.setAllButTotMoRate(M_MIN, mMax, aValMinM, bVal);
 			mfds.add(mfd);
 			
-			// TODO implement floor background rate 0.08 for M>=4
-
-
-
 			// get source type id; ise 'sr' for empty value and offset indexing
 			// KLUDGY -- probably should just use substrings to extract values
 			NZ_SourceID id = NZ_SourceID.SR;
@@ -279,8 +280,6 @@ class NewZealandParser {
 			Location loc = new Location(lat, lon, depth);
 			locs.add(loc);
 			
-			System.out.println(MagUtils.gr_rate(aVal, bVal, 4.0) + " " + loc);
-
 		}
 	}
 
@@ -313,7 +312,10 @@ class NewZealandParser {
 		double tb1 = CT_M4 * Math.pow(10, 4.0 * -b);
 		double tb2 = CT_M5 * Math.pow(10, 5.0 * -b);
 		double tb3 = CT_M6P5 * Math.pow(10, 6.5 * -b);
-		return Math.log10((rate_m4 + rate_m5 + rate_m6p5) / (tb1 + tb2 + tb3));
+		double rateSum = rate_m4 + rate_m5 + rate_m6p5;
+		// if rateSum = 0.0, then the method will return -Infinity, so we return
+		// a very small a-value instead (-30)
+		return rateSum <= 0.0 ? -30 : Math.log10(rateSum / (tb1 + tb2 + tb3));
 	}
 	
 	/*
@@ -322,6 +324,7 @@ class NewZealandParser {
 	private static FaultTrace validateTrace(FaultTrace trace, double dipDir) {
 		double traceDipDir = trace.getDipDirection() * GeoTools.TO_RAD;
 		double inputDipDir = dipDir * GeoTools.TO_RAD;
+		// dot-product derived angle between two dip direction unit vectors
 		double angle = Math.acos(Math.sin(traceDipDir) * Math.sin(inputDipDir) +
 			Math.cos(traceDipDir) * Math.cos(inputDipDir)) *
 			GeoTools.TO_DEG;
