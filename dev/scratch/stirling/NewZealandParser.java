@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp2.erf.source.PointSource13b;
@@ -45,7 +46,7 @@ class NewZealandParser {
 
     static {
 		initFaults();
-		initGrid();
+//		initGrid();
 	}
 	
 
@@ -56,7 +57,6 @@ class NewZealandParser {
     private static List<Double> mags;
     private static List<Double> recurs;
     private static List<Double> dips;
-    private static List<Double> dipDirs;
     private static List<Double> zTops;
     private static List<Double> zBots;
     private static List<FaultTrace> traces;
@@ -69,7 +69,6 @@ class NewZealandParser {
     	mags = Lists.newArrayList();
     	recurs = Lists.newArrayList();
     	dips = Lists.newArrayList();
-    	dipDirs = Lists.newArrayList();
     	zTops = Lists.newArrayList();
     	zBots = Lists.newArrayList();
     	traces = Lists.newArrayList();
@@ -117,7 +116,7 @@ class NewZealandParser {
 			// get geometry data
 			List<Double> geomValues = lineToDoubleList(lineIterator.next());
 			dips.add(geomValues.get(0));
-			dipDirs.add(geomValues.get(1));
+			double dipDir = geomValues.get(1);
 			zTops.add(geomValues.get(3));
 			zBots.add(geomValues.get(2));
 
@@ -135,7 +134,17 @@ class NewZealandParser {
 					trace.add(parseLocation2(locLine));
 				}
 			}
-			traces.add(trace);
+			
+			// to adhere to the right hand rule, we need to check that the
+			// reported dip direction is correct (within 90 degrees of the
+			// dip direction derived from the trace as reported. If not,
+			// the trace is reversed. We do not preserve dip direction data
+			// after parsing.
+			//
+			// TODO is the above ok? the dip directions reported in the input
+			// file are best estimates and often deviate by as much as 15deg
+			// from the dip direction derived from the fault trace.
+			traces.add(validateTrace(trace, dipDir));
 
 			// skip closing -1
 			lineIterator.next();
@@ -269,7 +278,7 @@ class NewZealandParser {
 			double depth = Double.parseDouble(values.get(11 + offset));
 			Location loc = new Location(lat, lon, depth);
 			locs.add(loc);
-
+			
 			System.out.println(MagUtils.gr_rate(aVal, bVal, 4.0) + " " + loc);
 
 		}
@@ -305,6 +314,21 @@ class NewZealandParser {
 		double tb2 = CT_M5 * Math.pow(10, 5.0 * -b);
 		double tb3 = CT_M6P5 * Math.pow(10, 6.5 * -b);
 		return Math.log10((rate_m4 + rate_m5 + rate_m6p5) / (tb1 + tb2 + tb3));
+	}
+	
+	/*
+	 * Reverses trace if it does not adhere to right hand rule.
+	 */
+	private static FaultTrace validateTrace(FaultTrace trace, double dipDir) {
+		double traceDipDir = trace.getDipDirection() * GeoTools.TO_RAD;
+		double inputDipDir = dipDir * GeoTools.TO_RAD;
+		double angle = Math.acos(Math.sin(traceDipDir) * Math.sin(inputDipDir) +
+			Math.cos(traceDipDir) * Math.cos(inputDipDir)) *
+			GeoTools.TO_DEG;
+		if (angle > 90.0) {
+			trace.reverse();
+		}
+		return trace;
 	}
 
 	public static void main(String[] args) throws IOException {
