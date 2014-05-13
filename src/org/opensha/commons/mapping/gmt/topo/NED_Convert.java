@@ -30,7 +30,14 @@ public class NED_Convert {
 		double input_res = GeoTools.secondsToDeg(1d);
 		short in_rows = 3600 + 2*buffer;
 		short in_cols = 3600 + 2*buffer;
-		double output_res = GeoTools.secondsToDeg(3d);
+		int arcSecs;
+		if (args.length == 1)
+			arcSecs = Integer.parseInt(args[0]);
+		else if (args.length > 1)
+			throw new IllegalArgumentException("too many arguments!");
+		else
+			arcSecs = 3;
+		double output_res = GeoTools.secondsToDeg((double)arcSecs);
 		
 //		File inputDir = new File("/tmp/dem/1sec_ca/");
 //		double regMinLat = 32;
@@ -40,11 +47,15 @@ public class NED_Convert {
 //		File outputFile = new File("/tmp/dem_out.flt");
 		
 		File inputDir = new File("/home/scec-01/opensha/ned_usa/1sec_tiles");
-		double regMinLat = 26;
+//		double regMinLat = 26;
+//		double regMaxLat = 52;
+//		double regMinLon = -128;
+//		double regMaxLon = -66;
+		double regMinLat = 20;
 		double regMaxLat = 52;
 		double regMinLon = -128;
-		double regMaxLon = -66;
-		File outputFile = new File("/home/scec-01/opensha/ned_usa/us_dem_3sec.flt");
+		double regMaxLon = -60;
+		File outputFile = new File("/home/scec-01/opensha/ned_usa/us_dem_"+arcSecs+"sec.flt");
 		
 		long out_rows = (long)((regMaxLat - regMinLat)/output_res + 1.5);
 //		System.out.println((regMaxLat - regMinLat)/output_res);
@@ -62,7 +73,7 @@ public class NED_Convert {
 //		Preconditions.checkState(outputSizeBits <= Integer.MAX_VALUE, "File length ("+outputSizeBits+") must be < "+Integer.MAX_VALUE);
 		
 //		runTests(input_res);
-		System.exit(0);
+//		System.exit(0);
 		
 		Map<FileIndex, List<IndexedLoc>> filesMap = Maps.newHashMap();
 		
@@ -90,7 +101,7 @@ public class NED_Convert {
 				
 				if (!fileCoords.equals(prevFile)) {
 					if (prevFile != null)
-						filesMap.get(prevFile).add(new IndexedLoc(i, startJ, (short)(j-1), fileI, Shorts.toArray(fileJs)));
+						filesMap.get(prevFile).add(new IndexedLoc(i, startJ, j-1, fileI, Shorts.toArray(fileJs)));
 					
 					prevFile = fileCoords;
 					startJ = j;
@@ -105,7 +116,7 @@ public class NED_Convert {
 				j++;
 			}
 			Preconditions.checkState(startJ >= 0);
-			filesMap.get(prevFile).add(new IndexedLoc(i, startJ, (short)(out_cols-1), fileI, Shorts.toArray(fileJs)));
+			filesMap.get(prevFile).add(new IndexedLoc(i, startJ, (int)out_cols-1, fileI, Shorts.toArray(fileJs)));
 			i++;
 		}
 		
@@ -274,7 +285,10 @@ public class NED_Convert {
 	}
 	
 	private static float[][] loadFile(File dir, FileIndex indexes, short rows, short cols) throws ZipException, IOException {
-		String regName = "n"+indexes.i+"w"+indexes.j;
+		String jStr = indexes.j+"";
+		if (indexes.j < 100)
+			jStr = "0"+jStr;
+		String regName = "n"+indexes.i+"w"+jStr;
 		
 		float[][] ret = new float[rows][cols];
 		

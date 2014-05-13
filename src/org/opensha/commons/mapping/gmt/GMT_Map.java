@@ -64,16 +64,13 @@ public class GMT_Map implements Serializable {
 	}
 	private HighwayFile highwayFile = null;
 	
-	public static Region ca_topo_region;
-	static {
-//		try {
-			ca_topo_region  = new Region(
+	public static Region ca_topo_region  = new Region(
 					new Location(32, -126),
 					new Location(43, -115));
-//		} catch (RegionConstraintException e) {
-//			e.printStackTrace();
-//		}
-	}
+	
+	public static Region us_topo_region  = new Region(
+					new Location(20, -128),
+					new Location(52, -60));
 	private TopographicSlopeFile topoResolution = null;
 	
 	private CoastAttributes coast = new CoastAttributes();
