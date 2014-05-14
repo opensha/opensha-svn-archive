@@ -95,7 +95,14 @@ public class SeisDepthDistribution {
 		}
 		System.out.println("totBinnedProb="+binnedDepthDistFunc.calcSumOfY_Vals());
 		PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK);
-		GraphWindow graph2 = new GraphWindow(binnedDepthDistFunc, "binnedDepthDistFunc", plotChar); 		
+		GraphWindow graph2 = new GraphWindow(binnedDepthDistFunc, "Seismicity Depth Distribution", plotChar); 		
+		graph2.setX_AxisRange(0, 24);
+		graph2.setY_AxisRange(0, 0.301);
+		graph2.setX_AxisLabel("Depth (km)");
+		graph2.setY_AxisLabel("Fraction");
+		graph2.setAxisLabelFontSize(20);
+		graph2.setPlotLabelFontSize(22);
+		graph2.setTickLabelFontSize(18);
 	}
 	
 	
