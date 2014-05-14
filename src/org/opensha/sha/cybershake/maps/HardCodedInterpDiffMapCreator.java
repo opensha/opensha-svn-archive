@@ -314,12 +314,12 @@ public class HardCodedInterpDiffMapCreator {
 //			List<Integer> datasetIDs = Lists.newArrayList(35);
 			
 			// BBP 1D, AWP GPU
-			int velModelID = 8;
-			List<Integer> datasetIDs = Lists.newArrayList(38);
+//			int velModelID = 8;
+//			List<Integer> datasetIDs = Lists.newArrayList(38);
 			
 			// CVM-S4i26, AWP CPU
-//			int velModelID = 7;
-//			List<Integer> datasetIDs = Lists.newArrayList(34);
+			int velModelID = 7;
+			List<Integer> datasetIDs = Lists.newArrayList(34);
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(25);
@@ -355,10 +355,10 @@ public class HardCodedInterpDiffMapCreator {
 			double val = 0.0004;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
-			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
-//			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);

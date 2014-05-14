@@ -119,6 +119,18 @@ public class SimAnalysisCatLoader {
 				name = "San Jacinto";
 				color = Color.CYAN;
 				break;
+			case ElementMagRangeDescription.ELSINORE_ELEMENT_ID:
+				name = "Elsinore";
+				color = Color.GRAY;
+				break;
+			case ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID:
+				name = "Puente Hills";
+				color = Color.MAGENTA;
+				break;
+			case ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID:
+				name = "Newport-Inglewood (onshore)";
+				color = Color.MAGENTA;
+				break;
 
 			default:
 				throw new IllegalStateException("Unknown elem: "+elemID);

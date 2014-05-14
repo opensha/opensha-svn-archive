@@ -31,6 +31,7 @@ import javax.swing.event.ChangeListener;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.siteData.impl.US_3secTopography;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
@@ -440,6 +441,12 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 				providers.set(i, wills);
 				break;
 			}
+		}
+		
+		try {
+			providers.add(new US_3secTopography());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		try {

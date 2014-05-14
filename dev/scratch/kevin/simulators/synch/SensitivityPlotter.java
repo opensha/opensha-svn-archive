@@ -437,7 +437,7 @@ public class SensitivityPlotter {
 	
 	public static void main(String[] args) throws IOException {
 		File dir = new File("/home/kevin/Simulators/synch/weight_CATALOG_G_indep_shiftLag/sens_tests/");
-		SensTestType testType = SensTestType.BIN_SIZE;
+		SensTestType testType = SensTestType.ELEM_VOL;
 		
 		SensitivityPlotter plot = new SensitivityPlotter(dir, testType);
 		plot.plotAllSinglePairings(dir);

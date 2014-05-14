@@ -30,5 +30,9 @@ public class LogicalAndRupIden extends AbstractRuptureIdentifier {
 	public String getName() {
 		return "Logical and rupture identfier with "+rupIdens.size()+" idens.";
 	}
+	
+	public Collection<RuptureIdentifier> getSubIdens() {
+		return rupIdens;
+	}
 
 }

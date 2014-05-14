@@ -78,7 +78,8 @@ public class SpeedTestComparisonGen {
 			for (CybershakeSite csSite : fetcher.getCurveSites()) {
 				if (csSite.type_id == CybershakeSite.TYPE_TEST_SITE)
 					continue;
-				Location loc = csSite.createLocation();
+//				Location loc = csSite.createLocation();
+				Location loc = new Location(csSite.lat+Math.random(), csSite.lon+Math.random());
 				Site site = new Site(loc);
 
 				site.addParameter((Parameter)imr.getParameter(Vs30_Param.NAME).clone());

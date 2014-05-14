@@ -518,6 +518,22 @@
     <url-pattern>/SiteData/SRTM30_Slope</url-pattern>
   </servlet-mapping>
 
+  <!-- * US 3 sec topography * -->
+  <servlet>
+    <servlet-name>US3secNED</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.US_3secTopographyServlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>US3secNED</servlet-name>
+    <url-pattern>/SiteData/US3secNED</url-pattern>
+  </servlet-mapping>
+
 
   <!-- ** ERF related ** -->
   <!-- * WG02 Fortran Wrapper * -->

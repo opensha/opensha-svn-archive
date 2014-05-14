@@ -10,6 +10,8 @@ import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
 import org.opensha.sha.simulators.eqsim_v04.EventRecord;
 import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.eqsim_v04.iden.LogicalAndRupIden;
+import org.opensha.sha.simulators.eqsim_v04.iden.LogicalOrRupIden;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.kevin.simulators.PeriodicityPlotter;
@@ -74,10 +76,20 @@ public class RandomCatalogBuilder {
 				idenElemsListMap = Maps.newHashMap();
 				for (int i=0; i<rupIdens.size(); i++) {
 					RuptureIdentifier iden = rupIdens.get(i);
-					Preconditions.checkState(iden instanceof ElementMagRangeDescription,
-							"Can only split for element based rup idens.");
-					ElementMagRangeDescription elemIden = (ElementMagRangeDescription)iden;
-					List<Integer> elemIDs = elemIden.getElementIDs();
+					List<RuptureIdentifier> subIdens = Lists.newArrayList();
+					if (iden instanceof LogicalOrRupIden)
+						subIdens.addAll(((LogicalOrRupIden)iden).getSubIdens());
+					else if (iden instanceof LogicalAndRupIden)
+						subIdens.addAll(((LogicalAndRupIden)iden).getSubIdens());
+					else
+						subIdens.add(iden);
+					List<Integer> elemIDs = Lists.newArrayList();
+					for (RuptureIdentifier subIden : subIdens) {
+						Preconditions.checkState(subIden instanceof ElementMagRangeDescription,
+								"Can only split for element based rup idens.");
+						ElementMagRangeDescription elemIden = (ElementMagRangeDescription)subIden;
+						elemIDs.addAll(elemIden.getElementIDs());
+					}
 					idenElemsListMap.put(iden, elemIDs);
 				}
 			}

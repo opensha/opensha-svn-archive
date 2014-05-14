@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
@@ -22,6 +23,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.UncertainArbDiscDataset;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
@@ -31,6 +33,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
@@ -53,6 +56,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
+/**
+ * Synchronization parameter calculator for simulated catalogs. Can calculate Gbar with various parameterizations,
+ * including CATALOG_G, the most recent/best formulation.
+ * @author kevin
+ *
+ */
 public class SynchParamCalculator {
 
 	// inputs
@@ -1089,6 +1098,7 @@ public class SynchParamCalculator {
 		}
 
 		Map<IDPairing, UncertainArbDiscDataset> lagUncertainties = null;
+		Map<IDPairing, Double> pairingStdDevs = Maps.newHashMap();
 		if (trialPrefix != null) {
 			System.out.println("Loading "+maxTrialsFound+" trials for each with prefix: "+trialPrefix);
 			Map<IDPairing, EvenlyDiscretizedFunc> upperFuncs = Maps.newHashMap();
@@ -1122,6 +1132,11 @@ public class SynchParamCalculator {
 						double mean = StatUtils.mean(vals);
 						double upper = StatUtils.percentile(vals, 97.5);
 						double lower = StatUtils.percentile(vals, 2.5);
+						
+						double[] lnVals = new double[vals.length];
+						for (int i=0; i<vals.length; i++)
+							lnVals[i] = Math.log(vals[i]);
+						double stdDev = Math.sqrt(StatUtils.variance(lnVals));
 
 						IDPairing pair = new IDPairing(m, n);
 						EvenlyDiscretizedFunc upperFunc;
@@ -1146,6 +1161,9 @@ public class SynchParamCalculator {
 						upperFunc.set(l, Math.log(upper));
 						lowerFunc.set(l, Math.log(lower));
 						meanFunc.set(l, Math.log(mean));
+						
+						if (lag == 0)
+							pairingStdDevs.put(pair, stdDev);
 					}
 				}
 			}
@@ -1154,6 +1172,8 @@ public class SynchParamCalculator {
 				lagUncertainties.put(pairing, new UncertainArbDiscDataset(
 						meanFuncs.get(pairing), lowerFuncs.get(pairing), upperFuncs.get(pairing)));
 			}
+			File stdDevDir = new File(file.getParentFile(), "synch_std_regression");
+			plotStdDevs(stdDevDir, pairingStdDevs, chain);
 		}
 
 		File synchLagDir = new File(file.getParentFile(), "synch_lag");
@@ -1570,6 +1590,162 @@ public class SynchParamCalculator {
 		csv.writeToFile(file);
 	}
 	
+	private static enum RegressionCombType {
+		MAX,
+		MEAN,
+		GEOM_MEAN,
+		PROD
+	};
+	
+	private static enum RegressionXUnits {
+		RI_MEAN,
+		RI_MEDIAN,
+		RI_MEAN_FRACT,
+		NUM;
+	}
+	
+	private static void plotStdDevs(File outputDir, Map<IDPairing, Double> stdDevs, MarkovChainBuilder chain) throws IOException {
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		
+		for (RegressionXUnits regX : RegressionXUnits.values()) {
+			double[] xVals;
+			switch (regX) {
+			case RI_MEAN:
+				xVals = calcRIs(chain, false);
+				break;
+			case RI_MEDIAN:
+				xVals = calcRIs(chain, true);
+				break;
+			case NUM:
+				xVals = calcEventCounts(chain);
+				break;
+			case RI_MEAN_FRACT:
+				xVals = calcRIs(chain, false);
+				double catLen = chain.getFullPath().size()*chain.getDistSpacing();
+				for (int i=0; i<xVals.length; i++)
+					xVals[i] /= catLen;
+				break;
+
+			default:
+				throw new IllegalStateException("unknown reg x type: "+regX);
+			}
+			
+			for (RegressionCombType type : RegressionCombType.values()) {
+				String outputName = regX.name()+"_COMB_"+type.name();
+				
+				XY_DataSet xy = new DefaultXY_DataSet();
+				SimpleRegression reg = new SimpleRegression(true);
+				
+				for (IDPairing pair : stdDevs.keySet()) {
+					double x1 = xVals[pair.getID1()];
+					double x2 = xVals[pair.getID2()];
+					double combX;
+					
+					switch (type) {
+					case MAX:
+						combX = Math.max(x1, x2);
+						break;
+					case MEAN:
+						combX = 0.5*(x1+x2);
+						break;
+					case GEOM_MEAN:
+						combX = Math.sqrt(x1*x2);
+						break;
+					case PROD:
+						combX = x1*x2;
+						break;
+
+					default:
+						throw new IllegalStateException("unknown avg type: "+type);
+					}
+					
+					xy.set(combX, stdDevs.get(pair));
+					reg.addData(combX, stdDevs.get(pair));
+				}
+				
+				List<PlotElement> elems = Lists.newArrayList();
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				List<XYTextAnnotation> anns = Lists.newArrayList();
+				
+				elems.add(xy);
+				chars.add(new PlotCurveCharacterstics(PlotSymbol.BOLD_X, 4f, Color.BLACK));
+				
+				// add regression curve
+				ArbitrarilyDiscretizedFunc regFunc = new ArbitrarilyDiscretizedFunc();
+				regFunc.setName("Best Fit Line. MSE="+reg.getMeanSquareError());
+				regFunc.set(0d, reg.predict(0d));
+				regFunc.set(xy.getMaxX(), reg.predict(xy.getMaxX()));
+				
+				elems.add(0, regFunc);
+				chars.add(0, new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				XYTextAnnotation regAnn = new XYTextAnnotation(
+						"  MSE="+(float)reg.getMeanSquareError()+", R="+(float)reg.getR(), 0d, 0.12);
+				regAnn.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+				regAnn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+				anns.add(regAnn);
+				XYTextAnnotation regValAnn = new XYTextAnnotation(
+						"  y0="+(float)reg.getIntercept()+", slope="+(float)reg.getSlope(), 0d, 0.11);
+				regValAnn.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+				regValAnn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+				anns.add(regValAnn);
+				
+				PlotSpec spec = new PlotSpec(elems, chars, "Std. Dev. vs "+regX.name(),
+						type.name()+" of "+regX.name(), "Synch Std. Dev.");
+				spec.setPlotAnnotations(anns);
+				HeadlessGraphPanel gp = new HeadlessGraphPanel();
+				gp.setBackgroundColor(Color.WHITE);
+				gp.setTickLabelFontSize(14);
+				gp.setAxisLabelFontSize(16);
+				gp.setPlotLabelFontSize(18);
+
+				gp.drawGraphPanel(spec, false, false);
+
+				gp.getCartPanel().setSize(1000, 800);
+				gp.saveAsPNG(new File(outputDir, outputName+".png").getAbsolutePath());
+//				gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
+			}
+		}
+		
+		
+	}
+	
+	private static double[] calcRIs(MarkovChainBuilder chain, boolean median) {
+		double[] ret = new double[chain.getNDims()];
+		for (int m=0; m<chain.getNDims(); m++) {
+			int prevIndex = -1;
+			List<Double> ois = Lists.newArrayList();
+			List<int[]> fullPath = chain.getFullPath();
+			for (int i = 0; i < fullPath.size(); i++) {
+				int[] state = fullPath.get(i);
+				int val = state[m];
+				if (val == 0) {
+					if (prevIndex >= 0) {
+						ois.add((double)(i - prevIndex));
+					}
+					prevIndex = i;
+				}
+			}
+			double[] oiArray = Doubles.toArray(ois);
+			if (median)
+				ret[m] = DataUtils.median(oiArray);
+			else
+				ret[m] = StatUtils.mean(oiArray);
+			ret[m] *= chain.getDistSpacing();
+		}
+		return ret;
+	}
+	
+	private static double[] calcEventCounts(MarkovChainBuilder chain) {
+		double[] ret = new double[chain.getNDims()];
+		for (int[] state : chain.getFullPath()) {
+			for (int m=0; m<state.length; m++)
+				if (state[m] == 0)
+					ret[m]++;
+		}
+		return ret;
+	}
+	
 	private static double calcCatalogG(MarkovChainBuilder chain, int m, int n) {
 		int numWindows = 0;
 		int numMN = 0;
@@ -1742,10 +1918,14 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
+//				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
+//				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
+//				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID
 		};
 		boolean gen_2d_corr_pdfs = false;
 		boolean cov = false;
 		double distSpacing = 10d;
+		boolean random = false;
 
 		RandomDistType origScrambleDist = null;
 		//		RandomDistType origScrambleDist = RandomDistType.ACTUAL;
@@ -1764,6 +1944,8 @@ public class SynchParamCalculator {
 
 		if (distSpacing != 10d)
 			name += "_"+(int)distSpacing+"yr";
+		if (random)
+			name += "_rand";
 
 		File writeDir = new File(mainDir, name);
 		if (!writeDir.exists())
@@ -1780,16 +1962,29 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
+				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
+				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
+				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
+				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID
 		};
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
 
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens).getEvents();
+		if (random)
+			events = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true, catLenMult);
 
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (int i=0; i<rupIdens.size(); i++)
-			matchesLists.add(rupIdens.get(i).getMatches(events));
+		for (int i=0; i<rupIdens.size(); i++) {
+			List<EQSIM_Event> matches = rupIdens.get(i).getMatches(events);
+			matchesLists.add(matches);
+			double[] matchRIs = new double[matches.size()-1];
+			for (int j=1; j<matches.size(); j++)
+				matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
+			System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
+		}
+//		System.exit(0);
+		
 
 		// generate Markov Chain
 		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, events, matchesLists);

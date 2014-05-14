@@ -24,6 +24,10 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
+
 import com.google.common.collect.Lists;
 
 public class AR_RupSACalc {
@@ -33,6 +37,20 @@ public class AR_RupSACalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		AbstractERF ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
+		ucerf2.updateForecast();
+		int numRups = 0;
+		for (int i=0; i<ucerf2.getNumSources(); i++)
+			numRups += ucerf2.getNumRuptures(i);
+		System.out.println("Ruptures: "+numRups);
+		InversionFaultSystemSolution u2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
+		int numInvRups = 0;
+		for (int r=0; r<u2Sol.getRupSet().getNumRuptures(); r++)
+			if (u2Sol.getRateForRup(r)>0d)
+				numInvRups++;
+		System.out.println(numInvRups+" mapped FM2.1 rups");
+		System.exit(0);
+		
 		String shortName = "DBCN";
 		ScalarIMR imr = AttenRelRef.CB_2008.instance(null);
 		boolean cvmh = true;

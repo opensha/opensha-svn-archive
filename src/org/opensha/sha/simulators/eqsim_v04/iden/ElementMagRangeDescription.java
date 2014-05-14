@@ -27,6 +27,8 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	public static final int GARLOCK_WEST_ELEMENT_ID = 6036;
 	public static final int SAN_JACINTO__ELEMENT_ID = 1931;
 	public static final int ELSINORE_ELEMENT_ID = 2460;
+	public static final int PUENTE_HILLS_ELEMENT_ID = 11829;
+	public static final int NEWP_INGL_ONSHORE_ELEMENT_ID = 7672;
 	
 	private String name;
 	private List<Integer> elementIDs;
