@@ -34,8 +34,9 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 public class ETAS_EqkRupture extends ObsEqkRupture {
 	
-	private int id=-1, parentID=-1, nthERF_Index=-1, generation=0;
+	private int id=-1, nthERF_Index=-1, generation=0;
 	private double distToParent=Double.NaN;
+	private ObsEqkRupture parentRup=null;
 	
 	public ETAS_EqkRupture() {};
 	
@@ -54,8 +55,8 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 		this.setEventId(probRup.getEventId());
 	}
 	
-	public ETAS_EqkRupture(int parentID, int id, long originTimeInMillis) {
-		this.parentID=parentID;
+	public ETAS_EqkRupture(ObsEqkRupture parentRup, int id, long originTimeInMillis) {
+		this.parentRup=parentRup;
 		this.id=id;
 		this.originTimeInMillis=originTimeInMillis;
 		
@@ -64,19 +65,21 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	
 	/**
 	 * The ID of the parent that spawned this primary aftershock
+	 * Returns -1 if there is no parent
 	 * @return
 	 */
 	public int getParentID() {
-		return parentID;
+		if(parentRup instanceof ETAS_EqkRupture)
+			return ((ETAS_EqkRupture)parentRup).getID();
+		else
+			return -1;
 	}
 	
-	/**
-	 * Sets the ID of the parent that spawned this primary aftershock
-	 * @return
-	 */
-	public void setParentID(int parentID) {
-		this.parentID = parentID;
+	
+	public ObsEqkRupture getParentRup() {
+		return parentRup;
 	}
+	
 	
 	/**
 	 * This returns the distance to the parent (NaN if never set)

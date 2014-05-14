@@ -12,6 +12,7 @@ import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -485,6 +486,56 @@ public class ETAS_SimAnalysisTools {
 	}
 
 
+	
+	public static void plotNumVsTimePrimaryAftershocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
+		
+		double delta = 1.0; // days
+		double tMin=0;		//days
+		double tMax=366;	//days
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+
+		// make the target function & change it to a PDF
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithTimeFunc(7, tMin, tMax, delta);
+		targetFunc.setName("Expected Temporal Decay for  First-generation Aftershocks");
+		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
+		
+		int numPts = (int) Math.round(tMax-tMin);
+		HistogramFunction firstGenEventTimes= new HistogramFunction(tMin+delta/2d,numPts,delta);
+		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+			if(event.getParentRup() != null) {
+				double timeDays = (event.getOriginTime()-event.getParentRup().getOriginTime())/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY;
+				firstGenEventTimes.add(timeDays, 1.0);
+			}
+		}
+		firstGenEventTimes.setName("Observed Temporal Decay for First-generation Aftershocks");
+		firstGenEventTimes.setInfo(" ");
+		firstGenEventTimes.normalizeBySumOfY_Vals();
+		
+		ArrayList funcs = new ArrayList();
+		funcs.add(firstGenEventTimes);
+		funcs.add(targetFunc);
+		
+		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay for  First-generation Aftershocks for "+info); 
+		graph.setX_AxisLabel("Days (since main shock)");
+		graph.setY_AxisLabel("Num Events");
+		graph.setX_AxisRange(0.4, 360);
+		graph.setY_AxisRange(1e-5, graph.getY_AxisRange().getUpperBound());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		graph.setPlotChars(plotChars);
+		graph.setYLog(true);
+		graph.setXLog(true);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
 
 	public static void plotNumVsTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			ObsEqkRupture mainShock) {
@@ -543,7 +594,15 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
-	
+	/**
+	 * This plots the number of events versus time from the given main shock.  Don't use this if 
+	 * the simulation includes spontaneous events, or more than one input observed event (so
+	 * that all aftershocks are ultimately spawned from the main shock here)
+	 * @param info
+	 * @param pdf_FileName
+	 * @param simulatedRupsQueue
+	 * @param mainShock
+	 */
 	public static void plotNumVsLogTime(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			ObsEqkRupture mainShock) {
 		
@@ -585,7 +644,7 @@ public class ETAS_SimAnalysisTools {
 		
 		ArrayList funcs = new ArrayList();
 		// TEMP HACK FOR SSA TALK
-//		funcs.add(allEvents);
+		funcs.add(allEvents);
 		funcs.add(firstGenEvents);
 		funcs.add(targetFunc);
 		
@@ -598,7 +657,7 @@ public class ETAS_SimAnalysisTools {
 		// TEMP HACK FOR SSA TALK (delete first two when done, un-comment 3rd)
 		graph.setX_AxisRange(-2.5, 3);
 		graph.setY_AxisRange(1, 100);
-//		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		graph.setPlotChars(plotChars);
@@ -617,7 +676,71 @@ public class ETAS_SimAnalysisTools {
 	}
 
 	
-	
+	/**
+	 * This plots the distribution of event time for primary aftershocks, relative to the time of the parent.
+	 * This assumes that event IDs for ruptures in the obsEqkRuptureList have been assigned as the index in that
+	 * list.
+	 * @param info
+	 * @param pdf_FileName
+	 * @param simulatedRupsQueue
+	 */
+	public static void plotNumVsLogTimePrimaryAftershocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
+		
+		double firstLogDay = -4;
+		double lastLocDay = 3;
+		double deltaLogDay =0.1;
+		int numPts = (int)Math.round((lastLocDay-firstLogDay)/deltaLogDay);
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+
+		// make the target function & change it to a PDF
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
+		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
+		targetFunc.setName("Expected Temporal Decay for First-generation Aftershocks");
+		
+		HistogramFunction firstGenEventTimes= new HistogramFunction(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
+
+		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+			if(event.getParentRup() != null) {
+				double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
+				double logTimeDays = Math.log10(timeMillis/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY);
+				if(logTimeDays<=firstLogDay)
+					firstGenEventTimes.add(0, 1.0);
+				else
+					firstGenEventTimes.add(logTimeDays, 1.0);
+			}
+		}
+		firstGenEventTimes.setName("Observed Temporal Decay for First-generation Aftershocks");
+		firstGenEventTimes.setInfo(" ");
+		firstGenEventTimes.normalizeBySumOfY_Vals();
+		
+		ArrayList funcs = new ArrayList();
+		funcs.add(firstGenEventTimes);
+		funcs.add(targetFunc);
+		
+		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay for First-generation Aftershocks"); 
+		graph.setX_AxisLabel("Log-day");
+		graph.setY_AxisLabel("Num Events");
+//		graph.setX_AxisRange(firstLogDay, lastLocDay);
+		graph.setY_AxisRange(1e-5, graph.getY_AxisRange().getUpperBound());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		graph.setPlotChars(plotChars);
+		graph.setYLog(true);
+//		graph.setXLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
 	
 	public static void writeEventDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
 		try{

@@ -2331,7 +2331,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID,ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -2358,7 +2358,6 @@ numSpontEvents=0;
 			double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
 			rup.setOriginTime((long)ot);
 			rup.setID(eventID);
-			rup.setParentID(-1);		// parent is long-term model
 			rup.setGeneration(0);
 			eventsToProcess.add(rup);
 			eventID += 1;
@@ -2485,7 +2484,7 @@ numSpontEvents=0;
 			if(eventTimes.length>0) {
 				for(int i=0; i<eventTimes.length;i++) {
 					long ot = rupOT +  (long)(eventTimes[i]*(double)MILLISEC_PER_DAY);
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 					newRup.setGeneration(gen);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -2694,7 +2693,7 @@ numSpontEvents=0;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID,ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -2721,7 +2720,6 @@ numSpontEvents=0;
 			double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
 			rup.setOriginTime((long)ot);
 			rup.setID(eventID);
-			rup.setParentID(-1);		// parent is long-term model
 			rup.setGeneration(0);
 			eventsToProcess.add(rup);
 			eventID += 1;
@@ -3057,7 +3055,7 @@ numSpontEvents=0;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID,ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -3084,7 +3082,6 @@ numSpontEvents=0;
 				double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
 				rup.setOriginTime((long)ot);
 				rup.setID(eventID);
-				rup.setParentID(-1);		// parent is long-term model
 				rup.setGeneration(0);
 				eventsToProcess.add(rup);
 				eventID += 1;
@@ -3239,7 +3236,7 @@ numSpontEvents=0;
 				if(eventTimes.length>0) {
 					for(int i=0; i<eventTimes.length;i++) {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)MILLISEC_PER_DAY);
-						ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
+						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 						newRup.setGeneration(gen);
 						eventsToProcess.add(newRup);
 						eventID +=1;
@@ -3397,7 +3394,7 @@ numSpontEvents=0;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID,ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -3424,7 +3421,6 @@ numSpontEvents=0;
 			double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
 			rup.setOriginTime((long)ot);
 			rup.setID(eventID);
-			rup.setParentID(-1);		// parent is long-term model
 			rup.setGeneration(0);
 			eventsToProcess.add(rup);
 			eventID += 1;
@@ -3608,7 +3604,7 @@ numSpontEvents=0;
 			if(eventTimes.length>0) {
 				for(int i=0; i<eventTimes.length;i++) {
 					long ot = rupOT +  (long)(eventTimes[i]*(double)MILLISEC_PER_DAY);
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 					newRup.setGeneration(gen);
 					eventsToProcess.add(newRup);
 					eventID +=1;

@@ -484,10 +484,13 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				double[] relProb = new double[sources.length];
 				
 				int indexForOrigGriddedRegion = -1;
-				if(applyGR_Corr)
-					indexForOrigGriddedRegion = getRegAndDepIndicesForSamplerIndex(i)[0];
+				if(applyGR_Corr) {
+					indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getLocationForSamplerIndex(i));	// more efficient way?
+//if(indexForOrigGriddedRegion == -1)
+//	System.out.println("bad loc: "+getLocationForSamplerIndex(i));
+				}
 				for(int s=0; s<sources.length;s++) {
-					if(applyGR_Corr && s<erf.getNumFaultSystemSources())
+					if(applyGR_Corr && sources[s]<erf.getNumFaultSystemSources() && indexForOrigGriddedRegion != -1)
 						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];										
 					else
 						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];		
@@ -835,12 +838,13 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		else {
 			float[] fracts = fractionSrcAtPointList.get(ptIndex);
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
-			int indexForOrigGriddedRegion = -1;
+			int indexForOrigGriddedRegion = -2;
 			if(applyGR_Corr)
-				indexForOrigGriddedRegion = getRegAndDepIndicesForSamplerIndex(ptIndex)[0];
+				indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getLocationForSamplerIndex(ptIndex));	// more efficient way?
 			for(int s=0; s<sources.length;s++) {
-				if(applyGR_Corr && s<erf.getNumFaultSystemSources())
+				if(applyGR_Corr && sources[s]<erf.getNumFaultSystemSources() && indexForOrigGriddedRegion != -1) {
 					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion]);		
+				}
 				else
 					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);		
 			}

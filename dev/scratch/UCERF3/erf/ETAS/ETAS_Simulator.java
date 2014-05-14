@@ -24,6 +24,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -67,9 +68,15 @@ public class ETAS_Simulator {
 	
 	
 	/**
-	 * This represents an ETAS simulation.  This assume ER probabilities are constant up until 
+	 * This represents an ETAS simulation.  
+	 * 
+	 * This assume ER probabilities are constant up until 
 	 * the next fault-system event (only works if fault system events occur every few years or
 	 * less).
+	 * 
+	 * What is assumed about region grid spacing? TODO
+	 * 
+	 * 
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
 	 * @param includeSpontEvents
@@ -82,7 +89,6 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(FaultSystemSolutionERF_ETAS erf, GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
 			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName) throws IOException {
 		
-
 		SeisDepthDistribution seisDepthDistribution = new SeisDepthDistribution();
 		
 		// directory for saving results
@@ -113,8 +119,6 @@ public class ETAS_Simulator {
 		// this will store the simulated aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
 		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);
-		
-		ArrayList<Double> normalizedRupRecurIntervals = new ArrayList<Double>();
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -183,7 +187,7 @@ public class ETAS_Simulator {
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID,ot);
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -208,7 +212,6 @@ public class ETAS_Simulator {
 				double ot = simStartTime+Math.random()*(simEndTime-simStartTime);	// random time over time span
 				rup.setOriginTime((long)ot);
 				rup.setID(eventID);
-				rup.setParentID(-1);		// parent is long-term model
 				rup.setGeneration(0);
 				eventsToProcess.add(rup);
 				eventID += 1;
@@ -339,7 +342,7 @@ public class ETAS_Simulator {
 				if(eventTimes.length>0) {
 					for(int i=0; i<eventTimes.length;i++) {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
-						ETAS_EqkRupture newRup = new ETAS_EqkRupture(parID, eventID, ot);
+						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 						newRup.setGeneration(gen);
 						eventsToProcess.add(newRup);
 						eventID +=1;
@@ -417,9 +420,9 @@ public class ETAS_Simulator {
 			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotDistDecayHistForAshocks...");
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("", dirNameForSavingFiles+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), etasDistDecay, etasMinDist);
 			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsLogTime...");
-			ETAS_SimAnalysisTools.plotNumVsLogTime("", dirNameForSavingFiles+"logTimeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotNumVsLogTimePrimaryAftershocks("", dirNameForSavingFiles+"logTimeDecay.pdf", simulatedRupsQueue);
 			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsTime...");
-			ETAS_SimAnalysisTools.plotNumVsTime("", dirNameForSavingFiles+"timeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.plotNumVsTimePrimaryAftershocks("", dirNameForSavingFiles+"timeDecay.pdf", simulatedRupsQueue);
 		}
 		else {
 			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
@@ -543,14 +546,14 @@ public class ETAS_Simulator {
 		
 		
 		// make bulge plots:
-		try {
-			GMT_CA_Maps.plotBulgeFromFirstGenAftershocksMap(erf, "testBulge", "test bulge", "testBulgeDir");
-			FaultBasedMapGen.plotBulgeFromFirstGenAftershocksMap((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
-			FaultBasedMapGen.plotBulgeForM6pt7_Map((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			GMT_CA_Maps.plotBulgeFromFirstGenAftershocksMap(erf, "testBulge", "test bulge", "testBulgeDir");
+//			FaultBasedMapGen.plotBulgeFromFirstGenAftershocksMap((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+//			FaultBasedMapGen.plotBulgeForM6pt7_Map((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 				
 		// examine bulge reduction scaling factors
 //		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), griddedRegion);
@@ -576,18 +579,39 @@ public class ETAS_Simulator {
 		
 		// get the rupture index of a Landers or Northridge like rupture
 //		ProbEqkRupture rupFromERF = erf.getSource(246139).getRupture(0);	// Landers
-		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
+//		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		
-		mainshockRup.setAveRake(rupFromERF.getAveRake());
-		mainshockRup.setMag(rupFromERF.getMag());
-		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
+//		mainshockRup.setAveRake(rupFromERF.getAveRake());
+//		mainshockRup.setMag(rupFromERF.getMag());
+//		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 		
-//		mainshockRup.setAveRake(0.0);
+		mainshockRup.setAveRake(0.0);
+
 //		mainshockRup.setMag(4.4);	// March17_2014_M4.4
 //		Location ptSurf = new Location(34.133,-118.487,8.0);	//
-//		mainshockRup.setPointSurface(ptSurf);
+		
+		// near Maacama to test most char MFD on fault sections
+		mainshockRup.setMag(6.0);
+		Location ptSurf = new Location(39.79509, -123.56665, 7.54615);	//
+
+		double minDist=Double.MAX_VALUE;
+		int minDistIndex=-1;
+		for(FaultSectionPrefData fltData:erf.getSolution().getRupSet().getFaultSectionDataList()){
+			double dist = fltData.getStirlingGriddedSurface(1.0, false, true).getDistanceRup(ptSurf);
+			if(dist<minDist) {
+				minDist=dist;
+				minDistIndex=fltData.getSectionId();
+			}
+		}
+		System.out.println("minDist="+minDist+"; minDistIndex="+minDistIndex);
+		FaultSectionPrefData fltData = erf.getSolution().getRupSet().getFaultSectionDataList().get(minDistIndex);
+		System.out.println(fltData.getName());
+//		System.out.println(fltData.getStirlingGriddedSurface(1.0, false, true));
+
+		
+		mainshockRup.setPointSurface(ptSurf);
 		
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
@@ -608,7 +632,7 @@ public class ETAS_Simulator {
 		System.out.println("Starting testETAS_Simulation");
 		try {
 			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Northridge_1");
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Maacama_6");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

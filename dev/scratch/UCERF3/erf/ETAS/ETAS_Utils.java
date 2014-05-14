@@ -217,6 +217,24 @@ public class ETAS_Utils {
 
 
 
+	/**
+	 * This returns a distance decay function, where x-axis is log10-distance values, and the Y axis is the
+	 * fraction of events expected within each distance.
+	 * @param minLogDist - minimum  x-axis log10-distance (km) value
+	 * @param maxLogDist - maximum x-axis log10-distance (km) value
+	 * @param num - number of points
+	 * @param minDist - minimum distance in km
+	 * @param distDecay	- positive value (negative sign is added within this method)
+	 * @return
+	 */
+	public static EvenlyDiscretizedFunc getDecayFractionInsideDistFunc(double minLogDist, double maxLogDist, int num, double distDecay, double minDist) {
+		EvenlyDiscretizedFunc logTargetDecay = new EvenlyDiscretizedFunc(minLogDist,maxLogDist,num);
+		for(int i=0;i<logTargetDecay.getNum();i++) {
+			logTargetDecay.set(i,getDecayFractionInsideDistance(distDecay, minDist, Math.pow(10d,logTargetDecay.getX(i))));
+		}
+		logTargetDecay.setName("logTargetDecay");
+		return logTargetDecay; 
+	}
 
 
 	
