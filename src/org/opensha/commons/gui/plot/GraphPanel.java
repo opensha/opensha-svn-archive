@@ -54,6 +54,7 @@ import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
@@ -66,10 +67,13 @@ import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.WeightedFuncListforPlotting;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.opensha.commons.gui.plot.jfreechart.CustomOffsetNumberAxis;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
 import org.opensha.commons.util.CustomFileFilter;
@@ -173,6 +177,8 @@ public class GraphPanel extends JSplitPane {
 	private PlotPreferences plotPrefs;
 	
 	JPanel emptyPlotPanel;
+	
+	private boolean griddedFuncAxesTicks = false;
 
 	/**
 	 * class constructor
@@ -392,13 +398,23 @@ public class GraphPanel extends JSplitPane {
 					xAxis = logAxis;
 				}
 				else xAxis = new NumberAxis( spec.getXAxisLabel() );
+				
+				if (!xLog && griddedFuncAxesTicks && i == 0) {
+					for (PlotElement elem : spec.getPlotElems()) {
+						if (elem instanceof EvenlyDiscretizedFunc) {
+							xAxis = new CustomOffsetNumberAxis((EvenlyDiscretizedFunc)elem, spec.getXAxisLabel());
+							break;
+						}
+					}
+				}
 
 				//if (!xLog)
 				//  xAxis.setAutoRangeIncludesZero(true);
 				// else
 				if (xAxis instanceof NumberAxis)
 					((NumberAxis)xAxis).setAutoRangeIncludesZero( false );
-				xAxis.setStandardTickUnits(units);
+				if (!(xAxis instanceof CustomOffsetNumberAxis))
+					xAxis.setStandardTickUnits(units);
 				xAxis.setTickMarksVisible(false);
 				xAxis.setTickLabelInsets(new RectangleInsets(3, 10, 3, 10));
 				//Axis label font
@@ -1313,5 +1329,9 @@ public class GraphPanel extends JSplitPane {
 
 	public void setPlotLabelFontSize(int plotLabelFontSize) {
 		plotPrefs.setPlotLabelFontSize(plotLabelFontSize);
+	}
+	
+	public void setGriddedFuncAxesTicks(boolean histogramAxesTicks) {
+		this.griddedFuncAxesTicks = histogramAxesTicks;
 	}
 }

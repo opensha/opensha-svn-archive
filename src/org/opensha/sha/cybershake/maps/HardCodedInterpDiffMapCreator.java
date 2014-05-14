@@ -358,7 +358,8 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
-			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
+			ScalarIMR baseMapIMR = null;
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
@@ -366,8 +367,8 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.IDRISS_2014.instance(null);
 			// GMPE params
-			baseMapIMR.setParamDefaults();
-			setTruncation(baseMapIMR, 3.0);
+//			baseMapIMR.setParamDefaults();
+//			setTruncation(baseMapIMR, 3.0);
 			// map label
 			String customLabel = "3sec SA, 2% in 50 yrs";
 			// always leave false, used for previous study
@@ -419,7 +420,7 @@ public class HardCodedInterpDiffMapCreator {
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
 		GeoDataSet baseMap;
-		if (!probGain) {
+		if (!probGain && baseMapIMR != null) {
 			baseMap = loadBaseMap(baseMapIMR, isProbAt_IML, val, velModelID, imTypeID);
 //			baseMap = loadBaseMap(singleDay, isProbAt_IML, val, imTypeID, baseMapName);
 			System.out.println("Basemap has " + baseMap.size() + " points");

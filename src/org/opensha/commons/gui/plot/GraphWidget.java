@@ -499,4 +499,9 @@ public class GraphWidget extends JPanel {
 		graphPanel.setBackgroundColor(background);
 		drawGraph();
 	}
+	
+	public void setGriddedFuncAxesTicks(boolean histogramAxesTicks) {
+		graphPanel.setGriddedFuncAxesTicks(histogramAxesTicks);
+		drawGraph();
+	}
 }
