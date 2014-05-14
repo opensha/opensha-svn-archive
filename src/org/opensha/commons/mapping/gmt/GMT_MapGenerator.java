@@ -332,9 +332,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		StringConstraint topoResolutionConstraint = new StringConstraint();
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_GLOBAL );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_06_US );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_18_US );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_US );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_18_US );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_06_US );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_03_CA );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_NONE );
 		topoResolutionParam = new StringParameter( TOPO_RESOLUTION_PARAM_NAME, topoResolutionConstraint,TOPO_RESOLUTION_PARAM_UNITS, TOPO_RESOLUTION_PARAM_DEFAULT );
