@@ -232,9 +232,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
 	private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
 	public final static String TOPO_RESOLUTION_03_CA = "03 sec California";
-	public final static String TOPO_RESOLUTION_06_CA = "06 sec California";
-	public final static String TOPO_RESOLUTION_18_CA = "18 sec California";
-	public final static String TOPO_RESOLUTION_30_CA = "30 sec California";
+	public final static String TOPO_RESOLUTION_06_US = "06 sec US";
+	public final static String TOPO_RESOLUTION_18_US = "18 sec US";
+	public final static String TOPO_RESOLUTION_30_US = "30 sec US";
 	public final static String TOPO_RESOLUTION_30_GLOBAL = "30 sec Global";
 	protected final static String TOPO_RESOLUTION_PARAM_DEFAULT = TOPO_RESOLUTION_30_GLOBAL;
 	public final static String TOPO_RESOLUTION_NONE = "No Topo";
@@ -332,9 +332,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		StringConstraint topoResolutionConstraint = new StringConstraint();
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_GLOBAL );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_CA );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_18_CA );
-		topoResolutionConstraint.addString( TOPO_RESOLUTION_06_CA );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_06_US );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_18_US );
+		topoResolutionConstraint.addString( TOPO_RESOLUTION_30_US );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_03_CA );
 		topoResolutionConstraint.addString( TOPO_RESOLUTION_NONE );
 		topoResolutionParam = new StringParameter( TOPO_RESOLUTION_PARAM_NAME, topoResolutionConstraint,TOPO_RESOLUTION_PARAM_UNITS, TOPO_RESOLUTION_PARAM_DEFAULT );
@@ -537,12 +537,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_03_CA)) {
 			map.setTopoResolution(TopographicSlopeFile.CA_THREE);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_06_CA)) {
-			map.setTopoResolution(TopographicSlopeFile.CA_SIX);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18_CA)) {
-			map.setTopoResolution(TopographicSlopeFile.CA_EIGHTEEN);
-		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30_CA)) {
-			map.setTopoResolution(TopographicSlopeFile.CA_THIRTY);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_06_US)) {
+			map.setTopoResolution(TopographicSlopeFile.US_SIX);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_18_US)) {
+			map.setTopoResolution(TopographicSlopeFile.US_EIGHTEEN);
+		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30_US)) {
+			map.setTopoResolution(TopographicSlopeFile.US_THIRTY);
 		} else if (topoResolutionParam.getValue().equals(TOPO_RESOLUTION_30_GLOBAL)) {
 			map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
 		} else {

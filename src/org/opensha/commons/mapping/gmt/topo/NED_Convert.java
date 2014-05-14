@@ -56,6 +56,11 @@ public class NED_Convert {
 		double regMinLon = -128;
 		double regMaxLon = -60;
 		File outputFile = new File("/home/scec-01/opensha/ned_usa/us_dem_"+arcSecs+"sec.flt");
+//		double regMinLat = 32;
+//		double regMaxLat = 43;
+//		double regMinLon = -126;
+//		double regMaxLon = -113;
+//		File outputFile = new File("/home/scec-01/opensha/ned_usa/ca_dem_"+arcSecs+"sec.flt");
 		
 		long out_rows = (long)((regMaxLat - regMinLat)/output_res + 1.5);
 //		System.out.println((regMaxLat - regMinLat)/output_res);
@@ -79,7 +84,7 @@ public class NED_Convert {
 		
 		System.out.println("Mapping output indexes to files.");
 		int i = 0;
-		for (double lat=regMinLat; lat<=regMaxLat; lat += output_res) {
+		for (double lat=regMinLat; (float)lat<=(float)regMaxLat; lat += output_res) {
 			int j = 0;
 //		for (int i=0; i<out_rows; i++) {
 //			double lat = regMinLat + (double)i * output_res;
@@ -88,7 +93,7 @@ public class NED_Convert {
 			int startJ = -1;
 			short fileI = -1;
 			List<Short> fileJs = Lists.newArrayList();
-			for (double lon=regMinLon; lon<=regMaxLon; lon += output_res) {
+			for (double lon=regMinLon; (float)lon<=(float)regMaxLon; lon += output_res) {
 //			for (int j=0; j<out_cols; j++) {
 //				double lon = regMinLon + (double)j * output_res;
 				FileIndex fileCoords = getFileForLoc(lat, lon);
@@ -100,8 +105,10 @@ public class NED_Convert {
 				Preconditions.checkState(locInFile[1] < in_cols);
 				
 				if (!fileCoords.equals(prevFile)) {
-					if (prevFile != null)
+					if (prevFile != null) {
+						Preconditions.checkState((j-1)-startJ+1 == fileJs.size());
 						filesMap.get(prevFile).add(new IndexedLoc(i, startJ, j-1, fileI, Shorts.toArray(fileJs)));
+					}
 					
 					prevFile = fileCoords;
 					startJ = j;
@@ -116,6 +123,8 @@ public class NED_Convert {
 				j++;
 			}
 			Preconditions.checkState(startJ >= 0);
+			Preconditions.checkState((out_cols-1)-startJ+1 == fileJs.size(),
+					"huh? out_cols="+out_cols+", j="+j+", startJ="+startJ+", fileJs.length="+fileJs.size());
 			filesMap.get(prevFile).add(new IndexedLoc(i, startJ, (int)out_cols-1, fileI, Shorts.toArray(fileJs)));
 			i++;
 		}
