@@ -1,6 +1,12 @@
 package org.opensha.commons.gui.plot.jfreechart;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
+import java.text.NumberFormat;
 import java.util.List;
 
 import org.jfree.chart.axis.NumberAxis;
@@ -8,6 +14,8 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.TickUnit;
 import org.jfree.chart.axis.TickUnitSource;
 import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -51,8 +59,8 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 		Preconditions.checkState(delta > 0d);
 		this.centerPoint = centerPoint;
 		this.delta = delta;
-		System.out.println("Center point: "+centerPoint);
-		System.out.println("Delta: "+delta);
+//		System.out.println("Center point: "+centerPoint);
+//		System.out.println("Delta: "+delta);
 		setStandardTickUnits(new TickUnitSourceImpl());
 	}
 	
@@ -65,21 +73,20 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 
 		@Override
 		public TickUnit getCeilingTickUnit(double size) {
-//			Preconditions.checkState(1d > 2d);
-			System.out.println("Ceiling for: "+size);
+//			System.out.println("Ceiling for: "+size);
 			double log = Math.log(size/delta) / LOG_2;
 			double higher = Math.ceil(log);
 //			System.out.println("log: "+Math.log(size)+" / "+LOG_2+" = "+log);
 //			System.out.println("higher: "+higher);
 			double ret = delta * Math.pow(2d, higher);
 			Preconditions.checkState(ret >= size);
-			System.out.println("Ceiling ret: "+ret);
+//			System.out.println("Ceiling ret: "+ret);
 			return new NumberTickUnit(ret);
 		}
 
 		@Override
 		public TickUnit getLargerTickUnit(TickUnit unit) {
-			System.out.println("Larger for: "+unit.getSize());
+//			System.out.println("Larger for: "+unit.getSize());
 			double x = unit.getSize();
 			double log = Math.log(x/delta) / LOG_2;
 			double higher = Math.ceil(log);
@@ -87,7 +94,7 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 			Preconditions.checkState(ret >= x);
 			if (ret == x)
 				ret = delta * Math.pow(2d, higher+1);
-			System.out.println("Larger ret: "+ret);
+//			System.out.println("Larger ret: "+ret);
 			return new NumberTickUnit(ret);
 		}
 		
@@ -120,8 +127,16 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 	 * @return
 	 */
 	private synchronized double[] getTickValsInRange() {
+		return getTickValsInRange(getTickUnit().getSize());
+	}
+	
+	/**
+	 * Calculates tick values within the current range
+	 * @param tickDelta
+	 * @return
+	 */
+	private synchronized double[] getTickValsInRange(double tickDelta) {
 		Range range = getRange();
-		double tickDelta = getTickUnit().getSize();
 		if (prevRange != null && range.getLowerBound() == prevRange.getLowerBound()
 				&& range.getUpperBound() == prevRange.getUpperBound() && prevTickDelta == tickDelta)
 			return tickVals;
@@ -153,10 +168,58 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 		
 		return ret;
 	}
+
+	/**
+	 * Override the standard implementation to fix estimation of label width. Default implementation
+	 * uses range.getLowerBound()/getUpperBound() as the reference upper/lower values, this versions
+	 * uses the actual tick values via getTickValsInRange(size).
+	 */
+	@Override
+	protected double estimateMaximumTickLabelWidth(Graphics2D g2, 
+			TickUnit unit) {
+
+		RectangleInsets tickLabelInsets = getTickLabelInsets();
+		double result = tickLabelInsets.getLeft() + tickLabelInsets.getRight();
+
+		if (isVerticalTickLabels()) {
+			// all tick labels have the same width (equal to the height of the 
+			// font)...
+			FontRenderContext frc = g2.getFontRenderContext();
+			LineMetrics lm = getTickLabelFont().getLineMetrics("0", frc);
+			result += lm.getHeight();
+		}
+		else {
+			// look at lower and upper bounds...
+			FontMetrics fm = g2.getFontMetrics(getTickLabelFont());
+//			Range range = getRange();
+//			double lower = range.getLowerBound();
+//			double upper = range.getUpperBound();
+			double[] tickVals = getTickValsInRange();
+			double lower = tickVals[0];
+			double upper = tickVals[tickVals.length-1];
+			String lowerStr = "";
+			String upperStr = "";
+			NumberFormat formatter = getNumberFormatOverride();
+			if (formatter != null) {
+				lowerStr = formatter.format(lower);
+				upperStr = formatter.format(upper);
+			}
+			else {
+				lowerStr = unit.valueToString(lower);
+				upperStr = unit.valueToString(upper);                
+			}
+			double w1 = fm.stringWidth(lowerStr);
+			double w2 = fm.stringWidth(upperStr);
+			result += Math.max(w1, w2);
+		}
+
+		return result;
+
+	}
 	
 	public static void main(String[] args) {
-		double minX = 1;
-		double delta = 2;
+		double minX = -7.82;
+		double delta = 1.5;
 		int num = 15;
 		
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, num, delta);
