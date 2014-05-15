@@ -581,6 +581,19 @@ public class QuadSurface implements RuptureSurface {
 	}
 	
 	public synchronized double getDistanceX(Location siteLoc) {
+		// this is Peter's implementation, but it doesn't preform as well in tests
+//		if (1d < 2d) {
+//			if (trace.size() == 1) return 0.0;
+//			int minIdx = trace.minDistIndex(siteLoc);
+//			double rSeg = LocationUtils.distanceToLineSegmentFast(trace.get(minIdx),
+//			trace.get(minIdx + 1), siteLoc);
+//			double rFirst = LocationUtils.horzDistanceFast(trace.get(0), siteLoc);
+//			double rLast = LocationUtils.horzDistanceFast(trace.last(), siteLoc);
+//
+//			return (rSeg < Math.min(rFirst, rLast)) ? LocationUtils.distanceToLineFast(
+//			trace.get(minIdx), trace.get(minIdx + 1), siteLoc)
+//				: LocationUtils.distanceToLineFast(trace.first(), trace.last(), siteLoc);
+//		}
 		if (x_trace_vects == null) {
 			// we recalculate the rotations because don't want to consider dip
 			x_rots = Lists.newArrayList();
