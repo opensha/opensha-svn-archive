@@ -490,5 +490,27 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 	public Location last() {
 		return get(size()-1);
 	}
+	
+	/**
+	 * Computes the segment index that is closest to the supplied
+	 * {@code Location}. There are {@code LocationList.size() - 1} segment
+	 * indices. The endpoints of the returned segment index are {@code [n, n+1]}.
+	 * 
+	 * @param loc {@code Location} of interest
+	 * @return the index of the closest segment
+	 */
+	public int minDistIndex(Location loc) {
+		double min = Double.MAX_VALUE;
+		int minIdx = -1;
+		for (int i = 0; i < size() - 1; i++) {
+			double dist = LocationUtils.distanceToLineSegmentFast(get(i), get(i + 1), loc);
+			if (dist < min) {
+				min = dist;
+				minIdx = i;
+			}
+		}
+		return minIdx;
+	}
+
 
 }
