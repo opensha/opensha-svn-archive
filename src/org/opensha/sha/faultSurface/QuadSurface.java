@@ -52,17 +52,22 @@ import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 /**
- * Wrapper class to simplify calculating the distance to a fault. Class
- * treats calculating the shortest distance as 2D problem. The parallelograms
- * representing each fault segment are rotated into the xy plane of a local
- * cartesian coordinate system. Precalculating and storing the 2D parallelograms
- * and the required rotation matrices drastically reduces the time required to
- * calculate the minimum distance to a fault surface.<br />
+ * Quadrilateral surface implementation - treats calculating the shortest distance
+ * as 2D problem. The parallelograms representing each fault segment are rotated
+ * into the xy plane of a local cartesian coordinate system. Precalculating and
+ * storing the 2D parallelograms and the required rotation matrices drastically
+ * reduces the time required to calculate the minimum distance to a large fault
+ * surface, although performance is similar/worse than the standard gridded
+ * implementation for short (~10 km) faults.<br />
  * <br />
  * Internally, this class uses a right-handed cartesian coordinate system where
  * x is longitude, y is latitude, and z is depth (positive down per seismological
  * convention). This convention preserves strike values (degrees clockwise from
- * north) as clockwise rotation about the z-axis per cartesian convention.
+ * north) as clockwise rotation about the z-axis per cartesian convention.<br />
+ * <br />
+ * Distance X is calculated similarly to the gridded case, but in cartesian coordinates
+ * so the extension of the average strike does not follow the great circle. This only
+ * affects sites directly off the end of faults.
  * 
  * @author Peter Powers, Kevin Milner
  * @version $Id:$

@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 
 public class TestQuadSurface {
 	
-	private static final boolean GRAPHICAL_DEBUG = true;
+	private static final boolean GRAPHICAL_DEBUG = false;
 	private static final boolean GRAPHICAL_DEBUG_WAIT = true;
 	private static final boolean GRAPHICAL_DEBUG_ACT_DISTS = true;
 	
@@ -448,6 +448,9 @@ public class TestQuadSurface {
 		int num = 1000;
 //		double tol = 0.5d;
 		double tol = grid_disc;
+		
+		// we don't expect this to pass, as quad distance X uses cartensian extention of faults instead of
+		// great circle.
 		
 		// simple vertical fault
 		runTest(buildFSD(straight_trace, Math.random()*4d, 10d, 90), straight_trace_gridded, dist, num, tol);
