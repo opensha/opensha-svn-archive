@@ -139,6 +139,13 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 	public static List<Map<TectonicRegionType, ScalarIMR>> getHAZUSMaps(
 			List<Map<TectonicRegionType, ScalarIMR>> imrMaps) throws InvocationTargetException {
 		if (imrMaps.size() == 1) {
+			boolean supportsPGV = true;
+			for (ScalarIMR imr : imrMaps.get(0).values()) {
+				if (!imr.isIntensityMeasureSupported(PGV_Param.NAME)) {
+					supportsPGV = false;
+					break;
+				}
+			}
 			ArrayList<Map<TectonicRegionType, ScalarIMR>> newIMRMaps =
 				new ArrayList<Map<TectonicRegionType,ScalarIMR>>();
 			
@@ -162,7 +169,8 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 				sa10Map.put(trt, imr);
 			}
 			newIMRMaps.add(pgaMap);
-			newIMRMaps.add(pgvMap);
+			if (supportsPGV)
+				newIMRMaps.add(pgvMap);
 			newIMRMaps.add(sa03Map);
 			newIMRMaps.add(sa10Map);
 			return newIMRMaps;
