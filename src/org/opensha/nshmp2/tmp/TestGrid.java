@@ -35,6 +35,15 @@ public enum TestGrid {
 		new CaliforniaRegions.RELM_TESTING_GRIDDED()),
 	CA_NSHMP(
 		getCA_NSHMP()),
+	// these permit us to run a 0.1 calcs but with three separate 0.05 anchor shifts
+	// which, when combined, make for a complete 0.05 spaced calculation
+	CA_NSHMP_0P05_N(
+		getCA_NSHMP_N()),
+	CA_NSHMP_0P05_E(
+		getCA_NSHMP_E()),
+	CA_NSHMP_0P05_NE(
+		getCA_NSHMP_NE()),
+		
 	LOS_ANGELES(
 		new double[] {35.15,34.23,32.94,33.86},
 		new double[] {-119.07,-116.70,-117.42,-119.80}),
@@ -195,6 +204,19 @@ public enum TestGrid {
 	private static GriddedRegion getCA_NSHMP() {
 		return new GriddedRegion(getCA_NSHMP_Poly(), BorderType.MERCATOR_LINEAR,
 			0.1, GriddedRegion.ANCHOR_0_0);
+	}
+
+	private static GriddedRegion getCA_NSHMP_N() {
+		return new GriddedRegion(getCA_NSHMP_Poly(), BorderType.MERCATOR_LINEAR,
+			0.1, new Location(0.05, 0.0));
+	}
+	private static GriddedRegion getCA_NSHMP_E() {
+		return new GriddedRegion(getCA_NSHMP_Poly(), BorderType.MERCATOR_LINEAR,
+			0.1, new Location(0.0, 0.05));
+	}
+	private static GriddedRegion getCA_NSHMP_NE() {
+		return new GriddedRegion(getCA_NSHMP_Poly(), BorderType.MERCATOR_LINEAR,
+			0.1, new Location(0.05, 0.05));
 	}
 
 	private static LocationList getCA_NSHMP_Poly() {
