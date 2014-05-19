@@ -1,25 +1,21 @@
 package scratch.peter.nshmp;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.calc.HazardResultWriter;
-import org.opensha.nshmp2.util.Period;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.StandardSystemProperty;
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import com.google.common.io.Flushables;
 
 /**
- * Add comments here
+ * Writier for deterministic hazard results for CA. Recently changed to aggregate 
  *
  * 
  * @author Peter Powers
@@ -27,54 +23,57 @@ import com.google.common.io.Flushables;
  */
 public class HazardResultWriterMPJ_NSHMP_Det implements HazardResultWriter {
 
-	private static String format = "%.3f";
-	private static final Joiner Jc = Joiner.on(',').useForNull(" ");
+	private static String format = "%.2f";
 	private static final Joiner Jt = Joiner.on('\t').useForNull(" ");
-
-	private File outDir;
+	private static final String LF = StandardSystemProperty.LINE_SEPARATOR.value();
+	
+	private List<Location> locs;
+	private List<DeterministicResult> detData;
 
 	/**
 	 * Creates anew local writer instance.
-	 * @param outDir output location
 	 * @throws IOException
 	 */
-	public HazardResultWriterMPJ_NSHMP_Det(File outDir) throws IOException {
-		this.outDir = outDir;
-		outDir.mkdirs();
+	public HazardResultWriterMPJ_NSHMP_Det() throws IOException {
+		locs = Lists.newArrayList();
+		detData = Lists.newArrayList();
 	}
 
 	@Override
 	public void write(HazardResult result) throws IOException {
-//		String probName = createFileName(result.location()) + "_prob.txt";
-//		String probStr = formatResult(result.curve());
-//		File probFile = new File(outDir, probName);
-//		Files.write(probStr, probFile, Charsets.US_ASCII);
-
-		String detName = createFileName(result.location()) +  "_det.txt";
-		String detStr = formatResult(result.detData());
-		File detFile = new File(outDir, detName);
-		Files.write(detStr, detFile, Charsets.US_ASCII);
+		locs.add(result.location());
+		detData.add(result.detData());
 	}
 
+	/**
+	 * Write collected resultes to file identified by the node 'rank'. 
+	 * @param outDir
+	 * @param id
+	 * @throws IOException
+	 */
+	public void toFile(File outDir, int id) throws IOException {
+		String detName = id + "_det.txt";
+		File detFile = new File(outDir, detName);
+		Files.write("", detFile, Charsets.US_ASCII);
+		
+		for (int i=0; i<locs.size(); i++) {
+			String result = formatResult(locs.get(i), detData.get(i)) + LF;
+			Files.append(result, detFile, Charsets.US_ASCII);
+		}
+	}
+	
 	@Override
 	public void close() throws IOException {
 		// do nothing
 	}
 	
-	private String createFileName(Location loc) {
-		return String.format(format, loc.getLatitude()) + "_" +
-			String.format(format, loc.getLongitude());
-	}
-	
-	private static String formatResult(DiscretizedFunc curve) {
-		List<String> dat = Lists.newArrayList();
-		for (Point2D p : curve) {
-			dat.add(Double.toString(p.getY()));
-		}
-		return Jc.join(dat);
-	}
-
-	private static String formatResult(DeterministicResult detData) {
-		return Jt.join(detData.median, detData.mag, detData.rRup, detData.name);
+	private static String formatResult(Location loc, DeterministicResult detData) {
+		return Jt.join(
+			String.format(format, loc.getLatitude()),
+			String.format(format, loc.getLongitude()),
+			detData.median,
+			detData.mag,
+			detData.rRup,
+			detData.name);
 	}
 }
