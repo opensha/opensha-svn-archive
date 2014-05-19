@@ -228,8 +228,11 @@ public class HazusDataSetDAGCreator extends HazardDataSetDAGCreator {
 		testIMR.setIntensityMeasure(PGA_Param.NAME);
 		imts.add((Parameter<Double>) testIMR.getIntensityMeasure().clone());
 		
-		testIMR.setIntensityMeasure(PGV_Param.NAME);
-		imts.add((Parameter<Double>) testIMR.getIntensityMeasure().clone());
+		if (testIMR.isIntensityMeasureSupported(PGV_Param.NAME)) {
+			// isn't essential, just used for pipelines. will fill with zeros if not used
+			testIMR.setIntensityMeasure(PGV_Param.NAME);
+			imts.add((Parameter<Double>) testIMR.getIntensityMeasure().clone());
+		}
 		
 		Parameter<Double> saParam;
 		Parameter<Double> periodParam;

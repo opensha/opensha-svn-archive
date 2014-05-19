@@ -487,7 +487,8 @@ public class HazusJobWriter {
 		IMT_Info imtInfo = new IMT_Info();
 		HashMap<String, DiscretizedFunc> imtXValMap = new HashMap<String, DiscretizedFunc>();
 		imtXValMap.put(PGA_Param.NAME, imtInfo.getDefaultHazardCurve(PGA_Param.NAME));
-		imtXValMap.put(PGV_Param.NAME, imtInfo.getDefaultHazardCurve(PGV_Param.NAME));
+		if (imr.isIntensityMeasureSupported(PGV_Param.NAME))
+			imtXValMap.put(PGV_Param.NAME, imtInfo.getDefaultHazardCurve(PGV_Param.NAME));
 		imtXValMap.put(SA_Param.NAME, imtInfo.getDefaultHazardCurve(SA_Param.NAME));
 		CalculationSettings calcSet = new CalculationSettings(imtXValMap, 200.0);
 		

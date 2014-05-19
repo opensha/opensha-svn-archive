@@ -58,7 +58,8 @@ public class UCERF3HazusJobWriterYear2NGA {
 		int mins = 500;
 		int nodes = 20;
 		int ppn = 8;
-		String queue = "nbns";
+//		String queue = "nbns";
+		String queue = null;
 		
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(new File("/home/scec-02/kmilner/"
 				+ "ucerf3/inversion_compound_plots/2013_05_10-ucerf3p3-production-10runs/"

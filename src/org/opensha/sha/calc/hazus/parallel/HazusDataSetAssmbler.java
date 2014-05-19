@@ -38,10 +38,19 @@ public class HazusDataSetAssmbler {
 	}
 	
 	public HazusDataSetAssmbler(String pgaDir, String pgvDir, String sa03Dir, String sa10Dir) throws IOException {
+		if (!(new File(sa10Dir).exists())) {
+			// missing PGV
+			sa10Dir = sa03Dir;
+			sa03Dir = pgvDir;
+			pgvDir = null;
+		}
 		System.out.println("Loading PGA curves");
 		pgaCurves = HazardDataSetLoader.loadDataSet(new File(pgaDir));
 		System.out.println("Loading PGV curves");
-		pgvCurves = HazardDataSetLoader.loadDataSet(new File(pgvDir));
+		if (pgvDir == null)
+			System.out.println("Doesn't have PGV!");
+		else
+			pgvCurves = HazardDataSetLoader.loadDataSet(new File(pgvDir));
 		System.out.println("Loading SA 0.3s curves");
 		sa03Curves = HazardDataSetLoader.loadDataSet(new File(sa03Dir));
 		System.out.println("Loading SA 1.0s curves");
