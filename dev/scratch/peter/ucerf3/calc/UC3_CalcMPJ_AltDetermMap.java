@@ -37,6 +37,7 @@ public class UC3_CalcMPJ_AltDetermMap extends MPJTaskCalculator {
 	private static final String S = File.separator;
 	private ThreadedHazardCalc calc;
 	private LocationList locs;
+	private HazardResultWriterMPJ_NSHMP_Det writer;
 	
 	// these will only end up getting used by the dispatch (root)
 	// node during doFinalAssembly(); ignored on other nodes
@@ -67,9 +68,10 @@ public class UC3_CalcMPJ_AltDetermMap extends MPJTaskCalculator {
 		boolean alea = Boolean.parseBoolean(args[5]);
 
 		outDir = new File(outPath + S + grid + S + period);
+		outDir.mkdirs();
 		
 		// only output deterministic
-		HazardResultWriter writer = new HazardResultWriterMPJ_NSHMP_Det(outDir);
+		writer = new HazardResultWriterMPJ_NSHMP_Det();
 		AbstractERF erf = NSHMP13_DeterminisiticERF.create(alea);
 		EpistemicListERF wrapped = ERF_ID.wrapInList(erf);
 		wrapped.updateForecast();
@@ -85,13 +87,14 @@ public class UC3_CalcMPJ_AltDetermMap extends MPJTaskCalculator {
 	@Override
 	public void calculateBatch(int[] batch) throws Exception, InterruptedException {
 		calc.calculate(batch);
-		System.out.println("Batch complete");
 	}
 	
 
 	@Override
 	protected void doFinalAssembly() throws Exception {
-		if (rank == 0) aggregateResults(outDir, period, true);
+//		if (rank == 0) aggregateResults(outDir, period, true);
+		writer.toFile(outDir, rank);
+		// will combine per-node files independently
 	}
 	
 	
