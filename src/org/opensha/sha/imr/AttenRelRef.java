@@ -48,6 +48,7 @@ import org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel_NoAS;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
@@ -217,6 +218,8 @@ public enum AttenRelRef implements Named {
 	GK_2014(GK_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2014.SHORT_NAME, EXPERIMENTAL),
 	
 	IDRISS_2014(Idriss_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.SHORT_NAME, EXPERIMENTAL),
+	
+	NGAWest_2014_AVG(NGAWest_2014_Averaged_AttenRel.class, NGAWest_2014_Averaged_AttenRel.NAME, NGAWest_2014_Averaged_AttenRel.SHORT_NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 
