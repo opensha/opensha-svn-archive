@@ -83,7 +83,11 @@ public class HazusDataSetAssmbler {
 		HashMap<Location, double[]> results = new HashMap<Location, double[]>();
 		for (Location loc : pgaCurves.keySet()) {
 			double pgaVal = getValFromCurve(pgaCurves.get(loc), returnPeriod, years);
-			double pgvVal = getValFromCurve(pgvCurves.get(loc), returnPeriod, years);
+			double pgvVal;
+			if (pgvCurves == null)
+				pgvVal = Double.NaN;
+			else
+				pgvVal = getValFromCurve(pgvCurves.get(loc), returnPeriod, years);
 			double sa03Val = getValFromCurve(sa03Curves.get(loc), returnPeriod, years);
 			double sa10Val = getValFromCurve(sa10Curves.get(loc), returnPeriod, years);
 			
