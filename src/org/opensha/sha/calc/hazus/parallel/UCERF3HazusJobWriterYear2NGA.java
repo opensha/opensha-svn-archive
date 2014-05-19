@@ -76,27 +76,27 @@ public class UCERF3HazusJobWriterYear2NGA {
 		List<String> dirNames = Lists.newArrayList();
 		List<AttenRelRef> imrs = Lists.newArrayList();
 		
-		dirNames.add("ref_wills_ASK2014");
+		dirNames.add("hazus_ref_wills_ASK2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.ASK_2014);
 		
-		dirNames.add("ref_wills_BSSA2014");
+		dirNames.add("hazus_ref_wills_BSSA2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.BSSA_2014);
 		
-		dirNames.add("ref_wills_CB2014");
+		dirNames.add("hazus_ref_wills_CB2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.CB_2014);
 		
-		dirNames.add("ref_wills_CY2014");
+		dirNames.add("hazus_ref_wills_CY2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.CY_2014);
 		
-		dirNames.add("ref_wills_Idriss2014");
+		dirNames.add("hazus_ref_wills_Idriss2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.IDRISS_2014);
 		
-		dirNames.add("ref_wills_NGA_Avg2014");
+		dirNames.add("hazus_ref_wills_NGA_Avg2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.NGAWest_2014_AVG);
 		
@@ -129,7 +129,7 @@ public class UCERF3HazusJobWriterYear2NGA {
 		branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
 		hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d);
 		noBasin = true;
-		String dirName = df.format(today)+"_ref_rock_NGA_Avg2014";
+		String dirName = df.format(today)+"hazus_ref_rock_NGA_Avg2014";
 		
 		File jobDir = new File(hazMapsDir, dirName);
 		if (!jobDir.exists())
