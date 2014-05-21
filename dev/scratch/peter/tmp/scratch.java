@@ -1,5 +1,7 @@
 package scratch.peter.tmp;
 
+import static org.opensha.commons.geo.LocationUtils.azimuth;
+import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
 import static org.opensha.nshmp2.util.SourceRegion.CA;
 import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
@@ -7,10 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
@@ -18,13 +23,16 @@ import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.peter.curves.ProbOfExceed;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
@@ -43,12 +51,19 @@ import com.google.common.io.Files;
 public class scratch {
 
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
-//		System.out.println(TestGrid.CA_NSHMP.grid(0.05).getNodeCount());
+		GriddedRegion gr = new GriddedRegion(TestGrid.CA_NSHMP.grid(0.1), 0.01, GriddedRegion.ANCHOR_0_0);
 		
-		Range<Double> r = Range.open(1.0,23.0);
-		System.out.println(r);
+		System.out.println(gr.getNodeCount());
+		
+		System.out.println(TestGrid.CA_NSHMP.grid(0.1).getNodeCount());
+		System.out.println(TestGrid.CA_NSHMP_E.grid(0.1).getNodeCount());
+		System.out.println(TestGrid.CA_NSHMP_N.grid(0.1).getNodeCount());
+		System.out.println(TestGrid.CA_NSHMP_NE.grid(0.1).getNodeCount());
+				
+//		Range<Double> r = Range.open(1.0,23.0);
+//		System.out.println(r);
 		
 //		Period p = Period.GM1P00;
 //		DiscretizedFunc f = p.getFunction();
@@ -109,6 +124,32 @@ public class scratch {
 //		}
 	}
 	
+	private static double tmpRx(FaultTrace trace, Location loc) {
+		// avg strike 
+		double rX_avgStrk = distanceToLineFast(trace.first(), trace.last(), loc);
+		double avgStrkAzStart = azimuth(trace.first(), trace.last());
+		double avgStrkAzEnd = azimuth(trace.last(), trace.first());
+		
+//		Location preStart = location(trace.first(), avgStrkAzStart, 10.0);
+//		Location postEnd = location(trace.last(), avgStrkAzEnd, 10.0);
+//		
+		// could just start with 
+		// closest point
+		int closeIdx = trace.closestPoint(loc);
+		Location closest = trace.get(closeIdx);
+		// set segment azimuths away from closets point and using
+		// avg strike off the ends of the fault
+		double seg1az = (closeIdx == 0) ?
+			avgStrkAzStart : azimuth(closest, trace.get(closeIdx - 1));
+		double seg2az = (closeIdx == trace.size() - 1) ? 
+			avgStrkAzEnd : azimuth(closest, trace.get(closeIdx + 1));
+		
+		// 
+		
+//		double SEG1_AZ = LocationUtils.
+		return 1;
+	}
+
 	private static int firstZeroValue(double[] data) {
 		int idx = 0;
 		for (double d : data) {
@@ -138,11 +179,22 @@ public class scratch {
 		}
 	}
 	
-	private static void tmp() throws IOException {
-		String srcDir = "/Users/pmpowers/projects/OpenSHA/tmp/invSols/conv/";
-		String avgFssPath = srcDir + "FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_mean_sol.zip";
-		String sol83Path = srcDir + "FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_VarZeros_run83_sol.zip";
-		AverageFaultSystemSolution avgFss = UC3_CalcUtils.getAvgSolution(avgFssPath);
-		FaultSystemIO.writeSol(avgFss.getSolution(83), new File(sol83Path));
+	private static void tmp() throws IOException, DocumentException {
+		String srcSol = "tmp/UC33/src/tree/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
+		String outDir = "tmp/UC33/src/bg";
+		String U2_sol = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU2";
+		String U3_sol = "FM3_1_ZENGBB_Shaw09Mod_DsrTap_CharConst_M5Rate7.9_MMaxOff7.6_NoFix_SpatSeisU3";
+		
+		CompoundFaultSystemSolution cfss = UC3_CalcUtils.getCompoundSolution(srcSol);
+		LogicTreeBranch U2_branch = LogicTreeBranch.fromFileName(U2_sol);
+		LogicTreeBranch U3_branch = LogicTreeBranch.fromFileName(U3_sol);
+		InversionFaultSystemSolution U2_fss = cfss.getSolution(U2_branch);
+		InversionFaultSystemSolution U3_fss = cfss.getSolution(U3_branch);
+		
+		File U2_file = new File(outDir, U2_sol + ".zip");
+		File U3_file = new File(outDir, U3_sol + ".zip");
+		
+		FaultSystemIO.writeSol(U2_fss, U2_file);
+		FaultSystemIO.writeSol(U3_fss, U3_file);
 	}
 }
