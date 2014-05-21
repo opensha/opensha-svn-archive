@@ -129,6 +129,7 @@ public class BinaryCurves {
 		meta.period =p.getValue();
 		meta.Xs = (p == Period.GM0P00) ? xPGA : Doubles.toArray(p.getIMLs());
 		
+		Files.createParentDirs(out);
 		write(cc, spacing, out, meta);
 	}
 
