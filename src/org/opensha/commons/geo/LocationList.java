@@ -511,6 +511,25 @@ public class LocationList extends ArrayList<Location> implements XMLSaveable, Se
 		}
 		return minIdx;
 	}
-
+	
+	/**
+	 * Returns the index of the {@code Location} in the list closest to the
+	 * supplied {@code Location}.
+	 * 
+	 * @param loc {@code Location} of interest
+	 * @return the index of the closest point in the list
+	 */
+	public int closestPoint(Location loc) {
+		double min = Double.MAX_VALUE;
+		int minIdx = -1;
+		for (int i = 0; i < size(); i++) {
+			double dist = LocationUtils.horzDistanceFast(loc, get(i));
+			if (dist < min) {
+				min = dist;
+				minIdx = i;
+			}
+		}
+		return minIdx;
+	}
 
 }
