@@ -120,7 +120,8 @@ public class UC33_MapMaker {
 		
 //		createCAxyzFiles();
 		
-//		buildGMEP14changes();
+//		buildGMPE14changes();
+//		buildGMPE14_AS_bugfix();
 		
 //		buildGMEP13comparisons();
 //		buildGMEP13comparisonsBinaries();
@@ -131,10 +132,16 @@ public class UC33_MapMaker {
 //		buildUC3_NSHMP_determ();
 		
 		// for Morgan:
+//		buildUC3_NSHMP_BG_binariesMorgan();
 //		buildUC3_NSHMP_binariesMorgan();
-		buildUC3_NSHMP_binariesMorgan2();
+//		buildUC3_NSHMP_binariesMorgan2();
 //		buildUC2_NSHMP_binaries();
 //		build_UC3_GMM08_binary();
+		
+//		finalBSSCcheck();
+//		finalMapsDebug();
+		
+//		consolidateFinalDeterm();
 		
 		// time dependence
 //		buildUCtimeDependentMaps();
@@ -852,15 +859,16 @@ public class UC33_MapMaker {
 
 	// flt and bg curves for combination (for figures only)
 	private static void buildUC3_NSHMP_binariesMorgan2() throws IOException {
+		String sol = "mean_ucerf3_sol";
 		TestGrid grid = TestGrid.CA_NSHMP;
 		double spacing = 0.1;
 		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
 		
 		for (Period p : periods) {
 			// separate fault and bg files
-			File fltDir = new File(SRC + "NSHMP14" + S + "FLT-noEpi" + S + grid + S + p + S + "curves.csv");
+			File fltDir = new File(SRC + "NSHMP14" + S + "FLT" + S + sol + S + grid + S + p + S + "curves.csv");
 			CurveContainer fltCC = CurveContainer.create(fltDir, grid, spacing);
-			File bgDir = new File(SRC + "NSHMP14" + S + "BG-noEpi" + S + grid + S + p + S + "curves.csv");
+			File bgDir = new File(SRC + "NSHMP14" + S + "BG" + S + sol + S + grid + S + p + S + "curves.csv");
 			CurveContainer bgCC = CurveContainer.create(bgDir, grid, spacing);
 
 			File outFlt = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-FLT-0p1.curves");
@@ -869,6 +877,26 @@ public class UC33_MapMaker {
 			BinaryCurves.writeUC3(bgCC, p, spacing, "UCERF3.3 BG Sources", outBg);
 		}
 	}
+	
+	// binaries of the two different background models (UC2 vs UC3) using the 'reference' branch
+	private static void buildUC3_NSHMP_BG_binariesMorgan() throws IOException {
+		TestGrid grid = TestGrid.CA_NSHMP;
+		double spacing = 0.1;
+		List<Period> periods = Lists.newArrayList(GM0P20, GM1P00);
+		List<String> bgModels = Lists.newArrayList("UC2", "UC3");
+		
+		for (String bgModel : bgModels) {
+			for (Period p : periods) {
+				// separate fault and bg files
+				File fltDir = new File(SRC + "NSHMP14-BG-Morgan" + S + bgModel + S + grid + S + p + S + "curves.csv");
+				CurveContainer fltCC = CurveContainer.create(fltDir, grid, spacing);
+	
+				File out = new File("tmp/morgan/curves/CA14-BG-" + bgModel + "-" + p.getLabel() + "-0p1.curves");
+				BinaryCurves.writeUC3(fltCC, p, spacing, "UCERF3.3 " + bgModel + " smooth seis", out);
+			}
+		}
+	}
+
 
 	
 	private static void buildUC2_NSHMP_binaries() throws IOException {
@@ -923,6 +951,142 @@ public class UC33_MapMaker {
 	}
 	
 
+	private static void finalBSSCcheck() throws IOException {
+		double spacing = 0.1;
+		TestGrid dataGrid = TestGrid.CA_NSHMP;
+		TestGrid mapGrid = TestGrid.CA_RELM;
+		GriddedRegion gr = mapGrid.grid(spacing);
+		ProbOfExceed pe =  ProbOfExceed.PE2IN50;
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		
+		for (Period p : periods) {
+			
+			// feb 2014 vs sept 2013
+			// early run, sept 13 -- separate fault and bg files
+			File fltDir = new File(SRC + "NSHMP13-40-FLT");
+			CurveContainer fltCC = buildBrAvgCurveContainer(fltDir, p, dataGrid, 0.05);
+			File bgDir = new File(SRC + "NSHMP13-2-BG");
+			CurveContainer bgCC = buildBrAvgCurveContainer(bgDir, p, dataGrid, 0.05);
+			fltCC.add(bgCC);
+			GeoDataSet xyzUnder = NSHMP_DataUtils.extractPE(fltCC, gr, pe);
+	
+			// early run, feb 14
+			File dir = new File(SRC + "NSHMP13B-epi" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+			CurveContainer ccOver = CurveContainer.create(dir, dataGrid, spacing);
+			GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(ccOver, gr, pe);
+
+			String id = p.getLabel() + "-" + pe.name();
+			String ratioDir = ROOT + "NSHMP14-BSSC" + S + "NSHMP13-FebVsSept_ratio_" + id;
+			GeoDataSet ratio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), ratioDir, "NSHMP13-FebVsSept_" + id, true, 0.02, true, false);
+
+			// april 2014 vs feb 2014
+//			// early run, feb 14
+//			File dir = new File(SRC + "NSHMP13B-epi" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+//			CurveContainer ccUnder = CurveContainer.create(dir, dataGrid, spacing);
+//			GeoDataSet xyzUnder = NSHMP_DataUtils.extractPE(ccUnder, gr, pe);
+//					
+//			// recent run, April
+//			File bgDir = new File(SRC + "NSHMP14" + S + "BG" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+//			CurveContainer ccOver = CurveContainer.create(bgDir, dataGrid, spacing);
+//			File fltDir = new File(SRC + "NSHMP14" + S + "FLT" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+//			CurveContainer fltCC = CurveContainer.create(fltDir, dataGrid, spacing);
+//			ccOver.add(fltCC);
+//			GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(ccOver, gr, pe);
+//			
+//			String id = p.getLabel() + "-" + pe.name();
+//			String ratioDir = ROOT + "NSHMP14-BSSC" + S + "NSHMP14sup13_ratio_" + id;
+//			GeoDataSet ratio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+//			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), ratioDir, "NSHMP14_sup_13_" + id, true, 0.01, true, false);
+		}
+
+	}
+	
+	/*
+	 * Tracking down changes to the maps 
+	 */
+	private static void finalMapsDebug() throws IOException {
+		double spacing = 0.1;
+		TestGrid dataGrid = TestGrid.CA_NSHMP;
+		TestGrid mapGrid = TestGrid.CA_RELM;
+		GriddedRegion gr = mapGrid.grid(spacing);
+		ProbOfExceed pe =  ProbOfExceed.PE2IN50;
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+
+		for (Period p : periods) {
+			
+			String id = p.getLabel() + "-" + pe.name();
+			String baseDir = ROOT + "NSHMP14-BSSC-debug" + S;
+			String binBase = baseDir + "bin" + S;
+
+			// 1: 9/6/13 -- only 8 branch averaged solutions
+			File curveDir = new File(SRC + "NSHMP13-8-prob");
+			CurveContainer cc_9_6_13 = buildBrAvgCurveContainer(curveDir, p, dataGrid, spacing);
+			GeoDataSet xyz_9_6_13 = NSHMP_DataUtils.extractPE(cc_9_6_13, gr, pe);
+			File binOut = new File(binBase + "1_9-6-13_" + p.getLabel() + "_0p1.curves");
+			BinaryCurves.writeUC3(cc_9_6_13, p, spacing, "UCERF3.3 9-6-13", binOut);
+			
+			// 2: 9/13/13 -- separate fault and bg files, 0.05 grid
+			File f_9_13_13_flt = new File(SRC + "NSHMP13-40-FLT");
+			CurveContainer cc_9_13_13 = buildBrAvgCurveContainer(f_9_13_13_flt, p, dataGrid, 0.05);
+			File f_9_13_13_bg = new File(SRC + "NSHMP13-2-BG");
+			CurveContainer cc_9_13_13_bg = buildBrAvgCurveContainer(f_9_13_13_bg, p, dataGrid, 0.05);
+			cc_9_13_13.add(cc_9_13_13_bg);
+			GeoDataSet xyz_9_13_13 = NSHMP_DataUtils.extractPE(cc_9_13_13, gr, pe);
+			binOut = new File(binBase + "2_9-13-13_" + p.getLabel() + "_0p1.curves");
+			BinaryCurves.writeUC3(cc_9_6_13, p, spacing, "UCERF3.3 9-13-13", binOut);
+			
+			// 3: 2/7/14 -- switch to mean solution,  0.1 grid
+			File f_2_7_14 = new File(SRC + "NSHMP13B-epi" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+			CurveContainer cc_2_7_14 = CurveContainer.create(f_2_7_14, dataGrid, spacing);
+			GeoDataSet xyz_2_7_14 = NSHMP_DataUtils.extractPE(cc_2_7_14, gr, pe);
+			binOut = new File(binBase + "2_2-7-14_" + p.getLabel() + "_0p1.curves");
+			BinaryCurves.writeUC3(cc_2_7_14, p, spacing, "UCERF3.3 2-7-14", binOut);
+			
+			// 4: 5/2/14 -- most recent run
+			File f_5_2_14_flt = new File(SRC + "NSHMP14" + S + "FLT" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+			CurveContainer cc_5_2_14 = CurveContainer.create(f_5_2_14_flt, dataGrid, spacing);
+			File f_5_2_14_bg = new File(SRC + "NSHMP14" + S + "BG" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+			CurveContainer cc_5_2_14_bg = CurveContainer.create(f_5_2_14_bg, dataGrid, spacing);
+			cc_5_2_14.add(cc_5_2_14_bg);
+			GeoDataSet xyz_5_2_14 = NSHMP_DataUtils.extractPE(cc_5_2_14, gr, pe);
+			binOut = new File(binBase + "2_5-2-14_" + p.getLabel() + "_0p1.curves");
+			BinaryCurves.writeUC3(cc_2_7_14, p, spacing, "UCERF3.3 5-2-14", binOut);
+
+						
+			// 4/1
+			String name = "4over1_" + id;
+			GeoDataSet ratio = GeoDataSetMath.divide(xyz_5_2_14, xyz_9_6_13);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+			
+			// 4/2
+			name = "4over2_" + id;
+			ratio = GeoDataSetMath.divide(xyz_5_2_14, xyz_9_13_13);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+
+			// 4/3
+			name = "4over3_" + id;
+			ratio = GeoDataSetMath.divide(xyz_5_2_14, xyz_2_7_14);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+			
+			// 2/1
+			name = "2over1_" + id;
+			ratio = GeoDataSetMath.divide(xyz_9_13_13, xyz_9_6_13);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+			
+			// 3/2
+			name = "3over2_" + id;
+			ratio = GeoDataSetMath.divide(xyz_2_7_14, xyz_9_13_13);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+			
+			// 4/3
+			name = "4over3_" + id;
+			ratio = GeoDataSetMath.divide(xyz_5_2_14, xyz_2_7_14);
+			makeRatioPlot(ratio, 0.1, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+		}
+	}
+	
+	
 //	private static void resamplingTest() throws IOException {
 //		TestGrid grid = CA_RELM;
 //		double spacing = Double.NaN;
@@ -1164,7 +1328,7 @@ public class UC33_MapMaker {
 	// build ratio maps of the 'final' (or close to it) NGAW2 ground motion
 	// models relative to those that were used to date (3/10/2014) for the
 	// NSHMP; these only used the single FM3.1 brAvg solution (720 branches)
-	private static void buildGMEP14changes() {
+	private static void buildGMPE14changes() {
 		TestGrid grid = CA_RELM;
 		double spacing = 0.1;
 		String outDir = ROOT + "NSHMP13B" + S + "GMPE13-14Change" + S;
@@ -1196,18 +1360,45 @@ public class UC33_MapMaker {
 		}
 	}
 
+	// build ratio maps of the 'final' (or close to it) NGAW2 ground motion
+	// models relative to those that were used to date (3/10/2014) for the
+	// NSHMP; these only used the single FM3.1 brAvg solution (720 branches)
+	private static void buildGMPE14_AS_bugfix() {
+		TestGrid grid = CA_RELM;
+		double spacing = 0.1;
+		String outDir = ROOT + "NSHMP13B" + S + "GMPE13-14Change" + S;
+		String brSol = "UC33brAvg_FM31";
+		
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50);
+		
+		for (Period p : periods) {
+			for (ProbOfExceed pe : PEs) {
+				String srcOver = SRC + "NSHMP13-GMPE14" + S + "AS-bugfix" + S + brSol;
+				GeoDataSet over = loadSingle(srcOver, pe, grid, p, spacing);
+
+				String srcUnder = SRC + "NSHMP13-GMPE14" + S + "AS" + S + brSol;
+				GeoDataSet under = loadSingle(srcUnder, pe, grid, p, spacing);
+					
+				GeoDataSet ratio = GeoDataSetMath.divide(over, under);
+				String ratioDir = outDir + "ratio_" + p.getLabel() + S + "AS-bugfix";
+				makeRatioPlot(ratio, 0.1, grid.bounds(), ratioDir, "2% in 50 " + p.getLabel() + " ratio AS 14bf/14", true, 0.05, true, false);
+			}
+		}
+	}
+
 	
 	// build ratio maps of the each individual 2013 GMPE to the weighted combo
 	// these only used the single FM3.1 brAvg solution (720 branches)
 	private static void buildGMEP13comparisons() {
 		TestGrid grid = CA_RELM;
 		double spacing = 0.1;
-		String outDir = ROOT + "NSHMP13B" + S + "GMPE13Comparison" + S;
+		String outDir = ROOT + "NSHMP13B" + S + "GMPE13ComparisonTMP" + S;
 		String brSol = "UC33brAvg_FM31";
 		
-		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		List<Period> periods = Lists.newArrayList(GM0P00); //, GM0P20, GM1P00);
 		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50); //, PE10IN50);
-		List<String> gmpes = Lists.newArrayList("AS","BS","CB","CY","ID");
+		List<String> gmpes = Lists.newArrayList("AS"); //,"BS","CB","CY","ID");
 		
 		
 		for (Period p : periods) {
@@ -1773,7 +1964,7 @@ public class UC33_MapMaker {
 				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
-			savePDF(dlDir);
+//			savePDF(dlDir);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

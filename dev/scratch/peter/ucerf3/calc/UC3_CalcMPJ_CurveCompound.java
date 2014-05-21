@@ -55,7 +55,7 @@ public class UC3_CalcMPJ_CurveCompound extends MPJTaskCalculator {
 	private IncludeBackgroundOption bg;
 	private String outDir;
 	
-	private boolean epiUncert = true;
+	private boolean epiUncert = false;
 
 	private ExecutorService ex;
 	private ExecutorCompletionService<HazardResult> ecs;

@@ -52,19 +52,25 @@ public class Utils {
 	
 	// finds missing locations in big NSHMP13B runs
 	private static void findMissing() {
-		String path = "tmp/UC33/maps/src/NSHMP14/LOCAL/LOS_ANGELES/GM0P20/curves";
-		GriddedRegion grid = TestGrid.LOS_ANGELES.grid(0.02);
+		String path = "tmp/UC33/maps/src/NSHMP14/FLT_E/mean_ucerf3_sol/CA_NSHMP_E/tmp/GM0P20";
+		GriddedRegion grid = TestGrid.CA_NSHMP_E.grid(0.1);
+		
 		String format = "%.3f";
+		int count = 0;
 		for (Location loc : grid) {
 			String fName = String.format(format, loc.getLatitude()) + "_" +
-					String.format(format, loc.getLongitude()) + ".txt";
+					String.format(format, loc.getLongitude()) + "_prob.txt";
 			File f = new File(path, fName);
-			if (!f.exists()) System.out.println(loc);
+			if (!f.exists()) {
+				count++;
+				System.out.println(loc);
+			}
 		}
+		System.out.println(count);
 	}
 	
 	private static void combineCurves() {
-		String path = "tmp/UC33/maps/src/NSHMP13B-epi/mean_ucerf3_sol/CA_NSHMP/GM3P00/curves";
+		String path = "tmp/UC33/maps/src/NSHMP14/LOCAL/LOS_ANGELES/GM0P20/curves";
 		UC3_CalcMPJ_Map.aggregateResults(new File(path), Period.GM0P20, false);
 	}
 	
