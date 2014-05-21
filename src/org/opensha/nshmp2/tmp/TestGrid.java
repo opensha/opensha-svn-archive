@@ -37,11 +37,11 @@ public enum TestGrid {
 		getCA_NSHMP()),
 	// these permit us to run a 0.1 calcs but with three separate 0.05 anchor shifts
 	// which, when combined, make for a complete 0.05 spaced calculation
-	CA_NSHMP_0P05_N(
+	CA_NSHMP_N(
 		getCA_NSHMP_N()),
-	CA_NSHMP_0P05_E(
+	CA_NSHMP_E(
 		getCA_NSHMP_E()),
-	CA_NSHMP_0P05_NE(
+	CA_NSHMP_NE(
 		getCA_NSHMP_NE()),
 		
 	LOS_ANGELES(
@@ -103,6 +103,9 @@ public enum TestGrid {
 	 */
 	public GriddedRegion grid(double spacing) {
 		if (region != null) {
+			if (region instanceof GriddedRegion) {
+				return (GriddedRegion) region;
+			}
 			return new GriddedRegion(region, spacing, GriddedRegion.ANCHOR_0_0);
 		}
 		if (lats.length == 2) {
