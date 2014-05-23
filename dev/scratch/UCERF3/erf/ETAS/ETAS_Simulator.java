@@ -188,6 +188,7 @@ public class ETAS_Simulator {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
 					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID,ot);
+					newRup.setParentID(parID);
 					newRup.setGeneration(1);
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -279,6 +280,7 @@ public class ETAS_Simulator {
 			
 			// the following samples an nth rup and populates the hypo loc.
 			if(parID == -1)	{ // it's a spontaneous event
+//			if(rup.getParentRup() == null)	{ // it's a spontaneous event
 				Location hypoLoc = null;
 				ProbEqkRupture erf_rup;
 				nthRup = spontaneousRupSampler.getRandomInt();	// sample from long-term model
@@ -344,6 +346,7 @@ public class ETAS_Simulator {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
 						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 						newRup.setGeneration(gen);
+						newRup.setParentID(parID);
 						eventsToProcess.add(newRup);
 						eventID +=1;
 					}
@@ -373,7 +376,7 @@ public class ETAS_Simulator {
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
-				// set the date of last event and slip for this rupture
+				// set the date of last event for this rupture
 				erf.setFltSystemSourceOccurranceTime(srcIndex, rupOT);
 
 				// now update source rates for etas_PrimEventSampler
@@ -545,15 +548,16 @@ public class ETAS_Simulator {
 
 		
 		
-		// make bulge plots:
+//		// make bulge plots:
 //		try {
-//			GMT_CA_Maps.plotBulgeFromFirstGenAftershocksMap(erf, "testBulge", "test bulge", "testBulgeDir");
-//			FaultBasedMapGen.plotBulgeFromFirstGenAftershocksMap((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
-//			FaultBasedMapGen.plotBulgeForM6pt7_Map((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+//			GMT_CA_Maps.plotBulgeFromFirstGenAftershocksMap(erf, "1stGenBulgePlot", "test bulge", "1stGenBulgePlotDir");
+////			FaultBasedMapGen.plotBulgeFromFirstGenAftershocksMap((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
+////			FaultBasedMapGen.plotBulgeForM6pt7_Map((InversionFaultSystemSolution)erf.getSolution(), griddedRegion, null, "testBulge", true, true);
 //		} catch (Exception e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+//		System.exit(0);
 				
 		// examine bulge reduction scaling factors
 //		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), griddedRegion);
@@ -580,38 +584,43 @@ public class ETAS_Simulator {
 		// get the rupture index of a Landers or Northridge like rupture
 //		ProbEqkRupture rupFromERF = erf.getSource(246139).getRupture(0);	// Landers
 //		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
+		int fssRupID=197792;
+		int srcID = erf.getSrcIndexForFltSysRup(fssRupID);
+		ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);	// Mojave 7.05
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		
-//		mainshockRup.setAveRake(rupFromERF.getAveRake());
-//		mainshockRup.setMag(rupFromERF.getMag());
-//		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
+		mainshockRup.setAveRake(rupFromERF.getAveRake());
+		mainshockRup.setMag(rupFromERF.getMag());
+		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 		
-		mainshockRup.setAveRake(0.0);
+//		mainshockRup.setAveRake(0.0);
 
 //		mainshockRup.setMag(4.4);	// March17_2014_M4.4
 //		Location ptSurf = new Location(34.133,-118.487,8.0);	//
 		
 		// near Maacama to test most char MFD on fault sections
-		mainshockRup.setMag(6.0);
-		Location ptSurf = new Location(39.79509, -123.56665, 7.54615);	//
-
-		double minDist=Double.MAX_VALUE;
-		int minDistIndex=-1;
-		for(FaultSectionPrefData fltData:erf.getSolution().getRupSet().getFaultSectionDataList()){
-			double dist = fltData.getStirlingGriddedSurface(1.0, false, true).getDistanceRup(ptSurf);
-			if(dist<minDist) {
-				minDist=dist;
-				minDistIndex=fltData.getSectionId();
-			}
-		}
-		System.out.println("minDist="+minDist+"; minDistIndex="+minDistIndex);
-		FaultSectionPrefData fltData = erf.getSolution().getRupSet().getFaultSectionDataList().get(minDistIndex);
-		System.out.println(fltData.getName());
-//		System.out.println(fltData.getStirlingGriddedSurface(1.0, false, true));
-
+//		mainshockRup.setMag(7);
+//		Location ptSurf = new Location(39.79509, -123.56665, 7.54615);	//
 		
-		mainshockRup.setPointSurface(ptSurf);
+//		mainshockRup.setPointSurface(ptSurf);
+
+//
+//		double minDist=Double.MAX_VALUE;
+//		int minDistIndex=-1;
+//		for(FaultSectionPrefData fltData:erf.getSolution().getRupSet().getFaultSectionDataList()){
+//			double dist = fltData.getStirlingGriddedSurface(1.0, false, true).getDistanceRup(ptSurf);
+//			if(dist<minDist) {
+//				minDist=dist;
+//				minDistIndex=fltData.getSectionId();
+//			}
+//		}
+//		System.out.println("minDist="+minDist+"; minDistIndex="+minDistIndex);
+//		FaultSectionPrefData fltData = erf.getSolution().getRupSet().getFaultSectionDataList().get(minDistIndex);
+//		System.out.println(fltData.getName());
+////		System.out.println(fltData.getStirlingGriddedSurface(1.0, false, true));
+//
+//		
 		
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
@@ -622,7 +631,7 @@ public class ETAS_Simulator {
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 		obsEqkRuptureList.add(mainshockRup);
 		
-//		erf.setRuptureOccurrenceTimePred(nthRup, 0);
+		erf.setFltSystemSourceOccurranceTime(srcID, ot);
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
@@ -632,7 +641,7 @@ public class ETAS_Simulator {
 		System.out.println("Starting testETAS_Simulation");
 		try {
 			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Maacama_6");
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Mojave_5");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

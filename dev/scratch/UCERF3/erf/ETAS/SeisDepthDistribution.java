@@ -104,6 +104,7 @@ public class SeisDepthDistribution {
 		graph2.setAxisLabelFontSize(20);
 		graph2.setPlotLabelFontSize(22);
 		graph2.setTickLabelFontSize(18);
+		graph2.setGriddedFuncAxesTicks(true);
 	}
 	
 	

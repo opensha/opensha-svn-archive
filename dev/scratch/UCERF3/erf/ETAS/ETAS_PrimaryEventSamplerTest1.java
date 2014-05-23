@@ -168,6 +168,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 
 		origGriddedRegion = griddedRegion;
 		this.regSpacing = pointSrcDiscr/numPtSrcSubPts;
+		if(D) System.out.println("Gridded Region has "+griddedRegion.getNumLocations()+" cells");
 		
 		this.numPtSrcSubPts = numPtSrcSubPts;
 		this.erf = erf;
@@ -259,7 +260,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			throw new RuntimeException("Problem with number of sources");
 		
 		numFltSystSources = erf.getNumFaultSystemSources();
-		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources);
+		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources+
+				"\tnumPointsForRates="+numPointsForRates);
 		srcIndexList = new ArrayList<Integer>();	// make a list so src indices are not duplicated in lists
 		for(int i=0; i<totNumSrc;i++)
 			srcIndexList.add(new Integer(i));
@@ -708,8 +710,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-				cachedSamplers[locIndexForPar] = sampler;
-				numCachedSamplers += 1;
+//				cachedSamplers[locIndexForPar] = sampler;
+//				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];

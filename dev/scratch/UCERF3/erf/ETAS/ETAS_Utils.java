@@ -39,7 +39,7 @@ public class ETAS_Utils {
 	final static double c_DEFAULT = 1.78e-5*365.25;	// Hardebeck's value converted to units of days
 	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
 	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
-	final static double minDist_DEFAULT = 0.79;		// km; this is "d" in Hardebeck's Table 2
+	final static double minDist_DEFAULT = 5.0; // 0.79;		// km; this is "d" in Hardebeck's Table 2
 	
 	RandomDataImpl randomDataImpl = new RandomDataImpl();
 	

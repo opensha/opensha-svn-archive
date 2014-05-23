@@ -37,6 +37,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	private int id=-1, nthERF_Index=-1, generation=0;
 	private double distToParent=Double.NaN;
 	private ObsEqkRupture parentRup=null;
+	private int parentID=-1;	// TODO get rid of this
 	
 	public ETAS_EqkRupture() {};
 	
@@ -69,10 +70,16 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	 * @return
 	 */
 	public int getParentID() {
-		if(parentRup instanceof ETAS_EqkRupture)
-			return ((ETAS_EqkRupture)parentRup).getID();
-		else
-			return -1;
+		return parentID;
+//		if(parentRup instanceof ETAS_EqkRupture)
+//			return ((ETAS_EqkRupture)parentRup).getID();
+//		else
+//			return -1;
+	}
+	
+	
+	public void setParentID(int parID) {
+		parentID=parID;
 	}
 	
 	

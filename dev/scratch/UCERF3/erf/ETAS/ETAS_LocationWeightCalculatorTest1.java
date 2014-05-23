@@ -501,6 +501,8 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		GraphWindow graph = new GraphWindow(funcs1, "testLogHistogram for ParDepth="+(float)parDepth); 
 		graph.setAxisRange(-2, 3, 1e-6, 1);
 		graph.setYLog(true);
+		graph.setX_AxisLabel("Log10 Distance");
+		graph.setY_AxisLabel("Density");
 
 		
 		ArrayList funcs2 = new ArrayList();
@@ -510,6 +512,9 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		graph2.setAxisRange(0.1, 1000, 1e-6, 1);
 		graph2.setYLog(true);
 		graph2.setXLog(true);
+		graph2.setX_AxisLabel("Distance");
+		graph2.setY_AxisLabel("Density");
+
 		
 		PlotCurveCharacterstics plotSym = new PlotCurveCharacterstics(PlotSymbol.CROSS, 1f, Color.BLACK);
 		GraphWindow graph3 = new GraphWindow(epicenterLocs, "epicenterLocs for ParDepth="+(float)parDepth, plotSym); 
@@ -517,7 +522,8 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK);
 		GraphWindow graph4 = new GraphWindow(depthDistHistogram, "Depth Distibution for ParDepth="+(float)parDepth, plotChar); 
 		graph4.setX_AxisLabel("Depth");
-		graph4.setY_AxisLabel("Density");
+		graph4.setY_AxisLabel("Sampled Density");
+		graph4.setGriddedFuncAxesTicks(true);
 		
 // TES OUT FILE
 //		try{
@@ -593,8 +599,11 @@ public class ETAS_LocationWeightCalculatorTest1 {
 					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist);
 		ETAS_SimAnalysisTools.writeMemoryUse("after");
 
-//		for(int i=0; i<=12;i++)
-//			calc.testRandomSamples(100000, i*2);
+		for(int i=0; i<=12;i++)
+			calc.testRandomSamples(100000, i*2);
+		
+//		calc.testRandomSamples(100000, 16d);
+
 	}
 
 }
