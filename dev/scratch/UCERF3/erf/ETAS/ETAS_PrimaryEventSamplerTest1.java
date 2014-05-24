@@ -710,8 +710,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-//				cachedSamplers[locIndexForPar] = sampler;
-//				numCachedSamplers += 1;
+				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];

@@ -586,7 +586,9 @@ public class ETAS_Simulator {
 //		ProbEqkRupture rupFromERF = erf.getSource(187124).getRupture(0);	// Northridge
 		int fssRupID=197792;
 		int srcID = erf.getSrcIndexForFltSysRup(fssRupID);
+		System.out.println("Test Prob Before: "+erf.getSource(srcID).getRupture(0).getProbability());
 		ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);	// Mojave 7.05
+		System.out.println("test Mainshock: "+erf.getSource(srcID).getName());
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		
@@ -632,6 +634,11 @@ public class ETAS_Simulator {
 		obsEqkRuptureList.add(mainshockRup);
 		
 		erf.setFltSystemSourceOccurranceTime(srcID, ot);
+		erf.updateForecast();
+		System.out.println("Test Prob After: "+erf.getSource(srcID).getRupture(0).getProbability());
+
+		System.exit(0);
+
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
