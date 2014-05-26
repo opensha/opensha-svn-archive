@@ -254,6 +254,8 @@ public class FaultSystemSolutionERF extends AbstractERF {
 				calc.setFltSystemRupOccurranceTime(fltSysRupIndex, epoch);
 			}
 		}
+		// do this to make sure the probability will be updated even if nothing else changes
+		probModelChanged = true;
 	}
 	
 	
