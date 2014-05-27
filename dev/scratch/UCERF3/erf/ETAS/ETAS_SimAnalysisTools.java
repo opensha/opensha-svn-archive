@@ -763,8 +763,8 @@ public class ETAS_SimAnalysisTools {
 	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) {
 		try{
 			Location hypoLoc = rup.getHypocenterLocation();
-			fileWriter.write(rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
-					rup.getOriginTime()//+"\t"+rup.getDistanceToParent()
+			fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
+					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
 					+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
 		}catch(Exception e) {
 			e.printStackTrace();
