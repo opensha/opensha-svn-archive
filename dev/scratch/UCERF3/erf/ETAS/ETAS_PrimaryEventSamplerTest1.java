@@ -554,10 +554,11 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * the event was sampled from (uniform distribution, and not weighted by the distance each
 	 * surface point at that location is from the source.
 	 * from the source
+	 * @return boolean tells whether it succeeded in setting the rupture
 	 * @param mainshock
 	 * @param rupToFillIn
 	 */
-	public void setRandomPrimaryEvent(EqkRupture mainshock, ETAS_EqkRupture rupToFillIn) {
+	public boolean setRandomPrimaryEvent(EqkRupture mainshock, ETAS_EqkRupture rupToFillIn) {
 		
 		// first set point on main shock that nucleates the aftershock (randomly chosen with uniform probability)
 		Location parentLoc=null;
@@ -579,8 +580,11 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			if(mainshock instanceof ETAS_EqkRupture) {
 				System.out.println("Problem event generation: "+((ETAS_EqkRupture)mainshock).getGeneration());
 			}
-			throw new RuntimeException("parRegIndex<0; parentLoc="+parentLoc.toString()+
+			System.out.println("PROBLEM: parRegIndex<0; parentLoc="+parentLoc.toString()+
 					"\tNum pts on main shock surface: "+mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+			return false;
+//			throw new RuntimeException("parRegIndex<0; parentLoc="+parentLoc.toString()+
+//					"\tNum pts on main shock surface: "+mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
 		}
 		int parDepIndex = getParDepthIndex(parentLoc.getDepth());
 		int locIndexForPar = parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
@@ -701,6 +705,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 //		double distToParent = etasLocWtCalclist[parDepIndex].getDistance(relLat, relLon, relDep);
 		double distToParent = LocationUtils.linearDistanceFast(parentLoc, rupToFillIn.getHypocenterLocation());
 		rupToFillIn.setDistanceToParent(distToParent);
+		
+		return true;
 	}
 	
 	
@@ -710,8 +716,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-//				cachedSamplers[locIndexForPar] = sampler;
-//				numCachedSamplers += 1;
+				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];
@@ -862,6 +868,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
 		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
 
+		double minCorr=Double.MAX_VALUE;
+		int minCorrIndex = -1;
 		for(int i=0;i<subMFD_Array.length;i++) {
 			if(supraMFD_Array[i] != null) {
 				double val = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
@@ -869,11 +877,16 @@ public class ETAS_PrimaryEventSamplerTest1 {
 					grCorrFactorForCellArray[i]=val;
 				else
 					grCorrFactorForCellArray[i]=1.0;
+				if(val<minCorr) {
+					minCorr=val;
+					minCorrIndex=i;
+				}
 			}
 			else {	// no supra-seismogenic ruptures
 				grCorrFactorForCellArray[i]=1.0;
 			}
 		}
+		if(D) System.out.println("min GR Corr ("+minCorr+") at grid point: "+minCorrIndex+"\t"+origGriddedRegion.getLocation(minCorrIndex));
 		return grCorrFactorForCellArray;
 	}
 	

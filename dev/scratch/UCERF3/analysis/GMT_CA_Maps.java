@@ -596,7 +596,7 @@ public class GMT_CA_Maps {
 	}
 	
 	
-	public static void plotBulgeFromFirstGenAftershocksMap(FaultSystemSolutionERF erf, String scaleLabel, String metadata, String dirName) throws IOException {
+	public static void plotBulgeFromFirstGenAftershocksMap(FaultSystemSolutionERF erf, String scaleLabel, String metadata, String dirName, boolean applyCorr) throws IOException {
 		
 		GriddedGeoDataSet bulgeDataSet = new GriddedGeoDataSet(defaultGridRegion, true);
 		
@@ -606,13 +606,13 @@ public class GMT_CA_Maps {
 		for(int i=0;i<bulgeDataSet.size();i++) {
 			if(subMFD_Array[i] != null) {
 				
-				// test correction
-//				double corr = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
-//				if(corr<1.0)
-//					supraMFD_Array[i].scale(corr);
+				if(applyCorr) {
+					double corr = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+					if(corr<1.0)
+						supraMFD_Array[i].scale(corr);					
+				}
 				
 				double val = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
-//				double val = Math.log10(1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]));
 				bulgeDataSet.set(i, val);
 			}
 			else

@@ -47,7 +47,7 @@ import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 public class FaultSystemSolutionCalc {
 	
-	final static boolean D = true;  // debug flag
+	final static boolean D = false;  // debug flag
 	
 	
 	/**
@@ -258,7 +258,7 @@ public class FaultSystemSolutionCalc {
 					if(D) System.out.println("Not in region: "+invSol.getRupSet().getFaultSectionData(s).getName());
 	
 			}
-			sectMFD.scale((double)locList.size());
+			sectMFD.scale((double)locList.size());	// set it back
 
 		}
 		

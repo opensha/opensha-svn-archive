@@ -39,7 +39,7 @@ public class ETAS_Utils {
 	final static double c_DEFAULT = 1.78e-5*365.25;	// Hardebeck's value converted to units of days
 	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
 	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
-	final static double minDist_DEFAULT = 5.0; // 0.79;		// km; this is "d" in Hardebeck's Table 2
+	final static double minDist_DEFAULT = 2d; //0.79;		// km; this is "d" in Hardebeck's Table 2
 	
 	RandomDataImpl randomDataImpl = new RandomDataImpl();
 	
@@ -433,7 +433,7 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		testDefaultHardebeckDensity();
+//		testDefaultHardebeckDensity();
 
 		
 //		EvenlyDiscretizedFunc distDecay = getTargetDistDecayFunc(-2, 3, 51, distDecay_DEFAULT, minDist_DEFAULT);
@@ -449,21 +449,23 @@ public class ETAS_Utils {
 //		System.out.println("M7: "+getDefaultExpectedNumEvents(7.0, 0, 360));
 //		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
 //		
-////		System.out.println(getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 3));
-//		EvenlyDiscretizedFunc cumDecayFunc1 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-//		EvenlyDiscretizedFunc cumDecayFunc2 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-//		EvenlyDiscretizedFunc cumDecayFunc3 = new EvenlyDiscretizedFunc(-3d,25,0.25);
-//		for(int i=0;i<cumDecayFunc1.getNum();i++) {
-//			double dist = Math.pow(10d, cumDecayFunc1.getX(i));
-//			cumDecayFunc1.set(i,getDecayFractionInsideDistance(ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, dist));
-//			cumDecayFunc2.set(i,getDecayFractionInsideDistance(1.8,0.63, dist));
-//			cumDecayFunc2.set(i,getDecayFractionInsideDistance(5.4,10d, dist));
-//		}
-//		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-//		funcs.add(cumDecayFunc1);
-//		funcs.add(cumDecayFunc2);
-//		funcs.add(cumDecayFunc3);
-//		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
+		
+		double distDecayArray[] = {ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.distDecay_DEFAULT, 1.4};
+		double minDistArray[] = {ETAS_Utils.minDist_DEFAULT, 2.0, ETAS_Utils.minDist_DEFAULT};
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		for(int j=0;j<distDecayArray.length;j++) {
+			EvenlyDiscretizedFunc cumDecayFunc = new EvenlyDiscretizedFunc(-3d,25,0.25);
+			for(int i=0;i<cumDecayFunc.getNum();i++) {
+				double dist = Math.pow(10d, cumDecayFunc.getX(i));
+				cumDecayFunc.set(i,getDecayFractionInsideDistance(distDecayArray[j], minDistArray[j], dist));
+			}
+			cumDecayFunc.setName("distDecay="+distDecayArray[j]+";\tminDist="+minDistArray[j]);
+			cumDecayFunc.setInfo(" ");
+			funcs.add(cumDecayFunc);
+		}
+		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
+		graph.setX_AxisLabel("log10 Distance");
+		graph.setX_AxisLabel("Cum Density");
 
 		
 		
