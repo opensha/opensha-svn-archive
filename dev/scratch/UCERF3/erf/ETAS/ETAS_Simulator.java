@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf.ETAS;
 
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileWriter;
@@ -61,11 +62,12 @@ import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class ETAS_Simulator {
 	
-	final static boolean D=true; // debug flag
+	public static boolean D=true; // debug flag
 	
 	
 	/**
@@ -78,6 +80,7 @@ public class ETAS_Simulator {
 	 * What is assumed about region grid spacing? TODO
 	 * 
 	 * 
+	 * @param resultsDir directory where results will be writer
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
 	 * @param includeSpontEvents
@@ -87,19 +90,50 @@ public class ETAS_Simulator {
 	 * @throws IOException 
 
 	 */
-	public static void testETAS_Simulation(FaultSystemSolutionERF_ETAS erf, GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
-			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName) throws IOException {
+	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
+			GriddedRegion griddedRegion, List<ObsEqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
+			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName)
+					throws IOException {
+		testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
+				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, null);
+	}
+	
+	/**
+	 * This represents an ETAS simulation.  
+	 * 
+	 * This assume ER probabilities are constant up until 
+	 * the next fault-system event (only works if fault system events occur every few years or
+	 * less).
+	 * 
+	 * What is assumed about region grid spacing? TODO
+	 * 
+	 * 
+	 * @param resultsDir directory where results will be writer
+	 * @param griddedRegion
+	 * @param obsEqkRuptureList
+	 * @param includeSpontEvents
+	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
+	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
+	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
+	 * @param fractionSrcAtPointList
+	 * @param srcAtPointList
+	 * @throws IOException 
+
+	 */
+	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
+			GriddedRegion griddedRegion, List<ObsEqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
+			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
+			List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList)
+					throws IOException {
 		
 		SeisDepthDistribution seisDepthDistribution = new SeisDepthDistribution();
 		
 		// directory for saving results
-		String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
-		File resultsDir = new File(dirNameForSavingFiles);
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		
 		// file for writing simulations info
-		FileWriter info_fr= new FileWriter(dirNameForSavingFiles+"infoString.txt");
-		FileWriter simulatedEventsFileWriter = new FileWriter(dirNameForSavingFiles+"simulatedEvents.txt");
+		FileWriter info_fr= new FileWriter(new File(resultsDir, "infoString.txt"));
+		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
 
 
 		info_fr.write(simulationName+"\n");
@@ -229,12 +263,14 @@ public class ETAS_Simulator {
 
 		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates);
+		if (fractionSrcAtPointList != null && srcAtPointList != null)
+			etas_PrimEventSampler.setSrcAtPointCaches(fractionSrcAtPointList, srcAtPointList);
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 
 		// TODO this could be based on supraseis rupture (or rups with more than one point on surface)
-		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", dirNameForSavingFiles+"firstObsRupExpPrimMFD.pdf", etas_PrimEventSampler, obsEqkRuptureList.get(0));
+		if(D && obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
+			ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD.pdf").getAbsolutePath(), etas_PrimEventSampler, obsEqkRuptureList.get(0));
 		}
 		
 		double etasDistDecay = etas_PrimEventSampler.getDistDecay();
@@ -259,8 +295,16 @@ public class ETAS_Simulator {
 //			e.printStackTrace();
 //		}
 		
-		CalcProgressBar progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
-		progressBar.showProgress(true);
+		
+		
+		CalcProgressBar progressBar;
+		try {
+			progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
+			progressBar.showProgress(true);
+		} catch (Exception e) {
+			// headless, don't show it
+			progressBar = null;
+		}
 		
 		if (D) System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")...\n");
 		if (D) System.out.println("\tFault system ruptures triggered (date\tmag\tname\tnthRup,src,rupInSrc,fltSysRup):");
@@ -272,7 +316,7 @@ public class ETAS_Simulator {
 		
 		while(eventsToProcess.size()>0) {
 			
-			progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
+			if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
 			
 			ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 			
@@ -412,37 +456,36 @@ public class ETAS_Simulator {
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();	
 				}
-				String tempFileName = dirNameForSavingFiles+"fltSysRup"+fltSysRupIndex+"_ExpPrimMFD.pdf";
-				ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup));
-				if(D) System.out.println("; sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");
+				String tempFileName = new File(resultsDir,"fltSysRup"+fltSysRupIndex+"_ExpPrimMFD.pdf").getAbsolutePath();
+				if (D) ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup));
+				if (D) System.out.println("; sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");
 			}
 		}
 		
-		progressBar.showProgress(false);
+		if (progressBar != null) progressBar.showProgress(false);
 
 		if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs");
 		info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
 
 //		ETAS_SimAnalysisTools.writeEventDataToFile("testRightHere.txt", simulatedRupsQueue);
 
-		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
-			ETAS_SimAnalysisTools.plotEpicenterMap("", dirNameForSavingFiles+"hypoMap.pdf", obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotDistDecayHistForAshocks...");
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("", dirNameForSavingFiles+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), etasDistDecay, etasMinDist);
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsLogTime...");
-			ETAS_SimAnalysisTools.plotNumVsLogTimePrimaryAftershocks("", dirNameForSavingFiles+"logTimeDecay.pdf", simulatedRupsQueue);
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsTime...");
-			ETAS_SimAnalysisTools.plotNumVsTimePrimaryAftershocks("", dirNameForSavingFiles+"timeDecay.pdf", simulatedRupsQueue);
-		}
-		else {
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
-			ETAS_SimAnalysisTools.plotEpicenterMap("test", dirNameForSavingFiles+"hypoMap.pdf", null, simulatedRupsQueue, griddedRegion.getBorder());
-			if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotDistDecayHistForAshocks...");
+		if(D && obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
+			System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
+			ETAS_SimAnalysisTools.plotEpicenterMap("", new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
+			System.out.println("Doing ETAS_SimAnalysisTools.plotDistDecayHistForAshocks...");
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("", new File(resultsDir,"distDecay.pdf").getAbsolutePath(), simulatedRupsQueue, obsEqkRuptureList.get(0), etasDistDecay, etasMinDist);
+			System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsLogTime...");
+			ETAS_SimAnalysisTools.plotNumVsLogTimePrimaryAftershocks("", new File(resultsDir,"logTimeDecay.pdf").getAbsolutePath(), simulatedRupsQueue);
+			System.out.println("Doing ETAS_SimAnalysisTools.plotNumVsTime...");
+			ETAS_SimAnalysisTools.plotNumVsTimePrimaryAftershocks("", new File(resultsDir,"timeDecay.pdf").getAbsolutePath(), simulatedRupsQueue);
+		} else if (D) {
+			System.out.println("Doing ETAS_SimAnalysisTools.plotEpicenterMap...");
+			ETAS_SimAnalysisTools.plotEpicenterMap("test", new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), null, simulatedRupsQueue, griddedRegion.getBorder());
+			System.out.println("Doing ETAS_SimAnalysisTools.plotDistDecayHistForAshocks...");
 			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, etasDistDecay, etasMinDist);
 		}
 		if(D) System.out.println("Doing ETAS_SimAnalysisTools.plotMagFreqDists...");
-		ETAS_SimAnalysisTools.plotMagFreqDists("", dirNameForSavingFiles+"aftMFD.pdf", simulatedRupsQueue);
+		if(D) ETAS_SimAnalysisTools.plotMagFreqDists("", new File(resultsDir,"aftMFD.pdf").getAbsolutePath(), simulatedRupsQueue);
 		
 		if(D) System.out.println("Total num ruptures: "+simulatedRupsQueue.size());
 		info_fr.write("Total num ruptures: "+simulatedRupsQueue.size()+"\n");
@@ -509,6 +552,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
+		String simulationName = "Mojave7pt0_run1";
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -539,8 +583,10 @@ public class ETAS_Simulator {
 		
 		System.out.println("Starting testETAS_Simulation");
 		try {
-			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "Mojave7pt0_run1");
+			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
+			File resultsDir = new File(dirNameForSavingFiles);
+			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -582,6 +628,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
+		String simulationName = "LaHabra6pt2_run1";
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -605,8 +652,10 @@ public class ETAS_Simulator {
 		
 		System.out.println("Starting testETAS_Simulation");
 		try {
-			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "LaHabra6pt2_run1");
+			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
+			File resultsDir = new File(dirNameForSavingFiles);
+			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -645,6 +694,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
+		String simulationName = "NoMainShock_run1";
 		
 		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 
@@ -656,8 +706,10 @@ public class ETAS_Simulator {
 		
 		System.out.println("Starting testETAS_Simulation");
 		try {
-			testETAS_Simulation(erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, "NoMainShock_run1");
+			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
+			File resultsDir = new File(dirNameForSavingFiles);
+			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

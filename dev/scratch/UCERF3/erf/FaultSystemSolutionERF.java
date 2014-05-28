@@ -239,8 +239,19 @@ public class FaultSystemSolutionERF extends AbstractERF {
 	 */
 	public void setFltSystemSourceOccurranceTime(int srcIndex, Long epoch) {
 		// set it in the fault section data objects
-		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
 		int fltSysRupIndex = getFltSysRupIndexForSource(srcIndex);
+		setFltSystemSourceOccurranceTimeForFSSIndex(fltSysRupIndex, epoch);
+	}
+	
+	/**
+	 * This sets the date of last event on the sections associated with the given FSS rupture
+	 * index. Allows for it to be set without first updating the forecast to figure out the
+	 * source index.
+	 * @param fltSysRupIndex
+	 * @param epoch
+	 */
+	public void setFltSystemSourceOccurranceTimeForFSSIndex(int fltSysRupIndex, Long epoch) {
+		FaultSystemRupSet rupSet = faultSysSolution.getRupSet();
 		List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
 		for(int sectIndex : sectIndexList) {
 			rupSet.getFaultSectionData(sectIndex).setDateOfLastEvent(epoch);

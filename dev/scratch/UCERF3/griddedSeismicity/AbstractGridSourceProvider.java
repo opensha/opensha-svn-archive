@@ -29,7 +29,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	private final WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 	private double ptSrcCutoff = 6.0;
 	
-	public static final double SOURCE_MIN_MAG_CUTOFF = 5.05;
+	public static double SOURCE_MIN_MAG_CUTOFF = 5.05;
 
 	protected AbstractGridSourceProvider() {
 	}

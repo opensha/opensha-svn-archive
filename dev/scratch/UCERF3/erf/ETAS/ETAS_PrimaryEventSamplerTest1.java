@@ -66,7 +66,7 @@ import scratch.UCERF3.utils.MatrixIO;
 
 public class ETAS_PrimaryEventSamplerTest1 {
 	
-	final static boolean D=true;
+	final static boolean D=ETAS_Simulator.D;
 	
 	boolean applyGR_Corr = true;
 	
@@ -273,19 +273,22 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 		File intListListFile = new File("junkHereFileInt");
 		File floatListListFile = new File("junkHereFileFloat");
-		try {
-			if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
-			fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(floatListListFile);
-			if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
-			srcAtPointList = MatrixIO.intArraysListFromFile(intListListFile);
-			// the following test is not better in terms of memory use
-//			ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
-			if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (intListListFile.exists() && floatListListFile.exists()) {
+			// else needs to be set externally
+			
+			try {
+				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
+				fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(floatListListFile);
+				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
+				srcAtPointList = MatrixIO.intArraysListFromFile(intListListFile);
+				// the following test is not better in terms of memory use
+//				ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
+				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-
 		
 //		if(D) writeMemoryUse();
 
@@ -300,6 +303,11 @@ public class ETAS_PrimaryEventSamplerTest1 {
 //		if(oututFileNameWithPath != null)
 //			writeEqksAtPointArrayToFile(oututFileNameWithPath);
 		
+	}
+	
+	public void setSrcAtPointCaches(List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList) {
+		this.fractionSrcAtPointList = fractionSrcAtPointList;
+		this.srcAtPointList = srcAtPointList;
 	}
 	
 	/**
@@ -716,8 +724,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-				cachedSamplers[locIndexForPar] = sampler;
-				numCachedSamplers += 1;
+//				cachedSamplers[locIndexForPar] = sampler;
+//				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];

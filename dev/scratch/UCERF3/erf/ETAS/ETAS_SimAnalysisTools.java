@@ -765,7 +765,7 @@ public class ETAS_SimAnalysisTools {
 			Location hypoLoc = rup.getHypocenterLocation();
 			fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
 					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
-					+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
+					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
 		}catch(Exception e) {
 			e.printStackTrace();
 
