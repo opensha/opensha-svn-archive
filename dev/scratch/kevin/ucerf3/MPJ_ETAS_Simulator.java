@@ -2,6 +2,7 @@ package scratch.kevin.ucerf3;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
@@ -194,6 +196,24 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		for (int index : batch) {
 			System.gc();
+			
+			File outputDir = new File(this.outputDir, "results");
+			if (!outputDir.exists())
+				outputDir.mkdir();
+			
+			String runName = ""+index;
+			int desiredLen = ((getNumTasks()-1)+"").length();
+			while (runName.length() < desiredLen)
+				runName = "0"+runName;
+			runName = "sim_"+runName;
+			File resultsDir = new File(outputDir, runName);
+			
+			if (isAlreadyDone(resultsDir)) {
+				debug(index+" is already done: "+resultsDir.getName());
+				continue;
+			}
+			debug("calculating "+index);
+			
 			// reset date of last event
 			LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
 			
@@ -220,16 +240,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			erf.updateForecast();
 			debug("Done instantiating ERF");
 			
-			File outputDir = new File(this.outputDir, "results");
-			if (!outputDir.exists())
-				outputDir.mkdir();
-			
-			String runName = ""+index;
-			int desiredLen = ((getNumTasks()-1)+"").length();
-			while (runName.length() < desiredLen)
-				runName = "0"+runName;
-			runName = "sim_"+runName;
-			File resultsDir = new File(outputDir, runName);
 			List<ObsEqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
@@ -238,6 +248,17 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
+	}
+	
+	public static boolean isAlreadyDone(File resultsDir) throws IOException {
+		File infoFile = new File(resultsDir, "infoString.txt");
+		if (!infoFile.exists())
+			return false;
+		for (String line : Files.readLines(infoFile, Charset.defaultCharset())) {
+			if (line.contains("Total num ruptures: "))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

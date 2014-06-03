@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.Point2DException;
 
 /**
@@ -47,10 +48,41 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	public double getFirstInterpolatedX(double y) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
+	
+	private int getXIndexBefore(double x) {
+		int ind = Arrays.binarySearch(xVals, x);
+		if (ind < 0)
+			return -ind-2;
+		return ind-1;
+	}
 
 	@Override
 	public double getInterpolatedY(double x) {
-		throw new UnsupportedOperationException("Not yet implemented");
+//		throw new UnsupportedOperationException("Not yet implemented");
+		// finds the size of the point array
+		int max=xVals.length;
+		//if passed parameter(x value) is not within range then throw exception
+		if(x>getX(max-1) || x<getX(0))
+			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1)
+					+" (supplied x: "+x+")");
+		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
+		if(x==getX(max-1))
+			return getY(x);
+		//finds the X values within which the the given x value lies
+		int x1Ind = getXIndexBefore(x);
+		if (x1Ind == -1)
+			// this means that it matches at index 0
+			return getY(0);
+		int x2Ind = x1Ind+1;
+		Point2D pt1 = get(x1Ind);
+		Point2D pt2 = get(x2Ind);
+		double x1 = pt1.getX();
+		double y1 = pt1.getY();
+		double x2 = pt2.getX();
+		double y2 = pt2.getY();
+		//using the linear interpolation equation finding the value of y for given x
+		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+		return y;
 	}
 
 	@Override

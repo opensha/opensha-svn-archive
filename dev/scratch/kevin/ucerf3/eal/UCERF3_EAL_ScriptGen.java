@@ -30,7 +30,11 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2013_11_04-eal-calc-small-test";
 //		String runSubDirName = "2014_01_15-ucerf3-eal-calc-NGA2s-2013";
 //		String runSubDirName = "2014_03_19-ucerf3-eal-calc-CB2014-recalc";
-		String runSubDirName = "2014_05_05-ucerf3-eal-calc-wald-vs30";
+//		String runSubDirName = "2014_05_05-ucerf3-eal-calc-wald-vs30";
+//		String runSubDirName = "2014_05_16-ucerf3-99percent-wills";
+//		String runSubDirName = "2014_05_19-ucerf3-fatality";
+//		String runSubDirName = "2014_05_28-ucerf3-99percent-wills-smaller";
+		String runSubDirName = "2014_05_28-ucerf3-fatality-smaller";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -52,12 +56,18 @@ public class UCERF3_EAL_ScriptGen {
 		String meanSolFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip";
 		File meanSolFile = new File(remoteMainDir, meanSolFileName);
 		
-		String vulnFileName = "2012_01_02_VUL06.txt";
+//		String vulnFileName = "2012_01_02_VUL06.txt";
+//		String vulnFileName = "2014_05_16_VUL06.txt"; // updated for 99%
+		String vulnFileName = "2014_05_16b_VUL06.txt"; // fatalities
 		File vulnFile = new File(remoteMainDir, vulnFileName);
 		
-//		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv";
-		String portfolioFileName = "Porter (05 May 2014) CEA proxy portfolio 2013 values Wald-Allen Vs30.csv";
+//		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv"; // 2013 values, Wills Vs30
+//		String portfolioFileName = "Porter (05 May 2014) CEA proxy portfolio 2013 values Wald-Allen Vs30.csv";
 //		String portfolioFileName = "small_test_port.csv";
+//		String portfolioFileName = "Porter (10 May 2014) CA 99pct portfolio 2013 values Wills Vs30.txt";
+//		String portfolioFileName = "Porter (16 May 2014) SCEC UCERF3 CA fatality portfolio.txt"; // fatality portfolio, Wills Vs30
+		String portfolioFileName = "Porter-22-May-14-CA-CAS4-90pct-Wills.txt"; // smaller fatality portfolio, Wills Vs30
+//		String portfolioFileName = "Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // smaller 99%
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
@@ -67,7 +77,7 @@ public class UCERF3_EAL_ScriptGen {
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));
 		
 		int mins = 1000;
-		int nodes = 40;
+		int nodes = 80;
 		int ppn = 8;
 		String queue = null;
 		

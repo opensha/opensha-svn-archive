@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.imr.attenRelImpl;
+package scratch.kevin;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,6 +44,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
@@ -61,6 +62,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Implementation of the Campbell & Bozorgnia (2008) next generation attenuation
@@ -108,7 +111,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
  * @version $Id: CB_2008_AttenRel.java 9377 2012-09-05 19:04:42Z pmpowers $
  */
 
-public class TestCB_2008_AttenRel extends AttenuationRelationship implements
+public class TestCB_2008_UsesPrimitives_AttenRel extends AttenuationRelationship implements
 		ParameterChangeListener {
 
 	private final static String C = "CB_2006_AttenRel";
@@ -175,7 +178,7 @@ public class TestCB_2008_AttenRel extends AttenuationRelationship implements
 	 * Constructs a new instance of this attenuation relationship.
 	 * @param listener
 	 */
-	public TestCB_2008_AttenRel(ParameterChangeWarningListener listener) {
+	public TestCB_2008_UsesPrimitives_AttenRel(ParameterChangeWarningListener listener) {
 		this.listener = listener;
 
 		initSupportedIntensityMeasureParams();
@@ -198,30 +201,29 @@ public class TestCB_2008_AttenRel extends AttenuationRelationship implements
 	public void setEqkRupture(EqkRupture eqkRupture)
 			throws InvalidRangeException {
 		this.eqkRupture = eqkRupture;
-		magParam.setValueIgnoreWarning(eqkRupture.getMag());
-		setFaultTypeFromRake(eqkRupture.getAveRake());
-		RuptureSurface surface = eqkRupture.getRuptureSurface();
-		rupTopDepthParam.setValueIgnoreWarning(surface.getAveRupTopDepth());
-		dipParam.setValueIgnoreWarning(surface.getAveDip());
 		
-		
-		mag = magParam.getValue();
-		String fltType = fltTypeParam.getValue();
-		if (fltType.equals(FLT_TYPE_NORMAL)) {
-				f_rv = 0 ;
-				f_nm = 1;
-		}
-		else if (fltType.equals(FLT_TYPE_REVERSE)) {
-				f_rv = 1;
-				f_nm = 0;
-		}
-		else {
-				f_rv =0 ;
-				f_nm = 0;
+		mag = eqkRupture.getMag();
+		double rake = eqkRupture.getAveRake();
+		if (rake > 30 && rake < 150) {
+			f_rv = 1;
+			f_nm = 0;
+//			fltTypeParam.setValue(FLT_TYPE_REVERSE);
+		} else if (rake > -150 && rake < -30) {
+			f_rv = 0 ;
+			f_nm = 1;
+//			fltTypeParam.setValue(FLT_TYPE_NORMAL);
+		} else {
+			f_rv =0 ;
+			f_nm = 0;
+//			fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 		}
 
-		depthTop = rupTopDepthParam.getValue();
-		dip = dipParam.getValue();
+		depthTop = eqkRupture.getRuptureSurface().getAveRupTopDepth();
+		dip = eqkRupture.getRuptureSurface().getAveDip();
+		
+		magParam.setValueIgnoreWarning(mag);
+		rupTopDepthParam.setValueIgnoreWarning(depthTop);
+		dipParam.setValueIgnoreWarning(dip);
 		
 		setPropagationEffectParams();
 	}
@@ -229,14 +231,16 @@ public class TestCB_2008_AttenRel extends AttenuationRelationship implements
 	@Override
 	public void setSite(Site site) throws ParameterException {
 		this.site = site;
-		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
-			.getValue());
-		vs30 = vs30Param.getValue();
+//		vs30Param.setValueIgnoreWarning((Double) site.getParameter(Vs30_Param.NAME)
+//			.getValue());
+		vs30 = (Double) site.getParameter(Vs30_Param.NAME).getValue();
+		vs30Param.setValueIgnoreWarning(vs30);
 	
-		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
-			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
+//		depthTo2pt5kmPerSecParam.setValueIgnoreWarning((Double) site
+//			.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue());
 		
-		Double val = depthTo2pt5kmPerSecParam.getValue();
+		Double val = (Double) site.getParameter(DepthTo2pt5kmPerSecParam.NAME).getValue();
+		depthTo2pt5kmPerSecParam.setValueIgnoreWarning(val);
 		if(val == null)
 			depthTo2pt5kmPerSec = Double.NaN;  // can't set the default here because vs30 could still change
 		else
@@ -256,16 +260,19 @@ public class TestCB_2008_AttenRel extends AttenuationRelationship implements
 	
 	private void propEffectUpdate() {
 //		distanceRupParam.setValueIgnoreWarning(eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation())); // this sets rRup too
-		distanceRupParam.setValue(eqkRupture,site); // this sets rRup too
-		double dist_jb = eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation());
+		RuptureSurface rupSurf = eqkRupture.getRuptureSurface();
+		Location siteLoc = site.getLocation();
+		rRup = rupSurf.getDistanceRup(siteLoc);
+		rJB = rupSurf.getDistanceJB(site.getLocation());
 		if(rRup == 0)
-			distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
+			distRupMinusJB_OverRup = 0d;
 		else
-			distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
-		
-		rRup = distanceRupParam.getValue();
-		distRupMinusJB_OverRup = distRupMinusJB_OverRupParam.getValue();
+			distRupMinusJB_OverRup = (rRup-rJB)/rRup;
+		Preconditions.checkState(distRupMinusJB_OverRup >= 0d);
 
+		distanceRupParam.setValueIgnoreWarning(rRup);
+//		distanceJBParam.setValueIgnoreWarning(rJB);
+		distRupMinusJB_OverRupParam.setValueIgnoreWarning(distRupMinusJB_OverRup);
 	}
 
 	
@@ -806,16 +813,16 @@ public class TestCB_2008_AttenRel extends AttenuationRelationship implements
 	 */
 	protected void initParameterEventListeners() {
 
-		distanceRupParam.addParameterChangeListener(this);
-		distRupMinusJB_OverRupParam.addParameterChangeListener(this);
-		vs30Param.addParameterChangeListener(this);
-		depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
-		magParam.addParameterChangeListener(this);
-		fltTypeParam.addParameterChangeListener(this);
-		rupTopDepthParam.addParameterChangeListener(this);
+//		distanceRupParam.addParameterChangeListener(this);
+//		distRupMinusJB_OverRupParam.addParameterChangeListener(this);
+//		vs30Param.addParameterChangeListener(this);
+//		depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
+//		magParam.addParameterChangeListener(this);
+//		fltTypeParam.addParameterChangeListener(this);
+//		rupTopDepthParam.addParameterChangeListener(this);
 		stdDevTypeParam.addParameterChangeListener(this);
 		saPeriodParam.addParameterChangeListener(this);
-		dipParam.addParameterChangeListener(this);
+//		dipParam.addParameterChangeListener(this);
 	}
 
 

@@ -72,7 +72,7 @@ public class UCERF3_BranchAvgLossFetcher {
 	 * @param fm fault model for which to calculate results
 	 * @param normalize if true losses will be normalized to conditional losses, otherwise the y values will sum to the total
 	 * time independent annual rate (adjusted for branches with ruptures below section minimum mag).
-	 * @return
+	 * @return distribution of loss (y values are weights, optionally normalized) for each rupture in the given FM.
 	 * @throws IOException if there is an error loading the data files
 	 * @throws IllegalStateException if no file is found for the given IMR.
 	 */
@@ -191,7 +191,7 @@ public class UCERF3_BranchAvgLossFetcher {
 		return MPJ_CondLossCalc.loadGridSourcesFile(griddedLossesFile, region);
 	}
 	
-	private static int getMatchingXIndexFloatPrecision(double x, DiscretizedFunc func) {
+	static int getMatchingXIndexFloatPrecision(double x, DiscretizedFunc func) {
 		for (int i=0; i<func.getNum(); i++)
 			if ((float)func.getX(i) == (float)x)
 				return i;

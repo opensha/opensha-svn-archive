@@ -1,21 +1,29 @@
 package scratch.UCERF3.erf.ETAS;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.PriorityQueue;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -24,12 +32,27 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.mapping.gmt.GMT_Map;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.google.common.primitives.Doubles;
+
+import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.analysis.FaultBasedMapGen;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -742,34 +765,75 @@ public class ETAS_SimAnalysisTools {
 	}
 
 	
-	public static void writeEventDataToFile(String fileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
-		try{
-			FileWriter fw1 = new FileWriter(fileName);
-//			fw1.write("ID\tparID\tGen\tOrigTime\tdistToPar\n");
-			fw1.write("ID\tparID\tGen\tOrigTime\tLat\tLon\tDep\n");
-			for(ETAS_EqkRupture rup:simulatedRupsQueue) {
-				Location hypoLoc = rup.getHypocenterLocation();
-				fw1.write(rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
-						rup.getOriginTime()//+"\t"+rup.getDistanceToParent()
-						+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
-			}
-			fw1.close();
-		}catch(Exception e) {
-			e.printStackTrace();
-
+	public static void writeEventDataToFile(String fileName, Collection<ETAS_EqkRupture> simulatedRupsQueue)
+			throws IOException {
+		FileWriter fw1 = new FileWriter(fileName);
+		writeEventHeaderToFile(fw1);
+		for(ETAS_EqkRupture rup:simulatedRupsQueue) {
+			writeEventToFile(fw1, rup);
 		}
+		fw1.close();
 	}
 	
-	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) {
-		try{
-			Location hypoLoc = rup.getHypocenterLocation();
-			fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
+	public static void writeEventHeaderToFile(FileWriter fileWriter) throws IOException {
+		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\n");
+	}
+	
+	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) throws IOException {
+		Location hypoLoc = rup.getHypocenterLocation();
+		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
 					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
 					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
-		}catch(Exception e) {
-			e.printStackTrace();
-
+	}
+	
+	public static ETAS_EqkRupture loadRuptureFromFileLine(String line) {
+		line = line.trim();
+		
+		String[] split = line.split("\t");
+		Preconditions.checkState(split.length == 10, "Line has unexpected number of items."
+				+ "Expected 10, got "+split.length+". Line: "+line);
+		
+		int nthERFIndex = Integer.parseInt(split[0]);
+		int id = Integer.parseInt(split[1]);
+		int parentID = Integer.parseInt(split[2]);
+		int gen = Integer.parseInt(split[3]);
+		long origTime = Long.parseLong(split[4]);
+		double distToParent = Double.parseDouble(split[5]);
+		double mag = Double.parseDouble(split[6]);
+		double lat = Double.parseDouble(split[7]);
+		double lon = Double.parseDouble(split[8]);
+		double depth = Double.parseDouble(split[9]);
+		
+		Location loc = new Location(lat, lon, depth);
+		
+		ETAS_EqkRupture rup = new ETAS_EqkRupture();
+		rup.setNthERF_Index(nthERFIndex);
+		rup.setID(id);
+		rup.setParentID(parentID);
+		rup.setGeneration(gen);
+		rup.setOriginTime(origTime);
+		rup.setDistanceToParent(distToParent);
+		rup.setMag(mag);
+		rup.setHypocenterLocation(loc);
+		
+		return rup;
+	}
+	
+	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile) throws IOException {
+		return loadCatalog(catalogFile, -10d);
+	}
+	
+	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag) throws IOException {
+		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
+		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
+			line = line.trim();
+			if (line.startsWith("#") || line.isEmpty())
+				continue;
+			ETAS_EqkRupture rup = ETAS_SimAnalysisTools.loadRuptureFromFileLine(line);
+			if (rup.getMag() >= minMag)
+				catalog.add(rup);
 		}
+		return catalog;
 	}
 
 	
@@ -791,6 +855,95 @@ public class ETAS_SimAnalysisTools {
 	    System.out.println("\ttotal free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
 	}
 	
-
+	public static void plotCatalogGMT(List<? extends ObsEqkRupture> catalog, File outputDir, String outputPrefix, boolean display)
+			throws IOException, GMT_MapException {
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(2.5d, 8.5d);
+		
+		List<LocationList> faults = Lists.newArrayList();
+		List<Double> valuesList = Lists.newArrayList();
+		
+		ArrayList<PSXYSymbol> symbols = Lists.newArrayList();
+		
+		for (ObsEqkRupture rup : catalog) {
+			double mag = rup.getMag();
+			if (rup.getRuptureSurface() == null) {
+				// gridded
+				Location hypo = rup.getHypocenterLocation();
+				double width = mag - 2.5;
+				if (width < 0.1)
+					width = 0.1;
+				width /= 50;
+				symbols.add(new PSXYSymbol(new Point2D.Double(hypo.getLongitude(), hypo.getLatitude()),
+						Symbol.CIRCLE, width, 0d, null, cpt.getColor((float)mag)));
+			} else {
+				// fault based
+				faults.add(rup.getRuptureSurface().getEvenlyDiscritizedPerimeter());
+				valuesList.add(mag);
+			}
+		}
+		
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		boolean skipNans = false;
+		String label = "Magnitude";
+		
+		System.out.println("Making map with "+faults.size()+" fault based ruptures");
+		
+		double[] values = Doubles.toArray(valuesList);
+		GMT_Map map = FaultBasedMapGen.buildMap(cpt, faults, values, null, 1d, region, skipNans, label);
+		map.setSymbols(symbols);
+		
+		FaultBasedMapGen.plotMap(outputDir, outputPrefix, display, map);
+	}
+	
+	public static int getFSSIndex(ETAS_EqkRupture rup, FaultSystemSolutionERF erf) {
+		int nthIndex = rup.getNthERF_Index();
+		Preconditions.checkState(nthIndex >= 0, "No Nth rupture index!");
+		int sourceIndex;
+		try {
+			sourceIndex = erf.getSrcIndexForNthRup(nthIndex);
+		} catch (Exception e) {
+			// it's a grid source that's above our max because we are using a different min mag cutoff
+			return -1;
+		}
+		if (sourceIndex < erf.getNumFaultSystemSources())
+			return erf.getFltSysRupIndexForSource(sourceIndex);
+		return -1;
+	}
+	
+	/**
+	 * This will set the rupture surface in each ETAS_EqkRupture with an Nth rupture index that corresponds
+	 * to a fault systen rupture in the given erf
+	 * @param catalog
+	 * @param erf
+	 */
+	public static void loadFSSRupSurfaces(List<ETAS_EqkRupture> catalog, FaultSystemSolutionERF erf) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		for (ETAS_EqkRupture rup : catalog) {
+			int fssIndex = getFSSIndex(rup, erf);
+			if (fssIndex >= 0) {
+				Preconditions.checkState((float)rup.getMag() == (float)rupSet.getMagForRup(fssIndex),
+						"Magnitude discrepancy: "+(float)rup.getMag()+" != "+(float)rupSet.getMagForRup(fssIndex));
+				rup.setRuptureSurface(rupSet.getSurfaceForRupupture(fssIndex, 1d, false));
+			}
+		}
+	}
+	
+	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {
+		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/"
+				+ "results/sim_003/simulatedEvents.txt");
+		
+		// needed to laod finite fault surfaces
+		FaultSystemSolution baSol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_"
+				+ "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(baSol);
+		erf.updateForecast();
+		
+		List<ETAS_EqkRupture> catalog = loadCatalog(catalogFile, 5d);
+		loadFSSRupSurfaces(catalog, erf);
+		
+		plotCatalogGMT(catalog, new File("/tmp"), "etas_catalog", true);
+	}
 
 }

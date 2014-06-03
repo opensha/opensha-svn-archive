@@ -41,25 +41,28 @@ public class UCERF3_EALHistGen {
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
 //		File cbRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_19-ucerf3-eal-calc-CB2014-recalc");
 //		File askRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
-		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
+//		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
+		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
 		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
 			plotDir.mkdir();
 		
 		Map<AttenRelRef, File> imrResultsDirMap = Maps.newHashMap();
-		imrResultsDirMap.put(AttenRelRef.CB_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
+//		imrResultsDirMap.put(AttenRelRef.CB_2014, origRunDir);
+//		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
+//		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
 		imrResultsDirMap.put(AttenRelRef.BSSA_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
+//		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
 		
 		Map<AttenRelRef, Double> imrWeightsMap = Maps.newHashMap();
-		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
-		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
-		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
-		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
-		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
+//		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
+//		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
+//		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
+//		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
+//		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
+		
+		imrWeightsMap.put(AttenRelRef.BSSA_2014, 1d);
 		
 		MagDependentAperiodicityOptions[] covs = { null, MagDependentAperiodicityOptions.HIGH_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.LOW_VALUES };

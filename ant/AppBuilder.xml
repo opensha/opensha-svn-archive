@@ -25,6 +25,9 @@
         Builds an OpenSHA application as a launchable jar...must be called by another build file with the following
 		properties set: app.short.name, app.main.class, javac.includes, javac.excludes, resource.target,
     </description>
+	
+	<taskdef resource="proguard/ant/task.properties"
+		         classpath="lib/proguard4.6/proguard.jar" />
 
 	<import file="include/utils.xml"/>
 	
@@ -46,7 +49,7 @@
 	<!-- ================================= 
           target: build.app
          ================================= -->
-	<target name="build.app" depends="init, compile, copy, pack" />
+	<target name="build.app" depends="init, compile, copy, pack, compact" />
 
 	
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -85,6 +88,26 @@
 		<antcall target="clean.build.dir" />
 		<ant antfile="build.xml" target="sign.jar"/>
 		<ant antfile="build.xml" target="copy.server.jar"/>
+	</target>
+	
+	<target name="compact" if="pg">
+		<proguard ignorewarnings="true" warn="false" note="false">
+				-injars      ${dist}/${app.jar.name}
+				-outjars     ${dist}/${app.jar.name}_pg.jar
+				-libraryjars ${java.home}/lib/rt.jar
+			
+				-keepclassmembers enum * {
+						    public static *;
+						    public *;
+						}
+
+				-keepnames class * implements java.io.Serializable
+				-keep public class ${app.main.class} { public static void main(java.lang.String[]); }
+				-keep public class * extends java.util.ResourceBundle
+				-dontoptimize
+				-dontobfuscate
+			</proguard>
+		<move file="${dist}/${app.jar.name}_pg.jar" tofile="${dist}/${app.jar.name}"/>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

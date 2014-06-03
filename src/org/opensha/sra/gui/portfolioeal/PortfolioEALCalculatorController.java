@@ -134,6 +134,7 @@ public class PortfolioEALCalculatorController implements ActionListener, ItemLis
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 //				e.printStackTrace();
+				System.out.println("Loading vulnerabilities from Servlet!");
 				VulnerabilityServletAccessor accessor = new VulnerabilityServletAccessor();
 				try {
 					HashMap<String, Vulnerability> map = accessor.getVulnMap();

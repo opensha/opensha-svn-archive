@@ -156,7 +156,8 @@ public class Asset implements Cloneable {
 	 * @return The updated site
 	 */
 	public void siteSetup( Site site ) {
-		site.setName((String) getParameterList().getParameter("SiteName").getValue());
+		if (getParameterList().containsParameter("SiteName"))
+			site.setName((String) getParameterList().getParameter("SiteName").getValue());
 		site.setLocation(getLocation());
 		assetSite = (Site)site.clone();
 		
@@ -377,6 +378,9 @@ public class Asset implements Cloneable {
 				SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), vulnModel.getPeriod());
 			//			((AttenuationRelationship)imr).setIntensityMeasure(imt);
 		} catch( ParameterException e ) {
+			System.out.println("imt: "+imt);
+			System.out.println("Vuln class: "+vulnModel.getClass().getName());
+			System.out.println("Vuln name: "+vulnModel.getName());
 			e.printStackTrace();
 			controller.calculationException( e.getMessage() );
 		}

@@ -110,13 +110,17 @@ public class SAFThroughCreepingProbCalc {
 		FaultSystemRupSet rupSet = meanSol.getRupSet();
 		
 		// quick calc for Ray
-		calcForRay(meanSol);
+//		calcForRay(meanSol);
 		
 		double[] minMags = { 6.5d, 7d, 7.5, 8d };
 		int duration = 30;
 		
-		int peninsulaParent = 655;
-		int carrizoParent = 300;
+//		int peninsulaParent = 655;
+//		int carrizoParent = 300;
+
+		int peninsulaParent = 653; // actually SAF offshore
+//		int peninsulaParent = 13; // actually mendocino
+		int carrizoParent = 295; // actually coachella
 		
 		HashSet<Integer> peninsulaRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(peninsulaParent));
 		HashSet<Integer> carrizoRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(carrizoParent));

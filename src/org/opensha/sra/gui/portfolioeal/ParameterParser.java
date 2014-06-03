@@ -16,7 +16,7 @@ package org.opensha.sra.gui.portfolioeal;
 public class ParameterParser {
 	
 	// StringParameters
-	private enum StringParam  { AssetGroupName, SiteName, Soil, AssetName,
+	private enum StringParam  { AssetGroupName, AssetGroup, SiteName, Soil, AssetName,
 								VulnModel, WindExp }
 
 	// DoubleParameters; In the context of the portfolio, floats are counted as doubles
