@@ -362,6 +362,7 @@ public class AttenRelCurves2DB {
 			boolean latitudeX) throws SQLException {
 		GeoDataSet xyz = new ArbDiscrGeoDataSet(latitudeX);
 		
+		System.out.println("Fetching AR curves for dataset "+datasetID);
 		HashMap<Location, Integer> ids = getCurveIDs(datasetID, imTypeID);
 		
 		// get the first curve to determine the min/max we should select for

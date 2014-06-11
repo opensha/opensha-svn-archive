@@ -39,9 +39,11 @@ public class CybershakeRun {
 	private Timestamp ppTime;
 	private String sgtHost;
 	private String ppHost;
+	private double maxFreq;
+	private double lowFreqCutof;
 	
 	public CybershakeRun(int runID, int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,
-			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost) {
+			Timestamp sgtTime, Timestamp ppTime, String sgtHost, String ppHost, double maxFreq, double lowFreqCutoff) {
 		this.runID = runID;
 		this.siteID = siteID;
 		this.erfID = erfID;
@@ -52,6 +54,8 @@ public class CybershakeRun {
 		this.ppTime = ppTime;
 		this.sgtHost = sgtHost;
 		this.ppHost = ppHost;
+		this.maxFreq = maxFreq;
+		this.lowFreqCutof = lowFreqCutoff;
 	}
 
 	public int getRunID() {
@@ -94,6 +98,14 @@ public class CybershakeRun {
 		return velModelID;
 	}
 	
+	public double getMaxFreq() {
+		return maxFreq;
+	}
+	
+	public double getLowFreqCutoff() {
+		return lowFreqCutof;
+	}
+	
 	@Override
 	public String toString() {
 		return "ID: " + getRunID() + ", Site_ID: " + getSiteID() + ", ERF_ID: " + getERFID() +
@@ -114,9 +126,11 @@ public class CybershakeRun {
 		Timestamp ppTime = rs.getTimestamp("PP_Time");
 		String sgtHost = rs.getString("SGT_Host");
 		String ppHost = rs.getString("PP_Host");
+		double maxFreq = rs.getDouble("Max_Frequency");
+		double lowFreqCutoff = rs.getDouble("Low_Frequency_Cutoff");
 		
 		return new CybershakeRun(runID, siteID, erfID, sgtVarID, rupVarScenID, velModelID,
-				sgtTime, ppTime, sgtHost, ppHost);
+				sgtTime, ppTime, sgtHost, ppHost, maxFreq, lowFreqCutoff);
 	}
 
 }

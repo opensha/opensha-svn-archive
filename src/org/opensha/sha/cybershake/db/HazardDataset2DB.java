@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import com.google.common.primitives.Doubles;
+
 public class HazardDataset2DB {
 	
 	private DBAccess db;
@@ -34,16 +36,29 @@ public class HazardDataset2DB {
 		int timeSpanID = getDefaultTimeSpanID(run.getERFID());
 		
 		return getDatasetID(run.getERFID(), run.getRupVarScenID(), run.getSgtVarID(),
-				run.getVelModelID(), probModelID, timeSpanID, null);
+				run.getVelModelID(), probModelID, timeSpanID, null, run.getMaxFreq(), run.getLowFreqCutoff());
 	}
 	
 	public int getDatasetID(int erfID, int rvScenID, int sgtVarID,
-					int velModelID, int probModelID, int timeSpanID, Date timeSpanStart) {
+					int velModelID, int probModelID, int timeSpanID, Date timeSpanStart,
+					double maxFreq, double lowFreqCutoff) {
 		String dateStr;
 		if (timeSpanStart != null) {
 			dateStr = "='"+DBAccess.SQL_DATE_FORMAT.format(timeSpanStart)+"'";
 		} else {
 			dateStr = " IS NULL";
+		}
+		String maxFreqStr;
+		if (maxFreq > 0) {
+			maxFreqStr = "='"+maxFreq+"'";
+		} else {
+			maxFreqStr = " IS NULL";
+		}
+		String lowFreqStr;
+		if (lowFreqCutoff > 0) {
+			lowFreqStr = "='"+lowFreqCutoff+"'";
+		} else {
+			lowFreqStr = " IS NULL";
 		}
 		
 		System.out.println("DATE: " + timeSpanStart + " DATE_STR: " + dateStr);
@@ -57,6 +72,10 @@ public class HazardDataset2DB {
 		sql += " AND Prob_Model_ID="+probModelID;
 		sql += " AND Time_Span_ID="+timeSpanID;
 		sql += " AND Time_Span_Start_Date"+dateStr;
+		if (Doubles.isFinite(maxFreq))
+			sql += " AND Max_Frequency"+maxFreqStr;
+		if (Doubles.isFinite(lowFreqCutoff))
+			sql += " AND Low_Frequency_Cutoff"+lowFreqStr;
 		
 //		System.out.println(sql);
 		
@@ -64,7 +83,7 @@ public class HazardDataset2DB {
 	}
 	
 	public int addNewDataset(int erfID, int rvScenID, int sgtVarID,
-					int velModelID, int probModelID, int timeSpanID, Date timeSpanStart) {
+					int velModelID, int probModelID, int timeSpanID, Date timeSpanStart, double maxFreq, double lowCutoffFreq) {
 		String dateField;
 		String dateStr;
 		if (timeSpanStart != null) {
@@ -74,11 +93,29 @@ public class HazardDataset2DB {
 			dateField = "";
 			dateStr = "";
 		}
+		String maxFreqField;
+		String maxFreqStr;
+		if (maxFreq > 0) {
+			maxFreqField = ",Max_Frequency";
+			maxFreqStr = ",'"+maxFreq+"'";
+		} else {
+			maxFreqField = "";
+			maxFreqStr = "";
+		}
+		String lowFreqField;
+		String lowFreqStr;
+		if (maxFreq > 0) {
+			lowFreqField = ",Low_Frequency_Cutoff";
+			lowFreqStr = ",'"+lowCutoffFreq+"'";
+		} else {
+			lowFreqField = "";
+			lowFreqStr = "";
+		}
 		String sql = "INSERT INTO Hazard_Datasets" + 
 				"(ERF_ID,Rup_Var_Scenario_ID,SGT_Variation_ID,Velocity_Model_ID," +
-				"Prob_Model_ID,Time_Span_ID"+dateField+")"+
+				"Prob_Model_ID,Time_Span_ID"+dateField+maxFreqField+lowFreqField+")"+
 				"VALUES("+erfID+","+rvScenID+","+sgtVarID+","+velModelID
-				+","+probModelID+","+timeSpanID+dateStr+")";
+				+","+probModelID+","+timeSpanID+dateStr+maxFreqStr+lowFreqStr+")";
 		
 		try {
 			db.insertUpdateOrDeleteData(sql);
@@ -88,7 +125,7 @@ public class HazardDataset2DB {
 			return -1;
 		}
 		
-		return getDatasetID(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart);
+		return getDatasetID(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart, maxFreq, lowCutoffFreq);
 	}
 	
 	public static void main(String[] args) {

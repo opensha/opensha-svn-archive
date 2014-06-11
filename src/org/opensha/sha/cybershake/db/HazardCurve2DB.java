@@ -53,7 +53,7 @@ public class HazardCurve2DB {
 		int timeSpanID = hd2db.getDefaultTimeSpanID(erfID);
 		Date timeSpanStart = null; // TODO this might need to be changed
 		int datasetID = hd2db.getDatasetID(erfID, rupVarScenarioID, sgtVarID, velModelID,
-					probModelID, timeSpanID, timeSpanStart);
+					probModelID, timeSpanID, timeSpanStart, Double.NaN, Double.NaN);
 		
 		if (datasetID < 0)
 			throw new RuntimeException("Hazard Dataset ID could not be loaded from the DB!");

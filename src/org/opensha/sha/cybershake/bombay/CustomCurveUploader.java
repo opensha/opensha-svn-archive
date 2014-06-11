@@ -54,7 +54,7 @@ public class CustomCurveUploader {
 		}
 	}
 	
-	public void insertCurves(int imTypeID, int probModelID, int timeSpanID, Date timeSpanStart) {
+	public void insertCurves(int imTypeID, int probModelID, int timeSpanID, Date timeSpanStart, double maxFreq, double lowFreqCutoff) {
 		CybershakeRun run0 = runs.get(0);
 		int erfID = run0.getERFID();
 		int rvScenID = run0.getRupVarScenID();
@@ -62,7 +62,7 @@ public class CustomCurveUploader {
 		int velModelID = run0.getVelModelID();
 		System.out.println("inserting "+curves.size()+" curves!");
 		
-		int hdID = hd2db.getDatasetID(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart);
+		int hdID = hd2db.getDatasetID(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart, maxFreq, lowFreqCutoff);
 		if (hdID < 0) {
 //			hdID = hd2db.addNewDataset(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart);
 		}
@@ -108,7 +108,7 @@ public class CustomCurveUploader {
 			
 			CustomCurveUploader up = new CustomCurveUploader(db, dir);
 			
-			up.insertCurves(imTypeID, probModelID, timeSpanID, timeSpanStart);
+			up.insertCurves(imTypeID, probModelID, timeSpanID, timeSpanStart, 0d, 0d);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(2);
