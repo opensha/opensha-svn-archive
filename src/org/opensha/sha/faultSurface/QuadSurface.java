@@ -37,6 +37,10 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
+import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
+import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
@@ -72,7 +76,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
  * @author Peter Powers, Kevin Milner
  * @version $Id:$
  */
-public class QuadSurface implements RuptureSurface {
+public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 	
 	final static boolean D = false;
 	
@@ -111,12 +115,8 @@ public class QuadSurface implements RuptureSurface {
 	 */
 	private double discr_km = 1d;
 	
-	// caching for distance measures
-	private Location siteLocForDistRupCalc = new Location(Double.NaN,Double.NaN);
-	private Location siteLocForDistJBCalc = new Location(Double.NaN,Double.NaN);
-	private Location siteLocForDistSeisCalc = new Location(Double.NaN,Double.NaN);
-	private Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
-	private double distanceJB, distanceSeis, distanceRup, distanceX;
+	// create cache using default caching policy
+	private SurfaceDistanceCache cache = SurfaceCachingPolicy.build(this);
 	
 	/**
 	 * If true, distance X will use the average strike to extend the trace infinitely, as opposed
@@ -336,48 +336,46 @@ public class QuadSurface implements RuptureSurface {
 //			System.out.println("vb2: "+vb2);
 		}
 	}
-
-	/**
-	 * Returns the minimum distance to the surface.
-	 * @param loc of interest
-	 * @return the minimum distance
-	 */
-	public double getDistanceRup(Location loc) {
-		synchronized (trace) {
-			if (loc.equals(siteLocForDistRupCalc))
-				return distanceRup;
-			distanceRup = distance3D(trace, rots, surfs, loc);
-			siteLocForDistRupCalc = loc;
-			return distanceRup;
-		}
+	
+	@Override
+	public SurfaceDistances calcDistances(Location loc) {
+		double distRup = calcDistanceRup(loc);
+		double distJB = calcDistanceJB(loc);
+		double distSeis;
+		if (traceBelowSeis)
+			distSeis = distRup;
+		else
+			distSeis = calcDistanceSeis(loc);
+		return new SurfaceDistances(distRup, distJB, distSeis);
 	}
-
-	public double getDistanceJB(Location loc) {
+	
+	private double calcDistanceRup(Location loc) {
+		return distance3D(trace, rots, surfs, loc);
+	}
+	
+	private double calcDistanceJB(Location loc) {
 		if (proj_trace == null) {
 			synchronized(this) {
 				if (proj_trace == null) {
 					// surface projection for calculating distance JB
-					proj_trace = new FaultTrace("surface projection");
+					FaultTrace proj_trace = new FaultTrace("surface projection");
 					for (Location traceLoc : trace)
 						proj_trace.add(new Location(traceLoc.getLatitude(), traceLoc.getLongitude()));
 					proj_surfs = new ArrayList<Path2D>();
 					initSegmentsJB(dipRad, avgDipDirRad, width, trace, proj_surfs);
+					this.proj_trace = proj_trace;
 				}
 			}
 		}
-		synchronized (proj_trace) {
-			if (loc.equals(siteLocForDistJBCalc))
-				return distanceJB;
-			distanceJB = distance3D(proj_trace, null, proj_surfs, new Location(loc.getLatitude(), loc.getLongitude()));
-			siteLocForDistJBCalc = loc;
-			return distanceJB;
-		}
+		
+		return distance3D(proj_trace, null, proj_surfs, new Location(loc.getLatitude(), loc.getLongitude()));
 	}
-
-	public double getDistanceSeis(Location loc) {
+	
+	private double calcDistanceSeis(Location loc) {
 		if (seis_trace == null) {
 			synchronized(this) {
 				if (seis_trace == null) {
+					FaultTrace seis_trace;
 					if (traceBelowSeis) {
 						// it's already below the seismogenic depth, use normal trace/rots/surfs
 						seis_trace = trace;
@@ -396,18 +394,23 @@ public class QuadSurface implements RuptureSurface {
 							widthBelowSeis = width;
 						initSegments(dipRad, avgDipDirRad, widthBelowSeis, seis_trace, seis_rots, seis_surfs);
 					}
+					this.seis_trace = seis_trace;
 				}
 			}
 		}
-		if (traceBelowSeis)
-			return getDistanceRup(loc);
-		synchronized (seis_trace) {
-			if (loc.equals(siteLocForDistSeisCalc))
-				return distanceSeis;
-			distanceSeis = distance3D(seis_trace, seis_rots, seis_surfs, new Location(loc.getLatitude(), loc.getLongitude()));
-			siteLocForDistSeisCalc = loc;
-			return distanceSeis;
-		}
+		return distance3D(seis_trace, seis_rots, seis_surfs, new Location(loc.getLatitude(), loc.getLongitude()));
+	}
+
+	public double getDistanceRup(Location loc) {
+		return cache.getSurfaceDistances(loc).getDistanceRup();
+	}
+
+	public double getDistanceJB(Location loc) {
+		return cache.getSurfaceDistances(loc).getDistanceJB();
+	}
+
+	public double getDistanceSeis(Location loc) {
+		return cache.getSurfaceDistances(loc).getDistanceSeis();
 	}
 	
 	/**
@@ -585,8 +588,9 @@ public class QuadSurface implements RuptureSurface {
 		return Math.sqrt(p.getZ() * p.getZ() + minDistSq);
 	}
 	
-	public synchronized double getDistanceX(Location siteLoc) {
-		// this is Peter's implementation, but it doesn't preform as well in tests
+	@Override
+	public synchronized double calcDistanceX(Location siteLoc) {
+		// this is Peter's implementation, but it doesn't perform as well in tests
 //		if (1d < 2d) {
 //			if (trace.size() == 1) return 0.0;
 //			int minIdx = trace.minDistIndex(siteLoc);
@@ -636,9 +640,6 @@ public class QuadSurface implements RuptureSurface {
 				x_trace_vects.add(new Vector3D(c[0], c[1], 0));
 			}
 		}
-		if (siteLoc.equals(siteLocForDistXCalc))
-			return distanceX;
-		siteLocForDistXCalc = siteLoc;
 		// TODO do it right
 //		distanceX =  GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLoc);
 //		return distanceX;
@@ -689,8 +690,11 @@ public class QuadSurface implements RuptureSurface {
 					distance = -distance;
 			}
 		}
-		distanceX = distance;
-		return distanceX;
+		return distance;
+	}
+	
+	public double getDistanceX(Location siteLoc) {
+		return cache.getDistanceX(siteLoc);
 	}
 	
 //	private EvenlyGriddedSurface getGridded() {

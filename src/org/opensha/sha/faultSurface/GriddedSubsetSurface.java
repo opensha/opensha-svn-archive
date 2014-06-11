@@ -29,6 +29,10 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
+import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
+import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 /**
@@ -47,17 +51,16 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implements EvenlyGriddedSurface {
+public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implements EvenlyGriddedSurface, CacheEnabledSurface {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	// for distance measures
-	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
-	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
-	double distanceJB, distanceSeis, distanceRup, distanceX;
+	// create cache using default caching policy
+	private SurfaceDistanceCache cache = SurfaceCachingPolicy.build(this);
+	
 	EvenlyGriddedSurface parentSurface;
 
 
@@ -263,13 +266,16 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 		return getEvenlyDiscritizedUpperEdge();
 	}
 	
-	private void setPropagationDistances() {
-		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, siteLocForDistCalcs);
-		distanceRup = dists[0];
-		distanceJB = dists[1];
-		distanceSeis = dists[2];
+	@Override
+	public SurfaceDistances calcDistances(Location loc) {
+		double[] dCalc = GriddedSurfaceUtils.getPropagationDistances(this, loc);
+		return new SurfaceDistances(dCalc[0], dCalc[1], dCalc[2]);
 	}
-	
+
+	@Override
+	public double calcDistanceX(Location loc) {
+		return GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), loc);
+	}
 	
 	/**
 	 * This returns rupture distance (kms to closest point on the 
@@ -277,12 +283,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return 
 	 */
-	public synchronized double getDistanceRup(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceRup;
+	public double getDistanceRup(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceRup();
 	}
 
 	/**
@@ -291,12 +293,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceJB(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceJB;
+	public double getDistanceJB(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceJB();
 	}
 
 	/**
@@ -305,12 +303,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceSeis(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceSeis;
+	public double getDistanceSeis(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceSeis();
 	}
 
 	/**
@@ -320,12 +314,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceX(Location siteLoc){
-		if(!siteLocForDistXCalc.equals(siteLoc)) {
-			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistXCalc);
-		}
-		return distanceX;
+	public double getDistanceX(Location siteLoc){
+		return cache.getDistanceX(siteLoc);
 	}
 	
 
@@ -382,7 +372,5 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	public double getMinDistance(RuptureSurface surface) {
 		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
 	}
-
-
 
 }

@@ -12,6 +12,11 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
+import org.opensha.sha.faultSurface.cache.SingleLocDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
+import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 /**
@@ -23,7 +28,7 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * @author field
  *
  */
-public class CompoundSurface implements RuptureSurface {
+public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 	
 	List<? extends RuptureSurface> surfaces;
 	
@@ -35,16 +40,7 @@ public class CompoundSurface implements RuptureSurface {
 	double aveDip, totArea,aveLength=-1,aveRupTopDepth=-1,aveWidth=-1, aveGridSpacing=-1;
 	FaultTrace upperEdge = null;
 	
-	// for distance measures
-	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
-	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
-	double distanceJB, distanceSeis, distanceRup, distanceX;
-	
-	// index of the surface with the smallest rRup distance to the site
-	// supplied in getDistanceX()
-	int distXidx;
-	
-	
+	private SurfaceDistanceCache cache = SurfaceCachingPolicy.build(this);
 	
 	public CompoundSurface(List<? extends RuptureSurface> surfaces) {
 		this.surfaces = surfaces;
@@ -235,74 +231,69 @@ public class CompoundSurface implements RuptureSurface {
 		return aveWidth;
 	}
 	
-	/**
-	 * This computes distanceJB, distanceRup, and distanceSeis as the least values
-	 * among the given surfaces, respectively.
-	 * @param siteLoc
-	 */
-	private void computeDistances() {
-		distanceJB = Double.MAX_VALUE;
-		distanceSeis = Double.MAX_VALUE;
-		distanceRup = Double.MAX_VALUE;
+	private static class CompoundSurfaceDistances extends SurfaceDistances {
+
+		private final int distXIndex;
+		public CompoundSurfaceDistances(double distanceRup, double distanceJB,
+				double distanceSeis, int distXIndex) {
+			super(distanceRup, distanceJB, distanceSeis);
+			this.distXIndex = distXIndex;
+		}
+		
+	}
+
+	@Override
+	public CompoundSurfaceDistances calcDistances(Location loc) {
+		double distanceJB = Double.MAX_VALUE;
+		double distanceSeis = Double.MAX_VALUE;
+		double distanceRup = Double.MAX_VALUE;
 		double dist;
+		int distXidx = -1;
 		for (int i=0; i<surfaces.size(); i++) {
 			RuptureSurface surf = surfaces.get(i);
-			dist = surf.getDistanceJB(siteLocForDistCalcs);
+			dist = surf.getDistanceJB(loc);
 			if (dist<distanceJB) distanceJB=dist;
-			dist = surf.getDistanceRup(siteLocForDistCalcs);
+			dist = surf.getDistanceRup(loc);
 			if (dist<distanceRup) {
 				distanceRup=dist;
 				distXidx = i;
 			}
-			dist = surf.getDistanceSeis(siteLocForDistCalcs);
+			dist = surf.getDistanceSeis(loc);
 			if (dist<distanceSeis) distanceSeis=dist;
 		}
+		return new CompoundSurfaceDistances(distanceRup, distanceJB, distanceSeis, distXidx);
 	}
 
-	@Override
-	public synchronized double getDistanceJB(Location siteLoc) {
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			computeDistances();
-		}
-		return distanceJB;
-	}
 
 	@Override
-	public synchronized double getDistanceRup(Location siteLoc) {
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			computeDistances();
-		}
-		return distanceRup;
-	}
-
-	@Override
-	public synchronized double getDistanceSeis(Location siteLoc) {
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			computeDistances();
-		}
-		return distanceSeis;
-	}
-
-	@Override
-	public synchronized double getDistanceX(Location siteLoc) {
+	public double calcDistanceX(Location loc) {
 		// new implementation relies on knowing the index of the surface of the
 		// smallest rRup; first ensure that rRup calc has been done for
 		// supplied Location; in all likelihood another distance metric will
 		// have already been queried with the supplied site and this call will
 		// be skipped.
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			computeDistances();
-		}
-		// update distX for closest sub-surface to Location
-		if(!siteLocForDistXCalc.equals(siteLoc)) {
-			siteLocForDistXCalc = siteLoc;
-			distanceX = surfaces.get(distXidx).getDistanceX(siteLoc);
-		}
-		return distanceX;
+		CompoundSurfaceDistances distances = (CompoundSurfaceDistances)cache.getSurfaceDistances(loc);
+		return surfaces.get(distances.distXIndex).getDistanceX(loc);
+	}
+
+	@Override
+	public double getDistanceJB(Location siteLoc) {
+		return cache.getSurfaceDistances(siteLoc).getDistanceJB();
+	}
+
+	@Override
+	public double getDistanceRup(Location siteLoc) {
+		return cache.getSurfaceDistances(siteLoc).getDistanceRup();
+	}
+
+	@Override
+	public double getDistanceSeis(Location siteLoc) {
+		return cache.getSurfaceDistances(siteLoc).getDistanceSeis();
+	}
+
+	@Override
+	public double getDistanceX(Location siteLoc) {
+		return cache.getDistanceX(siteLoc);
 	}
 	
 	@Override

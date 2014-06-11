@@ -84,6 +84,10 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		properties.put(key, value);
 	}
 	
+	public void clearProperty(String key) {
+		properties.remove(key);
+	}
+	
 	public void clearProperties() {
 		if (properties != null)
 			properties.clear();

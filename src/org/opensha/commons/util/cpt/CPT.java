@@ -91,6 +91,30 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 		aboveMaxColor = Color.BLACK;
 		blender = new LinearBlender();
 	}
+	
+	/**
+	 * Constructor to quickly generate evenly split CPT ranges. Must supply at least 2 colors. Above max
+	 * and below min colors will be set to the last/fist colors.
+	 * @param minVal
+	 * @param maxVal
+	 * @param colors
+	 */
+	public CPT(double minVal, double maxVal, Color... colors) {
+		this(null);
+		
+		Preconditions.checkArgument(minVal < maxVal, "min must be less than max");
+		Preconditions.checkArgument(colors.length > 1, "must specify at least 2 colors");
+		
+		double delta = (maxVal - minVal)/(colors.length - 1);
+		for (int i=0; i<colors.length-1; i++) {
+			float start = (float)(minVal + delta*i);
+			float end = (float)(minVal + delta*(i+1));
+			add(new CPTVal(start, colors[i], end, colors[i+1]));
+		}
+		
+		setBelowMinColor(colors[0]);
+		setAboveMaxColor(colors[colors.length-1]);
+	}
 
 	/**
 	 * Sets color to be used when given value is not a number (NaN)

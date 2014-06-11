@@ -104,16 +104,19 @@ public class TestUtils {
 		}
 		// see if it ended with an exception, this exception might be an assertion failed exception
 		Throwable exception = testThread.getException();
-		if (exception != null) {
-			Throwable cause = exception.getCause();
-			// if it's an assertion error, throw that so the failure shows up nicely in JUnit as opposed
-			// to an error.
-			if (cause != null &&
-					(cause instanceof AssertionError || exception instanceof InvocationTargetException))
-				throw cause;
-			// otherwise it actually is an error (not a failure), throw the exception
-			throw exception;
-		}
+		if (exception != null)
+			throwThreadedExceptionAsApplicable(exception);
+	}
+	
+	public static void throwThreadedExceptionAsApplicable(Throwable exception) throws Throwable {
+		Throwable cause = exception.getCause();
+		// if it's an assertion error, throw that so the failure shows up nicely in JUnit as opposed
+		// to an error.
+		if (cause != null &&
+				(cause instanceof AssertionError || exception instanceof InvocationTargetException))
+			throw cause;
+		// otherwise it actually is an error (not a failure), throw the exception
+		throw exception;
 	}
 
 }

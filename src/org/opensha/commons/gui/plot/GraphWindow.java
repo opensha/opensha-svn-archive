@@ -312,12 +312,32 @@ public class GraphWindow extends JFrame {
 		}
 	}
 
-	public void saveAsPDF(String fileName) throws IOException {
-		widget.saveAsPDF(fileName);
+	public void saveAsPDF(final String fileName) throws IOException {
+		doGUIThreadSafe(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					widget.saveAsPDF(fileName);
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		});
 	}
 
-	public void saveAsPNG(String fileName) throws IOException {
-		widget.saveAsPNG(fileName);
+	public void saveAsPNG(final String fileName) throws IOException {
+		doGUIThreadSafe(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					widget.saveAsPNG(fileName);
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		});
 	}
 	
 	/**

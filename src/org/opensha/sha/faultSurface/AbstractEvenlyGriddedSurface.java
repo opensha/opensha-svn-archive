@@ -24,12 +24,14 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Container2DImpl;
-import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
+import org.opensha.sha.faultSurface.cache.SingleLocDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
+import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
+import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 
 
@@ -48,7 +50,8 @@ import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
  * @created
  * @version    1.0
  */
-public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Location> implements EvenlyGriddedSurface, Serializable {
+public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Location>
+implements EvenlyGriddedSurface, CacheEnabledSurface, Serializable {
 
 	/**
 	 * 
@@ -63,11 +66,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	protected double gridSpacingDown;
 	protected Boolean sameGridSpacing;
 	
-	// for distance measures
-	Location siteLocForDistCalcs= new Location(Double.NaN,Double.NaN);
-	Location siteLocForDistXCalc= new Location(Double.NaN,Double.NaN);
-	double distanceJB, distanceSeis, distanceRup, distanceX;
-	
+	// create cache using default caching policy
+	private SurfaceDistanceCache cache = SurfaceCachingPolicy.build(this);
 	
 	// no argument constructor needed by subclasses
 	public AbstractEvenlyGriddedSurface() {}
@@ -194,13 +194,10 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
 	}
 	
-	private void setPropagationDistances() {
-		double[] dists = GriddedSurfaceUtils.getPropagationDistances(this, siteLocForDistCalcs);
-		distanceRup = dists[0];
-		distanceJB = dists[1];
-		distanceSeis = dists[2];
+	public SurfaceDistances calcDistances(Location loc) {
+		double[] dCalc = GriddedSurfaceUtils.getPropagationDistances(this, loc);
+		return new SurfaceDistances(dCalc[0], dCalc[1], dCalc[2]);
 	}
-	
 	
 	/**
 	 * This returns rupture distance (kms to closest point on the 
@@ -208,12 +205,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return 
 	 */
-	public synchronized double getDistanceRup(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceRup;
+	public double getDistanceRup(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceRup();
 	}
 
 	/**
@@ -222,12 +215,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceJB(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceJB;
+	public double getDistanceJB(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceJB();
 	}
 
 	/**
@@ -236,12 +225,13 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceSeis(Location siteLoc){
-		if(!siteLocForDistCalcs.equals(siteLoc)) {
-			siteLocForDistCalcs = siteLoc;
-			setPropagationDistances();
-		}
-		return distanceSeis;
+	public double getDistanceSeis(Location siteLoc){
+		return cache.getSurfaceDistances(siteLoc).getDistanceSeis();
+	}
+	
+	@Override
+	public double calcDistanceX(Location siteLoc) {
+		return GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLoc);
 	}
 
 	/**
@@ -251,12 +241,8 @@ public abstract class AbstractEvenlyGriddedSurface  extends Container2DImpl<Loca
 	 * depth (for numerical expediency).
 	 * @return
 	 */
-	public synchronized double getDistanceX(Location siteLoc){
-		if(!siteLocForDistXCalc.equals(siteLoc)) {
-			siteLocForDistXCalc = siteLoc;
-			distanceX = GriddedSurfaceUtils.getDistanceX(getEvenlyDiscritizedUpperEdge(), siteLocForDistXCalc);
-		}
-		return distanceX;
+	public double getDistanceX(Location siteLoc){
+		return cache.getDistanceX(siteLoc);
 	}
 	
 	
