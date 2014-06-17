@@ -42,7 +42,14 @@ public class UCERF3_EALHistGen {
 //		File cbRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_19-ucerf3-eal-calc-CB2014-recalc");
 //		File askRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
-		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
+//		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
+		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+		
+//		String units = "$";
+//		double multiplier = 1d/1e6;
+		
+		String units = "Fatalities";
+		double multiplier = 1000000; //TODO
 		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
@@ -82,7 +89,7 @@ public class UCERF3_EALHistGen {
 			}
 		}
 		
-		BranchSensitivityHistogram hist = new BranchSensitivityHistogram("EAL ($)");
+		BranchSensitivityHistogram hist = new BranchSensitivityHistogram("EAL ("+units+")");
 		
 		for (Cell<AttenRelRef, String, File> cell : filesTable.cellSet()) {
 			AttenRelRef imr = cell.getRowKey();
@@ -104,6 +111,8 @@ public class UCERF3_EALHistGen {
 				LogicTreeBranch branch = fromLine(line);
 				double weight = Double.parseDouble(line.get(1));
 				double eal = Double.parseDouble(line.get(2)); // total eal
+				
+				eal *= multiplier;
 				
 				// IMR & prob model weights
 				weight *= imrWeight * probModelWeight;

@@ -15,14 +15,19 @@ import com.google.common.io.Files;
 public class ShootoutRandomizer {
 
 	public static void main(String[] args) throws IOException {
-		List<String> pres = Lists.newArrayList("312", "focusrite", "great_river", "soundcraft");
-		List<String> prefixes = Lists.newArrayList("bounce_acoustic", "bounce_vocal");
+//		List<String> pres = Lists.newArrayList("312", "focusrite", "great_river", "soundcraft");
+//		List<String> prefixes = Lists.newArrayList("bounce_acoustic", "bounce_vocal");
 		
-		List<String> participants = Lists.newArrayList("kevin", "nate", "sean", "kris", "mark", "test");
+		List<String> pres = Lists.newArrayList("focusrite", "rosetta", "mini_me");
+		List<String> prefixes = Lists.newArrayList("mix", "guitar", "vox");
+		
+//		List<String> participants = Lists.newArrayList("kevin", "nate", "sean", "kris", "mark", "test");
+		List<String> participants = Lists.newArrayList("kevin", "nate", "extra1", "extra2");
 		
 		List<String> randNames = Lists.newArrayList("A", "B", "C", "D");
 		
-		File dir = new File("/tmp/312 Build Shootout");
+//		File dir = new File("/tmp/312 Build Shootout");
+		File dir = new File("/home/kevin/Documents/studio/converter_shootout");
 		
 		for (String participant : participants) {
 			File pDir = new File(dir, participant);
@@ -41,7 +46,8 @@ public class ShootoutRandomizer {
 				for (int i = 0; i < myPres.size(); i++) {
 					String r = randNames.get(i);
 					String pre = myPres.get(i);
-					File wavFile = new File(dir, prefix+"_"+pre+".wav");
+//					File wavFile = new File(dir, prefix+"_"+pre+".wav");
+					File wavFile = new File(dir, pre+"_"+prefix+".wav");
 					Preconditions.checkState(wavFile.exists(), "file not found: "+wavFile.getAbsolutePath());
 					File outFile = new File(pDir, prefix+"_"+r+".wav");
 					Files.copy(wavFile, outFile);

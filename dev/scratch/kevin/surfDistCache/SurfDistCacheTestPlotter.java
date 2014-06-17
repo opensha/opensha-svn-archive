@@ -112,6 +112,8 @@ public class SurfDistCacheTestPlotter {
 		
 		DiscretizedFunc refFunc = null;
 		
+		double maxX = 0;
+		
 		for (Config conf : confs) {
 			List<Double> vals = valsMap.get(conf);
 			double meanVal = 0;
@@ -142,6 +144,8 @@ public class SurfDistCacheTestPlotter {
 				funcTable.put(conf.size, conf.forceMulti, func);
 			}
 			func.set((double)conf.threads, meanVal);
+			if (conf.threads > maxX)
+				maxX = conf.threads;
 		}
 		
 		String yAxisLabel, fname;
@@ -161,7 +165,7 @@ public class SurfDistCacheTestPlotter {
 		
 		GraphWindow gw = new GraphWindow(spec);
 		gw.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gw.setAxisRange(0.8, 8.2, 0, 2000);
+		gw.setAxisRange(0.8, maxX + 0.2, 0, 2000);
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -212,8 +216,6 @@ public class SurfDistCacheTestPlotter {
 		List<DiscretizedFunc> scaleFuncs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> scaleChars = Lists.newArrayList();
 		
-		double maxX = 0;
-		
 		for (int i=0; i<funcs.size(); i++) {
 			DiscretizedFunc func = funcs.get(i);
 			PlotCurveCharacterstics plotChars = chars.get(i);
@@ -230,8 +232,6 @@ public class SurfDistCacheTestPlotter {
 				double x = pt.getX();
 				double y = serialTime/pt.getY();
 				speedup.set(x, y);
-				if (x > maxX)
-					maxX = x;
 			}
 			
 			scaleFuncs.add(speedup);
@@ -251,6 +251,54 @@ public class SurfDistCacheTestPlotter {
 			spec = new PlotSpec(scaleFuncs, scaleChars, "Dist Cache Scaling", "# Threads", "Scaling");
 			spec.setLegendVisible(true);
 			
+			new GraphWindow(spec);
+		}
+		
+		// now plot relative scaling of each one
+		scaleFuncs = Lists.newArrayList();
+		scaleChars = Lists.newArrayList();
+
+		for (int i=0; i<funcs.size(); i++) {
+			DiscretizedFunc func = funcs.get(i);
+			PlotCurveCharacterstics plotChars = chars.get(i);
+
+			if (func.getNum() < 2)
+				continue;
+
+			ArbitrarilyDiscretizedFunc relScaling = new ArbitrarilyDiscretizedFunc();
+			relScaling.setName(func.getName());
+			
+			for (int j=1; j<func.getNum(); j++) {
+				double prevThreads = func.getX(j-1);
+				double prevTime = func.getY(j-1);
+				double threads = func.getX(j);
+				double time = func.getY(j);
+				
+				double threadFactor = threads/prevThreads;
+				
+				double idealTime = prevTime/threadFactor;
+				double eff = (prevTime - time)/(prevTime - idealTime);
+				
+				relScaling.set(threads, eff);
+			}
+
+			scaleFuncs.add(relScaling);
+			scaleChars.add(plotChars);
+		}
+
+		if (!scaleFuncs.isEmpty()) {
+			// add ideal scaling
+			ArbitrarilyDiscretizedFunc ideal = new ArbitrarilyDiscretizedFunc();
+			ideal.setName("Ideal Scaling");
+			ideal.set(1d, 1d);
+			ideal.set(maxX, 1d);
+
+			scaleFuncs.add(0, ideal);
+			scaleChars.add(0, new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+
+			spec = new PlotSpec(scaleFuncs, scaleChars, "Dist Cache Scaling", "# Threads", "Relative Efficiency");
+			spec.setLegendVisible(true);
+
 			new GraphWindow(spec);
 		}
 	}

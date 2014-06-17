@@ -191,7 +191,7 @@ public class UCERF3_BranchAvgLossFetcher {
 		return MPJ_CondLossCalc.loadGridSourcesFile(griddedLossesFile, region);
 	}
 	
-	static int getMatchingXIndexFloatPrecision(double x, DiscretizedFunc func) {
+	public static int getMatchingXIndexFloatPrecision(double x, DiscretizedFunc func) {
 		for (int i=0; i<func.getNum(); i++)
 			if ((float)func.getX(i) == (float)x)
 				return i;

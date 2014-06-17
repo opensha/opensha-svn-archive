@@ -17,12 +17,12 @@ public class SurfDistCacheTestScriptWriter {
 		int jobsPerConfig = 3;
 		int numSites = 80;
 		int[] cacheSizes = { 1, 2, 4, 8, 12 };
-		int[] numThreads = { 1, 2, 4, 8 };
+		int[] numThreads = { 1, 2, 4, 8, 12, 16 };
 		CacheTypes[] forces = { null, CacheTypes.HYBRID };
 		
 		boolean noExpiration = true;
-		SurfDistCacheTests.TestType type = SurfDistCacheTests.TestType.DIRECT_CALC;
-		String jobName = "direct_5_hybrid_no_exp";
+		SurfDistCacheTests.TestType type = SurfDistCacheTests.TestType.HAZARD_CURVE;
+		String jobName = "hazard_5_hybrid_no_exp";
 		
 		File localDir = new File("/home/kevin/OpenSHA/dist_cache");
 		File remoteDir = new File("/auto/scec-02/kmilner/dist_cache_tests");

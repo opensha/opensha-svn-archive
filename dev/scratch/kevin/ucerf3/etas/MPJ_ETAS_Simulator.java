@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3;
+package scratch.kevin.ucerf3.etas;
 
 import java.io.File;
 import java.io.IOException;
