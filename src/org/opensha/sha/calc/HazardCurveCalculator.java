@@ -245,8 +245,8 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		 */
 		boolean poissonSource = false;
 
-		DiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
-		DiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+		DiscretizedFunc condProbFunc = hazFunction.deepClone();
+		DiscretizedFunc sourceHazFunc = hazFunction.deepClone();
 
 		// declare some varibles used in the calculation
 		double qkProb, distance;
@@ -462,7 +462,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			List<EqkRupture> eqkRupList, boolean updateCurrRuptures) {
 
 
-		ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+		DiscretizedFunc condProbFunc = hazFunction.deepClone();
 
 		//resetting the Parameter change Listeners on the AttenuationRelationship
 		//parameters. This allows the Server version of our application to listen to the
@@ -527,7 +527,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 			imr.setEqkRupture(rupture);
 
 			// get the conditional probability of exceedance from the IMR
-			condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+			condProbFunc=imr.getExceedProbabilities(condProbFunc);
 
 			// multiply this into the total non-exceedance probability
 			// (get the product of all non-eceedance probabilities)
@@ -581,7 +581,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		imr.setEqkRupture(rupture);
 
 		// get the conditional probability of exceedance from the IMR
-		hazFunction = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(hazFunction);
+		hazFunction = imr.getExceedProbabilities(hazFunction);
 
 		if (D) System.out.println(C + "hazFunction.toString" + hazFunction.toString());
 
