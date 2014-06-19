@@ -248,6 +248,12 @@
 				<include name="NormalWts.txt" />
 			</fileset>
 		</copy>
+		
+		<copy todir="${build}/scratch/UCERF3/data/paleoRateData/" overwrite="true">
+			<fileset dir="${dev}/scratch/UCERF3/data/paleoRateData">
+				<include name="UCERF3_OpenIntervals*.xls" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="resource.erfs.dev">
