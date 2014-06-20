@@ -14,6 +14,7 @@ public class FileParameter extends AbstractParameter<File> {
 	 */
 	private static final long serialVersionUID = 1L;
 	private FileParameterEditor editor;
+	private File initialDir;
 	
 	public FileParameter(String name) {
 		this(name, null);
@@ -40,6 +41,14 @@ public class FileParameter extends AbstractParameter<File> {
 		File file = new File(el.attributeValue("value"));
 		setValue(file);
 		return true;
+	}
+	
+	public void setDefaultInitialDir(File initialDir) {
+		this.initialDir = initialDir;
+	}
+	
+	public File getDefaultInitialDir() {
+		return initialDir;
 	}
 
 }

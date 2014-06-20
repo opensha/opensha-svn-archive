@@ -43,8 +43,13 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == browseButton) {
-			if (chooser == null)
-				chooser = new JFileChooser();
+			if (chooser == null) {
+				File initialDir = null;
+				if (getParameter() instanceof FileParameter) {
+					initialDir = ((FileParameter)getParameter()).getDefaultInitialDir();
+				}
+				chooser = new JFileChooser(initialDir);
+			}
 			int retVal = chooser.showOpenDialog(this);
 			if (retVal == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
