@@ -59,6 +59,8 @@ public class UCERF3_CatalogParser {
 			rups.add(new ObsEqkRupture(eventID+"", cal.getTimeInMillis(), hypoLoc, mag));
 		}
 		
+		in.close();
+		
 		return rups;
 	}
 
