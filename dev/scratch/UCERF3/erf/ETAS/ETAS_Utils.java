@@ -4,7 +4,6 @@ package scratch.UCERF3.erf.ETAS;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,7 +18,7 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
@@ -41,8 +40,31 @@ public class ETAS_Utils {
 	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
 	final static double minDist_DEFAULT = 2d; //0.79;		// km; this is "d" in Hardebeck's Table 2
 	
-	RandomDataImpl randomDataImpl = new RandomDataImpl();
+	private long randomSeed;
 	
+	RandomDataGenerator randomDataGen;
+	
+	/**
+	 * This sets the seed for random number generation as System.currentTimeMillis()
+	 */
+	public ETAS_Utils() {
+		this(System.currentTimeMillis());
+	}
+	
+	/**
+	 * 
+	 * @param randomSeed - the seed for random number generation (set for reproducibility)
+	 */
+	public ETAS_Utils(long randomSeed) {
+		randomDataGen = new RandomDataGenerator();
+		randomDataGen.reSeed(randomSeed);
+		this.randomSeed = randomSeed;
+	}
+	
+	public long getRandomSeed() {
+		return randomSeed;
+	}
+
 	
 	public static final ArrayList<String> getDefaultParametersAsStrings() {
 		ArrayList<String> strings = new ArrayList<String>();
@@ -277,7 +299,7 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public int getPoissonRandomNumber(double lambda) {
-		return (int) randomDataImpl.nextPoisson(lambda);
+		return (int) randomDataGen.nextPoisson(lambda);
 		/*
 	    double L = Math.exp(-lambda);
 	    int k = 0;
@@ -292,6 +314,15 @@ public class ETAS_Utils {
 	}
 	
 	
+	/**
+	 * This returns a random double that is uniformly distributed between 0 (inclusive)
+	 * and 1 (exclusive).
+	 * @return
+	 */
+	public double getRandomDouble() {
+		return randomDataGen.nextUniform(0.0, 1.0, true);
+	}
+	
 	
 	/**
 	 * This gives a random event time for an ETAS sequence.  This algorithm was provided by 
@@ -302,7 +333,8 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public double getRandomTimeOfEvent(double c, double p, double tMin, double tMax) {
-		double r= Math.random();
+//		double r= Math.random();
+		double r = getRandomDouble();
 		double t;
 		if(p != 1.0) {
 		    double a1 = Math.pow(tMax + c,1-p);
@@ -432,6 +464,13 @@ public class ETAS_Utils {
 
 	
 	public static void main(String[] args) {
+		
+		ETAS_Utils etas_utils = new ETAS_Utils(100);
+		
+		for(int i=0;i<10;i++)
+			System.out.println(i+"\t"+etas_utils.getRandomDouble());
+		System.exit(0);
+
 		
 //		testDefaultHardebeckDensity();
 

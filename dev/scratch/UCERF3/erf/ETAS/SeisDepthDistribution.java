@@ -18,8 +18,17 @@ public class SeisDepthDistribution {
 	ArbitrarilyDiscretizedFunc depthDistFunc;
 	ArbitrarilyDiscretizedFunc inverseCumDepthDistFunc;
 	HistogramFunction cumHistFunc;
+	
+	ETAS_Utils etas_utils;
 
-	public SeisDepthDistribution() {
+	/**
+	 * 
+	 * @param etas_utils - needed for random number reproducibility
+	 */
+	public SeisDepthDistribution(ETAS_Utils etas_utils) {
+		
+		this.etas_utils = etas_utils;
+		
 		depthDistFunc = new ArbitrarilyDiscretizedFunc();
 		for(int i=0;i<depthVals.length;i++) {
 			depthDistFunc.set(depthVals[i], relWtVals[i]);		
@@ -82,7 +91,7 @@ public class SeisDepthDistribution {
 	 */
 	public double getRandomDepth() {
 		// this is a little faster
-		return inverseCumDepthDistFunc.getInterpolatedY(Math.random());
+		return inverseCumDepthDistFunc.getInterpolatedY(etas_utils.getRandomDouble());
 //		double randDepth = cumHistFunc.getFirstInterpolatedX(Math.random());
 	}
 	
@@ -132,7 +141,7 @@ public class SeisDepthDistribution {
 	 */
 	public static void main(String[] args) {
 		
-		SeisDepthDistribution test = new SeisDepthDistribution();
+		SeisDepthDistribution test = new SeisDepthDistribution(new ETAS_Utils());
 		
 		test.plotBinnedDepthDistribution();
 		

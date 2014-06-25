@@ -68,6 +68,8 @@ public class ETAS_LocationWeightCalculatorTest1 {
 	EvenlyDiscretizedFunc targetLogDistDecay;
 	ArrayList<HistogramFunction> logDistWeightHistList, logDistNumCellHistList, finalLogDistDecayList;
 	
+	ETAS_Utils etas_utils;
+	
 	/**
 	 * 
 	 * @param maxDistKm - the maximum distance for sampling in km
@@ -79,7 +81,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 	 * @param etasMinDist - the ETAS min distance
 	 */
 	public ETAS_LocationWeightCalculatorTest1(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscrKm, 
-			double midLat, double etasDistDecay, double etasMinDist) {
+			double midLat, double etasDistDecay, double etasMinDist, ETAS_Utils etas_utils) {
 		
 		cosMidLat = Math.cos(midLat*Math.PI/180);
 		double aveLatLonDiscrKm = (latLonDiscrDeg+cosMidLat*latLonDiscrDeg)*111/2.0;
@@ -92,6 +94,8 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		this.midLat = midLat;
 		this.etasDistDecay=etasDistDecay;
 		this.etasMinDist=etasMinDist;
+		
+		this.etas_utils = etas_utils;
 						
 		// the number of points in each direction
 		numLatLon = (int)Math.round(maxLatLonDeg/latLonDiscrDeg);
@@ -115,7 +119,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 				
 		double[] distances=null;
 		
-		seisDepthDistribution = new SeisDepthDistribution();
+		seisDepthDistribution = new SeisDepthDistribution(etas_utils);
 
 		// find minimum distance that will be sampled, and then find appropriate first bin
 //		double minDistSampled = Double.POSITIVE_INFINITY;
@@ -330,7 +334,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 				subLocSamplerArray[iLat][iLon][iDepDiff] = newSampler;
 			}
 			
-			int randLocIndex = subLocSamplerArray[iLat][iLon][iDepDiff].getRandomInt();
+			int randLocIndex = subLocSamplerArray[iLat][iLon][iDepDiff].getRandomInt(etas_utils.getRandomDouble());
 			loc = subLocsArray[iLat][iLon][iDepDiff].get(randLocIndex);		
 			if(iDep-iParDep<0) { // need to flip the sign of the depth if parent/source is above
 				loc = new Location(loc.getLatitude(), loc.getLongitude(), -loc.getDepth());
@@ -343,9 +347,9 @@ public class ETAS_LocationWeightCalculatorTest1 {
 			loc = new Location(0, 0, 0);	// no delta
 		}
 		// Add an additional random element
-		return new Location(loc.getLatitude()+deltaSubLatLon*(Math.random()-0.5)*0.999,
-					loc.getLongitude()+deltaSubLatLon*(Math.random()-0.5)*0.999,
-					loc.getDepth()+deltaDepth*(Math.random()-0.5)*0.999);
+		return new Location(loc.getLatitude()+deltaSubLatLon*(etas_utils.getRandomDouble()-0.5)*0.999,
+					loc.getLongitude()+deltaSubLatLon*(etas_utils.getRandomDouble()-0.5)*0.999,
+					loc.getDepth()+deltaDepth*(etas_utils.getRandomDouble()-0.5)*0.999);
 //		return loc;
 		
 	}
@@ -474,7 +478,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		DefaultXY_DataSet epicenterLocs = new DefaultXY_DataSet();
 
 		for(int i=0;i<numSamples;i++) {
-			int sampIndex = sampler.getRandomInt();
+			int sampIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 			double relLat = getLat(iLatArray[sampIndex]);
 			double relLon = getLon(iLonArray[sampIndex]);
 			double depth = getDepth(iDepArray[sampIndex]);
@@ -596,7 +600,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("before");
 		ETAS_LocationWeightCalculatorTest1 calc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepthKm, 
-					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist);
+					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist, new ETAS_Utils());
 		ETAS_SimAnalysisTools.writeMemoryUse("after");
 
 		for(int i=0; i<=12;i++)

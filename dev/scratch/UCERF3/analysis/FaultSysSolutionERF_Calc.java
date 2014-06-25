@@ -55,6 +55,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -269,6 +270,67 @@ public class FaultSysSolutionERF_Calc {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
+	
+	
+	public static void makeAveMoRateMaoForU3pt3_and_FM3pt1() {
+
+		try {
+			
+			// average solution for FM 3.1
+			String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+			File file = new File(f);
+
+			System.out.println("Instantiating ERF...");
+			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+//			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0);
+			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+			erf.getParameter("Treat Background Seismicity As").setValue(BackgroundRupType.POINT);
+			erf.updateForecast();
+			String fileName = "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL";
+			
+			String scaleLabel = "Moment Rate";
+			String metadata =" ";
+			
+			GriddedGeoDataSet data = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+
+			System.out.println("Making GMT Map...; minZ="+data.getMinZ()+"\tmaxZ="+data.getMaxZ());
+			
+//			for(int i=0; i< data.size(); i++) {
+//				Location loc = data.getLocation(i);
+//				System.out.println(i+"\t"+data.get(i)+"\t"+loc.getLongitude()+"\t"+loc.getLatitude());
+//			}
+			
+			GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();	
+			//override default scale
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 13.);
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 17.);
+//			gmt_MapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_30_GLOBAL);
+//			gmt_MapGenerator.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, true);
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.DPI_PARAM_NAME, 300);
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.BLACK_BACKGROUND_PARAM_NAME, false);
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.KML_PARAM_NAME, true);
+
+			// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
+			// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
+			// but it won't succeed for the isAllowed(value) call.
+			CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+			cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+
+			GMT_CA_Maps.makeMap(data, scaleLabel, metadata, "AveMoRateMap_U3pt3_FM3pt1", gmt_MapGenerator);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
+	
+	
 	
 	
 	/**
@@ -4431,6 +4493,9 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		
+		makeAveMoRateMaoForU3pt3_and_FM3pt1();
+		
 //		makeIconicFigureForU3TimeDependence();
 //		System.exit(0);
 //		System.out.println(loadUCERF2MainFaultMPDs(true).size());
@@ -4469,11 +4534,11 @@ public class FaultSysSolutionERF_Calc {
 //		System.exit(0);
 		
 //		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875";
-		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_02_15-ucerf3-prob-gains-open1875";
-		File outputMainDir = new File("/home/kevin/OpenSHA/UCERF3");
-		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
-				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_02_15-ucerf3-prob-gains-open1875";
+//		File outputMainDir = new File("/home/kevin/OpenSHA/UCERF3");
+//		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+//				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+//						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 //		String dirPrefix = "/home/scec-02/kmilner/ucerf3/prob_gains/2013_12_24-ucerf3-prob-gains-open1875";
 //		File outputMainDir = new File("/var/www/html/ftp/kmilner/ucerf3");
 //		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
@@ -4496,10 +4561,10 @@ public class FaultSysSolutionERF_Calc {
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots
-		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
-				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
+//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.values()), false,
+//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_ALL"), meanSol);
 //		doFinalWebPlotAssembly(new File(outputMainDir, "TimeDependent_AVE_ALL"), true);
-		System.exit(0);
+//		System.exit(0);
 		
 //		File zipsDir = new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_11_21-ucerf3-prob-gains-5yr");
 //		String opsStr = "aveRI_aveNTS";
@@ -4552,11 +4617,11 @@ public class FaultSysSolutionERF_Calc {
 //				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 //						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
-		double duration = 30d;
-		String durStr = (int)duration+"yr";
-		
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
-		erf.getTimeSpan().setDuration(duration);
+//		double duration = 30d;
+//		String durStr = (int)duration+"yr";
+//		
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(meanSol);
+//		erf.getTimeSpan().setDuration(duration);
 		
 		// this will generate the prob gain mains for BPT/Poisson
 //		File saveDir = new File("/tmp/prob_maps");
@@ -4570,43 +4635,43 @@ public class FaultSysSolutionERF_Calc {
 //			saveDir.mkdir();
 //		makeMagDurationProbPlots(meanSol, saveDir, "ucerf3", false);
 		
-		MagDependentAperiodicityOptions[] covFuncs = { MagDependentAperiodicityOptions.LOW_VALUES,
-				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES,
-				MagDependentAperiodicityOptions.ALL_PT3_VALUES, MagDependentAperiodicityOptions.ALL_PT4_VALUES,
-				MagDependentAperiodicityOptions.ALL_PT5_VALUES };
-		
-		File saveDir = new File("/tmp/ucerf3_time_dep_erf_plots");
-		if (!saveDir.exists())
-			saveDir.mkdir();
+//		MagDependentAperiodicityOptions[] covFuncs = { MagDependentAperiodicityOptions.LOW_VALUES,
+//				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES,
+//				MagDependentAperiodicityOptions.ALL_PT3_VALUES, MagDependentAperiodicityOptions.ALL_PT4_VALUES,
+//				MagDependentAperiodicityOptions.ALL_PT5_VALUES };
+//		
+//		File saveDir = new File("/tmp/ucerf3_time_dep_erf_plots");
+//		if (!saveDir.exists())
+//			saveDir.mkdir();
 		
 //		writeDiffAveragingMethodsSubSectionTimeDependenceCSV(saveDir);
 //		System.exit(0);
 		
-		for (MagDependentAperiodicityOptions cov : covFuncs) {
-			String dirName = "cov_"+cov.name();
-			File covSaveDir = new File(saveDir, dirName);
-			if (!covSaveDir.exists())
-				covSaveDir.mkdir();
-			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
-			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
-			erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-			// this will write the parent section CSV file
-			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
-			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
-			
-			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
-			if (!fltGainDir.exists())
-				fltGainDir.mkdir();
-			
-			makeFaultProbGainMaps(erf, fltGainDir, dirName);
-
-			// this will generate prob gain maps for BPT parameters
-			File bptGainDir = new File(covSaveDir, "bpt_calc_prob_gains");
-			if (!bptGainDir.exists())
-				bptGainDir.mkdir();
-			makeAvgMethodProbGainMaps(erf, bptGainDir, dirName);
-		}
+//		for (MagDependentAperiodicityOptions cov : covFuncs) {
+//			String dirName = "cov_"+cov.name();
+//			File covSaveDir = new File(saveDir, dirName);
+//			if (!covSaveDir.exists())
+//				covSaveDir.mkdir();
+//			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+//			erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
+//			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
+//			erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+//			// this will write the parent section CSV file
+//			writeParentSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_parent_probs_"+durStr+".csv"));
+//			writeSubSectionTimeDependenceCSV(erf, new File(covSaveDir, dirName+"_sub_probs_"+durStr+".csv"));
+//			
+//			File fltGainDir = new File(covSaveDir, "fault_prob_gains");
+//			if (!fltGainDir.exists())
+//				fltGainDir.mkdir();
+//			
+//			makeFaultProbGainMaps(erf, fltGainDir, dirName);
+//
+//			// this will generate prob gain maps for BPT parameters
+//			File bptGainDir = new File(covSaveDir, "bpt_calc_prob_gains");
+//			if (!bptGainDir.exists())
+//				bptGainDir.mkdir();
+//			makeAvgMethodProbGainMaps(erf, bptGainDir, dirName);
+//		}
 		
 //		double minMag = 6.5;
 //		double deltaMag = 0.1;

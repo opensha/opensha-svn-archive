@@ -116,6 +116,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	
 	boolean includeERF_Rates, includeSpatialDecay;
 	
+	ETAS_Utils etas_utils;
+	
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
 //	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
@@ -136,10 +138,10 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param includeSpatialDecay
 	 */
 	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
-			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates) {
+			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
-				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true);
+				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true, etas_utils);
 //		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 //				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, true, false);
 	}
@@ -163,7 +165,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 */
 	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay) {
+			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils) {
 		
 
 		origGriddedRegion = griddedRegion;
@@ -177,6 +179,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		this.depthDiscr=depthDiscr;
 		this.pointSrcDiscr = pointSrcDiscr;
 		numRateDepths = (int)Math.round(maxDepth/depthDiscr);
+		
+		this.etas_utils = etas_utils;
 		
 		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
@@ -295,7 +299,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(D) System.out.println("Running makeETAS_LocWtCalcList()");
 		double maxDistKm=1000;
 		double midLat = (gridRegForRatesInSpace.getMaxLat() + gridRegForRatesInSpace.getMinLat())/2.0;
-		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, regSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist);
+		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, regSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, etas_utils);
 		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making etas_LocWeightCalc");
 		if(D) System.out.println("Done running makeETAS_LocWtCalcList()");
 		
@@ -577,7 +581,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			// get random point on surface
 			// need to check this; Math.round() is same as (long)Math.floor(a + 0.5d)
-			parentLoc = locList.get((int)Math.round(locList.size()*Math.random()-0.5));
+			parentLoc = locList.get((int)Math.round(locList.size()*etas_utils.getRandomDouble()-0.5));
 		}
 		
 		// set the sampler
@@ -608,14 +612,14 @@ public class ETAS_PrimaryEventSamplerTest1 {
 
 		IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
 		
-		int aftShPointIndex = sampler.getRandomInt();
+		int aftShPointIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 		int randSrcIndex = getRandomSourceIndexAtPoint(aftShPointIndex);
 		
 		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
 		if(randSrcIndex<0) {
 //			System.out.println("working on finding a non-neg source index");
 			while (randSrcIndex<0) {
-				aftShPointIndex = sampler.getRandomInt();
+				aftShPointIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 				randSrcIndex = getRandomSourceIndexAtPoint(aftShPointIndex);
 			}
 		}
@@ -623,7 +627,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		ProbEqkSource src = erf.getSource(randSrcIndex);
 		int r=0;
 		if(src.getNumRuptures() > 1) {
-			r = src.drawSingleRandomEqkRuptureIndex();
+			r = src.drawSingleRandomEqkRuptureIndex(etas_utils.getRandomDouble());
 		}
 		int nthRup = erf.getIndexN_ForSrcAndRupIndices(randSrcIndex,r);
 		ProbEqkRupture erf_rup = src.getRupture(r);
@@ -639,7 +643,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				}
 			}	
 			// choose one randomly
-			int hypoLocIndex = (int)Math.round(locsToSampleFrom.size()*Math.random()-0.5);
+			int hypoLocIndex = (int)Math.round(locsToSampleFrom.size()*etas_utils.getRandomDouble()-0.5);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
 		}
@@ -864,7 +868,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				else
 					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);		
 			}
-			return sources[sampler.getRandomInt()];
+			return sources[sampler.getRandomInt(etas_utils.getRandomDouble())];
 		}
 	}
 	
@@ -1160,7 +1164,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		double gridSeisDiscr = 0.1;
 		
 		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, includeEqkRates);
+				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils());
 		
 		
 		

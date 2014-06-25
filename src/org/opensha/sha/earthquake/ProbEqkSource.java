@@ -466,8 +466,21 @@ public abstract class ProbEqkSource implements EqkSource, Named, Iterable<ProbEq
 		return rupSampler.getRandomInt();
 	}
 
-	
-	
+	/**
+	 * This draws a single rupture index based on the relative probabilities, 
+	 * where the random number is supplied for reproducibility.
+	 * 
+	 * @param randDouble - a random value between 0 (inclusive) and 1 (exclusive)
+	 * @return
+	 */
+	public int drawSingleRandomEqkRuptureIndex(double randDouble) {
+		int numRup = getNumRuptures();
+		IntegerPDF_FunctionSampler rupSampler = new IntegerPDF_FunctionSampler(numRup);
+		for (int r=0; r< this.getNumRuptures(); r++)
+			rupSampler.add((double)r, getRupture(r).getProbability());
+		return rupSampler.getRandomInt(randDouble);
+	}
+
 
 	/**
 	 * This gets the TectonicRegionType for this source

@@ -255,7 +255,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			List<ObsEqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
-						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, fractionSrcAtPointList, srcAtPointList);
+						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, fractionSrcAtPointList, srcAtPointList);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}

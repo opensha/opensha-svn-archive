@@ -66,6 +66,17 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		return getInt(Math.random());
 	}
 	
+	/**
+	 * This returns a random integer based on the probabilities of each, and
+	 * using the supplied random number (supplied in cases where reproducibility is important)
+	 * @param randDouble - a value between 0 (inclusive) and 1 (exclusive)
+	 * @return
+	 */
+	public int getRandomInt(double randDouble) {
+		return getInt(randDouble);
+	}
+
+	
 	
 	/**
 	 * This returns the integer value corresponding to the given probability (between 0 and 1).

@@ -39,6 +39,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
@@ -484,7 +485,8 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
-	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler, EqkRupture rupture) {
+	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler, 
+			EqkRupture rupture, double expNum) {
 		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedMFD(rupture);
 		// convert MFD to probability density function
 		mfd.scale(1.0/(mfd.getTotalIncrRate()*mfd.getDelta()));
@@ -498,9 +500,46 @@ public class ETAS_SimAnalysisTools {
 		magProbDistsGraph.setPlotLabelFontSize(22);
 		magProbDistsGraph.setAxisLabelFontSize(20);
 		magProbDistsGraph.setTickLabelFontSize(18);			
+		
+		// cumulative distribution of expected num primary
+		GraphWindow cumDistsGraph = null;
+		if(!Double.isNaN(expNum)) {
+			EvenlyDiscretizedFunc cumMFD = mfd.getCumRateDistWithOffset();
+			cumMFD.scale(mfd.getDelta()*expNum);
+			cumMFD.setName("Cum MFD for primary aftershocks of "+rupInfo);
+			cumMFD.setInfo("expNum="+expNum);
+			cumDistsGraph = new GraphWindow(cumMFD, "Expected Cumulative Primary Aftershock MFD"); 
+			cumDistsGraph.setX_AxisLabel("Mag");
+			cumDistsGraph.setY_AxisLabel("Rate (per year)");
+			cumDistsGraph.setY_AxisRange(10e-8, 10e4);
+			cumDistsGraph.setX_AxisRange(2.,9.);
+			cumDistsGraph.setYLog(true);
+			cumDistsGraph.setPlotLabelFontSize(22);
+			cumDistsGraph.setAxisLabelFontSize(20);
+			cumDistsGraph.setTickLabelFontSize(18);			
+		}
+		
+		// expected relative num secondary aftershocks at each magnitude
+		IncrementalMagFreqDist expSecondaryNum = new IncrementalMagFreqDist(mfd.getMinX(), mfd.getMaxX(), mfd.getNum());
+		for(int i= 0;i<expSecondaryNum.getNum();i++)
+			expSecondaryNum.set(i,mfd.getY(i)*Math.pow(10,mfd.getX(i)));
+		expSecondaryNum.setName("RelNumExpSecAftershocks");
+		expSecondaryNum.setInfo("This is the MFD of primary aftershocks multiplied by 10^mag");
+		GraphWindow expSecGraph = new GraphWindow(expSecondaryNum, "Relative Expected Num Secondary Aftershocks"); 
+		expSecGraph.setX_AxisLabel("Mag");
+		expSecGraph.setY_AxisLabel("Rel Num Secondary");
+		expSecGraph.setX_AxisRange(2.,9.);
+		expSecGraph.setPlotLabelFontSize(22);
+		expSecGraph.setAxisLabelFontSize(20);
+		expSecGraph.setTickLabelFontSize(18);			
+
+		
 		if(pdf_FileName != null)
 			try {
-				magProbDistsGraph.saveAsPDF(pdf_FileName);
+				magProbDistsGraph.saveAsPDF(pdf_FileName+"_Incr.pdf");
+				expSecGraph.saveAsPDF(pdf_FileName+"_ExpRelSecAft.pdf");
+				if(!Double.isNaN(expNum))
+					cumDistsGraph.saveAsPDF(pdf_FileName+"_Cum.pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
