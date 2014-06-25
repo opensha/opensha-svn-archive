@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
@@ -38,7 +39,8 @@ public class SurfDistCacheTests {
 	}
 
 	public static void main(String[] args) throws IOException, DocumentException, InterruptedException {
-		int numThreads=4, numSites=24;
+//		int numThreads=4, numSites=24;
+		int numThreads=1, numSites=8;
 		TestType type = TestType.HAZARD_CURVE;
 		File baSolFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
@@ -56,7 +58,8 @@ public class SurfDistCacheTests {
 		final FaultSystemSolutionERF erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(baSolFile));
 		erf.updateForecast();
 		
-		final DiscretizedFunc xVals = IMT_Info.getUSGS_PGA_Function();
+//		final DiscretizedFunc xVals = IMT_Info.getUSGS_PGA_Function();
+		final DiscretizedFunc xVals = new LightFixedXFunc(IMT_Info.getUSGS_PGA_Function());
 		
 		final TestType myType = type;
 		

@@ -88,7 +88,7 @@ public class UCERF3_BranchAvgLossFetcher {
 		for (int r=0; r<rupLosses.length; r++)
 			for (int m=0; m<totRupMFDs[r].getNum(); m++)
 				trueMeanEAL += rupLosses[r][m] * totRupMFDs[r].getY(m);
-		System.out.println("True mean EAL (both FMs): "+trueMeanEAL);
+		System.out.println("True mean fault based EAL (both FMs): "+trueMeanEAL);
 		
 		BranchWeightProvider weightProv = new APrioriBranchWeightProvider();
 		

@@ -671,8 +671,8 @@ public class ETAS_CatalogEALCalculator {
 	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
-		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/");
-//		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/");
+//		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/");
+		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/");
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-spontaneous/");
 		
 		// true mean FSS which includes rupture mapping information. this must be the exact file used to calulate EALs
@@ -694,7 +694,7 @@ public class ETAS_CatalogEALCalculator {
 		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
 		String xAxisLabel = "Fatalities";
 		double xAxisScale = 1d;
-		double maxX = 120;
+		double maxX = 3000;
 		double deltaX = 1;
 		String catOutputDirName = "fatalities_wills";
 

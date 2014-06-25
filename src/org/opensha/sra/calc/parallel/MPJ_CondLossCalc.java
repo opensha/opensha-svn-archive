@@ -384,7 +384,7 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 
 		Preconditions.checkState(numGridded > 0, "Size must be > 0!");
 		Preconditions.checkState(region == null || region.getNodeCount() == numGridded,
-				"Gridded location count doesn't match passed in region: "+region.getNodeCount()+" != "+numGridded);
+				"Gridded location count doesn't match passed in region.");
 		
 		DiscretizedFunc[] results = new DiscretizedFunc[numGridded];
 		

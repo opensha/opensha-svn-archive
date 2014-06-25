@@ -62,7 +62,11 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
+				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
+				ElementMagRangeDescription.SAF_SANTA_CRUZ,
+				ElementMagRangeDescription.SAF_MID_PENINSULA,
+				ElementMagRangeDescription.CALAVERAS,
+				ElementMagRangeDescription.HAYWARD
 				};
 		
 		rupIdens = Lists.newArrayList();
@@ -76,7 +80,11 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
+				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
+				ElementMagRangeDescription.SAF_SANTA_CRUZ,
+				ElementMagRangeDescription.SAF_MID_PENINSULA,
+				ElementMagRangeDescription.CALAVERAS,
+				ElementMagRangeDescription.HAYWARD
 				};
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);

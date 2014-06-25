@@ -29,6 +29,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 		Scenarios[] scenarios = Scenarios.values();
+		boolean timeIndep = true;
 		int numSims = 1000;
 		
 		int memGigs;
@@ -69,6 +70,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 		for (Scenarios scenario : scenarios) {
 			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
+			if (timeIndep)
+				jobName += "-indep";
 			
 			File localJobDir = new File(localDir, jobName);
 			if (!localJobDir.exists())
@@ -96,6 +99,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			default:
 				throw new IllegalStateException("unknown scenario: "+scenario);
 			}
+			if (timeIndep)
+				argz += " --indep";
 			argz += " "+remoteDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 			
 			List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);

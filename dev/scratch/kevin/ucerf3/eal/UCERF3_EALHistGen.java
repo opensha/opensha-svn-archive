@@ -43,13 +43,16 @@ public class UCERF3_EALHistGen {
 //		File askRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
-		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+//		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
 		
-//		String units = "$";
-//		double multiplier = 1d/1e6;
+		String units = "$ Billions";
+		double multiplier = 1d/1e6;
+		double delta = 0.1;
 		
-		String units = "Fatalities";
-		double multiplier = 1000000; //TODO
+//		String units = "Fatalities";
+//		double multiplier = 1;
+//		double delta = 1;
 		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
@@ -121,7 +124,6 @@ public class UCERF3_EALHistGen {
 			}
 		}
 		
-		double delta = 100000;
 		Map<String, PlotSpec> specs = hist.getStackedHistPlots(true, delta);
 		
 		List<File> histPDFs = Lists.newArrayList();

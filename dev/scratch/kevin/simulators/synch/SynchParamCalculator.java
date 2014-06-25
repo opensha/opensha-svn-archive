@@ -1917,7 +1917,11 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
 				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID
+				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
+				ElementMagRangeDescription.SAF_SANTA_CRUZ,
+				ElementMagRangeDescription.SAF_MID_PENINSULA,
+				ElementMagRangeDescription.CALAVERAS,
+				ElementMagRangeDescription.HAYWARD
 //				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
 //				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
 //				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID
@@ -1965,7 +1969,11 @@ public class SynchParamCalculator {
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
 				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
 				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
-				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID
+				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID,
+				ElementMagRangeDescription.SAF_SANTA_CRUZ,
+				ElementMagRangeDescription.SAF_MID_PENINSULA,
+				ElementMagRangeDescription.CALAVERAS,
+				ElementMagRangeDescription.HAYWARD
 		};
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);

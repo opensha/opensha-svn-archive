@@ -131,6 +131,22 @@ public class SimAnalysisCatLoader {
 				name = "Newport-Inglewood (onshore)";
 				color = Color.MAGENTA;
 				break;
+			case ElementMagRangeDescription.CALAVERAS:
+				name = "Calaveras";
+				color = Color.MAGENTA;
+				break;
+			case ElementMagRangeDescription.HAYWARD:
+				name = "Hayward";
+				color = Color.MAGENTA;
+				break;
+			case ElementMagRangeDescription.SAF_SANTA_CRUZ:
+				name = "SAF Santa Cruz";
+				color = Color.MAGENTA;
+				break;
+			case ElementMagRangeDescription.SAF_MID_PENINSULA:
+				name = "SAF Mid Peninsula";
+				color = Color.MAGENTA;
+				break;
 
 			default:
 				throw new IllegalStateException("Unknown elem: "+elemID);

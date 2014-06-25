@@ -29,6 +29,10 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	public static final int ELSINORE_ELEMENT_ID = 2460;
 	public static final int PUENTE_HILLS_ELEMENT_ID = 11829;
 	public static final int NEWP_INGL_ONSHORE_ELEMENT_ID = 7672;
+	public static final int SAF_SANTA_CRUZ = 663;
+	public static final int SAF_MID_PENINSULA = 529;
+	public static final int CALAVERAS = 3692;
+	public static final int HAYWARD = 3334;
 	
 	private String name;
 	private List<Integer> elementIDs;

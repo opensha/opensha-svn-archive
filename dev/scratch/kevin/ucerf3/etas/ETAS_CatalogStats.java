@@ -3,6 +3,7 @@ package scratch.kevin.ucerf3.etas;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -17,23 +18,62 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 
 public class ETAS_CatalogStats {
 	
 	private static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag) {
+		return calcNumWithMagAbove(catalogs, targetMinMag, -1, -1);
+	}
+	
+	private static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag,
+			int triggerParentID, int maxDaysAfter) {
+		HashSet<Integer> triggerParentIDs = null;
+		if (triggerParentID >= 0) {
+			triggerParentIDs = new HashSet<Integer>();
+			triggerParentIDs.add(triggerParentID);
+		}
 		int num = 0;
+		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		long maxEventTime;
+		if (maxDaysAfter > 0)
+			maxEventTime = ot + ProbabilityModelsCalc.MILLISEC_PER_DAY;
+		else
+			maxEventTime = -1;
 		catalogLoop:
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
-				if (rup.getMag() > targetMinMag) {
+				if (maxEventTime > 0 && rup.getOriginTime() > maxEventTime)
+					break;
+				boolean child = true;
+				if (triggerParentID >= 0) {
+					if (triggerParentIDs.contains(rup.getParentID()))
+						// add this as a child
+						triggerParentIDs.add(rup.getID());
+					else
+						// this is spontaneous or part of another chain
+						child = false;
+				}
+				if (rup.getMag() > targetMinMag && child) {
 					num++;
 					continue catalogLoop;
 				}
 			}
 		}
+		String childAdd;
+		if (triggerParentID >= 0)
+			childAdd = " child";
+		else
+			childAdd = "";
+		String dateAdd;
+		if (maxDaysAfter > 0)
+			dateAdd = " within "+maxDaysAfter+" days of start of catalog";
+		else
+			dateAdd = "";
 		double percent = 100d*((double)num/(double)catalogs.size());
-		System.out.println(num+"/"+catalogs.size()+" ("+(float)percent+" %) of catalogs had rup with M>"+(float)targetMinMag);
+		System.out.println(num+"/"+catalogs.size()+" ("+(float)percent+" %) of catalogs had"
+				+childAdd+" rup with M>"+(float)targetMinMag+dateAdd);
 		return num;
 	}
 	
@@ -84,16 +124,23 @@ public class ETAS_CatalogStats {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/results");
-		double targetMinMag = 7.050480408896166;
-		String name = "Mojave 7.05";
+////		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/results");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-mojave_7-indep/results");
+//		int triggerParentID = 0;
+//		double targetMinMag = 7.050480408896166;
+//		String name = "Mojave 7.05";
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
-//		double targetMinMag = 6.2;
-//		String name = "La Habra 6.2";
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-la_habra-indep/results");
+		int triggerParentID = 0;
+		double targetMinMag = 6.2;
+		String name = "La Habra 6.2";
 		File[] etasCatalogDirs = {etasCatalogDir};
 		File outputDir = new File(etasCatalogDir.getParentFile(), "outputs_stats");
 		
+		int maxDaysAfter = 7;
+		
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-spontaneous/");
+//		int triggerParentID = -1;
 //		String name = "Spontaneous";
 //		File[] etasCatalogDirs = { new File(etasCatalogDir, "results_1"), new File(etasCatalogDir, "results_2"),
 //				new File(etasCatalogDir, "results_3"), new File(etasCatalogDir, "results_4"),
@@ -108,7 +155,7 @@ public class ETAS_CatalogStats {
 		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogEALCalculator.loadCatalogs(
 				etasCatalogDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
 		
-		calcNumWithMagAbove(catalogs, targetMinMag);
+		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
 		plotMFD(catalogs, outputDir, name);
 	}
 

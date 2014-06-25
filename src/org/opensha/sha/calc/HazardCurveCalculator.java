@@ -29,6 +29,7 @@ import java.util.Map;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -245,8 +246,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		 */
 		boolean poissonSource = false;
 
-		DiscretizedFunc condProbFunc = hazFunction.deepClone();
-		DiscretizedFunc sourceHazFunc = hazFunction.deepClone();
+//		DiscretizedFunc condProbFunc = hazFunction.deepClone();
+//		DiscretizedFunc sourceHazFunc = hazFunction.deepClone();
+		DiscretizedFunc condProbFunc = new LightFixedXFunc(hazFunction);
+		DiscretizedFunc sourceHazFunc = new LightFixedXFunc(hazFunction);
 
 		// declare some varibles used in the calculation
 		double qkProb, distance;

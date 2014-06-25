@@ -55,12 +55,18 @@ public class PortfolioParser {
 				}
 
 				// Parse the current line and set the parameters in the asset to it
-				ArrayList<String> assetArrayList = parseLine( assetLine );
-				String[] assetValueList = new String[assetArrayList.size()];
-				assetValueList = assetArrayList.toArray( assetValueList );
-				if( assetValueList.length > 0 ) {
-					asset.setAssetParameters( assetValueList );
-					assetList.add( asset );
+				try {
+					ArrayList<String> assetArrayList = parseLine( assetLine );
+					String[] assetValueList = new String[assetArrayList.size()];
+					assetValueList = assetArrayList.toArray( assetValueList );
+					if( assetValueList.length > 0 ) {
+						asset.setAssetParameters( assetValueList );
+						assetList.add( asset );
+					}
+				} catch (RuntimeException e) {
+					System.out.println("Bad line: "+assetLine);
+					System.out.flush();
+					throw e;
 				}
 			}
 			else {

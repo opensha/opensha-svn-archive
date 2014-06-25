@@ -18,6 +18,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
@@ -71,6 +72,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private boolean includeEqkRates = true;
 	private double gridSeisDiscr = 0.1;
 	
+	private boolean timeIndep = false;
+	
 	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 	
 	private List<ObsEqkRupture> obsEqkRuptureList;
@@ -94,6 +97,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			this.duration = Double.parseDouble(cmd.getOptionValue("duration"));
 		else
 			this.duration = 1d;
+		
+		if (cmd.hasOption("indep"))
+			timeIndep = true;
 		
 		File solFile = new File(cmd.getOptionValue("sol-file"));
 		Preconditions.checkArgument(solFile.exists(), "Solution file doesn't exist: "+solFile.getAbsolutePath());
@@ -215,7 +221,12 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			debug("calculating "+index);
 			
 			// reset date of last event
-			LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
+			if (timeIndep) {
+				for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+					sect.setDateOfLastEvent(Long.MIN_VALUE);
+			} else {
+				LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
+			}
 			
 			debug("Instantiationg ERF");
 			FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(sol);
@@ -228,7 +239,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 			erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 			erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-			erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
+			if (!timeIndep)
+				erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
 			erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
 			erf.getTimeSpan().setDuration(duration);
 			
@@ -296,6 +308,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option duration = new Option("d", "duration", true, "Simulation duration (years), default=1yr");
 		duration.setRequired(false);
 		ops.addOption(duration);
+		
+		Option indep = new Option("i", "indep", false, "Time independent probabilities. Elastic rebound will "
+				+ "still be applied for fault initiating event and any triggered events.");
+		indep.setRequired(false);
+		ops.addOption(indep);
 		
 		return ops;
 	}
