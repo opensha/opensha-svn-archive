@@ -96,7 +96,7 @@ public class ETAS_Simulator {
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, List<ObsEqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, List<ETAS_EqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed)
 					throws IOException {
@@ -122,13 +122,15 @@ public class ETAS_Simulator {
 	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
 	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
+	 * @param simulationName 
+	 * @param randomSeed - set for reproducibility, or set null if new seed desired
 	 * @param fractionSrcAtPointList
 	 * @param srcAtPointList
 	 * @throws IOException 
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, List<ObsEqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, List<ETAS_EqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList)
 					throws IOException {
@@ -221,8 +223,6 @@ public class ETAS_Simulator {
 		// (filling in origin time ID, and parentID, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
 		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);	// not sure about the first field
-		HashMap<Integer,ObsEqkRupture> mainshockHashMap = new HashMap<Integer,ObsEqkRupture>(); // this stores the active main shocks
-		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a main shock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
 		for(ObsEqkRupture rup: obsEqkRuptureList) {
@@ -240,8 +240,6 @@ public class ETAS_Simulator {
 					eventsToProcess.add(newRup);
 					eventID +=1;
 				}
-				mainshockHashMap.put(parID, rup);
-				mainshockNumToProcess.put(parID,randomAftShockTimes.length);
 				parID += 1;				
 			}
 		}
@@ -304,16 +302,6 @@ public class ETAS_Simulator {
 //		etas_PrimEventSampler.testMagFreqDist(); TODO what is this?
 
 
-//		System.out.println("sleeping for 10 secs");
-//		try {
-//			Thread.sleep(10000L);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		
-		
 		CalcProgressBar progressBar;
 		try {
 			progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
@@ -338,7 +326,7 @@ public class ETAS_Simulator {
 			ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 			
 			parID = rup.getParentID();
-			int numToProcess=-1;
+//			int numToProcess=-1;
 			
 			boolean succeededInSettingRupture=true;
 			
@@ -371,25 +359,12 @@ public class ETAS_Simulator {
 
 			}
 			else {
-				numToProcess = mainshockNumToProcess.get(parID);	// this is the number of events the sampler has yet to process
-				EqkRupture mainshock = mainshockHashMap.get(parID);
-				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(mainshock, rup);
-//etas_PrimEventSampler.getTriggerProbOfEachSource( mainshock);
+				EqkRupture parRup = rup.getParentRup();
+				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(parRup, rup);
+//etas_PrimEventSampler.getTriggerProbOfEachSource( parRup);
 //System.exit(0);
-				numToProcess -= 1;	// decrement num to process
 			}
 			
-			// update num to process or remove mainshock if this is zero
-			if(parID != -1) {	// if not spontaneous
-				if(numToProcess == 0) {
-					mainshockNumToProcess.remove(parID);
-					mainshockHashMap.remove(parID);
-				}
-				else {	// update the num to process
-					mainshockNumToProcess.put(parID, numToProcess);
-				}	
-			}
-
 			// break out if we failed to set the rupture
 			if(!succeededInSettingRupture)
 				continue;
@@ -399,7 +374,6 @@ public class ETAS_Simulator {
 			numSimulatedEvents += 1;
 			
 			ETAS_SimAnalysisTools.writeEventToFile(simulatedEventsFileWriter, rup);
-				
 			
 			long rupOT = rup.getOriginTime();
 			
@@ -419,8 +393,6 @@ public class ETAS_Simulator {
 						eventsToProcess.add(newRup);
 						eventID +=1;
 					}
-					mainshockHashMap.put(parID, rup);
-					mainshockNumToProcess.put(parID,eventTimes.length);				
 				}		
 			}
 			
@@ -553,7 +525,7 @@ public class ETAS_Simulator {
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
 		
-		ObsEqkRupture mainshockRup = new ObsEqkRupture();
+		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
 
@@ -565,16 +537,17 @@ public class ETAS_Simulator {
 		mainshockRup.setAveRake(rupFromERF.getAveRake());
 		mainshockRup.setMag(rupFromERF.getMag());
 		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-		System.out.println("test Mainshock: "+erf.getSource(srcID).getName());
+		System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+mainshockRup.getMag());
 		
-		String simulationName = "Mojave7pt0_run5";
+		String simulationName = "Mojave7pt0_run6";
 //		String simulationName = "Mojave7pt0_noER_noGRcorr_run2";
 //		String simulationName = "Mojave7pt0_noER_run2";
 		// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
 		erf.setFltSystemSourceOccurranceTime(srcID, ot);
 		erf.updateForecast();
-		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+
+		mainshockRup.setID(0);
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		obsEqkRuptureList.add(mainshockRup);
 
 		
@@ -611,7 +584,7 @@ public class ETAS_Simulator {
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
 		
-		ObsEqkRupture mainshockRup = new ObsEqkRupture();
+		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
 
@@ -629,10 +602,10 @@ public class ETAS_Simulator {
 		// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
 		erf.setFltSystemSourceOccurranceTime(srcID, ot);
 		erf.updateForecast();
-		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
-		obsEqkRuptureList.add(mainshockRup);
 
+		mainshockRup.setID(0);
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
+		obsEqkRuptureList.add(mainshockRup);
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
@@ -663,7 +636,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
-		ObsEqkRupture mainshockRup = new ObsEqkRupture();
+		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
 
@@ -682,7 +655,8 @@ public class ETAS_Simulator {
 		erf.setFltSystemSourceOccurranceTime(srcID, ot);
 		erf.updateForecast();
 		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		mainshockRup.setID(0);
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		obsEqkRuptureList.add(mainshockRup);
 
 		
@@ -719,7 +693,7 @@ public class ETAS_Simulator {
 		
 		String simulationName = "LaHabra6pt2_run1";
 		
-		ObsEqkRupture mainshockRup = new ObsEqkRupture();
+		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		mainshockRup.setOriginTime(ot);	
 
@@ -729,8 +703,8 @@ public class ETAS_Simulator {
 		mainshockRup.setAveRake(0.0);
 		mainshockRup.setMag(mag);
 		mainshockRup.setPointSurface(ptSurf);
-		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		mainshockRup.setID(0);
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		obsEqkRuptureList.add(mainshockRup);
 
 		
@@ -766,7 +740,7 @@ public class ETAS_Simulator {
 		
 		String simulationName = "NoMainShock_run1";
 		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 
 		
 		boolean includeSpontEvents=true;
@@ -802,7 +776,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
-		String simulationName = "HistCatalog_run1";
+		String simulationName = "HistCatalog_run3";
 		
 //		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
 		
@@ -814,11 +788,16 @@ public class ETAS_Simulator {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		ObsEqkRupList histQksInRegionList = new ObsEqkRupList();
+		int id=0;
+		ArrayList<ETAS_EqkRupture> histQksInRegionList = new ArrayList<ETAS_EqkRupture>();
 		for(ObsEqkRupture qk : histQkList) {
 			Location hyp = qk.getHypocenterLocation();
-			if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0)
-				histQksInRegionList.add(qk);
+			if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {
+				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
+				etasRup.setID(id);
+				histQksInRegionList.add(etasRup);
+				id+=1;
+			}
 		}
 		System.out.println("histQkList.size()="+histQkList.size());
 		System.out.println("histQksInRegionList.size()="+histQksInRegionList.size());
@@ -889,10 +868,10 @@ public class ETAS_Simulator {
 		
 //		ETAS_Simulator.runLandersTest();
 //		ETAS_Simulator.runNorthridgeTest();
-//		ETAS_Simulator.runMojaveTest();
+		ETAS_Simulator.runMojaveTest();
 //		ETAS_Simulator.runLaHabraTest();
 //		ETAS_Simulator.runNoMainShockTest();
-		runHistCatalogTest();
+//		runHistCatalogTest();
 		
 		
 		
