@@ -595,15 +595,11 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    double stdDev = getStdDev();
 	    double mean = getMean();
 
-	    Iterator it = intensityMeasureLevels.iterator();
-	    while (it.hasNext()) {
-
-	      Point2D point = (Point2D) it.next();
-	      double x = point.getX();
-	      double y = getExceedProbabilitySS(mean, stdDev, point.getX());
-	      point.setLocation(x, y);
-
-	    }
+	    for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+			double x = intensityMeasureLevels.getX(i);
+			double y = getExceedProbability(mean, stdDev, x);
+			intensityMeasureLevels.set(i, y);
+		}
 
 	    return intensityMeasureLevels;
 	  }

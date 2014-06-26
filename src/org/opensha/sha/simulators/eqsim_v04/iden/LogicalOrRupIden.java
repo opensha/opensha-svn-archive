@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 public class LogicalOrRupIden extends AbstractRuptureIdentifier {
 	
 	private Collection<RuptureIdentifier> rupIdens;
+	private String name;
 
 	public LogicalOrRupIden(RuptureIdentifier... rupIdens) {
 		this(Lists.newArrayList(rupIdens));
@@ -16,6 +17,7 @@ public class LogicalOrRupIden extends AbstractRuptureIdentifier {
 	
 	public LogicalOrRupIden(Collection<RuptureIdentifier> rupIdens) {
 		this.rupIdens = rupIdens;
+		this.name = "Logical and rupture identfier with "+rupIdens.size()+" idens.";
 	}
 
 	@Override
@@ -28,7 +30,11 @@ public class LogicalOrRupIden extends AbstractRuptureIdentifier {
 
 	@Override
 	public String getName() {
-		return "Logical and rupture identfier with "+rupIdens.size()+" idens.";
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public Collection<RuptureIdentifier> getSubIdens() {

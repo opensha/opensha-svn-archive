@@ -601,15 +601,11 @@ Named {
 
 		double stdDev = getStdDev();
 		double mean = getMean();
-
-		Iterator<Point2D> it = intensityMeasureLevels.iterator();
-		while (it.hasNext()) {
-
-			Point2D point = it.next();
-			double x = point.getX();
-			double y = getExceedProbabilitySS(mean, stdDev, point.getX());
-			point.setLocation(x, y);
-
+		
+		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+			double x = intensityMeasureLevels.getX(i);
+			double y = getExceedProbability(mean, stdDev, x);
+			intensityMeasureLevels.set(i, y);
 		}
 
 		return intensityMeasureLevels;

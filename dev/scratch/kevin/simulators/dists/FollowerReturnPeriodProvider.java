@@ -927,9 +927,9 @@ public class FollowerReturnPeriodProvider implements
 				writeDir.mkdir();
 			
 			Map<IDPairing, HistogramFunction[]> origFuncs =
-					PeriodicityPlotter.plotACDF_CCDFs(writeDir, events, rupIdens, colors,
+					PeriodicityPlotter.plotACDF_CCDFs(writeDir, events, rupIdens,
 							null, null, 2000d, 10d);
-			PeriodicityPlotter.	plotACDF_CCDFs(writeDir, events, rupIdens, colors,
+			PeriodicityPlotter.	plotACDF_CCDFs(writeDir, events, rupIdens,
 					randDistType, origFuncs, 2000d, 10d);
 			
 //			File subDir = new File(writeDir, "round2");

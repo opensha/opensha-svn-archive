@@ -47,6 +47,7 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.DistSpeedTest;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
+import scratch.kevin.simulators.SynchIdens;
 import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.RandomDistType;
 
@@ -1121,8 +1122,14 @@ public class SynchParamCalculator {
 						String colName = idens.get(m).getName()+" vs "+idens.get(n).getName();
 						Integer col = colNamesMap.get(colName);
 						if (col == null) {
-							System.out.println("WARNING: lag file doesn't contain: "+colName);
-							continue;
+							// try the other way around
+							colName = idens.get(n).getName()+" vs "+idens.get(m).getName();
+							col = colNamesMap.get(colName);
+							if (col == null) {
+								if (l == 0)
+									System.out.println("WARNING: lag file doesn't contain: "+colName);
+								continue;
+							}
 						}
 						double[] vals = new double[maxTrialsFound];
 						for (int i=0; i<vals.length; i++)
@@ -1516,7 +1523,11 @@ public class SynchParamCalculator {
 					for (int n=m+1; n<nDims; n++) {
 						IDPairing pair = new IDPairing(m, n);
 						UncertainArbDiscDataset func = lagUncertainties.get(pair);
-						double val = func.getUpperY(0d);
+						double val;
+						if (func == null)
+							val = Double.NaN;
+						else
+							val = func.getUpperY(0d);
 						myParams[m][n] = val;
 						myParams[n][m] = val;
 					}
@@ -1910,22 +1921,18 @@ public class SynchParamCalculator {
 	public static void main(String[] args) throws IOException {
 		double minMag = 7;
 		double maxMag = 10d;
-
-		int[] include_elems = {
-				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
-				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
-				ElementMagRangeDescription.SAF_SANTA_CRUZ,
-				ElementMagRangeDescription.SAF_MID_PENINSULA,
-				ElementMagRangeDescription.CALAVERAS,
-				ElementMagRangeDescription.HAYWARD
-//				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
-//				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
-//				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID
-		};
+		
+		List<List<RuptureIdentifier>> setIdens = Lists.newArrayList();
+		List<String> setNames = Lists.newArrayList();
+		
+		// SoCal
+		setNames.add("so_cal");
+		setIdens.add(SynchIdens.getStandardSoCal());
+		
+		// NorCal
+		setNames.add("nor_cal");
+		setIdens.add(SynchIdens.getStandardNorCal());
+		
 		boolean gen_2d_corr_pdfs = false;
 		boolean cov = false;
 		double distSpacing = 10d;
@@ -1943,111 +1950,104 @@ public class SynchParamCalculator {
 			mainDir = new File("/home/kevin/Simulators/synch");
 		if (!mainDir.exists())
 			mainDir.mkdir();
-
-		String name = getDirName();
-
-		if (distSpacing != 10d)
-			name += "_"+(int)distSpacing+"yr";
-		if (random)
-			name += "_rand";
-
-		File writeDir = new File(mainDir, name);
-		if (!writeDir.exists())
-			writeDir.mkdir();
-
-		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
-		List<Color> colors = Lists.newArrayList();
-
-		SimAnalysisCatLoader.loadElemMagIdens(include_elems, rupIdens, colors, minMag, maxMag);
-
-		int[] all_elems = {
-				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
-				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
-				ElementMagRangeDescription.ELSINORE_ELEMENT_ID,
-				ElementMagRangeDescription.PUENTE_HILLS_ELEMENT_ID,
-				ElementMagRangeDescription.NEWP_INGL_ONSHORE_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_SANTA_CRUZ,
-				ElementMagRangeDescription.SAF_MID_PENINSULA,
-				ElementMagRangeDescription.CALAVERAS,
-				ElementMagRangeDescription.HAYWARD
-		};
+		
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
-		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
-
+		for (List<RuptureIdentifier> idens : setIdens)
+			allIdens.addAll(idens);
+		
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens).getEvents();
-		if (random)
-			events = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true, catLenMult);
+		
+		for (int s=0; s<setNames.size(); s++) {
+			String name = getDirName();
 
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (int i=0; i<rupIdens.size(); i++) {
-			List<EQSIM_Event> matches = rupIdens.get(i).getMatches(events);
-			matchesLists.add(matches);
-			double[] matchRIs = new double[matches.size()-1];
-			for (int j=1; j<matches.size(); j++)
-				matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
-			System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
+			if (distSpacing != 10d)
+				name += "_"+(int)distSpacing+"yr";
+			if (random)
+				name += "_rand";
+
+			File writeDir = new File(mainDir, name);
+			if (!writeDir.exists())
+				writeDir.mkdir();
+			
+			writeDir = new File(writeDir, setNames.get(s));
+			if (!writeDir.exists())
+				writeDir.mkdir();
+
+			List<RuptureIdentifier> rupIdens = setIdens.get(s);
+
+			List<EQSIM_Event> myEvents;
+			if (random)
+				myEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true, catLenMult);
+			else
+				myEvents = events;
+
+			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
+			for (int i=0; i<rupIdens.size(); i++) {
+				List<EQSIM_Event> matches = rupIdens.get(i).getMatches(myEvents);
+				matchesLists.add(matches);
+				double[] matchRIs = new double[matches.size()-1];
+				for (int j=1; j<matches.size(); j++)
+					matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
+				System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
+			}
+//			System.exit(0);
+			
+
+			// generate Markov Chain
+			MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, myEvents, matchesLists);
+
+			// tests
+			//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);
+			//		int numStates = 3;
+			//		int[] fromState = {0, 0};
+			//		int[] toState = {numStates, numStates};
+			//		System.out.println("Paths from [0,0] to [3,3]:");
+			//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, toState, numStates)) {
+			//			String str = getPathStr(path, fromState);
+			//			System.out.println("\t"+str);
+			//		}
+			//		System.out.println("Paths from [0,0] to [x,3]:");
+			//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, new int[] {-1,numStates}, numStates)) {
+			//			String str = getPathStr(path, fromState);
+			//			System.out.println("\t"+str);
+			//		}
+			//		double tot = collapsed.getStateTransitionDataset().get(toState).tot;
+			//		double freqMBefore = calcFreqRupturedBefore(numStates+10, 0, toState, collapsed);
+			//		double freqNBefore = calcFreqRupturedBefore(numStates+10, 1, toState, collapsed);
+			//		System.out.println("Freq M before: "+freqMBefore+"/"+tot);
+			//		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
+			//		System.exit(0);
+
+			// ccdfs/acdfs
+			File ccdfDir = new File(writeDir, "ccdfs");
+			if (!ccdfDir.exists())
+				ccdfDir.mkdir();
+
+			System.out.println("Generating CCDFs...");
+			Map<IDPairing, HistogramFunction[]> catDensFuncs =
+					PeriodicityPlotter.plotACDF_CCDFs(ccdfDir, myEvents, rupIdens,
+							null, null, 2000d, distSpacing);
+
+			int lagMax = 30;
+
+			System.out.println("Calculating Synch Params");
+			// write synch CSV
+			File synchCSVFile = new File(writeDir, "synch_params.csv");
+			writeSynchParamsTable(synchCSVFile, rupIdens, chain, catDensFuncs, lagMax);
+			
+			writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain.csv"),
+					myEvents, rupIdens, chain);
+//			writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain_excl_corup.csv"),
+//					myEvents, rupIdens, chain, false);
+
+			// now write std devs
+			//		System.out.println("Calculating Synch Std Dev/Biases");
+			//		writeSynchParamsStdDev(writeDir, myEvents, rupIdens, chain, new int[] {0}, 100, distSpacing);
+
+			// now do std devs for each lag
+			//		System.out.println("Calculating Synch Lag Std Devs/Biases");
+			//		writeSynchParamsStdDev(writeDir, myEvents, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
 		}
-//		System.exit(0);
-		
-
-		// generate Markov Chain
-		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, events, matchesLists);
-
-		// tests
-		//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);
-		//		int numStates = 3;
-		//		int[] fromState = {0, 0};
-		//		int[] toState = {numStates, numStates};
-		//		System.out.println("Paths from [0,0] to [3,3]:");
-		//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, toState, numStates)) {
-		//			String str = getPathStr(path, fromState);
-		//			System.out.println("\t"+str);
-		//		}
-		//		System.out.println("Paths from [0,0] to [x,3]:");
-		//		for (List<int[]> path : collapsed.getPathsBetweenStates(fromState, new int[] {-1,numStates}, numStates)) {
-		//			String str = getPathStr(path, fromState);
-		//			System.out.println("\t"+str);
-		//		}
-		//		double tot = collapsed.getStateTransitionDataset().get(toState).tot;
-		//		double freqMBefore = calcFreqRupturedBefore(numStates+10, 0, toState, collapsed);
-		//		double freqNBefore = calcFreqRupturedBefore(numStates+10, 1, toState, collapsed);
-		//		System.out.println("Freq M before: "+freqMBefore+"/"+tot);
-		//		System.out.println("Freq N before: "+freqNBefore+"/"+tot);
-		//		System.exit(0);
-
-		// ccdfs/acdfs
-		File ccdfDir = new File(writeDir, "ccdfs");
-		if (!ccdfDir.exists())
-			ccdfDir.mkdir();
-
-		System.out.println("Generating CCDFs...");
-		Map<IDPairing, HistogramFunction[]> catDensFuncs =
-				PeriodicityPlotter.plotACDF_CCDFs(ccdfDir, events, rupIdens, colors,
-						null, null, 2000d, distSpacing);
-
-		int lagMax = 30;
-
-		System.out.println("Calculating Synch Params");
-		// write synch CSV
-		File synchCSVFile = new File(writeDir, "synch_params.csv");
-		writeSynchParamsTable(synchCSVFile, rupIdens, chain, catDensFuncs, lagMax);
-		
-		writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain.csv"),
-				events, rupIdens, chain);
-//		writeSynchVsProbTable(new File(writeDir, "synch_compare_prob_gain_excl_corup.csv"),
-//				events, rupIdens, chain, false);
-
-		// now write std devs
-		//		System.out.println("Calculating Synch Std Dev/Biases");
-		//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, new int[] {0}, 100, distSpacing);
-
-		// now do std devs for each lag
-		//		System.out.println("Calculating Synch Lag Std Devs/Biases");
-		//		writeSynchParamsStdDev(writeDir, events, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
 	}
 
 	protected static String getDirName() {

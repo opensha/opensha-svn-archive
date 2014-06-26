@@ -20,6 +20,8 @@ import com.google.common.primitives.Ints;
  */
 public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	
+	
+	
 	public static final int SAF_MOJAVE_ELEMENT_ID = 1246;
 	public static final int SAF_CARRIZO_ELEMENT_ID = 1026;
 	public static final int SAF_COACHELLA_ELEMENT_ID = 1602;

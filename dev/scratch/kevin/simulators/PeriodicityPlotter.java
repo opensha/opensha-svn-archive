@@ -208,14 +208,14 @@ public class PeriodicityPlotter {
 			
 			if (!randomized) {
 				Map<IDPairing, HistogramFunction[]> origFuncs =
-						plotACDF_CCDFs(myWriteDir, events, rupIdens, colors, null, null, 2000d, 10d);
+						plotACDF_CCDFs(myWriteDir, events, rupIdens, null, null, 2000d, 10d);
 				for (RandomDistType randDist : RandomDistType.values())
-					plotACDF_CCDFs(myWriteDir, events, rupIdens, colors, randDist, origFuncs, 2000d, 10d);
+					plotACDF_CCDFs(myWriteDir, events, rupIdens, randDist, origFuncs, 2000d, 10d);
 				// zoomed in
 				File zoomWriteDir = new File(myWriteDir, "corr_zoomed");
 				if (!zoomWriteDir.exists())
 					zoomWriteDir.mkdir();
-				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, colors, null, null, 20d, 1d);
+				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, null, null, 20d, 1d);
 				// zoomed out
 				zoomWriteDir = new File(myWriteDir, "corr_wide");
 				if (!zoomWriteDir.exists())
@@ -223,7 +223,7 @@ public class PeriodicityPlotter {
 				double totYears = events.get(events.size()-1).getTimeInYears()-events.get(0).getTimeInYears();
 				// make it round
 				totYears = Math.ceil(totYears / 1000d) * 1000d;
-				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, colors, null, null, totYears, 10d);
+				plotACDF_CCDFs(zoomWriteDir, events, rupIdens, null, null, totYears, 10d);
 			}
 			
 //			double[] windowLengths = { 5d, 10d, 25d, 50d, 100d };
@@ -771,7 +771,7 @@ public class PeriodicityPlotter {
 	
 	public static Map<IDPairing, HistogramFunction[]> plotACDF_CCDFs(File writeDir,
 			List<EQSIM_Event> events, List<RuptureIdentifier> idens,
-			List<Color> colors, RandomDistType randDistType, Map<IDPairing, HistogramFunction[]> origCorrHists,
+			RandomDistType randDistType, Map<IDPairing, HistogramFunction[]> origCorrHists,
 			double plotYears, double binWidth)
 					throws IOException {
 		if (randDistType != null) {
@@ -1179,6 +1179,8 @@ public class PeriodicityPlotter {
 		
 		double delta = 100d;
 		
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		
 		for (int i=0; i<idens.size(); i++) {
 			HistogramFunction hist = new HistogramFunction(0.5*delta, (int)((endTime-startTime)/delta), delta);
 			
@@ -1198,7 +1200,7 @@ public class PeriodicityPlotter {
 				func.set(j, cnt/(double)matches.size());
 			}
 			
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(i)));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, colors.get(i%colors.size())));
 			progFuncs.add(func);
 //			progFuncs.add(hist);
 		}

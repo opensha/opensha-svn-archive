@@ -787,16 +787,14 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 
 		// set the IMT in the various relationships
 		setAttenRelsIMT();
-
-		Iterator it = intensityMeasureLevels.iterator();
-		while (it.hasNext()) {
-			point = (Point2D) it.next();
-			double x = point.getX();
-			double y = getCombinedExceedProbability(point.getX());
-			point.setLocation(x, y);
+		
+		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+			double x = intensityMeasureLevels.getX(i);
+			double y = getCombinedExceedProbability(x);
+			intensityMeasureLevels.set(i, y);
 		}
+		
 		return intensityMeasureLevels;
-
 	}
 
 	public void setParamDefaults() {

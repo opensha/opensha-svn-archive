@@ -124,16 +124,16 @@ public class ETAS_CatalogStats {
 	}
 
 	public static void main(String[] args) throws IOException {
-////		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/results");
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-mojave_7-indep/results");
-//		int triggerParentID = 0;
-//		double targetMinMag = 7.050480408896166;
-//		String name = "Mojave 7.05";
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-la_habra-indep/results");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/results");
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-mojave_7-indep/results");
 		int triggerParentID = 0;
-		double targetMinMag = 6.2;
-		String name = "La Habra 6.2";
+		double targetMinMag = 7.050480408896166;
+		String name = "Mojave 7.05";
+////		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-la_habra-indep/results");
+//		int triggerParentID = 0;
+//		double targetMinMag = 6.2;
+//		String name = "La Habra 6.2";
 		File[] etasCatalogDirs = {etasCatalogDir};
 		File outputDir = new File(etasCatalogDir.getParentFile(), "outputs_stats");
 		

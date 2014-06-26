@@ -78,7 +78,7 @@ public class SimAnalysisCatLoader {
 		return new SimAnalysisCatLoader().tools.getElementsList();
 	}
 	
-	private static String getMagStr(double mag) {
+	static String getMagStr(double mag) {
 		if (mag == Math.floor(mag))
 			return (int)mag +"";
 		return (float)mag+"";

@@ -31,7 +31,8 @@ public class InternInterestingRuptureFinder {
 //		int numToWrite = 1000;
 
 		// dollars from CEA proxy portfolio
-		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
+//		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_01_15-ucerf3-eal-calc-NGA2s-2013");
+		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
 		String label = "$ (Billions)";
 		final double scale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
 		File outputFile = new File("/tmp/rup_losses.csv");

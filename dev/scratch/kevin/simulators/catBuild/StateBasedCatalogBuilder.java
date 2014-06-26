@@ -581,9 +581,9 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			writeDir.mkdir();
 
 		Map<IDPairing, HistogramFunction[]> origFuncs =
-				PeriodicityPlotter.plotACDF_CCDFs(writeDir, events, rupIdens, colors,
+				PeriodicityPlotter.plotACDF_CCDFs(writeDir, events, rupIdens,
 						null, null, 2000d, 10d);
-		PeriodicityPlotter.	plotACDF_CCDFs(writeDir, events, rupIdens, colors,
+		PeriodicityPlotter.	plotACDF_CCDFs(writeDir, events, rupIdens,
 				randDistType, origFuncs, 2000d, 10d);
 		
 		File myCorrCombined = new File(new File(writeDir, randDistType.getFNameAdd()+"_corr_plots"),
@@ -630,9 +630,9 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 							"2d_"+PeriodicityPlotter.getFileSafeString(name1)+"_"+PeriodicityPlotter.getFileSafeString(name2));
 					if (!subWriteDir.exists())
 						subWriteDir.mkdir();
-					origFuncs = PeriodicityPlotter.plotACDF_CCDFs(subWriteDir, events, subIdens, colors,
+					origFuncs = PeriodicityPlotter.plotACDF_CCDFs(subWriteDir, events, subIdens,
 									null, null, 2000d, 10d);
-					PeriodicityPlotter.	plotACDF_CCDFs(subWriteDir, events, subIdens, colors,
+					PeriodicityPlotter.	plotACDF_CCDFs(subWriteDir, events, subIdens,
 							randDistType, origFuncs, 2000d, 10d);
 					
 					twoD_corr_pdfs.add(new File(new File(subWriteDir, randDistType.getFNameAdd()+"_corr_plots"),

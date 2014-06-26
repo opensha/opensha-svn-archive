@@ -573,14 +573,10 @@ extends AbstractIMR implements ScalarIMR {
 		double stdDev = getStdDev();
 		double mean = getMean();
 
-		Iterator<Point2D> it = intensityMeasureLevels.iterator();
-		while (it.hasNext()) {
-
-			Point2D point = (Point2D) it.next();
-			double x = point.getX();
+		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+			double x = intensityMeasureLevels.getX(i);
 			double y = getExceedProbability(mean, stdDev, x);
-			point.setLocation(x, y);
-
+			intensityMeasureLevels.set(i, y);
 		}
 
 		return intensityMeasureLevels;
