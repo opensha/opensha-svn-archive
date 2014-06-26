@@ -12,6 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
@@ -36,6 +37,7 @@ import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -76,7 +78,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 	
-	private List<ObsEqkRupture> obsEqkRuptureList;
+	private List<ETAS_EqkRupture> obsEqkRuptureList;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -114,7 +116,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		if (cmd.hasOption("trigger-rupture-id")) {
 			// FSS rupture
-			ObsEqkRupture mainshockRup = new ObsEqkRupture();
+			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 			mainshockRup.setOriginTime(ot);
 			
 			// Mojave M 7.05 rupture
@@ -129,6 +131,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(fssScenarioRupID));
 			mainshockRup.setMag(sol.getRupSet().getMagForRup(fssScenarioRupID));
 			mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(fssScenarioRupID, 1d, false));
+			mainshockRup.setID(0);
 //			debug("test Mainshock: "+erf.getSource(srcID).getName());
 			
 			// date of last event will be updated for this rupture in the calculateBatch method below
@@ -137,7 +140,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			obsEqkRuptureList.add(mainshockRup);
 		} else if (cmd.hasOption("trigger-loc")) {
-			ObsEqkRupture mainshockRup = new ObsEqkRupture();
+			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 			mainshockRup.setOriginTime(ot);	
 
 			// 3-29-14 M 5.1 La Habra Earthquake
@@ -157,6 +160,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				mainshockRup.setAveRake(0.0);
 			mainshockRup.setMag(mag);
 			mainshockRup.setPointSurface(ptSurf);
+			mainshockRup.setID(0);
 			
 			simulationName = "Pt Source. M="+mag+", "+ptSurf;
 			
@@ -252,7 +256,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			erf.updateForecast();
 			debug("Done instantiating ERF");
 			
-			List<ObsEqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
+			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
 						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, fractionSrcAtPointList, srcAtPointList);
