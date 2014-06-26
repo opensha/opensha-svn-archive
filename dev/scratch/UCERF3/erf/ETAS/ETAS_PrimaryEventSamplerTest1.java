@@ -726,6 +726,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	private IntegerPDF_FunctionSampler getSampler(int locIndexForPar, Location translatedParLoc) {
 		IntegerPDF_FunctionSampler sampler=null;
 		if(includeERF_Rates && includeSpatialDecay) {
+			
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
 //				cachedSamplers[locIndexForPar] = sampler;

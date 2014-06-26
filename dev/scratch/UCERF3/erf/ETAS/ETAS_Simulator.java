@@ -31,8 +31,10 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupOrigTimeComparator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
@@ -542,28 +544,11 @@ public class ETAS_Simulator {
 	
 	public static void runMojaveTest() {
 		
-		System.out.println("Starting ERF instantiation");
-		Long st = System.currentTimeMillis();
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
-		
-		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
-		System.out.println("ERF instantiation took "+timeSec+" sec");
+		ETAS_SimAnalysisTools.writeMemoryUse("Memory at beginning of run");
 
+		Long st = System.currentTimeMillis();
+
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
@@ -619,28 +604,9 @@ public class ETAS_Simulator {
 	
 	public static void runLandersTest() {
 		
-		System.out.println("Starting ERF instantiation");
 		Long st = System.currentTimeMillis();
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
-		
-		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
-		System.out.println("ERF instantiation took "+timeSec+" sec");
 
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
@@ -691,31 +657,11 @@ public class ETAS_Simulator {
 	
 	public static void runNorthridgeTest() {
 		
-		System.out.println("Starting ERF instantiation");
 		Long st = System.currentTimeMillis();
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
-		
-		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
-		System.out.println("ERF instantiation took "+timeSec+" sec");
 
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
-		
 		
 		ObsEqkRupture mainshockRup = new ObsEqkRupture();
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -765,28 +711,9 @@ public class ETAS_Simulator {
 	
 	public static void runLaHabraTest() {
 		
-		System.out.println("Starting ERF instantiation");
 		Long st = System.currentTimeMillis();
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
-		
-		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
-		System.out.println("ERF instantiation took "+timeSec+" sec");
 
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
@@ -831,28 +758,9 @@ public class ETAS_Simulator {
 	
 	public static void runNoMainShockTest() {
 		
-		System.out.println("Starting ERF instantiation");
 		Long st = System.currentTimeMillis();
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
-		
-		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
-		System.out.println("ERF instantiation took "+timeSec+" sec");
 
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
@@ -881,7 +789,91 @@ public class ETAS_Simulator {
 		System.out.println("Total simulation took "+timeMin+" min");
 
 	}
+	
+	
+	
+	public static void runHistCatalogTest() {
+		
+		ETAS_SimAnalysisTools.writeMemoryUse("Memory at beginning of run");
+		
+		Long st = System.currentTimeMillis();
 
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
+		
+		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		
+		String simulationName = "HistCatalog_run1";
+		
+//		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		
+		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt");
+		ObsEqkRupList histQkList=null;
+		try {
+			histQkList = UCERF3_CatalogParser.loadCatalog(file);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		ObsEqkRupList histQksInRegionList = new ObsEqkRupList();
+		for(ObsEqkRupture qk : histQkList) {
+			Location hyp = qk.getHypocenterLocation();
+			if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0)
+				histQksInRegionList.add(qk);
+		}
+		System.out.println("histQkList.size()="+histQkList.size());
+		System.out.println("histQksInRegionList.size()="+histQksInRegionList.size());
+
+		
+		boolean includeSpontEvents=true;
+		boolean includeIndirectTriggering=true;
+		boolean includeEqkRates = true;
+		double gridSeisDiscr = 0.1;
+		
+		System.out.println("Starting testETAS_Simulation");
+		
+		Long randSeed = new Long(100);
+		try {
+			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
+			File resultsDir = new File(dirNameForSavingFiles);
+			testETAS_Simulation(resultsDir, erf, griddedRegion, histQksInRegionList,  includeSpontEvents, 
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		float timeMin = (float)(System.currentTimeMillis()-st)/60000f;
+		System.out.println("Total simulation took "+timeMin+" min");
+
+	}
+
+
+	
+	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF() {
+		System.out.println("Starting ERF instantiation");
+		Long st = System.currentTimeMillis();
+		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
+		// set parameters
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
+		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
+		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
+		erf.getTimeSpan().setDuration(1);
+		
+		erf.updateForecast();
+		
+		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
+		System.out.println("ERF instantiation took "+timeSec+" sec");
+
+		return erf;
+	}
 	
 
 	/**
@@ -897,9 +889,10 @@ public class ETAS_Simulator {
 		
 //		ETAS_Simulator.runLandersTest();
 //		ETAS_Simulator.runNorthridgeTest();
-		ETAS_Simulator.runMojaveTest();
+//		ETAS_Simulator.runMojaveTest();
 //		ETAS_Simulator.runLaHabraTest();
 //		ETAS_Simulator.runNoMainShockTest();
+		runHistCatalogTest();
 		
 		
 		
