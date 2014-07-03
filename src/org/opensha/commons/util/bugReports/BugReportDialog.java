@@ -101,6 +101,12 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 				" Currently OpenSHA only supports longitude values in the range (-180,180). If" +
 				" this isn't the problem, please submit a bug report below.")
 				.setMessageAsRegex());
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.OutOfMemoryError.class,
+				"<b>You ran out of memory!</b>" +
+				" Java requires that you specify the maximum amount of memory needed before running" +
+				" an application. If this limit is too high, however, the application won't start. If"+
+				" you are running via web start from our website, you will need to download the jar files"+
+				" and run manually. For example, to run with 4GB of memory: java -Xmx4G -jar [jar-file-name]"));
 	}
 	
 	private boolean fatal;
