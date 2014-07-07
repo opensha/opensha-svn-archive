@@ -291,7 +291,6 @@ public class ETAS_Simulator {
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		st = System.currentTimeMillis();
-System.out.println("HERE !!!!!!!!!!!!!!!! etasParams.getApplyLongTermRates()="+etasParams.getApplyLongTermRates());
 		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), etasParams.getImposeGR());
 		if (fractionSrcAtPointList != null && srcAtPointList != null)
@@ -596,7 +595,7 @@ System.out.println("HERE !!!!!!!!!!!!!!!! etasParams.getApplyLongTermRates()="+e
 		mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 		System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+mainshockRup.getMag());
 		
-		String simulationName = "Mojave7pt0_run21";
+		String simulationName = "Mojave7pt0_run24";
 //		String simulationName = "Mojave7pt0_noER_noGRcorr_run2";
 //		String simulationName = "Mojave7pt0_noER_run2";
 		// This sets the rupture as having occurred in the ERF (to apply elastic rebound)

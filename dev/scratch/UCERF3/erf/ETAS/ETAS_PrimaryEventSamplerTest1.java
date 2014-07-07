@@ -50,6 +50,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
@@ -665,55 +666,38 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			Location hypLoc = LocationUtils.location(randLoc, corrVector);
 
 			
-			// Issue: that last step could have moved the hypocenter outside the grid node of the source (by up to ~1 km)
-			
-//			Location testLoc = erf_rup.getRuptureSurface().getFirstLocOnUpperEdge();
-//			int testIndex1 = origGriddedRegion.indexForLocation(testLoc);
-//			int testIndex2 = origGriddedRegion.indexForLocation(hypLoc);
-//			if(testIndex1 != testIndex2)
-//				System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(testLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(testLoc.getLongitude()-hypLoc.getLongitude()));
-			
-//if(rupToFillIn.getID()==1191) {
-//	System.out.println("orig rup loc: "+erf_rup.getRuptureSurface().getFirstLocOnUpperEdge().toString());
-//	System.out.println("lat, lon, and depth for rates point: "+latForRatesPoint[aftShPointIndex]+", "+lonForRatesPoint[aftShPointIndex]+", "+depthForRatesPoint[aftShPointIndex]);
-//	System.out.println("deltaLoc: "+deltaLoc.toString());
-//	System.out.println("randLoc: "+randLoc.toString());
-//	System.out.println("corrVector: "+corrVector.toString());
-//	System.out.println("final rup loc (hypLoc): "+hypLoc.toString());
-//	System.out.println("orig index: "+origGriddedRegion.indexForLocation(erf_rup.getRuptureSurface().getFirstLocOnUpperEdge()));
-//	System.out.println("final index: "+origGriddedRegion.indexForLocation(hypLoc));
-//
-//}
-
-			//			System.out.println("corrVector:\t"+corrVector.getHorzDistance()+"\t"+corrVector.getVertDistance()+"\t"+corrVector.getAzimuth());
-//			System.out.println("randLoc:\t"+randLoc);
-//			System.out.println("hypLoc:\t"+hypLoc);
-//			System.exit(0);
-			
-			// this does the same thing
-//			Location hypLoc = new Location(
-//					randLoc.getLatitude()-(translatedParLoc.getLatitude()-parentLoc.getLatitude()),
-//					randLoc.getLongitude()-(translatedParLoc.getLongitude()-parentLoc.getLongitude()),
-//					randLoc.getDepth()-(translatedParLoc.getDepth()-parentLoc.getDepth()));
-					
-// Location hypLoc = randLoc;
-// this fixes it
-// hypLoc = new Location(latForPoint[samplerIndex],lonForPoint[samplerIndex],depthForPoint[samplerIndex]);
+			// Issue: that last step could have moved the hypocenter outside the grid node of the source (by up to ~1 km);
+			// move it back just inside if the new grid node does not go that high enough magnitude
+			int gridSrcIndex = randSrcIndex-numFltSystSources;
+			Location gridSrcLoc = erf.getSolution().getGridSourceProvider().getGriddedRegion().getLocation(gridSrcIndex);
+			int testIndex = erf.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
+			if(testIndex != gridSrcIndex) {
+//				System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(gridSrcLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(gridSrcLoc.getLongitude()-hypLoc.getLongitude()));
+				IncrementalMagFreqDist mfd = erf.getSolution().getGridSourceProvider().getNodeMFD(testIndex);
+				int maxMagIndex = mfd.getClosestXIndex(mfd.getMaxMagWithNonZeroRate());
+				int magIndex = mfd.getClosestXIndex(erf_rup.getMag());
+				double tempLat=hypLoc.getLatitude();
+				double tempLon= hypLoc.getLongitude();
+				double tempDepth = hypLoc.getDepth();
+				double halfGrid=pointSrcDiscr/2.0;
+				if(maxMagIndex<magIndex) {
+					if(hypLoc.getLatitude()-gridSrcLoc.getLatitude()>=halfGrid)
+						tempLat=gridSrcLoc.getLatitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
+					else if (hypLoc.getLatitude()-gridSrcLoc.getLatitude()<=-halfGrid)
+						tempLat=gridSrcLoc.getLatitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
+					if(hypLoc.getLongitude()-gridSrcLoc.getLongitude()>=halfGrid)
+						tempLon=gridSrcLoc.getLongitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
+					else if (hypLoc.getLongitude()-gridSrcLoc.getLongitude()<=-halfGrid)
+						tempLon=gridSrcLoc.getLongitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
+					hypLoc = new Location(tempLat,tempLon,tempDepth);
+					int testIndex2 = erf.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
+					if(testIndex2 != gridSrcIndex) {
+						throw new RuntimeException("grid problem");
+					}
+				}
+			}
 			rupToFillIn.setHypocenterLocation(hypLoc);
 			rupToFillIn.setPointSurface(hypLoc);
-//			rupToFillIn.setHypocenterLocation(randLoc);
-//			rupToFillIn.setPointSurface(randLoc);
-			
-//			System.out.println("parentLoc="+parentLoc);
-//			System.out.println("parentLoc nearest point="+nearestLocToSrcLoc);
-//			System.out.println("aft point loc="+"\t"+latForPoint[samplerIndex]+"\t"+lonForPoint[samplerIndex]+"\t"+depthForPoint[samplerIndex]);
-//			System.out.println("deltaLoc="+deltaLoc);
-//			System.out.println("randLoc="+randLoc);
-//			System.out.println("hypLoc="+hypLoc);
-//
-//			System.out.println("corrVector.getHorzDistance()"+corrVector.getHorzDistance());
-//			System.exit(0);
-
 		}
 		
 		// fill in the rest
@@ -722,11 +706,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		rupToFillIn.setNthERF_Index(nthRup);
 		
 		// distance of triggered event from parent
-//		Location hypoLoc= rupToFillIn.getHypocenterLocation();
-//		double relLat = parentLoc.getLatitude()-hypoLoc.getLatitude();
-//		double relLon = parentLoc.getLongitude()-hypoLoc.getLongitude();
-//		double relDep = parentLoc.getDepth()-hypoLoc.getDepth();
-//		double distToParent = etasLocWtCalclist[parDepIndex].getDistance(relLat, relLon, relDep);
 		double distToParent = LocationUtils.linearDistanceFast(parentLoc, rupToFillIn.getHypocenterLocation());
 		rupToFillIn.setDistanceToParent(distToParent);
 		
