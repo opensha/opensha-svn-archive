@@ -1,0 +1,50 @@
+package scratch.UCERF3.erf.ETAS.ETAS_Params;
+
+import org.opensha.commons.param.ParameterList;
+
+/**
+ * This holds a complete list of ETAS parameters
+ * @author field
+ *
+ */
+public class ETAS_ParameterList extends ParameterList {
+	
+	private static final long serialVersionUID = 1L;
+
+	ETAS_ProductivityParam_k kParam = new ETAS_ProductivityParam_k();
+	ETAS_BranchingRatioParam_n nParam = new ETAS_BranchingRatioParam_n();
+	ETAS_DistanceDecayParam_q pParam = new ETAS_DistanceDecayParam_q();
+	ETAS_MinTimeParam_c cParam = new ETAS_MinTimeParam_c();
+	ETAS_DistanceDecayParam_q qParam = new ETAS_DistanceDecayParam_q();
+	ETAS_MinDistanceParam_d dParam = new ETAS_MinDistanceParam_d();
+	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
+	ETAS_ApplyLongTermRatesInSamplingParam applyLongTermRatesParam = new ETAS_ApplyLongTermRatesInSamplingParam();
+	
+	public ETAS_ParameterList() {
+		this.addParameter(kParam);
+		this.addParameter(nParam);
+		this.addParameter(pParam);
+		this.addParameter(cParam);
+		this.addParameter(qParam);
+		this.addParameter(dParam);
+		this.addParameter(imposeGR);
+		this.addParameter(applyLongTermRatesParam);
+	}
+	
+	public double get_k() {return kParam.getValue();}
+	public double get_n() {return nParam.getValue();}
+	public double get_p() {return pParam.getValue();}
+	public double get_c() {return cParam.getValue();}
+	public double get_q() {return qParam.getValue();}
+	public double get_d() {return dParam.getValue();}
+	public boolean getImposeGR() {return imposeGR.getValue();}
+	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+	}
+
+}
