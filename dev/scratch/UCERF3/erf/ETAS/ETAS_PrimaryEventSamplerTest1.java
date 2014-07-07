@@ -570,30 +570,22 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param mainshock
 	 * @param rupToFillIn
 	 */
-	public boolean setRandomPrimaryEvent(EqkRupture mainshock, ETAS_EqkRupture rupToFillIn) {
+	public boolean setRandomPrimaryEvent(ETAS_EqkRupture rupToFillIn) {
 		
-		// first set point on main shock that nucleates the aftershock (randomly chosen with uniform probability)
-		Location parentLoc=null;
-		if(mainshock.getRuptureSurface().isPointSurface()) {
-			parentLoc = mainshock.getRuptureSurface().getFirstLocOnUpperEdge();
-		}
-		else {
-			LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
-			// get random point on surface
-			// need to check this; Math.round() is same as (long)Math.floor(a + 0.5d)
-			parentLoc = locList.get((int)Math.round(locList.size()*etas_utils.getRandomDouble()-0.5));
-		}
+		EqkRupture parRup = rupToFillIn.getParentRup();
 		
-		// set the sampler
+		// get the location on the parent that does the triggering
+		Location parentLoc=rupToFillIn.getParentTriggerLoc();
+		
 		int parRegIndex = gridRegForParentLocs.indexForLocation(parentLoc);
 		
 		// Check for problem region index
 		if(parRegIndex <0) {
-			if(mainshock instanceof ETAS_EqkRupture) {
-				System.out.println("Problem event generation: "+((ETAS_EqkRupture)mainshock).getGeneration());
+			if(parRup instanceof ETAS_EqkRupture) {
+				System.out.println("Problem event generation: "+((ETAS_EqkRupture)parRup).getGeneration());
 			}
 			System.out.println("PROBLEM: parRegIndex<0; parentLoc="+parentLoc.toString()+
-					"\tNum pts on main shock surface: "+mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+					"\tNum pts on main shock surface: "+parRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
 			return false;
 //			throw new RuntimeException("parRegIndex<0; parentLoc="+parentLoc.toString()+
 //					"\tNum pts on main shock surface: "+mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
@@ -643,7 +635,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				}
 			}	
 			// choose one randomly
-			int hypoLocIndex = (int)Math.round(locsToSampleFrom.size()*etas_utils.getRandomDouble()-0.5);
+			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
 		}
@@ -673,7 +665,26 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			LocationVector corrVector = LocationUtils.vector(translatedParLoc, parentLoc);
 			Location hypLoc = LocationUtils.location(randLoc, corrVector);
 			// WE COULD CACHE THE ABOVE VECTORS
-//			System.out.println("corrVector:\t"+corrVector.getHorzDistance()+"\t"+corrVector.getVertDistance()+"\t"+corrVector.getAzimuth());
+			
+//			Location testLoc = erf_rup.getRuptureSurface().getFirstLocOnUpperEdge();
+//			int testIndex1 = origGriddedRegion.indexForLocation(testLoc);
+//			int testIndex2 = origGriddedRegion.indexForLocation(hypLoc);
+//			if(testIndex1 != testIndex2)
+//				System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(testLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(testLoc.getLongitude()-hypLoc.getLongitude()));
+			
+//if(rupToFillIn.getID()==1191) {
+//	System.out.println("orig rup loc: "+erf_rup.getRuptureSurface().getFirstLocOnUpperEdge().toString());
+//	System.out.println("lat, lon, and depth for rates point: "+latForRatesPoint[aftShPointIndex]+", "+lonForRatesPoint[aftShPointIndex]+", "+depthForRatesPoint[aftShPointIndex]);
+//	System.out.println("deltaLoc: "+deltaLoc.toString());
+//	System.out.println("randLoc: "+randLoc.toString());
+//	System.out.println("corrVector: "+corrVector.toString());
+//	System.out.println("final rup loc (hypLoc): "+hypLoc.toString());
+//	System.out.println("orig index: "+origGriddedRegion.indexForLocation(erf_rup.getRuptureSurface().getFirstLocOnUpperEdge()));
+//	System.out.println("final index: "+origGriddedRegion.indexForLocation(hypLoc));
+//
+//}
+
+			//			System.out.println("corrVector:\t"+corrVector.getHorzDistance()+"\t"+corrVector.getVertDistance()+"\t"+corrVector.getAzimuth());
 //			System.out.println("randLoc:\t"+randLoc);
 //			System.out.println("hypLoc:\t"+hypLoc);
 //			System.exit(0);

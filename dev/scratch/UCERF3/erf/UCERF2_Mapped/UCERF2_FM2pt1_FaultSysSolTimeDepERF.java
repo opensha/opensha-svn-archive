@@ -16,6 +16,7 @@ import java.io.File;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
@@ -76,7 +77,7 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 		// get the rupture index of a Landers rupture
 		int nthRup = erf.getIndexN_ForSrcAndRupIndices(4755, 0);
 		ProbEqkRupture landers = erf.getSource(4755).getRupture(0);
-		ObsEqkRupture landersObs = new ObsEqkRupture();
+		ETAS_EqkRupture landersObs = new ETAS_EqkRupture();
 		landersObs.setAveRake(landers.getAveRake());
 		landersObs.setMag(landers.getMag());
 		
@@ -130,7 +131,7 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 		System.out.println("main shock: s=4755, r=0, nthRup="+nthRup+"mag="+landersObs.getMag()+
 				"; src name: " +erf.getSource(4755).getName());
 		
-		ArrayList<ObsEqkRupture> obsEqkRuptureList = new ArrayList<ObsEqkRupture>();
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		obsEqkRuptureList.add(landersObs);
 		
 		erf.setRuptureOccurrenceTimePred(nthRup, 0);

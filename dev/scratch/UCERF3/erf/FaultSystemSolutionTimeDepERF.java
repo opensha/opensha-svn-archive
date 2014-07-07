@@ -2263,7 +2263,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
 	 */
-	public void testETAS_SimulationOld(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList) {
+	public void testETAS_SimulationOld(GriddedRegion griddedRegion, ArrayList<ETAS_EqkRupture> obsEqkRuptureList) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
@@ -2322,7 +2322,7 @@ public class FaultSystemSolutionTimeDepERF extends FaultSystemSolutionPoissonERF
 		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a mainshock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
-		for(ObsEqkRupture rup: obsEqkRuptureList) {
+		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
 			long rupOT = rup.getOriginTime();
 			double startDay = (double)(simStartTime-rupOT) / (double)MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;
@@ -2617,12 +2617,12 @@ numSpontEvents=0;
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, obsEqkRuptureList.get(0), simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, obsEqkRuptureList.get(0));
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
+			ETAS_SimAnalysisTools.oldPlotDistDecayHistForAshocks("test", null, simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", fileName, null, simulatedRupsQueue, null);
 //			ETAS_SimAnalysisTools.plotDistDecayForAshocks("test", null, simulatedRupsQueue,firstSampler, null);
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
+			ETAS_SimAnalysisTools.oldPlotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 
 		}
 		ETAS_SimAnalysisTools.plotMagFreqDists("test", null, simulatedRupsQueue);
@@ -2640,7 +2640,7 @@ numSpontEvents=0;
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
 	 */
-	public void testETAS_SimulationOld3(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList) {
+	public void testETAS_SimulationOld3(GriddedRegion griddedRegion, ArrayList<ETAS_EqkRupture> obsEqkRuptureList) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
@@ -2684,7 +2684,7 @@ numSpontEvents=0;
 		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a mainshock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
-		for(ObsEqkRupture rup: obsEqkRuptureList) {
+		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
 			long rupOT = rup.getOriginTime();
 			double startDay = (double)(simStartTime-rupOT) / (double)MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;
@@ -3010,7 +3010,7 @@ numSpontEvents=0;
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
 
 	 */
-	public void testETAS_Simulation(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList, 
+	public void testETAS_Simulation(GriddedRegion griddedRegion, ArrayList<ETAS_EqkRupture> obsEqkRuptureList, 
 			boolean includeSpontEvents, boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
@@ -3050,7 +3050,7 @@ numSpontEvents=0;
 		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a mainshock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
-		for(ObsEqkRupture rup: obsEqkRuptureList) {
+		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
 			long rupOT = rup.getOriginTime();
 			double startDay = (double)(simStartTime-rupOT) / (double)MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;
@@ -3322,15 +3322,15 @@ numSpontEvents=0;
 
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("", dirName+"hypoMap.pdf", obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("", dirName+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
-			ETAS_SimAnalysisTools.plotNumVsLogTime("", dirName+"logTimeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
-			ETAS_SimAnalysisTools.plotNumVsTime("", dirName+"timeDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0));
+			ETAS_SimAnalysisTools.oldPlotDistDecayHistForAshocks("", dirName+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
+			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent("", dirName+"logTimeDecay.pdf", simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent("", dirName+"timeDecay.pdf", simulatedRupsQueue);
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", dirName+"hypoMap.pdf", null, simulatedRupsQueue, griddedRegion.getBorder());
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
+			ETAS_SimAnalysisTools.oldPlotDistDecayHistForAshocks("test", null, simulatedRupsQueue, null, distDecay, minDist);
 		}
-		ETAS_SimAnalysisTools.plotMagFreqDists("", dirName+"aftMFD.pdf", simulatedRupsQueue);
+		ETAS_SimAnalysisTools.plotMagFreqDists("", new File(dirName), simulatedRupsQueue);
 		
 		
 		
@@ -3346,7 +3346,7 @@ numSpontEvents=0;
 	 * @param griddedRegion
 	 * @param obsEqkRuptureList
 	 */
-	public void testETAS_SimulationOld2(GriddedRegion griddedRegion, ArrayList<ObsEqkRupture> obsEqkRuptureList) {
+	public void testETAS_SimulationOld2(GriddedRegion griddedRegion, ArrayList<ETAS_EqkRupture> obsEqkRuptureList) {
 		
 		// this will store the aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
@@ -3389,7 +3389,7 @@ numSpontEvents=0;
 		HashMap<Integer,Integer> mainshockNumToProcess = new HashMap<Integer,Integer>();	// this keeps track of how many more aftershocks a mainshock needs to generate
 		int parID=0;	// this will be used to assign an id to the given events
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
-		for(ObsEqkRupture rup: obsEqkRuptureList) {
+		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
 			long rupOT = rup.getOriginTime();
 			double startDay = (double)(simStartTime-rupOT) / (double)MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTime-rupOT) / (double)MILLISEC_PER_DAY;

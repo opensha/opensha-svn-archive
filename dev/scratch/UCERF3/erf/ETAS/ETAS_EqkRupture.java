@@ -19,6 +19,7 @@
 
 package scratch.UCERF3.erf.ETAS;
 
+import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
@@ -36,8 +37,9 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	
 	private int id=-1, nthERF_Index=-1, generation=0;
 	private double distToParent=Double.NaN;
-	private ObsEqkRupture parentRup=null;
+	private ETAS_EqkRupture parentRup=null;
 	private int parentID=-1;	// TODO get rid of this
+	private Location parentTriggerLoc = null;
 	
 	public ETAS_EqkRupture() {};
 	
@@ -56,7 +58,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 		this.setEventId(probRup.getEventId());
 	}
 	
-	public ETAS_EqkRupture(ObsEqkRupture parentRup, int id, long originTimeInMillis) {
+	public ETAS_EqkRupture(ETAS_EqkRupture parentRup, int id, long originTimeInMillis) {
 		this.parentRup=parentRup;
 		this.id=id;
 		this.originTimeInMillis=originTimeInMillis;
@@ -83,7 +85,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	}
 	
 	
-	public ObsEqkRupture getParentRup() {
+	public ETAS_EqkRupture getParentRup() {
 		return parentRup;
 	}
 	
@@ -98,6 +100,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	
 	/**
 	 * This sets the distance to parent
+	 * TODO compute this and remove the setDistanceToParent method
 	 * @param distToParent
 	 */
 	public void setDistanceToParent(double distToParent) {
@@ -144,6 +147,46 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 
 	public int getNthERF_Index(){
 		return nthERF_Index;
+	}
+	
+	/**
+	 * This is the point on the parent rupture surface from which this aftershock was triggered
+	 * @param loc
+	 */
+	public void setParentTriggerLoc(Location loc) {
+		parentTriggerLoc=loc;
+	}
+	
+	/**
+	 * This is the point on the parent rupture surface from which this aftershock was triggered
+	 * @param loc
+	 */
+	public Location getParentTriggerLoc() {
+		return parentTriggerLoc;
+	}
+	
+	/**
+	 * This returns the oldest ancestor of the given rupture,
+	 * or null if this rupture is of generation 0 (or there is no
+	 * parent rupture available)
+	 * @return
+	 */
+	public ETAS_EqkRupture getOldestAncestor() {
+		
+		int gen = getGeneration();
+		ETAS_EqkRupture oldestAncestor = getParentRup();
+		if(gen==0 || oldestAncestor==null)
+			return null;
+		while(gen > 1) {
+			if(oldestAncestor.getGeneration() != gen-1)	// test proper change in generation
+				throw new RuntimeException("Problem with generation");
+			gen = oldestAncestor.getGeneration();
+			oldestAncestor = oldestAncestor.getParentRup();
+		}
+		// make sure it's spontaneous
+		if(oldestAncestor.getGeneration() != 0)
+			throw new RuntimeException("Problem with generation");
+		return oldestAncestor;
 	}
 	
 }

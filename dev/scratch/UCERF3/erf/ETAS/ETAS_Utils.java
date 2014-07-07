@@ -14,7 +14,9 @@ import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -325,6 +327,15 @@ public class ETAS_Utils {
 	
 	
 	/**
+	 * This returns a random int uniformly distributed between zero the given value (both inclusive).
+	 * @return
+	 */
+	public int getRandomInt(int maxInt) {
+		return randomDataGen.nextInt(0, maxInt);
+	}
+	
+	
+	/**
 	 * This gives a random event time for an ETAS sequence.  This algorithm was provided by 
 	 * Karen Felzer (from her Matlab code).
 	 * @param c
@@ -555,6 +566,20 @@ public class ETAS_Utils {
 		fw.close();
 	}
 	
+	/**
+	 * This returns a random location from the given surface (uniformly distributed)
+	 * @param rupSurf
+	 * @return
+	 */
+	public Location getRandomLocationOnRupSurface(RuptureSurface rupSurf) {
+		if(rupSurf.isPointSurface()) {
+			return rupSurf.getFirstLocOnUpperEdge();
+		}
+		else {
+			LocationList locList = rupSurf.getEvenlyDiscritizedListOfLocsOnSurface();
+			return locList.get(getRandomInt(locList.size()-1));
+		}
+	}
 	
 	
 	/**
@@ -566,10 +591,9 @@ public class ETAS_Utils {
 	 */
 	public static double getScalingFactorToImposeGR(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD) {
 		
-		
 		double minMag = subSeisMFD.getMinX();
 		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
-		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
 		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
 		
@@ -606,81 +630,5 @@ public class ETAS_Utils {
 //		System.out.println("result="+(expNumGR-expNumSubSeis)/expNumSupraSeis);
 		
 		return result;
-		
-//	
-//	File dataFile = new File("testRightHere.txt");
-//	FileWriter fw;
-//	try {
-//		fw = new FileWriter(dataFile);
-//		for(int s=0; s<invSol.getRupSet().getNumSections();s++) {
-//			IncrementalMagFreqDist sectMFD = invSol.getFinalTotalNucleationMFD_forSect(s, minMag, maxMag, numMag);
-//			
-//			double maxMagWithNonZeroRate = sectMFD.getMaxMagWithNonZeroRate();
-//			int numMagAlt = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
-//			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMagAlt);
-//			gr.scaleToIncrRate(5.05, sectMFD.getY(5.05));
-//			
-//			EvenlyDiscretizedFunc sectMFD_Cum = sectMFD.getCumRateDistWithOffset();
-//			EvenlyDiscretizedFunc grCum = gr.getCumRateDistWithOffset();
-//			
-//			double magWithMaxValue=0;
-//			double maxValue2=0;
-//			
-//			for(int i=0;i<grCum.getNum();i++) {
-//				double mag = grCum.getX(i);
-//				if(grCum.getY(mag) == 0.0)
-//					continue;
-//				int mag2_index = sectMFD_Cum.getClosestXIndex(mag);
-//				double mag2 = sectMFD_Cum.getX(mag2_index);
-//				double ratio = sectMFD_Cum.getY(mag2)/grCum.getY(mag);
-//				if(ratio >maxValue) {
-//					sectWithMax=s;
-//					maxValue = ratio;
-//				}
-//				if(ratio>maxValue2) {
-//					maxValue2=ratio;
-//					magWithMaxValue = mag;
-//				}
-//			}
-//			
-//			// write out info for section
-//			String name = invSol.getRupSet().getFaultSectionData(s).getName();
-//			double maxSubSeisMag = invSol.getFinalSubSeismoOnFaultMFD_List().get(s).getMaxMagWithNonZeroRate();
-//			String line = s+"\t"+(float)maxValue2+"\t"+(float)magWithMaxValue+"\t"+(float)maxSubSeisMag+"\t"+name+"\n";
-//			fw.write(line);
-//		}
-//		
-//		fw.close ();
-//
-//	} catch (IOException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	}
-//
-//
-//	
-//	System.out.println(maxValue+"\t"+sectWithMax+"\t"+invSol.getRupSet().getFaultSectionData(sectWithMax).getName());
-//	System.out.println("maxSubSeismo Mag: "+invSol.getFinalSubSeismoOnFaultMFD_List().get(sectWithMax).getMaxMagWithNonZeroRate());
-//	
-//	IncrementalMagFreqDist sectMFD = invSol.getFinalTotalNucleationMFD_forSect(sectWithMax, minMag, maxMag, numMag);
-//	
-//	double maxMagWithNonZeroRate = sectMFD.getMaxMagWithNonZeroRate();
-//	int numMagAlt = (int)Math.round((maxMagWithNonZeroRate-minMag)/0.1) + 1;
-//	GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMagAlt);
-//	gr.scaleToIncrRate(5.05, sectMFD.getY(5.05));
-//	
-//	EvenlyDiscretizedFunc sectMFD_Cum = sectMFD.getCumRateDistWithOffset();
-//	EvenlyDiscretizedFunc grCum = gr.getCumRateDistWithOffset();
-//	
-//	for(int i=0;i<grCum.getNum();i++) {
-//		double mag = grCum.getX(i);
-//		int mag2_index = sectMFD_Cum.getClosestXIndex(mag);
-//		double mag2 = sectMFD_Cum.getX(mag2_index);
-//		System.out.println((float)mag+"\t"+(float)mag2+"\t"+(float)sectMFD_Cum.getY(mag2)+"\t"+(float)grCum.getY(mag)+"\t"+(float)(sectMFD_Cum.getY(mag2)/grCum.getY(mag)));
-//	}
-
 	}
-	
-	
-
 }
