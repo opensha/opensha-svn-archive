@@ -511,6 +511,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	
 	private static final MagLengthRelationship WC94 = 
 			new WC1994_MagLengthRelationship();
+	
+	public Location getLocation() {
+		return loc;
+	}
 
 	/*
 	 * Returns the minimum of the aspect ratio width (based on WC94) length

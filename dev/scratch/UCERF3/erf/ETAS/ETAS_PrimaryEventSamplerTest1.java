@@ -324,17 +324,20 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	private void generateAndWriteListListDataToFile() {
 		if(D) System.out.println("Starting ETAS.ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile()");
 		long st = System.currentTimeMillis();
-		CalcProgressBar progressBar = new CalcProgressBar("Sources to process in ETAS_PrimaryEventSamplerAlt", "junk");
+		CalcProgressBar progressBar = null;
+		try {
+			progressBar = new CalcProgressBar("Sources to process in ETAS_PrimaryEventSamplerAlt", "junk");
+		} catch (Exception e1) {} // headless
 		ArrayList<ArrayList<Integer>> sourcesAtPointList = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Float>> fractionsAtPointList = new ArrayList<ArrayList<Float>>();
 		for(int i=0; i<numPointsForRates;i++) {
 			sourcesAtPointList.add(new ArrayList<Integer>());
 			fractionsAtPointList.add(new ArrayList<Float>());
 		}
-		progressBar.showProgress(true);
+		if (progressBar != null) progressBar.showProgress(true);
 		for(int s=0;s<totNumSrc;s++) {
 			ProbEqkSource src = erf.getSource(s);
-			progressBar.updateProgress(s, totNumSrc);
+			if (progressBar != null) progressBar.updateProgress(s, totNumSrc);
 
 			// If it's not a point source:
 			if(s<numFltSystSources) {
@@ -411,7 +414,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				}
 			}
 		}
-		progressBar.showProgress(false);
+		if (progressBar != null) progressBar.showProgress(false);
 		if(D) System.out.println("rateUnassigned="+rateUnassigned);
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory before writing files");
@@ -638,11 +641,14 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
+			rupToFillIn.setFSSIndex(erf.getFltSysRupIndexForNthRup(nthRup));
 		}
 		else { // it's a gridded seis source
 			double relLat = latForRatesPoint[aftShPointIndex]-translatedParLoc.getLatitude();
 			double relLon = lonForRatesPoint[aftShPointIndex]-translatedParLoc.getLongitude();
 			double relDep = depthForRatesPoint[aftShPointIndex]-translatedParLoc.getDepth();
+			
+			rupToFillIn.setGridNodeIndex(randSrcIndex - numFltSystSources);
 						
 			Location deltaLoc = etas_LocWeightCalc.getRandomDeltaLoc(Math.abs(relLat), Math.abs(relLon), 
 					depthForRatesPoint[aftShPointIndex],translatedParLoc.getDepth());

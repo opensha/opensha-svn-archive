@@ -43,36 +43,36 @@ public class UCERF3_EALHistGen {
 //		File askRerunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
-//		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
-		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
+		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+//		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
 		
-		String units = "$ Billions";
-		double multiplier = 1d/1e6;
-		double delta = 0.1;
+//		String units = "$ Billions";
+//		double multiplier = 1d/1e6;
+//		double delta = 0.1;
 		
-//		String units = "Fatalities";
-//		double multiplier = 1;
-//		double delta = 1;
+		String units = "Fatalities";
+		double multiplier = 1;
+		double delta = 1;
 		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
 			plotDir.mkdir();
 		
 		Map<AttenRelRef, File> imrResultsDirMap = Maps.newHashMap();
-//		imrResultsDirMap.put(AttenRelRef.CB_2014, origRunDir);
-//		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
-//		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
+		imrResultsDirMap.put(AttenRelRef.CB_2014, origRunDir);
+		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
+		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
 		imrResultsDirMap.put(AttenRelRef.BSSA_2014, origRunDir);
-//		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
+		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
 		
 		Map<AttenRelRef, Double> imrWeightsMap = Maps.newHashMap();
-//		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
-//		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
-//		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
-//		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
-//		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
+		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
 		
-		imrWeightsMap.put(AttenRelRef.BSSA_2014, 1d);
+//		imrWeightsMap.put(AttenRelRef.BSSA_2014, 1d);
 		
 		MagDependentAperiodicityOptions[] covs = { null, MagDependentAperiodicityOptions.HIGH_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.LOW_VALUES };

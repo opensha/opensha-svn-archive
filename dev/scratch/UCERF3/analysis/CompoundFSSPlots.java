@@ -8623,7 +8623,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		File dir = new File("/tmp/paleo_comp_plots/Paleo1.5");
 //		File file = new File(dir, "2013_05_03-ucerf3p3-production-first-five_MEAN_COMPOUND_SOL.zip");
 //		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_IND_RUNS.zip");
-		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		File file = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_U3_SeisPDF.zip");
 //		File file = new File(dir, "2013_04_02-new-paleo-weights-tests_VarPaleo1.5_COMPOUND_SOL.zip");
 		// File file = new File(dir, "zeng_convergence_compound.zip");
 		// File file = new
@@ -8635,17 +8636,21 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 4;
+//		int sols = 4;
+		int sols = -1;
 		int threads = 4;
-		// For one FM
-//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
-//				FaultModels.FM3_1);
 		
-		// For both FMs
-		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
-		while (!hasBothFMs(fetch))
+		if (sols > 0) {
+			// For one FM
+//			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
+//					FaultModels.FM3_1);
+			
+			// For both FMs
 			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
-		System.out.println("How has "+fetch.getBranches().size()+" branches");
+			while (!hasBothFMs(fetch))
+				fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+			System.out.println("Now has "+fetch.getBranches().size()+" branches");
+		}
 		
 		// if true, only use instances of the mean fault system solution
 		boolean meanDebug = false;
@@ -8700,7 +8705,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
 //		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
 //				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
-		plots.add(new ERFProbModelCalc());
+//		plots.add(new ERFProbModelCalc());
+		plots.add(new BranchAvgFSSBuilder(weightProvider));
 //		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));

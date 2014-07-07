@@ -159,6 +159,7 @@ public class ETAS_Simulator {
 		// file for writing simulations info
 		FileWriter info_fr= new FileWriter(new File(resultsDir, "infoString.txt"));
 		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
+		ETAS_SimAnalysisTools.writeEventHeaderToFile(simulatedEventsFileWriter);
 
 		info_fr.write(simulationName+"\n");
 		info_fr.write("\nrandomSeed="+etas_utils.getRandomSeed()+"\n");
@@ -366,6 +367,11 @@ public class ETAS_Simulator {
 				rup.setRuptureSurface(erf_rup.getRuptureSurface());
 				rup.setNthERF_Index(nthRup);
 				rup.setHypocenterLocation(hypoLoc);
+				int sourceIndex = erf.getSrcIndexForNthRup(nthRup);
+				if (sourceIndex < erf.getNumFaultSystemSources())
+					rup.setFSSIndex(erf.getFltSysRupIndexForNthRup(nthRup));
+				else
+					rup.setGridNodeIndex(sourceIndex - erf.getNumFaultSystemSources());
 			}
 			else {
 				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(rup);

@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -1025,22 +1026,23 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	public static void writeEventHeaderToFile(FileWriter fileWriter) throws IOException {
-		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\n");
+		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
 	}
 	
 	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) throws IOException {
 		Location hypoLoc = rup.getHypocenterLocation();
 		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
 					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
-					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()+"\n");
+					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()
+					+"\t"+rup.getFSSIndex()+"\t"+rup.getGridNodeIndex()+"\n");
 	}
 	
 	public static ETAS_EqkRupture loadRuptureFromFileLine(String line) {
 		line = line.trim();
 		
 		String[] split = line.split("\t");
-		Preconditions.checkState(split.length == 10, "Line has unexpected number of items."
-				+ "Expected 10, got "+split.length+". Line: "+line);
+		Preconditions.checkState(split.length == 10 || split.length == 12, "Line has unexpected number of items."
+				+ "Expected 10/12, got "+split.length+". Line: "+line);
 		
 		int nthERFIndex = Integer.parseInt(split[0]);
 		int id = Integer.parseInt(split[1]);
@@ -1064,6 +1066,12 @@ public class ETAS_SimAnalysisTools {
 		rup.setDistanceToParent(distToParent);
 		rup.setMag(mag);
 		rup.setHypocenterLocation(loc);
+		
+		if (split.length == 12) {
+			// has FSS and grid node indexes
+			rup.setFSSIndex(Integer.parseInt(split[10]));
+			rup.setGridNodeIndex(Integer.parseInt(split[11]));
+		}
 		
 		return rup;
 	}
@@ -1159,6 +1167,14 @@ public class ETAS_SimAnalysisTools {
 		return -1;
 	}
 	
+	public static void loadFSSIndexesFromNth(List<ETAS_EqkRupture> catalog, FaultSystemSolutionERF erf) {
+		for (ETAS_EqkRupture rup : catalog) {
+			int fssIndex = getFSSIndex(rup, erf);
+			if (fssIndex >= 0)
+				rup.setFSSIndex(fssIndex);
+		}
+	}
+	
 	/**
 	 * This will set the rupture surface in each ETAS_EqkRupture with an Nth rupture index that corresponds
 	 * to a fault systen rupture in the given erf
@@ -1175,6 +1191,29 @@ public class ETAS_SimAnalysisTools {
 				rup.setRuptureSurface(rupSet.getSurfaceForRupupture(fssIndex, 1d, false));
 			}
 		}
+	}
+	
+	/**
+	 * This will return a catalog that contains only ruptures that are, or are children/grandchildren/etc of the given
+	 * parent event ID.
+	 * @param catalog
+	 * @param parentID
+	 * @return
+	 */
+	public static List<ETAS_EqkRupture> getChildrenFromCatalog(List<ETAS_EqkRupture> catalog, int parentID) {
+		List<ETAS_EqkRupture> ret = Lists.newArrayList();
+		HashSet<Integer> parents = new HashSet<Integer>();
+		parents.add(parentID);
+		
+		for (ETAS_EqkRupture rup : catalog) {
+			if (parents.contains(rup.getParentID()) || rup.getID() == parentID) {
+				// it's in the chain
+				ret.add(rup);
+				parents.add(rup.getParentID());
+			}
+		}
+		
+		return ret;
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {

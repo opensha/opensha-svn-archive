@@ -28,13 +28,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = false;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
-		Scenarios[] scenarios = Scenarios.values();
-		boolean timeIndep = true;
-		int numSims = 1000;
+//		Scenarios[] scenarios = Scenarios.values();
+		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
+		boolean timeIndep = false;
+		int numSims = 5000;
 		
 		int memGigs;
-		int mins = 8*60;
-		int nodes = 30;
+		int mins = 24*60;
+		int nodes = 40;
 		int ppn;
 		if (stampede)
 			ppn = 16;

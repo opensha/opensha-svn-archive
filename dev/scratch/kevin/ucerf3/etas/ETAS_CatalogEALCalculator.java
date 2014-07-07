@@ -29,7 +29,10 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileNameComparator;
+import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.AttenRelRef;
 
@@ -43,6 +46,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.LastEventData;
 import scratch.kevin.ucerf3.eal.UCERF3_BranchAvgLossFetcher;
 
 import com.google.common.base.Joiner;
@@ -81,10 +85,14 @@ public class ETAS_CatalogEALCalculator {
 		Preconditions.checkState(!catalogs.isEmpty(), "No catalogs loaded!");
 		System.out.println("Loaded "+catalogs.size()+" catalogs");
 		
+		LastEventData.populateSubSects(meanSol.getRupSet().getFaultSectionDataList(), LastEventData.load());
 		this.meanSol = meanSol;
 		System.out.println("Loading ERF");
-		erf = new FaultSystemSolutionERF(meanSol);
+		double origMinMag = AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF;
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
+		erf = MPJ_ETAS_Simulator.buildERF(meanSol, false, 1d);
 		erf.updateForecast();
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = origMinMag;
 		System.out.println("Done loading ERF");
 	}
 	
@@ -346,6 +354,42 @@ public class ETAS_CatalogEALCalculator {
 				}
 				System.out.println("Interpolating losses for trigger rupture");
 				return magLossDist.getInterpolatedY(mag);
+			}
+			if (rup.getNthERF_Index() >= 0) {
+				int nth = rup.getNthERF_Index();
+				int sourceID = erf.getSrcIndexForNthRup(nth);
+				System.out.println("Using Nth ERF Index ("+nth+", src="+sourceID+") instead of catalog location");
+				Preconditions.checkState(sourceID >= 0);
+				ProbEqkSource source = erf.getSource(sourceID);
+				Location sourceLoc = null;
+				if (source instanceof PointSource13b)
+					sourceLoc = ((PointSource13b)source).getLocation();
+				else if (source instanceof Point2Vert_FaultPoisSource)
+					sourceLoc = ((Point2Vert_FaultPoisSource)source).getLocation();
+				else
+					System.out.println("Unkown grid source type, skipping: "+source.getClass().getName());
+				if (sourceLoc != null) {
+					double dist = LocationUtils.horzDistance(sourceLoc, loc);
+					Preconditions.checkState(dist < 15d, "Source location via Nth index is wrong! "
+							+dist+" km away, catLoc="+loc+", sourceLoc="+sourceLoc);
+					nodeIndex = region.indexForLocation(sourceLoc);
+					magLossDist = griddedMagLossDists[nodeIndex];
+					magIndex = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(mag, magLossDist);
+					if (magIndex < 0) {
+						xVals = Lists.newArrayList();
+						yVals = Lists.newArrayList();
+						for (Point2D pt : magLossDist) {
+							xVals.add((float)pt.getX());
+							yVals.add((float)pt.getY());
+						}
+						System.out.println("Same problem with Nth rup node ("+sourceLoc+"), skipping"
+								+"\n\tNode mags:\t"+Joiner.on("\t").join(xVals)
+								+"\n\tNode loss:\t"+Joiner.on("\t").join(yVals));
+						return 0;
+					}
+					double loss = magLossDist.getY(magIndex);
+					return loss;
+				}
 			}
 //			System.out.println("Dist x vals: "+Joiner.on(",").join(xVals));
 //			System.out.println("Node loc: "+region.getNodeList().get(nodeIndex));
@@ -672,8 +716,9 @@ public class ETAS_CatalogEALCalculator {
 
 	public static void main(String[] args) throws IOException, DocumentException {
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/");
-		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/");
+//		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/");
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-spontaneous/");
+		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_26-mojave_7/");
 		
 		// true mean FSS which includes rupture mapping information. this must be the exact file used to calulate EALs
 		File trueMeanSolFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"

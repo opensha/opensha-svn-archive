@@ -35,7 +35,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 public class ETAS_EqkRupture extends ObsEqkRupture {
 	
-	private int id=-1, nthERF_Index=-1, generation=0;
+	private int id=-1, nthERF_Index=-1, generation=0, fssIndex=-1, gridNodeIndex=-1;
 	private double distToParent=Double.NaN;
 	private ETAS_EqkRupture parentRup=null;
 	private int parentID=-1;	// TODO get rid of this
@@ -147,6 +147,22 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 
 	public int getNthERF_Index(){
 		return nthERF_Index;
+	}
+
+	public int getFSSIndex() {
+		return fssIndex;
+	}
+
+	public void setFSSIndex(int fssIndex) {
+		this.fssIndex = fssIndex;
+	}
+
+	public int getGridNodeIndex() {
+		return gridNodeIndex;
+	}
+
+	public void setGridNodeIndex(int gridNodeIndex) {
+		this.gridNodeIndex = gridNodeIndex;
 	}
 	
 	/**

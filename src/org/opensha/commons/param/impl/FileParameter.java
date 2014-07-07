@@ -15,6 +15,7 @@ public class FileParameter extends AbstractParameter<File> {
 	private static final long serialVersionUID = 1L;
 	private FileParameterEditor editor;
 	private File initialDir;
+	private boolean directorySelect = false;
 	
 	public FileParameter(String name) {
 		this(name, null);
@@ -49,6 +50,14 @@ public class FileParameter extends AbstractParameter<File> {
 	
 	public File getDefaultInitialDir() {
 		return initialDir;
+	}
+
+	public boolean isDirectorySelect() {
+		return directorySelect;
+	}
+
+	public void setDirectorySelect(boolean directorySelect) {
+		this.directorySelect = directorySelect;
 	}
 
 }

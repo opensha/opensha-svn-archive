@@ -50,6 +50,10 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 				}
 				chooser = new JFileChooser(initialDir);
 			}
+			if (getParameter() instanceof FileParameter && ((FileParameter)getParameter()).isDirectorySelect())
+				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			else
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			int retVal = chooser.showOpenDialog(this);
 			if (retVal == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();

@@ -233,20 +233,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			}
 			
 			debug("Instantiationg ERF");
-			FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(sol);
-			// set parameters
-			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-			erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-			erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-			erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-			BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-			erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-			erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-			if (!timeIndep)
-				erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-			erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-			erf.getTimeSpan().setDuration(duration);
+			FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration);
 			
 			if (fssScenarioRupID >= 0) {
 				// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -264,6 +251,31 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
 		}
+	}
+	
+	/**
+	 * Creates ERF for use with ETAS simulations. Will not be updated
+	 * @param sol
+	 * @param timeIndep
+	 * @param duration
+	 * @return
+	 */
+	public static FaultSystemSolutionERF_ETAS buildERF(FaultSystemSolution sol, boolean timeIndep, double duration) {
+		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(sol);
+		// set parameters
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
+		if (!timeIndep)
+			erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
+		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
+		erf.getTimeSpan().setDuration(duration);
+		return erf;
 	}
 	
 	public static boolean isAlreadyDone(File resultsDir) throws IOException {
