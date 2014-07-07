@@ -41,6 +41,7 @@ public class ETAS_ImposeGR_SamplingParam extends BooleanParameter {
 		super(NAME);
 		setInfo(INFO);
 		setDefaultValue(defaultValue);
+		setValue(defaultValue);	// this is needed for some reason
 	}
 	
 	/**

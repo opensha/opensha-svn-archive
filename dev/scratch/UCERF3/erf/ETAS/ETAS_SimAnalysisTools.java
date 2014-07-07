@@ -52,7 +52,6 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
-import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
@@ -878,7 +877,8 @@ public class ETAS_SimAnalysisTools {
 	 * @param pdf_FileName
 	 * @param simulatedRupsQueue
 	 */
-	public static void plotNumVsTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
+	public static void plotNumVsTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
+			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
 		
 		double delta = 1.0; // days
 		double tMin=0;		//days
@@ -887,7 +887,8 @@ public class ETAS_SimAnalysisTools {
 		ETAS_Utils etasUtils = new ETAS_Utils();
 
 		// make the target function & change it to a PDF
-		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithTimeFunc(7, tMin, tMax, delta);
+//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithTimeFunc(7, tMin, tMax, delta);
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, tMin, tMax, delta);
 		targetFunc.setName("Expected Temporal Decay");
 		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
 		
@@ -952,7 +953,8 @@ public class ETAS_SimAnalysisTools {
 	 * @param pdf_FileName
 	 * @param simulatedRupsQueue
 	 */
-	public static void plotNumVsLogTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue) {
+	public static void plotNumVsLogTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
+			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
 		
 		double firstLogDay = -4;
 		double lastLocDay = 3;
@@ -962,7 +964,9 @@ public class ETAS_SimAnalysisTools {
 		ETAS_Utils etasUtils = new ETAS_Utils();
 
 		// make the target function & change it to a PDF
-		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
+//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLocDay, deltaLogDay);
+		
 		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
 		targetFunc.setName("Expected Temporal Decay");
 		

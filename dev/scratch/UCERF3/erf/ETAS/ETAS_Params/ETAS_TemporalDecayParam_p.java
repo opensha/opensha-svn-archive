@@ -36,7 +36,7 @@ public class ETAS_TemporalDecayParam_p extends DoubleParameter {
 	private static final String UNITS = null;
 	protected final static Double MIN = new Double(1.00);
 	protected final static Double MAX = new Double(1.40);
-	
+	public final static Double DEFAULT_VALUE = new Double(1.07);
 
 	/**
 	 * This sets the default value as given.
@@ -52,7 +52,7 @@ public class ETAS_TemporalDecayParam_p extends DoubleParameter {
 	/**
 	 * This sets the default value as 0.
 	 */
-	public ETAS_TemporalDecayParam_p() { this(1.07);}
+	public ETAS_TemporalDecayParam_p() { this(DEFAULT_VALUE);}
 	
 	
 }

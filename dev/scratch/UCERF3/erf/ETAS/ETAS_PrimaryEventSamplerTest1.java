@@ -123,8 +123,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 //	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
 //	public static final double DEFAULT_LAT_LON_DISCR = 0.05;	// discretization here, not of gridded sources
 	public static final int DEFAULT_NUM_PT_SRC_SUB_PTS = 5;		// 5 is good for orig pt-src gridding of 0.1
-	public static final double DEFAULT_DIST_DECAY = ETAS_Utils.distDecay_DEFAULT;
-	public static final double DEFAULT_MIN_DIST = ETAS_Utils.minDist_DEFAULT;
 	
 	
 	/**
@@ -138,12 +136,12 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param includeSpatialDecay
 	 */
 	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
-			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils) {
+			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
+			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
-				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, includeERF_Rates, true, etas_utils);
-//		this(regionForRates, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
-//				pointSrcDiscr, oututFileNameWithPath, DEFAULT_DIST_DECAY, DEFAULT_MIN_DIST, true, false);
+				pointSrcDiscr, oututFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
+				applyGR_Corr);
 	}
 
 	
@@ -165,7 +163,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 */
 	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils) {
+			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr) {
 		
 
 		origGriddedRegion = griddedRegion;
@@ -181,6 +179,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		numRateDepths = (int)Math.round(maxDepth/depthDiscr);
 		
 		this.etas_utils = etas_utils;
+		this.applyGR_Corr=applyGR_Corr;
 		
 		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
@@ -664,7 +663,9 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			// get a location vector pointing from the translated parent location to the actual parent location nearest point here to the srcLoc
 			LocationVector corrVector = LocationUtils.vector(translatedParLoc, parentLoc);
 			Location hypLoc = LocationUtils.location(randLoc, corrVector);
-			// WE COULD CACHE THE ABOVE VECTORS
+
+			
+			// Issue: that last step could have moved the hypocenter outside the grid node of the source (by up to ~1 km)
 			
 //			Location testLoc = erf_rup.getRuptureSurface().getFirstLocOnUpperEdge();
 //			int testIndex1 = origGriddedRegion.indexForLocation(testLoc);
@@ -754,8 +755,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		else if(!includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithOnlyDistDecay(translatedParLoc);
-				cachedSamplers[locIndexForPar] = sampler;
-				numCachedSamplers += 1;
+//				cachedSamplers[locIndexForPar] = sampler;
+//				numCachedSamplers += 1;
 //System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
 			}
 			else {
@@ -1176,7 +1177,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		double gridSeisDiscr = 0.1;
 		
 		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils());
+				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
+				true);
 		
 		
 		

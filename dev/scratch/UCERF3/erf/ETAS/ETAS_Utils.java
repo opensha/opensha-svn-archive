@@ -22,6 +22,11 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinTimeParam_c;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ProductivityParam_k;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_TemporalDecayParam_p;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
 /**
@@ -35,13 +40,20 @@ public class ETAS_Utils {
 //	final static double k_DEFAULT = 0.008;			// Felzer (2000) value in units of number of events >= magMain per day
 //	final static double p_DEFAULT = 1.34;			// Felzer (2000) value
 //	final static double c_DEFAULT = 0.095;			// Felzer (2000) value in units of days
-	final static double k_DEFAULT = 0.00284*Math.pow(365.25,0.07);			// Hardebeck's value converted to units of days (see email to Ned Field on April 1, 2012)
-	final static double p_DEFAULT = 1.07;			// Hardebeck's value
-	final static double c_DEFAULT = 1.78e-5*365.25;	// Hardebeck's value converted to units of days
-	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
-	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
-	final static double minDist_DEFAULT = 2d; //0.79;		// km; this is "d" in Hardebeck's Table 2
-	
+//	final static double k_DEFAULT = 0.00284*Math.pow(365.25,0.07);			// Hardebeck's value converted to units of days (see email to Ned Field on April 1, 2012)
+//	final static double p_DEFAULT = 1.07;			// Hardebeck's value
+//	final static double c_DEFAULT = 1.78e-5*365.25;	// Hardebeck's value converted to units of days
+//	final static double magMin_DEFAULT = 2.5;		// as assumed in Hardebeck
+//	final static double distDecay_DEFAULT = 1.96;	// this is "q" in Hardebeck's Table 2
+//	final static double minDist_DEFAULT = 2d; //0.79;		// km; this is "d" in Hardebeck's Table 2
+
+	public final static double magMin_DEFAULT = 2.5;
+	public final static double k_DEFAULT = ETAS_ProductivityParam_k.DEFAULT_VALUE;
+	public final static double p_DEFAULT = ETAS_TemporalDecayParam_p.DEFAULT_VALUE;
+	public final static double c_DEFAULT = ETAS_MinTimeParam_c.DEFAULT_VALUE;
+	public final static double distDecay_DEFAULT = ETAS_DistanceDecayParam_q.DEFAULT_VALUE;
+	public final static double minDist_DEFAULT = ETAS_MinDistanceParam_d.DEFAULT_VALUE;
+
 	private long randomSeed;
 	
 	RandomDataGenerator randomDataGen;
@@ -80,30 +92,29 @@ public class ETAS_Utils {
 	
 	/**
 	 * This computes the density of aftershocks for the given distance according to equations (5) to (8) of
-	 * Hardebeck (2013; http://pubs.usgs.gov/of/2013/1165/pdf/ofr2013-1165_appendixS.pdf) using default
-	 * parameters (and assuming max distance of 1000 km and seismogenic thickness of 12 km, as she does in her
-	 * paper).
+	 * Hardebeck (2013; http://pubs.usgs.gov/of/2013/1165/pdf/ofr2013-1165_appendixS.pdf) assuming max distance
+	 * of 1000 km.
 	 * @param distance (km)
 	 * @return
 	 */
-	public static double getDefaultHardebeckDensity(double distance) {
+	public static double getHardebeckDensity(double distance, double distDecay, double minDist, double seismoThickness) {
 		double maxDist = 1000d;
-		double seismoThickness = 24d;
+//		double seismoThickness = 24d;
 		if(distance>maxDist) {
 			return 0d;
 		}
-		double oneMinusDecay = 1-distDecay_DEFAULT;
-		double cs = oneMinusDecay/(Math.pow(maxDist+minDist_DEFAULT,oneMinusDecay)-Math.pow(minDist_DEFAULT,oneMinusDecay));
+		double oneMinusDecay = 1-distDecay;
+		double cs = oneMinusDecay/(Math.pow(maxDist+minDist,oneMinusDecay)-Math.pow(minDist,oneMinusDecay));
 		if(distance < seismoThickness/2d) {
-			return cs*Math.pow(distance+minDist_DEFAULT, -distDecay_DEFAULT)/(4*Math.PI*distance*distance);
+			return cs*Math.pow(distance+minDist, -distDecay)/(4*Math.PI*distance*distance);
 		}
 		else {
-			return cs*Math.pow(distance+minDist_DEFAULT, -distDecay_DEFAULT)/(2*Math.PI*distance*seismoThickness);
+			return cs*Math.pow(distance+minDist, -distDecay)/(2*Math.PI*distance*seismoThickness);
 		}
 	}
 	
 	
-	public static void testDefaultHardebeckDensity() {
+	public static void testHardebeckDensity() {
 		double histLogMinDistKm=-2,histLogMaxDistKm=3;
 		int histNum=31;
 		
@@ -137,7 +148,7 @@ public class ETAS_Utils {
 						double zDist=minZ[i]+z*discr[i]+discr[i]/2;
 						double dist = Math.pow(xDist*xDist+yDist*yDist+zDist*zDist,0.5);
 						double vol = discr[i]*discr[i]*discr[i];
-						double wt = 8d*getDefaultHardebeckDensity(dist)*vol;	// 8 is for the other area of space
+						double wt = 8d*getHardebeckDensity(dist, ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 24d)*vol;	// 8 is for the other area of space
 						totWt += wt;
 						if(dist<=1000)
 							totVol += vol;
@@ -174,7 +185,7 @@ public class ETAS_Utils {
 		EvenlyDiscretizedFunc testLogFunction = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
 		for(int i=0;i<testLogFunction.getNum();i++) {
 			double dist = Math.pow(10d, testLogFunction.getX(i));
-			testLogFunction.set(i,getDefaultHardebeckDensity(dist));
+			testLogFunction.set(i,getHardebeckDensity(dist, ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 24d));
 		}
 		GraphWindow graph2 = new GraphWindow(testLogFunction, "testLogFunction"); 
 		GraphWindow graph3 = new GraphWindow(numLogHistogram, "numLogHistogram"); 

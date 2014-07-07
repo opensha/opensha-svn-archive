@@ -36,7 +36,8 @@ public class ETAS_MinDistanceParam_d extends DoubleParameter {
 	private static final String UNITS = "km";
 	protected final static Double MIN = new Double(0.63);
 	protected final static Double MAX = new Double(4.00);
-	
+	public final static Double DEFAULT_VALUE = new Double(0.79);
+
 
 	/**
 	 * This sets the default value as given.
@@ -52,7 +53,7 @@ public class ETAS_MinDistanceParam_d extends DoubleParameter {
 	/**
 	 * This sets the default value as 0.
 	 */
-	public ETAS_MinDistanceParam_d() { this(0.79);}
+	public ETAS_MinDistanceParam_d() { this(DEFAULT_VALUE);}
 	
 	
 }

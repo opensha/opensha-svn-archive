@@ -36,7 +36,8 @@ public class ETAS_DistanceDecayParam_q extends DoubleParameter {
 	private static final String UNITS = null;
 	protected final static Double MIN = new Double(1.8);
 	protected final static Double MAX = new Double(4.00);
-	
+	public final static Double DEFAULT_VALUE = new Double(1.96);
+
 
 	/**
 	 * This sets the default value as given.
@@ -52,7 +53,7 @@ public class ETAS_DistanceDecayParam_q extends DoubleParameter {
 	/**
 	 * This sets the default value as 0.
 	 */
-	public ETAS_DistanceDecayParam_q() { this(1.96);}
+	public ETAS_DistanceDecayParam_q() { this(DEFAULT_VALUE);}
 	
 	
 }

@@ -37,23 +37,24 @@ public class ETAS_BranchingRatioParam_n extends DoubleParameter {
 	private static final String UNITS = null;
 	protected final static Double MIN = new Double(0.45);
 	protected final static Double MAX = new Double(0.75);
+	public final static Double DEFAULT_VALUE = new Double(0.67);
 	
 
 	/**
 	 * This sets the default value as given.
 	 */
-	public ETAS_BranchingRatioParam_n(double defaultStdDev) {
+	public ETAS_BranchingRatioParam_n(double defaultValue) {
 		super(NAME, MIN, MAX, UNITS);
 		getConstraint().setNonEditable();
 	    setInfo(INFO);
-	    setDefaultValue(defaultStdDev);
+	    setDefaultValue(defaultValue);
 	    setValueAsDefault();
 	}
 
 	/**
 	 * This sets the default value as 0.
 	 */
-	public ETAS_BranchingRatioParam_n() { this(0.67);}
+	public ETAS_BranchingRatioParam_n() { this(DEFAULT_VALUE);}
 	
 	
 }

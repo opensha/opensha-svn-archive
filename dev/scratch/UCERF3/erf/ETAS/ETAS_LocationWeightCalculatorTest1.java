@@ -169,7 +169,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 							for(int i=0;i<distances.length;i++) {
 								double dist = distances[i];
 								// the following is to get the weight in the right ballpark; only correct if parent is half way down seismo thickness and there is no depth distribution
-								double wt = 4d*ETAS_Utils.getDefaultHardebeckDensity(dist)*volume*wtAtDepth;
+								double wt = 4d*ETAS_Utils.getHardebeckDensity(dist, etasDistDecay, etasMinDist, maxDepthKm)*volume*wtAtDepth;
 								double logDist = Math.log10(dist);
 								if(logDist<logDistWeightHist.getX(0)) {	// in case it's below the first bin
 									logDistWeightHist.add(0, wt);
@@ -184,7 +184,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 						else {
 							double dist = getDistance(iLat, iLon, iDepDiff);
 							if(dist<maxDistKm) {
-								double wt = 4d*ETAS_Utils.getDefaultHardebeckDensity(dist)*aveCellVolume*wtAtDepth;
+								double wt = 4d*ETAS_Utils.getHardebeckDensity(dist, etasDistDecay, etasMinDist, maxDepthKm)*aveCellVolume*wtAtDepth;
 								//							pointWt[iLat][iLon][iDep] = wt;
 								logDistWeightHist.add(Math.log10(dist),wt);							
 								logDistNumCellHist.add(Math.log10(dist),1);							
@@ -217,7 +217,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 							double volume = aveCellVolume/distances.length;
 							for(int i=0;i<distances.length;i++) {
 								double dist = distances[i];
-								double wt = 4d*ETAS_Utils.getDefaultHardebeckDensity(dist)*volume*wtAtDepth;
+								double wt = 4d*ETAS_Utils.getHardebeckDensity(dist, etasDistDecay, etasMinDist, maxDepthKm)*volume*wtAtDepth;
 								double logDist = Math.log10(dist);
 								if(logDist<logDistWeightHist.getX(0)) {	// in case it's below the first bin
 									double modWt=wt*targetLogDistDecay.getY(0)/logDistWeightHist.getY(0);
@@ -235,7 +235,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 						else {
 							double dist = getDistance(iLat, iLon, iDepDiff);
 							if(dist<maxDistKm) {
-								double wt = 4d*ETAS_Utils.getDefaultHardebeckDensity(dist)*aveCellVolume*wtAtDepth;
+								double wt = 4d*ETAS_Utils.getHardebeckDensity(dist, etasDistDecay, etasMinDist, maxDepthKm)*aveCellVolume*wtAtDepth;
 								double logDist = Math.log10(dist);
 								double modWt=wt*targetLogDistDecay.getY(logDist)/logDistWeightHist.getY(logDist);
 								pointWt[iLat][iLon][iDep] = modWt;	
@@ -319,7 +319,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 							locList.add(new Location(lat-midLat,lon-midLon,dep-midDepth));	// add the deltaLoc to list
 							double dist = getDistance(lat, lon, dep);
 							double logDist = Math.log10(dist);
-							double wt = 4d*ETAS_Utils.getDefaultHardebeckDensity(dist);	// depth and cell volume not important here
+							double wt = 4d*ETAS_Utils.getHardebeckDensity(dist, etasDistDecay, etasMinDist, maxDepthKm);	// depth and cell volume not important here
 							double normWt;
 							if(logDist<logDistWeightHist.getX(0))
 								normWt = targetLogDistDecay.getY(0)/logDistWeightHist.getY(0);

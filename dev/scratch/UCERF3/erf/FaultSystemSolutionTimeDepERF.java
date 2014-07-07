@@ -3323,8 +3323,9 @@ numSpontEvents=0;
 		if(obsEqkRuptureList.size()==1) {	// assume the one event is some big test event (e.g., Landers)
 			ETAS_SimAnalysisTools.plotEpicenterMap("", dirName+"hypoMap.pdf", obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.oldPlotDistDecayHistForAshocks("", dirName+"distDecay.pdf", simulatedRupsQueue, obsEqkRuptureList.get(0), distDecay, minDist);
-			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent("", dirName+"logTimeDecay.pdf", simulatedRupsQueue);
-			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent("", dirName+"timeDecay.pdf", simulatedRupsQueue);
+			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent("", dirName+"logTimeDecay.pdf", simulatedRupsQueue, ETAS_Utils.k_DEFAULT,
+					ETAS_Utils.p_DEFAULT, ETAS_Utils.c_DEFAULT);
+			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent("", dirName+"timeDecay.pdf", simulatedRupsQueue, ETAS_Utils.k_DEFAULT, ETAS_Utils.p_DEFAULT, ETAS_Utils.c_DEFAULT);
 		}
 		else {
 			ETAS_SimAnalysisTools.plotEpicenterMap("test", dirName+"hypoMap.pdf", null, simulatedRupsQueue, griddedRegion.getBorder());

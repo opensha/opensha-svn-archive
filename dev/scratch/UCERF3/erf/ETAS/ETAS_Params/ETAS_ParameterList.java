@@ -13,7 +13,7 @@ public class ETAS_ParameterList extends ParameterList {
 
 	ETAS_ProductivityParam_k kParam = new ETAS_ProductivityParam_k();
 	ETAS_BranchingRatioParam_n nParam = new ETAS_BranchingRatioParam_n();
-	ETAS_DistanceDecayParam_q pParam = new ETAS_DistanceDecayParam_q();
+	ETAS_TemporalDecayParam_p pParam = new ETAS_TemporalDecayParam_p();
 	ETAS_MinTimeParam_c cParam = new ETAS_MinTimeParam_c();
 	ETAS_DistanceDecayParam_q qParam = new ETAS_DistanceDecayParam_q();
 	ETAS_MinDistanceParam_d dParam = new ETAS_MinDistanceParam_d();
@@ -29,6 +29,7 @@ public class ETAS_ParameterList extends ParameterList {
 		this.addParameter(dParam);
 		this.addParameter(imposeGR);
 		this.addParameter(applyLongTermRatesParam);
+		
 	}
 	
 	public double get_k() {return kParam.getValue();}
