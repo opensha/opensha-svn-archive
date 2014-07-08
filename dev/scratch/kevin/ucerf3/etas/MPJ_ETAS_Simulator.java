@@ -40,6 +40,7 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -246,7 +247,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
-						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, fractionSrcAtPointList, srcAtPointList);
+						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}

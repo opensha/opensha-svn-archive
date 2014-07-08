@@ -105,11 +105,11 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
 			GriddedRegion griddedRegion, List<ETAS_EqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
-			Long randomSeed)
+			Long randomSeed, ETAS_ParameterList etasParams)
 					throws IOException {
 		testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
 				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName,
-				randomSeed, null, null);
+				randomSeed, null, null, etasParams);
 	}
 	
 	/**
@@ -139,10 +139,10 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
 			GriddedRegion griddedRegion, List<ETAS_EqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
-			Long randomSeed, List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList)
+			Long randomSeed, List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList, ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+//		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		
 		ETAS_Utils etas_utils;
 		if(randomSeed != null)
@@ -574,7 +574,7 @@ public class ETAS_Simulator {
 	
 	
 	
-	public static void runMojaveTest() {
+	public static void runMojaveTest(ETAS_ParameterList etasParams) {
 		
 		Long randomSeed = null;
 		
@@ -623,7 +623,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randomSeed);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randomSeed, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -635,7 +635,7 @@ public class ETAS_Simulator {
 
 	
 	
-	public static void runLandersTest() {
+	public static void runLandersTest(ETAS_ParameterList etasParams) {
 		
 		Long st = System.currentTimeMillis();
 
@@ -677,7 +677,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -687,7 +687,7 @@ public class ETAS_Simulator {
 
 	}
 	
-	public static void runNorthridgeTest() {
+	public static void runNorthridgeTest(ETAS_ParameterList etasParams) {
 		
 		Long st = System.currentTimeMillis();
 
@@ -729,7 +729,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -741,7 +741,7 @@ public class ETAS_Simulator {
 
 	
 	
-	public static void runLaHabraTest() {
+	public static void runLaHabraTest(ETAS_ParameterList etasParams) {
 		
 		Long st = System.currentTimeMillis();
 
@@ -776,7 +776,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -787,7 +787,7 @@ public class ETAS_Simulator {
 	}
 
 	
-	public static void runNoMainShockTest() {
+	public static void runNoMainShockTest(ETAS_ParameterList etasParams) {
 		
 		Long st = System.currentTimeMillis();
 
@@ -810,7 +810,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null,etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -822,7 +822,7 @@ public class ETAS_Simulator {
 	
 	
 	
-	public static void runHistCatalogTest() {
+	public static void runHistCatalogTest(ETAS_ParameterList etasParams) {
 		
 		Long randSeed = new Long(100);
 		
@@ -871,7 +871,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, histQksInRegionList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed);
+					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -923,7 +923,7 @@ public class ETAS_Simulator {
 		
 //		ETAS_Simulator.runLandersTest();
 //		ETAS_Simulator.runNorthridgeTest();
-		ETAS_Simulator.runMojaveTest();
+		ETAS_Simulator.runMojaveTest(new ETAS_ParameterList());
 //		ETAS_Simulator.runLaHabraTest();
 //		ETAS_Simulator.runNoMainShockTest();
 //		runHistCatalogTest();
