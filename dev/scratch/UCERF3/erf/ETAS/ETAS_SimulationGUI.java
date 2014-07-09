@@ -195,9 +195,14 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 					editor.setEnabled(false);
 					try {
 						calculate();
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						if (e instanceof OutOfMemoryError)
+							JOptionPane.showMessageDialog(gui,
+									"Run again allocating more memory\nex for 6 GB: java -Xmx6G <jar-file-name>",
+									"Out of Memory!", JOptionPane.ERROR_MESSAGE);
+						else
+							JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 					}
 					editor.setEnabled(true);
 				}
@@ -230,25 +235,33 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		// check cache files
 		System.out.println("Checking cahces");
-		if (fractionSrcAtPointList == null) {
-			File fractionSrcAtPointListFile = new File(cacheDir, fract_src_file_name);
-			if (!fractionSrcAtPointListFile.exists()) {
-				System.out.println("Fraction source cache file doesn't exist, downloading");
-				FileUtils.downloadURL(cache_url+fract_src_file_name, fractionSrcAtPointListFile);
+		try {
+			if (fractionSrcAtPointList == null) {
+				File fractionSrcAtPointListFile = new File(cacheDir, fract_src_file_name);
+				if (!fractionSrcAtPointListFile.exists()) {
+					System.out.println("Fraction source cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+fract_src_file_name, fractionSrcAtPointListFile);
+				}
+				System.out.println("Loading fraction source cache file");
+				fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
+				System.out.println("Done loading fraction source cache file");
 			}
-			System.out.println("Loading fraction source cache file");
-			fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
-			System.out.println("Done loading fraction source cache file");
-		}
-		if (srcAtPointList == null) {
-			File srcAtPointListFile = new File(cacheDir, src_file_name);
-			if (!srcAtPointListFile.exists()) {
-				System.out.println("Fraction source cache file doesn't exist, downloading");
-				FileUtils.downloadURL(cache_url+src_file_name, srcAtPointListFile);
+			if (srcAtPointList == null) {
+				File srcAtPointListFile = new File(cacheDir, src_file_name);
+				if (!srcAtPointListFile.exists()) {
+					System.out.println("Fraction source cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+src_file_name, srcAtPointListFile);
+				}
+				System.out.println("Loading source cache file");
+				srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
+				System.out.println("Done loading source cache file");
 			}
-			System.out.println("Loading source cache file");
-			srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
-			System.out.println("Done loading source cache file");
+		} catch (IllegalStateException e) {
+			JOptionPane.showMessageDialog(null,
+					"Try deleting the contents of "+cacheDir.getAbsolutePath()+" and run again. "
+							+ "Be patient as the cached files are downloaded next time you run.",
+					"Bad cached input file", JOptionPane.ERROR_MESSAGE);
+			throw e;
 		}
 		System.out.println("Done loading caches");
 		
