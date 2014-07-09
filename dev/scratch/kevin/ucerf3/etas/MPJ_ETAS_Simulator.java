@@ -3,7 +3,6 @@ package scratch.kevin.ucerf3.etas;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,16 +11,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.commons.util.threads.Task;
-import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
@@ -89,10 +83,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		// nasty kludgy setup
 		ETAS_Simulator.D = false;
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		lastEventData = LastEventData.load();
-		
-		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		numSims = Integer.parseInt(cmd.getOptionValue("num"));
 		
@@ -247,7 +240,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
-						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null, fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
+						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null,
+						fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}

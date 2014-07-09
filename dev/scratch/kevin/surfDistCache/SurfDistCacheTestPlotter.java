@@ -46,6 +46,7 @@ public class SurfDistCacheTestPlotter {
 		
 		int maxCacheSize = 0;
 		int totCount = 0;
+		int maxThreads = 8;
 		
 		Map<Config, List<Double>> valsMap = Maps.newHashMap();
 		for (File file : dir.listFiles()) {
@@ -55,6 +56,8 @@ public class SurfDistCacheTestPlotter {
 			name = name.substring(0, name.indexOf(".pbs"));
 			String[] split = name.split("_");
 			int threads = Integer.parseInt(split[1]);
+			if (threads > maxThreads)
+				continue;
 			int size = Integer.parseInt(split[3]);
 			if (size > maxCacheSize)
 				maxCacheSize = size;

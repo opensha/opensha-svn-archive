@@ -14,39 +14,28 @@ import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import com.google.common.collect.Lists;
 
-public class MPJ_ETAS_SimulatorScriptGen {
+public class MPJ_ETAS_SimulatorInternScriptGen {
+	
+	private static enum Scenarios {
+		SPONTANEOUS,
+		MOJAVE_7,
+		LA_HABRA
+	}
 
 	public static void main(String[] args) throws IOException {
-		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_interns");
+		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		
 		boolean stampede = false;
 		
-//		1. 99316- Bartlett 7.33
-//		2. 90852- Calaveras 6.92
-//		3. 96759- Concord 6.77
-//		4. 93119- Diablo 6.72
-//		5. 97691- Great Valley (3) 6.97
-//		6. 97615- Great Valley (4a) 6.64
-//		7. 97639- Great Valley (4b) 6.67
-//		8. 100934- Great Valley (5) 6.48*
-//		9. 96886- Greenville 7.05
-//		10. 106140- Hayward RC 7.08
-//		11. 101292- Hayward HN+HS 7.07 
-//		12. 98144- Hunting Creek/Berryessa  6.44**
-//		13. 119732- North San Andreas 7.49 
-//		14. 73385- North San Andreas 7.21
-//		15. 64481- North San Andreas 7.15
-//		16. 251623- Ortegalita 7.09
-//		17. 117665- San Gergorio 7.54
-//		18. 93905- West Napa 6.74
-		int[] scenarios = {99316, 90852, 96759, 93119, 97691, 97615, 97639, 100934, 96886, 106140,
-				101292, 98144, 119732, 73385, 64481, 251623, 117665, 93905};
+//		Scenarios scenario = Scenarios.LA_HABRA;
+//		Scenarios[] scenarios = Scenarios.values();
+		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
 		boolean timeIndep = false;
-		int numSims = 100;
+		int numSims = 5000;
 		
 		int memGigs;
 		int mins = 24*60;
-		int nodes = 20;
+		int nodes = 40;
 		int ppn;
 		if (stampede)
 			ppn = 16;
@@ -76,27 +65,41 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 			pbsWrite = new USC_HPCC_ScriptWriter();
 		}
-		File remoteInternDir = new File(remoteDir, "2014_interns");
 		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
-		classpath.add(new File(remoteInternDir, "OpenSHA_complete.jar"));
-		mpjWrite.setClasspath(classpath);
 		
-		for (int scenario : scenarios) {
-			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario;
+		for (Scenarios scenario : scenarios) {
+			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
 			if (timeIndep)
 				jobName += "-indep";
 			
 			File localJobDir = new File(localDir, jobName);
 			if (!localJobDir.exists())
 				localJobDir.mkdir();
-			File remoteJobDir = new File(remoteInternDir, jobName);
+			File remoteJobDir = new File(remoteDir, jobName);
+			
+			List<File> subClasspath = Lists.newArrayList(classpath);
+			subClasspath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
+			mpjWrite.setClasspath(subClasspath);
 			
 			File pbsFile = new File(localJobDir, jobName+".pbs");
 			
 			String argz = "--min-dispatch 1 --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
-			argz += " --trigger-rupture-id "+scenario;
+			switch (scenario) {
+			case LA_HABRA:
+				argz += " --trigger-loc 33.932,-117.917,4.8 --trigger-mag 6.2";
+				break;
+			case MOJAVE_7:
+				argz += " --trigger-rupture-id 197792";
+				break;
+			case SPONTANEOUS:
+				// do nothing
+				break;
+
+			default:
+				throw new IllegalStateException("unknown scenario: "+scenario);
+			}
 			if (timeIndep)
 				argz += " --indep";
 			argz += " "+remoteDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();

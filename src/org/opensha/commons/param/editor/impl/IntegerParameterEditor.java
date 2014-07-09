@@ -84,53 +84,6 @@ public class IntegerParameterEditor extends AbstractParameterEditor<Integer> imp
 
 	}
 
-	//    /** Currently does nothing */
-	//    public void setAsText(String string) throws IllegalArgumentException { }
-	//
-	//    /** Passes in a new Parameter with name to set as the parameter to be editing */
-	//    protected void setWidgetObject(String name, Object obj) {
-	//        String S = C + ": setWidgetObject(): ";
-	//        if(D) System.out.println(S + "Starting");
-	//
-	//        super.setWidgetObject(name, obj);
-	//
-	//        if ( ( obj != null ) && ( valueEditor != null ) )
-	//            ((IntegerTextField) valueEditor).setText(obj.toString());
-	//        else if ( valueEditor != null )
-	//            ((IntegerTextField) valueEditor).setText(" ");
-	//
-	//
-	//        if(D) System.out.println(S.concat("Ending"));
-	//    }
-	//
-	//
-	//    /** Allows customization of the IntegerTextField border */
-	//    public void setWidgetBorder(Border b){
-	//        ((IntegerTextField)valueEditor).setBorder(b);
-	//    }
-	//
-	//    /** This is where the IntegerTextField is defined and configured. */
-	//    protected void addWidget() {
-	//
-	//        String S = C + ": addWidget(): ";
-	//        if(D) System.out.println(S + "Starting");
-	//
-	//        valueEditor = new IntegerTextField();
-	//        valueEditor.setMinimumSize( LABEL_DIM );
-	//        valueEditor.setPreferredSize( LABEL_DIM );
-	//        valueEditor.setBorder(ETCHED);
-	//        valueEditor.setFont(this.DEFAULT_FONT);
-	//
-	//        valueEditor.addFocusListener( this );
-	//        valueEditor.addKeyListener( this );
-	//
-	//        widgetPanel.add(valueEditor, ParameterEditor.WIDGET_GBC);
-	//        widgetPanel.setBackground(null);
-	//        widgetPanel.validate();
-	//        widgetPanel.repaint();
-	//        if(D) System.out.println(S + "Ending");
-	//    }
-
 
 	/**
 	 * Called everytime a key is typed in the text field to validate it
