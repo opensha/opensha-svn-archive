@@ -42,7 +42,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		int[] scenarios = {99316, 90852, 96759, 93119, 97691, 97615, 97639, 100934, 96886, 106140,
 				101292, 98144, 119732, 73385, 64481, 251623, 117665, 93905};
 		boolean timeIndep = false;
-		int numSims = 100;
+		int numSims = 400;
 		
 		int memGigs;
 		int mins = 24*60;

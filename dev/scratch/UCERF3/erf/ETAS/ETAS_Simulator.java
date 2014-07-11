@@ -16,6 +16,7 @@ import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.CaliforniaRegions.RELM_TESTING_GRIDDED;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
@@ -55,8 +56,11 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.collect.Lists;
+
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
@@ -73,7 +77,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class ETAS_Simulator {
 	
-	public static boolean D=true; // debug flag
+	public static boolean D=false; // debug flag
 	
 	
 	/**
@@ -880,6 +884,37 @@ public class ETAS_Simulator {
 		System.out.println("Total simulation took "+timeMin+" min");
 
 	}
+	
+	public static void runBugReproduce() throws IOException {
+		long randSeed = 1405081776351l; // this is the NumberIsTooLargeException
+		
+		File resultsDir = new File("/tmp");
+		
+		int fssIndex = 251623;
+		
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
+		FaultSystemSolution sol = erf.getSolution();
+		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		
+		// FSS rupture
+		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
+		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		mainshockRup.setOriginTime(ot);
+		
+		mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(fssIndex));
+		mainshockRup.setMag(sol.getRupSet().getMagForRup(fssIndex));
+		mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(fssIndex, 1d, false));
+		mainshockRup.setID(0);
+		erf.setFltSystemSourceOccurranceTimeForFSSIndex(fssIndex, ot);
+
+		String simulationName = "FSS simulation. M="+mainshockRup.getMag()+", fss ID="+fssIndex;
+
+		List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList();
+		obsEqkRuptureList.add(mainshockRup);
+		
+		testETAS_Simulation(resultsDir, erf, region, obsEqkRuptureList, true, true, true, region.getLatSpacing(),
+				simulationName, randSeed, new ETAS_ParameterList());
+	}
 
 
 	
@@ -920,10 +955,15 @@ public class ETAS_Simulator {
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		
-		
+		try {
+			runBugReproduce();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		ETAS_Simulator.runLandersTest();
 //		ETAS_Simulator.runNorthridgeTest();
-		ETAS_Simulator.runMojaveTest(new ETAS_ParameterList());
+//		ETAS_Simulator.runMojaveTest(new ETAS_ParameterList());
 //		ETAS_Simulator.runLaHabraTest();
 //		ETAS_Simulator.runNoMainShockTest();
 //		runHistCatalogTest();

@@ -3,6 +3,7 @@ package scratch.kevin.ucerf3.etas;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,9 @@ import scratch.UCERF3.utils.MatrixIO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import com.google.common.primitives.Ints;
 
 public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
@@ -198,7 +201,12 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			debug("done loading caches ("+getMemoryDebug()+")");
 		}
 		
-		for (int index : batch) {
+		ArrayDeque<Integer> queue = new ArrayDeque<Integer>(Ints.asList(batch));
+		
+		Map<Integer, Integer> restartsMap = Maps.newHashMap();
+		
+		while (!queue.isEmpty()) {
+			int index = queue.poll();
 			System.gc();
 			
 			File outputDir = new File(this.outputDir, "results");
@@ -237,13 +245,26 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			erf.updateForecast();
 			debug("Done instantiating ERF");
 			
+			long randSeed = System.currentTimeMillis();
+			
 			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
-						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, null,
+						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
 						fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+			} catch (Throwable t) {
+				debug("Calc failed with seed "+randSeed+". Exception: "+t);
+				t.printStackTrace();
+				Integer prevFails = restartsMap.get(index);
+				if (prevFails == null)
+					prevFails = 0;
+				if (prevFails == 2) {
+					debug("Index "+index+" failed 3 times, bailing");
+					ExceptionUtils.throwAsRuntimeException(t);
+				}
+				restartsMap.put(index, prevFails+1);
+				debug("retrying "+index+" later");
+				queue.add(index);
 			}
 		}
 	}
