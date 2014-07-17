@@ -161,7 +161,7 @@ public class ETAS_Simulator {
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		
 		// file for writing simulations info
-		FileWriter info_fr= new FileWriter(new File(resultsDir, "infoString.txt"));
+		FileWriter info_fr= new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
 		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
 		ETAS_SimAnalysisTools.writeEventHeaderToFile(simulatedEventsFileWriter);
 
@@ -276,7 +276,7 @@ public class ETAS_Simulator {
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
 		if(includeSpontEvents) {
 			if (D) System.out.println("Making spontaneous events and times of primary aftershocks...");
-			double fractionNonTriggered=1.0-etasParams.get_n();	// one minus branching ratio 
+			double fractionNonTriggered=1.0-etasParams.get_n();	// one minus branching ratio TODO fix this; this is not what branching ratio is
 			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
 			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
 			for(int r=0;r<numSpontEvents;r++) {
@@ -888,13 +888,15 @@ public class ETAS_Simulator {
 	public static void runBugReproduce() throws IOException {
 		long randSeed = 1405081776351l; // this is the NumberIsTooLargeException
 		
-		File resultsDir = new File("/tmp");
+		File resultsDir = new File("debugETAS_Run");
 		
 		int fssIndex = 251623;
 		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		FaultSystemSolution sol = erf.getSolution();
-		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+//		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+		CaliforniaRegions.RELM_GRIDDED region = new CaliforniaRegions.RELM_GRIDDED();
+
 		
 		// FSS rupture
 		ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
@@ -950,6 +952,13 @@ public class ETAS_Simulator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+//		System.out.println(griddedRegion.getNumLocations());
+//		
+//		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();
+//		System.out.println(region.getNumLocations());
+//		System.exit(-1);
 		
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;

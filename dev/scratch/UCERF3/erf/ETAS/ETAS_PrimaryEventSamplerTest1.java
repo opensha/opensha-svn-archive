@@ -637,6 +637,16 @@ public class ETAS_PrimaryEventSamplerTest1 {
 					locsToSampleFrom.add(loc);
 				}
 			}	
+if(locsToSampleFrom.size() == 0) {
+	System.out.println("PROBLEM: randSrcIndex="+randSrcIndex+"\tName: = "+src.getName());
+	for(int srcID:srcAtPointList.get(aftShPointIndex))
+		System.out.println(srcID);
+	System.out.println("lat\tlon\tdepth");
+	System.out.println(latForRatesPoint[aftShPointIndex]+"\t"+lonForRatesPoint[aftShPointIndex]+"\t"+depthForRatesPoint[aftShPointIndex]);
+	for(Location loc: locsOnRupSurf) {
+		System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
+	}	
+}
 			// choose one randomly
 			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
