@@ -342,7 +342,10 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public int getRandomInt(int maxInt) {
-		return randomDataGen.nextInt(0, maxInt);
+		if(maxInt==0)
+			return 0;
+		else
+			return randomDataGen.nextInt(0, maxInt);
 	}
 	
 	
@@ -488,6 +491,7 @@ public class ETAS_Utils {
 	public static void main(String[] args) {
 		
 		ETAS_Utils etas_utils = new ETAS_Utils(100);
+		etas_utils.getRandomInt(0);
 		
 		for(int i=0;i<10;i++)
 			System.out.println(i+"\t"+etas_utils.getRandomDouble());
