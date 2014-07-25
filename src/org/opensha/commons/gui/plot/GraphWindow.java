@@ -541,6 +541,16 @@ public class GraphWindow extends JFrame {
 		});
 	}
 	
+	public void redrawGraph() {
+		doGUIThreadSafe(new Runnable() {
+			
+			@Override
+			public void run() {
+				widget.drawGraph();
+			}
+		});
+	}
+	
 	/**
 	 * Will execute the following in the event dispatch thread if not already on it. This prevents
 	 * various crashes when called from a main class.
