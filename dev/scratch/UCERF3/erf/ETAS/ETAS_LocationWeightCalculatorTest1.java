@@ -19,7 +19,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
  * 
  * 
  * This class gives the probability of sampling a primary aftershock at a given latitude, longitude, and depth
- * (each given relative to the source location).  This is achieved by creating a discretized quarter disk, where the
+ * (each given relative to the source location).  This is achieved by creating a discretized/cubed quarter disk, where the
  * the height of the disk is related to  seismogenic depth.  A quarter disk is can be used because of 
  * symmetry.  This class honors the target distance day precisely, accounting for the transition between between 
  * sub-seimogenic distances and supra-seismogenic distance (where the triggering volume value goes from a spherical shell
@@ -74,7 +74,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 	 * 
 	 * @param maxDistKm - the maximum distance for sampling in km
 	 * @param maxDepthKm - the max seismogenic thickness
-	 * @param latLonDiscrDeg - the lat and lon discretization in degrees (0.02 is recommented)
+	 * @param latLonDiscrDeg - the lat and lon discretization (cube spacing) in degrees (0.02 is recommended)
 	 * @param depthDiscrKm - the depth discretization in km (2.0 is recommended)
 	 * @param midLat - the mid latitude used to compute bin widths (since widths decrease with latitude)
 	 * @param etasDistDecay - the ETAS distance decay parameter
@@ -274,10 +274,12 @@ public class ETAS_LocationWeightCalculatorTest1 {
 	
 	
 	/**
-	 * This returns a random location (containing delta lat, lon, and depth) for the 
-	 * given location and based on the distance decay.  This first chooses among the
-	 * sub-locations at the given point, and then adds some additional randomness to
-	 * the sublocation.
+	 * This returns a random location within the cube containing the given location, and
+	 * for the specified depth.  The returned location is relative to the center of the cube.
+	 * (delta lat, lon, and depth). For short distances from the parent, this accounts for the 
+	 * distance decay within the cube by sampling among a number of discrete points inside that 
+	 * cube. Some additional randomness is finally added (to prevent aftershock from stacking onto
+	 * the exact same location).
 	 * @param relLat - target latitude relative to the source latitude
 	 * @param relLon - as above for longitude
 	 * @param dep - absolute depth (km)
@@ -380,8 +382,8 @@ public class ETAS_LocationWeightCalculatorTest1 {
 
 	
 	/**
-	 * This give the probability of sampling an event at the given point, and for the 
-	 * given main shock hypocenter depth
+	 * This gives the probability of sampling an event in the cube containing the 
+	 * specified location, which also depends on the given depth of the main shock
 	 * @param relLat - latitude relative to the source location (targetLat-sourceLat)
 	 * @param relLon - as above, but for longitude
 	 * @param dep - absolute depth

@@ -12,7 +12,7 @@ public class ETAS_ParameterList extends ParameterList {
 	private static final long serialVersionUID = 1L;
 
 	ETAS_ProductivityParam_k kParam = new ETAS_ProductivityParam_k();
-	ETAS_BranchingRatioParam_n nParam = new ETAS_BranchingRatioParam_n();
+	ETAS_FractionSpontaneousParam fractSpontParam = new ETAS_FractionSpontaneousParam();
 	ETAS_TemporalDecayParam_p pParam = new ETAS_TemporalDecayParam_p();
 	ETAS_MinTimeParam_c cParam = new ETAS_MinTimeParam_c();
 	ETAS_DistanceDecayParam_q qParam = new ETAS_DistanceDecayParam_q();
@@ -22,7 +22,7 @@ public class ETAS_ParameterList extends ParameterList {
 	
 	public ETAS_ParameterList() {
 		this.addParameter(kParam);
-		this.addParameter(nParam);
+		this.addParameter(fractSpontParam);
 		this.addParameter(pParam);
 		this.addParameter(cParam);
 		this.addParameter(qParam);
@@ -33,7 +33,7 @@ public class ETAS_ParameterList extends ParameterList {
 	}
 	
 	public double get_k() {return kParam.getValue();}
-	public double get_n() {return nParam.getValue();}
+	public double getFractSpont() {return fractSpontParam.getValue();}
 	public double get_p() {return pParam.getValue();}
 	public double get_c() {return cParam.getValue();}
 	public double get_q() {return qParam.getValue();}

@@ -146,7 +146,10 @@ public class ETAS_Simulator {
 			Long randomSeed, List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList, ETAS_ParameterList etasParams)
 					throws IOException {
 		
-//		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		// TODO:
+		// griddedRegion could come from erf.getSolution().getGridSourceProvider().getGriddedRegion(); can the two be different?
+		// gridSeisDiscr could come from erf.getSolution().getGridSourceProvider().getGriddedRegion().getLatSpacing()
+		// add testScenario as method argument (can be null)
 		
 		ETAS_Utils etas_utils;
 		if(randomSeed != null)
@@ -161,7 +164,7 @@ public class ETAS_Simulator {
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		
 		// file for writing simulations info
-		FileWriter info_fr= new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
+		FileWriter info_fr = new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
 		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
 		ETAS_SimAnalysisTools.writeEventHeaderToFile(simulatedEventsFileWriter);
 
@@ -276,7 +279,7 @@ public class ETAS_Simulator {
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
 		if(includeSpontEvents) {
 			if (D) System.out.println("Making spontaneous events and times of primary aftershocks...");
-			double fractionNonTriggered=1.0-etasParams.get_n();	// one minus branching ratio TODO fix this; this is not what branching ratio is
+			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
 			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
 			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
 			for(int r=0;r<numSpontEvents;r++) {

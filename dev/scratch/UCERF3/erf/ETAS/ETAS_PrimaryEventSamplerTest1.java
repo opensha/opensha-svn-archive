@@ -65,6 +65,15 @@ import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
 
+/**
+ * This class divides the supplied gridded region (and specified depth extent) into cubes, and computes
+ * long-term rates of events for each cube, as well as the sources (and their fractions) that nucleate in
+ * each cube.  The cube locations are defined by their centers.  For sampling aftershocks, parent ruptures
+ * are assumed to be located at the intersecting corners of these cubes; thus, the number of parent locations
+ * with depth is one greater than the number of cubes.
+ * @author field
+ *
+ */
 public class ETAS_PrimaryEventSamplerTest1 {
 	
 	final static boolean D=ETAS_Simulator.D;
@@ -72,12 +81,12 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	boolean applyGR_Corr = true;
 	
 	// these define the points in space
-	int numRateDepths, numRegLocsForRatesInSpace, numPointsForRates,  numPointsForParLocs, numParDepths;
+	int numCubeDepths, numCubesPerDepth, numCubes,  numParLocs, numParDepths;
 	double maxDepth, depthDiscr;
 	GriddedRegion origGriddedRegion;
-	GriddedRegion gridRegForRatesInSpace;
+	GriddedRegion gridRegForCubes; // the center of each cube in lat/lon space
 	GriddedRegion gridRegForParentLocs;
-	double regSpacing;
+	double cubeLatLonSpacing;
 	
 	FaultSystemSolutionERF erf;
 	int numFltSystSources, totNumSrc;
@@ -86,8 +95,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	int numPtSrcSubPts;
 	double pointSrcDiscr;
 	
-	// this is for each point in space
-	double[] latForRatesPoint, lonForRatesPoint, depthForRatesPoint;
+	// this is for each cube
+	double[] latForCubeCenter, lonForCubeCenter, depthForCubeCenter;
 	
 	// this will hold the rate of each ERF source (which can be modified by external objects)
 	double sourceRates[];
@@ -97,8 +106,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	
 	double totRate;
 	
-	List<float[]> fractionSrcAtPointList;
-	List<int[]> srcAtPointList;
+	List<float[]> fractionSrcInCubeList;
+	List<int[]> srcInCubeList;
 	
 	IntegerPDF_FunctionSampler pointSampler;
 	
@@ -121,8 +130,6 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
-//	public static final double DEFAULT_LAT_LON_DISCR = 0.02;	// discretization here, not of gridded sources
-//	public static final double DEFAULT_LAT_LON_DISCR = 0.05;	// discretization here, not of gridded sources
 	public static final int DEFAULT_NUM_PT_SRC_SUB_PTS = 5;		// 5 is good for orig pt-src gridding of 0.1
 	
 	
@@ -148,7 +155,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	
 	/**
 	 * 
-	 * @param regionForRates - region for etas sampling
+	 * @param griddedRegion - original gridded region for etas sampling
 	 * @param numPtSrcSubPts - this is how the sampling region will be discretized (discr = pointSrcDiscr/numPtSrcSubPts)
 	 * @param erf
 	 * @param sourceRates - pointer to an array of source rates (which may get updated externally)
@@ -160,6 +167,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param minDist - ETAS minimum distance parameter
 	 * @param includeERF_Rates - tells whether to consider long-term rates in sampling aftershocks
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
+	 * @param etas_utils - this is for obtaining reproducible random numbers (seed set in this object)
+	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @throws IOException 
 	 */
 	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
@@ -168,16 +177,16 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 
 		origGriddedRegion = griddedRegion;
-		this.regSpacing = pointSrcDiscr/numPtSrcSubPts;
+		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
 		if(D) System.out.println("Gridded Region has "+griddedRegion.getNumLocations()+" cells");
 		
 		this.numPtSrcSubPts = numPtSrcSubPts;
 		this.erf = erf;
 		
-		this.maxDepth=maxDepth;
+		this.maxDepth=maxDepth;	// the bottom of the deepest cube
 		this.depthDiscr=depthDiscr;
 		this.pointSrcDiscr = pointSrcDiscr;
-		numRateDepths = (int)Math.round(maxDepth/depthDiscr);
+		numCubeDepths = (int)Math.round(maxDepth/depthDiscr);
 		
 		this.etas_utils = etas_utils;
 		this.applyGR_Corr=applyGR_Corr;
@@ -185,25 +194,25 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
 		
-		// need to set the region anchors so that the gridRegForRatesInSpace sub-regions fall completely inside the griddes seis regions
-		//this assumes the point sources have an anchor of GriddedRegion.ANCHOR_0_0)
+		// need to set the region anchors so that the gridRegForRatesInSpace sub-regions fall completely inside the gridded seis regions
+		// this assumes the point sources have an anchor of GriddedRegion.ANCHOR_0_0)
 		if(numPtSrcSubPts % 2 == 0) {	// it's an even number
-			gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));
+			gridRegForCubes = new GriddedRegion(regionForRates, cubeLatLonSpacing, new Location(cubeLatLonSpacing/2d,cubeLatLonSpacing/2d));
 			// parent locs are mid way between rates in space:
-			gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);			
+			gridRegForParentLocs = new GriddedRegion(regionForRates, cubeLatLonSpacing, GriddedRegion.ANCHOR_0_0);			
 		}
 		else {	// it's odd
-			gridRegForRatesInSpace = new GriddedRegion(regionForRates, regSpacing, GriddedRegion.ANCHOR_0_0);
+			gridRegForCubes = new GriddedRegion(regionForRates, cubeLatLonSpacing, GriddedRegion.ANCHOR_0_0);
 			// parent locs are mid way between rates in space:
-			gridRegForParentLocs = new GriddedRegion(regionForRates, regSpacing, new Location(regSpacing/2d,regSpacing/2d));			
+			gridRegForParentLocs = new GriddedRegion(regionForRates, cubeLatLonSpacing, new Location(cubeLatLonSpacing/2d,cubeLatLonSpacing/2d));			
 		}
 		
 		
-		numRegLocsForRatesInSpace = gridRegForRatesInSpace.getNumLocations();
-		numPointsForRates = numRegLocsForRatesInSpace*numRateDepths;
+		numCubesPerDepth = gridRegForCubes.getNumLocations();
+		numCubes = numCubesPerDepth*numCubeDepths;
 		
-		numParDepths = numRateDepths+1;
-		numPointsForParLocs = gridRegForParentLocs.getNumLocations()*numParDepths;
+		numParDepths = numCubeDepths+1;
+		numParLocs = gridRegForParentLocs.getNumLocations()*numParDepths;
 		
 		grCorrFactorForCellArray = getGR_CorrFactorsForGridCells();
 		
@@ -223,7 +232,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 
 		
 		// this is for caching samplers (one for each possible parent location)
-		cachedSamplers = new IntegerPDF_FunctionSampler[numPointsForParLocs];
+		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
 		
 		this.sourceRates = sourceRates;
 		
@@ -233,15 +242,15 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		this.includeERF_Rates=includeERF_Rates;
 		this.includeSpatialDecay=includeSpatialDecay;
 
-		latForRatesPoint = new double[numPointsForRates];
-		lonForRatesPoint = new double[numPointsForRates];
-		depthForRatesPoint = new double[numPointsForRates];
-		for(int i=0;i<numPointsForRates;i++) {
+		latForCubeCenter = new double[numCubes];
+		lonForCubeCenter = new double[numCubes];
+		depthForCubeCenter = new double[numCubes];
+		for(int i=0;i<numCubes;i++) {
 			int[] regAndDepIndex = getRegAndDepIndicesForSamplerIndex(i);
-			Location loc = gridRegForRatesInSpace.getLocation(regAndDepIndex[0]);
-			latForRatesPoint[i] = loc.getLatitude();
-			lonForRatesPoint[i] = loc.getLongitude();
-			depthForRatesPoint[i] = getDepth(regAndDepIndex[1]);
+			Location loc = gridRegForCubes.getLocation(regAndDepIndex[0]);
+			latForCubeCenter[i] = loc.getLatitude();
+			lonForCubeCenter[i] = loc.getLongitude();
+			depthForCubeCenter[i] = getDepth(regAndDepIndex[1]);
 			
 			// test - turn off once done once
 //			Location testLoc = this.getLocationForSamplerIndex(i);
@@ -265,7 +274,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 		numFltSystSources = erf.getNumFaultSystemSources();
 		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources+
-				"\tnumPointsForRates="+numPointsForRates);
+				"\tnumPointsForRates="+numCubes);
 		srcIndexList = new ArrayList<Integer>();	// make a list so src indices are not duplicated in lists
 		for(int i=0; i<totNumSrc;i++)
 			srcIndexList.add(new Integer(i));
@@ -282,9 +291,9 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			
 			try {
 				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
-				fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(floatListListFile);
+				fractionSrcInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
 				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
-				srcAtPointList = MatrixIO.intArraysListFromFile(intListListFile);
+				srcInCubeList = MatrixIO.intArraysListFromFile(intListListFile);
 				// the following test is not better in terms of memory use
 //				ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
 				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
@@ -298,8 +307,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 
 		if(D) System.out.println("Running makeETAS_LocWtCalcList()");
 		double maxDistKm=1000;
-		double midLat = (gridRegForRatesInSpace.getMaxLat() + gridRegForRatesInSpace.getMinLat())/2.0;
-		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, regSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, etas_utils);
+		double midLat = (gridRegForCubes.getMaxLat() + gridRegForCubes.getMinLat())/2.0;
+		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, cubeLatLonSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, etas_utils);
 		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making etas_LocWeightCalc");
 		if(D) System.out.println("Done running makeETAS_LocWtCalcList()");
 		
@@ -310,8 +319,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	}
 	
 	public void setSrcAtPointCaches(List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList) {
-		this.fractionSrcAtPointList = fractionSrcAtPointList;
-		this.srcAtPointList = srcAtPointList;
+		this.fractionSrcInCubeList = fractionSrcAtPointList;
+		this.srcInCubeList = srcAtPointList;
 	}
 	
 	/**
@@ -330,7 +339,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		} catch (Exception e1) {} // headless
 		ArrayList<ArrayList<Integer>> sourcesAtPointList = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Float>> fractionsAtPointList = new ArrayList<ArrayList<Float>>();
-		for(int i=0; i<numPointsForRates;i++) {
+		for(int i=0; i<numCubes;i++) {
 			sourcesAtPointList.add(new ArrayList<Integer>());
 			fractionsAtPointList.add(new ArrayList<Float>());
 		}
@@ -345,7 +354,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				LocationList locsOnRupSurf = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 				int numLocs = locsOnRupSurf.size();
 				for(Location loc: locsOnRupSurf) {
-					int regIndex = gridRegForRatesInSpace.indexForLocation(loc);
+					int regIndex = gridRegForCubes.indexForLocation(loc);
 //if(!doneOne) {
 //	System.out.println("fault loc: "+loc);
 //	System.out.println("assoc reg loc: "+gridRegForRatesInSpace.getLocation(regIndex));
@@ -353,15 +362,15 @@ public class ETAS_PrimaryEventSamplerTest1 {
 //	//System.exit(0);
 //}
 					int depIndex = getDepthIndex(loc.getDepth());
-					if(depIndex >= numRateDepths) {
-						depIndex = numRateDepths-1;	// TODO
+					if(depIndex >= numCubeDepths) {
+						depIndex = numCubeDepths-1;	// TODO
 						if(D) System.out.println("Depth below max for point on "+src.getName()+"\t depth="+loc.getDepth());
 					}
 
 					if(regIndex != -1) {
-						int ptIndex = depIndex*numRegLocsForRatesInSpace+regIndex;
-						if(ptIndex>=numPointsForRates) {
-							throw new RuntimeException("Error: ptIndex="+ptIndex+"/depIndex="+depIndex+"/tnumDepths="+numRateDepths);
+						int ptIndex = depIndex*numCubesPerDepth+regIndex;
+						if(ptIndex>=numCubes) {
+							throw new RuntimeException("Error: ptIndex="+ptIndex+"/depIndex="+depIndex+"/tnumDepths="+numCubeDepths);
 						}
 						if(fractAtPointTable.containsKey(ptIndex)) {
 							float newFrac = fractAtPointTable.get(ptIndex) + 1f/(float)numLocs;
@@ -388,18 +397,18 @@ public class ETAS_PrimaryEventSamplerTest1 {
 						throw new RuntimeException("All ruptures for source must have point surfaces here");
 
 				Location centerLoc = src.getRupture(0).getRuptureSurface().getFirstLocOnUpperEdge();
-				double numPts = numPtSrcSubPts*numPtSrcSubPts*numRateDepths;
+				double numPts = numPtSrcSubPts*numPtSrcSubPts*numCubeDepths;
 				double ptRate = sourceRates[s]/numPts;
 				float ptFrac = 1f/(float)numPts;
 				// distribution this among the locations within the space represented by the point source
 				for(int iLat=0; iLat<numPtSrcSubPts;iLat++) {
-					double lat = centerLoc.getLatitude()-pointSrcDiscr/2 + iLat*regSpacing + regSpacing/2.0;
+					double lat = centerLoc.getLatitude()-pointSrcDiscr/2 + iLat*cubeLatLonSpacing + cubeLatLonSpacing/2.0;
 					for(int iLon=0; iLon<numPtSrcSubPts;iLon++) {
-						double lon = centerLoc.getLongitude()-pointSrcDiscr/2 + iLon*regSpacing + regSpacing/2.0;
-						int regIndex = gridRegForRatesInSpace.indexForLocation(new Location(lat,lon));
+						double lon = centerLoc.getLongitude()-pointSrcDiscr/2 + iLon*cubeLatLonSpacing + cubeLatLonSpacing/2.0;
+						int regIndex = gridRegForCubes.indexForLocation(new Location(lat,lon));
 // if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegForRatesInSpace.getLocation(regIndex));
 						if(regIndex != -1){
-							for(int iDep =0; iDep<numRateDepths; iDep++) {
+							for(int iDep =0; iDep<numCubeDepths; iDep++) {
 //								int ptIndex = iDep*numRegLocs+regIndex;
 								int ptIndex = getSamplerIndexForRegAndDepIndices(regIndex,iDep);
 								sourcesAtPointList.get(ptIndex).add(srcIndexList.get(s));
@@ -407,7 +416,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 							}
 						}
 						else {
-							rateUnassigned += ptRate*numRateDepths;
+							rateUnassigned += ptRate*numCubeDepths;
 //							System.out.println("1\t"+centerLoc.getLatitude()+"\t"+centerLoc.getLongitude()+"\t"+centerLoc.getDepth());
 						}
 					}
@@ -442,7 +451,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 */
 	public IntegerPDF_FunctionSampler getAveSamplerForRupture(EqkRupture mainshock) {
 		
-		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numPointsForRates);
+		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numCubes);
 		
 		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 		for(Location loc: locList) {
@@ -462,7 +471,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			// set the sampler
 			IntegerPDF_FunctionSampler sampler = getSampler(locIndexForPar, translatedParLoc);
 			
-			for(int i=0;i <numPointsForRates;i++) {
+			for(int i=0;i <numCubes;i++) {
 				aveSampler.add(i, sampler.getY(i));
 			}
 		}
@@ -487,8 +496,8 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		
 		// now loop over all the points for rates
 		double total = 0;
-		for(int i=0;i <numPointsForRates;i++) {
-			int[] sources = srcAtPointList.get(i);
+		for(int i=0;i <numCubes;i++) {
+			int[] sources = srcInCubeList.get(i);
 			if(sources.length==0) {
 				continue;
 			}
@@ -496,7 +505,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 				trigProb[sources[0]] += aveSampler.getY(i);
 			}
 			else {
-				float[] fracts = fractionSrcAtPointList.get(i);
+				float[] fracts = fractionSrcInCubeList.get(i);
 				// compute the relative probability of each source at this point
 				double[] relProb = new double[sources.length];
 				
@@ -639,10 +648,10 @@ public class ETAS_PrimaryEventSamplerTest1 {
 			}	
 if(locsToSampleFrom.size() == 0) {
 	System.out.println("PROBLEM: randSrcIndex="+randSrcIndex+"\tName: = "+src.getName());
-	for(int srcID:srcAtPointList.get(aftShPointIndex))
+	for(int srcID:srcInCubeList.get(aftShPointIndex))
 		System.out.println(srcID);
 	System.out.println("lat\tlon\tdepth");
-	System.out.println(latForRatesPoint[aftShPointIndex]+"\t"+lonForRatesPoint[aftShPointIndex]+"\t"+depthForRatesPoint[aftShPointIndex]);
+	System.out.println(latForCubeCenter[aftShPointIndex]+"\t"+lonForCubeCenter[aftShPointIndex]+"\t"+depthForCubeCenter[aftShPointIndex]);
 	for(Location loc: locsOnRupSurf) {
 		System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
 	}	
@@ -654,26 +663,26 @@ if(locsToSampleFrom.size() == 0) {
 			rupToFillIn.setFSSIndex(erf.getFltSysRupIndexForNthRup(nthRup));
 		}
 		else { // it's a gridded seis source
-			double relLat = latForRatesPoint[aftShPointIndex]-translatedParLoc.getLatitude();
-			double relLon = lonForRatesPoint[aftShPointIndex]-translatedParLoc.getLongitude();
-			double relDep = depthForRatesPoint[aftShPointIndex]-translatedParLoc.getDepth();
+			double relLat = latForCubeCenter[aftShPointIndex]-translatedParLoc.getLatitude();
+			double relLon = lonForCubeCenter[aftShPointIndex]-translatedParLoc.getLongitude();
+			double relDep = depthForCubeCenter[aftShPointIndex]-translatedParLoc.getDepth();
 			
 			rupToFillIn.setGridNodeIndex(randSrcIndex - numFltSystSources);
 						
 			Location deltaLoc = etas_LocWeightCalc.getRandomDeltaLoc(Math.abs(relLat), Math.abs(relLon), 
-					depthForRatesPoint[aftShPointIndex],translatedParLoc.getDepth());
+					depthForCubeCenter[aftShPointIndex],translatedParLoc.getDepth());
 			
 			double newLat, newLon, newDep;
 			if(relLat<0.0)	// neg value
-				newLat = latForRatesPoint[aftShPointIndex]-deltaLoc.getLatitude();
+				newLat = latForCubeCenter[aftShPointIndex]-deltaLoc.getLatitude();
 			else 
-				newLat = latForRatesPoint[aftShPointIndex]+deltaLoc.getLatitude();
+				newLat = latForCubeCenter[aftShPointIndex]+deltaLoc.getLatitude();
 			if(relLon<0.0)	// neg value
-				newLon = lonForRatesPoint[aftShPointIndex]-deltaLoc.getLongitude();
+				newLon = lonForCubeCenter[aftShPointIndex]-deltaLoc.getLongitude();
 			else 
-				newLon = lonForRatesPoint[aftShPointIndex]+deltaLoc.getLongitude();
+				newLon = lonForCubeCenter[aftShPointIndex]+deltaLoc.getLongitude();
 
-			newDep = depthForRatesPoint[aftShPointIndex]+deltaLoc.getDepth();
+			newDep = depthForCubeCenter[aftShPointIndex]+deltaLoc.getDepth();
 
 			Location randLoc = new Location(newLat,newLon,newDep);
 			
@@ -777,7 +786,7 @@ if(locsToSampleFrom.size() == 0) {
 	public void declareRateChange() {
 		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory before discarding chached Samplers");
 		pointSampler = null;
-		cachedSamplers = new IntegerPDF_FunctionSampler[numPointsForParLocs];
+		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
 		numCachedSamplers=0;
 		nextNumCachedSamplers=incrForReportingNumCachedSamplers;
 		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
@@ -796,10 +805,10 @@ if(locsToSampleFrom.size() == 0) {
 	 */
 	private IntegerPDF_FunctionSampler getPointSamplerWithERF_RatesOnly() {
 		if(pointSampler == null) {
-			pointSampler = new IntegerPDF_FunctionSampler(numPointsForRates);
-			for(int i=0;i<numPointsForRates;i++) {
-				int[] sources = srcAtPointList.get(i);
-				float[] fract = fractionSrcAtPointList.get(i);
+			pointSampler = new IntegerPDF_FunctionSampler(numCubes);
+			for(int i=0;i<numCubes;i++) {
+				int[] sources = srcInCubeList.get(i);
+				float[] fract = fractionSrcInCubeList.get(i);
 				double totRate=0;
 				for(int j=0; j<sources.length;j++) {
 					totRate += sourceRates[sources[j]]*(double)fract[j];
@@ -812,12 +821,12 @@ if(locsToSampleFrom.size() == 0) {
 	
 	
 	private IntegerPDF_FunctionSampler getPointSamplerWithDistDecay(Location srcLoc) {
-		getPointSamplerWithERF_RatesOnly();	// this makes sure it is updated
-		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numRateDepths*numRegLocsForRatesInSpace);
-		for(int index=0; index<numPointsForRates; index++) {
-			double relLat = Math.abs(srcLoc.getLatitude()-latForRatesPoint[index]);
-			double relLon = Math.abs(srcLoc.getLongitude()-lonForRatesPoint[index]);
-			sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForRatesPoint[index], srcLoc.getDepth())*pointSampler.getY(index));
+		getPointSamplerWithERF_RatesOnly();	// this makes sure pointSampler (rates only) is updated
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numCubeDepths*numCubesPerDepth);
+		for(int index=0; index<numCubes; index++) {
+			double relLat = Math.abs(srcLoc.getLatitude()-latForCubeCenter[index]);
+			double relLon = Math.abs(srcLoc.getLongitude()-lonForCubeCenter[index]);
+			sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[index], srcLoc.getDepth())*pointSampler.getY(index));
 		}
 		return sampler;
 	}
@@ -829,14 +838,14 @@ if(locsToSampleFrom.size() == 0) {
 	 * @return
 	 */
 	private IntegerPDF_FunctionSampler getPointSamplerWithOnlyDistDecay(Location parLoc) {
-		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numPointsForRates);
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numCubes);
 //		try{
 //			FileWriter fw1 = new FileWriter("test123.txt");
 //			fw1.write("relLat\trelLon\trelDep\twt\n");
-			for(int index=0; index<numPointsForRates; index++) {
-				double relLat = Math.abs(parLoc.getLatitude()-latForRatesPoint[index]);
-				double relLon = Math.abs(parLoc.getLongitude()-lonForRatesPoint[index]);
-				sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForRatesPoint[index], parLoc.getDepth()));
+			for(int index=0; index<numCubes; index++) {
+				double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[index]);
+				double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[index]);
+				sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[index], parLoc.getDepth()));
 //				if(relLat<0.25 && relLon<0.25)
 //					fw1.write((float)relLat+"\t"+(float)relLon+"\t"+(float)relDep+"\t"+(float)sampler.getY(index)+"\n");
 			}
@@ -856,7 +865,7 @@ if(locsToSampleFrom.size() == 0) {
 	 * @return
 	 */
 	public int getRandomSourceIndexAtPoint(int ptIndex) {
-		int[] sources = srcAtPointList.get(ptIndex);
+		int[] sources = srcInCubeList.get(ptIndex);
 		if(sources.length==0) {
 			return -1;
 		}
@@ -864,7 +873,7 @@ if(locsToSampleFrom.size() == 0) {
 			return sources[0];
 		}
 		else {
-			float[] fracts = fractionSrcAtPointList.get(ptIndex);
+			float[] fracts = fractionSrcInCubeList.get(ptIndex);
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
 			int indexForOrigGriddedRegion = -2;
 			if(applyGR_Corr)
@@ -985,27 +994,27 @@ if(locsToSampleFrom.size() == 0) {
 	private int[] getRegAndDepIndicesForSamplerIndex(int index) {
 		
 		int[] indices = new int[2];
-		indices[1] = (int)Math.floor((double)index/(double)numRegLocsForRatesInSpace);	// depth index
-		if(indices[1] >= this.numRateDepths )
-			System.out.println("PROBLEM: "+index+"\t"+numRegLocsForRatesInSpace+"\t"+indices[1]+"\t"+numRateDepths);
-		indices[0] = index - indices[1]*numRegLocsForRatesInSpace;						// region index
+		indices[1] = (int)Math.floor((double)index/(double)numCubesPerDepth);	// depth index
+		if(indices[1] >= this.numCubeDepths )
+			System.out.println("PROBLEM: "+index+"\t"+numCubesPerDepth+"\t"+indices[1]+"\t"+numCubeDepths);
+		indices[0] = index - indices[1]*numCubesPerDepth;						// region index
 		return indices;
 	}
 	
 	public Location getLocationForSamplerIndex(int index) {
 		int[] regAndDepIndex = getRegAndDepIndicesForSamplerIndex(index);
-		Location regLoc = gridRegForRatesInSpace.getLocation(regAndDepIndex[0]);
+		Location regLoc = gridRegForCubes.getLocation(regAndDepIndex[0]);
 		return new Location(regLoc.getLatitude(),regLoc.getLongitude(),getDepth(regAndDepIndex[1]));
 	}
 	
 	public int getSamplerIndexForLocation(Location loc) {
-		int iReg = gridRegForRatesInSpace.indexForLocation(loc);
+		int iReg = gridRegForCubes.indexForLocation(loc);
 		int iDep = getDepthIndex(loc.getDepth());
 		return getSamplerIndexForRegAndDepIndices(iReg,iDep);
 	}
 
 	private int getSamplerIndexForRegAndDepIndices(int iReg,int iDep) {
-		return iDep*numRegLocsForRatesInSpace+iReg;
+		return iDep*numCubesPerDepth+iReg;
 	}
 
 
@@ -1054,10 +1063,10 @@ if(locsToSampleFrom.size() == 0) {
 		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
 		progressBar.showProgress(true);
 
-		for(int i=0; i<numPointsForRates;i++) {
-			progressBar.updateProgress(i, numPointsForRates);
-			int[] sources = srcAtPointList.get(i);
-			float[] fracts = fractionSrcAtPointList.get(i);
+		for(int i=0; i<numCubes;i++) {
+			progressBar.updateProgress(i, numCubes);
+			int[] sources = srcInCubeList.get(i);
+			float[] fracts = fractionSrcInCubeList.get(i);
 			for(int s=0; s<sources.length;s++) {
 				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
 				for(int m=0;m<mfd.getNum();m++)
@@ -1289,11 +1298,11 @@ if(locsToSampleFrom.size() == 0) {
 		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
 		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
 		
-		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForRatesInSpace.getMinGridLat());
-		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForRatesInSpace.getMaxGridLat());
-		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForRatesInSpace.getMinGridLon());
-		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForRatesInSpace.getMaxGridLon());
-		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForRatesInSpace.getLatSpacing());	// assume lat and lon spacing are same
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
 //		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, 0.05);	// assume lat and lon spacing are same
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
@@ -1304,14 +1313,14 @@ if(locsToSampleFrom.size() == 0) {
 		//mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, true);
 
 
-		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForRatesInSpace, true);
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForCubes, true);
 		
 		// initialize values to zero
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
-		for(int i=0;i<numPointsForRates;i++) {
+		for(int i=0;i<numCubes;i++) {
 			Location loc = getLocationForSamplerIndex(i);
-			int mapLocIndex = gridRegForRatesInSpace.indexForLocation(loc);
+			int mapLocIndex = gridRegForCubes.indexForLocation(loc);
 			if(mapLocIndex>=0) {
 				double oldRate = xyzDataSet.get(mapLocIndex);
 				xyzDataSet.set(mapLocIndex, pointSampler.getY(i)+oldRate);					
@@ -1479,7 +1488,7 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0;i<numSamples;i++) {
 			int indexFromSampler = pointSampler.getRandomInt();
 			int[] regAndDepIndex = getRegAndDepIndicesForSamplerIndex(indexFromSampler);
-			int indexForMap = mapGriddedRegion.indexForLocation(gridRegForRatesInSpace.locationForIndex(regAndDepIndex[0]));	// ignoring depth
+			int indexForMap = mapGriddedRegion.indexForLocation(gridRegForCubes.locationForIndex(regAndDepIndex[0]));	// ignoring depth
 			double oldNum = xyzDataSet.get(indexForMap)*numYrs;
 			xyzDataSet.set(indexForMap, (1.0+oldNum)/(double)numYrs);
 			
