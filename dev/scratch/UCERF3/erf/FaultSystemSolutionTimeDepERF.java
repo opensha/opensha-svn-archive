@@ -69,7 +69,6 @@ import com.google.common.base.Splitter;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
-import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSamplerAlt;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
