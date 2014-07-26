@@ -470,7 +470,7 @@ public class ERF_RatesInSpace {
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
 //		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,testFileName);
-		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
+//		ERF_RatesInSpace erf_RatesInSpace = new ERF_RatesInSpace(gridedRegion,erf,24d,2d,0.1,testFileName);
 //		erf_RatesInSpace.plotRatesMap("test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapTest");
 //		erf_RatesInSpace.plotOrigERF_RatesMap("orig test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapOrigTest", erf);
 //		erf_RatesInSpace.plotRandomSampleRatesMap("random test", true, "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/mapRandomTest", erf,10000);
@@ -479,13 +479,13 @@ public class ERF_RatesInSpace {
 		
 		System.out.println("Making point sampler");
 		startTime = System.currentTimeMillis();
-		IntegerPDF_FunctionSampler pointSampler = erf_RatesInSpace.getPointSampler();
-		System.out.println("Making point sampler took "+(System.currentTimeMillis()-startTime)/1000+" sec");
-		startTime = System.currentTimeMillis();
-		System.out.println("Sampling 2000 points");
-		for(int i=0;i<2000;i++)
-			pointSampler.getRandomInt();
-		System.out.println("Sampling that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
+//		IntegerPDF_FunctionSampler pointSampler = erf_RatesInSpace.getPointSampler();
+//		System.out.println("Making point sampler took "+(System.currentTimeMillis()-startTime)/1000+" sec");
+//		startTime = System.currentTimeMillis();
+//		System.out.println("Sampling 2000 points");
+//		for(int i=0;i<2000;i++)
+//			pointSampler.getRandomInt();
+//		System.out.println("Sampling that took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 
 
 	}

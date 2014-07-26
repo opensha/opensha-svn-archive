@@ -15,19 +15,24 @@ import java.io.File;
 
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
 
 
 /**
+ * 
+ * NOTE I changed this to extend FaultSystemSolutionERF rather than FaultSystemSolutionTimeDepERF on
+ * July 26, 2014, and as a result, I had to comment out a couple errors in the main method here
+ * (these will need to be fixed before that method can be run again)
+ * 
  * Note that this uses NSHMP_GridSourceGeneratorMod2 which goes down to M 2.5,
  *  adds aftershocks back in, and excludes C zones (fixed strike sources)
  * @author field
  *
  */
-public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTimeDepERF {
+public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionERF {
 
 //	NSHMP_GridSourceGenerator nshmp_gridSrcGen;
 	NSHMP_GridSourceGeneratorMod2 nshmp_gridSrcGen;
@@ -134,13 +139,13 @@ public class UCERF2_FM2pt1_FaultSysSolTimeDepERF extends FaultSystemSolutionTime
 		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		obsEqkRuptureList.add(landersObs);
 		
-		erf.setRuptureOccurrenceTimePred(nthRup, 0);
+//		erf.setRuptureOccurrenceTimePred(nthRup, 0);
 		
 		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=false;
 		boolean includeEqkRates = false;
-		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList, includeSpontEvents, includeIndirectTriggering,
-				includeEqkRates, 0.1);
+//		erf.testETAS_Simulation(griddedRegion, obsEqkRuptureList, includeSpontEvents, includeIndirectTriggering,
+//				includeEqkRates, 0.1);
 //		erf.testETAS_SimulationOld(griddedRegion, obsEqkRuptureList);
 
 //		erf.testER_Simulation();

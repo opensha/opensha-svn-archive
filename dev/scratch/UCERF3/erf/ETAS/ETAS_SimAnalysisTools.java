@@ -52,7 +52,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
@@ -897,7 +897,7 @@ public class ETAS_SimAnalysisTools {
 		HistogramFunction firstGenEventTimes= new HistogramFunction(tMin+delta/2d,numPts,delta);
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			if(event.getParentRup() != null) {
-				double timeDays = (event.getOriginTime()-event.getParentRup().getOriginTime())/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY;
+				double timeDays = (event.getOriginTime()-event.getParentRup().getOriginTime())/ProbabilityModelsCalc.MILLISEC_PER_DAY;
 				firstGenEventTimes.add(timeDays, 1.0);
 			}
 		}
@@ -976,7 +976,7 @@ public class ETAS_SimAnalysisTools {
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			if(event.getParentRup() != null) {
 				double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
-				double logTimeDays = Math.log10(timeMillis/FaultSystemSolutionTimeDepERF.MILLISEC_PER_DAY);
+				double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
 				if(logTimeDays<=firstLogDay)
 					firstGenEventTimes.add(0, 1.0);
 				else

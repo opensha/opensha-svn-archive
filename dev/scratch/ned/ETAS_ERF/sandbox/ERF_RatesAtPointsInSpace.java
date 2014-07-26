@@ -414,7 +414,7 @@ public class ERF_RatesAtPointsInSpace {
 		
 		String testFileName = "/Users/field/workspace/OpenSHA/dev/scratch/ned/ETAS_ERF/testBinaryFile";
 
-		ERF_RatesAtPointsInSpace erf_RatesAtPointsInSpace = new ERF_RatesAtPointsInSpace(gridedRegion, erf, sourceRates, 24d,2d,0.1,testFileName);
+//		ERF_RatesAtPointsInSpace erf_RatesAtPointsInSpace = new ERF_RatesAtPointsInSpace(gridedRegion, erf, sourceRates, 24d,2d,0.1,testFileName);
 		System.out.println("Instantiating took "+(System.currentTimeMillis()-startTime)/1000+" sec");
 
 		// TESTS
