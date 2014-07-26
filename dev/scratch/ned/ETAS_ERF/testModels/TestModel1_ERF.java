@@ -41,6 +41,7 @@ import java.io.IOException;
 
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.FaultSystemSolutionTimeDepERF;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -52,7 +53,7 @@ import scratch.UCERF3.utils.ModUCERF2.NSHMP_GridSourceGeneratorMod2;
  * @author field
  *
  */
-public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
+public class TestModel1_ERF extends FaultSystemSolutionERF {
 	
 	final static boolean D=true;
 
@@ -87,7 +88,7 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		magLengthRel = new WC1994_MagLengthRelationship();
 		
 		// get the point sources that are on the fault
-		LocationList pointLocsOnFault = ((TestModel1_FSS)invSol).getPointLocsOnFault();
+		LocationList pointLocsOnFault = ((TestModel1_FSS)this.getSolution()).getPointLocsOnFault();
 		locIndicesOnFault = new ArrayList<Integer>();
 		for(Location loc : pointLocsOnFault){
 			int index = griddedRegion.indexForLocation(loc);
@@ -98,9 +99,9 @@ public class TestModel1_ERF extends FaultSystemSolutionTimeDepERF {
 		
 
 		// the following is the target MFD (down to M 2.5)
-		GutenbergRichterMagFreqDist  targetFaultGR = ((TestModel1_FSS)invSol).getTargetFaultGR();
+		GutenbergRichterMagFreqDist  targetFaultGR = ((TestModel1_FSS)this.getSolution()).getTargetFaultGR();
 		// the following is the MFD for the fault (seismogenic and larger)
-		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)invSol).getFaultGR();
+		ArbIncrementalMagFreqDist faultGR = ((TestModel1_FSS)this.getSolution()).getFaultGR();
 		
 		double offFaultSeisReductionFactor = 1;
 //		double offFaultSeisReductionFactor = 10;

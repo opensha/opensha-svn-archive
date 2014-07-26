@@ -71,7 +71,7 @@ public class ETAS_Simulator {
 	ProbEqkRupture mainShock;
 	
 	ArrayList<PrimaryAftershock> primaryAftershockList;
-	ETAS_PrimaryEventSampler etas_FirstGenSampler, etas_sampler;
+	ETAS_PrimaryEventSamplerJUNK2 etas_FirstGenSampler, etas_sampler;
 	EqkRupture parentRup;
 	double expectedNumPrimaryAftershocks, expectedNum;
 	SummedMagFreqDist totalExpectedNumMagDist;
@@ -110,7 +110,7 @@ public class ETAS_Simulator {
 			return new ArrayList<PrimaryAftershock>();
 		
 		// Make the ETAS sampler for the given main shock:
-		etas_sampler = new ETAS_PrimaryEventSampler(parentRup,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		etas_sampler = new ETAS_PrimaryEventSamplerJUNK2(parentRup,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
 		
 		// Write spatial probability dist data to file:
 //		ETAS_sampler.writeRelBlockProbToFile();
@@ -895,7 +895,7 @@ public class ETAS_Simulator {
 //		ETAS_PrimaryEventSamplerTest sampler = new ETAS_PrimaryEventSamplerTest(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
 		
 		System.out.println("Starting old way");
-		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
+		ETAS_PrimaryEventSamplerJUNK2 sampler = new ETAS_PrimaryEventSamplerJUNK2(mainShock,blockList, erf, distDecay,minDist, useAdaptiveBlocks, includeBlockRates);
 		sampler.plotBlockProbMap(info+" - old way", true, "testOldWay");
 		sampler.plotDistDecayTestFuncs("OldWay", "testOldWay/distDecayPlot");
 		

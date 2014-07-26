@@ -38,7 +38,7 @@ import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSampler {
+public class ETAS_PrimaryEventSamplerJUNK2 {
 	
 	protected final static boolean D = false;  // for debugging
 	
@@ -65,7 +65,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param useAdaptiveBlocks - indicate whether blocks close to parentRup should be sub-sampled
 	 * @param includeBlockRates - whether or not to use rates inside of blocks to modify spatial probabilities
 	 */
-	public ETAS_PrimaryEventSampler(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
+	public ETAS_PrimaryEventSamplerJUNK2(EqkRupture parentRup,ArrayList<EqksInGeoBlock> blockList, 
 			AbstractERF erf, double distDecay, double minDist, boolean useAdaptiveBlocks, boolean includeBlockRates) {
 		
 		this.parentRup=parentRup;
@@ -530,7 +530,7 @@ public class ETAS_PrimaryEventSampler {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		System.out.println(ETAS_PrimaryEventSampler.getDecayFractionInsideDistance(1.4,2.0, 10));
+		System.out.println(ETAS_PrimaryEventSamplerJUNK2.getDecayFractionInsideDistance(1.4,2.0, 10));
 		double r = Math.pow(25.6*0.75/Math.PI, 0.33333);
 		System.out.println(r);
 	}

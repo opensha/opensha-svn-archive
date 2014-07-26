@@ -42,7 +42,7 @@ import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSampler {
+public class ETAS_PrimaryEventSamplerJUNK {
 	
 	protected final static boolean D = true;  // for debugging
 	
@@ -74,7 +74,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param useAdaptiveBlocks - indicate whether blocks close to parentRup should be sub-sampled
 	 * @param includeBlockRates - whether or not to use rates inside of blocks to modify spatial probabilities
 	 */
-	public ETAS_PrimaryEventSampler(EqkRupture parentRup, ArrayList<EqksInGeoBlock> blockList, 
+	public ETAS_PrimaryEventSamplerJUNK(EqkRupture parentRup, ArrayList<EqksInGeoBlock> blockList, 
 			ArrayList<ArrayList<EqksInGeoBlock>> subBlockList1, ArrayList<ArrayList<EqksInGeoBlock>> subBlockList2,
 			FaultSystemSolutionPoissonERF erf, double distDecay, double minDist, 
 			boolean useAdaptiveBlocks, boolean includeBlockRates) {

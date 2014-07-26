@@ -75,7 +75,7 @@ import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
-import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSampler;
+import scratch.ned.ETAS_ERF.ETAS_PrimaryEventSamplerJUNK;
 import scratch.ned.ETAS_ERF.EqksInGeoBlock;
 import scratch.ned.ETAS_ERF.EqksInGeoBlockUtils;
 import scratch.ned.ETAS_ERF.sandbox.ERF_RatesAtPointsInSpace;
@@ -2364,8 +2364,8 @@ numSpontEvents=0;
 		
 		
 		// Make container for active primary event samplers, where the key is the event ID
-		HashMap<Integer,ETAS_PrimaryEventSampler> etasSamplerMap = new HashMap<Integer,ETAS_PrimaryEventSampler>();
-		ETAS_PrimaryEventSampler firstSampler=null;
+		HashMap<Integer,ETAS_PrimaryEventSamplerJUNK> etasSamplerMap = new HashMap<Integer,ETAS_PrimaryEventSamplerJUNK>();
+		ETAS_PrimaryEventSamplerJUNK firstSampler=null;
 		
 		System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")\n");
 		long runTime = System.currentTimeMillis();
@@ -2400,11 +2400,11 @@ numSpontEvents=0;
 			}
 			else {
 				// try to get sampler using parent ID (null if not yet there)
-				ETAS_PrimaryEventSampler sampler = etasSamplerMap.get(parID);
+				ETAS_PrimaryEventSamplerJUNK sampler = etasSamplerMap.get(parID);
 				numToProcess = mainshockNumToProcess.get(parID);	// this is the number of events the sampler has yet to process
 				if(sampler == null) {	// make the sampler and add to the list if it doesn't exist yet
 					mainshock = mainshockHashMap.get(parID);
-					sampler = new ETAS_PrimaryEventSampler(mainshock, blockList, subBlockList1, subBlockList2,
+					sampler = new ETAS_PrimaryEventSamplerJUNK(mainshock, blockList, subBlockList1, subBlockList2,
 							this, distDecay, minDist, useAdaptiveBlocks, includeBlockRates);
 					etasSamplerMap.put(parID, sampler);	// inefficient if there is only one to process
 				}
