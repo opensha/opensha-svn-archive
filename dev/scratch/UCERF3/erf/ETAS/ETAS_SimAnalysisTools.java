@@ -883,7 +883,7 @@ public class ETAS_SimAnalysisTools {
 		
 		double delta = 1.0; // days
 		double tMin=0;		//days
-		double tMax=366;	//days
+		double tMax=500;	//days
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
 
@@ -898,7 +898,8 @@ public class ETAS_SimAnalysisTools {
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			if(event.getParentRup() != null) {
 				double timeDays = (event.getOriginTime()-event.getParentRup().getOriginTime())/ProbabilityModelsCalc.MILLISEC_PER_DAY;
-				firstGenEventTimes.add(timeDays, 1.0);
+				if(timeDays<tMax+delta/2.0)
+					firstGenEventTimes.add(timeDays, 1.0);
 			}
 		}
 		firstGenEventTimes.setName("Observed Temporal Decay (relative to parent) for all events in "+info);
@@ -958,15 +959,15 @@ public class ETAS_SimAnalysisTools {
 			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
 		
 		double firstLogDay = -4;
-		double lastLocDay = 3;
+		double lastLogDay = 5;
 		double deltaLogDay =0.1;
-		int numPts = (int)Math.round((lastLocDay-firstLogDay)/deltaLogDay);
+		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
 
 		// make the target function & change it to a PDF
 //		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
-		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLocDay, deltaLogDay);
+		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
 		
 		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
 		targetFunc.setName("Expected Temporal Decay");
@@ -979,7 +980,7 @@ public class ETAS_SimAnalysisTools {
 				double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
 				if(logTimeDays<=firstLogDay)
 					firstGenEventTimes.add(0, 1.0);
-				else
+				else if(logTimeDays<lastLogDay+deltaLogDay/2.0)
 					firstGenEventTimes.add(logTimeDays, 1.0);
 			}
 		}

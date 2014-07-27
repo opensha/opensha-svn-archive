@@ -50,7 +50,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	private FileParameter fssFileParam;
 	private FileParameter inputCatalogParam;
 	
-	private EnumParameter<Scenario> scenarioParam;
+	private EnumParameter<ETAS_Simulator.TestScenario> scenarioParam;
 	
 	private BooleanParameter includeSpontEventsParam;
 	private BooleanParameter includeIndirectTriggeringParam;
@@ -79,47 +79,6 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 	
-	/**
-	 * Add scenarios here
-	 * @author kevin
-	 *
-	 */
-	private enum Scenario {
-		
-		MOJAVE("Mojave M7.05", 197792),
-		LANDERS("Landers", 246139),
-		NORTHRIDGE("Northridge", 187124),
-		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2);
-		
-		private String name;
-		private int fssIndex;
-		private Location loc;
-		private double mag;
-		private Scenario(String name, int fssIndex) {
-			this(name, fssIndex, null, Double.NaN);
-		}
-		
-		private Scenario(String name, Location loc, double mag) {
-			this(name, -1, loc, mag);
-		}
-		
-		private Scenario(String name, int fssIndex, Location loc, double mag) {
-			this.fssIndex = fssIndex;
-			this.name = name;
-			this.loc = loc;
-			this.mag = mag;
-			Preconditions.checkState(loc != null || fssIndex >= 0);
-			if (fssIndex >= 0)
-				Preconditions.checkState(loc == null);
-			else
-				Preconditions.checkState(loc != null);
-		}
-		
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
 	
 	public ETAS_SimulationGUI() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -159,7 +118,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		includeEqkRatesParam = new BooleanParameter("Include Earthquake Rates", true);
 		paramList.addParameter(includeEqkRatesParam);
 		
-		scenarioParam = new EnumParameter<ETAS_SimulationGUI.Scenario>("Scenario", EnumSet.allOf(Scenario.class), null, "(none)");
+		scenarioParam = new EnumParameter<ETAS_Simulator.TestScenario>("Scenario", EnumSet.allOf(ETAS_Simulator.TestScenario.class), null, "(none)");
 		paramList.addParameter(scenarioParam);
 		
 		inputCatalogParam = new FileParameter("Input Historical Catalog (optional)");
@@ -304,22 +263,22 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 			}
 		}
 		
-		Scenario scenario = scenarioParam.getValue();
+		ETAS_Simulator.TestScenario scenario = scenarioParam.getValue();
 		if (scenario != null) {
 			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 			mainshockRup.setOriginTime(ot);
 			
-			if (scenario.fssIndex >= 0) {
-				mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(scenario.fssIndex));
-				mainshockRup.setMag(sol.getRupSet().getMagForRup(scenario.fssIndex));
-				mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(scenario.fssIndex, 1d, false));
+			if (scenario.getFSS_Index() >= 0) {
+				mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(scenario.getFSS_Index()));
+				mainshockRup.setMag(sol.getRupSet().getMagForRup(scenario.getFSS_Index()));
+				mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false));
 				mainshockRup.setID(triggerID);
 				
-				erf.setFltSystemSourceOccurranceTimeForFSSIndex(scenario.fssIndex, ot);
+				erf.setFltSystemSourceOccurranceTimeForFSSIndex(scenario.getFSS_Index(), ot);
 			} else {
 				mainshockRup.setAveRake(0.0);
-				mainshockRup.setMag(scenario.mag);
-				mainshockRup.setPointSurface(scenario.loc);
+				mainshockRup.setMag(scenario.getMagnitude());
+				mainshockRup.setPointSurface(scenario.getLocation());
 				mainshockRup.setID(triggerID);
 			}
 			obsEqkRuptureList.add(mainshockRup);
