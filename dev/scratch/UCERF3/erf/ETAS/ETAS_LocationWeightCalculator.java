@@ -39,7 +39,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
  * @author field
  *
  */
-public class ETAS_LocationWeightCalculatorTest1 {
+public class ETAS_LocationWeightCalculator {
 	
 	final static boolean D = false;
 	
@@ -80,7 +80,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 	 * @param etasDistDecay - the ETAS distance decay parameter
 	 * @param etasMinDist - the ETAS min distance
 	 */
-	public ETAS_LocationWeightCalculatorTest1(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscrKm, 
+	public ETAS_LocationWeightCalculator(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscrKm, 
 			double midLat, double etasDistDecay, double etasMinDist, ETAS_Utils etas_utils) {
 		
 		cosMidLat = Math.cos(midLat*Math.PI/180);
@@ -601,7 +601,7 @@ public class ETAS_LocationWeightCalculatorTest1 {
 		double etasMinDist=ETAS_Utils.minDist_DEFAULT;
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("before");
-		ETAS_LocationWeightCalculatorTest1 calc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepthKm, 
+		ETAS_LocationWeightCalculator calc = new ETAS_LocationWeightCalculator(maxDistKm, maxDepthKm, 
 					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist, new ETAS_Utils());
 		ETAS_SimAnalysisTools.writeMemoryUse("after");
 

@@ -74,7 +74,7 @@ import scratch.UCERF3.utils.MatrixIO;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSamplerTest1 {
+public class ETAS_PrimaryEventSampler {
 	
 	final static boolean D=ETAS_Simulator.D;
 	
@@ -120,7 +120,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
-	ETAS_LocationWeightCalculatorTest1 etas_LocWeightCalc;
+	ETAS_LocationWeightCalculator etas_LocWeightCalc;
 	
 	SummedMagFreqDist[] mfdForSrcArray;
 	
@@ -143,7 +143,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param includeERF_Rates
 	 * @param includeSpatialDecay
 	 */
-	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
 			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr) {
 
@@ -171,7 +171,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @throws IOException 
 	 */
-	public ETAS_PrimaryEventSamplerTest1(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr) {
 		
@@ -308,7 +308,7 @@ public class ETAS_PrimaryEventSamplerTest1 {
 		if(D) System.out.println("Running makeETAS_LocWtCalcList()");
 		double maxDistKm=1000;
 		double midLat = (gridRegForCubes.getMaxLat() + gridRegForCubes.getMinLat())/2.0;
-		etas_LocWeightCalc = new ETAS_LocationWeightCalculatorTest1(maxDistKm, maxDepth, cubeLatLonSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, etas_utils);
+		etas_LocWeightCalc = new ETAS_LocationWeightCalculator(maxDistKm, maxDepth, cubeLatLonSpacing, depthDiscr, midLat, etasDistDecay, etasMinDist, etas_utils);
 		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making etas_LocWeightCalc");
 		if(D) System.out.println("Done running makeETAS_LocWtCalcList()");
 		
@@ -1180,7 +1180,7 @@ if(locsToSampleFrom.size() == 0) {
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
-		ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler = new ETAS_PrimaryEventSamplerTest1(griddedRegion, erf, sourceRates, 
+		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				true);
 		

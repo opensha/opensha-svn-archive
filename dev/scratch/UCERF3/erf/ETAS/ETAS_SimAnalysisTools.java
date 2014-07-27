@@ -783,7 +783,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param expNum - expected number of primary aftershocks
 	 * @return
 	 */
-	public static EvenlyDiscretizedFunc plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSamplerTest1 etas_PrimEventSampler, 
+	public static EvenlyDiscretizedFunc plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
 			EqkRupture rupture, double expNum) {
 		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedMFD(rupture);
 		// convert MFD to probability density function
