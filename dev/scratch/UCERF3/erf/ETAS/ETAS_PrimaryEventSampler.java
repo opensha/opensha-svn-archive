@@ -78,6 +78,10 @@ public class ETAS_PrimaryEventSampler {
 	
 	final static boolean D=ETAS_Simulator.D;
 	
+	String defaultFractSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSrcInCubeCache";
+	String defaultSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/srcInCubeCache";
+
+	
 	boolean applyGR_Corr = true;
 	
 	// these define the points in space
@@ -145,11 +149,12 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr) {
+			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSrcInCubeList, 
+			List<int[]> inputSrcInCubeList) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, oututFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr);
+				applyGR_Corr, inputFractSrcInCubeList, inputSrcInCubeList);
 	}
 
 	
@@ -173,9 +178,9 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr) {
+			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
+			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList) {
 		
-
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
 		if(D) System.out.println("Gridded Region has "+griddedRegion.getNumLocations()+" cells");
@@ -190,6 +195,10 @@ public class ETAS_PrimaryEventSampler {
 		
 		this.etas_utils = etas_utils;
 		this.applyGR_Corr=applyGR_Corr;
+		
+		this.fractionSrcInCubeList=fractionSrcInCubeList;
+		this.srcInCubeList=srcInCubeList;
+		
 		
 		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
 
@@ -281,30 +290,36 @@ public class ETAS_PrimaryEventSampler {
 		
 		rateUnassigned=0;
 		
-//		generateAndWriteListListDataToFile();
-//		System.exit(0);
-		
-		File intListListFile = new File("junkHereFileInt");
-		File floatListListFile = new File("junkHereFileFloat");
-		if (intListListFile.exists() && floatListListFile.exists()) {
-			// else needs to be set externally
-			
-			try {
-				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
-				fractionSrcInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
-				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
-				srcInCubeList = MatrixIO.intArraysListFromFile(intListListFile);
-				// the following test is not better in terms of memory use
-//				ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
-				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		// read or make cache data if needed
+		if(inputFractSrcInCubeList!=null && inputSrcInCubeList != null) {
+				srcInCubeList = inputSrcInCubeList;
+				fractionSrcInCubeList = inputFractSrcInCubeList;
 		}
-		
-//		if(D) writeMemoryUse();
+		else {
+			File intListListFile = new File(defaultSrcInCubeCacheFilename);
+			File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);	
+			if (intListListFile.exists() && floatListListFile.exists()) {
+				try {
+					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
+					fractionSrcInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
+					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
+					srcInCubeList = MatrixIO.intArraysListFromFile(intListListFile);
+					// the following test is not better in terms of memory use
+					//					ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
+					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			else {  // make cache file if they don't exist
+				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before running generateAndWriteListListDataToFile");
+				generateAndWriteListListDataToFile();
+				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after running generateAndWriteListListDataToFile");
+			}
 
+		}
+		// read from file if it exists
+		
 		if(D) System.out.println("Running makeETAS_LocWtCalcList()");
 		double maxDistKm=1000;
 		double midLat = (gridRegForCubes.getMaxLat() + gridRegForCubes.getMinLat())/2.0;
@@ -331,7 +346,7 @@ public class ETAS_PrimaryEventSampler {
 	 * 
 	 */
 	private void generateAndWriteListListDataToFile() {
-		if(D) System.out.println("Starting ETAS.ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile()");
+		if(D) System.out.println("Starting ETAS.ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile(); THIS WILL TAKE TIME AND MEMORY!");
 		long st = System.currentTimeMillis();
 		CalcProgressBar progressBar = null;
 		try {
@@ -427,8 +442,8 @@ public class ETAS_PrimaryEventSampler {
 		if(D) System.out.println("rateUnassigned="+rateUnassigned);
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory before writing files");
-		File intListListFile = new File("junkHereFileInt");
-		File floatListListFile = new File("junkHereFileFloat");
+		File intListListFile = new File(defaultSrcInCubeCacheFilename);
+		File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);
 		try {
 			MatrixIO.intListListToFile(sourcesAtPointList,intListListFile);
 			MatrixIO.floatListListToFile(fractionsAtPointList, floatListListFile);
@@ -1146,30 +1161,9 @@ if(locsToSampleFrom.size() == 0) {
 		
 		
 		
-		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		// set parameters
-		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
-		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
-		System.out.println("Setting timeSpan start");
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-//		erf.getTimeSpan().setStartTime(2015);
-		System.out.println("Setting timeSpan duration");
-		erf.getTimeSpan().setDuration(1);
-		
-		erf.updateForecast();
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
-
 
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -1182,11 +1176,11 @@ if(locsToSampleFrom.size() == 0) {
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				true);
+				true,null,null);
 		
 		
 		
-//		etas_PrimEventSampler.testMagFreqDist();
+		etas_PrimEventSampler.testMagFreqDist();
 		
 		// OLD STUFF BELOW
 		

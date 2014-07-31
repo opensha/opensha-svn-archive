@@ -144,8 +144,9 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
 			GriddedRegion griddedRegion, List<ETAS_EqkRupture> obsEqkRuptureList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
-			Long randomSeed, List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList, ETAS_ParameterList etasParams)
+			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)
 					throws IOException {
+		
 		
 		// TODO:
 		// griddedRegion could come from erf.getSolution().getGridSourceProvider().getGriddedRegion(); can the two be different?
@@ -301,9 +302,8 @@ public class ETAS_Simulator {
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		st = System.currentTimeMillis();
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), etasParams.getImposeGR());
-		if (fractionSrcAtPointList != null && srcAtPointList != null)
-			etas_PrimEventSampler.setSrcAtPointCaches(fractionSrcAtPointList, srcAtPointList);
+				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
+				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList);
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 
