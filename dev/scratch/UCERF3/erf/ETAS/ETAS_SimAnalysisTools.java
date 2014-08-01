@@ -1,6 +1,7 @@
 package scratch.UCERF3.erf.ETAS;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import org.dom4j.DocumentException;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
@@ -35,11 +37,13 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -1214,7 +1218,7 @@ public class ETAS_SimAnalysisTools {
 			if (parents.contains(rup.getParentID()) || rup.getID() == parentID) {
 				// it's in the chain
 				ret.add(rup);
-				parents.add(rup.getParentID());
+				parents.add(rup.getID());
 			}
 		}
 		
@@ -1222,6 +1226,15 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	public static void plotMaxMagVsNumAftershocks(List<List<ETAS_EqkRupture>> catalogs, int parentID) {
+		try {
+			plotMaxMagVsNumAftershocks(catalogs, parentID, 0d, null, null);
+		} catch (IOException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
+	}
+	
+	public static void plotMaxMagVsNumAftershocks(List<List<ETAS_EqkRupture>> catalogs, int parentID,
+			double mainShockMag, File outputFile, String title) throws IOException {
 		XY_DataSet scatter = new DefaultXY_DataSet();
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			if (parentID >= 0)
@@ -1238,12 +1251,78 @@ public class ETAS_SimAnalysisTools {
 		List<PlotElement> elems = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
+		int bufferSize = 20;
+		if (scatter.getMaxY() < 300)
+			bufferSize = 5;
+		
+		double minX = scatter.getMinX() - 0.1;
+		double maxX = scatter.getMaxX() + 0.1;
+		double minY = scatter.getMinY() - bufferSize;
+		double maxY = scatter.getMaxY() + bufferSize;
+		
+		if (mainShockMag > 0) {
+			DefaultXY_DataSet magLine = new DefaultXY_DataSet();
+			magLine.setName("Mainshock Magnitude");
+			magLine.set(mainShockMag, 0);
+			magLine.set(mainShockMag, minY);
+			magLine.set(mainShockMag, 0.5*(minY+maxY));
+			magLine.set(mainShockMag, maxY);
+			magLine.set(mainShockMag, maxX*5);
+			elems.add(magLine);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		}
+		
 		elems.add(scatter);
 		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
-		PlotSpec spec = new PlotSpec(elems, chars, "Max Aftershock Mag vs Num Afershocks",
+		if (title == null)
+			title = "Max Aftershock Mag vs Num Afershocks";
+		PlotSpec spec = new PlotSpec(elems, chars, title,
 				"Max Aftershock Mag", "Number of Aftershocks");
-		GraphWindow gw = new GraphWindow(spec);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		
+		if (mainShockMag > 0) {
+			// now annotation
+			int numAbove = 0;
+			int tot = scatter.getNum();
+			for (Point2D pt : scatter) {
+				if (pt.getX() > mainShockMag)
+					numAbove++;
+			}
+			
+			String text = numAbove+"/"+tot+" ("+(float)(100d*(double)numAbove/(double)tot)+" %) above M"+(float)mainShockMag;
+			
+			if (title != null)
+				System.out.println(title+": "+text);
+			
+			List<XYTextAnnotation> annotations = Lists.newArrayList();
+			XYTextAnnotation ann = new XYTextAnnotation(text, minX+(maxX-minX)*0.2, minY+(maxY-minY)*0.95);
+			ann.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+			annotations.add(ann);
+			spec.setPlotAnnotations(annotations);
+		}
+		
+		if (outputFile == null) {
+			GraphWindow gw = new GraphWindow(spec);
+			gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+			gw.setAxisRange(minX, maxX, minY, maxY);
+			gw.setYLog(true);
+		} else {
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
+			gp.setBackgroundColor(Color.WHITE);
+			
+			gp.setUserBounds(minX, maxX, minY, maxY);
+			gp.setYLog(true);
+			gp.drawGraphPanel(spec);
+			gp.getCartPanel().setSize(1000, 800);
+			
+			if (outputFile.getName().toLowerCase().endsWith(".png"))
+				gp.saveAsPNG(outputFile.getAbsolutePath());
+			else
+				gp.saveAsPDF(outputFile.getAbsolutePath());
+		}
+		
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {
