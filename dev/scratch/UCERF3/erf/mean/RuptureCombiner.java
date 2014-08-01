@@ -30,7 +30,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -817,8 +817,8 @@ public class RuptureCombiner {
 					rups2.add(rupIDMapping.get(r));
 				}
 				
-				FaultSystemSolutionPoissonERF erf1 = new FaultSystemSolutionPoissonERF(new SubsetSolution(sol1, rups1));
-				FaultSystemSolutionPoissonERF erf2 = new FaultSystemSolutionPoissonERF(new SubsetSolution(sol2, rups2));
+				FaultSystemSolutionERF erf1 = new FaultSystemSolutionERF(new SubsetSolution(sol1, rups1));
+				FaultSystemSolutionERF erf2 = new FaultSystemSolutionERF(new SubsetSolution(sol2, rups2));
 				
 				erf1.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 				erf2.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);

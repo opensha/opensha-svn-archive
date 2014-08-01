@@ -1214,6 +1214,8 @@ public class SynchParamCalculator {
 					lag_debug = false;
 
 					double gBar = calc.getGBar();
+					if (!Doubles.isFinite(gBar))
+						gBar = 1d;
 
 					//						if (cov) {
 					//							params[m][n][lagIndex] = calc.cov;
@@ -1540,7 +1542,11 @@ public class SynchParamCalculator {
 					for (int n=m+1; n<nDims; n++) {
 						IDPairing pair = new IDPairing(m, n);
 						UncertainArbDiscDataset func = lagUncertainties.get(pair);
-						double val = func.getLowerY(0d);
+						double val;
+						if (func == null)
+							val = Double.NaN;
+						else
+							val = func.getLowerY(0d);
 						myParams[m][n] = val;
 						myParams[n][m] = val;
 					}
@@ -2047,6 +2053,14 @@ public class SynchParamCalculator {
 			// now do std devs for each lag
 			//		System.out.println("Calculating Synch Lag Std Devs/Biases");
 			//		writeSynchParamsStdDev(writeDir, myEvents, rupIdens, chain, rangeInclusive(-20, 20), 100, distSpacing);
+			
+			// write inter event time dists
+			List<Color> colors = SynchIdens.getStandardColors();
+			File distsDir = new File(writeDir, "inter_event_dists");
+			if (!distsDir.exists())
+				distsDir.mkdir();
+			PeriodicityPlotter.plotPeriodsAndEvents(myEvents, false, false, distsDir,
+					rupIdens, colors, false);
 		}
 	}
 

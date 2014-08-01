@@ -42,7 +42,7 @@ import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.util.TectonicRegionType;
 
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.simulatedAnnealing.hpc.LogicTreePBSWriter;
 import scratch.UCERF3.simulatedAnnealing.hpc.LogicTreePBSWriter.RunSites;
 
@@ -133,8 +133,8 @@ public class HazardMapPBSGen {
 				erf.getTimeSpan().setStartTime(2013);
 			
 		} else {
-			erf = new FaultSystemSolutionPoissonERF();
-			erf.getParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME).setValue(solFile);
+			erf = new FaultSystemSolutionERF();
+			erf.getParameter(FaultSystemSolutionERF.FILE_PARAM_NAME).setValue(solFile);
 			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
 			erf.getTimeSpan().setDuration(durationYears, TimeSpan.YEARS);
 		}

@@ -354,7 +354,7 @@ public class PeriodicityPlotter {
 	
 	private static Color duplicateColor = Color.ORANGE.darker();
 
-	private static void plotPeriodsAndEvents(List<EQSIM_Event> events,
+	public static void plotPeriodsAndEvents(List<EQSIM_Event> events,
 			boolean display, boolean displayEventTimes, File writeDir,
 			List<RuptureIdentifier> rupIdens,
 			List<Color> colors, boolean randomized) throws IOException {
@@ -379,6 +379,7 @@ public class PeriodicityPlotter {
 				hist = new HistogramFunction(5d, 100, 10d);
 			else
 				hist = new HistogramFunction(5d, 100, 1d);
+			hist.setName(name);
 			
 			HashSet<Integer> ids = new HashSet<Integer>();
 			idsList.add(ids);
@@ -437,7 +438,7 @@ public class PeriodicityPlotter {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
 			
 			makePlot(writeDir, "period_"+getFileSafeString(name), display, randomized,
-					funcs, chars, name+" Inter-Event Times", "Years", "Number", null, null, dimensions);
+					funcs, chars, name+" Inter-Event Times", "Years", "Number", null, null, dimensions, true);
 		}
 		
 		double[][] periodRanges = new double[2][2];
@@ -447,12 +448,12 @@ public class PeriodicityPlotter {
 		periodRanges[1][1] = 2000;
 		boolean[] periodLogs = { false, true };
 		makePlot(writeDir, "period_all_log", display, randomized,
-				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions);
+				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions, true);
 		
 		periodLogs[1] = false;
 		periodRanges[1][0] = 0;
 		makePlot(writeDir, "period_all", display, randomized,
-				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions);
+				allPeriodFuncs, allPeriodChars, " Inter-Event Times", "Years", "Number", periodRanges, periodLogs, dimensions, true);
 		
 		
 		ArrayList<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
@@ -560,7 +561,7 @@ public class PeriodicityPlotter {
 			}
 			
 			makePlot(writeDir, prefix+"_"+xRange[0]+"_"+xRange[1], displayEventTimes, randomized,
-					subFuncs, subChars, "Event Times", "Years", "Magnitude", ranges, null, dimensions);
+					subFuncs, subChars, "Event Times", "Years", "Magnitude", ranges, null, dimensions, true);
 			
 			double[][] labelRange = new double[2][2];
 			labelRange[0][0] = xRange[0];
@@ -571,7 +572,7 @@ public class PeriodicityPlotter {
 			int[] labelDims = { 1000, 300 };
 			
 			makePlot(writeDir, prefix+"_labels_"+xRange[0]+"_"+xRange[1], displayEventTimes, randomized,
-					labelFuncs, labelChars, "Event Times", "Years", "Magnitude", labelRange, null, labelDims);
+					labelFuncs, labelChars, "Event Times", "Years", "Magnitude", labelRange, null, labelDims, true);
 		}
 	}
 	
@@ -1698,12 +1699,13 @@ public class PeriodicityPlotter {
 			ArrayList<? extends DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars, String plotTitle,
 			String xAxisLabel, String yAxisLabel, double[][] ranges, boolean[] logs) throws IOException {
 		makePlot(dir, prefix, display, randomized, funcs, chars, plotTitle,
-				xAxisLabel, yAxisLabel, ranges, logs, null);
+				xAxisLabel, yAxisLabel, ranges, logs, null, false);
 	}
 	
 	private static void makePlot(File dir, String prefix, boolean display, boolean randomized,
 			ArrayList<? extends DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars, String plotTitle,
-			String xAxisLabel, String yAxisLabel, double[][] ranges, boolean[] logs, int[] dimensions) throws IOException {
+			String xAxisLabel, String yAxisLabel, double[][] ranges, boolean[] logs, int[] dimensions, boolean legend)
+					throws IOException {
 		if (randomized) {
 			plotTitle = "RANDOMIZED "+plotTitle;
 			prefix = prefix+"_randomized";
@@ -1711,16 +1713,16 @@ public class PeriodicityPlotter {
 		
 		String fileName = new File(dir, prefix).getAbsolutePath();
 		
+		PlotSpec spec = new PlotSpec(funcs, chars, plotTitle, xAxisLabel, yAxisLabel);
+		if (legend)
+			spec.setLegendVisible(true);
+		
 		if (display) {
-			GraphWindow gw = new GraphWindow(funcs, plotTitle, chars);
+			GraphWindow gw = new GraphWindow(spec);
 			if (dimensions == null)
 				gw.setSize(600, 800);
 			else
 				gw.setSize(dimensions[0], dimensions[1]);
-			if (xAxisLabel != null)
-				gw.setX_AxisLabel(xAxisLabel);
-			if (yAxisLabel != null)
-				gw.setY_AxisLabel(yAxisLabel);
 			if (ranges != null) {
 				gw.setX_AxisRange(ranges[0][0], ranges[0][1]);
 				gw.setY_AxisRange(ranges[1][0], ranges[1][1]);
@@ -1750,7 +1752,7 @@ public class PeriodicityPlotter {
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
 			gp.setPlotLabelFontSize(21);
-			gp.drawGraphPanel(xAxisLabel, yAxisLabel, funcs, chars, plotTitle);
+			gp.drawGraphPanel(spec);
 			if (dimensions == null)
 				gp.getCartPanel().setSize(1000, 800);
 			else

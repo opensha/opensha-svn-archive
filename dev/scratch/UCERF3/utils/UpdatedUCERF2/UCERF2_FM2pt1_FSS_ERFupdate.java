@@ -10,7 +10,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 
 import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
 
@@ -21,7 +21,7 @@ import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
  * @author field
  *
  */
-public class UCERF2_FM2pt1_FSS_ERFupdate extends FaultSystemSolutionPoissonERF {
+public class UCERF2_FM2pt1_FSS_ERFupdate extends FaultSystemSolutionERF {
 	
 	NSHMP08_GridSourceGenerator gridSrcGen;
 	

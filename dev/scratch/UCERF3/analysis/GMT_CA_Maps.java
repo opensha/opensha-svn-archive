@@ -27,7 +27,6 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -236,10 +235,10 @@ public class GMT_CA_Maps {
 			double maxMag, String scaleLabel,
 			String metadata, String dirName) throws IOException {
 		
-		FaultSystemSolutionPoissonERF erf1 = new FaultSystemSolutionPoissonERF(faultSysSolution1);
+		FaultSystemSolutionERF erf1 = new FaultSystemSolutionERF(faultSysSolution1);
 		erf1.updateForecast();
 		
-		FaultSystemSolutionPoissonERF erf2 = new FaultSystemSolutionPoissonERF(faultSysSolution2);
+		FaultSystemSolutionERF erf2 = new FaultSystemSolutionERF(faultSysSolution2);
 		erf2.updateForecast();
 		
 		plotRatioOfNucleationRateMaps(erf1, erf2, minMag, maxMag, scaleLabel, metadata, dirName);
@@ -288,10 +287,10 @@ public class GMT_CA_Maps {
 			double minMag, double maxMag, String scaleLabel,
 			String metadata, String dirName) throws IOException {
 		
-		FaultSystemSolutionPoissonERF erf1 = new FaultSystemSolutionPoissonERF(faultSysSolution1);
+		FaultSystemSolutionERF erf1 = new FaultSystemSolutionERF(faultSysSolution1);
 		erf1.updateForecast();
 		
-		FaultSystemSolutionPoissonERF erf2 = new FaultSystemSolutionPoissonERF(faultSysSolution2);
+		FaultSystemSolutionERF erf2 = new FaultSystemSolutionERF(faultSysSolution2);
 		erf2.updateForecast();
 
 		plotRatioOfParticipationRateMaps(erf1, erf2, minMag, maxMag, scaleLabel, metadata, dirName);
@@ -334,7 +333,7 @@ public class GMT_CA_Maps {
 	 */
 	public static void plotNucleationRateMap(FaultSystemSolution faultSysSolution, double minMag, double maxMag, String scaleLabel,
 			String metadata, String dirName) throws IOException {
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(faultSysSolution);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(faultSysSolution);
 		erf.updateForecast();
 		plotNucleationRateMap(erf, minMag, maxMag, scaleLabel, metadata, dirName);
 	}
@@ -405,7 +404,7 @@ public class GMT_CA_Maps {
 	 */
 	public static void plotParticipationRateMap(FaultSystemSolution faultSysSolution, double minMag, double maxMag, String scaleLabel,
 			String metadata, String dirName) throws IOException {
-		FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(faultSysSolution);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(faultSysSolution);
 		erf.updateForecast();
 		plotParticipationRateMap(erf, minMag, maxMag, scaleLabel, metadata, dirName);
 	}

@@ -207,7 +207,7 @@ public enum ERF_ID {
 	}
 
 	private static EpistemicListERF getUC2_FM2P1_FSS() {
-		final FaultSystemSolutionPoissonERF erf = new UCERF2_FM2pt1_FSS_ERFupdate();
+		final FaultSystemSolutionERF erf = new UCERF2_FM2pt1_FSS_ERFupdate();
 		erf.getTimeSpan().setDuration(1.0);
 		return wrapInList(erf);
 	}

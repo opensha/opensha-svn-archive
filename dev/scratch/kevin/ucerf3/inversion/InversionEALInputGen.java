@@ -23,7 +23,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sra.calc.parallel.MPJ_EAL_Calc;
 import org.opensha.sra.calc.parallel.treeTrimming.LogicTreeInputFileGen;
 
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 
 import com.google.common.collect.Lists;
 
@@ -130,8 +130,8 @@ public class InversionEALInputGen {
 					Element el = root.addElement(MPJ_EAL_Calc.BATCH_ELEMENT_NAME);
 					File solFile = solFiles.remove(0);
 					
-					FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF();
-					erf.getParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME).setValue(solFile.getAbsolutePath());
+					FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
+					erf.getParameter(FaultSystemSolutionERF.FILE_PARAM_NAME).setValue(solFile.getAbsolutePath());
 					
 					erf.toXMLMetadata(el);
 					imr.toXMLMetadata(el);

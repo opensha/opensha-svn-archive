@@ -25,8 +25,7 @@ import com.google.common.collect.Lists;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
@@ -70,7 +69,7 @@ public class FSS_ERF_MemLeakTest {
 			System.out.println("*** Loaded solution "+(cnt++));
 			
 //			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(new InversionFaultSystemSolution(fetch.getSolution(branch)));
-			FaultSystemSolutionPoissonERF erf = new FaultSystemSolutionPoissonERF(sol);
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 			erf.updateForecast();
 //			System.out.println("Calculating MFDs");
 //			ERF_Calculator.getMagFreqDistInRegion(erf, region, 5d, 41, 0.1d, r.nextBoolean());

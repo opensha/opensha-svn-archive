@@ -10,10 +10,8 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
-import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
@@ -21,20 +19,16 @@ import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 import org.opensha.sra.calc.parallel.MPJ_EAL_Calc;
 
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 
 public class UCERF3_EAL_ScriptWriter {
 
 	public static void main(String[] args) throws IOException {
-		ERF erf = new UCERF3_FaultSysSol_ERF();
+		ERF erf = new FaultSystemSolutionERF();
 //		UCERF2_TimeDependentEpistemicList erf = new UCERF2_TimeDependentEpistemicList();
 		int listIndex = 0;
 		
@@ -62,7 +56,7 @@ public class UCERF3_EAL_ScriptWriter {
 //		erf.getTimeSpan().setStartTime(startYear);
 		erf.setParameter(IncludeBackgroundParam.NAME, backSeisInclude);
 		erf.setParameter(BackgroundRupParam.NAME, backSeisType);
-		erf.setParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME, solFile);
+		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, solFile);
 		
 //		String jobName = imr.getShortName();
 		jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+jobName;

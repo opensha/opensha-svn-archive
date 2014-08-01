@@ -19,6 +19,7 @@ import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
 import scratch.kevin.simulators.SimAnalysisCatLoader;
+import scratch.kevin.simulators.SynchIdens;
 import scratch.kevin.simulators.dists.RandomDistType;
 
 import com.google.common.base.Preconditions;
@@ -40,6 +41,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	private static int[] lags = SynchParamCalculator.rangeInclusive(-30, 30);
 	
 	private File outputDir;
+	private String setName;
 	
 	private MarkovChainBuilder origChain;
 
@@ -51,45 +53,18 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 		Preconditions.checkArgument(cmd.hasOption("trials"));
 		numTrials = Integer.parseInt(cmd.getOptionValue("trials"));
 		
+		setName = cmd.getOptionValue("set");
+		
 		gBarsList = Lists.newArrayList();
 		
-		double minMag = 7;
-		double maxMag = 10d;
+		if (setName.equals("so_cal"))
+			rupIdens = SynchIdens.getStandardSoCal();
+		else if (setName.equals("nor_cal"))
+			rupIdens = SynchIdens.getStandardNorCal();
+		else
+			throw new IllegalArgumentException("Unknown set: "+setName);
 		
-		int[] include_elems = {
-				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
-				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
-				ElementMagRangeDescription.SAF_SANTA_CRUZ,
-				ElementMagRangeDescription.SAF_MID_PENINSULA,
-				ElementMagRangeDescription.CALAVERAS,
-				ElementMagRangeDescription.HAYWARD
-				};
-		
-		rupIdens = Lists.newArrayList();
-		List<Color> colors = Lists.newArrayList();
-		
-		SimAnalysisCatLoader.loadElemMagIdens(include_elems, rupIdens, colors, minMag, maxMag);
-		
-		int[] all_elems = {
-				ElementMagRangeDescription.SAF_CHOLAME_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_CARRIZO_ELEMENT_ID,
-				ElementMagRangeDescription.GARLOCK_WEST_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID,
-				ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID,
-				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID,
-				ElementMagRangeDescription.SAF_SANTA_CRUZ,
-				ElementMagRangeDescription.SAF_MID_PENINSULA,
-				ElementMagRangeDescription.CALAVERAS,
-				ElementMagRangeDescription.HAYWARD
-				};
-		List<RuptureIdentifier> allIdens = Lists.newArrayList();
-		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
-		
-		events = new SimAnalysisCatLoader(true, allIdens).getEvents();
+		events = new SimAnalysisCatLoader(true, rupIdens).getEvents();
 		
 		nDims = rupIdens.size();
 	}
@@ -189,6 +164,10 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 			if (!writeDir.exists())
 				writeDir.mkdir();
 			
+			writeDir = new File(writeDir, setName);
+			if (!writeDir.exists())
+				writeDir.mkdir();
+			
 			checkBuildOrigChain();
 			SynchParamCalculator.doWriteSynchStdDevParams(writeDir, rupIdens, origChain, lags, numTrials, nDims, gBars);
 		}
@@ -201,6 +180,11 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 				"Number of random trials");
 		trialsOption.setRequired(true);
 		ops.addOption(trialsOption);
+		
+		Option setOption = new Option("s", "set", true,
+				"Set of faults to use (nor_cal or so_cal)");
+		setOption.setRequired(true);
+		ops.addOption(setOption);
 		
 		
 		return ops;

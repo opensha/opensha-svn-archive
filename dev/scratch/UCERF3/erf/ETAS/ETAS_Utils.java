@@ -22,6 +22,8 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinTimeParam_c;
@@ -605,10 +607,15 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public static double getScalingFactorToImposeGR(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD) {
+		if (supraSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults
+			return 1d;
 		
 		double minMag = subSeisMFD.getMinX();
 		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
 		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
+		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
+				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
 		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
 		

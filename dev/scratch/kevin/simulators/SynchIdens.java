@@ -1,5 +1,6 @@
 package scratch.kevin.simulators;
 
+import java.awt.Color;
 import java.util.List;
 
 import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
@@ -43,6 +44,11 @@ public class SynchIdens {
 		for (SynchFaults fault : faults)
 			idens.add(build(minMag, maxMag, fault));
 		return idens;
+	}
+	
+	public static List<Color> getStandardColors() {
+		return Lists.newArrayList(Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA,
+				Color.GREEN, Color.CYAN, Color.GRAY, Color.ORANGE, Color.YELLOW, Color.PINK);
 	}
 	
 	public static List<RuptureIdentifier> getStandardSoCal() {

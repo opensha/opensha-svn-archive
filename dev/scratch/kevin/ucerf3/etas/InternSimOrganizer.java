@@ -21,7 +21,8 @@ public class InternSimOrganizer {
 		
 		int numDigits = 3;
 		
-		String[] prefixes = {"2014_07_08-"};
+//		String[] prefixes = {"2014_07_08-", "2014_07_09-"};
+		String[] prefixes = {"2014_07_24-"};
 		
 		Map<String, Integer> countsMap = Maps.newHashMap();
 		

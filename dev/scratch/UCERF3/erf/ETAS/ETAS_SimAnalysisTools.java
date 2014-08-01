@@ -19,6 +19,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
@@ -26,7 +27,9 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -54,6 +57,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
@@ -1217,22 +1221,60 @@ public class ETAS_SimAnalysisTools {
 		return ret;
 	}
 	
+	public static void plotMaxMagVsNumAftershocks(List<List<ETAS_EqkRupture>> catalogs, int parentID) {
+		XY_DataSet scatter = new DefaultXY_DataSet();
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			if (parentID >= 0)
+				catalog = getChildrenFromCatalog(catalog, parentID);
+			double maxMag = 0d;
+			for (ETAS_EqkRupture rup : catalog) {
+				double mag = rup.getMag();
+				if (mag > maxMag)
+					maxMag = mag;
+			}
+			scatter.set(maxMag, (double)catalog.size());
+		}
+		
+		List<PlotElement> elems = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		elems.add(scatter);
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
+		PlotSpec spec = new PlotSpec(elems, chars, "Max Aftershock Mag vs Num Afershocks",
+				"Max Aftershock Mag", "Number of Aftershocks");
+		GraphWindow gw = new GraphWindow(spec);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+	}
+	
 	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {
-		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/"
-				+ "results/sim_003/simulatedEvents.txt");
+//		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/"
+//				+ "results/sim_003/simulatedEvents.txt");
+//		
+//		// needed to laod finite fault surfaces
+//		FaultSystemSolution baSol = FaultSystemIO.loadSol(
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+//				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_"
+//				+ "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(baSol);
+//		erf.updateForecast();
+//		
+//		List<ETAS_EqkRupture> catalog = loadCatalog(catalogFile, 5d);
+//		loadFSSRupSurfaces(catalog, erf);
+//		
+//		plotCatalogGMT(catalog, new File("/tmp"), "etas_catalog", true);
 		
-		// needed to laod finite fault surfaces
-		FaultSystemSolution baSol = FaultSystemIO.loadSol(
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
-				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_"
-				+ "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(baSol);
-		erf.updateForecast();
-		
-		List<ETAS_EqkRupture> catalog = loadCatalog(catalogFile, 5d);
-		loadFSSRupSurfaces(catalog, erf);
-		
-		plotCatalogGMT(catalog, new File("/tmp"), "etas_catalog", true);
+//		File catalogsDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_30-bombay_beach-extra/results");
+		File catalogsDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_interns/2014_07_09-64481/results");
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		for (File subdir : catalogsDir.listFiles()) {
+			if (!subdir.getName().startsWith("sim_") || !subdir.isDirectory())
+				continue;
+			if (!MPJ_ETAS_Simulator.isAlreadyDone(subdir))
+				continue;
+			File catalogFile = new File(subdir, "simulatedEvents.txt");
+			catalogs.add(loadCatalog(catalogFile));
+		}
+		plotMaxMagVsNumAftershocks(catalogs, 0);
 	}
 
 }

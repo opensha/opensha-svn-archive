@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.etas;
+package scratch.kevin.cybershake.etasCalcs;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,70 +9,59 @@ import java.util.List;
 
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
-import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
+
+import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.collect.Lists;
 
-public class MPJ_ETAS_SimulatorScriptGen {
-	
+public class ScriptGen {
+
 	private static enum Scenarios {
-		SPONTANEOUS,
-		MOJAVE_7,
-		LA_HABRA
+		BOMBAY_BEACH_CAT,
+		BOMBAY_BEACH_SINGLE,
+		BOMBAY_BEACH_M6,
+		PARKFIELD
 	}
 
 	public static void main(String[] args) throws IOException {
-		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
-		
-		boolean stampede = false;
+		File localDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
-		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
+//		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH};
+//		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
+		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		boolean timeIndep = false;
-		int numSims = 100;
+		int numSims = 10000;
+		String nameAdd = null;
 		
 		int memGigs;
 		int mins = 24*60;
 		int nodes = 40;
-		int ppn;
-		if (stampede)
-			ppn = 16;
-		else
-			ppn = 8;
+		int ppn = 8;
 		String queue = null;
 		
 		File remoteDir, remoteSolFile;
 		FastMPJShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
-		if (stampede) {
-			memGigs = 26;
-			remoteDir = new File("/work/00950/kevinm/ucerf3/etas_sim");
-			remoteSolFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/2013_05_10-ucerf3p3-production-10runs/"
-					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
-					null, StampedeScriptWriter.FMPJ_HOME, false);
-			pbsWrite = new StampedeScriptWriter();
-		} else {
-			memGigs = 9;
-			remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim");
-			remoteSolFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/"
-					+ "2013_05_10-ucerf3p3-production-10runs/"
-					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
-			pbsWrite = new USC_HPCC_ScriptWriter();
-		}
+		memGigs = 9;
+		remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/cybershake");
+		remoteSolFile = new File(remoteDir, "ucerf2_mapped_sol.zip");
+		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
+				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+		pbsWrite = new USC_HPCC_ScriptWriter();
 		
 		List<File> classpath = new ArrayList<File>();
-		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
+		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
 		for (Scenarios scenario : scenarios) {
 			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
 			if (timeIndep)
 				jobName += "-indep";
+			if (nameAdd != null)
+				jobName += nameAdd;
 			
 			File localJobDir = new File(localDir, jobName);
 			if (!localJobDir.exists())
@@ -87,14 +76,17 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			
 			String argz = "--min-dispatch 1 --max-dispatch 1 --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
 			switch (scenario) {
-			case LA_HABRA:
-				argz += " --trigger-loc 33.932,-117.917,4.8 --trigger-mag 6.2";
+			case BOMBAY_BEACH_CAT:
+				argz += " --trigger-catalog "+(new File(remoteDir, "bombay_catalog.txt")).getAbsolutePath();
 				break;
-			case MOJAVE_7:
-				argz += " --trigger-rupture-id 197792";
+			case BOMBAY_BEACH_SINGLE:
+				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 4.8";
 				break;
-			case SPONTANEOUS:
-				// do nothing
+			case BOMBAY_BEACH_M6:
+				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 6.0";
+				break;
+			case PARKFIELD:
+				argz += " --trigger-rupture-id 30473";
 				break;
 
 			default:

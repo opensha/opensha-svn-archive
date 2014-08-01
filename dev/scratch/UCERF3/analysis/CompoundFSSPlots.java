@@ -131,7 +131,6 @@ import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FSSRupsInRegionCache;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -820,7 +819,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				SummedMagFreqDist mfdPart = ERF_Calculator
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS)
-					mfdPart.scale(1.0/FaultSystemSolutionPoissonERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+					mfdPart.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
 				ucerf2OnMFDs.get(regionIndex)[erfIndex] = mfdPart
 						.getCumRateDistWithOffset();
 			}

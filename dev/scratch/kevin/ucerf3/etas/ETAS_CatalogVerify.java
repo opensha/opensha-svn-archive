@@ -2,6 +2,9 @@ package scratch.kevin.ucerf3.etas;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+
+import org.opensha.commons.util.FileNameComparator;
 
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 
@@ -10,7 +13,9 @@ public class ETAS_CatalogVerify {
 	private static int verify(File dir) {
 		int good = 0;
 		int bad = 0;
-		for (File file : dir.listFiles()) {
+		File[] files = dir.listFiles();
+		Arrays.sort(files, new FileNameComparator());
+		for (File file : files) {
 			if (file.isDirectory())
 				good += verify(file);
 			if (file.getName().equals("simulatedEvents.txt")) {

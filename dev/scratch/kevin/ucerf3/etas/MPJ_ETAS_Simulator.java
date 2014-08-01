@@ -17,6 +17,9 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
@@ -110,6 +113,19 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		fssScenarioRupID = -1;
 		
 		obsEqkRuptureList = Lists.newArrayList();
+		
+		if (cmd.hasOption("trigger-catalog")) {
+			// load in historical catalog
+			File catFile = new File(cmd.getOptionValue("trigger-catalog"));
+			Preconditions.checkArgument(catFile.exists(), "Catalog file doesn't exist: "+catFile.getAbsolutePath());
+			ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(catFile);
+			System.out.println("Loaded "+loadedRups.size()+" rups from catalog");
+			for (ObsEqkRupture rup : loadedRups) {
+				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
+				etasRup.setID(Integer.parseInt(rup.getEventId()));
+				obsEqkRuptureList.add(etasRup);
+			}
+		}
 		
 		if (cmd.hasOption("trigger-rupture-id")) {
 			// FSS rupture
@@ -328,6 +344,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option triggerRake = new Option("m", "trigger-rake", true, "Trigger rake for point source (used with --trigger-loc, default=0)");
 		triggerRake.setRequired(false);
 		ops.addOption(triggerRake);
+		
+		Option triggerCat = new Option("tc", "trigger-catalog", true, "Trigger catalog in UCERF3 format (no fault sources)");
+		triggerCat.setRequired(false);
+		ops.addOption(triggerCat);
 		
 		Option numSims = new Option("n", "num", true, "Number of simulations");
 		numSims.setRequired(true);
