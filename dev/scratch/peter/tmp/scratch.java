@@ -53,15 +53,21 @@ public class scratch {
 	
 	public static void main(String[] args) throws Exception {
 
-		GriddedRegion gr = new GriddedRegion(TestGrid.CA_NSHMP.grid(0.1), 0.01, GriddedRegion.ANCHOR_0_0);
+		GriddedRegion gr = new GriddedRegion(TestGrid.CA_NSHMP.grid(0.1), 0.05, GriddedRegion.ANCHOR_0_0);
 		
 		System.out.println(gr.getNodeCount());
 		
-		System.out.println(TestGrid.CA_NSHMP.grid(0.1).getNodeCount());
+		System.out.println(TestGrid.CA_NSHMP.grid(0.05).getNodeCount());
 		System.out.println(TestGrid.CA_NSHMP_E.grid(0.1).getNodeCount());
 		System.out.println(TestGrid.CA_NSHMP_N.grid(0.1).getNodeCount());
 		System.out.println(TestGrid.CA_NSHMP_NE.grid(0.1).getNodeCount());
 				
+		int tot = TestGrid.CA_NSHMP.grid(0.1).getNodeCount() + 
+				TestGrid.CA_NSHMP_E.grid(0.1).getNodeCount() +
+				TestGrid.CA_NSHMP_N.grid(0.1).getNodeCount() +
+				TestGrid.CA_NSHMP_NE.grid(0.1).getNodeCount();
+		System.out.println(tot);
+		
 //		Range<Double> r = Range.open(1.0,23.0);
 //		System.out.println(r);
 		
