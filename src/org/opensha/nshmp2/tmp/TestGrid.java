@@ -103,9 +103,9 @@ public enum TestGrid {
 	 */
 	public GriddedRegion grid(double spacing) {
 		if (region != null) {
-			if (region instanceof GriddedRegion) {
-				return (GriddedRegion) region;
-			}
+//			if (region instanceof GriddedRegion) {
+//				return (GriddedRegion) region;
+//			}
 			return new GriddedRegion(region, spacing, GriddedRegion.ANCHOR_0_0);
 		}
 		if (lats.length == 2) {
