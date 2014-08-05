@@ -1,26 +1,20 @@
 package scratch.peter.nshmp;
 
-import java.io.File;
 import java.util.List;
 
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-
-import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
-import scratch.peter.ucerf3.calc.UC3_CalcUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * This is a custom erf for the NSHMP that filters out 'Klamath Graben East' and
