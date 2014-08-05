@@ -46,6 +46,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class ETASCurveCalc {
@@ -67,9 +68,6 @@ public class ETASCurveCalc {
 	 * @param refDatasetID we use this to find site as which we should compute a hazard curve
 	 */
 	public ETASCurveCalc(ETASModProbConfig conf, int imTypeID, int refDatasetID) {
-		calc = new HazardCurveComputation(db);
-		calc.setRupVarProbModifier(conf.getRupVarProbModifier());
-		calc.setRupProbModifier(conf.getRupProbModifier());
 		this.conf = conf;
 		this.refDatasetID = refDatasetID;
 		this.imTypeID = imTypeID;
@@ -80,11 +78,23 @@ public class ETASCurveCalc {
 //		fetch.get
 		imType = new HazardCurve2DB(db).getIMFromID(imTypeID);
 		List<CybershakeSite> sites = fetch.getCurveSites();
+		List<Integer> curveIDs = fetch.getCurveIDs();
+		Preconditions.checkState(sites.size() == curveIDs.size());
 		Runs2DB runs2db = new Runs2DB(db);
 		
 		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
+		boolean logPlot = false;
 		boolean isProbAt_IML = false;
-		double val = 0.0004;
+//		double val = 0.0004;
+		double val = 0.02;
+		Double customMin = 0d;
+		Double customMax = 1d;
+		
+//		boolean logPlot = false;
+//		boolean isProbAt_IML = true;
+//		double val = 0.1;
+//		Double customMin = 0d;
+//		Double customMax = 0.05d;
 		
 		ArrayList<Double> xVals = Lists.newArrayList();
 		for (Point2D pt : IMT_Info.getUSGS_PGA_Function())
@@ -98,8 +108,7 @@ public class ETASCurveCalc {
 		int rupVarScenID = 4;
 		int velModelID = 5;
 		
-		if (publish_curves)
-			db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true);
+		boolean authenticated = false;
 		
 		HazardDataset2DB dataset2db = new HazardDataset2DB(db);
 		
@@ -114,27 +123,56 @@ public class ETASCurveCalc {
 		
 		if (publish_curves && publishDatasetID < 0) {
 			System.out.println("Inserting new Hazard Dataset ID");
+			db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true);
+			authenticated = true;
+			dataset2db = new HazardDataset2DB(db);
 			publishDatasetID = dataset2db.addNewDataset(erfID, rupVarScenID, sgtVarID, velModelID, probModelID,
 					timeSpanID, timeSpanStart, maxFreq, lowFreqCutoff);
 		}
 		System.out.println("Dataset ID: "+publishDatasetID);
 		HazardCurve2DB curve2db = new HazardCurve2DB(db);
 		
-		for (CybershakeSite site : sites) {
+		for (int i = 0; i < sites.size(); i++) {
+			CybershakeSite site = sites.get(i);
+			int refCurveID = curveIDs.get(i);
 			if (site.type_id == 4)
 				continue; // TEST
 			
 			System.out.println("Calculating for: "+site.name);
-			CybershakeRun run = runs2db.getLatestRun(site.id, erfID, sgtVarID, rupVarScenID, velModelID, null, null, null, null);
+			
+			int runID = curve2db.getRunIDForCurve(refCurveID);
+			CybershakeRun run = runs2db.getRun(runID);
+//			CybershakeRun run = runs2db.getLatestRun(site.id, erfID, sgtVarID, rupVarScenID, velModelID, null, null, null, null);
 			DiscretizedFunc func = null;
 			if (publishDatasetID >= 0) {
 				int curveID = curve2db.getHazardCurveID(run.getRunID(), publishDatasetID, imTypeID);
-				if (curveID >= 0) {
+				System.out.println("Curve: "+curveID);
+				if (curveID >= 0)
 					func = curve2db.getHazardCurve(curveID);
+				else {
+					// see if another one has been finished already
+					List<CybershakeRun> alternateRuns = runs2db.getRuns(site.id, erfID, sgtVarID, rupVarScenID,
+							velModelID, null, null, null, null);
+					for (CybershakeRun alternate : alternateRuns) {
+						curveID = curve2db.getHazardCurveID(alternate.getRunID(), publishDatasetID, imTypeID);
+						System.out.println("Curve: "+curveID);
+						if (curveID >= 0) {
+							func = curve2db.getHazardCurve(curveID);
+							if (func != null) {
+								run = alternate;
+								runID = run.getRunID();
+							}
+						}
+					}
 				}
 			}
 			if (func == null) {
 				// have to calculate
+				if (calc == null) {
+					calc = new HazardCurveComputation(db);
+					calc.setRupVarProbModifier(conf.getRupVarProbModifier());
+					calc.setRupProbModifier(conf.getRupProbModifier());
+				}
 				func = calc.computeHazardCurve(xVals, run, imType);
 				if (func == null) {
 					System.out.println("skipping, null curve?");
@@ -143,7 +181,12 @@ public class ETASCurveCalc {
 				
 				if (publish_curves) {
 					// post to DB
-					curve2db.insertHazardCurve(run.getRunID(), timeSpanID, func, publishDatasetID);
+					if (!authenticated) {
+						db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true);
+						authenticated = true;
+						curve2db = new HazardCurve2DB(db);
+					}
+					curve2db.insertHazardCurve(run.getRunID(), imTypeID, func, publishDatasetID);
 				}
 			}
 			
@@ -170,11 +213,11 @@ public class ETASCurveCalc {
 		InterpDiffMap map = new InterpDiffMap(region, null, 0.02, cpt, xyz, interpSettings, mapTypes);
 		map.setCustomLabel("Test Map");
 		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
-		map.setLogPlot(false);
+		map.setLogPlot(logPlot);
 		map.setDpi(300);
 		map.setXyzFileName("base_map.xyz");
-		map.setCustomScaleMin(0d);
-		map.setCustomScaleMax(1.2d);
+		map.setCustomScaleMin(customMin);
+		map.setCustomScaleMax(customMax);
 		
 //		Location hypo = null;
 //		if (config != null && config instanceof ScenarioBasedModProbConfig) {
@@ -211,12 +254,12 @@ public class ETASCurveCalc {
 //		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results"),
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-//			ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-			ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-					null,
+			ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
+					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//			ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
+//					null,
+//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 			
 			ETASCurveCalc calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calc.calc();

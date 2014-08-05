@@ -31,6 +31,8 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.gui.BatchSiteAddGUI.CybershakeCutoffSite;
 
+import com.google.common.base.Preconditions;
+
 public class HazardCurve2DB {
 	
 	public static final String TABLE_NAME = "Hazard_Curves";
@@ -290,6 +292,8 @@ public class HazardCurve2DB {
 		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " " + whereClause;
 		sql += " ORDER BY Curve_Date desc";
 		
+//		System.out.println(sql);
+		
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -448,6 +452,11 @@ public class HazardCurve2DB {
 	
 	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFunc hazardFunc, int datasetID) {
 		int id = this.insertHazardCurveID(runID, imTypeID, datasetID);
+		if (datasetID >= 0) {
+			int checkDataset = getDatasetIDForCurve(id);
+			Preconditions.checkState(checkDataset == datasetID,
+					"Got back a curve with a different dataset ID! "+datasetID+" != "+checkDataset);
+		}
 		this.insertHazardCurvePoints(id, hazardFunc);
 	}
 	
@@ -573,7 +582,7 @@ public class HazardCurve2DB {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
-		return this.getHazardCurveID(runID, imTypeID);
+		return this.getHazardCurveID(runID, datasetID, imTypeID);
 	}
 	
 	public void insertHazardCurvePoints(int id, DiscretizedFunc hazardFunc) {
@@ -614,6 +623,62 @@ public class HazardCurve2DB {
 			if (rs.isAfterLast())
 				return -1;
 			int id = rs.getInt("IM_Type_ID");
+			rs.close();
+
+			return id;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int getDatasetIDForCurve(int curveID) {
+		String sql = "SELECT Hazard_Dataset_ID FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + curveID;
+
+//		System.out.println(sql);
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return -1;
+			int id = rs.getInt("Hazard_Dataset_ID");
+			rs.close();
+
+			return id;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int getRunIDForCurve(int curveID) {
+		String sql = "SELECT Run_ID FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + curveID;
+
+//		System.out.println(sql);
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return -1;
+			int id = rs.getInt("Run_ID");
 			rs.close();
 
 			return id;

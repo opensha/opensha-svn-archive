@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -18,8 +17,8 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.AbstractModProbConfig;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
@@ -32,24 +31,20 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
-
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
-import scratch.UCERF3.utils.FindEquivUCERF2_Ruptures.FindEquivUCERF2_Ruptures.UCERF2_FaultModel;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
-import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt2;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
@@ -106,6 +101,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private ETAS_CyberShake_Scenarios scenario;
 	private ETAS_Cybershake_TimeSpans timeSpan;
 	
+	private File catalogsDir;
+	
 	private long ot;
 	private long endTime;
 	
@@ -127,14 +124,16 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	/** map from original source ID, to modRupID, origRupID */
 	private Map<Integer, Map<Integer, Integer>> rupIndexMappings;
 	
-	private Map<Integer, Map<Location, List<Integer>>> rvHypoLocations = Maps.newHashMap();
+	private Map<Integer, Map<Location, List<Integer>>> rvHypoLocations;
 	
-	private Map<IDPairing, Map<Double, List<Integer>>> rvProbs = Maps.newHashMap();
+	private Map<IDPairing, Map<Double, List<Integer>>> rvProbs;
 
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
 			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile)
 			throws IOException {
 		super(scenario+" ("+timeSpan+")", scenario.probModelID, timeSpan.timeSpanID);
+		
+		this.catalogsDir = catalogsDir;
 		
 		this.sol = sol;
 		ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -145,14 +144,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
 		loadMappings(mappingsCSVFile);
-		
-		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2)
-			return;
-		loadCatalogs(catalogsDir);
-		
-		loadHyposForETASRups();
-		
-		loadRVProbs();
 	}
 	
 	private void loadCatalogs(File catalogsDir) throws IOException {
@@ -418,6 +409,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private void loadHyposForETASRups() {
+		rvHypoLocations = Maps.newHashMap();
+		
 		System.out.println("Loading hypos");
 		int ERFID = 35;
 		int RUP_VAR_SCEN_ID = 4;
@@ -470,6 +463,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private void loadRVProbs() {
+		rvProbs = Maps.newHashMap();
 		// loads in probabilities for rupture variations from the ETAS catalogs
 		
 		double prob = 1d/catalogs.size();
@@ -567,6 +561,19 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 
 	@Override
 	public synchronized RuptureVariationProbabilityModifier getRupVarProbModifier() {
+		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2)
+			return null;
+		if (catalogs == null) {
+			try {
+				loadCatalogs(catalogsDir);
+				
+				loadHyposForETASRups();
+				
+				loadRVProbs();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
 		if (mod == null)
 			mod = new RupProbMod();
 		return mod;
