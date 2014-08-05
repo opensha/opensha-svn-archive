@@ -16,11 +16,21 @@ import org.opensha.nshmp2.imr.NSHMP08_SUB_SlabGrid;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.imr.NSHMP08_WUS_Grid;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_ASK;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_ASK_EpiDn;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_ASK_EpiUp;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_BSSA;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_BSSA_EpiDn;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_BSSA_EpiUp;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CB;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CB_EpiDn;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CB_EpiUp;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CY;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CY_EpiDn;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_CY_EpiUp;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_GK;
 import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_Idriss;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_Idriss_EpiDn;
+import org.opensha.nshmp2.imr.ngaw2.NSHMP14_WUS_Idriss_EpiUp;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NSHMP14_WUS;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -62,6 +72,18 @@ public enum SourceIMR {
 	WUS_FAULT_14_CY(NSHMP14_WUS_CY.class),
 	WUS_FAULT_14_GK(NSHMP14_WUS_GK.class),
 	WUS_FAULT_14_ID(NSHMP14_WUS_Idriss.class),
+
+	WUS_FAULT_14_AS_EPI_UP(NSHMP14_WUS_ASK_EpiUp.class),
+	WUS_FAULT_14_BS_EPI_UP(NSHMP14_WUS_BSSA_EpiUp.class),
+	WUS_FAULT_14_CB_EPI_UP(NSHMP14_WUS_CB_EpiUp.class),
+	WUS_FAULT_14_CY_EPI_UP(NSHMP14_WUS_CY_EpiUp.class),
+	WUS_FAULT_14_ID_EPI_UP(NSHMP14_WUS_Idriss_EpiUp.class),
+
+	WUS_FAULT_14_AS_EPI_DN(NSHMP14_WUS_ASK_EpiDn.class),
+	WUS_FAULT_14_BS_EPI_DN(NSHMP14_WUS_BSSA_EpiDn.class),
+	WUS_FAULT_14_CB_EPI_DN(NSHMP14_WUS_CB_EpiDn.class),
+	WUS_FAULT_14_CY_EPI_DN(NSHMP14_WUS_CY_EpiDn.class),
+	WUS_FAULT_14_ID_EPI_DN(NSHMP14_WUS_Idriss_EpiDn.class),
 
 	/**
 	 * Used for {@link SourceRegion#WUS} and {@link SourceRegion#CA}
