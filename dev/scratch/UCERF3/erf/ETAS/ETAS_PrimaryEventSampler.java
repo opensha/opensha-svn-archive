@@ -1179,8 +1179,9 @@ if(locsToSampleFrom.size() == 0) {
 				true,null,null);
 		
 		
+		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
 		
-		etas_PrimEventSampler.testMagFreqDist();
+//		etas_PrimEventSampler.testMagFreqDist();
 		
 		// OLD STUFF BELOW
 		
@@ -1276,9 +1277,50 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
+	public GriddedGeoDataSet getMaxMagInCubesAtDepth(double depth) {
+		GriddedGeoDataSet maxMagData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getDepthIndex(depth);
+		int numCubesAtDepth = maxMagData.size();
+		
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		double duration = erf.getTimeSpan().getDuration();
+		if(mfdForSrcArray == null) {
+			long st = System.currentTimeMillis();
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory before mfdForSrcArray");
+			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+			for(int s=0; s<erf.getNumSources();s++) {
+				progressBar.updateProgress(s, erf.getNumSources());
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, 5.05, 8.95, 70, true);
+			}
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
+		}
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int samplerIndex = getSamplerIndexForRegAndDepIndices(i, depthIndex);
+			int[] sources = srcInCubeList.get(samplerIndex);
+			double mMax = 0;
+			for(int s=0; s<sources.length;s++) {
+				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
+				double tempMmax = mfd.getMaxMagWithNonZeroRate();
+				if(tempMmax>mMax)
+					mMax=tempMmax;
+			}
+			maxMagData.set(i, mMax);
+			Location loc = maxMagData.getLocation(i);
+			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
+		}
+		progressBar.showProgress(false);
+		
+		return maxMagData;
+	}
+	
+	
 	
 	/**
-	 * This plots the spatial distribution of probabilities implied be the given pointSampler
+	 * This plots the spatial distribution of probabilities implied by the given pointSampler
 	 * (probs are summed inside each spatial bin of gridRegForRatesInSpace).
 	 * 
 	 * @param label - plot label
@@ -1384,7 +1426,7 @@ if(locsToSampleFrom.size() == 0) {
 	 * @param dirName
 	 * @return
 	 */
-	public String old_plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf) {
+	public String old_plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionERF erf) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -1452,7 +1494,7 @@ if(locsToSampleFrom.size() == 0) {
 	 * @param dirName
 	 * @return
 	 */
-	public String old_plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionPoissonERF erf, int numYrs) {
+	public String old_plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionERF erf, int numYrs) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
