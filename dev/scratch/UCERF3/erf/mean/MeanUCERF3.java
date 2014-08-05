@@ -3,16 +3,13 @@ package scratch.UCERF3.erf.mean;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.swing.JOptionPane;
 
-import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -25,17 +22,16 @@ import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * This is the MeanUCERF3 ERF. It extends UCERF3_FaultSysSol_ERF, but allows and facilitates creation

@@ -15,20 +15,15 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.faultSurface.CompoundSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
-
-import com.google.common.base.Stopwatch;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+
+import com.google.common.base.Stopwatch;
 
 public class ERF_Tester {
 	
