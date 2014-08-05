@@ -1,13 +1,11 @@
 package scratch.peter.ucerf3.calc;
 
-import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,10 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
-import org.opensha.nshmp.util.RegionUtil;
-import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardResultWriter;
 import org.opensha.nshmp2.calc.HazardResultWriterLocal;
 import org.opensha.nshmp2.calc.HazardResultWriterMPJ;
@@ -29,7 +24,6 @@ import org.opensha.nshmp2.util.Period;
 import org.opensha.nshmp2.util.SourceIMR;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
-import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.peter.nshmp.HazardResultWriterMPJ_NSHMP;
 
 import com.google.common.base.Charsets;
@@ -37,7 +31,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Flushables;
-import com.sun.xml.rpc.processor.util.CanonicalModelWriter.GetNameComparator;
 
 public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 	
@@ -207,7 +200,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 				for (File file : files) {
 					StringBuilder sb = new StringBuilder();
 					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
-						file.getName(), "."), '_', ',');
+						file.getName(), "_"), '_', ',');
 					sb.append(latlon).append(",");
 					Files.copy(file, Charsets.US_ASCII, sb);
 					br.write(sb.toString());

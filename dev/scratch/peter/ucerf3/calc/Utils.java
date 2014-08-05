@@ -6,12 +6,7 @@ import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.util.ArrayUtil;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -20,8 +15,6 @@ import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 
 import scratch.peter.curves.ProbOfExceed;
-
-import cern.colt.Arrays;
 
 import com.google.common.io.Files;
 
@@ -44,8 +37,8 @@ public class Utils {
 //		consolidateFiles(fileName, dirName);
 		
 //		interpolateTest();
-		findMissing();
-//		combineCurves();
+//		findMissing();
+		combineCurves();
 //		GriddedRegion gr = TestGrid.CA_NSHMP.grid(0.05);
 //		System.out.println(gr.getNodeCount());
 	}
@@ -70,7 +63,7 @@ public class Utils {
 	}
 	
 	private static void combineCurves() {
-		String path = "tmp/UC33/maps/src/NSHMP14/LOCAL/LOS_ANGELES/GM0P20/curves";
+		String path = "tmp/UC33/maps/src/NSHMP14/FLT_E/mean_ucerf3_sol/CA_NSHMP_E/tmp/GM0P20";
 		UC3_CalcMPJ_Map.aggregateResults(new File(path), Period.GM0P20, false);
 	}
 	

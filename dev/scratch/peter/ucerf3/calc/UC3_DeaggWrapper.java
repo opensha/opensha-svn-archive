@@ -1,35 +1,25 @@
 package scratch.peter.ucerf3.calc;
 
-import static org.opensha.nshmp.NEHRP_TestCity.*;
-import static org.opensha.nshmp2.util.Period.*;
-import static scratch.peter.curves.ProbOfExceed.*;
+import static org.opensha.nshmp2.util.Period.GM0P00;
+import static org.opensha.nshmp2.util.Period.GM0P20;
+import static org.opensha.nshmp2.util.Period.GM1P00;
+import static org.opensha.nshmp2.util.Period.GM4P00;
+import static scratch.peter.curves.ProbOfExceed.PE1IN1000;
+import static scratch.peter.curves.ProbOfExceed.PE2IN50;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
-import javax.swing.JOptionPane;
-
-import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.commons.util.bugReports.BugReport;
-import org.opensha.commons.util.bugReports.BugReportDialog;
-import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
 import org.opensha.nshmp2.calc.HazardResult;
-import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
 import org.opensha.nshmp2.util.Period;
-import org.opensha.nshmp2.util.SiteTypeParam;
 import org.opensha.nshmp2.util.SourceIMR;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
@@ -40,37 +30,15 @@ import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
-import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
-import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
-import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.faultSurface.utils.PtSrcDistCorr;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
-import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
-import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
-import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
-import scratch.UCERF3.AverageFaultSystemSolution;
-import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.peter.curves.ProbOfExceed;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
 /**

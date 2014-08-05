@@ -1,18 +1,13 @@
 package scratch.peter.ucerf3.calc;
 
-import static org.opensha.nshmp2.util.Period.GM0P00;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.nshmp2.util.Period;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -20,7 +15,6 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

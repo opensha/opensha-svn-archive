@@ -6,39 +6,33 @@ import static org.opensha.commons.mapping.gmt.GMT_MapGenerator.COLOR_SCALE_MIN_P
 import static org.opensha.commons.mapping.gmt.GMT_MapGenerator.CPT_PARAM_NAME;
 import static org.opensha.commons.mapping.gmt.GMT_MapGenerator.GRID_SPACING_PARAM_NAME;
 import static org.opensha.commons.mapping.gmt.GMT_MapGenerator.LOG_PLOT_NAME;
-import static org.opensha.nshmp2.tmp.TestGrid.CA_RELM;
 import static org.opensha.nshmp2.tmp.TestGrid.CA_NSHMP;
+import static org.opensha.nshmp2.tmp.TestGrid.CA_RELM;
 import static org.opensha.nshmp2.tmp.TestGrid.LOS_ANGELES;
 import static org.opensha.nshmp2.tmp.TestGrid.SAN_FRANCISCO;
-import static org.opensha.nshmp2.util.Period.*;
-import static scratch.UCERF3.enumTreeBranches.DeformationModels.ABM;
-import static scratch.UCERF3.enumTreeBranches.DeformationModels.GEOLOGIC;
-import static scratch.UCERF3.enumTreeBranches.DeformationModels.NEOKINEMA;
-import static scratch.UCERF3.enumTreeBranches.DeformationModels.ZENGBB;
-import static scratch.peter.curves.ProbOfExceed.*;
+import static org.opensha.nshmp2.util.Period.GM0P00;
+import static org.opensha.nshmp2.util.Period.GM0P20;
+import static org.opensha.nshmp2.util.Period.GM1P00;
+import static org.opensha.nshmp2.util.Period.GM2P00;
+import static org.opensha.nshmp2.util.Period.GM3P00;
+import static scratch.peter.curves.ProbOfExceed.PE10IN50;
+import static scratch.peter.curves.ProbOfExceed.PE2IN50;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
@@ -52,24 +46,11 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.nshmp.NEHRP_TestCity;
-import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.calc.HazardResultWriterLocal;
 import org.opensha.nshmp2.tmp.TestGrid;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.io.Files;
-
-import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.peter.curves.ProbOfExceed;
@@ -77,6 +58,14 @@ import scratch.peter.nshmp.BinaryCurves;
 import scratch.peter.nshmp.CurveContainer;
 import scratch.peter.nshmp.NSHMP_DataUtils;
 import scratch.peter.nshmp.NSHMP_PlotUtils;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 
 /**
  * Add comments here
@@ -140,6 +129,8 @@ public class UC33_MapMaker {
 		
 //		finalBSSCcheck();
 //		finalMapsDebug();
+		finalMapsSpacingComparison();
+//		tmp();
 		
 //		consolidateFinalDeterm();
 		
@@ -1051,7 +1042,7 @@ public class UC33_MapMaker {
 			cc_5_2_14.add(cc_5_2_14_bg);
 			GeoDataSet xyz_5_2_14 = NSHMP_DataUtils.extractPE(cc_5_2_14, gr, pe);
 			binOut = new File(binBase + "2_5-2-14_" + p.getLabel() + "_0p1.curves");
-			BinaryCurves.writeUC3(cc_2_7_14, p, spacing, "UCERF3.3 5-2-14", binOut);
+			BinaryCurves.writeUC3(cc_5_2_14, p, spacing, "UCERF3.3 5-2-14", binOut);
 
 						
 			// 4/1
@@ -1086,6 +1077,40 @@ public class UC33_MapMaker {
 		}
 	}
 	
+	// comparing new 0.05 spaced fault curves to those from Sept 2013
+	private static void finalMapsSpacingComparison() throws IOException {
+		double spacing = 0.05;
+		TestGrid dataGrid = TestGrid.CA_NSHMP;
+		TestGrid mapGrid = TestGrid.CA_RELM;
+		GriddedRegion gr = dataGrid.grid(spacing);
+		ProbOfExceed pe =  ProbOfExceed.PE2IN50;
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+	
+		for (Period p : periods) {
+			String id = p.getLabel() + "-" + pe.name();
+			String baseDir = ROOT + "NSHMP14-BSSC-final" + S;
+			String binBase = baseDir + "bin" + S;
+
+			// 1: 9/13/13 -- separate fault and bg files, 0.05 grid
+			File f_9_13_13_flt = new File(SRC + "NSHMP13-40-FLT");
+			CurveContainer cc_9_13_13 = buildBrAvgCurveContainer(f_9_13_13_flt, p, dataGrid, spacing);
+			GeoDataSet xyz_9_13_13 = NSHMP_DataUtils.extractPE(cc_9_13_13, gr, pe);
+
+			// 2: 5/21/14 -- most recent run
+			File f_5_21_14_flt = new File(SRC + "NSHMP14" + S + "FLT_0.05" + S + "mean_ucerf3_sol" + S + dataGrid + S + p + S + "curves.csv");
+			CurveContainer cc_5_21_14 = CurveContainer.create(f_5_21_14_flt, dataGrid, spacing);
+			GeoDataSet xyz_5_21_14 = NSHMP_DataUtils.extractPE(cc_5_21_14, gr, pe);
+			File binOut = new File(binBase + "FLT_5-21-14_" + p.getLabel() + "_0p05.curves");
+			BinaryCurves.writeUC3(cc_5_21_14, p, spacing, "UCERF3.3 5-21-14", binOut);
+
+			// 2/1
+			String name = "current/Sept" + id;
+			GeoDataSet ratio = GeoDataSetMath.divide(xyz_5_21_14, xyz_9_13_13);
+			makeRatioPlot(ratio, spacing, mapGrid.bounds(), baseDir + name, name, true, 0.02, true, false);
+			
+		}
+	}
+		
 	
 //	private static void resamplingTest() throws IOException {
 //		TestGrid grid = CA_RELM;

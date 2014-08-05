@@ -1,39 +1,25 @@
 package scratch.peter.ucerf3;
 
-import static org.opensha.nshmp2.util.Period.GM0P00;
 import static org.opensha.nshmp2.util.Period.GM0P20;
-import static org.opensha.nshmp2.util.Period.GM1P00;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.calc.ERF_ID;
 import org.opensha.nshmp2.calc.HazardCalc;
-import org.opensha.nshmp2.calc.HazardResult;
-import org.opensha.nshmp2.calc.HazardResultWriter;
-import org.opensha.nshmp2.calc.HazardResultWriterLocal;
-import org.opensha.nshmp2.calc.HazardResultWriterSites;
-import org.opensha.nshmp2.calc.ThreadedHazardCalc;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.peter.ucerf3.calc.UC3_CalcUtils;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-
-import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.peter.ucerf3.calc.UC3_CalcUtils;
-import scratch.peter.ucerf3.calc.UC3_LocalCalc;
 
 /**
  * Add comments here

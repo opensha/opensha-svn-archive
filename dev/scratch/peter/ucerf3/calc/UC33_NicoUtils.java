@@ -1,13 +1,13 @@
 package scratch.peter.ucerf3.calc;
 
 import static com.google.common.base.Charsets.US_ASCII;
-import static org.opensha.nshmp.NEHRP_TestCity.*;
-import static org.opensha.nshmp2.util.Period.GM0P00;  
+import static org.opensha.nshmp.NEHRP_TestCity.SANTA_ROSA;
+import static org.opensha.nshmp2.util.Period.GM0P00;
 import static org.opensha.nshmp2.util.Period.GM0P20;
 import static org.opensha.nshmp2.util.Period.GM1P00;
+import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.EXCLUDE;
 import static scratch.peter.curves.ProbOfExceed.PE10IN50;
 import static scratch.peter.curves.ProbOfExceed.PE2IN50;
-import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +37,9 @@ import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.ScalarIMR;
 
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;      
 import scratch.peter.curves.CurveUtilsUC33;
 
 import com.google.common.base.CharMatcher;

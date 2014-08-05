@@ -1,43 +1,22 @@
 package scratch.peter.ucerf3.calc;
 
-import static org.opensha.nshmp.NEHRP_TestCity.*;
-import static org.opensha.nshmp2.util.Period.*;
+import static org.opensha.nshmp2.util.Period.GM0P00;
+import static org.opensha.nshmp2.util.Period.GM0P20;
+import static org.opensha.nshmp2.util.Period.GM1P00;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.calc.ERF_ID;
-import org.opensha.nshmp2.calc.HazardResultWriter;
-import org.opensha.nshmp2.calc.HazardResultWriterSites;
-import org.opensha.nshmp2.calc.ThreadedHazardCalc;
 import org.opensha.nshmp2.util.Period;
 import org.opensha.sha.earthquake.EpistemicListERF;
-import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
-import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 
-import scratch.UCERF3.AverageFaultSystemSolution;
-import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
-
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Add comments here
