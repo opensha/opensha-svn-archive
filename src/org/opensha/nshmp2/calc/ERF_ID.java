@@ -1,36 +1,19 @@
 package org.opensha.nshmp2.calc;
 
-import java.io.File;
-import java.util.List;
-
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp2.erf.NSHMP2008;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
-import org.opensha.sha.earthquake.BaseERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2_FM2pt1;
 
-import com.google.common.collect.Lists;
-
-import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolERF;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2;
-import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
-import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1_wOutAftershocks;
 import scratch.UCERF3.utils.UpdatedUCERF2.GridSources;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update;
 import scratch.UCERF3.utils.UpdatedUCERF2.MeanUCERF2update_FM2p1;
