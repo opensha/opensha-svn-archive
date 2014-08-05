@@ -218,8 +218,7 @@ public class GeoTools {
 	 * @see #radiusAtLocation(Location)
 	 */
 	public static double degreesLatPerKm(Location p) {
-		checkNotNull(p, "Supplied location is null");
-		return TO_DEG / radiusAtLocation(p);
+		return TO_DEG / radiusAtLocation(checkNotNull(p));
 	}
 
 	/**
@@ -235,8 +234,7 @@ public class GeoTools {
 	 * 		<code>Location</code>
 	 */
 	public static double degreesLonPerKm(Location p) {
-		checkNotNull(p, "Supplied location is null");
-		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(p.getLatRad()));
+		return TO_DEG / (EARTH_RADIUS_EQUATORIAL * Math.cos(checkNotNull(p).getLatRad()));
 	}
 	
 	/**
