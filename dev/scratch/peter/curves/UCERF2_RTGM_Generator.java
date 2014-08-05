@@ -1,43 +1,22 @@
 package scratch.peter.curves;
 
-import static org.opensha.nshmp.NEHRP_TestCity.*;
-
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.param.Parameter;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.util.Period;
-import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.earthquake.EpistemicListERF;
-import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
-
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 
 /**
  * USed to generate hazard curves for UCERF2 Time Independent List
@@ -129,16 +108,16 @@ class UCERF2_RTGM_Generator {
 	}
 
 	
-	private ERF newU3_ERF(File zip) {
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
-		erf.getParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME).setValue(zip);
-		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(true);
-		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-		ts.setDuration(1);
-		erf.setTimeSpan(ts);
-		erf.updateForecast();
-		return erf;
-	}
+//	private ERF newU3_ERF(File zip) {
+//		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
+//		erf.getParameter(FaultSystemSolutionPoissonERF.FILE_PARAM_NAME).setValue(zip);
+//		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(true);
+//		TimeSpan ts = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+//		ts.setDuration(1);
+//		erf.setTimeSpan(ts);
+//		erf.updateForecast();
+//		return erf;
+//	}
 	
 	private ERF newU2_ERF(File zip) {
 //		UCERF2_FaultSysSol_ERF erf = new UCERF2_FaultSysSol_ERF(zip);

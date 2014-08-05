@@ -2,9 +2,13 @@ package scratch.peter.curves;
 
 import static com.google.common.base.Charsets.US_ASCII;
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opensha.nshmp2.util.Period.*;
-import static org.opensha.sra.rtgm.RTGM.Frequency.*;
-import static scratch.peter.curves.ProbOfExceed.*;
+import static org.opensha.nshmp2.util.Period.GM0P00;
+import static org.opensha.nshmp2.util.Period.GM0P20;
+import static org.opensha.nshmp2.util.Period.GM1P00;
+import static org.opensha.sra.rtgm.RTGM.Frequency.SA_0P20;
+import static org.opensha.sra.rtgm.RTGM.Frequency.SA_1P00;
+import static scratch.peter.curves.ProbOfExceed.PE10IN50;
+import static scratch.peter.curves.ProbOfExceed.PE2IN50;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -27,7 +31,6 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.imr.NSHMP08_WUS;
@@ -43,18 +46,7 @@ import org.opensha.sra.rtgm.RTGM.Frequency;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.enumTreeBranches.FaultModels;
-import scratch.UCERF3.enumTreeBranches.InversionModels;
-import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
-import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
-import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
-import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
-import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -75,7 +67,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.io.Files;
-import com.google.common.primitives.Chars;
 import com.google.common.primitives.Doubles;
 
 /**
