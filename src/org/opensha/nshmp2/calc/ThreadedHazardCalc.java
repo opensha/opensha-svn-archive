@@ -15,7 +15,6 @@ import org.opensha.sha.earthquake.EpistemicListERF;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 /**
