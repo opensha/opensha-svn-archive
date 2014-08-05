@@ -2,43 +2,24 @@ package scratch.peter.tmp;
 
 import static org.opensha.commons.geo.LocationUtils.azimuth;
 import static org.opensha.commons.geo.LocationUtils.distanceToLineFast;
-import static org.opensha.nshmp2.util.SourceRegion.CA;
-import static org.opensha.nshmp2.util.SourceType.GRIDDED;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 import org.dom4j.DocumentException;
-import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
-import org.opensha.commons.util.DataUtils;
-import org.opensha.nshmp.NEHRP_TestCity;
 import org.opensha.nshmp2.tmp.TestGrid;
-import org.opensha.nshmp2.util.Period;
-import org.opensha.nshmp2.util.Utils;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
 
-import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
-import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
-import scratch.UCERF3.logicTree.VariableLogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
-import scratch.peter.curves.ProbOfExceed;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Range;
 import com.google.common.io.Files;
 
 /**

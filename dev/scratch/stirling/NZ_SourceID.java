@@ -16,6 +16,8 @@ import com.google.common.collect.ImmutableMap;
  * @author Peter Powers
  */
 public enum NZ_SourceID {
+	
+	// TODO this is missing 'ro'
 
 	RV(90.0, ACTIVE_SHALLOW),
 	IF(90.0, SUBDUCTION_INTERFACE),
