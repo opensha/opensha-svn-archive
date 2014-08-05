@@ -1,4 +1,4 @@
-package org.opensha.sha.cybershake.bombay;
+package org.opensha.sha.cybershake;
 
 import java.util.Date;
 

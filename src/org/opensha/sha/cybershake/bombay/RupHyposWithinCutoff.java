@@ -22,6 +22,8 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
+import com.google.common.collect.Lists;
+
 public class RupHyposWithinCutoff {
 	
 	private Location hypoLocation;
@@ -40,7 +42,7 @@ public class RupHyposWithinCutoff {
 	private ArrayList<ArrayList<Integer>> rups = new ArrayList<ArrayList<Integer>>();
 	
 	private HashMap<String, ArrayList<Integer>> rvMap = new HashMap<String, ArrayList<Integer>>();
-	private HashMap<String, Integer> excludedMap = new HashMap<String, Integer>();
+	private HashMap<String, ArrayList<Integer>> excludedMap = new HashMap<String, ArrayList<Integer>>();
 	
 	private HashMap<String, ArrayList<Location>> rvLocMap = new HashMap<String, ArrayList<Location>>();
 	
@@ -116,7 +118,7 @@ public class RupHyposWithinCutoff {
 		ArrayList<Integer> rvs = new ArrayList<Integer>();
 		int tot = 0;
 		try {
-			int numExcluded = 0;
+			ArrayList<Integer> rvsExcluded = Lists.newArrayList();
 			ResultSet rs = db.selectData(sql);
 			boolean success = rs.first();
 			while (success) {
@@ -141,12 +143,12 @@ public class RupHyposWithinCutoff {
 					}
 					locs.add(loc);
 				} else {
-					numExcluded++;
+					rvsExcluded.add(rvID);
 				}
 				
 				success = rs.next();
 			}
-			excludedMap.put(getKey(sourceID, rupID), numExcluded);
+			excludedMap.put(getKey(sourceID, rupID), rvsExcluded);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,9 +242,17 @@ public class RupHyposWithinCutoff {
 	public int getNumExcluded(int sourceID, int rupID) {
 		String key = getKey(sourceID, rupID);
 		if (excludedMap.containsKey(key))
-			return excludedMap.get(key);
+			return excludedMap.get(key).size();
 		else
 			return -1;
+	}
+	
+	public ArrayList<Integer> getExcludedRVs(int sourceID, int rupID) {
+		String key = getKey(sourceID, rupID);
+		if (excludedMap.containsKey(key))
+			return excludedMap.get(key);
+		else
+			return null;
 	}
 	
 	public ArrayList<Integer> getVariationsWithinCutoff(int sourceID, int rupID) {

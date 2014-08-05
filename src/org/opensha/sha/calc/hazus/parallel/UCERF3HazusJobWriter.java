@@ -24,7 +24,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 
@@ -33,8 +33,8 @@ public class UCERF3HazusJobWriter {
 	private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 	
 	private static AbstractERF getERF(File fsdFile, int years, boolean backSeis, BackgroundRupType backSeisType) {
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF();
-		erf.setParameter(UCERF3_FaultSysSol_ERF.FILE_PARAM_NAME, fsdFile);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF();
+		erf.setParameter(FaultSystemSolutionERF.FILE_PARAM_NAME, fsdFile);
 		erf.getTimeSpan().setDuration((double)years);
 		erf.setParameter(BackgroundRupParam.NAME, backSeisType);
 		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, true);

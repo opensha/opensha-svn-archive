@@ -24,7 +24,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
-import org.opensha.sha.cybershake.bombay.ModProbConfig;
+import org.opensha.sha.cybershake.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.maps.GMT_InterpolationSettings;

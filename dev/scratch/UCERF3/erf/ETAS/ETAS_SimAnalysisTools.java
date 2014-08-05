@@ -3,9 +3,12 @@ package scratch.UCERF3.erf.ETAS;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -17,7 +20,6 @@ import java.util.PriorityQueue;
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -28,43 +30,37 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.google.common.primitives.Doubles;
-
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
-import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
-import scratch.ned.ETAS_ERF.testModels.TestModel1_ERF;
-import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
-import scratch.ned.ETAS_Tests.PrimaryAftershock;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
+import com.google.common.primitives.Doubles;
 
 
 public class ETAS_SimAnalysisTools {
@@ -1092,6 +1088,25 @@ public class ETAS_SimAnalysisTools {
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag) throws IOException {
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
+			line = line.trim();
+			if (line.startsWith("#") || line.isEmpty())
+				continue;
+			ETAS_EqkRupture rup = ETAS_SimAnalysisTools.loadRuptureFromFileLine(line);
+			if (rup.getMag() >= minMag)
+				catalog.add(rup);
+		}
+		return catalog;
+	}
+	
+	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream) throws IOException {
+		return loadCatalog(catalogStream, -10d);
+	}
+	
+	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream, double minMag) throws IOException {
+		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(catalogStream));
+		
+		for (String line : CharStreams.readLines(reader)) {
 			line = line.trim();
 			if (line.startsWith("#") || line.isEmpty())
 				continue;

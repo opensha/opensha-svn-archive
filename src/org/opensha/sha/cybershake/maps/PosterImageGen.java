@@ -11,7 +11,7 @@ import java.net.URL;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.sha.cybershake.bombay.ModProbConfig;
+import org.opensha.sha.cybershake.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;

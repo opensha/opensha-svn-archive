@@ -2,6 +2,8 @@ package org.opensha.sha.cybershake.eew;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
@@ -12,6 +14,8 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+
+import com.google.common.collect.Maps;
 
 import scratch.kevin.cybershake.BulkCSCurveReplacer;
 
@@ -56,25 +60,40 @@ public class EEWCalc implements RuptureVariationProbabilityModifier {
 		}
 	}
 
-	@Override
-	public ArrayList<Integer> getModVariations(int sourceID, int rupID) {
-		return rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
-	}
+//	@Override
+//	public ArrayList<Integer> getModVariations(int sourceID, int rupID) {
+//		return rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+//	}
+//
+//	@Override
+//	public double getModifiedProb(int sourceID, int rupID, double origProb) {
+//		double rupProb = rupsWithinCutoff.getERF().getRupture(sourceID, rupID).getProbability();
+//		ArrayList<Integer> inclIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+//		if (inclIDs == null || inclIDs.size() == 0)
+//			return 0d;
+//		double numIncluded = inclIDs.size();
+//		double numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
+//		double incToTotal = numIncluded / (numIncluded + numExcluded);
+//		double inclRupsProb = rupProb * incToTotal;
+//		double scaledUpProb = inclRupsProb / totalProb;
+//		// this will get multiplied by numIncluded / total in the HC calc, but we don't want that
+//		// so we multiply it by total / numIncluded to reverse the effects
+//		return scaledUpProb * ((numIncluded + numExcluded) / numIncluded);
+//	}
 
 	@Override
-	public double getModifiedProb(int sourceID, int rupID, double origProb) {
+	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb) {
 		double rupProb = rupsWithinCutoff.getERF().getRupture(sourceID, rupID).getProbability();
 		ArrayList<Integer> inclIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
 		if (inclIDs == null || inclIDs.size() == 0)
-			return 0d;
+			return null;
 		double numIncluded = inclIDs.size();
 		double numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
 		double incToTotal = numIncluded / (numIncluded + numExcluded);
 		double inclRupsProb = rupProb * incToTotal;
-		double scaledUpProb = inclRupsProb / totalProb;
-		// this will get multiplied by numIncluded / total in the HC calc, but we don't want that
-		// so we multiply it by total / numIncluded to reverse the effects
-		return scaledUpProb * ((numIncluded + numExcluded) / numIncluded);
+		Map<Double, List<Integer>> ret = Maps.newHashMap();
+		ret.put(inclRupsProb, inclIDs);
+		return ret;
 	}
 	
 	public void calc(String dir) throws IOException {

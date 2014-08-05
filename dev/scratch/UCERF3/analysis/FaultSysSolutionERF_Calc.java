@@ -130,8 +130,6 @@ import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.erf.FSSRupsInRegionCache;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -163,7 +161,7 @@ public class FaultSysSolutionERF_Calc {
 	 * @param faultSysSolZipFile
 	 * @return
 	 */
-	public static UCERF3_FaultSysSol_ERF getUCERF3_ERF_Instance(File faultSysSolZipFile) {
+	public static FaultSystemSolutionERF getUCERF3_ERF_Instance(File faultSysSolZipFile) {
 		InversionFaultSystemSolution invFss;
 		try {
 			invFss = FaultSystemIO.loadInvSol(faultSysSolZipFile);
@@ -171,7 +169,7 @@ public class FaultSysSolutionERF_Calc {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(invFss);
 
 		erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.0);
 		erf.getTimeSpan().setDuration(1d);
@@ -213,7 +211,7 @@ public class FaultSysSolutionERF_Calc {
 //			String fileName = "UCERF3_CHAR_U3smSeis_Seis";
 			
 			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/PrelimModelReport/Figures/Fig16_ERF_ParticipationMaps/zipFiles/FM3_1_GLpABM_MaEllB_DsrTap_DrEllB_GR_VarAseis0.1_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");
-			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file);
+			FaultSystemSolutionERF erf = getUCERF3_ERF_Instance(file);
 			String fileName = "UCERF3_GR_DefMod_MoBal";
 //			UCERF3_FaultSysSol_ERF erf = getUCERF3_ERF_Instance(file, SpatialSeisPDF.AVG_DEF_MODEL,SmallMagScaling.SPATIAL);
 //			String fileName = "UCERF3_GR_DefMod_Seis";
@@ -252,7 +250,7 @@ public class FaultSysSolutionERF_Calc {
 //			String fileName = "UCERF2";
 
 			File file = new File("/Users/field/Neds_Creations/CEA_WGCEP/UCERF3/draftFinalModelReport/FaultSystemSolutions/FM3_1_ZENG_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_sol.zip");
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
 			erf.updateForecast();
 			String fileName = "UCERF3_Char_Ref_Zeng_Model";
 			
@@ -266,6 +264,9 @@ public class FaultSysSolutionERF_Calc {
 			GMT_CA_Maps.plotParticipationRateMap(erf, 7.7, 10d, fileName+"_Part7pt7", "test", fileName+"_Part7pt7");
 			GMT_CA_Maps.plotM6_5_BulgeMap(erf, 6.5, 1.0, fileName+"_Bulge", "test", fileName+"_Bulge");
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -284,7 +285,7 @@ public class FaultSysSolutionERF_Calc {
 			File file = new File(f);
 
 			System.out.println("Instantiating ERF...");
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
 //			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0);
 			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
@@ -325,6 +326,9 @@ public class FaultSysSolutionERF_Calc {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -351,7 +355,7 @@ public class FaultSysSolutionERF_Calc {
 			File file = new File(f);
 
 			System.out.println("Instantiating ERF...");
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(file);
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
 			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
 			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);	// don't include fault based sources here
@@ -417,6 +421,9 @@ public class FaultSysSolutionERF_Calc {
 
 			}
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -657,7 +664,12 @@ public class FaultSysSolutionERF_Calc {
 		
 		
 		File file = new File("/Users/field/Downloads/FaultSystemSolutions/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol.zip");
-		UCERF3_FaultSysSol_ERF ucerf3_erf = new UCERF3_FaultSysSol_ERF(file);
+		FaultSystemSolutionERF ucerf3_erf;
+		try {
+			ucerf3_erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
+		} catch (Exception e1) {
+			throw ExceptionUtils.asRuntimeException(e1);
+		}
 		ucerf3_erf.updateForecast();
 		SummedMagFreqDist ucerf3_Part = ERF_Calculator.getParticipationMagFreqDistInRegion(ucerf3_erf, region, 5.05, 40, 0.1, true);
 		ucerf3_Part.setName("MFD for UCERF3 Char Reference Branch");

@@ -24,6 +24,8 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
  *
  */
 public class FaultSectionDataWriter {
+	
+	private static final boolean INCLUDE_CC = true;
 
 	/**
 	 * 
@@ -78,7 +80,10 @@ public class FaultSectionDataWriter {
 				"# Ave Dip (degrees)\n"+
 				"# Ave Dip Direction\n"+
 				"# Ave "+reducedStr+"Long Term Slip Rate\n"+
-				"# Ave Aseismic Slip Factor\n"+
+				"# Ave Aseismic Slip Factor\n";
+		if (INCLUDE_CC)
+			header2 += "# Coupling Coefficient\n";
+		header2 += 
 				"# Ave Rake\n"+
 				"# Trace Length (derivative value) (km)\n"+
 				"# Num Trace Points\n"+
@@ -104,8 +109,10 @@ public class FaultSectionDataWriter {
 				str += getValue(sectData.getReducedAveSlipRate())+"\n";
 			else
 				str += getValue(sectData.getOrigAveSlipRate())+"\n";
-			str += 	getValue(sectData.getAseismicSlipFactor())+"\n"+
-					getValue(sectData.getAveRake())+"\n"+
+			str += 	getValue(sectData.getAseismicSlipFactor())+"\n";
+			if (INCLUDE_CC)
+				str += getValue(sectData.getCouplingCoeff())+"\n";
+			str += 	getValue(sectData.getAveRake())+"\n"+
 					getValue(faultTrace.getTraceLength())+"\n"+
 					faultTrace.getNumLocations()+"\n";
 			// write all the point on the fault section trace

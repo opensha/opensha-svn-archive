@@ -3,6 +3,7 @@ package org.opensha.sha.cybershake.bombay;
 import java.util.HashMap;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.cybershake.ModProbConfig;
 
 public class ModProbConfigFactory {
 	

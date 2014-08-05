@@ -25,8 +25,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.peter.ucerf3.calc.UC3_CalcUtils;
 
@@ -150,7 +149,7 @@ public class CurveCalcTest {
 		outputDir.mkdir();
 		
 		System.out.println("Instantiating ERF...");
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(calcSol);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(calcSol);
 		erf.getTimeSpan().setDuration(1d);
 		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, true);
 		if (gridded) {

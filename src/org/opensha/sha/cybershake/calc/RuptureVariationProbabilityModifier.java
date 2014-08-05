@@ -1,6 +1,7 @@
 package org.opensha.sha.cybershake.calc;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * @author kevin
  *
  */
-public interface RuptureVariationProbabilityModifier extends RuptureProbabilityModifier {
+public interface RuptureVariationProbabilityModifier {
 	
-	public ArrayList<Integer> getModVariations(int sourceID, int rupID);
+	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb);
 }

@@ -2,6 +2,8 @@ package org.opensha.sha.cybershake.calc;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -17,6 +19,10 @@ import org.opensha.sha.cybershake.db.PeakAmplitudesFromDBAPI;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DBAPI;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class HazardCurveComputation {
 
@@ -222,8 +228,8 @@ public class HazardCurveComputation {
 					if (rupVarProbMod == null)
 						continue;
 					else {
-						ArrayList<Integer> modIDs = rupVarProbMod.getModVariations(srcId, rupId);
-						if (modIDs == null || modIDs.size() == 0)
+						Map<Double, List<Integer>> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb);
+						if (modProbs == null || modProbs.isEmpty())
 							continue;
 					}
 				}
@@ -251,43 +257,24 @@ public class HazardCurveComputation {
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
 			return;
 		}
-		ArrayList<Integer> modRupIDs = rupProbVarMod.getModVariations(sourceID, rupID);
-		if (modRupIDs == null || modRupIDs.size() == 0) {
+		Map<Double, List<Integer>> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb);
+		if (modProbs == null) {
 			// we have a rup var prob mod, but it doesn't apply to this rupture
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
 			return;
 		}
-		double modProb = rupProbVarMod.getModifiedProb(sourceID, rupID, qkProb);
-		if (modRupIDs.size() == imVals.size()) {
-			// we have a rup var prob mod and it is modifying EVERY RV...simple case
-			handleRupture(xVals, imVals, hazardFunc, modProb);
-			return;
-		}
-		// if we made it this far it's the complicated case (a mix of modified and unmodified)
-		ArrayList<Double> noModVals = new ArrayList<Double>();
-		ArrayList<Double> modVals = new ArrayList<Double>();
 		
-//		String modIDs = "";
-//		for (int modRupID : modRupIDs) {
-//			modIDs += " " + modRupID;
-//		}
-//		System.out.println("modRupIDs: " + modIDs);
-		
-		for (int rvID=0; rvID<imVals.size(); rvID++) {
-			if (modRupIDs.contains(new Integer(rvID))) {
-//				System.out.println("ADDED A MOD PROB!!!");
+		for (Double prob : modProbs.keySet()) {
+			List<Integer> rvs = modProbs.get(prob);
+			Preconditions.checkState(!rvs.isEmpty());
+			Preconditions.checkState(Doubles.isFinite(prob) && prob >= 0);
+			if (prob == 0)
+				continue;
+			ArrayList<Double> modVals = Lists.newArrayList();
+			for (int rvID : modProbs.get(prob))
 				modVals.add(imVals.get(rvID));
-			} else {
-				noModVals.add(imVals.get(rvID));
-			}
+			handleRupture(xVals, modVals, hazardFunc, prob);
 		}
-		if (modRupIDs.size() != modVals.size())
-			throw new IllegalStateException("modRupIDs = " + modRupIDs.size() + "!= modVals = " + modVals.size());
-//		System.out.println("src: " + sourceID + " rup: " + rupID + " " +
-//				"mod rvs: " + modRupIDs.size() + " modVals: " + modVals.size() + " imVals: " + imVals.size());
-		double modsToTotal = (double)modVals.size() / (double)imVals.size();
-		handleRupture(xVals, noModVals, hazardFunc, qkProb * (1-modsToTotal));
-		handleRupture(xVals, modVals, hazardFunc, modProb * modsToTotal);
 	}
 	
 	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,

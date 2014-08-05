@@ -29,12 +29,32 @@ public class MiniSectionASCIIFileWriter {
 		// format. Aseismicity/coupling coefficients are set just as in DeformationModelFetcher
 		// for subsections, with the exception of custom tapers and custom Parkfield/Creeping/Mendocino.
 
-		DeformationModels dm = DeformationModels.ZENGBB;
-		FaultModels fm = FaultModels.FM3_1;
+//		DeformationModels dm = DeformationModels.ZENGBB;
+//		FaultModels fm = FaultModels.FM3_1;
 		
-		File outputFile = new File("/tmp/zeng_fm3_1_minis.txt");
-		File reducedOutputFile = new File("/tmp/zeng_fm3_1_minis_reduced.txt");
-		File avgOutputFile = new File("/tmp/zeng_fm3_1_avg.txt");
+		File outputDir = new File("/tmp/minisect_dm_files");
+		
+		for (FaultModels fm : FaultModels.values()) {
+			if (fm.getRelativeWeight(null) == 0)
+				continue;
+			
+			for (DeformationModels dm : DeformationModels.values()) {
+				if (dm.getRelativeWeight(null) == 0)
+					continue;
+				
+				writeMiniSectASCIIFiles(fm, dm, outputDir);
+			}
+		}
+	}
+	
+	public static void writeMiniSectASCIIFiles(FaultModels fm, DeformationModels dm, File outputDir) throws IOException {
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		
+		String prefix = fm.encodeChoiceString()+"_"+dm.encodeChoiceString();
+		File outputFile = new File(outputDir, prefix+"_minis.txt");
+		File reducedOutputFile = new File(outputDir, prefix+"_minis_reduced.txt");
+		File avgOutputFile = new File(outputDir, prefix+"_avg.txt");
 		
 		// load FM
 		List<FaultSectionPrefData> fmSects = fm.fetchFaultSections();

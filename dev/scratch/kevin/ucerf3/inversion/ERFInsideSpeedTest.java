@@ -24,7 +24,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 
 public class ERFInsideSpeedTest {
@@ -41,7 +41,7 @@ public class ERFInsideSpeedTest {
 		
 		InversionFaultSystemSolution sol = fetch.iterator().next();
 		
-		UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(sol);
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 		
 		erf.updateForecast();
 		

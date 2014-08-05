@@ -31,7 +31,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 
@@ -74,7 +74,7 @@ public class HazardBenchmark {
 		
 		makeSubSectArticulationsHist(fss);
 		
-		ERF erf = new UCERF3_FaultSysSol_ERF(fss);
+		ERF erf = new FaultSystemSolutionERF(fss);
 		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
 		erf.updateForecast();
 		

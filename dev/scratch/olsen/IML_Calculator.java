@@ -36,7 +36,7 @@ import org.opensha.nshmp2.util.Period;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.UCERF3_FaultSysSol_ERF;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 
@@ -303,7 +303,7 @@ public class IML_Calculator {
 	private static final String UC3_REF_BRANCH =
 			"FM3_1_ZENG_Shaw09Mod_DsrTap_CharConst_M5Rate7.6_MMaxOff7.6_NoFix_SpatSeisU3";
 	
-	private static UCERF3_FaultSysSol_ERF getUC3_ERF(String branchName) {
+	private static FaultSystemSolutionERF getUC3_ERF(String branchName) {
 		try {
 			// null branch name defaults to 'reference branch'
 			if (branchName == null) branchName = UC3_REF_BRANCH;
@@ -314,7 +314,7 @@ public class IML_Calculator {
 			LogicTreeBranch branch = LogicTreeBranch.fromFileName(branchName);
 			InversionFaultSystemSolution invFss = cfss.getSolution(branch);
 			// create and configure ERF
-			UCERF3_FaultSysSol_ERF erf = new UCERF3_FaultSysSol_ERF(invFss);
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(invFss);
 			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0.12);
 			erf.getParameter(IncludeBackgroundParam.NAME).setValue(
 				IncludeBackgroundOption.EXCLUDE);

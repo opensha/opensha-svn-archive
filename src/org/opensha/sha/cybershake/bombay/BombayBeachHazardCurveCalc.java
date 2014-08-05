@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
@@ -30,6 +32,8 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
+
+import com.google.common.collect.Maps;
 
 public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityModifier {
 	
@@ -182,13 +186,34 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 //		System.out.println("New range: " + minNew/365d + " => " + maxNew/365d);
 //	}
 	
-	public ArrayList<Integer> getModVariations(int sourceID, int rupID) {
-		return rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
-	}
-	
-	public double getModifiedProb(int sourceID, int rupID, double originalProb) {
-		return originalProb * increaseMultFactor;
-//		return originalProb;
+//	public ArrayList<Integer> getModVariations(int sourceID, int rupID) {
+//		return rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+//	}
+//	
+//	public double getModifiedProb(int sourceID, int rupID, double originalProb) {
+//		return originalProb * increaseMultFactor;
+////		return originalProb;
+//	}
+
+	@Override
+	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb) {
+		List<Integer> modIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+		if (modIDs == null || modIDs.isEmpty())
+			return null;
+		int numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
+		int totRVs = modIDs.size() + numExcluded;
+		double fractIncluded = (double)modIDs.size()/(double)totRVs;
+		double fractExcluded = 1-fractIncluded;
+		
+		List<Integer> excludedIDs = rupsWithinCutoff.getExcludedRVs(sourceID, rupID);
+		
+		Map<Double, List<Integer>> ret = Maps.newHashMap();
+		
+		ret.put(originalProb*increaseMultFactor*fractIncluded, modIDs);
+		if (excludedIDs != null && !excludedIDs.isEmpty())
+			ret.put(originalProb*fractExcluded, excludedIDs);
+		
+		return ret;
 	}
 
 }

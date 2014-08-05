@@ -3,6 +3,7 @@ package org.opensha.sha.cybershake.bombay;
 import java.util.Date;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.cybershake.AbstractModProbConfig;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;

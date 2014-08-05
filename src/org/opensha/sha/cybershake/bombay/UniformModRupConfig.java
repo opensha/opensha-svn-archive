@@ -2,6 +2,7 @@ package org.opensha.sha.cybershake.bombay;
 
 import java.util.Date;
 
+import org.opensha.sha.cybershake.AbstractModProbConfig;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 

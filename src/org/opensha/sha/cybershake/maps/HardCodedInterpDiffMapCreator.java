@@ -25,8 +25,8 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
+import org.opensha.sha.cybershake.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
-import org.opensha.sha.cybershake.bombay.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.db.AttenRelCurves2DB;
@@ -310,8 +310,8 @@ public class HardCodedInterpDiffMapCreator {
 //			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
 			// CVM-S4i26, AWP GPU
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(35);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(35);
 			
 			// BBP 1D, AWP GPU
 //			int velModelID = 8;
@@ -321,6 +321,9 @@ public class HardCodedInterpDiffMapCreator {
 //			int velModelID = 7; // wait but this is CVM-H no gtl????
 //			List<Integer> datasetIDs = Lists.newArrayList(34);
 			
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(12);
+			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(25);
 			List<Integer> compDatasetIDs = null;
@@ -328,7 +331,8 @@ public class HardCodedInterpDiffMapCreator {
 			// in G
 			Double customMin = 0d;
 //			Double customMax = 1.4;
-			Double customMax = 1.0;
+//			Double customMax = 1.0;
+			Double customMax = 1.2;
 			
 			
 //			boolean isProbAt_IML = true;
@@ -412,7 +416,7 @@ public class HardCodedInterpDiffMapCreator {
 				baseMapIMR, config, probGain, customLabel);
 	}
 	
-	protected static String getMap(boolean logPlot, int velModelID, List<Integer> datasetIDs, int imTypeID,
+	public static String getMap(boolean logPlot, int velModelID, List<Integer> datasetIDs, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
