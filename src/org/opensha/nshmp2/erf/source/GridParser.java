@@ -474,9 +474,10 @@ public class GridParser {
 //		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUS.2007all8.AB.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "mojave.in"));
 //		sources.addAll(SourceFileMgr.get(CA, GRIDDED, "sangorg.in"));
-		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));
+//		sources.addAll(SourceMgr.get(CEUS, GRIDDED, "CEUSchar.71.in"));
 //		sources.addAll(SourceMgr.get(WUS, GRIDDED, "EXTmap.ch.in"));
-//		sources.addAll(SourceFileMgr.get(WUS, GRIDDED, "pnwdeep.in"));
+//		sources.addAll(SourceMgr.get(WUS, GRIDDED, "portdeep.in"));
+		sources.addAll(SourceMgr.get(CA, GRIDDED, "brawmap.in"));
 
 		for (SourceFile sf : sources) {
 
@@ -484,6 +485,8 @@ public class GridParser {
 			System.out.println("Building: " + sf);
 			GridERF erf = parser.parse(sf);
 			log.fine(erf.toString());
+			
+			System.out.println(erf.getMFD(new Location(32.9, -116.0)));
 			//GridUtils.gridToKML(erf, "Grid_" + sf.getName(), Utils.randomColor(), false);
 //			RegionUtils.regionToKML(erf.getBorder(), "Grid_" + sf.getName(),
 //				Utils.randomColor());

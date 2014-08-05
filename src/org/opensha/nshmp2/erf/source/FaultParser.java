@@ -503,7 +503,7 @@ public class FaultParser {
 		SourceFile sf = SourceMgr.get(WUS, FAULT, "brange.3dip.gr.in").get(0);
 //		SourceFile sf = SourceMgr.get(CA, FAULT, "puente.ch.in").get(0);
 //		SourceFile sf = SourceMgr.get(CA, FAULT, "aFault_unseg.in").get(0);
-//		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
+//		SourceFile sf = SourceMgr.get(CA, FAULT, "bFault.ch.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CEUS, FAULT, "NMSZnocl.500yr.5branch.in").get(0);
 //		NSHMP_ERF erf = Sources.get("newmad.500.cluster.in");
 //		NSHMP_ERF erf = Sources.get("bFault.gr.in");

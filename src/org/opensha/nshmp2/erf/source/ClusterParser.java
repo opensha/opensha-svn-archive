@@ -174,7 +174,7 @@ public class ClusterParser {
 		// log date and class as these are suppressed by custom formatter
 		log.info((new Date()) + " " + ClusterParser.class.getName());
 
-//		ClusterParser dev = new ClusterParser(log);
+		ClusterParser dev = new ClusterParser(log);
 
 //		SourceFile sf = SourceFileMgr.get(WUS, FAULT, "orwa_n.3dip.gr.in").get(0);
 //		SourceFile sf = SourceFileMgr.get(CA, FAULT, "bFault.gr.in").get(0);
@@ -184,7 +184,7 @@ public class ClusterParser {
 //		File f = FileUtils.toFile(CEUSdev.class.getResource(srcPath));
 
 		log.info("Source: " + sf.getName());
-//		ClusterERF erf = dev.parse(sf);
+		ClusterERF erf = dev.parse(sf);
 
 //		System.out.println("NumSrcs: " + erf.getNumSources());
 //		int count = 0;

@@ -137,6 +137,11 @@ class GR_Data {
 		} else if (nMag == 1) {
 			// for single mag consider epistemic and aleatory uncertainty
 			double mMaxAdj = md.aleaMinMag(mMax + md.epiDeltas[0]);
+			if (md.hasAleatory &&  (mMaxAdj < 6.5)) {
+				System.out.println("PP " + md.hasAleatory + " " + (mMaxAdj < 6.5) + " " + fs.name);
+				System.exit(0);
+			}
+			
 			if (mMaxAdj < 6.5) {
 				StringBuilder sb = new StringBuilder()
 					.append("Single mag GR mMax [").append(mMax)
