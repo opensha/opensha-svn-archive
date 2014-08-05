@@ -387,7 +387,14 @@ public class NSHMP_DataUtils {
 			// interpolation. In either case set ground motion value to 0
 			
 			double gm = 0;
-			DiscretizedFunc f = cc.getCurve(loc);
+			DiscretizedFunc f = null;
+			try {
+				f = cc.getCurve(loc);
+			} catch (NullPointerException npe) {
+				System.out.println("Missing location? " + loc);
+				npe.printStackTrace();
+			}
+			
 			try {
 				gm = f.getFirstInterpolatedX_inLogXLogYDomain(targetRate);
 			} catch (Exception e) {

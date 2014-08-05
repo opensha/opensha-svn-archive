@@ -136,7 +136,12 @@ public class CurveContainer implements Iterable<Location> {
 			if (idxFrom != -1) {
 				List<Double> fromYs = cc.ysMap.get(idxFrom);
 //				if (padCC) fromYs.add(0.0);
-				DataUtils.add(ysMap.get(idxTo), fromYs);
+//				try {
+					DataUtils.add(ysMap.get(idxTo), fromYs);
+//				} catch (Exception e) {
+//					System.out.println("Union problem at: " + loc);
+//					System.out.println(cc.ysMap.get(idxFrom));
+//				}
 			}
 		}
 	}
