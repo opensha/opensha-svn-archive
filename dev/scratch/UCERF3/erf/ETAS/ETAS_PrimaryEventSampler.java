@@ -1179,7 +1179,11 @@ if(locsToSampleFrom.size() == 0) {
 				true,null,null);
 		
 		
-		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
+//		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
+//		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
+		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
+		
+		
 		
 //		etas_PrimEventSampler.testMagFreqDist();
 		
@@ -1310,13 +1314,65 @@ if(locsToSampleFrom.size() == 0) {
 			}
 			maxMagData.set(i, mMax);
 			Location loc = maxMagData.getLocation(i);
-			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
 		}
 		progressBar.showProgress(false);
 		
 		return maxMagData;
 	}
 	
+	
+	
+	public GriddedGeoDataSet getBulgeInCubesAtDepth(double depth) {
+		double min=5.05;
+		double max = 8.95;
+		int num=70;
+		GriddedGeoDataSet bulgeData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getDepthIndex(depth);
+		int numCubesAtDepth = bulgeData.size();
+		
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		double duration = erf.getTimeSpan().getDuration();
+		if(mfdForSrcArray == null) {
+			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+			for(int s=0; s<erf.getNumSources();s++) {
+				progressBar.updateProgress(s, erf.getNumSources());
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min,max,num, true);
+			}
+		}
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int samplerIndex = getSamplerIndexForRegAndDepIndices(i, depthIndex);
+			int[] sources = srcInCubeList.get(samplerIndex);
+			float[] fracts = fractionSrcInCubeList.get(samplerIndex);
+			SummedMagFreqDist supraMFD = new SummedMagFreqDist(min,max,num);
+			SummedMagFreqDist subMFD = new SummedMagFreqDist(min,max,num);
+
+			for(int s=0; s<sources.length;s++) {
+				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
+				IncrementalMagFreqDist mfdClone = mfd.deepClone();
+				mfdClone.scale(fracts[s]);
+				if(sources[s]<numFltSystSources)
+					supraMFD.addIncrementalMagFreqDist(mfdClone);
+				else
+					subMFD.addIncrementalMagFreqDist(mfdClone);
+			}
+			double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD, subMFD);
+			if(Double.isInfinite(bulge))
+				bulge = 1e3;
+			bulgeData.set(i, bulge);
+			Location loc = bulgeData.getLocation(i);
+			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+bulgeData.get(i));
+		}
+		progressBar.showProgress(false);
+		
+		return bulgeData;
+	}
+	
+
 	
 	
 	/**
@@ -1418,6 +1474,94 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
+	
+	
+	public String plotMaxMagAtDepthMap(double depth, String dirName) {
+		
+		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,false);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,5.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,8.5);
+
+		GriddedGeoDataSet xyzDataSet = this.getMaxMagInCubesAtDepth(depth);
+		String metadata = "Map from calling plotMaxMagAtDepthMap(*) method";
+		
+		try {
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Max Mag at depth="+depth, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "For Max Mag at depth Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+
+	
+	
+	public String plotBulgeDepthMap(double depth, String dirName) {
+		
+		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,false);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,0d);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,10d);
+
+		GriddedGeoDataSet xyzDataSet = this.getBulgeInCubesAtDepth(depth);
+		String metadata = "Map from calling plotBulgeDepthMap(*) method";
+		
+		try {
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Bulge at depth="+depth, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "For Bulge at depth Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+
 	
 	/**
 	 * 
