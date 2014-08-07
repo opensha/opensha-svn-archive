@@ -108,11 +108,11 @@ public class ETAS_Simulator {
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, TestScenario scenario, ObsEqkRupList histQkList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, ObsEqkRupList histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, ETAS_ParameterList etasParams)
 					throws IOException {
-		testETAS_Simulation(resultsDir, erf, griddedRegion, scenario,  histQkList, includeSpontEvents,
+		testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup,  histQkList, includeSpontEvents,
 				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName,
 				randomSeed, null, null, etasParams);
 	}
@@ -142,7 +142,7 @@ public class ETAS_Simulator {
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, TestScenario scenario, ObsEqkRupList histQkList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, ObsEqkRupList histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)
 					throws IOException {
@@ -213,29 +213,7 @@ public class ETAS_Simulator {
 			System.out.println("obsEqkRuptureList.size()="+obsEqkRuptureList.size());
 		}
 
-		ETAS_EqkRupture scenarioRup=null;
-		if(scenario != null) {
-			scenarioRup = new ETAS_EqkRupture();
-			Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
-			scenarioRup.setOriginTime(ot);	
-
-			int fssIndex = scenario.fssIndex;
-			if(fssIndex>=0) {
-				int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
-				ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
-				scenarioRup.setAveRake(rupFromERF.getAveRake());
-				scenarioRup.setMag(rupFromERF.getMag());
-				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
-				erf.setFltSystemSourceOccurranceTime(srcID, ot);
-				erf.updateForecast();
-			} 
-			else {
-				scenarioRup.setAveRake(0.0);
-				scenarioRup.setMag(scenario.mag);
-				scenarioRup.setPointSurface(scenario.loc);
-			}
-
+		if(scenarioRup != null) {
 			scenarioRup.setID(obsEqkRuptureList.size());
 			obsEqkRuptureList.add(scenarioRup);			
 		}
@@ -629,7 +607,40 @@ public class ETAS_Simulator {
 	}
 	
 	
-	
+	/**
+	 * This builds a scenario rup for the given scenario.
+	 * This returns null is scenario=null.
+	 * TODO origin time should be passed in, as well as whether ERF elastic rebound is reset for scenario?
+	 * @param scenario
+	 * @param erf
+	 * @return
+	 */
+	public static ETAS_EqkRupture buildScenarioRup(TestScenario scenario, FaultSystemSolutionERF_ETAS erf) {
+		ETAS_EqkRupture scenarioRup=null;
+		if(scenario != null) {
+			scenarioRup = new ETAS_EqkRupture();
+			Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+			scenarioRup.setOriginTime(ot);	
+			int fssIndex = scenario.fssIndex;
+			if(fssIndex>=0) {
+				int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
+				ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
+				scenarioRup.setAveRake(rupFromERF.getAveRake());
+				scenarioRup.setMag(rupFromERF.getMag());
+				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
+				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
+				erf.setFltSystemSourceOccurranceTime(srcID, ot);
+				erf.updateForecast();
+			} 
+			else {
+				scenarioRup.setAveRake(0.0);
+				scenarioRup.setMag(scenario.mag);
+				scenarioRup.setPointSurface(scenario.loc);
+			}	
+		}
+	return scenarioRup;
+	}
+
 
 	/**
 	 * 
@@ -652,6 +663,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 		
+		ETAS_EqkRupture scenarioRup= buildScenarioRup(scenario, erf);
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
@@ -662,7 +674,7 @@ public class ETAS_Simulator {
 		try {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
-			testETAS_Simulation(resultsDir, erf, griddedRegion, scenario, histQkList,  includeSpontEvents, 
+			testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup, histQkList,  includeSpontEvents, 
 					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randomSeed, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();

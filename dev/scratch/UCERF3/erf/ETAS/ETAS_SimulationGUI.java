@@ -255,8 +255,9 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		}
 		
 		ETAS_Simulator.TestScenario scenario = scenarioParam.getValue();
+		ETAS_EqkRupture scenarioRup= ETAS_Simulator.buildScenarioRup(scenario, erf);
 		
-		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenario, histQkList,
+		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenarioRup, histQkList,
 				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(), includeEqkRatesParam.getValue(),
 				griddedRegion.getLatSpacing(), null, randomSeed, fractionSrcAtPointList, srcAtPointList, etasParams);
 		
