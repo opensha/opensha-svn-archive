@@ -20,12 +20,12 @@ public class CS_InterpDiffMapServletAccessor {
 			
 			if (gridded != null) {
 				gridded = gridded.copy();
-				gridded.log();
+				gridded.log10();
 				map.setGriddedData(gridded);
 			}
 			if (scatter != null) {
 				scatter = scatter.copy();
-				scatter.log();
+				scatter.log10();
 				map.setScatter(scatter);
 			}
 		}

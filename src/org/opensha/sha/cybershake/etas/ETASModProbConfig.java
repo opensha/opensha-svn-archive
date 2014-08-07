@@ -1,7 +1,10 @@
 package org.opensha.sha.cybershake.etas;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -27,11 +30,25 @@ import org.opensha.sha.cybershake.eew.ZeroProbMod;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -45,12 +62,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	public enum ETAS_CyberShake_Scenarios {
 		PARKFIELD("Parkfield Scenario", 8),
 		BOMBAY_M6("Bombay Beach M6 Scenario", 9),
+		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
+		TEST_NEGLIGABLE("Test Negligable Scenario", -1),
 		MAPPED_UCERF2("Mapped UCERF2, no ETAS", 10);
 		
 		private int probModelID;
@@ -98,6 +119,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		}
 	}
 	
+	private static final boolean calc_by_add_spontaneous = true;
+	
 	private ETAS_CyberShake_Scenarios scenario;
 	private ETAS_Cybershake_TimeSpans timeSpan;
 	
@@ -117,6 +140,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	private ERF ucerf2;
 	private ERF modifiedUCERF2;
+//	private FaultSystemSolutionERF timeDepNoETAS_ERF;
 	/** map from original modified source to original source */
 	private Map<Integer, Integer> u2SourceMappings;
 	/** map from original source to modified source */
@@ -139,11 +163,28 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		endTime = ot + Math.round(timeSpan.years*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 		
+		System.out.println("Start time: "+ot);
+		System.out.println("End time: "+endTime);
+		
 		this.scenario = scenario;
 		this.timeSpan = timeSpan;
 		
 		ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
 		loadMappings(mappingsCSVFile);
+		
+		// TODO use time dep ERF probs?
+//		timeDepNoETAS_ERF = new FaultSystemSolutionERF(sol);
+//		timeDepNoETAS_ERF.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+//		timeDepNoETAS_ERF.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+//		timeDepNoETAS_ERF.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+//		timeDepNoETAS_ERF.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+//		timeDepNoETAS_ERF.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+//		timeDepNoETAS_ERF.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		timeDepNoETAS_ERF.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
+//		timeDepNoETAS_ERF.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
+//		timeDepNoETAS_ERF.getTimeSpan().setStartTimeInMillis(ot+1);
+//		timeDepNoETAS_ERF.getTimeSpan().setDuration(duration);
 	}
 	
 	private void loadCatalogs(File catalogsDir) throws IOException {
@@ -161,11 +202,13 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		for (File subDir : catalogsDir.listFiles()) {
 			if (!subDir.isDirectory() || !MPJ_ETAS_Simulator.isAlreadyDone(subDir))
 				continue;
+			if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET && Math.random() < 0.5)
+				continue;
 			File catalogFile = new File(subDir, "simulatedEvents.txt");
 			Preconditions.checkState(catalogFile.exists());
 			
 			List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, 5d);
-			filterCatalog(catalog);
+			catalog = filterCatalog(catalog);
 			
 			catalogs.add(catalog);
 			fssCount += catalog.size();
@@ -186,12 +229,30 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //			System.out.println(entry.getName());
 			String subEntryName = entry.getName()+"simulatedEvents.txt";
 			ZipEntry catEntry = zip.getEntry(subEntryName);
-			if (catEntry == null)
+			String infoEntryName = entry.getName()+"infoString.txt";
+			ZipEntry infoEntry = zip.getEntry(infoEntryName);
+			if (catEntry == null || infoEntry == null)
+				continue;
+			
+			if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET && Math.random() < 0.5)
+				continue;
+			
+			// make sure it's actually done
+			BufferedReader reader = new BufferedReader(new InputStreamReader(zip.getInputStream(infoEntry)));
+			
+			boolean done = false;
+			for (String line : CharStreams.readLines(reader)) {
+				if (line.contains("Total num ruptures: ")) {
+					done = true;
+					break;
+				}
+			}
+			if (!done)
 				continue;
 //			System.out.println("Loading "+catEntry.getName());
 			
 			List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), 5d);
-			filterCatalog(catalog);
+			catalog = filterCatalog(catalog);
 			
 			catalogs.add(catalog);
 			fssCount += catalog.size();
@@ -201,7 +262,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		Preconditions.checkState(!catalogs.isEmpty(), "Must load at least one catalog!");
 	}
 	
-	private void filterCatalog(List<ETAS_EqkRupture> catalog) {
+	private List<ETAS_EqkRupture> filterCatalog(List<ETAS_EqkRupture> catalog) {
 		// cull ruptures after end time
 		for (int i=catalog.size(); --i >= 0;) {
 			long rupTime = catalog.get(i).getOriginTime();
@@ -210,10 +271,17 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			else
 				break;
 		}
+		
+		if (calc_by_add_spontaneous)
+			// only spontaneous, we're adding to the long term rates
+			catalog = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, 0);
+		
 		// now only FSS ruptures
 		for (int i=catalog.size(); --i >= 0;)
 			if (catalog.get(i).getFSSIndex() < 0)
 				catalog.remove(i);
+		
+		return catalog;
 	}
 	
 	private void loadMappings(File mappingsCSVFile) throws IOException {
@@ -466,7 +534,12 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		rvProbs = Maps.newHashMap();
 		// loads in probabilities for rupture variations from the ETAS catalogs
 		
+		RuptureProbabilityModifier probMod = getRupProbModifier();
+		
 		double prob = 1d/catalogs.size();
+		if (scenario == ETAS_CyberShake_Scenarios.TEST_NEGLIGABLE)
+			// make the probability gain super small which should result if almost zero gain if implemented correctly
+			prob = 1e-20;
 		// TODO correctly deal with exceedence probs, as a rup can happen more than once in a catalog 
 		MinMaxAveTracker rvTrack = new MinMaxAveTracker();
 		
@@ -501,6 +574,15 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				if (rupRVProbs == null) {
 					rupRVProbs = Maps.newHashMap();
 					rvProbs.put(pair, rupRVProbs);
+					
+					if (calc_by_add_spontaneous) {
+						// now add in the regular probability
+						double initialProb = probMod.getModifiedProb(pair.getID1(), pair.getID2(), 0d);
+						List<Integer> allRVIndexes = Lists.newArrayList();
+						for (List<Integer> indexes : rvHypoLocs.values())
+							allRVIndexes.addAll(indexes);
+						rupRVProbs.put(initialProb, allRVIndexes);
+					}
 				}
 				
 				while (!toBePromoted.isEmpty()) {
@@ -538,7 +620,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	public synchronized RuptureProbabilityModifier getRupProbModifier() {
 		if (rupProbMod != null)
 			return rupProbMod;
-		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2) {
+		if (calc_by_add_spontaneous || scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2) {
 			final double aftRateCorr = 1d; // include aftershocks
 			final double duration = timeSpan.getTimeYears();
 			rupProbMod = new RuptureProbabilityModifier() {

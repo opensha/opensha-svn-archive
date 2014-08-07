@@ -108,7 +108,7 @@ public class ETAS_Simulator {
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, ObsEqkRupList histQkList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, ETAS_ParameterList etasParams)
 					throws IOException {
@@ -142,7 +142,7 @@ public class ETAS_Simulator {
 
 	 */
 	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
-			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, ObsEqkRupList histQkList, boolean includeSpontEvents,
+			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)
 					throws IOException {

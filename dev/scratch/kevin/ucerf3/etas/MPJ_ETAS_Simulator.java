@@ -79,7 +79,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
 	
-	private List<ETAS_EqkRupture> obsEqkRuptureList;
+	private List<ETAS_EqkRupture> histQkList;
+	private ETAS_EqkRupture triggerRup;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -112,10 +113,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		fssScenarioRupID = -1;
 		
-		obsEqkRuptureList = Lists.newArrayList();
-		
 		if (cmd.hasOption("trigger-catalog")) {
 			// load in historical catalog
+			histQkList = Lists.newArrayList();
 			File catFile = new File(cmd.getOptionValue("trigger-catalog"));
 			Preconditions.checkArgument(catFile.exists(), "Catalog file doesn't exist: "+catFile.getAbsolutePath());
 			ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(catFile);
@@ -123,7 +123,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			for (ObsEqkRupture rup : loadedRups) {
 				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
 				etasRup.setID(Integer.parseInt(rup.getEventId()));
-				obsEqkRuptureList.add(etasRup);
+				histQkList.add(etasRup);
 			}
 		}
 		
@@ -151,7 +151,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			simulationName = "FSS simulation. M="+mainshockRup.getMag()+", fss ID="+fssScenarioRupID;
 			
-			obsEqkRuptureList.add(mainshockRup);
+			triggerRup = mainshockRup;
 		} else if (cmd.hasOption("trigger-loc")) {
 			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
 			mainshockRup.setOriginTime(ot);	
@@ -177,7 +177,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			simulationName = "Pt Source. M="+mag+", "+ptSurf;
 			
-			obsEqkRuptureList.add(mainshockRup);
+			triggerRup = mainshockRup;
 		} else {
 			// only spontaneous
 			
@@ -263,9 +263,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			long randSeed = System.currentTimeMillis();
 			
-			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
+//			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
-				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, obsEqkRuptureList, includeSpontEvents,
+				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
 						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
 						fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
 			} catch (Throwable t) {

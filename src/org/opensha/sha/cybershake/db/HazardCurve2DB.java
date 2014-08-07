@@ -20,6 +20,7 @@
 package org.opensha.sha.cybershake.db;
 
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -782,6 +783,16 @@ public class HazardCurve2DB {
 	}
 	
 	public static void main(String args[]) {
+//		HazardCurve2DB curve2db;
+//		try {
+//			curve2db = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true));
+//			curve2db.deleteCurvesForDatasetID(48);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.exit(0);
+		
 		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.db);
 		
 		System.out.println("ID: " + hc.getHazardCurveID(2, 34, 3, 5, 1, 21));
