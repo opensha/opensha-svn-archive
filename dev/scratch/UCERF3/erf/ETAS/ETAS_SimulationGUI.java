@@ -249,42 +249,14 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(sol, false, 1d);
 		
-		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
-		int triggerID = 0;
+		ObsEqkRupList histQkList = null;
 		if (inputCatalogParam.getValue() != null) {
-			ObsEqkRupList histQkList = UCERF3_CatalogParser.loadCatalog(inputCatalogParam.getValue());
-			for(ObsEqkRupture qk : histQkList) {
-				Location hyp = qk.getHypocenterLocation();
-				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {
-					ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
-					etasRup.setID(triggerID++);
-					obsEqkRuptureList.add(etasRup);
-				}
-			}
+			histQkList = UCERF3_CatalogParser.loadCatalog(inputCatalogParam.getValue());
 		}
 		
 		ETAS_Simulator.TestScenario scenario = scenarioParam.getValue();
-		if (scenario != null) {
-			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
-			mainshockRup.setOriginTime(ot);
-			
-			if (scenario.getFSS_Index() >= 0) {
-				mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(scenario.getFSS_Index()));
-				mainshockRup.setMag(sol.getRupSet().getMagForRup(scenario.getFSS_Index()));
-				mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false));
-				mainshockRup.setID(triggerID);
-				
-				erf.setFltSystemSourceOccurranceTimeForFSSIndex(scenario.getFSS_Index(), ot);
-			} else {
-				mainshockRup.setAveRake(0.0);
-				mainshockRup.setMag(scenario.getMagnitude());
-				mainshockRup.setPointSurface(scenario.getLocation());
-				mainshockRup.setID(triggerID);
-			}
-			obsEqkRuptureList.add(mainshockRup);
-		}
 		
-		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, obsEqkRuptureList,
+		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenario, histQkList,
 				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(), includeEqkRatesParam.getValue(),
 				griddedRegion.getLatSpacing(), null, randomSeed, fractionSrcAtPointList, srcAtPointList, etasParams);
 		
