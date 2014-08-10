@@ -46,7 +46,19 @@ public class UCERF3_GriddedSeisOnlyERF_ETAS extends AbstractERF {
 	protected BackgroundRupParam bgRupTypeParam;
 	protected MaximumMagnitudeParam maxMagParam;
 	protected EnumParameter<TotalMag5Rate> totalRateParam;
+	/**
+	 *  options for above are (set in initParams(): 
+	 *  						TotalMag5Rate.RATE_6p5
+	 *  						TotalMag5Rate.RATE_7p9
+	 *  						TotalMag5Rate.RATE_9p6
+	 */
 	protected EnumParameter<SpatialSeisPDF> spatialSeisPDF_Param;
+	/**
+	 *  options for above are (set in initParams(): 
+	 *  						SpatialSeisPDF.UCERF2
+	 *  						SpatialSeisPDF.UCERF3
+	 *  						null (for uniform distribution)
+	 */
 	
 	// primitives
 	protected boolean applyAftershockFilter = false;
@@ -104,9 +116,6 @@ public class UCERF3_GriddedSeisOnlyERF_ETAS extends AbstractERF {
 		applyAftershockFilterParam= new ApplyGardnerKnopoffAftershockFilterParam();  // default is false
 		bgRupTypeParam = new BackgroundRupParam();
 		maxMagParam = new MaximumMagnitudeParam();
-//		totalRateParam = new EnumParameter<TotalMag5Rate>("Total Regional Rate", EnumSet
-//				.allOf(TotalMag5Rate.class),
-//				TotalMag5Rate.RATE_7p9, null);
 		totalRateParam = new EnumParameter<TotalMag5Rate>("Total Regional Rate", EnumSet
 				.of(TotalMag5Rate.RATE_6p5,TotalMag5Rate.RATE_7p9,TotalMag5Rate.RATE_9p6),
 				TotalMag5Rate.RATE_7p9, null);
