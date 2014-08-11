@@ -7,6 +7,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParamLinker;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -42,7 +43,7 @@ import com.google.common.collect.Maps;
  */
 public class ModAttenuationRelationship extends AttenuationRelationship implements ParameterChangeListener {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	public static final String NAME = "Modified Attenuation Relationship";
 	public static final String SHORT_NAME = "ModAttenRel";
@@ -63,6 +64,8 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	private ScalarIMR imr;
 	private AbstractAttenRelMod mod;
 	
+	private boolean imtStale = true;
+	
 	public ModAttenuationRelationship(ParameterChangeWarningListener l) {
 		initSupportedIntensityMeasureParams();
 		initEqkRuptureParams();
@@ -75,6 +78,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	public double getMean() {
 		Preconditions.checkNotNull(imr, "IMR is null!");
 		Preconditions.checkNotNull(mod, "Mod is null!");
+		checkUpdateIMT();
 		return mod.getModMean(imr);
 	}
 
@@ -82,6 +86,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	public double getStdDev() {
 		Preconditions.checkNotNull(imr, "IMR is null!");
 		Preconditions.checkNotNull(mod, "Mod is null!");
+		checkUpdateIMT();
 		return mod.getModStdDev(imr);
 	}
 
@@ -227,7 +232,10 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 			modsCache.put(ref, mod);
 		}
 		
-		modParams.setValue(mod.getModParams());
+		ParameterList params = mod.getModParams();
+		if (params == null)
+			params = new ParameterList();
+		modParams.setValue(params);
 		try {
 			// update GUI if applicable
 			modParams.getEditor().refreshParamEditor();
@@ -256,8 +264,26 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	public void setIntensityMeasure(String intensityMeasureName)
 			throws ParameterException {
 		super.setIntensityMeasure(intensityMeasureName);
-		if (mod != null && imr != null && getIntensityMeasure() != null)
-			mod.setIMT_IMT(imr, getIntensityMeasure());
+		imtStale = true;
+	}
+	
+	private void checkUpdateIMT() {
+		// must do this separately from the overridden setIntensityMeasure(...) method in order to correctly
+		// set independent parameters (such as SA period)
+		
+		if (imtStale) {
+			Parameter<Double> newIMT = getIntensityMeasure();
+			if (D) System.out.println("Detected new IMT: "+newIMT.getName());
+			if (D && getIntensityMeasure() instanceof SA_Param)
+				System.out.println("Period: "+SA_Param.getPeriodInSA_Param(newIMT));
+			if (mod != null && imr != null && getIntensityMeasure() != null) {
+				mod.setIMT_IMT(imr, newIMT);
+				System.out.println("Updated IMT: "+imr.getIntensityMeasure().getName());
+				if (D && imr.getIntensityMeasure() instanceof SA_Param)
+					System.out.println("Period: "+SA_Param.getPeriodInSA_Param(imr.getIntensityMeasure()));
+			}
+			imtStale = false;
+		}
 	}
 
 	@Override
