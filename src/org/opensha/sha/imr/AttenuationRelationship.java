@@ -528,14 +528,19 @@ extends AbstractIMR implements ScalarIMR {
 	 */
 	protected double getExceedProbability(double mean, double stdDev, double iml) throws
 	ParameterException, IMRException {
+		return getExceedProbability(mean, stdDev, iml, sigmaTruncTypeParam, sigmaTruncLevelParam);
+	}
+	
+	public static double getExceedProbability(double mean, double stdDev, double iml,
+			SigmaTruncTypeParam sigmaTruncTypeParam, SigmaTruncLevelParam sigmaTruncLevelParam) {
 
 		if (stdDev != 0) {
 			double stRndVar = (iml - mean) / stdDev;
 			// compute exceedance probability based on truncation type
-			if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE)) {
+			if (sigmaTruncTypeParam == null ||
+					sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE)) {
 				return GaussianDistCalc.getExceedProb(stRndVar);
-			}
-			else {
+			} else {
 				double numSig = ( (Double) ( (Parameter) sigmaTruncLevelParam).
 						getValue()).doubleValue();
 				if (sigmaTruncTypeParam.getValue().equals(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED)) {

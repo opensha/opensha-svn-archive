@@ -66,6 +66,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CB_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CY_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.GK_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2014_Wrapper;
+import org.opensha.sha.imr.mod.ModAttenuationRelationship;
 
 /**
  * This <code>enum</code> supplies references to
@@ -220,6 +221,8 @@ public enum AttenRelRef implements Named {
 	IDRISS_2014(Idriss_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.SHORT_NAME, EXPERIMENTAL),
 	
 	NGAWest_2014_AVG(NGAWest_2014_Averaged_AttenRel.class, NGAWest_2014_Averaged_AttenRel.NAME, NGAWest_2014_Averaged_AttenRel.SHORT_NAME, EXPERIMENTAL),
+	
+	MOD_ATTEN_REL(ModAttenuationRelationship.class, ModAttenuationRelationship.NAME, ModAttenuationRelationship.SHORT_NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 
