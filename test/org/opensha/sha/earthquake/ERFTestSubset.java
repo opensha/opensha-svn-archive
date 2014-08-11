@@ -23,6 +23,12 @@ public class ERFTestSubset implements ERF {
 	
 	private AbstractERF baseERF;
 	
+	/** fields for nth rupture info */
+	protected int totNumRups=-1;
+	protected ArrayList<int[]> nthRupIndicesForSource;	// this gives the nth indices for a given source
+	protected int[] srcIndexForNthRup;
+	protected int[] rupIndexForNthRup;
+	
 	public ERFTestSubset(AbstractERF baseERF) {
 		this.baseERF = baseERF;
 	}
@@ -135,5 +141,82 @@ public class ERFTestSubset implements ERF {
 	public Iterator<ProbEqkSource> iterator() {
 		return getSourceList().iterator();
 	}
+	
+	/**
+	 * This returns the nth rup indices for the given source
+	 */
+	@Override
+	public int[] get_nthRupIndicesForSource(int iSource) {
+		return baseERF.get_nthRupIndicesForSource(iSource);
+	}
+	
+	/**
+	 * This returns the total number of ruptures (the sum of all ruptures in all sources)
+	 */
+	@Override
+	public int getTotNumRups() {
+		return baseERF.getTotNumRups();
+	}
+	
+	/**
+	 * This returns the nth rupture index for the given source and rupture index
+	 * (where the latter is the rupture index within the source)
+	 */	
+	@Override
+	public int getIndexN_ForSrcAndRupIndices(int s, int r) {
+		return baseERF.getIndexN_ForSrcAndRupIndices(s, r);
+	}
+	
+	/**
+	 * This returns the source index for the nth rupture
+	 * @param nthRup
+	 * @return
+	 */
+	@Override
+	public int getSrcIndexForNthRup(int nthRup) {
+		return baseERF.getSrcIndexForNthRup(nthRup);
+	}
+
+	/**
+	 * This returns the rupture index (with its source) for the
+	 * given nth rupture.
+	 * @param nthRup
+	 * @return
+	 */
+	@Override
+	public int getRupIndexInSourceForNthRup(int nthRup) {
+		return baseERF.getRupIndexInSourceForNthRup(nthRup);
+	}
+	
+	/**
+	 * This returns the nth rupture in the ERF
+	 * @param n
+	 * @return
+	 */
+	@Override
+	public ProbEqkRupture getNthRupture(int n) {
+		return baseERF.getNthRupture(n);
+	}
+	
+	/**
+	 * This sets the following: totNumRups, totNumRupsFromFaultSystem, nthRupIndicesForSource,
+	 * srcIndexForNthRup[], rupIndexForNthRup[], fltSysRupIndexForNthRup[]
+	 * 
+	 */
+	protected void setAllNthRupRelatedArrays() {
+		baseERF.setAllNthRupRelatedArrays();
+	}
+	
+	/**
+	 * This checks whether what's returned from get_nthRupIndicesForSource(s) gives
+	 *  successive integer values when looped over all sources.
+	 *  TODO move this to a test class?
+	 *  
+	 */
+	public void testNthRupIndicesForSource() {
+		baseERF.testNthRupIndicesForSource();
+	}
+	
+
 
 }

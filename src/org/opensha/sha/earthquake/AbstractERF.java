@@ -62,6 +62,13 @@ public abstract class AbstractERF implements
 
 	/** Flag indiacting whether any parameter has changed. */
 	protected boolean parameterChangeFlag = true;
+	
+	/** fields for nth rupture info */
+	protected int totNumRups=-1;
+	protected ArrayList<int[]> nthRupIndicesForSource;	// this gives the nth indices for a given source
+	protected int[] srcIndexForNthRup;
+	protected int[] rupIndexForNthRup;
+
 
 	/**
 	 * Get the region for which this forecast is applicable
@@ -341,5 +348,132 @@ public abstract class AbstractERF implements
 			}
 		};
 	}
+	
+	/**
+	 * This returns the nth rup indices for the given source
+	 */
+	@Override
+	public int[] get_nthRupIndicesForSource(int iSource) {
+		if(totNumRups == -1)
+			setAllNthRupRelatedArrays();
+		return nthRupIndicesForSource.get(iSource);
+	}
+	
+	/**
+	 * This returns the total number of ruptures (the sum of all ruptures in all sources)
+	 */
+	@Override
+	public int getTotNumRups() {
+		if(totNumRups == -1)
+			setAllNthRupRelatedArrays();
+		return totNumRups;
+	}
+	
+	/**
+	 * This returns the nth rupture index for the given source and rupture index
+	 * (where the latter is the rupture index within the source)
+	 */	
+	@Override
+	public int getIndexN_ForSrcAndRupIndices(int s, int r) {
+		if(totNumRups == -1)
+			setAllNthRupRelatedArrays();
+		return get_nthRupIndicesForSource(s)[r];
+	}
+	
+	/**
+	 * This returns the source index for the nth rupture
+	 * @param nthRup
+	 * @return
+	 */
+	@Override
+	public int getSrcIndexForNthRup(int nthRup) {
+		if(totNumRups == -1)
+			setAllNthRupRelatedArrays();
+		return srcIndexForNthRup[nthRup];
+	}
+
+	/**
+	 * This returns the rupture index (with its source) for the
+	 * given nth rupture.
+	 * @param nthRup
+	 * @return
+	 */
+	@Override
+	public int getRupIndexInSourceForNthRup(int nthRup) {
+		if(totNumRups == -1)
+			setAllNthRupRelatedArrays();
+		return rupIndexForNthRup[nthRup];
+	}
+	
+	/**
+	 * This returns the nth rupture in the ERF
+	 * @param n
+	 * @return
+	 */
+	@Override
+	public ProbEqkRupture getNthRupture(int n) {
+		return getRupture(getSrcIndexForNthRup(n), getRupIndexInSourceForNthRup(n));
+	}
+	
+	/**
+	 * This sets the following: totNumRups, totNumRupsFromFaultSystem, nthRupIndicesForSource,
+	 * srcIndexForNthRup[], rupIndexForNthRup[], fltSysRupIndexForNthRup[]
+	 * 
+	 */
+	protected void setAllNthRupRelatedArrays() {
+		
+		totNumRups=0;
+		nthRupIndicesForSource = new ArrayList<int[]>();
+
+		// make temp array lists to avoid making each source twice
+		ArrayList<Integer> tempSrcIndexForNthRup = new ArrayList<Integer>();
+		ArrayList<Integer> tempRupIndexForNthRup = new ArrayList<Integer>();
+		ArrayList<Integer> tempFltSysRupIndexForNthRup = new ArrayList<Integer>();
+		int n=0;
+		
+		for(int s=0; s<getNumSources(); s++) {	// this includes gridded sources
+			int numRups = getSource(s).getNumRuptures();
+			totNumRups += numRups;
+			int[] nthRupsForSrc = new int[numRups];
+			for(int r=0; r<numRups; r++) {
+				tempSrcIndexForNthRup.add(s);
+				tempRupIndexForNthRup.add(r);
+				nthRupsForSrc[r]=n;
+				n++;
+			}
+			nthRupIndicesForSource.add(nthRupsForSrc);
+		}
+		// now make final int[] arrays
+		srcIndexForNthRup = new int[tempSrcIndexForNthRup.size()];
+		rupIndexForNthRup = new int[tempRupIndexForNthRup.size()];
+		for(n=0; n<totNumRups;n++)
+		{
+			srcIndexForNthRup[n]=tempSrcIndexForNthRup.get(n);
+			rupIndexForNthRup[n]=tempRupIndexForNthRup.get(n);
+		}	
+	}
+	
+	/**
+	 * This checks whether what's returned from get_nthRupIndicesForSource(s) gives
+	 *  successive integer values when looped over all sources.
+	 *  TODO move this to a test class?
+	 *  
+	 */
+	public void testNthRupIndicesForSource() {
+		int index = 0;
+		for(int s=0; s<this.getNumSources(); s++) {
+			int[] test = get_nthRupIndicesForSource(s);
+			for(int r=0; r< test.length;r++) {
+				int nthRup = test[r];
+				if(nthRup !=index)
+					throw new RuntimeException("Error found");
+				index += 1;
+			}
+		}
+		System.out.println("testNthRupIndicesForSource() was successful");
+	}
+	
+	
+
 
 }
