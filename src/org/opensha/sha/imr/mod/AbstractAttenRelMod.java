@@ -30,7 +30,9 @@ public abstract class AbstractAttenRelMod implements ShortNamed {
 	
 	/**
 	 * Will be called whenever the site is changed. Default implementation just calls
-	 * imr.setSite(site) but can be overridden to modify individual site parameters.
+	 * imr.setSite(site) but can be overridden to modify individual site parameters. Site specific
+	 * IMRs should override this to just set the site location and default site types, then retrieve
+	 * the actual site parameters from the passed in site object
 	 * 
 	 * @param imr
 	 */
@@ -68,7 +70,7 @@ public abstract class AbstractAttenRelMod implements ShortNamed {
 	public abstract double getModMean(ScalarIMR imr);
 	
 	/**
-	 * Should return the modified standard deviation, or imr.getStdDev if no modification necessary
+	 * Should return the modified standard deviation, or imr.getStdDev() if no modification necessary
 	 * @param imr
 	 * @return
 	 */
@@ -83,8 +85,7 @@ public abstract class AbstractAttenRelMod implements ShortNamed {
 	 * @throws ParameterException
 	 */
 	public DiscretizedFunc getModExceedProbabilities(ScalarIMR imr,
-			DiscretizedFunc intensityMeasureLevels
-	) throws ParameterException {
+			DiscretizedFunc intensityMeasureLevels) throws ParameterException {
 
 		double stdDev = getModStdDev(imr);
 		double mean = getModMean(imr);
