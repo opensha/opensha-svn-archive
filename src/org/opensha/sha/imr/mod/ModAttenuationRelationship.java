@@ -177,6 +177,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		otherParams.addParameter(0, imrsParam);
 
 		imrParams = new ParameterListParameter("IMR Params");
+		imrParams.setDefaultValue(new ParameterList());
 		otherParams.addParameter(1, imrParams);
 		
 		modsParam = new EnumParameter<ModAttenRelRef>("Modifier", EnumSet.allOf(ModAttenRelRef.class),
@@ -185,6 +186,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		otherParams.addParameter(2, modsParam);
 		
 		modParams = new ParameterListParameter("Modifier Params");
+		modParams.setDefaultValue(new ParameterList());
 		otherParams.addParameter(3, modParams);
 	}
 	
