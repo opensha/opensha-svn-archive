@@ -96,7 +96,9 @@ public class DemoSiteSpecificMod extends AbstractAttenRelMod {
 		// TODO do any required scaling using site type primitives
 		// remember that this is in natural log units
 		// if you need to know which IMT we have, then call imr.getIntensityMeasure()
-		double scaleValue = origMean * 1d;
+		double scaleValue = origMean;
+		if (vs30 < 500)
+			scaleValue = Math.log(Math.exp(origMean)*2d);
 		return scaleValue;
 	}
 

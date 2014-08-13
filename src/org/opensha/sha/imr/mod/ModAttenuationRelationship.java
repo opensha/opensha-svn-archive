@@ -1,5 +1,6 @@
 package org.opensha.sha.imr.mod;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -55,7 +57,11 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	private ParameterListParameter imrParams;
 	private ParameterListParameter modParams;
 	
+	public static final String IMRS_PARAM_NAME = "IMR";
+	private EnumSet<AttenRelRef> supportedIMRs;
 	private EnumParameter<AttenRelRef> imrsParam;
+	public static final String MODS_PARAM_NAME = "Modifier";
+	private EnumSet<ModAttenRelRef> supportedMods;
 	private EnumParameter<ModAttenRelRef> modsParam;
 	
 	private Map<AttenRelRef, ScalarIMR> imrsCache = Maps.newHashMap();
@@ -66,7 +72,31 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	
 	private boolean imtStale = true;
 	
+	public ModAttenuationRelationship() {
+		this(null);
+	}
+	
+	public ModAttenuationRelationship(AttenRelRef supportedIMR, ModAttenRelRef supportedMod) {
+		this(Lists.newArrayList(supportedIMR), Lists.newArrayList(supportedMod));
+	}
+	
+	public ModAttenuationRelationship(Collection<AttenRelRef> supportedIMRs, ModAttenRelRef supportedMod) {
+		this(supportedIMRs, Lists.newArrayList(supportedMod));
+	}
+	
+	public ModAttenuationRelationship(Collection<AttenRelRef> supportedIMRs,
+			Collection<ModAttenRelRef> supportedMods) {
+		this(null, EnumSet.copyOf(supportedIMRs), EnumSet.copyOf(supportedMods));
+	}
+	
 	public ModAttenuationRelationship(ParameterChangeWarningListener l) {
+		this(l, EnumSet.copyOf(AttenRelRef.get(ServerPrefUtils.SERVER_PREFS)), EnumSet.allOf(ModAttenRelRef.class));
+	}
+	
+	public ModAttenuationRelationship(ParameterChangeWarningListener l,
+			EnumSet<AttenRelRef> supportedIMRs, EnumSet<ModAttenRelRef> supportedMods) {
+		this.supportedIMRs = supportedIMRs;
+		this.supportedMods = supportedMods;
 		initSupportedIntensityMeasureParams();
 		initEqkRuptureParams();
 		initPropagationEffectParams();
@@ -121,6 +151,14 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 
 	@Override
 	protected void initSupportedIntensityMeasureParams() {
+		/*
+		 * IMPORTANT:
+		 * 
+		 * If IMTs are added here with dependent parameters, you must add a parameter change
+		 * listener to those dependent parameters, then set imtStale=true on each update. See
+		 * saPeriodParam below and treatment in parameterChange(...);
+		 */
+		
 		// Create saParam:
 		DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
 		for (double period : periods)
@@ -129,6 +167,8 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		saPeriodParam = new PeriodParam(periodConstraint);
 		saDampingParam = new DampingParam();
 		saParam = new SA_Param(saPeriodParam, saDampingParam);
+		saPeriodParam.addParameterChangeListener(this);
+		saDampingParam.addParameterChangeListener(this);
 		saParam.setNonEditable();
 
 		//  Create PGA Parameter (pgaParam):
@@ -171,8 +211,8 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	protected void initOtherParams() {
 		super.initOtherParams();
 		
-		imrsParam = new EnumParameter<AttenRelRef>("IMR", EnumSet.copyOf(AttenRelRef.get(ServerPrefUtils.SERVER_PREFS)),
-				AttenRelRef.CB_2008, null);
+		imrsParam = new EnumParameter<AttenRelRef>(IMRS_PARAM_NAME,
+				supportedIMRs, AttenRelRef.CB_2008, null);
 		imrsParam.addParameterChangeListener(this);
 		otherParams.addParameter(0, imrsParam);
 
@@ -180,7 +220,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		imrParams.setDefaultValue(new ParameterList());
 		otherParams.addParameter(1, imrParams);
 		
-		modsParam = new EnumParameter<ModAttenRelRef>("Modifier", EnumSet.allOf(ModAttenRelRef.class),
+		modsParam = new EnumParameter<ModAttenRelRef>(MODS_PARAM_NAME, supportedMods,
 				ModAttenRelRef.SIMPLE_SCALE, null);
 		modsParam.addParameterChangeListener(this);
 		otherParams.addParameter(2, modsParam);
@@ -280,7 +320,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 				System.out.println("Period: "+SA_Param.getPeriodInSA_Param(newIMT));
 			if (mod != null && imr != null && getIntensityMeasure() != null) {
 				mod.setIMT_IMT(imr, newIMT);
-				System.out.println("Updated IMT: "+imr.getIntensityMeasure().getName());
+				System.out.println("Updated IMT for "+imr.getShortName()+": "+imr.getIntensityMeasure().getName());
 				if (D && imr.getIntensityMeasure() instanceof SA_Param)
 					System.out.println("Period: "+SA_Param.getPeriodInSA_Param(imr.getIntensityMeasure()));
 			}
@@ -308,7 +348,17 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 			updateCurrentIMR();
 		} else if (event.getParameter() == modsParam) {
 			updateCurrentMod();
+		} else if (event.getParameter() == saPeriodParam || event.getParameter() == saDampingParam) {
+			imtStale = true;
 		}
+	}
+	
+	ScalarIMR getCurrentIMR() {
+		return imr;
+	}
+	
+	AbstractAttenRelMod getCurrentMod() {
+		return mod;
 	}
 
 }

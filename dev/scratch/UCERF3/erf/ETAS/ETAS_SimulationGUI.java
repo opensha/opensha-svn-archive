@@ -248,11 +248,13 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
 		
 		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(sol, false, 1d);
+		erf.updateForecast();
 		
-		ObsEqkRupList histQkList = null;
-		if (inputCatalogParam.getValue() != null) {
+		ObsEqkRupList histQkList;
+		if (inputCatalogParam.getValue() != null)
 			histQkList = UCERF3_CatalogParser.loadCatalog(inputCatalogParam.getValue());
-		}
+		else
+			histQkList = new ObsEqkRupList();
 		
 		ETAS_Simulator.TestScenario scenario = scenarioParam.getValue();
 		ETAS_EqkRupture scenarioRup= ETAS_Simulator.buildScenarioRup(scenario, erf);

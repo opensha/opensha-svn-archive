@@ -31,10 +31,11 @@ public class ScriptGen {
 //		Scenarios[] scenarios = Scenarios.values();
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH};
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
-		Scenarios[] scenarios = {Scenarios.PARKFIELD};
+//		Scenarios[] scenarios = {Scenarios.PARKFIELD};
+		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6, Scenarios.PARKFIELD};
 		boolean timeIndep = false;
 		int numSims = 10000;
-		String nameAdd = null;
+		String nameAdd = "-nospont";
 		
 		int memGigs;
 		int mins = 24*60;
@@ -74,7 +75,8 @@ public class ScriptGen {
 			
 			File pbsFile = new File(localJobDir, jobName+".pbs");
 			
-			String argz = "--min-dispatch 1 --max-dispatch 1 --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
+			String argz = "--min-dispatch 1 --max-dispatch 1 --no-spontaneous --num "+numSims
+					+" --sol-file "+remoteSolFile.getAbsolutePath();
 			switch (scenario) {
 			case BOMBAY_BEACH_CAT:
 				argz += " --trigger-catalog "+(new File(remoteDir, "bombay_catalog.txt")).getAbsolutePath();

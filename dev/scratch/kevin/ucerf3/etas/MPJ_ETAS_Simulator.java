@@ -101,6 +101,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		else
 			this.duration = 1d;
 		
+		if (cmd.hasOption("--no-spontaneous"))
+			includeSpontEvents = false;
+		
 		if (cmd.hasOption("indep"))
 			timeIndep = true;
 		
@@ -113,9 +116,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		fssScenarioRupID = -1;
 		
+		histQkList = Lists.newArrayList();
 		if (cmd.hasOption("trigger-catalog")) {
 			// load in historical catalog
-			histQkList = Lists.newArrayList();
 			File catFile = new File(cmd.getOptionValue("trigger-catalog"));
 			Preconditions.checkArgument(catFile.exists(), "Catalog file doesn't exist: "+catFile.getAbsolutePath());
 			ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(catFile);
@@ -360,6 +363,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option duration = new Option("d", "duration", true, "Simulation duration (years), default=1yr");
 		duration.setRequired(false);
 		ops.addOption(duration);
+		
+		Option noSpont = new Option("ns", "no-spontaneous", false, "Flag to disable spontaneous ruptures");
+		noSpont.setRequired(false);
+		ops.addOption(noSpont);
 		
 		Option indep = new Option("i", "indep", false, "Time independent probabilities. Elastic rebound will "
 				+ "still be applied for fault initiating event and any triggered events.");

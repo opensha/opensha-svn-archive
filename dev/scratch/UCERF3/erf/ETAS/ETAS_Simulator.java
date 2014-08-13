@@ -633,6 +633,7 @@ public class ETAS_Simulator {
 			int fssIndex = scenario.fssIndex;
 			if(fssIndex>=0) {
 				int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
+				Preconditions.checkState(srcID >= 0, "Source not found for FSS index="+fssIndex);
 				ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
 				scenarioRup.setAveRake(rupFromERF.getAveRake());
 				scenarioRup.setMag(rupFromERF.getMag());

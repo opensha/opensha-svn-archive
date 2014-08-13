@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Tests;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_WrapperTest;
+import org.opensha.sha.imr.mod.ModAttenuationRelationshipTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -46,7 +47,8 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_WrapperTest;
 	MultiIMR_ParamTest.class,
 	
 	NGAW2_WrapperTest.class,
-	NGAW2_Tests.class
+	NGAW2_Tests.class,
+	ModAttenuationRelationshipTest.class
 })
 
 
