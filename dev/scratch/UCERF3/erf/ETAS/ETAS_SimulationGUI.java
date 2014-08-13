@@ -35,6 +35,7 @@ import com.google.common.base.Preconditions;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
@@ -83,6 +84,8 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	public ETAS_SimulationGUI() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		console = new ConsoleWindow();
+		
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		etasParams = new ETAS_ParameterList();
 		paramList = new ParameterList();

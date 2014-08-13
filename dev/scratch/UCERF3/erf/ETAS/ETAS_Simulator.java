@@ -30,7 +30,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
+import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -109,7 +109,7 @@ public class ETAS_Simulator {
 	 * @throws IOException 
 
 	 */
-	public static void testETAS_Simulation(File resultsDir, AbstractERF_withNthRupMethods erf,
+	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, ETAS_ParameterList etasParams)
@@ -143,7 +143,7 @@ public class ETAS_Simulator {
 	 * @throws IOException 
 
 	 */
-	public static void testETAS_Simulation(File resultsDir, AbstractERF_withNthRupMethods erf,
+	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)

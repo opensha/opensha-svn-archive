@@ -29,7 +29,7 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
+import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -94,7 +94,7 @@ public class ETAS_PrimaryEventSampler {
 	GriddedRegion gridRegForParentLocs;
 	double cubeLatLonSpacing;
 	
-	AbstractERF_withNthRupMethods erf;
+	AbstractNthRupERF erf;
 	int numFltSystSources=-1, totNumSrc;
 	ArrayList<Integer> srcIndexList; // this is so different lists can point to the same src index Integer object
 	
@@ -149,7 +149,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeERF_Rates
 	 * @param includeSpatialDecay
 	 */
-	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractERF_withNthRupMethods erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
 			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSrcInCubeList, 
 			List<int[]> inputSrcInCubeList) {
@@ -178,7 +178,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @throws IOException 
 	 */
-	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractERF_withNthRupMethods erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
 			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList) {

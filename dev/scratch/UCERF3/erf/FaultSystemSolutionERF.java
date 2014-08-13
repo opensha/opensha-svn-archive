@@ -23,7 +23,7 @@ import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
+import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
@@ -90,7 +90,7 @@ import com.google.common.collect.Maps;
  * 
  * 
  */
-public class FaultSystemSolutionERF extends AbstractERF_withNthRupMethods {
+public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	
 	// this tells whether to average recurrence intervals (or rates) in computing conditional rupture RIs:
 	public boolean aveRecurIntervalsInU3_BPTcalc = false;

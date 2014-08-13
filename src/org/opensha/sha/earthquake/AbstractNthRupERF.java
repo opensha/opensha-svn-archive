@@ -19,25 +19,7 @@
 
 package org.opensha.sha.earthquake;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.EventObject;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
-import org.dom4j.Element;
-import org.opensha.commons.data.TimeSpan;
-import org.opensha.commons.geo.Region;
-import org.opensha.commons.metadata.MetadataLoader;
-import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.commons.param.AbstractParameter;
-import org.opensha.commons.param.Parameter;
-import org.opensha.commons.param.ParameterList;
-import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.commons.param.event.TimeSpanChangeListener;
-import org.opensha.sha.util.TectonicRegionType;
 
 /**
  * This class adds methods for accessing ruptures by their nth index (where N is the total number of ruptures
@@ -47,9 +29,9 @@ import org.opensha.sha.util.TectonicRegionType;
  * (which may depend on adjustable parameters).
  * 
  * @author Ned Field
- * @version $Id: AbstractERF.java 10801 2014-08-11 17:32:51Z field $
+ * @version $Id: AbstractNthRupERF.java 10801 2014-08-11 17:32:51Z field $
  */
-public abstract class AbstractERF_withNthRupMethods extends AbstractERF {
+public abstract class AbstractNthRupERF extends AbstractERF {
 	
 	private static final long serialVersionUID = 1L;
 

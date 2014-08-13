@@ -7,7 +7,8 @@ import org.opensha.sha.cybershake.CyberShakeUCERF2ReproducabilityTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	ERFLoopTest.class,
-	CyberShakeUCERF2ReproducabilityTest.class
+	CyberShakeUCERF2ReproducabilityTest.class,
+	AbstractNthRupERFTest.class
 })
 
 public class ERFTestSuite {
