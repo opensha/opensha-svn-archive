@@ -29,6 +29,8 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -107,7 +109,7 @@ public class ETAS_Simulator {
 	 * @throws IOException 
 
 	 */
-	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
+	public static void testETAS_Simulation(File resultsDir, AbstractERF_withNthRupMethods erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, ETAS_ParameterList etasParams)
@@ -141,12 +143,16 @@ public class ETAS_Simulator {
 	 * @throws IOException 
 
 	 */
-	public static void testETAS_Simulation(File resultsDir, FaultSystemSolutionERF_ETAS erf,
+	public static void testETAS_Simulation(File resultsDir, AbstractERF_withNthRupMethods erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)
 					throws IOException {
 		
+		int numFaultSysSources = 0;
+		if(erf instanceof FaultSystemSolutionERF) {
+			numFaultSysSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
+		}
 		
 		// TODO:
 		// griddedRegion could come from erf.getSolution().getGridSourceProvider().getGriddedRegion(); can the two be different?
@@ -173,7 +179,10 @@ public class ETAS_Simulator {
 		info_fr.write(simulationName+"\n");
 		info_fr.write("\nrandomSeed="+etas_utils.getRandomSeed()+"\n");
 		if(D) System.out.println("\nrandomSeed="+etas_utils.getRandomSeed());
-		info_fr.write("\nhistQkList.size()="+histQkList.size()+"\n");
+		if(histQkList == null)
+			info_fr.write("\nhistQkList.size()=null"+"\n");
+		else
+			info_fr.write("\nhistQkList.size()="+histQkList.size()+"\n");
 		info_fr.write("includeSpontEvents="+includeSpontEvents+"\n");
 		info_fr.write("includeIndirectTriggering="+includeIndirectTriggering+"\n");
 		
@@ -403,10 +412,10 @@ public class ETAS_Simulator {
 				rup.setNthERF_Index(nthRup);
 				rup.setHypocenterLocation(hypoLoc);
 				int sourceIndex = erf.getSrcIndexForNthRup(nthRup);
-				if (sourceIndex < erf.getNumFaultSystemSources())
-					rup.setFSSIndex(erf.getFltSysRupIndexForNthRup(nthRup));
+				if (sourceIndex < numFaultSysSources)
+					rup.setFSSIndex(((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup));
 				else
-					rup.setGridNodeIndex(sourceIndex - erf.getNumFaultSystemSources());
+					rup.setGridNodeIndex(sourceIndex - numFaultSysSources);
 			}
 			else {
 				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(rup);
@@ -451,10 +460,10 @@ public class ETAS_Simulator {
 			nthRup = rup.getNthERF_Index();
 			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 
-			if(srcIndex<erf.getNumFaultSystemSources()) {
+			if(srcIndex<numFaultSysSources) {
 				
 				nthFaultSysRupAftershocks.add(nthRup);
-				int fltSysRupIndex = erf.getFltSysRupIndexForNthRup(nthRup);
+				int fltSysRupIndex = ((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup);
 
 				// set the start time for the time dependent calcs
 				erf.getTimeSpan().setStartTimeInMillis(rupOT);	
@@ -473,14 +482,14 @@ public class ETAS_Simulator {
 				info_fr.write(rupString+"\n");
 
 				// set the date of last event for this rupture
-				erf.setFltSystemSourceOccurranceTime(srcIndex, rupOT);
+				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
 
 				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
 				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
 				Long st2 = System.currentTimeMillis();
 				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
 					erf.updateForecast();
-					for(int s=0;s<erf.getNumFaultSystemSources();s++) {
+					for(int s=0;s<numFaultSysSources;s++) {
 						ProbEqkSource src = erf.getSource(s);
 						double oldRate = sourceRates[s];
 						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
@@ -826,10 +835,10 @@ public class ETAS_Simulator {
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
-//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), null, "MojaveTest_1", null);
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), null, "MojaveTest_3", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
-		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_1", getHistCatalog());
+//		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
 		
 
 		// ************** OLD STUFF BELOW *********************

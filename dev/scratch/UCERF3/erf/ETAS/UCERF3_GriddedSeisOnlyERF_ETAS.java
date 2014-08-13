@@ -11,6 +11,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
@@ -30,7 +31,7 @@ import scratch.UCERF3.griddedSeismicity.UCERF3_NoFaultsGridSourceGenerator;
  * @author field
  *
  */
-public class UCERF3_GriddedSeisOnlyERF_ETAS extends AbstractERF {
+public class UCERF3_GriddedSeisOnlyERF_ETAS extends AbstractERF_withNthRupMethods {
 	
 	
 	private static final long serialVersionUID = 1L;

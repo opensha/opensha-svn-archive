@@ -73,45 +73,5 @@ public interface ERF extends BaseERF, Iterable<ProbEqkSource> {
 	 */
 	public List<EqkRupture> drawRandomEventSet();
 	
-	
-	
-	/**
-	 * This returns the nth rup indices for the given source
-	 */
-	public int[] get_nthRupIndicesForSource(int iSource);
-
-	
-	/**
-	 * This returns the total number of ruptures (the sum of all ruptures in all sources)
-	 */
-	public int getTotNumRups();
-	
-	/**
-	 * This returns the nth rupture index for the given source and rupture index
-	 * (where the latter is the rupture index within the source)
-	 */	
-	public int getIndexN_ForSrcAndRupIndices(int s, int r);
-	
-	/**
-	 * This returns the source index for the nth rupture
-	 * @param nthRup
-	 * @return
-	 */
-	public int getSrcIndexForNthRup(int nthRup);
-
-	/**
-	 * This returns the rupture index (with its source) for the
-	 * given nth rupture.
-	 * @param nthRup
-	 * @return
-	 */
-	public int getRupIndexInSourceForNthRup(int nthRup);
-	
-	/**
-	 * This returns the nth rupture in the ERF
-	 * @param n
-	 * @return
-	 */
-	public ProbEqkRupture getNthRupture(int n);
 
 }

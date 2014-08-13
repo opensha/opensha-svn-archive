@@ -28,6 +28,8 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.AbstractERF_withNthRupMethods;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -92,8 +94,8 @@ public class ETAS_PrimaryEventSampler {
 	GriddedRegion gridRegForParentLocs;
 	double cubeLatLonSpacing;
 	
-	FaultSystemSolutionERF erf;
-	int numFltSystSources, totNumSrc;
+	AbstractERF_withNthRupMethods erf;
+	int numFltSystSources=-1, totNumSrc;
 	ArrayList<Integer> srcIndexList; // this is so different lists can point to the same src index Integer object
 	
 	int numPtSrcSubPts;
@@ -147,7 +149,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeERF_Rates
 	 * @param includeSpatialDecay
 	 */
-	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractERF_withNthRupMethods erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
 			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSrcInCubeList, 
 			List<int[]> inputSrcInCubeList) {
@@ -176,7 +178,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @throws IOException 
 	 */
-	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, FaultSystemSolutionERF erf, double sourceRates[],
+	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractERF_withNthRupMethods erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
 			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList) {
@@ -281,7 +283,10 @@ public class ETAS_PrimaryEventSampler {
 		if(totNumSrc != sourceRates.length)
 			throw new RuntimeException("Problem with number of sources");
 		
-		numFltSystSources = erf.getNumFaultSystemSources();
+		if(erf instanceof FaultSystemSolutionERF)
+			numFltSystSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
+		else
+			numFltSystSources=0;
 		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources+
 				"\tnumPointsForRates="+numCubes);
 		srcIndexList = new ArrayList<Integer>();	// make a list so src indices are not duplicated in lists
@@ -531,7 +536,7 @@ public class ETAS_PrimaryEventSampler {
 //	System.out.println("bad loc: "+getLocationForSamplerIndex(i));
 				}
 				for(int s=0; s<sources.length;s++) {
-					if(applyGR_Corr && sources[s]<erf.getNumFaultSystemSources() && indexForOrigGriddedRegion != -1)
+					if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1)
 						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];										
 					else
 						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];		
@@ -675,7 +680,7 @@ if(locsToSampleFrom.size() == 0) {
 			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
-			rupToFillIn.setFSSIndex(erf.getFltSysRupIndexForNthRup(nthRup));
+			rupToFillIn.setFSSIndex(((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup));
 		}
 		else { // it's a gridded seis source
 			double relLat = latForCubeCenter[aftShPointIndex]-translatedParLoc.getLatitude();
@@ -708,34 +713,38 @@ if(locsToSampleFrom.size() == 0) {
 			
 			// Issue: that last step could have moved the hypocenter outside the grid node of the source (by up to ~1 km);
 			// move it back just inside if the new grid node does not go that high enough magnitude
-			int gridSrcIndex = randSrcIndex-numFltSystSources;
-			Location gridSrcLoc = erf.getSolution().getGridSourceProvider().getGriddedRegion().getLocation(gridSrcIndex);
-			int testIndex = erf.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
-			if(testIndex != gridSrcIndex) {
-//				System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(gridSrcLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(gridSrcLoc.getLongitude()-hypLoc.getLongitude()));
-				IncrementalMagFreqDist mfd = erf.getSolution().getGridSourceProvider().getNodeMFD(testIndex);
-				int maxMagIndex = mfd.getClosestXIndex(mfd.getMaxMagWithNonZeroRate());
-				int magIndex = mfd.getClosestXIndex(erf_rup.getMag());
-				double tempLat=hypLoc.getLatitude();
-				double tempLon= hypLoc.getLongitude();
-				double tempDepth = hypLoc.getDepth();
-				double halfGrid=pointSrcDiscr/2.0;
-				if(maxMagIndex<magIndex) {
-					if(hypLoc.getLatitude()-gridSrcLoc.getLatitude()>=halfGrid)
-						tempLat=gridSrcLoc.getLatitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
-					else if (hypLoc.getLatitude()-gridSrcLoc.getLatitude()<=-halfGrid)
-						tempLat=gridSrcLoc.getLatitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
-					if(hypLoc.getLongitude()-gridSrcLoc.getLongitude()>=halfGrid)
-						tempLon=gridSrcLoc.getLongitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
-					else if (hypLoc.getLongitude()-gridSrcLoc.getLongitude()<=-halfGrid)
-						tempLon=gridSrcLoc.getLongitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
-					hypLoc = new Location(tempLat,tempLon,tempDepth);
-					int testIndex2 = erf.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
-					if(testIndex2 != gridSrcIndex) {
-						throw new RuntimeException("grid problem");
+			if(erf instanceof FaultSystemSolutionERF) {
+				FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+				int gridSrcIndex = randSrcIndex-numFltSystSources;
+				Location gridSrcLoc = tempERF.getSolution().getGridSourceProvider().getGriddedRegion().getLocation(gridSrcIndex);
+				int testIndex = tempERF.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
+				if(testIndex != gridSrcIndex) {
+//					System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(gridSrcLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(gridSrcLoc.getLongitude()-hypLoc.getLongitude()));
+					IncrementalMagFreqDist mfd = tempERF.getSolution().getGridSourceProvider().getNodeMFD(testIndex);
+					int maxMagIndex = mfd.getClosestXIndex(mfd.getMaxMagWithNonZeroRate());
+					int magIndex = mfd.getClosestXIndex(erf_rup.getMag());
+					double tempLat=hypLoc.getLatitude();
+					double tempLon= hypLoc.getLongitude();
+					double tempDepth = hypLoc.getDepth();
+					double halfGrid=pointSrcDiscr/2.0;
+					if(maxMagIndex<magIndex) {
+						if(hypLoc.getLatitude()-gridSrcLoc.getLatitude()>=halfGrid)
+							tempLat=gridSrcLoc.getLatitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
+						else if (hypLoc.getLatitude()-gridSrcLoc.getLatitude()<=-halfGrid)
+							tempLat=gridSrcLoc.getLatitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
+						if(hypLoc.getLongitude()-gridSrcLoc.getLongitude()>=halfGrid)
+							tempLon=gridSrcLoc.getLongitude()+halfGrid*0.99;	// 0.99 makes sure it's inside
+						else if (hypLoc.getLongitude()-gridSrcLoc.getLongitude()<=-halfGrid)
+							tempLon=gridSrcLoc.getLongitude()-halfGrid*0.99;	// 0.99 makes sure it's inside
+						hypLoc = new Location(tempLat,tempLon,tempDepth);
+						int testIndex2 = tempERF.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
+						if(testIndex2 != gridSrcIndex) {
+							throw new RuntimeException("grid problem");
+						}
 					}
 				}
 			}
+			
 			rupToFillIn.setHypocenterLocation(hypLoc);
 			rupToFillIn.setPointSurface(hypLoc);
 		}
@@ -805,7 +814,7 @@ if(locsToSampleFrom.size() == 0) {
 		numCachedSamplers=0;
 		nextNumCachedSamplers=incrForReportingNumCachedSamplers;
 		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
-			for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			for(int s=0; s<numFltSystSources;s++) {
 				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
 			}
 		}
@@ -894,7 +903,7 @@ if(locsToSampleFrom.size() == 0) {
 			if(applyGR_Corr)
 				indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getLocationForSamplerIndex(ptIndex));	// more efficient way?
 			for(int s=0; s<sources.length;s++) {
-				if(applyGR_Corr && sources[s]<erf.getNumFaultSystemSources() && indexForOrigGriddedRegion != -1) {
+				if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1) {
 					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion]);		
 				}
 				else
@@ -909,29 +918,39 @@ if(locsToSampleFrom.size() == 0) {
 		
 		double[] grCorrFactorForCellArray = new double[origGriddedRegion.getNodeCount()];
 		
-		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
-		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), origGriddedRegion);
+		if(erf instanceof FaultSystemSolutionERF) {
+			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+			SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
+			SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
 
-		double minCorr=Double.MAX_VALUE;
-		int minCorrIndex = -1;
-		for(int i=0;i<subMFD_Array.length;i++) {
-			if(supraMFD_Array[i] != null) {
-				double val = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
-				if(val<1.0)
-					grCorrFactorForCellArray[i]=val;
-				else
+			double minCorr=Double.MAX_VALUE;
+			int minCorrIndex = -1;
+			for(int i=0;i<subMFD_Array.length;i++) {
+				if(supraMFD_Array[i] != null) {
+					double val = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i]);
+					if(val<1.0)
+						grCorrFactorForCellArray[i]=val;
+					else
+						grCorrFactorForCellArray[i]=1.0;
+					if(val<minCorr) {
+						minCorr=val;
+						minCorrIndex=i;
+					}
+				}
+				else {	// no supra-seismogenic ruptures
 					grCorrFactorForCellArray[i]=1.0;
-				if(val<minCorr) {
-					minCorr=val;
-					minCorrIndex=i;
 				}
 			}
-			else {	// no supra-seismogenic ruptures
-				grCorrFactorForCellArray[i]=1.0;
-			}
+			if(D) System.out.println("min GR Corr ("+minCorr+") at grid point: "+minCorrIndex+"\t"+origGriddedRegion.getLocation(minCorrIndex));
+			return grCorrFactorForCellArray;
+
 		}
-		if(D) System.out.println("min GR Corr ("+minCorr+") at grid point: "+minCorrIndex+"\t"+origGriddedRegion.getLocation(minCorrIndex));
-		return grCorrFactorForCellArray;
+		else {
+			for(int i=0;i<grCorrFactorForCellArray.length;i++)
+				grCorrFactorForCellArray[i] = 1.0;
+			return grCorrFactorForCellArray;
+		}
+		
 	}
 	
 // NO LONGER NEEDED 	
