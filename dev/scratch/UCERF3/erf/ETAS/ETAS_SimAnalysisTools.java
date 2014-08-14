@@ -19,6 +19,7 @@ import java.util.PriorityQueue;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -65,17 +66,8 @@ import com.google.common.primitives.Doubles;
 
 public class ETAS_SimAnalysisTools {
 
-	
-	/**
-	 * 
-	 * @param info
-	 * @param pdf_FileNameFullPath - set null is not PDF plot desired
-	 * @param mainShock - leave null if not available or desired
-	 * @param allAftershocks
-	 */
-	public static void plotEpicenterMap(String info, String pdf_FileNameFullPath, ObsEqkRupture mainShock, 
-			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
-		
+	static PlotSpec getEpicenterMapSpec(
+			String info, ObsEqkRupture mainShock, Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
 		ArrayList<AbstractXY_DataSet> funcs = new ArrayList<AbstractXY_DataSet>();
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 
@@ -213,15 +205,6 @@ public class ETAS_SimAnalysisTools {
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.YELLOW));
 		}
 		
-		double minLat=90, maxLat=-90,minLon=360,maxLon=-360;
-		for(AbstractXY_DataSet func:funcs) {
-//			System.out.println(func.getMinX()+"\t"+func.getMaxX()+"\t"+func.getMinY()+"\t"+func.getMaxY());
-			if(func.getMaxX()>maxLon) maxLon = func.getMaxX();
-			if(func.getMinX()<minLon) minLon = func.getMinX();
-			if(func.getMaxY()>maxLat) maxLat = func.getMaxY();
-			if(func.getMinY()<minLat) minLat = func.getMinY();
-		}
-		
 //		System.out.println("latDada\t"+minLat+"\t"+maxLat+"\t"+minLon+"\t"+maxLon+"\t");
 		
 		if(mainShock != null) {
@@ -277,10 +260,169 @@ public class ETAS_SimAnalysisTools {
 			funcs.add(regBorderFunc);
 			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		}
+		
+		String title = "Aftershock Epicenters for "+info;
+		PlotSpec spec = new PlotSpec(funcs, plotChars, title, "Longitude", "Latitude");
+		
+		return spec;
+	}
+	
+	static EpicenterMapThread plotUpdatingEpicenterMap(String info, ObsEqkRupture mainShock, 
+			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
+		long updateInterval = 5000; // 5 seconds
+		EpicenterMapThread thread = new EpicenterMapThread(info, mainShock, allAftershocks, regionBorder, updateInterval);
+		new Thread(thread).start();
+		return thread;
+	}
+	
+	public static class EpicenterMapThread implements Runnable {
+		
+		private String info;
+		private ObsEqkRupture mainShock; 
+		private Collection<ETAS_EqkRupture> allAftershocks;
+		private LocationList regionBorder;
+		
+		private long updateIntervalMillis;
+		
+		private boolean kill = false;
+		
+		private GraphWindow gw;
+		
+		public EpicenterMapThread(String info, ObsEqkRupture mainShock, 
+				Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder,
+				long updateIntervalMillis) {
+			this.info = info;
+			this.mainShock = mainShock;
+			this.allAftershocks = allAftershocks;
+			this.regionBorder = regionBorder;
+			this.updateIntervalMillis = updateIntervalMillis;
+		}
 
-		GraphWindow graph = new GraphWindow(funcs, "Aftershock Epicenters for "+info); 
-		graph.setX_AxisLabel("Longitude");
-		graph.setY_AxisLabel("Latitude");
+		@Override
+		public void run() {
+			kill = false;
+			int prevCnt = 0;
+			
+			long eventStart = -1;
+			
+			while (!kill) {
+				try {
+					Thread.sleep(updateIntervalMillis);
+				} catch (InterruptedException e) {}
+				
+				if (allAftershocks.size() <= prevCnt)
+					// no changes, skip update
+					continue;
+				
+				// wrap aftershocks in new list in case it changes during plotting
+				
+				List<ETAS_EqkRupture> allAftershocks = Lists.newArrayList(this.allAftershocks);
+				if (eventStart < 0)
+					eventStart = allAftershocks.get(0).getOriginTime();
+				System.out.println("updating plot with "+allAftershocks.size()
+						+" ("+(allAftershocks.size()-prevCnt)+" new)");
+				prevCnt = allAftershocks.size();
+				PlotSpec spec = getEpicenterMapSpec(info, mainShock, allAftershocks, regionBorder);
+				
+				long endTime = allAftershocks.get(allAftershocks.size()-1).getOriginTime();
+				
+				long duration = endTime - eventStart;
+				double durationSecs = (double)duration/1000d;
+				double durationMins = durationSecs/60d;
+				double durationHours = durationMins/60d;
+				double durationDays = durationHours/24d;
+				
+				String timeStr;
+				if (durationDays > 1d)
+					timeStr = (float)durationDays+" days";
+				else if (durationHours > 1d)
+					timeStr = (float)durationHours+" hours";
+				else if (durationMins > 1d)
+					timeStr = (float)durationMins+" mins";
+				else
+					timeStr = (float)durationSecs+" secs";
+				
+				double minLat=90, maxLat=-90,minLon=360,maxLon=-360;
+				if (gw == null) {
+					for(PlotElement elem : spec.getPlotElems()) {
+//						System.out.println(func.getMinX()+"\t"+func.getMaxX()+"\t"+func.getMinY()+"\t"+func.getMaxY());
+						if (!(elem instanceof XY_DataSet))
+							continue;
+						XY_DataSet func = (XY_DataSet)elem;
+						if(func.getMaxX()>maxLon) maxLon = func.getMaxX();
+						if(func.getMinX()<minLon) minLon = func.getMinX();
+						if(func.getMaxY()>maxLat) maxLat = func.getMaxY();
+						if(func.getMinY()<minLat) minLat = func.getMinY();
+					}
+					double deltaLat = maxLat-minLat;
+					double deltaLon = maxLon-minLon;
+					double aveLat = (minLat+maxLat)/2;
+					double scaleFactor = 1.57/Math.cos(aveLat*Math.PI/180);	// this is what deltaLon/deltaLat should equal
+					if(deltaLat > deltaLon/scaleFactor)	// expand lon range
+						maxLon = minLon + deltaLat*scaleFactor;
+					else // expand lat range
+						maxLat = minLat + deltaLon/scaleFactor;
+				} else {
+					minLat = gw.getY_AxisRange().getLowerBound();
+					maxLat = gw.getY_AxisRange().getUpperBound();
+					minLon = gw.getX_AxisRange().getLowerBound();
+					maxLon = gw.getX_AxisRange().getUpperBound();
+				}
+				
+				double x = minLon + (maxLon-minLon)*0.95;
+				double y = minLat + (maxLat-minLat)*0.95;
+				XYTextAnnotation ann = new XYTextAnnotation(timeStr, x, y);
+				ann.setTextAnchor(TextAnchor.TOP_RIGHT);
+				ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+				spec.setPlotAnnotations(Lists.newArrayList(ann));
+				
+				if (gw == null) {
+					gw = new GraphWindow(spec, false);
+					gw.setX_AxisRange(minLon, maxLon);
+					gw.setY_AxisRange(minLat, maxLat);
+					
+					gw.setPlotLabelFontSize(18);
+					gw.setAxisLabelFontSize(16);
+					gw.setTickLabelFontSize(14);
+					gw.setVisible(true);
+				} else {
+					gw.setAxisRange(gw.getX_AxisRange(), gw.getY_AxisRange());
+					gw.setPlotSpec(spec);
+				}
+			}
+			System.out.println("Done with map thread");
+		}
+		
+		public void kill() {
+			this.kill = true;
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param info
+	 * @param pdf_FileNameFullPath - set null is not PDF plot desired
+	 * @param mainShock - leave null if not available or desired
+	 * @param allAftershocks
+	 */
+	public static void plotEpicenterMap(String info, String pdf_FileNameFullPath, ObsEqkRupture mainShock, 
+			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
+		PlotSpec spec = getEpicenterMapSpec(info, mainShock, allAftershocks, regionBorder);
+		
+		double minLat=90, maxLat=-90,minLon=360,maxLon=-360;
+		for(PlotElement elem : spec.getPlotElems()) {
+//			System.out.println(func.getMinX()+"\t"+func.getMaxX()+"\t"+func.getMinY()+"\t"+func.getMaxY());
+			if (!(elem instanceof XY_DataSet))
+				continue;
+			XY_DataSet func = (XY_DataSet)elem;
+			if(func.getMaxX()>maxLon) maxLon = func.getMaxX();
+			if(func.getMinX()<minLon) minLon = func.getMinX();
+			if(func.getMaxY()>maxLat) maxLat = func.getMaxY();
+			if(func.getMinY()<minLat) minLat = func.getMinY();
+		}
+
+		GraphWindow graph = new GraphWindow(spec);
 		double deltaLat = maxLat-minLat;
 		double deltaLon = maxLon-minLon;
 		double aveLat = (minLat+maxLat)/2;
@@ -299,9 +441,7 @@ public class ETAS_SimAnalysisTools {
 //		// ****** HACK FOR SSA TALK ************ (delete next two lines when done)
 //		graph.setX_AxisRange(-120, -116);
 //		graph.setY_AxisRange(35, 37);
-
 		
-		graph.setPlotChars(plotChars);
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(16);
 		graph.setTickLabelFontSize(14);

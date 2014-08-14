@@ -69,6 +69,7 @@ import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
@@ -81,6 +82,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
+	private static boolean live_map = true;
 	
 	
 	/**
@@ -380,6 +382,13 @@ public class ETAS_Simulator {
 		
 		int numSimulatedEvents = 0;
 		
+		EpicenterMapThread mapThread;
+		if (D && live_map)
+			mapThread = ETAS_SimAnalysisTools.plotUpdatingEpicenterMap(
+				simulationName, null, simulatedRupsQueue, griddedRegion.getBorder());
+		else
+			mapThread = null;
+		
 		while(eventsToProcess.size()>0) {
 			
 			if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
@@ -520,6 +529,8 @@ public class ETAS_Simulator {
 		}
 		
 		if (progressBar != null) progressBar.showProgress(false);
+		if (mapThread != null)
+			mapThread.kill();
 
 		if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs");
 		info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");

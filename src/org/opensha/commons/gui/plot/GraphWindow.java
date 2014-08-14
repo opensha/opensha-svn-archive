@@ -87,7 +87,11 @@ public class GraphWindow extends JFrame {
 	}
 	
 	public GraphWindow(PlotSpec spec) {
-		this(new GraphWidget(spec));
+		this(spec, true);
+	}
+	
+	public GraphWindow(PlotSpec spec, boolean display) {
+		this(new GraphWidget(spec), display);
 	}
 	
 	public GraphWindow(PlotSpec plotSpec, PlotPreferences plotPrefs, boolean xLog, boolean yLog, Range xRange, Range yRange) {
