@@ -123,13 +123,13 @@ public class UC33_MapMaker {
 		// for Morgan:
 //		buildUC3_NSHMP_BG_binariesMorgan();
 //		buildUC3_NSHMP_binariesMorgan();
-//		buildUC3_NSHMP_binariesMorgan2();
+		buildUC3_NSHMP_binariesMorgan2();
 //		buildUC2_NSHMP_binaries();
 //		build_UC3_GMM08_binary();
 		
 //		finalBSSCcheck();
 //		finalMapsDebug();
-		finalMapsSpacingComparison();
+//		finalMapsSpacingComparison();
 //		tmp();
 		
 //		consolidateFinalDeterm();
@@ -852,20 +852,21 @@ public class UC33_MapMaker {
 	private static void buildUC3_NSHMP_binariesMorgan2() throws IOException {
 		String sol = "mean_ucerf3_sol";
 		TestGrid grid = TestGrid.CA_NSHMP;
-		double spacing = 0.1;
-		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		double fltSpacing = 0.05;
+		double bgSpacing = 0.1;
+		List<Period> periods = Lists.newArrayList(Period.GM0P30); //GM0P00, GM0P20, GM1P00);
 		
 		for (Period p : periods) {
 			// separate fault and bg files
-			File fltDir = new File(SRC + "NSHMP14" + S + "FLT" + S + sol + S + grid + S + p + S + "curves.csv");
-			CurveContainer fltCC = CurveContainer.create(fltDir, grid, spacing);
+			File fltDir = new File(SRC + "NSHMP14" + S + "FLT_0.05" + S + sol + S + grid + S + p + S + "curves.csv");
+			CurveContainer fltCC = CurveContainer.create(fltDir, grid, fltSpacing);
 			File bgDir = new File(SRC + "NSHMP14" + S + "BG" + S + sol + S + grid + S + p + S + "curves.csv");
-			CurveContainer bgCC = CurveContainer.create(bgDir, grid, spacing);
+			CurveContainer bgCC = CurveContainer.create(bgDir, grid, bgSpacing);
 
-			File outFlt = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-FLT-0p1.curves");
-			BinaryCurves.writeUC3(fltCC, p, spacing, "UCERF3.3 FLT Sources", outFlt);
+			File outFlt = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-FLT-0p05.curves");
+			BinaryCurves.writeUC3(fltCC, p, fltSpacing, "UCERF3.3 FLT Sources 0.05deg", outFlt);
 			File outBg = new File("tmp/morgan/curves/CA14-" + p.getLabel() + "-BG-0p1.curves");
-			BinaryCurves.writeUC3(bgCC, p, spacing, "UCERF3.3 BG Sources", outBg);
+			BinaryCurves.writeUC3(bgCC, p, bgSpacing, "UCERF3.3 BG Sources 0.1deg", outBg);
 		}
 	}
 	

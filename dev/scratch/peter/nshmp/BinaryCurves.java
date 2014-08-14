@@ -41,6 +41,9 @@ public class BinaryCurves {
 	                              0.284, 0.397, 0.556, 0.778, 1.09, 1.52, 2.2,
 	                              3.3};
 	
+	// our 0P30 calcs include an extra value (0.0025), should be identical to 0P20 (5Hz)
+	static double[] x0P30 = Doubles.toArray(Period.GM0P20.getIMLs());
+
 	public static void main(String[] args) throws IOException {
 //		String file = "/Users/pmpowers/projects/svn/NSHMP/tmp/out/CAdeep_2014.5hz";
 //		String file = "tmp/NSHMP-CA-binaries/CA-5Hz.curves";
@@ -126,8 +129,9 @@ public class BinaryCurves {
 		Metadata meta = new Metadata();
 		meta.description = desc;
 		meta.timestamp = (new Timestamp(System.currentTimeMillis())).toString();
-		meta.period =p.getValue();
-		meta.Xs = (p == Period.GM0P00) ? xPGA : Doubles.toArray(p.getIMLs());
+		meta.period = p;
+		
+		meta.Xs = (p == Period.GM0P00) ? xPGA : (p == Period.GM0P30) ? x0P30 : Doubles.toArray(p.getIMLs());
 		
 		Files.createParentDirs(out);
 		write(cc, spacing, out, meta);
@@ -150,7 +154,7 @@ public class BinaryCurves {
 			out.write(dummy);
 		}
 		
-		out.writeFloat((float) meta.period);
+		out.writeFloat((float) meta.period.getValue());
 		out.writeInt(meta.Xs.length);
 		
 		for (int i=0; i<meta.Xs.length; i++) {
@@ -200,6 +204,11 @@ public class BinaryCurves {
 				double lon = LON_MIN + outSpacing * j;
 				Location loc = new Location(lat, lon);
 				List<Double> vals = cc.getValues(loc);
+				// we compute one too many values for 0.3s; strip first value to
+				// bring array in line with 5Hz
+				if (meta.period == Period.GM0P30) {
+					vals = vals.subList(1, vals.size());
+				}
 				for (double val : vals) {
 					out.writeFloat((float) val);
 				}
@@ -211,7 +220,7 @@ public class BinaryCurves {
 	public static class Metadata {
 		String description;
 		String timestamp;
-		double period;
+		Period period;
 		double[] Xs;
 		
 		
