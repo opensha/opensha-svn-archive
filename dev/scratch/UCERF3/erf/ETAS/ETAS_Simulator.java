@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.zip.ZipException;
 
+import javax.swing.JOptionPane;
+
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -83,6 +85,7 @@ public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
+	static boolean pause_for_events = false;
 	
 	
 	/**
@@ -388,6 +391,14 @@ public class ETAS_Simulator {
 				simulationName, null, simulatedRupsQueue, griddedRegion.getBorder());
 		else
 			mapThread = null;
+		
+		if (D && pause_for_events) {
+			try {
+				JOptionPane.showMessageDialog(null, "Continue", "Ready To Generate Events", JOptionPane.PLAIN_MESSAGE);
+			} catch (HeadlessException e) {
+				// do nothing if Headless
+			}
+		}
 		
 		while(eventsToProcess.size()>0) {
 			

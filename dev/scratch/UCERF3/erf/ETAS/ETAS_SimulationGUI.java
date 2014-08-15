@@ -68,6 +68,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private LongParameter randSeedParam;
 	private BooleanParameter debugParam;
+	private BooleanParameter pauseParam;
 	
 	private ConsoleWindow console;
 	
@@ -133,6 +134,9 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		debugParam = new BooleanParameter("Show Debug Messages/Plots", true);
 		paramList.addParameter(debugParam);
 		
+		pauseParam = new BooleanParameter("Pause Before Event Generation", false);
+		paramList.addParameter(pauseParam);
+		
 		calcButton = new ButtonParameter("ETAS Simulation", "Start Simulation");
 		calcButton.addParameterChangeListener(this);
 		paramList.addParameter(calcButton);
@@ -179,6 +183,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		System.out.println("Calculating");
 		
 		ETAS_Simulator.D = debugParam.getValue();
+		ETAS_Simulator.pause_for_events = pauseParam.getValue();
 		
 		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		
