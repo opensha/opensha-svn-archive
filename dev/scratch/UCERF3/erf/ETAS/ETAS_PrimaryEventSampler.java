@@ -769,8 +769,8 @@ if(locsToSampleFrom.size() == 0) {
 			
 			if(cachedSamplers[locIndexForPar] == null) {
 				sampler = getPointSamplerWithDistDecay(translatedParLoc);
-//				cachedSamplers[locIndexForPar] = sampler;
-//				numCachedSamplers += 1;
+				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];
@@ -1200,7 +1200,8 @@ if(locsToSampleFrom.size() == 0) {
 		
 //		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
-		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
+//		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
+		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
 		
 		
 		
@@ -1392,7 +1393,55 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 
-	
+	/**
+	 * This computes the rate of events above the given magnitude for all cubes at a given depth
+	 * @param depth
+	 * @return
+	 */
+	public GriddedGeoDataSet getRateInCubesAtDepth(double depth, double mag) {
+		double min=5.05;
+		double max = 8.95;
+		int num=70;
+		GriddedGeoDataSet rateData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getDepthIndex(depth);
+		int numCubesAtDepth = rateData.size();
+		
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		double duration = erf.getTimeSpan().getDuration();
+		if(mfdForSrcArray == null) {
+			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+			for(int s=0; s<erf.getNumSources();s++) {
+				progressBar.updateProgress(s, erf.getNumSources());
+				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min,max,num, true);
+			}
+		}
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int samplerIndex = getSamplerIndexForRegAndDepIndices(i, depthIndex);
+			int[] sources = srcInCubeList.get(samplerIndex);
+			float[] fracts = fractionSrcInCubeList.get(samplerIndex);
+			double summedRate=0;
+			for(int s=0; s<sources.length;s++) {
+				SummedMagFreqDist srcMFD = mfdForSrcArray[sources[s]];
+				int xIndex = srcMFD.getClosestXIndex(mag);
+//				int xIndex = srcMFD.getXIndex(mag);
+				if(xIndex >= 0 && mag<srcMFD.getMaxX()+srcMFD.getDelta()/2.0)
+					summedRate += srcMFD.getCumRate(xIndex)*fracts[s];
+			}
+			if(summedRate == 0) 
+				summedRate = 1e-16;
+			rateData.set(i, summedRate);
+			Location loc = rateData.getLocation(i);
+			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+rateData.get(i));
+		}
+		progressBar.showProgress(false);
+		
+		return rateData;
+	}
+
 	
 	/**
 	 * This plots the spatial distribution of probabilities implied by the given pointSampler
@@ -1582,6 +1631,55 @@ if(locsToSampleFrom.size() == 0) {
 	}
 
 	
+	/**
+	 * This plots the event rates above the specified magnitude for cubes at the given depth
+	 * (not including the spatial decay of any main shock)
+	 * @param depth
+	 * @param dirName
+	 * @return
+	 */
+	public String plotRateAtDepthMap(double depth, double mag, String dirName) {
+		
+		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,0d);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,10d);
+
+		GriddedGeoDataSet xyzDataSet = this.getRateInCubesAtDepth(depth, mag);
+		String metadata = "Map from calling plotRateAtDepthMap(*) method";
+		
+		try {
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Rates at depth="+depth+" above M "+mag, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "For rates at depth above mag map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+
 	/**
 	 * 
 	 * @param label - plot label

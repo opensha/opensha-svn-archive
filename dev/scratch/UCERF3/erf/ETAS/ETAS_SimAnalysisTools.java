@@ -269,7 +269,7 @@ public class ETAS_SimAnalysisTools {
 	
 	static EpicenterMapThread plotUpdatingEpicenterMap(String info, ObsEqkRupture mainShock, 
 			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
-		long updateInterval = 5000; // 5 seconds
+		long updateInterval = 1000; // 1 seconds
 		EpicenterMapThread thread = new EpicenterMapThread(info, mainShock, allAftershocks, regionBorder, updateInterval);
 		new Thread(thread).start();
 		return thread;
@@ -1108,16 +1108,10 @@ public class ETAS_SimAnalysisTools {
 		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
-
-		// make the target function & change it to a PDF
-//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
-		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
-		
-		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
-		targetFunc.setName("Expected Temporal Decay");
 		
 		HistogramFunction firstGenEventTimes= new HistogramFunction(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
 
+		double maxLogTimeDays = Double.NEGATIVE_INFINITY;
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			if(event.getParentRup() != null) {
 				double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
@@ -1126,11 +1120,24 @@ public class ETAS_SimAnalysisTools {
 					firstGenEventTimes.add(0, 1.0);
 				else if(logTimeDays<lastLogDay+deltaLogDay/2.0)
 					firstGenEventTimes.add(logTimeDays, 1.0);
+				if(logTimeDays>maxLogTimeDays)
+					maxLogTimeDays = logTimeDays;
 			}
 		}
-		firstGenEventTimes.setName("Observed Temporal Decay (relative to parent) for all events in "+info);
+		firstGenEventTimes.setName("Observed Temporal Decay PDF (relative to parent) for all events in "+info);
 		firstGenEventTimes.setInfo(" ");
 		firstGenEventTimes.normalizeBySumOfY_Vals();
+		
+
+		// make the target function & change it to a PDF
+//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
+		maxLogTimeDays = Math.round(maxLogTimeDays*10.0)/10.0;	// round to the nearest 10th; assumes deltaLogDay =0.1
+		HistogramFunction targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, maxLogTimeDays, deltaLogDay);
+		targetFunc.normalizeBySumOfY_Vals();
+		
+		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
+		targetFunc.setName("Expected Temporal Decay PDF");
+
 		
 		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 		funcs.add(firstGenEventTimes);
@@ -1138,7 +1145,7 @@ public class ETAS_SimAnalysisTools {
 		
 		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay (relative to parent)"); 
 		graph.setX_AxisLabel("Log-day");
-		graph.setY_AxisLabel("Num Events");
+		graph.setY_AxisLabel("PDF");
 //		graph.setX_AxisRange(firstLogDay, lastLocDay);
 		graph.setY_AxisRange(1e-5, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();

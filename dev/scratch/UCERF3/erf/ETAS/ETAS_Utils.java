@@ -13,6 +13,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -469,9 +470,9 @@ public class ETAS_Utils {
 	
 	
 	
-	public static EvenlyDiscretizedFunc getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
+	public static HistogramFunction getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
 			double log_tMax, double log_tDelta) {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		HistogramFunction func = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
 		for(int i=0;i<func.getNum();i++) {
 			double binTmin = Math.pow(10, func.getX(i) - log_tDelta/2);
 			double binTmax = Math.pow(10, func.getX(i) + log_tDelta/2);

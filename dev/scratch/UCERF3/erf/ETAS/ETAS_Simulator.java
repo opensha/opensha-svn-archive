@@ -847,7 +847,9 @@ public class ETAS_Simulator {
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), null, "MojaveTest_3", null);
+		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
+//		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
+//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_9", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
