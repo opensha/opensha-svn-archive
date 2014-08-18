@@ -24,6 +24,8 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.param.Parameter;
@@ -697,6 +699,12 @@ public class ETAS_Simulator {
 		
 		ETAS_EqkRupture scenarioRup= buildScenarioRup(scenario, erf);
 		
+//		System.out.println("aveStrike="+scenarioRup.getRuptureSurface().getAveStrike());
+//		for(Location loc:scenarioRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+//			System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
+//		}
+//		System.exit(-1);
+		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
 		boolean includeEqkRates = true;
@@ -809,7 +817,9 @@ public class ETAS_Simulator {
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
-		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0);
+		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
+		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 5.0),	// on N edge of the Mojave scenario
+		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0);	// on N edge of the Mojave scenario
 				
 		private String name;
 		private int fssIndex;
@@ -848,6 +858,16 @@ public class ETAS_Simulator {
 	}
 
 	
+	public static Location getMojaveTestLoc(double horzDist) {
+		Location loc = new Location(34.698495, -118.508948, 6.550000191);
+		if(horzDist == 0.0)
+			return loc;
+		else {
+			LocationVector vect = new LocationVector((295.037-270.0), horzDist, 0.0);
+			return LocationUtils.location(loc, vect);			
+		}
+	}
+	
 
 	/**
 	 * @param args
@@ -858,9 +878,11 @@ public class ETAS_Simulator {
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
-		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
+//		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_9", null);
+//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_junk", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
+		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
