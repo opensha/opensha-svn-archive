@@ -30,8 +30,11 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.FileParameter;
+import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
@@ -668,8 +671,25 @@ public class ETAS_Simulator {
 			} 
 			else {
 				scenarioRup.setAveRake(0.0);
-				scenarioRup.setMag(scenario.mag);
-				scenarioRup.setPointSurface(scenario.loc);
+				if (scenario == TestScenario.CUSTOM) {
+					// prompt for loc/mag
+					ParameterList params = new ParameterList();
+					DoubleParameter magParam = new DoubleParameter("Magnitude", 2d, 8.89, (Double)scenario.mag);
+					params.addParameter(magParam);
+					LocationParameter locParam = new LocationParameter("Hpocenter Location", scenario.loc);
+					params.addParameter(locParam);
+					ParameterListEditor edit = new ParameterListEditor(params);
+					
+					// this will block until done
+					JOptionPane.showMessageDialog(null, edit, "Custom Rupture", JOptionPane.PLAIN_MESSAGE);
+					scenarioRup.setMag(magParam.getValue());
+					scenarioRup.setPointSurface(locParam.getValue());
+					System.out.println("Loaded custom scenario: M"+(float)scenarioRup.getMag()
+							+", "+scenarioRup.getHypocenterLocation());
+				} else {
+					scenarioRup.setMag(scenario.mag);
+					scenarioRup.setPointSurface(scenario.loc);
+				}
 			}	
 		}
 	return scenarioRup;
@@ -819,7 +839,8 @@ public class ETAS_Simulator {
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 5.0),	// on N edge of the Mojave scenario
-		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0);	// on N edge of the Mojave scenario
+		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0),	// on N edge of the Mojave scenario
+		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d); // will prompt when built, these are just defaults
 				
 		private String name;
 		private int fssIndex;
