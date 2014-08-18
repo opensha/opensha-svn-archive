@@ -314,7 +314,7 @@ public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 		// TODO verify
 		LocationList perimeter = new LocationList();
 		LocationList upper = getEvenlyDiscritizedUpperEdge();
-		LocationList lower = getEvenlyDiscritizedUpperEdge();
+		LocationList lower = getEvenlyDiscritizedLowerEdge();
 		LocationList right = GriddedSurfaceUtils.getEvenlyDiscretizedLine(
 				upper.last(), lower.last(), getAveGridSpacing());
 		LocationList left = GriddedSurfaceUtils.getEvenlyDiscretizedLine(
