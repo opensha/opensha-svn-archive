@@ -85,7 +85,7 @@ public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
-	static boolean pause_for_events = false;
+	static boolean pause_for_events = true;
 	
 	
 	/**
