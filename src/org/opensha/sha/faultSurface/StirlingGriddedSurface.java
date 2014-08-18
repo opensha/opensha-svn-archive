@@ -124,6 +124,11 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 		super(simpleFaultData, gridSpacing);
 		createEvenlyGriddedSurface();
 	}
+	
+	// private for cloning
+	private StirlingGriddedSurface() {
+		
+	}
 
 	@Override
 	public double getAveDipDirection() {
@@ -414,6 +419,22 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
         }
 		 */
+	}
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		StirlingGriddedSurface surf = new StirlingGriddedSurface();
+		surf.setNumRowsAndNumCols(numRows, numCols);
+		surf.aveDipDir = aveDipDir;
+		surf.faultTrace = faultTrace;
+		surf.aveDip = aveDip;
+		surf.upperSeismogenicDepth = upperSeismogenicDepth;
+		surf.lowerSeismogenicDepth = lowerSeismogenicDepth;
+		surf.gridSpacingAlong = gridSpacingAlong;
+		surf.gridSpacingDown = gridSpacingDown;
+		surf.sameGridSpacing = sameGridSpacing;
+		surf.name = name;
+		return surf;
 	}
 
 

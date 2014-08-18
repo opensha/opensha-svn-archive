@@ -52,6 +52,17 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 		else
 			sameGridSpacing = false;
 	}
+	
+	private FourPointEvenlyGriddedSurface(int numRows, int numCols, double gridSpacingAlong, double gridSpacingDown) {
+		setNumRowsAndNumCols(numRows, numCols);
+		this.gridSpacingAlong = gridSpacingAlong;
+		this.gridSpacingDown = gridSpacingDown;
+		
+		if(gridSpacingAlong == gridSpacingDown)
+			sameGridSpacing = true;
+		else
+			sameGridSpacing = false;
+	}
 
 	@Override
 	/**
@@ -86,6 +97,11 @@ public class FourPointEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface 
 	@Override
 	public double getAveStrike() {
 		return getUpperEdge().getAveStrike();
+	}
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		return new FourPointEvenlyGriddedSurface(numRows, numCols, gridSpacingAlong, gridSpacingDown);
 	}
 
 }

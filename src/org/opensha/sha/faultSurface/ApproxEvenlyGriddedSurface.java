@@ -384,6 +384,12 @@ public class ApproxEvenlyGriddedSurface extends AbstractEvenlyGriddedSurfaceWith
 		return upperFaultTrace;
 	}
 
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		return new ApproxEvenlyGriddedSurface(getNumRows(), getNumCols(), gridSpacingAlong);
+	}
+
 /*
  16 Zone 4 top 4
 -33.9450824793 -72.710497654 10.

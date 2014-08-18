@@ -27,6 +27,7 @@ import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.nshmp.NEHRP_TestCity;
@@ -417,6 +418,25 @@ public class PointSurface implements RuptureSurface {
 		System.out.println(pt.getDistanceRup(loc));
 		System.out.println(pt.getDistanceSeis(loc));
 		System.out.println(pt.getDistanceX(loc));
+	}
+
+	@Override
+	public PointSurface getMoved(LocationVector v) {
+		PointSurface moved = copyShallow();
+		moved.setLocation(LocationUtils.location(moved.getLocation(), v));
+		return moved;
+	}
+
+	@Override
+	public PointSurface copyShallow() {
+		PointSurface o = new PointSurface(pointLocation);
+		o.corrType = corrType;
+		o.corrMag = corrMag;
+		o.aveStrike = aveStrike;
+		o.aveDip = aveDip;
+		o.aveWidth = aveWidth;
+		o.name = name;
+		return o;
 	}
 
 }

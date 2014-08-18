@@ -8,6 +8,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 
 /**
@@ -205,4 +206,19 @@ public interface RuptureSurface {
 	 * @return distance in km
 	 */
 	public double getMinDistance(RuptureSurface surface);
+	
+	/**
+	 * Returns a new RuptureSurface instance that has been moved by the given vector
+	 * 
+	 * @param v
+	 * @return
+	 */
+	public RuptureSurface getMoved(LocationVector v);
+	
+	/**
+	 * Returns a shallow copy of this RuptureSurface
+	 * 
+	 * @return
+	 */
+	public RuptureSurface copyShallow();
 }

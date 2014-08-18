@@ -377,6 +377,12 @@ public class OldInversionSolutionERF extends AbstractERF {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		protected AbstractEvenlyGriddedSurface getNewInstance() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private class SimpleSource extends ProbEqkSource {

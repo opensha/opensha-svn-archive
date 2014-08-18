@@ -26,6 +26,8 @@ import java.util.ListIterator;
 import org.opensha.commons.data.Container2DImpl;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
 import org.opensha.sha.faultSurface.cache.SingleLocDistanceCache;
@@ -33,6 +35,8 @@ import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
 import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
 import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
+
+import com.google.common.base.Preconditions;
 
 
 /**
@@ -324,6 +328,37 @@ implements EvenlyGriddedSurface, CacheEnabledSurface, Serializable {
 	@Override
 	public boolean isPointSurface() {
 		return (size() == 1);
+	}
+	
+	/**
+	 * Creates a new instance with the correct sub-class type, used for copying methods
+	 * @return
+	 */
+	protected abstract AbstractEvenlyGriddedSurface getNewInstance();
+
+
+	@Override
+	public AbstractEvenlyGriddedSurface getMoved(LocationVector v) {
+		Preconditions.checkNotNull(v, "vector cannot be null");
+		AbstractEvenlyGriddedSurface moved = copyShallow();
+		for (int row=0; row<getNumRows(); row++)
+			for (int col=0; col<getNumCols(); col++)
+				moved.set(row, col, LocationUtils.location(get(row, col), v));
+		return moved;
+	}
+
+
+	@Override
+	public AbstractEvenlyGriddedSurface copyShallow() {
+		AbstractEvenlyGriddedSurface o = getNewInstance();
+		Preconditions.checkState(o.getNumCols() == getNumCols());
+		Preconditions.checkState(o.getNumRows() == getNumRows());
+		Preconditions.checkState(o.getGridSpacingAlongStrike() == getGridSpacingAlongStrike());
+		Preconditions.checkState(o.getGridSpacingDownDip() == getGridSpacingDownDip());
+		for (int row=0; row<getNumRows(); row++)
+			for (int col=0; col<getNumCols(); col++)
+				o.set(row, col, get(row, col));
+		return o;
 	}
 	
 }

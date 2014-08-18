@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurfaceWithSubsets;
 import org.opensha.sha.faultSurface.FaultTrace;
 
@@ -89,6 +90,11 @@ public class CyberShakeEvenlyGriddedSurface extends AbstractEvenlyGriddedSurface
 	public FaultTrace getUpperEdge() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		return new CyberShakeEvenlyGriddedSurface(numRows, numCols, gridSpacingAlong);
 	}
 
 }

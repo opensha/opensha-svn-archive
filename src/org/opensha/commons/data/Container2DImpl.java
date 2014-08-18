@@ -842,8 +842,11 @@ public class Container2DImpl<T> implements Container2D<T>, Serializable, Named {
 	public Iterator<T> iterator() {
 		return listIterator();
 	}
-
-
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 }
 
 

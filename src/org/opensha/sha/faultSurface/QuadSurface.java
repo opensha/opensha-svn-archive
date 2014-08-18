@@ -1213,4 +1213,17 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 //		} catch (InterruptedException e) {}
 	}
 
+	@Override
+	public RuptureSurface getMoved(LocationVector v) {
+		FaultTrace traceMoved = new FaultTrace(trace.getName());
+		for (Location loc : trace)
+			traceMoved.add(LocationUtils.location(loc, v));
+		return new QuadSurface(traceMoved, dipDeg, width);
+	}
+
+	@Override
+	public QuadSurface copyShallow() {
+		return new QuadSurface(trace, dipDeg, width);
+	}
+
 }

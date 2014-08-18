@@ -310,12 +310,6 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 		return surf;
 	}
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
-
 	public static void main(String args[]) {
 
 		// for N-S strike and E dip, this setup showed that prior to fixing
@@ -339,6 +333,22 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 			System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
 		}
 
+	}
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		FrankelGriddedSurface surf = new FrankelGriddedSurface();
+		surf.setNumRowsAndNumCols(numRows, numCols);
+		surf.gridSpacingDown = gridSpacingDown;
+		surf.gridSpacingAlong = gridSpacingAlong;
+		surf.sameGridSpacing = sameGridSpacing;
+		surf.faultTrace = faultTrace;
+		surf.aveDip = aveDip;
+		surf.lowerSeismogenicDepth = lowerSeismogenicDepth;
+		surf.name = name;
+		surf.upperSeismogenicDepth = upperSeismogenicDepth;
+		surf.sameGridSpacing = sameGridSpacing;
+		return surf;
 	}
 
 }

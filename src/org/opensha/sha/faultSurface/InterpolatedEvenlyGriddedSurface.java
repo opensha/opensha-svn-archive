@@ -112,4 +112,9 @@ public class InterpolatedEvenlyGriddedSurface extends
 		return new Location(loc.getLatitude(), loc.getLongitude(), loc.getDepth()+depthDelta*relativeVertPos);
 	}
 
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		throw new UnsupportedOperationException("Not supported for Interpolated Surface");
+	}
+
 }

@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
@@ -18,6 +19,8 @@ import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
 import org.opensha.sha.faultSurface.cache.SurfaceDistanceCache;
 import org.opensha.sha.faultSurface.cache.SurfaceDistances;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class represents compound RuptureSurface to represent multi-fault ruptures. 
@@ -581,6 +584,21 @@ public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 	    
 	    
 
+	}
+
+
+	@Override
+	public RuptureSurface getMoved(LocationVector v) {
+		List<RuptureSurface> movedSurfs = Lists.newArrayList();
+		for (RuptureSurface surf : this.surfaces)
+			movedSurfs.add(surf.getMoved(v));
+		return new CompoundSurface(movedSurfs);
+	}
+
+
+	@Override
+	public CompoundSurface copyShallow() {
+		return new CompoundSurface(surfaces);
 	}
 
 

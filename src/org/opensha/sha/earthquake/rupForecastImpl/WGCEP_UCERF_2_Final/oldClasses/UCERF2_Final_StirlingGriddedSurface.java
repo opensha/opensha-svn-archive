@@ -8,10 +8,16 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
+import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
+/**
+ * This class ensures backwards compatibility of UCERF2 as math has changed with some location/surface gridding methods
+ * @author kevin
+ *
+ */
 public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData {
 	
 	/**
@@ -495,6 +501,11 @@ public class UCERF2_Final_StirlingGriddedSurface extends EvenlyGriddedSurfFromSi
 		perimiter.add(topTrace.get(0));
 		
 		return perimiter;
+	}
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		throw new UnsupportedOperationException("Not supported");
 	}
 
 

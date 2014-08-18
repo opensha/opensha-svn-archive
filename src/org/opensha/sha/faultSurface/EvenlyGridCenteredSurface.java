@@ -61,6 +61,12 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurfaceWithS
 		getGridCenteredSurface();
 	}
 
+	/**
+	 * Empty constructor for cloning
+	 */
+	private EvenlyGridCenteredSurface() {
+		
+	}
 
 	/**
 	 * Returns the grid centered location on each grid surface.
@@ -117,6 +123,16 @@ public class EvenlyGridCenteredSurface extends AbstractEvenlyGriddedSurfaceWithS
 	@Override
 	public double getAveRupTopDepth() {
 		return origSurface.getAveRupTopDepth()+gridSpacingDown/2;
+	}
+
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		EvenlyGridCenteredSurface surf = new EvenlyGridCenteredSurface();
+		surf.setNumRowsAndNumCols(numRows, numCols);
+		surf.gridSpacingAlong = getGridSpacingAlongStrike();
+		surf.gridSpacingDown = getGridSpacingDownDip();
+		return surf;
 	}
 
 }

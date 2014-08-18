@@ -89,5 +89,10 @@ public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface {
 		return dep/trace.size();
 	}
 
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		return new GriddedSurfaceImpl(numRows, numCols, getGridSpacingAlongStrike());
+	}
+
 }
 

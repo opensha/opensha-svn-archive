@@ -28,6 +28,7 @@ import org.opensha.commons.data.Window2D;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
 import org.opensha.sha.faultSurface.cache.SurfaceCachingPolicy;
@@ -371,6 +372,22 @@ public class GriddedSubsetSurface extends ContainerSubset2D<Location>  implement
 	@Override
 	public double getMinDistance(RuptureSurface surface) {
 		return GriddedSurfaceUtils.getMinDistanceBetweenSurfaces(surface, this);
+	}
+
+
+
+	@Override
+	public RuptureSurface getMoved(LocationVector v) {
+		return new GriddedSubsetSurface(window.getNumRows(), window.getNumCols(),
+				window.getStartRow(), window.getStartCol(), (EvenlyGriddedSurface)parentSurface.getMoved(v));
+	}
+
+
+
+	@Override
+	public GriddedSubsetSurface copyShallow() {
+		return new GriddedSubsetSurface(window.getNumRows(), window.getNumCols(),
+				window.getStartRow(), window.getStartCol(), parentSurface);
 	}
 
 }

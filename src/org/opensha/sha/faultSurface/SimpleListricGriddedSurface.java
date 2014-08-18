@@ -402,4 +402,10 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurfFromSimpleFaul
 		return faultTrace;
 	}
 
+
+	@Override
+	protected AbstractEvenlyGriddedSurface getNewInstance() {
+		return new SimpleListricGriddedSurface(faultTrace, dips, depths, gridSpacingAlong);
+	}
+
 }
