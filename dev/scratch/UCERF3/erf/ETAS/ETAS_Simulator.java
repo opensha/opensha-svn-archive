@@ -291,6 +291,16 @@ public class ETAS_Simulator {
 		if(D) System.out.println("\tspontaneousRupSampler.calcSumOfY_Vals()="+(float)spontaneousRupSampler.calcSumOfY_Vals() +
 				"; that took (sec): "+(float)(System.currentTimeMillis()-st)/1000f);
 		
+		
+		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
+		st = System.currentTimeMillis();
+		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
+				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
+				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList);
+		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
+		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
+
+		
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
@@ -344,17 +354,8 @@ public class ETAS_Simulator {
 			if(D) System.out.println(spEvStringInfo);
 			info_fr.write("\n"+spEvStringInfo);
 		}
-		
-		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
-		st = System.currentTimeMillis();
-		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList);
-		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
-		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 
-		// If only one rupture in obsEqkRuptureList, assume it's a test event and compute ExpectedPrimaryMFD if in debug mode; this takes time!
-		// TODO this should really check if scenario != null; is it the last one listed in obsEqkRuptureList?
+		// If scenarioRup != null, compute ExpectedPrimaryMFD if in debug mode; this takes time!
 		EvenlyDiscretizedFunc expectedCumPrimaryMFDforTestRup=null;
 		if(D && scenarioRup !=null) {
 			if(D) System.out.println("Making ExpectedPrimaryMFD For Input Rup");
@@ -631,7 +632,7 @@ public class ETAS_Simulator {
 			boolean lastIsIt = rupSet.getFaultSectionData(sectListForSrc.get(sectListForSrc.size()-1)).getSectionId() == secondSectID;
 			if(firstIsIt && lastIsIt) {
 				System.out.println("SourceIndex="+s+"\tfssIndex="+erf.getFltSysRupIndexForSource(s)+"\t"+erf.getSource(s).getName());
-				break;
+				break; 
 			}
 			firstIsIt = rupSet.getFaultSectionData(sectListForSrc.get(0)).getSectionId() == secondSectID;
 			lastIsIt = rupSet.getFaultSectionData(sectListForSrc.get(sectListForSrc.size()-1)).getSectionId() == firstSectID;
@@ -665,7 +666,8 @@ public class ETAS_Simulator {
 				scenarioRup.setAveRake(rupFromERF.getAveRake());
 				scenarioRup.setMag(rupFromERF.getMag());
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector((295.0-270.0), 16.0, 0.0)));
+//				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
 				erf.updateForecast();
 			} 
@@ -901,9 +903,9 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_junk", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "U3_ETAS_MojaveTest_16kmOffset", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
-		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
+//		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
