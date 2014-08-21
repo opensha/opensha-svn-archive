@@ -319,8 +319,8 @@ public class ETAS_SimAnalysisTools {
 				List<ETAS_EqkRupture> allAftershocks = Lists.newArrayList(this.allAftershocks);
 				if (eventStart < 0)
 					eventStart = allAftershocks.get(0).getOriginTime();
-				System.out.println("updating plot with "+allAftershocks.size()
-						+" ("+(allAftershocks.size()-prevCnt)+" new)");
+//				System.out.println("updating plot with "+allAftershocks.size()
+//						+" ("+(allAftershocks.size()-prevCnt)+" new)");
 				prevCnt = allAftershocks.size();
 				PlotSpec spec = getEpicenterMapSpec(info, mainShock, allAftershocks, regionBorder);
 				
@@ -929,7 +929,7 @@ public class ETAS_SimAnalysisTools {
 	 */
 	public static EvenlyDiscretizedFunc plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
 			EqkRupture rupture, double expNum) {
-		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedMFD(rupture);
+		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rupture);
 		// convert MFD to probability density function
 		mfd.scale(1.0/(mfd.getTotalIncrRate()*mfd.getDelta()));
 		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);

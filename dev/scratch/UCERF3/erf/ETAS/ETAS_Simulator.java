@@ -324,6 +324,7 @@ public class ETAS_Simulator {
 					newRup.setParentID(parID);
 					newRup.setGeneration(1);
 					newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
+					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
 					eventsToProcess.add(newRup);
 					eventID +=1;
 				}
@@ -475,6 +476,7 @@ public class ETAS_Simulator {
 						newRup.setGeneration(gen);
 						newRup.setParentID(parID);
 						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
+						etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
 						eventsToProcess.add(newRup);
 						eventID +=1;
 					}
@@ -903,7 +905,7 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "U3_ETAS_MojaveTest_16kmOffset", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_1", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
