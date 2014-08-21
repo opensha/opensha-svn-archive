@@ -90,7 +90,7 @@ public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
-	static boolean pause_for_events = true;
+	static boolean pause_for_events = false;
 	
 	
 	/**
@@ -364,8 +364,8 @@ public class ETAS_Simulator {
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
-					etas_PrimEventSampler, scenarioRup, expNum);
+//			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
+//					etas_PrimEventSampler, scenarioRup, expNum);
 		}
 		
 		if(D) {
@@ -583,8 +583,10 @@ public class ETAS_Simulator {
 			
 			
 			// write stats for first rup
-			double expPrimNumAtMainMag = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag());
-			double expPrimNumAtMainMagMinusOne = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag()-1.0);
+			double expPrimNumAtMainMag = Double.NaN;
+			double expPrimNumAtMainMagMinusOne = Double.NaN;
+//			double expPrimNumAtMainMag = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag());
+//			double expPrimNumAtMainMagMinusOne = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag()-1.0);
 			EvenlyDiscretizedFunc obsPrimCumMFD = obsAshockMFDsForFirstEvent.get(1).getCumRateDistWithOffset();
 			double obsPrimNumAtMainMag = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag());
 			double obsPrimNumAtMainMagMinusOne = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag()-1.0);
@@ -905,7 +907,7 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_1", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_noCache", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);

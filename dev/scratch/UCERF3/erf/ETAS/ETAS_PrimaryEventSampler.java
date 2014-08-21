@@ -807,14 +807,14 @@ if(locsToSampleFrom.size() == 0) {
 		else {
 			numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
 		}
-		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
+//		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
 
-		
+		boolean cacheExisted=true;
 		if(includeERF_Rates && includeSpatialDecay) {
 			
 			if(cachedSamplers[locIndexForPar] == null) {
-				sampler = getCubeSamplerWithDistDecay(translatedParLoc);
-				
+				cacheExisted = false;
+				sampler = getCubeSamplerWithDistDecay(translatedParLoc);			
 //				cachedSamplers[locIndexForPar] = sampler;
 //				numCachedSamplers += 1;
 			}
@@ -838,6 +838,15 @@ if(locsToSampleFrom.size() == 0) {
 			}
 
 		}
+		
+//		if(cacheExisted && numLeft==0) 
+//			numCachedSamplers -= 1;
+//		if(numLeft==0) {
+//			cachedSamplers[locIndexForPar] = null;
+//			// TODO System.gc() ?
+//		}
+		
+		
 		if(D) {
 			if(numCachedSamplers==nextNumCachedSamplers) {
 				System.out.println("numCachedSamplers="+numCachedSamplers);
