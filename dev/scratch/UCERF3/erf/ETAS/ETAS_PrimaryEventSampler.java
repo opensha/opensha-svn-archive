@@ -28,6 +28,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -49,6 +50,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -58,14 +60,19 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 
 /**
  * This class divides the supplied gridded region (and specified depth extent) into cubes, and computes
@@ -263,7 +270,7 @@ public class ETAS_PrimaryEventSampler {
 		lonForCubeCenter = new double[numCubes];
 		depthForCubeCenter = new double[numCubes];
 		for(int i=0;i<numCubes;i++) {
-			int[] regAndDepIndex = getRegAndDepIndicesForCubeIndex(i);
+			int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(i);
 			Location loc = gridRegForCubes.getLocation(regAndDepIndex[0]);
 			latForCubeCenter[i] = loc.getLatitude();
 			lonForCubeCenter[i] = loc.getLongitude();
@@ -351,7 +358,7 @@ public class ETAS_PrimaryEventSampler {
 	
 	
 	public void addParentLocToProcess(Location parLoc) {
-		int parLocIndex = getNearestParentLocationIndex(parLoc);
+		int parLocIndex = this.getParLocIndexForLocation(parLoc);
 		if(numForthcomingEventsForParLocIndex.keySet().contains(parLocIndex)) {
 			int newNum = numForthcomingEventsForParLocIndex.get(parLocIndex) + 1;
 			numForthcomingEventsForParLocIndex.put(parLocIndex, newNum);
@@ -481,35 +488,6 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	/**
-	 * This returns the translated parent location (closest intersection of cube corners)
-	 * for the given location.
-	 * @param loc
-	 * @return
-	 */
-	private Location getTransaltedParentLocation(Location loc) {
-		int parRegIndex = gridRegForParentLocs.indexForLocation(loc);
-		if(parRegIndex <0)
-			throw new RuntimeException("parRegIndex<0");
-		int parDepIndex = getParDepthIndex(loc.getDepth());
-		Location tempLoc = gridRegForParentLocs.getLocation(parRegIndex);
-		// the above will be null if it's out of the region
-		return new Location(tempLoc.getLatitude(),tempLoc.getLongitude(),getParDepth(parDepIndex));
-	}
-	
-	
-	/**
-	 * This returns the index of the nearest parent location for the given loc
-	 * @param loc
-	 * @return
-	 */
-	private int getNearestParentLocationIndex(Location loc) {
-		int parRegIndex = gridRegForParentLocs.indexForLocation(loc);
-		if(parRegIndex <0)
-			throw new RuntimeException("parRegIndex<0");
-		int parDepIndex = getParDepthIndex(loc.getDepth());
-		return parDepIndex*gridRegForParentLocs.getNodeCount()+parRegIndex;
-	}
 
 	
 	/**
@@ -525,7 +503,8 @@ public class ETAS_PrimaryEventSampler {
 		for(Location loc: locList) {
 			
 			// set the sampler
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(getNearestParentLocationIndex(loc), getTransaltedParentLocation(loc));
+			int parLocIndex = getParLocIndexForLocation(loc);
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 			
 			for(int i=0;i <numCubes;i++) {
 				aveSampler.add(i, sampler.getY(i));
@@ -567,7 +546,7 @@ public class ETAS_PrimaryEventSampler {
 				
 				int indexForOrigGriddedRegion = -1;
 				if(applyGR_Corr) {
-					indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getLocationForCubeIndex(i));	// more efficient way?
+					indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getCubeLocationForIndex(i));	// more efficient way?
 //if(indexForOrigGriddedRegion == -1)
 //	System.out.println("bad loc: "+getLocationForSamplerIndex(i));
 				}
@@ -667,8 +646,9 @@ public class ETAS_PrimaryEventSampler {
 ////System.out.println("translatedParLoc: "+translatedParLoc);
 ////System.exit(0);
 		
-		Location translatedParLoc = getTransaltedParentLocation(actualParentLoc);
-		IntegerPDF_FunctionSampler sampler = getCubeSampler(getNearestParentLocationIndex(actualParentLoc), translatedParLoc);
+		int parLocIndex = getParLocIndexForLocation(actualParentLoc);
+		Location translatedParLoc = getParLocationForIndex(parLocIndex);
+		IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 		
 		int aftShCubeIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
@@ -797,7 +777,7 @@ if(locsToSampleFrom.size() == 0) {
 	
 	
 	
-	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar, Location translatedParLoc) {
+	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar) {
 		IntegerPDF_FunctionSampler sampler=null;
 		
 		int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
@@ -814,7 +794,7 @@ if(locsToSampleFrom.size() == 0) {
 			
 			if(cachedSamplers[locIndexForPar] == null) {
 				cacheExisted = false;
-				sampler = getCubeSamplerWithDistDecay(translatedParLoc);			
+				sampler = getCubeSamplerWithDistDecay(locIndexForPar);			
 //				cachedSamplers[locIndexForPar] = sampler;
 //				numCachedSamplers += 1;
 			}
@@ -828,7 +808,7 @@ if(locsToSampleFrom.size() == 0) {
 		}
 		else if(!includeERF_Rates && includeSpatialDecay) {
 			if(cachedSamplers[locIndexForPar] == null) {
-				sampler = getCubeSamplerWithOnlyDistDecay(translatedParLoc);
+				sampler = getCubeSamplerWithOnlyDistDecay(locIndexForPar);
 //				cachedSamplers[locIndexForPar] = sampler;
 //				numCachedSamplers += 1;
 //System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
@@ -899,13 +879,14 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
-	private IntegerPDF_FunctionSampler getCubeSamplerWithDistDecay(Location srcLoc) {
+	private IntegerPDF_FunctionSampler getCubeSamplerWithDistDecay(int parLocIndex) {
+		Location parLoc = this.getParLocationForIndex(parLocIndex);
 		getCubeSamplerWithERF_RatesOnly();	// this makes sure cubeSamplerRatesOnly (rates only) is updated
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numCubeDepths*numCubesPerDepth);
 		for(int index=0; index<numCubes; index++) {
-			double relLat = Math.abs(srcLoc.getLatitude()-latForCubeCenter[index]);
-			double relLon = Math.abs(srcLoc.getLongitude()-lonForCubeCenter[index]);
-			sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[index], srcLoc.getDepth())*cubeSamplerRatesOnly.getY(index));
+			double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[index]);
+			double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[index]);
+			sampler.set(index,etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[index], parLoc.getDepth())*cubeSamplerRatesOnly.getY(index));
 		}
 		return sampler;
 	}
@@ -916,7 +897,8 @@ if(locsToSampleFrom.size() == 0) {
 	 * @param etasLocWtCalc
 	 * @return
 	 */
-	private IntegerPDF_FunctionSampler getCubeSamplerWithOnlyDistDecay(Location parLoc) {
+	private IntegerPDF_FunctionSampler getCubeSamplerWithOnlyDistDecay(int parLocIndex) {
+		Location parLoc = this.getParLocationForIndex(parLocIndex);
 		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(numCubes);
 //		try{
 //			FileWriter fw1 = new FileWriter("test123.txt");
@@ -956,7 +938,7 @@ if(locsToSampleFrom.size() == 0) {
 			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
 			int indexForOrigGriddedRegion = -2;
 			if(applyGR_Corr)
-				indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getLocationForCubeIndex(cubeIndex));	// more efficient way?
+				indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));	// more efficient way?
 			for(int s=0; s<sources.length;s++) {
 				if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1) {
 					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion]);		
@@ -1008,90 +990,24 @@ if(locsToSampleFrom.size() == 0) {
 		
 	}
 	
-// NO LONGER NEEDED 	
-	
-//	/**
-//	 * This returns a correction array that will make the total MFD at the point less than or equal to GR
-//	 * at each magnitude.
-//	 * @param ptIndex
-//	 * @return
-//	 */
-//	public double[] getImposeGR_CorrectionFactors(int ptIndex) {
-//		// get the total MFD at this point
-//		SummedMagFreqDist magDist = getOrigNucleationMFD_AtPoint(ptIndex);
-//		int[] sources = srcAtPointList.get(ptIndex);
-//		// now make correction array
-//		double[] corrArray = new double[sources.length];
-//		double rateAtM5pt5 = magDist.getY(5.05);
-////		if(rateAtM5pt5<10e-14)
-////			System.out.println("rateAtM5pt5="+rateAtM5pt5+" at ptIndex="+ptIndex+"; loc: "+getLocationForSamplerIndex(ptIndex));
-//		for(int s=0; s<sources.length;s++) {
-//			if(sources[s]<erf.getNumFaultSystemSources()) {
-//				double meanMag = 0;
-//				int numMag = 0;
-//				for(ProbEqkRupture rup : erf.getSource(sources[s])) {
-//					meanMag += rup.getMag();
-//					numMag +=1;
-//				}
-//				meanMag /= numMag;
-//				double ratio = magDist.getClosestY(meanMag)/(rateAtM5pt5*Math.pow(10, 5.05-meanMag)); // assumes b-value=1.0.
-//				if(ratio>1.0)
-//					corrArray[s] = 1.0/ratio;
-//				else
-//					corrArray[s] = 1.0;				
-//			}
-//			else {
-//				corrArray[s] = 1.0;				
-//			}
-//		}
-//		return corrArray;
-//	}
-//
-//	/**
-//	 * "Orig" means this does not have any GR imposition
-//	 * @return
-//	 */
-//	public SummedMagFreqDist getOrigNucleationMFD_AtPoint(int ptIndex) {
-//		// make MFD for each source if it doesn't exist
-//		if(mfdForSrcArray == null) {
-//			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-//			for(int s=0; s<erf.getNumSources();s++) {
-//				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
-//			}
-//		}
-//		SummedMagFreqDist magDist = new SummedMagFreqDist(5.05, 8.95, 40);
-//		int[] sources = srcAtPointList.get(ptIndex);
-//		float[] fracts = fractionSrcAtPointList.get(ptIndex);
-//		for(int s=0; s<sources.length;s++) {
-//			SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
-//			for(int m=0;m<mfd.getNum();m++)
-//				magDist.add(m, mfd.getY(m)*(double)fracts[s]);
-//		}
-//		magDist.setName("Nucleation MFD at ptIndex="+ptIndex);
-//		String info = "Loc: "+getLocationForSamplerIndex(ptIndex)+"\n";
-//		for(int s=0; s<sources.length;s++)
-//			info += s+"\t"+erf.getSource(sources[s]).getName()+"\n";
-//		magDist.setInfo(info);
-//		return magDist;
-//	}
 	
 	/**
 	 * Region index is first element, and depth index is second
 	 * @param index
 	 * @return
 	 */
-	private int[] getRegAndDepIndicesForCubeIndex(int index) {
+	private int[] getCubeRegAndDepIndicesForIndex(int cubeIndex) {
 		
 		int[] indices = new int[2];
-		indices[1] = (int)Math.floor((double)index/(double)numCubesPerDepth);	// depth index
+		indices[1] = (int)Math.floor((double)cubeIndex/(double)numCubesPerDepth);	// depth index
 		if(indices[1] >= this.numCubeDepths )
-			System.out.println("PROBLEM: "+index+"\t"+numCubesPerDepth+"\t"+indices[1]+"\t"+numCubeDepths);
-		indices[0] = index - indices[1]*numCubesPerDepth;						// region index
+			System.out.println("PROBLEM: "+cubeIndex+"\t"+numCubesPerDepth+"\t"+indices[1]+"\t"+numCubeDepths);
+		indices[0] = cubeIndex - indices[1]*numCubesPerDepth;						// region index
 		return indices;
 	}
 	
-	public Location getLocationForCubeIndex(int index) {
-		int[] regAndDepIndex = getRegAndDepIndicesForCubeIndex(index);
+	public Location getCubeLocationForIndex(int cubeIndex) {
+		int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(cubeIndex);
 		Location regLoc = gridRegForCubes.getLocation(regAndDepIndex[0]);
 		return new Location(regLoc.getLatitude(),regLoc.getLongitude(),getCubeDepth(regAndDepIndex[1]));
 	}
@@ -1105,8 +1021,57 @@ if(locsToSampleFrom.size() == 0) {
 	private int getCubeIndexForRegAndDepIndices(int iReg,int iDep) {
 		return iDep*numCubesPerDepth+iReg;
 	}
+	
+	private int getCubeDepthIndex(double depth) {
+		int index = (int)Math.round((depth-depthDiscr/2.0)/depthDiscr);
+//		if(index < numRateDepths && index >=0)
+			return index;
+//		else
+//			throw new RuntimeException("Index "+index+" is out of bounds for depth="+depth);
+	}
+	
+	private double getCubeDepth(int depthIndex) {
+		return (double)depthIndex*depthDiscr + depthDiscr/2;
+	}
 
+	
+	
+	/**
+	 * Region index is first element, and depth index is second
+	 * @param index
+	 * @return
+	 */
+	private int[] getParRegAndDepIndicesForIndex(int parLocIndex) {
+		int[] indices = new int[2];
+		indices[1] = (int)Math.floor((double)parLocIndex/(double)numParLocsPerDepth);	// depth index
+		indices[0] = parLocIndex - indices[1]*numParLocsPerDepth;						// region index
+		return indices;
+	}
+	
+	public Location getParLocationForIndex(int parLocIndex) {
+		int[] regAndDepIndex = getParRegAndDepIndicesForIndex(parLocIndex);
+		Location regLoc = gridRegForParentLocs.getLocation(regAndDepIndex[0]);
+		return new Location(regLoc.getLatitude(),regLoc.getLongitude(),getParDepth(regAndDepIndex[1]));
+	}
+	
+	public int getParLocIndexForLocation(Location loc) {
+		int iReg = gridRegForParentLocs.indexForLocation(loc);
+		int iDep = getParDepthIndex(loc.getDepth());
+		return getParLocIndexForRegAndDepIndices(iReg,iDep);
+	}
 
+	private int getParLocIndexForRegAndDepIndices(int iReg,int iDep) {
+		return iDep*numParLocsPerDepth+iReg;
+	}	
+	
+	private int getParDepthIndex(double depth) {
+		return (int)Math.round(depth/depthDiscr);
+	}
+	
+	private double getParDepth(int parDepthIndex) {
+		return parDepthIndex*depthDiscr;
+	}
+	
 	// this tests that the rates represented here (plus unassigned rates) match that in the ERF.
 	public void testRates() {
 		
@@ -1189,25 +1154,145 @@ if(locsToSampleFrom.size() == 0) {
 
 	}
 	
+
 	
-	private int getCubeDepthIndex(double depth) {
-		int index = (int)Math.round((depth-depthDiscr/2.0)/depthDiscr);
-//		if(index < numRateDepths && index >=0)
-			return index;
-//		else
-//			throw new RuntimeException("Index "+index+" is out of bounds for depth="+depth);
-	}
-	
-	private double getCubeDepth(int depthIndex) {
-		return (double)depthIndex*depthDiscr + depthDiscr/2;
-	}
-	
-	private int getParDepthIndex(double depth) {
-		return (int)Math.round(depth/depthDiscr);
-	}
-	
-	private double getParDepth(int parDepthIndex) {
-		return parDepthIndex*depthDiscr;
+	public void temp() {
+		
+//		int num=0;
+//		int totNum =0;
+//		for(int i=0;i < srcInCubeList.size();i++) {
+//			totNum +=1;
+//			if(srcInCubeList.get(i).length > 2) {
+//				System.out.println(i+"\t"+srcInCubeList.get(i).length);
+//				num += 1;
+//			}
+//		}
+//		System.out.println(num+"\t out of\t"+totNum);
+//		System.exit(-1);
+		
+		if(erf instanceof FaultSystemSolutionERF) {
+			
+			GridSourceProvider gridSrcProvider = ((FaultSystemSolutionERF)erf).getSolution().getGridSourceProvider();
+			
+			InversionFaultSystemRupSet rupSet = (InversionFaultSystemRupSet)((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+			FaultPolyMgr faultPolyMgr = rupSet.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+			
+			int numGridLocs = gridSrcProvider.getGriddedRegion().getNodeCount();
+			int[] gridSeisStatus = new int[numGridLocs];
+			int num = 0;
+			int num0=0,num1=0,num2=0;
+			double totFrac = 0;
+			for(int i=0;i<numGridLocs; i++) {
+				double frac = faultPolyMgr.getNodeFraction(i);
+				totFrac += frac;	// fact inside fault polygons
+				if(frac < 1e-6) {
+					gridSeisStatus[i] = 0;
+					num0 += 1;
+				}
+				else if (frac > 1-1e-6) {
+					gridSeisStatus[i] = 1;
+					num1 += 1;
+				}
+				else {
+					gridSeisStatus[i] = 2;
+					num2 += 1;
+				}
+					
+				if(gridSrcProvider.getNodeSubSeisMFD(i) != null && gridSrcProvider.getNodeUnassociatedMFD(i) != null) {
+					num += 1;
+				}
+			}
+			System.out.println(num+"\t out of\t"+numGridLocs);
+			System.out.println(num0+"\t (num0) out of\t"+numGridLocs);
+			System.out.println(num1+"\t (num1) out of\t"+numGridLocs);
+			System.out.println(num2+"\t (num2) out of\t"+numGridLocs);
+			System.out.println("totFrac="+totFrac);
+			
+			long st = System.currentTimeMillis();
+			CalcProgressBar progressBar = new CalcProgressBar("num to go", "junk");
+				progressBar.showProgress(true);
+
+			int numCubes = gridRegForCubes.getNodeCount();
+			boolean[] insidePoly = new boolean[numCubes];
+			int numBad = 0;
+			for(int c=0;c<numCubes;c++) {
+				progressBar.updateProgress(c, numCubes);
+				Location loc = getCubeLocationForIndex(c);
+				int gridIndex = gridSrcProvider.getGriddedRegion().indexForLocation(loc);
+				if(gridIndex == -1)
+					numBad += 1;
+				else {
+					if(gridSeisStatus[gridIndex] == 0)
+						insidePoly[c]=false;
+					else if (gridSeisStatus[gridIndex] == 1)
+						insidePoly[c]=true;
+
+					else {
+						insidePoly[c]=false;
+						for(int s=0; s< rupSet.getNumSections(); s++) {
+							if(faultPolyMgr.getPoly(s).contains(loc)) {
+								insidePoly[c] = true;
+								break;
+							}
+						}
+					}				
+				}
+			}
+			
+			int numCubesInside = 0;
+			for(int c=0;c<numCubes;c++) {
+				if(insidePoly[c])
+					numCubesInside += 1;
+			}
+			System.out.println(numCubesInside+" are inside polygons, out of "+numCubes);
+			System.out.println(numBad+" were bad");
+			if (progressBar != null) progressBar.showProgress(false);
+			
+			st = System.currentTimeMillis()-st;
+			float min = (float)st/(1000f*60f);
+			System.out.println(" that took the following minutes: "+min);
+
+			System.exit(-1);
+
+			
+//			FaultSystemRupSet rupSet = ((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+			List<FaultSectionPrefData> dataList = rupSet.getFaultSectionDataList();
+			FaultSectionPrefData mojaveSubSect7_data = dataList.get(1844);
+			System.out.println(mojaveSubSect7_data.getName());
+			
+			StirlingGriddedSurface fltSurf = mojaveSubSect7_data.getStirlingGriddedSurface(0.1, false, true);
+			Hashtable<Integer,Integer> map = new Hashtable<Integer,Integer>();
+			for(int r=0;r<fltSurf.getNumRows();r++) {
+				for(int c=0; c<fltSurf.getNumCols();c++) {
+					Location loc = fltSurf.getLocation(r, c);
+					int cubeIndex = this.getCubeIndexForLocation(loc);
+					Location loc2 = this.getCubeLocationForIndex(cubeIndex);
+					if(loc2.getDepth() > 6.9 && loc2.getDepth() < 7.1) {	// get 7 km depth cube
+//						System.out.println(cubeIndex+"\t"+loc2.getLatitude()+"\t"+loc2.getLongitude()+"\t"+loc2.getDepth()+"\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
+						if(map.containsKey(cubeIndex)) {
+							int newNum = map.get(cubeIndex)+1;
+							map.put(cubeIndex, newNum);
+						}
+						else {
+							map.put(cubeIndex, 1);
+						}
+					}
+//					System.out.println(fltSurf.getLocation(7, c));
+				}
+			}
+			
+			for(int cubeIndex : map.keySet()) {
+				Location loc = getCubeLocationForIndex(cubeIndex);
+				System.out.println(map.get(cubeIndex)+"\t"+cubeIndex+"\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
+			}
+			
+//			for(int i=0;i<dataList.size(); i++)
+//				if(dataList.get(i).getName().contains("Mojave"))
+//					System.out.println(i+"\t"+dataList.get(i).getName());
+		}
+		else
+			throw new RuntimeException("problem");
+
 	}
 
 	/**
@@ -1233,11 +1318,13 @@ if(locsToSampleFrom.size() == 0) {
 //		writeMemoryUse();
 //		System.exit(0);
 		
+		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
+		System.out.println(griddedRegion.indexForLocation(new Location(34.5,-118.0)));
+		System.out.println(griddedRegion.getLocation(griddedRegion.indexForLocation(new Location(34.5,-118.0))));
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
-		
-		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+
 
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -1251,6 +1338,8 @@ if(locsToSampleFrom.size() == 0) {
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				true,null,null);
+		
+		etas_PrimEventSampler.temp();
 		
 		
 //		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
@@ -1273,7 +1362,7 @@ if(locsToSampleFrom.size() == 0) {
 //		for(int s=0;s<erf.getNumSources();s++)
 //			sourceRates[s] = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
 //
-////		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+////		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 //		
 //		long startTime = System.currentTimeMillis();
 //		System.out.println("Instantiating ETAS_PrimaryEventSamplerAlt");
@@ -1490,7 +1579,7 @@ if(locsToSampleFrom.size() == 0) {
 				summedRate = 1e-16;
 			rateData.set(i, summedRate);
 			Location loc = rateData.getLocation(i);
-			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+rateData.get(i));
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+rateData.get(i));
 		}
 		progressBar.showProgress(false);
 		
@@ -1534,7 +1623,7 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
 		for(int i=0;i<numCubes;i++) {
-			Location loc = getLocationForCubeIndex(i);
+			Location loc = getCubeLocationForIndex(i);
 			int mapLocIndex = gridRegForCubes.indexForLocation(loc);
 			if(mapLocIndex>=0) {
 				double oldRate = xyzDataSet.get(mapLocIndex);
@@ -1757,7 +1846,7 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
 
 
-		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
 		
 		// initialize values to zero
@@ -1825,7 +1914,7 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
 
 
-		CaliforniaRegions.RELM_GRIDDED mapGriddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
 		
 		// initialize values to zero
@@ -1839,7 +1928,7 @@ if(locsToSampleFrom.size() == 0) {
 		
 		for(int i=0;i<numSamples;i++) {
 			int indexFromSampler = cubeSamplerRatesOnly.getRandomInt();
-			int[] regAndDepIndex = getRegAndDepIndicesForCubeIndex(indexFromSampler);
+			int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(indexFromSampler);
 			int indexForMap = mapGriddedRegion.indexForLocation(gridRegForCubes.locationForIndex(regAndDepIndex[0]));	// ignoring depth
 			double oldNum = xyzDataSet.get(indexForMap)*numYrs;
 			xyzDataSet.set(indexForMap, (1.0+oldNum)/(double)numYrs);

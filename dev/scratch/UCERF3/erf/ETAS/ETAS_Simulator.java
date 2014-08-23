@@ -84,6 +84,7 @@ import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class ETAS_Simulator {
@@ -721,8 +722,8 @@ public class ETAS_Simulator {
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
-		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
-		
+		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
+
 		ETAS_EqkRupture scenarioRup= buildScenarioRup(scenario, erf);
 		
 //		System.out.println("aveStrike="+scenarioRup.getRuptureSurface().getAveStrike());
@@ -907,7 +908,7 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_noCache", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_noCache2", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
@@ -925,7 +926,7 @@ public class ETAS_Simulator {
 //			e.printStackTrace();
 //		}
 		
-//		CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+//		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 //		System.out.println(griddedRegion.getNumLocations());
 //		
 //		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED();

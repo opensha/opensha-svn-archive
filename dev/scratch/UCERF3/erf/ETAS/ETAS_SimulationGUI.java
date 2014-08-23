@@ -39,6 +39,7 @@ import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListener {
@@ -79,7 +80,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private ParameterListEditor editor;
 	
-	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+	private CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();;
 	
 	
 	public ETAS_SimulationGUI() {
