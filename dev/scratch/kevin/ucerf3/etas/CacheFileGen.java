@@ -2,7 +2,6 @@ package scratch.kevin.ucerf3.etas;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.geo.GriddedRegion;
@@ -21,10 +20,13 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
 public class CacheFileGen {
 
 	public static void main(String[] args) throws IOException, DocumentException {
-		File solFile = new File(args[0]);
-		FaultSystemSolution fss = FaultSystemIO.loadSol(solFile);
+//		File solFile = new File(args[0]);
+//		FaultSystemSolution fss = FaultSystemIO.loadSol(solFile);
+//		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(fss, false, 1d);
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
+		FaultSystemSolution fss = erf.getSolution();
+		
 		File resultsDir = new File("/tmp");
-		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(fss, false, 1d);
 		GriddedRegion reg = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		long randSeed = 1408453138855l;
