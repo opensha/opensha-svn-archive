@@ -21,7 +21,7 @@ public interface GridSourceProvider {
 	public int size();
 
 	/**
-	 * Returne the source at {@code index}.
+	 * Return the source at {@code index}.
 	 * @param index of source to retrieve
 	 * @param duration of forecast
 	 * @param filterAftershocks
@@ -30,6 +30,35 @@ public interface GridSourceProvider {
 	 */
 	public ProbEqkSource getSource(int index, double duration,
 			boolean filterAftershocks, BackgroundRupType bgRupType);
+	
+
+	/**
+	 * Return the source at {@code index}, where only the subseismo component is included
+	 * (no truly off fault component).  This returns null if there is no subseismo component
+	 * for the grid node
+	 * @param index of source to retrieve
+	 * @param duration of forecast
+	 * @param filterAftershocks
+	 * @param crosshair sources if true,
+	 * @return the source at {@code index}
+	 */
+	public ProbEqkSource getSourceSubseismoOnly(int index, double duration,
+			boolean filterAftershocks, BackgroundRupType bgRupType);
+
+	/**
+	 * Return the source at {@code index}, where only the truly off fault component is included
+	 * (no subseismo component).  This returns null if there is no truly off fault component
+	 * for the grid node
+	 * @param index of source to retrieve
+	 * @param duration of forecast
+	 * @param filterAftershocks
+	 * @param crosshair sources if true,
+	 * @return the source at {@code index}
+	 */
+	public ProbEqkSource getSourceTrulyOffOnly(int index, double duration,
+			boolean filterAftershocks, BackgroundRupType bgRupType);
+
+	
 	
 //	/**
 //	 * Set whether all sources should just be treated as point sources, not just

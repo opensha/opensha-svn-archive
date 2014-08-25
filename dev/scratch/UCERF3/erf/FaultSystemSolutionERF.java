@@ -697,6 +697,64 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 			return getOtherSource(iSource - numNonZeroFaultSystemSources);
 		}
 	}
+	
+	/**
+	 * This returns a source that includes only the subseismo component
+	 * for the grid cell.  This returns null is the iSource is fault based,
+	 * or if the grid cell does not have any subseismo component.
+	 * @param iSource
+	 * @return
+	 */
+	public ProbEqkSource getSourceSubSeisOnly(int iSource) {
+		
+		if (bgInclude.equals(ONLY)) {
+			if (gridSources == null)
+				return null;
+			else
+				return gridSources.getSourceSubseismoOnly(iSource, timeSpan.getDuration(),
+						applyAftershockFilter, bgRupType);
+		} else if(bgInclude.equals(EXCLUDE)) {
+			return null;
+		} else if (iSource < numNonZeroFaultSystemSources) {
+			return null;
+		} else {
+			if (gridSources == null)
+				return null;
+			else
+				return gridSources.getSourceSubseismoOnly(iSource - numNonZeroFaultSystemSources, timeSpan.getDuration(),
+						applyAftershockFilter, bgRupType);
+		}
+	}
+	
+	
+	/**
+	 * This returns a source that includes only the truly off fault component
+	 * for the grid cell.  This returns null is the iSource is fault based,
+	 * or if the grid cell does not have any truly off fault component.
+	 * @param iSource
+	 * @return
+	 */
+	public ProbEqkSource getSourceTrulyOffOnly(int iSource) {
+		
+		if (bgInclude.equals(ONLY)) {
+			if (gridSources == null)
+				return null;
+			else
+				return gridSources.getSourceTrulyOffOnly(iSource, timeSpan.getDuration(),
+						applyAftershockFilter, bgRupType);
+		} else if(bgInclude.equals(EXCLUDE)) {
+			return null;
+		} else if (iSource < numNonZeroFaultSystemSources) {
+			return null;
+		} else {
+			if (gridSources == null)
+				return null;
+			else
+				return gridSources.getSourceTrulyOffOnly(iSource - numNonZeroFaultSystemSources, timeSpan.getDuration(),
+						applyAftershockFilter, bgRupType);
+		}
+	}
+
 
 
 	/**

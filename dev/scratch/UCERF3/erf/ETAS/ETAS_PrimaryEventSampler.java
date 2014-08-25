@@ -89,6 +89,7 @@ public class ETAS_PrimaryEventSampler {
 	
 	String defaultFractSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSrcInCubeCache";
 	String defaultSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/srcInCubeCache";
+	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
 	boolean applyGR_Corr = true;
 	
@@ -102,7 +103,10 @@ public class ETAS_PrimaryEventSampler {
 	
 	AbstractNthRupERF erf;
 	int numFltSystSources=-1, totNumSrc;
-	ArrayList<Integer> srcIndexList; // this is so different lists can point to the same src index Integer object
+	ArrayList<Integer> srcIndexList; // this is so different lists can point to the same src index Integer object 
+	InversionFaultSystemRupSet rupSet;
+	FaultPolyMgr faultPolyMgr;
+
 	
 	int numPtSrcSubPts;
 	double pointSrcDiscr;
@@ -120,6 +124,9 @@ public class ETAS_PrimaryEventSampler {
 	
 	List<float[]> fractionSrcInCubeList;
 	List<int[]> srcInCubeList;
+	int[] isCubeInsideFaultPolygon;	// independent of depth, so number of elements the equal to numCubesPerDepth
+	
+	int[] origGridSeisTrulyOffVsSubSeisStatus;
 	
 	IntegerPDF_FunctionSampler cubeSamplerRatesOnly; 
 	
@@ -137,6 +144,8 @@ public class ETAS_PrimaryEventSampler {
 	ETAS_LocationWeightCalculator etas_LocWeightCalc;
 	
 	SummedMagFreqDist[] mfdForSrcArray;
+	SummedMagFreqDist[] mfdForSrcSubSeisOnlyArray;
+	SummedMagFreqDist[] mfdForTrulyOffOnlyArray;
 	
 	boolean includeERF_Rates, includeSpatialDecay;
 	
@@ -160,11 +169,11 @@ public class ETAS_PrimaryEventSampler {
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
 			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSrcInCubeList, 
-			List<int[]> inputSrcInCubeList) {
+			List<int[]> inputSrcInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, oututFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, inputFractSrcInCubeList, inputSrcInCubeList);
+				applyGR_Corr, inputFractSrcInCubeList, inputSrcInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -189,7 +198,7 @@ public class ETAS_PrimaryEventSampler {
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList) {
+			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList, int[] inputIsCubeInsideFaultPolygon) {
 		
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -205,6 +214,23 @@ public class ETAS_PrimaryEventSampler {
 		
 		this.etas_utils = etas_utils;
 		this.applyGR_Corr=applyGR_Corr;
+		
+		
+		// fill in rupSet and faultPolyMgr is erf is a FaultSystemSolutionERF
+		if(erf instanceof FaultSystemSolutionERF) {
+			FaultSystemRupSet fltRupSet = ((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+			if(fltRupSet instanceof InversionFaultSystemRupSet) {
+				rupSet = (InversionFaultSystemRupSet)fltRupSet;
+				faultPolyMgr = rupSet.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();	
+			}
+			else
+				throw new RuntimeException("if erf is FaultSystemSolutionERF, its rupSet must also be an InversionFaultSystemRupSet");
+		}
+		else {
+			rupSet = null;
+			faultPolyMgr = null;				
+		}
+
 				
 		
 		Region regionForRates = new Region(griddedRegion.getBorder(),BorderType.MERCATOR_LINEAR);
@@ -308,14 +334,23 @@ public class ETAS_PrimaryEventSampler {
 		
 		rateUnassigned=0;
 		
+		origGridSeisTrulyOffVsSubSeisStatus = this.getOrigGridSeisTrulyOffVsSubSeisStatus();
+		
+//		int testNum=0;
+//		for(int val :origGridSeisTrulyOffVsSubSeisStatus)
+//			if(val == 2) testNum +=1;
+//				System.out.println("TEST HERE testNum="+testNum);
+		
 		// read or make cache data if needed
-		if(inputFractSrcInCubeList!=null && inputSrcInCubeList != null) {
+		if(inputFractSrcInCubeList!=null && inputSrcInCubeList != null && inputIsCubeInsideFaultPolygon != null) {
 				srcInCubeList = inputSrcInCubeList;
 				fractionSrcInCubeList = inputFractSrcInCubeList;
+				isCubeInsideFaultPolygon = inputIsCubeInsideFaultPolygon;
 		}
 		else {
 			File intListListFile = new File(defaultSrcInCubeCacheFilename);
 			File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);	
+			File cubeInsidePolyFile = new File(defaultCubeInsidePolyCacheFilename);	
 			if (intListListFile.exists() && floatListListFile.exists()) {
 				try {
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
@@ -325,13 +360,15 @@ public class ETAS_PrimaryEventSampler {
 					// the following test is not better in terms of memory use
 					//					ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
+					isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(cubeInsidePolyFile);
+					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading isCubeInsideFaultPolygon");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 			else {  // make cache file if they don't exist
 				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before running generateAndWriteListListDataToFile");
-				generateAndWriteListListDataToFile();
+				generateAndWriteCacheDataToFiles();
 				if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after running generateAndWriteListListDataToFile");
 			}
 
@@ -376,7 +413,7 @@ public class ETAS_PrimaryEventSampler {
 	 * fractionSrcAtPointList
 	 * 
 	 */
-	private void generateAndWriteListListDataToFile() {
+	private void generateAndWriteCacheDataToFiles() {
 		if(D) System.out.println("Starting ETAS.ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile(); THIS WILL TAKE TIME AND MEMORY!");
 		long st = System.currentTimeMillis();
 		CalcProgressBar progressBar = null;
@@ -470,7 +507,6 @@ public class ETAS_PrimaryEventSampler {
 				}
 			}
 		}
-		if (progressBar != null) progressBar.showProgress(false);
 		if(D) System.out.println("rateUnassigned="+rateUnassigned);
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory before writing files");
@@ -482,12 +518,137 @@ public class ETAS_PrimaryEventSampler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
+		
+		// Now compute which cubes are inside polygons
+		if (D) System.out.println("Starting on insidePoly calculation");
+		int numCubes = gridRegForCubes.getNodeCount();
+		int[] insidePoly = new int[numCubes];	// TODO default values are 0???
+		
+		if(erf instanceof FaultSystemSolutionERF) {	// otherwise all our outside polygons, and default values of 0 are appropriate
+						
+			GridSourceProvider gridSrcProvider = ((FaultSystemSolutionERF)erf).getSolution().getGridSourceProvider();
+			InversionFaultSystemRupSet rupSet = (InversionFaultSystemRupSet)((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+			FaultPolyMgr faultPolyMgr = rupSet.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+			int numBad = 0;
+			for(int c=0;c<numCubes;c++) {
+				if (progressBar != null) progressBar.updateProgress(c, numCubes);
+				Location loc = getCubeLocationForIndex(c);
+				int gridIndex = gridSrcProvider.getGriddedRegion().indexForLocation(loc);
+				if(gridIndex == -1)
+					numBad += 1;
+				else {
+					if(origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 0)
+						insidePoly[c]=0;
+					else if (origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 1)
+						insidePoly[c]=1;
+
+					else {
+						insidePoly[c]=0;
+						for(int s=0; s< rupSet.getNumSections(); s++) {
+							if(faultPolyMgr.getPoly(s).contains(loc)) {
+								insidePoly[c] = 1;
+								break;
+							}
+						}
+					}				
+				}
+			}
+			
+			int numCubesInside = 0;
+			for(int c=0;c<numCubes;c++) {
+				if(insidePoly[c] == 1)
+					numCubesInside += 1;
+			}
+			System.out.println(numCubesInside+" are inside polygons, out of "+numCubes);
+			System.out.println(numBad+" were bad");
+			if (progressBar != null) progressBar.showProgress(false);
+			
+		}
+		
+		if (progressBar != null) progressBar.showProgress(false);
+		
+		File cubeInsidePolyFile = new File(defaultCubeInsidePolyCacheFilename);
+		try {
+			MatrixIO.intArrayToFile(insidePoly,cubeInsidePolyFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// test
+		try {
+			int[] insidePoly2 = MatrixIO.intArrayFromFile(cubeInsidePolyFile);
+			boolean ok = true;
+			for(int i=0;i<insidePoly2.length;i++)
+				if(insidePoly[i] != insidePoly2[i])
+					ok = false;
+			System.out.println("TEMP test result: "+ok);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
 		if(D) System.out.println("ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile() took "+(System.currentTimeMillis()-st)/60000+ " min");
 
 
 	}
 	
 	
+	/**
+	 * For each original gridded seismicity point, this tells: 
+	 * 
+	 * 0 the entire grid cell is truly off fault (outside fault polygons)
+	 * 1 the entire grid cell is subseismogenic (within fault polygons)
+	 * 2 a mix of the two types
+	 * @return
+	 */
+	private int[] getOrigGridSeisTrulyOffVsSubSeisStatus() {
+		GridSourceProvider gridSrcProvider = ((FaultSystemSolutionERF)erf).getSolution().getGridSourceProvider();
+		InversionFaultSystemRupSet rupSet = (InversionFaultSystemRupSet)((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+		FaultPolyMgr faultPolyMgr = rupSet.getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+		int numGridLocs = gridSrcProvider.getGriddedRegion().getNodeCount();
+		int[] gridSeisStatus = new int[numGridLocs];
+		
+		int num0=0,num1=0,num2=0;
+		for(int i=0;i<numGridLocs; i++) {
+			IncrementalMagFreqDist subSeisMFD = gridSrcProvider.getNodeSubSeisMFD(i);
+			IncrementalMagFreqDist trulyOffMFD = gridSrcProvider.getNodeUnassociatedMFD(i);
+			double frac = faultPolyMgr.getNodeFraction(i);
+			if(subSeisMFD == null && trulyOffMFD != null) {
+				gridSeisStatus[i] = 0;	// no cubes are inside; all are truly off
+				num0 += 1;
+				if(frac > 1e-10)	// should be 0.0
+					throw new RuntimeException("Problem: frac > 1e-10");
+			}
+			else if (subSeisMFD != null && trulyOffMFD == null) {
+				gridSeisStatus[i] = 1;	// all cubes are inside; all are subseimo
+				num1 += 1;
+				if(frac < 1.0 -1e-10)	// should be 1.0
+					throw new RuntimeException("Problem: frac < 1.0 -1e-10");
+
+			}
+			else if (subSeisMFD != null && trulyOffMFD != null) {
+				gridSeisStatus[i] = 2;	// some cubes are inside
+				num2 += 1;
+				if(frac ==0 || frac == 1)
+					throw new RuntimeException("Problem: frac ==0 || frac == 1; "+frac);
+			}
+			else {
+				throw new RuntimeException("Problem");
+			}
+			
+		}
+		if(D) {
+			System.out.println(num0+"\t (num0) out of\t"+numGridLocs);
+			System.out.println(num1+"\t (num1) out of\t"+numGridLocs);
+			System.out.println(num2+"\t (num2) out of\t"+numGridLocs);
+		}
+		return gridSeisStatus;
+	}
+	
+
 
 	
 	/**
@@ -662,16 +823,14 @@ public class ETAS_PrimaryEventSampler {
 			}
 		}
 		
-		ProbEqkSource src = erf.getSource(randSrcIndex);
-		int r=0;
-		if(src.getNumRuptures() > 1) {
-			r = src.drawSingleRandomEqkRuptureIndex(etas_utils.getRandomDouble());
-		}
-		int nthRup = erf.getIndexN_ForSrcAndRupIndices(randSrcIndex,r);
-		ProbEqkRupture erf_rup = src.getRupture(r);
-		
-		// set hypocenter location & rupture surface
 		if(randSrcIndex < numFltSystSources) {	// if it's a fault system source
+			ProbEqkSource src = erf.getSource(randSrcIndex);
+			int r=0;
+			if(src.getNumRuptures() > 1) {
+				r = src.drawSingleRandomEqkRuptureIndex(etas_utils.getRandomDouble());
+			}
+			int nthRup = erf.getIndexN_ForSrcAndRupIndices(randSrcIndex,r);
+			ProbEqkRupture erf_rup = src.getRupture(r);
 			// need to choose point on rup surface that is the hypocenter			
 			LocationList locsOnRupSurf = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			LocationList locsToSampleFrom = new LocationList();
@@ -689,14 +848,45 @@ if(locsToSampleFrom.size() == 0) {
 	for(Location loc: locsOnRupSurf) {
 		System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
 	}	
+	throw new RuntimeException("problem");
 }
 			// choose one randomly
 			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
 			rupToFillIn.setFSSIndex(((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup));
+			rupToFillIn.setAveRake(erf_rup.getAveRake());
+			rupToFillIn.setMag(erf_rup.getMag());
+			rupToFillIn.setNthERF_Index(nthRup);
+
 		}
 		else { // it's a gridded seis source
+			
+			int gridRegionIndex = randSrcIndex-numFltSystSources;
+			ProbEqkSource src=null;
+			if(origGridSeisTrulyOffVsSubSeisStatus[gridRegionIndex] == 2) {	// it has both truly off and sub-seismo components
+				// get
+				int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(aftShCubeIndex);
+				int isSubSeismo = isCubeInsideFaultPolygon[regAndDepIndex[0]];
+				if(isSubSeismo == 1) {
+					src = ((FaultSystemSolutionERF)erf).getSourceSubSeisOnly(randSrcIndex);
+				}
+				else {
+					src = ((FaultSystemSolutionERF)erf).getSourceTrulyOffOnly(randSrcIndex);
+				}
+			}
+			else {
+				src = erf.getSource(randSrcIndex);
+			}
+			
+			
+			int r=0;
+			if(src.getNumRuptures() > 1) {
+				r = src.drawSingleRandomEqkRuptureIndex(etas_utils.getRandomDouble());
+			}
+			int nthRup = erf.getIndexN_ForSrcAndRupIndices(randSrcIndex,r);
+			ProbEqkRupture erf_rup = src.getRupture(r);
+
 			double relLat = latForCubeCenter[aftShCubeIndex]-translatedParLoc.getLatitude();
 			double relLon = lonForCubeCenter[aftShCubeIndex]-translatedParLoc.getLongitude();
 			double relDep = depthForCubeCenter[aftShCubeIndex]-translatedParLoc.getDepth();
@@ -761,12 +951,13 @@ if(locsToSampleFrom.size() == 0) {
 			
 			rupToFillIn.setHypocenterLocation(hypLoc);
 			rupToFillIn.setPointSurface(hypLoc);
+			// fill in the rest
+			rupToFillIn.setAveRake(erf_rup.getAveRake());
+			rupToFillIn.setMag(erf_rup.getMag());
+			rupToFillIn.setNthERF_Index(nthRup);
+
 		}
 		
-		// fill in the rest
-		rupToFillIn.setAveRake(erf_rup.getAveRake());
-		rupToFillIn.setMag(erf_rup.getMag());
-		rupToFillIn.setNthERF_Index(nthRup);
 		
 		// distance of triggered event from parent
 		double distToParent = LocationUtils.linearDistanceFast(actualParentLoc, rupToFillIn.getHypocenterLocation());
@@ -795,8 +986,8 @@ if(locsToSampleFrom.size() == 0) {
 			if(cachedSamplers[locIndexForPar] == null) {
 				cacheExisted = false;
 				sampler = getCubeSamplerWithDistDecay(locIndexForPar);			
-//				cachedSamplers[locIndexForPar] = sampler;
-//				numCachedSamplers += 1;
+				cachedSamplers[locIndexForPar] = sampler;
+				numCachedSamplers += 1;
 			}
 			else {
 				sampler = cachedSamplers[locIndexForPar];
@@ -1094,6 +1285,163 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
+	private void computeMFD_ForSrcArrays(double minMag, double maxMag, int numMag) {
+//		long st = System.currentTimeMillis();
+//		ETAS_SimAnalysisTools.writeMemoryUse("Memory before mfdForSrcArray");
+		mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
+		mfdForSrcSubSeisOnlyArray = new SummedMagFreqDist[erf.getNumSources()];
+		mfdForTrulyOffOnlyArray = new SummedMagFreqDist[erf.getNumSources()];
+		double duration = erf.getTimeSpan().getDuration();
+		for(int s=0; s<erf.getNumSources();s++) {
+			mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, minMag, maxMag, numMag, true);
+			if(erf instanceof FaultSystemSolutionERF) {
+				FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
+				if(s >= numFltSystSources) {	// gridded seismicity source
+					int gridRegionIndex = s-numFltSystSources;
+					if(origGridSeisTrulyOffVsSubSeisStatus[gridRegionIndex] == 2) {	// it has both truly off and sub-seismo components
+						mfdForSrcSubSeisOnlyArray[s] = ERF_Calculator.getTotalMFD_ForSource(fssERF.getSourceSubSeisOnly(s), duration, minMag, maxMag, numMag, true);;
+						mfdForTrulyOffOnlyArray[s] = ERF_Calculator.getTotalMFD_ForSource(fssERF.getSourceTrulyOffOnly(s), duration, minMag, maxMag, numMag, true);;					}
+					else {
+						mfdForSrcSubSeisOnlyArray[s] = null;
+						mfdForTrulyOffOnlyArray[s] = null;
+					}
+				}
+			}
+			else {
+				mfdForSrcSubSeisOnlyArray[s] = null;
+				mfdForTrulyOffOnlyArray[s] = null;
+			}
+		}
+//		ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
+	}
+	
+	/**
+	 * This assumes that the computeMFD_ForSrcArrays(*) has already been run (exception is thrown if not)
+	 * @param cubeIndex
+	 * @return
+	 */
+	private SummedMagFreqDist getCubeMFD(int cubeIndex) {
+		if(mfdForSrcArray == null) {
+			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
+		}
+		
+		double maxMagTest=0;
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		int[] sources = srcInCubeList.get(cubeIndex);
+		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+		for(int s=0; s<sources.length;s++) {
+			SummedMagFreqDist mfd=null;
+			int srcIndex = sources[s];
+			int gridIndex = srcIndex-numFltSystSources;
+			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
+			double wt = (double)fracts[s];
+			if(srcIndex >= numFltSystSources && origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
+				double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
+				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
+					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
+					wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					System.out.println("Got inside fault poly "+cubeIndex);
+				}
+				else {
+					mfd = mfdForTrulyOffOnlyArray[srcIndex];
+					wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					System.out.println("Got truly off "+cubeIndex);
+				}
+			}
+			else {
+				mfd = mfdForSrcArray[srcIndex];
+			}
+			for(int m=0;m<mfd.getNum();m++)
+				magDist.add(m, mfd.getY(m)*wt);
+			double maxMag = mfd.getMaxMagWithNonZeroRate();
+			if(maxMagTest < maxMag)
+				maxMagTest = maxMag;
+		}
+		
+		
+		double maxMagTest2 = magDist.getMaxMagWithNonZeroRate();
+		if(Double.isNaN(maxMagTest2))
+			maxMagTest2=0;
+		if(maxMagTest != maxMagTest2) {
+			System.out.println(magDist+"\nmaxMagTest="+maxMagTest+"\nmaxMagTest2="+maxMagTest2);
+			throw new RuntimeException("problem with max mag at cube index "+cubeIndex);
+		}
+		return magDist;
+	}
+	
+	
+	
+	/**
+	 * This assumes that the computeMFD_ForSrcArrays(*) has already been run (exception is thrown if not)
+	 * @param cubeIndex
+	 * @return
+	 */
+	private SummedMagFreqDist getCubeMFD_GriddedSeisOnly(int cubeIndex) {
+		if(mfdForSrcArray == null) {
+			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
+		}
+		
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		int[] sources = srcInCubeList.get(cubeIndex);
+		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+		for(int s=0; s<sources.length;s++) {
+			SummedMagFreqDist mfd=null;
+			int srcIndex = sources[s];
+			if(srcIndex<numFltSystSources)	// skip if it's a fault-based source
+				continue;
+			int gridIndex = srcIndex-numFltSystSources;
+			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
+			double wt = (double)fracts[s];
+			if(origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
+				double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
+				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
+					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
+					wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					System.out.println("Got inside fault poly "+cubeIndex);
+				}
+				else {
+					mfd = mfdForTrulyOffOnlyArray[srcIndex];
+					wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					System.out.println("Got truly off "+cubeIndex);
+				}
+			}
+			else {
+				mfd = mfdForSrcArray[srcIndex];
+			}
+			for(int m=0;m<mfd.getNum();m++)
+				magDist.add(m, mfd.getY(m)*wt);
+		}
+		return magDist;
+	}
+
+	
+	
+	/**
+	 * This assumes that the computeMFD_ForSrcArrays(*) has already been run (exception is thrown if not).
+	 * The MFD has all zeros if there are no fault-based sources in the cube.
+	 * @param cubeIndex
+	 * @return
+	 */
+	private SummedMagFreqDist getCubeMFD_SupraSeisOnly(int cubeIndex) {
+		if(mfdForSrcArray == null) {
+			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
+		}
+		
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		int[] sources = srcInCubeList.get(cubeIndex);
+		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+		for(int s=0; s<sources.length;s++) {
+			int srcIndex = sources[s];
+			if(srcIndex<numFltSystSources) {
+				SummedMagFreqDist mfd = mfdForSrcArray[srcIndex];
+				for(int m=0;m<mfd.getNum();m++)
+					magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+			}
+		}
+		return magDist;
+	}
+
+	
 	/**
 	 * This compares the MFD represented here to that in the ERF.
 	 * What about one including sources outside the region?
@@ -1103,35 +1451,41 @@ if(locsToSampleFrom.size() == 0) {
 		
 		System.out.println("Running testMagFreqDist()");
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
-		double duration = erf.getTimeSpan().getDuration();
 		if(mfdForSrcArray == null) {
-			long st = System.currentTimeMillis();
-			ETAS_SimAnalysisTools.writeMemoryUse("Memory before mfdForSrcArray");
-			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-			for(int s=0; s<erf.getNumSources();s++) {
-				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, 2.05, 8.95, 70, true);
-			}
-			ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
+			computeMFD_ForSrcArrays(2.05, 8.95, 70);
 		}
+
 //		getPointSampler();	// make sure it exisits
 		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
 		progressBar.showProgress(true);
 
 		for(int i=0; i<numCubes;i++) {
 			progressBar.updateProgress(i, numCubes);
-			int[] sources = srcInCubeList.get(i);
-			float[] fracts = fractionSrcInCubeList.get(i);
-			for(int s=0; s<sources.length;s++) {
-				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
-				for(int m=0;m<mfd.getNum();m++)
-					magDist.add(m, mfd.getY(m)*(double)fracts[s]);
-//				mfd.scale((double)fracts[s]);
-//				magDist.addIncrementalMagFreqDist(mfd);
-//				if(s>erf.getNumFaultSystemSources()) {
-//					System.out.println("source "+s+"\n"+mfd);
-//					System.exit(0);
+			magDist.addIncrementalMagFreqDist(getCubeMFD(i));
+
+//			int[] sources = srcInCubeList.get(i);
+//			float[] fracts = fractionSrcInCubeList.get(i);
+//			for(int s=0; s<sources.length;s++) {
+//				SummedMagFreqDist mfd=null;
+//				int gridIndex = s-numFltSystSources;
+//				double wt = (double)fracts[s];
+//				if(s >= numFltSystSources && origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
+//					double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
+//					if(isCubeInsideFaultPolygon[i] == 1) {
+//						mfd = mfdForSrcSubSeisOnlyArray[s];
+//						wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					}
+//					else {
+//						mfd = mfdForTrulyOffOnlyArray[s];
+//						wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+//					}
 //				}
-			}
+//				else {
+//					mfd = mfdForSrcArray[sources[s]];
+//				}
+//				for(int m=0;m<mfd.getNum();m++)
+//					magDist.add(m, mfd.getY(m)*wt);
+//			}
 		}
 		progressBar.showProgress(false);
 
@@ -1157,6 +1511,9 @@ if(locsToSampleFrom.size() == 0) {
 
 	
 	public void temp() {
+		
+		getOrigGridSeisTrulyOffVsSubSeisStatus();
+		System.exit(-1);
 		
 //		int num=0;
 //		int totNum =0;
@@ -1337,19 +1694,22 @@ if(locsToSampleFrom.size() == 0) {
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				true,null,null);
+				true,null,null,null);
 		
-		etas_PrimEventSampler.temp();
+//		etas_PrimEventSampler.testMagFreqDist();
+
+//		etas_PrimEventSampler.temp();
 		
 		
-//		etas_PrimEventSampler.getMaxMagInCubesAtDepth(7d);
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
+//		etas_PrimEventSampler.plotOrigERF_RatesMap("OrigERF_RatesMap");
+		etas_PrimEventSampler.plotRandomSampleRatesMap("RandomSampleRatesMap", 10000000);
+
 		
 		
 		
-//		etas_PrimEventSampler.testMagFreqDist();
 		
 		// OLD STUFF BELOW
 		
@@ -1445,146 +1805,8 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
-	public GriddedGeoDataSet getMaxMagInCubesAtDepth(double depth) {
-		GriddedGeoDataSet maxMagData = new GriddedGeoDataSet(gridRegForCubes, true);
-		int depthIndex = getCubeDepthIndex(depth);
-		int numCubesAtDepth = maxMagData.size();
 		
-		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
-		progressBar.showProgress(true);
-		
-		double duration = erf.getTimeSpan().getDuration();
-		if(mfdForSrcArray == null) {
-			long st = System.currentTimeMillis();
-			ETAS_SimAnalysisTools.writeMemoryUse("Memory before mfdForSrcArray");
-			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-			for(int s=0; s<erf.getNumSources();s++) {
-				progressBar.updateProgress(s, erf.getNumSources());
-				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, 5.05, 8.95, 70, true);
-			}
-			ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
-		}
 
-		for(int i=0; i<numCubesAtDepth;i++) {
-			progressBar.updateProgress(i, numCubesAtDepth);
-			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			int[] sources = srcInCubeList.get(samplerIndex);
-			double mMax = 0;
-			for(int s=0; s<sources.length;s++) {
-				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
-				double tempMmax = mfd.getMaxMagWithNonZeroRate();
-				if(tempMmax>mMax)
-					mMax=tempMmax;
-			}
-			maxMagData.set(i, mMax);
-			Location loc = maxMagData.getLocation(i);
-//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
-		}
-		progressBar.showProgress(false);
-		
-		return maxMagData;
-	}
-	
-	
-	
-	public GriddedGeoDataSet getBulgeInCubesAtDepth(double depth) {
-		double min=5.05;
-		double max = 8.95;
-		int num=70;
-		GriddedGeoDataSet bulgeData = new GriddedGeoDataSet(gridRegForCubes, true);
-		int depthIndex = getCubeDepthIndex(depth);
-		int numCubesAtDepth = bulgeData.size();
-		
-		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
-		progressBar.showProgress(true);
-		
-		double duration = erf.getTimeSpan().getDuration();
-		if(mfdForSrcArray == null) {
-			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-			for(int s=0; s<erf.getNumSources();s++) {
-				progressBar.updateProgress(s, erf.getNumSources());
-				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min,max,num, true);
-			}
-		}
-
-		for(int i=0; i<numCubesAtDepth;i++) {
-			progressBar.updateProgress(i, numCubesAtDepth);
-			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			int[] sources = srcInCubeList.get(samplerIndex);
-			float[] fracts = fractionSrcInCubeList.get(samplerIndex);
-			SummedMagFreqDist supraMFD = new SummedMagFreqDist(min,max,num);
-			SummedMagFreqDist subMFD = new SummedMagFreqDist(min,max,num);
-
-			for(int s=0; s<sources.length;s++) {
-				SummedMagFreqDist mfd = mfdForSrcArray[sources[s]];
-				IncrementalMagFreqDist mfdClone = mfd.deepClone();
-				mfdClone.scale(fracts[s]);
-				if(sources[s]<numFltSystSources)
-					supraMFD.addIncrementalMagFreqDist(mfdClone);
-				else
-					subMFD.addIncrementalMagFreqDist(mfdClone);
-			}
-			double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD, subMFD);
-			if(Double.isInfinite(bulge))
-				bulge = 1e3;
-			bulgeData.set(i, bulge);
-			Location loc = bulgeData.getLocation(i);
-			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+bulgeData.get(i));
-		}
-		progressBar.showProgress(false);
-		
-		return bulgeData;
-	}
-	
-
-	/**
-	 * This computes the rate of events above the given magnitude for all cubes at a given depth
-	 * @param depth
-	 * @return
-	 */
-	public GriddedGeoDataSet getRateInCubesAtDepth(double depth, double mag) {
-		double min=5.05;
-		double max = 8.95;
-		int num=70;
-		GriddedGeoDataSet rateData = new GriddedGeoDataSet(gridRegForCubes, true);
-		int depthIndex = getCubeDepthIndex(depth);
-		int numCubesAtDepth = rateData.size();
-		
-		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
-		progressBar.showProgress(true);
-		
-		double duration = erf.getTimeSpan().getDuration();
-		if(mfdForSrcArray == null) {
-			mfdForSrcArray = new SummedMagFreqDist[erf.getNumSources()];
-			for(int s=0; s<erf.getNumSources();s++) {
-				progressBar.updateProgress(s, erf.getNumSources());
-				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min,max,num, true);
-			}
-		}
-
-		for(int i=0; i<numCubesAtDepth;i++) {
-			progressBar.updateProgress(i, numCubesAtDepth);
-			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			int[] sources = srcInCubeList.get(samplerIndex);
-			float[] fracts = fractionSrcInCubeList.get(samplerIndex);
-			double summedRate=0;
-			for(int s=0; s<sources.length;s++) {
-				SummedMagFreqDist srcMFD = mfdForSrcArray[sources[s]];
-				int xIndex = srcMFD.getClosestXIndex(mag);
-//				int xIndex = srcMFD.getXIndex(mag);
-				if(xIndex >= 0 && mag<srcMFD.getMaxX()+srcMFD.getDelta()/2.0)
-					summedRate += srcMFD.getCumRate(xIndex)*fracts[s];
-			}
-			if(summedRate == 0) 
-				summedRate = 1e-16;
-			rateData.set(i, summedRate);
-			Location loc = rateData.getLocation(i);
-//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+rateData.get(i));
-		}
-		progressBar.showProgress(false);
-		
-		return rateData;
-	}
 
 	
 	/**
@@ -1706,11 +1928,30 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,5.5);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,8.5);
 
-		GriddedGeoDataSet xyzDataSet = this.getMaxMagInCubesAtDepth(depth);
+		GriddedGeoDataSet maxMagData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getCubeDepthIndex(depth);
+		int numCubesAtDepth = maxMagData.size();
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(5.05, 8.95, 70);
+		}
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
+			maxMagData.set(i, getCubeMFD(samplerIndex).getMaxMagWithNonZeroRate());
+//			Location loc = maxMagData.getLocation(i);
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
+		}
+		progressBar.showProgress(false);
+
+		
 		String metadata = "Map from calling plotMaxMagAtDepthMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Max Mag at depth="+depth, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(maxMagData, "Max Mag at depth="+depth, metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
@@ -1749,12 +1990,35 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,0d);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,10d);
+		
+		
+		GriddedGeoDataSet bulgeData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getCubeDepthIndex(depth);
+		int numCubesAtDepth = bulgeData.size();
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(5.05, 8.95, 70);
+		}
 
-		GriddedGeoDataSet xyzDataSet = this.getBulgeInCubesAtDepth(depth);
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int cubeIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
+			double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(getCubeMFD_SupraSeisOnly(cubeIndex), getCubeMFD_GriddedSeisOnly(cubeIndex));
+			if(Double.isInfinite(bulge))
+				bulge = 1e3;
+
+			bulgeData.set(i, bulge);
+//			Location loc = maxMagData.getLocation(i);
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
+		}
+		progressBar.showProgress(false);
+
 		String metadata = "Map from calling plotBulgeDepthMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Bulge at depth="+depth, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(bulgeData, "Bulge at depth="+depth, metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
@@ -1800,7 +2064,31 @@ if(locsToSampleFrom.size() == 0) {
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,0d);
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,10d);
 
-		GriddedGeoDataSet xyzDataSet = this.getRateInCubesAtDepth(depth, mag);
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getCubeDepthIndex(depth);
+		int numCubesAtDepth = xyzDataSet.size();
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(5.05, 8.95, 70);
+		}
+		
+		int magIndex = mfdForSrcArray[0].getClosestXIndex(mag);
+
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
+			double rate = getCubeMFD(samplerIndex).getCumRate(magIndex);
+			if(rate == 0.0)
+				rate = 1e-16;
+			xyzDataSet.set(i, rate);
+//			Location loc = xyzDataSet.getLocation(i);
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+xyzDataSet.get(i));
+		}
+		progressBar.showProgress(false);
+
 		String metadata = "Map from calling plotRateAtDepthMap(*) method";
 		
 		try {
@@ -1831,7 +2119,7 @@ if(locsToSampleFrom.size() == 0) {
 	 * @param dirName
 	 * @return
 	 */
-	public String old_plotOrigERF_RatesMap(String label, boolean local, String dirName, FaultSystemSolutionERF erf) {
+	public String plotOrigERF_RatesMap(String dirName) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -1842,8 +2130,8 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-6.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,-1.5);
 
 
 		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
@@ -1853,7 +2141,13 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
 		double duration = erf.getTimeSpan().getDuration();
+		CalcProgressBar progressBar = new CalcProgressBar("Looping random samples", "junk");
+		progressBar.showProgress(true);
+		int iSrc=0;
+		int numSrc = erf.getNumSources();
 		for(ProbEqkSource src : erf) {
+			iSrc += 1;
+			progressBar.updateProgress(iSrc, numSrc);
 			for(ProbEqkRupture rup : src) {
 				LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 				double ptRate = rup.getMeanAnnualRate(duration)/locList.size();
@@ -1866,30 +2160,32 @@ if(locsToSampleFrom.size() == 0) {
 				}
 			}
 		}
+		progressBar.showProgress(false);
 		
-//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
-		String metadata = "no metadata";
+		if(D) 
+			System.out.println("OrigERF_RatesMap: min="+xyzDataSet.getMinZ()+"; max="+xyzDataSet.getMaxZ());
+		
+		String metadata = "Map from calling plotOrigERF_RatesMap() method";
 		
 		try {
-			String name;
-			if(local)
-				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
-			else {
-				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "OrigERF_RatesMap", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
-				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
-			}
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
 
 //			System.out.println("GMT Plot Filename: "+name);
-		} catch (GMT_MapException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RuntimeException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+		return "For OrigERF_RatesMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
 
 	/**
@@ -1899,7 +2195,7 @@ if(locsToSampleFrom.size() == 0) {
 	 * @param dirName
 	 * @return
 	 */
-	public String old_plotRandomSampleRatesMap(String label, boolean local, String dirName, FaultSystemSolutionERF erf, int numYrs) {
+	public String plotRandomSampleRatesMap(String dirName, int numYrs) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
@@ -1910,8 +2206,8 @@ if(locsToSampleFrom.size() == 0) {
 		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3.5);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-6.5);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,-1.5);
 
 
 		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
@@ -1920,13 +2216,19 @@ if(locsToSampleFrom.size() == 0) {
 		// initialize values to zero
 		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
 		
+		getCubeSamplerWithERF_RatesOnly();
+		
 		// get numYrs yrs worth of samples
+		totRate=cubeSamplerRatesOnly.calcSumOfY_Vals()+rateUnassigned;
 		int numSamples = numYrs*(int)totRate;
 		System.out.println("num random samples for map test = "+numSamples);
 		// do this to make sure it exists
 		getCubeSamplerWithERF_RatesOnly();
 		
+		CalcProgressBar progressBar = new CalcProgressBar("Looping random samples", "junk");
+		progressBar.showProgress(true);
 		for(int i=0;i<numSamples;i++) {
+			progressBar.updateProgress(i, numSamples);
 			int indexFromSampler = cubeSamplerRatesOnly.getRandomInt();
 			int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(indexFromSampler);
 			int indexForMap = mapGriddedRegion.indexForLocation(gridRegForCubes.locationForIndex(regAndDepIndex[0]));	// ignoring depth
@@ -1934,32 +2236,32 @@ if(locsToSampleFrom.size() == 0) {
 			xyzDataSet.set(indexForMap, (1.0+oldNum)/(double)numYrs);
 			
 		}
+		progressBar.showProgress(false);
 		
-		
-//		System.out.println("Min & Max Z: "+xyzDataSet.getMinZ()+"\t"+xyzDataSet.getMaxZ());
-		String metadata = "no metadata";
+		if(D) 
+			System.out.println("RandomSampleRatesMap: min="+xyzDataSet.getMinZ()+"; max="+xyzDataSet.getMaxZ());
+
+		String metadata = "Map from calling RandomSampleRatesMap() method";
 		
 		try {
-			String name;
-			if(local)
-				name = mapGen.makeMapLocally(xyzDataSet, "Prob from "+label, metadata, dirName);
-			else {
-				name = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "RandomSampleRatesMap", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
-				ImageViewerWindow imgView = new ImageViewerWindow(name,metadata, true);				
-			}
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
 
 //			System.out.println("GMT Plot Filename: "+name);
-		} catch (GMT_MapException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RuntimeException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		return "For Block Prob Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+		return "For RandomSampleRatesMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
-
 
 }

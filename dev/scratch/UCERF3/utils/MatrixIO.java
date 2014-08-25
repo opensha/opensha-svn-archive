@@ -233,6 +233,72 @@ public class MatrixIO {
 
 		return array;
 	}
+	
+	
+	
+	/**
+	 * Writes the given int array to a file. Output file simply contains a series of big endian int values.
+	 * @param array
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void intArrayToFile(int[] array, File file) throws IOException {
+		Preconditions.checkNotNull(array, "array cannot be null!");
+		Preconditions.checkArgument(array.length > 0, "array cannot be empty!");
+
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+
+		for (int val : array) {
+			out.writeInt(val);
+		}
+
+		out.close();
+	}
+
+	/**
+	 * Reads a file created by {@link MatrixIO.intArrayToFile} into an int array.
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static int[] intArrayFromFile(File file) throws IOException {
+		Preconditions.checkNotNull(file, "File cannot be null!");
+		Preconditions.checkArgument(file.exists(), "File doesn't exist!");
+
+		long len = file.length();
+
+		return intArrayFromInputStream(new FileInputStream(file), len);
+	}
+
+	/**
+	 * Reads an imput stream created by {@link MatrixIO.doubleArrayToFile} into a double array.
+	 * @param file
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 */
+	public static int[] intArrayFromInputStream(InputStream is, long length) throws IOException {
+		Preconditions.checkState(length > 0, "file is empty!");
+		Preconditions.checkState(length % 4 == 0, "file size isn't evenly divisible by 4, " +
+		"thus not a sequence of int values.");
+
+		Preconditions.checkNotNull(is, "InputStream cannot be null!");
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
+		DataInputStream in = new DataInputStream(is);
+
+		int size = (int)(length / 4);
+
+		int[] array = new int[size];
+
+		for (int i=0; i<size; i++)
+			array[i] = in.readInt();
+
+		in.close();
+
+		return array;
+	}
+
 
 	/**
 	 * Writes the given list of double arrays to a file. All values are stored big endian. Output format contains

@@ -74,6 +74,80 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		
 	}
 	
+	
+	
+	
+	public ProbEqkSource getSourceSubseismoOnly(int idx, double duration,
+			boolean filterAftershocks, BackgroundRupType bgRupType) {
+		Location loc = getGriddedRegion().locationForIndex(idx);
+		IncrementalMagFreqDist origMFD = getNodeSubSeisMFD(idx);
+		if(origMFD == null)
+			return null;
+		IncrementalMagFreqDist mfd = trimMFD(origMFD, SOURCE_MIN_MAG_CUTOFF);
+		if (filterAftershocks) scaleMFD(mfd);
+		
+		double fracStrikeSlip = getFracStrikeSlip(idx);
+		double fracNormal = getFracNormal(idx);
+		double fracReverse = getFracReverse(idx);
+
+		switch (bgRupType) {
+		case CROSSHAIR:
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, true);
+		case FINITE:
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, false);
+		case POINT:
+			Map<FocalMech, Double> mechMap = Maps.newHashMap();
+			mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip);
+			mechMap.put(FocalMech.REVERSE, fracReverse);
+			mechMap.put(FocalMech.NORMAL, fracNormal);
+			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
+
+		default:
+			throw new IllegalStateException("Unknown Background Rup Type: "+bgRupType);
+		}
+		
+	}
+
+	public ProbEqkSource getSourceTrulyOffOnly(int idx, double duration,
+			boolean filterAftershocks, BackgroundRupType bgRupType) {
+		Location loc = getGriddedRegion().locationForIndex(idx);
+		IncrementalMagFreqDist origMFD = getNodeUnassociatedMFD(idx);
+		if(origMFD == null)
+			return null;
+		IncrementalMagFreqDist mfd = trimMFD(origMFD, SOURCE_MIN_MAG_CUTOFF);
+		if (filterAftershocks) scaleMFD(mfd);
+		
+		double fracStrikeSlip = getFracStrikeSlip(idx);
+		double fracNormal = getFracNormal(idx);
+		double fracReverse = getFracReverse(idx);
+
+		switch (bgRupType) {
+		case CROSSHAIR:
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, true);
+		case FINITE:
+			return new Point2Vert_FaultPoisSource(loc, mfd, magLenRel, duration,
+					ptSrcCutoff, fracStrikeSlip, fracNormal,
+					fracReverse, false);
+		case POINT:
+			Map<FocalMech, Double> mechMap = Maps.newHashMap();
+			mechMap.put(FocalMech.STRIKE_SLIP, fracStrikeSlip);
+			mechMap.put(FocalMech.REVERSE, fracReverse);
+			mechMap.put(FocalMech.NORMAL, fracNormal);
+			return new PointSource13b(loc, mfd, duration, DEPTHS, mechMap);
+
+		default:
+			throw new IllegalStateException("Unknown Background Rup Type: "+bgRupType);
+		}
+		
+	}
+
+	
 //	@Override
 //	public void setAsPointSources(boolean usePoints) {
 //		ptSrcCutoff = (usePoints) ? 10.0 : 6.0;

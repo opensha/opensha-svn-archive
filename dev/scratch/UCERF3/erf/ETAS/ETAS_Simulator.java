@@ -127,7 +127,7 @@ public class ETAS_Simulator {
 					throws IOException {
 		testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup,  histQkList, includeSpontEvents,
 				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName,
-				randomSeed, null, null, etasParams);
+				randomSeed, null, null, null, etasParams);
 	}
 	
 	/**
@@ -157,7 +157,8 @@ public class ETAS_Simulator {
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
-			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, ETAS_ParameterList etasParams)
+			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, int[] inputIsCubeInsideFaultPolygon, 
+			ETAS_ParameterList etasParams)
 					throws IOException {
 		
 		int numFaultSysSources = 0;
@@ -297,7 +298,7 @@ public class ETAS_Simulator {
 		st = System.currentTimeMillis();
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList);
+				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 
@@ -543,7 +544,7 @@ public class ETAS_Simulator {
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
-					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), Double.NaN);
+//					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), Double.NaN);
 				}
 			}
 		}
@@ -908,7 +909,7 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "MojaveTest_noCache2", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_fullCache3", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
