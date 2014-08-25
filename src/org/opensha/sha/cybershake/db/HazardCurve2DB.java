@@ -786,7 +786,7 @@ public class HazardCurve2DB {
 //		HazardCurve2DB curve2db;
 //		try {
 //			curve2db = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true));
-//			curve2db.deleteCurvesForDatasetID(48);
+//			curve2db.deleteCurvesForDatasetID(51);
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();

@@ -11,6 +11,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -27,6 +28,7 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -58,6 +60,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.Weigher;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -83,7 +89,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSampler {
+public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_FunctionSampler> {
 	
 	final static boolean D=ETAS_Simulator.D;
 	
@@ -130,12 +136,14 @@ public class ETAS_PrimaryEventSampler {
 	
 	IntegerPDF_FunctionSampler cubeSamplerRatesOnly; 
 	
-	IntegerPDF_FunctionSampler[] cachedSamplers;
+//	IntegerPDF_FunctionSampler[] cachedSamplers;
+	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
+	private static final long max_cache_size_gb = 2; // max cache size in gigabytes (approximate)
 	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process
 //	int[] numForthcomingEventsAtParentLoc;
-	int numCachedSamplers=0;
-	int incrForReportingNumCachedSamplers=100;
-	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
+//	int numCachedSamplers=0;
+//	int incrForReportingNumCachedSamplers=100;
+//	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
 	
 	double[] grCorrFactorForCellArray;
 
@@ -280,7 +288,21 @@ public class ETAS_PrimaryEventSampler {
 
 		
 		// this is for caching samplers (one for each possible parent location)
-		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
+//		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
+		final long maxWeight = max_cache_size_gb*1024l*1024l*1024; // now in bytes
+		// this will weigh cache elements by their size
+		Weigher<Integer, IntegerPDF_FunctionSampler> weigher = new Weigher<Integer, IntegerPDF_FunctionSampler>(){
+
+			@Override
+			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
+				int numInts = value.getNum();
+				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
+				// each double value is one byte
+				return 2*numInts+10; // pad for object overhead and other primitives
+			}
+			
+		};
+		samplerCache = CacheBuilder.newBuilder().maximumWeight(maxWeight).weigher(weigher).build(this);
 		
 		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
 		
@@ -969,8 +991,6 @@ if(locsToSampleFrom.size() == 0) {
 	
 	
 	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar) {
-		IntegerPDF_FunctionSampler sampler=null;
-		
 		int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
 		if(numLeft == 0) {
 			numForthcomingEventsForParLocIndex.remove(locIndexForPar);
@@ -978,53 +998,14 @@ if(locsToSampleFrom.size() == 0) {
 		else {
 			numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
 		}
+		
 //		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
-
-		boolean cacheExisted=true;
-		if(includeERF_Rates && includeSpatialDecay) {
-			
-			if(cachedSamplers[locIndexForPar] == null) {
-				cacheExisted = false;
-				sampler = getCubeSamplerWithDistDecay(locIndexForPar);			
-				cachedSamplers[locIndexForPar] = sampler;
-				numCachedSamplers += 1;
-			}
-			else {
-				sampler = cachedSamplers[locIndexForPar];
-			}
-				
+		try {
+			// get it from the cache, loading the value via load(key) below if necessary
+			return samplerCache.get(locIndexForPar);
+		} catch (ExecutionException e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}
-		else if(includeERF_Rates && !includeSpatialDecay) {
-			sampler = getCubeSamplerWithERF_RatesOnly();
-		}
-		else if(!includeERF_Rates && includeSpatialDecay) {
-			if(cachedSamplers[locIndexForPar] == null) {
-				sampler = getCubeSamplerWithOnlyDistDecay(locIndexForPar);
-//				cachedSamplers[locIndexForPar] = sampler;
-//				numCachedSamplers += 1;
-//System.out.println("Used this one: getPointSamplerWithOnlyDistDecay(parentLoc)");
-			}
-			else {
-				sampler = cachedSamplers[locIndexForPar];
-			}
-
-		}
-		
-//		if(cacheExisted && numLeft==0) 
-//			numCachedSamplers -= 1;
-//		if(numLeft==0) {
-//			cachedSamplers[locIndexForPar] = null;
-//			// TODO System.gc() ?
-//		}
-		
-		
-		if(D) {
-			if(numCachedSamplers==nextNumCachedSamplers) {
-				System.out.println("numCachedSamplers="+numCachedSamplers);
-				nextNumCachedSamplers += incrForReportingNumCachedSamplers;
-			}
-		}
-		return sampler;
 	}
 	
 	
@@ -1036,9 +1017,8 @@ if(locsToSampleFrom.size() == 0) {
 	public void declareRateChange() {
 		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory before discarding chached Samplers");
 		cubeSamplerRatesOnly = null;
-		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
-		numCachedSamplers=0;
-		nextNumCachedSamplers=incrForReportingNumCachedSamplers;
+		// clear the cache
+		samplerCache.invalidateAll();
 		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
 			for(int s=0; s<numFltSystSources;s++) {
 				mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), erf.getTimeSpan().getDuration(), 5.05, 8.95, 40, true);
@@ -1053,7 +1033,7 @@ if(locsToSampleFrom.size() == 0) {
 	/**
 	 * This method
 	 */
-	private IntegerPDF_FunctionSampler getCubeSamplerWithERF_RatesOnly() {
+	private synchronized IntegerPDF_FunctionSampler getCubeSamplerWithERF_RatesOnly() {
 		if(cubeSamplerRatesOnly == null) {
 			cubeSamplerRatesOnly = new IntegerPDF_FunctionSampler(numCubes);
 			for(int i=0;i<numCubes;i++) {
@@ -2263,5 +2243,20 @@ if(locsToSampleFrom.size() == 0) {
 		}
 		return "For RandomSampleRatesMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
+
+	@Override
+	public IntegerPDF_FunctionSampler load(Integer locIndexForPar) throws Exception {
+		if(includeERF_Rates && includeSpatialDecay) {
+			return getCubeSamplerWithDistDecay(locIndexForPar);
+		}
+		else if(includeERF_Rates && !includeSpatialDecay) {
+			return getCubeSamplerWithERF_RatesOnly();
+		}
+		else if(!includeERF_Rates && includeSpatialDecay) {
+			return getCubeSamplerWithOnlyDistDecay(locIndexForPar);
+		}
+		throw new IllegalStateException("include ERF rates and include spatial decay both false?");
+	}
+
 
 }

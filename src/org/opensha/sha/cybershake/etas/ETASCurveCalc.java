@@ -65,6 +65,8 @@ public class ETASCurveCalc {
 	
 	private static boolean publish_curves = true;
 	
+	private static final double log_plot_min = 1e-8;
+	
 	/**
 	 * 
 	 * @param conf
@@ -200,9 +202,9 @@ public class ETASCurveCalc {
 			
 			double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
 			Preconditions.checkState(Doubles.isFinite(zVal), "Z not finite: "+zVal);
-			if (logPlot && zVal < 1e-16)
-				zVal = 1e-16;
-			Preconditions.checkState(!logPlot || zVal >= 1e-16);
+			if (logPlot && zVal < log_plot_min)
+				zVal = log_plot_min;
+			Preconditions.checkState(!logPlot || zVal >= log_plot_min);
 			xyz.set(new Location(site.lat, site.lon), zVal);
 		}
 		
@@ -320,42 +322,52 @@ public class ETASCurveCalc {
 			ETASModProbConfig conf;
 			ETASCurveCalc calc;
 			
+			File gainFile;
+			String gainName;
+			
 			FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
 			
-//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
-//			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "parkfield_hazard.png"));
+			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
+					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
+					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-parkfield-nospont/results.zip")},
+					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "parkfield_hazard.png"));
+			gainFile = new File(outputDir, "parkfield_gain.png");
+			gainName = "Parkfield Prob Gain";
+			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
+//					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
+//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-bombay_beach_m6-nospont/results.zip")},
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "bombay_hazard.png"));
+			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_NEGLIGABLE, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 //			publish_curves = false;
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "test_negligable_hazard.png"));
-			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
-					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
-					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-			publish_curves = false;
-			calc = new ETASCurveCalc(conf, 21, refDatasetID);
-			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "test_bombay_subset_hazard.png"));
+			
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
+//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
+//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//			publish_curves = false;
+//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(outputDir, "test_bombay_subset_hazard.png"));
 			
 			
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, ETAS_Cybershake_TimeSpans.ONE_WEEK, sol,
-					null,
+					new File[0],
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			ArbDiscrGeoDataSet baseMap = calc.calcMap(new File(outputDir, "ref_hazard.png"));
 			
 //			createRatioMap(modMap, baseMap, "Bombay Beach Prob Gain", new File(outputDir, "bombay_gain.png"));
-//			createRatioMap(modMap, baseMap, "Parkfield Prob Gain", new File(outputDir, "parkfield_gain.png"));
+			createRatioMap(modMap, baseMap, gainName, gainFile);
 //			createRatioMap(modMap, baseMap, "Test Negligable Prob Gain", new File(outputDir, "test_negligable_gain.png"));
-			createRatioMap(modMap, baseMap, "Test Bombay 50% Subset Prob Gain", new File(outputDir, "test_bombay_subset_gain.png"));
+//			createRatioMap(modMap, baseMap, "Test Bombay 50% Subset Prob Gain", new File(outputDir, "test_bombay_subset_gain.png"));
 			
 			System.exit(0);
 		} catch (Exception e) {

@@ -60,6 +60,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private static final String fract_src_file_name = "fractionSrcAtPointList.bin";
 	private static final String src_file_name = "srcAtPointList.bin";
+	private static final String inside_poly_file_name = "isCubeInsideFaultPolygon.bin";
 	private static final String cache_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/etas_cache/fm3_1_mean_fss/";
 	private static final String fss_file_name =
 			"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip";
@@ -76,6 +77,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	private FaultSystemSolution sol;
 	private List<float[]> fractionSrcAtPointList;
 	private List<int[]> srcAtPointList;
+	private int[] isCubeInsideFaultPolygon;
 	private Map<Integer, List<LastEventData>> lastEventData;
 	
 	private ParameterListEditor editor;
@@ -224,6 +226,16 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 				srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
 				System.out.println("Done loading source cache file");
 			}
+			if (isCubeInsideFaultPolygon == null) {
+				File srcAtPointListFile = new File(cacheDir, inside_poly_file_name);
+				if (!srcAtPointListFile.exists()) {
+					System.out.println("Fraction source cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+inside_poly_file_name, srcAtPointListFile);
+				}
+				System.out.println("Loading inside polygon cache file");
+				isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(srcAtPointListFile);
+				System.out.println("Done loading inside polygon cache file");
+			}
 		} catch (IllegalStateException e) {
 			JOptionPane.showMessageDialog(null,
 					"Try deleting the contents of "+cacheDir.getAbsolutePath()+" and run again. "
@@ -270,7 +282,8 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenarioRup, histQkList,
 				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(), includeEqkRatesParam.getValue(),
-				griddedRegion.getLatSpacing(), null, randomSeed, fractionSrcAtPointList, srcAtPointList, etasParams);
+				griddedRegion.getLatSpacing(), null, randomSeed, fractionSrcAtPointList, srcAtPointList,
+				isCubeInsideFaultPolygon, etasParams);
 		
 		System.out.println("Done calculating");
 	}

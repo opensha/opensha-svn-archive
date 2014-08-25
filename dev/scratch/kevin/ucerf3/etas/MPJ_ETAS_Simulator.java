@@ -67,6 +67,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private List<float[]> fractionSrcAtPointList;
 	private List<int[]> srcAtPointList;
+	private int[] isCubeInsideFaultPolygon;
 	
 	private String simulationName;
 	
@@ -209,14 +210,19 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		if (fractionSrcAtPointList == null) {
 			File fractionSrcAtPointListFile = new File(inputDir, "fractionSrcAtPointList.bin");
 			File srcAtPointListFile = new File(inputDir, "srcAtPointList.bin");
+			File isCubeInsideFaultPolygonFile = new File(inputDir, "isCubeInsideFaultPolygon.bin");
 			Preconditions.checkState(fractionSrcAtPointListFile.exists(),
 					"cache file not found: "+fractionSrcAtPointListFile.getAbsolutePath());
 			Preconditions.checkState(srcAtPointListFile.exists(),
 					"cache file not found: "+srcAtPointListFile.getAbsolutePath());
+			Preconditions.checkState(isCubeInsideFaultPolygonFile.exists(),
+					"cache file not found: "+isCubeInsideFaultPolygonFile.getAbsolutePath());
 			debug("loading cache from "+fractionSrcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
 			fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
 			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
 			srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
+			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
+			isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
 			debug("done loading caches ("+getMemoryDebug()+")");
 		}
 		
@@ -264,13 +270,20 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			erf.updateForecast();
 			debug("Done instantiating ERF");
 			
-			long randSeed = System.currentTimeMillis();
+			// redo with the previous random seed to avoid bias towards shorter running jobs in cases
+			// with many restarts (as shorter jobs more likely to finish before wall time is up).
+			long randSeed = getPrevRandSeed(resultsDir);
+			if (randSeed > 0 && restartsMap.get(index) == null)
+				debug("Resuming old rand seed of "+randSeed+" for "+runName);
+			else
+				randSeed = System.currentTimeMillis();
+			
 			
 //			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 			try {
 				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
 						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
-						fractionSrcAtPointList, srcAtPointList, new ETAS_ParameterList());
+						fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
 			} catch (Throwable t) {
 				debug("Calc failed with seed "+randSeed+". Exception: "+t);
 				t.printStackTrace();
@@ -322,6 +335,20 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				return true;
 		}
 		return false;
+	}
+	
+	private static long getPrevRandSeed(File resultsDir) throws IOException {
+		File infoFile = new File(resultsDir, "infoString.txt");
+		if (!infoFile.exists())
+			return -1;
+		for (String line : Files.readLines(infoFile, Charset.defaultCharset())) {
+			if (line.contains("randomSeed=")) {
+				line = line.trim();
+				line = line.substring(line.indexOf("=")+1);
+				return Long.parseLong(line);
+			}
+		}
+		return -1;
 	}
 
 	@Override

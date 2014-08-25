@@ -214,7 +214,7 @@ public class ETAS_Simulator {
 			if(D) System.out.println("\t"+param.getName()+" = "+param.getValue());
 		}
 		
-		
+		info_fr.flush();
 		
 		// Make the list of observed ruptures, plus scenario if that was included
 		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();

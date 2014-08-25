@@ -124,7 +124,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private ETAS_CyberShake_Scenarios scenario;
 	private ETAS_Cybershake_TimeSpans timeSpan;
 	
-	private File catalogsDir;
+	private File[] catalogsDirs;
 	
 	private long ot;
 	private long endTime;
@@ -155,9 +155,15 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
 			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile)
 			throws IOException {
+		this(scenario, timeSpan, sol, new File[] {catalogsDir}, mappingsCSVFile);
+	}
+
+	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
+			FaultSystemSolution sol, File[] catalogsDirs, File mappingsCSVFile)
+			throws IOException {
 		super(scenario+" ("+timeSpan+")", scenario.probModelID, timeSpan.timeSpanID);
 		
-		this.catalogsDir = catalogsDir;
+		this.catalogsDirs = catalogsDirs;
 		
 		this.sol = sol;
 		ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -187,38 +193,41 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //		timeDepNoETAS_ERF.getTimeSpan().setDuration(duration);
 	}
 	
-	private void loadCatalogs(File catalogsDir) throws IOException {
-		if (!catalogsDir.isDirectory()) {
-			Preconditions.checkState(catalogsDir.getName().toLowerCase().endsWith(".zip"), "Must be directory or zip file!");
-			loadCatalogsZip(catalogsDir);
-			return;
-		}
+	private void loadCatalogs(File[] catalogsDirs) throws IOException {
 		catalogs = Lists.newArrayList();
 		
-		int fssCount = 0;
-		
-		// load in the catalogs
-		System.out.println("Loading catalogs from: "+catalogsDir.getAbsolutePath());
-		for (File subDir : catalogsDir.listFiles()) {
-			if (!subDir.isDirectory() || !MPJ_ETAS_Simulator.isAlreadyDone(subDir))
+		for (File catalogsDir : catalogsDirs) {
+			if (!catalogsDir.isDirectory()) {
+				Preconditions.checkState(catalogsDir.getName().toLowerCase().endsWith(".zip"), "Must be directory or zip file!");
+				loadCatalogsZip(catalogsDir);
 				continue;
-			if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET && Math.random() < 0.5)
-				continue;
-			File catalogFile = new File(subDir, "simulatedEvents.txt");
-			Preconditions.checkState(catalogFile.exists());
+			}
+			catalogs = Lists.newArrayList();
 			
-			List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, 5d);
-			catalog = filterCatalog(catalog);
+			int fssCount = 0;
 			
-			catalogs.add(catalog);
-			fssCount += catalog.size();
+			// load in the catalogs
+			System.out.println("Loading catalogs from: "+catalogsDir.getAbsolutePath());
+			for (File subDir : catalogsDir.listFiles()) {
+				if (!subDir.isDirectory() || !MPJ_ETAS_Simulator.isAlreadyDone(subDir))
+					continue;
+				if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET && Math.random() < 0.5)
+					continue;
+				File catalogFile = new File(subDir, "simulatedEvents.txt");
+				Preconditions.checkState(catalogFile.exists());
+				
+				List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, 5d);
+				catalog = filterCatalog(catalog);
+				
+				catalogs.add(catalog);
+				fssCount += catalog.size();
+			}
+			System.out.println("Loaded "+catalogs.size()+" catalogs ("+fssCount+" fault rups)");
+			Preconditions.checkState(!catalogs.isEmpty(), "Must load at least one catalog!");
 		}
-		System.out.println("Loaded "+catalogs.size()+" catalogs ("+fssCount+" fault rups)");
-		Preconditions.checkState(!catalogs.isEmpty(), "Must load at least one catalog!");
 	}
 	
 	private void loadCatalogsZip(File zipFile) throws ZipException, IOException {
-		catalogs = Lists.newArrayList();
 		int fssCount = 0;
 		
 		ZipFile zip = new ZipFile(zipFile);
@@ -258,7 +267,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			fssCount += catalog.size();
 		}
 		
-		System.out.println("Loaded "+catalogs.size()+" catalogs ("+fssCount+" fault rups)");
+		System.out.println("Loaded "+catalogs.size()+" catalogs ("+fssCount+" fault rups) from "+zipFile.getAbsolutePath());
 		Preconditions.checkState(!catalogs.isEmpty(), "Must load at least one catalog!");
 	}
 	
@@ -647,7 +656,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			return null;
 		if (catalogs == null) {
 			try {
-				loadCatalogs(catalogsDir);
+				loadCatalogs(catalogsDirs);
 				
 				loadHyposForETASRups();
 				
@@ -693,7 +702,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-				null,
+				new File[0],
 				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 		
 		System.exit(0);
