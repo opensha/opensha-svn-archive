@@ -82,7 +82,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private ParameterListEditor editor;
 	
-	private CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();;
+	private CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 	
 	
 	public ETAS_SimulationGUI() {

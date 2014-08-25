@@ -11,7 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dom4j.DocumentException;
-import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
@@ -44,6 +44,7 @@ import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -78,7 +79,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private boolean timeIndep = false;
 	
-	private CaliforniaRegions.RELM_GRIDDED griddedRegion = new CaliforniaRegions.RELM_GRIDDED();
+	private GriddedRegion griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 	
 	private List<ETAS_EqkRupture> histQkList;
 	private ETAS_EqkRupture triggerRup;
