@@ -27,6 +27,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -48,6 +49,7 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapBasedPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.MapPlotData;
@@ -994,6 +996,37 @@ public class TablesAndPlotsGen {
 
 	}
 	
+	public static void writeSubSectRITable(FaultSystemSolution sol, File csvFile) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		csv.addLine("Subsection Index", "Subsection Name", "Supra-Seis Annual Participation Rate", "Supra-Seis Partitipation RI",
+				"Subsection Min Mag", "Subsection Area (sq m)", "Start Lat", "Start Lon", "End Lat", "End Lon");
+		
+		double[] particRates = sol.calcParticRateForAllSects(0d, 10d);
+		
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		for (int i=0; i<particRates.length; i++) {
+			FaultSectionPrefData subsect = rupSet.getFaultSectionData(i);
+			
+			double minMag = Double.POSITIVE_INFINITY;
+			for (int r : rupSet.getRupturesForSection(i)) {
+				double mag = rupSet.getMagForRup(r);
+				if (sol.getRateForRup(r) > 0 && mag < minMag)
+					minMag = mag;
+			}
+			
+			Location startLoc = subsect.getFaultTrace().first();
+			Location endLoc = subsect.getFaultTrace().last();
+			
+			csv.addLine(i+"", subsect.getName(), particRates[i]+"", (1d/particRates[i])+"", minMag+"",
+					rupSet.getAreaForSection(i)+"", startLoc.getLatitude()+"", startLoc.getLongitude()+"",
+					endLoc.getLatitude()+"", endLoc.getLongitude()+"");
+		}
+		
+		csv.writeToFile(csvFile);
+	}
+	
 
 	/**
 	 * @param args
@@ -1007,7 +1040,11 @@ public class TablesAndPlotsGen {
 //		makeRenewalModelNoDateOfLastPlots();
 		
 		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-//		
+		
+		File baSolFile = new File(invDir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+		writeSubSectRITable(FaultSystemIO.loadSol(baSolFile), new File("/tmp/sub_sect_ri.csv"));
+		System.exit(0);
+		
 		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
 				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
 		System.exit(0);
