@@ -1000,7 +1000,7 @@ public class TablesAndPlotsGen {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		csv.addLine("Subsection Index", "Subsection Name", "Supra-Seis Annual Participation Rate", "Supra-Seis Partitipation RI",
-				"Subsection Min Mag", "Subsection Area (sq m)", "Start Lat", "Start Lon", "End Lat", "End Lon");
+				"Subsection Min Mag", "Subsection Area (sq m)", "Rake (Degrees)", "Start Lat", "Start Lon", "End Lat", "End Lon");
 		
 		double[] particRates = sol.calcParticRateForAllSects(0d, 10d);
 		
@@ -1020,8 +1020,8 @@ public class TablesAndPlotsGen {
 			Location endLoc = subsect.getFaultTrace().last();
 			
 			csv.addLine(i+"", subsect.getName(), particRates[i]+"", (1d/particRates[i])+"", minMag+"",
-					rupSet.getAreaForSection(i)+"", startLoc.getLatitude()+"", startLoc.getLongitude()+"",
-					endLoc.getLatitude()+"", endLoc.getLongitude()+"");
+					rupSet.getAreaForSection(i)+"", subsect.getAveRake()+"",
+					startLoc.getLatitude()+"", startLoc.getLongitude()+"", endLoc.getLatitude()+"", endLoc.getLongitude()+"");
 		}
 		
 		csv.writeToFile(csvFile);

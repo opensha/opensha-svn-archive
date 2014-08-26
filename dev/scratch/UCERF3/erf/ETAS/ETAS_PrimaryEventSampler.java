@@ -116,8 +116,14 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //	IntegerPDF_FunctionSampler[] cachedSamplers;
 	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
 	private long totLoadedWeight = 0;
-	private static final long max_cache_size_gb = 2; // max cache size in gigabytes (approximate)
-	private static final long max_weight = max_cache_size_gb*1024l*1024l*1024; // now in bytes
+	private static long max_weight;
+	
+	static {
+		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", "2"));
+		max_weight = (long)(cacheSizeGB*1024d*1024d*1024d); // now in bytes
+		System.out.println("ETAS Cache Size: "+(float)cacheSizeGB+" GB = "+max_weight+" bytes");
+	}
+	
 	private static boolean disable_cache = false;
 	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process
 //	int[] numForthcomingEventsAtParentLoc;
@@ -142,7 +148,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
 	public static final int DEFAULT_NUM_PT_SRC_SUB_PTS = 5;		// 5 is good for orig pt-src gridding of 0.1
-	
 	
 	/**
 	 * Constructor that uses default values
@@ -980,7 +985,7 @@ if(locsToSampleFrom.size() == 0) {
 			numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
 		}
 		
-		if (disable_cache) {
+		if (disable_cache || max_weight <= 0l) {
 			try {
 				return load(locIndexForPar);
 			} catch (Exception e) {

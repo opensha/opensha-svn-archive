@@ -387,7 +387,7 @@ public class ETAS_Simulator {
 		try {
 			progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
 			progressBar.showProgress(true);
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			// headless, don't show it
 			progressBar = null;
 		}
@@ -929,12 +929,13 @@ public class ETAS_Simulator {
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_fullCache3", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_fullCache3", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
+		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

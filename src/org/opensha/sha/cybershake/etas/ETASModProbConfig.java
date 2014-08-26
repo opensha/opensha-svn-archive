@@ -681,6 +681,18 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 	}
 	
+	public Map<IDPairing, Map<Double, List<Integer>>> getRVProbs() {
+		return rvProbs;
+	}
+	
+	public Map<Integer, Map<Location, List<Integer>>> getHypoLocs() {
+		return rvHypoLocations;
+	}
+	
+	public Map<Integer, IDPairing> getRupMappingTable() {
+		return rupMappingTable;
+	}
+	
 	public ETAS_CyberShake_Scenarios getScenario() {
 		return scenario;
 	}

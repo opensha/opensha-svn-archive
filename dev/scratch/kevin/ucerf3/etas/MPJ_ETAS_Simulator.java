@@ -291,6 +291,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			} catch (Throwable t) {
 				debug("Calc failed with seed "+randSeed+". Exception: "+t);
 				t.printStackTrace();
+				if (t.getCause() != null) {
+					System.out.println("cause exceptoin:");
+					t.getCause().printStackTrace();
+				}
+				System.err.flush();
 				Integer prevFails = restartsMap.get(index);
 				if (prevFails == null)
 					prevFails = 0;

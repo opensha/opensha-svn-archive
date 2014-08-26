@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -15,9 +17,11 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 
@@ -38,7 +42,7 @@ public class ETAS_CatalogStats {
 		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		long maxEventTime;
 		if (maxDaysAfter > 0)
-			maxEventTime = ot + ProbabilityModelsCalc.MILLISEC_PER_DAY;
+			maxEventTime = ot + maxDaysAfter*ProbabilityModelsCalc.MILLISEC_PER_DAY;
 		else
 			maxEventTime = -1;
 		catalogLoop:
@@ -130,10 +134,10 @@ public class ETAS_CatalogStats {
 //		double targetMinMag = 7.050480408896166;
 //		String name = "Mojave 7.05";
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-la_habra-indep/results");
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
 		int triggerParentID = 0;
-		double targetMinMag = 6.2;
-		String name = "La Habra 6.2";
+		double targetMinMag = 6.0;
+		String name = "Napa M6";
 		File[] etasCatalogDirs = {etasCatalogDir};
 		File outputDir = new File(etasCatalogDir.getParentFile(), "outputs_stats");
 		
@@ -152,10 +156,36 @@ public class ETAS_CatalogStats {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogEALCalculator.loadCatalogs(
-				etasCatalogDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
+//		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogEALCalculator.loadCatalogs(
+//				etasCatalogDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
 		
+		ZipFile zip = new ZipFile(etasCatalogDir);
+		
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		
+		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+			if (!entry.isDirectory())
+				continue;
+//			System.out.println(entry.getName());
+			String subEntryName = entry.getName()+"simulatedEvents.txt";
+			ZipEntry catEntry = zip.getEntry(subEntryName);
+			if (catEntry == null)
+				continue;
+//			System.out.println("Loading "+catEntry.getName());
+			
+			try {
+				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry));
+				
+				catalogs.add(cat);
+			} catch (Exception e) {
+//				ExceptionUtils.throwAsRuntimeException(e);
+				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
+			}
+		}
+		
+		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 1);
 		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
+		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 365);
 		plotMFD(catalogs, outputDir, name);
 	}
 
