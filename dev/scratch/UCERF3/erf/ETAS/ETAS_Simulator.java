@@ -14,6 +14,7 @@ import java.util.zip.ZipException;
 
 import javax.swing.JOptionPane;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -35,6 +36,7 @@ import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.LocationParameter;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
@@ -83,6 +85,7 @@ import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
@@ -282,10 +285,13 @@ public class ETAS_Simulator {
 		double duration = erf.getTimeSpan().getDuration();
 		IntegerPDF_FunctionSampler spontaneousRupSampler = new IntegerPDF_FunctionSampler(erf.getTotNumRups());
 		int nthRup=0;
+		System.out.println("tot num:"+erf.getTotNumRups());
 		for(int s=0;s<erf.getNumSources();s++) {
 			ProbEqkSource src = erf.getSource(s);
 			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
 			for(ProbEqkRupture rup:src) {
+				if (nthRup >= spontaneousRupSampler.getNum())
+					System.out.println("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
 				spontaneousRupSampler.set(nthRup, rup.getMeanAnnualRate(duration));
 				nthRup+=1;
 			}
@@ -784,11 +790,21 @@ public class ETAS_Simulator {
 		
 		// means solution ERF
 		System.out.println("Starting ERF instantiation");
-		Long st = System.currentTimeMillis();
+		
 //		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip";
-		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fileName);
-		
+		FaultSystemSolution fss;
+		try {
+			fss = FaultSystemIO.loadSol(new File(fileName));
+		} catch (Exception e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		return getU3_ETAS_ERF(fss);
+	}
+	
+	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF(FaultSystemSolution fss) {
+		Long st = System.currentTimeMillis();
+		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fss);
 		
 //		// Or for Reference branch ERF:
 //		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions

@@ -19,7 +19,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 	private static enum Scenarios {
 		SPONTANEOUS,
 		MOJAVE_7,
-		LA_HABRA
+		LA_HABRA,
+		NAPA
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -51,7 +52,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			memGigs = 26;
 			remoteDir = new File("/work/00950/kevinm/ucerf3/etas_sim");
 			remoteSolFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/2013_05_10-ucerf3p3-production-10runs/"
-					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
 					null, StampedeScriptWriter.FMPJ_HOME, false);
 			pbsWrite = new StampedeScriptWriter();
@@ -60,7 +61,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim");
 			remoteSolFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/"
 					+ "2013_05_10-ucerf3p3-production-10runs/"
-					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 			pbsWrite = new USC_HPCC_ScriptWriter();
@@ -92,6 +93,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 				break;
 			case MOJAVE_7:
 				argz += " --trigger-rupture-id 197792";
+				break;
+			case NAPA:
+				argz += " --trigger-rupture-id 93902 --trigger-mag 6.0";
 				break;
 			case SPONTANEOUS:
 				// do nothing

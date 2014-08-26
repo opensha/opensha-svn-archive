@@ -138,7 +138,10 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 //	IntegerPDF_FunctionSampler[] cachedSamplers;
 	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
+	private long totLoadedWeight = 0;
 	private static final long max_cache_size_gb = 2; // max cache size in gigabytes (approximate)
+	private static final long max_weight = max_cache_size_gb*1024l*1024l*1024; // now in bytes
+	private static boolean disable_cache = false;
 	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process
 //	int[] numForthcomingEventsAtParentLoc;
 //	int numCachedSamplers=0;
@@ -289,7 +292,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		// this is for caching samplers (one for each possible parent location)
 //		cachedSamplers = new IntegerPDF_FunctionSampler[numParLocs];
-		final long maxWeight = max_cache_size_gb*1024l*1024l*1024; // now in bytes
 		// this will weigh cache elements by their size
 		Weigher<Integer, IntegerPDF_FunctionSampler> weigher = new Weigher<Integer, IntegerPDF_FunctionSampler>(){
 
@@ -297,12 +299,14 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
 				int numInts = value.getNum();
 				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
-				// each double value is one byte
-				return 2*numInts+10; // pad for object overhead and other primitives
+				// each double value is 8 bytes
+				int weight = 2*8*numInts+30; // pad for object overhead and other primitives
+				totLoadedWeight += weight;
+				return weight;
 			}
 			
 		};
-		samplerCache = CacheBuilder.newBuilder().maximumWeight(maxWeight).weigher(weigher).build(this);
+		samplerCache = CacheBuilder.newBuilder().maximumWeight(max_weight).weigher(weigher).build(this);
 		
 		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
 		
@@ -373,7 +377,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			File intListListFile = new File(defaultSrcInCubeCacheFilename);
 			File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);	
 			File cubeInsidePolyFile = new File(defaultCubeInsidePolyCacheFilename);	
-			if (intListListFile.exists() && floatListListFile.exists()) {
+			if (intListListFile.exists() && floatListListFile.exists() && cubeInsidePolyFile.exists()) {
 				try {
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
 					fractionSrcInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
@@ -998,6 +1002,15 @@ if(locsToSampleFrom.size() == 0) {
 		else {
 			numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
 		}
+		
+		if (disable_cache) {
+			try {
+				return load(locIndexForPar);
+			} catch (Exception e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+		}
+//		System.out.println("Loaded with cache size "+samplerCache.size()+", weight: "+totLoadedWeight+"/"+max_weight);
 		
 //		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
 		try {

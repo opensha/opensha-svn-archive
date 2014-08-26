@@ -152,6 +152,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			mainshockRup.setID(0);
 //			debug("test Mainshock: "+erf.getSource(srcID).getName());
 			
+			if (cmd.hasOption("trigger-mag"))
+				mainshockRup.setMag(Double.parseDouble(cmd.getOptionValue("trigger-mag")));
+			
 			// date of last event will be updated for this rupture in the calculateBatch method below
 			
 			simulationName = "FSS simulation. M="+mainshockRup.getMag()+", fss ID="+fssScenarioRupID;
