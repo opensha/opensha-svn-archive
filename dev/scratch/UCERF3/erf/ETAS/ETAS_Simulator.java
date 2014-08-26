@@ -677,6 +677,9 @@ public class ETAS_Simulator {
 				ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
 				scenarioRup.setAveRake(rupFromERF.getAveRake());
 				scenarioRup.setMag(rupFromERF.getMag());
+				if (!Double.isNaN(scenario.mag))
+					// override mag
+					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 //				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector((295.0-270.0), 16.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
@@ -864,7 +867,8 @@ public class ETAS_Simulator {
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 5.0),	// on N edge of the Mojave scenario
 		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0),	// on N edge of the Mojave scenario
-		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d); // will prompt when built, these are just defaults
+		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d), // will prompt when built, these are just defaults
+		NAPA("Napa 6.0", 93902, null, 6d); // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
 				
 		private String name;
 		private int fssIndex;
