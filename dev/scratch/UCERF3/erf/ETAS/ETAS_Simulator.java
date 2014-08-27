@@ -239,7 +239,10 @@ public class ETAS_Simulator {
 
 		if(scenarioRup != null) {
 			scenarioRup.setID(obsEqkRuptureList.size());
-			obsEqkRuptureList.add(scenarioRup);			
+			obsEqkRuptureList.add(scenarioRup);		
+			if(D) {
+				System.out.println("Num locs on scenario rup surface: "+scenarioRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+			}
 		}
 		
 		
@@ -372,8 +375,8 @@ public class ETAS_Simulator {
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-//			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
-//					etas_PrimEventSampler, scenarioRup, expNum);
+			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
+					etas_PrimEventSampler, scenarioRup, expNum);
 		}
 		
 		if(D) {
@@ -550,7 +553,7 @@ public class ETAS_Simulator {
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
-//					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), Double.NaN);
+					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), Double.NaN);
 				}
 			}
 		}
@@ -682,9 +685,11 @@ public class ETAS_Simulator {
 					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 //				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector((295.0-270.0), 16.0, 0.0)));
-//				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
+				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
+				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
 				erf.updateForecast();
+				System.out.println("\tProbAfterDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 			} 
 			else {
 				scenarioRup.setAveRake(0.0);
@@ -869,6 +874,7 @@ public class ETAS_Simulator {
 		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0),	// on N edge of the Mojave scenario
 		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d), // will prompt when built, these are just defaults
 		NAPA("Napa 6.0", 93902, null, 6d); // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
+
 				
 		private String name;
 		private int fssIndex;
@@ -924,18 +930,36 @@ public class ETAS_Simulator {
 	public static void main(String[] args) {
 		
 		
+//		Location testLoc = new Location(32.57336, -118.25770, 9.05759);
+//		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
+//		System.out.println(griddedRegion.indexForLocation(testLoc));
+//		System.out.println(griddedRegion.contains(testLoc));
+		
+//		for(int i=0;i<griddedRegion.getNodeCount();i++) {
+//			Location loc = griddedRegion.getLocation(i);
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude());
+//		}
+		
+//		for(Location loc:griddedRegion.getBorder()) {
+//			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude());
+//		}
+//			
+//
+//		System.exit(-1);
+		
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 //		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_fullCache3", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_newCache11", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
-		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
+//		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
+		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409152955910l, "Napa_4", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

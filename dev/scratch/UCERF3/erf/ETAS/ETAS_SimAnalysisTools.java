@@ -457,12 +457,19 @@ public class ETAS_SimAnalysisTools {
 	
 	
 	
-	
+	/**
+	 * This also excludes non-point-source surfaces
+	 * @param magLow
+	 * @param magHigh
+	 * @param generation
+	 * @param eventsList
+	 * @return
+	 */
 	private static DefaultXY_DataSet getEpicenterLocsXY_DataSet(double magLow, double magHigh, int generation,
 			Collection<ETAS_EqkRupture> eventsList) {
 		DefaultXY_DataSet epicenterLocs = new DefaultXY_DataSet();
 		for (ETAS_EqkRupture event : eventsList) {
-			if(event.getMag()>=magLow && event.getMag()<magHigh && event.getGeneration()==generation)
+			if(event.getMag()>=magLow && event.getMag()<magHigh && event.getGeneration()==generation && event.getRuptureSurface().isPointSurface())
 				epicenterLocs.set(event.getHypocenterLocation().getLongitude(), event.getHypocenterLocation().getLatitude());
 		}
 		epicenterLocs.setName("Generation "+generation+" Aftershock Epicenters for "+magLow+"<=Mag<"+magHigh);

@@ -640,8 +640,12 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			else if (subSeisMFD != null && trulyOffMFD != null) {
 				gridSeisStatus[i] = 2;	// some cubes are inside
 				num2 += 1;
-				if(frac ==0 || frac == 1)
+				if(frac ==0 || frac == 1) {
+					System.out.println("Location:\t"+origGriddedRegion.getLocation(i));
+					System.out.println("subSeisMFD:\n"+subSeisMFD.toString());
+					System.out.println("trulyOffMFD:\n"+trulyOffMFD.toString());
 					throw new RuntimeException("Problem: frac ==0 || frac == 1; "+frac);
+				}
 			}
 			else {
 				throw new RuntimeException("Problem");
@@ -673,7 +677,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			
 			// set the sampler
 			int parLocIndex = getParLocIndexForLocation(loc);
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, false);
 			
 			for(int i=0;i <numCubes;i++) {
 				aveSampler.add(i, sampler.getY(i));
@@ -798,16 +802,21 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		// get the location on the parent that does the triggering
 		Location actualParentLoc=rupToFillIn.getParentTriggerLoc();
 			
-//		// Check for problem region index
-//		int parRegIndex = gridRegForParentLocs.indexForLocation(actualParentLoc);
-//		if(parRegIndex <0) {
-//			if(parRup instanceof ETAS_EqkRupture) {
-//				System.out.println("Problem event generation: "+((ETAS_EqkRupture)parRup).getGeneration());
-//			}
-//			System.out.println("PROBLEM: parRegIndex<0; parentLoc="+actualParentLoc.toString()+
-//					"\tNum pts on main shock surface: "+parRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
-//			return false;
-//		}
+		// Check for problem region index
+		int parRegIndex = gridRegForParentLocs.indexForLocation(actualParentLoc);
+		if(parRegIndex <0) {
+			if(D) {
+				System.out.print("Warning: parent location outside of region; parRegIndex="+parRegIndex+"; parentLoc="+actualParentLoc.toString()+
+						"; Num pts on main shock surface: "+parRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+				if(parRup instanceof ETAS_EqkRupture) {
+					System.out.println("; Problem event generation: "+((ETAS_EqkRupture)parRup).getGeneration());
+				}
+				else {
+					System.out.println(" ");
+				}
+			}
+			return false;
+		}
 
 ////System.out.println("actualParentLoc: "+actualParentLoc);
 ////System.out.println("parDepIndex: "+getParDepthIndex(actualParentLoc.getDepth()));
@@ -817,7 +826,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		int parLocIndex = getParLocIndexForLocation(actualParentLoc);
 		Location translatedParLoc = getParLocationForIndex(parLocIndex);
-		IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
+		IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, true);
 		
 		int aftShCubeIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
@@ -931,8 +940,13 @@ if(locsToSampleFrom.size() == 0) {
 				Location gridSrcLoc = tempERF.getSolution().getGridSourceProvider().getGriddedRegion().getLocation(gridSrcIndex);
 				int testIndex = tempERF.getSolution().getGridSourceProvider().getGriddedRegion().indexForLocation(hypLoc);
 				if(testIndex != gridSrcIndex) {
-//					System.out.println("Region Index Problem:\t"+rupToFillIn.getID()+"\t"+(gridSrcLoc.getLatitude()-hypLoc.getLatitude())+"\t"+(gridSrcLoc.getLongitude()-hypLoc.getLongitude()));
+					// check whether hypLoc is now out of region, and return false if so
+					if(testIndex == -1)
+						return false;
 					IncrementalMagFreqDist mfd = tempERF.getSolution().getGridSourceProvider().getNodeMFD(testIndex);
+//					if(mfd==null) {
+//						throw new RuntimeException("testIndex="+testIndex+"\thypLoc= "+hypLoc+"\tgridLoc= "+tempERF.getSolution().getGridSourceProvider().getGriddedRegion().getLocation(testIndex));
+//					}
 					int maxMagIndex = mfd.getClosestXIndex(mfd.getMaxMagWithNonZeroRate());
 					int magIndex = mfd.getClosestXIndex(erf_rup.getMag());
 					double tempLat=hypLoc.getLatitude();
@@ -976,13 +990,16 @@ if(locsToSampleFrom.size() == 0) {
 	
 	
 	
-	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar) {
-		int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
-		if(numLeft == 0) {
-			numForthcomingEventsForParLocIndex.remove(locIndexForPar);
-		}
-		else {
-			numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
+	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar, boolean updateForthcomingEvents) {
+		
+		if(updateForthcomingEvents) {
+			int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
+			if(numLeft == 0) {
+				numForthcomingEventsForParLocIndex.remove(locIndexForPar);
+			}
+			else {
+				numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
+			}			
 		}
 		
 		if (disable_cache || max_weight <= 0l) {
