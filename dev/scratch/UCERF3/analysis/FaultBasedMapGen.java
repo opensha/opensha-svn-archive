@@ -361,6 +361,8 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, name, display, false, title);
 	}
 	
+	
+	
 	public static void plotParticipationStdDevs(FaultSystemRupSet rupSet, double[][] partRates, Region region, File saveDir,
 			String prefix, boolean display, double minMag, double maxMag)
 			throws GMT_MapException, RuntimeException, IOException {

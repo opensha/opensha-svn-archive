@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.zip.ZipException;
@@ -369,14 +371,58 @@ public class ETAS_Simulator {
 
 		// If scenarioRup != null, compute ExpectedPrimaryMFD if in debug mode; this takes time!
 		EvenlyDiscretizedFunc expectedCumPrimaryMFDforTestRup=null;
-		if(D && scenarioRup !=null) {
-			if(D) System.out.println("Making ExpectedPrimaryMFD For Input Rup");
+		boolean doit = true;
+		if(D && scenarioRup !=null && doit) {
+			if(D) System.out.println("Computing Scenario Diagnostics");
 			long rupOT = scenarioRup.getOriginTime();
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+			// compute expected MFD
 			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
 					etas_PrimEventSampler, scenarioRup, expNum);
+			// Compute Primary Event Sampler Map
+			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "testPrimaryMap");
+			// Compute subsection trigger probability map
+			etas_PrimEventSampler.plotSubSectionTriggerProbGivenRupture(scenarioRup, 0.0, resultsDir);
+
+			// write out top-50 fault-based sources to be triggered
+			if(numFaultSysSources>0) {
+				int numToList = 50;
+				double[] srcProbs = etas_PrimEventSampler.getRelativeTriggerProbOfEachSource(scenarioRup);
+				if(scenarioRup.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
+					System.out.println("Probability of sampling the scenarioRup:");
+					info_fr.write("\nProbability of sampling the scenarioRup:\n");
+
+					int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(scenarioRup.getFSSIndex());
+					System.out.println("\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
+					info_fr.write("\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
+
+				}
+				ArrayList<Double> probsArray = new ArrayList<Double>();
+				double[] probs = new double[numFaultSysSources];
+				Hashtable<Double,Integer> probsTable = new Hashtable<Double,Integer>();
+				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
+				progressBar2.showProgress(true);
+				for(int i=0;i<numFaultSysSources;i++) {
+					progressBar2.updateProgress(i, numFaultSysSources);
+					double prob = srcProbs[i];
+					while(probsArray.contains(prob))
+						prob += Double.MIN_VALUE;
+					probsArray.add(prob);
+					probs[i] = prob;
+					probsTable.put(prob, i);
+				}
+				progressBar2.showProgress(false);
+				Arrays.sort(probs);
+				System.out.println("Scenario is most likely to trigger the following fault-based sources:");
+				info_fr.write("\nScenario is most likely to trigger the following fault-based sources:\n\n");
+				for(int i=numFaultSysSources-1;i>numFaultSysSources-1-numToList;i--) {
+					int srcIndex = probsTable.get(probs[i]);
+					System.out.println("\t"+probs[i]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
+					info_fr.write("\t"+probs[i]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
+				}		
+			}
 		}
 		
 		if(D) {
@@ -594,10 +640,13 @@ public class ETAS_Simulator {
 			
 			
 			// write stats for first rup
+			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-//			double expPrimNumAtMainMag = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag());
-//			double expPrimNumAtMainMagMinusOne = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag()-1.0);
+			if(expectedCumPrimaryMFDforTestRup != null) {
+				expPrimNumAtMainMag = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag());
+				expPrimNumAtMainMagMinusOne = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag()-1.0);				
+			}
 			EvenlyDiscretizedFunc obsPrimCumMFD = obsAshockMFDsForFirstEvent.get(1).getCumRateDistWithOffset();
 			double obsPrimNumAtMainMag = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag());
 			double obsPrimNumAtMainMagMinusOne = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag()-1.0);
@@ -684,8 +733,9 @@ public class ETAS_Simulator {
 					// override mag
 					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector((295.0-270.0), 16.0, 0.0)));
-				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
+				scenarioRup.setFSSIndex(fssIndex);
+				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
+//				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
 				erf.updateForecast();
@@ -959,7 +1009,7 @@ public class ETAS_Simulator {
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409152955910l, "Napa_4", null);
+		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_10", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

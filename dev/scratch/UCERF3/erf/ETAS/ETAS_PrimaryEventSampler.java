@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -27,6 +28,7 @@ import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -47,6 +49,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -688,13 +691,13 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	
 	/**
-	 * For the given main shock, this gives the trigger probability of each source in the ERF.
+	 * For the given main shock, this gives the relative trigger probability of each source in the ERF.
 	 * This loops over all points on the main shock rupture surface, giving equal triggering
 	 * potential to each.
 	 * @param mainshock
 	 * @return double[] the relative triggering probability of each ith source
 	 */
-	public double[] getTriggerProbOfEachSource(EqkRupture mainshock) {
+	public double[] getRelativeTriggerProbOfEachSource(EqkRupture mainshock) {
 		double[] trigProb = new double[erf.getNumSources()];
 		
 		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
@@ -751,7 +754,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	 * @return
 	 */
 	public SummedMagFreqDist getExpectedPrimaryMFD_PDF(EqkRupture mainshock) {
-		double[] srcProbs = getTriggerProbOfEachSource(mainshock);
+		double[] srcProbs = getRelativeTriggerProbOfEachSource(mainshock);
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		for(int s=0; s<srcProbs.length;s++) {
 			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), 1.0, 2.05, 8.95, 70, true);
@@ -761,6 +764,57 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				magDist.addIncrementalMagFreqDist(srcMFD);
 		}
 		return magDist;
+	}
+	
+	/**
+	 * This gives the relative probability that each subsection will be involved
+	 * given an aftershock from the given rupture.
+	 */
+	public void plotSubSectionTriggerProbGivenRupture(EqkRupture mainshock, double minMag, File resultsDir) {
+		if(erf instanceof FaultSystemSolutionERF) {
+			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+			double[] srcProbs = getRelativeTriggerProbOfEachSource(mainshock);
+			double[] sectProbArray = new double[rupSet.getNumSections()];
+			for(int i=0;i<sectProbArray.length;i++)
+				sectProbArray[i] = 1.0;
+			for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
+				int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
+				for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
+					sectProbArray[sectIndex] *= (1.0-srcProbs[srcIndex]);	// probability it won't occur
+				}
+			}
+			// now convert back to probability of trigger
+			for(int sectIndex=0; sectIndex<sectProbArray.length; sectIndex++)
+				sectProbArray[sectIndex] = 1.0 - sectProbArray[sectIndex];
+			
+			
+			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(-7, -2);;
+			List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
+
+//			// now log space
+			double[] values = FaultBasedMapGen.log10(sectProbArray);
+			
+			String name = "SectTriggerProb"+(float)minMag;
+			String title = "Log10(Trigger Prob "+(float)+minMag+")";
+			
+			try {
+				FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, true, false, title);
+			} catch (GMT_MapException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		else {
+			throw new RuntimeException("erf must be instance of FaultSystemSolutionERF");
+		}
+		
 	}
 	
 	
@@ -1693,11 +1747,12 @@ if(locsToSampleFrom.size() == 0) {
 //		etas_PrimEventSampler.temp();
 		
 		
+		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
 //		etas_PrimEventSampler.plotOrigERF_RatesMap("OrigERF_RatesMap");
-		etas_PrimEventSampler.plotRandomSampleRatesMap("RandomSampleRatesMap", 10000000);
+//		etas_PrimEventSampler.plotRandomSampleRatesMap("RandomSampleRatesMap", 10000000);
 
 		
 		
