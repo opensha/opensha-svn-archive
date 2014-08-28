@@ -379,13 +379,14 @@ public class ETAS_Simulator {
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+			
 			// compute expected MFD
-			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("first event in obsEqkRuptureList", new File(resultsDir,"firstObsRupExpPrimMFD").getAbsolutePath(), 
+			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
 					etas_PrimEventSampler, scenarioRup, expNum);
 			// Compute Primary Event Sampler Map
-			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "testPrimaryMap");
+			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
 			// Compute subsection trigger probability map
-			etas_PrimEventSampler.plotSubSectionTriggerProbGivenRupture(scenarioRup, 0.0, resultsDir);
+			etas_PrimEventSampler.plotSubSectionTriggerProbGivenRupture(scenarioRup, resultsDir);
 
 			// write out top-50 fault-based sources to be triggered
 			if(numFaultSysSources>0) {
@@ -767,8 +768,8 @@ public class ETAS_Simulator {
 				if (!Double.isNaN(scenario.mag))
 					// override mag
 					scenarioRup.setMag(scenario.mag);
-				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 				scenarioRup.setFSSIndex(fssIndex);
+				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
@@ -1044,7 +1045,7 @@ public class ETAS_Simulator {
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_10", null);
+		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_14", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

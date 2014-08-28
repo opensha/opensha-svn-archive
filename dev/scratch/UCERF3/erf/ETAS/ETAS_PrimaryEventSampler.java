@@ -712,6 +712,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	 * @return double[] the relative triggering probability of each ith source
 	 */
 	public double[] getRelativeTriggerProbOfEachSource(EqkRupture mainshock) {
+//		long st = System.currentTimeMillis();
 		double[] trigProb = new double[erf.getNumSources()];
 		
 		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
@@ -757,6 +758,10 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //		double testSum=0;
 //		for(int s=0; s<trigProb.length; s++)
 //			testSum += trigProb[s];
+//		System.out.println("########### testSum="+testSum);
+		
+//		st = System.currentTimeMillis()-st;
+//		System.out.println("###########"+((float)st/1000f)+" sec");
 		
 		return trigProb;
 	}
@@ -782,25 +787,19 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	/**
 	 * This gives the relative probability that each subsection will be involved
-	 * given an aftershock from the given rupture.
+	 * given a primary aftershocks of the supplied event.
 	 */
-	public void plotSubSectionTriggerProbGivenRupture(EqkRupture mainshock, double minMag, File resultsDir) {
+	public void plotSubSectionTriggerProbGivenRupture(EqkRupture mainshock, File resultsDir) {
 		if(erf instanceof FaultSystemSolutionERF) {
 			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
 			double[] srcProbs = getRelativeTriggerProbOfEachSource(mainshock);
 			double[] sectProbArray = new double[rupSet.getNumSections()];
-			for(int i=0;i<sectProbArray.length;i++)
-				sectProbArray[i] = 1.0;
 			for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
 				int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
 				for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
-					sectProbArray[sectIndex] *= (1.0-srcProbs[srcIndex]);	// probability it won't occur
+					sectProbArray[sectIndex] += srcProbs[srcIndex];	// probability it won't occur
 				}
-			}
-			// now convert back to probability of trigger
-			for(int sectIndex=0; sectIndex<sectProbArray.length; sectIndex++)
-				sectProbArray[sectIndex] = 1.0 - sectProbArray[sectIndex];
-			
+			}			
 			
 			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(-7, -2);;
 			List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
@@ -808,21 +807,14 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //			// now log space
 			double[] values = FaultBasedMapGen.log10(sectProbArray);
 			
-			String name = "SectTriggerProb"+(float)minMag;
-			String title = "Log10(Trigger Prob "+(float)+minMag+")";
+			String name = "SectTriggerProb";
+			String title = "Log10(Primary Trigger Prob)";
 			
 			try {
 				FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, true, false, title);
-			} catch (GMT_MapException e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
 				e.printStackTrace();
-			} catch (RuntimeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} 
 			
 		}
 		else {
@@ -1882,10 +1874,11 @@ if(locsToSampleFrom.size() == 0) {
 	 * (probs are summed inside each spatial bin of gridRegForRatesInSpace).
 	 * 
 	 * @param label - plot label
-	 * @param dirName
+	 * @param dirName - the name of the directory
+	 * @param path - where to put the dir
 	 * @return
 	 */
-	public String plotSamplerMap(IntegerPDF_FunctionSampler cubeSampler, String label, String dirName) {
+	public String plotSamplerMap(IntegerPDF_FunctionSampler cubeSampler, String label, String dirName, File path) {
 		
 		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
 		
@@ -1955,11 +1948,15 @@ if(locsToSampleFrom.size() == 0) {
 		String metadata = "Map from calling plotSamplerMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Prob from "+label, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, label, metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
-				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				File downloadDir = null;
+				if(path != null)
+					downloadDir = new File(path, dirName);
+				else
+					downloadDir = new File(dirName);
 				if (!downloadDir.exists())
 					downloadDir.mkdir();
 				File zipFile = new File(downloadDir, "allFiles.zip");
