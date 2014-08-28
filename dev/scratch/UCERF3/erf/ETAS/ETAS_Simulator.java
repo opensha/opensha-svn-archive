@@ -772,9 +772,13 @@ public class ETAS_Simulator {
 					// override mag
 					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setFSSIndex(fssIndex);
-				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-//				scenarioRup.setRuptureSurface(GriddedSurfaceUtils.trimEndsOfSurface(
-//						(CompoundSurface)rupFromERF.getRuptureSurface(), 3, 3));
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
+	System.out.println(rupFromERF.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().get(0).toString());
+				CompoundSurface trimmedSurface = GriddedSurfaceUtils.trimEndsOfSurface(
+						(CompoundSurface)rupFromERF.getRuptureSurface(), 3, 3);
+				scenarioRup.setRuptureSurface(trimmedSurface);
+	System.out.println(trimmedSurface.getEvenlyDiscritizedListOfLocsOnSurface().get(0).toString());
+	System.exit(-1);
 //				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
@@ -1049,7 +1053,7 @@ public class ETAS_Simulator {
 //		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
 //		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_14", null);
+		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_15", null);
 		
 
 		// ************** OLD STUFF BELOW *********************
