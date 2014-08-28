@@ -120,11 +120,22 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
 	private long totLoadedWeight = 0;
 	private static long max_weight;
+	private static boolean soft_cache_values;
+	
+	// default maximum cache size in gigabytes. can be overridden by setting the etas.cache.size.gb property
+	// this should be small if soft_cache_values = false, but can be large otherwise as cache values will be garbage
+	// collected when needed
+	private static double default_cache_size_gb = 8d;
+	// default value for soft cache values. can be overridden by setting the etas.cache.soft property to 'true'/'false'
+	private static boolean default_soft_cache_values = true;
 	
 	static {
-		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", "2"));
+		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", default_cache_size_gb+""));
 		max_weight = (long)(cacheSizeGB*1024d*1024d*1024d); // now in bytes
-		System.out.println("ETAS Cache Size: "+(float)cacheSizeGB+" GB = "+max_weight+" bytes");
+		soft_cache_values = Boolean.parseBoolean(System.getProperty("etas.cache.soft",
+				default_soft_cache_values+"").toLowerCase().trim());
+		if (D) System.out.println("ETAS Cache Size: "+(float)cacheSizeGB
+				+" GB = "+max_weight+" bytes, soft values: "+soft_cache_values);
 	}
 	
 	private static boolean disable_cache = false;
@@ -291,7 +302,10 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			}
 			
 		};
-		samplerCache = CacheBuilder.newBuilder().maximumWeight(max_weight).weigher(weigher).build(this);
+		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumWeight(max_weight);
+		if (soft_cache_values)
+			builder = builder.softValues();
+		samplerCache = builder.weigher(weigher).build(this);
 		
 		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
 		
@@ -1069,7 +1083,14 @@ if(locsToSampleFrom.size() == 0) {
 		try {
 			// get it from the cache, loading the value via load(key) below if necessary
 			return samplerCache.get(locIndexForPar);
-		} catch (ExecutionException e) {
+		} catch (Throwable e) {
+//			Throwable subE = e.getCause();
+//			while (subE != null) {
+//				if (e.getCause() != null) {
+//					System.out.println("Cause:");
+//					e.printStackTrace();
+//				}
+//			}
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 	}
