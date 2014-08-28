@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.geo.BorderType;
@@ -13,12 +14,16 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 public class GriddedSurfaceUtils {
 	
@@ -379,6 +384,69 @@ public class GriddedSurfaceUtils {
 			return distJB <= min_dist;
 		}
 		return false;
+	}
+	
+	/**
+	 * Trims the given number of points from the start and end of the given compound surface. All sub surfaces
+	 * must be instances of EvenlyGriddedSurfaces
+	 * @param compoundSurf
+	 * @param numFromStart
+	 * @param numFromEnd
+	 * @return
+	 */
+	public static CompoundSurface trimEndsOfSurface(CompoundSurface compoundSurf, int numFromStart, int numFromEnd) {
+		Preconditions.checkArgument(numFromStart > 0 || numFromEnd > 0, "must remove at least one point");
+		List<? extends RuptureSurface> surfList = compoundSurf.getSurfaceList();
+		// make sure each one is an evenly gridded surface
+		for (RuptureSurface subSurf : surfList)
+			Preconditions.checkState(subSurf instanceof EvenlyGriddedSurface, "all sub surfaces must be evenly gridded");
+		
+		List<RuptureSurface> newSurfList = Lists.newArrayList();
+		// add first. if first is reversed, then trim from the end instead
+		EvenlyGriddedSurface trimmedStart = (EvenlyGriddedSurface) surfList.get(0);
+		if (numFromStart > 0) {
+			if (compoundSurf.isSubSurfaceReversed(0))
+				trimmedStart = trimEndsOfSurface(trimmedStart, 0, numFromStart);
+			else
+				trimmedStart = trimEndsOfSurface(trimmedStart, numFromStart, 0);
+		}
+		newSurfList.add(trimmedStart);
+		int lastIndex = surfList.size()-1;
+		// add middle
+		for (int i=1; i<lastIndex; i++)
+			newSurfList.add(surfList.get(i));
+		// add last. if last is reversed, then trim from start instead
+		EvenlyGriddedSurface trimmedEnd = (EvenlyGriddedSurface)surfList.get(lastIndex);
+		if (numFromEnd > 0) {
+			if (compoundSurf.isSubSurfaceReversed(lastIndex))
+				trimmedEnd = trimEndsOfSurface(trimmedEnd, numFromEnd, 0);
+			else
+				trimmedEnd = trimEndsOfSurface(trimmedEnd, 0, numFromEnd);
+		}
+		newSurfList.add(trimmedEnd);
+		
+		Preconditions.checkState(newSurfList.size() == surfList.size(), "Size is messed up");
+		
+		return new CompoundSurface(newSurfList);
+	}
+	
+	/**
+	 * Trims the given number of points from the start/end of the given surface. There must be at least one column left.
+	 * @param gridSurf
+	 * @param numFromStart
+	 * @param numFromEnd
+	 * @return
+	 */
+	public static EvenlyGriddedSurface trimEndsOfSurface(EvenlyGriddedSurface gridSurf, int numFromStart, int numFromEnd) {
+		int numRows = gridSurf.getNumRows();
+		int numPointsToRemove = numFromStart + numFromEnd;
+		Preconditions.checkArgument(numPointsToRemove > 0, "must remove at least one point");
+		int numCols = gridSurf.getNumCols() - numPointsToRemove;
+		Preconditions.checkState(numCols >= 1,
+				"Cannot trim "+numPointsToRemove+" from surface with only "+gridSurf.getNumCols()+" cols");
+		int startRow = 0;
+		int startCol = numFromStart;
+		return new GriddedSubsetSurface(numRows, numCols, startRow, startCol, gridSurf);
 	}
 
 }

@@ -65,7 +65,11 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.CompoundSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -98,7 +102,6 @@ public class ETAS_Simulator {
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
 	static boolean pause_for_events = false;
-	
 	
 	/**
 	 * This represents an ETAS simulation.  
@@ -770,7 +773,9 @@ public class ETAS_Simulator {
 					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setFSSIndex(fssIndex);
 				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
+//				scenarioRup.setRuptureSurface(GriddedSurfaceUtils.trimEndsOfSurface(
+//						(CompoundSurface)rupFromERF.getRuptureSurface(), 3, 3));
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
@@ -802,7 +807,6 @@ public class ETAS_Simulator {
 		}
 	return scenarioRup;
 	}
-
 
 	/**
 	 * 

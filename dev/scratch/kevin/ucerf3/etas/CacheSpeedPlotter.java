@@ -26,7 +26,9 @@ public class CacheSpeedPlotter {
 	private static String timeStr = "Looping over events took ";
 
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests/hard_values");
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests/soft_values");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests/soft_10Gjvm");
 		
 		Map<Double, List<Double>> timesMap = Maps.newHashMap();
 		
@@ -98,6 +100,7 @@ public class CacheSpeedPlotter {
 		
 		GraphWindow gw = new GraphWindow(spec);
 		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		gw.setY_AxisRange(0, 1800);
 	}
 
 }

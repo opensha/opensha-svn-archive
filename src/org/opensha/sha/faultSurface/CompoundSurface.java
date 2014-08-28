@@ -59,6 +59,14 @@ public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 		return surfaces;
 	}
 	
+	/**
+	 * @param index
+	 * @return true if the surface at the given index is reversed when building the entire surface
+	 */
+	public boolean isSubSurfaceReversed(int index) {
+		return reverseSurfTrace[index];
+	}
+	
 	
 	private void computeInitialStuff() {
 		

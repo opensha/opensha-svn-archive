@@ -12,17 +12,17 @@ import com.google.common.collect.Lists;
 public class CacheSpeedScriptGen {
 
 	public static void main(String[] args) throws IOException {
-		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests");
-		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/etas_sim/cache_test");
+		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/cache_tests/soft_10Gjvm");
+		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/etas_sim/cache_test/soft_10Gjvm");
 		
 		double[] sizes = { 0d, 0.5d, 1d, 2d, 4d, 8d, 16d };
 		int numRuns = 5;
 		
 		List<File> classpath = Lists.newArrayList();
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
-		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
+		classpath.add(new File(remoteDir.getParentFile().getParentFile(), "commons-cli-1.2.jar"));
 		
-		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 40*1024, classpath);
+		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 10*1024, classpath);
 		USC_HPCC_ScriptWriter pbsWrite = new USC_HPCC_ScriptWriter("dodecacore");
 		
 		for (double size : sizes) {
@@ -31,7 +31,7 @@ public class CacheSpeedScriptGen {
 				
 				List<String> script = javaWrite.buildScript(CacheSpeedTester.class.getName(),
 						remoteDir.getAbsolutePath()+" "+(float)size+" "+run);
-				script.add(script.size()-2, "cd "+remoteDir.getAbsolutePath());
+				script.add(script.size()-2, "cd "+remoteDir.getParentFile().getAbsolutePath());
 				pbsWrite.writeScript(new File(localDir, jobName), script, 90, 1, 24, null);
 			}
 		}
