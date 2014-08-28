@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -399,29 +400,63 @@ public class ETAS_Simulator {
 					info_fr.write("\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
 
 				}
-				ArrayList<Double> probsArray = new ArrayList<Double>();
-				double[] probs = new double[numFaultSysSources];
-				Hashtable<Double,Integer> probsTable = new Hashtable<Double,Integer>();
-				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
-				progressBar2.showProgress(true);
+				// this class pairs a probability with an index for sorting
+				class ProbPairing implements Comparable<ProbPairing> {
+					private double prob;
+					private int index;
+					private ProbPairing(double prob, int index) {
+						this.prob = prob;
+						this.index = index;
+					}
+
+					@Override
+					public int compareTo(ProbPairing o) {
+						// negative so biggest first
+						return -Double.compare(prob, o.prob);
+					}
+					
+				};
+				// this stores the minimum probability currently in the list
+				double curMinProb = Double.POSITIVE_INFINITY;
+				// list of probabilities. only the highest numToList values will be kept in this list
+				// this list is always kept sorted, highest to lowest
+				List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
+//				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
 				for(int i=0;i<numFaultSysSources;i++) {
-					progressBar2.updateProgress(i, numFaultSysSources);
+//					progressBar2.updateProgress(i, numFaultSysSources);
 					double prob = srcProbs[i];
-					while(probsArray.contains(prob))
-						prob += Double.MIN_VALUE;
-					probsArray.add(prob);
-					probs[i] = prob;
-					probsTable.put(prob, i);
+					if (prob < curMinProb && pairings.size() == numToList)
+						// already below the current min, skip
+						continue;
+					ProbPairing pairing = new ProbPairing(prob, i);
+					int index = Collections.binarySearch(pairings, pairing);
+					if (index < 0) {
+						// not in there yet, calculate insertion index from binary search result
+						index = -(index + 1);
+					}
+					pairings.add(index, pairing);
+					// remove if we just made it too big
+					if (pairings.size() > numToList)
+						pairings.remove(pairings.size()-1);
+					// reset current min
+					curMinProb = pairings.get(pairings.size()-1).prob;
 				}
-				progressBar2.showProgress(false);
-				Arrays.sort(probs);
+				
+				// sanity checks
+				double prevProb = Double.POSITIVE_INFINITY;
+				for (ProbPairing pairing : pairings) {
+					Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
+					prevProb = pairing.prob;
+				}
+				
 				System.out.println("Scenario is most likely to trigger the following fault-based sources:");
 				info_fr.write("\nScenario is most likely to trigger the following fault-based sources:\n\n");
-				for(int i=numFaultSysSources-1;i>numFaultSysSources-1-numToList;i--) {
-					int srcIndex = probsTable.get(probs[i]);
-					System.out.println("\t"+probs[i]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
-					info_fr.write("\t"+probs[i]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
-				}		
+				for(ProbPairing pairing : pairings) {
+					int srcIndex = pairing.index;
+					double prob = pairing.prob;
+					System.out.println("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
+					info_fr.write("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
+				}
 			}
 		}
 		
