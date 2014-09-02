@@ -81,6 +81,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
@@ -300,7 +301,7 @@ public class ETAS_Simulator {
 			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
 			for(ProbEqkRupture rup:src) {
 				if (nthRup >= spontaneousRupSampler.getNum())
-					System.out.println("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
+					throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
 				spontaneousRupSampler.set(nthRup, rup.getMeanAnnualRate(duration));
 				nthRup+=1;
 			}
@@ -316,7 +317,27 @@ public class ETAS_Simulator {
 				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
+		
+		
+//double[] sectRateArray = etas_PrimEventSampler.getCurrentRateOfEachSubsection();
+List<FaultSectionPrefData> dataList = ((FaultSystemSolutionERF)erf).getSolution().getRupSet().getFaultSectionDataList();
+//System.out.println("Mojave S 9 Rate: "+sectRateArray[1846]+"\t"+dataList.get(1846).getName());
+//System.out.println("Mojave N 4 Rate: "+sectRateArray[1836]+"\t"+dataList.get(1836).getName());
 
+//System.out.println("Mojave S 9 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1846, scenarioRup)+"\t"+dataList.get(1846).getName());
+//System.out.println("Mojave N 4 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1836, scenarioRup)+"\t"+dataList.get(1836).getName());
+
+if(scenarioRup != null)
+	etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
+
+//System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).getCumRateDistWithOffset().toString());
+//System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).toString());
+//System.out.println("Mojave S 3 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1840, scenarioRup).getCumRateDistWithOffset().toString());
+//System.out.println("Mojave S 3 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1840, scenarioRup).toString());
+//System.out.println("\nMojave N 4 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1836, scenarioRup).getCumRateDistWithOffset().toString());
+//System.out.println("\nMojave N 4 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1836, scenarioRup).toString());
+//System.exit(-1);
+		
 		
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
@@ -383,85 +404,92 @@ public class ETAS_Simulator {
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 			
+			info_fr.write("\nExpected number of primary events for Scenario: "+expNum+"\n");
+			System.out.println("\nExpected number of primary events for Scenario: "+expNum+"\n");
+			
 			// compute expected MFD
 			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
 					etas_PrimEventSampler, scenarioRup, expNum);
+// System.exit(-1);
 			// Compute Primary Event Sampler Map
 			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
 			// Compute subsection trigger probability map
-			etas_PrimEventSampler.plotSubSectionTriggerProbGivenRupture(scenarioRup, resultsDir);
+			String info = etas_PrimEventSampler.plotSubSectTriggerProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 50);
 
-			// write out top-50 fault-based sources to be triggered
-			if(numFaultSysSources>0) {
-				int numToList = 50;
-				double[] srcProbs = etas_PrimEventSampler.getRelativeTriggerProbOfEachSource(scenarioRup);
-				if(scenarioRup.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
-					System.out.println("Probability of sampling the scenarioRup:");
-					info_fr.write("\nProbability of sampling the scenarioRup:\n");
-
-					int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(scenarioRup.getFSSIndex());
-					System.out.println("\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
-					info_fr.write("\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
-
-				}
-				// this class pairs a probability with an index for sorting
-				class ProbPairing implements Comparable<ProbPairing> {
-					private double prob;
-					private int index;
-					private ProbPairing(double prob, int index) {
-						this.prob = prob;
-						this.index = index;
-					}
-
-					@Override
-					public int compareTo(ProbPairing o) {
-						// negative so biggest first
-						return -Double.compare(prob, o.prob);
-					}
-					
-				};
-				// this stores the minimum probability currently in the list
-				double curMinProb = Double.POSITIVE_INFINITY;
-				// list of probabilities. only the highest numToList values will be kept in this list
-				// this list is always kept sorted, highest to lowest
-				List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
-//				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
-				for(int i=0;i<numFaultSysSources;i++) {
-//					progressBar2.updateProgress(i, numFaultSysSources);
-					double prob = srcProbs[i];
-					if (prob < curMinProb && pairings.size() == numToList)
-						// already below the current min, skip
-						continue;
-					ProbPairing pairing = new ProbPairing(prob, i);
-					int index = Collections.binarySearch(pairings, pairing);
-					if (index < 0) {
-						// not in there yet, calculate insertion index from binary search result
-						index = -(index + 1);
-					}
-					pairings.add(index, pairing);
-					// remove if we just made it too big
-					if (pairings.size() > numToList)
-						pairings.remove(pairings.size()-1);
-					// reset current min
-					curMinProb = pairings.get(pairings.size()-1).prob;
-				}
-				
-				// sanity checks
-				double prevProb = Double.POSITIVE_INFINITY;
-				for (ProbPairing pairing : pairings) {
-					Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
-					prevProb = pairing.prob;
-				}
-				
-				System.out.println("Scenario is most likely to trigger the following fault-based sources:");
-				info_fr.write("\nScenario is most likely to trigger the following fault-based sources:\n\n");
-				for(ProbPairing pairing : pairings) {
-					int srcIndex = pairing.index;
-					double prob = pairing.prob;
-					System.out.println("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
-					info_fr.write("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
-				}
-			}
+//			// write out top-50 fault-based sources to be triggered
+//			if(numFaultSysSources>0) {
+//				int numToList = 50;
+//				double[] srcProbs = etas_PrimEventSampler.getRelativeTriggerProbOfEachSource(scenarioRup);
+//				if(scenarioRup.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
+//					System.out.println("Probability of sampling the scenarioRup:");
+//					info_fr.write("\nProbability of sampling the scenarioRup:\n");
+//
+//					int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(scenarioRup.getFSSIndex());
+//					System.out.println("\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
+//					info_fr.write("\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
+//
+//				}
+//				// this class pairs a probability with an index for sorting
+//				class ProbPairing implements Comparable<ProbPairing> {
+//					private double prob;
+//					private int index;
+//					private ProbPairing(double prob, int index) {
+//						this.prob = prob;
+//						this.index = index;
+//					}
+//
+//					@Override
+//					public int compareTo(ProbPairing o) {
+//						// negative so biggest first
+//						return -Double.compare(prob, o.prob);
+//					}
+//					
+//				};
+//				// this stores the minimum probability currently in the list
+//				double curMinProb = Double.POSITIVE_INFINITY;
+//				// list of probabilities. only the highest numToList values will be kept in this list
+//				// this list is always kept sorted, highest to lowest
+//				List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
+////				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
+//				for(int i=0;i<numFaultSysSources;i++) {
+////					progressBar2.updateProgress(i, numFaultSysSources);
+//					double prob = srcProbs[i];
+//					if (prob < curMinProb && pairings.size() == numToList)
+//						// already below the current min, skip
+//						continue;
+//					ProbPairing pairing = new ProbPairing(prob, i);
+//					int index = Collections.binarySearch(pairings, pairing);
+//					if (index < 0) {
+//						// not in there yet, calculate insertion index from binary search result
+//						index = -(index + 1);
+//					}
+//					pairings.add(index, pairing);
+//					// remove if we just made it too big
+//					if (pairings.size() > numToList)
+//						pairings.remove(pairings.size()-1);
+//					// reset current min
+//					curMinProb = pairings.get(pairings.size()-1).prob;
+//				}
+//				
+//				// sanity checks
+//				double prevProb = Double.POSITIVE_INFINITY;
+//				for (ProbPairing pairing : pairings) {
+//					Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
+//					prevProb = pairing.prob;
+//				}
+//				
+//				System.out.println("Scenario is most likely to trigger the following fault-based sources:");
+//				info_fr.write("\nScenario is most likely to trigger the following fault-based sources:\n\n");
+//				for(ProbPairing pairing : pairings) {
+//					int srcIndex = pairing.index;
+//					double prob = pairing.prob;
+//					System.out.println("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
+//					info_fr.write("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
+//				}
+//			}
+			
+			System.out.println(info);	
+			info_fr.write(info+"\n");
 		}
 		
 		if(D) {
@@ -632,7 +660,9 @@ public class ETAS_Simulator {
 						}
 					}
 					// now update the ETAS sampler
-					etas_PrimEventSampler.declareRateChange();	
+					etas_PrimEventSampler.declareRateChange();
+etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
+
 				}
 				String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
 				if(D) {
@@ -772,14 +802,14 @@ public class ETAS_Simulator {
 					// override mag
 					scenarioRup.setMag(scenario.mag);
 				scenarioRup.setFSSIndex(fssIndex);
-//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-	System.out.println(rupFromERF.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().get(0).toString());
-				CompoundSurface trimmedSurface = GriddedSurfaceUtils.trimEndsOfSurface(
-						(CompoundSurface)rupFromERF.getRuptureSurface(), 3, 3);
-				scenarioRup.setRuptureSurface(trimmedSurface);
-	System.out.println(trimmedSurface.getEvenlyDiscritizedListOfLocsOnSurface().get(0).toString());
-	System.exit(-1);
-//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
+				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface());
+//	System.out.println(rupFromERF.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
+//				CompoundSurface trimmedSurface = GriddedSurfaceUtils.trimEndsOfSurface(
+//						(CompoundSurface)rupFromERF.getRuptureSurface(), 3, 3);
+//				scenarioRup.setRuptureSurface(trimmedSurface);
+//	System.out.println(trimmedSurface.getEvenlyDiscritizedListOfLocsOnSurface().size());
+//	System.exit(-1);
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 5.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
@@ -1044,16 +1074,20 @@ public class ETAS_Simulator {
 		// temporary hack
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
-//		runTest(TestScenario.NEAR_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "nearMaacama_1", null);
-//		runTest(TestScenario.ON_MAACAMA, new ETAS_ParameterList(), new Long(1407965202664l), "onMaacama_1", null);
-//		runTest(TestScenario.MOJAVE, new ETAS_ParameterList(), new Long(14079652l), "MojaveTest_newCache11", null);	// aveStrike=295.0367915096109
-//		runTest(TestScenario.ON_N_MOJAVE, new ETAS_ParameterList(), new Long(1407965202664l), "OnN_Mojave_1", null);
-//		runTest(TestScenario.NEAR_N_MOJAVE_3KM, new ETAS_ParameterList(), new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
-//		runTest(TestScenario.LA_HABRA_6p2, new ETAS_ParameterList(), null, "LaHabraTest_1", null);
-//		runTest(null, new ETAS_ParameterList(), null, "NoMainshockTest_1", null);
-//		runTest(null, new ETAS_ParameterList(), null, "HistCatalogTest_2", getHistCatalog());
-//		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, new ETAS_ParameterList(), 1409243011639l, "Napa_15", null);
+		ETAS_ParameterList params = new ETAS_ParameterList();
+//		params.set_d_MinDist(2.0);
+//		params.setImposeGR(false);
+//		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
+//		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
+		
+//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveTest_noGRcorr_noTrigOnSupra3", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_1", null);
+//		runTest(TestScenario.NEAR_N_MOJAVE_3KM, params, new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
+//		runTest(TestScenario.LA_HABRA_6p2, params, null, "LaHabraTest_1", null);
+//		runTest(null, params, null, "NoMainshockTest_1", null);
+//		runTest(null, params, null, "HistCatalogTest_2", getHistCatalog());
+//		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
+		runTest(TestScenario.NAPA, params, 1409243011639l, "Napa_new1", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

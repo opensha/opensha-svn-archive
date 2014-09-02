@@ -40,6 +40,10 @@ public class ETAS_ParameterList extends ParameterList {
 	public double get_d() {return dParam.getValue();}
 	public boolean getImposeGR() {return imposeGR.getValue();}
 	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
+	
+	
+	public void set_d_MinDist(double minDist) { dParam.setValue(minDist);}
+	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
 
 	/**
 	 * @param args

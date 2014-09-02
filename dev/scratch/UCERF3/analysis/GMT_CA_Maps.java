@@ -599,8 +599,8 @@ public class GMT_CA_Maps {
 		
 		GriddedGeoDataSet bulgeDataSet = new GriddedGeoDataSet(defaultGridRegion, true);
 		
-		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
-		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
+		SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNodes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
+		SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNodes((InversionFaultSystemSolution)erf.getSolution(), defaultGridRegion);
 
 		for(int i=0;i<bulgeDataSet.size();i++) {
 			if(subMFD_Array[i] != null) {

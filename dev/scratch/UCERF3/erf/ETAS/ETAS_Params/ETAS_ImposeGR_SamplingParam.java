@@ -49,6 +49,6 @@ public class ETAS_ImposeGR_SamplingParam extends BooleanParameter {
 	 * non editable.
 	 * @param defaultValue
 	 */
-	public ETAS_ImposeGR_SamplingParam() {this(true);}
+	public ETAS_ImposeGR_SamplingParam() {this(false);}
 
 }

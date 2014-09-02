@@ -231,7 +231,7 @@ public class FaultSystemSolutionCalc {
 	 * @param griddedRegion
 	 * @return
 	 */
-	public static SummedMagFreqDist[] getSubSeismNucleationMFD_inGridNotes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
+	public static SummedMagFreqDist[] getSubSeismNucleationMFD_inGridNodes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
 		
 		double minMag = 2.05;
 		double maxMag = 8.95;
@@ -282,7 +282,7 @@ public class FaultSystemSolutionCalc {
 	 * @param griddedRegion
 	 * @return
 	 */
-	public static SummedMagFreqDist[] getSupraSeismNucleationMFD_inGridNotes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
+	public static SummedMagFreqDist[] getSupraSeismNucleationMFD_inGridNodes(InversionFaultSystemSolution invSol, GriddedRegion griddedRegion) {
 		
 		double minMag = 5.05;
 		double maxMag = 8.95;

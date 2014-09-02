@@ -4,9 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -71,13 +73,15 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  */
 public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_FunctionSampler> {
 	
+	private static boolean disable_cache = true;
+	boolean applyGR_Corr;	// don't set here (set by constructor)
+	
 	final static boolean D=ETAS_Simulator.D;
 	
 	String defaultFractSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSrcInCubeCache";
 	String defaultSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/srcInCubeCache";
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
-	boolean applyGR_Corr = true;
 	
 	// these define the cubes in space
 	int numCubeDepths, numCubesPerDepth, numCubes, numParDepths, numParLocsPerDepth, numParLocs;
@@ -138,8 +142,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				+" GB = "+max_weight+" bytes, soft values: "+soft_cache_values);
 	}
 	
-	private static boolean disable_cache = false;
-	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process
+	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
 //	int[] numForthcomingEventsAtParentLoc;
 //	int numCachedSamplers=0;
 //	int incrForReportingNumCachedSamplers=100;
@@ -270,6 +273,10 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		}
 		
 		grCorrFactorForCellArray = getGR_CorrFactorsForOrigGridCells();
+		
+//		for(double val:grCorrFactorForCellArray)
+//			System.out.println(val);
+//		System.exit(-1);
 		
 		// write out some gridding values
 //		if(D) {
@@ -742,10 +749,13 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //	System.out.println("bad loc: "+getLocationForSamplerIndex(i));
 				}
 				for(int s=0; s<sources.length;s++) {
-					if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1)
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];										
-					else
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];		
+					if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1) {
+// System.out.println("GOT HERE: "+grCorrFactorForCellArray[indexForOrigGriddedRegion]+"\t"+applyGR_Corr);
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];	
+					}
+					else {
+						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];	
+					}
 				}
 				total=0;
 				for(int s=0; s<sources.length;s++)	// sum for normalization
@@ -785,11 +795,28 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		return magDist;
 	}
 	
+	
+	
+	public double[] getCurrentRateOfEachSubsection() {
+		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+		double[] sectRate = new double[rupSet.getNumSections()];
+		for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
+			int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
+			for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
+				sectRate[sectIndex] += sourceRates[srcIndex];
+			}
+		}			
+		return sectRate;
+	}
+			
+			
 	/**
-	 * This gives the relative probability that each subsection will be involved
-	 * given a primary aftershocks of the supplied event.
+	 * This plots the relative probability that each subsection will be involved
+	 * given a primary aftershocks of the supplied mainshock.  This also returns
+	 * a String with a list of the top numToList fault-based sources and top sections.
 	 */
-	public void plotSubSectionTriggerProbGivenRupture(EqkRupture mainshock, File resultsDir) {
+	public String plotSubSectTriggerProbGivenRuptureAndReturnInfo(ETAS_EqkRupture mainshock, File resultsDir, int numToList) {
+		String info = "";
 		if(erf instanceof FaultSystemSolutionERF) {
 			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
 			double[] srcProbs = getRelativeTriggerProbOfEachSource(mainshock);
@@ -797,7 +824,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
 				int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
 				for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
-					sectProbArray[sectIndex] += srcProbs[srcIndex];	// probability it won't occur
+					sectProbArray[sectIndex] += srcProbs[srcIndex];
 				}
 			}			
 			
@@ -807,20 +834,149 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //			// now log space
 			double[] values = FaultBasedMapGen.log10(sectProbArray);
 			
-			String name = "SectTriggerProb";
+			
+			String name = "SectPrimaryTriggerProb";
 			String title = "Log10(Primary Trigger Prob)";
+			// this writes all the value to a file
+			try {
+				FileWriter fr = new FileWriter(new File(resultsDir, name+".txt"));
+				for(int s=0; s<sectProbArray.length;s++) {
+					fr.write(s +"\t"+(float)sectProbArray[s]+"\t"+faults.get(s).getName()+"\n");
+				}
+				fr.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			
 			try {
 				FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, true, false, title);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
+
+			
+			
+			// below creates the string of top values; first sources, then sections
+			
+			// write out probability of mainshock if it's a fault system source
+			if(mainshock.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
+				info += "\nProbability of sampling the scenarioRup:\n";
+				int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(mainshock.getFSSIndex());
+				info += "\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n";
+			}
+
+			// this class pairs a probability with an index for sorting
+			class ProbPairing implements Comparable<ProbPairing> {
+				private double prob;
+				private int index;
+				private ProbPairing(double prob, int index) {
+					this.prob = prob;
+					this.index = index;
+				}
+
+				@Override
+				public int compareTo(ProbPairing o) {
+					// negative so biggest first
+					return -Double.compare(prob, o.prob);
+				}
+
+			};
+
+			// this stores the minimum probability currently in the list
+			double curMinProb = Double.POSITIVE_INFINITY;
+			// list of probabilities. only the highest numToList values will be kept in this list
+			// this list is always kept sorted, highest to lowest
+			List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
+			for(int i=0;i<tempERF.getNumFaultSystemSources();i++) {
+				double prob = srcProbs[i];
+				if (prob < curMinProb && pairings.size() == numToList)
+					// already below the current min, skip
+					continue;
+				ProbPairing pairing = new ProbPairing(prob, i);
+				int index = Collections.binarySearch(pairings, pairing);
+				if (index < 0) {
+					// not in there yet, calculate insertion index from binary search result
+					index = -(index + 1);
+				}
+				pairings.add(index, pairing);
+				// remove if we just made it too big
+				if (pairings.size() > numToList)
+					pairings.remove(pairings.size()-1);
+				// reset current min
+				curMinProb = pairings.get(pairings.size()-1).prob;
+			}
+
+			// sanity checks
+			double prevProb = Double.POSITIVE_INFINITY;
+			for (ProbPairing pairing : pairings) {
+				Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
+				prevProb = pairing.prob;
+			}
+
+			info += "\nScenario is most likely to trigger the following fault-based sources:\n\n";
+			for(ProbPairing pairing : pairings) {
+				int srcIndex = pairing.index;
+				double prob = pairing.prob;
+				info += "\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n";
+			}
+			
+			
+			// now do sections
+			curMinProb = Double.POSITIVE_INFINITY;
+			// list of probabilities. only the highest numToList values will be kept in this list
+			// this list is always kept sorted, highest to lowest
+			pairings = new ArrayList<ProbPairing>(numToList+5);
+			for(int i=0;i<sectProbArray.length;i++) {
+				double prob = sectProbArray[i];
+				if (prob < curMinProb && pairings.size() == numToList)
+					// already below the current min, skip
+					continue;
+				ProbPairing pairing = new ProbPairing(prob, i);
+				int index = Collections.binarySearch(pairings, pairing);
+				if (index < 0) {
+					// not in there yet, calculate insertion index from binary search result
+					index = -(index + 1);
+				}
+				pairings.add(index, pairing);
+				// remove if we just made it too big
+				if (pairings.size() > numToList)
+					pairings.remove(pairings.size()-1);
+				// reset current min
+				curMinProb = pairings.get(pairings.size()-1).prob;
+			}
+
+			// sanity checks
+			prevProb = Double.POSITIVE_INFINITY;
+			for (ProbPairing pairing : pairings) {
+				Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
+				prevProb = pairing.prob;
+			}
+
+			info += "\nScenario is most likely to trigger the following sections:\n\n";
+			List<FaultSectionPrefData> fltDataList = tempERF.getSolution().getRupSet().getFaultSectionDataList();
+			for(ProbPairing pairing : pairings) {
+				int sectIndex = pairing.index;
+				double prob = pairing.prob;
+				info += "\t"+prob+"\t"+sectIndex+"\t"+fltDataList.get(sectIndex).getName()+"\n";
+			}
+
+			
+			
+			
+			
+			
+			
+			
+
+			
 			
 		}
 		else {
 			throw new RuntimeException("erf must be instance of FaultSystemSolutionERF");
 		}
-		
+		return info;
 	}
 	
 	
@@ -1201,14 +1357,34 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
+	public void removeTriggeringOnSupraSeisRup(EqkRupture rupture) {
+		
+		ArrayList<Integer> cubeLocsProcessed = new ArrayList<Integer>();
+		for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+			int cubeIndex = getCubeIndexForLocation(loc);
+			if(!cubeLocsProcessed.contains(cubeIndex)) {
+				int[] sources = srcInCubeList.get(cubeIndex);
+				float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+				for(int s=0; s<sources.length;s++) {
+					int srcIndex = sources[s];
+					if(srcIndex<numFltSystSources) {
+						fracts[s] = 0f;
+					}
+				}
+				cubeLocsProcessed.add(cubeIndex);
+			}
+		}
+	}
+	
+	
 	public double[] getGR_CorrFactorsForOrigGridCells() {
 		
 		double[] grCorrFactorForCellArray = new double[origGriddedRegion.getNodeCount()];
 		
 		if(erf instanceof FaultSystemSolutionERF) {
 			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
-			SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
-			SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNotes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
+			SummedMagFreqDist[] subMFD_Array = FaultSystemSolutionCalc.getSubSeismNucleationMFD_inGridNodes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
+			SummedMagFreqDist[] supraMFD_Array = FaultSystemSolutionCalc.getSupraSeismNucleationMFD_inGridNodes((InversionFaultSystemSolution)tempERF.getSolution(), origGriddedRegion);
 
 			double minCorr=Double.MAX_VALUE;
 			int minCorrIndex = -1;
@@ -1413,7 +1589,7 @@ if(locsToSampleFrom.size() == 0) {
 			for(int m=0;m<mfd.getNum();m++)
 				magDist.add(m, mfd.getY(m)*wt);
 			double maxMag = mfd.getMaxMagWithNonZeroRate();
-			if(maxMagTest < maxMag)
+			if(maxMagTest < maxMag && wt>0)
 				maxMagTest = maxMag;
 		}
 		
@@ -1710,6 +1886,54 @@ if(locsToSampleFrom.size() == 0) {
 			throw new RuntimeException("problem");
 
 	}
+	
+	public double tempGetSampleProbForAllCubesOnFaultSection(int sectIndex, EqkRupture mainshock) {
+		double prob=0;
+		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
+		ArrayList<Integer> usedCubesIndices = new ArrayList<Integer>();
+		FaultSectionPrefData fltSectData = rupSet.getFaultSectionData(sectIndex);
+		for(Location loc: fltSectData.getStirlingGriddedSurface(1, false, true).getEvenlyDiscritizedListOfLocsOnSurface()) {
+			int cubeIndex = getCubeIndexForLocation(loc);
+			if(!usedCubesIndices.contains(cubeIndex)) {
+				prob += aveSampler.getY(cubeIndex);
+				usedCubesIndices.add(cubeIndex);
+			}
+		}
+		return prob;
+	}
+	
+	
+	public SummedMagFreqDist tempGetSampleMFD_ForAllCubesOnFaultSection(int sectIndex, EqkRupture mainshock) {
+		
+		if(mfdForSrcArray == null)
+			computeMFD_ForSrcArrays(2.05,8.95,70);
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
+		ArrayList<Integer> usedCubesIndices = new ArrayList<Integer>();
+		FaultSectionPrefData fltSectData = rupSet.getFaultSectionData(sectIndex);
+		for(Location loc: fltSectData.getStirlingGriddedSurface(1, false, true).getEvenlyDiscritizedListOfLocsOnSurface()) {
+			int cubeIndex = getCubeIndexForLocation(loc);
+			if(!usedCubesIndices.contains(cubeIndex)) {
+				SummedMagFreqDist cubeMFD = getCubeMFD(cubeIndex);
+				cubeMFD.scaleToCumRate(0, 1.0); //make PDF
+				cubeMFD.scale(aveSampler.getY(cubeIndex));
+				magDist.addIncrementalMagFreqDist(cubeMFD);
+				usedCubesIndices.add(cubeIndex);
+			}
+		}
+		return magDist;
+	}
+
+	
+	public void temp2() {
+		List<FaultSectionPrefData> dataList = rupSet.getFaultSectionDataList();
+		FaultSectionPrefData mojaveSubSect7_data = dataList.get(1844);
+		System.out.println(mojaveSubSect7_data.getName());
+		
+		StirlingGriddedSurface fltSurf = mojaveSubSect7_data.getStirlingGriddedSurface(0.1, false, true);
+		for(Location loc:fltSurf.getEvenlyDiscritizedListOfLocsOnSurface())
+			System.out.println(grCorrFactorForCellArray[origGriddedRegion.indexForLocation(loc)]);
+	}
 
 	/**
 	 * @param args
@@ -1758,6 +1982,7 @@ if(locsToSampleFrom.size() == 0) {
 //		etas_PrimEventSampler.testMagFreqDist();
 
 //		etas_PrimEventSampler.temp();
+		etas_PrimEventSampler.temp2();
 		
 		
 		
