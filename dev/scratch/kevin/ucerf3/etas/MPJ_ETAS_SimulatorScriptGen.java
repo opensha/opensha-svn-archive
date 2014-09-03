@@ -31,9 +31,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
 //		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
-		Scenarios[] scenarios = {Scenarios.NAPA};
+//		Scenarios[] scenarios = {Scenarios.NAPA};
+		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		boolean timeIndep = false;
-		int numSims = 100;
+		int numSims = 5000;
 		
 		int memGigs;
 		int mins = 24*60;

@@ -337,6 +337,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 		ArrayList<String> problemSourceList = new ArrayList<String>();
 		ArrayList<String> subseismoRateString = new ArrayList<String> ();
 		problemUCERF2_Source = new boolean[ucerf2_fm.sourcesToUse];	// this will not include sources that have subseismo ruptures
+		double duration = modifiedUCERF2.getTimeSpan().getDuration();
 		int rupIndex = -1;
 		for(int s=0; s<ucerf2_fm.sourcesToUse; s++){
 			problemUCERF2_Source[s] = false;				// this will indicate that source has some problem
@@ -354,12 +355,12 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 				double ddw = rup.getRuptureSurface().getAveWidth();
 				double len = rup.getRuptureSurface().getAveLength();
 				double mag = ((int)(rup.getMag()*100.0))/100.0;	// nice value for writing
-				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+				totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(duration);
 				srcIndexOfUCERF2_Rup[rupIndex] = s;
 				rupIndexOfUCERF2_Rup[rupIndex] = r;;
 				magOfUCERF2_Rup[rupIndex] = rup.getMag();
 				lengthOfUCERF2_Rup[rupIndex] = len;
-				rateOfUCERF2_Rup[rupIndex] = rup.getMeanAnnualRate(30.0);
+				rateOfUCERF2_Rup[rupIndex] = rup.getMeanAnnualRate(duration);
 				
 				subSeismoUCERF2_Rup[rupIndex] = false;  // the default
 
@@ -385,7 +386,7 @@ public class FindEquivUCERF2_FM3_Ruptures extends FindEquivUCERF2_Ruptures {
 					                     "\t("+faultSectionData.get(secondEndIndex).getSectionName()+")\n";
 					if(D) System.out.print(errorString);
 					resultsString.add(errorString);
-					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(30.0);
+					partMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(duration);
 					continue;
 				}
 				

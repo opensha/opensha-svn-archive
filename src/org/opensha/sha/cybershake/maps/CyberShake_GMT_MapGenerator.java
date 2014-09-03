@@ -435,13 +435,16 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			boolean cptEqualSpacing = map.isCPTEqualSpacing();
 			if (mapType == InterpDiffMapType.BASEMAP) {
 				grdFile = baseGRD;
-				scaleLabel = "GMPE Basemap, "+scaleLabel;
+				if (map.isAutoLabel())
+					scaleLabel = "GMPE Basemap, "+scaleLabel;
 			} else if (mapType == InterpDiffMapType.INTERP_MARKS) {
 				grdFile = interpPlotGRD;
-				scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
+				if (map.isAutoLabel())
+					scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
 			} else if (mapType == InterpDiffMapType.INTERP_NOMARKS) {
 				grdFile = interpPlotGRD;
-				scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
+				if (map.isAutoLabel())
+					scaleLabel = "CyberShake Hazard Map, "+scaleLabel;
 			} else if (mapType == InterpDiffMapType.DIFF) {
 				if (griddedData == null)
 					continue;
@@ -450,8 +453,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				myCPTMax = diffCPT.getMaxValue();
 				myCPT = diffCPT;
 				grdFile = interpSampledGRD;
-				scaleLabel = "Difference Map, "+scaleLabel;
-			} else {
+				if (map.isAutoLabel())
+					scaleLabel = "Difference Map, "+scaleLabel;
+			} else if (mapType == InterpDiffMapType.RATIO) {
 				// ratios!
 				if (griddedData == null)
 					continue;
@@ -460,8 +464,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				myCPTMax = ratioCPT.getMaxValue();
 				myCPT = ratioCPT;
 				grdFile = interpRatioSampledGRD;
-				scaleLabel = "Ratio Map, "+scaleLabel;
+				if (map.isAutoLabel())
+					scaleLabel = "Ratio Map, "+scaleLabel;
 				cptEqualSpacing = true;
+			} else {
+				throw new IllegalStateException("Unknown map type: "+mapType);
 			}
 			
 			if (markers && myCPT != null && myCPT.get(0).minColor.equals(Color.BLUE)

@@ -265,11 +265,15 @@ public class FileUtils {
 
 		// iterate through the array of files, adding each to the zip file
 		for (String file : fileNames) {
-			// Associate a file input stream for the current file
-			FileInputStream in = new FileInputStream(dir + file);
-
 			// Add ZIP entry to output stream.
 			out.putNextEntry(new ZipEntry(file));
+			
+			File f = new File(dir + file);
+			if (f.isDirectory())
+				continue;
+		
+			// Associate a file input stream for the current file
+			FileInputStream in = new FileInputStream(f);
 
 			// Transfer bytes from the current file to the ZIP file
 			//out.write(buffer, 0, in.read(buffer));

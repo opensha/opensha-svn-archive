@@ -34,7 +34,7 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6, Scenarios.PARKFIELD};
 		boolean timeIndep = false;
-		int numSims = 10000;
+		int numSims = 20000;
 		String nameAdd = "-nospont";
 		
 		int memGigs;

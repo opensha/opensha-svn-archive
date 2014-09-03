@@ -43,6 +43,7 @@ public class InterpDiffMap extends GMT_Map {
 	private InterpDiffMapType[] mapTypes;
 	
 	private boolean useCPTForScatterColor = false;
+	private boolean autoLabel = true;
 	
 	public InterpDiffMap(Region region, GeoDataSet baseMap, double basemapInc, CPT cpt,
 			GeoDataSet scatter, GMT_InterpolationSettings interpSettings,
@@ -88,6 +89,14 @@ public class InterpDiffMap extends GMT_Map {
 
 	public void setUseCPTForScatterColor(boolean useCPTForScatterColor) {
 		this.useCPTForScatterColor = useCPTForScatterColor;
+	}
+
+	public boolean isAutoLabel() {
+		return autoLabel;
+	}
+
+	public void setAutoLabel(boolean autoLabel) {
+		this.autoLabel = autoLabel;
 	}
 
 }

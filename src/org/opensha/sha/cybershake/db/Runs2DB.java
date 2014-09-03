@@ -145,7 +145,7 @@ public class Runs2DB {
 		if (where != null && where.length() > 0)
 			sql += " WHERE" + where;
 		
-		System.out.println(sql);
+//		System.out.println(sql);
 		
 		ArrayList<CybershakeRun> runs = new ArrayList<CybershakeRun>();
 		

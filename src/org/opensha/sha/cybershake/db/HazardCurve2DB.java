@@ -783,15 +783,17 @@ public class HazardCurve2DB {
 	}
 	
 	public static void main(String args[]) {
-//		HazardCurve2DB curve2db;
-//		try {
-//			curve2db = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true));
-//			curve2db.deleteCurvesForDatasetID(51);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		System.exit(0);
+		HazardCurve2DB curve2db;
+		try {
+			curve2db = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true));
+//			curve2db.deleteCurvesForDatasetID(51); // cs oef parkfield, 1 week
+			curve2db.deleteCurvesForDatasetID(49); // cs oef bombay, 1 week
+//			curve2db.deleteCurvesForDatasetID(50); // cs oef UCERF2 mapped, 1 week
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.exit(0);
 		
 		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.db);
 		

@@ -1,10 +1,10 @@
 package org.opensha.sha.cybershake.etas;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -18,8 +18,13 @@ import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.AbstractModProbConfig;
@@ -30,25 +35,14 @@ import org.opensha.sha.cybershake.eew.ZeroProbMod;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
-import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
-import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
-import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
-import org.opensha.sha.earthquake.param.BackgroundRupParam;
-import org.opensha.sha.earthquake.param.BackgroundRupType;
-import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
-import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
-import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
-import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
-import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -63,7 +57,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
@@ -72,7 +65,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		BOMBAY_M6("Bombay Beach M6 Scenario", 9),
 		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
 		TEST_NEGLIGABLE("Test Negligable Scenario", -1),
-		MAPPED_UCERF2("Mapped UCERF2, no ETAS", 10);
+		MAPPED_UCERF2("Mapped UCERF2, no ETAS", 10),
+		MAPPED_UCERF2_TIMEDEP("Mapped UCERF2, no ETAS", 11);
 		
 		private int probModelID;
 		private String name;
@@ -147,10 +141,14 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private Map<Integer, Integer> u2ModSourceMappings;
 	/** map from original source ID, to modRupID, origRupID */
 	private Map<Integer, Map<Integer, Integer>> rupIndexMappings;
+	/** map from original source ID, to origRupID, modRupID */
+	private Map<Integer, Map<Integer, Integer>> rupIndexMappingsReversed;
 	
 	private Map<Integer, Map<Location, List<Integer>>> rvHypoLocations;
+	private Map<IDPairing, Map<Integer, Location>> hypoLocationsByRV;
 	
 	private Map<IDPairing, Map<Double, List<Integer>>> rvProbs;
+	private List<RVProbSortable> rvProbsSortable;
 
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
 			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile)
@@ -176,7 +174,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		this.timeSpan = timeSpan;
 		
 		ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
-		loadMappings(mappingsCSVFile);
+		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP)
+			loadMappings(mappingsCSVFile, MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);
+		else
+			loadMappings(mappingsCSVFile);
 		
 		// TODO use time dep ERF probs?
 //		timeDepNoETAS_ERF = new FaultSystemSolutionERF(sol);
@@ -260,7 +261,12 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				continue;
 //			System.out.println("Loading "+catEntry.getName());
 			
-			List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), 5d);
+			List<ETAS_EqkRupture> catalog;
+			try {
+				catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), 5d);
+			} catch (Exception e) {
+				continue;
+			}
 			catalog = filterCatalog(catalog);
 			
 			catalogs.add(catalog);
@@ -294,11 +300,15 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private void loadMappings(File mappingsCSVFile) throws IOException {
+		loadMappings(mappingsCSVFile, UCERF2.PROB_MODEL_POISSON);
+	}
+	
+	private void loadMappings(File mappingsCSVFile, String u2ProbModel) throws IOException {
 		modifiedUCERF2 = new ModMeanUCERF2_FM2pt1();
 
 		modifiedUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-		modifiedUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-		modifiedUCERF2.getTimeSpan().setDuration(30.0);
+		modifiedUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, u2ProbModel);
+		modifiedUCERF2.getTimeSpan().setDuration(1d);
 		modifiedUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.FULL_DDW_FLOATER);
 		modifiedUCERF2.updateForecast();
 		
@@ -369,6 +379,15 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //						+". Closest with mag match was "+closestDist+" km away");
 				rupIndexMapping.put(modRupID, closestOrigID);
 			}
+		}
+		// now do mapping reversed
+		rupIndexMappingsReversed = Maps.newHashMap();
+		for (Integer sourceID : rupIndexMappings.keySet()) {
+			Map<Integer, Integer> rupMappings = rupIndexMappings.get(sourceID);
+			Map<Integer, Integer> rupMappingsReversed = Maps.newHashMap();
+			for (Integer modRupID : rupMappings.keySet())
+				rupMappingsReversed.put(rupMappings.get(modRupID), modRupID);
+			rupIndexMappingsReversed.put(sourceID, rupMappingsReversed);
 		}
 		
 		CSVFile<String> csv = CSVFile.readFile(mappingsCSVFile, true);
@@ -487,6 +506,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	private void loadHyposForETASRups() {
 		rvHypoLocations = Maps.newHashMap();
+		hypoLocationsByRV = Maps.newHashMap();
 		
 		System.out.println("Loading hypos");
 		int ERFID = 35;
@@ -509,6 +529,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				
 				Map<Location, List<Integer>> locsMap = Maps.newHashMap();
 				rvHypoLocations.put(fssIndex, locsMap);
+				Map<Integer, Location> hyposByRV = Maps.newHashMap();
+				hypoLocationsByRV.put(pair, hyposByRV);
 				
 				try {
 					ResultSet rs = db.selectData(sql);
@@ -526,6 +548,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 							locsMap.put(loc, ids);
 						}
 						ids.add(rvID);
+						hyposByRV.put(rvID, loc);
 
 						success = rs.next();
 					}
@@ -540,7 +563,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private void loadRVProbs() {
-		rvProbs = Maps.newHashMap();
 		// loads in probabilities for rupture variations from the ETAS catalogs
 		
 		RuptureProbabilityModifier probMod = getRupProbModifier();
@@ -552,6 +574,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		// TODO correctly deal with exceedence probs, as a rup can happen more than once in a catalog 
 		MinMaxAveTracker rvTrack = new MinMaxAveTracker();
 		
+		// map from ID pairing to <rv ID, fractional num etas occurrences>
+		Map<IDPairing, Map<Integer, Double>> rvOccurCountsMap = Maps.newHashMap();
+		Map<IDPairing, List<Integer>> allRVsMap = Maps.newHashMap();
+		
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
 				Location hypo = rup.getHypocenterLocation();
@@ -559,6 +585,11 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				IDPairing pair = rupMappingTable.get(rup.getFSSIndex());
 				Preconditions.checkNotNull(pair);
 				Map<Location, List<Integer>> rvHypoLocs = rvHypoLocations.get(rup.getFSSIndex());
+				
+				List<Integer> allRVsList = Lists.newArrayList();
+				for (List<Integer> ids : rvHypoLocs.values())
+					allRVsList.addAll(ids);
+				allRVsMap.put(pair, allRVsList);
 				
 				double minDist = Double.POSITIVE_INFINITY;
 				Location closestLoc = null;
@@ -573,54 +604,129 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				Preconditions.checkNotNull(closestLoc);
 				Preconditions.checkState(minDist < 1000d, "No hypo match with 1000 km (closest="+minDist+")");
 				
-				double myProb = prob;
+//				double myProb = prob;
 				List<Integer> toBePromoted = Lists.newArrayList(rvHypoLocs.get(closestLoc));
 				rvTrack.addValue(toBePromoted.size());
 				Preconditions.checkState(toBePromoted.size() >= 1,
 						"Should be more than one ID for each hypo (size="+toBePromoted.size()+")");
 				
-				Map<Double, List<Integer>> rupRVProbs = rvProbs.get(pair);
-				if (rupRVProbs == null) {
-					rupRVProbs = Maps.newHashMap();
-					rvProbs.put(pair, rupRVProbs);
-					
-					if (calc_by_add_spontaneous) {
-						// now add in the regular probability
-						double initialProb = probMod.getModifiedProb(pair.getID1(), pair.getID2(), 0d);
-						List<Integer> allRVIndexes = Lists.newArrayList();
-						for (List<Integer> indexes : rvHypoLocs.values())
-							allRVIndexes.addAll(indexes);
-						rupRVProbs.put(initialProb, allRVIndexes);
-					}
+				Map<Integer, Double> rvCounts = rvOccurCountsMap.get(pair);
+				if (rvCounts == null) {
+					rvCounts = Maps.newHashMap();
+					rvOccurCountsMap.put(pair, rvCounts);
 				}
 				
-				while (!toBePromoted.isEmpty()) {
-					List<Integer> newToBePromoted = Lists.newArrayList();
-					List<Integer> prevIDs = rupRVProbs.get(myProb);
-					if (prevIDs == null) {
-						prevIDs = Lists.newArrayList();
-						rupRVProbs.put(myProb, prevIDs);
-					}
-					for (int newID : toBePromoted) {
-						int index = prevIDs.indexOf(newID);
-						if (index >= 0) {
-							// this hypo now has additional probability, remove from this level and add it next time in the loop
-							prevIDs.remove(index);
-							newToBePromoted.add(newID);
-						} else {
-							prevIDs.add(newID);
-						}
-					}
-					
-					if (prevIDs.isEmpty())
-						rupRVProbs.remove(myProb);
-					
-					myProb += prob;
-					toBePromoted = newToBePromoted;
+				// each mapped rv gets a fractional occurance, adding up to one
+				double fractionalOccur = 1d/(double)toBePromoted.size();
+				for (int rvIndex : toBePromoted) {
+					Double count = rvCounts.get(rvIndex);
+					if (count == null)
+						count = 0d;
+					count += fractionalOccur;
+					rvCounts.put(rvIndex, count);
 				}
+				
+//				Map<Double, List<Integer>> rupRVProbs = rvProbs.get(pair);
+//				if (rupRVProbs == null) {
+//					rupRVProbs = Maps.newHashMap();
+//					rvProbs.put(pair, rupRVProbs);
+//					
+//					if (calc_by_add_spontaneous) {
+//						// now add in the regular probability
+//						double initialProb = probMod.getModifiedProb(pair.getID1(), pair.getID2(), 0d);
+//						List<Integer> allRVIndexes = Lists.newArrayList();
+//						for (List<Integer> indexes : rvHypoLocs.values())
+//							allRVIndexes.addAll(indexes);
+//						// TODO???
+////						rupRVProbs.put(initialProb/(double)allRVIndexes.size(), allRVIndexes);
+//						rupRVProbs.put(initialProb, allRVIndexes);
+//					}
+//				}
+//				
+//				while (!toBePromoted.isEmpty()) {
+//					List<Integer> newToBePromoted = Lists.newArrayList();
+//					List<Integer> prevIDs = rupRVProbs.get(myProb);
+//					if (prevIDs == null) {
+//						prevIDs = Lists.newArrayList();
+//						rupRVProbs.put(myProb, prevIDs);
+//					}
+//					for (int newID : toBePromoted) {
+//						int index = prevIDs.indexOf(newID);
+//						if (index >= 0) {
+//							// this hypo now has additional probability, remove from this level and add it next time in the loop
+//							prevIDs.remove(index);
+//							newToBePromoted.add(newID);
+//						} else {
+//							prevIDs.add(newID);
+//						}
+//					}
+//					
+//					if (prevIDs.isEmpty())
+//						rupRVProbs.remove(myProb);
+//					
+//					myProb += prob;
+//					toBePromoted = newToBePromoted;
+//				}
 			}
 		}
 		System.out.println("RV counts for hypos encountered: "+rvTrack);
+		
+		// now build rv probs
+		rvProbs = Maps.newHashMap();
+		rvProbsSortable = Lists.newArrayList();
+		
+		for (IDPairing pair : rvOccurCountsMap.keySet()) {
+			Map<Integer, Double> rvCounts = rvOccurCountsMap.get(pair);
+			Preconditions.checkNotNull(rvCounts);
+			Preconditions.checkState(!rvCounts.isEmpty());
+			
+			List<Integer> allRVsList = allRVsMap.get(pair);
+			int totNumRVs = allRVsList.size();
+			Preconditions.checkState(totNumRVs > 0);
+			
+			Map<Integer, Double> rvProbMap = Maps.newHashMap();
+			
+			if (calc_by_add_spontaneous) {
+				// add in all RVs at original probability
+				double startingProbPer = rupProbMod.getModifiedProb(
+						pair.getID1(), pair.getID2(), 0d)/(double)totNumRVs;
+				for (Integer rvID : allRVsList)
+					rvProbMap.put(rvID, startingProbPer);
+			}
+			
+			// now add probability for each occurrence
+			for (Integer rvID : rvCounts.keySet()) {
+				double occur = rvCounts.get(rvID);
+				double rvProb = occur * prob;
+				if (rvProbMap.containsKey(rvID))
+					rvProb += rvProbMap.get(rvID);
+				rvProbMap.put(rvID, rvProb);
+				Location hypocenter = hypoLocationsByRV.get(pair).get(rvID);
+				double mag = ucerf2.getRupture(pair.getID1(), pair.getID2()).getMag();
+				rvProbsSortable.add(new RVProbSortable(pair.getID1(), pair.getID2(), rvID, mag, hypocenter, occur, rvProb));
+			}
+			
+			// now reverse the mapping
+			Map<Double, List<Integer>> rvProbsToCombine = Maps.newHashMap();
+			for (Integer rvID : rvProbMap.keySet()) {
+				Double rvProb = rvProbMap.get(rvID);
+				List<Integer> rvsAtProb = rvProbsToCombine.get(rvProb);
+				if (rvsAtProb == null) {
+					rvsAtProb = Lists.newArrayList();
+					rvProbsToCombine.put(rvProb, rvsAtProb);
+				}
+				rvsAtProb.add(rvID);
+			}
+			
+			// now sub the probabilities for each set of combined rvs, add to actual map
+			Map<Double, List<Integer>> mergedProbs = Maps.newHashMap();
+			for (Double individualProb : rvProbsToCombine.keySet()) {
+				List<Integer> rvIndexes = rvProbsToCombine.get(individualProb);
+				double groupProb = individualProb*(double)rvIndexes.size();
+				mergedProbs.put(groupProb, rvIndexes);
+			}
+			rvProbs.put(pair, mergedProbs);
+		}
 	}
 	
 	private RuptureProbabilityModifier rupProbMod;
@@ -652,15 +758,21 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 
 	@Override
 	public synchronized RuptureVariationProbabilityModifier getRupVarProbModifier() {
-		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2)
+		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2
+				|| scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP)
 			return null;
 		if (catalogs == null) {
 			try {
+				System.out.println("Loading catalogs for "+scenario.name);
 				loadCatalogs(catalogsDirs);
 				
+				System.out.println("Loading Hypos for ETAS rups for "+scenario.name);
 				loadHyposForETASRups();
 				
+				System.out.println("Loading RV probs for "+scenario.name);
 				loadRVProbs();
+				
+				System.out.println("DONE loading RV probs for "+scenario.name);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -705,17 +817,135 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		return new GregorianCalendar(2014, 0, 1).getTime();
 	}
 	
+	public void writeTriggerMFD(File outputDir, String prefix) throws IOException {
+		getRupVarProbModifier(); // make sure everything has been loaded
+		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(6.05, 31, 0.1d);
+		incrMFD.setName("Incremental MFD");
+		
+		double catRate = 1d/catalogs.size();
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
+//				System.out.println("Mag: "+rup.getMag()+", "+incrMFD.getMinX()+" => "+incrMFD.getMaxX());
+				incrMFD.add(incrMFD.getClosestXIndex(rup.getMag()), catRate);
+			}
+		}
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		EvenlyDiscretizedFunc cmlMFD = incrMFD.getCumRateDistWithOffset();
+		cmlMFD.setName("Cumulative MFD");
+		
+		funcs.add(incrMFD);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
+		
+		funcs.add(cmlMFD);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, scenario.name+" Scenario Supra Seis MFD",
+				"Magnitude", timeSpan.name+" Rate");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		gp.setXLog(false);
+		gp.setYLog(true);
+		gp.setUserBounds(6d, 8.5d, 1e-5, 1e0);
+		gp.drawGraphPanel(spec);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
+	List<RVProbSortable> getRVProbsSortable() {
+		return rvProbsSortable;
+	}
+	
+	class RVProbSortable implements Comparable<RVProbSortable> {
+		
+		private int sourceID, rupID, rvID;
+		private Location hypocenter;
+		private double mag;
+		private double occurances;
+		private double triggerRate;
+		
+		private double triggerMoRate;
+
+		public RVProbSortable(int sourceID, int rupID, int rvID, double mag,
+				Location hypocenter, double occurances, double triggerRate) {
+			super();
+			this.sourceID = sourceID;
+			this.rupID = rupID;
+			this.rvID = rvID;
+			this.mag = mag;
+			this.hypocenter = hypocenter;
+			this.occurances = occurances;
+			this.triggerRate = triggerRate;
+			
+			double moment = Math.pow(10, 1.5*(mag + 6d));
+			triggerMoRate = moment * triggerRate;
+		}
+
+		@Override
+		public int compareTo(RVProbSortable o) {
+//			return Double.compare(o.triggerRate, triggerRate);
+			return Double.compare(o.triggerMoRate, triggerMoRate);
+		}
+		
+		@Override
+		public String toString() {
+			return "Source: "+sourceID+", Rup: "+rupID+", RV: "+rvID+", Mag: "+mag+"\nHypocenter: "+hypocenter
+					+"\noccur: "+occurances+", triggerRate: "+triggerRate;
+		}
+
+		public int getSourceID() {
+			return sourceID;
+		}
+
+		public int getRupID() {
+			return rupID;
+		}
+
+		public int getRvID() {
+			return rvID;
+		}
+
+		public Location getHypocenter() {
+			return hypocenter;
+		}
+
+		public double getOccurances() {
+			return occurances;
+		}
+
+		public double getTriggerRate() {
+			return triggerRate;
+		}
+		
+	}
+	
 	public static void main(String[] args) throws IOException, DocumentException {
+		ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_WEEK;
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
-//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results"),
+//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-parkfield-nospont_combined.zip"),
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, ETAS_Cybershake_TimeSpans.ONE_YEAR, sol,
-				new File[0],
+		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, timeSpan, sol,
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-bombay_beach_m6_combined.zip"),
 				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, timeSpan, sol,
+//				new File[0],
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+		
+		conf.writeTriggerMFD(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mfds"),
+				conf.scenario.name().toLowerCase()+"_trigger_mfd");
 		
 		System.exit(0);
 	}
