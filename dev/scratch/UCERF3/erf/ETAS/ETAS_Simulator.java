@@ -72,6 +72,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
@@ -243,9 +244,12 @@ public class ETAS_Simulator {
 			System.out.println("histQkList.size()="+histQkList.size());
 			System.out.println("obsEqkRuptureList.size()="+obsEqkRuptureList.size());
 		}
-
+		
+		int scenarioRupID = -1;
+		double numPrimaryAshockForScenario = 0;
 		if(scenarioRup != null) {
-			scenarioRup.setID(obsEqkRuptureList.size());
+			scenarioRupID = obsEqkRuptureList.size();
+			scenarioRup.setID(scenarioRupID);
 			obsEqkRuptureList.add(scenarioRup);		
 			if(D) {
 				System.out.println("Num locs on scenario rup surface: "+scenarioRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface().size());
@@ -320,15 +324,16 @@ public class ETAS_Simulator {
 		
 		
 //double[] sectRateArray = etas_PrimEventSampler.getCurrentRateOfEachSubsection();
-List<FaultSectionPrefData> dataList = ((FaultSystemSolutionERF)erf).getSolution().getRupSet().getFaultSectionDataList();
+//List<FaultSectionPrefData> dataList = ((FaultSystemSolutionERF)erf).getSolution().getRupSet().getFaultSectionDataList();
 //System.out.println("Mojave S 9 Rate: "+sectRateArray[1846]+"\t"+dataList.get(1846).getName());
 //System.out.println("Mojave N 4 Rate: "+sectRateArray[1836]+"\t"+dataList.get(1836).getName());
 
 //System.out.println("Mojave S 9 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1846, scenarioRup)+"\t"+dataList.get(1846).getName());
 //System.out.println("Mojave N 4 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1836, scenarioRup)+"\t"+dataList.get(1836).getName());
 
-if(scenarioRup != null)
-	etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
+		// prevent supra-seis triggering on scenario surface if it's a FSS rupture
+		if(scenarioRup != null && scenarioRup.getFSSIndex() >= 0)
+			etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
 
 //System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).getCumRateDistWithOffset().toString());
 //System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).toString());
@@ -355,6 +360,8 @@ if(scenarioRup != null)
 			// get a list of random primary event times, in units of days since main shock
 //			double[] randomAftShockTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
 			double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+			if(rup.getID() == scenarioRupID)
+				numPrimaryAshockForScenario = randomAftShockTimes.length;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
@@ -395,7 +402,7 @@ if(scenarioRup != null)
 		}
 
 		// If scenarioRup != null, compute ExpectedPrimaryMFD if in debug mode; this takes time!
-		EvenlyDiscretizedFunc expectedCumPrimaryMFDforTestRup=null;
+		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList=null;
 		boolean doit = true;
 		if(D && scenarioRup !=null && doit) {
 			if(D) System.out.println("Computing Scenario Diagnostics");
@@ -405,88 +412,18 @@ if(scenarioRup != null)
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 			
 			info_fr.write("\nExpected number of primary events for Scenario: "+expNum+"\n");
-			System.out.println("\nExpected number of primary events for Scenario: "+expNum+"\n");
+			info_fr.write("\nObserved number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
+			System.out.println("\nExpected number of primary events for Scenario: "+expNum);
+			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 			
 			// compute expected MFD
-			expectedCumPrimaryMFDforTestRup = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
+			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
 					etas_PrimEventSampler, scenarioRup, expNum);
 // System.exit(-1);
 			// Compute Primary Event Sampler Map
 			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
 			// Compute subsection trigger probability map
 			String info = etas_PrimEventSampler.plotSubSectTriggerProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 50);
-
-//			// write out top-50 fault-based sources to be triggered
-//			if(numFaultSysSources>0) {
-//				int numToList = 50;
-//				double[] srcProbs = etas_PrimEventSampler.getRelativeTriggerProbOfEachSource(scenarioRup);
-//				if(scenarioRup.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
-//					System.out.println("Probability of sampling the scenarioRup:");
-//					info_fr.write("\nProbability of sampling the scenarioRup:\n");
-//
-//					int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(scenarioRup.getFSSIndex());
-//					System.out.println("\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
-//					info_fr.write("\n\t"+srcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
-//
-//				}
-//				// this class pairs a probability with an index for sorting
-//				class ProbPairing implements Comparable<ProbPairing> {
-//					private double prob;
-//					private int index;
-//					private ProbPairing(double prob, int index) {
-//						this.prob = prob;
-//						this.index = index;
-//					}
-//
-//					@Override
-//					public int compareTo(ProbPairing o) {
-//						// negative so biggest first
-//						return -Double.compare(prob, o.prob);
-//					}
-//					
-//				};
-//				// this stores the minimum probability currently in the list
-//				double curMinProb = Double.POSITIVE_INFINITY;
-//				// list of probabilities. only the highest numToList values will be kept in this list
-//				// this list is always kept sorted, highest to lowest
-//				List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
-////				CalcProgressBar progressBar2 = new CalcProgressBar("Num to go", "junk");
-//				for(int i=0;i<numFaultSysSources;i++) {
-////					progressBar2.updateProgress(i, numFaultSysSources);
-//					double prob = srcProbs[i];
-//					if (prob < curMinProb && pairings.size() == numToList)
-//						// already below the current min, skip
-//						continue;
-//					ProbPairing pairing = new ProbPairing(prob, i);
-//					int index = Collections.binarySearch(pairings, pairing);
-//					if (index < 0) {
-//						// not in there yet, calculate insertion index from binary search result
-//						index = -(index + 1);
-//					}
-//					pairings.add(index, pairing);
-//					// remove if we just made it too big
-//					if (pairings.size() > numToList)
-//						pairings.remove(pairings.size()-1);
-//					// reset current min
-//					curMinProb = pairings.get(pairings.size()-1).prob;
-//				}
-//				
-//				// sanity checks
-//				double prevProb = Double.POSITIVE_INFINITY;
-//				for (ProbPairing pairing : pairings) {
-//					Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
-//					prevProb = pairing.prob;
-//				}
-//				
-//				System.out.println("Scenario is most likely to trigger the following fault-based sources:");
-//				info_fr.write("\nScenario is most likely to trigger the following fault-based sources:\n\n");
-//				for(ProbPairing pairing : pairings) {
-//					int srcIndex = pairing.index;
-//					double prob = pairing.prob;
-//					System.out.println("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());	
-//					info_fr.write("\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n");
-//				}
-//			}
 			
 			System.out.println(info);	
 			info_fr.write(info+"\n");
@@ -661,14 +598,18 @@ if(scenarioRup != null)
 					}
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();
-etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
+					// and prevent triggering on surface of what just ruptured
+					etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 
 				}
 				String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
-					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), Double.NaN);
+					double startDay = 0.0;	// from the moment it occurs
+					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), expNum);
 				}
 			}
 		}
@@ -704,17 +645,18 @@ etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 			ETAS_SimAnalysisTools.plotEpicenterMap(simulationName, new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
 			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup(simulationName, new File(resultsDir,"distDecayForRup.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), inputRupID);
-			ArrayList<ArbIncrementalMagFreqDist> obsAshockMFDsForFirstEvent = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			ETAS_SimAnalysisTools.plotMagFreqDistsForRup(simulationName, resultsDir, inputRupID, obsAshockMFDsForFirstEvent);
+			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForFirstEvent = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
+			obsAshockMFDsForFirstEvent.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
+			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForFirstEvent);
 			
 			
 			// write stats for first rup
 			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-			if(expectedCumPrimaryMFDforTestRup != null) {
-				expPrimNumAtMainMag = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag());
-				expPrimNumAtMainMagMinusOne = expectedCumPrimaryMFDforTestRup.getInterpolatedY(scenarioRup.getMag()-1.0);				
+			if(expectedPrimaryMFDsForScenarioList.get(1) != null) {
+				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
+				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
 			EvenlyDiscretizedFunc obsPrimCumMFD = obsAshockMFDsForFirstEvent.get(1).getCumRateDistWithOffset();
 			double obsPrimNumAtMainMag = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag());
@@ -871,7 +813,7 @@ etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=true;
+		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=true;
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
@@ -1080,14 +1022,14 @@ etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
-//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveTest_noGRcorr_noTrigOnSupra3", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveTest_new_noSpnont_1", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, params, new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, params, null, "LaHabraTest_1", null);
 //		runTest(null, params, null, "NoMainshockTest_1", null);
 //		runTest(null, params, null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, params, 1409243011639l, "Napa_new1", null);
+		runTest(TestScenario.NAPA, params, 1409243011639l, "Napa_new_nospont_2", null);
 		
 
 		// ************** OLD STUFF BELOW *********************

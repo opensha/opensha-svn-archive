@@ -554,7 +554,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param rupID
 	 * @param info
 	 */
-	public static ArrayList<ArbIncrementalMagFreqDist> getAftershockMFDsForRup(Collection<ETAS_EqkRupture> eventsList, int rupID, String info) {
+	public static ArrayList<IncrementalMagFreqDist> getAftershockMFDsForRup(Collection<ETAS_EqkRupture> eventsList, int rupID, String info) {
 		// get the observed mag-prob dist for the sampled set of events 
 		ArbIncrementalMagFreqDist allAftershocksMFD = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
 		ArbIncrementalMagFreqDist primaryAftershocksMFD = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
@@ -573,7 +573,7 @@ public class ETAS_SimAnalysisTools {
 		primaryAftershocksMFD.setName("MFD Histogram of primary aftershocks of input rupture (ID="+rupID+") for simulation "+info);
 		primaryAftershocksMFD.setInfo("Total Num = "+primaryAftershocksMFD.calcSumOfY_Vals());
 		
-		ArrayList<ArbIncrementalMagFreqDist> magProbDists = new ArrayList<ArbIncrementalMagFreqDist>();
+		ArrayList<IncrementalMagFreqDist> magProbDists = new ArrayList<IncrementalMagFreqDist>();
 		magProbDists.add(allAftershocksMFD);
 		magProbDists.add(primaryAftershocksMFD);
 
@@ -589,17 +589,18 @@ public class ETAS_SimAnalysisTools {
 	 * @param rupID
 	 * @param mfds
 	 */
-	public static void plotMagFreqDistsForRup(String info, File resultsDir, int rupID, ArrayList<ArbIncrementalMagFreqDist> mfdList) {
+	public static void plotMagFreqDistsForRup(String fileNamePrefix, File resultsDir, ArrayList<IncrementalMagFreqDist> mfdList) {
 		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
 				
 		// Plot these MFDs
-		GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "MFD Histogram for Input Rupture",plotChars); 
+		GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "MFD Histogram for "+fileNamePrefix,plotChars); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Number");
-		magProbDistsGraph.setY_AxisRange(0.1, 1e3);
+		magProbDistsGraph.setY_AxisRange(1e-5, 1e3);
 		magProbDistsGraph.setX_AxisRange(2d, 9d);
 		magProbDistsGraph.setYLog(true);
 		magProbDistsGraph.setPlotLabelFontSize(18);
@@ -610,16 +611,18 @@ public class ETAS_SimAnalysisTools {
 		ArrayList<EvenlyDiscretizedFunc> cumMagProbDists = new ArrayList<EvenlyDiscretizedFunc>();
 		cumMagProbDists.add(mfdList.get(0).getCumRateDistWithOffset());
 		cumMagProbDists.add(mfdList.get(1).getCumRateDistWithOffset());
+		cumMagProbDists.add(mfdList.get(2).getCumRateDistWithOffset());
 		
 		ArrayList<PlotCurveCharacterstics> plotCharsCum = new ArrayList<PlotCurveCharacterstics>();
 		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
 				
 		// Plot these MFDs
-		GraphWindow cuMagProbDistsGraph = new GraphWindow(cumMagProbDists, "Cumulative MFD Hist for RupID="+rupID,plotCharsCum); 
+		GraphWindow cuMagProbDistsGraph = new GraphWindow(cumMagProbDists, "Cumulative MFD Hist for "+fileNamePrefix,plotCharsCum); 
 		cuMagProbDistsGraph.setX_AxisLabel("Mag");
 		cuMagProbDistsGraph.setY_AxisLabel("Number");
-		cuMagProbDistsGraph.setY_AxisRange(0.1, 1e4);
+		cuMagProbDistsGraph.setY_AxisRange(1e-4, 1e4);
 		cuMagProbDistsGraph.setX_AxisRange(2d, 9d);
 		cuMagProbDistsGraph.setYLog(true);
 		cuMagProbDistsGraph.setPlotLabelFontSize(18);
@@ -628,8 +631,8 @@ public class ETAS_SimAnalysisTools {
 		
 		if(resultsDir != null) {
 			
-			String pathName = new File(resultsDir,"AshocksOfInputRupMFD.pdf").getAbsolutePath();
-			String pathNameCum = new File(resultsDir,"AshocksOfInputRupCumMFD.pdf").getAbsolutePath();
+			String pathName = new File(resultsDir,fileNamePrefix+".pdf").getAbsolutePath();
+			String pathNameCum = new File(resultsDir,fileNamePrefix+"_Cum.pdf").getAbsolutePath();
 			try {
 				magProbDistsGraph.saveAsPDF(pathName);
 				cuMagProbDistsGraph.saveAsPDF(pathNameCum);
@@ -925,7 +928,7 @@ public class ETAS_SimAnalysisTools {
 	 * (as a function of magnitude), and the the expected cumulative MFD for primary events (if the
 	 * given expNum is not NaN) from the given rupture.
 	 * 
-	 * This returns the expected cumulative MFD (or null is expNum=NaN)
+	 * This returns a list with the expected mfd (element 0) and the cumulative MFD (element 1, which is null if expNum=NaN)
 	 * 
 	 * @param rupInfo - Info String
 	 * @param pdf_FileName - plots are saved if this is non null
@@ -934,16 +937,16 @@ public class ETAS_SimAnalysisTools {
 	 * @param expNum - expected number of primary aftershocks
 	 * @return
 	 */
-	public static EvenlyDiscretizedFunc plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
+	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
 			EqkRupture rupture, double expNum) {
 		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rupture);
-		// convert MFD to probability density function
-		mfd.scale(1.0/(mfd.getTotalIncrRate()*mfd.getDelta()));
+		// convert MFD to expected num distribution
+		mfd.scale(expNum/(mfd.getTotalIncrRate()));
 		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);
 		mfd.setInfo("Data:\n"+mfd.getMetadataString());
 		GraphWindow magProbDistsGraph = new GraphWindow(mfd, "Expected Primary Aftershock MFD"); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
-		magProbDistsGraph.setY_AxisLabel("Probability Density");
+		magProbDistsGraph.setY_AxisLabel("Expected Num In Each Bin");
 		magProbDistsGraph.setY_AxisRange(10e-9, 10e-1);
 		magProbDistsGraph.setX_AxisRange(2., 9.);
 		magProbDistsGraph.setYLog(true);
@@ -957,7 +960,7 @@ public class ETAS_SimAnalysisTools {
 		GraphWindow cumDistsGraph = null;
 		if(!Double.isNaN(expNum)) {
 			cumMFD = mfd.getCumRateDistWithOffset();
-			cumMFD.scale(mfd.getDelta()*expNum);
+//			cumMFD.scale(mfd.getDelta()*expNum);
 			cumMFD.setName("Cum MFD for primary aftershocks of "+rupInfo);
 			String info = "expNum="+(float)expNum+" over forecast duration\n";
 			double expNumAtMainshockMag = cumMFD.getInterpolatedY(rupture.getMag());
@@ -966,7 +969,7 @@ public class ETAS_SimAnalysisTools {
 			cumMFD.setInfo(info);
 			cumDistsGraph = new GraphWindow(cumMFD, "Expected Cumulative Primary Aftershock MFD"); 
 			cumDistsGraph.setX_AxisLabel("Mag");
-			cumDistsGraph.setY_AxisLabel("Rate (per year)");
+			cumDistsGraph.setY_AxisLabel("Expected Number");
 			cumDistsGraph.setY_AxisRange(10e-8, 10e4);
 			cumDistsGraph.setX_AxisRange(2.,9.);
 			cumDistsGraph.setYLog(true);
@@ -1015,10 +1018,14 @@ public class ETAS_SimAnalysisTools {
 			}
 		}
 		
+		ArrayList<EvenlyDiscretizedFunc> mfdList = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdList.add(mfd);
 		if(cumMFD != null)
-			return cumMFD;
+			mfdList.add(cumMFD);
 		else
-			return null;
+			mfdList.add(null);
+		
+		return mfdList;
 
 	}
 
