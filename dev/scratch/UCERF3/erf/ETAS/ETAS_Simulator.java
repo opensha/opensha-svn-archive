@@ -939,7 +939,9 @@ public class ETAS_Simulator {
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 5.0),	// on N edge of the Mojave scenario
 		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0),	// on N edge of the Mojave scenario
 		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d), // will prompt when built, these are just defaults
-		NAPA("Napa 6.0", 93902, null, 6d); // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
+		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
+		PARKFIELD("Parkfield M6", 30473), // Parkfield M6 fault based rup
+		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0); // Bombay Beach M6 in location of 2009 M4.8
 
 				
 		private String name;
