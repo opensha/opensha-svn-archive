@@ -250,6 +250,18 @@ public class CaliforniaRegions {
 		}
 	}
 
+	/** 
+	 * San Diago Box by request from Morgan Page
+	 */
+	public static final class SAN_DIEGO_BOX extends Region {
+		/** New instance of region. */
+		public SAN_DIEGO_BOX() {
+			super(readCoords("SanDiego.coords"), 
+					BorderType.MERCATOR_LINEAR);
+			this.setName("SAN_DIEGO_BOX Region");
+		}
+	}
+
 
 	/** 
 	 * A box defining the region of the CyberShake 1.0 map region

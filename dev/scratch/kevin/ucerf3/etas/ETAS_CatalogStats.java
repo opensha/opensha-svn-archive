@@ -27,11 +27,11 @@ import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 
 public class ETAS_CatalogStats {
 	
-	private static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag) {
+	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag) {
 		return calcNumWithMagAbove(catalogs, targetMinMag, -1, -1);
 	}
 	
-	private static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag,
+	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag,
 			int triggerParentID, int maxDaysAfter) {
 		HashSet<Integer> triggerParentIDs = null;
 		if (triggerParentID >= 0) {

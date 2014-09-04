@@ -1425,6 +1425,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			regions.add(new CaliforniaRegions.SF_BOX());
 			regions.add(new CaliforniaRegions.LA_BOX());
 			regions.add(new CaliforniaRegions.NORTHRIDGE_BOX());
+			regions.add(new CaliforniaRegions.SAN_DIEGO_BOX());
 			return regions;
 		}
 		

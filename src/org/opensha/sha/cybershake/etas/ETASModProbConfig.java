@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -49,6 +52,7 @@ import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
+import scratch.kevin.ucerf3.etas.ETAS_CatalogStats;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.base.Joiner;
@@ -64,9 +68,11 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		PARKFIELD("Parkfield Scenario", 8),
 		BOMBAY_M6("Bombay Beach M6 Scenario", 9),
 		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
+		TEST_BOMBAY_M6_SUBSET_FIRST("Bombay Beach M6 Scenario First Half", -1),
+		TEST_BOMBAY_M6_SUBSET_SECOND("Bombay Beach M6 Scenario Second Half", -1),
 		TEST_NEGLIGABLE("Test Negligable Scenario", -1),
 		MAPPED_UCERF2("Mapped UCERF2, no ETAS", 10),
-		MAPPED_UCERF2_TIMEDEP("Mapped UCERF2, no ETAS", 11);
+		MAPPED_UCERF2_TIMEDEP("Mapped UCERF2 Time Dep, no ETAS", 11);
 		
 		private int probModelID;
 		private String name;
@@ -226,6 +232,11 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			System.out.println("Loaded "+catalogs.size()+" catalogs ("+fssCount+" fault rups)");
 			Preconditions.checkState(!catalogs.isEmpty(), "Must load at least one catalog!");
 		}
+		
+		if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET_FIRST)
+			catalogs = catalogs.subList(0, catalogs.size()/2);
+		else if (scenario == ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET_SECOND)
+			catalogs = catalogs.subList(catalogs.size()/2, catalogs.size());
 	}
 	
 	private void loadCatalogsZip(File zipFile) throws ZipException, IOException {
@@ -233,7 +244,17 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		ZipFile zip = new ZipFile(zipFile);
 		
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+		ArrayList<ZipEntry> entries = Lists.newArrayList(Iterators.forEnumeration(zip.entries()));
+		// sort for constant ordering
+		Collections.sort(entries, new Comparator<ZipEntry>() {
+
+			@Override
+			public int compare(ZipEntry o1, ZipEntry o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		
+		for (ZipEntry entry : entries) {
 			if (!entry.isDirectory())
 				continue;
 //			System.out.println(entry.getName());
@@ -928,24 +949,29 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		public double getTriggerRate() {
 			return triggerRate;
 		}
+
+		public double getMag() {
+			return mag;
+		}
 		
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {
 		ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_WEEK;
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
-//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-parkfield-nospont_combined.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, timeSpan, sol,
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-bombay_beach_m6_combined.zip"),
+		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results.zip"),
 				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, timeSpan, sol,
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 //		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, timeSpan, sol,
 //				new File[0],
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 		
 		conf.writeTriggerMFD(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mfds"),
 				conf.scenario.name().toLowerCase()+"_trigger_mfd");
+		ETAS_CatalogStats.calcNumWithMagAbove(conf.catalogs, 0d);
 		
 		System.exit(0);
 	}
