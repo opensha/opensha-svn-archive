@@ -1024,15 +1024,19 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
-//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveTest_new_noSpnont_1", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_1", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, params, new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, params, null, "LaHabraTest_1", null);
 //		runTest(null, params, null, "NoMainshockTest_1", null);
 //		runTest(null, params, null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, params, 1409243011639l, "Napa_new_nospont_2", null);
+		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_1", null);
+		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
+
 		
+//		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.BOMBAY_BEACH_M6, params, new Long(14079652l), "BombayBeachTest_noSpnont_1", null);	// aveStrike=295.0367915096109
+
 
 		// ************** OLD STUFF BELOW *********************
 		

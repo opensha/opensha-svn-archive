@@ -1118,7 +1118,7 @@ public class ETAS_SimAnalysisTools {
 		
 		double firstLogDay = -4;
 		double lastLogDay = 5;
-		double deltaLogDay =0.1;
+		double deltaLogDay =0.2;
 		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
@@ -1130,9 +1130,9 @@ public class ETAS_SimAnalysisTools {
 			if(event.getParentRup() != null) {
 				double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
 				double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
-				if(logTimeDays<=firstLogDay)
-					firstGenEventTimes.add(0, 1.0);
-				else if(logTimeDays<lastLogDay+deltaLogDay/2.0)
+				if(logTimeDays<=firstLogDay)	// avoid spike in first point
+					continue;
+				if(logTimeDays<lastLogDay)
 					firstGenEventTimes.add(logTimeDays, 1.0);
 				if(logTimeDays>maxLogTimeDays)
 					maxLogTimeDays = logTimeDays;

@@ -828,7 +828,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				}
 			}			
 			
-			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(-7, -2);;
+			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(-8, -3);;
 			List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
 
 //			// now log space
