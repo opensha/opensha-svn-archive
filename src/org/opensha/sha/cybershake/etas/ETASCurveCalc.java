@@ -38,6 +38,7 @@ import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.ShakeMapComputation;
+import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -74,6 +75,8 @@ import com.google.common.primitives.Doubles;
 public class ETASCurveCalc {
 	
 	protected DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+	
+	private static final File amps_cache_dir = new File("/home/kevin/CyberShake/amps_cache");
 	
 	private HazardCurveComputation calc;
 	private ETASModProbConfig conf;
@@ -219,7 +222,7 @@ public class ETASCurveCalc {
 			if (func == null) {
 				// have to calculate
 				if (calc == null) {
-					calc = new HazardCurveComputation(db);
+					buildCurveCalc();
 					calc.setRupVarProbModifier(conf.getRupVarProbModifier());
 					calc.setRupProbModifier(conf.getRupProbModifier());
 				}
@@ -315,7 +318,7 @@ public class ETASCurveCalc {
 			prevCurves = Maps.newHashMap();
 		
 		if (calc == null) {
-			calc = new HazardCurveComputation(db);
+			buildCurveCalc();
 			calc.setRupVarProbModifier(conf.getRupVarProbModifier());
 			calc.setRupProbModifier(conf.getRupProbModifier());
 		}
@@ -424,7 +427,7 @@ public class ETASCurveCalc {
 			Preconditions.checkNotNull(curve, "No curve for "+labels.get(i));
 			curve.setName(labels.get(i));
 			curves.add(curve);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, colors.get(i)));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, PlotSymbol.FILLED_CIRCLE, 8f, colors.get(i)));
 		}
 		
 		ETAS_Cybershake_TimeSpans timeSpan = calcs.get(0).conf.getTimeSpan();
@@ -432,7 +435,8 @@ public class ETASCurveCalc {
 			Preconditions.checkState(calcs.get(i).conf.getTimeSpan() == timeSpan, "inconsistent time spans");
 		
 		PlotSpec spec = new PlotSpec(curves, chars, "CyberShake OEF Curves: "+site.short_name, "3s SA (g)",
-				timeSpan.toString()+" POE");
+				timeSpan.toString()+" Probability of Exceedance");
+		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setTickLabelFontSize(18);
@@ -442,7 +446,7 @@ public class ETASCurveCalc {
 		
 		gp.setXLog(true);
 		gp.setYLog(true);
-		gp.setUserBounds(1e-2, 1e0, 1e-7, 1e-1);
+		gp.setUserBounds(1e-2, 1e0, 1e-7, 1e-2);
 		gp.drawGraphPanel(spec);
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, "curve_"+siteShortName+".pdf").getAbsolutePath());
@@ -566,6 +570,12 @@ public class ETASCurveCalc {
 			Files.write(rvProb.toString()+"\n", outputTxtFile, Charset.defaultCharset());
 		}
 	}
+	
+	private void buildCurveCalc() {
+		calc = new HazardCurveComputation(db);
+		if (amps_cache_dir.exists())
+			calc.setPeakAmpsAccessor(new CachedPeakAmplitudesFromDB(db, amps_cache_dir, conf.getCS_UCERF2_ERF()));
+	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		try {
@@ -598,7 +608,7 @@ public class ETASCurveCalc {
 			
 			FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
 			
-			String[] curveSites = { "STNI", "S157", "S716", "S323", "S361", "MRSD" };
+			String[] curveSites = { "STNI", "S157", "S716", "S323", "S361", "MRSD", "SBSM" };
 //			String[] curveSites = null;
 			List<ETASCurveCalc> calcs = Lists.newArrayList();
 			List<String> names = Lists.newArrayList();
@@ -611,7 +621,7 @@ public class ETASCurveCalc {
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calcs.add(calc);
-			names.add("Parkfield");
+			names.add("Parkfield Scenario");
 			filePrefixes.add("parkfield");
 			colors.add(Color.RED);
 			if (!debugSiteCalcOnly && makeMaps)
@@ -622,7 +632,7 @@ public class ETASCurveCalc {
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calcs.add(calc);
-			names.add("Bombay Beach");
+			names.add("Bombay Beach Scenario");
 			filePrefixes.add("bombay");
 			colors.add(Color.ORANGE);
 			if (!debugSiteCalcOnly && makeMaps)

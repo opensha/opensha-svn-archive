@@ -956,6 +956,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 	}
 	
+	ERF getCS_UCERF2_ERF() {
+		return ucerf2;
+	}
+	
 	public static void main(String[] args) throws IOException, DocumentException {
 		ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_WEEK;
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));

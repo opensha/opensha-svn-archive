@@ -28,7 +28,7 @@ import org.opensha.commons.util.ListUtils;
 public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 
 	
-	private DBAccess dbaccess;
+	protected DBAccess dbaccess;
 	private Runs2DB runs2db;
 	
 	public static final String TABLE_NAME = "PeakAmplitudes";

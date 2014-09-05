@@ -45,6 +45,10 @@ public class HazardCurveComputation {
 		siteDB = new SiteInfo2DB(db);
 		runs2db = new Runs2DB(db);
 	}
+	
+	public void setPeakAmpsAccessor(PeakAmplitudesFromDBAPI peakAmplitudes) {
+		this.peakAmplitudes = peakAmplitudes;
+	}
 
 	public void setRupProbModifier(RuptureProbabilityModifier rupProbMod) {
 		this.rupProbMod = rupProbMod;

@@ -2,12 +2,19 @@ package scratch.kevin.ucerf3.etas;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -31,6 +38,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileNameComparator;
 import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.cybershake.etas.ETASModProbConfig.ETAS_CyberShake_Scenarios;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -51,7 +59,9 @@ import scratch.kevin.ucerf3.eal.UCERF3_BranchAvgLossFetcher;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
@@ -59,7 +69,7 @@ public class ETAS_CatalogEALCalculator {
 	
 	private UCERF3_BranchAvgLossFetcher fetcher;
 	private List<List<ETAS_EqkRupture>> catalogs;
-	private List<File> catalogDirs = Lists.newArrayList();
+	private List<String> catalogNames = Lists.newArrayList();
 	private List<Double> prevLosses = Lists.newArrayList();
 	private FaultModels fm;
 	
@@ -73,6 +83,8 @@ public class ETAS_CatalogEALCalculator {
 	
 	private static final double outside_region_dist_tol = 10d; // km
 	
+	private boolean triggeredOnly = false;
+	
 	public ETAS_CatalogEALCalculator(UCERF3_BranchAvgLossFetcher fetcher, FaultSystemSolution meanSol,
 			FaultModels fm, File... etasCatalogsDirs) throws IOException, DocumentException {
 		this.fetcher = fetcher;
@@ -80,8 +92,8 @@ public class ETAS_CatalogEALCalculator {
 		
 		Preconditions.checkArgument(etasCatalogsDirs.length > 0, "must have at least one catalog dir");
 		
-		catalogDirs = Lists.newArrayList();
-		catalogs = loadCatalogs(etasCatalogsDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05, catalogDirs);
+		catalogNames = Lists.newArrayList();
+		catalogs = loadCatalogs(etasCatalogsDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05, catalogNames);
 		Preconditions.checkState(!catalogs.isEmpty(), "No catalogs loaded!");
 		System.out.println("Loaded "+catalogs.size()+" catalogs");
 		
@@ -100,6 +112,10 @@ public class ETAS_CatalogEALCalculator {
 		return loadCatalogs(etasCatalogsDirs, minGriddedMag, null);
 	}
 	
+	public void setTriggeredOnly(boolean triggeredOnly) {
+		this.triggeredOnly = triggeredOnly;
+	}
+	
 	/**
 	 * Load ETAS catalogs from file.
 	 * @param etasCatalogsDirs
@@ -109,12 +125,17 @@ public class ETAS_CatalogEALCalculator {
 	 * @throws IOException
 	 */
 	static List<List<ETAS_EqkRupture>> loadCatalogs(File[] etasCatalogsDirs, double minGriddedMag,
-			List<File> catalogDirs) throws IOException {
+			List<String> catalogNames) throws IOException {
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
 		int numEmpty = 0;
 		
 		for (File etasCatalogsDir : etasCatalogsDirs) {
 			System.out.println("Loading catalogs from "+etasCatalogsDir.getAbsolutePath());
+			
+			if (etasCatalogsDir.getName().endsWith(".zip")) {
+				catalogs.addAll(loadCatalogsZip(etasCatalogsDir, minGriddedMag, catalogNames));
+				continue;
+			}
 			
 			File[] catDirs = etasCatalogsDir.listFiles();
 			Arrays.sort(catDirs, new FileNameComparator());
@@ -128,32 +149,74 @@ public class ETAS_CatalogEALCalculator {
 					continue;
 				File catalogFile = new File(dir, "simulatedEvents.txt");
 //				System.out.println("Loading from: "+catalogFile.getAbsolutePath());
-				List<ETAS_EqkRupture> catalog = Lists.newArrayList();
-				for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
-					line = line.trim();
-					if (line.startsWith("#") || line.isEmpty())
-						continue;
-					try {
-						ETAS_EqkRupture rup = ETAS_SimAnalysisTools.loadRuptureFromFileLine(line);
-						if (rup.getRuptureSurface() == null && rup.getMag() < minGriddedMag)
-							continue;
-						catalog.add(rup);
-					} catch (Exception e) {
-						System.out.println("WARNING: catalog "+dir.getName()+" parse failed, skipping: "+e.getMessage());
-						continue dirLoop;
-					}
-				}
+				List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, minGriddedMag);
 				// actually catalogs can be empty, this just means no rups above the source min mag cutoff
 				if (catalog.isEmpty())
 					numEmpty++;
 //				Preconditions.checkState(!catalog.isEmpty(), "catalog is empty: "+dir.getName());
 				catalogs.add(catalog);
-				if (catalogDirs != null)
-					catalogDirs.add(dir);
+				if (catalogNames != null)
+					catalogNames.add(dir.getName());
 			}
 		}
 		System.out.println(numEmpty+"/"+catalogs.size()+" catalogs are empty "
 				+ "(including only fault and gridded above "+minGriddedMag+")");
+		return catalogs;
+	}
+	
+	static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile, double minGriddedMag,
+			List<String> catalogNames) throws IOException {
+		ZipFile zip = new ZipFile(zipFile);
+		
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		
+		ArrayList<ZipEntry> entries = Lists.newArrayList(Iterators.forEnumeration(zip.entries()));
+		// sort for constant ordering
+		Collections.sort(entries, new Comparator<ZipEntry>() {
+
+			@Override
+			public int compare(ZipEntry o1, ZipEntry o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		
+		for (ZipEntry entry : entries) {
+			if (!entry.isDirectory())
+				continue;
+//			System.out.println(entry.getName());
+			String subEntryName = entry.getName()+"simulatedEvents.txt";
+			ZipEntry catEntry = zip.getEntry(subEntryName);
+			String infoEntryName = entry.getName()+"infoString.txt";
+			ZipEntry infoEntry = zip.getEntry(infoEntryName);
+			if (catEntry == null || infoEntry == null)
+				continue;
+			
+			// make sure it's actually done
+			BufferedReader reader = new BufferedReader(new InputStreamReader(zip.getInputStream(infoEntry)));
+			
+			boolean done = false;
+			for (String line : CharStreams.readLines(reader)) {
+				if (line.contains("Total num ruptures: ")) {
+					done = true;
+					break;
+				}
+			}
+			if (!done)
+				continue;
+//			System.out.println("Loading "+catEntry.getName());
+			
+			List<ETAS_EqkRupture> catalog;
+			try {
+				catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), minGriddedMag);
+			} catch (Exception e) {
+				continue;
+			}
+			
+			if (catalogNames != null)
+				catalogNames.add(entry.getName());
+			catalogs.add(catalog);
+		}
+		
 		return catalogs;
 	}
 	
@@ -180,6 +243,9 @@ public class ETAS_CatalogEALCalculator {
 			List<Double> singleLosses = Lists.newArrayList();
 			List<DiscretizedFunc> lossDists = Lists.newArrayList();
 			
+			if (triggeredOnly)
+				catalog = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, 0);
+			
 			for (ETAS_EqkRupture rup : catalog) {
 				int fssIndex = getFSSIndex(rup);
 				
@@ -198,7 +264,7 @@ public class ETAS_CatalogEALCalculator {
 					Preconditions.checkState((float)sumY == 1f, "rup losses don't sum to 1: "+(float)sumY);
 				} else {
 					// grid source
-					double loss = calcGridSourceLoss(rup, region, griddedMagLossDists, catalogDirs.get(i).getName());
+					double loss = calcGridSourceLoss(rup, region, griddedMagLossDists, catalogNames.get(i));
 					// single loss value with weight=1
 					singleLosses.add(loss);
 				}
@@ -283,7 +349,7 @@ public class ETAS_CatalogEALCalculator {
 				// grid source
 				triggerLoss = calcGridSourceLoss(triggerRup, region, griddedMagLossDists, "TRIGGER");
 			}
-			System.out.println("Trigger rupture loss: "+triggerLoss);
+			System.out.println("Trigger M"+(float)mag+" rupture loss: "+triggerLoss);
 		}
 		
 		return catalogDists;
@@ -601,6 +667,8 @@ public class ETAS_CatalogEALCalculator {
 			String myPrefix = outputPrefix;
 			if (logY)
 				myPrefix += "_logY";
+			if (triggeredOnly)
+				myPrefix += "_triggered";
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 		}
@@ -633,6 +701,8 @@ public class ETAS_CatalogEALCalculator {
 			String myPrefix = outputPrefix+"_exceed";
 			if (logY)
 				myPrefix += "_logY";
+			if (triggeredOnly)
+				myPrefix += "_triggered";
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 		}
@@ -658,8 +728,7 @@ public class ETAS_CatalogEALCalculator {
 				if ((float)rup.getMag() >= (float)cutoffMag)
 					numAbove++;
 			}
-			File catDir = catalogDirs.get(i);
-			csv.addLine(i+"", catDir.getParentFile().getName(), catDir.getName(), totLoss+"",
+			csv.addLine(i+"", "", catalogNames.get(i), totLoss+"",
 					numFSSRups+"", numAbove+"", maxMag+"");
 		}
 		
@@ -704,7 +773,7 @@ public class ETAS_CatalogEALCalculator {
 									+" AND "+data.get(data.size()-1).getName();
 							float mag = (float)rup.getMag();
 							float deltaDays = (float)((rup.getOriginTime()-ot)/1000d/60d/60d/24d);
-							System.out.println("catalog "+catalogDirs.get(i).getName()
+							System.out.println("catalog "+catalogNames.get(i)
 									+" has a M"+mag+" match "+deltaDays+" days after on: "+name);
 							continue rupLoop;
 						}
@@ -718,16 +787,32 @@ public class ETAS_CatalogEALCalculator {
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/");
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/");
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-spontaneous/");
-		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_26-mojave_7/");
+//		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_26-mojave_7/");
 		
-		// true mean FSS which includes rupture mapping information. this must be the exact file used to calulate EALs
+		// get result dirs
+//		List<File> resultDirs = Lists.newArrayList();
+//		File[] subDirs = parentDir.listFiles();
+//		Arrays.sort(subDirs, new FileNameComparator());
+//		for (File subDir : subDirs) {
+//			if (subDir.isDirectory() && subDir.getName().startsWith("results"))
+//				resultDirs.add(subDir);
+//		}
+//		File[] etasCatalogsDirs = resultDirs.toArray(new File[0]);
+		
+		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-mojave_7/results.zip");
+//		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-napa/results.zip");
+//		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-spontaneous/results.zip");
+		
+		boolean triggeredOnly = true;
+		
+		// true mean FSS which includes rupture mapping information. this must be the exact file used to calculate EALs
 		File trueMeanSolFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
 				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_"
 				+ "COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 
 		// directory which contains EAL data
 		
-		// CEA proxy
+		// CEA proxy wald
 //		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		String xAxisLabel = "$ (Billions)";
 //		double xAxisScale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
@@ -735,13 +820,21 @@ public class ETAS_CatalogEALCalculator {
 //		double deltaX = 1e6;
 //		String catOutputDirName = "cea_proxy_wald";
 		
+		// 99% Wills
+		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
+		String xAxisLabel = "$ (Billions)";
+		double xAxisScale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
+		double maxX = 200;
+		double deltaX = 1e6;
+		String catOutputDirName = "ca_99_wills";
+		
 		// Fatality portfolio
-		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
-		String xAxisLabel = "Fatalities";
-		double xAxisScale = 1d;
-		double maxX = 3000;
-		double deltaX = 1;
-		String catOutputDirName = "fatalities_wills";
+//		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+//		String xAxisLabel = "Fatalities";
+//		double xAxisScale = 1d;
+//		double maxX = 3000;
+//		double deltaX = 1;
+//		String catOutputDirName = "fatalities_wills";
 
 		// IMR for which EAL data has already been computed
 		AttenRelRef attenRelRef = AttenRelRef.BSSA_2014;
@@ -762,23 +855,18 @@ public class ETAS_CatalogEALCalculator {
 		
 		UCERF3_BranchAvgLossFetcher fetcher = new UCERF3_BranchAvgLossFetcher(trueMeanSolFile, cfss, dataDir);
 		
-		// get result dirs
-		List<File> resultDirs = Lists.newArrayList();
-		File[] subDirs = parentDir.listFiles();
-		Arrays.sort(subDirs, new FileNameComparator());
-		for (File subDir : subDirs) {
-			if (subDir.isDirectory() && subDir.getName().startsWith("results"))
-				resultDirs.add(subDir);
-		}
-		File[] etasCatalogsDirs = resultDirs.toArray(new File[0]);
+		ETAS_CatalogEALCalculator calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, zipFile);
+		calc.setTriggeredOnly(triggeredOnly);
 		
-		ETAS_CatalogEALCalculator calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, etasCatalogsDirs);
-		
-		if (parentDir.getName().contains("mojave")) {
+		if (zipFile.getParentFile().getName().contains("mojave")) {
 			calc.setTriggerFaultRup(197792);
 //			calc.scenarioSearch();
-		} else if (parentDir.getName().contains("la_habra")) {
+		} else if (zipFile.getParentFile().getName().contains("la_habra")) {
 			calc.setTriggerGridRup(new Location(33.932,-117.917,4.8), 6.2);
+		} else if (zipFile.getParentFile().getName().contains("napa")) {
+			System.out.println("WARNING: Napa trigger has incorrect mag!");
+//			calc.setTriggerFaultRup(93902);
+			calc.setTriggerGridRup(new Location(38.220,-122.313,11.3), 6.);
 		}
 		
 		System.out.println("Calculating catalog losses");
@@ -786,7 +874,7 @@ public class ETAS_CatalogEALCalculator {
 		
 		boolean isLog10 = false;
 		HistogramFunction lossHist = calc.getLossHist(lossDists, deltaX, isLog10);
-		File outputDir = new File(parentDir, "outputs_"+catOutputDirName);
+		File outputDir = new File(zipFile.getParentFile(), "outputs_"+catOutputDirName);
 		if (!outputDir.exists())
 			outputDir.mkdir();
 //		calc.writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10);
