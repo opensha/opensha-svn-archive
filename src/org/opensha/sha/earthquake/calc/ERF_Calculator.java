@@ -129,6 +129,26 @@ public class ERF_Calculator {
 		}
 		return mfd;
 	}
+	
+	
+	
+	/**
+	 * This returns the total equivalent annual rate for the source for ruptures with magnitude
+	 * greater than or equal to the given magThres
+	 * @param src
+	 * @param duration
+	 * @param magThresh
+	 * @return
+	 */
+	public static double getTotalRateAboveMagForSource(ProbEqkSource src, double duration, double magThresh) {
+		double totRate = 0;
+		for(int r=0;r<src.getNumRuptures();r++) {
+			ProbEqkRupture rup = src.getRupture(r);
+			if(rup.getMag() >= magThresh)
+				totRate += rup.getMeanAnnualRate(duration);
+		}
+		return totRate;
+	}
 
 
 

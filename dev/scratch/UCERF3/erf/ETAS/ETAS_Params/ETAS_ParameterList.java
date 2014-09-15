@@ -44,6 +44,7 @@ public class ETAS_ParameterList extends ParameterList {
 	
 	public void set_d_MinDist(double minDist) { dParam.setValue(minDist);}
 	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
+	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
 
 	/**
 	 * @param args

@@ -1160,8 +1160,8 @@ public class ETAS_SimAnalysisTools {
 		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay (relative to parent)"); 
 		graph.setX_AxisLabel("Log-day");
 		graph.setY_AxisLabel("PDF");
-//		graph.setX_AxisRange(firstLogDay, lastLocDay);
-		graph.setY_AxisRange(1e-5, graph.getY_AxisRange().getUpperBound());
+		graph.setX_AxisRange(-4, 3);
+		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));

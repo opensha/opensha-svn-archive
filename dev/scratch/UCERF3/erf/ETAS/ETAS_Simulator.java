@@ -813,7 +813,7 @@ public class ETAS_Simulator {
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=false;
+		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
@@ -1019,6 +1019,7 @@ public class ETAS_Simulator {
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
+//		params.setApplyLongTermRates(false);
 //		params.set_d_MinDist(2.0);
 //		params.setImposeGR(false);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
@@ -1030,8 +1031,9 @@ public class ETAS_Simulator {
 //		runTest(null, params, null, "NoMainshockTest_1", null);
 //		runTest(null, params, null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
-		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_1", null);
-		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
+		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
+//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
