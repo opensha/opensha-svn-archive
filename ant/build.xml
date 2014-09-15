@@ -250,6 +250,12 @@
 				<include name="SmoothSeis_UCERF2.txt" />
 			</fileset>
 		</copy>
+
+		<copy todir="${build}/scratch/UCERF3/data/DeformationModels" overwrite="true">
+			<fileset dir="${dev}/scratch/UCERF3/data/DeformationModels">
+				<include name="gridded_moment_fm*jan14_2013_combined.txt" />
+			</fileset>
+		</copy>
 		
 		<copy todir="${build}/scratch/UCERF3/data/paleoRateData/" overwrite="true">
 			<fileset dir="${dev}/scratch/UCERF3/data/paleoRateData">
