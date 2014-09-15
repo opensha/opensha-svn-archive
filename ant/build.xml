@@ -246,6 +246,8 @@
 				<include name="StrikeSlipWts.txt" />
 				<include name="ReverseWts.txt" />
 				<include name="NormalWts.txt" />
+				<include name="SmoothSeis_KF_4-9-2013_Shallow.txt" />
+				<include name="SmoothSeis_UCERF2.txt" />
 			</fileset>
 		</copy>
 		
