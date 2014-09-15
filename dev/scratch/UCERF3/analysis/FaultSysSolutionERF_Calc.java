@@ -448,7 +448,7 @@ public class FaultSysSolutionERF_Calc {
 			double maxMag=10d;
 			String fileName = "MEAN_BRANCH_AVG_SOL";
 			String scaleLabel = "Nucleation Rate";
-			String metadata =" ";
+			String metadata ="magThresh="+magThresh+"\nincludeAftershocks="+includeAftershocks+"\nmagAreaAleatory="+magAreaAleatory+"\n";
 			// convert minMag to string for filename
 			Double tempDouble = new Double(magThresh);
 			String magString = tempDouble.toString();
@@ -531,10 +531,15 @@ public class FaultSysSolutionERF_Calc {
 			GriddedGeoDataSet sumGeoDataSet = new GriddedGeoDataSet(GMT_CA_Maps.defaultGridRegion, true);	// true makes X latitude
 			
 			// average over the two fault models
+			double totalRate=0;
 			for(int i=0;i<sumGeoDataSet.size();i++) {
 				double ave = 0.5*(geoDataSetForGridSeis1.get(i)+geoDataSetForGridSeis2.get(i)+supraSeisNuclRates_xyzData1.get(i)+supraSeisNuclRates_xyzData2.get(i));
+				totalRate += ave;
 				sumGeoDataSet.set(i, ave);
 			}
+			
+			System.out.println("Total Rate : "+totalRate);
+			metadata += "Total Rate : "+totalRate;
 
 			GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
 
@@ -4669,7 +4674,7 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		makeNucleationRateMapForU3pt3(5.8, true, 0.12);
+		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
 		
 //		makeAveMoRateMapForU3pt3_and_FM3pt1();
 		
