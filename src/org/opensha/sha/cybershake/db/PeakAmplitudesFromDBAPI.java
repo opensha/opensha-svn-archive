@@ -21,6 +21,7 @@ package org.opensha.sha.cybershake.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface PeakAmplitudesFromDBAPI {
 
@@ -63,7 +64,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @throws SQLException 
 	 * @return the a list of IM Values for the particular IM type
 	 */
-	public ArrayList<Double> getIM_Values(int runID, int srcId,int rupId, CybershakeIM im) throws SQLException;
+	public List<Double> getIM_Values(int runID, int srcId,int rupId, CybershakeIM im) throws SQLException;
 	
 	/**
 	  * @return all possible SGT Variation IDs

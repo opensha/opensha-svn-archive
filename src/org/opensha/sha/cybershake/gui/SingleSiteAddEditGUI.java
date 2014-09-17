@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -52,7 +53,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 	
 	SitesTableModel model;
 	
-	ArrayList<CybershakeSiteType> types;
+	List<CybershakeSiteType> types;
 	
 	JTextField shortNameField = new JTextField();
 	JTextField longNameField = new JTextField();

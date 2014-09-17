@@ -63,8 +63,8 @@ public class HardCodedInterpDiffMapCreator {
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);
 		for (int datasetID : datasetIDs) {
 			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
-			ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
-			ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, val);
+			List<CybershakeSite> sites = fetcher.getCurveSites();
+			List<Double> vals = fetcher.getSiteValues(isProbAt_IML, val);
 			
 			for (int i=0; i<sites.size(); i++) {
 				CybershakeSite site = sites.get(i);
@@ -114,8 +114,8 @@ public class HardCodedInterpDiffMapCreator {
 		
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
 		
-		ArrayList<DiscretizedFunc> curves = fetcher.getFuncs();
-		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		List<DiscretizedFunc> curves = fetcher.getFuncs();
+		List<CybershakeSite> sites = fetcher.getCurveSites();
 		
 		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 		
@@ -140,7 +140,7 @@ public class HardCodedInterpDiffMapCreator {
 		return null;
 	}
 	
-	private static CybershakeSite getSite(int siteID, ArrayList<CybershakeSite> sites) {
+	private static CybershakeSite getSite(int siteID, List<CybershakeSite> sites) {
 		for (CybershakeSite site : sites) {
 			if (siteID == site.id)
 				return site;
@@ -163,7 +163,7 @@ public class HardCodedInterpDiffMapCreator {
 			Runs2DB runs2db = new Runs2DB(db);
 			ArrayList<CybershakeRun> runs = runs2db.getRuns();
 			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
-			ArrayList<CybershakeSite> sites = sites2db.getAllSitesFromDB();
+			List<CybershakeSite> sites = sites2db.getAllSitesFromDB();
 			ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 			
 			for (File curveFile : curveDirFile.listFiles()) {

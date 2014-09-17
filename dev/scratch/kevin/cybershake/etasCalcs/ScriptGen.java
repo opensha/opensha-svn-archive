@@ -35,11 +35,11 @@ public class ScriptGen {
 		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6, Scenarios.PARKFIELD};
 		boolean timeIndep = false;
 		int numSims = 20000;
-		String nameAdd = "-nospont";
+		String nameAdd = "-nospont-round6";
 		
 		int memGigs;
 		int mins = 24*60;
-		int nodes = 40;
+		int nodes = 99;
 		int ppn = 8;
 		String queue = null;
 		
@@ -53,6 +53,7 @@ public class ScriptGen {
 		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 		pbsWrite = new USC_HPCC_ScriptWriter();
+		mpjWrite.setAutoMemDetect(true);
 		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));

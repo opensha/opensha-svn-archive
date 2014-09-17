@@ -26,7 +26,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.GriddedRegion;
@@ -51,6 +53,10 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.PointSurface;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public  class ERF2DB implements ERF2DBAPI{
 
@@ -60,6 +66,11 @@ public  class ERF2DB implements ERF2DBAPI{
 	// if set to true, points and such will be written to files here and not to the Points table
 	private boolean fileBased = false;
 	private File erfDir = null;
+	
+	/**
+	 * Mapping of ERF ID to <Source ID, Rupture ID, Probability>
+	 */
+	private Map<Integer, Table<Integer, Integer, Double>> erfProbMap = Maps.newHashMap();
 
 	public ERF2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
@@ -667,9 +678,19 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @return
 	 * @throws SQLException 
 	 */
-	public double getRuptureProb(int erfId,int sourceId,int rupId) {
-		String sql = "SELECT Prob from Ruptures WHERE ERF_ID = "+"'"+erfId+"' and "+
-		"Source_ID = '"+sourceId+"' and Rupture_ID = '"+rupId+"'";
+	public double getRuptureProb(int erfID, int sourceID, int rupID) {
+		loadCache(erfID);
+		return erfProbMap.get(erfID).get(sourceID, rupID);
+	}
+	
+	private synchronized void loadCache(int erfID) {
+		if (erfProbMap.containsKey(erfID))
+			// already cached
+			return;
+		Table<Integer, Integer, Double> cache = HashBasedTable.create();
+		String sql = "SELECT Source_ID,Rupture_ID,Prob from Ruptures WHERE ERF_ID="+erfID
+				+" order by Source_ID asc,Rupture_ID asc";
+		
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -677,16 +698,21 @@ public  class ERF2DB implements ERF2DBAPI{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		double rupProb = Double.NaN;
-		try{
+		try {
 			rs.first();
-			rupProb = Double.parseDouble(rs.getString("Prob"));
+			while(!rs.isAfterLast()){
+				int sourceID = rs.getInt(1);
+				int rupID = rs.getInt(2);
+				double prob = rs.getDouble(3);
+				cache.put(sourceID, rupID, prob);
+				rs.next();
+			}
 			rs.close();
-
-		}catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
-		return rupProb;
+		
+		erfProbMap.put(erfID, cache);
 	}
 
 	public void insertSrcRupInDB(){

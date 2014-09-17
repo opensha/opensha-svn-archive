@@ -104,7 +104,7 @@ public class ShakeMapComputation {
 			int curveID = fetcher.getCurveIDs().get(i);
 			int runID = curves2db.getRunIDForCurve(curveID);
 			CybershakeRun run = runs2db.getRun(runID);
-			ArrayList<Double> imVals;
+			List<Double> imVals;
 			try {
 				imVals = amps2db.getIM_Values(run.getRunID(), sourceID, rupID, im);
 			} catch (SQLException e) {

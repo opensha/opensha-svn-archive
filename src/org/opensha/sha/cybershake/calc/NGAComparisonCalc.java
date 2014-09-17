@@ -134,8 +134,8 @@ public class NGAComparisonCalc {
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 		
-		ArrayList<CybershakeSite> allCSSites;
-		ArrayList<CybershakeRun> ampRuns;
+		List<CybershakeSite> allCSSites;
+		List<CybershakeRun> ampRuns;
 		
 		if (siteName == null) {
 			// we're doing it for all sites

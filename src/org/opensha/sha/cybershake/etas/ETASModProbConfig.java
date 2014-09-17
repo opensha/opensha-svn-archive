@@ -776,27 +776,40 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		}
 		return rupProbMod;
 	}
+	
+	public synchronized void setCatalogs(List<List<ETAS_EqkRupture>> catalogs) {
+		this.catalogs = catalogs;
+		this.rvHypoLocations = null;
+		this.rvProbs = null;
+	}
+	
+	public List<List<ETAS_EqkRupture>> getCatalogs() {
+		return catalogs;
+	}
 
 	@Override
 	public synchronized RuptureVariationProbabilityModifier getRupVarProbModifier() {
 		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2
 				|| scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP)
 			return null;
-		if (catalogs == null) {
-			try {
+		try {
+			if (catalogs == null) {
 				System.out.println("Loading catalogs for "+scenario.name);
 				loadCatalogs(catalogsDirs);
-				
+			}
+			
+			if (rvHypoLocations == null) {
 				System.out.println("Loading Hypos for ETAS rups for "+scenario.name);
 				loadHyposForETASRups();
-				
+			}
+
+			if (rvProbs == null) {
 				System.out.println("Loading RV probs for "+scenario.name);
 				loadRVProbs();
-				
 				System.out.println("DONE loading RV probs for "+scenario.name);
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
 			}
+		} catch (IOException e) {
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		if (mod == null)
 			mod = new RupProbMod();

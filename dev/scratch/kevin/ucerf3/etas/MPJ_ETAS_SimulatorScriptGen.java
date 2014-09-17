@@ -69,6 +69,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			pbsWrite = new USC_HPCC_ScriptWriter();
 		}
 		
+		mpjWrite.setAutoMemDetect(true);
+		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		

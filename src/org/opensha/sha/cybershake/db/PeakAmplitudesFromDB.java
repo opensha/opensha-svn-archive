@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.util.ListUtils;
 
@@ -327,7 +328,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @throws SQLException 
 	 * @return the a list of IM Values for the particular IM type
 	 */
-	public ArrayList<Double> getIM_Values(int runID, int srcId, int rupId, CybershakeIM im) throws SQLException{
+	public List<Double> getIM_Values(int runID, int srcId, int rupId, CybershakeIM im) throws SQLException{
 		String sql = "SELECT IM_Value from " + TABLE_NAME + " where Run_ID=" + runID + " and Source_ID = '"+srcId+"' "+
         "and Rupture_ID = '"+rupId+"' and IM_Type_ID = '"+im.getID()+"' ORDER BY Rup_Var_ID";
 //		System.out.println(sql);

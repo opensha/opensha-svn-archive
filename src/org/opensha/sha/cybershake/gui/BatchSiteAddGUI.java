@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.BoxLayout;
@@ -55,7 +56,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 	private JTextField fileField = new JTextField();
 	
 	private JComboBox typeBox = new JComboBox();
-	private ArrayList<CybershakeSiteType> types;
+	private List<CybershakeSiteType> types;
 	private JLabel typeLabel = new JLabel("Default Site Type: ");
 	
 	private SitesTableModel model;

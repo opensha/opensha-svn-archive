@@ -44,11 +44,11 @@ public class HazardCurveFetcher {
 	HazardCurve2DB curve2db;
 	CybershakeSiteInfo2DB site2db;
 	
-	ArrayList<Integer> ids;
-	ArrayList<CybershakeSite> sites;
-	ArrayList<DiscretizedFunc> funcs;
+	List<Integer> ids;
+	List<CybershakeSite> sites;
+	List<DiscretizedFunc> funcs;
 	
-	ArrayList<CybershakeSite> allSites = null;
+	List<CybershakeSite> allSites = null;
 	
 	public HazardCurveFetcher(DBAccess db, int datasetID, int imTypeID) {
 		this.initDBConnections(db);
@@ -102,19 +102,19 @@ public class HazardCurveFetcher {
 		return vals;
 	}
 
-	public ArrayList<Integer> getCurveIDs() {
+	public List<Integer> getCurveIDs() {
 		return ids;
 	}
 
-	public ArrayList<CybershakeSite> getCurveSites() {
+	public List<CybershakeSite> getCurveSites() {
 		return sites;
 	}
 
-	public ArrayList<DiscretizedFunc> getFuncs() {
+	public List<DiscretizedFunc> getFuncs() {
 		return funcs;
 	}
 	
-	public ArrayList<CybershakeSite> getAllSites() {
+	public List<CybershakeSite> getAllSites() {
 		if (allSites == null) {
 			allSites = site2db.getAllSitesFromDB();
 		}
@@ -139,8 +139,8 @@ public class HazardCurveFetcher {
 		if (!outDir.endsWith(File.separator))
 			outDir += File.separator;
 		
-		ArrayList<DiscretizedFunc> curves = this.getFuncs();
-		ArrayList<CybershakeSite> curveSites = this.getCurveSites();
+		List<DiscretizedFunc> curves = this.getFuncs();
+		List<CybershakeSite> curveSites = this.getCurveSites();
 		
 		for (int i=0; i<curves.size(); i++) {
 			DiscretizedFunc curve = curves.get(i);
@@ -176,7 +176,7 @@ public class HazardCurveFetcher {
 		WillsMap2006 wills = new WillsMap2006();
 		CVM4BasinDepth cvm = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
 		
-		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		List<CybershakeSite> sites = fetcher.getCurveSites();
 		String tot = "";
 		for (CybershakeSite site : sites) {
 			String str = site.lon + ", " + site.lat + ", " + site.short_name + ", ";

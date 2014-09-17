@@ -275,19 +275,19 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
-	public ArrayList<CybershakeSite> getAllSites() {
+	public List<CybershakeSite> getAllSites() {
 		return this.getAllSites(0);
 	}
 	
-	public ArrayList<CybershakeSite> getAllSites(int minIndex) {
+	public List<CybershakeSite> getAllSites(int minIndex) {
 		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
 		
-		ArrayList<CybershakeSite> sites = siteInfoDB.getAllSitesFromDB();
+		List<CybershakeSite> sites = siteInfoDB.getAllSitesFromDB();
 		
-		ArrayList<String> shortNames = siteInfoDB.getAllSites();
+		List<String> shortNames = siteInfoDB.getAllSites();
 		
 		if (minIndex > 0) {
-			ArrayList<CybershakeSite> clone = (ArrayList<CybershakeSite>)sites.clone();
+			List<CybershakeSite> clone = Lists.newArrayList(sites);
 			
 			for (CybershakeSite site : sites) {
 				
@@ -300,7 +300,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
-	public void insertNewERFForSites(ArrayList<CybershakeSite> sites, ERF2DB erf2db, String name, String description, boolean forceAdd) {
+	public void insertNewERFForSites(List<CybershakeSite> sites, ERF2DB erf2db, String name, String description, boolean forceAdd) {
 		// get a new ERF-ID
 		int erfID = erf2db.getInserted_ERF_ID(name);
 		
@@ -326,7 +326,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public void insertNewERFForAllSites(ERF2DB erf2db, String name, String description) {
-		ArrayList<CybershakeSite> sites = this.getAllSites();
+		List<CybershakeSite> sites = this.getAllSites();
 		
 		this.insertNewERFForSites(sites, erf2db, name, description, false);
 	}
@@ -363,12 +363,17 @@ public class Cybershake_OpenSHA_DBApplication {
 		if (db.isReadOnly())
 			db.setIgnoreInserts(true);
 		
+		boolean highRes = false;
 		System.out.println("Creating and Updating ERF...");
-		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, true);
-		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
-		erfDB.setFileBased(erfDir);
+		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, highRes);
+//		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
+//		erfDB.setFileBased(erfDir);
 		String erfName = erfDB.getERF_Instance().getName();
-		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL, 200m";
+		String erfDescription;
+		if (highRes)
+			erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL, 200m";
+		else
+			erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL";
 		
 		ERF forecast = erfDB.getERF_Instance();
 		System.out.println("ERF NAME: " + erfName);
@@ -407,8 +412,17 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		SiteInfo2DB sites2db = new SiteInfo2DB(db);
 		ArrayList<CybershakeSite> sites = Lists.newArrayList();
-		sites.add(sites2db.getSiteFromDB(73));
-		sites.add(sites2db.getSiteFromDB(978));
+		CybershakeSiteInfo2DB.CUT_OFF_DISTANCE = 300;
+		CybershakeSiteInfo2DB.FORCE_CUTOFF = true;
+		sites.add(sites2db.getSiteFromDB("s040"));
+		sites.add(sites2db.getSiteFromDB("s064"));
+		sites.add(sites2db.getSiteFromDB("s758"));
+		sites.add(sites2db.getSiteFromDB("s778"));
+		sites.add(sites2db.getSiteFromDB("STNI"));
+		sites.add(sites2db.getSiteFromDB("SBSM"));
+		sites.add(sites2db.getSiteFromDB("USC"));
+//		sites.add(sites2db.getSiteFromDB(73));
+//		sites.add(sites2db.getSiteFromDB(978));
 		app.insertNewERFForSites(sites, erfDB, erfName, erfDescription, false);
 		
 		/////////////// ADD SITES //////////////////////

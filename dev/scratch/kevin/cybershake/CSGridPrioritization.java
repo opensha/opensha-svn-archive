@@ -3,6 +3,7 @@ package scratch.kevin.cybershake;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
@@ -61,7 +62,7 @@ public class CSGridPrioritization {
 		printArray(true);
 	}
 	
-	private CybershakeSite getSiteForID(ArrayList<CybershakeSite> sites, int id) {
+	private CybershakeSite getSiteForID(List<CybershakeSite> sites, int id) {
 		String name = id + "";
 		while (name.length() < 3)
 			name = "0" + name;
@@ -74,7 +75,7 @@ public class CSGridPrioritization {
 		throw new RuntimeException("No site found for id=" + id + ", name='" + name + "'");
 	}
 	
-	private void pushColumnIntoArray(ArrayList<CybershakeSite> curColumn, int x) {
+	private void pushColumnIntoArray(List<CybershakeSite> curColumn, int x) {
 		int offset = box_ny - curColumn.size();
 		System.out.println("x: " + x + ", off: " + offset + ", colSize: " + curColumn.size());
 		for (int j=0; j<curColumn.size(); j++) {
@@ -108,7 +109,7 @@ public class CSGridPrioritization {
 			}
 		}
 		
-		ArrayList<CybershakeSite> siteList = site2db.getAllSitesFromDB();
+		List<CybershakeSite> siteList = site2db.getAllSitesFromDB();
 		
 		double prevLat = Double.NEGATIVE_INFINITY;
 		ArrayList<CybershakeSite> curColumn = new ArrayList<CybershakeSite>();

@@ -139,7 +139,7 @@ public class HazardCurveComputation {
 
 //		double qkProb = erfDB.getRuptureProb(run.getERFID(), srcId, rupId);
 		double qkProb = 1.0;
-		ArrayList<Double> imVals;
+		List<Double> imVals;
 		try {
 			imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 		} catch (SQLException e) {
@@ -214,13 +214,13 @@ public class HazardCurveComputation {
 		int numIMLs  = xVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set((xVals.get(i)).doubleValue(), 1.0);
 
-		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
+		List<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
 			//			updateProgress(srcIndex, numSrcs);
 			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
-			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
+			List<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
 			int numRupSize = rupIdList.size();
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
@@ -237,7 +237,7 @@ public class HazardCurveComputation {
 							continue;
 					}
 				}
-				ArrayList<Double> imVals;
+				List<Double> imVals;
 				try {
 					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {
@@ -253,7 +253,7 @@ public class HazardCurveComputation {
 		return hazardFunc;
 	}
 	
-	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+	public static void handleRupture(List<Double> xVals, List<Double> imVals,
 			DiscretizedFunc hazardFunc, double qkProb,
 			int sourceID, int rupID, RuptureVariationProbabilityModifier rupProbVarMod) {
 		if (rupProbVarMod == null) {
@@ -281,7 +281,7 @@ public class HazardCurveComputation {
 		}
 	}
 	
-	public static void handleRupture(ArrayList<Double> xVals, ArrayList<Double> imVals,
+	public static void handleRupture(List<Double> xVals, List<Double> imVals,
 			DiscretizedFunc hazardFunc, double qkProb) {
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		for (double val : imVals) {
@@ -290,7 +290,7 @@ public class HazardCurveComputation {
 		setIMLProbs(xVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 	}
 	
-	public static DiscretizedFunc setIMLProbs( ArrayList<Double> imlVals,DiscretizedFunc hazFunc,
+	public static DiscretizedFunc setIMLProbs( List<Double> imlVals,DiscretizedFunc hazFunc,
 			ArbitrarilyDiscretizedFunc normalizedFunc, double rupProb) {
 		// find prob. for each iml value
 		int numIMLs  = imlVals.size();

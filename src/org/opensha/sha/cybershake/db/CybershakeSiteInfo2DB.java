@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.geo.Location;
@@ -42,6 +43,7 @@ public class CybershakeSiteInfo2DB {
 
 	
 	public static double CUT_OFF_DISTANCE = 200;
+	public static boolean FORCE_CUTOFF = false; // if true, will force to use new cutoff distance
 	private SiteInfo2DB site2db;
 	private ERF2DBAPI erf2db = null;
 	private BufferedWriter out = null;
@@ -464,7 +466,7 @@ public class CybershakeSiteInfo2DB {
 	 * 
 	 * @return the list of cybershake sites
 	 */
-	public ArrayList<String> getCS_SitesList(){
+	public List<String> getCS_SitesList(){
 		return site2db.getAllSites();
 	}
 	
@@ -482,7 +484,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIDsForSite(String csSiteName, int erfID){;
+	public List<Integer> getSrcIDsForSite(String csSiteName, int erfID){;
 		return site2db.getSrcIdsForSite(csSiteName, erfID);
 	}
 	
@@ -492,7 +494,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param srcId
 	 * @return the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIDsForSite(String csSiteName, int erfID, int srcID){
+	public List<Integer> getRupIDsForSite(String csSiteName, int erfID, int srcID){
 		return site2db.getRupIdsForSite(csSiteName, erfID, srcID);
 	}
 	
@@ -528,7 +530,7 @@ public class CybershakeSiteInfo2DB {
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */
-	public ArrayList<CybershakeSite> getAllSitesFromDB() {
+	public List<CybershakeSite> getAllSitesFromDB() {
 		return site2db.getAllSitesFromDB();
 	}
 	

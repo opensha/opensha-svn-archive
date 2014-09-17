@@ -482,7 +482,7 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			progress = new CalcProgressBar("Downloading MeanUCERF3 Files", "downloading "+fName);
 		} catch (Exception e) {}
 		String url = DOWNLOAD_URL+fName;
-		if (!ignoreErrors)
+//		if (!ignoreErrors)
 			System.out.print("Downloading "+url+" to "+file.getAbsolutePath());
 		try {
 			FileUtils.downloadURL(url, file);

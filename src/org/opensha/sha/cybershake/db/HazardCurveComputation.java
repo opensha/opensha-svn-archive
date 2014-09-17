@@ -21,11 +21,14 @@ package org.opensha.sha.cybershake.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 
+// duplicate!
+@Deprecated
 public class HazardCurveComputation {
 
 
@@ -204,19 +207,19 @@ public class HazardCurveComputation {
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set((imlVals.get(i)).doubleValue(), 1.0);
 
-		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
+		List<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
 			//			updateProgress(srcIndex, numSrcs);
 			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
-			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
+			List<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
 			int numRupSize = rupIdList.size();
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
 				double qkProb = erfDB.getRuptureProb(erfID, srcId, rupId);
 				ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
-				ArrayList<Double> imVals;
+				List<Double> imVals;
 				try {
 					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {

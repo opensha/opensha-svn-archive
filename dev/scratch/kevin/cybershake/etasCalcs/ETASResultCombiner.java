@@ -26,16 +26,22 @@ public class ETASResultCombiner {
 		
 		File[] zipFiles = {
 				// bombay
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-bombay_beach_m6-nospont/results.zip")
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round1.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round2.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round3.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round4.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round5.zip")
 				
 				// parkfield
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-parkfield-nospont/results.zip")
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round1.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round2.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round3.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round4.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round5.zip")
 		};
 		
-//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-bombay_beach_m6_combined.zip");
-		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_07-parkfield-nospont_combined.zip");
+//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_combined.zip");
+		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_combined.zip");
 		File workDir = Files.createTempDir();
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();

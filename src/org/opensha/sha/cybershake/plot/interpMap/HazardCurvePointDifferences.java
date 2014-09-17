@@ -21,6 +21,7 @@ package org.opensha.sha.cybershake.plot.interpMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -48,8 +49,8 @@ public class HazardCurvePointDifferences {
 	}
 	
 	public ArrayList<Double> getSiteDifferenceValues() {
-		ArrayList<Double> csVals = provider.getVals();
-		ArrayList<CybershakeSite> sites = provider.getSites();
+		List<Double> csVals = provider.getVals();
+		List<CybershakeSite> sites = provider.getSites();
 		
 		ArrayList<Double> diff = new ArrayList<Double>();
 		

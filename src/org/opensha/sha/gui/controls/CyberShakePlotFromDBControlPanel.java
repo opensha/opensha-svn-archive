@@ -198,16 +198,16 @@ extends ControlPanel implements ParameterChangeListener {
 	private int selectedSrcId,selectedRupId;
 	boolean curveInDB = false;
 	boolean ampsInDB = false;
-	private ArrayList<CybershakeIM> ims;
-	private ArrayList<Integer> dbCurves;
-	private ArrayList<Integer> ampCurves;
+	private List<CybershakeIM> ims;
+	private List<Integer> dbCurves;
+	private List<Integer> ampCurves;
 	private CybershakeIM im;
 	private String imString;
 
-	ArrayList<CybershakeSite> sites;
+	List<CybershakeSite> sites;
 	ArrayList<String> siteNames;
 
-	ArrayList<CybershakeERF> erfs;
+	List<CybershakeERF> erfs;
 	ArrayList<String> erfNames;
 
 	private JFrame frame;
@@ -517,7 +517,7 @@ extends ControlPanel implements ParameterChangeListener {
 	private void initSrcIndexParam(){
 		selectedSrcId = -1;
 		System.out.println("Updating SRC Indices with ERF ID="+selectedERF.id);
-		ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite.short_name, selectedERF.id);
+		List srcIdList = this.csSites.getSrcIDsForSite(selectedSite.short_name, selectedERF.id);
 		int size = srcIdList.size();
 		if (size > 0) {
 			selectedSrcId = ((Integer)srcIdList.get(0));
@@ -528,7 +528,7 @@ extends ControlPanel implements ParameterChangeListener {
 			srcIdList.add("" + selectedSrcId);
 		}
 
-		srcIndexParam = new StringParameter(SRC_INDEX_PARAM,srcIdList,"" + selectedSrcId);
+		srcIndexParam = new StringParameter(SRC_INDEX_PARAM,(ArrayList)srcIdList,"" + selectedSrcId);
 		srcIndexParam.addParameterChangeListener(this);
 	}
 
@@ -538,7 +538,7 @@ extends ControlPanel implements ParameterChangeListener {
 	 */
 	private void initRupIndexParam(){
 		System.out.println("Updating Rup Indices with ERF ID="+selectedERF.id);
-		ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite.short_name, selectedERF.id, selectedSrcId);
+		ArrayList rupIdList = (ArrayList)this.csSites.getRupIDsForSite(selectedSite.short_name, selectedERF.id, selectedSrcId);
 		int size = rupIdList.size();
 		if (size > 0) {
 			for(int i=0;i<size;++i)

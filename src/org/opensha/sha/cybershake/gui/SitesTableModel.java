@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -41,8 +42,8 @@ public class SitesTableModel extends AbstractTableModel {
 	SiteInfo2DB site2db;
 	HazardCurve2DB curve2db;
 	
-	ArrayList<CybershakeSite> sites;
-	ArrayList<CybershakeSiteType> types;
+	List<CybershakeSite> sites;
+	List<CybershakeSiteType> types;
 	
 	HashMap<String, Double> cutoffMap = new HashMap<String, Double>();
 	HashMap<String, String> erfMap = new HashMap<String, String>();

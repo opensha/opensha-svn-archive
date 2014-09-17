@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.openshaAPIs;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -86,7 +87,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	
 	int forcedRunID = -1;
 
-	ArrayList<CybershakeSite> sites = null;
+	List<CybershakeSite> sites = null;
 	CybershakeSite csSite = null;
 
 	public static final String SGT_VAR_PARAM = "SGT Variation ID";
@@ -238,7 +239,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	 * @return
 	 */
 	
-	private ArbitrarilyDiscretizedFunc getCumDistFunction(ArrayList<Double> vals) {
+	private ArbitrarilyDiscretizedFunc getCumDistFunction(List<Double> vals) {
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		
 		for (double val : vals) {
@@ -279,7 +280,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	 * @return
 	 */
 	
-	private ArbitrarilyDiscretizedFunc getLogX_OneMinusYCumDistFunction(ArrayList<Double> vals) {
+	private ArbitrarilyDiscretizedFunc getLogX_OneMinusYCumDistFunction(List<Double> vals) {
 		ArbitrarilyDiscretizedFunc normCumDist = getCumDistFunction(vals);
 		
 		ArbitrarilyDiscretizedFunc logFunc = getLogXFunction(normCumDist);
@@ -312,7 +313,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int rupVarID = this.selectedRupVarScenario;
 		int velModelID = this.selectedVelModel;
 
-		ArrayList<Double> imVals = null; 
+		List<Double> imVals = null; 
 
 		try {
 			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
@@ -363,7 +364,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int rupVarID = this.selectedRupVarScenario;
 		int velModelID = this.selectedVelModel;
 
-		ArrayList<Double> imVals = null; 
+		List<Double> imVals = null; 
 
 		try {
 			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
@@ -530,9 +531,9 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		return siteID + "_" + erfID + "_" + sgtVarID + "_" + rupVarID + "_" + velModelID + "_" + srcID + "_" + rupID + "_" + im.getID();
 	}
 
-	private ArrayList<Double> getIMVals(int siteID, int erfID, int sgtVarID, int rupVarID, int velModelID, int srcID, int rupID, CybershakeIM im) throws SQLException {
+	private List<Double> getIMVals(int siteID, int erfID, int sgtVarID, int rupVarID, int velModelID, int srcID, int rupID, CybershakeIM im) throws SQLException {
 		if (imValsBuff == null) {
-			imValsBuff = new LinkedList<ArrayList<Double>>();
+			imValsBuff = new LinkedList<List<Double>>();
 			imValsBuffKeys = new LinkedList<String>();
 			//			for (int i=0; i<IM_VALS_BUFF_SIZE; i++) {
 			//				imValsBuff.add(null);
@@ -556,7 +557,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, velModelID, null, null, null, null);
 		Preconditions.checkState(runID > 0, "Couldn't get runID for: siteID="+siteID+", erfID="+erfID
 				+", sgtVarID="+sgtVarID+", rupVarID="+rupVarID+", velModelID="+velModelID);
-		ArrayList<Double> imVals = ampsDB.getIM_Values(runID, srcID, rupID, im);
+		List<Double> imVals = ampsDB.getIM_Values(runID, srcID, rupID, im);
 
 //		String valStr = "";
 		for (int i=0; i<imVals.size(); i++) {
@@ -581,9 +582,9 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 	private static final int IM_VALS_BUFF_SIZE = 5;
 	private LinkedList<String> imValsBuffKeys = null;
-	private LinkedList<ArrayList<Double>> imValsBuff = null;
+	private LinkedList<List<Double>> imValsBuff = null;
 
-	private double calcMean(ArrayList<Double> vals) {
+	private double calcMean(List<Double> vals) {
 		double tot = 0;
 		for (double val : vals) {
 			tot += Math.log(val);
@@ -592,7 +593,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		return mean;
 	}
 
-	private double calcStdDev(ArrayList<Double> vals) {
+	private double calcStdDev(List<Double> vals) {
 		double mean = calcMean(vals);
 
 		// subtract the mean from each one, square them, and sum them
@@ -627,7 +628,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int velModelID = this.selectedVelModel;
 
 		try {
-			ArrayList<Double> imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
+			List<Double> imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 
 			return calcMean(imVals);
 		} catch (SQLException e) {
@@ -653,7 +654,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		int velModelID = this.selectedVelModel;
 
 		try {
-			ArrayList<Double> vals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
+			List<Double> vals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 
 			return calcStdDev(vals);
 		} catch (SQLException e) {

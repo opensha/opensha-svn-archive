@@ -21,15 +21,30 @@ package org.opensha.sha.cybershake.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.util.ExceptionUtils;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public class SiteInfo2DB implements SiteInfo2DBAPI {
 
 	private DBAccess dbaccess;
 
+	/*
+	 * Mapping from site ID, erfID to List<Source ID>
+	 */
+	private Table<Integer, Integer, List<Integer>> sourceIDsForSiteCache = HashBasedTable.create();
+	/*
+	 * Mapping from site ID, erf ID to SourceID,List<Rup ID>, where each rup ID list corresponds to a source ID list
+	 */
+	private Table<Integer, Integer, Map<Integer, List<Integer>>> rupIDsForSiteCache = HashBasedTable.create();
 	
 	public SiteInfo2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
@@ -127,6 +142,8 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 */
 	public double getSiteCutoffDistance(int siteID){
 //		 gets the last auto increment id from Sites table
+		if (CybershakeSiteInfo2DB.FORCE_CUTOFF)
+			return CybershakeSiteInfo2DB.CUT_OFF_DISTANCE;
 		 String sql = "SELECT Cutoff_Dist from CyberShake_Site_Regions where CS_Site_ID=" + siteID;
 		 ResultSet rs = null;
 		try {
@@ -306,7 +323,8 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		}
 	}
 	
-	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, ArrayList<Integer> ruptureId, ArrayList<Double> rupDists, double cutOffDistance) {
+	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, List<Integer> ruptureId,
+			List<Double> rupDists, double cutOffDistance) {
 //		generate the SQL to be inserted in the Sites table
 		String sql = "INSERT into CyberShake_Site_Ruptures VALUES";
 		
@@ -448,10 +466,10 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * 
 	 * @return the ArrayList of short site names for all Cybershake
 	 */
-	public ArrayList<String> getAllSites() {	
+	public List<String> getAllSites() {	
 //		 gets the last auto increment id from Sites table
 		 String sql = "SELECT CS_Short_Name from CyberShake_Sites ORDER BY CS_Site_ID";
-		 ArrayList<String> siteList = new ArrayList<String>();
+		 List<String> siteList = Lists.newArrayList();
 		 ResultSet rs =null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -478,7 +496,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param srcId
 	 * @return the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_id, int srcId) {
+	public List<Integer> getRupIdsForSite(String siteShortName, int erf_id, int srcId) {
 		int siteId = this.getSiteId(siteShortName);
 		return getRupIdsForSite(siteId, erf_id, srcId);
 	}
@@ -489,29 +507,31 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param srcId
 	 * @return the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIdsForSite(int siteID, int erf_id, int srcId) {
-		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " + 
-		             " and Source_ID ='"+srcId+"' order by Rupture_ID asc";
-		ArrayList<Integer> rupList = new ArrayList<Integer>();
-		ResultSet rs = null;
-		try {
-			rs = dbaccess.selectData(sql);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			rs.first();
-			while(!rs.isAfterLast()){
-			  int rupId = Integer.parseInt(rs.getString("Rupture_ID"));	
-			  rupList.add(rupId);
-			  rs.next();
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return rupList;
+	public List<Integer> getRupIdsForSite(int siteID, int erfID, int sourceID) {
+		loadCacheForSite(siteID, erfID);
+		return rupIDsForSiteCache.get(siteID, erfID).get(sourceID);
+//		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " + 
+//		             " and Source_ID ='"+srcId+"' order by Rupture_ID asc";
+//		ArrayList<Integer> rupList = new ArrayList<Integer>();
+//		ResultSet rs = null;
+//		try {
+//			rs = dbaccess.selectData(sql);
+//		} catch (SQLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		try {
+//			rs.first();
+//			while(!rs.isAfterLast()){
+//			  int rupId = Integer.parseInt(rs.getString("Rupture_ID"));	
+//			  rupList.add(rupId);
+//			  rs.next();
+//			}
+//			rs.close();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return rupList;
 	}
 	
 	/**
@@ -519,7 +539,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public void getSrcIfoForSite(String siteShortName, int erf_id, ArrayList<Integer> ids) {
+	public void getSrcIfoForSite(String siteShortName, int erf_id, List<Integer> ids) {
 		int siteId = this.getSiteId(siteShortName);
 		getSrcIfoForSite(siteId, erf_id, ids);
 	}
@@ -529,7 +549,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public void getSrcIfoForSite(int siteID, int erf_id, ArrayList<Integer> ids) {
+	public void getSrcIfoForSite(int siteID, int erf_id, List<Integer> ids) {
 		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
 		             " group by Source_ID order by Source_ID asc";
 		System.out.println(sql);
@@ -558,7 +578,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_id) {
+	public List<Integer> getSrcIdsForSite(String siteShortName, int erf_id) {
 		int siteId = this.getSiteId(siteShortName);
 		return getSrcIdsForSite(siteId, erf_id);
 	}
@@ -568,11 +588,46 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIdsForSite(int  siteID, int erf_id) {
-		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
-		             " group by Source_ID order by Source_ID asc";
+	public List<Integer> getSrcIdsForSite(int  siteID, int erfID) {
+		loadCacheForSite(siteID, erfID);
+		return sourceIDsForSiteCache.get(siteID, erfID);
+//		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
+//		             " group by Source_ID order by Source_ID asc";
+//		System.out.println(sql);
+//		ArrayList<Integer> srcIdList = new ArrayList<Integer>();
+//		ResultSet rs = null;
+//		try {
+//			rs = dbaccess.selectData(sql);
+//		} catch (SQLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		try {
+//			rs.first();
+//			while(!rs.isAfterLast()){
+//			  int srcId = Integer.parseInt(rs.getString("Source_ID"));	
+//			  srcIdList.add(srcId);
+//			  rs.next();
+//			}
+//			rs.close();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return srcIdList;
+	}
+	
+	private synchronized void loadCacheForSite(int siteID, int erfID) {
+		if (sourceIDsForSiteCache.contains(siteID, erfID))
+			// already cached
+			return;
+		
+		String sql = "Select Source_ID,Rupture_ID from CyberShake_Site_Ruptures "
+				+ "where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erfID + "' " +
+	             " order by Source_ID asc,Rupture_ID asc";
 		System.out.println(sql);
-		ArrayList<Integer> srcIdList = new ArrayList<Integer>();
+		List<Integer> sourceIDs = Lists.newArrayList();
+		Map<Integer, List<Integer>> rupIDs = Maps.newHashMap();
+		
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -580,18 +635,35 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		int curSourceID = -1;
+		List<Integer> curRupIDs = null;
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  int srcId = Integer.parseInt(rs.getString("Source_ID"));	
-			  srcIdList.add(srcId);
-			  rs.next();
+				int sourceID = rs.getInt(1);
+				int rupID = rs.getInt(2);
+				if (sourceID != curSourceID) {
+					if (curRupIDs != null && !curRupIDs.isEmpty()) {
+						sourceIDs.add(curSourceID);
+						rupIDs.put(curSourceID, curRupIDs);
+					}
+					curSourceID = sourceID;
+					curRupIDs = Lists.newArrayList();
+				}
+				curRupIDs.add(rupID);
+				rs.next();
+			}
+			if (curRupIDs != null && !curRupIDs.isEmpty()) {
+				sourceIDs.add(curSourceID);
+				rupIDs.put(curSourceID, curRupIDs);
 			}
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
-		return srcIdList;
+		
+		sourceIDsForSiteCache.put(siteID, erfID, sourceIDs);
+		rupIDsForSiteCache.put(siteID, erfID, rupIDs);
 	}
 
 	/**
@@ -689,10 +761,10 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */
-	public ArrayList<CybershakeSite> getAllSitesFromDB() {
+	public List<CybershakeSite> getAllSitesFromDB() {
 		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon,CS_Site_Type_ID from CyberShake_Sites";
 		ResultSet rs = null;
-		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
+		List<CybershakeSite> sites = Lists.newArrayList();
 		try {
 			rs = dbaccess.selectData(sql);
 		} catch (SQLException e1) {
@@ -722,8 +794,8 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		return sites;
 	}
 	
-	public ArrayList<CybershakeSiteType> getSiteTypes() {
-		ArrayList<CybershakeSiteType> types = new ArrayList<CybershakeSiteType>();
+	public List<CybershakeSiteType> getSiteTypes() {
+		List<CybershakeSiteType> types = Lists.newArrayList();
 		
 		String sql = "SELECT * from CyberShake_Site_Types";
 		
@@ -754,8 +826,8 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		return types;
 	}
 	
-	public ArrayList<Integer> getERFsForSite(int siteID) {
-		ArrayList<Integer> erfs = new ArrayList<Integer>();
+	public List<Integer> getERFsForSite(int siteID) {
+		List<Integer> erfs = Lists.newArrayList();
 		
 		String sql = "select distinct ERF_ID from CyberShake_Site_Ruptures where CS_Site_ID=" + siteID;
 		
@@ -828,7 +900,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		SiteInfo2DB siteDB = new SiteInfo2DB(db);
 //		siteDB.isRupInDB(33, 0, 9);
-		ArrayList<CybershakeSiteType> types = siteDB.getSiteTypes();
+		List<CybershakeSiteType> types = siteDB.getSiteTypes();
 		for (CybershakeSiteType type : types) {
 			System.out.println(type);
 		}

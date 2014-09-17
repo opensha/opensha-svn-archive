@@ -86,6 +86,8 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		script.add("  echo \"invalid NP: $NP\"");
 		script.add("  exit 1");
 		script.add("fi");
+		script.add("");
+		script.addAll(getJVMSetupLines());
 		
  
 		String dev;

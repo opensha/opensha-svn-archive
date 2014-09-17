@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -141,9 +142,9 @@ public class EEWShakeMapCalc {
 		
 		double myProbs = 0;
 		
-		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(run.getSiteID(), erfID);
+		List<Integer> srcIdList = siteDB.getSrcIdsForSite(run.getSiteID(), erfID);
 		for (int sourceID : srcIdList) {
-			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(run.getSiteID(), erfID, sourceID);
+			List<Integer> rupIdList = siteDB.getRupIdsForSite(run.getSiteID(), erfID, sourceID);
 			for (int rupID : rupIdList) {
 				String key = RupHyposWithinCutoff.getKey(sourceID, rupID);
 				if (unscaledProbs.containsKey(key)) {
@@ -152,7 +153,7 @@ public class EEWShakeMapCalc {
 					
 					myProbs += scaledProb;
 					
-					ArrayList<Double> allIMVals;
+					List<Double> allIMVals;
 					try {
 						allIMVals = amps2db.getIM_Values(run.getRunID(), sourceID, rupID, im);
 					} catch (SQLException e) {

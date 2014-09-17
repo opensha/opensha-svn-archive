@@ -74,6 +74,8 @@ public class MPJExpressShellScriptWriter extends JavaShellScriptWriter {
 		script.add("date");
 		script.add("echo \"STARTING MPJ\"");
 		script.add("mpjboot $PBS_NODEFILE");
+		script.add("");
+		script.addAll(getJVMSetupLines());
 		
 		
 		String dev;

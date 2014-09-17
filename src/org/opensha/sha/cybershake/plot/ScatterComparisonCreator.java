@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -51,7 +52,7 @@ public class ScatterComparisonCreator {
 	
 	HazardCurveFetcher fetcher;
 	
-	ArrayList<CybershakeSite> sites;
+	List<CybershakeSite> sites;
 	
 	Font labelFont = new Font("Label", Font.PLAIN, 12);
 	

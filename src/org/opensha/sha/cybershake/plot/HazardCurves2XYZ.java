@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake.plot;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -47,8 +48,8 @@ public class HazardCurves2XYZ {
 		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID);
 	}
 	
-	public static void writeXYZ(String fileName, ArrayList<CybershakeSite> sites, ArrayList<Double> vals,
-			ArrayList<Integer> siteTypeIDs) throws IOException {
+	public static void writeXYZ(String fileName, List<CybershakeSite> sites, List<Double> vals,
+			List<Integer> siteTypeIDs) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		
 		
@@ -72,8 +73,8 @@ public class HazardCurves2XYZ {
 	}
 	
 	public void writeXYZ(String fileName, boolean isProbAt_IML, double level) throws IOException {
-		ArrayList<Double> vals = fetcher.getSiteValues(isProbAt_IML, level);
-		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		List<Double> vals = fetcher.getSiteValues(isProbAt_IML, level);
+		List<CybershakeSite> sites = fetcher.getCurveSites();
 		
 		writeXYZ(fileName, sites, vals, siteTypeIDs);
 	}
@@ -88,7 +89,7 @@ public class HazardCurves2XYZ {
 		writeLabelsFile(labelsFile, sites);
 	}
 	
-	public static void writeLabelsFile(String labelsFile, ArrayList<CybershakeSite> sites) throws IOException {
+	public static void writeLabelsFile(String labelsFile, List<CybershakeSite> sites) throws IOException {
 		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, 0.5 * 0.75);
 		
 		ArrayList<ScatterSymbol> symbols = HazardMapScatterCreator.getCyberShakeSymbols(0.5);

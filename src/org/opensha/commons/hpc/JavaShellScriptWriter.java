@@ -27,6 +27,9 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	private boolean headless;
 	private Map<String, String> properties;
 	
+	private int autoMemBufferMB = 3000;
+	private boolean autoMemDetect = false;
+	
 	public JavaShellScriptWriter(File javaBin, int maxHeapSizeMB, Collection<File> classpath) {
 		setJavaBin(javaBin);
 		this.maxHeapSizeMB = maxHeapSizeMB;
@@ -92,6 +95,38 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		if (properties != null)
 			properties.clear();
 	}
+	
+	public void setAutoMemDetect(boolean autoMemDetect) {
+		this.autoMemDetect = autoMemDetect;
+	}
+	
+	public List<String> getJVMSetupLines() {
+		List<String> lines = Lists.newArrayList();
+		
+		if (maxHeapSizeMB > 0 || autoMemDetect)
+			lines.add("JVM_MEM_MB="+maxHeapSizeMB);
+		if (initialHeapSizeMB > 0)
+			lines.add("JVM_INITIAL_MEM_MB="+initialHeapSizeMB);
+		if (autoMemDetect) {
+			lines.add("AUTO_MEM_BUFFER_MB="+autoMemBufferMB);
+			lines.add("echo \"Minimum JVM memory: $JVM_MEM_MB\"");
+			lines.add("# detect system memory");
+			lines.add("let MEM=`awk '/MemTotal/{print $2}' /proc/meminfo`");
+			lines.add("# convert to MB");
+			lines.add("let MEM=$MEM/1024");
+			lines.add("echo \"System memory: $MEM MB\"");
+			lines.add("let MAXMEM=$MEM-$AUTO_MEM_BUFFER_MB");
+			lines.add("echo \"Max auto system memory: $MAXMEM MB\"");
+			lines.add("if [[ $MAXMEM -gt $JVM_MEM_MB ]];then");
+			lines.add("\tJVM_MEM_MB=$MAXMEM");
+			lines.add("\techo \"Increased JVM memory to $JVM_MEM_MB MB\"");
+			lines.add("else");
+			lines.add("\techo \"Keeping minimum JVM MEM of $JVM_MEM_MB MB\"");
+			lines.add("fi");
+		}
+		
+		return lines;
+	}
 
 	protected String getJVMArgs(String className) {
 		Preconditions.checkNotNull(className, "class name cannot be null or empty");
@@ -120,9 +155,9 @@ public class JavaShellScriptWriter implements XMLSaveable {
 			}
 		}
 		if (maxHeapSizeMB > 0)
-			jvmArgs += " -Xmx"+maxHeapSizeMB+"M";
+			jvmArgs += " -Xmx${JVM_MEM_MB}M";
 		if (initialHeapSizeMB > 0)
-			jvmArgs += " -Xms"+initialHeapSizeMB+"M";
+			jvmArgs += " -Xms${JVM_INITIAL_MEM_MB}M";
 		
 		String args = getFormattedArgs(jvmArgs+cp);
 		
@@ -130,6 +165,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	}
 	
 	public String buildCommand(String className, String args) {
+		
 		String command = javaBin.getAbsolutePath()+getJVMArgs(className);
 		
 		command += getFormattedArgs(args);
@@ -160,6 +196,8 @@ public class JavaShellScriptWriter implements XMLSaveable {
 		Preconditions.checkArgument(classNames.size() == argss.size());
 		
 		script.add("#!/bin/bash");
+		script.add("");
+		script.addAll(getJVMSetupLines());
 		for (int i=0; i<classNames.size(); i++) {
 			script.add("");
 			script.add(buildCommand(classNames.get(i), argss.get(i)));

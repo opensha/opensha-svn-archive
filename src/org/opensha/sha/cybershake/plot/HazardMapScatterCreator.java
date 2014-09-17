@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.util.XYZClosestPointFinder;
@@ -39,11 +40,11 @@ public class HazardMapScatterCreator {
 	
 	public static final Color BLANK_COLOR = Color.WHITE;
 	
-	ArrayList<CybershakeSite> sites;
-	ArrayList<DiscretizedFunc> funcs;
-	ArrayList<Double> vals;
+	List<CybershakeSite> sites;
+	List<DiscretizedFunc> funcs;
+	List<Double> vals;
 	
-	ArrayList<CybershakeSite> allSites = null;
+	List<CybershakeSite> allSites = null;
 	
 	ArrayList<XYZClosestPointFinder> comps = new ArrayList<XYZClosestPointFinder>();
 	ArrayList<String> compNames = new ArrayList<String>();
@@ -137,7 +138,7 @@ public class HazardMapScatterCreator {
 		}
 	}
 	
-	private static ScatterSymbol getSymbol(CybershakeSite site, ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
+	private static ScatterSymbol getSymbol(CybershakeSite site, List<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
 		if (symbols == null)
 			return defaultSym;
 		for (ScatterSymbol symbol : symbols) {
@@ -160,7 +161,7 @@ public class HazardMapScatterCreator {
 		return "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
 	}
 	
-	private static String getGMTSymbolLine(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, CybershakeSite site, CPT cpt, double val, double size) {
+	private static String getGMTSymbolLine(List<ScatterSymbol> symbols, ScatterSymbol defaultSym, CybershakeSite site, CPT cpt, double val, double size) {
 		
 		ScatterSymbol sym = getSymbol(site, symbols, defaultSym);
 		if (sym.getSymbol().equals(ScatterSymbol.SYMBOL_INVISIBLE))
@@ -208,7 +209,7 @@ public class HazardMapScatterCreator {
 		return line;
 	}
 	
-	private ArrayList<CybershakeSite> getAllSites() {
+	private List<CybershakeSite> getAllSites() {
 		if (allSites == null) {
 			allSites = fetcher.getAllSites();
 		}
@@ -267,7 +268,7 @@ public class HazardMapScatterCreator {
 		writeScatterMarkerScript(symbols, defaultSym, script, labels, curveSitesOnly, 10);
 	}
 	
-	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script,
+	public void writeScatterMarkerScript(List<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script,
 			boolean labels, boolean curveSitesOnly, double fontSize) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
@@ -276,7 +277,7 @@ public class HazardMapScatterCreator {
 		double size = 0.18;
 //		double fontSize = 10;
 		
-		ArrayList<CybershakeSite> sites;
+		List<CybershakeSite> sites;
 		if (curveSitesOnly)
 			sites = this.sites;
 		else
@@ -303,7 +304,7 @@ public class HazardMapScatterCreator {
 		write.close();
 	}
 	
-	public static void writeScatterMarkerScript(ArrayList<CybershakeSite> sites, ArrayList<ScatterSymbol> symbols,
+	public static void writeScatterMarkerScript(List<CybershakeSite> sites, List<ScatterSymbol> symbols,
 			ScatterSymbol defaultSym, String script, boolean labels, double fontSize) throws IOException {
 		FileWriter write = new FileWriter(script);
 		

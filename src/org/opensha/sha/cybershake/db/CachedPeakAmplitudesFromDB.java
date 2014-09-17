@@ -13,12 +13,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.ERF;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -33,42 +37,88 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	/**
 	 * mapping from runID,im to [sourceID][rupID][rvID]
 	 */
-	private Table<Integer, CybershakeIM, double[][][]> cache;
-	private static int maxRuns = 10;
+//	private Table<Integer, CybershakeIM, double[][][]> cache;
+	private LoadingCache<CacheKey, double[][][]> cache;
+	private static int maxRuns = 20;
 	private ERF erf;
+	
+	private class CacheKey {
+		private Integer runID;
+		private CybershakeIM im;
+		public CacheKey(Integer runID, CybershakeIM im) {
+			super();
+			this.runID = runID;
+			this.im = im;
+		}
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((im == null) ? 0 : im.hashCode());
+			result = prime * result + ((runID == null) ? 0 : runID.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CacheKey other = (CacheKey) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (im == null) {
+				if (other.im != null)
+					return false;
+			} else if (!im.equals(other.im))
+				return false;
+			if (runID == null) {
+				if (other.runID != null)
+					return false;
+			} else if (!runID.equals(other.runID))
+				return false;
+			return true;
+		}
+		private CachedPeakAmplitudesFromDB getOuterType() {
+			return CachedPeakAmplitudesFromDB.this;
+		}
+	}
+	
+	private class CustomLoader extends CacheLoader<CacheKey, double[][][]> {
+
+		@Override
+		public double[][][] load(CacheKey key) throws Exception {
+			return loadAmps(key.runID, key.im);
+		}
+		
+	}
 
 	public CachedPeakAmplitudesFromDB(DBAccess dbaccess, File cacheDir, ERF erf) {
 		super(dbaccess);
 		
 		this.cacheDir = cacheDir;
-		cache = HashBasedTable.create();
+		cache = CacheBuilder.newBuilder().maximumSize(maxRuns).build(new CustomLoader());
 		this.erf = erf;
 	}
 
 	@Override
-	public ArrayList<Double> getIM_Values(int runID, int srcId, int rupId,
+	public List<Double> getIM_Values(int runID, int srcId, int rupId,
 			CybershakeIM im) throws SQLException {
-		double[][][] runVals = cache.get(runID, im);
-		if (runVals == null)
-			runVals = fillCache(runID, im);
-		
-		ArrayList<Double> vals = super.getIM_Values(runID, srcId, rupId, im);
-		
-		return vals;
-	}
-	
-	private synchronized double[][][] fillCache(int runID, CybershakeIM im) throws SQLException {
-		// this is synchroinized, lets see if it already got filled
-		double[][][] vals = cache.get(runID, im);
-		if (vals != null)
-			return vals;
-		
-		// first make room
-		while (cache.size() >= maxRuns) {
-			Cell<Integer, CybershakeIM, double[][][]> cell = cache.cellSet().iterator().next();
-			cache.remove(cell.getRowKey(), cell.getColumnKey());
+		double[][][] runVals;
+		try {
+			runVals = cache.get(new CacheKey(runID, im));
+		} catch (ExecutionException e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}
 		
+		return Doubles.asList(runVals[srcId][rupId]);
+	}
+	
+	private double[][][] loadAmps(int runID, CybershakeIM im) throws SQLException {
+		double[][][] vals;
 		File cacheFile = getCacheFile(runID, im);
 		if (cacheFile != null && cacheFile.exists()) {
 			try {
@@ -87,8 +137,6 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 				}
 			}
 		}
-		
-		cache.put(runID, im, vals);
 		
 		return vals;
 	}

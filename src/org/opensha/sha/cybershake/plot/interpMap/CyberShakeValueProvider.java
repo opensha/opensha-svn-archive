@@ -3,6 +3,7 @@ package org.opensha.sha.cybershake.plot.interpMap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.util.FileUtils;
@@ -11,13 +12,13 @@ import org.opensha.sha.cybershake.db.CybershakeSite;
 
 public class CyberShakeValueProvider {
 	
-	private ArrayList<CybershakeSite> sites;
-	private ArrayList<Double> vals;
+	private List<CybershakeSite> sites;
+	private List<Double> vals;
 	
 	public CyberShakeValueProvider(HazardCurveFetcher fetcher, ArrayList<Integer> types,
 			boolean isProbAt_IML, double level) {
-		ArrayList<Double> csVals = fetcher.getSiteValues(isProbAt_IML, level);
-		ArrayList<CybershakeSite> origSites = fetcher.getCurveSites();
+		List<Double> csVals = fetcher.getSiteValues(isProbAt_IML, level);
+		List<CybershakeSite> origSites = fetcher.getCurveSites();
 		
 		sites = new ArrayList<CybershakeSite>();
 		vals = new ArrayList<Double>();
@@ -55,11 +56,11 @@ public class CyberShakeValueProvider {
 		System.out.println("Loaded " + vals.size() + " vals from '" + inputFile + "'");
 	}
 	
-	public ArrayList<Double> getVals() {
+	public List<Double> getVals() {
 		return vals;
 	}
 	
-	public ArrayList<CybershakeSite> getSites() {
+	public List<CybershakeSite> getSites() {
 		return sites;
 	}
 

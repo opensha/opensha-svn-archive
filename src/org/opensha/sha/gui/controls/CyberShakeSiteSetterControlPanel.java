@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -83,7 +84,7 @@ public class CyberShakeSiteSetterControlPanel extends ControlPanel implements
 	// ERF selection param
 	private CyberShakeERFSelectorParam erfParam;
 	
-	private ArrayList<CybershakeSite> sites;
+	private List<CybershakeSite> sites;
 	private ArrayList<String> siteNames;
 	
 	private Site_GuiBean siteGuiBean;

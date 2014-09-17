@@ -19,7 +19,7 @@
 
 package org.opensha.sha.cybershake.db;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -57,7 +57,7 @@ public interface SiteInfo2DBAPI {
 	 * @param rupDistsToAdd 
 	 * @param cutoffDistance
 	 */
-	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, ArrayList<Integer> ruptureId, ArrayList<Double> rupDistsToAdd, double cutOffDistance);
+	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, List<Integer> ruptureId, List<Double> rupDistsToAdd, double cutOffDistance);
 	
 	/**
 	 * Inserts the regional bounds (min/max lat/lon) for all cybershake sites in table Site_Region.
@@ -122,9 +122,9 @@ public interface SiteInfo2DBAPI {
 	
 	/**
 	 * 
-	 * @return the ArrayList of short site names for all Cybershake
+	 * @return the List of short site names for all Cybershake
 	 */
-	public ArrayList<String> getAllSites();
+	public List<String> getAllSites();
 	
 	/**
 	 * Find out if the given rupture is already in the database
@@ -147,7 +147,7 @@ public interface SiteInfo2DBAPI {
 	
 	/**
 	 * 
-	 * @return the Arraylist of all cybershake site locations
+	 * @return the List of all cybershake site locations
 	 */
 	public LocationList getAllSitesLocation();
 	
@@ -157,14 +157,14 @@ public interface SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_ID);
+	public List<Integer> getSrcIdsForSite(String siteShortName, int erf_ID);
 	
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @return the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIdsForSite(int siteID, int erf_ID);
+	public List<Integer> getSrcIdsForSite(int siteID, int erf_ID);
 	
 	/**
 	 * 
@@ -172,7 +172,7 @@ public interface SiteInfo2DBAPI {
 	 * @param srcId
 	 * @return the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIdsForSite(int siteID, int erf_ID, int srcId);
+	public List<Integer> getRupIdsForSite(int siteID, int erf_ID, int srcId);
 	
 	/**
 	 * 
@@ -180,7 +180,7 @@ public interface SiteInfo2DBAPI {
 	 * @param srcId
 	 * @return the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_ID, int srcId);
+	public List<Integer> getRupIdsForSite(String siteShortName, int erf_ID, int srcId);
 	
 	/**
 	 * 
@@ -207,6 +207,6 @@ public interface SiteInfo2DBAPI {
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */
-	public ArrayList<CybershakeSite> getAllSitesFromDB();
+	public List<CybershakeSite> getAllSitesFromDB();
 
 }

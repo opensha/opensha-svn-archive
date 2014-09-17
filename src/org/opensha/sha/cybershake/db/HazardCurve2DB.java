@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -483,9 +484,9 @@ public class HazardCurve2DB {
 	}
 	
 	public boolean deleteCurvesForDatasetID(int datasetID, int siteTypeID) {
-		ArrayList<CybershakeHazardCurveRecord> records = getHazardCurveRecordsForDataset(datasetID);
-		ArrayList<CybershakeRun> runs = runs2db.getRuns();
-		ArrayList<CybershakeSite> sites = sites2db.getAllSitesFromDB();
+		List<CybershakeHazardCurveRecord> records = getHazardCurveRecordsForDataset(datasetID);
+		List<CybershakeRun> runs = runs2db.getRuns();
+		List<CybershakeSite> sites = sites2db.getAllSitesFromDB();
 		
 		System.out.println("deleting "+records.size()+" curves!");
 		
@@ -505,7 +506,7 @@ public class HazardCurve2DB {
 	}
 	
 	public int getSiteTypeForCurve(CybershakeHazardCurveRecord record,
-			ArrayList<CybershakeRun> runs, ArrayList<CybershakeSite> sites) {
+			List<CybershakeRun> runs, List<CybershakeSite> sites) {
 		for (CybershakeRun run : runs) {
 			if (run.getRunID() == record.getRunID()) {
 				for (CybershakeSite site : sites) {
@@ -786,10 +787,10 @@ public class HazardCurve2DB {
 		HazardCurve2DB curve2db;
 		try {
 			curve2db = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true));
-//			curve2db.deleteCurvesForDatasetID(51); // cs oef parkfield, 1 week
-//			curve2db.deleteCurvesForDatasetID(53); // cs oef parkfield, 1 day
+			curve2db.deleteCurvesForDatasetID(51); // cs oef parkfield, 1 week
+			curve2db.deleteCurvesForDatasetID(53); // cs oef parkfield, 1 day
 //			curve2db.deleteCurvesForDatasetID(49); // cs oef bombay, 1 week
-			curve2db.deleteCurvesForDatasetID(54); // cs oef bombay, 1 day
+//			curve2db.deleteCurvesForDatasetID(54); // cs oef bombay, 1 day
 //			curve2db.deleteCurvesForDatasetID(50); // cs oef UCERF2 mapped, 1 week
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
