@@ -786,6 +786,7 @@ public class ETASCurveCalc {
 	private void writeConvergenceMaps(File outputDir, Map<Integer, Map<CybershakeSite, DiscretizedFunc>> numCurvesMaps)
 			throws IOException {
 		List<Integer> sizes = Lists.newArrayList(numCurvesMaps.keySet());
+		Collections.sort(sizes);
 		
 		GeoDataSet finalMap = extractMap(numCurvesMaps.get(sizes.get(sizes.size()-1)));
 		
@@ -815,7 +816,7 @@ public class ETASCurveCalc {
 							"val: " + val + "\n" +
 							"imTypeID: " + imTypeID + "\n";
 			
-			File outputFile = new File(outputDir, "converge_hazard_"+sizeStr+"_"+conf.getScenario().name()+".png");
+			File outputFile = new File(outputDir, "converge_hazard_"+conf.getScenario().name()+"_"+sizeStr+".png");
 			
 			System.out.println("Making map...");
 			try {
@@ -832,7 +833,7 @@ public class ETASCurveCalc {
 			}
 			
 			// now ratio
-			outputFile = new File(outputDir, "converge_ratio_"+sizeStr+"_"+conf.getScenario().name()+".png");
+			outputFile = new File(outputDir, "converge_ratio_"+conf.getScenario().name()+"_"+sizeStr+".png");
 			createRatioMap(xyz, finalMap, conf.getScenario().toString()+" "+size+"/"+maxSize+" Sims Ratio", outputFile, -1d, 1d);
 		}
 	}

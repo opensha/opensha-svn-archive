@@ -12,9 +12,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -62,9 +65,14 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
 import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
 
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.utils.ProbModelsPlottingUtils;
+import scratch.UCERF3.utils.DeformationModelFetcher;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 /**
@@ -98,7 +106,6 @@ public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	private ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
 	ArrayList<RectangularElement> rectElementsList;
 	ArrayList<Vertex> vertexList;
 	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
@@ -136,6 +143,15 @@ public class General_EQSIM_Tools {
 		mkElementsFromUCERF2_DefMod(deformationModelID, aseisReducesArea, maxDiscretization);
 	}
 	
+	/**
+	 * 
+	 * @param faultSections list of fault section pref data
+	 * @param aseisReducesArea whether or not to reduce area (otherwise reduces slip rate?)
+	 * @param maxDiscretization the maximum element size
+	 */
+	public General_EQSIM_Tools(List<FaultSectionPrefData> faultSections, boolean aseisReducesArea, double maxDiscretization) {
+		mkElementsFromSections(faultSections, aseisReducesArea, maxDiscretization);
+	}
 	
 	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
@@ -392,120 +408,128 @@ public class General_EQSIM_Tools {
 
 		while (linesIterator.hasNext()) {
 			
-			line = linesIterator.next();
-			tok = new StringTokenizer(line);
-			kindOfLine = Integer.parseInt(tok.nextToken());
-			
-			// read "Fault System Summary Record" (values kept are use as a check later)
-			if(kindOfLine == 200) {
-				n_section=Integer.parseInt(tok.nextToken());
-				n_vertex=Integer.parseInt(tok.nextToken());
-				n_triangle=Integer.parseInt(tok.nextToken());
-				n_rectangle=Integer.parseInt(tok.nextToken());
-				// the rest of the line contains:
-				// lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
-			}
-			
-			// read "Fault Section Information Record"
-			if(kindOfLine == 201) {
-				int sid = Integer.parseInt(tok.nextToken());  // section ID
-				String name = tok.nextToken();
-				int n_sect_vertex=Integer.parseInt(tok.nextToken());
-				int n_sect_triangle=Integer.parseInt(tok.nextToken());
-				int n_sect_rectangle=Integer.parseInt(tok.nextToken());
-				tok.nextToken(); // lat_lo
-				tok.nextToken(); // lat_hi
-				tok.nextToken(); // lon_lo
-				tok.nextToken(); // lon_hi
-				double depth_lo = Double.parseDouble(tok.nextToken()); // depth_lo
-				double depth_hi = Double.parseDouble(tok.nextToken()); // depth_hi
-				double das_lo = Double.parseDouble(tok.nextToken()); // das_lo
-				double das_hi = Double.parseDouble(tok.nextToken()); // das_hi
-				int fault_id = Integer.parseInt(tok.nextToken());
-				// the rest of the line contains: comment_text
+			try {
+				line = linesIterator.next();
+				tok = new StringTokenizer(line);
+				kindOfLine = Integer.parseInt(tok.nextToken());
 				
-				// check for triangular elements
-				if(n_sect_triangle>0) throw new RuntimeException("Don't yet support triangles");
-				
-				sectionNamesList.add(name);
-				sectionIDs_List.add(sid);
-				faultIDs_ForSections.add(fault_id);
-				depthLoForSections.add(depth_lo);
-				depthHiForSections.add(depth_hi);
-				lengthForSections.add(das_hi-das_lo);
-
-				// read the vertices for this section
-				ArrayList<Vertex> verticesForThisSect = new ArrayList<Vertex>();
-				for(int v=0; v<n_sect_vertex; v++) {
-					line = linesIterator.next();
-					tok = new StringTokenizer(line);
-					kindOfLine = Integer.parseInt(tok.nextToken());
-					if(kindOfLine != 202) throw new RuntimeException("Problem with file (line should start with 202)");
-					int id = Integer.parseInt(tok.nextToken());
-					double lat = Double.parseDouble(tok.nextToken());
-					double lon = Double.parseDouble(tok.nextToken());
-					double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km & change sign
-					double das = Double.parseDouble(tok.nextToken())/1000;		// convert to km
-					int trace_flag = Integer.parseInt(tok.nextToken());
+				// read "Fault System Summary Record" (values kept are use as a check later)
+				if(kindOfLine == 200) {
+					n_section=Integer.parseInt(tok.nextToken());
+					n_vertex=Integer.parseInt(tok.nextToken());
+					n_triangle=Integer.parseInt(tok.nextToken());
+					n_rectangle=Integer.parseInt(tok.nextToken());
 					// the rest of the line contains:
-					// comment_text
-					
-					Vertex vertex = new Vertex(lat,lon,depth, id, das, trace_flag); 
-					verticesForThisSect.add(vertex);
-					vertexList.add(vertex);
+					// lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
 				}
-				vertexListForSections.add(verticesForThisSect);
 				
-				// now read the elements
-				double aveDip = 0;
-				ArrayList<RectangularElement> rectElemForThisSect = new ArrayList<RectangularElement>();
-				double totArea = 0;
-				for(int r=0; r<n_sect_rectangle; r++) {
-					line = linesIterator.next();
-					tok = new StringTokenizer(line);
-					kindOfLine = Integer.parseInt(tok.nextToken());
-					if(kindOfLine != 204) throw new RuntimeException("Problem with file (line should start with 204)");
-					int id = Integer.parseInt(tok.nextToken());
-					int vertex_1_ID = Integer.parseInt(tok.nextToken());
-					int vertex_2_ID = Integer.parseInt(tok.nextToken());
-					int vertex_3_ID = Integer.parseInt(tok.nextToken());
-					int vertex_4_ID = Integer.parseInt(tok.nextToken());
-				    double rake = Double.parseDouble(tok.nextToken());
-				    double slip_rate = Double.parseDouble(tok.nextToken())*SECONDS_PER_YEAR; // convert to meters per year
-				    double aseis_factor = Double.parseDouble(tok.nextToken());
-				    double strike = Double.parseDouble(tok.nextToken());
-				    double dip = Double.parseDouble(tok.nextToken());
-				    aveDip+=dip/n_sect_rectangle;
-				    int perfect_flag = Integer.parseInt(tok.nextToken());
+				// read "Fault Section Information Record"
+				if(kindOfLine == 201) {
+					int sid = Integer.parseInt(tok.nextToken());  // section ID
+					String name = tok.nextToken();
+					int n_sect_vertex=Integer.parseInt(tok.nextToken());
+					int n_sect_triangle=Integer.parseInt(tok.nextToken());
+					int n_sect_rectangle=Integer.parseInt(tok.nextToken());
+					tok.nextToken(); // lat_lo
+					tok.nextToken(); // lat_hi
+					tok.nextToken(); // lon_lo
+					tok.nextToken(); // lon_hi
+					double depth_lo = Double.parseDouble(tok.nextToken()); // depth_lo
+					double depth_hi = Double.parseDouble(tok.nextToken()); // depth_hi
+					double das_lo = Double.parseDouble(tok.nextToken()); // das_lo
+					double das_hi = Double.parseDouble(tok.nextToken()); // das_hi
+					int fault_id = Integer.parseInt(tok.nextToken());
 					// the rest of the line contains: comment_text
-				    boolean perfectBoolean = false;
-				    if(perfect_flag == 1) perfectBoolean = true;
-				    Vertex[] vertices = new Vertex[4];
-				    
-				    vertices[0] = vertexList.get(vertex_1_ID-1);  // vertex index is one minus vertex ID
-				    vertices[1] = vertexList.get(vertex_2_ID-1);
-				    vertices[2] = vertexList.get(vertex_3_ID-1);
-				    vertices[3] = vertexList.get(vertex_4_ID-1);
-				    int numAlongStrike = -1;// unknown
-				    int numDownDip = -1;	// unknown
-				    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
-				    RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
-				    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
-				    rectElemForThisSect.add(rectElem);
-				    rectElementsList.add(rectElem);
-				    totArea += rectElem.getArea();
+					
+					// check for triangular elements
+					if(n_sect_triangle>0) throw new RuntimeException("Don't yet support triangles");
+					
+					sectionNamesList.add(name);
+					sectionIDs_List.add(sid);
+					faultIDs_ForSections.add(fault_id);
+					depthLoForSections.add(depth_lo);
+					depthHiForSections.add(depth_hi);
+					lengthForSections.add(das_hi-das_lo);
+
+					// read the vertices for this section
+					ArrayList<Vertex> verticesForThisSect = new ArrayList<Vertex>();
+					for(int v=0; v<n_sect_vertex; v++) {
+						line = linesIterator.next();
+						tok = new StringTokenizer(line);
+						kindOfLine = Integer.parseInt(tok.nextToken());
+						if(kindOfLine != 202) throw new RuntimeException("Problem with file (line should start with 202)");
+						int id = Integer.parseInt(tok.nextToken());
+						double lat = Double.parseDouble(tok.nextToken());
+						double lon = Double.parseDouble(tok.nextToken());
+						double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km & change sign
+						double das = Double.parseDouble(tok.nextToken())/1000;		// convert to km
+						int trace_flag = Integer.parseInt(tok.nextToken());
+						// the rest of the line contains:
+						// comment_text
+						
+						Vertex vertex = new Vertex(lat,lon,depth, id, das, trace_flag); 
+						verticesForThisSect.add(vertex);
+						vertexList.add(vertex);
+					}
+					vertexListForSections.add(verticesForThisSect);
+					
+					// now read the elements
+					double aveDip = 0;
+					ArrayList<RectangularElement> rectElemForThisSect = new ArrayList<RectangularElement>();
+					double totArea = 0;
+					for(int r=0; r<n_sect_rectangle; r++) {
+						line = linesIterator.next();
+						tok = new StringTokenizer(line);
+						kindOfLine = Integer.parseInt(tok.nextToken());
+						if(kindOfLine != 204) throw new RuntimeException("Problem with file (line should start with 204)");
+						int id = Integer.parseInt(tok.nextToken());
+						int vertex_1_ID = Integer.parseInt(tok.nextToken());
+						int vertex_2_ID = Integer.parseInt(tok.nextToken());
+						int vertex_3_ID = Integer.parseInt(tok.nextToken());
+						int vertex_4_ID = Integer.parseInt(tok.nextToken());
+					    double rake = Double.parseDouble(tok.nextToken());
+					    double slip_rate = Double.parseDouble(tok.nextToken())*SECONDS_PER_YEAR; // convert to meters per year
+					    double aseis_factor = Double.parseDouble(tok.nextToken());
+					    double strike = Double.parseDouble(tok.nextToken());
+					    double dip = Double.parseDouble(tok.nextToken());
+					    aveDip+=dip/n_sect_rectangle;
+					    int perfect_flag = Integer.parseInt(tok.nextToken());
+						// the rest of the line contains: comment_text
+					    boolean perfectBoolean = false;
+					    if(perfect_flag == 1) perfectBoolean = true;
+					    Vertex[] vertices = new Vertex[4];
+					    
+					    vertices[0] = vertexList.get(vertex_1_ID-1);  // vertex index is one minus vertex ID
+					    vertices[1] = vertexList.get(vertex_2_ID-1);
+					    vertices[2] = vertexList.get(vertex_3_ID-1);
+					    vertices[3] = vertexList.get(vertex_4_ID-1);
+					    int numAlongStrike = -1;// unknown
+					    int numDownDip = -1;	// unknown
+					    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
+					    RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
+					    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
+					    rectElemForThisSect.add(rectElem);
+					    rectElementsList.add(rectElem);
+					    totArea += rectElem.getArea();
+					}
+					rectElementsListForSections.add(rectElemForThisSect);
+					aveDipForSections.add(aveDip);
+					
+					// test areas (make sure they are within 1%)
+					double areaTest = Math.abs((das_hi-das_lo)*(depth_hi-depth_lo)/Math.sin(aveDip*Math.PI/180.0));
+					double test = areaTest/totArea;
+//					double testTol = 0.01; // ORIGINAL VAL
+					double testTol = 0.25; // TODO NEW VAL, OK?
+					if(test<(1-testTol) || test > (1+testTol)) {
+						System.out.println(sid+"\t"+name+"\t"+(float)aveDip+"\t"+totArea+"\t"+areaTest+"\t"+areaTest/totArea);
+						throw new RuntimeException("Error: area discrepancy");
+					}
+					areaForSections.add(totArea);
 				}
-				rectElementsListForSections.add(rectElemForThisSect);
-				aveDipForSections.add(aveDip);
-				
-				// test areas (make sure they are within 1%)
-				double areaTest = Math.abs((das_hi-das_lo)*(depth_hi-depth_lo)/Math.sin(aveDip*Math.PI/180.0));
-				double test = areaTest/totArea;
-				if(test<0.99 || test > 1.01) {
-					System.out.println(sid+"\t"+name+"\t"+(float)aveDip+"\t"+totArea+"\t"+areaTest+"\t"+areaTest/totArea);
-					throw new RuntimeException("Error: area discrepancy");
-				}
-				areaForSections.add(totArea);
+			} catch (RuntimeException e) {
+				System.out.println("Offending Line: "+line);
+				System.out.flush();
+				throw e;
 			}
 		}
 		
@@ -655,17 +679,25 @@ public class General_EQSIM_Tools {
 	public void mkElementsFromUCERF2_DefMod(int deformationModelID, boolean aseisReducesArea, 
 			double maxDiscretization) {
 		
+		// fetch the sections
+		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+		List<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
+		
+		mkElementsFromSections(allFaultSectionPrefData, aseisReducesArea, maxDiscretization);
+	}
+	
+	public void mkElementsFromSections(List<FaultSectionPrefData> allFaultSectionPrefData, boolean aseisReducesArea, 
+			double maxDiscretization) {
+		// put in new list since we're about to sort
+		allFaultSectionPrefData = Lists.newArrayList(allFaultSectionPrefData);
+		
 		rectElementsList = new ArrayList<RectangularElement>();
 		vertexList = new ArrayList<Vertex>();
 		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		sectionNamesList = new ArrayList<String>();
-		faultIDs_ForSections = null;	// no info for this
-
-		
-		// fetch the sections
-		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
-		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
+//		faultIDs_ForSections = null;	// no info for this
+		faultIDs_ForSections = Lists.newArrayList();	// fill in with parent fault section IDs
 
 		//Alphabetize:
 		Collections.sort(allFaultSectionPrefData, new NamedComparator());
@@ -817,7 +849,11 @@ public class General_EQSIM_Tools {
 			}
 			rectElementsListForSections.add(sectionElementsList);
 			vertexListForSections.add(sectionVertexList);
-			sectionNamesList.add(faultSectionPrefData.getName());
+			// strip out any whitespace and special characters
+			String strippedName = faultSectionPrefData.getName().replaceAll("\\W+", "_");
+			sectionNamesList.add(strippedName);
+			if (faultIDs_ForSections != null)
+				faultIDs_ForSections.add(faultSectionPrefData.getParentSectionId());
 		}
 		System.out.println("rectElementsList.size()="+rectElementsList.size());
 		System.out.println("vertexList.size()="+vertexList.size());
@@ -3140,6 +3176,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 //		test.mkFigsForUCERF3_ProjPlanRepot("RSQSim_Run_Randomized",  6.5);
 */
 /*	*/	
+		/*
 		// VC Runs:
 		String fullPath = "org/opensha/sha/simulators/eqsim_v04/ExamplesFromKeith/NCA_Ward_Geometry.dat.txt";
 		General_EQSIM_Tools test = new General_EQSIM_Tools(fullPath);
@@ -3147,6 +3184,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		test.read_EQSIMv04_EventsFile(simEventFile);
 //		test.mkFigsForUCERF3_ProjPlanRepot("VC_Run",  6.5);
 		test.checkElementSlipRates("VC_Run", true);
+		*/
 
 		/*
 		// Ward Runs:
@@ -3160,9 +3198,30 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		test.mkFigsForUCERF3_ProjPlanRepot("Ward_Run",  6.5);
 	*/
 		
+		// create UCERF3 deformation model files
+		
+		FaultModels fm = FaultModels.FM3_1;
+		DeformationModels dm = DeformationModels.ZENGBB;
+		double defaultAseisVal = 0.1;
+		File scratchDir = UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR;
+		File outputDir = new File("/tmp/ucerf3_dm_eqsim_files");
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		boolean aseisReducesArea = false; // TODO
+		double maxDiscretization = 4.0; // TODO
+		DateFormat df = new SimpleDateFormat("MMM d, yyyy");
+		DeformationModelFetcher dmFetch = new DeformationModelFetcher(fm, dm, scratchDir, defaultAseisVal);
+		General_EQSIM_Tools tools = new General_EQSIM_Tools(dmFetch.getSubSectionList(), aseisReducesArea, maxDiscretization);
+		File outputFile = new File(outputDir, fm.encodeChoiceString()+"_"+dm.encodeChoiceString()+"_EQSIM.txt");
+		tools.writeTo_EQSIM_V04_GeometryFile(outputFile.getAbsolutePath(), null,
+				fm.name()+", "+dm.name()+" output", "Kevin Milner", df.format(new Date()));
+		
+		// now try opening it
+		new General_EQSIM_Tools(outputFile);
+		
+		
 		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
 		System.out.println("This Run took "+runtime+" seconds");
-
 
 		
 		//OLD JUNK BELOW
