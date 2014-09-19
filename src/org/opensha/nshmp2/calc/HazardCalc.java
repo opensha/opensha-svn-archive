@@ -388,17 +388,18 @@ public class HazardCalc implements Callable<HazardResult> {
 //			System.out.println("Time: " + sw.elapsedTime(TimeUnit.SECONDS) + " sec");
 //		}
 		
-		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.ch.in");
+//		EpistemicListERF erf = NSHMP2008.createSingleSource("bFault.ch.in");
+		EpistemicListERF erf = NSHMP2008.create();
 		erf.updateForecast();
 		System.out.println(erf);
-		List<Period> periods = Lists.newArrayList(GM0P00);//, GM0P20,GM1P00);
+		List<Period> periods = Lists.newArrayList(GM0P20);//, GM0P20,GM1P00);
 		List<NEHRP_TestCity> cities = Lists.newArrayList(LOS_ANGELES);//, SAN_FRANCISCO, OAKLAND);
 
 		for (Period p : periods) {
 			System.out.println("Period: " + p.getLabel());
 			for (NEHRP_TestCity city : cities) {
 				Site site = new Site(city.location());
-				HazardCalc hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT_14_BS, 
+				HazardCalc hc = HazardCalc.create(erf, SourceIMR.WUS_FAULT, 
 					site, p, false, false);
 				HazardResult result = hc.call();
 				System.out.println(city);
