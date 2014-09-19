@@ -50,9 +50,6 @@ public class UCERF3HazusJobWriterYear2NGA {
 		boolean noBasin = false;
 		boolean useWald = false;
 		
-		hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d);
-		noBasin = true;
-		
 		int mins = 500;
 		int nodes = 20;
 		int ppn = 8;
@@ -75,29 +72,29 @@ public class UCERF3HazusJobWriterYear2NGA {
 		List<String> dirNames = Lists.newArrayList();
 		List<AttenRelRef> imrs = Lists.newArrayList();
 		
-		dirNames.add("hazus_ref_rock_ASK2014");
+		dirNames.add("hazus_ref_wills_ASK2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.ASK_2014);
 		
-		dirNames.add("hazus_ref_rock_BSSA2014");
+		dirNames.add("hazus_ref_wills_BSSA2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.BSSA_2014);
 		
-		dirNames.add("hazus_ref_rock_CB2014");
+		dirNames.add("hazus_ref_wills_CB2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.CB_2014);
 		
-		dirNames.add("hazus_ref_rock_CY2014");
+		dirNames.add("hazus_ref_wills_CY2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.CY_2014);
 		
-		dirNames.add("hazus_ref_rock_Idriss2014");
+		dirNames.add("hazus_ref_wills_Idriss2014");
 		branches.add(defaultBranch);
 		imrs.add(AttenRelRef.IDRISS_2014);
 		
-//		dirNames.add("hazus_ref_wills_NGA_Avg2014");
-//		branches.add(defaultBranch);
-//		imrs.add(AttenRelRef.NGAWest_2014_AVG);
+		dirNames.add("hazus_ref_wills_NGA_Avg2014");
+		branches.add(defaultBranch);
+		imrs.add(AttenRelRef.NGAWest_2014_AVG);
 		
 		Date today = new Date();
 		
@@ -124,27 +121,27 @@ public class UCERF3HazusJobWriterYear2NGA {
 					noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 		}
 		
-//		// now ref no soil
-//		branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
-//		hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d);
-//		noBasin = true;
-//		String dirName = df.format(today)+"hazus_ref_rock_NGA_Avg2014";
-//		
-//		File jobDir = new File(hazMapsDir, dirName);
-//		if (!jobDir.exists())
-//			jobDir.mkdir();
-//		
-//		FaultSystemSolution sol = cfss.getSolution(branch);
-//		File solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
-//		FaultSystemIO.writeSol(sol, solFile);
-//		
-//		AbstractERF erf = getERF(solFile, years, backSeis, BackgroundRupType.POINT);
-//		
-//		ScalarIMR imr = AttenRelRef.NGAWest_2014_AVG.instance(null);
-//		imr.setParamDefaults();
-//		
-//		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
-//				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
+		// now ref no soil
+		branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT.clone();
+		hardcodedVal = new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d);
+		noBasin = true;
+		String dirName = df.format(today)+"hazus_ref_rock_NGA_Avg2014";
+		
+		File jobDir = new File(hazMapsDir, dirName);
+		if (!jobDir.exists())
+			jobDir.mkdir();
+		
+		FaultSystemSolution sol = cfss.getSolution(branch);
+		File solFile = new File(jobDir, branch.buildFileName()+"_sol.zip");
+		FaultSystemIO.writeSol(sol, solFile);
+		
+		AbstractERF erf = getERF(solFile, years, backSeis, BackgroundRupType.POINT);
+		
+		ScalarIMR imr = AttenRelRef.NGAWest_2014_AVG.instance(null);
+		imr.setParamDefaults();
+		
+		HazusJobWriter.prepareJob(erf, imr, spacing, years, nullBasin, hardcodedVal,
+				noBasin, useWald, dirName, mins, nodes, ppn, queue, hazMapsDir);
 	}
 
 }
