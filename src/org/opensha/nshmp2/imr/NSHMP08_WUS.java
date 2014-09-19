@@ -512,10 +512,12 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		double[] weights = new double[curveCount];
 		
 		int idx = 0;
+//		System.out.println(buildParamString());
 		for (ScalarIMR imr : imrMap.keySet()) {
 			double m = imr.getMean();
 			double s = imr.getStdDev();
 			double w = imrMap.get(imr);
+//			System.out.println(imr.getShortName() + " " + String.format("%.3f", Math.log(m)) + " " + String.format("%.3f", s));
 			if (includeImrUncert) {
 				double mag = magParam.getValue();
 				double dist = distanceJBParam.getValue();
@@ -545,7 +547,18 @@ public class NSHMP08_WUS extends AttenuationRelationship implements
 		return imls;
 	}
 	
-
+	private String buildParamString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		sb.append("mag=").append(String.format("%.3f", eqkRupture.getMag())).append(", ");
+		sb.append("rjb=").append(String.format("%.3f", eqkRupture.getRuptureSurface().getDistanceJB(site.getLocation()))).append(", ");
+		sb.append("rrup=").append(String.format("%.3f", eqkRupture.getRuptureSurface().getDistanceRup(site.getLocation()))).append(", ");
+		sb.append("rx=").append(String.format("%.3f", eqkRupture.getRuptureSurface().getDistanceX(site.getLocation()))).append(", ");
+		sb.append("dip=").append(String.format("%.3f", eqkRupture.getRuptureSurface().getAveDip())).append(", ");
+		sb.append("width=").append(String.format("%.3f", eqkRupture.getRuptureSurface().getAveWidth())).append(", ");
+		sb.append("}");
+		return sb.toString();
+	}
 	
 	@Override
 	public double getExceedProbability() throws ParameterException,
