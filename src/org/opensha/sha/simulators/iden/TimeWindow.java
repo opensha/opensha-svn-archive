@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators.eqsim_v04.iden;
+package org.opensha.sha.simulators.iden;
 
 public class TimeWindow {
 	private double start;

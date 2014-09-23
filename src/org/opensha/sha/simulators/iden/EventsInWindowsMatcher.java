@@ -1,12 +1,12 @@
-package org.opensha.sha.simulators.eqsim_v04.iden;
+package org.opensha.sha.simulators.iden;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

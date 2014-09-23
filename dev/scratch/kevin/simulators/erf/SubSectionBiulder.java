@@ -17,8 +17,8 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
+import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

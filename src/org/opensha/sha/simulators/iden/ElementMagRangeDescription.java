@@ -1,12 +1,13 @@
-package org.opensha.sha.simulators.eqsim_v04.iden;
+package org.opensha.sha.simulators.iden;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -130,9 +131,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		Preconditions.checkState(eventFile.exists());
 		
 		General_EQSIM_Tools simTools = new General_EQSIM_Tools(geomFile);
-		simTools.read_EQSIMv04_EventsFile(eventFile);
-		
-		List<EQSIM_Event> events = simTools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, simTools.getElementsList());
 		
 		ElementMagRangeDescription descr = new ElementMagRangeDescription(null, 1267, 7.2, 7.5);
 		

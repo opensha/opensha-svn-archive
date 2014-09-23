@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators.eqsim_v04;
+package org.opensha.sha.simulators;
 
 import java.io.FileWriter;
 import java.io.IOException;

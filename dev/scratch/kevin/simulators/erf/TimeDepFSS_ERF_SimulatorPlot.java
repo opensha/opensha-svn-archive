@@ -21,13 +21,14 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
-import org.opensha.sha.simulators.eqsim_v04.iden.LogicalAndRupIden;
-import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
-import org.opensha.sha.simulators.eqsim_v04.iden.SupraSeisRupIden;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
+import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.iden.SupraSeisRupIden;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -206,8 +207,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		rupIdens = Lists.newArrayList();
 		rupIdens.add(andIden);
 		
-		tools.read_EQSIMv04_EventsFile(eventFile, rupIdens);
-		List<EQSIM_Event> events = tools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 		
 //		Region region = null;
 		Region region = new CaliforniaRegions.RELM_SOCAL();
@@ -243,7 +243,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
-		ArrayList<RectangularElement> elements = tools.getElementsList();
+		List<RectangularElement> elements = tools.getElementsList();
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, subSectBuilder);
 		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);

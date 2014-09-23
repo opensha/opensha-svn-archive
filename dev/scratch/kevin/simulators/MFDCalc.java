@@ -6,8 +6,8 @@ import java.util.List;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.RectangularElement;
 
 public class MFDCalc {
 	

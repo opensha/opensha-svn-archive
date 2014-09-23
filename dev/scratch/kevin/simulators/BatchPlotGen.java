@@ -26,13 +26,14 @@ import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
-import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 
@@ -60,7 +61,7 @@ public class BatchPlotGen {
 		File plotBaseDir = new File(dir, "plots_long");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		tools.read_EQSIMv04_EventsFile(eventFile);
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		List<double[]> magRanges= Lists.newArrayList();
 		magRanges.add(toArray(7, 10));
@@ -151,7 +152,6 @@ public class BatchPlotGen {
 			elemsByFault.add(element.getID());
 		}
 		
-		ArrayList<EQSIM_Event> events = tools.getEventsList();
 		MinMaxAveTracker eventMagTrack = new MinMaxAveTracker();
 		for (EQSIM_Event e : events)
 			eventMagTrack.addValue(e.getMagnitude());
@@ -282,7 +282,7 @@ public class BatchPlotGen {
 		private double mfdPlotMinMag;
 		private double delta;
 		private int mfdPlotNumMag;
-		private ArrayList<EQSIM_Event> events;
+		private List<EQSIM_Event> events;
 		private RuptureIdentifier rupIden;
 		private String plotDirName;
 		private String plotTitle;
@@ -303,7 +303,7 @@ public class BatchPlotGen {
 		private List<Color> mfdSpecialFaultColors;
 		
 		public RangePlotter(double mfdPlotMinMag, double delta,
-				int mfdPlotNumMag, ArrayList<EQSIM_Event> events,
+				int mfdPlotNumMag, List<EQSIM_Event> events,
 				RuptureIdentifier rupIden, String plotDirName, String plotTitle,
 				File plotDir, double minWindowDurationYears,
 				boolean randomizeEventTimes, List<EQSIM_Event> matches,

@@ -2,7 +2,7 @@ package scratch.kevin.simulators.catBuild;
 
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.EQSIM_Event;
 
 import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
 

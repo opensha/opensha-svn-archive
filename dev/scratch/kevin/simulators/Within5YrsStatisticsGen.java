@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
 import scratch.kevin.simulators.dists.RandomDistType;
@@ -29,8 +30,7 @@ public class Within5YrsStatisticsGen {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		tools.read_EQSIMv04_EventsFile(eventFile);
-		List<EQSIM_Event> events = tools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
 		

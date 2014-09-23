@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators.eqsim_v04.iden;
+package org.opensha.sha.simulators.iden;
 
 import java.awt.Color;
 import java.io.File;
@@ -7,8 +7,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -97,8 +98,7 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		tools.read_EQSIMv04_EventsFile(eventFile);
-		List<EQSIM_Event> events = tools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
 				"SAF Mojave/Coachella Corupture", 6d, 10d,

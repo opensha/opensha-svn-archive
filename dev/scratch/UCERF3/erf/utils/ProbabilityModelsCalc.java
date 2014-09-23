@@ -66,7 +66,7 @@ import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;

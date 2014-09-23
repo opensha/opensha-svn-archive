@@ -15,11 +15,12 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -43,8 +44,7 @@ public class OmorisLawComparison {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		tools.read_EQSIMv04_EventsFile(eventFile);
-		ArrayList<EQSIM_Event> events = tools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		System.out.println("Calculating...");
 		double minWindowDays = 1d/24d;
 		int maxDays = 365;

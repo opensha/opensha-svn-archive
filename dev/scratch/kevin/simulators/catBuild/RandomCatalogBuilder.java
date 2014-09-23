@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.EventRecord;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.LogicalAndRupIden;
-import org.opensha.sha.simulators.eqsim_v04.iden.LogicalOrRupIden;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
+import org.opensha.sha.simulators.iden.LogicalOrRupIden;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.dists.ActualDistReturnPeriodProvider;

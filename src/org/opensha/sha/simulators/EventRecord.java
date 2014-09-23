@@ -1,9 +1,10 @@
-package org.opensha.sha.simulators.eqsim_v04;
+package org.opensha.sha.simulators;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -44,16 +45,16 @@ public class EventRecord {
     double[] elementSlips = new double[0];
     int[] elementIDs = new int[0];
     
-    ArrayList<RectangularElement> rectElementsList;
+    List<RectangularElement> rectElementsList;
     
     /**
      * No arg constructor
      */
-    public EventRecord(ArrayList<RectangularElement> rectElementsList) {
+    public EventRecord(List<RectangularElement> rectElementsList) {
     	this.rectElementsList=rectElementsList; 
     }
 
-	public EventRecord(String fileLine, ArrayList<RectangularElement> rectElementsList) {
+	public EventRecord(String fileLine, List<RectangularElement> rectElementsList) {
     	this.rectElementsList=rectElementsList; 
 		StringTokenizer tok = new StringTokenizer(fileLine);
 		int kindOfLine = Integer.parseInt(tok.nextToken());
@@ -318,8 +319,8 @@ public class EventRecord {
 		return maxVertex;
 	}
 	
-	public ArrayList<RectangularElement> getRectangularElements() {
-		ArrayList<RectangularElement> re_list = new ArrayList<RectangularElement>();
+	public List<RectangularElement> getRectangularElements() {
+		List<RectangularElement> re_list = Lists.newArrayList();
 		for(int elemID:getElementIDs())
 			re_list.add(rectElementsList.get(elemID-1));	// index is ID-1
 		return re_list;

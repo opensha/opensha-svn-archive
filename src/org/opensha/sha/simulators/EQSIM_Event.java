@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators.eqsim_v04;
+package org.opensha.sha.simulators;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.collect.Lists;
 

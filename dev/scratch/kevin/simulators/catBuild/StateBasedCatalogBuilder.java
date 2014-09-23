@@ -25,11 +25,11 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.magDepth.NoCollissionFunc;

@@ -34,15 +34,16 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
-import org.opensha.sha.simulators.eqsim_v04.iden.LogicalAndRupIden;
-import org.opensha.sha.simulators.eqsim_v04.iden.MagRangeRuptureIdentifier;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
-import org.opensha.sha.simulators.eqsim_v04.iden.SupraSeisRupIden;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
+import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.iden.SupraSeisRupIden;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -114,8 +115,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		rupIdens = Lists.newArrayList();
 		rupIdens.add(andIden);
 		
-		tools.read_EQSIMv04_EventsFile(eventFile, rupIdens);
-		List<EQSIM_Event> events = tools.getEventsList();
+		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 		
 //		Region region = null;
 		Region region = new CaliforniaRegions.RELM_SOCAL();
@@ -151,7 +151,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
-		ArrayList<RectangularElement> elements = tools.getElementsList();
+		List<RectangularElement> elements = tools.getElementsList();
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, subSectBuilder);
 		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);

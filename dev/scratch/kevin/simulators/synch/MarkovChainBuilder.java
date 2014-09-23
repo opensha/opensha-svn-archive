@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.EQSIM_Event;
 
 import scratch.kevin.simulators.synch.MarkovPath.LoopCounter;
 

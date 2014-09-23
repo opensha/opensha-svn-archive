@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators.eqsim_v04;
+package org.opensha.sha.simulators.utils;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -21,9 +21,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.StringTokenizer;
 
+import oracle.net.aso.f;
+
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jfree.data.Range;
@@ -62,8 +66,14 @@ import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.Vertex;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.parsers.WardFileReader;
 
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
@@ -72,7 +82,9 @@ import scratch.UCERF3.erf.utils.ProbModelsPlottingUtils;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 /**
@@ -106,22 +118,22 @@ public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	ArrayList<RectangularElement> rectElementsList;
-	ArrayList<Vertex> vertexList;
-	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
-	ArrayList<ArrayList<Vertex>> vertexListForSections;
-	ArrayList<String> sectionNamesList;
-	ArrayList<Integer> sectionIDs_List;
-	ArrayList<Integer> faultIDs_ForSections;
-	ArrayList<Double> depthLoForSections;	// meters (negative below surface)
-	ArrayList<Double> depthHiForSections;	// meters (negative below surface)
-	ArrayList<Double> lengthForSections;	// meters
-	ArrayList<Double> aveDipForSections;	// Note that these can be negative!!
-	ArrayList<Double> areaForSections;	// meters-squared
-	ArrayList<EQSIM_Event> eventList;
+	private List<RectangularElement> rectElementsList;
+	private List<EQSIM_Event> eventList;
 	
-	final static String GEOM_FILE_SIG = "EQSim_Input_Geometry_2";	// signature of the geometry file
-	final static int GEOM_FILE_SPEC_LEVEL = 2;
+	// TODO make all references use the ID/index map
+	private List<Double> areaForSections;
+	private List<Double> lengthForSections;
+	private List<Integer> faultIDs_ForSections;
+	private List<Integer> sectionIDs_List;
+	private List<String> sectionNamesList;
+	private List<Vertex> vertexList;
+	private List<List<Vertex>> vertexListForSections;
+	/**
+	 * map from section ID to index in the area/length lists
+	 */
+	private Map<Integer, Integer> sectionID_indexMap;
+	
 	final static String EVENT_FILE_SIG = "EQSim_Output_Event_2";
 	final static int EVENT_FILE_SPEC_LEVEL = 2;
 	public final static double SECONDS_PER_YEAR = 365*24*60*60;
@@ -149,25 +161,18 @@ public class General_EQSIM_Tools {
 	 * @param aseisReducesArea whether or not to reduce area (otherwise reduces slip rate?)
 	 * @param maxDiscretization the maximum element size
 	 */
-	public General_EQSIM_Tools(List<FaultSectionPrefData> faultSections, boolean aseisReducesArea, double maxDiscretization) {
-		mkElementsFromSections(faultSections, aseisReducesArea, maxDiscretization);
+	public General_EQSIM_Tools(List<FaultSectionPrefData> faultSections, boolean aseisReducesArea,
+			double maxDiscretization) {
+		init(RectElemFromPrefDataBuilder.build(faultSections, aseisReducesArea, maxDiscretization));
 	}
 	
 	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
 	 * @param filePathName		 - full path and file name
+	 * @throws IOException 
 	 */
-	public General_EQSIM_Tools(String filePathName) {
-		ArrayList<String> lines=null;
-		try {
-			lines = FileUtils.loadJarFile(filePathName);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		loadFromEQSIMv04_GeometryLines(lines);
+	public General_EQSIM_Tools(String filePathName) throws IOException {
+		init(EQSIMv06FileReader.readGeometryFile(new File(filePathName)));
 	}
 	
 	
@@ -176,26 +181,21 @@ public class General_EQSIM_Tools {
 	 * or from Steve Ward's format (formatType=1).
 	 * @param filePathName		 - full path and file name
 	 * @param formatType		 - set as 0 for EQSIM_v04 Geometry file or 1 for Steve Ward's format
+	 * @throws IOException 
 	 */
-	public General_EQSIM_Tools(String filePathName, int formatType) {
-		System.out.println(filePathName);
-		ArrayList<String> lines=null;
-		try {
-			lines = FileUtils.loadJarFile(filePathName);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+filePathName+")");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if(formatType==0)
-			loadFromEQSIMv04_GeometryLines(lines);
-		else if (formatType==1)
-			loadFromSteveWardLines(lines);
-		else
-			throw new RuntimeException("format type not supported");
-	}
+	public General_EQSIM_Tools(String filePathName, int formatType) throws IOException {
+		switch (formatType) {
+		case 0:
+			init(EQSIMv06FileReader.readGeometryFile(new File(filePathName)));
+			break;
+		case 1:
+			init(WardFileReader.readGeometryFile(new File(filePathName)));
+			break;
 
+		default:
+			throw new IllegalStateException("format type not supported");
+		}
+	}
 	
 	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
@@ -203,354 +203,87 @@ public class General_EQSIM_Tools {
 	 * @throws IOException 
 	 */
 	public General_EQSIM_Tools(File file) throws IOException {
-		ArrayList<String> lines = FileUtils.loadFile(file.getAbsolutePath());
-		System.out.println("Number of file lines: "+lines.size()+" (in "+file.getAbsolutePath()+")");
-		loadFromEQSIMv04_GeometryLines(lines);
+		init(EQSIMv06FileReader.readGeometryFile(file));
 	}
-
 	
 	/**
 	 * This constructor loads the data from an EQSIM_v04 Geometry file
 	 * @param url		 - full URL path name
+	 * @throws IOException 
 	 */
-	public General_EQSIM_Tools(URL url) {
-		ArrayList<String> lines=null;
-		
-		try {
-			lines = FileUtils.loadFile(url);
-			System.out.println("Number of file lines: "+lines.size()+" (in "+url+")");
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		loadFromEQSIMv04_GeometryLines(lines);
+	public General_EQSIM_Tools(URL url) throws IOException {
+		init(EQSIMv06FileReader.readGeometryFile(url.openStream()));
 	}
 	
+	private void init(List<RectangularElement> rectElementsList) {
+		// make sure it's sorted by section
+		for (int i=1; i<rectElementsList.size(); i++)
+			Preconditions.checkState(
+					rectElementsList.get(i-1).getSectionID() <= rectElementsList.get(i).getSectionID(),
+					"Elements not sorted by section ID increasing");
+		
+		this.rectElementsList = rectElementsList;
+		
+		// populate lists
+		areaForSections = Lists.newArrayList();
+		lengthForSections = Lists.newArrayList();
+		sectionIDs_List = Lists.newArrayList();
+		sectionNamesList = Lists.newArrayList();
+		faultIDs_ForSections = Lists.newArrayList();
+		vertexList = Lists.newArrayList();
+		vertexListForSections = Lists.newArrayList();
+		
+		int prevSectID = -1;
+		int prevFaultID = -1;
+		double curArea = 0d;;
+		double curDASMin = 0d, curDASMax = 0d;
+		String curName = null;
+		List<Vertex> vertexListForSection = null;
+		for (RectangularElement elem : rectElementsList) {
+			int sectID = elem.getSectionID();
+			if (sectID != prevSectID) {
+				if (prevSectID > 0) {
+					sectionID_indexMap.put(prevSectID, areaForSections.size());
+					areaForSections.add(curArea);
+					lengthForSections.add(curDASMax - curDASMin);
+					sectionIDs_List.add(prevSectID);
+					sectionNamesList.add(curName);
+					faultIDs_ForSections.add(prevFaultID);
+					vertexListForSections.add(vertexListForSection);
+				}
+				curArea = 0;
+				curDASMax = 0;
+				curDASMin = 0;
+				prevSectID = sectID;
+				curName = elem.getSectionName();
+				prevFaultID = elem.getFaultID();
+				vertexListForSection = Lists.newArrayList();
+			}
+			curArea += elem.getArea();
+			curDASMin = Math.min(curDASMin, elem.getMinDAS());
+			curDASMax = Math.max(curDASMax, elem.getMaxDAS());
+			for (Vertex v : elem.getVertices()) {
+				vertexList.add(v);
+				vertexListForSection.add(v);
+			}
+		}
+		if (curArea > 0) {
+			sectionID_indexMap.put(prevSectID, areaForSections.size());
+			areaForSections.add(curArea);
+			lengthForSections.add(curDASMax - curDASMin);
+			sectionIDs_List.add(prevSectID);
+			sectionNamesList.add(curName);
+			faultIDs_ForSections.add(prevFaultID);
+			vertexListForSections.add(vertexListForSection);
+		}
+	}
 	
-	public ArrayList<String> getSectionsNameList() {
+	public List<String> getSectionsNameList() {
 		return sectionNamesList;
 	}
-
-	public void read_EQSIMv04_EventsFile(URL url) throws IOException {
-		read_EQSIMv04_EventsFile(url, null);
-	}
-
-	public void read_EQSIMv04_EventsFile(URL url, Collection<RuptureIdentifier> rupIdens) throws IOException {
-		URLConnection uc = url.openConnection();
-		read_EQSIMv04_EventsFile(new InputStreamReader((InputStream) uc.getContent()), rupIdens);
-	}
 	
-	public void read_EQSIMv04_EventsFile(File file) throws IOException {
-		read_EQSIMv04_EventsFile(file, null);
-	}
-	
-	public void read_EQSIMv04_EventsFile(File file, Collection<RuptureIdentifier> rupIdens) throws IOException {
-		read_EQSIMv04_EventsFile(file.getAbsolutePath(), rupIdens);
-	}
-	
-	public void read_EQSIMv04_EventsFile(String filePathName) throws FileNotFoundException, IOException {
-		read_EQSIMv04_EventsFile(filePathName, null);
-	}
-	
-	public void read_EQSIMv04_EventsFile(String filePathName, Collection<RuptureIdentifier> rupIdens)
-			throws FileNotFoundException, IOException {
-		read_EQSIMv04_EventsFile(new FileReader(filePathName), rupIdens);
-	}
-	
-	/**
-	 * Reads the given EQSIM events file. Events can be filtered by the given list of rupture identifiers
-	 * to cut down on memory requirements.
-	 * @param reader
-	 * @param rupIdens
-	 * @throws IOException
-	 */
-	private void read_EQSIMv04_EventsFile(Reader reader, Collection<RuptureIdentifier> rupIdens) throws IOException {
-		
-		BufferedReader buffRead;
-		
-		if (reader instanceof BufferedReader)
-			buffRead = (BufferedReader)reader;
-		else
-			buffRead = new BufferedReader(reader);
-		
-		// get & check first line (must be the signature line)
-		String line = buffRead.readLine();
-		StringTokenizer tok = new StringTokenizer(line);
-		int kindOfLine = Integer.parseInt(tok.nextToken());
-		String fileSignature = tok.nextToken();
-		int fileSpecLevel = Integer.parseInt(tok.nextToken());
-//		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG) || fileSpecLevel < EVENT_FILE_SPEC_LEVEL)
-		if(kindOfLine != 101 || !fileSignature.equals(EVENT_FILE_SIG))
-			throw new RuntimeException("wrong type of event input file; your first file line is:\n\n\t"+line+"\n");
-
-		eventList = new ArrayList<EQSIM_Event>();
-		EQSIM_Event currEvent = null;
-		EventRecord evRec = new EventRecord(rectElementsList); // this one never used, but created to compile
-		int numEventRecs=0;
-		line = buffRead.readLine();
-		while (line != null) {
-			tok = new StringTokenizer(line);
-			kindOfLine = Integer.parseInt(tok.nextToken());
-			if(kindOfLine ==200) {	// event record
-				try {
-					evRec = new EventRecord(line, rectElementsList);
-				} catch (Exception e) {
-					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
-					line = buffRead.readLine();
-					// skip lines until we get to 200 type line (otherwise 201 lines get mapped to previous event)
-					StringTokenizer tok2 = new StringTokenizer(line);
-					while(Integer.parseInt(tok2.nextToken()) != 200) {
-// System.out.println("\nSkipping: "+ line);
-						line = buffRead.readLine();
-						tok2 = new StringTokenizer(line);						
-					}
-					continue;
-				}
-				numEventRecs+=1;
-				
-				// check whether this is the first event in the list
-				if(currEvent == null) {
-					EQSIM_Event event = new EQSIM_Event(evRec);
-					currEvent = event;
-				} else { // check whether this is part of currEvent (same ID)
-					if(currEvent.isSameEvent(evRec)) {
-						currEvent.addEventRecord(evRec);
-					}
-					else { // it's a new event
-// if(currEvent.getID()==1214) System.out.println(currEvent.getID()+"\t"+currEvent.getAllElementIDs().length);
-						// see if we should keep the previous event
-						boolean keep = rupIdens == null || rupIdens.isEmpty();
-						if (!keep) {
-							for (RuptureIdentifier rupIden : rupIdens) {
-								if (rupIden.isMatch(currEvent)) {
-									keep = true;
-									break;
-								}
-							}
-						}
-						if (keep)
-							eventList.add(currEvent);
-
-						EQSIM_Event event = new EQSIM_Event(evRec);
-						currEvent = event;
-					}
-				}
-			}
-			else if(kindOfLine ==201) {	// Slip map record
-// if(currEvent.getID()==1214) System.out.println(line);
-				evRec.addSlipAndElementData(line); // add to the last event record created
-			}
-			else if(kindOfLine ==202)
-				evRec.addType202_Line(line);
-			line = buffRead.readLine();
-		}
-		
-		if (currEvent != null) {
-			// now add the last one if applicable
-			boolean keep = rupIdens == null || rupIdens.isEmpty();
-			if (!keep) {
-				for (RuptureIdentifier rupIden : rupIdens) {
-					if (rupIden.isMatch(currEvent)) {
-						keep = true;
-						break;
-					}
-				}
-			}
-			if (keep)
-				eventList.add(currEvent);
-		}
-		
-		System.out.println("Num Events = "+this.eventList.size()+"\tNum Event Records = "+numEventRecs);
-		int numEventsKept = eventList.size();
-		int numEventsInFile = currEvent.getID();
-		if(numEventsKept != numEventsInFile) {
-			System.out.println("Warning: "+(numEventsInFile-numEventsKept)+" were not able to be read from the input file");
-		}
-	}
-	
-	
-	
-	
-	/**
-	 * This creates the data from lines from an EQSIM Geometry file
-	 * @param lines
-	 * @return
-	 */
-	private void loadFromEQSIMv04_GeometryLines(ArrayList<String> lines) {
-		
-		// note that the following lists have indices that start from 0 (index = sectionID-1)
-		rectElementsList = new ArrayList<RectangularElement>();
-		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
-		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		sectionNamesList = new ArrayList<String>();
-		sectionIDs_List = new ArrayList<Integer>();
-		faultIDs_ForSections = new ArrayList<Integer>();
-		depthLoForSections = new ArrayList<Double>();
-		depthHiForSections = new ArrayList<Double>();
-		lengthForSections = new ArrayList<Double>();
-		aveDipForSections = new ArrayList<Double>();
-		areaForSections = new ArrayList<Double>();
-
-		
-		ListIterator<String> linesIterator = lines.listIterator();
-		
-		// get & check first line (must be the signature line)
-		String line = linesIterator.next();
-		StringTokenizer tok = new StringTokenizer(line);
-		int kindOfLine = Integer.parseInt(tok.nextToken());
-		String fileSignature = tok.nextToken();
-		int fileSpecLevel = Integer.parseInt(tok.nextToken());
-		if(kindOfLine != 101 || !fileSignature.equals(GEOM_FILE_SIG) || fileSpecLevel < GEOM_FILE_SPEC_LEVEL)
-			throw new RuntimeException("wrong type of input file");
-		
-		int n_section=-1, n_vertex=-1,n_triangle=-1, n_rectangle=-1;
-
-		while (linesIterator.hasNext()) {
-			
-			try {
-				line = linesIterator.next();
-				tok = new StringTokenizer(line);
-				kindOfLine = Integer.parseInt(tok.nextToken());
-				
-				// read "Fault System Summary Record" (values kept are use as a check later)
-				if(kindOfLine == 200) {
-					n_section=Integer.parseInt(tok.nextToken());
-					n_vertex=Integer.parseInt(tok.nextToken());
-					n_triangle=Integer.parseInt(tok.nextToken());
-					n_rectangle=Integer.parseInt(tok.nextToken());
-					// the rest of the line contains:
-					// lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
-				}
-				
-				// read "Fault Section Information Record"
-				if(kindOfLine == 201) {
-					int sid = Integer.parseInt(tok.nextToken());  // section ID
-					String name = tok.nextToken();
-					int n_sect_vertex=Integer.parseInt(tok.nextToken());
-					int n_sect_triangle=Integer.parseInt(tok.nextToken());
-					int n_sect_rectangle=Integer.parseInt(tok.nextToken());
-					tok.nextToken(); // lat_lo
-					tok.nextToken(); // lat_hi
-					tok.nextToken(); // lon_lo
-					tok.nextToken(); // lon_hi
-					double depth_lo = Double.parseDouble(tok.nextToken()); // depth_lo
-					double depth_hi = Double.parseDouble(tok.nextToken()); // depth_hi
-					double das_lo = Double.parseDouble(tok.nextToken()); // das_lo
-					double das_hi = Double.parseDouble(tok.nextToken()); // das_hi
-					int fault_id = Integer.parseInt(tok.nextToken());
-					// the rest of the line contains: comment_text
-					
-					// check for triangular elements
-					if(n_sect_triangle>0) throw new RuntimeException("Don't yet support triangles");
-					
-					sectionNamesList.add(name);
-					sectionIDs_List.add(sid);
-					faultIDs_ForSections.add(fault_id);
-					depthLoForSections.add(depth_lo);
-					depthHiForSections.add(depth_hi);
-					lengthForSections.add(das_hi-das_lo);
-
-					// read the vertices for this section
-					ArrayList<Vertex> verticesForThisSect = new ArrayList<Vertex>();
-					for(int v=0; v<n_sect_vertex; v++) {
-						line = linesIterator.next();
-						tok = new StringTokenizer(line);
-						kindOfLine = Integer.parseInt(tok.nextToken());
-						if(kindOfLine != 202) throw new RuntimeException("Problem with file (line should start with 202)");
-						int id = Integer.parseInt(tok.nextToken());
-						double lat = Double.parseDouble(tok.nextToken());
-						double lon = Double.parseDouble(tok.nextToken());
-						double depth = -Double.parseDouble(tok.nextToken())/1000; 	// convert to km & change sign
-						double das = Double.parseDouble(tok.nextToken())/1000;		// convert to km
-						int trace_flag = Integer.parseInt(tok.nextToken());
-						// the rest of the line contains:
-						// comment_text
-						
-						Vertex vertex = new Vertex(lat,lon,depth, id, das, trace_flag); 
-						verticesForThisSect.add(vertex);
-						vertexList.add(vertex);
-					}
-					vertexListForSections.add(verticesForThisSect);
-					
-					// now read the elements
-					double aveDip = 0;
-					ArrayList<RectangularElement> rectElemForThisSect = new ArrayList<RectangularElement>();
-					double totArea = 0;
-					for(int r=0; r<n_sect_rectangle; r++) {
-						line = linesIterator.next();
-						tok = new StringTokenizer(line);
-						kindOfLine = Integer.parseInt(tok.nextToken());
-						if(kindOfLine != 204) throw new RuntimeException("Problem with file (line should start with 204)");
-						int id = Integer.parseInt(tok.nextToken());
-						int vertex_1_ID = Integer.parseInt(tok.nextToken());
-						int vertex_2_ID = Integer.parseInt(tok.nextToken());
-						int vertex_3_ID = Integer.parseInt(tok.nextToken());
-						int vertex_4_ID = Integer.parseInt(tok.nextToken());
-					    double rake = Double.parseDouble(tok.nextToken());
-					    double slip_rate = Double.parseDouble(tok.nextToken())*SECONDS_PER_YEAR; // convert to meters per year
-					    double aseis_factor = Double.parseDouble(tok.nextToken());
-					    double strike = Double.parseDouble(tok.nextToken());
-					    double dip = Double.parseDouble(tok.nextToken());
-					    aveDip+=dip/n_sect_rectangle;
-					    int perfect_flag = Integer.parseInt(tok.nextToken());
-						// the rest of the line contains: comment_text
-					    boolean perfectBoolean = false;
-					    if(perfect_flag == 1) perfectBoolean = true;
-					    Vertex[] vertices = new Vertex[4];
-					    
-					    vertices[0] = vertexList.get(vertex_1_ID-1);  // vertex index is one minus vertex ID
-					    vertices[1] = vertexList.get(vertex_2_ID-1);
-					    vertices[2] = vertexList.get(vertex_3_ID-1);
-					    vertices[3] = vertexList.get(vertex_4_ID-1);
-					    int numAlongStrike = -1;// unknown
-					    int numDownDip = -1;	// unknown
-					    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
-					    RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
-					    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
-					    rectElemForThisSect.add(rectElem);
-					    rectElementsList.add(rectElem);
-					    totArea += rectElem.getArea();
-					}
-					rectElementsListForSections.add(rectElemForThisSect);
-					aveDipForSections.add(aveDip);
-					
-					// test areas (make sure they are within 1%)
-					double areaTest = Math.abs((das_hi-das_lo)*(depth_hi-depth_lo)/Math.sin(aveDip*Math.PI/180.0));
-					double test = areaTest/totArea;
-//					double testTol = 0.01; // ORIGINAL VAL
-					double testTol = 0.25; // TODO NEW VAL, OK?
-					if(test<(1-testTol) || test > (1+testTol)) {
-						System.out.println(sid+"\t"+name+"\t"+(float)aveDip+"\t"+totArea+"\t"+areaTest+"\t"+areaTest/totArea);
-						throw new RuntimeException("Error: area discrepancy");
-					}
-					areaForSections.add(totArea);
-				}
-			} catch (RuntimeException e) {
-				System.out.println("Offending Line: "+line);
-				System.out.flush();
-				throw e;
-			}
-		}
-		
-		// check the numbers of things:  n_sction, n_vertex, n_triangle, n_rectangle
-		if(n_section != sectionNamesList.size())
-			throw new RuntimeException("something wrong with number of sections");
-		if(n_vertex != vertexList.size())
-			throw new RuntimeException("something wrong with number of vertices");
-		if(n_rectangle != rectElementsList.size())
-			throw new RuntimeException("something wrong with number of eleents");
-		
-		System.out.println("namesOfSections.size()="+sectionNamesList.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
-		
-		// check that indices are in order, and that index is one minus the ID:
-		for(int i=0;i<vertexList.size();i++) {
-			if(i != vertexList.get(i).getID()-1) throw new RuntimeException("vertexList index problem at "+i);
-		}
-		for(int i=0;i<rectElementsList.size();i++) {
-			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
-		}
-		
+	public void setEvents(List<EQSIM_Event> eventList) {
+		this.eventList = eventList;
 	}
 	
 	/**
@@ -569,6 +302,7 @@ public class General_EQSIM_Tools {
 			double totLength = 0;
 			for(EventRecord evRec:event) {
 				int sectIndex = evRec.getSectionID()-1;
+				RectangularElement elem = rectElementsList.get(sectIndex);
 				double ddwForSect = areaForSections.get(sectIndex)/lengthForSections.get(sectIndex);
 				double lengthOnRec = evRec.getLength();	// length of rup on section
 				totLength += lengthOnRec;
@@ -594,7 +328,7 @@ public class General_EQSIM_Tools {
 	 * This returns the list of RectangularElement objects
 	 * @return
 	 */
-	public ArrayList<RectangularElement> getElementsList() { return rectElementsList; }
+	public List<RectangularElement> getElementsList() { return rectElementsList; }
 	
 	
 	public String printMinAndMaxElementArea() {
@@ -683,438 +417,10 @@ public class General_EQSIM_Tools {
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		List<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 		
-		mkElementsFromSections(allFaultSectionPrefData, aseisReducesArea, maxDiscretization);
+		List<RectangularElement> elems = RectElemFromPrefDataBuilder.build(
+				allFaultSectionPrefData, aseisReducesArea, maxDiscretization);
+		init(elems);
 	}
-	
-	public void mkElementsFromSections(List<FaultSectionPrefData> allFaultSectionPrefData, boolean aseisReducesArea, 
-			double maxDiscretization) {
-		// put in new list since we're about to sort
-		allFaultSectionPrefData = Lists.newArrayList(allFaultSectionPrefData);
-		
-		rectElementsList = new ArrayList<RectangularElement>();
-		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
-		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		sectionNamesList = new ArrayList<String>();
-//		faultIDs_ForSections = null;	// no info for this
-		faultIDs_ForSections = Lists.newArrayList();	// fill in with parent fault section IDs
-
-		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedComparator());
-
-		/*		  
-		  // write sections IDs and names
-		  for(int i=0; i< this.allFaultSectionPrefData.size();i++)
-				System.out.println(allFaultSectionPrefData.get(i).getSectionId()+"\t"+allFaultSectionPrefData.get(i).getName());
-		 */
-
-		// remove those with no slip rate
-		if (D)System.out.println("Removing the following due to NaN slip rate:");
-		for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-			if(Double.isNaN(allFaultSectionPrefData.get(i).getOrigAveSlipRate())) {
-				if(D) System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
-				allFaultSectionPrefData.remove(i);
-			}	 
-				
-		// Loop over sections and create the simulator elements
-		int elementID =0;
-		int numberAlongStrike = 0;
-		int numberDownDip;
-		int faultNumber = -1; // unknown for now
-		int sectionNumber =0;
-		double elementSlipRate=0;
-		double elementAseis;
-		double elementStrike=0, elementDip=0, elementRake=0;
-		String sectionName;
-//		System.out.println("allFaultSectionPrefData.size() = "+allFaultSectionPrefData.size());
-		for(int i=0;i<allFaultSectionPrefData.size();i++) {
-			ArrayList<RectangularElement> sectionElementsList = new ArrayList<RectangularElement>();
-			ArrayList<Vertex> sectionVertexList = new ArrayList<Vertex>();
-			sectionNumber +=1; // starts from 1, not zero
-			FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
-			StirlingGriddedSurface surface = new StirlingGriddedSurface(faultSectionPrefData.getSimpleFaultData(aseisReducesArea), maxDiscretization, maxDiscretization);
-			EvenlyGridCenteredSurface gridCenteredSurf = new EvenlyGridCenteredSurface(surface);
-			double elementLength = gridCenteredSurf.getGridSpacingAlongStrike();
-			double elementDDW = gridCenteredSurf.getGridSpacingDownDip(); // down dip width
-			elementRake = faultSectionPrefData.getAveRake();
-			elementSlipRate = faultSectionPrefData.getOrigAveSlipRate()/1000;
-			elementAseis = faultSectionPrefData.getAseismicSlipFactor();
-			sectionName = faultSectionPrefData.getName();
-			for(int col=0; col<gridCenteredSurf.getNumCols();col++) {
-				numberAlongStrike += 1;
-				for(int row=0; row<gridCenteredSurf.getNumRows();row++) {
-					elementID +=1; // starts from 1, not zero
-					numberDownDip = row+1;
-					Location centerLoc = gridCenteredSurf.get(row, col);
-					Location top1 = surface.get(row, col);
-					Location top2 = surface.get(row, col+1);
-					Location bot1 = surface.get(row+1, col);
-					double[] strikeAndDip = PlaneUtils.getStrikeAndDip(top1, top2, bot1);
-					elementStrike = strikeAndDip[0];
-					elementDip = strikeAndDip[1];	
-					
-					double hDistAlong = elementLength/2;
-					double dipRad = Math.PI*elementDip/180;
-					double vDist = (elementDDW/2)*Math.sin(dipRad);
-					double hDist = (elementDDW/2)*Math.cos(dipRad);
-					
-//					System.out.println(elementID+"\telementDDW="+elementDDW+"\telementDip="+elementDip+"\tdipRad="+dipRad+"\tvDist="+vDist+"\thDist="+hDist);
-					
-					LocationVector vect = new LocationVector(elementStrike+180, hDistAlong, 0);
-					Location newMid1 = LocationUtils.location(centerLoc, vect);  // half way down the first edge
-					vect.set(elementStrike-90, hDist, -vDist); // up-dip direction
-					Location newTop1 = LocationUtils.location(newMid1, vect);
-					vect.set(elementStrike+90, hDist, vDist); // down-dip direction
-					Location newBot1 = LocationUtils.location(newMid1, vect);
-					 
-					vect.set(elementStrike, hDistAlong, 0);
-					Location newMid2 = LocationUtils.location(centerLoc, vect); // half way down the other edge
-					vect.set(elementStrike-90, hDist, -vDist); // up-dip direction
-					Location newTop2 = LocationUtils.location(newMid2, vect);
-					vect.set(elementStrike+90, hDist, vDist); // down-dip direction
-					Location newBot2 = LocationUtils.location(newMid2, vect);
-					
-					 // @param traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not
-					 // 		              the first or last point; 2 means yes & it's the first; and 3 means yes 
-					 //                    & it's the last point)
-					
-					
-					// set DAS
-					double das1 = col*elementLength;	// this is in km
-					double das2 = das1+elementLength;	// this is in km
-					// set traceFlag - tells whether is on the fault trace  (0 means no; 1 means yes, but not the 
-					// first or last point; 2 means yes & it's the first; and 3 means yes & it's the last point)
-					int traceFlagBot = 0;
-					int traceFlagTop1 = 0;
-					int traceFlagTop2 = 0;
-					if(row ==0) {
-						traceFlagTop1 = 1;
-						traceFlagTop2 = 1;
-					}
-					if(row==0 && col==0) traceFlagTop1 = 2;
-					if(row==0 && col==gridCenteredSurf.getNumCols()-1) traceFlagTop2 = 3;
-
-					Vertex[] elementVertices = new Vertex[4];
-					elementVertices[0] = new Vertex(newTop1,vertexList.size()+1, das1, traceFlagTop1);  
-					elementVertices[1] = new Vertex(newBot1,vertexList.size()+2, das1, traceFlagBot);
-					elementVertices[2] = new Vertex(newBot2,vertexList.size()+3, das2, traceFlagBot);
-					elementVertices[3] = new Vertex(newTop2,vertexList.size()+4, das2, traceFlagTop2);
-					
-					FocalMechanism focalMech = new FocalMechanism(elementStrike, elementDip, elementRake);
-										
-					RectangularElement simSurface =
-						new RectangularElement(elementID, elementVertices, sectionName,
-								faultNumber, sectionNumber, numberAlongStrike, numberDownDip,
-								elementSlipRate, elementAseis, focalMech, true);
-					
-					rectElementsList.add(simSurface);
-					vertexList.add(elementVertices[0]);
-					vertexList.add(elementVertices[1]);
-					vertexList.add(elementVertices[2]);
-					vertexList.add(elementVertices[3]);
-					
-					sectionElementsList.add(simSurface);
-					sectionVertexList.add(elementVertices[0]);
-					sectionVertexList.add(elementVertices[1]);
-					sectionVertexList.add(elementVertices[2]);
-					sectionVertexList.add(elementVertices[3]);
-
-					
-//					String line = elementID + "\t"+
-//						numberAlongStrike + "\t"+
-//						numberDownDip + "\t"+
-//						faultNumber + "\t"+
-//						sectionNumber + "\t"+
-//						(float)elementSlipRate + "\t"+
-//						(float)elementStrength + "\t"+
-//						(float)elementStrike + "\t"+
-//						(float)elementDip + "\t"+
-//						(float)elementRake + "\t"+
-//						(float)newTop1.getLatitude() + "\t"+
-//						(float)newTop1.getLongitude() + "\t"+
-//						(float)newTop1.getDepth()*-1000 + "\t"+
-//						(float)newBot1.getLatitude() + "\t"+
-//						(float)newBot1.getLongitude() + "\t"+
-//						(float)newBot1.getDepth()*-1000 + "\t"+
-//						(float)newBot2.getLatitude() + "\t"+
-//						(float)newBot2.getLongitude() + "\t"+
-//						(float)newBot2.getDepth()*-1000 + "\t"+
-//						(float)newTop2.getLatitude() + "\t"+
-//						(float)newTop2.getLongitude() + "\t"+
-//						(float)newTop2.getDepth()*-1000 + "\t"+
-//						sectionName;
-//
-//					System.out.println(line);
-				}
-			}
-			rectElementsListForSections.add(sectionElementsList);
-			vertexListForSections.add(sectionVertexList);
-			// strip out any whitespace and special characters
-			String strippedName = faultSectionPrefData.getName().replaceAll("\\W+", "_");
-			sectionNamesList.add(strippedName);
-			if (faultIDs_ForSections != null)
-				faultIDs_ForSections.add(faultSectionPrefData.getParentSectionId());
-		}
-		System.out.println("rectElementsList.size()="+rectElementsList.size());
-		System.out.println("vertexList.size()="+vertexList.size());
-		
-		/*
-		for(int i=0;i<allFaultSectionPrefData.size();i++) {
-			ArrayList<RectangularElement> elList = rectElementsListForSections.get(i);
-			ArrayList<Vertex> verList = vertexListForSections.get(i);;
-			System.out.println(allFaultSectionPrefData.get(i).getName());
-			System.out.println("\tEl Indices:  "+elList.get(0).getID()+"\t"+elList.get(elList.size()-1).getID());
-//			System.out.println("\tVer Indices:  "+verList.get(0).getID()+"\t"+verList.get(verList.size()-1).getID());
-		}
-		*/
-	}
-	
-	
-	public void writeToWardFile(String fileName) throws IOException {
-		FileWriter efw = new FileWriter(fileName);
-		for (RectangularElement rectElem : rectElementsList) {
-			efw.write(rectElem.toWardFormatLine() + "\n");
-		}
-		efw.close();
-	}
-
-
-	/**
-	 * This loads from Steve Wards file format (at least for the format he sent on Sept 2, 2010).  This
-	 * implementation does not put DAS for traceFlag in the vertices, and there are assumptions about the
-	 * ordering of things in his file.  Note also that his NAS does not start over for each section, but
-	 * rather starts over for each fault.
-	 * @param lines
-	 */
-	private void loadFromSteveWardLines(ArrayList<String> lines) {
-
-
-		// now need to fill these lists
-		rectElementsList = new ArrayList<RectangularElement>();
-		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
-		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
-		sectionNamesList = new ArrayList<String>();
-		faultIDs_ForSections = new ArrayList<Integer>();
-
-		int lastSectionID = -1;
-		ArrayList<RectangularElement> currentRectElForSection = null;
-		ArrayList<Vertex> currVertexListForSection = null;
-
-		int numVertices= 0; // to set vertexIDs
-
-
-		for (String line : lines) {
-			if (line == null || line.length() == 0)
-				continue;
-
-			StringTokenizer tok = new StringTokenizer(line);
-
-			int id = Integer.parseInt(tok.nextToken()); // unique number ID for each element
-			int numAlongStrike = Integer.parseInt(tok.nextToken()); // Number along strike
-			int numDownDip = Integer.parseInt(tok.nextToken()); // Number down dip
-			int faultID = Integer.parseInt(tok.nextToken()); // Fault Number
-			int sectionID = Integer.parseInt(tok.nextToken()); // Segment Number
-			double slipRate = Double.parseDouble(tok.nextToken()); // Slip Rate in m/y.
-			double strength = Double.parseDouble(tok.nextToken()); // Element Strength in Bars (not used).
-			double strike = Double.parseDouble(tok.nextToken()); // stike
-			double dip = Double.parseDouble(tok.nextToken()); // dip
-			double rake = Double.parseDouble(tok.nextToken()); // rake
-			FocalMechanism focalMechanism = new FocalMechanism(strike, dip, rake);
-
-			Vertex[] vertices = new Vertex[4];
-			// 0th vertex
-			double lat = Double.parseDouble(tok.nextToken());
-			double lon = Double.parseDouble(tok.nextToken());
-			double depth = Double.parseDouble(tok.nextToken()) / -1000d;
-			numVertices+=1;
-			vertices[0] = new Vertex(lat, lon, depth, numVertices);
-			// 1st vertex
-			lat = Double.parseDouble(tok.nextToken());
-			lon = Double.parseDouble(tok.nextToken());
-			depth = Double.parseDouble(tok.nextToken()) / -1000d;
-			numVertices+=1;
-			vertices[1] = new Vertex(lat, lon, depth, numVertices);
-			// 2nd vertex
-			lat = Double.parseDouble(tok.nextToken());
-			lon = Double.parseDouble(tok.nextToken());
-			depth = Double.parseDouble(tok.nextToken()) / -1000d;
-			numVertices+=1;
-			vertices[2] = new Vertex(lat, lon, depth, numVertices);
-			// last vertex
-			lat = Double.parseDouble(tok.nextToken());
-			lon = Double.parseDouble(tok.nextToken());
-			depth = Double.parseDouble(tok.nextToken()) / -1000d;
-			numVertices+=1;
-			vertices[3] = new Vertex(lat, lon, depth, numVertices);
-
-			String name = null;
-			while (tok.hasMoreTokens()) {
-				if (name == null)
-					name = "";
-				else
-					name += " ";
-				name += tok.nextToken();
-			}
-			String sectionName = name;
-
-			RectangularElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
-					numAlongStrike, numDownDip, slipRate, Double.NaN, focalMechanism, true);
-
-			rectElementsList.add(rectElem);
-
-			// check if this is a new section
-			if(sectionID != lastSectionID) {
-				// encountered a new section
-				currentRectElForSection = new ArrayList<RectangularElement>();
-				currVertexListForSection = new ArrayList<Vertex>();
-				rectElementsListForSections.add(currentRectElForSection);
-				vertexListForSections.add(currVertexListForSection);
-				sectionNamesList.add(sectionName);
-				faultIDs_ForSections.add(faultID);
-			}
-			currentRectElForSection.add(rectElem);
-			for(int i=0; i<4;i++) {
-				vertexList.add(vertices[i]);
-				currVertexListForSection.add(vertices[i]);
-			}
-		}
-
-		// check that indices are in order, and that index is one minus the ID:
-		for(int i=0;i<vertexList.size();i++) {
-			int idMinus1 = vertexList.get(i).getID()-1;
-			if(i != idMinus1) throw new RuntimeException("vertexList index problem at index "+i+" (ID-1="+idMinus1+")");
-		}
-		for(int i=0;i<rectElementsList.size();i++) {
-			if(i != rectElementsList.get(i).getID()-1) throw new RuntimeException("rectElementsList index problem at "+i);
-		}
-
-		System.out.println("namesOfSections.size()="+sectionNamesList.size()+"\tvertexList.size()="+vertexList.size()+"\trectElementsList.size()="+rectElementsList.size());
-
-
-	}
-
-	
-	
-	/**
-	 * The creates a EQSIM V04 Geometry file for the given instance.
-	 * @param fileName
-	 * @param infoLines - each line here should NOT end with a new line char "\n" (this will be added)
-	 * @param titleLine
-	 * @param author
-	 * @param date
-	 * @throws IOException
-	 */
-	public void writeTo_EQSIM_V04_GeometryFile(String fileName, ArrayList<String> infoLines, String titleLine, 
-			String author, String date) throws IOException {
-			FileWriter efw = new FileWriter(fileName);
-			
-			// write the standard file signature info
-			efw.write("101 "+GEOM_FILE_SIG +" "+GEOM_FILE_SPEC_LEVEL+ "\n");
-			
-			// add the file-specific meta data records/lines
-			if(titleLine!=null)
-				efw.write("111 "+titleLine+ "\n");
-			if(author!=null)
-				efw.write("112 "+author+ "\n");
-			if(date!=null)
-				efw.write("113 "+date+ "\n");
-			if(infoLines!=null)
-				for(int i=0; i<infoLines.size();i++)
-					efw.write("110 "+infoLines.get(i)+ "\n");
-			
-			// add the standard descriptor records/lines for the Geometry file (read from another file)
-			String fullPath = "org/opensha/sha/simulators/eqsim_v04/ALLCAL_Model_v04/ALLCAL_Ward_Geometry.dat";
-			ArrayList<String> lines=null;
-			try {
-				lines = FileUtils.loadJarFile(fullPath);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			for(int l=0;l<lines.size();l++) {
-				String line = lines.get(l);
-				StringTokenizer tok = new StringTokenizer(line);
-				int kindOfLine = Integer.parseInt(tok.nextToken());
-				if(kindOfLine==120 || kindOfLine==121 || kindOfLine==103)
-					efw.write(line+"\n");
-			}
-			
-			// now add the data records/lines 
-			
-			// Fault System Summary Record:
-			// 200 n_section n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi comment_text
-			efw.write("200 "+sectionNamesList.size()+" "+vertexList.size()+" 0 "+rectElementsList.size()+" "+
-							getMinMaxFileString(vertexList, false)+"\n");
-
-			// loop over sections
-			for(int i=0;i<sectionNamesList.size();i++) {
-				ArrayList<Vertex> vertListForSect = vertexListForSections.get(i);
-				ArrayList<RectangularElement> rectElemForSect = rectElementsListForSections.get(i);
-				String fault_id;
-				if(faultIDs_ForSections == null)
-					fault_id = "NA";
-				else
-					fault_id = faultIDs_ForSections.get(i).toString();
-				// Fault Section Information Record:
-				// 201 sid name n_vertex n_triangle n_rectangle lat_lo lat_hi lon_lo lon_hi depth_lo depth_hi das_lo das_hi fault_id comment_text
-				efw.write("201 "+(i+1)+" "+sectionNamesList.get(i)+" "+vertListForSect.size()+" 0 "+
-						rectElemForSect.size()+" "+getMinMaxFileString(vertListForSect, true)+" "+fault_id+"\n");
-				for(int v=0; v<vertListForSect.size(); v++) {
-					Vertex vert = vertListForSect.get(v);
-					// Vertex Record: 202 ID lat lon depth das trace_flag comment_text
-					efw.write("202 "+vert.getID()+" "+(float)vert.getLatitude()+" "+(float)vert.getLongitude()+" "+
-							(float)(vert.getDepth()*-1000)+" "+(float)vert.getDAS()*1000+" "+vert.getTraceFlag()+"\n");
-				}
-				for(int e=0; e<rectElemForSect.size(); e++) {
-					RectangularElement elem = rectElemForSect.get(e);
-					Vertex[] vert = elem.getVertices();
-					FocalMechanism focalMech = elem.getFocalMechanism();
-					// Rectangle Record:  204 ID vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
-					efw.write("204 "+elem.getID()+" "+vert[0].getID()+" "+vert[1].getID()+" "+vert[2].getID()+" "+
-							vert[3].getID()+" "+(float)focalMech.getRake()+" "+(float)(elem.getSlipRate()/SECONDS_PER_YEAR)+" "+
-							(float)elem.getAseisFactor()+" "+(float)focalMech.getStrike()+" "+(float)focalMech.getDip()
-							+" "+elem.getPerfectInt()+"\n");
-				}
-			}
-			
-			// add the last line
-			efw.write("999 End\n");
-
-			efw.close();
-	}
-	
-	
-	/**
-	 * This produces the string of min and max lat, lon, depth, and (optionally) DAS from the
-	 * given list of vertices.  There are no spaces before or after the first and last values,
-	 * respectively.  Depth and DAS values are converted to meters (from km).
-	 * @param vertexList
-	 * @param includeDAS
-	 * @return
-	 */
-	private String getMinMaxFileString(ArrayList<Vertex> vertexList, boolean includeDAS) {
-		double minLat=Double.MAX_VALUE, maxLat=-Double.MAX_VALUE;
-		double minLon=Double.MAX_VALUE, maxLon=-Double.MAX_VALUE;
-		double minDep=Double.MAX_VALUE, maxDep=-Double.MAX_VALUE;
-		double minDAS=Double.MAX_VALUE, maxDAS=-Double.MAX_VALUE;
-		for(Vertex vertex: vertexList) {
-			if(vertex.getLatitude()<minLat) minLat = vertex.getLatitude();
-			if(vertex.getLongitude()<minLon) minLon = vertex.getLongitude();
-			if(vertex.getDepth()<minDep) minDep = vertex.getDepth();
-			if(vertex.getDAS()<minDAS) minDAS = vertex.getDAS();
-			if(vertex.getLatitude()>maxLat) maxLat = vertex.getLatitude();
-			if(vertex.getLongitude()>maxLon) maxLon = vertex.getLongitude();
-//			if(!includeDAS) System.out.println(maxLon);
-			if(vertex.getDepth()>maxDep) maxDep = vertex.getDepth();
-			if(vertex.getDAS()>maxDAS) maxDAS = vertex.getDAS();
-		}
-		String string = (float)minLat+" "+(float)maxLat+" "+(float)minLon+" "+(float)maxLon+" "+(float)maxDep*-1000+" "+(float)minDep*-1000;
-		if(includeDAS) string += " "+(float)minDAS*1000+" "+(float)maxDAS*1000;
-		return string;
-	}
-	
 	
 	/**
 	 * This computes the total magnitude frequency distribution (with an option to plot the results)
@@ -1283,7 +589,7 @@ public class General_EQSIM_Tools {
 	 * is not neccessariy equal to the eventID minus one (getEventsList().get(index).getID()=1 != index).
 	 * @return
 	 */
-	public ArrayList<EQSIM_Event> getEventsList() {
+	public List<EQSIM_Event> getEventsList() {
 		return eventList;
 	}
 	
@@ -1291,7 +597,7 @@ public class General_EQSIM_Tools {
 	 * This returns a HashMap of EQSIM_Event objects where the key is the event ID
 	 * @return
 	 */
-	public HashMap<Integer,EQSIM_Event> getEventsHashMap() {
+	public Map<Integer, EQSIM_Event> getEventsHashMap() {
 		HashMap<Integer,EQSIM_Event> map = new HashMap<Integer,EQSIM_Event>();
 		for(EQSIM_Event event:getEventsList()) {
 			map.put(event.getID(), event);
@@ -1311,7 +617,6 @@ public class General_EQSIM_Tools {
 		for(EQSIM_Event event:eventList)
 			event.setTime(firstEventTime+Math.random()*simDurInSec);
 		Collections.sort(eventList);
-		
 	}
 	
 	
@@ -1335,7 +640,7 @@ public class General_EQSIM_Tools {
 	}
 	
 	
-	public void plotSAF_EventsAlongStrikeVsTime(double magThresh, int maxNumEvents) {
+	public void plotSAF_EventsAlongStrikeVsTime(double magThresh, int maxNumEvents, int safFaultID) {
 		ArrayList<ArbitrarilyDiscretizedFunc> funcList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 
 		int numSAF_Events=0;
@@ -1349,7 +654,7 @@ public class General_EQSIM_Tools {
 				double maxDAS = Double.NEGATIVE_INFINITY;
 				for(EventRecord rec:event) {
 					int sectIndex = rec.getSectionID()-1;
-					if(faultIDs_ForSections.get(sectIndex) == 1) {
+					if(faultIDs_ForSections.get(sectionID_indexMap.get(sectIndex)) == 1) {
 						if(rec.getMinDAS() < minDAS) 
 							minDAS = rec.getMinDAS();
 						if(rec.getMaxDAS() > maxDAS) 
@@ -3213,8 +2518,9 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		DeformationModelFetcher dmFetch = new DeformationModelFetcher(fm, dm, scratchDir, defaultAseisVal);
 		General_EQSIM_Tools tools = new General_EQSIM_Tools(dmFetch.getSubSectionList(), aseisReducesArea, maxDiscretization);
 		File outputFile = new File(outputDir, fm.encodeChoiceString()+"_"+dm.encodeChoiceString()+"_EQSIM.txt");
-		tools.writeTo_EQSIM_V04_GeometryFile(outputFile.getAbsolutePath(), null,
-				fm.name()+", "+dm.name()+" output", "Kevin Milner", df.format(new Date()));
+//		tools.writeTo_EQSIM_V04_GeometryFile(outputFile.getAbsolutePath(), null,
+//				fm.name()+", "+dm.name()+" output", "Kevin Milner", df.format(new Date()));
+		// TODO
 		
 		// now try opening it
 		new General_EQSIM_Tools(outputFile);

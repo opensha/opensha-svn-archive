@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -40,7 +42,8 @@ public class simulatorAnalysisUtils {
 					System.out.println("Loading geometry...");
 					General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
 					System.out.println("Loading events...");
-					tools.read_EQSIMv04_EventsFile(eventFile);
+					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+					tools.setEvents(events);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
 
 					// TEST METHODS:
@@ -148,7 +151,8 @@ public class simulatorAnalysisUtils {
 					System.out.println("Loading geometry...");
 					General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
 					System.out.println("Loading events...");
-					tools.read_EQSIMv04_EventsFile(eventFile);
+					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+					tools.setEvents(events);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
 					
 					ArrayList<String> infoStrings = new ArrayList<String>();

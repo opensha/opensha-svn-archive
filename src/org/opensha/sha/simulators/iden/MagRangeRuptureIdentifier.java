@@ -1,8 +1,8 @@
-package org.opensha.sha.simulators.eqsim_v04.iden;
+package org.opensha.sha.simulators.iden;
 
 import java.util.Set;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
+import org.opensha.sha.simulators.EQSIM_Event;
 
 public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 	

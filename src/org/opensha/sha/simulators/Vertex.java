@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.simulators.eqsim_v04;
+package org.opensha.sha.simulators;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;

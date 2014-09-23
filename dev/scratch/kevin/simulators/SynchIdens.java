@@ -3,9 +3,9 @@ package scratch.kevin.simulators;
 import java.awt.Color;
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.LogicalOrRupIden;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.LogicalOrRupIden;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

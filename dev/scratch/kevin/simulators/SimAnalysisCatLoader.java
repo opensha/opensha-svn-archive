@@ -5,11 +5,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.RectangularElement;
-import org.opensha.sha.simulators.eqsim_v04.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.eqsim_v04.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
+import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -70,8 +71,7 @@ public class SimAnalysisCatLoader {
 			eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		
 		System.out.println("Loading events...");
-		tools.read_EQSIMv04_EventsFile(eventFile, rupIdens);
-		events = tools.getEventsList();
+		events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 	}
 	
 	public static List<RectangularElement> loadGeomOnly() throws IOException {

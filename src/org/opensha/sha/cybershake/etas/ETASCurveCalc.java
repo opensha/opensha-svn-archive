@@ -1014,7 +1014,7 @@ public class ETASCurveCalc {
 			if (doConvergence && !debugSiteCalcOnly) {
 				for (int i=0; i<calcs.size(); i++) {
 					Map<Integer, Map<CybershakeSite, DiscretizedFunc>> sizeCurvesMap =
-							calcs.get(i).calcConvergeCurves(convergeInterval, true);
+							calcs.get(i).calcConvergeCurves(convergeInterval, false);
 					if (sizeCurvesMap == null)
 						continue;
 					calcs.get(i).writeConvergenceLinesPlot(convergeCurveDir, sizeCurvesMap);

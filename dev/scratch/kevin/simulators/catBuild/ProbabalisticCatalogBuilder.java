@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.opensha.sha.simulators.eqsim_v04.EQSIM_Event;
-import org.opensha.sha.simulators.eqsim_v04.General_EQSIM_Tools;
-import org.opensha.sha.simulators.eqsim_v04.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
+import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.kevin.simulators.dists.FollowerReturnPeriodProvider;
 import scratch.kevin.simulators.dists.PossibleRupture;
