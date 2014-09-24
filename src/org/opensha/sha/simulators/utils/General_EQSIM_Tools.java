@@ -84,6 +84,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
@@ -232,6 +233,7 @@ public class General_EQSIM_Tools {
 		faultIDs_ForSections = Lists.newArrayList();
 		vertexList = Lists.newArrayList();
 		vertexListForSections = Lists.newArrayList();
+		sectionID_indexMap = Maps.newHashMap();
 		
 		int prevSectID = -1;
 		int prevFaultID = -1;
@@ -301,8 +303,7 @@ public class General_EQSIM_Tools {
 			double totArea = 0;
 			double totLength = 0;
 			for(EventRecord evRec:event) {
-				int sectIndex = evRec.getSectionID()-1;
-				RectangularElement elem = rectElementsList.get(sectIndex);
+				int sectIndex = sectionID_indexMap.get(evRec.getSectionID());
 				double ddwForSect = areaForSections.get(sectIndex)/lengthForSections.get(sectIndex);
 				double lengthOnRec = evRec.getLength();	// length of rup on section
 				totLength += lengthOnRec;
@@ -513,7 +514,7 @@ public class General_EQSIM_Tools {
 		
 		double simDurr = getSimulationDurationYears();
 		for(EQSIM_Event event : eventList) {
-			int sectionIndex = event.get(0).getSectionID()-1;	// nucleates on first (0th) event record, and index is one minus ID 
+			int sectionIndex = sectionID_indexMap.get(event.get(0).getSectionID());	// nucleates on first (0th) event record 
 			mfdList.get(sectionIndex).addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
 		
@@ -653,8 +654,8 @@ public class General_EQSIM_Tools {
 				double minDAS = Double.MAX_VALUE;
 				double maxDAS = Double.NEGATIVE_INFINITY;
 				for(EventRecord rec:event) {
-					int sectIndex = rec.getSectionID()-1;
-					if(faultIDs_ForSections.get(sectionID_indexMap.get(sectIndex)) == 1) {
+					int sectIndex = sectionID_indexMap.get(rec.getSectionID());
+					if(faultIDs_ForSections.get(sectIndex) == 1) {
 						if(rec.getMinDAS() < minDAS) 
 							minDAS = rec.getMinDAS();
 						if(rec.getMaxDAS() > maxDAS) 
@@ -953,7 +954,7 @@ public class General_EQSIM_Tools {
 				// compile list of sections involved
 				for(EventRecord evRec: event) {
 					if(eventTime != evRec.getTime()) throw new RuntimeException("problem with event times");  // just a check
-					sectionsInEventString += sectionNamesList.get(evRec.getSectionID()-1) + " + ";
+					sectionsInEventString += sectionNamesList.get(sectionID_indexMap.get(evRec.getSectionID())) + " + ";
 				}
 				// get average date of last event and average predicted date of next
 				double aveLastEvTime=0;
@@ -1656,7 +1657,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 				double mag = Math.round(event.getMagnitude()*100.0)/100.0;
 				System.out.print("\t"+num+"\t"+event.getID()+"\t"+event.size()+"\t"+mag);
 				for(EventRecord rec:event)
-					System.out.print("\t"+this.sectionNamesList.get(rec.getSectionID()-1)+"_"+rec.getSectionID());
+					System.out.print("\t"+this.sectionNamesList.get(sectionID_indexMap.get(rec.getSectionID()))+"_"+rec.getSectionID());
 				System.out.print("\n");
 			}
 		}
@@ -2106,7 +2107,8 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		}
 		
 		double das = vert.getDAS()*1000;
-		int sectID = getSectionIndexForVertex(vert)+1;
+		int sectIndex = getSectionIndexForVertex(vert);
+		int sectID = sectionIDs_List.get(sectIndex);
 		
 //System.out.println(vert.getID()+"\t"+das+"\t"+(float)dist+"\t"+locName+"\t"+sectID+"\t"+namesOfSections.get(sectID-1));
 		
@@ -2119,13 +2121,10 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		
 		if(infoString== null)
 			infoString = new String();
-		infoString += "Closest Vertex is ID="+vert.getID()+" on "+sectionNamesList.get(sectID-1)+" ("+(float)dist+" km away)\n";
+		infoString += "Closest Vertex is ID="+vert.getID()+" on "+sectionNamesList.get(sectIndex)+" ("+(float)dist+" km away)\n";
 		plotRecurIntervalsForElement(intervals, savePlot, locName, infoString);
 		return true;
 	}
-		
-		
-		
 		
 	public void plotRecurIntervalsForElement(double[] intervals, boolean savePlot, String locName, String infoString) {
 				
@@ -2449,8 +2448,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	public boolean doesEventUtilizedFault(EQSIM_Event event, int faultID) {
 		boolean answer = false;
 		for(EventRecord eventRecord: event) {
-			int sectIndex = eventRecord.getSectionID()-1;
-			if(faultIDs_ForSections.get(sectIndex) == faultID) {
+			if(faultIDs_ForSections.get(sectionID_indexMap.get(eventRecord.getSectionID())) == faultID) {
 				answer = true;
 				break;
 			}
