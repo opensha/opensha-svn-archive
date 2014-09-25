@@ -69,7 +69,6 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
-import org.opensha.sha.simulators.UCERF2_DataForComparisonFetcher;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;

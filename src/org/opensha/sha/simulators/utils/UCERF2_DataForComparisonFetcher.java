@@ -1,4 +1,4 @@
-package org.opensha.sha.simulators;
+package org.opensha.sha.simulators.utils;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
