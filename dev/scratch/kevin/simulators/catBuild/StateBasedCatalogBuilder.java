@@ -65,7 +65,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		distSpacing = 10d;
 		
 		// build Markov chain
-		chain = new MarkovChainBuilder(distSpacing, events, matchesLists);
+		chain = new MarkovChainBuilder(distSpacing, matchesLists);
 		int nDims = chain.getNDims();
 		totalStatesDataset = chain.getTotalStatesDataset();
 		stateTransitionDataset = chain.getStateTransitionDataset();

@@ -33,6 +33,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
@@ -56,6 +57,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 /**
  * Synchronization parameter calculator for simulated catalogs. Can calculate Gbar with various parameterizations,
@@ -849,11 +851,7 @@ public class SynchParamCalculator {
 			List<RuptureIdentifier> rupIdens, RandomDistType dist, double distSpacing) {
 		List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
 
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (RuptureIdentifier rupIden : rupIdens)
-			matchesLists.add(rupIden.getMatches(randEvents));
-
-		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, matchesLists);
+		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, rupIdens);
 
 		return chain;
 	}
@@ -1923,11 +1921,126 @@ public class SynchParamCalculator {
 		}
 		return ret;
 	}
+	
+	private static void plotMarkovNumTransHist(MarkovChainBuilder chain, List<RuptureIdentifier> rupIdens, File outputDir)
+			throws IOException {
+		Preconditions.checkArgument(rupIdens.size() == chain.getNDims());
+		
+		// count number of events for each index
+		int[] eventCounts = new int[chain.getNDims()];
+		for (int[] state : chain.getFullPath()) {
+			for (int i=0; i<state.length; i++)
+				if (state[i] == 0)
+					eventCounts[i]++;
+		}
+		
+		// this will sort the indexes by the number of events, decreasing
+		List<ComparablePairing<Integer, Integer>> eventComps = Lists.newArrayList();
+		for (int i=0; i<eventCounts.length; i++)
+			eventComps.add(new ComparablePairing<Integer, Integer>(eventCounts[i], i));
+		Collections.sort(eventComps);
+		Collections.reverse(eventComps);
+		List<Integer> sortedIndexes = Lists.newArrayList();
+		for (ComparablePairing<Integer, Integer>  comp : eventComps)
+			sortedIndexes.add(comp.getData());
+		
+		for (int nDims=chain.getNDims(); nDims>=2; nDims--) {
+			MarkovChainBuilder myChain = chain;
+			List<Integer> indexesToInclude = sortedIndexes;
+			if (myChain.getNDims() != nDims) {
+				indexesToInclude = sortedIndexes.subList(0, nDims);
+				myChain = chain.getCollapsedChain(Ints.toArray(indexesToInclude));
+			}
+			
+			List<String> names = Lists.newArrayList();
+			for (int i : indexesToInclude)
+				names.add(rupIdens.get(i).getName());
+			String nameStr = Joiner.on(", ").join(names);
+			
+			HistogramFunction destHist = new HistogramFunction(0d, 10, 1d);
+			HistogramFunction occHist = new HistogramFunction(0d, 10, 1d);
+			
+			SparseNDimensionalHashDataset<PossibleStates> transData = myChain.getStateTransitionDataset();
+			for (int ind[] : transData.getPopulatedIndices()) {
+				PossibleStates s = transData.get(ind);
+				destHist.add(s.getNumStates(), 1d);
+				Preconditions.checkState(s.getTot() > 0);
+				occHist.add(occHist.getClosestXIndex(s.getTot()), 1d);
+			}
+			
+			destHist.normalizeBySumOfY_Vals();
+			occHist.normalizeBySumOfY_Vals();
+			
+			List<DiscretizedFunc> funcs = Lists.newArrayList();
+			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			
+			funcs.add(destHist);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+			
+			Range xRange = new Range(0.5d, destHist.getMaxX()+0.5);
+			Range yRange = new Range(0d, 1d);
+			Range yLogRange = new Range(1e-3d, 1d);
+			
+			PlotSpec spec = new PlotSpec(funcs, chars, nDims+"-D State Transition Hist:\n"+nameStr,
+					"# Destination States", "Fraction of States");
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setBackgroundColor(Color.WHITE);
+			gp.setTickLabelFontSize(14);
+			gp.setAxisLabelFontSize(16);
+			gp.setPlotLabelFontSize(14);
+
+			gp.drawGraphPanel(spec, false, false, xRange, yRange);
+			
+			File outputFile = new File(outputDir, "state_trans_hist_"+nDims+"D");
+
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+			
+			// now log
+			gp.drawGraphPanel(spec, false, true, xRange, yLogRange);
+			
+			outputFile = new File(outputDir, "state_trans_hist_log_"+nDims+"D");
+
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+			
+			// now occupancy
+			funcs = Lists.newArrayList();
+			chars = Lists.newArrayList();
+			
+			funcs.add(occHist);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+			
+			spec = new PlotSpec(funcs, chars, nDims+"-D State Transition Hist:\n"+nameStr,
+					"Occupancy Count", "Fraction of States");
+			
+			gp = new HeadlessGraphPanel();
+			gp.setBackgroundColor(Color.WHITE);
+			gp.setTickLabelFontSize(14);
+			gp.setAxisLabelFontSize(16);
+			gp.setPlotLabelFontSize(14);
+
+			gp.drawGraphPanel(spec, false, false, xRange, yRange);
+			
+			outputFile = new File(outputDir, "state_occ_hist_"+nDims+"D");
+
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
+			
+			// now log
+			gp.drawGraphPanel(spec, false, true, xRange, yLogRange);
+			
+			outputFile = new File(outputDir, "state_occ_hist_log_"+nDims+"D");
+
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
-		double minMag = 7;
-		double maxMag = 10d;
-		
 		List<List<RuptureIdentifier>> setIdens = Lists.newArrayList();
 		List<String> setNames = Lists.newArrayList();
 		
@@ -1987,20 +2100,14 @@ public class SynchParamCalculator {
 			else
 				myEvents = events;
 
-			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-			for (int i=0; i<rupIdens.size(); i++) {
-				List<EQSIM_Event> matches = rupIdens.get(i).getMatches(myEvents);
-				matchesLists.add(matches);
-				double[] matchRIs = new double[matches.size()-1];
-				for (int j=1; j<matches.size(); j++)
-					matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
-				System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
-			}
-//			System.exit(0);
-			
-
 			// generate Markov Chain
-			MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, myEvents, matchesLists);
+			MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, myEvents, rupIdens);
+			
+			File markovPlotsDir = new File(writeDir, "markov_plots");
+			if (!markovPlotsDir.exists())
+				markovPlotsDir.mkdir();
+			
+			plotMarkovNumTransHist(chain, rupIdens, markovPlotsDir);
 
 			// tests
 			//		MarkovChainBuilder collapsed = chain.getCollapsedChain(4, 3);

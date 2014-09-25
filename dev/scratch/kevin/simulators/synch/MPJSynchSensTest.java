@@ -433,11 +433,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 		if (random)
 			events = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, 1);
 		
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (int i=0; i<rupIdens.size(); i++)
-			matchesLists.add(rupIdens.get(i).getMatches(events));
-		
-		return new MarkovChainBuilder(distSpacing, events, matchesLists, startTimeShift);
+		return new MarkovChainBuilder(distSpacing, events, rupIdens, startTimeShift);
 	}
 	
 	private String getMemoryDebug() {

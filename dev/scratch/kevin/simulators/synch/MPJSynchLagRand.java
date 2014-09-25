@@ -98,10 +98,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	
 	private void checkBuildOrigChain() {
 		if (rank == 0 && origChain == null) {
-			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-			for (int i=0; i<rupIdens.size(); i++)
-				matchesLists.add(rupIdens.get(i).getMatches(events));
-			origChain = new MarkovChainBuilder(distSpacing, events, matchesLists);
+			origChain = new MarkovChainBuilder(distSpacing, events, rupIdens);
 		}
 	}
 	
