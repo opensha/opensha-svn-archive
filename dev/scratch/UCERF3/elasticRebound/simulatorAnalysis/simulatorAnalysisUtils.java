@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.eqsim_v04.OldGeneral_EQSIM_Tools;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
-import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
@@ -40,10 +40,11 @@ public class simulatorAnalysisUtils {
 
 				try {
 					System.out.println("Loading geometry...");
-					General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+					OldGeneral_EQSIM_Tools tools = new OldGeneral_EQSIM_Tools(geomFile);
 					System.out.println("Loading events...");
-					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
-					tools.setEvents(events);
+					tools.read_EQSIMv04_EventsFile(eventFile);
+//					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+//					tools.setEvents(events);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
 
 					// TEST METHODS:
@@ -149,10 +150,11 @@ public class simulatorAnalysisUtils {
 
 				try {
 					System.out.println("Loading geometry...");
-					General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
+					OldGeneral_EQSIM_Tools tools = new OldGeneral_EQSIM_Tools(geomFile);
 					System.out.println("Loading events...");
-					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
-					tools.setEvents(events);
+					tools.read_EQSIMv04_EventsFile(eventFile);
+//					List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+//					tools.setEvents(events);
 					tools.setDirNameForSavingFiles(dirNameForSavingFiles);
 					
 					ArrayList<String> infoStrings = new ArrayList<String>();
@@ -234,7 +236,7 @@ public class simulatorAnalysisUtils {
 	 * @param tools
 	 * @param savePlot
 	 */
-	public static void plotRI_DistsAtObsPaleoRateSites(General_EQSIM_Tools tools, boolean savePlot) {
+	public static void plotRI_DistsAtObsPaleoRateSites(OldGeneral_EQSIM_Tools tools, boolean savePlot) {
 		
 		try {
 
