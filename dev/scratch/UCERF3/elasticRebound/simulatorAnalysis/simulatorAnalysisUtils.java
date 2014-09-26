@@ -206,9 +206,9 @@ public class simulatorAnalysisUtils {
 //					plotRI_DistsAtObsPaleoRateSites(tools, true);
 					
 					// all the time & slip predictability tests (plus other things):
-//					System.out.println("Working on testTimePredictability(*)");
-//					String info = tools.testTimePredictability(magThresh, true, null, false);
-//					infoStrings.add(info);
+					System.out.println("Working on testTimePredictability(*)");
+					String info = tools.testTimePredictability(magThresh, true, null, false);
+					infoStrings.add(info);
 
 					try {
 						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");
