@@ -114,6 +114,7 @@ import com.google.common.primitives.Ints;
  * @author field
  *
  */
+@Deprecated
 public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
