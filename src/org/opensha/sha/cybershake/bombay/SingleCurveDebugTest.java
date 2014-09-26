@@ -14,6 +14,8 @@ import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
+import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
@@ -53,7 +55,7 @@ public class SingleCurveDebugTest {
 //		int runID = 215; // PTWN
 		int runID = 576; // s758
 		
-		CybershakeIM imType = new PeakAmplitudesFromDB(db).getIMForPeriod(3d, runID);
+		CybershakeIM imType = new PeakAmplitudesFromDB(db).getIMForPeriod(3d, IMType.SA, Component.GEOM_MEAN, runID);
 		
 		calc.setRupProbModifier(div365);
 		DiscretizedFunc origCurve = calc.computeHazardCurve(imlVals, runID, imType);

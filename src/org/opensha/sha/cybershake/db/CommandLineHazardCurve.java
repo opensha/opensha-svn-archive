@@ -44,7 +44,7 @@ import org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.util.SiteTranslator;
 
-
+@Deprecated
 public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	private static String HOSTNAME = "intensity.usc.edu";
 	private static String DB_NAME = "CyberShake";
@@ -79,29 +79,29 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		//		System.out.println("Calculating Attenuation curve.");
 		//		clhc.calcAttenuationCurve(siteName);
 		System.out.println("Calculating CS curve.");
-		clhc.calcCyberShakeCurve(siteName, sgtVariationID, rupVarID, velModelID);
+//		clhc.calcCyberShakeCurve(siteName, sgtVariationID, rupVarID, velModelID);
 		System.exit(0);
 	}
 
-	private void calcCyberShakeCurve(String siteName, int sgtVariationID, int rupVarID, int velModelID) {
-		HazardCurveComputation hazCurve = new HazardCurveComputation(db);
-		ArrayList<Double> imlVals = new ArrayList<Double>();
-		for(int i=0; i<function.getNum();++i)
-			imlVals.add(function.getX(i));
-		CybershakeIM im = new CybershakeIM(21, "spectral acceleration", 3.00003, "cm per sec squared");
-		DiscretizedFunc cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
-		System.out.println("Writing out CS file.");
-		try {
-			FileWriter fr = new FileWriter(siteName + "_cybershake.txt");
-			for(int i=0;i<cyberShakeHazardData.getNum();++i) {
-				fr.write(cyberShakeHazardData.getX(i)+" "+cyberShakeHazardData.getY(i)+"\n");
-			}
-			fr.flush();
-			fr.close();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	private void calcCyberShakeCurve(String siteName, int sgtVariationID, int rupVarID, int velModelID) {
+//		HazardCurveComputation hazCurve = new HazardCurveComputation(db);
+//		ArrayList<Double> imlVals = new ArrayList<Double>();
+//		for(int i=0; i<function.getNum();++i)
+//			imlVals.add(function.getX(i));
+//		CybershakeIM im = new CybershakeIM(21, "spectral acceleration", 3.00003, "cm per sec squared");
+//		DiscretizedFunc cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, velModelID, im);
+//		System.out.println("Writing out CS file.");
+//		try {
+//			FileWriter fr = new FileWriter(siteName + "_cybershake.txt");
+//			for(int i=0;i<cyberShakeHazardData.getNum();++i) {
+//				fr.write(cyberShakeHazardData.getX(i)+" "+cyberShakeHazardData.getY(i)+"\n");
+//			}
+//			fr.flush();
+//			fr.close();
+//		} catch(IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	private void calcAttenuationCurve(String siteName) {
 		HazardCurveCalculator hazCurveCalc;

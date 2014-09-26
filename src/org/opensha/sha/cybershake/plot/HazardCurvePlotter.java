@@ -89,6 +89,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeIM.Component;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeRuptureVariation;
 import org.opensha.sha.cybershake.db.CybershakeSGTVariation;
@@ -100,6 +101,7 @@ import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.gui.CyberShakeDBManagementApp;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
@@ -114,6 +116,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 
@@ -122,6 +125,8 @@ public class HazardCurvePlotter {
 	public static final PlotType PLOT_TYPE_DEFAULT = PlotType.PDF;
 	
 	protected static final String default_periods = "3";
+	private static final IMType defaultIMType = IMType.SA;
+	private static final Component defaultComponent = Component.GEOM_MEAN;
 	
 	private static final boolean use_cvm_vs30 = false;
 	
@@ -157,7 +162,7 @@ public class HazardCurvePlotter {
 	
 //	CybershakeERF selectedERF;
 	
-	protected static SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
+	protected static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	private double manualVs30  = -1;
 	
@@ -468,23 +473,11 @@ public class HazardCurvePlotter {
 			}
 		}
 		
-		String periodStrs;
-		if (cmd.hasOption("period"))
-			periodStrs = cmd.getOptionValue("period");
-		else
-			periodStrs = default_periods;
-		ArrayList<Double> periods = commaDoubleSplit(periodStrs);
+		ArrayList<CybershakeIM> ims = getIMsFromOptions(cmd, run, curve2db, amps2db);
+		ArrayList<Double> periods = Lists.newArrayList();
+		IMType imType;
+		Component component;
 		
-		System.out.println("Matching periods to IM types...");
-		ArrayList<CybershakeIM> ims = amps2db.getIMForPeriods(periods, runID, curve2db);
-		
-		if (ims == null) {
-			System.err.println("No IM's for site=" + run.getSiteID() + " run=" + runID);
-			for (double period : periods) {
-				System.err.println("period: " + period);
-			}
-			return false;
-		}
 		
 		if (cmd.hasOption("ef") && cmd.hasOption("af")) {
 			String erfFile = cmd.getOptionValue("ef");
@@ -572,10 +565,12 @@ public class HazardCurvePlotter {
 //		System.out.println("optStr");
 		
 		for (CybershakeIM im : ims) {
-			// reset the cs curve color index so coloring is consistent among different IM type plots of the same curves
+			// reset the cs curve color index so coloring is consistent
+			// among different IM type plots of the same curves
 			csColorIndex = 0;
 			if (im == null) {
-				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
+				System.out.println("No matching IM found for site: "+siteName
+						+". Check period(s), IM type, and Component");
 				return false;
 			}
 			periodNum++;
@@ -600,7 +595,10 @@ public class HazardCurvePlotter {
 			}
 			Date date = curve2db.getDateForCurve(curveID);
 			String dateStr = dateFormat.format(date);
-			String periodStr = "SA_" + getPeriodStr(im.getVal()) + "sec";
+			String imStr = im.getMeasure().getShortName();
+			if (im.getMeasure() == IMType.SA)
+				imStr += "_"+getPeriodStr(im.getVal())+"sec";
+			imStr += "_"+im.getComponent().getShortName();
 			String outFileName = siteName + "_ERF" + run.getERFID() + "_Run" + runID;
 			if (compCurveIDs != null) {
 				boolean first = true;
@@ -614,7 +612,7 @@ public class HazardCurvePlotter {
 					outFileName += runCompare.getRunID();
 				}
 			}
-			outFileName += "_" + periodStr + "_" + dateStr;
+			outFileName += "_"+imStr+"_"+dateStr;
 			String outFile = outDir + outFileName;
 			if (calcOnly)
 				continue;
@@ -650,6 +648,56 @@ public class HazardCurvePlotter {
 		}
 		
 		return atLeastOne;
+	}
+	
+	public static ArrayList<CybershakeIM> getIMsFromOptions(CommandLine cmd, CybershakeRun run,
+			HazardCurve2DB curve2db, PeakAmplitudesFromDB amps2db) {
+		ArrayList<CybershakeIM> ims;
+		if (cmd.hasOption("im-type-id")) {
+			// get IM from ID
+			Preconditions.checkState(!cmd.hasOption("period"),
+					"IM type ID cannot be specified alongside period");
+			Preconditions.checkState(!cmd.hasOption("im-type"),
+					"IM type ID cannot be specified alongside IM type");
+			Preconditions.checkState(!cmd.hasOption("component"),
+					"IM type ID cannot be specified alongside component");
+			
+			int imTypeID = Integer.parseInt(cmd.getOptionValue("im-type-id"));
+			CybershakeIM im = curve2db.getIMFromID(imTypeID);
+			Preconditions.checkNotNull(im, "Couldn't get IM for ID: "+imTypeID);
+			ims = Lists.newArrayList(im);
+		} else {
+			String periodStrs;
+			if (cmd.hasOption("period"))
+				periodStrs = cmd.getOptionValue("period");
+			else
+				periodStrs = default_periods;
+			ArrayList<Double> periods = commaDoubleSplit(periodStrs);
+			
+			IMType imType;
+			if (cmd.hasOption("im-type"))
+				imType = CybershakeIM.fromShortName(cmd.getOptionValue("im-type"), IMType.class);
+			else
+				imType = defaultIMType;
+			
+			Component component;
+			if (cmd.hasOption("component"))
+				component = CybershakeIM.fromShortName(cmd.getOptionValue("component"), Component.class);
+			else
+				component = defaultComponent;
+			
+			System.out.println("Matching periods to IM types...");
+			ims = amps2db.getIMForPeriods(periods, imType, component, run.getRunID(), curve2db);
+			
+			if (ims == null) {
+				System.err.println("No IM's for site="+run.getSiteID()+" run="+run.getRunID());
+				for (double period : periods) {
+					System.err.println("period: " + period);
+				}
+				return null;
+			}
+		}
+		return ims;
 	}
 	
 	private int getCurveID(CybershakeRun run, CybershakeIM im, CommandLine cmd) {
@@ -1448,10 +1496,27 @@ public class HazardCurvePlotter {
 		site.setRequired(false);
 		ops.addOption(site);
 		
-		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple periods should be comma separated " +
-				"(default: "+default_periods+")");
+		Option imType = new Option("imt", "im-type", true, "Intensity measure type. Options: "
+				+Joiner.on(",").join(CybershakeIM.getShortNames(IMType.class))
+				+", Default: "+defaultIMType.getShortName());
+		imType.setRequired(false);
+		ops.addOption(imType);
+		
+		Option component = new Option("cmp", "component", true, "Intensity measure component. Options: "
+				+Joiner.on(",").join(CybershakeIM.getShortNames(Component.class))
+				+", Default: "+defaultComponent.getShortName());
+		component.setRequired(false);
+		ops.addOption(component);
+		
+		Option period = new Option("p", "period", true, "Period(s) to calculate. Multiple "
+				+ "periods should be comma separated (default: "+default_periods+")");
 		period.setRequired(false);
 		ops.addOption(period);
+		
+		Option imTypeID = new Option("imid", "im-type-id", true, "Intensity measure type ID. If not supplied,"
+				+ " will be detected from im type/component/period parameters");
+		imTypeID.setRequired(false);
+		ops.addOption(imTypeID);
 		
 		Option help = new Option("?", "help", false, "Display this message");
 		ops.addOption(help);

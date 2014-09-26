@@ -90,13 +90,13 @@ public class DisaggregationPlotter {
 	
 	public DisaggregationPlotter(
 			int runID,
-			ArrayList<Double> periods,
+			ArrayList<CybershakeIM> ims,
 			ArrayList<Double> probLevels,
 			ArrayList<Double> imlLevels,
 			File outputDir,
 			ArrayList<PlotType> plotTypes) {
 		initDB();
-		init(runID, periods, probLevels, imlLevels, outputDir, plotTypes);
+		init(runID, ims, probLevels, imlLevels, outputDir, plotTypes);
 	}
 	
 	public DisaggregationPlotter(CommandLine cmd) {
@@ -119,7 +119,7 @@ public class DisaggregationPlotter {
 			periodSTR = cmd.getOptionValue("period");
 		else
 			periodSTR = HazardCurvePlotter.default_periods;
-		ArrayList<Double> periods = HazardCurvePlotter.commaDoubleSplit(periodSTR);
+		ArrayList<CybershakeIM> ims = HazardCurvePlotter.getIMsFromOptions(cmd, run, curve2db, amps2db);
 		ArrayList<Double> probLevels = null;
 		if (cmd.hasOption("probs"))
 			probLevels = HazardCurvePlotter.commaDoubleSplit(cmd.getOptionValue("probs"));
@@ -150,12 +150,12 @@ public class DisaggregationPlotter {
 			plotTypes.add(PlotType.PDF);
 		}
 		
-		init(runID, periods, probLevels, imlLevels, outputDir, plotTypes);
+		init(runID, ims, probLevels, imlLevels, outputDir, plotTypes);
 	}
 	
 	public void init(
 			int runID,
-			ArrayList<Double> periods,
+			ArrayList<CybershakeIM> ims,
 			ArrayList<Double> probLevels,
 			ArrayList<Double> imlLevels,
 			File outputDir,
@@ -164,8 +164,7 @@ public class DisaggregationPlotter {
 		this.run = runs2db.getRun(runID);
 		Preconditions.checkNotNull(run, "Error fetching runs from DB");
 		
-		// get the IM type IDs from the periods
-		this.ims = amps2db.getIMForPeriods(periods, runID, curve2db);
+		this.ims = ims;
 		Preconditions.checkNotNull(ims, "Error fetching IMs from DB");
 		Preconditions.checkState(!ims.isEmpty(), "must have at least 1 IM");
 		if (probLevels == null)

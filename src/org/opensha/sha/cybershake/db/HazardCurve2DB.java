@@ -697,7 +697,7 @@ public class HazardCurve2DB {
 	}
 	
 	public CybershakeIM getIMFromID(int imTypeID) {
-		String sql = "SELECT IM_Type_ID, IM_Type_Measure, IM_Type_Value, Units FROM IM_Types WHERE IM_Type_ID=" + imTypeID;
+		String sql = "SELECT * FROM IM_Types WHERE IM_Type_ID=" + imTypeID;
 
 //		System.out.println(sql);
 
@@ -714,11 +714,7 @@ public class HazardCurve2DB {
 			rs.first();
 			if (rs.isAfterLast())
 				return null;
-			int id = rs.getInt("IM_Type_ID");
-			String measure = rs.getString("IM_Type_Measure");
-			Double value = rs.getDouble("IM_Type_Value");
-			String units = rs.getString("Units");
-			CybershakeIM im = new CybershakeIM(id, measure, value, units);
+			CybershakeIM im = CybershakeIM.fromResultSet(rs);
 			
 			rs.close();
 
@@ -734,7 +730,8 @@ public class HazardCurve2DB {
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
 		long startTime = System.currentTimeMillis();
-		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component"
+				+ " from IM_Types I JOIN (";
 		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE Run_ID=" + runID;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID ORDER BY I.IM_Type_ID";
 		
@@ -752,11 +749,7 @@ public class HazardCurve2DB {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				int id = rs.getInt("IM_Type_ID");
-				String measure = rs.getString("IM_Type_Measure");
-				Double value = rs.getDouble("IM_Type_Value");
-				String units = rs.getString("Units");
-				CybershakeIM im = new CybershakeIM(id, measure, value, units);
+				CybershakeIM im = CybershakeIM.fromResultSet(rs);
 				ims.add(im);
 //				System.out.println(im);
 				rs.next();

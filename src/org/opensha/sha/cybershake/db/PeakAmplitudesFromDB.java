@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.util.ListUtils;
+import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 
 public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 
@@ -159,7 +161,8 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(){
-		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component"
+				+ " from IM_Types I JOIN (";
 		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
@@ -176,11 +179,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				int id = rs.getInt("IM_Type_ID");
-				String measure = rs.getString("IM_Type_Measure");
-				Double value = rs.getDouble("IM_Type_Value");
-				String units = rs.getString("Units");
-				ims.add(new CybershakeIM(id, measure, value, units));
+				ims.add(CybershakeIM.fromResultSet(rs));
 				rs.next();
 			}
 			rs.close();
@@ -220,7 +219,8 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
 		String whereClause = "Run_ID="+runID;
 		long startTime = System.currentTimeMillis();
-		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component"
+				+ " from IM_Types I JOIN (";
 		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE " + whereClause;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
@@ -238,11 +238,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				int id = rs.getInt("IM_Type_ID");
-				String measure = rs.getString("IM_Type_Measure");
-				Double value = rs.getDouble("IM_Type_Value");
-				String units = rs.getString("Units");
-				ims.add(new CybershakeIM(id, measure, value, units));
+				ims.add(CybershakeIM.fromResultSet(rs));
 				rs.next();
 			}
 			rs.close();
@@ -412,22 +408,25 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return vars;
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, int runID) {
-		return this.getIMForPeriod(period, runID, null);
+	public CybershakeIM getIMForPeriod(double period, IMType imType, Component component, int runID) {
+		return this.getIMForPeriod(period, imType, component, runID, null);
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, int runID, HazardCurve2DB curve2db) {
+	public CybershakeIM getIMForPeriod(double period, IMType imType, Component component,
+			int runID, HazardCurve2DB curve2db) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		periods.add(period);
 		
-		return getIMForPeriods(periods, runID, curve2db).get(0);
+		return getIMForPeriods(periods, imType, component, runID, curve2db).get(0);
 	}
 	
-	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int runID) {
-		return this.getIMForPeriods(periods, runID, null);
+	public ArrayList<CybershakeIM> getIMForPeriods(
+			List<Double> periods, IMType imType, Component component, int runID) {
+		return this.getIMForPeriods(periods, imType, component, runID, null);
 	}
 	
-	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int runID, HazardCurve2DB curve2db) {
+	public ArrayList<CybershakeIM> getIMForPeriods(
+			List<Double> periods, IMType imType, Component component, int runID, HazardCurve2DB curve2db) {
 		ArrayList<CybershakeIM> supported = this.getSupportedIMs(runID);
 		if (curve2db != null) {
 			supported.addAll(curve2db.getSupportedIMs(runID));
@@ -445,6 +444,10 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 			double dist = Double.POSITIVE_INFINITY;
 			
 			for (CybershakeIM im : supported) {
+				if (component != null && component != im.getComponent())
+					continue;
+				if (imType != null && imType != im.getMeasure())
+					continue;
 				double val = Math.abs(period - im.getVal());
 //				System.out.println("Comparing " + val + " to " + im.getVal());
 				if (val < dist && val <= maxDist) {
@@ -455,7 +458,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 			if (dist != Double.POSITIVE_INFINITY)
 				System.out.println("Matched " + period + " with " + closest.getVal());
 			else
-				System.out.println("NO MATCH FOR " + period + "!!!");
+				System.out.println("NO MATCH FOR period: "+period+", type: "+imType+", component: "+component+"!!!");
 			matched.add(closest);
 		}
 		
@@ -518,7 +521,8 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
-		ArrayList<CybershakeIM> ims = amps.getIMForPeriods(ListUtils.wrapInList(0.1d), 885, new HazardCurve2DB(db));
+		ArrayList<CybershakeIM> ims = amps.getIMForPeriods(ListUtils.wrapInList(0.1d),
+				IMType.SA, Component.GEOM_MEAN, 885, new HazardCurve2DB(db));
 		for (CybershakeIM im : ims)
 			System.out.println(im);
 		

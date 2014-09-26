@@ -686,7 +686,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		CyberShakeIMR imr = new CyberShakeIMR(null);
 		imr.checkInit();
 		try {
-			imr.getIMVals(28, 34, 5, 3, 1, 1, 0, new CybershakeIM(21, "safddsa", 3, ""));
+			imr.getIMVals(28, 34, 5, 3, 1, 1, 0, new CybershakeIM(21, null, 3, "", null));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
