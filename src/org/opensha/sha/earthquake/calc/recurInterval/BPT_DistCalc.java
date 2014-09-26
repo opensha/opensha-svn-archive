@@ -254,8 +254,9 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		
 		// if first and last are same, don't need to weight average any
 		double diffFromFirst = Math.abs((condProbAtSafeTime-getCondProb(histOpenInterval,duration))/condProbAtSafeTime);
-		if(diffFromFirst < 1e-4) 
+		if(diffFromFirst < 1e-4)  {
 			return condProbAtSafeTime;
+		}
 		
 		// this is the faster calculation:
 		if(integratedCDF==null) 
@@ -267,7 +268,9 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double denom = (integratedOneMinusCDF.getY(numPoints-1)-integratedOneMinusCDF.getInterpolatedY(histOpenInterval));
 		double result = numer/denom;
 		
-		if(result>1) result=1;
+		if(result>1) {
+			result=1;
+		}
 		
 		// test stuff
 //		double logNormDur = Math.log10(duration/mean);
@@ -276,6 +279,8 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		
 		// avoid numerical artifacts found when the following are not satisfied
 		if(numer > 1e-10 && denom > 1e-10) {
+//System.out.println(histOpenIntParam.getValue()+"\t"+result+"\t"+integratedCDF.getInterpolatedY(lastTime)+"\t"+integratedCDF.getInterpolatedY(histOpenInterval)+"\tnumer > 1e-10 && denom > 1e-10");
+//System.out.println("lastTime="+lastTime+"\thistOpenInterval="+histOpenInterval+"\n"+integratedCDF.toString());
 			return result;
 		}
 		else {
@@ -295,8 +300,10 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			}
 			result /= normDenom;	// normalize properly
 			
-			if(result>1) result=1;	// avoid slightly greater than zero problems
-			
+			if(result>1) {
+				result=1;	// avoid slightly greater than zero problems
+			}
+
 			return result;
 		}
 		

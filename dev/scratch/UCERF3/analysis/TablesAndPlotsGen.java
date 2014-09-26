@@ -38,6 +38,11 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
+import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
+import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
@@ -62,6 +67,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSetFactory;
@@ -846,9 +852,16 @@ public class TablesAndPlotsGen {
 		int numPoints = (int)Math.round(5*mean/deltaX);
 		double histOpenInterval=0;
 //		double aperiodicity = 0.3;
-		double[] aperArray = {0.2,0.3,0.7};
+		double[] aperArray = {0.2,0.7};
+		PlotLineType[] lineType = {PlotLineType.DASHED, PlotLineType.SOLID};
+
 		
+		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+
+		int index = -1;
 		for(double aperiodicity:aperArray) {
+			index += 1;
 			EvenlyDiscretizedFunc logX_func = new EvenlyDiscretizedFunc(Math.log10(0.01), Math.log10(4), 100);	// x-axis is log10(duration/mean)
 			ArbitrarilyDiscretizedFunc bpt_func = new ArbitrarilyDiscretizedFunc();
 			bpt_func.setName("bpt_func");
@@ -873,38 +886,100 @@ public class TablesAndPlotsGen {
 				bpt_poisNge1_ratio_func.set(durOverMean,bptProb/poisNge1_prob);
 			}
 			
+			double maxRatio = bpt_poisNge1_ratio_func.getMaxY();
 			bpt_func.setInfo(bptCalc.getAdjParams().toString()+
 					"\nbptProb/poisNge1_prob = 1.1 at durOverMean = "+(float)bpt_poisNge1_ratio_func.getFirstInterpolatedX(1.1)+
-					"\nbptProb/poisNge1_prob for durOverMean of 1.2 (30yr Parkfiled forecast) = "+bpt_poisNge1_ratio_func.getInterpolatedY(1.2));
+					"\nbptProb/poisNge1_prob for durOverMean of 1.2 (30yr Parkfiled forecast) = "+bpt_poisNge1_ratio_func.getInterpolatedY(1.2)+
+					"\nbptProb/poisNge1_prob has maximum of "+maxRatio+" durOverMean="+(float)bpt_poisNge1_ratio_func.getFirstInterpolatedX(maxRatio));
 
-			
-			ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
+			if(index == 1)	{// only do this once
+				funcList.add(poisNge1_func);
+				plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.GRAY));
+			}
+		
 			funcList.add(bpt_func);
-			funcList.add(poisNge1_func);
-//			funcList.add(poisN1_func);
-			
-			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.BLACK));
-			plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, null, 0, Color.GRAY));
-			GraphWindow graph = new GraphWindow(funcList, "",plotChars);
-			graph.setX_AxisRange(0, 4);
-			graph.setY_AxisRange(0,1.01);
-			graph.setX_AxisLabel("Duration/Mean");
-			graph.setY_AxisLabel("Probability");
-			graph.setTickLabelFontSize(24);
-			graph.setAxisLabelFontSize(28);
-			graph.setPlotLabelFontSize(18);
-			
-			String fileName = "RenewalModelNoDateOfLastPlot_aper0pt"+(int)Math.round(aperiodicity*10)+".pdf";
-			try {
-				graph.saveAsPDF(fileName);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				
-			}		
+			plotChars.add(new PlotCurveCharacterstics(lineType[index], 3, null, 0, Color.BLACK));
 		}
+		
+		GraphWindow graph = new GraphWindow(funcList, "",plotChars);
+		graph.setX_AxisRange(0, 4);
+		graph.setY_AxisRange(0,1.01);
+		graph.setX_AxisLabel("Duration/Mean");
+		graph.setY_AxisLabel("Probability");
+		graph.setTickLabelFontSize(24);
+		graph.setAxisLabelFontSize(28);
+		graph.setPlotLabelFontSize(18);
+
+		String fileName = "RenewalModelNoDateOfLastPlot.pdf";
+		try {
+			graph.saveAsPDF(fileName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
+	
+	
+	
+	public static void makeRenewalModelPDF_CDF_EtcPlot() {
+		BPT_DistCalc bptCalc = new BPT_DistCalc();
+		double mean = 1;
+		double deltaX = 0.01;
+		int numPoints = (int)Math.round(4*mean/deltaX);
+		double[] aperArray = {0.2,0.7};
+//		Color[] color = {Color.BLACK, Color.GRAY};
+		PlotLineType[] lineType = {PlotLineType.DASHED, PlotLineType.SOLID};
+//		double[] aperArray = {0.3,0.5,0.7};
+//		Color[] color = {Color.BLACK, Color.DARK_GRAY, Color.GRAY};
+		ArrayList<DiscretizedFunc> funcList1 = new ArrayList<DiscretizedFunc>();
+		ArrayList<PlotCurveCharacterstics> plotChars1 = new ArrayList<PlotCurveCharacterstics>();
+		ArrayList<DiscretizedFunc> funcList2 = new ArrayList<DiscretizedFunc>();
+		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
+		int index = -1;
+		for(double aperiodicity:aperArray) {
+			index+=1;
+			bptCalc.setAllParameters(mean, aperiodicity, deltaX, numPoints, 0.3, 0.0);
+			funcList1.add(bptCalc.getPDF());
+			funcList1.get(funcList1.size()-1).setName("PDF; aper=+aperiodicity");
+			plotChars1.add(new PlotCurveCharacterstics(lineType[index], 3, null, 0, Color.BLACK));
+			funcList2.add(bptCalc.getCDF());
+			funcList2.get(funcList2.size()-1).setName("CDF; aper=+aperiodicity");
+			plotChars2.add(new PlotCurveCharacterstics(lineType[index], 3, null, 0, Color.BLACK));
+			funcList2.add(bptCalc.getTimeSinceLastEventPDF());
+			funcList2.get(funcList2.size()-1).setName("Prob date of last; aper=+aperiodicity");
+			plotChars2.add(new PlotCurveCharacterstics(lineType[index], 3, null, 0, Color.GRAY));
+		}
+			
+		GraphWindow graph1 = new GraphWindow(funcList1, "",plotChars1);
+		graph1.setX_AxisRange(0, 4);
+		graph1.setY_AxisRange(0,2.1);
+		graph1.setX_AxisLabel("Time Since Last Event (years)");
+		graph1.setY_AxisLabel("Probability");
+		graph1.setTickLabelFontSize(24);
+		graph1.setAxisLabelFontSize(28);
+		graph1.setPlotLabelFontSize(18);
+		String fileName1 = "RenewalModelPDF.pdf";
+		
+		GraphWindow graph2 = new GraphWindow(funcList2, "",plotChars2);
+		graph2.setX_AxisRange(0, 4);
+		graph2.setY_AxisRange(0,1.05);
+		graph2.setX_AxisLabel("Time Since Last Event (years)");
+		graph2.setY_AxisLabel("Probability");
+		graph2.setTickLabelFontSize(24);
+		graph2.setAxisLabelFontSize(28);
+		graph2.setPlotLabelFontSize(18);
+		String fileName2 = "RenewalModelCDF_EtcPlot.pdf";
+
+		try {
+			graph1.saveAsPDF(fileName1);
+			graph2.saveAsPDF(fileName2);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}		
+	}
+
 	
 	
 	
@@ -912,15 +987,19 @@ public class TablesAndPlotsGen {
 		BPT_DistCalc bptCalc = new BPT_DistCalc();
 		
 		double mean = 100;
-		double[] durationOverMeanArray = {0.001, 0.01, 0.1, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+//		double[] durationOverMeanArray = {0.001, 0.01, 0.1, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+		double[] durationOverMeanArray = {0.001, 0.1, 0.3, 0.5, 0.7, 1.0};
 		double deltaX = 0.01;
 		int numPoints = (int)Math.round(5*mean/deltaX);
 //		double[] aperArray = {0.3};
 		double[] aperArray = {0.2,0.3,0.7};
+		double[] yAxisMaxForPlot = {10.0,5.5,1.5};
+		double[] yAxisMinForPlot = {0.0,0.5,0.95};
 		
 
-		
+		int aperIndex = -1;
 		for(double aperiodicity:aperArray) {
+			aperIndex += 1;
 			System.out.println("aperiodicity = "+aperiodicity);
 
 			ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
@@ -959,7 +1038,7 @@ public class TablesAndPlotsGen {
 //			GraphWindow graph = new GraphWindow(funcList, "",plotChars);
 			GraphWindow graph = new GraphWindow(funcList, "");
 			graph.setX_AxisRange(0, 2);
-//			graph.setY_AxisRange(0,1.01);
+			graph.setY_AxisRange(yAxisMinForPlot[aperIndex],yAxisMaxForPlot[aperIndex]);
 			graph.setX_AxisLabel("HistOpenInverval/Mean");
 			graph.setY_AxisLabel("Probability Ratio");
 			graph.setTickLabelFontSize(24);
@@ -979,20 +1058,30 @@ public class TablesAndPlotsGen {
 	
 	
 	
-	public static void plotCumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals() {
-		File dir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		File solFile = new File(dir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-		FaultSystemSolution fss=null;
+	public static void plotCumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals(boolean wtBySectoRate) {
+		
+		// average solution for FM 3.1
+		String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+		File file = new File(f);
+
+		System.out.println("Instantiating ERF...");
+		FaultSystemSolutionERF erf=null;
 		try {
-			fss = FaultSystemIO.loadSol(solFile);
+			erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
+		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		erf.updateForecast();
+
 
 		File pdfFileName = new File("CumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals");
-		FaultSystemSolutionCalc.plotCumulativeDistOfSubsectionRecurrenceIntervals(fss,pdfFileName);
+		FaultSysSolutionERF_Calc.plotCumulativeDistOfSubsectionRecurrenceIntervals(erf, wtBySectoRate, pdfFileName);
 
 	}
 	
@@ -1035,19 +1124,20 @@ public class TablesAndPlotsGen {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 		
-//		plotCumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals();
-//		makeRenewalModelHistoricOpenIntervalPlots();
+//		plotCumulativeDistOfAveU3pt3_FM3pt1_SubsectionRecurrenceIntervals(false);
+		makeRenewalModelHistoricOpenIntervalPlots();
+//		makeRenewalModelPDF_CDF_EtcPlot();
 //		makeRenewalModelNoDateOfLastPlots();
 		
-		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-		
-		File baSolFile = new File(invDir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-		writeSubSectRITable(FaultSystemIO.loadSol(baSolFile), new File("/tmp/sub_sect_ri.csv"));
-		System.exit(0);
-		
-		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
-				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
-		System.exit(0);
+//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		
+//		File baSolFile = new File(invDir, "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
+//		writeSubSectRITable(FaultSystemIO.loadSol(baSolFile), new File("/tmp/sub_sect_ri.csv"));
+//		System.exit(0);
+//		
+//		makeSlipMisfitHistograms(new File("/tmp/u3_slip_plots.xml"),
+//				new File("/tmp/u2_slip_plots.xml"), new File("/tmp"));
+//		System.exit(0);
 		
 //		makePreInversionMFDsFig();
 //		makeDefModSlipRateMaps();
@@ -1056,11 +1146,11 @@ public class TablesAndPlotsGen {
 //		buildAveSlipDataTable(new File("ave_slip_table.csv"));
 //		System.exit(0);
 		
-		File compoundFile = new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
-		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-		makeCompoundFSSMomentRatesTable(cfss,
-				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
+//		File compoundFile = new File(invDir,
+//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+//		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//		makeCompoundFSSMomentRatesTable(cfss,
+//				new File(invDir, compoundFile.getName().replaceAll(".zip", "_mo_rates.csv")));
 //		
 //		buildRupLengthComparisonPlot(cfss, invDir, compoundFile.getName().replaceAll(".zip", ""));
 		

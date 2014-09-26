@@ -422,7 +422,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 			timeSinceLastPDF.set(i,probOfTimeSince);
 			normDenom+=probOfTimeSince; 
 		}
-		timeSinceLastPDF.scale(deltaX/normDenom);
+		timeSinceLastPDF.scale(1.0/(deltaX*normDenom));
 		timeSinceLastPDF.setName("Time Since Last Event PDF");
 		timeSinceLastPDF.setInfo("The PDF of date of last event when only the historic open interval ("+
 				histOpenInterval+") is known\nmean = "+(float)computeMeanFromPDF(timeSinceLastPDF));
@@ -571,7 +571,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		else if(paramName.equalsIgnoreCase(DURATION_PARAM_NAME)) this.duration = ((Double) durationParam.getValue()).doubleValue();
 		else if(paramName.equalsIgnoreCase(DELTA_X_PARAM_NAME)) this.deltaX = ((Double) deltaX_Param.getValue()).doubleValue();
 		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) numPointsParam.getValue()).intValue();
-		else if(paramName.equalsIgnoreCase(HIST_OPEN_INTERVAL_PARAM_NAME)) this.histOpenInterval = ((Double) histOpenIntParam.getValue()).intValue();
+		else if(paramName.equalsIgnoreCase(HIST_OPEN_INTERVAL_PARAM_NAME)) this.histOpenInterval = ((Double) histOpenIntParam.getValue()).doubleValue();
 		this.upToDate = false;
 	}
 

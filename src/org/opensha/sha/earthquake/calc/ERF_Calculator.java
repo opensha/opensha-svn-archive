@@ -151,6 +151,21 @@ public class ERF_Calculator {
 	}
 
 
+	/**
+	 * This returns the total equivalent annual moment rate for the source
+	 * @param src
+	 * @param duration
+	 * @return
+	 */
+	public static double getTotalMomentRateForSource(ProbEqkSource src, double duration) {
+		double totMoRate = 0;
+		for(int r=0;r<src.getNumRuptures();r++) {
+			ProbEqkRupture rup = src.getRupture(r);
+			totMoRate += MagUtils.magToMoment(rup.getMag())*rup.getMeanAnnualRate(duration);
+		}
+		return totMoRate;
+	}
+
 
 	/**
 	 * This computes the total nucleation magnitude frequency distribution (equivalent poisson rates) for the
@@ -315,6 +330,7 @@ public class ERF_Calculator {
 	public static double getTotalMomentRateInRegion(ERF erf, Region region) {
 		double duration = erf.getTimeSpan().getDuration();
 		double totMoRate=0;
+		double totMoRateOutside=0;
 		for (int s = 0; s < erf.getNumSources(); ++s) {
 			ProbEqkSource source = erf.getSource(s);
 			for (int r = 0; r < source.getNumRuptures(); ++r) {
@@ -323,12 +339,14 @@ public class ERF_Calculator {
 				if(region != null) {
 					double fractionInside = RegionUtils.getFractionInside(region, rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface());
 					totMoRate += fractionInside*rupMoment*rupture.getMeanAnnualRate(duration);
+					totMoRateOutside += (1.0-fractionInside)*rupMoment*rupture.getMeanAnnualRate(duration);
 				}
 				else {
 					totMoRate += rupMoment*rupture.getMeanAnnualRate(duration);
 				}
 			}
 		}
+		if(region != null) System.out.println("totMoRateOutside="+totMoRateOutside);
 		return totMoRate;
 	}
 

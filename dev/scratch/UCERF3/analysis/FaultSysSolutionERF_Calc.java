@@ -41,6 +41,7 @@ import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.NamedComparator;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -274,39 +275,118 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	
-	
-	
-	
-	public static void makeAveMoRateMapForU3pt3_and_FM3pt1() {
+	/**
+	 * This makes a nucleation rate map for the UCERF3.3 time-independent model, where section rates are properly 
+	 * mapped onto polygon grid nodes.  The mean fault-system solution for each fault model is used (not a true 
+	 * branch average).  Background seismicity is treated as point sources.
+	 * 
+	 * @param includeAftershocks
+	 */
+	public static void makeAveMoRateMapForU3pt3(boolean includeAftershocks) {
 
 		try {
 			
+			String fileName = "UCERF3_MEAN_BRANCH_AVG_SOL";
+			String scaleLabel = "Moment Rate (Nm/yr)";
+			String metadata ="includeAftershocks="+includeAftershocks+"; \n";
+			String dirName = fileName+"_MoRate";
+			System.out.println(dirName);
+
+
 			// average solution for FM 3.1
-			String f ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
-			File file = new File(f);
+			String f1 ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
+			File file1 = new File(f1);
+			System.out.println("Instantiating ERF1...");
+			FaultSystemSolutionERF erf1 = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file1));
+			erf1.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(!includeAftershocks);
+			erf1.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+			erf1.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.POINT);	
+			erf1.updateForecast();
+			System.out.println(erf1.getAdjustableParameterList().toString());
+			
+//			takes a long time:
+//			System.out.println("testing MoRate for erf1:");
+//			double test1 = ERF_Calculator.getTotalMomentRateInRegion(erf1, GMT_CA_Maps.defaultGridRegion);
+//			System.out.println("test1="+test1);
+			
+			// get the fault system solution and the polygon manager
+			InversionFaultSystemSolution fss1 = (InversionFaultSystemSolution) erf1.getSolution();
+			FaultPolyMgr fltPolyMgr1 = fss1.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+			
+			// compute moment rates for supra-seis rups mapped onto grid nodes inside polygons
+			System.out.println("calculation section moment rates...");
+			double[] sectMoRates1 = calcMomentRateForAllFaultSections(erf1);
+			GriddedGeoDataSet supraSeisMoRates_xyzData1 = new GriddedGeoDataSet(GMT_CA_Maps.defaultGridRegion, true);	// true makes X latitude
+			for(int s=0; s<sectMoRates1.length;s++) {
+				Map<Integer, Double> nodesForSectMap = fltPolyMgr1.getNodeFractions(s);
+				Set<Integer> nodeIndicesList = nodesForSectMap.keySet();
+				for(int index:nodeIndicesList) {
+					double oldRate = supraSeisMoRates_xyzData1.get(index);
+					supraSeisMoRates_xyzData1.set(index, oldRate+nodesForSectMap.get(index)*sectMoRates1[s]);
+				}
+			}
 
-			System.out.println("Instantiating ERF...");
-			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file));
-//			erf.getParameter(AleatoryMagAreaStdDevParam.NAME).setValue(0);
-			erf.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(false);
-			erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
-			erf.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.POINT);
-			erf.updateForecast();
-			String fileName = "COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL";
-			
-			String scaleLabel = "Moment Rate";
-			String metadata =" ";
-			
-			GriddedGeoDataSet data = ERF_Calculator.getMomentRatesInRegion(erf, RELM_RegionUtils.getGriddedRegionInstance());
+			System.out.println("ERF_Calculator.getNucleationRatesInRegion...");
+			erf1.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);	// don't include fault based sources here; they will be computed separately
+			erf1.updateForecast();
+			GriddedGeoDataSet geoDataSetForGridSeis1 = ERF_Calculator.getMomentRatesInRegion(erf1, GMT_CA_Maps.defaultGridRegion);
 
-			System.out.println("Making GMT Map...; minZ="+data.getMinZ()+"\tmaxZ="+data.getMaxZ());
+
+			// average solution for FM 3.1
+			String f2 ="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip";
+			File file2 = new File(f2);
+			System.out.println("Instantiating ERF2...");
+			FaultSystemSolutionERF erf2 = new FaultSystemSolutionERF(FaultSystemIO.loadSol(file2));
+			erf2.getParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME).setValue(!includeAftershocks);
+			erf2.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
+			erf2.getParameter(BackgroundRupParam.NAME).setValue(BackgroundRupType.POINT);	
+			erf2.updateForecast();
+			System.out.println(erf2.getAdjustableParameterList().toString());
 			
-//			for(int i=0; i< data.size(); i++) {
-//				Location loc = data.getLocation(i);
-//				System.out.println(i+"\t"+data.get(i)+"\t"+loc.getLongitude()+"\t"+loc.getLatitude());
-//			}
+//			takes a long time:
+//			System.out.println("testing MoRate for erf2:");
+//			double test2 = ERF_Calculator.getTotalMomentRateInRegion(erf2, GMT_CA_Maps.defaultGridRegion);
+//			System.out.println("test2="+test2);
 			
-			GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();	
+			// get the fault system solution and the polygon manager
+			InversionFaultSystemSolution fss2 = (InversionFaultSystemSolution) erf2.getSolution();
+			FaultPolyMgr fltPolyMgr2 = fss2.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();
+			
+			// compute moment rates for supra-seis rups mapped onto grid nodes inside polygons
+			System.out.println("calculation section moment rates 2...");
+			double[] sectMoRates2 = calcMomentRateForAllFaultSections(erf2);
+			GriddedGeoDataSet supraSeisMoRates_xyzData2 = new GriddedGeoDataSet(GMT_CA_Maps.defaultGridRegion, true);	// true makes X latitude
+			for(int s=0; s<sectMoRates2.length;s++) {
+				Map<Integer, Double> nodesForSectMap = fltPolyMgr2.getNodeFractions(s);
+				Set<Integer> nodeIndicesList = nodesForSectMap.keySet();
+				for(int index:nodeIndicesList) {
+					double oldRate = supraSeisMoRates_xyzData2.get(index);
+					supraSeisMoRates_xyzData2.set(index, oldRate+nodesForSectMap.get(index)*sectMoRates2[s]);
+				}
+			}
+
+			System.out.println("ERF_Calculator.getNucleationRatesInRegion 2...");
+			erf2.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.ONLY);	// don't include fault based sources here; they will be computed separately
+			erf2.updateForecast();
+			GriddedGeoDataSet geoDataSetForGridSeis2 = ERF_Calculator.getMomentRatesInRegion(erf2, GMT_CA_Maps.defaultGridRegion);
+
+
+			GriddedGeoDataSet sumGeoDataSet = new GriddedGeoDataSet(GMT_CA_Maps.defaultGridRegion, true);	// true makes X latitude
+			
+			// average over the two fault models
+			double totalRate=0;
+			for(int i=0;i<sumGeoDataSet.size();i++) {
+				double ave = 0.5*(geoDataSetForGridSeis1.get(i)+geoDataSetForGridSeis2.get(i)+supraSeisMoRates_xyzData1.get(i)+supraSeisMoRates_xyzData2.get(i));
+				totalRate += ave;
+				sumGeoDataSet.set(i, ave);
+			}
+			
+			System.out.println("Total Moment Rate In Region : "+totalRate +" Nm/yr");
+			metadata += "Total Moment Rate In Region : "+totalRate +" Nm/yr";
+
+			GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+
+			System.out.println("Making GMT Map...");
 			//override default scale
 			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 13.);
 			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 17.);
@@ -316,14 +396,16 @@ public class FaultSysSolutionERF_Calc {
 			gmt_MapGenerator.setParameter(GMT_MapGenerator.BLACK_BACKGROUND_PARAM_NAME, false);
 			gmt_MapGenerator.setParameter(GMT_MapGenerator.KML_PARAM_NAME, true);
 
+
 			// must set this parameter this way because the setValue(CPT) method takes a CPT object, and it must be the
 			// exact same object as in the constraint (same instance); the setValue(String) method was added for convenience
 			// but it won't succeed for the isAllowed(value) call.
 			CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
 			cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
 
-			GMT_CA_Maps.makeMap(data, scaleLabel, metadata, "AveMoRateMap_U3pt3_FM3pt1", gmt_MapGenerator);
+			GMT_CA_Maps.makeMap(sumGeoDataSet, scaleLabel, metadata, dirName, gmt_MapGenerator);
 
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -333,6 +415,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 
+	
 	
 	
 	
@@ -596,7 +679,31 @@ public class FaultSysSolutionERF_Calc {
 		}
 		return sectNuclRates;
 	}
+
 	
+	
+	/**
+	 * This computes fault section moment rates assuming a uniform distribution
+	 * of nucleations over the rupture surface.
+	 * @param erf
+	 * @return
+	 */
+	public static double[] calcMomentRateForAllFaultSections(FaultSystemSolutionERF erf) {
+		InversionFaultSystemRupSet rupSet = ((InversionFaultSystemSolution)erf.getSolution()).getRupSet();
+		double[] sectMoRates = new double[rupSet.getNumSections()];
+		
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			double srcMoRate = ERF_Calculator.getTotalMomentRateForSource(erf.getSource(s), erf.getTimeSpan().getDuration());
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			double rupArea = rupSet.getAreaForRup(fssRupIndex);
+			for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex)) {
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				sectMoRates[sectIndex] += srcMoRate*sectArea/rupArea;
+			}
+		}
+		return sectMoRates;
+	}
+
 	
 	/**
 	 * This makes the iconic figure of U3 Time Dependence, gridded participation probability maps, where section probabilities
@@ -4665,7 +4772,75 @@ public class FaultSysSolutionERF_Calc {
 	}
 
 	
-	
+	public static void plotCumulativeDistOfSubsectionRecurrenceIntervals(FaultSystemSolutionERF erf, boolean wtByMomentRate, File outputPDF_FileName) {
+		
+		ArbDiscrEmpiricalDistFunc dist = new ArbDiscrEmpiricalDistFunc();
+		double[] sectPartRates = erf.getSolution().calcParticRateForAllSects(6, 10);
+		double[] sectMoRates=null;
+		if(wtByMomentRate)
+			sectMoRates = calcMomentRateForAllFaultSections(erf);
+		
+		for(int i=0; i<sectPartRates.length; i++){
+			if(wtByMomentRate)
+				dist.set(1.0/sectPartRates[i], sectMoRates[i]);
+			else
+				dist.set(1.0/sectPartRates[i], 1.0);
+		}
+		
+		ArbitrarilyDiscretizedFunc cumDist = dist.getNormalizedCumDist();
+		cumDist.setName("Cumulative Distribution of Section Recurrence Intervals");
+		cumDist.setInfo("Num Sections = "+erf.getSolution().getRupSet().getNumSections()+
+				"\nFraction at RI=1600 years = "+cumDist.getInterpolatedY(1600)+
+				"\nFraction at RI=250 years = "+cumDist.getInterpolatedY(250)+
+				"\nFraction at RI=70 years = "+cumDist.getInterpolatedY(70));
+		
+		DefaultXY_DataSet RI1600_func = new DefaultXY_DataSet();
+		RI1600_func.set(1600d,0d);
+		RI1600_func.set(1600d,1d);
+		
+		DefaultXY_DataSet RI250_func = new DefaultXY_DataSet();
+		RI250_func.set(250d,0d);
+		RI250_func.set(250d,1d);
+
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(cumDist);
+		funcList.add(RI1600_func);
+		funcList.add(RI250_func);
+
+		GraphWindow graph = new GraphWindow(funcList, "", plotChars);
+		graph.setX_AxisRange(10, 100000);
+		graph.setY_AxisRange(0, 1);
+		graph.setY_AxisLabel("Fraction of Fault Sections");
+		graph.setX_AxisLabel("Recurrence Interval (years)");
+
+		graph.setTickLabelFontSize(24);
+		graph.setAxisLabelFontSize(28);
+		graph.setPlotLabelFontSize(18);
+		graph.setXLog(true);
+		
+		if (outputPDF_FileName != null) {
+			// stip out an extention if present
+			File dir = outputPDF_FileName.getParentFile();
+			String name = outputPDF_FileName.getName();
+			if (name.endsWith(".pdf"))
+				name = name.substring(0, name.indexOf(".pdf"));
+			try {
+				graph.saveAsPDF(new File(dir, name+".pdf").getAbsolutePath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+
 	
 	
 	/**
@@ -4674,9 +4849,9 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
+//		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
 		
-//		makeAveMoRateMapForU3pt3_and_FM3pt1();
+		makeAveMoRateMapForU3pt3(true);
 		
 //		makeIconicFigureForU3TimeDependence();
 //		System.exit(0);
