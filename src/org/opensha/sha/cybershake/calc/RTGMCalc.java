@@ -289,6 +289,10 @@ public class RTGMCalc {
 		attenRelFiles.setRequired(false);
 		ops.addOption(attenRelFiles);
 		
+		Option help = new Option("?", "help", false, "Display this message");
+		help.setRequired(false);
+		ops.addOption(help);
+		
 		return ops;
 	}
 	
