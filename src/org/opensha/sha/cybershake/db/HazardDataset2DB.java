@@ -128,6 +128,12 @@ public class HazardDataset2DB {
 		return getDatasetID(erfID, rvScenID, sgtVarID, velModelID, probModelID, timeSpanID, timeSpanStart, maxFreq, lowCutoffFreq);
 	}
 	
+	public int getProbModelID(int datasetID) {
+		String sql = "SELECT Prob_Model_ID FROM Hazard_Datasets WHERE Hazard_Dataset_ID="+datasetID;
+		
+		return DB_Utils.getSingleInt(db, sql);
+	}
+	
 	public static void main(String[] args) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		Runs2DB r2db = new Runs2DB(db);

@@ -111,6 +111,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -155,8 +156,6 @@ public class HazardCurvePlotter {
 	private Runs2DB runs2db = null;
 	
 	private CybershakeSite csSite = null;
-	
-	private SiteTranslator siteTranslator = new SiteTranslator();
 	
 	private HazardCurveCalculator calc;
 	
@@ -246,31 +245,93 @@ public class HazardCurvePlotter {
 	
 	private OrderedSiteDataProviderList getProviders(int velModelID) {
 		if (dataProviders == null) {
-			ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
-			
-			if (velModelID == 6) {
-				// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
-				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
-						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
-				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
-						SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
-				providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
-						SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
-			} else if (velModelID == 8) {
-				providers.addAll(getBBP_1D_Providers());
-			} else if (velModelID == 5 && use_cvm_vs30) {
+			dataProviders = createProviders(velModelID);
+		}
+
+		return dataProviders;
+	}
+	
+	public static OrderedSiteDataProviderList createProviders(int velModelID) {
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
+
+		if (velModelID == 6) {
+			// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
+			providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
+					SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
+			providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
+					SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
+			providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
+					SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
+		} else if (velModelID == 8) {
+			providers.addAll(getBBP_1D_Providers());
+		} else if (velModelID == 5 && use_cvm_vs30) {
+			try {
+				providers.add(new CachedSiteDataWrapper<Double>(new CVM_Vs30(CVM.CVMS4i26)));
+			} catch (IOException e1) {
+				ExceptionUtils.throwAsRuntimeException(e1);
+			}
+			/*		CVM4i26 Depth to 2.5					 */
+			try {
+				providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+
+			/*		CVM4i26 Depth to 1.0					 */
+			try {
+				providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		} else {
+			/*		Wills 2006 Map (2000 as backup)	 */
+			// try the 2006 map first
+			try {
+				providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+			if (velModelID == 1) {
+				/*		CVM4 Depth to 2.5					 */
 				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new CVM_Vs30(CVM.CVMS4i26)));
-				} catch (IOException e1) {
-					ExceptionUtils.throwAsRuntimeException(e1);
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
+
+				/*		CVM4 Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			} else if (velModelID == 2 || velModelID == 4 || velModelID == 7) {
+				/*		CVMH Depth to 2.5					 */
+				boolean includeGTL = velModelID != 7;
+				try {
+					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+
+				/*		CVMH Depth to 1.0					 */
+				try {
+					CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+					cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
+					providers.add(new CachedSiteDataWrapper<Double>(cvmh));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			} else if (velModelID == 5) {
 				/*		CVM4i26 Depth to 2.5					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
-				
+
 				/*		CVM4i26 Depth to 1.0					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
@@ -278,69 +339,11 @@ public class HazardCurvePlotter {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
 			} else {
-				/*		Wills 2006 Map (2000 as backup)	 */
-				// try the 2006 map first
-				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-				if (velModelID == 1) {
-					/*		CVM4 Depth to 2.5					 */
-					try {
-						providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-					
-					/*		CVM4 Depth to 1.0					 */
-					try {
-						providers.add(new CachedSiteDataWrapper<Double>(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-				} else if (velModelID == 2 || velModelID == 4 || velModelID == 7) {
-					/*		CVMH Depth to 2.5					 */
-					boolean includeGTL = velModelID != 7;
-					try {
-						CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
-						cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
-						providers.add(new CachedSiteDataWrapper<Double>(cvmh));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-					
-					/*		CVMH Depth to 1.0					 */
-					try {
-						CVMHBasinDepth cvmh = new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
-						cvmh.getAdjustableParameterList().setValue(CVMHBasinDepth.GTL_PARAM_NAME, includeGTL);
-						providers.add(new CachedSiteDataWrapper<Double>(cvmh));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-				} else if (velModelID == 5) {
-					/*		CVM4i26 Depth to 2.5					 */
-					try {
-						providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-					
-					/*		CVM4i26 Depth to 1.0					 */
-					try {
-						providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-					} catch (IOException e) {
-						ExceptionUtils.throwAsRuntimeException(e);
-					}
-				} else {
-					System.err.println("Unknown Velocity Model ID: "+velModelID);
-					System.exit(1);
-				}
+				System.err.println("Unknown Velocity Model ID: "+velModelID);
+				System.exit(1);
 			}
-			
-			dataProviders = new OrderedSiteDataProviderList(providers);
 		}
-		return dataProviders;
+		return new OrderedSiteDataProviderList(providers);
 	}
 	
 	public static ArrayList<String> commaSplit(String str) {
@@ -1307,12 +1310,76 @@ public class HazardCurvePlotter {
 	}
 	
 	private Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im, CybershakeRun run) {
+		OrderedSiteDataProviderList providers = getProviders(run.getVelModelID());
+		ArrayList<SiteDataValue<?>> datas = providers.getBestAvailableData(csSite.createLocation());
+		
+		if (manualVs30 > 0) {
+			datas.add(new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, manualVs30,
+					"Manually Set Vs30 Value"));
+		}
+		return setAttenRelParams(attenRel, im, run, csSite, datas);
+	}
+	
+	public static Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im, CybershakeRun run,
+			CybershakeSite csSite, List<SiteDataValue<?>> datas) {
 //		// set 1 sided truncation
 //		StringParameter truncTypeParam = (StringParameter)attenRel.getParameter(SigmaTruncTypeParam.NAME);
 //		truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 //		// set truncation at 3 std dev's
 //		DoubleParameter truncLevelParam = (DoubleParameter)attenRel.getParameter(SigmaTruncLevelParam.NAME);
 //		truncLevelParam.setValue(3.0);
+		
+		// set the component
+		Component comp = im.getComponent();
+		if (comp == null) {
+			System.err.println("WARNING: Component is null, not updating GMPE component");
+		} else {
+			try {
+				ComponentParam param = (ComponentParam) attenRel.getParameter(ComponentParam.NAME);
+				ArrayList<String> allowed = param.getAllowedStrings();
+				
+				String match = null;
+				
+				switch (comp) {
+				case GEOM_MEAN:
+					if (allowed.contains(ComponentParam.COMPONENT_AVE_HORZ))
+						match = ComponentParam.COMPONENT_AVE_HORZ;
+					else if (allowed.contains(ComponentParam.COMPONENT_GMRotI50))
+						// this is same as avg horizontal, except independent of siesmometer orientation (used by NGAs)
+						match = ComponentParam.COMPONENT_GMRotI50;
+					break;
+				case RotD50:
+					// do nothing, no match yet
+					break;
+				case RotD100:
+					// do nothing, no match yet
+					break;
+				case X:
+					if (allowed.contains(ComponentParam.COMPONENT_RANDOM_HORZ))
+						match = ComponentParam.COMPONENT_RANDOM_HORZ;
+					break;
+				case Y:
+					if (allowed.contains(ComponentParam.COMPONENT_RANDOM_HORZ))
+						match = ComponentParam.COMPONENT_RANDOM_HORZ;
+					break;
+				default:
+					throw new IllegalStateException("Unknown CyberShake component: "+comp.getShortName());
+				}
+				
+				if (match == null) {
+					System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have matching component"
+							+ " for CyberShake value of "+comp.getShortName()+". Leaving as "+param.getValue()+".");
+				} else {
+					System.out.println("Setting GMPE component to "+match+" for CyberShake value of "
+							+comp.getShortName());
+					param.setValue(match);
+				}
+			} catch (ParameterException e) {
+				System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have component parameter, "
+						+ "can't set as appropriate");
+			}
+//			System.err.println("WARNING: Component is null, not updating GMPE component");
+		}
 		
 		try {
 			attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
@@ -1344,15 +1411,9 @@ public class HazardCurvePlotter {
 		
 		Site site = new Site(loc);
 		
+		SiteTranslator siteTranslator = new SiteTranslator();
+		
 		try{
-			OrderedSiteDataProviderList providers = getProviders(run.getVelModelID());
-			ArrayList<SiteDataValue<?>> datas = providers.getBestAvailableData(loc);
-			
-			if (manualVs30 > 0) {
-				datas.add(new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, manualVs30,
-						"Manually Set Vs30 Value"));
-			}
-			
 			Iterator<Parameter<?>> it = attenRel.getSiteParamsIterator(); // get site params for this IMR
 			while(it.hasNext()) {
 				Parameter tempParam = it.next();
@@ -1379,12 +1440,12 @@ public class HazardCurvePlotter {
 						} else {
 							System.out.println("Using default value: " + tempParam.getValue());
 						}
-						manualVs30 = (Double)tempParam.getValue();
+//						manualVs30 = (Double)tempParam.getValue();
 					} else {
 						System.out.println("Using default value: " + tempParam.getValue());
 					}
 				} else {
-					System.out.println("Param: "+tempParam.getName() + ", Value: " + tempParam.getValue());
+//					System.out.println("Param: "+tempParam.getName() + ", Value: " + tempParam.getValue());
 				}
 			}
 		}catch(Exception e){
