@@ -33,6 +33,9 @@ public class PredictionTests {
 	
 	private int nDims;
 	
+	private double minRate = 1e-1d;
+	private boolean skipZero = false;
+	
 	public PredictionTests(List<Predictor> predictors, int nullHypothesisIndex, double distSpacing) {
 		Preconditions.checkState(predictors.size() >= 2, "Must supply at least 2 predictors");
 		Preconditions.checkState(nullHypothesisIndex >=0 && nullHypothesisIndex<predictors.size(), "Must supply null hypothesis");
@@ -111,9 +114,6 @@ public class PredictionTests {
 		
 		double sumLogRateDiff = 0;
 		
-		double minRate = 0d;
-		boolean skipZero = true;
-		
 		double adjustedActualN = 0;
 		
 		for (int i=0; i<actual.size(); i++) {
@@ -153,8 +153,8 @@ public class PredictionTests {
 		double distSpacing = 10d; // years
 		
 		List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(minMag, maxMag,
-//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
-				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
+				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
+//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
 		
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens).getEvents();
 		
@@ -169,9 +169,20 @@ public class PredictionTests {
 		predictors.add(new PoissonPredictor());
 		int nullHypothesisIndex = predictors.size()-1;
 		
-		PredictionTests tests = new PredictionTests(predictors, nullHypothesisIndex, distSpacing);
+		double[] minRates = { 0d, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1 };
 		
-		tests.doTests(fullPath, learningIndex);
+		for (double minRate : minRates) {
+			System.out.println("****************************");
+			System.out.println("min rate: "+minRate);
+			System.out.println("****************************");
+			
+			PredictionTests tests = new PredictionTests(predictors, nullHypothesisIndex, distSpacing);
+			
+			tests.skipZero = minRate == 0d;
+			tests.minRate = minRate;
+			
+			tests.doTests(fullPath, learningIndex);
+		}
 	}
 
 }

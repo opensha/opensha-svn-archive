@@ -622,7 +622,9 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 				prefix = prefix.substring(0, prefix.indexOf(".zip"));
 			
 			if (driver.rank == 0) {
+				debug(driver.rank, null, "Writing all plots");
 				CompoundFSSPlots.batchWritePlots(plots, dir, prefix, false);
+				debug(driver.rank, null, "DONE writing all plots");
 			}
 			
 			finalizeMPJ();

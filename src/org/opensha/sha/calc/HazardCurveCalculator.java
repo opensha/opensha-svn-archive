@@ -199,7 +199,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 
 
 	@Override
-	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) {
+	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction, double years) {
 		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
 		int size = annualizedRateFunc.getNum();
 		for(int i=0;i<size;++i){

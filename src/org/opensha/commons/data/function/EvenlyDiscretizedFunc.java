@@ -735,7 +735,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 *
 	 * This is a deep clone so all fields and all data points are copies. <p>
 	 */
-	public DiscretizedFunc deepClone(){
+	public EvenlyDiscretizedFunc deepClone(){
 
 		EvenlyDiscretizedFunc f = new EvenlyDiscretizedFunc(
 				minX, num, delta

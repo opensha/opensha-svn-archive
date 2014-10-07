@@ -160,11 +160,13 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 	}
 
 	public int compareTo(CybershakeIM im) {
-		if (val > im.val)
-			return 1;
-		if (val < im.val)
-			return -1;
-		return 0;
+		int ret = measure.compareTo(im.measure);
+		if (ret != 0)
+			return ret;
+		ret = component.compareTo(im.component);
+		if (ret != 0)
+			return ret;
+		return Double.compare(val, im.val);
 	}
 	
 	public static CybershakeIM fromResultSet(ResultSet rs) throws SQLException {

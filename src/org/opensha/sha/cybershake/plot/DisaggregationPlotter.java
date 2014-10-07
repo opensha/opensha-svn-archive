@@ -115,11 +115,6 @@ public class DisaggregationPlotter {
 	public void init(CommandLine cmd) {
 		int runID = HazardCurvePlotter.getRunIDFromOptions(runs2db, curve2db, amps2db, site2db, cmd);
 		this.run = runs2db.getRun(runID);
-		String periodSTR;
-		if (cmd.hasOption("period"))
-			periodSTR = cmd.getOptionValue("period");
-		else
-			periodSTR = HazardCurvePlotter.default_periods;
 		ArrayList<CybershakeIM> ims = HazardCurvePlotter.getIMsFromOptions(cmd, run, curve2db, amps2db);
 		ArrayList<Double> probLevels = null;
 		if (cmd.hasOption("probs"))

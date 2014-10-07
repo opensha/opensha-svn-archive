@@ -122,7 +122,7 @@ public class EvenlyDiscrFuncWithParams
      * Returns a copy of this and all points in this DiscretizedFunction.
      * Also clones each parameter in the parameter list.
      */
-    public DiscretizedFunc deepClone(){
+    public EvenlyDiscretizedFunc deepClone(){
 
         EvenlyDiscrFuncWithParams f = new EvenlyDiscrFuncWithParams(
              minX, num, delta

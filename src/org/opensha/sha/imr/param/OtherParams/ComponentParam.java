@@ -41,6 +41,12 @@ public class ComponentParam extends StringParameter {
 	public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
 	public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
 	public final static String COMPONENT_VERT = "Vertical";
+	public final static String COMPONENT_RotD50 = "RotD50";
+	public final static String COMPONENT_RotD100 = "RotD100";
+	
+	public ComponentParam(String defaultValue, String... options) {
+		this(new StringConstraint(options), defaultValue);
+	}
 
 	/**
 	 * The parameter is set as non editable after creation

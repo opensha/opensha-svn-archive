@@ -28,6 +28,8 @@ import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.param.constraint.DiscreteParameterConstraint;
 import org.opensha.commons.param.constraint.AbstractParameterConstraint;
 
+import com.google.common.collect.Lists;
+
 /**
  * <b>Title:</b> StringConstraint<p>
  *
@@ -61,6 +63,9 @@ public class StringConstraint
     /** No-Arg constructor for the StringConstraint object. Calls the super() constructor. */
     public StringConstraint() { super(); }
 
+    public StringConstraint(String... strings) {
+    	this(Lists.newArrayList(strings));
+    }
 
     /**
      *  Constructor for the StringConstraint object. Sets all allowed strings

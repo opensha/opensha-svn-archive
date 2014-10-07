@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +25,12 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
@@ -65,6 +68,10 @@ public class RTGMCalc {
 	private ERF erf;
 	private List<AttenuationRelationship> attenRels;
 	
+	private List<CybershakeIM> forceAddIMs;
+	
+	private static HazardCurveCalculator gmpeCalc = new HazardCurveCalculator();
+	
 	public RTGMCalc(CommandLine cmd, DBAccess db) {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
 		int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
@@ -76,7 +83,21 @@ public class RTGMCalc {
 		Preconditions.checkArgument(cmd.hasOption("output-dir"));
 		File outputDir = new File(cmd.getOptionValue("output-dir"));
 		
-		init(runID, component, outputDir, db);
+		List<CybershakeIM> forceAddIMs = null;
+		if (cmd.hasOption("force-add")) {
+			String forceStr = cmd.getOptionValue("force-add").trim();
+			Preconditions.checkArgument(forceStr.contains(":"), "Invalid force-add format");
+			String compStr = forceStr.substring(0, forceStr.indexOf(":"));
+			Component addComp = CybershakeIM.fromShortName(compStr, Component.class);
+			String periodStr = forceStr.substring(forceStr.indexOf(":")+1);
+			List<Double> periods = HazardCurvePlotter.commaDoubleSplit(periodStr);
+			
+			forceAddIMs = Lists.newArrayList();
+			for (Double period : periods)
+				forceAddIMs.add(new CybershakeIM(-1, IMType.SA, period, null, addComp));
+		}
+		
+		init(runID, component, outputDir, db, forceAddIMs);
 		
 		if (cmd.hasOption("ef") && cmd.hasOption("af")) {
 			String erfFile = cmd.getOptionValue("ef");
@@ -106,10 +127,10 @@ public class RTGMCalc {
 	}
 	
 	public RTGMCalc(int runID, Component component, File outputDir, DBAccess db) {
-		init(runID, component, outputDir, db);
+		init(runID, component, outputDir, db, null);
 	}
 	
-	private void init(int runID, Component component, File outputDir, DBAccess db) {
+	private void init(int runID, Component component, File outputDir, DBAccess db, List<CybershakeIM> forceAddIMs) {
 		Preconditions.checkArgument(runID >= 0, "Run ID must be >= 0");
 		// component CAN be null
 		Preconditions.checkArgument(outputDir != null, "Output dir must me supplied");
@@ -120,6 +141,7 @@ public class RTGMCalc {
 		this.component = component;
 		this.outputDir = outputDir;
 		this.db = db;
+		this.forceAddIMs = forceAddIMs;
 		
 		curves2db = new HazardCurve2DB(db);
 		runs2db = new Runs2DB(db);
@@ -143,6 +165,27 @@ public class RTGMCalc {
 		List<CybershakeIM> ims = Lists.newArrayList();
 		for (int curveID : curveIDs)
 			ims.add(curves2db.getIMForCurve(curveID));
+		
+		if (forceAddIMs != null && !forceAddIMs.isEmpty()) {
+			// add IMs as applicable
+			for (CybershakeIM im : forceAddIMs) {
+				boolean found = false;
+				for (CybershakeIM prevIM : ims) {
+					if (im.getMeasure() == prevIM.getMeasure() && im.getComponent() == prevIM.getComponent()
+							&& (int)(im.getVal()*100d) == (int)(prevIM.getVal()*100d)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					System.out.println("Adding forced IM with no CyberShake data: "+im);
+					ims.add(im);
+					curveIDs.add(-1);
+				}
+			}
+		}
+		
+		// remove other components if one has been specified
 		if (component != null) {
 			origSize = curveIDs.size();
 			// remove all curve IDs that are the wrong component
@@ -163,6 +206,16 @@ public class RTGMCalc {
 			return false;
 		}
 		
+		// now sort by IM
+		List<ComparablePairing<CybershakeIM, Integer>> comparables = ComparablePairing.build(ims, curveIDs);
+		Collections.sort(comparables);
+		curveIDs = Lists.newArrayList();
+		ims = Lists.newArrayList();
+		for (ComparablePairing<CybershakeIM, Integer> comparable : comparables) {
+			curveIDs.add(comparable.getData());
+			ims.add(comparable.getComparable());
+		}
+		
 		CybershakeRun run = runs2db.getRun(runID);
 		int siteID = run.getSiteID();
 		CybershakeSite site = sites2db.getSiteFromDB(siteID);
@@ -177,30 +230,49 @@ public class RTGMCalc {
 		}
 		csv.addLine(header);
 		
-		HazardCurveCalculator gmpeCalc = null;
 		List<SiteDataValue<?>> datas = null;
+		
+		List<DiscretizedFunc> cybershakeCurves = Lists.newArrayList();
+		
+		for (int i=0; i<curveIDs.size(); i++)
+			cybershakeCurves.add(curves2db.getHazardCurve(curveIDs.get(i)));
 		
 		for (int i=0; i<curveIDs.size(); i++) {
 			int curveID = curveIDs.get(i);
-			DiscretizedFunc curve = curves2db.getHazardCurve(curveID);
-			validateCurveForRTGM(curve);
-			
 			CybershakeIM im = ims.get(i);
-			List<String> line = Lists.newArrayList(site.short_name, runID+"", im.getID()+"",
-					im.getMeasure().getShortName(), im.getComponent().getShortName(), (float)im.getVal()+"");
+			DiscretizedFunc curve = cybershakeCurves.get(i);
 			
-			System.out.println("Calculating RTGM for: "+Joiner.on(",").join(line));
+			List<String> line;
 			
-			// calculate RTGM
-			// first null is frequency which is used for a scaling factor, which we disable
-			// second null is Beta value, we want default
-			double rtgm = calcRTGM(curve);
-			line.add(rtgm+"");
+			double rtgm;
+			if (curveID < 0) {
+				rtgm = Double.NaN;
+				Preconditions.checkState(curve == null);
+				// use any other cybershake curve for x values
+				for (DiscretizedFunc test : cybershakeCurves) {
+					if (test != null) {
+						curve = test;
+						break;
+					}
+				}
+				line = Lists.newArrayList(site.short_name, "", "", im.getMeasure().getShortName(),
+						im.getComponent().getShortName(), (float)im.getVal()+"", "");
+			} else {
+				line = Lists.newArrayList(site.short_name, runID+"", im.getID()+"",
+						im.getMeasure().getShortName(), im.getComponent().getShortName(), (float)im.getVal()+"");
+				validateCurveForRTGM(curve);
+				
+				System.out.println("Calculating RTGM for: "+Joiner.on(",").join(line));
+				
+				// calculate RTGM
+				// first null is frequency which is used for a scaling factor, which we disable
+				// second null is Beta value, we want default
+				rtgm = calcRTGM(curve);
+				line.add(rtgm+"");
+			}
 			
 			// GMPE comparisons
 			if (attenRels != null) {
-				if (gmpeCalc == null)
-					gmpeCalc = new HazardCurveCalculator();
 				if (datas == null) {
 					int velModelID = run.getVelModelID();
 					OrderedSiteDataProviderList providers = HazardCurvePlotter.createProviders(velModelID);
@@ -215,6 +287,8 @@ public class RTGMCalc {
 					gmpeCalc.getHazardCurve(hazFunction, gmpeSite, attenRel, erf);
 					hazFunction = HazardCurveSetCalculator.unLogFunction(curve, hazFunction);
 					validateCurveForRTGM(hazFunction);
+					// now convert component if needed
+					hazFunction = HazardCurvePlotter.getScaledCurveForComponent(attenRel, im, hazFunction);
 					
 					rtgm = calcRTGM(hazFunction);
 					Preconditions.checkState(rtgm > 0, "RTGM is not positive");
@@ -249,6 +323,8 @@ public class RTGMCalc {
 	}
 	
 	private static double calcRTGM(DiscretizedFunc curve) {
+		// convert from annual probability to annual frequency
+		curve = gmpeCalc.getAnnualizedRates(curve, 1d);
 		RTGM calc = RTGM.create(curve, null, null);
 		try {
 			calc.call();
@@ -282,6 +358,12 @@ public class RTGMCalc {
 		Option erfFile = new Option("ef", "erf-file", true, "XML ERF description file for comparison");
 		erfFile.setRequired(false);
 		ops.addOption(erfFile);
+		
+		Option forceAdd = new Option("f", "force-add", true, "Force the calculator to include the given period(s)"
+				+ " in the output file even if no CyberShake results available."
+				+ " Format: '<component>:<period1>,<period2>. Example: RotD100:1,1.5");
+		forceAdd.setRequired(false);
+		ops.addOption(forceAdd);
 		
 		Option attenRelFiles = new Option("af", "atten-rel-file", true,
 				"XML Attenuation Relationship description file(s) for " + 

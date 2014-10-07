@@ -139,9 +139,10 @@ public class ERFFaultProbDebug {
 				
 				double mpjProb = MPJ_ERF_ProbGainCalc.calcFaultProb(erf, rupSet, mappings.get(debugFault), minMag);
 				
-				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(6.7d, 1, 0.1d);
-				ERFBasedRegionalMagProbPlot.calcFaultProbs(func, erf, rupSet, mappings.get(debugFault));
-				double cfssProb = func.getY(0);
+				EvenlyDiscretizedFunc probFunc = new EvenlyDiscretizedFunc(6.7d, 1, 0.1d);
+				EvenlyDiscretizedFunc rateFunc = new EvenlyDiscretizedFunc(6.7d, 1, 0.1d);
+				ERFBasedRegionalMagProbPlot.calcFaultProbs(probFunc, rateFunc, erf, rupSet, mappings.get(debugFault));
+				double cfssProb = probFunc.getY(0);
 				
 				if (meanInstead)
 					System.out.println("PREF_BLEND");

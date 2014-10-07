@@ -114,6 +114,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.util.ComponentConversionUtil;
 import org.opensha.sha.util.SiteTranslator;
 
 import com.google.common.base.Joiner;
@@ -477,10 +478,6 @@ public class HazardCurvePlotter {
 		}
 		
 		ArrayList<CybershakeIM> ims = getIMsFromOptions(cmd, run, curve2db, amps2db);
-		ArrayList<Double> periods = Lists.newArrayList();
-		IMType imType;
-		Component component;
-		
 		
 		if (cmd.hasOption("ef") && cmd.hasOption("af")) {
 			String erfFile = cmd.getOptionValue("ef");
@@ -1228,10 +1225,11 @@ public class HazardCurvePlotter {
 			Site site = this.setAttenRelParams(attenRel, im, run);
 			
 			System.out.print("Calculating comparison curve for " + site.getLocation().getLatitude() + "," + site.getLocation().getLongitude() + "...");
-			ArbitrarilyDiscretizedFunc curve = plotChars.getHazardFunc();
-			ArbitrarilyDiscretizedFunc logHazFunction = this.getLogFunction(curve);
+			DiscretizedFunc curve = plotChars.getHazardFunc();
+			DiscretizedFunc logHazFunction = this.getLogFunction(curve);
 			calc.getHazardCurve(logHazFunction, site, attenRel, erf);
 			curve = this.unLogFunction(curve, logHazFunction);
+			curve = getScaledCurveForComponent(attenRel, im, curve);
 			curve.setName(attenRel.getShortName());
 			curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
 			System.out.println("done!");
@@ -1349,10 +1347,12 @@ public class HazardCurvePlotter {
 						match = ComponentParam.COMPONENT_GMRotI50;
 					break;
 				case RotD50:
-					// do nothing, no match yet
+					if (allowed.contains(ComponentParam.COMPONENT_RotD50))
+						match = ComponentParam.COMPONENT_RotD50;
 					break;
 				case RotD100:
-					// do nothing, no match yet
+					if (allowed.contains(ComponentParam.COMPONENT_RotD100))
+						match = ComponentParam.COMPONENT_RotD100;
 					break;
 				case X:
 					if (allowed.contains(ComponentParam.COMPONENT_RANDOM_HORZ))
@@ -1452,6 +1452,81 @@ public class HazardCurvePlotter {
 			e.printStackTrace();
 		}
 		return site;
+	}
+	
+	/**
+	 * This will apply an empirical scaling factor to the X values of the given hazard curve if
+	 * the CyberShake and GMPE components differ and a conversion factor exists. Otherwise a
+	 * warning message will be printed and nothing will be done.
+	 * @param attenRel
+	 * @param component
+	 * @param curve
+	 * @return
+	 */
+	public static DiscretizedFunc getScaledCurveForComponent(
+			AttenuationRelationship attenRel, CybershakeIM im, DiscretizedFunc curve) {
+		Component component = im.getComponent();
+		double period = im.getVal();
+		String gmpeComponent;
+		try {
+			gmpeComponent = (String) attenRel.getParameter(ComponentParam.NAME).getValue();
+		} catch (ParameterException e) {
+			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have component parameter, "
+					+ "can't scale curve as appropriate");
+			return curve;
+		}
+		if (gmpeComponent == null) {
+			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" has null component, "
+					+ "can't scale curve as appropriate");
+			return curve;
+		}
+		
+		// the below code should return the current curve if already correct, or return the
+		// scaled curve if it can be scaled. otherwise a warning will be printed and original
+		// curve returned below the switch statement
+		
+		switch (component) {
+		case GEOM_MEAN:
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_AVE_HORZ)
+					|| gmpeComponent.equals(ComponentParam.COMPONENT_GMRotI50))
+				// it's already correct
+				return curve;
+			break;
+		case RotD50:
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50))
+				// it's already correct
+				return curve;
+			break;
+		case RotD100:
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD100))
+				// it's already correct
+				return curve;
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50)) {
+				// we can scale it
+				System.out.println("Scaling GMPE curve from RotD50 to RotD100");
+				return ComponentConversionUtil.convertRotD50toRotD100(period, curve);
+			}
+			break;
+		case X:
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+				// it's already correct
+				return curve;
+			break;
+		case Y:
+			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+				// it's already correct
+				return curve;
+			break;
+		default:
+			throw new IllegalStateException("Unknown CyberShake component: "+component.getShortName());
+		}
+		
+		// we've made it this far, there's a mismatch that can't be scaled away
+		System.err.println("WARNING: There is a GMPE/CyberShake component mismatch and no scaling factors exist."
+				+ " Using the unscaled curve. CyberShake Component: "+component.getShortName()
+				+", GMPE Component: "+gmpeComponent);
+		
+		return curve;
 	}
 	
 	public SiteInfo2DB getSite2DB() {
