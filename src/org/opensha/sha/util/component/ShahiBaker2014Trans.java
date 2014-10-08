@@ -80,4 +80,9 @@ public class ShahiBaker2014Trans extends ComponentTranslation {
 		return rotD100_over_RotD50.getMaxX();
 	}
 
+	@Override
+	public String getName() {
+		return "Shahi & Baker 2014";
+	}
+
 }

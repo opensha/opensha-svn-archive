@@ -117,6 +117,7 @@ import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.component.ComponentConverter;
+import org.opensha.sha.util.component.ComponentTranslation;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -1429,6 +1430,8 @@ public class HazardCurvePlotter {
 	 * This will apply an empirical scaling factor to the X values of the given hazard curve if
 	 * the CyberShake and GMPE components differ and a conversion factor exists. Otherwise a
 	 * warning message will be printed and nothing will be done.
+	 * 
+	 * Will append the info string with scaling information.
 	 * @param attenRel
 	 * @param component
 	 * @param curve
@@ -1444,24 +1447,33 @@ public class HazardCurvePlotter {
 		} catch (ParameterException e) {
 			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have component parameter, "
 					+ "can't scale curve as appropriate");
+			appendInfoString(curve, "WARNING: GMPE Component unknown, no scaling applied");
 			return curve;
 		}
 		if (gmpeComponent == null) {
 			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" has null component, "
 					+ "can't scale curve as appropriate");
+			appendInfoString(curve, "WARNING: GMPE Component unknown, no scaling applied");
 			return curve;
 		}
 		
 		// first see if no translation needed (already correct)
-		if (component.isComponentSupported(gmpeComponent))
+		if (component.isComponentSupported(gmpeComponent)) {
+			appendInfoString(curve, "GMPE component ("+gmpeComponent.name()+") is correct, no scaling applied");
 			return curve;
+		}
 		
 		// we'll need a translation
 		for (Component to : component.getGMPESupportedComponents()) {
 			if (ComponentConverter.isConversionSupported(gmpeComponent, to)) {
 				// we have a valid translation!
 				System.out.println("Scaling curve from "+gmpeComponent+" to "+to);
-				return ComponentConverter.convert(gmpeComponent, to, curve, period);
+				ComponentTranslation converter = ComponentConverter.getConverter(gmpeComponent, to);
+				double factor = converter.getScalingFactor(period);
+				curve = converter.convertCurve(curve, period);
+				appendInfoString(curve, "GMPE component ("+gmpeComponent.name()+") scaled to "+to.name()
+						+" via factor of "+factor+" from "+converter.getName());
+				return curve;
 			}
 		}
 		
@@ -1470,7 +1482,20 @@ public class HazardCurvePlotter {
 				+ " Using the unscaled curve. CyberShake Component: "+component.getShortName()
 				+", GMPE Component: "+gmpeComponent);
 		
+		appendInfoString(curve, "WARNING: GMPE component ("+gmpeComponent.name()
+				+") cannot be scaled to "+component.getShortName());
+		
 		return curve;
+	}
+	
+	private static void appendInfoString(DiscretizedFunc curve, String metadata) {
+		String info = curve.getInfo();
+		if (info == null)
+			info = "";
+		if (!info.isEmpty())
+			info +="\n";
+		info += metadata;
+		curve.setInfo(info);
 	}
 	
 	public SiteInfo2DB getSite2DB() {

@@ -225,8 +225,10 @@ public class RTGMCalc {
 		List<String> header = Lists.newArrayList("Site Short Name", "Run ID", "IM Type ID", "IM Type",
 				"Component", "Period", "CyberShake RTGM (g)");
 		if (attenRels != null) {
-			for (AttenuationRelationship attenRel : attenRels)
-				header.add(attenRel.getShortName());
+			for (AttenuationRelationship attenRel : attenRels) {
+				header.add(attenRel.getShortName()+" Metadata");
+				header.add(attenRel.getShortName()+" RTGM (g)");
+			}
 		}
 		csv.addLine(header);
 		
@@ -288,10 +290,14 @@ public class RTGMCalc {
 					hazFunction = HazardCurveSetCalculator.unLogFunction(curve, hazFunction);
 					validateCurveForRTGM(hazFunction);
 					// now convert component if needed
+					// metadata will be place in info string
+					hazFunction.setInfo(null);
 					hazFunction = HazardCurvePlotter.getScaledCurveForComponent(attenRel, im, hazFunction);
+					String metadata = hazFunction.getInfo().trim().replaceAll("\n", "");
 					
 					rtgm = calcRTGM(hazFunction);
 					Preconditions.checkState(rtgm > 0, "RTGM is not positive");
+					line.add(metadata);
 					line.add(rtgm+"");
 				}
 			}
@@ -420,7 +426,6 @@ public class RTGMCalc {
 					System.exit(1);
 				}
 			} catch (MissingOptionException e) {
-				// TODO Auto-generated catch block
 				Options helpOps = new Options();
 				helpOps.addOption(new Option("h", "help", false, "Display this message"));
 				try {
@@ -429,15 +434,11 @@ public class RTGMCalc {
 					if (cmd.hasOption("help")) {
 						printHelp(options, appName);
 					}
-				} catch (ParseException e1) {
-					// TODO Auto-generated catch block
-//				e1.printStackTrace();
-				}
+				} catch (ParseException e1) {}
 				System.err.println(e.getMessage());
 				printUsage(options, appName);
 //			e.printStackTrace();
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				printUsage(options, appName);
 			}
@@ -445,7 +446,6 @@ public class RTGMCalc {
 			System.out.println("Done!");
 			System.exit(0);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(1);
 		}

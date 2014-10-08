@@ -2,11 +2,12 @@ package org.opensha.sha.util.component;
 
 import java.awt.geom.Point2D;
 
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.imr.param.OtherParams.Component;
 
-public abstract class ComponentTranslation {
+public abstract class ComponentTranslation implements Named {
 	
 	/**
 	 * 

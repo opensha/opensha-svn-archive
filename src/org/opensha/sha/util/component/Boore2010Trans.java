@@ -126,4 +126,9 @@ public class Boore2010Trans extends ComponentTranslation {
 		gw.setXLog(true);
 	}
 
+	@Override
+	public String getName() {
+		return "Boore 2010";
+	}
+
 }
