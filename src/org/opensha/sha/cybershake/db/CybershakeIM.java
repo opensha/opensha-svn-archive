@@ -64,9 +64,11 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		private String dbName, shortName;
 		// supported GMPE components
 		private Component[] gmpeComponents;
-		private CyberShakeComponent(String dbName, String shortName, Component... gmpeComponent) {
+		private CyberShakeComponent(String dbName, String shortName, Component... gmpeComponents) {
 			this.dbName = dbName;
 			this.shortName = shortName;
+			this.gmpeComponents = gmpeComponents;
+			Preconditions.checkNotNull(gmpeComponents);
 		}
 		@Override
 		public String getDBName() {
@@ -92,6 +94,12 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 					return gmpeComponent;
 			// no supported
 			return null;
+		}
+		public boolean isComponentSupported(Component component) {
+			for (Component supported : gmpeComponents)
+				if (supported == component)
+					return true;
+			return false;
 		}
 	}
 	

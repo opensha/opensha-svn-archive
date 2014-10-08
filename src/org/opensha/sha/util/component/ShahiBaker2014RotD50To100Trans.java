@@ -1,11 +1,18 @@
-package org.opensha.sha.util;
+package org.opensha.sha.util.component;
 
 import java.awt.geom.Point2D;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.sha.imr.param.OtherParams.Component;
 
-public class ComponentConversionUtil {
+/**
+ * Component translation from RotD50 to RotD100 from Table 1 of Shahi & Baker 2014.
+ * 
+ * @author kevin
+ *
+ */
+public class ShahiBaker2014RotD50To100Trans extends ComponentTranslation {
 	
 	/**
 	 * RotD100/RotD50 factors as a function of period from Table 1 of Shahi & Baker 2014.
@@ -45,43 +52,32 @@ public class ComponentConversionUtil {
 		for (Point2D pt : ln_rotd100_over_rotd50)
 			rotD100_over_RotD50.set(pt.getX(), Math.exp(pt.getY()));
 	}
-	
-	/**
-	 * @param period
-	 * @return Linear RotD100/RotD50 scaling factor for the given period from Shahi & Baker 2014
-	 */
-	public static double getRotD100overRotD50Factor(double period) {
+
+	@Override
+	public Component getFromComponent() {
+		return Component.RotD50;
+	}
+
+	@Override
+	public Component getToComponent() {
+		return Component.RotD100;
+	}
+
+	@Override
+	public double getScalingFactor(double period)
+			throws IllegalArgumentException {
+		assertValidPeriod(period);
 		return rotD100_over_RotD50.getInterpolatedY(period);
 	}
-	
-	/**
-	 * 
-	 * @param period
-	 * @param saRotD50 in the linear domain
-	 * @return converted RotD100 value in the linear domain
-	 */
-	public static double convertRotD50toRotD100(double period, double saRotD50) {
-		return saRotD50 * getRotD100overRotD50Factor(period);
+
+	@Override
+	public double getMinPeriod() {
+		return rotD100_over_RotD50.getMinX();
 	}
-	
-	/**
-	 * @param period
-	 * @param hazCurve RotD50 hazard curve
-	 * @return Hazard curve where X values have been raplaced with RotD100 values
-	 */
-	public static DiscretizedFunc convertRotD50toRotD100(double period, DiscretizedFunc hazCurve) {
-		return scaleXVals(getRotD100overRotD50Factor(period), hazCurve);
-	}
-	
-	private static DiscretizedFunc scaleXVals(double ratio, DiscretizedFunc hazCurve) {
-		ArbitrarilyDiscretizedFunc scaled = new ArbitrarilyDiscretizedFunc();
-		scaled.setName(hazCurve.getName());
-		scaled.setInfo(hazCurve.getInfo());
-		
-		for (Point2D pt : hazCurve)
-			scaled.set(pt.getX()*ratio, pt.getY());
-		
-		return scaled;
+
+	@Override
+	public double getMaxPeriod() {
+		return rotD100_over_RotD50.getMaxX();
 	}
 
 }

@@ -115,8 +115,8 @@ import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.util.ComponentConversionUtil;
 import org.opensha.sha.util.SiteTranslator;
+import org.opensha.sha.util.component.ComponentConverter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -1438,9 +1438,9 @@ public class HazardCurvePlotter {
 			AttenuationRelationship attenRel, CybershakeIM im, DiscretizedFunc curve) {
 		CyberShakeComponent component = im.getComponent();
 		double period = im.getVal();
-		String gmpeComponent;
+		Component gmpeComponent;
 		try {
-			gmpeComponent = (String) attenRel.getParameter(ComponentParam.NAME).getValue();
+			gmpeComponent = (Component) attenRel.getParameter(ComponentParam.NAME).getValue();
 		} catch (ParameterException e) {
 			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have component parameter, "
 					+ "can't scale curve as appropriate");
@@ -1452,46 +1452,18 @@ public class HazardCurvePlotter {
 			return curve;
 		}
 		
-		// the below code should return the current curve if already correct, or return the
-		// scaled curve if it can be scaled. otherwise a warning will be printed and original
-		// curve returned below the switch statement
+		// first see if no translation needed (already correct)
+		if (component.isComponentSupported(gmpeComponent))
+			return curve;
 		
-		// TODO reinstate with new component framework
-//		switch (component) {
-//		case GEOM_MEAN:
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_AVE_HORZ)
-//					|| gmpeComponent.equals(ComponentParam.COMPONENT_GMRotI50))
-//				// it's already correct
-//				return curve;
-//			break;
-//		case RotD50:
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50))
-//				// it's already correct
-//				return curve;
-//			break;
-//		case RotD100:
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD100))
-//				// it's already correct
-//				return curve;
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50)) {
-//				// we can scale it
-//				System.out.println("Scaling GMPE curve from RotD50 to RotD100");
-//				return ComponentConversionUtil.convertRotD50toRotD100(period, curve);
-//			}
-//			break;
-//		case X:
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
-//				// it's already correct
-//				return curve;
-//			break;
-//		case Y:
-//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
-//				// it's already correct
-//				return curve;
-//			break;
-//		default:
-//			throw new IllegalStateException("Unknown CyberShake component: "+component.getShortName());
-//		}
+		// we'll need a translation
+		for (Component to : component.getGMPESupportedComponents()) {
+			if (ComponentConverter.isConversionSupported(gmpeComponent, to)) {
+				// we have a valid translation!
+				System.out.println("Scaling curve from "+gmpeComponent+" to "+to);
+				return ComponentConverter.convert(gmpeComponent, to, curve, period);
+			}
+		}
 		
 		// we've made it this far, there's a mismatch that can't be scaled away
 		System.err.println("WARNING: There is a GMPE/CyberShake component mismatch and no scaling factors exist."
