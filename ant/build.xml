@@ -412,6 +412,12 @@
 		<antcall target="resource.cybershake" />
 
 		<antcall target="resource.hazard.apps.server" />
+		
+		<copy todir="${build}/org/opensha/sha/util/component/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/util/component/">
+				<include name="*.xls" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="resource.all">
