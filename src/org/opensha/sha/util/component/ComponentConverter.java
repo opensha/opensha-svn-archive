@@ -14,7 +14,7 @@ public class ComponentConverter {
 	static {
 		transTable = HashBasedTable.create();
 		
-		transTable.put(Component.RotD50, Component.RotD100, new ShahiBaker2014RotD50To100Trans());
+		transTable.put(Component.RotD50, Component.RotD100, new ShahiBaker2014Trans());
 		for (Boore2010Trans trans : Boore2010Trans.getAllConverters())
 			transTable.put(trans.getFromComponent(), trans.getToComponent(), trans);
 	}

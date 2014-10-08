@@ -12,7 +12,7 @@ import org.opensha.sha.imr.param.OtherParams.Component;
  * @author kevin
  *
  */
-public class ShahiBaker2014RotD50To100Trans extends ComponentTranslation {
+public class ShahiBaker2014Trans extends ComponentTranslation {
 	
 	/**
 	 * RotD100/RotD50 factors as a function of period from Table 1 of Shahi & Baker 2014.
