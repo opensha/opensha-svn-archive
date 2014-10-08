@@ -1,7 +1,9 @@
 package org.opensha.sha.imr.attenRelImpl;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -16,9 +18,11 @@ import org.opensha.commons.param.ParamLinker;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
+import org.opensha.commons.param.constraint.impl.EnumConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.param.impl.WeightedListParameter;
 import org.opensha.commons.util.ClassUtils;
@@ -37,12 +41,15 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodInterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_InterpolatedParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+
+import com.google.common.collect.Lists;
 
 public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
@@ -393,8 +400,13 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 		}
 		for (String paramName : newParams.keySet()) {
 			ArrayList<Parameter<?>> params = newParams.get(paramName);
+			// if string constraint we need a constraint with all common values
 			StringConstraint sconst = null;
 			String sDefault = null;
+			// likewise if enum constraint we need constraint with all common values
+			List<? extends Enum> enumVals = null;
+			Enum enumDefault = null;
+			String nullOption = null;
 			Parameter masterParam = params.get(0);
 			if (params.size() > 1) {
 				// this param is common to multiple IMRs
@@ -431,14 +443,48 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 						if (D) System.out.println("NEW DEFAULT: " + sDefault);
 					}
 					// end string hack
+				} else if (params.get(0) instanceof EnumParameter<?>) {
+					nullOption = ((EnumParameter<?>)params.get(0)).getNullOption();
+					// hack to make enum constraint
+					boolean allCommon = true;
+					List commonVals = null;
+					for (Parameter<?> param : params) {
+						EnumConstraint<?> econst_temp = (EnumConstraint<?>)param.getConstraint();
+						// clear null option if not common
+						if (nullOption != null && !nullOption.equals(((EnumParameter<?>)param).getNullOption()))
+							nullOption = null;
+						List myVals = econst_temp.getAllowedValues();
+						if (commonVals == null)
+							commonVals = Lists.newArrayList(myVals);
+						for (int i=commonVals.size()-1; i>=0; i--) {
+							Object commonVal = commonVals.get(i);
+							if (!myVals.contains(commonVal)) {
+								// this param isn't common after all
+								allCommon = false;
+								commonVals.remove(i);
+							}
+						}
+						allCommon = allCommon && (commonVals.size() == myVals.size());
+					}
+					if (!allCommon) {
+						if (D) System.out.println("Param '"+paramName+"' has "+commonVals.size()+" common vals");
+						if (D)
+							for (Object val : commonVals)
+								System.out.println(" * " + val);
+						if (commonVals.size() == 0)
+							continue;
+						enumVals = commonVals;
+						enumDefault = (Enum) masterParam.getDefaultValue();
+						if (!commonVals.contains(enumDefault))
+							enumDefault= enumVals.get(0);
+						if (D) System.out.println("NEW DEFAULT: " + enumDefault);
+					}
+					// end enum hack
 				}
 			}
 			if (masterParam instanceof ComponentParam) {
-				if (sconst != null)
-					if (masterParam.isEditable())
-						masterParam.setConstraint(sconst);
-					else
-						masterParam = new ComponentParam(sconst, sDefault);
+				if (enumVals != null)
+					masterParam = new ComponentParam((Component)enumDefault, (List<Component>)enumVals);
 				componentParam = (ComponentParam) masterParam;
 			} else if (masterParam instanceof StdDevTypeParam) {
 				if (sconst != null)

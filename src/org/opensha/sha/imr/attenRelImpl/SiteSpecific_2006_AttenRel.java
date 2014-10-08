@@ -51,6 +51,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -375,7 +376,7 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
-					ComponentParam.COMPONENT_AVE_HORZ);
+					Component.AVE_HORZ);
 			// overide local params with those in as_1997_attenRel
 			this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
 					SigmaTruncTypeParam.NAME);
@@ -397,7 +398,7 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
-					ComponentParam.COMPONENT_AVE_HORZ);
+					Component.AVE_HORZ);
 			// overide local params with those in as_1997_attenRel
 			this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
 					SigmaTruncTypeParam.NAME);
@@ -418,7 +419,7 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 			vs30Trans.setParameterValue(siteParam, val);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
-					ComponentParam.COMPONENT_AVE_HORZ);
+					Component.AVE_HORZ);
 			// overide local params with those in as_1997_attenRel
 			this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
 					SigmaTruncTypeParam.NAME);
@@ -436,7 +437,7 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 					SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 			// set the component to ave horz
 			attenRel.getParameter(ComponentParam.NAME).setValue(
-					ComponentParam.COMPONENT_AVE_HORZ);
+					Component.AVE_HORZ);
 			// overide local params with those in as_1997_attenRel
 			this.sigmaTruncTypeParam = (SigmaTruncTypeParam) attenRel.getParameter(
 					SigmaTruncTypeParam.NAME);
@@ -931,10 +932,8 @@ public class SiteSpecific_2006_AttenRel extends AttenuationRelationship implemen
 		// super.initOtherParams();
 
 		// the Component Parameter (not supporting AS_1997's vertical)
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 
 		// add this to the list
 		otherParams.clear();

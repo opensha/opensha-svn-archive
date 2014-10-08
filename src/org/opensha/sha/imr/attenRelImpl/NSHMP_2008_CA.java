@@ -30,6 +30,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -238,10 +239,8 @@ ParameterChangeListener {
 		super.initOtherParams();
 		
 		// the Component Parameter - common to NGA's but uneditable
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+	    // first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50);
 		componentParam.setValueAsDefault();
 		
 		// the stdDevType Parameter - common to NGA's
@@ -290,7 +289,7 @@ ParameterChangeListener {
 
 			ComponentParam cp = (ComponentParam) list.getParameter(
 				ComponentParam.NAME);
-			cp.setValue(ComponentParam.COMPONENT_GMRotI50);
+			cp.setValue(Component.GMRotI50);
 
 			StdDevTypeParam stp = (StdDevTypeParam) list.getParameter(
 				StdDevTypeParam.NAME);

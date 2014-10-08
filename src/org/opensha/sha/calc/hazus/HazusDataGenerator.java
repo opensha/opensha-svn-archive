@@ -32,6 +32,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -136,12 +137,9 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
           attenRel.setParamDefaults();
 	  attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760));
-	  attenRel.getParameter(SigmaTruncTypeParam.NAME).
-	  setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
-	  attenRel.getParameter(SigmaTruncLevelParam.NAME).
-	  setValue(new Double(3.0));
-	  attenRel.getParameter(ComponentParam.NAME).
-	  setValue(ComponentParam.COMPONENT_AVE_HORZ);
+	  attenRel.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
+	  attenRel.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
+	  attenRel.getParameter(ComponentParam.NAME).setValue(Component.AVE_HORZ);
   }
 
 

@@ -26,6 +26,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
@@ -309,7 +310,7 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 	protected void initOtherParams() {
 		super.initOtherParams();
 		
-		componentParam = new ComponentParam(ComponentParam.COMPONENT_RotD50, ComponentParam.COMPONENT_RotD50);
+		componentParam = new ComponentParam(Component.RotD50, Component.RotD50);
 		componentParam.setValueAsDefault();
 		otherParams.addParameter(componentParam);
 		

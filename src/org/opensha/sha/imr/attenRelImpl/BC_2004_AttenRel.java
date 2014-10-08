@@ -39,6 +39,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -149,7 +150,7 @@ public class BC_2004_AttenRel extends AttenuationRelationship {
 				as_1997_attenRel.SITE_TYPE_ROCK);
 		// set the component to ave horz
 		as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
-				ComponentParam.COMPONENT_AVE_HORZ);
+				Component.AVE_HORZ);
 
 		// overide local params with those in as_1997_attenRel
 		this.sigmaTruncTypeParam = (SigmaTruncTypeParam) as_1997_attenRel.getParameter(
@@ -303,7 +304,7 @@ public class BC_2004_AttenRel extends AttenuationRelationship {
 		as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
 				as_1997_attenRel.SITE_TYPE_ROCK);
 		as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
-				ComponentParam.COMPONENT_AVE_HORZ);
+				Component.AVE_HORZ);
 		componentParam.setValueAsDefault();
 	}
 
@@ -470,10 +471,8 @@ public class BC_2004_AttenRel extends AttenuationRelationship {
 		// super.initOtherParams();
 
 		// the Component Parameter (not supporting AS_1997's vertical)
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 
 
 		// add this to the list

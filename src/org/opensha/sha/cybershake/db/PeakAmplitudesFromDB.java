@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opensha.commons.util.ListUtils;
-import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 
 public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
@@ -408,11 +408,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return vars;
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, IMType imType, Component component, int runID) {
+	public CybershakeIM getIMForPeriod(double period, IMType imType, CyberShakeComponent component, int runID) {
 		return this.getIMForPeriod(period, imType, component, runID, null);
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, IMType imType, Component component,
+	public CybershakeIM getIMForPeriod(double period, IMType imType, CyberShakeComponent component,
 			int runID, HazardCurve2DB curve2db) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		periods.add(period);
@@ -421,12 +421,12 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	}
 	
 	public ArrayList<CybershakeIM> getIMForPeriods(
-			List<Double> periods, IMType imType, Component component, int runID) {
+			List<Double> periods, IMType imType, CyberShakeComponent component, int runID) {
 		return this.getIMForPeriods(periods, imType, component, runID, null);
 	}
 	
 	public ArrayList<CybershakeIM> getIMForPeriods(
-			List<Double> periods, IMType imType, Component component, int runID, HazardCurve2DB curve2db) {
+			List<Double> periods, IMType imType, CyberShakeComponent component, int runID, HazardCurve2DB curve2db) {
 		ArrayList<CybershakeIM> supported = this.getSupportedIMs(runID);
 		if (curve2db != null) {
 			supported.addAll(curve2db.getSupportedIMs(runID));
@@ -522,7 +522,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
 		ArrayList<CybershakeIM> ims = amps.getIMForPeriods(ListUtils.wrapInList(0.1d),
-				IMType.SA, Component.GEOM_MEAN, 885, new HazardCurve2DB(db));
+				IMType.SA, CyberShakeComponent.GEOM_MEAN, 885, new HazardCurve2DB(db));
 		for (CybershakeIM im : ims)
 			System.out.println(im);
 		

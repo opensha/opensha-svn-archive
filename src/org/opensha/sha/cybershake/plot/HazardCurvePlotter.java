@@ -89,7 +89,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
-import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeRuptureVariation;
 import org.opensha.sha.cybershake.db.CybershakeSGTVariation;
@@ -111,6 +111,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -128,7 +129,7 @@ public class HazardCurvePlotter {
 	
 	protected static final String default_periods = "3";
 	private static final IMType defaultIMType = IMType.SA;
-	private static final Component defaultComponent = Component.GEOM_MEAN;
+	private static final CyberShakeComponent defaultComponent = CyberShakeComponent.GEOM_MEAN;
 	
 	private static final boolean use_cvm_vs30 = false;
 	
@@ -680,9 +681,9 @@ public class HazardCurvePlotter {
 			else
 				imType = defaultIMType;
 			
-			Component component;
+			CyberShakeComponent component;
 			if (cmd.hasOption("component"))
-				component = CybershakeIM.fromShortName(cmd.getOptionValue("component"), Component.class);
+				component = CybershakeIM.fromShortName(cmd.getOptionValue("component"), CyberShakeComponent.class);
 			else
 				component = defaultComponent;
 			
@@ -1328,43 +1329,13 @@ public class HazardCurvePlotter {
 //		truncLevelParam.setValue(3.0);
 		
 		// set the component
-		Component comp = im.getComponent();
+		CyberShakeComponent comp = im.getComponent();
 		if (comp == null) {
 			System.err.println("WARNING: Component is null, not updating GMPE component");
 		} else {
 			try {
 				ComponentParam param = (ComponentParam) attenRel.getParameter(ComponentParam.NAME);
-				ArrayList<String> allowed = param.getAllowedStrings();
-				
-				String match = null;
-				
-				switch (comp) {
-				case GEOM_MEAN:
-					if (allowed.contains(ComponentParam.COMPONENT_AVE_HORZ))
-						match = ComponentParam.COMPONENT_AVE_HORZ;
-					else if (allowed.contains(ComponentParam.COMPONENT_GMRotI50))
-						// this is same as avg horizontal, except independent of siesmometer orientation (used by NGAs)
-						match = ComponentParam.COMPONENT_GMRotI50;
-					break;
-				case RotD50:
-					if (allowed.contains(ComponentParam.COMPONENT_RotD50))
-						match = ComponentParam.COMPONENT_RotD50;
-					break;
-				case RotD100:
-					if (allowed.contains(ComponentParam.COMPONENT_RotD100))
-						match = ComponentParam.COMPONENT_RotD100;
-					break;
-				case X:
-					if (allowed.contains(ComponentParam.COMPONENT_RANDOM_HORZ))
-						match = ComponentParam.COMPONENT_RANDOM_HORZ;
-					break;
-				case Y:
-					if (allowed.contains(ComponentParam.COMPONENT_RANDOM_HORZ))
-						match = ComponentParam.COMPONENT_RANDOM_HORZ;
-					break;
-				default:
-					throw new IllegalStateException("Unknown CyberShake component: "+comp.getShortName());
-				}
+				Component match = comp.getSupportedComponent(param);
 				
 				if (match == null) {
 					System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have matching component"
@@ -1465,7 +1436,7 @@ public class HazardCurvePlotter {
 	 */
 	public static DiscretizedFunc getScaledCurveForComponent(
 			AttenuationRelationship attenRel, CybershakeIM im, DiscretizedFunc curve) {
-		Component component = im.getComponent();
+		CyberShakeComponent component = im.getComponent();
 		double period = im.getVal();
 		String gmpeComponent;
 		try {
@@ -1485,41 +1456,42 @@ public class HazardCurvePlotter {
 		// scaled curve if it can be scaled. otherwise a warning will be printed and original
 		// curve returned below the switch statement
 		
-		switch (component) {
-		case GEOM_MEAN:
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_AVE_HORZ)
-					|| gmpeComponent.equals(ComponentParam.COMPONENT_GMRotI50))
-				// it's already correct
-				return curve;
-			break;
-		case RotD50:
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50))
-				// it's already correct
-				return curve;
-			break;
-		case RotD100:
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD100))
-				// it's already correct
-				return curve;
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50)) {
-				// we can scale it
-				System.out.println("Scaling GMPE curve from RotD50 to RotD100");
-				return ComponentConversionUtil.convertRotD50toRotD100(period, curve);
-			}
-			break;
-		case X:
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
-				// it's already correct
-				return curve;
-			break;
-		case Y:
-			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
-				// it's already correct
-				return curve;
-			break;
-		default:
-			throw new IllegalStateException("Unknown CyberShake component: "+component.getShortName());
-		}
+		// TODO reinstate with new component framework
+//		switch (component) {
+//		case GEOM_MEAN:
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_AVE_HORZ)
+//					|| gmpeComponent.equals(ComponentParam.COMPONENT_GMRotI50))
+//				// it's already correct
+//				return curve;
+//			break;
+//		case RotD50:
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50))
+//				// it's already correct
+//				return curve;
+//			break;
+//		case RotD100:
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD100))
+//				// it's already correct
+//				return curve;
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RotD50)) {
+//				// we can scale it
+//				System.out.println("Scaling GMPE curve from RotD50 to RotD100");
+//				return ComponentConversionUtil.convertRotD50toRotD100(period, curve);
+//			}
+//			break;
+//		case X:
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+//				// it's already correct
+//				return curve;
+//			break;
+//		case Y:
+//			if (gmpeComponent.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+//				// it's already correct
+//				return curve;
+//			break;
+//		default:
+//			throw new IllegalStateException("Unknown CyberShake component: "+component.getShortName());
+//		}
 		
 		// we've made it this far, there's a mismatch that can't be scaled away
 		System.err.println("WARNING: There is a GMPE/CyberShake component mismatch and no scaling factors exist."
@@ -1639,7 +1611,7 @@ public class HazardCurvePlotter {
 		ops.addOption(imType);
 		
 		Option component = new Option("cmp", "component", true, "Intensity measure component. Options: "
-				+Joiner.on(",").join(CybershakeIM.getShortNames(Component.class))
+				+Joiner.on(",").join(CybershakeIM.getShortNames(CyberShakeComponent.class))
 				+", Default: "+defaultComponent.getShortName());
 		component.setRequired(false);
 		ops.addOption(component);

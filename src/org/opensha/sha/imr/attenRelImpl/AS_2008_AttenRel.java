@@ -23,6 +23,7 @@ package org.opensha.sha.imr.attenRelImpl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -50,6 +51,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
@@ -139,7 +141,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	double mag, f_rv, f_nm, depthTop, rupWidth, dip, f_as, f_hw;
 	double vs30, vsm, depthTo1pt0kmPerSec, pga_rock;
 	private double rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup;
-	private String component, stdDevType;
+	private Component component;
+	private String stdDevType;
 
 	private boolean rock_pga_is_not_fresh;
 
@@ -641,9 +644,8 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-		componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50) ;
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -942,7 +944,7 @@ public class AS_2008_AttenRel extends AttenuationRelationship implements
 	 * @param vsm (vs flag for measured/estimated)
 	 * @return
 	 */
-	public double getStdDev(int iper, String stdDevType, String component, double vs30, double pga_rock, double vsm) {
+	public double getStdDev(int iper, String stdDevType, Component component, double vs30, double pga_rock, double vsm) {
 
 		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) return 0.0;
 		

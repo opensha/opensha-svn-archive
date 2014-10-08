@@ -55,6 +55,7 @@ import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -110,7 +111,7 @@ public class HazusJobWriter {
 		ScalarIMR attenRel = new USGS_Combined_2004_AttenRel(null);
 		attenRel.setParamDefaults();
 		attenRel.getParameter(ComponentParam.NAME).
-				setValue(ComponentParam.COMPONENT_AVE_HORZ);
+				setValue(Component.AVE_HORZ);
 		return attenRel;
 	}
 	

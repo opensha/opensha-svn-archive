@@ -41,6 +41,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -172,7 +173,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
 
     attenRel.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
     attenRel.getParameter(SigmaTruncLevelParam.NAME).setValue(new Double(3.0));
-    attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
+    attenRel.getParameter(ComponentParam.NAME).setValue(Component.RANDOM_HORZ);
     attenRel.getParameter(StdDevTypeParam.NAME).setValue(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
     // set the vs30
     attenRel.getParameter(Vs30_Param.NAME).setValue(new Double(760.0));

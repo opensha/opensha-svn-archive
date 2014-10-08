@@ -2,7 +2,6 @@ package org.opensha.gem.GEM1.scratch;
 
 import java.util.HashMap;
 
-
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -26,6 +25,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -446,9 +446,8 @@ public class AtkBoo_2006_AttenRel extends AttenuationRelationship implements
 		super.initOtherParams();
 		
 		// Ground motion component
-	    StringConstraint constraint = new StringConstraint();
-	    constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-	    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50) ;
+	    // first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50);
 		
 	    // Add the parameter to the list
 		otherParams.addParameter(componentParam);

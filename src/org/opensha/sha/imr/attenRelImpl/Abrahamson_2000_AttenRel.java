@@ -51,6 +51,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -825,10 +826,8 @@ public class Abrahamson_2000_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(componentParam.COMPONENT_AVE_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

@@ -23,6 +23,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -549,10 +550,8 @@ Named {
 		super.initOtherParams();
 
 		// the Component Parameter (not supporting AS_1997's vertical)
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 		// add this to the list
 		otherParams.clear();
 		otherParams.addParameter(componentParam);

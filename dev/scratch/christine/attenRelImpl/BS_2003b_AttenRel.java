@@ -26,6 +26,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -405,7 +406,7 @@ public class BS_2003b_AttenRel
 //        cb_2008_attenRel.SITE_TYPE_ROCK);
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
 //        cb_2008_attenRel.COMPONENT_AVE_HORZ);
-    componentParam.setValue((String)cb_2008_attenRel.getParameter(ComponentParam.NAME).getValue()); 
+    componentParam.setValue((Component) cb_2008_attenRel.getParameter(ComponentParam.NAME).getValue()); 
 
     // re-set the site type to rock and component to ave horz
     double rockVS = 1100.00;
@@ -610,11 +611,8 @@ public class BS_2003b_AttenRel
     // super.initOtherParams();
 
     // the Component Parameter (not supporting AS_1997's vertical)
-	  
-    StringConstraint constraint = new StringConstraint();
-    constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-    constraint.setNonEditable();
-    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+    // first is default, the rest are all options (including default)
+    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50);
 
     // add this to the list
     otherParams.clear();

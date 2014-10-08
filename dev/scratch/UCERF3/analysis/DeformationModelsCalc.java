@@ -48,6 +48,7 @@ import org.opensha.sha.imr.param.EqkRuptureParams.FaultTypeParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -430,7 +431,7 @@ public class DeformationModelsCalc {
 		double vs30	= 400;
 		double mag = 7;
 		String faultType = BA_2008_AttenRel.FLT_TYPE_UNKNOWN;
-		String component = ComponentParam.COMPONENT_GMRotI50;
+		Component component = Component.GMRotI50;
 		
 		ba2008.getParameter(Vs30_Param.NAME).setValue(vs30);
 		ba2008.getParameter(MagParam.NAME).setValue(mag);

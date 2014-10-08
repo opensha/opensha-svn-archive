@@ -34,6 +34,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
@@ -42,6 +43,8 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.PropagationEffectParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.WarningDoublePropagationEffectParameter;
+
+import com.google.common.base.Preconditions;
 
 
 /**
@@ -259,15 +262,31 @@ public class AttenRelResultsChecker {
 					//DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
 					if(tempParam instanceof StringParameter)
 						tempParam.setValue(paramVal);
-					if(tempParam instanceof DoubleParameter)
+					else if(tempParam instanceof DoubleParameter)
 						tempParam.setValue(new Double(paramVal));
-					if(tempParam instanceof IntegerParameter)
+					else if(tempParam instanceof IntegerParameter)
 						tempParam.setValue(new Integer(paramVal));
-					if(tempParam instanceof DoubleDiscreteParameter)
+					else if(tempParam instanceof DoubleDiscreteParameter)
 						tempParam.setValue(new Double(paramVal));
-					if(tempParam instanceof AbstractDoublePropEffectParam) {
+					else if(tempParam instanceof AbstractDoublePropEffectParam) {
 						((AbstractDoublePropEffectParam)tempParam).setIgnoreWarning(true);
 						tempParam.setValue(new Double(paramVal));
+					} else if (tempParam instanceof EnumParameter<?>) {
+						// need to get enum constants
+						Object enumVal = ((EnumParameter<?>)tempParam).getDefaultValue();
+						if (enumVal == null)
+							enumVal = tempParam.getValue();
+						Preconditions.checkState(tempParam != null, "can't detect enum options for "+tempParam.getName());
+						Object[] options = enumVal.getClass().getEnumConstants();
+						boolean success = false;
+						for (Object option : options) {
+							if (option.toString().equals(paramVal)) {
+								tempParam.setValue(option);
+								success = true;
+								break;
+							}
+						}
+						Preconditions.checkState(success, "couldn't set enum param "+tempParam.getName()+" to: '"+paramVal+"'");
 					}
 
 

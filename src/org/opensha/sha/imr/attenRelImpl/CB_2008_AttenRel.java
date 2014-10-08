@@ -54,6 +54,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
@@ -125,7 +126,8 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 
 	private int iper;
 	private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
-	private String stdDevType, component;
+	private String stdDevType;
+	private Component component;
 	private boolean magSaturation;
 
 	// values for warning parameters
@@ -552,10 +554,8 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-		constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
-		componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+	    // first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50, Component.RANDOM_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -699,7 +699,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 	 * @param component
 	 * @return
 	 */
-	public double getStdDev(int iper, String stdDevType, String component, double vs30, double rock_pga) {
+	public double getStdDev(int iper, String stdDevType, Component component, double vs30, double rock_pga) {
 
 		if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) return 0.0;
 
@@ -722,7 +722,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 
 		// compute multiplicative factor in case component is random horizontal
 		double random_ratio;
-		if(component.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+		if(component == Component.RANDOM_HORZ)
 			random_ratio = Math.sqrt(1 + (s_c[iper]*s_c[iper])/(sigma_total*sigma_total));
 		else
 			random_ratio = 1;

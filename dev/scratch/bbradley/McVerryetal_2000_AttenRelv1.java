@@ -25,6 +25,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -146,7 +147,8 @@ public class McVerryetal_2000_AttenRelv1
 
   private int iper;
   private double rRup, mag;
-  private String stdDevType, fltType, component;
+  private String stdDevType, fltType;
+  private Component component;
   private boolean parameterChange;
   
   protected final static Double MAG_WARN_MIN = new Double(5.0);
@@ -175,10 +177,6 @@ public class McVerryetal_2000_AttenRelv1
   public final static String FLT_TYPE_NORMAL = "Normal";
   public final static String FLT_TYPE_INTERFACE = "Subduction-Interface";
   public final static String FLT_TYPE_DEEP_SLAB = "Subduction-Deep-Slab";
-
-  // change component default from that of parent
-  public final static String COMPONENT_GEOMEAN = ComponentParam.COMPONENT_AVE_HORZ;
-  public final static String COMPONENT_LARGERHORIZ = ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ;
  
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -357,7 +355,7 @@ public class McVerryetal_2000_AttenRelv1
     mag = ( (Double) magParam.getValue()).doubleValue();
     fltType = (String) fltTypeParam.getValue();
     stdDevType = (String) stdDevTypeParam.getValue();
-    component = (String) componentParam.getValue();
+    component = componentParam.getValue();
   }
 
   /**
@@ -494,11 +492,8 @@ public class McVerryetal_2000_AttenRelv1
 	    super.initOtherParams();
 
 	    // the Component Parameter
-	    StringConstraint componentConstraint = new StringConstraint();
-	    componentConstraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-	    componentConstraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
-	    componentConstraint.setNonEditable();
-	    componentParam = new ComponentParam(componentConstraint,ComponentParam.COMPONENT_AVE_HORZ);
+	    // first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.GREATER_OF_TWO_HORZ);
 	    
 	    // the stdDevType Parameter
 	    StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -533,7 +528,7 @@ public class McVerryetal_2000_AttenRelv1
   }
 
   public double getMean(int iper, StringParameter siteTypeParam, double rRup, double mag,
-                        String fltType, String component) {
+                        String fltType, Component component) {
 
     // initialise dummy variables
     double CN=0.0, CR=0.0, SI=0.0, DS=0.0, deltaC=0.0, deltaD=0.0;
@@ -567,7 +562,7 @@ public class McVerryetal_2000_AttenRelv1
 	}
 
     //Key attenuation code
-    if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+    if(component == Component.AVE_HORZ) {
     	//Crustal attenuation relation
         lnSA_AB=C1_gm[iper]+C4AS_gm*(mag-6.)+C3AS_gm[iper]*Math.pow(8.5-mag,2)+C5_gm[iper]*rRup+(C8_gm[iper]+C6AS_gm*(mag-6.))*Math.log(Math.sqrt(Math.pow(rRup,2.)+Math.pow(C10AS_gm[iper],2.)))+C46_gm[iper]*rVol+C32_gm*CN+C33AS_gm[iper]*CR;
         
@@ -593,14 +588,14 @@ public class McVerryetal_2000_AttenRelv1
     return lnSA;
   }
 
-  public double getStdDev(int iper, String stdDevType, String component) {
+  public double getStdDev(int iper, String stdDevType, Component component) {
   
 	if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE)) {
 		return 0.0;
 	}
 	else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER)) {
 		double sigmaInter;
-		if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+		if(component == Component.AVE_HORZ) {
 			sigmaInter = tau_gm[iper];
 		}
 		else {
@@ -611,7 +606,7 @@ public class McVerryetal_2000_AttenRelv1
 	else {   
 		double sigmaIntra;
 		if (mag <=5.0) {
-			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+			if(component == Component.AVE_HORZ) {
 				sigmaIntra=sigma6_gm[iper]-sigSlope_gm[iper];
 			}
 			else {
@@ -619,7 +614,7 @@ public class McVerryetal_2000_AttenRelv1
 			}
 		}
 		else if (mag >=7.0) {
-			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+			if(component == Component.AVE_HORZ) {
 				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper];
 			}
 			else {
@@ -627,7 +622,7 @@ public class McVerryetal_2000_AttenRelv1
 			}
 		}
 		else {
-			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+			if(component == Component.AVE_HORZ) {
 				sigmaIntra=sigma6_gm[iper]+sigSlope_gm[iper]*(mag-6.);
 			}
 			else {
@@ -640,7 +635,7 @@ public class McVerryetal_2000_AttenRelv1
 		}
 		else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) {
 			double sigmaInter;
-			if(component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+			if(component == Component.AVE_HORZ) {
 				sigmaInter = tau_gm[iper];
 			}
 			else {
@@ -678,7 +673,7 @@ public class McVerryetal_2000_AttenRelv1
 		  fltType = (String)fltTypeParam.getValue();
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
-		  component = (String) val;
+		  component = (Component) val;
 	  }
 	  else if (pName.equals(PeriodParam.NAME)) {
 		  intensityMeasureChanged = true;

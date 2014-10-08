@@ -43,6 +43,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -116,7 +117,8 @@ public class BommerEtAl_2009_AttenRel
 
   private int imIndex;
   private double vs30, rRup, mag, depthTop;
-  private String stdDevType, component;
+  private String stdDevType;
+  private Component component;
   private boolean parameterChange;
   
   //private PropagationEffect propagationEffect;
@@ -261,7 +263,7 @@ public class BommerEtAl_2009_AttenRel
 	  }
 	  
 	  
-	  component = (String)componentParam.getValue();
+	  component = componentParam.getValue();
 	  
 	  double stdDev = getStdDev(imIndex, stdDevType, component); 
 	  return stdDev;
@@ -405,10 +407,8 @@ public class BommerEtAl_2009_AttenRel
     super.initOtherParams();
 
     // the Component Parameter
-    StringConstraint constraint = new StringConstraint();
-    constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
-    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_AVE_HORZ);
+    // first is default, the rest are all options (including default)
+    componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.RANDOM_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -470,13 +470,13 @@ public class BommerEtAl_2009_AttenRel
   * @param component
   * @return
   */
- public double getStdDev(int imIndex, String stdDevType, String component) {
+ public double getStdDev(int imIndex, String stdDevType, Component component) {
 
 	  if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_NONE))
 		  return 0.0;
 	  else {
 		  if(stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
-			  if (component.equals(ComponentParam.COMPONENT_AVE_HORZ))
+			  if (component == Component.AVE_HORZ)
 				  return sigmaT_gm[imIndex];
 			  else
 				  return sigmaT_arb[imIndex];
@@ -485,7 +485,7 @@ public class BommerEtAl_2009_AttenRel
 		  else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
 			  return tau[imIndex];
 		  else if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
-			  if (component.equals(ComponentParam.COMPONENT_AVE_HORZ))
+			  if (component == Component.AVE_HORZ)
 				  return sigma[imIndex];
 			  else
 				  return Math.sqrt(Math.pow(sigma[imIndex],2)+Math.pow(sigmaC[imIndex],2));
@@ -519,7 +519,7 @@ public class BommerEtAl_2009_AttenRel
 		  stdDevType = (String) val;
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
-		  component = (String)componentParam.getValue();
+		  component = componentParam.getValue();
 	  }
   }
 

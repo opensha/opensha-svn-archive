@@ -47,6 +47,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.AbstractDoublePropEffectParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
@@ -119,11 +120,11 @@ public class CB_2008_test extends NGATest implements ParameterChangeWarningListe
 				 standard deviation of arbitrary horizontal component */
 			if(fileName.contains("SIGARB")) {
 				// Std Dev of arbitrary horizontal component
-				cb_2008.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
+				cb_2008.getParameter(ComponentParam.NAME).setValue(Component.RANDOM_HORZ);
 				testValString = "Std Dev of Arb Horz Comp";
 			} else {
 				//Std dev of geomteric mean 
-				cb_2008.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_GMRotI50);
+				cb_2008.getParameter(ComponentParam.NAME).setValue(Component.GMRotI50);
 				testValString = "Std dev of geomteric mean";
 			}
 		}

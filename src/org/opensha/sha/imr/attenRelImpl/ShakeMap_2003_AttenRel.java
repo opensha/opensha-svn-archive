@@ -52,6 +52,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
@@ -680,8 +681,8 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 				coeffSM.bv * (Math.log(rockVs30_SM / coeffSM.va));
 
 		//correct it max horizontal is desired
-		String component = (String) componentParam.getValue();
-		if (component.equals(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ)) {
+		Component component = componentParam.getValue();
+		if (component == Component.GREATER_OF_TWO_HORZ) {
 			meanSM += 0.139762; // add ln(1.15)
 			meanBJF += 0.139762;
 		}
@@ -737,7 +738,7 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 		}
 
 		String stdDevType = stdDevTypeParam.getValue().toString();
-		String component = componentParam.getValue().toString();
+		Component component = componentParam.getValue();
 
 		// get the magnitude
 		double mag;
@@ -753,8 +754,8 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 
 		double stdevBJF, stdevSM;
 		// set the correct standard deviation depending on component and type
-		if (component.equals(ComponentParam.COMPONENT_AVE_HORZ) ||
-				component.equals(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ)) {
+		if (component == Component.AVE_HORZ ||
+				component == Component.GREATER_OF_TWO_HORZ) {
 
 			if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
 				stdevBJF = Math.pow( (coeffBJF.sigmaE * coeffBJF.sigmaE +
@@ -778,7 +779,7 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 				throw new ParameterException(C + ": getStdDev(): Invalid StdDevType");
 			}
 		}
-		else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ)) {
+		else if (component == Component.RANDOM_HORZ) {
 
 			if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
 				stdevBJF = (coeffBJF.sigmaLnY);
@@ -1003,12 +1004,9 @@ public class ShakeMap_2003_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ,
+				Component.RANDOM_HORZ, Component.GREATER_OF_TWO_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

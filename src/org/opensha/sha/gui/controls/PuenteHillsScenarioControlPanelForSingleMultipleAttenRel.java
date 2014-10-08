@@ -39,6 +39,7 @@ import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
@@ -432,7 +433,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     editor.refreshParamEditor();
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
     imrGuiBean.setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(ComponentParam.NAME).setValue(Component.AVE_HORZ);
     imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
     //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting

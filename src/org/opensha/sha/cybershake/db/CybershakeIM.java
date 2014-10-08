@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.sha.imr.param.OtherParams.Component;
+import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -52,15 +54,17 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		}
 	}
 	
-	public enum Component implements DBField {
-		GEOM_MEAN("geometric mean", "GEOM"),
-		X("X", "X"),
-		Y("Y", "Y"),
-		RotD100("RotD100", "RotD100"),
-		RotD50("RotD50", "RotD50");
+	public enum CyberShakeComponent implements DBField {
+		GEOM_MEAN("geometric mean", "GEOM", Component.AVE_HORZ, Component.GMRotI50),
+		X("X", "X", Component.RANDOM_HORZ),
+		Y("Y", "Y", Component.RANDOM_HORZ),
+		RotD100("RotD100", "RotD100", Component.RotD100),
+		RotD50("RotD50", "RotD50", Component.RotD50);
 
 		private String dbName, shortName;
-		private Component(String dbName, String shortName) {
+		// supported GMPE components
+		private Component[] gmpeComponents;
+		private CyberShakeComponent(String dbName, String shortName, Component... gmpeComponent) {
 			this.dbName = dbName;
 			this.shortName = shortName;
 		}
@@ -75,6 +79,19 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		@Override
 		public String toString() {
 			return getShortName();
+		}
+		public Component[] getGMPESupportedComponents() {
+			return gmpeComponents;
+		}
+		public Component getSupportedComponent(ComponentParam compParam) {
+			return getSupportedComponent(compParam.getConstraint().getAllowedValues());
+		}
+		public Component getSupportedComponent(List<Component> components) {
+			for (Component gmpeComponent : gmpeComponents)
+				if (components.contains(gmpeComponent))
+					return gmpeComponent;
+			// no supported
+			return null;
 		}
 	}
 	
@@ -119,9 +136,9 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 	private IMType measure;
 	private double val;
 	private String units;
-	private Component component;
+	private CyberShakeComponent component;
 	
-	public CybershakeIM(int id, IMType measure, double val, String units, Component component) {
+	public CybershakeIM(int id, IMType measure, double val, String units, CyberShakeComponent component) {
 		this.id = id;
 		this.measure = measure;
 		this.val = val;
@@ -137,7 +154,7 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		return measure;
 	}
 	
-	public Component getComponent() {
+	public CyberShakeComponent getComponent() {
 		return component;
 	}
 
@@ -176,7 +193,7 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		Double value = rs.getDouble("IM_Type_Value");
 		String units = rs.getString("Units");
 		String componentStr = rs.getString("IM_Type_Component");
-		Component component = fromDBField(componentStr, Component.class);
+		CyberShakeComponent component = fromDBField(componentStr, CyberShakeComponent.class);
 		return new CybershakeIM(id, measure, value, units, component);
 	}
 }

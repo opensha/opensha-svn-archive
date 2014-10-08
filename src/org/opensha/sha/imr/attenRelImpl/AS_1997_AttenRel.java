@@ -53,6 +53,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
@@ -341,7 +342,7 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 			key.append("/" + saPeriodParam.getValue());
 		}
 		// Get component-dependent coefficients
-		if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+		if (componentParam.getValue() == Component.AVE_HORZ) {
 			// these are the same for all periods
 			a2 = 0.512;
 			a4 = -0.144;
@@ -375,7 +376,8 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 	public double getMean() throws IMRException {
 
 		double mag, dist, mean;
-		String fltType, isHW, siteType, component;
+		String fltType, isHW, siteType;
+		Component component;
 
 		try {
 			mag = magParam.getValue();
@@ -415,7 +417,7 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 		}
 
 		// Get PGA coefficients
-		if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+		if (component == Component.AVE_HORZ) {
 			coeff = horzCoeffs.get(PGA_Param.NAME);
 			a2 = 0.512;
 			a4 = -0.144;
@@ -732,11 +734,8 @@ public class AS_1997_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_VERT);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint, ComponentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.VERT);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

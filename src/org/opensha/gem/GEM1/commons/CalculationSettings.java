@@ -22,6 +22,7 @@ import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ZhaoEtAl_2006_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -76,7 +77,7 @@ public class CalculationSettings {
 //	private static String std_dev_typeNGA = StdDevTypeParam.STD_DEV_TYPE_TOTAL;
 //	private static String sigma_trunc_typeNGA= SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_2SIDED;
 //	private static double sigma_trunc_levelNGA = 3.0;
-	private static String componentNGA = ComponentParam.COMPONENT_GMRotI50;
+	private static Component componentNGA = Component.GMRotI50;
 	private static double vs30NGA = 760.0;
 	
 	// default parameters for McVerry et al.
@@ -84,13 +85,13 @@ public class CalculationSettings {
 //	private static String std_dev_typeMcVerry = StdDevTypeParam.STD_DEV_TYPE_TOTAL;
 //	private static String sigma_trunc_typeMcVerry= SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_2SIDED;
 //	private static double sigma_trunc_levelMcVerry = 3.0;
-	private static String componentMcVerry = ComponentParam.COMPONENT_AVE_HORZ;
+	private static Component componentMcVerry = Component.AVE_HORZ;
 	
 	// Zhao et al.
-	private static String componentZhao = ComponentParam.COMPONENT_AVE_HORZ;
+	private static Component componentZhao = Component.AVE_HORZ;
 	
 	// Atkinson and Boore 2006
-	private static String componentAtkBoo = ComponentParam.COMPONENT_GMRotI50;
+	private static Component componentAtkBoo = Component.GMRotI50;
 	private static double vs30AtkBoo = 760.0;
 	
     // intensity measure level list

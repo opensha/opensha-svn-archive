@@ -46,6 +46,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusDistX_OverRupParam;
@@ -570,10 +571,8 @@ public class CY_2008_AttenRel extends AttenuationRelationship implements
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+	    // first is default, the rest are all options (including default)
+	    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

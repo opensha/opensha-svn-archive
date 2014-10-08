@@ -48,6 +48,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
@@ -299,7 +300,8 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 	public double getMean() throws IMRException {
 
 		double mag, dist, depth, F, mean, lnPGA;
-		String fltType, siteType, component, im_name;
+		String fltType, siteType, im_name;
+		Component component;
 
 		Double tempDepth;
 
@@ -313,7 +315,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 			tempDepth = (Double) basinDepthParam.getValue();
 			fltType = fltTypeParam.getValue().toString();
 			siteType = siteTypeParam.getValue().toString();
-			component = componentParam.getValue().toString();
+			component = componentParam.getValue();
 			im_name = im.getName();
 		}
 		catch (NullPointerException e) {
@@ -384,7 +386,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 
 		// Do PGA first:
 			if (im_name.equals(PGA_Param.NAME)) {
-				if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+				if (component == Component.AVE_HORZ) {
 					mean = lnPGA;
 				}
 				else { // vertical component
@@ -402,7 +404,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 				double period = ( (Double) saPeriodParam.getValue()).doubleValue();
 
 				if (period == 0.0) { // do same as for PGA
-					if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+					if (component == Component.AVE_HORZ) {
 						mean = lnPGA;
 					}
 					else { // vertical component
@@ -424,7 +426,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 					}
 
 					// check if vertical component desired
-					if (component.equals(ComponentParam.COMPONENT_VERT)) {
+					if (component == Component.VERT) {
 						mean += coeff.c1_v - 0.1 * mag + coeff.c2_v * tanh(0.71 * (mag - 4.7)) +
 						coeff.c3_v * tanh(0.66 * (mag - 4.7)) -
 						1.50 * Math.log(dist + 0.079 * Math.exp(0.661 * mag)) +
@@ -447,7 +449,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 					mean -= 0.3 * (1.0 - depth) * (1.0 - 0.5 * S_sr) * (1.0 - S_hr);
 				}
 				// check if vertical component desired
-				if (component.equals(ComponentParam.COMPONENT_VERT)) {
+				if (component == Component.VERT) {
 					mean += -2.15 + 0.07 * mag -
 					1.24 * Math.log(dist + 0.00394 * Math.exp(1.17 * mag)) +
 					1.44 * Math.log(dist + 0.0203 * Math.exp(0.958 * mag)) + 0.1 * F +
@@ -470,7 +472,8 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 		}
 		else {
 
-			String fltType, siteType, component, im_name, stdevType;
+			String fltType, siteType, im_name, stdevType;
+			Component component;
 			double mag, dist, sigma, pga, depth, F;
 
 			double S_hr = 0;
@@ -478,7 +481,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 
 			try {
 				mag = ( (Double) magParam.getValue()).doubleValue();
-				component = componentParam.getValue().toString();
+				component = componentParam.getValue();
 				im_name = im.getName();
 				stdevType = stdDevTypeParam.getValue().toString();
 			}
@@ -557,7 +560,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 
 			// Do PGA first:
 			if (im_name.equals(PGA_Param.NAME)) {
-				if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+				if (component == Component.AVE_HORZ) {
 					return (sigma);
 				}
 				else { // vertical component
@@ -570,7 +573,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 				// make same as PGA if period = zero
 				double period = ( (Double) saPeriodParam.getValue()).doubleValue();
 				if (period == 0) {
-					if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+					if (component == Component.AVE_HORZ) {
 						return (sigma);
 					}
 					else { // vertical component
@@ -580,7 +583,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 				else {
 					// compute horz comp SA sigma:
 					sigma = Math.pow(sigma * sigma + 0.0729, 0.5);
-					if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+					if (component == Component.AVE_HORZ) {
 						return (sigma);
 					}
 					else { // vertical component
@@ -593,7 +596,7 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 			else {
 				// compute horz comp PGV sigma:
 				sigma = Math.pow(sigma * sigma + 0.0036, 0.5);
-				if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+				if (component == Component.AVE_HORZ) {
 					return (sigma);
 				}
 				else { // vertical component
@@ -803,11 +806,8 @@ public class Campbell_1997_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_VERT);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.VERT);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

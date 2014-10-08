@@ -45,6 +45,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
@@ -316,13 +317,12 @@ public class BJF_1997_AttenRel extends AttenuationRelationship {
 	public double getStdDev() throws IMRException {
 
 		String stdDevType = stdDevTypeParam.getValue().toString();
-		String component = componentParam.getValue().toString();
-
+		Component component = componentParam.getValue();
 		// this is inefficient if the im has not been changed in any way
 		updateCoefficients();
 
 		// set the correct standard deviation depending on component and type
-		if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+		if (component == Component.AVE_HORZ) {
 
 			if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
 				return Math.pow( (coeff.sigmaE * coeff.sigmaE +
@@ -341,7 +341,7 @@ public class BJF_1997_AttenRel extends AttenuationRelationship {
 				throw new ParameterException(C + ": getStdDev(): Invalid StdDevType");
 			}
 		}
-		else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ)) {
+		else if (component == Component.RANDOM_HORZ) {
 
 			if (stdDevType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL)) { // "Total"
 				return (coeff.sigmaLnY);
@@ -526,11 +526,8 @@ public class BJF_1997_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.RANDOM_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

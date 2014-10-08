@@ -51,6 +51,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistRupMinusJB_OverRupParameter;
@@ -156,7 +157,8 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
 
   private int iper;
   private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
-  private String stdDevType, component;
+  private String stdDevType;
+  private Component component;
   private boolean magSaturation;
   private boolean parameterChange;
 
@@ -586,7 +588,7 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
     if (intensityMeasureChanged) {
       setCoeffIndex();  // intensityMeasureChanged is set to false in this method
     }
-    component = (String)componentParam.getValue();
+    component = componentParam.getValue();
     return getStdDev(iper, stdDevType, component);
   }
 
@@ -783,10 +785,8 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
     super.initOtherParams();
 
     // the Component Parameter
-    StringConstraint constraint = new StringConstraint();
-    constraint.addString(ComponentParam.COMPONENT_GMRotI50);
-    constraint.addString(ComponentParam.COMPONENT_RANDOM_HORZ);
-    componentParam = new ComponentParam(constraint,ComponentParam.COMPONENT_GMRotI50);
+    // first is default, the rest are all options (including default)
+    componentParam = new ComponentParam(Component.GMRotI50, Component.GMRotI50, Component.RANDOM_HORZ);
 
     // the stdDevType Parameter
     StringConstraint stdDevTypeConstraint = new StringConstraint();
@@ -927,7 +927,7 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
   * @param component
   * @return
   */
-  public double getStdDev(int iper, String stdDevType, String component) {
+  public double getStdDev(int iper, String stdDevType, Component component) {
 	  
 	  double s = s_lny[iper];
 	  double t = t_lny[iper];
@@ -935,9 +935,9 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
 	  
 	  // set k for random versus ave horz
 	  double k;
-	  if(component.equals(ComponentParam.COMPONENT_GMRotI50))
+	  if(component == Component.GMRotI50)
 		  k =0;
-	  else if (component.equals(ComponentParam.COMPONENT_RANDOM_HORZ))
+	  else if (component == Component.RANDOM_HORZ)
 		  k=1;
 	  else
 		  k = Double.NaN; // just in case invalid component given
@@ -1006,7 +1006,7 @@ public class CB_2006_AttenRel extends AttenuationRelationship implements
 		  dip = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(ComponentParam.NAME)) {
-		  component = (String)componentParam.getValue();
+		  component = componentParam.getValue();
 	  }
 	  else if (pName.equals(PeriodParam.NAME)) {
 		  intensityMeasureChanged = true;

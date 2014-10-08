@@ -50,6 +50,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
@@ -191,12 +192,6 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 	protected final static Double VS30_WARN_MAX = new Double(3500.0);
 
 	/**
-	 * Their maximum horizontal component option.
-	 */
-	public final static String COMPONENT_GREATER_OF_TWO_HORZ =
-		"Greater of Two Horz.";
-
-	/**
 	 * MMI parameter, the natural log of the "Modified Mercalli Intensity" IMT.
 	 */
 	protected MMI_Param mmiParam = null;
@@ -246,12 +241,12 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		site_BC.addParameter(bjf_1997_attenRel.getParameter(Vs30_Param.NAME));
 
 		// set the components in the attenuation relationships
-		as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
-		cb_2003_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_AVE_HORZ);
+		as_1997_attenRel.getParameter(ComponentParam.NAME).setValue(Component.AVE_HORZ);
+		cb_2003_attenRel.getParameter(ComponentParam.NAME).setValue(Component.AVE_HORZ);
 		scemy_1997_attenRel.getParameter(ComponentParam.NAME).setValue(
-				ComponentParam.COMPONENT_AVE_HORZ);
+				Component.AVE_HORZ);
 		// the next one is different to be consistent with Frankel's implementation
-		bjf_1997_attenRel.getParameter(ComponentParam.NAME).setValue(ComponentParam.COMPONENT_RANDOM_HORZ);
+		bjf_1997_attenRel.getParameter(ComponentParam.NAME).setValue(Component.RANDOM_HORZ);
 
 	}
 
@@ -434,8 +429,8 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		}
 
 		// correct for component if necessary
-		String comp = (String) componentParam.getValue();
-		if (comp.equals(COMPONENT_GREATER_OF_TWO_HORZ)) {
+		Component comp = componentParam.getValue();
+		if (comp == Component.GREATER_OF_TWO_HORZ) {
 			mean += 0.139762; // add ln(1.15)
 		}
 
@@ -934,11 +929,8 @@ public class USGS_Combined_2004_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_GREATER_OF_TWO_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

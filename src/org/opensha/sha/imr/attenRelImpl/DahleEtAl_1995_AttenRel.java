@@ -42,6 +42,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
@@ -80,11 +81,6 @@ public class DahleEtAl_1995_AttenRel extends AttenuationRelationship {
 	public final static String NAME = "Dahle et al. (1995)";
 	public final static String SHORT_NAME = "Dahle1995";
 	private static final long serialVersionUID = 1234567890987654361L;
-
-
-	// component
-	public final static String COMPONENT_UNKNOWN_HORZ = "Unknown Horizontal";
-	public final static String COMPONENT_DEFAULT = COMPONENT_UNKNOWN_HORZ;
 
 	// warning constraint fields:
 	protected final static Double MAG_WARN_MIN = new Double(5.);
@@ -443,10 +439,8 @@ public class DahleEtAl_1995_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(COMPONENT_UNKNOWN_HORZ);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,COMPONENT_UNKNOWN_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.UNKNOWN_HORZ, Component.UNKNOWN_HORZ);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

@@ -19,44 +19,36 @@
 
 package org.opensha.sha.imr.param.OtherParams;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.StringParameter;
+
+import com.google.common.collect.Lists;
 
 /**
  * Component Parameter, reserved for representing the component of shaking
- * (in 3D space). The constraint must be provided in the constructor, and the
- * "COMPONENT_*" strings here represent common options that can be used in creating 
- *  the constraint (although other unique options can be added as well).
- *  See constructors for info on editability and default values.
+ * (in 3D space). See {@link Component} for options.
  */
 
-public class ComponentParam extends StringParameter {
-
-	public final static String NAME = "Component";
-	public final static String INFO = "Component of shaking";
-
-	// Options for constraint:
-	public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
-	public final static String COMPONENT_GMRotI50 = "Average Horizontal (GMRotI50)";
-	public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
-	public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
-	public final static String COMPONENT_VERT = "Vertical";
-	public final static String COMPONENT_RotD50 = "RotD50";
-	public final static String COMPONENT_RotD100 = "RotD100";
-	
-	public ComponentParam(String defaultValue, String... options) {
-		this(new StringConstraint(options), defaultValue);
-	}
+public class ComponentParam extends EnumParameter<Component> {
 
 	/**
-	 * The parameter is set as non editable after creation
-	 * @param options
-	 * @param defaultValue
+	 * 
 	 */
-	public ComponentParam(StringConstraint options, String defaultValue) {
-		super(NAME, options);
-	    setInfo(INFO);
-	    setDefaultValue(defaultValue);
-	    setNonEditable();
+	private static final long serialVersionUID = 1L;
+	
+	public final static String NAME = "Component";
+	public final static String INFO = "Component of shaking";
+	
+	public ComponentParam(Component defaultValue, Component... options) {
+		this(defaultValue, Lists.newArrayList(options));
+	}
+	
+	public ComponentParam(Component defaultValue, List<Component> options) {
+		super(NAME, EnumSet.copyOf(options), defaultValue, null);
+		setInfo(INFO);
 	}
 }

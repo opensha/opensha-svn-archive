@@ -42,6 +42,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -217,11 +218,8 @@ public class NSHMP08_CEUS extends AttenuationRelationship implements
 		super.initOtherParams();
 
 		// Component Parameter - uneditable
-		StringConstraint compConst = new StringConstraint();
-		compConst.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		compConst.setNonEditable();
-		componentParam = new ComponentParam(compConst,
-			ComponentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ);
 		componentParam.setValueAsDefault();
 		otherParams.addParameter(componentParam);
 

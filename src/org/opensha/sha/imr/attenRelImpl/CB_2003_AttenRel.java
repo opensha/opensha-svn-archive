@@ -47,6 +47,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
@@ -310,7 +311,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 		}
 
 		// Set coefficients depending on component:
-		if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+		if (componentParam.getValue() == Component.AVE_HORZ) {
 			if (horzCoefficients.containsKey(key.toString())) {
 				coeff = (CB_2003_AttenRelCoefficients) horzCoefficients.get(key.
 						toString());
@@ -396,7 +397,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 		}
 
 		// throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
-		if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_VERT) &&
+		if (componentParam.getValue() == Component.VERT &&
 				siteType.equals(SITE_TYPE_NEHRP_BC)) {
 			throw new RuntimeException(SITE_TYPE_NEHRP_BC +
 					" site type is not supported " +
@@ -494,7 +495,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 		String stdevType = stdDevTypeParam.getValue().toString();
 
 		// throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
-		if (componentParam.getValue().toString().equals(ComponentParam.COMPONENT_VERT) &&
+		if (componentParam.getValue() == Component.VERT &&
 				siteTypeParam.getValue().toString().equals(SITE_TYPE_NEHRP_BC)) {
 			throw new RuntimeException(SITE_TYPE_NEHRP_BC +
 					" site type is not supported " +
@@ -523,7 +524,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 		else { // PGA dependent
 
 			// Get the component:
-			String component = (String) componentParam.getValue();
+			Component component = componentParam.getValue();
 
 			// get the PGA coeffs (Note diff between those for PGA vs SA at zero period)
 			StringBuffer key = new StringBuffer(im.getName());
@@ -532,7 +533,7 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 				key.append("/0.0");
 			}
 
-			if (component.equals(ComponentParam.COMPONENT_AVE_HORZ)) {
+			if (component == Component.AVE_HORZ) {
 				coeff = (CB_2003_AttenRelCoefficients) horzCoefficients.get(key.
 						toString());
 			}
@@ -742,11 +743,8 @@ public class CB_2003_AttenRel extends AttenuationRelationship {
 		super.initOtherParams();
 
 		// the Component Parameter
-		StringConstraint constraint = new StringConstraint();
-		constraint.addString(ComponentParam.COMPONENT_AVE_HORZ);
-		constraint.addString(ComponentParam.COMPONENT_VERT);
-		constraint.setNonEditable();
-		componentParam = new ComponentParam(constraint,componentParam.COMPONENT_AVE_HORZ);
+		// first is default, the rest are all options (including default)
+		componentParam = new ComponentParam(Component.AVE_HORZ, Component.AVE_HORZ, Component.VERT);
 
 		// the stdDevType Parameter
 		StringConstraint stdDevTypeConstraint = new StringConstraint();

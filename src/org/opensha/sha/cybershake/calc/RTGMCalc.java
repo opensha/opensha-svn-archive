@@ -29,7 +29,7 @@ import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.cybershake.db.CybershakeIM;
-import org.opensha.sha.cybershake.db.CybershakeIM.Component;
+import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -54,7 +54,7 @@ import com.google.common.collect.Lists;
 public class RTGMCalc {
 	
 	private int runID;
-	private Component component;
+	private CyberShakeComponent component;
 	private File outputDir;
 	
 	private DBAccess db;
@@ -76,9 +76,9 @@ public class RTGMCalc {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
 		int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
 		
-		Component component = null;
+		CyberShakeComponent component = null;
 		if (cmd.hasOption("component"))
-			component = CybershakeIM.fromShortName(cmd.getOptionValue("component"), Component.class);
+			component = CybershakeIM.fromShortName(cmd.getOptionValue("component"), CyberShakeComponent.class);
 		
 		Preconditions.checkArgument(cmd.hasOption("output-dir"));
 		File outputDir = new File(cmd.getOptionValue("output-dir"));
@@ -88,7 +88,7 @@ public class RTGMCalc {
 			String forceStr = cmd.getOptionValue("force-add").trim();
 			Preconditions.checkArgument(forceStr.contains(":"), "Invalid force-add format");
 			String compStr = forceStr.substring(0, forceStr.indexOf(":"));
-			Component addComp = CybershakeIM.fromShortName(compStr, Component.class);
+			CyberShakeComponent addComp = CybershakeIM.fromShortName(compStr, CyberShakeComponent.class);
 			String periodStr = forceStr.substring(forceStr.indexOf(":")+1);
 			List<Double> periods = HazardCurvePlotter.commaDoubleSplit(periodStr);
 			
@@ -126,11 +126,11 @@ public class RTGMCalc {
 		}
 	}
 	
-	public RTGMCalc(int runID, Component component, File outputDir, DBAccess db) {
+	public RTGMCalc(int runID, CyberShakeComponent component, File outputDir, DBAccess db) {
 		init(runID, component, outputDir, db, null);
 	}
 	
-	private void init(int runID, Component component, File outputDir, DBAccess db, List<CybershakeIM> forceAddIMs) {
+	private void init(int runID, CyberShakeComponent component, File outputDir, DBAccess db, List<CybershakeIM> forceAddIMs) {
 		Preconditions.checkArgument(runID >= 0, "Run ID must be >= 0");
 		// component CAN be null
 		Preconditions.checkArgument(outputDir != null, "Output dir must me supplied");
@@ -347,7 +347,7 @@ public class RTGMCalc {
 		
 		Option component = new Option("cmp", "component", true, "Intensity measure component. "
 				+ "All will be calculated if ommitted. Options: "
-				+Joiner.on(",").join(CybershakeIM.getShortNames(Component.class)));
+				+Joiner.on(",").join(CybershakeIM.getShortNames(CyberShakeComponent.class)));
 		component.setRequired(false);
 		ops.addOption(component);
 		

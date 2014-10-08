@@ -111,4 +111,9 @@ public class EnumParameter<E extends Enum<E>> extends AbstractParameter<E> {
 		return nullOption;
 	}
 
+	@Override
+	public EnumConstraint<E> getConstraint() {
+		return (EnumConstraint<E>) super.getConstraint();
+	}
+
 }
