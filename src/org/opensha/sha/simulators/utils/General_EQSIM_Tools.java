@@ -114,7 +114,6 @@ import com.google.common.primitives.Ints;
  * @author field
  *
  */
-@Deprecated
 public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
@@ -238,13 +237,15 @@ public class General_EQSIM_Tools {
 		int prevSectID = -1;
 		int prevFaultID = -1;
 		double curArea = 0d;;
-		double curDASMin = 0d, curDASMax = 0d;
+		double curDASMin = Double.POSITIVE_INFINITY, curDASMax = 0d;
 		String curName = null;
 		List<Vertex> vertexListForSection = null;
 		for (RectangularElement elem : rectElementsList) {
 			int sectID = elem.getSectionID();
+			Preconditions.checkState(sectID >= 0);
 			if (sectID != prevSectID) {
 				if (prevSectID > 0) {
+					Preconditions.checkState(!sectionID_indexMap.containsKey(prevSectID));
 					sectionID_indexMap.put(prevSectID, areaForSections.size());
 					areaForSections.add(curArea);
 					lengthForSections.add(curDASMax - curDASMin);
@@ -255,21 +256,22 @@ public class General_EQSIM_Tools {
 				}
 				curArea = 0;
 				curDASMax = 0;
-				curDASMin = 0;
+				curDASMin = Double.POSITIVE_INFINITY;
 				prevSectID = sectID;
 				curName = elem.getSectionName();
 				prevFaultID = elem.getFaultID();
 				vertexListForSection = Lists.newArrayList();
 			}
 			curArea += elem.getArea();
-			curDASMin = Math.min(curDASMin, elem.getMinDAS());
-			curDASMax = Math.max(curDASMax, elem.getMaxDAS());
+			curDASMin = Math.min(curDASMin, elem.getMinDAS()*1000d); // convert back to m
+			curDASMax = Math.max(curDASMax, elem.getMaxDAS()*1000d); // convert back to m
 			for (Vertex v : elem.getVertices()) {
 				vertexList.add(v);
 				vertexListForSection.add(v);
 			}
 		}
 		if (curArea > 0) {
+			Preconditions.checkState(!sectionID_indexMap.containsKey(prevSectID));
 			sectionID_indexMap.put(prevSectID, areaForSections.size());
 			areaForSections.add(curArea);
 			lengthForSections.add(curDASMax - curDASMin);
@@ -311,6 +313,9 @@ public class General_EQSIM_Tools {
 //System.out.println("\tsectIndex="+sectIndex+"\tlengthOnRec="+(float)lengthOnRec+"\tddwForSect="+(float)ddwForSect);
 			}
 			double aveFltDDW = totArea/totLength;
+			if (event.getMagnitude() > 7d)
+				System.out.println("ave flt ddw: "+aveFltDDW+" (="+totArea+"/"+totLength+"). M="+event.getMagnitude()+", sqrt(area)="+Math.sqrt(event.getArea()));
+			Preconditions.checkState(!Double.isNaN(aveFltDDW), "NaN! area="+totArea+", len="+totLength);
 //System.out.println("aveFltDDW="+(float)aveFltDDW+"\tevent.getArea()="+(float)event.getArea()+"\tsqrt(event.getArea())="+(float)Math.sqrt(event.getArea()));
 //System.out.println(event.toString());
 
@@ -2456,7 +2461,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		return answer;	
 	}
 
+	public double getAreaForSection(int sectID) {
+		return areaForSections.get(sectionID_indexMap.get(sectID));
+	}
 
+	public double getLengthForSection(int sectID) {
+		return lengthForSections.get(sectionID_indexMap.get(sectID));
+	}
 	
 	/**
 	 * @param args
@@ -2464,6 +2475,12 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException, IOException {
+		
+		General_EQSIM_Tools t = new General_EQSIM_Tools(new File("/home/kevin/Simulators/ALLCAL2_1-7-11_Geometry.dat"));
+		
+		for (int i=0; i<10; i++)
+			System.out.println("Area "+i+": "+t.areaForSections.get(i));
+		System.exit(0);
 		
 		long startTime=System.currentTimeMillis();
 		System.out.println("Starting");
