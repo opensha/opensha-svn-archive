@@ -63,7 +63,7 @@ public class RTGMCalc {
 	private CybershakeSiteInfo2DB sites2db;
 	private HazardDataset2DB dataset2db;
 	
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	private ERF erf;
 	private List<AttenuationRelationship> attenRels;

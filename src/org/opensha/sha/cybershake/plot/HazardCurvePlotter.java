@@ -1322,6 +1322,13 @@ public class HazardCurvePlotter {
 	
 	public static Site setAttenRelParams(AttenuationRelationship attenRel, CybershakeIM im, CybershakeRun run,
 			CybershakeSite csSite, List<SiteDataValue<?>> datas) {
+		CyberShakeComponent comp = im.getComponent();
+		double period = im.getVal();
+		return setAttenRelParams(attenRel, comp, period, run, csSite, datas);
+	}
+	
+	public static Site setAttenRelParams(AttenuationRelationship attenRel, CyberShakeComponent comp, double period,
+			CybershakeRun run, CybershakeSite csSite, List<SiteDataValue<?>> datas) {
 //		// set 1 sided truncation
 //		StringParameter truncTypeParam = (StringParameter)attenRel.getParameter(SigmaTruncTypeParam.NAME);
 //		truncTypeParam.setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
@@ -1330,7 +1337,6 @@ public class HazardCurvePlotter {
 //		truncLevelParam.setValue(3.0);
 		
 		// set the component
-		CyberShakeComponent comp = im.getComponent();
 		if (comp == null) {
 			System.err.println("WARNING: Component is null, not updating GMPE component");
 		} else {
@@ -1367,8 +1373,8 @@ public class HazardCurvePlotter {
 		double closestPeriod = Double.NaN;
 		double minDistance = Double.POSITIVE_INFINITY;
 		
-		for (double period : allowedVals) {
-			double dist = Math.abs(period - im.getVal());
+		for (double testPeriod : allowedVals) {
+			double dist = Math.abs(testPeriod - period);
 			if (dist < minDistance) {
 				minDistance = dist;
 				closestPeriod = period;
@@ -1447,13 +1453,13 @@ public class HazardCurvePlotter {
 		} catch (ParameterException e) {
 			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" doesn't have component parameter, "
 					+ "can't scale curve as appropriate");
-			appendInfoString(curve, "WARNING: GMPE Component unknown, no scaling applied");
+			appendInfoString(curve, "NOTE: GMPE Component unknown, no scaling applied");
 			return curve;
 		}
 		if (gmpeComponent == null) {
 			System.err.println("WARNING: GMPE "+attenRel.getShortName()+" has null component, "
 					+ "can't scale curve as appropriate");
-			appendInfoString(curve, "WARNING: GMPE Component unknown, no scaling applied");
+			appendInfoString(curve, "NOTE: GMPE Component unknown, no scaling applied");
 			return curve;
 		}
 		
@@ -1478,7 +1484,7 @@ public class HazardCurvePlotter {
 		}
 		
 		// we've made it this far, there's a mismatch that can't be scaled away
-		System.err.println("WARNING: There is a GMPE/CyberShake component mismatch and no scaling factors exist."
+		System.err.println("NOTE: There is a GMPE/CyberShake component mismatch and no scaling factors exist."
 				+ " Using the unscaled curve. CyberShake Component: "+component.getShortName()
 				+", GMPE Component: "+gmpeComponent);
 		
