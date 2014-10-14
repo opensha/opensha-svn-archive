@@ -257,7 +257,7 @@ public class GMPEDeterministicComparisonCalc {
 		Option attenRelFiles = new Option("af", "atten-rel-file", true,
 				"XML Attenuation Relationship description file(s) for " + 
 				"comparison. Multiple files should be comma separated");
-		attenRelFiles.setRequired(false);
+		attenRelFiles.setRequired(true);
 		ops.addOption(attenRelFiles);
 		
 		Option help = new Option("?", "help", false, "Display this message");
