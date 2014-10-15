@@ -8,7 +8,8 @@ public enum PlotType {
 	PNG("png"),
 	JPG("jpg"),
 	JPEG("jpeg"),
-	TXT("txt");
+	TXT("txt"),
+	CSV("csv");
 	
 	private String extension;
 	

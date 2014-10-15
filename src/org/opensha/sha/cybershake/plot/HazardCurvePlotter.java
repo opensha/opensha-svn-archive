@@ -532,7 +532,7 @@ public class HazardCurvePlotter {
 			types = PlotType.fromExtensions(commaSplit(typeStr));
 		} else {
 			types = new ArrayList<PlotType>();
-			types.add(PlotType.PDF);
+			types.add(PLOT_TYPE_DEFAULT);
 		}
 		
 		if (cmd.hasOption("w")) {
@@ -1377,7 +1377,7 @@ public class HazardCurvePlotter {
 			double dist = Math.abs(testPeriod - period);
 			if (dist < minDistance) {
 				minDistance = dist;
-				closestPeriod = period;
+				closestPeriod = testPeriod;
 			}
 		}
 		saPeriodParam.setValue(closestPeriod);
