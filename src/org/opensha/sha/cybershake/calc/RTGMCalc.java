@@ -422,12 +422,13 @@ public class RTGMCalc {
 		return true; // success
 	}
 	
-	private static final boolean xLog = true;
-	private static final boolean yLog = true;
-	private static final Range xRangeSA = new Range(1d, 10d);
-	private static final Range yRangeSA = new Range(2e-2, 2e0);
-	private static final Range xRangeVel = new Range(1d, 10d);
-	private static final Range yRangeVel = new Range(30, 300);
+	static final boolean xLog = true;
+	static final boolean yLog = true;
+	static final Range xRangeSA = new Range(1d, 10d);
+	static final Range yRangeSA = new Range(2e-2, 2e0);
+	static final Range xRangeVel = new Range(1d, 10d);
+//	static final Range yRangeVel = new Range(30, 300);
+	static final Range yRangeVel = new Range(1e1, 1e3);
 	
 	static Map<CyberShakeComponent, PlotSpec> getSpectrumPlot(CybershakeSite site,
 			Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap,
