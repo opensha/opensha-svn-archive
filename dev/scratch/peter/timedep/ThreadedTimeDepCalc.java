@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.nshmp2.calc.HazardResult;
 import org.opensha.nshmp2.calc.HazardResultWriter;
@@ -52,8 +53,8 @@ public class ThreadedTimeDepCalc {
 	private SourceIMR imr = null;
 
 	private static final String UC3_SOL_PATH = 
-			"/home/scec-00/pmpowers/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
-//			"tmp/UC33/src/mean/mean_ucerf3_sol.zip";
+//			"/home/scec-00/pmpowers/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
+			"tmp/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
 
 	/**
 	 * Initializes a new threaded hazard calculation for the specified UC3 
@@ -182,9 +183,20 @@ public class ThreadedTimeDepCalc {
 			50.0,
 			new HazardResultWriterMPJ(new File("tmp")));
 		
-		System.out.println(ttdc.erf.getAdjustableParameterList());
-		System.out.println(ttdc.erf.getTimeSpan().getStartTimeYear());
-		System.out.println(ttdc.erf.getTimeSpan().getDuration());
+//		System.out.println(ttdc.erf.getAdjustableParameterList());
+//		System.out.println(ttdc.erf.getTimeSpan().getStartTimeYear());
+//		System.out.println(ttdc.erf.getTimeSpan().getDuration());
+		
+		
+		// test calc
+		
+		ERF erf = ttdc.erf;
+		Site site = new Site(new Location(34.0, -118.3));
+		TimeDepCalc calc = TimeDepCalc.create(erf, SourceIMR.WUS_FAULT_14, site, Period.GM1P00);
+		HazardResult result = calc.call();
+		
+		System.out.println(result.curve());
+		
 		
 	}
 
