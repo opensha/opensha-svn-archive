@@ -121,6 +121,9 @@ public class HazardCalc implements Callable<HazardResult> {
 		Utils.zeroFunc(curve);
 		calc = new HazardCurveCalculatorNSHMP(); // init calculator
 		calc.setPtSrcDistCorrType(PtSrcDistCorr.Type.NSHMP08);
+		
+		calc.getAdjustableParams().getParameter(MaxDistanceParam.NAME).setValue(300.0);
+		
 //		callCalc();
 		if (erfList instanceof NSHMP_ListERF) {
 			callNSHMP((NSHMP_ListERF) erfList);
