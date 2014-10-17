@@ -28,6 +28,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -74,8 +75,14 @@ public class DeterministicResultPlotter {
 	}
 	
 	private void loadData(File inputFile) throws FileNotFoundException, IOException {
-		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(inputFile));
-		HSSFWorkbook wb = new HSSFWorkbook(fs);
+		HSSFWorkbook wb;
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(inputFile));
+			wb = new HSSFWorkbook(fs);
+		} catch (Exception e1) {
+			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
+			throw ExceptionUtils.asRuntimeException(e1);
+		}
 		
 		csSpectrumMaps = Maps.newHashMap();
 		gmpeSpectrumMaps = Maps.newHashMap();
