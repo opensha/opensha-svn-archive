@@ -1491,9 +1491,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<Double, List<Map<MagDependentAperiodicityOptions, XY_DataSetList>>>
 				solOffMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepMPDs = Maps.newHashMap();
+		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepMFDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOnMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2DepOffMPDs = Maps.newHashMap();
 		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2IndepMPDs = Maps.newHashMap();
+		private Map<Double, List<EvenlyDiscretizedFunc[]>> ucerf2IndepMFDs = Maps.newHashMap();
 		
 		// duration: regions
 //		private Map<Double, List<BranchSensitivityHistogram>> regionM6p7Hists = Maps.newHashMap();
@@ -1601,9 +1603,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				solOnMPDs.put(duration, buildPopulatedList(regions.size()));
 				solOffMPDs.put(duration, buildPopulatedList(regions.size()));
 				ucerf2DepMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
+				ucerf2DepMFDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
 				ucerf2DepOnMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
 				ucerf2DepOffMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_DepERFs));
 				ucerf2IndepMPDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_IndepERFs));
+				ucerf2IndepMFDs.put(duration, buildPopulatedFuncList(regions.size(), numUCEF2_IndepERFs));
 				
 				solMainFaultProbs.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 				solMainFaultRates.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
@@ -1804,6 +1808,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				summedMFD.addIncrementalMagFreqDist(offCmlMFDs[regionIndex]);
 				ucerf2DepMPDs.get(duration).get(regionIndex)[erfIndex] =
 						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(summedMFD, duration);
+				summedMFD.scale(duration);
+				ucerf2DepMFDs.get(duration).get(regionIndex)[erfIndex] = summedMFD;
 			}
 			
 			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
@@ -1852,8 +1858,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS)
 					mfdPart.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+				EvenlyDiscretizedFunc cmlFMD = mfdPart.getCumRateDistWithOffset();
 				ucerf2IndepMPDs.get(duration).get(regionIndex)[erfIndex] =
-						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(mfdPart.getCumRateDistWithOffset(), duration);
+						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(cmlFMD, duration);
+				cmlFMD.scale(duration);
+				ucerf2IndepMFDs.get(duration).get(regionIndex)[erfIndex] = cmlFMD;
 			}
 			
 			returnUCERF2_IndepERF(ucerf2_erf_list);
@@ -2192,6 +2201,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						if (o.ucerf2DepMPDs.get(duration).get(0)[e] != null) {
 							for (int r = 0; r < regions.size(); r++) {
 								ucerf2DepMPDs.get(duration).get(r)[e] = o.ucerf2DepMPDs.get(duration).get(r)[e];
+								ucerf2DepMFDs.get(duration).get(r)[e] = o.ucerf2DepMFDs.get(duration).get(r)[e];
 								ucerf2DepOnMPDs.get(duration).get(r)[e] = o.ucerf2DepOnMPDs.get(duration).get(r)[e];
 								ucerf2DepOffMPDs.get(duration).get(r)[e] = o.ucerf2DepOffMPDs.get(duration).get(r)[e];
 							}
@@ -2204,6 +2214,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						if (o.ucerf2IndepMPDs.get(duration).get(0)[e] != null) {
 							for (int r = 0; r < regions.size(); r++) {
 								ucerf2IndepMPDs.get(duration).get(r)[e] = o.ucerf2IndepMPDs.get(duration).get(r)[e];
+								ucerf2IndepMFDs.get(duration).get(r)[e] = o.ucerf2IndepMFDs.get(duration).get(r)[e];
 							}
 							ucerf2IndepWeights[e] = o.ucerf2IndepWeights[e];
 						}
@@ -2308,6 +2319,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					regionNames.add(region.getName());
 
 					XY_DataSetList ucerf2Funcs = new XY_DataSetList();
+					XY_DataSetList ucerf2FreqFuncs = new XY_DataSetList();
 					XY_DataSetList ucerf2OnFuncs = new XY_DataSetList();
 					XY_DataSetList ucerf2OffFuncs = new XY_DataSetList();
 					ArrayList<Double> ucerf2Weights = new ArrayList<Double>();
@@ -2315,17 +2327,20 @@ public abstract class CompoundFSSPlots implements Serializable {
 						DiscretizedFunc mfd = ucerf2DepMPDs.get(duration).get(r)[e];
 						if (mfd != null) {
 							ucerf2Funcs.add(ucerf2DepMPDs.get(duration).get(r)[e]);
+							ucerf2FreqFuncs.add(ucerf2DepMFDs.get(duration).get(r)[e]);
 							ucerf2OnFuncs.add(ucerf2DepOnMPDs.get(duration).get(r)[e]);
 							ucerf2OffFuncs.add(ucerf2DepOffMPDs.get(duration).get(r)[e]);
 							ucerf2Weights.add(this.ucerf2DepWeights[e]);
 						}
 					}
 					XY_DataSetList ucerf2IndepFuncs = new XY_DataSetList();
+					XY_DataSetList ucerf2IndepFreqFuncs = new XY_DataSetList();
 					ArrayList<Double> ucerf2IndepWeights = new ArrayList<Double>();
 					for (int e = 0; e < ucerf2IndepMPDs.get(duration).get(r).length; e++) {
 						DiscretizedFunc mfd = ucerf2IndepMPDs.get(duration).get(r)[e];
 						if (mfd != null) {
 							ucerf2IndepFuncs.add(ucerf2IndepMPDs.get(duration).get(r)[e]);
+							ucerf2IndepFreqFuncs.add(ucerf2IndepMFDs.get(duration).get(r)[e]);
 							ucerf2IndepWeights.add(this.ucerf2IndepWeights[e]);
 						}
 					}
@@ -2385,8 +2400,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					// UCERF2
 					DiscretizedFunc u2IndepMean = getFractiles(ucerf2IndepFuncs, ucerf2IndepWeights,
 							"UCERF2 Time Independent Total MPDs", fractiles).get(fractiles.length);
+					DiscretizedFunc u2IndepMeanFreq = getFractiles(ucerf2IndepFreqFuncs, ucerf2IndepWeights,
+							"UCERF2 Time Independent Total MFDs", fractiles).get(fractiles.length);
 					u2IndepRegionMPDs.put(region.getName(), u2IndepMean);
-					u2IndepRegionMFDs.put(region.getName(), probsToRates(u2IndepMean, duration));
+					u2IndepRegionMFDs.put(region.getName(), u2IndepMeanFreq);
 					funcs.add(u2IndepMean);
 					PlotCurveCharacterstics u2IndepChar = getFractileChars(
 							Color.DARK_GRAY, fractiles.length).get(fractiles.length);
@@ -2395,8 +2412,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 					List<DiscretizedFunc> u2DepFractiles = getFractiles(ucerf2Funcs, ucerf2Weights,
 							"UCERF2 Time Dependent Total MPDs", fractiles);
+					DiscretizedFunc u2DepFreq = getFractiles(ucerf2FreqFuncs, ucerf2Weights,
+							"UCERF2 Time Dependent Total MFDs", fractiles).get(fractiles.length);
 					u2DepRegionMPDs.put(region.getName(), u2DepFractiles.get(fractiles.length));
-					u2DepRegionMFDs.put(region.getName(), probsToRates(u2DepFractiles.get(fractiles.length), duration));
+					u2DepRegionMFDs.put(region.getName(), u2DepFreq);
 					funcs.addAll(u2DepFractiles);
 					chars.addAll(getFractileChars(Color.RED, fractiles.length));
 					
