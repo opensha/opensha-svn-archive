@@ -391,9 +391,9 @@ public class RTGMCalc {
 				break;
 			case PDF:
 				if (specs == null) {
-					specs = getSpectrumPlot(site, csSpectrumMap, gmpeSpectrumMap, "RTGM", "(g)");
+					specs = getSpectrumPlot(site.short_name, csSpectrumMap, gmpeSpectrumMap, "RTGM", "(g)");
 					if (velPlot)
-						velSpecs = getSpectrumPlot(site, saToPsuedoVel(csSpectrumMap),
+						velSpecs = getSpectrumPlot(site.short_name, saToPsuedoVel(csSpectrumMap),
 								sasToPsuedoVel(gmpeSpectrumMap), "RTGM PSV", "(cm/sec)");
 				}
 				writeSpecs(namePrefix, dateStr, specs, outputDir, type, xLog, yLog, xRangeSA, yRangeSA);
@@ -403,9 +403,9 @@ public class RTGMCalc {
 				break;
 			case PNG:
 				if (specs == null) {
-					specs = getSpectrumPlot(site, csSpectrumMap, gmpeSpectrumMap, "RTGM", "(g)");
+					specs = getSpectrumPlot(site.short_name, csSpectrumMap, gmpeSpectrumMap, "RTGM", "(g)");
 					if (velPlot)
-						velSpecs = getSpectrumPlot(site, saToPsuedoVel(csSpectrumMap),
+						velSpecs = getSpectrumPlot(site.short_name, saToPsuedoVel(csSpectrumMap),
 								sasToPsuedoVel(gmpeSpectrumMap), "RTGM PSV", "(cm/sec)");
 				}
 				writeSpecs(namePrefix, dateStr, specs, outputDir, type, xLog, yLog, xRangeSA, yRangeSA);
@@ -428,9 +428,9 @@ public class RTGMCalc {
 	static final Range yRangeSA = new Range(2e-2, 2e0);
 	static final Range xRangeVel = new Range(1d, 10d);
 //	static final Range yRangeVel = new Range(30, 300);
-	static final Range yRangeVel = new Range(1e1, 1e3);
+	static final Range yRangeVel = new Range(2e1, 2e3);
 	
-	static Map<CyberShakeComponent, PlotSpec> getSpectrumPlot(CybershakeSite site,
+	static Map<CyberShakeComponent, PlotSpec> getSpectrumPlot(String siteName,
 			Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap,
 			Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap,
 			String calcType, String units) {
@@ -465,7 +465,7 @@ public class RTGMCalc {
 				}
 			}
 			
-			PlotSpec spec = new PlotSpec(funcs, chars, site.short_name+" Spectrum", "Period (s)",
+			PlotSpec spec = new PlotSpec(funcs, chars, siteName+" Spectrum", "Period (s)",
 					comp.getShortName()+" "+calcType+" "+units);
 			spec.setLegendVisible(true);
 			specMap.put(comp, spec);
