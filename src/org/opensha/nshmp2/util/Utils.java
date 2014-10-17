@@ -30,6 +30,7 @@ import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.param.Parameter;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
@@ -299,11 +300,10 @@ public class Utils {
 		}
 		try {
 			double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
-			for (Point2D point : imls) {
-				double x = point.getX();
-				double y = Utils.gaussProbExceed(mean, sigma, Math.log(x),
-					Pclip, ONE_SIDED);
-				point.setLocation(x, y);
+			for (int i = 0; i < imls.getNum(); i++) {
+				double x = imls.getX(i);
+				double y = Utils.gaussProbExceed(mean, sigma, Math.log(x), Pclip, ONE_SIDED);
+				imls.set(i, y);
 			}
 		} catch (RuntimeException me) {
 			me.printStackTrace();
@@ -434,8 +434,8 @@ public class Utils {
 	 * @param v value to use
 	 */
 	public static void setFunc(DiscretizedFunc f, double v) {
-		for (Point2D p : f) {
-			p.setLocation(p.getX(), v);
+		for (int i=0; i<f.getNum(); i++) {
+			f.set(i, v);
 		}
 	}
 	
@@ -452,35 +452,40 @@ public class Utils {
 	}
 
 	public static void main(String[] args) {
-		double iml = 4.0;
-		double mean = 3.0;
-		double std = 0.65;
-		double stdRndVar = (iml - mean) / std;
-
-		double clip = mean + 3 * std;
-		double Pclip;
-		// value check
-		try {
-
-			// double Ptmp = (Erf.erf((mean - iml) / std * SQRT_2) + 1.0) * 0.5;
-			// System.out.println("Ptmp: " + Ptmp);
-
-			// Pclip = (Erf.erf((iml - clip) / (std * SQRT_2)) + 1.0) * 0.5;
-			// System.out.println(Pclip);
-			// Pclip = (Pclip-0)/(1-0);
-			// System.out.println(Pclip);
-			Pclip = gaussProbExceed(mean, std, clip);
-			// System.out.println(Pclip);
-			double gdcP = getExceedProbability1(mean, std, iml,
-				GaussTruncation.TWO_SIDED, 3);
-			// double erfP = gaussProbExceed(mean, std, iml, Pclip);
-			double erfP = gaussProbExceed(mean, std, iml, Pclip,
-				GaussTruncation.TWO_SIDED);
-			System.out.println("GDC: " + gdcP);
-			System.out.println("ERF: " + erfP);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		DiscretizedFunc f = Period.GM1P00.getFunction();
+		System.out.println(getExceedProbabilities(f, -2.8119645744516117, 0.6924081166479781, false, 0.0));
+		
+		
+//		double iml = 4.0;
+//		double mean = 3.0;
+//		double std = 0.65;
+//		double stdRndVar = (iml - mean) / std;
+//
+//		double clip = mean + 3 * std;
+//		double Pclip;
+//		// value check
+//		try {
+//
+//			// double Ptmp = (Erf.erf((mean - iml) / std * SQRT_2) + 1.0) * 0.5;
+//			// System.out.println("Ptmp: " + Ptmp);
+//
+//			// Pclip = (Erf.erf((iml - clip) / (std * SQRT_2)) + 1.0) * 0.5;
+//			// System.out.println(Pclip);
+//			// Pclip = (Pclip-0)/(1-0);
+//			// System.out.println(Pclip);
+//			Pclip = gaussProbExceed(mean, std, clip);
+//			// System.out.println(Pclip);
+//			double gdcP = getExceedProbability1(mean, std, iml,
+//				GaussTruncation.TWO_SIDED, 3);
+//			// double erfP = gaussProbExceed(mean, std, iml, Pclip);
+//			double erfP = gaussProbExceed(mean, std, iml, Pclip,
+//				GaussTruncation.TWO_SIDED);
+//			System.out.println("GDC: " + gdcP);
+//			System.out.println("ERF: " + erfP);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 //		try {
 //			StopWatch sw = new StopWatch();

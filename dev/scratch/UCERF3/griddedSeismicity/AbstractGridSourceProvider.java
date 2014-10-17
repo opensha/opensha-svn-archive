@@ -188,10 +188,9 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	 */
 	private static void scaleMFD(IncrementalMagFreqDist mfd) {
 		double scale;
-		for (Point2D p : mfd) {
-			scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(p.getX());
-			p.setLocation(p.getX(), p.getY() * scale);
-			mfd.set(p);
+		for (int i=0; i<mfd.getNum(); i++) {
+			scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfd.getX(i));
+			mfd.set(i, mfd.getY(i) * scale);
 		}
 	}
 
