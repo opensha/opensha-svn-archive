@@ -567,7 +567,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens).getEvents();
+		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens, false).getEvents();
 		
 		if (origScrambleDist != null) {
 			 events = RandomCatalogBuilder.getRandomResampledCatalog(events, allIdens, origScrambleDist, true);

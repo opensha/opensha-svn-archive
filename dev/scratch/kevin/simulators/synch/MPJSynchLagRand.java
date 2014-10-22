@@ -64,7 +64,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 		else
 			throw new IllegalArgumentException("Unknown set: "+setName);
 		
-		events = new SimAnalysisCatLoader(true, rupIdens).getEvents();
+		events = new SimAnalysisCatLoader(true, rupIdens, false).getEvents();
 		
 		nDims = rupIdens.size();
 	}

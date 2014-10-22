@@ -1843,11 +1843,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 //						.getCumRateDistWithOffset();
 //			}
 			
-			System.out.println("Calculating UCERF2 Time Independent MFDs for branch "
+			System.out.println("Calculating UCERF2  Time Independent On Fault MFDs for branch "
 					+ erfIndex + ", "+regions.size()+" regions");
-			// total
-			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
+			// on fault
+			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 			erf = ucerf2_erf_list.getERF(erfIndex);
+			EvenlyDiscretizedFunc[] onCmlMFDs = new EvenlyDiscretizedFunc[regions.size()];
 			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
 				Region region = regions.get(regionIndex);
 				SummedMagFreqDist mfdPart;
@@ -1858,12 +1859,49 @@ public abstract class CompoundFSSPlots implements Serializable {
 						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
 				if(INCLUDE_AFTERSHOCKS)
 					mfdPart.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
-				EvenlyDiscretizedFunc cmlFMD = mfdPart.getCumRateDistWithOffset();
-				ucerf2IndepMPDs.get(duration).get(regionIndex)[erfIndex] =
-						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(cmlFMD, duration);
-				cmlFMD.scale(duration);
-				ucerf2IndepMFDs.get(duration).get(regionIndex)[erfIndex] = cmlFMD;
+				onCmlMFDs[regionIndex] = mfdPart.getCumRateDistWithOffset();
 			}
+			System.out.println("Calculating UCERF2 Off Fault MFDs for branch "
+					+ erfIndex + ", "+regions.size()+" regions");
+			// off fault
+			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_ONLY);
+			erf = ucerf2_erf_list.getERF(erfIndex);
+			EvenlyDiscretizedFunc[] offCmlMFDs = new EvenlyDiscretizedFunc[regions.size()];
+			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+				Region region = regions.get(regionIndex);
+				IncrementalMagFreqDist mfdPart;
+				if (NUCLEATION_PROBS)
+					mfdPart = ERF_Calculator.getMagFreqDistInRegionFaster(erf, region, minX, num, delta, true);
+				else
+					mfdPart = ERF_Calculator
+						.getParticipationMagFreqDistInRegion(erf, region, minX, num, delta, true);
+				if(INCLUDE_AFTERSHOCKS) {
+					// it's a summed, turn it into an incremental to allow set operation
+					IncrementalMagFreqDist scaled = new IncrementalMagFreqDist(
+							mfdPart.getMinX(), mfdPart.getNum(), mfdPart.getDelta());
+					for(int i=0;i<mfdPart.getNum();i++) {
+						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
+						scaled.set(i, mfdPart.getY(i)/scale);	// divide to add aftershocks back in
+					}
+					mfdPart = scaled;
+				}
+				offCmlMFDs[regionIndex] = mfdPart.getCumRateDistWithOffset();
+			}
+
+			// sum the above on and off MFDs to get the total
+			System.out.println("Calculating UCERF2 MFDs for branch "
+					+ erfIndex + ", "+regions.size()+" regions");
+			for (int regionIndex = 0; regionIndex < regions.size(); regionIndex++) {
+				SummedMagFreqDist summedMFD = new SummedMagFreqDist(minX-delta/2,num, delta);	// note offset minX because it's cumulative
+				summedMFD.addIncrementalMagFreqDist(onCmlMFDs[regionIndex]);
+				summedMFD.addIncrementalMagFreqDist(offCmlMFDs[regionIndex]);
+				ucerf2IndepMPDs.get(duration).get(regionIndex)[erfIndex] =
+						FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(summedMFD, duration);
+				summedMFD.scale(duration);
+				ucerf2IndepMFDs.get(duration).get(regionIndex)[erfIndex] = summedMFD;
+			}
+			
+			ucerf2_erf_list.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
 			
 			returnUCERF2_IndepERF(ucerf2_erf_list);
 		}

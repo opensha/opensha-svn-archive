@@ -1,7 +1,9 @@
 package org.opensha.sha.simulators.writers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -179,6 +181,46 @@ public class EQSimv06FileWriter {
 		String string = (float)minLat+" "+(float)maxLat+" "+(float)minLon+" "+(float)maxLon+" "+(float)maxDep*-1000+" "+(float)minDep*-1000;
 		if(includeDAS) string += " "+(float)minDAS*1000+" "+(float)maxDAS*1000;
 		return string;
+	}
+	
+	/**
+	 * We can't currently write output files, but this method will write a new output file that skips all events
+	 * below the given magnitude from the given input file.
+	 * @param inputFile
+	 * @param outputFile
+	 * @param minMag
+	 * @throws IOException 
+	 */
+	public static void filterEventFileByMag(File inputFile, File outputFile, double minMag) throws IOException {
+		FileWriter fw = new FileWriter(outputFile);
+		
+		BufferedReader buffRead = new BufferedReader(new FileReader(inputFile));
+		boolean skip = false;
+		
+		String line = buffRead.readLine();
+		while (line != null) {
+			line = line.trim();
+			if (line.startsWith("200 ")) {
+				String magStr = line.split(" ")[2];
+				skip = magStr.toLowerCase().contains("inf") || Double.parseDouble(magStr) < minMag;
+			} else if (!line.startsWith("2")) {
+				skip = false;
+			}
+			
+			if (!skip)
+				fw.write(line+"\n");
+			
+			line = buffRead.readLine();
+		}
+		
+		fw.close();
+		buffRead.close();
+	}
+	
+	public static void main(String[] args) throws IOException {
+		File inputFile = new File("/home/kevin/Simulators/eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
+		File outputFile = new File("/home/kevin/Simulators/eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall.m7");
+		filterEventFileByMag(inputFile, outputFile, 7d);
 	}
 
 }

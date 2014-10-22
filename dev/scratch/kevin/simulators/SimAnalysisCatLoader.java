@@ -31,17 +31,17 @@ public class SimAnalysisCatLoader {
 			loadElemMagIdens(include_elems, rupIdens, rupIdenColors, idenMinMag, idenMaxMag);
 		}
 		
-		init(longCat, false);
+		init(longCat, false, idenMinMag == 7d);
 	}
 	
-	public SimAnalysisCatLoader(boolean longCat, List<RuptureIdentifier> rupIdens) throws IOException {
+	public SimAnalysisCatLoader(boolean longCat, List<RuptureIdentifier> rupIdens, boolean m7File) throws IOException {
 		this.rupIdens = rupIdens;
-		init(longCat, false);
+		init(longCat, false, m7File);
 	}
 	
 	// geom only
 	private SimAnalysisCatLoader() throws IOException {
-		init(false, true);
+		init(false, true, false);
 	}
 	
 	private static List<File> dirsToCheck = Lists.newArrayList();
@@ -50,7 +50,7 @@ public class SimAnalysisCatLoader {
 		dirsToCheck.add(new File("/home/scec-02/kmilner/simulators"));
 	}
 	
-	private void init(boolean longCat, boolean noEvents) throws IOException {
+	private void init(boolean longCat, boolean noEvents, boolean m7File) throws IOException {
 		File dir = null;
 		for (File testDir : dirsToCheck) {
 			if (testDir.exists()) {
@@ -64,11 +64,14 @@ public class SimAnalysisCatLoader {
 		tools = new General_EQSIM_Tools(geomFile);
 		if (noEvents)
 			return;
-		File eventFile;
+		String eventFileName;
 		if (longCat)
-			eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
+			eventFileName = "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall";
 		else
-			eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
+			eventFileName = "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall";
+		if (m7File)
+			eventFileName += ".m7";
+		File eventFile = new File(dir, eventFileName);
 		
 		System.out.println("Loading events...");
 		events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);

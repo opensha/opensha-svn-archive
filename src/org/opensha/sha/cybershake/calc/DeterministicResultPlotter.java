@@ -31,7 +31,6 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
-import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.cybershake.plot.PlotType;
 
@@ -71,10 +70,16 @@ public class DeterministicResultPlotter {
 		File inputFile = new File(cmd.getOptionValue("input-file"));
 		Preconditions.checkArgument(inputFile.exists(), "Input file does not exist: "+inputFile.getAbsolutePath());
 		
-		loadData(inputFile);
+		csSpectrumMaps = Maps.newHashMap();
+		gmpeSpectrumMaps = Maps.newHashMap();
+		
+		loadData(inputFile, comp, csSpectrumMaps, gmpeSpectrumMaps);
 	}
 	
-	private void loadData(File inputFile) throws FileNotFoundException, IOException {
+	static void loadData(File inputFile, CyberShakeComponent comp,
+			Map<String, Map<CyberShakeComponent, DiscretizedFunc>> csSpectrumMaps,
+			Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> gmpeSpectrumMaps)
+					throws FileNotFoundException, IOException {
 		HSSFWorkbook wb;
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(inputFile));
@@ -83,9 +88,6 @@ public class DeterministicResultPlotter {
 			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
 			throw ExceptionUtils.asRuntimeException(e1);
 		}
-		
-		csSpectrumMaps = Maps.newHashMap();
-		gmpeSpectrumMaps = Maps.newHashMap();
 		
 		int colsPer = 4;
 		int headerCols = 1;
@@ -110,6 +112,8 @@ public class DeterministicResultPlotter {
 			int gmpeCount = 0;
 			
 			while (col <= header.getLastCellNum()) {
+				if (col > csValCol && gmpeSpectrumMaps == null)
+					break;
 				String cellName = header.getCell(col).getStringCellValue();
 				String calcName = cellName;
 				Preconditions.checkState(calcName.toLowerCase().contains("value"),

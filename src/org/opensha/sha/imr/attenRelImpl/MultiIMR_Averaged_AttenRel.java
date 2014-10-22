@@ -60,17 +60,17 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	
 	private static final boolean D = false;
 	
-	private ArrayList<ScalarIMR> imrs;
+	private List<? extends ScalarIMR> imrs;
 	private WeightedList<ScalarIMR> weights;
 	
 	public static final String IMR_WEIGHTS_PARAM_NAME = "IMR Weights";
 	private WeightedListParameter<ScalarIMR> weightsParam;
 	
-	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs) {
+	public MultiIMR_Averaged_AttenRel(List<? extends ScalarIMR> imrs) {
 		this(imrs, null);
 	}
 	
-	public MultiIMR_Averaged_AttenRel(ArrayList<ScalarIMR> imrs,
+	public MultiIMR_Averaged_AttenRel(List<? extends ScalarIMR> imrs,
 			ArrayList<Double> weights) {
 		
 		if (imrs == null)

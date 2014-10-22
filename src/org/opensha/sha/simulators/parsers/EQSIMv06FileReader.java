@@ -255,7 +255,7 @@ public class EQSIMv06FileReader {
 	}
 
 	public static List<EQSIM_Event> readEventsFile(URL url, List<RectangularElement> rectElementsList,
-			Collection<RuptureIdentifier> rupIdens) throws IOException {
+			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		URLConnection uc = url.openConnection();
 		return readEventsFile(new InputStreamReader((InputStream) uc.getContent()), rectElementsList, rupIdens);
 	}
@@ -266,7 +266,7 @@ public class EQSIMv06FileReader {
 	}
 	
 	public static List<EQSIM_Event> readEventsFile(File file, List<RectangularElement> rectElementsList,
-			Collection<RuptureIdentifier> rupIdens) throws IOException {
+			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		return readEventsFile(new FileReader(file), rectElementsList, rupIdens);
 	}
 	
@@ -278,7 +278,7 @@ public class EQSIMv06FileReader {
 	 * @throws IOException
 	 */
 	private static List<EQSIM_Event> readEventsFile(
-			Reader reader, List<RectangularElement> rectElementsList, Collection<RuptureIdentifier> rupIdens)
+			Reader reader, List<RectangularElement> rectElementsList, Collection<? extends RuptureIdentifier> rupIdens)
 			throws IOException {
 		
 		BufferedReader buffRead;

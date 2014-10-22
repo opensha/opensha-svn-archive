@@ -68,6 +68,8 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
+import com.google.common.base.Preconditions;
+
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -359,11 +361,11 @@ public class ProbabilityModelsCalc {
 	 * 
 	 * @return
 	 */
-	private double computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(int fltSysRupIndex, boolean aveRI_CalcType) {
+	private double computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(int fltSysRupIndex, boolean aveRI_CalcType, long presentTimeMillis) {
 			List<FaultSectionPrefData> fltData = fltSysRupSet.getFaultSectionDataForRupture(fltSysRupIndex);
 			double ave=0, totArea=0;
 			for(FaultSectionPrefData data:fltData) {
-				if(data.getDateOfLastEvent() == Long.MIN_VALUE) {
+				if(data.getDateOfLastEvent() == Long.MIN_VALUE || data.getDateOfLastEvent() > presentTimeMillis) {
 					int sectID = data.getSectionId();
 					double area = sectionArea[sectID];
 					totArea += area;
@@ -400,7 +402,7 @@ public class ProbabilityModelsCalc {
 	 * @param fltSystRupIndex
 	 * @param onlyIfAllSectionsHaveDateOfLast
 	 */
-	public long getAveDateOfLastEventWhereKnown(int fltSystRupIndex) {
+	public long getAveDateOfLastEventWhereKnown(int fltSystRupIndex, long presentTimeMillis) {
 //		System.out.println("getAveDateOfLastEventWhereKnown");
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
@@ -412,7 +414,7 @@ public class ProbabilityModelsCalc {
 			long dateOfLast = dateOfLastForSect[s];
 			double area = sectionArea[s];
 			totRupArea+=area;
-			if(dateOfLast != Long.MIN_VALUE) {
+			if(dateOfLast != Long.MIN_VALUE && (presentTimeMillis == Long.MIN_VALUE || dateOfLast <= presentTimeMillis)) {
 				sumDateOfLast += (double)dateOfLast*area;
 				totRupAreaWithDateOfLast += area;
 				numWithDateOfLast+=1;
@@ -461,7 +463,7 @@ public class ProbabilityModelsCalc {
 			long dateOfLast = dateOfLastForSect[s];
 			double area = sectionArea[s];
 			totRupArea+=area;
-			if(dateOfLast != Long.MIN_VALUE) {
+			if(dateOfLast != Long.MIN_VALUE && dateOfLast <= presentTimeMillis) {
 				sumNormTimeSinceLast += area*((double)(presentTimeMillis-dateOfLast)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[s];
 				totRupAreaWithDateOfLast += area;
 				numWithDateOfLast += 1;
@@ -507,7 +509,7 @@ public class ProbabilityModelsCalc {
 			for(int r=0;r<fltSysRupSet.getNumRuptures();r++) {
 				if(fltSysRupSet.getSectionsIndicesForRup(r).contains(sectID)) {
 					double rate = longTermRateOfFltSysRup[r];
-					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(r);
+					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(r, Long.MIN_VALUE);
 					double yrsSinceLast = ((2014-1970)*MILLISEC_PER_YEAR-(double)aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 					List<Integer> indices = fltSysRupSet.getSectionsIndicesForRup(r);
 					String name1 = fltSysRupSet.getFaultSectionData(indices.get(0)).getName();
@@ -578,12 +580,14 @@ public class ProbabilityModelsCalc {
 //				throw new RuntimeException("1st "+aveTimeSinceLastWhereKnownYears);
 		}
 		else {
-			long aveTimeOfLastMillisWhereKnown = getAveDateOfLastEventWhereKnown(fltSysRupIndex);
+			long aveTimeOfLastMillisWhereKnown = getAveDateOfLastEventWhereKnown(fltSysRupIndex, presentTimeMillis);
 			aveTimeSinceLastWhereKnownYears = (double)(presentTimeMillis-aveTimeOfLastMillisWhereKnown)/MILLISEC_PER_YEAR;	
 //			if(aveTimeSinceLastWhereKnownYears<0)
 //				throw new RuntimeException("2nd "+aveTimeSinceLastWhereKnownYears);
 
 		}
+		Preconditions.checkState(Double.isNaN(aveTimeSinceLastWhereKnownYears)
+				|| aveTimeSinceLastWhereKnownYears >= 0);
 		// the following global variables were just set by the above 
 		// 		double totRupArea
 		// 		double totRupAreaWithDateOfLast
@@ -632,7 +636,7 @@ public class ProbabilityModelsCalc {
 			double areaWithOutDateOfLast = totRupArea-totRupAreaWithDateOfLast;
 
 			
-			double condRecurIntWhereUnknown = computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(fltSysRupIndex, aveRecurIntervals);
+			double condRecurIntWhereUnknown = computeAveCondRecurIntForFltSysRupsWhereDateLastUnknown(fltSysRupIndex, aveRecurIntervals, presentTimeMillis);
 //			double condRecurIntWhereUnknown = aveCondRecurInterval;
 			
 			if(aveNormTimeSinceLast) {
@@ -736,8 +740,8 @@ public class ProbabilityModelsCalc {
 			}
 		}
 		
-//		if(Double.isNaN(probGain))
-//			throw new RuntimeException("NaN fltSysRupIndex="+fltSysRupIndex);
+		if(Double.isNaN(probGain))
+			throw new RuntimeException("NaN fltSysRupIndex="+fltSysRupIndex);
 		
 		return probGain;
 
@@ -768,7 +772,7 @@ public class ProbabilityModelsCalc {
 			sectionGainReal = new boolean[numSections];
 			for(int s=0; s<numSections;s++) {
 				long timeOfLastMillis = dateOfLastForSect[s];
-				if(timeOfLastMillis != Long.MIN_VALUE) {
+				if(timeOfLastMillis != Long.MIN_VALUE && timeOfLastMillis <= presentTimeMillis) {
 					double timeSinceLastYears = ((double)(presentTimeMillis-timeOfLastMillis))/MILLISEC_PER_YEAR;
 					double refTimeSinceLast = timeSinceLastYears*refRI*longTermPartRateForSectArray[s];
 					double refDuration = durationYears*refRI*longTermPartRateForSectArray[s];
@@ -1569,7 +1573,7 @@ public class ProbabilityModelsCalc {
 					}					
 				}
 				else {
-					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex);
+					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex, eventTimeMillis);
 					if(allSectionsHadDateOfLast) {
 						double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 						double normRI = timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
@@ -2593,7 +2597,7 @@ public class ProbabilityModelsCalc {
 						}					
 					}
 					else {
-						long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex);
+						long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex, eventTimeMillis);
 						if(allSectionsHadDateOfLast) {
 							double timeSinceLast = (eventTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 							double normRI = timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex];
@@ -3396,7 +3400,7 @@ public class ProbabilityModelsCalc {
 							}					
 						}
 						else {
-							long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex);
+							long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(fltSystRupIndex, currentTimeMillis);
 							if(allSectionsHadDateOfLast) {
 								double timeSinceLast = (currentTimeMillis-aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 								normRI = timeSinceLast/aveCondRecurIntervalForFltSysRups[fltSystRupIndex];

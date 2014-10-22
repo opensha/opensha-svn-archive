@@ -192,13 +192,5 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	public String getMetadataString() {
 		return null;
 	}
-	
-	public double[] getXVals() {
-		return xVals;
-	}
-	
-	public double[] getYVals() {
-		return yVals;
-	}
 
 }

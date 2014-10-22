@@ -15,6 +15,11 @@ public class PoissonPredictor implements Predictor {
 	}
 
 	@Override
+	public String getShortName() {
+		return getName();
+	}
+
+	@Override
 	public void init(List<int[]> path, double distSpacing) {
 		nDims = path.get(0).length;
 		rupCounts = new int[nDims];
@@ -50,10 +55,27 @@ public class PoissonPredictor implements Predictor {
 	public double[] getRuptureProbabilities() {
 		return rupProbs;
 	}
+	
+	@Override
+	public double[] getRuptureProbabilities(int[] prevState) {
+		return getRuptureProbabilities();
+	}
 
 	@Override
 	public void printDiagnostics() {
 		// do nothing
+	}
+
+	@Override
+	public Predictor getCollapsed(int... indexes) {
+		PoissonPredictor p = new PoissonPredictor();
+		p.stateCount = stateCount;
+		p.rupCounts = new int[indexes.length];
+		for (int i=0; i<indexes.length; i++)
+			p.rupCounts[i] = rupCounts[indexes[i]];
+		p.nDims = indexes.length;
+		p.updateProbs();
+		return p;
 	}
 
 }

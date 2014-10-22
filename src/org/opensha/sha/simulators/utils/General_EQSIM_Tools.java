@@ -313,8 +313,6 @@ public class General_EQSIM_Tools {
 //System.out.println("\tsectIndex="+sectIndex+"\tlengthOnRec="+(float)lengthOnRec+"\tddwForSect="+(float)ddwForSect);
 			}
 			double aveFltDDW = totArea/totLength;
-			if (event.getMagnitude() > 7d)
-				System.out.println("ave flt ddw: "+aveFltDDW+" (="+totArea+"/"+totLength+"). M="+event.getMagnitude()+", sqrt(area)="+Math.sqrt(event.getArea()));
 			Preconditions.checkState(!Double.isNaN(aveFltDDW), "NaN! area="+totArea+", len="+totLength);
 //System.out.println("aveFltDDW="+(float)aveFltDDW+"\tevent.getArea()="+(float)event.getArea()+"\tsqrt(event.getArea())="+(float)Math.sqrt(event.getArea()));
 //System.out.println(event.toString());

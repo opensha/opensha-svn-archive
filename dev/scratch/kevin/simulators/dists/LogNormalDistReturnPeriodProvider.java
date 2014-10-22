@@ -55,6 +55,10 @@ public class LogNormalDistReturnPeriodProvider implements RandomReturnPeriodProv
 		public LogNormalDistReturnPeriodProvider(double scale, double shape) {
 			n = new LogNormalDistribution(scale, shape);
 		}
+		
+		public void setSeed(long seed) {
+			n.reseedRandomGenerator(seed);
+		}
 
 		@Override
 		public double getReturnPeriod() {

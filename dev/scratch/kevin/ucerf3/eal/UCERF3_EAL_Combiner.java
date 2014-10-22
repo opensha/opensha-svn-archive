@@ -171,7 +171,7 @@ public class UCERF3_EAL_Combiner {
 							rupMFDIndex = rupMFDIndex-1;
 						else
 							Preconditions.checkState(rupMFDIndex < mfd.getNum() && (float)mfd.getX(rupMFDIndex) == (float)mag,
-								"Bad mag. Mine="+mag+". MFD=["+Joiner.on(",").join(Doubles.asList(((LightFixedXFunc)mfd).getXVals()))+"]");
+								"Bad mag. Mine="+mag+". MFD=["+Joiner.on(",").join(mfd.xValues())+"]");
 					}
 				}
 				Preconditions.checkState((float)mag == (float)mfd.getX(rupMFDIndex));

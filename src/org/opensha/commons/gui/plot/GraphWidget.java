@@ -109,6 +109,8 @@ public class GraphWidget extends JPanel {
 	 * @param yRange
 	 */
 	public GraphWidget(PlotSpec plotSpec, PlotPreferences plotPrefs, boolean xLog, boolean yLog, Range xRange, Range yRange) {
+		if (plotPrefs == null)
+			plotPrefs = PlotPreferences.getDefault();
 		this.plotPrefs = plotPrefs;
 		this.plotSpec = plotSpec;
 		graphPanel = new GraphPanel(plotPrefs);

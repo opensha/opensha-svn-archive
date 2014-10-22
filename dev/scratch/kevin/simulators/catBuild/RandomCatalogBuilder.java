@@ -38,12 +38,12 @@ public class RandomCatalogBuilder {
 		 * @return
 		 */
 		public static List<EQSIM_Event> getRandomResampledCatalog(
-				List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+				List<EQSIM_Event> events, List<? extends RuptureIdentifier> rupIdens,
 				RandomDistType distType, boolean splitMultis) {
 			return getRandomResampledCatalog(events, rupIdens, distType, splitMultis, 1);
 		}
 		public static List<EQSIM_Event> getRandomResampledCatalog(
-				List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+				List<EQSIM_Event> events, List<? extends RuptureIdentifier> rupIdens,
 				RandomDistType distType, boolean splitMultis, int lengthMult) {
 			System.out.println("Generating randomized catalog. DistType: "+distType.getName());
 			

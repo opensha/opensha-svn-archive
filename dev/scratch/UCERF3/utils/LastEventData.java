@@ -47,7 +47,8 @@ public class LastEventData {
 	//"Well resolved historical","Paleo-well resolved", and "Unique to FM3.2"
 	private static final int[] SHEET_NUMS = {0,1,2};
 	
-	private static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(2013, 0, 0);
+	public static final int OPEN_INTERVAL_BASIS_YEAR = 2013;
+	public static final GregorianCalendar OPEN_INTERVAL_BASIS = new GregorianCalendar(OPEN_INTERVAL_BASIS_YEAR, 0, 0);
 	private static final double MATCH_LOCATION_TOLERANCE = 1d;
 //	private static final double MILLIS_TO_YEARS = (double)(1000*60*24);
 	

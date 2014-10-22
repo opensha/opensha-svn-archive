@@ -3,14 +3,17 @@ package scratch.kevin.simulators.synch.prediction;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class RecurrIntervalPredictor implements Predictor {
 	
 	private List<List<Double>> rupFreqs;
 	private List<List<Double>> occFreqs;
-	private List<int[]> path;
+	private int[] prevState;
 	private int nDims;
+	
+	private int stateCount = 0;
 
 	@Override
 	public String getName() {
@@ -18,26 +21,29 @@ public class RecurrIntervalPredictor implements Predictor {
 	}
 
 	@Override
+	public String getShortName() {
+		return "RI";
+	}
+
+	@Override
 	public void init(List<int[]> initialPath, double distSpacing) {
 		rupFreqs = Lists.newArrayList();
 		occFreqs = Lists.newArrayList();
 		nDims = initialPath.get(0).length;
-		this.path = Lists.newArrayList();
 		
 		for (int i=0; i<nDims; i++) {
 			rupFreqs.add(new ArrayList<Double>());
 			occFreqs.add(new ArrayList<Double>());
 		}
 		
-		for (int[] state : initialPath) {
+		for (int[] state : initialPath)
 			addState(state);
-		}
 	}
 
 	@Override
 	public void addState(int[] state) {
-		if (!path.isEmpty()) {
-			int[] prevState = path.get(path.size()-1);
+		Preconditions.checkArgument(state != null);
+		if (prevState != null) {
 			for (int i=0; i<nDims; i++) {
 				boolean rupture = state[i] == 0;
 				int faultState = prevState[i];
@@ -48,7 +54,9 @@ public class RecurrIntervalPredictor implements Predictor {
 			}
 		}
 		
-		path.add(state);
+		prevState = state;
+		
+		stateCount++;
 	}
 	
 	private void increment(List<Double> list, int index) {
@@ -68,11 +76,19 @@ public class RecurrIntervalPredictor implements Predictor {
 
 	@Override
 	public double[] getRuptureProbabilities() {
+		return getRuptureProbabilities(prevState);
+	}
+	
+	@Override
+	public double[] getRuptureProbabilities(int[] curState) {
+		Preconditions.checkNotNull(curState);
+		Preconditions.checkNotNull(occFreqs);
 		double[] ret = new double[nDims];
 		
-		int[] curState = path.get(path.size()-1);
-		
 		for (int i=0; i<nDims; i++) {
+			if (curState[i] >= occFreqs.get(i).size())
+				// never been here
+				continue;
 			double occFreq = occFreqs.get(i).get(curState[i]);
 			double rupFreq = rupFreqs.get(i).get(curState[i]);
 			ret[i] = rupFreq/occFreq;
@@ -84,6 +100,26 @@ public class RecurrIntervalPredictor implements Predictor {
 	@Override
 	public void printDiagnostics() {
 		// do nothing
+	}
+
+	@Override
+	public Predictor getCollapsed(int... indexes) {
+		RecurrIntervalPredictor p = new RecurrIntervalPredictor();
+		p.rupFreqs = Lists.newArrayList();
+		p.occFreqs = Lists.newArrayList();
+		p.prevState = new int[indexes.length];
+		p.nDims = indexes.length;
+		for (int i=0; i<indexes.length; i++) {
+			int index = indexes[i];
+			p.rupFreqs.add(rupFreqs.get(index));
+			p.occFreqs.add(occFreqs.get(index));
+			p.prevState[i] = prevState[index];
+		}
+		return p;
+	}
+	
+	public int getStateCount() {
+		return stateCount;
 	}
 
 }

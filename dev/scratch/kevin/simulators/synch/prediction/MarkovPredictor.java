@@ -2,6 +2,8 @@ package scratch.kevin.simulators.synch.prediction;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import scratch.kevin.simulators.synch.MarkovChainBuilder;
 import scratch.kevin.simulators.synch.PossibleStates;
 
@@ -25,7 +27,18 @@ public class MarkovPredictor implements Predictor {
 	public String getName() {
 		if (chain == null)
 			return "Markov";
-		return chain.getNDims()+"D Markov";
+		if (backupPredictor == null)
+			return chain.getNDims()+"D Markov";
+		return chain.getNDims()+"D Markov (back="+backupPredictor.getShortName()+")";
+	}
+
+	@Override
+	public String getShortName() {
+		if (chain == null)
+			return "Markov";
+		if (backupPredictor == null)
+			return chain.getNDims()+"DMarkov";
+		return chain.getNDims()+"DMarkov_back"+backupPredictor.getShortName();
 	}
 
 	@Override
@@ -46,7 +59,11 @@ public class MarkovPredictor implements Predictor {
 	public double[] getRuptureProbabilities() {
 		List<int[]> fullPath = chain.getFullPath();
 		int[] prevState = fullPath.get(fullPath.size()-1);
-		
+		return getRuptureProbabilities(prevState);
+	}
+	
+	@Override
+	public double[] getRuptureProbabilities(int[] prevState) {
 		double[] ret = new double[prevState.length];
 		
 		PossibleStates possible = chain.getStateTransitionDataset().get(prevState);
@@ -84,6 +101,16 @@ public class MarkovPredictor implements Predictor {
 		if (backupPredictor != null)
 			str += ", replaced with probs from "+backupPredictor.getName();
 		System.out.println(str);
+	}
+
+	@Override
+	public Predictor getCollapsed(int... indexes) {
+		Predictor b = null;
+		if (this.backupPredictor != null)
+			b = this.backupPredictor.getCollapsed(indexes);
+		MarkovPredictor p = new MarkovPredictor(b);
+		p.chain = chain.getCollapsedChain(indexes);
+		return p;
 	}
 
 }

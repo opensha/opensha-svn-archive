@@ -2074,7 +2074,7 @@ public class SynchParamCalculator {
 		for (List<RuptureIdentifier> idens : setIdens)
 			allIdens.addAll(idens);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens).getEvents();
+		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens, true).getEvents();
 		
 		for (int s=0; s<setNames.size(); s++) {
 			String name = getDirName();

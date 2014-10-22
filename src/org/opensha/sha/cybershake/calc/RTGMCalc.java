@@ -91,6 +91,9 @@ public class RTGMCalc {
 	
 	private static HazardCurveCalculator gmpeCalc = new HazardCurveCalculator();
 	
+	private Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap;
+	private Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap;
+	
 	public RTGMCalc(CommandLine cmd, DBAccess db) {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
 		int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
@@ -139,8 +142,8 @@ public class RTGMCalc {
 			String attenFiles = cmd.getOptionValue("af");
 			
 			try {
-				erf = ERFSaver.LOAD_ERF_FROM_FILE(erfFile);
-				attenRels = Lists.newArrayList();
+				ERF erf = ERFSaver.LOAD_ERF_FROM_FILE(erfFile);
+				List<AttenuationRelationship> attenRels = Lists.newArrayList();
 				
 				for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
 					AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
@@ -148,6 +151,8 @@ public class RTGMCalc {
 				}
 				
 				erf.updateForecast();
+				
+				setGMPEs(erf, attenRels);
 			} catch (DocumentException e) {
 				e.printStackTrace();
 				System.err.println("WARNING: Unable to parse ERF XML, not plotting comparison curves!");
@@ -161,6 +166,11 @@ public class RTGMCalc {
 		}
 	}
 	
+	public void setGMPEs(ERF erf, List<AttenuationRelationship> attenRels) {
+		this.erf = erf;
+		this.attenRels = attenRels;
+	}
+	
 	public RTGMCalc(int runID, CyberShakeComponent component, File outputDir, DBAccess db) {
 		init(runID, component, outputDir, db, null, Lists.newArrayList(PlotType.CSV));
 	}
@@ -169,8 +179,8 @@ public class RTGMCalc {
 			List<CybershakeIM> forceAddIMs, List<PlotType> plotTypes) {
 		Preconditions.checkArgument(runID >= 0, "Run ID must be >= 0");
 		// component CAN be null
-		Preconditions.checkArgument(outputDir != null, "Output dir must me supplied");
-		Preconditions.checkArgument((outputDir.exists() && outputDir.isDirectory()) || outputDir.mkdir(),
+		if (outputDir != null)
+			Preconditions.checkArgument((outputDir.exists() && outputDir.isDirectory()) || outputDir.mkdir(),
 				"Output dir does not exist and could not be created");
 		Preconditions.checkArgument(db != null, "DB connection cannot be null");
 		this.runID = runID;
@@ -184,6 +194,10 @@ public class RTGMCalc {
 		runs2db = new Runs2DB(db);
 		sites2db = new CybershakeSiteInfo2DB(db);
 		dataset2db = new HazardDataset2DB(db);
+	}
+	
+	public void setForceAddIMs(List<CybershakeIM> forceAddIMs) {
+		this.forceAddIMs = forceAddIMs;
 	}
 	
 	public boolean calc() throws IOException {
@@ -273,8 +287,7 @@ public class RTGMCalc {
 		
 		List<DiscretizedFunc> cybershakeCurves = Lists.newArrayList();
 		
-		Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap = Maps.newHashMap();
-		Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap;
+		csSpectrumMap = Maps.newHashMap();
 		if (attenRels != null)
 			gmpeSpectrumMap = Maps.newHashMap();
 		else
@@ -374,6 +387,9 @@ public class RTGMCalc {
 			csv.addLine(line);
 		}
 		
+		if (outputDir == null)
+			return true;
+		
 		String namePrefix = site.short_name+"_run"+runID+"_RTGM";
 		String dateStr = dateFormat.format(new Date());
 		Map<CyberShakeComponent, PlotSpec> specs = null;
@@ -420,6 +436,14 @@ public class RTGMCalc {
 		}
 		
 		return true; // success
+	}
+	
+	public Map<CyberShakeComponent, DiscretizedFunc> getCSSpectrumMap() {
+		return csSpectrumMap;
+	}
+	
+	public Map<CyberShakeComponent, List<DiscretizedFunc>> getGMPESpectrumMap() {
+		return gmpeSpectrumMap;
 	}
 	
 	static final boolean xLog = true;

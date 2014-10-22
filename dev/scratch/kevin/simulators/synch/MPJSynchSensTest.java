@@ -202,7 +202,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 			}
 		}
 		
-		events = new SimAnalysisCatLoader(true, loadIdens).getEvents();
+		events = new SimAnalysisCatLoader(true, loadIdens, false).getEvents();
 		
 		nDims = rupIdens.size();
 		
