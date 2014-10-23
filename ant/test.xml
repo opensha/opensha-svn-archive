@@ -288,4 +288,37 @@
 			run.coverage.weekly.tests, cobertura.check.merge, cobertura.merge, cobertura.report">
 	</target>
 	
+	<target name="run.app.launch.tests" depends="compile.tests, resource.tests, pre.test.init">
+		<echo message="luanching Xvfb"/>
+		<exec executable="/usr/bin/Xvfb" spawn="true">
+			<arg line=":2 -screen 0 1600x1200x24"/>
+		</exec>
+		<echo message="done launching Xvfb, running tests"/>
+		<junit fork="yes" haltonfailure="true" 
+			failureproperty="tests.failed"
+			errorProperty="test.failed"
+			haltonerror="true"
+			dir="../"
+			printsummary="yes">
+			<classpath>
+				<pathelement location="${build}"/>
+				<path refid="library.classpath" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+      			<formatter type="xml" />
+			<env key="DISPLAY" value=":2.0"/>
+
+			<batchtest fork="yes" todir="${logs}">
+				<fileset dir="../classes/">
+					<include name="org/opensha/sha/gui/Test*Launch*" />
+				</fileset>
+			</batchtest>
+		</junit>
+		<echo message="killing Xvfb"/>
+		<exec executable="/usr/bin/killall">
+			<arg line="Xvfb"/>
+		</exec>
+		<echo message="done killing Xvfb"/>
+	</target>
+	
 </project>

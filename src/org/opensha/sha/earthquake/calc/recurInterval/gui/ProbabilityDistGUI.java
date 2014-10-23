@@ -531,8 +531,13 @@ public class ProbabilityDistGUI extends JFrame implements ParameterChangeListene
 	}
 
 	public static void main(String[] args) {
+		launch();
+	}
+	
+	public static ProbabilityDistGUI launch() {
 		ProbabilityDistGUI probDistGUI = new ProbabilityDistGUI();
 		probDistGUI.setVisible(true);
+		return probDistGUI;
 	}
 
 }

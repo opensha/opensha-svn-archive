@@ -958,11 +958,16 @@ extends JFrame implements ParameterChangeListener {
 	 */
 	public static void main(String[] args) throws IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		launch();
+	}
+	
+	public static MagFreqDistApp launch() {
 		MagFreqDistApp magFreqDistApp = new MagFreqDistApp();
 		magFreqDistApp.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		magFreqDistApp.initMagParamEditor();
 		magFreqDistApp.createMagParam();
 		magFreqDistApp.makeSumDistVisible(true);
+		return magFreqDistApp;
 	}
 
 	public void parameterChange(ParameterChangeEvent event) {

@@ -681,13 +681,20 @@ extends HazardCurveApplication {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
+		launch(exp);
+	}
+	
+	public static HazardSpectrumApplication launch(DefaultExceptoinHandler handler) {
 		HazardSpectrumApplication applet = new
 				HazardSpectrumApplication(APP_SHORT_NAME);
-		exp.setApp(applet);
-		exp.setParent(applet);
+		if (handler != null) {
+			handler.setApp(applet);
+			handler.setParent(applet);
+		}
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
+		return applet;
 	}
 
 	@Override

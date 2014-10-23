@@ -196,6 +196,10 @@ public class GMT_MapGeneratorApplet extends Applet{
 	//Main method
 	public static void main(String[] args) {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		launch();
+	}
+	
+	public static GMT_MapGeneratorApplet launch() {
 		GMT_MapGeneratorApplet applet = new GMT_MapGeneratorApplet();
 		applet.isStandalone = true;
 		JFrame frame = new JFrame();
@@ -209,6 +213,7 @@ public class GMT_MapGeneratorApplet extends Applet{
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
 		frame.setVisible(true);
+		return applet;
 	}
 
 	//static initializer for setting look & feel

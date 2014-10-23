@@ -56,6 +56,8 @@
 	<target name="svn.build.run.daily.coverage" depends="svn.update.build">
 		<ant antfile="test.xml" target="run.cobertura"/>
 		<antcall target="javadoc"/>
+		<!-- now test launching each app -->
+		<ant antfile="test.xml" target="run.app.launch.tests"/>
 	</target>
 	
 	<target name="javadoc">

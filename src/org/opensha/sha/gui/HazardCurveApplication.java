@@ -729,14 +729,21 @@ ScalarIMRChangeListener {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
+		launch(exp);
+	}
+	
+	public static HazardCurveApplication launch(DefaultExceptoinHandler handler) {
 		HazardCurveApplication applet = new HazardCurveApplication(APP_SHORT_NAME);
-		exp.setApp(applet);
-		exp.setParent(applet);
+		if (handler != null) {
+			handler.setApp(applet);
+			handler.setParent(applet);
+		}
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		//		applet.pack();
 		applet.setVisible(true);
 		applet.computeButton.requestFocusInWindow();
+		return applet;
 	}
 
 	// static initializer for setting look & feel

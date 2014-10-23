@@ -873,11 +873,15 @@ implements ParameterChangeFailListener, ParameterChangeWarningListener, ItemList
 	 */
 	public static void main( String[] args ) throws MalformedURLException, IOException {
 		new DisclaimerDialog(APP_NAME, APP_SHORT_NAME, getAppVersion());
+		launch();
+	}
+	
+	public static AttenuationRelationshipApplet launch() {
 		AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
 		applet.init();
 		applet.setIconImages(IconFetcher.fetchIcons(APP_SHORT_NAME));
 		applet.setVisible(true);
-
+		return applet;
 	}
 
 

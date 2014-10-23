@@ -71,10 +71,17 @@ public class SiteDataCombinedApp extends JFrame {
 		DefaultExceptoinHandler exp = new DefaultExceptoinHandler(
 				APP_SHORT_NAME, getAppVersion(), null, null);
 		Thread.setDefaultUncaughtExceptionHandler(exp);
+		launch(exp);
+	}
+	
+	public static SiteDataCombinedApp launch(DefaultExceptoinHandler handler) {
 		SiteDataCombinedApp app = new SiteDataCombinedApp();
-		exp.setApp(app);
-		exp.setParent(app);
+		if (handler != null) {
+			handler.setApp(app);
+			handler.setParent(app);
+		}
 		app.init();
+		return app;
 	}
 
 }
