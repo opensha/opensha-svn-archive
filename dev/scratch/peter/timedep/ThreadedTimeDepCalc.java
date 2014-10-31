@@ -54,7 +54,9 @@ public class ThreadedTimeDepCalc {
 
 	private static final String UC3_SOL_PATH = 
 //			"/home/scec-00/pmpowers/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
-			"tmp/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
+//			"tmp/UC33/src/bravg/FM/UC33brAvg_FM31.zip";
+			"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 
 	/**
 	 * Initializes a new threaded hazard calculation for the specified UC3 

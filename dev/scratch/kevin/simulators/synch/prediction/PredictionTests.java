@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.math3.distribution.LogNormalDistribution;
+import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
@@ -237,11 +239,7 @@ public class PredictionTests {
 	 * @param rupIdens
 	 * @return
 	 */
-	private static List<EQSIM_Event> generateFakeData(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens) {
-		return generateFakeData(events, rupIdens, System.currentTimeMillis());
-	}
-	
-	private static List<EQSIM_Event> generateFakeData(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+	private static List<EQSIM_Event> generateFakeData1(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
 			long seed) {
 		Preconditions.checkState(rupIdens.size() == 2);
 		RuptureIdentifier iden1 = rupIdens.get(0);
@@ -289,6 +287,80 @@ public class PredictionTests {
 		
 		return fakeEvents;
 	}
+	
+	/**
+	 * Generates a fake series of events where the fboth faults are log-normally distributed, with the
+	 * given correlation coeff
+	 * @param events
+	 * @param rupIdens
+	 * @return
+	 */
+	private static List<EQSIM_Event> generateFakeData2(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+			double corr, double mean1, double sd1, double mean2, double sd2, long seed) {
+		Preconditions.checkState(rupIdens.size() == 2);
+		RuptureIdentifier iden1 = rupIdens.get(0);
+		RuptureIdentifier iden2 = rupIdens.get(1);
+		
+		// first find all unique events for each
+		List<EQSIM_Event> events1 = iden1.getMatches(events);
+		List<EQSIM_Event> events2 = iden2.getMatches(events);
+		
+		HashSet<EQSIM_Event> events2Hash = new HashSet<EQSIM_Event>(events2);
+		
+		// remove duplicates
+		for (int i=events1.size(); --i>=0;) {
+			EQSIM_Event event = events1.get(i);
+			if (events2Hash.contains(event)) {
+				events1.remove(i);
+				Preconditions.checkState(events2.remove(event));
+			}
+		}
+		
+		List<EQSIM_Event> fakeEvents = Lists.newArrayList();
+		
+		double[] means = { Math.log(mean1), Math.log(mean2) };
+		double[][] covariances = new double[2][2];
+		covariances[0][0] = sd1*sd1;
+		covariances[1][1] = sd2*sd2;
+		covariances[0][1] = corr*sd1*sd2;
+		covariances[1][0] = corr*sd1*sd2;
+		
+		MultivariateNormalDistribution dist = new MultivariateNormalDistribution(means, covariances);
+//		dist.
+//		double shape1 = sd1 / mean1;
+//		double shape2 = sd2 / mean2;
+//		LogNormalDistribution n1 = new LogNormalDistribution(Math.log(mean1), shape1);
+//		LogNormalDistribution n2 = new LogNormalDistribution(Math.log(mean2), shape2);
+//		
+//		int eventID = 0;
+//		
+//		double oi1 = Math.random()*(2d*mean1);
+//		double oi2 = Math.random()*(2d*mean2);
+//		
+//		double time = 0d;
+//		while (!events1.isEmpty() && !events2.isEmpty()) {
+//			double jointProb = dist.density(new double[] {Math.log(oi1), Math.log(oi2)});
+//			double p1 = n1.probability(Math.log(oi1))
+//			if (Math.random() <= jointProb) {
+//				fakeEvents.add(events1.remove(0).cloneNewTime(time, eventID++));
+//				fakeEvents.add(events2.remove(0).cloneNewTime(time, eventID++));
+//				oi1 = 0;
+//				oi2 = 0;
+//			}
+//			
+//			oi1 += 10d;
+//			oi2 += 10d;
+//			
+//			time += 10d*General_EQSIM_Tools.SECONDS_PER_YEAR;
+//		}
+//		
+//		System.out.println("Fake catalog has "+fakeEvents.size()
+//				+" events, length: "+(time/General_EQSIM_Tools.SECONDS_PER_YEAR));
+//		
+//		Preconditions.checkState(!fakeEvents.isEmpty());
+		
+		return fakeEvents;
+	}
 
 	public static void main(String[] args) throws IOException {
 		double minMag = 7d; 
@@ -309,7 +381,8 @@ public class PredictionTests {
 		
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		if (fakeData)
-			events = generateFakeData(events, rupIdens, 0l);
+//			events = generateFakeData1(events, rupIdens, 0l);
+			events = generateFakeData2(events, rupIdens, 0.5, 100d, 30d, 100d, 30d, 0l);
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
 		

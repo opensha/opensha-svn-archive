@@ -128,7 +128,24 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			}
 		} else {
 			// need to get it from the db
-			vals = loadAmpsFromDB(runID, im);
+			int tries = 3;
+			vals = null;
+			SQLException ex = null;
+			while (tries >= 0 && vals == null) {
+				try {
+					vals = loadAmpsFromDB(runID, im);
+				} catch (SQLException e) {
+					ex = e;
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e1) {}
+				}
+				tries--;
+			}
+			if (vals == null) {
+				System.out.println("Cache failed after 3 tries!");
+				throw ex;
+			}
 			if (cacheFile != null) {
 				try {
 					writeCacheFile(vals, cacheFile);

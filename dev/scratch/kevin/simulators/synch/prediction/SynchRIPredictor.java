@@ -149,13 +149,19 @@ public class SynchRIPredictor implements Predictor {
 //				multRate *= avgGain;
 				double avgGain = Math.exp(Math.log(g_rup)*probJRup + Math.log(g_norup)*(1-probJRup));
 				multRate *=  Math.exp(Math.log(g_rup)*probJRup) * Math.exp(Math.log(g_norup)*(1-probJRup));
-				avgProb += riProb*avgGain;
+//				avgProb += riProb*avgGain;
+				
+				g_rup = Math.exp(Math.log(g_rup)*1.0);
+				g_norup = Math.exp(Math.log(g_norup)*1.0);
+				avgProb += g_rup*riProb*probJRup + g_norup*riProb*(1d-probJRup);
 			}
 			
 			lnSumGHists[i].add(lnSumGHists[i].getClosestXIndex(lnSumG), 1d);
-			double prob = Math.exp(Math.log(riProb)+lnSumG);
+//			double prob = Math.exp(Math.log(riProb)+lnSumG);
 //			double prob = multRate;
 //			double prob = avgProb / (double)(nDims-1);
+//			double prob = avgProb / (double)(nDims-1);
+			double prob = avgProb;
 			
 			prob = 1-Math.exp(-prob);
 			
@@ -261,6 +267,10 @@ public class SynchRIPredictor implements Predictor {
 		
 		private ArrayDeque<Integer> nDeque;
 		
+		private int[] prevState;
+		
+		private static final boolean CALC_DIAG = false;
+		
 		public SynchRunningCalc(int m, int n, int lag) {
 			this.m = m;
 			this.n = n;
@@ -273,6 +283,19 @@ public class SynchRIPredictor implements Predictor {
 		
 		public void addState(int[] state) {
 			int[] newState = { state[m], state[n]};
+			
+			if (CALC_DIAG) {
+				if (prevState == null) {
+					prevState = state;
+					return;
+				}
+				int delta = prevState[1] - prevState[0];
+				if (delta != lag) {
+					prevState = state;
+					return;
+				}
+			}
+			
 			if (lag > 0) {
 				nDeque.addLast(state[n]);
 				if (nDeque.size() > lag)
@@ -288,9 +311,13 @@ public class SynchRIPredictor implements Predictor {
 				numN++;
 			if (newState[0] == 0 && newState[1] == 0)
 				numMN++;
+			
+			prevState = newState;
 		}
 		
 		public double getCatalogG() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 1d;
 			return (double)numWindows * (double)numMN/(double)(numM*numN);
 		}
 	}

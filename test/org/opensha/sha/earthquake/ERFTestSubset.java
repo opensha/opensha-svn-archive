@@ -128,6 +128,12 @@ public class ERFTestSubset implements ERF {
 		sourceIDMap.put(new Integer(newID), new Integer(sourceID));
 	}
 	
+	public void includeAllExcept(int sourceID) {
+		for (int i=0; i<baseERF.getNumSources(); i++)
+			if (i != sourceID)
+				includeSource(i);
+	}
+	
 	public ProbEqkSource getOrigSource(int sourceID) {
 		return baseERF.getSource(sourceID);
 	}

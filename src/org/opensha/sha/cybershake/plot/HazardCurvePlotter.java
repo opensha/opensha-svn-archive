@@ -108,6 +108,7 @@ import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -1432,6 +1433,8 @@ public class HazardCurvePlotter {
 		return site;
 	}
 	
+	public static boolean SCALE_PRINT_SUCCESS = true;
+	
 	/**
 	 * This will apply an empirical scaling factor to the X values of the given hazard curve if
 	 * the CyberShake and GMPE components differ and a conversion factor exists. Otherwise a
@@ -1444,7 +1447,7 @@ public class HazardCurvePlotter {
 	 * @return
 	 */
 	public static DiscretizedFunc getScaledCurveForComponent(
-			AttenuationRelationship attenRel, CybershakeIM im, DiscretizedFunc curve) {
+			ScalarIMR attenRel, CybershakeIM im, DiscretizedFunc curve) {
 		CyberShakeComponent component = im.getComponent();
 		double period = im.getVal();
 		Component gmpeComponent;
@@ -1473,7 +1476,8 @@ public class HazardCurvePlotter {
 		for (Component to : component.getGMPESupportedComponents()) {
 			if (ComponentConverter.isConversionSupported(gmpeComponent, to)) {
 				// we have a valid translation!
-				System.out.println("Scaling curve from "+gmpeComponent+" to "+to);
+				if (SCALE_PRINT_SUCCESS)
+					System.out.println("Scaling curve from "+gmpeComponent+" to "+to);
 				ComponentTranslation converter = ComponentConverter.getConverter(gmpeComponent, to);
 				double factor = converter.getScalingFactor(period);
 				curve = converter.convertCurve(curve, period);

@@ -206,7 +206,15 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFunc computeHazardCurve(ArrayList<Double> xVals, CybershakeRun run, CybershakeIM imType){
+	public DiscretizedFunc computeHazardCurve(List<Double> xVals, CybershakeRun run,
+			CybershakeIM imType) {
+		List<Integer> srcIdList = siteDB.getSrcIdsForSite(run.getSiteID(), run.getERFID());
+		return computeHazardCurve(xVals, run, imType, srcIdList);
+	}
+	
+
+	public DiscretizedFunc computeHazardCurve(List<Double> xVals, CybershakeRun run,
+			CybershakeIM imType, List<Integer> srcIdList) {
 		DiscretizedFunc hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteID = run.getSiteID();
 		int erfID = run.getERFID();
@@ -214,11 +222,10 @@ public class HazardCurveComputation {
 		int numIMLs  = xVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set((xVals.get(i)).doubleValue(), 1.0);
 
-		List<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
 			//			updateProgress(srcIndex, numSrcs);
-			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
+//			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
 			List<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
 			int numRupSize = rupIdList.size();

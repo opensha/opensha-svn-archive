@@ -88,7 +88,8 @@ public class MCERDataProductsCalc {
 		for (CybershakeSite site : sites) {
 			Preconditions.checkState(csSpectrumMaps.containsKey(site.short_name));
 			csDeterms.add(RTGMCalc.saToPsuedoVel(csSpectrumMaps.get(site.short_name).get(comp)));
-			gmpeDeterms.add(RTGMCalc.saToPsuedoVel(average(gmpeSpectrumMaps.get(site.short_name).get(comp))));
+			// maximum of each deterministic NGA value
+			gmpeDeterms.add(RTGMCalc.saToPsuedoVel(maximum(gmpeSpectrumMaps.get(site.short_name).get(comp))));
 		}
 		
 		// calculate probabalistic
@@ -178,7 +179,7 @@ public class MCERDataProductsCalc {
 		return ret;
 	}
 	
-	private static DiscretizedFunc average(List<DiscretizedFunc> funcs) {
+	private static DiscretizedFunc maximum(List<DiscretizedFunc> funcs) {
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		
 		DiscretizedFunc xVals = funcs.get(0);
@@ -189,10 +190,9 @@ public class MCERDataProductsCalc {
 			double y = 0;
 			for (DiscretizedFunc func : funcs) {
 				Preconditions.checkState((float)x == (float)func.getX(i));;
-				y += func.getY(i);
+				y = Math.max(y, func.getY(i));
 			}
 			
-			y /= (double)funcs.size();
 			ret.set(x, y);
 		}
 		
@@ -229,7 +229,7 @@ public class MCERDataProductsCalc {
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			
 			funcs.add(asceDeterm);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.DARK_GRAY));
 			
 			funcs.add(gmpeProb);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
@@ -272,6 +272,9 @@ public class MCERDataProductsCalc {
 			
 			funcs = Lists.newArrayList();
 			chars = Lists.newArrayList();
+			
+			funcs.add(asceDeterm);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.DARK_GRAY));
 			
 			funcs.add(asceProb);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
@@ -331,7 +334,7 @@ public class MCERDataProductsCalc {
 	}
 
 	public static void main(String[] args) throws DocumentException, InvocationTargetException, IOException {
-		List<Integer> runIDs = Lists.newArrayList(3037, 2722, 3022, 3030, 3027, 2636, 2638,
+		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
 				2660, 2703, 3504, 2988, 2965, 3007);
 		File baseDir = new File("/home/kevin/CyberShake/MCER");
 		File outputDir = new File(baseDir, "combined_plots");
