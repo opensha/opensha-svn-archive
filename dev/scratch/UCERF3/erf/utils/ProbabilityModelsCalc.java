@@ -390,7 +390,7 @@ public class ProbabilityModelsCalc {
 	 * This method returns last-event date (epoch milliseconds) averaged over fault sections
 	 * that have such data (and weighted by section area). 
 	 * 
-	 *  Long.MIN_VALUE is returned in none of the fault sections had a date of last event 
+	 *  Long.MIN_VALUE is returned if none of the fault sections had a date of last event 
 	 *  
 	 *  The following global variables are also set for further diagnostics:
 	 * 
@@ -400,9 +400,10 @@ public class ProbabilityModelsCalc {
 	 * 		boolean noSectionsHadDateOfLast
 	 *
 	 * @param fltSystRupIndex
-	 * @param onlyIfAllSectionsHaveDateOfLast
+	 * @param presentTimeMillis if non null, only fault sections with date of last events at or before the present
+	 * time in milliseconds will be considered.
 	 */
-	public long getAveDateOfLastEventWhereKnown(int fltSystRupIndex, long presentTimeMillis) {
+	public long getAveDateOfLastEventWhereKnown(int fltSystRupIndex, Long presentTimeMillis) {
 //		System.out.println("getAveDateOfLastEventWhereKnown");
 		totRupArea=0;
 		totRupAreaWithDateOfLast=0;
@@ -414,7 +415,7 @@ public class ProbabilityModelsCalc {
 			long dateOfLast = dateOfLastForSect[s];
 			double area = sectionArea[s];
 			totRupArea+=area;
-			if(dateOfLast != Long.MIN_VALUE && (presentTimeMillis == Long.MIN_VALUE || dateOfLast <= presentTimeMillis)) {
+			if(dateOfLast != Long.MIN_VALUE && (presentTimeMillis == null || dateOfLast <= presentTimeMillis)) {
 				sumDateOfLast += (double)dateOfLast*area;
 				totRupAreaWithDateOfLast += area;
 				numWithDateOfLast+=1;
@@ -509,7 +510,7 @@ public class ProbabilityModelsCalc {
 			for(int r=0;r<fltSysRupSet.getNumRuptures();r++) {
 				if(fltSysRupSet.getSectionsIndicesForRup(r).contains(sectID)) {
 					double rate = longTermRateOfFltSysRup[r];
-					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(r, Long.MIN_VALUE);
+					long aveDateOfLastMillis = getAveDateOfLastEventWhereKnown(r, null);
 					double yrsSinceLast = ((2014-1970)*MILLISEC_PER_YEAR-(double)aveDateOfLastMillis)/MILLISEC_PER_YEAR;
 					List<Integer> indices = fltSysRupSet.getSectionsIndicesForRup(r);
 					String name1 = fltSysRupSet.getFaultSectionData(indices.get(0)).getName();
