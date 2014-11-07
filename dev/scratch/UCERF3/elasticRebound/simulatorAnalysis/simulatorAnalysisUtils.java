@@ -120,8 +120,8 @@ public class simulatorAnalysisUtils {
 		
 		// set the list of event files to loop over (and corresponding short dir names for each)
 		String[] eventFileArray = {
-//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// RSQSim
-				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall",	// the long file from Kevin
+				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall",	// RSQSim
+//				"eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall",	// the long file from Kevin
 //				"ALLCAL2_no-creep_dt-08_st-10_110912_471207_events_slip-map-5.5_eid-fix.dat" //,
 //				"ALLCAL2-30k-output[3-24-11].converted",
 //				"Fred-allcal2-7june11.txt"

@@ -764,14 +764,19 @@ public class FaultSysSolutionERF_Calc {
 			throw new IllegalArgumentException("Selected dataset '"+plotFileName
 					+"' not found in xml input file. Available files:\n"+Joiner.on("\n\t").join(availableDatasets));
 		
-		CPT cpt = mapData.getCPT();
+//		CPT cpt = mapData.getCPT();
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		
+		double minValue = -5;
+		double maxValue = 0;
+
 		// this is required for any 0 spots
 		cpt.setBelowMinColor(cpt.getMinColor());
 		GeoDataSet data = mapData.getGriddedData();
 		// convert any NaN holes in the middle to the min color
 		for (int index=0; index<data.size(); index++)
 			if (!Doubles.isFinite(data.get(index)))
-				data.set(index, cpt.getMinValue());
+				data.set(index, minValue);
 		
 		GMT_Map map = new GMT_Map(mapData.getRegion(), data, mapData.getSpacing(), cpt);
 		map.setCustomScaleMax(null);
@@ -782,9 +787,9 @@ public class FaultSysSolutionERF_Calc {
 		map.setBlackBackground(false);
 		map.setGenerateKML(true);
 		map.setCustomLabel(mapData.getLabel());
-		map.setRescaleCPT(false);
-		map.setCustomScaleMin((double)cpt.getMinValue());
-		map.setCustomScaleMax((double)cpt.getMaxValue());
+		map.setRescaleCPT(true);
+		map.setCustomScaleMin(minValue);
+		map.setCustomScaleMax(maxValue);
 		
 		GMT_MapGenerator gmt = new GMT_MapGenerator();
 		gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.LOG_PLOT_NAME).setValue(false);
@@ -997,7 +1002,7 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	/**
-	 * This comparison does not include aftershocks
+	 * This comparison includes aftershocks
 	 */
 	public static void plot_U3pt3_U2_TotalMeanMFDs() {
 		
@@ -4851,9 +4856,9 @@ public class FaultSysSolutionERF_Calc {
 		
 //		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
 		
-		makeAveMoRateMapForU3pt3(true);
+//		makeAveMoRateMapForU3pt3(true);
 		
-//		makeIconicFigureForU3TimeDependence();
+		makeIconicFigureForU3TimeDependence();
 //		System.exit(0);
 //		System.out.println(loadUCERF2MainFaultMPDs(true).size());
 //		System.exit(0);
