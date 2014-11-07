@@ -100,7 +100,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 
 	public static final String NAME = "Fault System Solution ERF";
 	private String name = NAME;
@@ -378,7 +378,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		}
 		
 		// update prob model calculator if needed
-		if (faultSysSolutionChanged || magDepAperiodicityChanged || probModelChanged) {
+		if (faultSysSolutionChanged || magDepAperiodicityChanged || probModelChanged || probModelsCalc == null) {
 			probModelsCalc = null;
 			prefBlendProbModelsCalc = null;
 			if(probModel != ProbabilityModelOptions.POISSON) {
@@ -1030,7 +1030,34 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	public int getTotNumRupsFromFaultSystem() {
 		return totNumRupsFromFaultSystem;
 	}
+		
 	
+	
+	/**
+	 * This is to prevent simulators from evolving into a time where historical date of
+	 * last event data exists on some faults
+	 */
+	public void eraseDatesOfLastEventAfterStartTime() {
+		if(faultSysSolution == null) {
+			readFaultSysSolutionFromFile();
+		}
+		long startTime = getTimeSpan().getStartTimeInMillis();
+		for(FaultSectionPrefData fltData : faultSysSolution.getRupSet().getFaultSectionDataList()) {
+			if(fltData.getDateOfLastEvent() > startTime) {
+				if(D) {
+					double dateOfLast = 1970+fltData.getDateOfLastEvent()/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+					double startTimeYear = 1970+startTime/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+					System.out.println("Expunged Date of Last: "+dateOfLast+" (>"+startTimeYear+") for "+fltData.getName());
+				}
+				fltData.setDateOfLastEvent(Long.MIN_VALUE);
+			}
+		}
+		probModelsCalc = null;
+	}
+
+
+	
+
 
 	public static void main(String[] args) {
 		
