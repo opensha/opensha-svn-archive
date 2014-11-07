@@ -82,6 +82,8 @@ import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
 import scratch.ned.ETAS_ERF.testModels.TestModel1_FSS;
 import scratch.ned.ETAS_ERF.testModels.TestModel2_FSS;
 import scratch.ned.ETAS_ERF.testModels.TestModel3_FSS;
@@ -182,8 +184,6 @@ public class ProbabilityModelsCalc {
 	
 	/**
 	 * 
-	 * TODO this constructor is no longer necessary given the erf one below?
-	 * 
 	 * This is the main constructor.  Note that longTermRateOfFltSysRupInERF is provided, rather than 
 	 * using what's obtained as fltSysSolution.getRateForAllRups(), because the ERF has filtered out
 	 * small events (TODO not entirely sure this is necessary; depends on whether small sections should be
@@ -225,10 +225,20 @@ public class ProbabilityModelsCalc {
 	}
 	
 	
+	/**
+	 * The is an alternative constructor.
+	 * 
+	 * However, it can't be used if ProbabilityModelParam.NAME).getValue() == ProbabilityModelOptions.U3_PREF_BLEND
+	 * 
+	 * @param erf
+	 */
 	public ProbabilityModelsCalc(FaultSystemSolutionERF erf) {
 		this.erf = erf;
 		this.fltSysSolution=erf.getSolution();
 		longTermRateOfFltSysRup = erf.getLongTermRateOfFltSysRupInERF();
+		
+		if(erf.getParameter(ProbabilityModelParam.NAME).getValue() == ProbabilityModelOptions.U3_PREF_BLEND)
+			throw new RuntimeException("This constructor can't be used with "+ProbabilityModelOptions.U3_PREF_BLEND);
 		
 		MagDependentAperiodicityOptions magDepAperiodicity = null;;
 		if(erf.getAdjustableParameterList().containsParameter(MagDependentAperiodicityParam.NAME)) {
@@ -3114,7 +3124,7 @@ public class ProbabilityModelsCalc {
 	/**
 	 * This simulates a number of next x-year catalogs (e.g., to check for biases at long durations).
 	 * 
-	 * The start time and duration are obtained from the ERF.
+	 * The start time and duration are obtained from the ERF, and we assume updateForecast() has been called.
 	 * 
 	 * Note that the predicted sections rates are expected to be biased high where second events
 	 * are likely (the simulation includes these, but the targets do not).  These cases should be
@@ -3124,8 +3134,10 @@ public class ProbabilityModelsCalc {
 	 * @param inputDateOfLastFileName
 	 * @param numCatalogs
 	 */
-	public  void testER_NextXyrSimulation(FaultSystemSolutionERF erf, File resultsDir, String inputDateOfLastFileName, 
-			int numCatalogs, double forecastDurationYrs, boolean makePlots, Long randomSeed) throws IOException  {
+	public  void testER_NextXyrSimulation(File resultsDir, String inputDateOfLastFileName, 
+			int numCatalogs, boolean makePlots, Long randomSeed) throws IOException  {
+		
+		
 		
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		// for writing out info:
@@ -3136,24 +3148,31 @@ public class ProbabilityModelsCalc {
 		FileWriter eventFileWriter=null;
 		try {
 			eventFileWriter = new FileWriter(new File(resultsDir,"sampledEventsData.txt"));
-			eventFileWriter.write("nthRupIndex\tfssRupIndex\tyear\tepoch\tnormRI\tmag\tnthCatalog\ttimeToNextInYrs\n");
+			eventFileWriter.write("nthRupIndex\tfssRupIndex\tyear\tepoch\tnormRI\tmag\tnthCatalog\ttimeToNextInYrs\tutilizedPaleoSite\n");
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		}
+		
+		ArrayList<PaleoRateConstraint> paleoConstraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(fltSysRupSet.getFaultSectionDataList());
+		ArrayList<Integer> paleoConstrainSections = new ArrayList<Integer>();
+		info_fr.write("\n"+paleoConstraints.size()+" Paleo Sites (site, sectID, sectName):\n");
+		for(PaleoRateConstraint constr : paleoConstraints) {
+			paleoConstrainSections.add(constr.getSectionIndex());
+			info_fr.write("\t"+constr.getPaleoSiteName()+"\t"+constr.getSectionIndex()+"\t"+constr.getFaultSectionName()+"\n");
 		}
 
 		
 		// set duration and update forecast
-		erf.getTimeSpan().setDuration(forecastDurationYrs);
-		erf.updateForecast();
+		double forecastDurationYrs = erf.getTimeSpan().getDuration();
 
 		RandomDataGenerator randomDataSampler = new RandomDataGenerator();
 		if(randomSeed == null) {
 			randomSeed = System.currentTimeMillis();
-			info_fr.write("Random Seed: "+randomSeed+" (from System.currentTimeMillis() since input null)");
+			info_fr.write("\nRandom Seed: "+randomSeed+" (from System.currentTimeMillis() since input null)\n");
 		}
 		else {
 			randomDataSampler.reSeed(randomSeed);
-			info_fr.write("Random Seed: "+randomSeed+" (input value)");
+			info_fr.write("\nRandom Seed: "+randomSeed+" (input value)\n");
 		}
 		randomDataSampler.reSeed(randomSeed);
 
@@ -3174,54 +3193,6 @@ public class ProbabilityModelsCalc {
 
 		// TODO
 		String plotLabelString = resultsDir.getPath();
-
-//		// LABELING STUFF
-//		String typeCalcForU3_Probs;
-//		if(aveRecurIntervals)
-//			typeCalcForU3_Probs = "aveRI";
-//		else
-//			typeCalcForU3_Probs = "aveRate";
-//		if(aveNormTimeSinceLast)
-//			typeCalcForU3_Probs += "_aveNormTimeSince";
-//		else
-//			typeCalcForU3_Probs += "_aveTimeSince";
-//
-//		String aperString = "aper";
-//		if(probTypeEnum != ProbabilityModelOptions.POISSON) {
-//
-//			boolean first = true;
-//			for(double aperVal:this.aperValues) {
-//				if(first)
-//					aperString+=aperVal;
-//				else
-//					aperString+=","+aperVal;
-//				first=false;
-//			}
-//			aperString = aperString.replace(".", "pt");
-//			System.out.println("\naperString: "+aperString+"\n");
-//		}
-//
-//		String probTypeString;
-//		if (probTypeEnum == ProbabilityModelOptions.POISSON) {
-//			probTypeString= "Pois";
-//		}
-//		else if(probTypeEnum == ProbabilityModelOptions.U3_BPT) {
-//			probTypeString= "U3BPT";
-//		}
-//		else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT) {
-//			probTypeString= "WG02BPT";
-//		}
-//		else
-//			throw new RuntimeException("Porbability type unrecognized");
-//		
-//		String xYrsString = Double.toString(forecastDurationYrs)+"yrs";
-//
-//		String plotLabelString = xYrsString+"_"+probTypeString;
-//		if(probTypeEnum == ProbabilityModelOptions.U3_BPT)
-//			plotLabelString += " ("+aperString+", "+typeCalcForU3_Probs+")";
-//		else if(probTypeEnum == ProbabilityModelOptions.WG02_BPT)
-//			plotLabelString += " ("+aperString+")";
-
 
 
 		// INTIALIZE THINGS:
@@ -3271,6 +3242,8 @@ public class ProbabilityModelsCalc {
 			}
 		}
 		System.out.println("totalRate long term = "+totalTargetRate+"\nmaxRupProb = "+maxRupProb);
+		info_fr.write("\ntotalTargetRate = "+totalTargetRate+"\nmaxRupProb = "+maxRupProb+"\n");
+
 
 		// Make local sectIndexArrayForSrcList for faster simulations
 		ArrayList<int[]> sectIndexArrayForSrcList = new ArrayList<int[]>();
@@ -3330,21 +3303,27 @@ public class ProbabilityModelsCalc {
 		// read section date of last file if not null
 		if(inputDateOfLastFileName != null && probTypeEnum != ProbabilityModelOptions.POISSON) {
 			readSectTimeSinceLastEventFromFile(inputDateOfLastFileName, origStartTimeMillis);
-			info_fr.write("Date of Last Event from File: "+inputDateOfLastFileName);
+			info_fr.write("\nDate of Last Event from File: "+inputDateOfLastFileName+"\n");
 			if (makePlots) {// this makes a plot that is not saved
 				getSectNormTimeSinceLastHistPlot(origStartTimeMillis, "From File");
 			}
 		}
 		else {
-			info_fr.write("Date of Last Event from Fault Data in ER");
+			info_fr.write("\nDate of Last Event from Fault Data in ER\n");
 			if (makePlots)	{// this makes a plot that is not saved
 				getSectNormTimeSinceLastHistPlot(origStartTimeMillis, "From Pref Data");
 			}
 		}
 
-
-		CalcProgressBar progressBar = new CalcProgressBar(plotLabelString,"Num Catalogs Generated");
-		progressBar.showProgress(true);
+		
+		CalcProgressBar progressBar;
+		try {
+			progressBar = new CalcProgressBar(plotLabelString,"Num Catalogs Generated");
+			progressBar.showProgress(true);
+		} catch (Throwable t) {
+			// headless, don't show it
+			progressBar = null;
+		}
 		
 		// copy the original date of last
 		long[] origDateOfLastForSect = dateOfLastForSect.clone();
@@ -3352,11 +3331,13 @@ public class ProbabilityModelsCalc {
 		ArrayList<Double> normalizedRupRecurIntervals = new ArrayList<Double>();
 
 		int nthCatalog =0;
+		info_fr.write("numRupsAtPaleoSites\tnthCatalog\n");
 		int numRups=0;
-		for (nthCatalog=0;nthCatalog<=numCatalogs; nthCatalog++) {
+		for (nthCatalog=0;nthCatalog<numCatalogs; nthCatalog++) {
 
 			// write progress
-			progressBar.updateProgress(nthCatalog, numCatalogs);
+			if (progressBar != null) 
+				progressBar.updateProgress(nthCatalog, numCatalogs);
 			int percDone = (int)Math.round(100d*(double)nthCatalog/(double)numCatalogs);
 			if(percDone >= percDoneThresh) {
 				double timeInMin = ((double)(System.currentTimeMillis()-startRunTime)/(1000.0*60.0));
@@ -3374,6 +3355,7 @@ public class ProbabilityModelsCalc {
 
 			// start sampling of events
 			numRups=0;
+			int numRupsAtPaleoSites=0;
 			System.out.print("\n");
 			while(currentYear <= origStartYear+forecastDurationYrs) { 
 				
@@ -3457,28 +3439,37 @@ public class ProbabilityModelsCalc {
 								normalizedRupRecurIntervals.add(normRI);
 							}					
 						}
+						
+						
+						// reset last event time and increment simulated/obs rate on sections & check if paleo site hit
+						int utilizedPaleoSite = 0;
+						for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
+							dateOfLastForSect[sect] = currentTimeMillis;
+							obsSectRateArray[sect] += 1.0; // add the event
+							if(utilizedPaleoSite == 0 && paleoConstrainSections.contains(sect))
+								utilizedPaleoSite=1;
+						}
+						numRupsAtPaleoSites += utilizedPaleoSite;
 
 
 						// write event info out
 						try {
-							eventFileWriter.write(nthRup+"\t"+fltSystRupIndex+"\t"+currentYear+"\t"+currentTimeMillis+"\t"+normRI+"\t"+fltSysRupSet.getMagForRup(fltSystRupIndex)+"\t"+nthCatalog+"\t"+timeToNextInYrs+"\n");
+							eventFileWriter.write(nthRup+"\t"+fltSystRupIndex+"\t"+currentYear+"\t"+currentTimeMillis+"\t"+normRI+"\t"+fltSysRupSet.getMagForRup(fltSystRupIndex)+"\t"+nthCatalog+"\t"+timeToNextInYrs+"\t"+utilizedPaleoSite+"\n");
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
 
-						// reset last event time and increment simulated/obs rate on sections
-						for(int sect:sectIndexArrayForSrcList.get(srcIndex)) {
-							dateOfLastForSect[sect] = currentTimeMillis;
-							obsSectRateArray[sect] += 1.0; // add the event
-						}
 					}
 					obsMFD.addResampledMagRate(magOfNthRups[nthRup], 1.0, true);
 					obsMoRate += MagUtils.magToMoment(magOfNthRups[nthRup]);
 				}
 			}
+			info_fr.write(numRupsAtPaleoSites+"\t"+nthCatalog+"\n");
+			System.out.println("\nnumRupsAtPaleoSites="+numRupsAtPaleoSites+"\n");
 		}
 		
-		progressBar.showProgress(false);
+		if (progressBar != null) 
+			progressBar.showProgress(false);
 		
 		// make a stats string
 		obsMFD.scale(1.0/(forecastDurationYrs*numCatalogs));
@@ -3495,7 +3486,7 @@ public class ProbabilityModelsCalc {
 		obsMFD.setInfo(statsString);
 		
 		// write stats to info file
-		info_fr.write("\nSimulation Stats:\n"+ statsString+"\n");
+		info_fr.write("\nSimulation Stats:\n"+ statsString+"\n\n");
 
 		
 		// close the events file
@@ -3529,29 +3520,29 @@ public class ProbabilityModelsCalc {
 			mfd_graph.setY_AxisRange(1e-4, 1.0);
 			mfd_graph.setX_AxisRange(5.5, 8.5);
 
-			// plot observed versus imposed rup rates - Is this really meaningful?
-			for(int i=0;i<obsRupRateArray.length;i++) {
-				obsRupRateArray[i] = obsRupRateArray[i]/(forecastDurationYrs*numCatalogs);
-			}
-			DefaultXY_DataSet obsVsImposedRupRates = new DefaultXY_DataSet(targetRateOfNthRups,obsRupRateArray);
-			obsVsImposedRupRates.setName("Simulated vs Imposed Rup Rates");
-			DefaultXY_DataSet perfectAgreementFunc4 = new DefaultXY_DataSet();
-			perfectAgreementFunc4.set(1e-5,1e-5);
-			perfectAgreementFunc4.set(0.05,0.05);
-			perfectAgreementFunc4.setName("Perfect agreement line");
-			ArrayList<DefaultXY_DataSet> funcs4 = new ArrayList<DefaultXY_DataSet>();
-			funcs4.add(obsVsImposedRupRates);
-			funcs4.add(perfectAgreementFunc4);
-			ArrayList<PlotCurveCharacterstics> plotChars4 = new ArrayList<PlotCurveCharacterstics>();
-			plotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
-			plotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
-			GraphWindow rupRates_graph = new GraphWindow(funcs4, "Obs vs Imposed Rup Rates; "+plotLabelString, plotChars4); 
-			//		graph4.setX_AxisRange(5d/(forecastDurationYrs*numCatalogs), 0.01);
-			//		graph4.setY_AxisRange(5d/(forecastDurationYrs*numCatalogs), 0.01);
-			rupRates_graph.setYLog(true);
-			rupRates_graph.setXLog(true);
-			rupRates_graph.setX_AxisLabel("Target Rup Rate (per yr)");
-			rupRates_graph.setY_AxisLabel("Simulated Rup Rate (per yr)");
+//			// plot observed versus imposed rup rates - Is this really meaningful?
+//			for(int i=0;i<obsRupRateArray.length;i++) {
+//				obsRupRateArray[i] = obsRupRateArray[i]/(forecastDurationYrs*numCatalogs);
+//			}
+//			DefaultXY_DataSet obsVsImposedRupRates = new DefaultXY_DataSet(targetRateOfNthRups,obsRupRateArray);
+//			obsVsImposedRupRates.setName("Simulated vs Imposed Rup Rates");
+//			DefaultXY_DataSet perfectAgreementFunc4 = new DefaultXY_DataSet();
+//			perfectAgreementFunc4.set(1e-5,1e-5);
+//			perfectAgreementFunc4.set(0.05,0.05);
+//			perfectAgreementFunc4.setName("Perfect agreement line");
+//			ArrayList<DefaultXY_DataSet> funcs4 = new ArrayList<DefaultXY_DataSet>();
+//			funcs4.add(obsVsImposedRupRates);
+//			funcs4.add(perfectAgreementFunc4);
+//			ArrayList<PlotCurveCharacterstics> plotChars4 = new ArrayList<PlotCurveCharacterstics>();
+//			plotChars4.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE));
+//			plotChars4.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+//			GraphWindow rupRates_graph = new GraphWindow(funcs4, "Obs vs Imposed Rup Rates; "+plotLabelString, plotChars4); 
+//			//		graph4.setX_AxisRange(5d/(forecastDurationYrs*numCatalogs), 0.01);
+//			//		graph4.setY_AxisRange(5d/(forecastDurationYrs*numCatalogs), 0.01);
+//			rupRates_graph.setYLog(true);
+//			rupRates_graph.setXLog(true);
+//			rupRates_graph.setX_AxisLabel("Target Rup Rate (per yr)");
+//			rupRates_graph.setY_AxisLabel("Simulated Rup Rate (per yr)");
 
 			// plot observed versus target section rates
 			for(int i=0;i<obsSectRateArray.length;i++) {
@@ -3611,8 +3602,8 @@ public class ProbabilityModelsCalc {
 				normRI_graph.saveAsTXT(dirNameForSavingFiles+"/normalizedRupRecurIntervalsPlot.txt");
 				mfd_graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
 				sectRates_graph.saveAsPDF(dirNameForSavingFiles+"/obsVsTargetSectionPartRates.pdf");
-				rupRates_graph.saveAsPDF(dirNameForSavingFiles+"/obsVsTargetRupRates.pdf");
-				rupRates_graph.saveAsTXT(dirNameForSavingFiles+"/obsVsTargetRupRates.txt");
+//				rupRates_graph.saveAsPDF(dirNameForSavingFiles+"/obsVsTargetRupRates.pdf");
+//				rupRates_graph.saveAsTXT(dirNameForSavingFiles+"/obsVsTargetRupRates.txt");
 				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD, dirNameForSavingFiles+"/targetMFD.txt");
 				AbstractDiscretizedFunc.writeSimpleFuncFile(obsMFD, dirNameForSavingFiles+"/simulatedMFD.txt");
 				AbstractDiscretizedFunc.writeSimpleFuncFile(targetMFD.getCumRateDistWithOffset(), dirNameForSavingFiles+"/targetCumMFD.txt");
@@ -4085,8 +4076,8 @@ public class ProbabilityModelsCalc {
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
 		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.MID_VALUES);
 //		erf.getParameter(MagDependentAperiodicityParam.NAME).setValue(MagDependentAperiodicityOptions.ALL_PT2_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
-//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE;
+		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 //		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 //		
@@ -4095,9 +4086,11 @@ public class ProbabilityModelsCalc {
 		erf.getTimeSpan().setStartTime(1910);
 		System.out.println("startYear: "+erf.getTimeSpan().getStartTimeYear());
 		erf.eraseDatesOfLastEventAfterStartTime();
+		erf.getTimeSpan().setDuration(100);
 
 		erf.updateForecast();
 		
+		// TODO This could be obtained from the ERF, but the ERF would have to use the ProbabilityModelsCalc constructor that takes the ERF 
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
 		
 //		testCalc.plotRatioHistOfRupCondProbs();
@@ -4105,7 +4098,7 @@ public class ProbabilityModelsCalc {
 //		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 20000d, "March10_testMaxRI_2");
 
 		try {
-			testCalc.testER_NextXyrSimulation(erf, new File("TestSim_4"), null, 10, 100, true, null);
+			testCalc.testER_NextXyrSimulation(new File("TestSim_8"), null, 10, true, null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
