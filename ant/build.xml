@@ -473,6 +473,10 @@
 		<unjar src="${lib.dir}/parallelcolt-0.9.4.jar" dest="${build}" />
 		<unjar src="${lib.dir}/jxlayer.jar" dest="${build}" />
 	</target>
+	
+	<target name="unjar.none">
+		<!-- do nothing, for bare bones apps -->
+	</target>
 
 	<target name="javadoc">
 		<delete dir="${javadoc.dir}" failonerror="yes" verbose="no" />

@@ -250,5 +250,16 @@
 			<property name="resource.target" value="resource.misc.required" />
 		</ant>
 	</target>
+	
+	<target name="build.nolongersupported">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="NotSupported" />
+			<property name="app.main.class" value="scratch.kevin.AppNoLongerSupportedGUI" />
+			<property name="javac.includes"     value="org/opensha/sha/gui/ScenarioShakeMapApp.java" />
+			<property name="javac.excludes" value="" />
+			<property name="unjar.target" value="unjar.none" />
+			<property name="sign.jars" value="true" />
+		</ant>
+	</target>
 
 </project>
