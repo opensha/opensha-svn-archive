@@ -4,12 +4,12 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import scratch.kevin.simulators.synch.MarkovChainBuilder;
-import scratch.kevin.simulators.synch.PossibleStates;
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.PossibleStates;
 
 public class MarkovPredictor implements Predictor {
 	
-	private MarkovChainBuilder chain;
+	private EmpiricalMarkovChain chain;
 	private int numMisses = 0;
 	private int totPredictions = 0;
 	
@@ -43,7 +43,7 @@ public class MarkovPredictor implements Predictor {
 
 	@Override
 	public void init(List<int[]> path, double distSpacing) {
-		chain = new MarkovChainBuilder(path, distSpacing);
+		chain = new EmpiricalMarkovChain(path, distSpacing);
 		if (backupPredictor != null)
 			backupPredictor.init(path, distSpacing);
 	}

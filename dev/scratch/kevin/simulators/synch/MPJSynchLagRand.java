@@ -18,6 +18,8 @@ import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.SynchIdens;
 import scratch.kevin.simulators.dists.RandomDistType;
@@ -43,7 +45,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	private File outputDir;
 	private String setName;
 	
-	private MarkovChainBuilder origChain;
+	private EmpiricalMarkovChain origChain;
 
 	public MPJSynchLagRand(CommandLine cmd, File outputDir) throws IOException {
 		super(cmd);
@@ -80,7 +82,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 		
 		for (int item : batch) {
 			double[][][] gBars = new double[nDims][nDims][lags.length];
-			MarkovChainBuilder chain = SynchParamCalculator.createRandomizedChain(events, rupIdens, dist, distSpacing);
+			EmpiricalMarkovChain chain = SynchParamCalculator.createRandomizedChain(events, rupIdens, dist, distSpacing);
 			
 			List<SynchCalc> tasks = Lists.newArrayList();
 			
@@ -98,17 +100,17 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	
 	private void checkBuildOrigChain() {
 		if (rank == 0 && origChain == null) {
-			origChain = new MarkovChainBuilder(distSpacing, events, rupIdens);
+			origChain = MarkovChainBuilder.build(distSpacing, events, rupIdens);
 		}
 	}
 	
 	static class SynchCalc implements Task {
 		
-		private MarkovChainBuilder chain;
+		private EmpiricalMarkovChain chain;
 		private int m, n, l;
 		private double[][][] gBars;
 
-		public SynchCalc(MarkovChainBuilder chain, int m, int n, int l, double[][][] gBars) {
+		public SynchCalc(EmpiricalMarkovChain chain, int m, int n, int l, double[][][] gBars) {
 			super();
 			this.chain = chain;
 			this.m = m;

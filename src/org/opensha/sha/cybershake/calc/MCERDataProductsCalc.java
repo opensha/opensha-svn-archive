@@ -138,16 +138,16 @@ public class MCERDataProductsCalc {
 				}
 			}
 			Preconditions.checkState(row != null, "Couldn't find site "+site.short_name+" in ASCE spreadsheet");
-			double tl = loadValue(row.getCell(4), evaluator);
-			double prob = loadValue(row.getCell(5), evaluator);
-			double det = loadValue(row.getCell(7), evaluator);
+			double tl = loadASCEValue(row.getCell(4), evaluator);
+			double prob = loadASCEValue(row.getCell(5), evaluator);
+			double det = loadASCEValue(row.getCell(7), evaluator);
 			
 			asceDeterms.add(calcASCE(xVals, det, tl));
 			asceProbs.add(calcASCE(xVals, prob, tl));
 		}
 	}
 	
-	private static double loadValue(HSSFCell cell, FormulaEvaluator evaluator) {
+	public static double loadASCEValue(HSSFCell cell, FormulaEvaluator evaluator) {
 		if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
 			return cell.getNumericCellValue();
 		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
@@ -161,7 +161,7 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
-	private static DiscretizedFunc calcASCE(DiscretizedFunc xValsFunc, double val, double tl) {
+	public static DiscretizedFunc calcASCE(DiscretizedFunc xValsFunc, double val, double tl) {
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		
 		List<Double> xVals = Lists.newArrayList();
@@ -247,7 +247,7 @@ public class MCERDataProductsCalc {
 			spec.setLegendVisible(true);
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setBackgroundColor(null);
+			gp.setBackgroundColor(Color.WHITE);
 //			gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
@@ -289,7 +289,7 @@ public class MCERDataProductsCalc {
 			spec.setLegendVisible(true);
 			
 			gp = new HeadlessGraphPanel();
-			gp.setBackgroundColor(null);
+			gp.setBackgroundColor(Color.WHITE);
 //			gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
@@ -309,7 +309,7 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
-	private static DiscretizedFunc calcMCER(DiscretizedFunc determ, DiscretizedFunc prob,
+	public static DiscretizedFunc calcMCER(DiscretizedFunc determ, DiscretizedFunc prob,
 			DiscretizedFunc determLowerLimit) {
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		

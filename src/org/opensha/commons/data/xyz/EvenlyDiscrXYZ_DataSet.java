@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;
 
@@ -328,11 +329,59 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		return xyz;
 	}
 	
-	
-
 	@Override
 	public int indexOf(double x, double y) {
 		return getIndex(x, y);
+	}
+	
+	public EvenlyDiscretizedFunc calcMarginalXDist() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, nx, gridSpacingX);
+		
+		for (int xInd=0; xInd<nx; xInd++) {
+			double sum = 0d;
+			for (int yInd=0; yInd<ny; yInd++) {
+				double val = get(xInd, yInd);
+				if (!Double.isNaN(val)	)
+					sum += val;
+			}
+			func.set(xInd, sum);
+		}
+		
+		return func;
+	}
+	
+	public EvenlyDiscretizedFunc calcMarginalYDist() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minY, ny, gridSpacingY);
+		
+		for (int yInd=0; yInd<ny; yInd++) {
+			double sum = 0d;
+			for (int xInd=0; xInd<nx; xInd++) {
+				double val = get(xInd, yInd);
+				if (!Double.isNaN(val)	)
+					sum += val;
+			}
+			func.set(yInd, sum);
+		}
+		
+		return func;
+	}
+	
+	public EvenlyDiscretizedFunc getRow(int yInd) {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, nx, gridSpacingX);
+		
+		for (int xInd=0; xInd<nx; xInd++)
+			func.set(xInd, get(xInd, yInd));
+		
+		return func;
+	}
+	
+	public EvenlyDiscretizedFunc getCol(int xInd) {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minY, ny, gridSpacingY);
+		
+		for (int yInd=0; yInd<ny; yInd++)
+			func.set(yInd, get(xInd, yInd));
+		
+		return func;
 	}
 
 }

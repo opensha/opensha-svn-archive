@@ -1326,6 +1326,15 @@ public abstract class CompoundFSSPlots implements Serializable {
 				String fName = "fault_"+durStr+"_"+indepStr+"_mag_freq_dists.csv";
 				csv.writeToFile(new File(faultDir, fName));
 			}
+			// sub sect CSVs
+			for (FaultModels fm : plot.subSectsCSVs.columnKeySet()) {
+				List<CSVFile<String>> csvs = plot.subSectsCSVs.get(duration, fm);
+				String csvPrefix = fm.encodeChoiceString()+"_"+durStr+"_sub_sect_probs";
+				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_mean.csv"));
+				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_min.csv"));
+				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_max.csv"));
+				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_poisson_mean.csv"));
+			}
 		}
 		
 		// write metadata
@@ -1471,6 +1480,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private transient BranchWeightProvider weightProvider;
 		private List<Region> regions;
 		private Map<Double, List<Double>> weights;
+		private Map<Double, Map<FaultModels, List<Double>>> fmWeights;
 		private Map<Double, List<LogicTreeBranch>> branches;
 		private double[] ucerf2DepWeights;
 		private double[] ucerf2IndepWeights;
@@ -1508,6 +1518,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				solMainFaultProbs = Maps.newHashMap();
 		private Map<Double, Map<MagDependentAperiodicityOptions, Map<String, XY_DataSetList>>>
 				solMainFaultRates = Maps.newHashMap();
+		private Map<Double, Map<MagDependentAperiodicityOptions, Map<FaultModels, XY_DataSetList[]>>>
+				solSubSectProbs = Maps.newHashMap();
 //		private Map<Double, Map<String, XY_DataSetList>> ucerf2DepMainFaults = Maps.newHashMap();
 
 		private transient Deque<UCERF2_TimeDependentEpistemicList> ucerf2_dep_erf_lists =
@@ -1529,6 +1541,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Table<Double, Boolean, CSVFile<String>> regionProbCSVs;
 		private Table<Double, Boolean, CSVFile<String>> faultRateCSVs;
 		private Table<Double, Boolean, CSVFile<String>> regionRateCSVs;
+		
+		private Table<Double, FaultModels, List<CSVFile<String>>> subSectsCSVs;
 
 		private int numUCEF2_DepERFs;
 		private int numUCEF2_IndepERFs;
@@ -1611,6 +1625,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				
 				solMainFaultProbs.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 				solMainFaultRates.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
+				Map<MagDependentAperiodicityOptions, Map<FaultModels, XY_DataSetList[]>> sectMap = Maps.newHashMap();
+				for (MagDependentAperiodicityOptions cov : covs) {
+					Map<FaultModels, XY_DataSetList[]> fmMap = Maps.newHashMap();
+					sectMap.put(cov, fmMap);
+				}
+				solSubSectProbs.put(duration, sectMap);
 //				ucerf2DepMainFaults.put(duration, buildPopulatedMainFaultMap(mainFaultsMap));
 				
 //				List<BranchSensitivityHistogram> hists = Lists.newArrayList();
@@ -1626,9 +1646,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			
 			weights = Maps.newHashMap();
+			fmWeights = Maps.newHashMap();
 			branches = Maps.newHashMap();
 			for (double duration : durations) {
 				weights.put(duration, new ArrayList<Double>());
+				fmWeights.put(duration, new HashMap<FaultModels, List<Double>>());
 				branches.put(duration, new ArrayList<LogicTreeBranch>());
 			}
 			ucerf2DepWeights = new double[numUCEF2_DepERFs];
@@ -1945,13 +1967,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 				int rupID = erf.getFltSysRupIndexForSource(sourceID);
 				if (faultRups.contains(rupID)) {
 					ProbEqkSource source = erf.getSource(sourceID);
-					double rate = source.computeTotalEquivMeanAnnualRate(duration)*duration;
 					double prob = source.computeTotalProb();
+					double rate = source.computeTotalEquivMeanAnnualRate(duration)*duration;
 					double mag = rupSet.getMagForRup(rupID);
 					for (int i=0; i<probFunc.getNum(); i++) {
 						if (mag >= probFunc.getX(i)) {
 							probs.get(i).add(prob);
-							rateFunc.add(i, rate);
+							if (rateFunc != null)
+								rateFunc.add(i, rate);
 						}
 					}
 				}
@@ -2042,6 +2065,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				Map<MagDependentAperiodicityOptions, List<EvenlyDiscretizedFunc>> onMFDs = Maps.newHashMap();
 				Map<MagDependentAperiodicityOptions, Map<String, EvenlyDiscretizedFunc>> faultMPDs = Maps.newHashMap();
 				Map<MagDependentAperiodicityOptions, Map<String, EvenlyDiscretizedFunc>> faultMFDs = Maps.newHashMap();
+				Map<MagDependentAperiodicityOptions, EvenlyDiscretizedFunc[]> sectMPDs = Maps.newHashMap();
 				
 				for (MagDependentAperiodicityOptions cov : covs) {
 					mfds.put(cov, new ArrayList<EvenlyDiscretizedFunc>());
@@ -2049,6 +2073,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					onMFDs.put(cov, new ArrayList<EvenlyDiscretizedFunc>());
 					faultMPDs.put(cov, new HashMap<String, EvenlyDiscretizedFunc>());
 					faultMFDs.put(cov, new HashMap<String, EvenlyDiscretizedFunc>());
+					EvenlyDiscretizedFunc[] subSectMPDs = new EvenlyDiscretizedFunc[rupSet.getNumSections()];
+					sectMPDs.put(cov, subSectMPDs);
 					
 					if (cov == null) {
 						erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
@@ -2062,6 +2088,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					erf.updateForecast();
 					
 					// main faults
+					debug(solIndex, "calculating mian fault probs, dur="+duration);
 					for (String faultName : mainFaultsSorted) {
 						HashSet<Integer> faultRups = fmRups.get(faultName);
 						// shift since this is cumulative
@@ -2072,7 +2099,18 @@ public abstract class CompoundFSSPlots implements Serializable {
 						faultMFDs.get(cov).put(faultName, rateFunc);
 					}
 					
+					// sub sections
+					debug(solIndex, "calculating sub section probs, dur="+duration);
+					for (int s=0; s<rupSet.getNumSections(); s++) {
+						HashSet<Integer> sectRups = new HashSet<Integer>(rupSet.getRupturesForSection(s));
+						subSectMPDs[s] = new EvenlyDiscretizedFunc(minX-delta*0.5, num, delta);
+//						debug(solIndex, "calculating sub section probs, dur="+duration+", s="+s);
+						
+						calcFaultProbs(subSectMPDs[s], null, erf, rupSet, sectRups);
+					}
+					
 					// get total MFD
+					debug(solIndex, "calculating region probs, dur="+duration);
 					for (int r = 0; r < regions.size(); r++) {
 						Region region = regions.get(r);
 
@@ -2159,6 +2197,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 					// store results
 					double branchWeight = weightProvider.getWeight(branch);
 					weights.get(duration).add(branchWeight);
+					List<Double> weightsForFM = fmWeights.get(duration).get(fm);
+					if (weightsForFM == null) {
+						weightsForFM = Lists.newArrayList();
+						fmWeights.get(duration).put(fm, weightsForFM);
+					}
+					weightsForFM.add(branchWeight);
 					branches.get(duration).add(branch);
 					for (int r = 0; r < regions.size(); r++) {
 						Map<MagDependentAperiodicityOptions, Double> map6p7 = Maps.newHashMap();
@@ -2195,6 +2239,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 							solMainFaultRates.get(duration).get(cov).get(faultName).add(faultMFDs.get(cov).get(faultName));
 						}
 					}
+					for (MagDependentAperiodicityOptions cov : covs) {
+						EvenlyDiscretizedFunc[] sectFuncs = sectMPDs.get(cov);
+						Map<FaultModels, XY_DataSetList[]> fmMap = solSubSectProbs.get(duration).get(cov);
+						synchronized (this) {
+							if (!fmMap.containsKey(fm)) {
+								XY_DataSetList[] lists = new XY_DataSetList[rupSet.getNumSections()];
+								for (int s=0; s<lists.length; s++) {
+									lists[s] = new XY_DataSetList();
+									lists[s].setName(rupSet.getFaultSectionData(s).getName());
+								}
+								fmMap.put(fm, lists);
+							}
+						}
+						XY_DataSetList[] lists = fmMap.get(fm);
+						Preconditions.checkState(sectFuncs.length == lists.length);
+						for (int s=0; s<lists.length; s++)
+							lists[s].add(sectFuncs[s]);
+					}
 				}
 				debug(solIndex, " archiving done");
 			}
@@ -2230,7 +2292,31 @@ public abstract class CompoundFSSPlots implements Serializable {
 									o.solMainFaultRates.get(duration).get(cov).get(faultName));
 						}
 					}
+					for (MagDependentAperiodicityOptions cov : covs) {
+						Map<FaultModels, XY_DataSetList[]> fmMap = solSubSectProbs.get(duration).get(cov);
+						Map<FaultModels, XY_DataSetList[]> o_fmMap = o.solSubSectProbs.get(duration).get(cov);
+						for (FaultModels fm : o_fmMap.keySet()) {
+							if (!fmMap.containsKey(fm)) {
+								fmMap.put(fm, o_fmMap.get(fm));
+							} else {
+								XY_DataSetList[] myLists = fmMap.get(fm);
+								XY_DataSetList[] oLists = o_fmMap.get(fm);
+								Preconditions.checkState(myLists.length == oLists.length);
+								for (int s=0; s<myLists.length; s++)
+									myLists[s].addAll(oLists[s]);
+							}
+						}
+					}
+					
 					weights.get(duration).addAll(o.weights.get(duration));
+					Map<FaultModels, List<Double>> weightsMap = fmWeights.get(duration);
+					Map<FaultModels, List<Double>> oWeightsMap = o.fmWeights.get(duration);
+					for (FaultModels fm : oWeightsMap.keySet()) {
+						if (!weightsMap.containsKey(fm))
+							weightsMap.put(fm, oWeightsMap.get(fm));
+						else
+							weightsMap.get(fm).addAll(oWeightsMap.get(fm));
+					}
 					branches.get(duration).addAll(o.branches.get(duration));
 				}
 
@@ -2295,9 +2381,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 			faultSpecs = Maps.newHashMap();
 			
 			faultProbCSVs = HashBasedTable.create();
-			regionProbCSVs = HashBasedTable.create(); // TODO
+			regionProbCSVs = HashBasedTable.create();
 			faultRateCSVs = HashBasedTable.create();
-			regionRateCSVs = HashBasedTable.create(); // TODO
+			regionRateCSVs = HashBasedTable.create();
+			
+			subSectsCSVs = HashBasedTable.create();
 			
 //			sfDebugCSV = new CSVFile<String>(true);
 //			sfDebugCSV.addLine("index", "branch", "weight", "prob", "equivRate");
@@ -2609,6 +2697,79 @@ public abstract class CompoundFSSPlots implements Serializable {
 						mainFaultsSorted, duration, false));
 				faultRateCSVs.put(duration, false, getMFDCSV(indepFaultMFDs, u2IndepFaultMFDs,
 						mainFaultsSorted, duration, true));
+				
+				// sub sect probs
+				for (FaultModels fm : fmWeights.get(duration).keySet()) {
+					// handle weights
+					List<Double> origWeightsForFM = fmWeights.get(duration).get(fm);
+					// this adds in each individual COV weight including poisson
+					List<Double> weightsForFM = Lists.newArrayList();
+					for (MagDependentAperiodicityOptions cov : covs) {
+						double covWeight = FaultSystemSolutionERF.getWeightForCOV(cov);
+						for (double weight : origWeightsForFM)
+							weightsForFM.add(covWeight*weight);
+					}
+					
+					CSVFile<String> meanCSV = new CSVFile<String>(true);
+					CSVFile<String> minCSV = new CSVFile<String>(true);
+					CSVFile<String> maxCSV = new CSVFile<String>(true);
+					CSVFile<String> poissonCSV = new CSVFile<String>(true);
+					List<String> header = Lists.newArrayList();
+					header.add("Sub Section Name");
+					
+					Map<MagDependentAperiodicityOptions, Map<FaultModels, XY_DataSetList[]>> ssProbsMaps =
+							solSubSectProbs.get(duration);
+					
+					XY_DataSetList[] allCOVProbs = null;
+					XY_DataSetList[] poissonProbs = null;
+					
+					for (MagDependentAperiodicityOptions cov : covs) {
+						XY_DataSetList[] ssProbs = ssProbsMaps.get(cov).get(fm);
+						if (allCOVProbs == null) {
+							allCOVProbs = new XY_DataSetList[ssProbs.length];
+							for (int s=0; s<ssProbs.length; s++) {
+								allCOVProbs[s] = new XY_DataSetList();
+								allCOVProbs[s].setName(ssProbs[s].getName());
+							}
+							// now fill in X values
+							for (Point2D pt : ssProbs[0].get(0))
+								header.add((float)pt.getX()+"");
+						}
+						if (cov == null)
+							poissonProbs = ssProbs;
+						for (int s=0; s<ssProbs.length; s++)
+							allCOVProbs[s].addAll(ssProbs[s]);
+					}
+					Preconditions.checkNotNull(allCOVProbs);
+					Preconditions.checkNotNull(poissonProbs);
+					
+					meanCSV.addLine(header);
+					minCSV.addLine(header);
+					maxCSV.addLine(header);
+					poissonCSV.addLine(header);
+					
+					for (int s=0; s< allCOVProbs.length; s++) {
+						XY_DataSetList allList = allCOVProbs[s];
+						XY_DataSetList poissonList = poissonProbs[s];
+						String name = poissonList.getName();
+						
+						List<DiscretizedFunc> allFractiles = getFractiles(allList, weightsForFM, "", new double[0]);
+						List<DiscretizedFunc> poissonFractiles = getFractiles(poissonList, origWeightsForFM, "", new double[0]);
+						
+						meanCSV.addLine(getMFDRow(allFractiles.get(0), name));
+						minCSV.addLine(getMFDRow(allFractiles.get(1), name));
+						maxCSV.addLine(getMFDRow(allFractiles.get(2), name));
+						poissonCSV.addLine(getMFDRow(poissonFractiles.get(0), name));
+					}
+					
+					List<CSVFile<String>> csvs = Lists.newArrayList();
+					csvs.add(meanCSV);
+					csvs.add(minCSV);
+					csvs.add(maxCSV);
+					csvs.add(poissonCSV);
+					
+					subSectsCSVs.put(duration, fm, csvs);
+				}
 			}
 			
 //			sfDebugCSV.sort(1, 1, new Comparator<String>() {
@@ -2619,6 +2780,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 //				}
 //				
 //			});
+		}
+		
+		private static List<String> getMFDRow(DiscretizedFunc func, String name) {
+			List<String> line = Lists.newArrayList();
+			line.add(name);
+			for (Point2D pt : func)
+				line.add(pt.getY()+"");
+			return line;
 		}
 		
 		private static DiscretizedFunc probsToRates(DiscretizedFunc probs, double duration) {
@@ -8931,7 +9100,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 8;
+		int sols = 4;
 //		int sols = -1;
 		int threads = 4;
 		

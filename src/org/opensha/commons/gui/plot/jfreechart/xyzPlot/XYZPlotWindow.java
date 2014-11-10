@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSet;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
 
@@ -26,8 +28,6 @@ public class XYZPlotWindow extends JFrame {
 	
 	private static int count = 0;
 	
-	private List<XYZPlotSpec> specs;
-	
 	public XYZPlotWindow(XYZ_DataSet xyz, CPT cpt, String title) {
 		this(new XYZPlotSpec(xyz, cpt, title, null, null, null));
 	}
@@ -41,11 +41,29 @@ public class XYZPlotWindow extends JFrame {
 	}
 	
 	public XYZPlotWindow(List<XYZPlotSpec> specs, List<Range> xRanges, List<Range> yRanges) {
-		this.panel = new XYZGraphPanel();
-		panel.drawPlot(specs, false, false, xRanges, yRanges);
-//		panel.drawPlot(specs, false, false, null, null);
+		this(specs, xRanges, yRanges, null);
+	}
+	
+	public XYZPlotWindow(List<XYZPlotSpec> specs, List<Range> xRanges, List<Range> yRanges,
+			List<XYPlot> extraPlots) {
+		this(specs, xRanges, yRanges, extraPlots, null);
+	}
+	
+	private static XYZGraphPanel buildPlottedPanel(List<XYZPlotSpec> specs, List<Range> xRanges, List<Range> yRanges,
+			List<XYPlot> extraPlots, List<Integer> weights) {
+		XYZGraphPanel panel = new XYZGraphPanel();
+		panel.drawPlot(specs, false, false, xRanges, yRanges, extraPlots, weights);
+		return panel;
+	}
+	
+	public XYZPlotWindow(List<XYZPlotSpec> specs, List<Range> xRanges, List<Range> yRanges,
+			List<XYPlot> extraPlots, List<Integer> weights) {
+		this(buildPlottedPanel(specs, xRanges, yRanges, extraPlots, weights));
+	}
+	
+	public XYZPlotWindow(XYZGraphPanel panel) {
+		this.panel = panel;
 		this.setContentPane(panel.getChartPanel());
-		this.specs = specs;
 		
 		++count;
 		

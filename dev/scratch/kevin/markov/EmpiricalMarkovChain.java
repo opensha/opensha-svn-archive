@@ -1,38 +1,26 @@
-package scratch.kevin.simulators.synch;
+package scratch.kevin.markov;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.math3.stat.StatUtils;
-import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.iden.RuptureIdentifier;
-
-import scratch.kevin.simulators.synch.MarkovPath.LoopCounter;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * This creates a Markov chain for the given catalog
+ * This creates an empirical Markov chain for the given catalog
  * @author kevin
  *
  */
-public class MarkovChainBuilder {
+public class EmpiricalMarkovChain extends MarkovChain {
 	
-	private int nDims;
-	
-	private double distSpacing;
 	private double firstBinCenter;
 	
 	private SparseNDimensionalHashDataset<Double> totalStatesDataset;
 	private SparseNDimensionalHashDataset<PossibleStates> stateTransitionDataset;
-	
-	private PossibleStates possibleInitialStates;
 	
 	// this stores the actual path
 	private List<int[]> fullPath;
@@ -40,157 +28,15 @@ public class MarkovChainBuilder {
 	
 	private transient Map<IndicesKey, Collection<int[]>> parentStatesMap;
 	
-//	private transient MarkovChainBuilder reversed;
-	
-	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events,
-			List<RuptureIdentifier> rupIdens) {
-		this(distSpacing, events, rupIdens, 0d);
-	}
-	
-	public MarkovChainBuilder(double distSpacing, List<EQSIM_Event> events,
-			List<RuptureIdentifier> rupIdens, double startTimeOffset) {
-		init(getStatesPath(distSpacing, events, rupIdens, startTimeOffset), distSpacing);
-	}
-	
-	public MarkovChainBuilder(double distSpacing, List<List<EQSIM_Event>> matchesLists) {
-		this(distSpacing, matchesLists, 0d);
-	}
-	
-	public MarkovChainBuilder(double distSpacing, List<List<EQSIM_Event>> matchesLists, double startTimeOffset) {
-		init(getStatesPath(distSpacing, matchesLists, startTimeOffset), distSpacing);
-	}
-	
-	public static List<int[]> getStatesPath(double distSpacing, List<EQSIM_Event> events,
-			List<RuptureIdentifier> rupIdens, double startTimeOffset) {
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-		for (int i=0; i<rupIdens.size(); i++) {
-			List<EQSIM_Event> matches = rupIdens.get(i).getMatches(events);
-			matchesLists.add(matches);
-			double[] matchRIs = new double[matches.size()-1];
-			for (int j=1; j<matches.size(); j++)
-				matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
-			System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
-		}
-		return getStatesPath(distSpacing, matchesLists, startTimeOffset);
-	}
-	
-	public static List<int[]> getStatesPath(double distSpacing, List<List<EQSIM_Event>> matchesLists,
-			double startTimeOffset) {
-		int nDims = matchesLists.size();
-		
-		// only used for utility methods in binning
-		SparseNDimensionalHashDataset<Double> totalStatesDataset = new SparseNDimensionalHashDataset<Double>(nDims,
-				distSpacing*0.5, distSpacing);
-		
-		Preconditions.checkState(nDims > 0);
-		
-		double maxTime = 0d;
-		double startTime = Double.POSITIVE_INFINITY;
-		for (List<EQSIM_Event> matches : matchesLists) {
-			maxTime = Math.max(maxTime, matches.get(matches.size()-1).getTimeInYears());
-			startTime = Math.min(startTime, matches.get(0).getTimeInYears() + startTimeOffset);
-		}
-		
-		Preconditions.checkState(startTimeOffset >= 0);
-		if (startTimeOffset > 0) {
-			List<List<EQSIM_Event>> myMatches = Lists.newArrayList();
-			
-			for (List<EQSIM_Event> matches : matchesLists) {
-				List<EQSIM_Event> newList = Lists.newArrayList(matches);
-				while (newList.size() > 0) {
-					if (newList.get(0).getTimeInYears() < startTime)
-						newList.remove(0);
-					else
-						break;
-				}
-				myMatches.add(newList);
-				matchesLists = myMatches;
-			}
-		}
-		int numSteps = (int)((maxTime - startTime)/distSpacing);
-		
-		List<int[]> fullPath = Lists.newArrayList();
-		
-		int[] lastMatchIndexBeforeWindowEnd = new int[nDims];
-		for (int i=0; i<nDims; i++)
-			lastMatchIndexBeforeWindowEnd[i] = -1;
-		
-		int[] prevState = null;
-		
-		System.out.println("Binning catalog into state vectors");
-		
-		int skippedSteps = 0;
-		
-		int startStep = 0;
-		
-		double startWindowStart = startTime + distSpacing*startStep;
-		for (int n=0; n<nDims && startStep>0; n++) {
-			List<EQSIM_Event> myMatches = matchesLists.get(n);
-			for (int i=lastMatchIndexBeforeWindowEnd[n]+1; i<myMatches.size(); i++) {
-				double time = myMatches.get(i).getTimeInYears();
-				if (time > startWindowStart)
-					break;
-				lastMatchIndexBeforeWindowEnd[n] = i;
-			}
-		}
-		
-		stepLoop:
-		for (int step=startStep; step<numSteps; step++) {
-//			if (step % 1000 == 0)
-//				System.out.println("Markov Step "+step);
-			double windowStart = startTime + distSpacing*step;
-			double windowEnd = windowStart + distSpacing;
-			
-			for (int n=0; n<nDims; n++) {
-				List<EQSIM_Event> myMatches = matchesLists.get(n);
-				for (int i=lastMatchIndexBeforeWindowEnd[n]+1; i<myMatches.size(); i++) {
-					double time = myMatches.get(i).getTimeInYears();
-					Preconditions.checkState(time >= windowStart);
-					if (time > windowEnd)
-						break;
-					lastMatchIndexBeforeWindowEnd[n] = i;
-				}
-			}
-			
-			int[] curState = new int[nDims];
-			
-			for (int n=0; n<nDims; n++) {
-				List<EQSIM_Event> myMatches = matchesLists.get(n);
-				
-				double prevEvent;
-				if (lastMatchIndexBeforeWindowEnd[n] >= 0) {
-					prevEvent = myMatches.get(lastMatchIndexBeforeWindowEnd[n]).getTimeInYears();
-				} else {
-					// skip places at start where state not defined
-					skippedSteps++;
-					Preconditions.checkState(prevState == null);
-					continue stepLoop;
-				}
-				
-				double myDelta = windowEnd - prevEvent;
-				curState[n] = totalStatesDataset.indexForDimVal(n, myDelta);
-			}
-			
-			fullPath.add(curState);
-			
-			prevState = curState;
-		}
-		
-		System.out.println("DONE binning catalog into state vectors (skipped "+skippedSteps+" steps)");
-		
-		return fullPath;
-	}
-	
-	public MarkovChainBuilder(List<int[]> fullPath, double distSpacing) {
+	public EmpiricalMarkovChain(List<int[]> fullPath, double distSpacing) {
 		init(fullPath, distSpacing);
 	}
 	
 	private void init(List<int[]> path, double distSpacing) {
 		Preconditions.checkArgument(!path.isEmpty(), "path cannot be empty");
-		this.nDims = path.get(0).length;
+		int nDims = path.get(0).length;
 		for (int[] state : path)
 			Preconditions.checkState(state.length == nDims);
-		this.distSpacing = distSpacing;
 		this.firstBinCenter = distSpacing*0.5;
 		this.fullPath = Lists.newArrayList();
 		
@@ -199,7 +45,7 @@ public class MarkovChainBuilder {
 		
 		stateIndexesMap = Maps.newHashMap();
 		
-		possibleInitialStates = new PossibleStates(null);
+		PossibleStates possibleInitialStates = new PossibleStates(null);
 		
 		System.out.println("Assembling state transition probabilities");
 		
@@ -210,6 +56,41 @@ public class MarkovChainBuilder {
 		}
 		
 		System.out.println("DONE assembling state transition probabilities");
+		
+		super.init(nDims, distSpacing, possibleInitialStates);
+	}
+	
+	@Override
+	public void addState(int[] fromState, int[] toState) {
+		// register current state
+		Double stateCount = totalStatesDataset.get(toState);
+		if (stateCount == null)
+			stateCount = 0d;
+		stateCount += 1d;
+		totalStatesDataset.set(toState, stateCount);
+		
+		PossibleStates possibleInitialStates = getPossibleInitialStates();
+
+		// register this state as a transition from the previous state
+		if (fromState != null) {
+			PossibleStates possibilities = stateTransitionDataset.get(fromState);
+			if (possibilities == null) {
+				possibilities = new PossibleStates(fromState);
+				stateTransitionDataset.set(fromState, possibilities);
+			}
+			possibilities.add(toState, 1d);
+			possibleInitialStates.add(toState, 1d);
+
+			IndicesKey key = new IndicesKey(toState);
+			List<Integer> indexesForState = stateIndexesMap.get(key);
+			if (indexesForState == null) {
+				indexesForState = Lists.newArrayList();
+				stateIndexesMap.put(key, indexesForState);
+			}
+			indexesForState.add(fullPath.size());
+		}
+		
+		fullPath.add(toState);
 	}
 	
 	public void addState(int[] curState) {
@@ -219,33 +100,7 @@ public class MarkovChainBuilder {
 		else
 			prevState = fullPath.get(fullPath.size()-1);
 		
-		// register current state
-		Double stateCount = totalStatesDataset.get(curState);
-		if (stateCount == null)
-			stateCount = 0d;
-		stateCount += 1d;
-		totalStatesDataset.set(curState, stateCount);
-
-		// register this state as a transition from the previous state
-		if (prevState != null) {
-			PossibleStates possibilities = stateTransitionDataset.get(prevState);
-			if (possibilities == null) {
-				possibilities = new PossibleStates(prevState);
-				stateTransitionDataset.set(prevState, possibilities);
-			}
-			possibilities.add(curState, 1d);
-			possibleInitialStates.add(curState, 1d);
-
-			IndicesKey key = new IndicesKey(curState);
-			List<Integer> indexesForState = stateIndexesMap.get(key);
-			if (indexesForState == null) {
-				indexesForState = Lists.newArrayList();
-				stateIndexesMap.put(key, indexesForState);
-			}
-			indexesForState.add(fullPath.size());
-		}
-		
-		fullPath.add(curState);
+		addState(prevState, curState);
 	}
 
 	/**
@@ -258,7 +113,7 @@ public class MarkovChainBuilder {
 	 * @param stateTransitionDataset
 	 * @param possibleInitialStates
 	 */
-	private MarkovChainBuilder(
+	private EmpiricalMarkovChain(
 			int nDims,
 			double distSpacing,
 			double firstBinCenter,
@@ -267,22 +122,13 @@ public class MarkovChainBuilder {
 			PossibleStates possibleInitialStates,
 			List<int[]> fullPath,
 			Map<IndicesKey, List<Integer>> stateIndexesMap) {
-		this.nDims = nDims;
-		this.distSpacing = distSpacing;
 		this.firstBinCenter = firstBinCenter;
 		this.totalStatesDataset = totalStatesDataset;
 		this.stateTransitionDataset = stateTransitionDataset;
-		this.possibleInitialStates = possibleInitialStates;
 		this.fullPath = fullPath;
 		this.stateIndexesMap = stateIndexesMap;
-	}
-
-	public int getNDims() {
-		return nDims;
-	}
-
-	public double getDistSpacing() {
-		return distSpacing;
+		
+		super.init(nDims, distSpacing, possibleInitialStates);
 	}
 
 	public double getFirstBinCenter() {
@@ -296,18 +142,15 @@ public class MarkovChainBuilder {
 	public SparseNDimensionalHashDataset<PossibleStates> getStateTransitionDataset() {
 		return stateTransitionDataset;
 	}
-
-	public PossibleStates getPossibleInitialStates() {
-		return possibleInitialStates;
-	}
 	
-	public MarkovChainBuilder getCollapsedChain(int... indices) {
+	@Override
+	public EmpiricalMarkovChain getCollapsedChain(int... indices) {
 		int nDims = indices.length;
 		
 		SparseNDimensionalHashDataset<Double> collapsedTotalStatesDataset =
-				new SparseNDimensionalHashDataset<Double>(nDims, firstBinCenter, distSpacing);
+				new SparseNDimensionalHashDataset<Double>(nDims, firstBinCenter, getDistSpacing());
 		SparseNDimensionalHashDataset<PossibleStates> collapsedStateTransitionDataset =
-				new SparseNDimensionalHashDataset<PossibleStates>(nDims, firstBinCenter, distSpacing);
+				new SparseNDimensionalHashDataset<PossibleStates>(nDims, firstBinCenter, getDistSpacing());
 		
 		PossibleStates initials = new PossibleStates(null);
 		
@@ -351,16 +194,9 @@ public class MarkovChainBuilder {
 			indexesForState.add(collapsedFullPath.size()-1);
 		}
 		
-		return new MarkovChainBuilder(nDims, this.distSpacing, this.firstBinCenter,
+		return new EmpiricalMarkovChain(nDims, getDistSpacing(), this.firstBinCenter,
 				collapsedTotalStatesDataset, collapsedStateTransitionDataset, initials,
 				collapsedFullPath, collapsedStateIndexesMap);
-	}
-	
-	private static int[] getCollapsedState(int[] state, int... indices) {
-		int[] collapsedState = new int[indices.length];
-		for (int i=0; i<indices.length; i++)
-			collapsedState[i] = state[indices[i]];
-		return collapsedState;
 	}
 	
 	/**
@@ -368,7 +204,8 @@ public class MarkovChainBuilder {
 	 * @param shifts
 	 * @return
 	 */
-	public MarkovChainBuilder getShiftedChain(int... shifts) {
+	public EmpiricalMarkovChain getShiftedChain(int... shifts) {
+		int nDims = getNDims();
 		Preconditions.checkArgument(shifts.length == nDims,
 				"must supply shift for each dimension (0 means no shift in that dimension)");
 		List<int[]> newPath = Lists.newArrayList();
@@ -399,6 +236,8 @@ public class MarkovChainBuilder {
 		
 //		System.out.println("Shifted chain has "+newPath.size()+" states (orig had "+fullPath.size()+")");
 		Preconditions.checkState(newPath.size() > 1);
+		
+		double distSpacing = getDistSpacing();
 		
 		// now buid the chain
 		SparseNDimensionalHashDataset<Double> newTotalStatesDataset =
@@ -452,7 +291,7 @@ public class MarkovChainBuilder {
 //			System.out.println();
 //		}
 		
-		return new MarkovChainBuilder(nDims, distSpacing, firstBinCenter, newTotalStatesDataset,
+		return new EmpiricalMarkovChain(nDims, distSpacing, firstBinCenter, newTotalStatesDataset,
 				newStateTransitionDataset, newPossibleInitialStates, newPath, newStateIndexesMap);
 	}
 	
@@ -518,110 +357,10 @@ public class MarkovChainBuilder {
 		}
 		return parentStatesMap;
 	}
-	
-	/**
-	 * Gets all of the possible chains of the given length between the given states.
-	 * Returned lists will not include the fromState, but will include the toState.
-	 * Note that toState can be reached multiple times along the path.
-	 * 
-	 * @param fromState
-	 * @param toState -1 to indicate any state at that index
-	 * @param numSteps
-	 * @return
-	 */
-	public List<MarkovPath> getTheoreticalPathsBetweenStates(int[] fromState, int[] toState, int numSteps, int maxLoops, double minProb) {
-		List<MarkovPath> res = getTheoreticalPathsBetweenStates(new LoopCounter(), fromState, fromState, toState, numSteps, maxLoops, minProb);
-		pathsFinalized += res.size();
-		return res;
-	}
-	
-	private double calcProb(int[] fromState, int[] toState) {
-		PossibleStates states = stateTransitionDataset.get(fromState);
-		return states.getFrequency(toState) / states.tot;
-	}
-	
-	private static long pathsFinalized = 0;
-	private static long pathsRejected = 0;
-	
-	private List<MarkovPath> getTheoreticalPathsBetweenStates(LoopCounter counter, int[] origFromState, int[] prevState, int[] toState, int numSteps,
-			int maxLoops, double minProb) {
-//		if (numSteps == 0) {
-//			// we're checking if this state is a match
-//			for (int i=0; i<fromState.length; i++) {
-//				if (fromState[i] != toState[i] && toState[i] >= 0)
-//					// fails
-//					return null;
-//			}
-//			// this means it passes
-//			List<List<int[]>> ret = Lists.newArrayList();
-//			ret.add(Lists.newArrayList(fromState));
-//			return ret;
-//		}
-		PossibleStates states = stateTransitionDataset.get(prevState);
-		
-		List<MarkovPath> paths = Lists.newArrayList();
-		for (int[] possibleState : states.getStates()) {
-			counter.cloneResgister(possibleState);
-			if (counter.getMaxLoops() > maxLoops)
-				continue;
-			if (numSteps == 1) {
-				// we're at the end here
-				boolean match = true;
-				for (int i=0; i<prevState.length; i++) {
-					if (possibleState[i] != toState[i] && toState[i] >= 0) {
-						// fails
-						match = false;
-						break;
-					}
-				}
-				if (match) {
-					MarkovPath path = new MarkovPath(origFromState);
-					path.addToStart(possibleState, calcProb(prevState, possibleState));
-					paths.add(path);
-				}
-			} else {
-				// in the middle
-				// is going to this state too many loops?
-				List<MarkovPath> subPaths = getTheoreticalPathsBetweenStates(counter, origFromState, possibleState,
-						toState, numSteps-1, maxLoops, minProb);
-				for (MarkovPath subPath : subPaths) {
-					subPath = subPath.cloneAddToStart(possibleState, calcProb(prevState, possibleState));
-					if (subPath.getMaxLoops() <= maxLoops && subPath.getProbability() >= minProb) {
-//						if (Math.random() < 0.00001) {
-//							System.out.println("fin="+pathsFinalized+", rej="+pathsRejected+". rand: "+subPath.getPathStr());
-//						}
-						paths.add(subPath);
-					} else {
-						pathsRejected++;
-					}
-				}
-//				int loops = countLoops(counts, possibleState);
-//				if (loops <= maxLoops) {
-//					Map<IndicesKey, Integer> newCounts = Maps.newHashMap();
-//					newCounts.putAll(counts);
-//					newCounts.put(new IndicesKey(possibleState), loops+1);
-//					List<MarkovPath> subPaths = getPathsBetweenStates(origFromState, possibleState,
-//							toState, numSteps-1, maxLoops, newCounts);
-//					for (List<int[]> subPath : subPaths) {
-//						subPath = Lists.newArrayList(subPath);
-//						subPath.add(0, possibleState);
-//						paths.add(subPath);
-//					}
-//				} else {
-//					System.out.println("Bailing after too many loops!");
-//				}
-			}
-		}
-		
-		return paths;
-	}
-	
-	private static final int countLoops(Map<IndicesKey, Integer> counts, int[] newState) {
-		Integer count = counts.get(new IndicesKey(newState));
-		if (count == null)
-			// first time this state has been encountered
-			return 0;
-		return count;
+
+	@Override
+	public PossibleStates getDestinationStates(int[] fromState) {
+		return stateTransitionDataset.get(fromState);
 	}
 	
 	public double getActualTransPathsProbBetweenStates(int[] fromState, int[] toState, int numSteps,

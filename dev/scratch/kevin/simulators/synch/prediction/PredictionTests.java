@@ -1,5 +1,6 @@
 package scratch.kevin.simulators.synch.prediction;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,9 +11,18 @@ import java.util.List;
 import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.stat.StatUtils;
+import org.jfree.chart.plot.XYPlot;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotPreferences;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
+import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.cpt.CPT;
@@ -20,12 +30,14 @@ import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.SynchIdens;
 import scratch.kevin.simulators.SynchIdens.SynchFaults;
 import scratch.kevin.simulators.dists.LogNormalDistReturnPeriodProvider;
-import scratch.kevin.simulators.synch.MarkovChainBuilder;
+import scratch.kevin.simulators.synch.StateSpacePlotter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -288,6 +300,145 @@ public class PredictionTests {
 		return fakeEvents;
 	}
 	
+	private static MultivariateNormalDistribution getBivariateNormal(double corr, double mean1, double sd1,
+			double mean2, double sd2, long seed) {
+		double[] means = { Math.log(mean1), Math.log(mean2) };
+		double[][] covariances = new double[2][2];
+		covariances[0][0] = sd1*sd1;
+		covariances[1][1] = sd2*sd2;
+		covariances[0][1] = corr*sd1*sd2;
+		covariances[1][0] = corr*sd1*sd2;
+		
+		MultivariateNormalDistribution dist = new MultivariateNormalDistribution(means, covariances);
+		dist.reseedRandomGenerator(seed);
+		return dist;
+	}
+	
+	private static EvenlyDiscrXYZ_DataSet integrateBVNormal(MultivariateNormalDistribution dist, int numSims,
+			int numBins, double deltaBin) {
+		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(numBins, numBins, 0.5*deltaBin, 0.5*deltaBin, deltaBin);
+		
+		int outside = 0;
+		
+		double[] means = new double[2];
+		
+		for (int i=0; i<numSims; i++) {
+			double[] sample = dist.sample();
+			means[0] += sample[0];
+			means[1] += sample[1];
+			sample[0] = Math.exp(sample[0]);
+			sample[1] = Math.exp(sample[1]);
+			int xInd = xyz.getXIndex(sample[0]);
+			int yInd = xyz.getYIndex(sample[1]);
+			if (xInd < 0 || xInd >= xyz.getNumX() || yInd < 0 || yInd >= xyz.getNumY()) {
+				outside++;
+				continue;
+			}
+			
+			xyz.set(xInd, yInd, xyz.get(xInd, yInd)+1d);
+		}
+		int count = numSims-outside;
+		System.out.println("Integrated at "+count+" points ("+outside+"/"+numSims+" were skipped)");
+		means[0] = Math.exp(means[0]/count);
+		means[1] = Math.exp(means[1]/count);
+		System.out.println("Means: "+means[0]+", "+means[1]);
+		xyz.scale(1d/(double)count);
+		
+		return xyz;
+	}
+	
+	private static EvenlyDiscrXYZ_DataSet stateOccFromBVNormal(EvenlyDiscrXYZ_DataSet bvNormal) {
+		EvenlyDiscrXYZ_DataSet occ = new EvenlyDiscrXYZ_DataSet(bvNormal.getNumX(), bvNormal.getNumY(),
+				bvNormal.getMinX(), bvNormal.getMinY(), bvNormal.getGridSpacingX(), bvNormal.getGridSpacingY());
+		
+		// sum down the diagonals
+		
+		// this is the list of starting states (top and right edge of the map)
+		List<int[]> startStates = Lists.newArrayList();
+		for (int x=0; x<occ.getNumX(); x++)
+			startStates.add(new int[] {x, occ.getNumY()-1});
+		for (int y=0; y<occ.getNumY()-1; y++) // don't repeat the top right
+			startStates.add(new int[] {occ.getNumX()-1, y});
+		Preconditions.checkState(startStates.size() == (occ.getNumX()+occ.getNumY()-1));
+		
+		double totalSum = 0d;
+		
+		for (int[] startState : startStates) {
+			int x = startState[0];
+			int y = startState[1];
+			
+			double sum = 0d;
+			
+			while (x >= 0 && y >= 0) {
+				sum += bvNormal.get(x, y);
+				
+				Preconditions.checkState(occ.get(x, y) == 0d);
+				totalSum += sum;
+				occ.set(x, y, sum);
+				
+				x--;
+				y--;
+			}
+		}
+		
+		occ.scale(1d/totalSum);
+		
+		return occ;
+	}
+	
+	private static void plotBivariateNormal(double corr, double mean1, double sd1,
+			double mean2, double sd2, long seed) throws IOException {
+		MultivariateNormalDistribution dist = getBivariateNormal(corr, mean1, sd1, mean2, sd2, seed);
+		
+		int totNum = 10000000;
+		EvenlyDiscrXYZ_DataSet bvNormal = integrateBVNormal(dist, totNum, 50, 10d);
+		EvenlyDiscrXYZ_DataSet occ = stateOccFromBVNormal(bvNormal);
+		
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, bvNormal.getMaxZ());
+		XYZPlotSpec spec = new XYZPlotSpec(bvNormal, cpt, "Bivariate Normal Integration", "X", "Y", "Density");
+		
+		XYZPlotWindow gw = new XYZPlotWindow(spec);
+		gw.setDefaultCloseOperation(XYZPlotWindow.EXIT_ON_CLOSE);
+		
+		// now occupancy
+		cpt = cpt.rescale(0d, occ.getMaxZ());
+		spec = new XYZPlotSpec(occ, cpt, "Occupancy", "X", "Y", "Occupancy");
+		
+		gw = new XYZPlotWindow(spec);
+		gw.setDefaultCloseOperation(XYZPlotWindow.EXIT_ON_CLOSE);
+		
+		// now 1D RI dists
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(bvNormal.calcMarginalXDist());
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		funcs.add(bvNormal.calcMarginalYDist());
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		new GraphWindow(new PlotSpec(funcs, chars, "1D RI Dists", "Years", "Prob"));
+		
+		// now 1D RI dists
+		funcs = Lists.newArrayList();
+		chars = Lists.newArrayList();
+		
+		funcs.add(occ.calcMarginalXDist());
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		funcs.add(occ.calcMarginalYDist());
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		new GraphWindow(new PlotSpec(funcs, chars, "1D Occupancy Dists", "Years", "Prob"));
+		
+		while (true) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * Generates a fake series of events where the fboth faults are log-normally distributed, with the
 	 * given correlation coeff
@@ -326,6 +477,7 @@ public class PredictionTests {
 		covariances[1][0] = corr*sd1*sd2;
 		
 		MultivariateNormalDistribution dist = new MultivariateNormalDistribution(means, covariances);
+		// TODO figure this out
 //		dist.
 //		double shape1 = sd1 / mean1;
 //		double shape2 = sd2 / mean2;
@@ -363,6 +515,14 @@ public class PredictionTests {
 	}
 
 	public static void main(String[] args) throws IOException {
+		double mean1 = 100d;
+		double sd1 = 0.2;
+		double mean2 = 100d;
+		double sd2 = 0.2;
+//		double corr = 0.5;
+		double corr = 0.9999999999;
+//		plotBivariateNormal(corr, mean1, sd1, mean2, sd2, 0l);
+		
 		double minMag = 7d; 
 		double maxMag = 10d;
 		double distSpacing = 10d; // years
@@ -372,12 +532,16 @@ public class PredictionTests {
 		File plot2DOutputDir = new File(predictDir, "plots_2d");
 		File synchPlotOutputDir = new File(predictDir, "synch_plots");
 		
-		boolean fakeData = true;
+		boolean fakeData = false;
 		List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(minMag, maxMag,
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
-				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
+//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
+//				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_CHOLAME);
+//				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA);
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
+//				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
+				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		if (fakeData)
@@ -385,6 +549,8 @@ public class PredictionTests {
 			events = generateFakeData2(events, rupIdens, 0.5, 100d, 30d, 100d, 30d, 0l);
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
+		if (rupIdens.size() == 2)
+			new StateSpacePlotter(fullPath, rupIdens, distSpacing, null).plotOccupancies();
 		
 		int learningIndex = fullPath.size()/2;
 		

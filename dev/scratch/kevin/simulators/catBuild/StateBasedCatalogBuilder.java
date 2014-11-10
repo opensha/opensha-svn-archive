@@ -33,14 +33,15 @@ import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.magDepth.NoCollissionFunc;
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.IndicesKey;
+import scratch.kevin.markov.PossibleStates;
+import scratch.kevin.markov.SparseNDimensionalHashDataset;
+import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.dists.RandomDistType;
 import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
-import scratch.kevin.simulators.synch.IndicesKey;
-import scratch.kevin.simulators.synch.MarkovChainBuilder;
-import scratch.kevin.simulators.synch.PossibleStates;
-import scratch.kevin.simulators.synch.SparseNDimensionalHashDataset;
 import scratch.kevin.simulators.synch.SynchParamCalculator;
 
 import com.google.common.base.Joiner;
@@ -51,7 +52,7 @@ import com.google.common.primitives.Ints;
 
 public class StateBasedCatalogBuilder implements CatalogBuilder {
 	
-	private MarkovChainBuilder chain;
+	private EmpiricalMarkovChain chain;
 	
 	private SparseNDimensionalHashDataset<Double> totalStatesDataset;
 	private SparseNDimensionalHashDataset<PossibleStates> stateTransitionDataset;
@@ -65,7 +66,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		distSpacing = 10d;
 		
 		// build Markov chain
-		chain = new MarkovChainBuilder(distSpacing, matchesLists);
+		chain = MarkovChainBuilder.build(distSpacing, matchesLists);
 		int nDims = chain.getNDims();
 		totalStatesDataset = chain.getTotalStatesDataset();
 		stateTransitionDataset = chain.getStateTransitionDataset();

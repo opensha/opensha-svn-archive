@@ -117,14 +117,28 @@ public class XYZGraphPanel extends JPanel {
 
 	public void drawPlot(List<XYZPlotSpec> specs, boolean xLog, boolean yLog,
 			List<Range> xRanges, List<Range> yRanges, List<XYPlot> extraPlots) {
+		drawPlot(specs, xLog, yLog, xRanges, yRanges, extraPlots, null);
+	}
+
+	public void drawPlot(List<XYZPlotSpec> specs, boolean xLog, boolean yLog,
+			List<Range> xRanges, List<Range> yRanges, List<XYPlot> extraPlots, List<Integer> weights) {
 		
 		this.removeAll();
 
 		// make sure ranges aren't specified, or only one has multiple (for combined plots)
 		Preconditions.checkArgument(xRanges == null || yRanges == null
 				|| xRanges.size() <= 1 || yRanges.size() <= 1);
+		
+		boolean multiPlot = specs.size() > 1 || (extraPlots != null && !extraPlots.isEmpty());
+		
+		if (multiPlot && weights != null) {
+			int numPlots = specs.size();
+			if (extraPlots != null)
+				numPlots += extraPlots.size();
+			Preconditions.checkState(weights.size() == numPlots, "Weights supplied but weight count is wrong");
+		}
 
-		if (specs.size() > 1) {
+		if (multiPlot) {
 			if (xRanges != null && xRanges.size() > 1)
 				combinedYAxis = true;
 			else if (yRanges != null && yRanges.size() > 1)
@@ -246,7 +260,7 @@ public class XYZGraphPanel extends JPanel {
 
 		plot = null;
 		// build the plot
-		if (specs.size() == 1) {
+		if (!multiPlot) {
 			plot = new XYPlot(null, xAxis, yAxis, null);
 		} else if (combinedYAxis) {
 			plot = new CombinedRangeXYPlot(yAxis);
@@ -263,7 +277,7 @@ public class XYZGraphPanel extends JPanel {
 		for (int p=0; p<specs.size(); p++) {
 			XYZPlotSpec spec = specs.get(p);
 			XYPlot subPlot;
-			if (specs.size()>1) {
+			if (multiPlot) {
 				ValueAxis myXAxis, myYAxis;
 				// this is a subPlot
 				if (combinedYAxis) {
@@ -381,21 +395,31 @@ public class XYZGraphPanel extends JPanel {
 				for (XYAnnotation a : spec.getPlotAnnotations())
 					subPlot.addAnnotation(a);
 			
-			// multiple plots
-			if (plot instanceof CombinedRangeXYPlot)
-				((CombinedRangeXYPlot)plot).add(subPlot);
-			else if (plot instanceof CombinedDomainXYPlot)
-				((CombinedDomainXYPlot)plot).add(subPlot);
+			if (multiPlot) {
+				// multiple plots
+				int weight = 1;
+				if (weights != null)
+					weight = weights.get(p);
+				
+				if (plot instanceof CombinedRangeXYPlot)
+					((CombinedRangeXYPlot)plot).add(subPlot, weight);
+				else if (plot instanceof CombinedDomainXYPlot)
+					((CombinedDomainXYPlot)plot).add(subPlot, weight);
+			}
 			
 //			plot.add
 		}
 		
 		if (extraPlots != null) {
-			for (XYPlot subPlot : extraPlots) {
+			for (int i=0; i<extraPlots.size(); i++) {
+				int weight = 1;
+				if (weights != null)
+					weight = weights.get(i+specs.size());
+				XYPlot subPlot = extraPlots.get(i);
 				if (plot instanceof CombinedRangeXYPlot)
-					((CombinedRangeXYPlot)plot).add(subPlot);
+					((CombinedRangeXYPlot)plot).add(subPlot, weight);
 				else if (plot instanceof CombinedDomainXYPlot)
-					((CombinedDomainXYPlot)plot).add(subPlot);
+					((CombinedDomainXYPlot)plot).add(subPlot, weight);
 			}
 		}
 		

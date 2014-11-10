@@ -29,6 +29,8 @@ import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.LogicalOrRupIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.catBuild.RandomCatalogBuilder;
@@ -351,7 +353,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 		debug("Done with batch  ("+getMemoryDebug()+")");
 	}
 	
-	private MarkovChainBuilder buildChain(double sensVal, boolean random) {
+	private EmpiricalMarkovChain buildChain(double sensVal, boolean random) {
 		List<RuptureIdentifier> rupIdens = this.rupIdens;
 		double distSpacing = this.distSpacing;
 		List<EQSIM_Event> events = this.events;
@@ -433,7 +435,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 		if (random)
 			events = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, 1);
 		
-		return new MarkovChainBuilder(distSpacing, events, rupIdens, startTimeShift);
+		return MarkovChainBuilder.build(distSpacing, events, rupIdens, startTimeShift);
 	}
 	
 	private String getMemoryDebug() {
@@ -460,7 +462,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 
 		@Override
 		public void compute() {
-			MarkovChainBuilder chain = buildChain(sensValue, random);
+			EmpiricalMarkovChain chain = buildChain(sensValue, random);
 			
 			for (int m=0; m<nDims; m++) {
 				for (int n=m; n<nDims; n++) {

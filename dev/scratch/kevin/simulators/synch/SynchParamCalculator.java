@@ -46,6 +46,11 @@ import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.DistSpeedTest;
+import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.IndicesKey;
+import scratch.kevin.markov.PossibleStates;
+import scratch.kevin.markov.SparseNDimensionalHashDataset;
+import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.SynchIdens;
@@ -68,7 +73,7 @@ import com.google.common.primitives.Ints;
 public class SynchParamCalculator {
 
 	// inputs
-	private MarkovChainBuilder chain;
+	private EmpiricalMarkovChain chain;
 	private int lag;
 
 	// results
@@ -129,11 +134,11 @@ public class SynchParamCalculator {
 	//		return binnedIndices;
 	//	}
 
-	public SynchParamCalculator(MarkovChainBuilder chain, int m, int n, int lag) {
+	public SynchParamCalculator(EmpiricalMarkovChain chain, int m, int n, int lag) {
 		this(chain.getCollapsedChain(m, n), lag);
 	}
 
-	public SynchParamCalculator(MarkovChainBuilder chain, int lag) {
+	public SynchParamCalculator(EmpiricalMarkovChain chain, int lag) {
 		Preconditions.checkArgument(chain.getNDims() == 2, "Chain must be collapsed");
 		this.chain = chain;
 		this.lag = lag;
@@ -817,7 +822,7 @@ public class SynchParamCalculator {
 		public void compute() {
 			System.out.println("Random trial "+(t+1)+"/"+numTrials);
 
-			MarkovChainBuilder chain = createRandomizedChain(events, rupIdens, dist, distSpacing);
+			EmpiricalMarkovChain chain = createRandomizedChain(events, rupIdens, dist, distSpacing);
 
 			for (int m=0; m<nDims; m++) {
 				for (int n=m; n<nDims; n++) {
@@ -847,18 +852,18 @@ public class SynchParamCalculator {
 	}
 
 	private static int catLenMult = 1;
-	public static MarkovChainBuilder createRandomizedChain(List<EQSIM_Event> events,
+	public static EmpiricalMarkovChain createRandomizedChain(List<EQSIM_Event> events,
 			List<RuptureIdentifier> rupIdens, RandomDistType dist, double distSpacing) {
 		List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
 
-		MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, randEvents, rupIdens);
+		EmpiricalMarkovChain chain = MarkovChainBuilder.build(distSpacing, randEvents, rupIdens);
 
 		return chain;
 	}
 
 	public static void writeSynchParamsStdDev(
 			File dir, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
-			MarkovChainBuilder origChain, int[] lags, int numTrials, double distSpacing) throws IOException {
+			EmpiricalMarkovChain origChain, int[] lags, int numTrials, double distSpacing) throws IOException {
 		int nDims = rupIdens.size();
 
 		double[][][][] gBars = new double[nDims][nDims][numTrials][lags.length];
@@ -883,7 +888,7 @@ public class SynchParamCalculator {
 	}
 
 	static void doWriteSynchStdDevParams(File dir,
-			List<RuptureIdentifier> rupIdens, MarkovChainBuilder origChain,
+			List<RuptureIdentifier> rupIdens, EmpiricalMarkovChain origChain,
 			int[] lags, int numTrials, int nDims,
 			double[][][][] trialGBars) throws IOException {
 		double[][][] origGBars = new double[nDims][nDims][lags.length];
@@ -997,7 +1002,7 @@ public class SynchParamCalculator {
 		}
 	}
 
-	public static double calcGBar(MarkovChainBuilder chain, int m, int n, int lag) {
+	public static double calcGBar(EmpiricalMarkovChain chain, int m, int n, int lag) {
 		SynchParamCalculator calc;
 		if (doLagByShift && lag != 0) {
 			calc = new SynchParamCalculator(chain.getCollapsedChain(m, n).getShiftedChain(0, lag), 0);
@@ -1030,7 +1035,7 @@ public class SynchParamCalculator {
 	private static DecimalFormat twoDeimalPlaces = new DecimalFormat("0.00");
 
 	//	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain) throws IOException {
-	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, MarkovChainBuilder chain,
+	public static void writeSynchParamsTable(File file, List<RuptureIdentifier> idens, EmpiricalMarkovChain chain,
 			Map<IDPairing, HistogramFunction[]> catDensFuncs, int lagMax) throws IOException {
 		int nDims = chain.getNDims();
 
@@ -1564,7 +1569,7 @@ public class SynchParamCalculator {
 	}
 	
 	public static void writeSynchVsProbTable(File file, List<EQSIM_Event> events,
-			List<RuptureIdentifier> idens, MarkovChainBuilder chain)
+			List<RuptureIdentifier> idens, EmpiricalMarkovChain chain)
 					throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		// used to have: , boolean includeCorupInGain
@@ -1619,7 +1624,7 @@ public class SynchParamCalculator {
 		NUM;
 	}
 	
-	private static void plotStdDevs(File outputDir, Map<IDPairing, Double> stdDevs, MarkovChainBuilder chain) throws IOException {
+	private static void plotStdDevs(File outputDir, Map<IDPairing, Double> stdDevs, EmpiricalMarkovChain chain) throws IOException {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
@@ -1725,7 +1730,7 @@ public class SynchParamCalculator {
 		
 	}
 	
-	private static double[] calcRIs(MarkovChainBuilder chain, boolean median) {
+	private static double[] calcRIs(EmpiricalMarkovChain chain, boolean median) {
 		double[] ret = new double[chain.getNDims()];
 		for (int m=0; m<chain.getNDims(); m++) {
 			int prevIndex = -1;
@@ -1751,7 +1756,7 @@ public class SynchParamCalculator {
 		return ret;
 	}
 	
-	private static double[] calcEventCounts(MarkovChainBuilder chain) {
+	private static double[] calcEventCounts(EmpiricalMarkovChain chain) {
 		double[] ret = new double[chain.getNDims()];
 		for (int[] state : chain.getFullPath()) {
 			for (int m=0; m<state.length; m++)
@@ -1761,7 +1766,7 @@ public class SynchParamCalculator {
 		return ret;
 	}
 	
-	private static double calcCatalogG(MarkovChainBuilder chain, int m, int n) {
+	private static double calcCatalogG(EmpiricalMarkovChain chain, int m, int n) {
 		int numWindows = 0;
 		int numMN = 0;
 		int numM = 0;
@@ -1886,7 +1891,7 @@ public class SynchParamCalculator {
 		return Lists.newArrayList(elems);
 	}
 
-	private static double calcProbRupturedBefore(int numStatesBefore, int index, int[] transDestSate, int[] transFromState, MarkovChainBuilder chain) {
+	private static double calcProbRupturedBefore(int numStatesBefore, int index, int[] transDestSate, int[] transFromState, EmpiricalMarkovChain chain) {
 		int[] toState;
 		if (index == 0)
 			toState = new int[] {0, -1};
@@ -1922,7 +1927,7 @@ public class SynchParamCalculator {
 		return ret;
 	}
 	
-	private static void plotMarkovNumTransHist(MarkovChainBuilder chain, List<RuptureIdentifier> rupIdens, File outputDir)
+	private static void plotMarkovNumTransHist(EmpiricalMarkovChain chain, List<RuptureIdentifier> rupIdens, File outputDir)
 			throws IOException {
 		Preconditions.checkArgument(rupIdens.size() == chain.getNDims());
 		
@@ -1945,7 +1950,7 @@ public class SynchParamCalculator {
 			sortedIndexes.add(comp.getData());
 		
 		for (int nDims=chain.getNDims(); nDims>=2; nDims--) {
-			MarkovChainBuilder myChain = chain;
+			EmpiricalMarkovChain myChain = chain;
 			List<Integer> indexesToInclude = sortedIndexes;
 			if (myChain.getNDims() != nDims) {
 				indexesToInclude = sortedIndexes.subList(0, nDims);
@@ -2101,7 +2106,7 @@ public class SynchParamCalculator {
 				myEvents = events;
 
 			// generate Markov Chain
-			MarkovChainBuilder chain = new MarkovChainBuilder(distSpacing, myEvents, rupIdens);
+			EmpiricalMarkovChain chain = MarkovChainBuilder.build(distSpacing, myEvents, rupIdens);
 			
 			File markovPlotsDir = new File(writeDir, "markov_plots");
 			if (!markovPlotsDir.exists())

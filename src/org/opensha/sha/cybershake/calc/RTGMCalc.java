@@ -94,6 +94,8 @@ public class RTGMCalc {
 	private Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap;
 	private Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap;
 	
+	private List<SiteDataValue<?>> siteDatas;
+	
 	public RTGMCalc(CommandLine cmd, DBAccess db) {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
 		int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
@@ -283,8 +285,6 @@ public class RTGMCalc {
 		}
 		csv.addLine(header);
 		
-		List<SiteDataValue<?>> datas = null;
-		
 		List<DiscretizedFunc> cybershakeCurves = Lists.newArrayList();
 		
 		csSpectrumMap = Maps.newHashMap();
@@ -341,10 +341,10 @@ public class RTGMCalc {
 			
 			// GMPE comparisons
 			if (attenRels != null) {
-				if (datas == null) {
+				if (siteDatas == null) {
 					int velModelID = run.getVelModelID();
 					OrderedSiteDataProviderList providers = HazardCurvePlotter.createProviders(velModelID);
-					datas = providers.getBestAvailableData(site.createLocation());
+					siteDatas = providers.getBestAvailableData(site.createLocation());
 				}
 				List<DiscretizedFunc> gmpeSpectrums = gmpeSpectrumMap.get(im.getComponent());
 				if (gmpeSpectrums == null) {
@@ -364,7 +364,7 @@ public class RTGMCalc {
 					AttenuationRelationship attenRel = attenRels.get(j);
 					System.out.println("Calculating comparison RTGM value for "+attenRel.getShortName());
 					DiscretizedFunc hazFunction = HazardCurveSetCalculator.getLogFunction(curve.deepClone());
-					Site gmpeSite = HazardCurvePlotter.setAttenRelParams(attenRel, im, run, site, datas);
+					Site gmpeSite = HazardCurvePlotter.setAttenRelParams(attenRel, im, run, site, siteDatas);
 					gmpeCalc.getHazardCurve(hazFunction, gmpeSite, attenRel, erf);
 					hazFunction = HazardCurveSetCalculator.unLogFunction(curve, hazFunction);
 					validateCurveForRTGM(hazFunction);
@@ -436,6 +436,10 @@ public class RTGMCalc {
 		}
 		
 		return true; // success
+	}
+	
+	public void setSiteDatas(List<SiteDataValue<?>> siteDatas) {
+		this.siteDatas = siteDatas;
 	}
 	
 	public Map<CyberShakeComponent, DiscretizedFunc> getCSSpectrumMap() {
@@ -524,7 +528,7 @@ public class RTGMCalc {
 		return velMap;
 	}
 	
-	static DiscretizedFunc saToPsuedoVel(DiscretizedFunc saFunc) {
+	public static DiscretizedFunc saToPsuedoVel(DiscretizedFunc saFunc) {
 		ArbitrarilyDiscretizedFunc velFunc = new ArbitrarilyDiscretizedFunc(saFunc.getName());
 		
 		double twoPi = 2d*Math.PI;

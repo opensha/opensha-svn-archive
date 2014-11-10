@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -45,13 +46,15 @@ import org.opensha.sha.util.component.ComponentConverter;
 import org.opensha.sha.util.component.ComponentTranslation;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 
 public class GMPEDeterministicComparisonCalc {
 	
 	private static final CyberShakeComponent default_component = CyberShakeComponent.RotD100;
 	private static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
-	private static final double default_percentile = 84;
+	public static final double default_percentile = 84;
 	
 	private CybershakeRun run;
 	private CybershakeSite site;
@@ -66,21 +69,26 @@ public class GMPEDeterministicComparisonCalc {
 	
 	private File outputDir;
 	
+	private Table<Double, AttenuationRelationship, Double> resultsTable;
+	
+	private List<SiteDataValue<?>> siteDatas;
+	
 	public GMPEDeterministicComparisonCalc(CommandLine cmd, DBAccess db)
 			throws MalformedURLException, DocumentException, InvocationTargetException {
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		// get from run ID
 		Runs2DB runs2db = new Runs2DB(db);
-		run = runs2db.getRun(Integer.parseInt(cmd.getOptionValue("run-id")));
-		site = sites2db.getSiteFromDB(run.getSiteID());
+		CybershakeRun run = runs2db.getRun(Integer.parseInt(cmd.getOptionValue("run-id")));
+		CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
 		
 		String periodStr;
 		if (cmd.hasOption("period"))
 			periodStr = cmd.getOptionValue("period");
 		else
 			periodStr = default_periods;
-		periods = HazardCurvePlotter.commaDoubleSplit(periodStr);
+		List<Double> periods = HazardCurvePlotter.commaDoubleSplit(periodStr);
 		
+		double percentile;
 		if (cmd.hasOption("percentile"))
 			percentile = Double.parseDouble(cmd.getOptionValue("percentile"));
 		else
@@ -88,6 +96,7 @@ public class GMPEDeterministicComparisonCalc {
 		Preconditions.checkArgument(percentile >= 0 && percentile <= 100,
 				"Percentile must be between 0 and 100, inclusive.");
 		
+		CyberShakeComponent comp;
 		if (cmd.hasOption("component"))
 			comp = CybershakeIM.fromShortName(cmd.getOptionValue("component"), CyberShakeComponent.class);
 		else
@@ -96,8 +105,8 @@ public class GMPEDeterministicComparisonCalc {
 		String erfFile = cmd.getOptionValue("ef");
 		String attenFiles = cmd.getOptionValue("af");
 
-		erf = ERFSaver.LOAD_ERF_FROM_FILE(erfFile);
-		attenRels = Lists.newArrayList();
+		ERF erf = ERFSaver.LOAD_ERF_FROM_FILE(erfFile);
+		List<AttenuationRelationship> attenRels = Lists.newArrayList();
 
 		for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
 			AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
@@ -107,17 +116,44 @@ public class GMPEDeterministicComparisonCalc {
 
 		erf.updateForecast();
 		
-		outputDir = new File(cmd.getOptionValue("output-dir"));
+		File outputDir = new File(cmd.getOptionValue("output-dir"));
 		Preconditions.checkArgument(outputDir != null, "Output dir must me supplied");
 		Preconditions.checkArgument((outputDir.exists() && outputDir.isDirectory()) || outputDir.mkdir(),
 				"Output dir does not exist and could not be created");
+		
+		init(run, site, comp, periods, percentile, erf, attenRels, outputDir);
+	}
+	
+	public GMPEDeterministicComparisonCalc(CybershakeRun run, CybershakeSite site, CyberShakeComponent comp, List<Double> periods,
+			double percentile, ERF erf, List<AttenuationRelationship> attenRels, File outputDir) {
+		init(run, site, comp, periods, percentile, erf, attenRels, outputDir);
+	}
+	
+	private void init(CybershakeRun run, CybershakeSite site, CyberShakeComponent comp, List<Double> periods,
+			double percentile, ERF erf, List<AttenuationRelationship> attenRels, File outputDir) {
+		this.run = run;
+		this.site = site;
+		this.comp = comp;
+		this.periods = periods;
+		this.percentile = percentile;
+		this.erf = erf;
+		this.attenRels = attenRels;
+		this.outputDir = outputDir;
+	}
+	
+	public void setSiteData(List<SiteDataValue<?>> siteDatas) {
+		this.siteDatas = siteDatas;
 	}
 	
 	public void calc() throws IOException {
+		resultsTable = HashBasedTable.create();
+		
 		// get site data
-		int velModelID = run.getVelModelID();
-		OrderedSiteDataProviderList providers = HazardCurvePlotter.createProviders(velModelID);
-		List<SiteDataValue<?>> datas = providers.getBestAvailableData(site.createLocation());
+		if (siteDatas == null) {
+			int velModelID = run.getVelModelID();
+			OrderedSiteDataProviderList providers = HazardCurvePlotter.createProviders(velModelID);
+			siteDatas = providers.getBestAvailableData(site.createLocation());
+		}
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList();
@@ -137,7 +173,7 @@ public class GMPEDeterministicComparisonCalc {
 				System.out.println("Calculating deterministic value for "
 						+attenRel.getShortName()+", period="+period);
 				Site gmpeSite = HazardCurvePlotter.setAttenRelParams(
-						attenRel, comp, period, run, site, datas);
+						attenRel, comp, period, run, site, siteDatas);
 				attenRel.setSite(gmpeSite);
 				double maxVal = 0d;
 				int maxSourceID = -1;
@@ -168,9 +204,13 @@ public class GMPEDeterministicComparisonCalc {
 				line.add(maxRupID+"");
 				line.add(maxName);
 				line.add(maxVal+"");
+				resultsTable.put(period, attenRel, maxVal);
 			}
 			csv.addLine(line);
 		}
+		
+		if (outputDir == null)
+			return;
 		
 		String perStr;
 		if ((float)percentile == (float)((int)percentile))
@@ -183,6 +223,10 @@ public class GMPEDeterministicComparisonCalc {
 		
 		File outputFile = new File(outputDir, name);
 		csv.writeToFile(outputFile);
+	}
+	
+	public Table<Double, AttenuationRelationship, Double> getResults() {
+		return resultsTable;
 	}
 	
 	private double getScaledValue(AttenuationRelationship attenRel, double period, double val) {
@@ -322,7 +366,7 @@ public class GMPEDeterministicComparisonCalc {
 			}
 			
 			System.out.println("Done!");
-			System.exit(0);
+//			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
