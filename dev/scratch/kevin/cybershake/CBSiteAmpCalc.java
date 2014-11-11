@@ -51,10 +51,10 @@ import com.google.common.collect.Table;
 public class CBSiteAmpCalc {
 
 	public static void main(String[] args) throws DocumentException, InvocationTargetException, IOException {
-		boolean ddwCorr = false;
-		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_noddw");
-//		boolean ddwCorr = true;
-//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp");
+//		boolean ddwCorr = false;
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_noddw");
+		boolean ddwCorr = true;
+		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp");
 		
 		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
 				2660, 2703, 3504, 2988, 2965, 3007);
@@ -90,8 +90,8 @@ public class CBSiteAmpCalc {
 		List<AttenuationRelationship> meanGMPEList = Lists.newArrayList();
 		meanGMPEList.add(meanGMPE);
 		
-		List<Double> periods = Lists.newArrayList(0.01,0.02,0.03,0.04,0.05,0.075,0.1,0.12,0.15,0.17,0.2,0.25,0.3,0.4,
-				0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,6.0,7.5,10.0);
+		List<Double> periods = Lists.newArrayList(0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,
+				0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0);
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		Runs2DB runs2db = new Runs2DB(db);

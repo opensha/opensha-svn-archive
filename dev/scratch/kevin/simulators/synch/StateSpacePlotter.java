@@ -25,6 +25,8 @@ import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.MarkovChain;
+import scratch.kevin.markov.OccupancyBasedMarkovChain2D;
 import scratch.kevin.markov.PossibleStates;
 import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
@@ -37,11 +39,10 @@ import com.google.common.collect.Lists;
 public class StateSpacePlotter {
 	
 	private File outputDir;
-	private List<int[]> fullPath;
 	private List<? extends Named> names;
 	private double distSpacing;
 	
-	private EmpiricalMarkovChain chain;
+	private MarkovChain chain;
 	
 	private int nDims;
 	
@@ -49,21 +50,19 @@ public class StateSpacePlotter {
 	
 	private List<Integer> minBinsList;
 	
-	public StateSpacePlotter(List<int[]> fullPath, List<? extends Named> names, double distSpacing, File outputDir) {
-		this.fullPath = fullPath;
+	public StateSpacePlotter(MarkovChain chain, List<? extends Named> names, File outputDir) {
+		this.chain = chain;
 		this.names = names;
 		this.outputDir = outputDir;
-		this.distSpacing = distSpacing;
+		this.distSpacing = chain.getDistSpacing();
 		
-		this.nDims = fullPath.get(0).length;
+		this.nDims = chain.getNDims();
 		Preconditions.checkArgument(nDims > 1, "must have at least 2D chain");
 		Preconditions.checkArgument(names.size() == nDims);
 		
 		minBinsList = Lists.newArrayList();
 		for (int i=0; i<nDims; i++)
-			minBinsList.add(getNBinsForFract(fullPath, i, fractToInclude));
-		
-		this.chain = new EmpiricalMarkovChain(fullPath, distSpacing);
+			minBinsList.add(getNBinsForFract(chain, i, fractToInclude));
 	}
 	
 	private int getNumBins(int i, int j) {
@@ -85,16 +84,19 @@ public class StateSpacePlotter {
 				
 				EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
 				
+				PossibleStates occupancy = chain.getPossibleInitialStates();
 				double sumZ = 0d;
-				for (int[] state : fullPath) {
+				for (int[] state : occupancy.getStates()) {
 					int xInd = state[i];
 					int yInd = state[j];
 					
 					if (xInd >= xyz.getNumX() || yInd >= xyz.getNumY())
 						continue;
 					
-					xyz.set(xInd, yInd, xyz.get(xInd, yInd)+1d);
-					sumZ++;
+					double freq = occupancy.getFrequency(state);
+					
+					xyz.set(xInd, yInd, xyz.get(xInd, yInd)+freq);
+					sumZ += freq;
 				}
 				
 				xyz.scale(1d/sumZ);
@@ -131,13 +133,14 @@ public class StateSpacePlotter {
 	}
 	
 	private EvenlyDiscrXYZ_DataSet getMarkovXYZ(MarkovProb type, int i, int j) {
-		EmpiricalMarkovChain collapsed = chain.getCollapsedChain(i, j);
+		MarkovChain collapsed = chain.getCollapsedChain(i, j);
+		collapsed = new OccupancyBasedMarkovChain2D(chain.getDistSpacing(), collapsed.getPossibleInitialStates());
 		
 		EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
 		
 		for (int xInd=0; xInd<xyz.getNumX(); xInd++) {
 			for (int yInd=0; yInd<xyz.getNumY(); yInd++) {
-				PossibleStates possible = collapsed.getStateTransitionDataset().get(new int[] {xInd,yInd});
+				PossibleStates possible = collapsed.getDestinationStates(new int[] {xInd,yInd});
 				double prob;
 				if (possible == null) {
 					prob = Double.NaN;
@@ -238,10 +241,16 @@ public class StateSpacePlotter {
 		}
 	}
 	
-	private static int getNBinsForFract(List<int[]> fullPath, int index, double fractToInclude) {
+	private static int getNBinsForFract(MarkovChain chain, int index, double fractToInclude) {
 		List<Integer> indexes = Lists.newArrayList();
-		for (int[] state : fullPath)
-			indexes.add(state[index]);
+		PossibleStates marginal = chain.getPossibleInitialStates().getMarginal(index);
+		for (int[] state : marginal.getStates()) {
+			double freq = marginal.getFrequency(state);
+			for (int i=0; i<freq; i++)
+				indexes.add(state[0]);
+		}
+//		for (int[] state : fullPath)
+//			indexes.add(state[index]);
 		Collections.sort(indexes);
 		int listIndex = (int)(indexes.size()*fractToInclude+0.5);
 		return indexes.get(listIndex);
@@ -274,10 +283,12 @@ public class StateSpacePlotter {
 			List<RuptureIdentifier> rupIdens = setIdens.get(s);
 			List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
 			
+			MarkovChain chain = new EmpiricalMarkovChain(fullPath, distSpacing);
+			
 			File setOutputDir = new File(outputDir, setNames.get(s));
 			Preconditions.checkState((setOutputDir.exists() && setOutputDir.isDirectory()) || setOutputDir.mkdir());
 			
-			StateSpacePlotter plot = new StateSpacePlotter(fullPath, rupIdens, distSpacing, setOutputDir);
+			StateSpacePlotter plot = new StateSpacePlotter(chain, rupIdens, setOutputDir);
 			
 			plot.plotOccupancies();
 			plot.plotProbEither();

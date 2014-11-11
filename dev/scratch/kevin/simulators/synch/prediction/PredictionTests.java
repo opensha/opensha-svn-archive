@@ -550,7 +550,7 @@ public class PredictionTests {
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
 		if (rupIdens.size() == 2)
-			new StateSpacePlotter(fullPath, rupIdens, distSpacing, null).plotOccupancies();
+			new StateSpacePlotter(new EmpiricalMarkovChain(fullPath, distSpacing), rupIdens, null).plotOccupancies();
 		
 		int learningIndex = fullPath.size()/2;
 		

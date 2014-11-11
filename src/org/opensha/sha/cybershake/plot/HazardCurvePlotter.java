@@ -84,6 +84,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.DoubleDiscreteParameter;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
@@ -1381,6 +1382,8 @@ public class HazardCurvePlotter {
 				closestPeriod = testPeriod;
 			}
 		}
+		double pDiff = DataUtils.getPercentDiff(closestPeriod, period);
+		Preconditions.checkState(pDiff < 0.01, "No match for period="+period+", closest="+closestPeriod);
 		saPeriodParam.setValue(closestPeriod);
 //		attenRel.setIntensityMeasure(intensityMeasure)
 		

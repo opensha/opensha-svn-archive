@@ -64,4 +64,15 @@ public class PossibleStates {
 	public int[] getFromState() {
 		return fromState;
 	}
+	
+	public PossibleStates getMarginal(int index) {
+		PossibleStates marginal = new PossibleStates(null);
+		
+		for (int[] state : states) {
+			int[] margState = {state[index]};
+			marginal.add(margState, getFrequency(state));
+		}
+		
+		return marginal;
+	}
 }

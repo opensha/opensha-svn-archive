@@ -48,6 +48,7 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.DistSpeedTest;
 import scratch.kevin.markov.EmpiricalMarkovChain;
 import scratch.kevin.markov.IndicesKey;
+import scratch.kevin.markov.MarkovChain;
 import scratch.kevin.markov.PossibleStates;
 import scratch.kevin.markov.SparseNDimensionalHashDataset;
 import scratch.kevin.simulators.MarkovChainBuilder;
@@ -1766,7 +1767,7 @@ public class SynchParamCalculator {
 		return ret;
 	}
 	
-	private static double calcCatalogG(EmpiricalMarkovChain chain, int m, int n) {
+	private static double calcEmpiricalCatalogG(EmpiricalMarkovChain chain, int m, int n) {
 		int numWindows = 0;
 		int numMN = 0;
 		int numM = 0;
@@ -1783,12 +1784,29 @@ public class SynchParamCalculator {
 			if (state[n] == 0)
 				numN++;
 		}
-		double probMN = (double)numMN/(double)(numWindows);
-		double probM = (double)numM/(double)(numWindows);
-		double probN = (double)numN/(double)(numWindows);
-//		return probMN / (probM * probN);
 		
 		return (double)numWindows * (double)numMN/(double)(numM*numN);
+	}
+	
+	public static double calcCatalogG(MarkovChain chain, int m, int n) {
+		double numWindows = 0;
+		double numMN = 0;
+		double numM = 0;
+		double numN = 0;
+		
+		PossibleStates possibleInitialStates = chain.getPossibleInitialStates();
+		for (int[] state : possibleInitialStates.getStates()) {
+			double freq = possibleInitialStates.getFrequency(state);
+			numWindows += freq;
+			if (state[m] == 0 && state[n] == 0)
+				numMN += freq;
+			if (state[m] == 0)
+				numM += freq;
+			if (state[n] == 0)
+				numN += freq;
+		}
+		
+		return numWindows * numMN/(numM*numN);
 	}
 	
 	private static double calcProbGain(List<EQSIM_Event> events, RuptureIdentifier first,

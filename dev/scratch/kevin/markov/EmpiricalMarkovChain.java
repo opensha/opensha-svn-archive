@@ -47,6 +47,8 @@ public class EmpiricalMarkovChain extends MarkovChain {
 		
 		PossibleStates possibleInitialStates = new PossibleStates(null);
 		
+		super.init(nDims, distSpacing, possibleInitialStates);
+		
 		System.out.println("Assembling state transition probabilities");
 		
 		for (int index=0; index<path.size(); index++) {
@@ -56,8 +58,6 @@ public class EmpiricalMarkovChain extends MarkovChain {
 		}
 		
 		System.out.println("DONE assembling state transition probabilities");
-		
-		super.init(nDims, distSpacing, possibleInitialStates);
 	}
 	
 	@Override
