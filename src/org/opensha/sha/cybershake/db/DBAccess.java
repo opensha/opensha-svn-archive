@@ -71,7 +71,7 @@ public class DBAccess implements Runnable{
     private SQLWarning currSQLWarning;
     private String pid;
 
-    private final int DEFAULTMAXCHECKOUTSECONDS=60;
+    private final int DEFAULTMAXCHECKOUTSECONDS=60*5;
     private final int DEFAULTDEBUGLEVEL=0;
 
 

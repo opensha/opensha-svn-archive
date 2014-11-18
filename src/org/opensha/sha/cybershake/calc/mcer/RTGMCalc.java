@@ -1,4 +1,4 @@
-package org.opensha.sha.cybershake.calc;
+package org.opensha.sha.cybershake.calc.mcer;
 
 import java.awt.Color;
 import java.io.File;
@@ -38,6 +38,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
@@ -60,9 +61,11 @@ import org.opensha.sra.rtgm.RTGM;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 
 public class RTGMCalc {
 	
@@ -92,7 +95,9 @@ public class RTGMCalc {
 	private static HazardCurveCalculator gmpeCalc = new HazardCurveCalculator();
 	
 	private Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap;
+	private Table<CyberShakeComponent, Double,DiscretizedFunc> csHazardCurves;
 	private Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap;
+	private Table<CyberShakeComponent, Double, List<DiscretizedFunc>> gmpeHazardCurves;
 	
 	private List<SiteDataValue<?>> siteDatas;
 	
@@ -202,6 +207,14 @@ public class RTGMCalc {
 		this.forceAddIMs = forceAddIMs;
 	}
 	
+	public void setPlotTypes(List<PlotType> plotTypes) {
+		this.plotTypes = plotTypes;
+	}
+	
+	public void setVelPlot(boolean velPlot) {
+		this.velPlot = velPlot;
+	}
+	
 	public boolean calc() throws IOException {
 		List<Integer> curveIDs = curves2db.getAllHazardCurveIDs(runID, -1);
 		// filter out any oddball probability models
@@ -288,10 +301,11 @@ public class RTGMCalc {
 		List<DiscretizedFunc> cybershakeCurves = Lists.newArrayList();
 		
 		csSpectrumMap = Maps.newHashMap();
-		if (attenRels != null)
+		csHazardCurves = HashBasedTable.create();
+		if (attenRels != null) {
 			gmpeSpectrumMap = Maps.newHashMap();
-		else
-			gmpeSpectrumMap = null;
+			gmpeHazardCurves = HashBasedTable.create();
+		}
 		
 		for (int i=0; i<curveIDs.size(); i++)
 			cybershakeCurves.add(curves2db.getHazardCurve(curveIDs.get(i)));
@@ -337,6 +351,7 @@ public class RTGMCalc {
 					csSpectrumMap.put(im.getComponent(), csSpectrum);
 				}
 				csSpectrum.set(im.getVal(), rtgm);
+				csHazardCurves.put(im.getComponent(), im.getVal(), curve);
 			}
 			
 			// GMPE comparisons
@@ -360,6 +375,7 @@ public class RTGMCalc {
 				}
 				Preconditions.checkState((float)erf.getTimeSpan().getDuration() == 1f,
 						"ERF duration should be 1 year");
+				List<DiscretizedFunc> curves = Lists.newArrayList();
 				for (int j=0; j<attenRels.size(); j++) {
 					AttenuationRelationship attenRel = attenRels.get(j);
 					System.out.println("Calculating comparison RTGM value for "+attenRel.getShortName());
@@ -374,6 +390,7 @@ public class RTGMCalc {
 					hazFunction = HazardCurvePlotter.getScaledCurveForComponent(attenRel, im, hazFunction);
 					String metadata = hazFunction.getInfo().trim().replaceAll("\n", "");
 					
+					curves.add(hazFunction);
 					rtgm = calcRTGM(hazFunction);
 					Preconditions.checkState(rtgm > 0, "RTGM is not positive");
 					line.add(metadata);
@@ -382,6 +399,7 @@ public class RTGMCalc {
 					DiscretizedFunc gmpeSpectrum = gmpeSpectrums.get(j);
 					gmpeSpectrum.set(im.getVal(), rtgm);
 				}
+				gmpeHazardCurves.put(im.getComponent(), im.getVal(), curves);
 			}
 			
 			csv.addLine(line);
@@ -446,8 +464,24 @@ public class RTGMCalc {
 		return csSpectrumMap;
 	}
 	
+	/**
+	 * List of CyberShake hazard curves corresponding to each period in the spectrum maps
+	 * @return
+	 */
+	public Table<CyberShakeComponent, Double, DiscretizedFunc> getCSHazardCurves() {
+		return csHazardCurves;
+	}
+	
 	public Map<CyberShakeComponent, List<DiscretizedFunc>> getGMPESpectrumMap() {
 		return gmpeSpectrumMap;
+	}
+	
+	/**
+	 * List of CyberShake hazard curves corresponding to each period in the spectrum maps
+	 * @return
+	 */
+	public Table<CyberShakeComponent, Double, List<DiscretizedFunc>> getGMPEHazardCurves() {
+		return gmpeHazardCurves;
 	}
 	
 	static final boolean xLog = true;
@@ -558,7 +592,7 @@ public class RTGMCalc {
 			File outputFile = new File(outputDir, name);
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setBackgroundColor(null);
+			gp.setBackgroundColor(Color.WHITE);
 			gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
 			gp.setTickLabelFontSize(18);
 			gp.setAxisLabelFontSize(20);
@@ -597,7 +631,7 @@ public class RTGMCalc {
 				"Curve not monotonically decreasing: "+xValStr);
 	}
 	
-	private static double calcRTGM(DiscretizedFunc curve) {
+	static double calcRTGM(DiscretizedFunc curve) {
 		// convert from annual probability to annual frequency
 		curve = gmpeCalc.getAnnualizedRates(curve, 1d);
 		RTGM calc = RTGM.create(curve, null, null);

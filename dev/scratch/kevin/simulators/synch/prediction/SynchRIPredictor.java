@@ -37,7 +37,7 @@ public class SynchRIPredictor implements Predictor {
 	
 	private int[] prevState;
 	
-	private HistogramFunction[] lnSumGHists;
+	private HistogramFunction[] lnGainHists;
 	
 	public SynchRIPredictor(int maxLag) {
 		this.maxLag = maxLag;
@@ -69,9 +69,9 @@ public class SynchRIPredictor implements Predictor {
 				synchCalcsMap.put(pair, calcs);
 			}
 		}
-		lnSumGHists = new HistogramFunction[nDims];
+		lnGainHists = new HistogramFunction[nDims];
 		for (int i=0; i<nDims; i++)
-			lnSumGHists[i] = new HistogramFunction(-2.0d, 41, 0.1d);
+			lnGainHists[i] = new HistogramFunction(-2.0d, 41, 0.1d);
 		
 		for (int[] state : path)
 			addState(state);
@@ -99,6 +99,81 @@ public class SynchRIPredictor implements Predictor {
 		return getRuptureProbabilities(prevState);
 	}
 
+//	@Override
+//	public double[] getRuptureProbabilities(int[] state) {
+//		Preconditions.checkArgument(state != null);
+//		double[] riProbs = riPredict.getRuptureProbabilities(state);
+//		
+//		double[] ret = Arrays.copyOf(riProbs, riProbs.length);
+//		
+//		for (int i=0; i<state.length; i++) {
+//			double riProb = riProbs[i];
+//			if (riProb == 0)
+//				continue;
+//			double multRate = riProb;
+//			double avgProb = 0d;
+//			
+//			double lnSumG = 0;
+//			for (int j=0; j<nDims; j++) {
+//				if (i == j)
+//					continue;
+//				
+//				IDPairing pair = new IDPairing(i, j);
+////				IDPairing pair = new IDPairing(j, i); // this was a test, bad
+//				
+//				// we need synchronization with the destination states for the other fault
+//				// not the current state
+//				
+//				// this is the lag of the destination state, assuming that it doesn't rupture
+//				int l = state[j]+1;
+//				// if it doesn't rupture, this is the synchronization
+//				double g_norup;
+//				if (l > maxLag)
+//					g_norup = 1d;
+//				else
+//					g_norup = synchCalcsMap.get(pair)[l].getCatalogG();
+//				Preconditions.checkState(Doubles.isFinite(g_norup));
+//				// synchronization if it does rupture
+//				double g_rup = synchCalcsMap.get(pair)[0].getCatalogG();
+//				Preconditions.checkState(Doubles.isFinite(g_rup));
+//				double probJRup = riProbs[j];
+////				lnSumG += Math.log(g_norup)*(1-probJRup) + Math.log(g_rup)*probJRup;
+//				lnSumG += Math.log(g_norup)*(1-probJRup)*riProb + Math.log(g_rup)*probJRup*riProb;
+////				lnSumG += Math.log(g_rup)*probRup;
+////				if (Math.random() <= probRup)
+////					lnSumG += Math.log(g_rup);
+////				else
+////					lnSumG += Math.log(g_norup);
+//				
+////				double avgGain = g_rup*probJRup + g_norup*(1-probJRup);
+////				multRate *= avgGain;
+//				double avgGain = Math.exp(Math.log(g_rup)*probJRup + Math.log(g_norup)*(1-probJRup));
+//				multRate *=  Math.exp(Math.log(g_rup)*probJRup) * Math.exp(Math.log(g_norup)*(1-probJRup));
+////				avgProb += riProb*avgGain;
+//				
+//				g_rup = Math.exp(Math.log(g_rup)*1.0);
+//				g_norup = Math.exp(Math.log(g_norup)*1.0);
+//				avgProb += g_rup*riProb*probJRup + g_norup*riProb*(1d-probJRup);
+//			}
+//			
+//			lnSumGHists[i].add(lnSumGHists[i].getClosestXIndex(lnSumG), 1d);
+////			double prob = Math.exp(Math.log(riProb)+lnSumG);
+////			double prob = multRate;
+////			double prob = avgProb / (double)(nDims-1);
+////			double prob = avgProb / (double)(nDims-1);
+//			double prob = avgProb;
+//			
+//			prob = 1-Math.exp(-prob);
+//			
+//			Preconditions.checkState(prob >= 0 && prob <= 1,
+//					"Bad probability: "+prob+", riProb="+riProb+", lnSumG="+lnSumG);
+//			
+//			ret[i] = prob;
+//		}
+//		
+//		return ret;
+//	}
+
 	@Override
 	public double[] getRuptureProbabilities(int[] state) {
 		Preconditions.checkArgument(state != null);
@@ -110,16 +185,14 @@ public class SynchRIPredictor implements Predictor {
 			double riProb = riProbs[i];
 			if (riProb == 0)
 				continue;
-			double multRate = riProb;
-			double avgProb = 0d;
 			
-			double lnSumG = 0;
+			double gain = 1d;
+			
 			for (int j=0; j<nDims; j++) {
 				if (i == j)
 					continue;
 				
 				IDPairing pair = new IDPairing(i, j);
-//				IDPairing pair = new IDPairing(j, i); // this was a test, bad
 				
 				// we need synchronization with the destination states for the other fault
 				// not the current state
@@ -137,36 +210,31 @@ public class SynchRIPredictor implements Predictor {
 				double g_rup = synchCalcsMap.get(pair)[0].getCatalogG();
 				Preconditions.checkState(Doubles.isFinite(g_rup));
 				double probJRup = riProbs[j];
-//				lnSumG += Math.log(g_norup)*(1-probJRup) + Math.log(g_rup)*probJRup;
-				lnSumG += Math.log(g_norup)*(1-probJRup)*riProb + Math.log(g_rup)*probJRup*riProb;
-//				lnSumG += Math.log(g_rup)*probRup;
-//				if (Math.random() <= probRup)
-//					lnSumG += Math.log(g_rup);
-//				else
-//					lnSumG += Math.log(g_norup);
 				
-//				double avgGain = g_rup*probJRup + g_norup*(1-probJRup);
-//				multRate *= avgGain;
-				double avgGain = Math.exp(Math.log(g_rup)*probJRup + Math.log(g_norup)*(1-probJRup));
-				multRate *=  Math.exp(Math.log(g_rup)*probJRup) * Math.exp(Math.log(g_norup)*(1-probJRup));
-//				avgProb += riProb*avgGain;
+				double probJNoRup = 1d-probJRup;
 				
-				g_rup = Math.exp(Math.log(g_rup)*1.0);
-				g_norup = Math.exp(Math.log(g_norup)*1.0);
-				avgProb += g_rup*riProb*probJRup + g_norup*riProb*(1d-probJRup);
+				// average the gain using the possible destination states
+				double myGain = Math.exp(Math.log(g_rup)*probJRup + Math.log(g_norup)*probJNoRup);
+				
+				Preconditions.checkState(Doubles.isFinite(myGain), "Gain not finite! g_rup="+g_rup
+						+", g_norup="+g_norup+", probJRup="+probJRup+", probJNoRup="+probJNoRup);
+				gain *= myGain;
 			}
 			
-			lnSumGHists[i].add(lnSumGHists[i].getClosestXIndex(lnSumG), 1d);
+			lnGainHists[i].add(lnGainHists[i].getClosestXIndex(Math.log(gain)), 1d);
 //			double prob = Math.exp(Math.log(riProb)+lnSumG);
 //			double prob = multRate;
 //			double prob = avgProb / (double)(nDims-1);
 //			double prob = avgProb / (double)(nDims-1);
-			double prob = avgProb;
+//			gain = Math.exp(Math.log(gain)*0.2);
+			double prob = riProb*gain;
 			
-			prob = 1-Math.exp(-prob);
+//			prob = 1-Math.exp(-prob);
+			if (prob > 1d)
+				prob = 1d;
 			
 			Preconditions.checkState(prob >= 0 && prob <= 1,
-					"Bad probability: "+prob+", riProb="+riProb+", lnSumG="+lnSumG);
+					"Bad probability: "+prob+", riProb="+riProb+", gain="+gain);
 			
 			ret[i] = prob;
 		}
@@ -185,7 +253,7 @@ public class SynchRIPredictor implements Predictor {
 		p.riPredict = (RecurrIntervalPredictor)riPredict.getCollapsed(indexes);
 		p.nDims = indexes.length;
 		p.synchCalcsMap = Maps.newHashMap();
-		p.lnSumGHists = new HistogramFunction[p.nDims];
+		p.lnGainHists = new HistogramFunction[p.nDims];
 		for (int i=0; i<indexes.length; i++) {
 			for (int j=0; j<indexes.length; j++) {
 				if (i == j)
@@ -193,7 +261,7 @@ public class SynchRIPredictor implements Predictor {
 				p.synchCalcsMap.put(new IDPairing(i, j), synchCalcsMap.get(
 						new IDPairing(indexes[i], indexes[j])));
 			}
-			p.lnSumGHists[i] = lnSumGHists[indexes[i]];
+			p.lnGainHists[i] = lnGainHists[indexes[i]];
 		}
 		return p;
 	}
@@ -233,7 +301,7 @@ public class SynchRIPredictor implements Predictor {
 			}
 		}
 		
-		File histDir = new File(dir, "ln_sum_g_hists");
+		File histDir = new File(dir, "gain_hists");
 		Preconditions.checkState((histDir.exists() && histDir.isDirectory()) || histDir.mkdir());
 		
 		for (int i=0; i<nDims; i++) {
@@ -241,9 +309,9 @@ public class SynchRIPredictor implements Predictor {
 			
 			List<EvenlyDiscretizedFunc> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
-			funcs.add(lnSumGHists[i]);
+			funcs.add(lnGainHists[i]);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-			PlotSpec spec = new PlotSpec(funcs, chars, name, "sum(Ln(G))", "Number");
+			PlotSpec spec = new PlotSpec(funcs, chars, name, "Gain", "Number");
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			gp.setTickLabelFontSize(18);
@@ -319,6 +387,36 @@ public class SynchRIPredictor implements Predictor {
 			if (numWindows == 0 || numM == 0 || numN == 0)
 				return 1d;
 			return (double)numWindows * (double)numMN/(double)(numM*numN);
+		}
+		
+		public double getProbBoth() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 0d;
+			return (double)numMN/(double)numWindows;
+		}
+		
+		public double getProbM() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 0d;
+			return (double)numM/(double)numWindows;
+		}
+		
+		public double getProbN() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 0d;
+			return (double)numN/(double)numWindows;
+		}
+		
+		public double getProbMgivenN() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 0d;
+			return getProbBoth()/getProbN();
+		}
+		
+		public double getProbNgivenM() {
+			if (numWindows == 0 || numM == 0 || numN == 0)
+				return 0d;
+			return getProbBoth()/getProbM();
 		}
 	}
 

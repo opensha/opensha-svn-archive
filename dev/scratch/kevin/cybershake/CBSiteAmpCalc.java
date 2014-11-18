@@ -22,10 +22,11 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.sha.cybershake.calc.GMPEDeterministicComparisonCalc;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
-import org.opensha.sha.cybershake.calc.MCERDataProductsCalc;
-import org.opensha.sha.cybershake.calc.RTGMCalc;
+import org.opensha.sha.cybershake.calc.mcer.DeterministicResult;
+import org.opensha.sha.cybershake.calc.mcer.GMPEDeterministicComparisonCalc;
+import org.opensha.sha.cybershake.calc.mcer.MCERDataProductsCalc;
+import org.opensha.sha.cybershake.calc.mcer.RTGMCalc;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -41,6 +42,7 @@ import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 
@@ -53,8 +55,10 @@ public class CBSiteAmpCalc {
 	public static void main(String[] args) throws DocumentException, InvocationTargetException, IOException {
 //		boolean ddwCorr = false;
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_noddw");
-		boolean ddwCorr = true;
-		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp");
+//		boolean ddwCorr = true;
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp");
+		boolean ddwCorr = false;
+		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_bssa");
 		
 		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
 				2660, 2703, 3504, 2988, 2965, 3007);
@@ -78,14 +82,16 @@ public class CBSiteAmpCalc {
 		}
 		List<AttenuationRelationship> attenRels = Lists.newArrayList();
 
-		String attenFiles = "src/org/opensha/sha/cybershake/conf/cb2014.xml,src/org/opensha/sha/cybershake/conf/cy2014.xml"
-				+ ",src/org/opensha/sha/cybershake/conf/bssa2014.xml,src/org/opensha/sha/cybershake/conf/ask2014.xml";
-		for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
-			AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
-			attenRels.add(attenRel);
-		}
-		Preconditions.checkArgument(!attenRels.isEmpty(), "Must specify at least 1 GMPE");
-		MultiIMR_Averaged_AttenRel meanGMPE = new MultiIMR_Averaged_AttenRel(attenRels);
+//		String attenFiles = "src/org/opensha/sha/cybershake/conf/cb2014.xml,src/org/opensha/sha/cybershake/conf/cy2014.xml"
+//				+ ",src/org/opensha/sha/cybershake/conf/bssa2014.xml,src/org/opensha/sha/cybershake/conf/ask2014.xml";
+//		for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
+//			AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
+//			attenRels.add(attenRel);
+//		}
+//		Preconditions.checkArgument(!attenRels.isEmpty(), "Must specify at least 1 GMPE");
+//		MultiIMR_Averaged_AttenRel meanGMPE = new MultiIMR_Averaged_AttenRel(attenRels);
+		
+		AttenuationRelationship meanGMPE = AttenRelRef.BSSA_2014.instance(null);
 		meanGMPE.setParamDefaults();
 		List<AttenuationRelationship> meanGMPEList = Lists.newArrayList();
 		meanGMPEList.add(meanGMPE);
@@ -186,12 +192,12 @@ public class CBSiteAmpCalc {
 				
 				detCalc.calc();
 				
-				Table<Double, AttenuationRelationship, Double> detVals = detCalc.getResults();
+				Table<Double, AttenuationRelationship, DeterministicResult> detVals = detCalc.getResults();
 				DiscretizedFunc detFunc = new ArbitrarilyDiscretizedFunc();
 				for (double period : periods) {
 					double maxY = 0;
 					for (AttenuationRelationship attenRel : attenRels)
-						maxY = Math.max(maxY, detVals.get(period, attenRel));
+						maxY = Math.max(maxY, detVals.get(period, attenRel).getVal());
 					detFunc.set(period, maxY);
 				}
 				detFunc = RTGMCalc.saToPsuedoVel(detFunc);

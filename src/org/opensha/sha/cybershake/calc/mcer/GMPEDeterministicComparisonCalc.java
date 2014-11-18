@@ -1,4 +1,4 @@
-package org.opensha.sha.cybershake.calc;
+package org.opensha.sha.cybershake.calc.mcer;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,9 +69,12 @@ public class GMPEDeterministicComparisonCalc {
 	
 	private File outputDir;
 	
-	private Table<Double, AttenuationRelationship, Double> resultsTable;
+	private Table<Double, AttenuationRelationship, DeterministicResult> resultsTable;
 	
 	private List<SiteDataValue<?>> siteDatas;
+	
+	// used to add cybershake results to files
+	private List<DeterministicResult> csDeterms;
 	
 	public GMPEDeterministicComparisonCalc(CommandLine cmd, DBAccess db)
 			throws MalformedURLException, DocumentException, InvocationTargetException {
@@ -145,6 +148,10 @@ public class GMPEDeterministicComparisonCalc {
 		this.siteDatas = siteDatas;
 	}
 	
+	public void setCyberShakeData(List<DeterministicResult> csDeterms) {
+		this.csDeterms = csDeterms;
+	}
+	
 	public void calc() throws IOException {
 		resultsTable = HashBasedTable.create();
 		
@@ -158,6 +165,12 @@ public class GMPEDeterministicComparisonCalc {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList();
 		header.add("Period");
+		if (csDeterms != null) {
+			header.add("CyberShake Source ID");
+			header.add("CyberShake Rup ID");
+			header.add("CyberShake Name");
+			header.add("CyberShake Value (g)");
+		}
 		for (AttenuationRelationship attenRel : attenRels) {
 			header.add(attenRel.getShortName()+" Source ID");
 			header.add(attenRel.getShortName()+" Rup ID");
@@ -166,19 +179,31 @@ public class GMPEDeterministicComparisonCalc {
 		}
 		csv.addLine(header);
 		
-		for (double period : periods) {
+		for (int i=0; i<periods.size(); i++) {
+			double period = periods.get(i);
 			List<String> line = Lists.newArrayList();
 			line.add(period+"");
+			if (csDeterms != null) {
+				DeterministicResult csDeterm = csDeterms.get(i);
+				if (csDeterm == null) {
+					line.add("");
+					line.add("");
+					line.add("");
+					line.add("");
+				} else {
+					line.add(csDeterm.getSourceID()+"");
+					line.add(csDeterm.getRupID()+"");
+					line.add(csDeterm.getSourceName()+" (M="+(float)csDeterm.getMag()+")");
+					line.add(csDeterm.getVal()+"");
+				}
+			}
 			for (AttenuationRelationship attenRel : attenRels) {
 				System.out.println("Calculating deterministic value for "
 						+attenRel.getShortName()+", period="+period);
 				Site gmpeSite = HazardCurvePlotter.setAttenRelParams(
 						attenRel, comp, period, run, site, siteDatas);
 				attenRel.setSite(gmpeSite);
-				double maxVal = 0d;
-				int maxSourceID = -1;
-				int maxRupID = -1;
-				String maxName = null;
+				DeterministicResult maxVal = null;
 				for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 					ProbEqkSource source = erf.getSource(sourceID);
 					if (source.getMinDistance(gmpeSite) > 200d)
@@ -190,20 +215,18 @@ public class GMPEDeterministicComparisonCalc {
 						double stdDev = attenRel.getStdDev();
 						NormalDistribution norm = new NormalDistribution(logMean, stdDev);
 						double val = Math.exp(norm.inverseCumulativeProbability(percentile/100d));
-						if (val > maxVal) {
-							maxVal = val;
-							maxSourceID = sourceID;
-							maxRupID = rupID;
-							maxName = source.getName()+" (M="+(float)rup.getMag()+")";
+						if (maxVal == null || val > maxVal.getVal()) {
+							maxVal = new DeterministicResult(
+									sourceID, rupID, rup.getMag(), source.getName(), val);
 						}
 					}
 				}
-				Preconditions.checkState(maxVal > 0d);
-				maxVal = getScaledValue(attenRel, period, maxVal);
-				line.add(maxSourceID+"");
-				line.add(maxRupID+"");
-				line.add(maxName);
-				line.add(maxVal+"");
+				Preconditions.checkNotNull(maxVal);
+				maxVal.setVal(getScaledValue(attenRel, period, maxVal.getVal()));
+				line.add(maxVal.getSourceID()+"");
+				line.add(maxVal.getRupID()+"");
+				line.add(maxVal.getSourceName()+" (M="+(float)maxVal.getMag()+")");
+				line.add(maxVal.getVal()+"");
 				resultsTable.put(period, attenRel, maxVal);
 			}
 			csv.addLine(line);
@@ -218,14 +241,18 @@ public class GMPEDeterministicComparisonCalc {
 		else
 			perStr = (float)percentile+"";
 		
-		String name = site.short_name+"_run"+run.getRunID()+"_GMPE_Deterministic_"+comp.getShortName();
-		name += "_"+perStr+"per_"+RTGMCalc.dateFormat.format(new Date())+".csv";
+		String name = site.short_name+"_run"+run.getRunID();
+		if (csDeterms == null)
+			name +="_GMPE_Deterministic_";
+		else
+			name +="_Deterministic_";
+		name += comp.getShortName()+"_"+perStr+"per_"+RTGMCalc.dateFormat.format(new Date())+".csv";
 		
 		File outputFile = new File(outputDir, name);
 		csv.writeToFile(outputFile);
 	}
 	
-	public Table<Double, AttenuationRelationship, Double> getResults() {
+	public Table<Double, AttenuationRelationship, DeterministicResult> getResults() {
 		return resultsTable;
 	}
 	

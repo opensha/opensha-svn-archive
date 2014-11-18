@@ -175,7 +175,7 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 	}
 	
 	public String toString() {
-		return this.measure + ": " + this.val + " (" + this.units + ")";
+		return this.measure+" ("+component+"): "+this.val+" ("+this.units+")";
 	}
 	
 	public boolean equals(Object im) {

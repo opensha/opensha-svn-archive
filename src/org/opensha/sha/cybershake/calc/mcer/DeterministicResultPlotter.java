@@ -1,4 +1,4 @@
-package org.opensha.sha.cybershake.calc;
+package org.opensha.sha.cybershake.calc.mcer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -172,6 +172,12 @@ public class DeterministicResultPlotter {
 	}
 	
 	private void plot() throws IOException {
+		plot(csSpectrumMaps, gmpeSpectrumMaps, plotTypes, velPlot, outputDir);
+	}
+	
+	static void plot(Map<String, Map<CyberShakeComponent, DiscretizedFunc>> csSpectrumMaps,
+			Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> gmpeSpectrumMaps,
+			List<PlotType> plotTypes, boolean velPlot, File outputDir) throws IOException {
 		for (String siteName : csSpectrumMaps.keySet()) {
 			Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap = csSpectrumMaps.get(siteName);
 			Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap = gmpeSpectrumMaps.get(siteName);

@@ -21,6 +21,7 @@ package org.opensha.sha.cybershake.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.util.ExceptionUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -659,10 +661,16 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			}
 			rs.close();
 		} catch (SQLException e) {
+			try {
+				if (rs != null)
+					rs.close();
+			} catch (SQLException e1) {}
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
 		
-		sourceIDsForSiteCache.put(siteID, erfID, sourceIDs);
+		Preconditions.checkState(!sourceIDs.isEmpty(), "No sources found for site? SQL: "+sql);
+		
+		sourceIDsForSiteCache.put(siteID, erfID, Collections.unmodifiableList(sourceIDs));
 		rupIDsForSiteCache.put(siteID, erfID, rupIDs);
 	}
 

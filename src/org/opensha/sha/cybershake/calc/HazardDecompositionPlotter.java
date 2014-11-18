@@ -80,14 +80,14 @@ public class HazardDecompositionPlotter {
 		gmpe.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 		gmpe.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);
 		gmpe.setIntensityMeasure(SA_Param.NAME);
-//		String periodFileStr = "3sec";
-//		SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), 3d);
-//		String xAxisLabel = "3sec SA";
-//		CybershakeIM imType = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
-		String periodFileStr = "7.5sec";
-		SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), 7.5d);
-		String xAxisLabel = "7.5sec SA";
-		CybershakeIM imType = new CybershakeIM(138, IMType.SA, 7.5d, null, CyberShakeComponent.RotD100);
+		String periodFileStr = "3sec";
+		SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), 3d);
+		String xAxisLabel = "3sec SA";
+		CybershakeIM imType = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
+//		String periodFileStr = "7.5sec";
+//		SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), 7.5d);
+//		String xAxisLabel = "7.5sec SA";
+//		CybershakeIM imType = new CybershakeIM(138, IMType.SA, 7.5d, null, CyberShakeComponent.RotD100);
 		
 		AbstractERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		

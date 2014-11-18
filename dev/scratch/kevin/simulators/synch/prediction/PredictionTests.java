@@ -515,12 +515,13 @@ public class PredictionTests {
 	}
 
 	public static void main(String[] args) throws IOException {
-		double mean1 = 100d;
-		double sd1 = 0.2;
-		double mean2 = 100d;
-		double sd2 = 0.2;
-//		double corr = 0.5;
-		double corr = 0.9999999999;
+//		double mean1 = 100d;
+//		double sd1 = 0.2;
+//		double mean2 = 100d;
+//		double sd2 = 0.2;
+////		double corr = 0.5;
+////		double corr = 0.9999999999;
+//		double corr = 0;
 //		plotBivariateNormal(corr, mean1, sd1, mean2, sd2, 0l);
 		
 		double minMag = 7d; 
@@ -536,12 +537,12 @@ public class PredictionTests {
 		List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(minMag, maxMag,
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
-//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
+				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA);
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
-				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
+//				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		
 		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		if (fakeData)
@@ -549,8 +550,8 @@ public class PredictionTests {
 			events = generateFakeData2(events, rupIdens, 0.5, 100d, 30d, 100d, 30d, 0l);
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
-		if (rupIdens.size() == 2)
-			new StateSpacePlotter(new EmpiricalMarkovChain(fullPath, distSpacing), rupIdens, null).plotOccupancies();
+//		if (rupIdens.size() == 2)
+//			new StateSpacePlotter(new EmpiricalMarkovChain(fullPath, distSpacing), rupIdens, null).plotOccupancies();
 		
 		int learningIndex = fullPath.size()/2;
 		

@@ -104,22 +104,27 @@ public class Runs2DB {
 	public CybershakeRun getRun(int runID) {
 		String sql = "SELECT * FROM CyberShake_Runs WHERE Run_ID=" + runID;
 		
+		CybershakeRun run = null;
+		ResultSet rs = null;
 		try {
-			ResultSet rs = db.selectData(sql);
+			rs = db.selectData(sql);
 			boolean valid = rs.first();
 			
-			CybershakeRun run = null;
 			if (valid) {
 				run = CybershakeRun.fromResultSet(rs);
 			}
 			
-			rs.close();
-			
-			return run;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {}
+			}
 		}
+		
+		return run;
 	}
 	
 	public CybershakeRun getLatestRun(int siteID, int erfID, int sgtVarID, int rupVarScenID, int velModelID,

@@ -55,7 +55,7 @@ public class SingleCurveDebugTest {
 //		int runID = 215; // PTWN
 		int runID = 576; // s758
 		
-		CybershakeIM imType = new PeakAmplitudesFromDB(db).getIMForPeriod(3d, IMType.SA, CyberShakeComponent.GEOM_MEAN, runID);
+		CybershakeIM imType = new PeakAmplitudesFromDB(db).getSupportedIMForPeriod(3d, IMType.SA, CyberShakeComponent.GEOM_MEAN, runID);
 		
 		calc.setRupProbModifier(div365);
 		DiscretizedFunc origCurve = calc.computeHazardCurve(imlVals, runID, imType);

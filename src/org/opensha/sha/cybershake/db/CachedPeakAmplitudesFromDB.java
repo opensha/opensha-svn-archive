@@ -17,8 +17,11 @@ import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.earthquake.ERF;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -39,8 +42,13 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	 */
 //	private Table<Integer, CybershakeIM, double[][][]> cache;
 	private LoadingCache<CacheKey, double[][][]> cache;
-	private static int maxRuns = 20;
+	private static int maxRuns = 5;
 	private ERF erf;
+	
+	private SiteInfo2DB sites2db;
+	private Runs2DB runs2db;
+	
+	private static int max_rups_per_query = 1000;
 	
 	private class CacheKey {
 		private Integer runID;
@@ -91,7 +99,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 
 		@Override
 		public double[][][] load(CacheKey key) throws Exception {
-			return loadAmps(key.runID, key.im);
+			return getAllIM_Values(key.runID, key.im);
 		}
 		
 	}
@@ -102,6 +110,9 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		this.cacheDir = cacheDir;
 		cache = CacheBuilder.newBuilder().maximumSize(maxRuns).build(new CustomLoader());
 		this.erf = erf;
+		
+		sites2db = new SiteInfo2DB(dbaccess);
+		runs2db = new Runs2DB(dbaccess);
 	}
 
 	@Override
@@ -117,7 +128,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		return Doubles.asList(runVals[srcId][rupId]);
 	}
 	
-	private double[][][] loadAmps(int runID, CybershakeIM im) throws SQLException {
+	public synchronized double[][][] getAllIM_Values(int runID, CybershakeIM im) throws SQLException {
 		double[][][] vals;
 		File cacheFile = getCacheFile(runID, im);
 		if (cacheFile != null && cacheFile.exists()) {
@@ -160,8 +171,39 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	
 	private double[][][] loadAmpsFromDB(int runID, CybershakeIM im) throws SQLException {
 		if (D) System.out.println("Loading amps for "+runID);
+		
+		double[][][] vals = new double[erf.getNumSources()][][];
+		
+		CybershakeRun run = runs2db.getRun(runID);
+		Preconditions.checkNotNull(run, "No run found for "+runID+"?");
+		List<Integer> sourcesLeft = Lists.newArrayList(sites2db.getSrcIdsForSite(run.getSiteID(), run.getERFID()));
+		Preconditions.checkState(!sourcesLeft.isEmpty());
+		
+		while (!sourcesLeft.isEmpty()) {
+			List<Integer> sources = Lists.newArrayList();
+			int numRups = 0;
+			while (numRups < max_rups_per_query && !sourcesLeft.isEmpty()) {
+				int sourceID = sourcesLeft.remove(0);
+				Preconditions.checkState(sourceID<vals.length);
+				numRups += erf.getNumRuptures(sourceID);
+				sources.add(sourceID);
+			}
+			
+			fillInAmpsFromDB(runID, im, sources, vals);
+			for (int sourceID : sources)
+				Preconditions.checkState(vals[sourceID] != null,
+				"Amps not filled in for run="+runID+", im="+im.getID()+", source="+sourceID+". Amps table incomplete?");
+		}
+		
+		return vals;
+	}
+	
+	private void fillInAmpsFromDB(int runID, CybershakeIM im, List<Integer> sources, double[][][] vals)
+			throws SQLException {
+		Preconditions.checkArgument(!sources.isEmpty());
 		String sql = "SELECT Source_ID,Rupture_ID,IM_Value from "+TABLE_NAME+" where Run_ID="+runID
-				+" and IM_Type_ID = '"+im.getID()+"' ORDER BY Source_ID,Rupture_ID,Rup_Var_ID";
+				+" and IM_Type_ID = '"+im.getID()+"' and Source_ID IN ("+Joiner.on(",").join(sources)
+				+") ORDER BY Source_ID,Rupture_ID,Rup_Var_ID";
 		//				System.out.println(sql);
 		ResultSet rs = null;
 		try {
@@ -171,8 +213,11 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			e1.printStackTrace();
 		}
 		boolean valid = rs.first();
-		
-		double[][][] ret = new double[erf.getNumSources()][][];
+		if (!valid) {
+			rs.close();
+			// no matches
+			return;
+		}
 		
 		int prevSourceID = -1;
 		int prevRupID = -1;
@@ -185,15 +230,15 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			
 			if (prevSourceID != sourceID) {
 				// new source
-				Preconditions.checkState(ret[sourceID] == null, "duplicate source?");
-				ret[sourceID] = new double[erf.getNumRuptures(sourceID)][];
+				Preconditions.checkState(vals[sourceID] == null, "duplicate source?");
+				vals[sourceID] = new double[erf.getNumRuptures(sourceID)][];
 			}
 			
 			if (prevSourceID != sourceID || prevRupID != rupID) {
 				if (curIMs != null) {
-					Preconditions.checkState(ret[prevSourceID].length > prevRupID);
-					Preconditions.checkState(ret[prevSourceID][prevRupID] == null, "duplicate rup");
-					ret[prevSourceID][prevRupID] = Doubles.toArray(curIMs);
+					Preconditions.checkState(vals[prevSourceID].length > prevRupID);
+					Preconditions.checkState(vals[prevSourceID][prevRupID] == null, "duplicate rup");
+					vals[prevSourceID][prevRupID] = Doubles.toArray(curIMs);
 				}
 				prevSourceID = sourceID;
 				prevRupID = rupID;
@@ -203,13 +248,11 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			valid = rs.next();
 		}
 		if (!curIMs.isEmpty()) {
-			Preconditions.checkState(ret[prevSourceID].length > prevRupID);
-			Preconditions.checkState(ret[prevSourceID][prevRupID] == null, "duplicate rup");
-			ret[prevSourceID][prevRupID] = Doubles.toArray(curIMs);
+			Preconditions.checkState(vals[prevSourceID].length > prevRupID);
+			Preconditions.checkState(vals[prevSourceID][prevRupID] == null, "duplicate rup");
+			vals[prevSourceID][prevRupID] = Doubles.toArray(curIMs);
 		}
 		rs.close();
-		
-		return ret;
 	}
 	
 	private File getCacheFile(int runID, CybershakeIM im) {
@@ -220,6 +263,20 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	
 	private static void writeCacheFile(double[][][] cache, File file) throws IOException {
 		if (D) System.out.println("Writing cache to "+file.getName());
+		// make sure not empty
+		boolean notNull = false;
+		checkLoop:
+		for (int i=0; i<cache.length; i++) {
+			if (cache[i] != null) {
+				for (int j=0; j<cache[i].length; j++) {
+					if (cache[i][j] != null && cache[i][j].length > 0) {
+						notNull = true;
+						break checkLoop;
+					}
+				}
+			}
+		}
+		Preconditions.checkState(notNull, "No valid values found!");
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
 		out.writeInt(cache.length);
@@ -285,6 +342,25 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		in.close();
 
 		return ret;
+	}
+	
+	public void clearCache() {
+		cache.invalidateAll();
+	}
+	
+	public static void main(String[] args) {
+		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(Cybershake_OpenSHA_DBApplication.db,
+				new File("/tmp/amp_cache"), MeanUCERF2_ToDB.createUCERF2ERF());
+		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
+		int runID = 2703;
+		try {
+			amps2db.getAllIM_Values(runID, im);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			Cybershake_OpenSHA_DBApplication.db.destroy();
+		}
 	}
 
 }

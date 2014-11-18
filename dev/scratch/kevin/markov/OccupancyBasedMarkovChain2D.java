@@ -103,7 +103,7 @@ public class OccupancyBasedMarkovChain2D extends MarkovChain {
 		return dests;
 	}
 	
-	private static double calcMarginalProb(PossibleStates marginal, int startIndex) {
+	public static double calcMarginalProb(PossibleStates marginal, int startIndex) {
 		double freqAt = 0d;
 		double freqAtOrAbove = 0d;
 		

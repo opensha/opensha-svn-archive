@@ -49,6 +49,7 @@ import scratch.kevin.DistSpeedTest;
 import scratch.kevin.markov.EmpiricalMarkovChain;
 import scratch.kevin.markov.IndicesKey;
 import scratch.kevin.markov.MarkovChain;
+import scratch.kevin.markov.OccupancyBasedMarkovChain2D;
 import scratch.kevin.markov.PossibleStates;
 import scratch.kevin.markov.SparseNDimensionalHashDataset;
 import scratch.kevin.simulators.MarkovChainBuilder;

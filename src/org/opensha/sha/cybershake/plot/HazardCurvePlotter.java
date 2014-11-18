@@ -691,7 +691,7 @@ public class HazardCurvePlotter {
 				component = defaultComponent;
 			
 			System.out.println("Matching periods to IM types...");
-			ims = amps2db.getIMForPeriods(periods, imType, component, run.getRunID(), curve2db);
+			ims = amps2db.getSupportedIMForPeriods(periods, imType, component, run.getRunID(), curve2db);
 			
 			if (ims == null) {
 				System.err.println("No IM's for site="+run.getSiteID()+" run="+run.getRunID());
