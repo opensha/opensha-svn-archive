@@ -13,7 +13,7 @@ public abstract class MarkovChain {
 	
 	private double distSpacing;
 	
-	private PossibleStates possibleInitialStates;
+	private PossibleStates occupancy;
 
 	/**
 	 * Just for use interally generating collapsed chains
@@ -31,7 +31,7 @@ public abstract class MarkovChain {
 			PossibleStates possibleInitialStates) {
 		this.nDims = nDims;
 		this.distSpacing = distSpacing;
-		this.possibleInitialStates = possibleInitialStates;
+		this.occupancy = possibleInitialStates;
 	}
 
 	public int getNDims() {
@@ -42,8 +42,8 @@ public abstract class MarkovChain {
 		return distSpacing;
 	}
 
-	public PossibleStates getPossibleInitialStates() {
-		return possibleInitialStates;
+	public PossibleStates getOccupancy() {
+		return occupancy;
 	}
 	
 	/**

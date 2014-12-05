@@ -49,6 +49,12 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 	}
 	
 	@Override
+	public void setAutoMemDetect(boolean autoMemDetect) {
+		Preconditions.checkState(!autoMemDetect, "Not supported for FastMPJ as will only affect node 0");
+		super.setAutoMemDetect(autoMemDetect);
+	}
+
+	@Override
 	public List<String> buildScript(List<String> classNames, List<String> argss) {
 		ArrayList<String> script = new ArrayList<String>();
 		

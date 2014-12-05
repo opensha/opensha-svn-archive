@@ -319,7 +319,7 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 	}
 		
 	@Override
-	public XYZ_DataSet copy() {
+	public EvenlyDiscrXYZ_DataSet copy() {
 		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(nx, ny, minX, minY, gridSpacingX, gridSpacingY);
 		for (int x=0; x<nx; x++) {
 			for (int y=0; y<ny; y++) {
@@ -381,6 +381,32 @@ public class EvenlyDiscrXYZ_DataSet extends AbstractXYZ_DataSet {
 		for (int yInd=0; yInd<ny; yInd++)
 			func.set(yInd, get(xInd, yInd));
 		
+		return func;
+	}
+	
+	/**
+	 * Returns the diagonal going in the positive x and y direction starting at the
+	 * given point. X values in the returned function start at 0 and increase by the
+	 * two dimensional distance: sqrt(spacingX^2 + spacingY^2)
+	 * @param xInd
+	 * @param yInd
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getDiag(int xInd, int yInd) {
+		int numX = getNumX() - xInd;
+		int numY = getNumY() - yInd;
+		int num;
+		if (numX < numY)
+			num = numX;
+		else
+			num = numY;
+		double dist = Math.sqrt(gridSpacingX*gridSpacingX + gridSpacingY*gridSpacingY);
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0, ny, dist);
+		for (int index=0; index<num; index++) {
+			func.set(index, get(xInd, yInd));
+			xInd++;
+			yInd++;
+		}
 		return func;
 	}
 

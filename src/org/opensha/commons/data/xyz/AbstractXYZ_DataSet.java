@@ -69,6 +69,14 @@ public abstract class AbstractXYZ_DataSet implements XYZ_DataSet {
 	public double getMaxZ() {
 		return getZTracker().getMax();
 	}
+	
+	@Override
+	public double getSumZ() {
+		double sum = 0d;
+		for (int index=0; index<size(); index++)
+			sum += get(index);
+		return sum;
+	}
 
 	@Override
 	public void setAll(XYZ_DataSet dataset) {

@@ -85,7 +85,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 //		double minVal = 0.5d*distSpacing;
 		
 		// now pick random initial state from the distribution of total states
-		int[] prevState = chain.getPossibleInitialStates().drawState();
+		int[] prevState = chain.getOccupancy().drawState();
 		
 		double maxTime = events.get(events.size()-1).getTimeInYears();
 		double startTime = events.get(0).getTimeInYears();

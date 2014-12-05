@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.MarkovChain;
 import scratch.kevin.markov.PossibleStates;
 
 public class MarkovPredictor implements Predictor {
@@ -64,9 +65,16 @@ public class MarkovPredictor implements Predictor {
 	
 	@Override
 	public double[] getRuptureProbabilities(int[] prevState) {
+		if (chain.getDestinationStates(prevState) == null)
+			numMisses++;
+		totPredictions++;
+		return getRuptureProbabilities(chain, backupPredictor, prevState);
+	}
+	
+	public static double[] getRuptureProbabilities(MarkovChain chain, Predictor backupPredictor, int[] prevState) {
 		double[] ret = new double[prevState.length];
 		
-		PossibleStates possible = chain.getStateTransitionDataset().get(prevState);
+		PossibleStates possible = chain.getDestinationStates(prevState);
 		if (possible != null) {
 			// first fill ret with frequencies
 			List<int[]> states = possible.getStates();
@@ -85,11 +93,9 @@ public class MarkovPredictor implements Predictor {
 			for (int i=0; i<ret.length; i++)
 				ret[i] = ret[i]/totFreq;
 		} else {
-			numMisses++;
 			if (backupPredictor != null)
 				ret = backupPredictor.getRuptureProbabilities();
 		}
-		totPredictions++;
 		
 		return ret;
 	}

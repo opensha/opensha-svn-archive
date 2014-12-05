@@ -4,9 +4,11 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
@@ -38,6 +40,15 @@ public class RupLengthHistogramGenerator {
 		// fraction of earthquakes
 		// rupture length
 		
+		double min = 25d;
+		int num = 25;
+		double delta = 50d;
+		int[] counts = new int[num+1];
+		double[] rates = new double[num+1];
+		double[] moRates = new double[num+1];
+		
+		double halfDelta = 0.5*delta;
+		
 		FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		
@@ -49,30 +60,44 @@ public class RupLengthHistogramGenerator {
 		if (doU2)
 			u2sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
 		
-		HistogramFunction hist = new HistogramFunction(25, 25, 50d);
-		HistogramFunction u2hist = new HistogramFunction(25, 25, 50d);
-		HistogramFunction asDisrHist = new HistogramFunction(25, 25, 50d);
-		HistogramFunction asDisrU2Hist = new HistogramFunction(25, 25, 50d);
-		HistogramFunction momentHist = new HistogramFunction(25, 25, 50d);
-		HistogramFunction u2momentHist = new HistogramFunction(25, 25, 50d);
-		double maxLen = hist.getMaxX()+25;
+		HistogramFunction hist = new HistogramFunction(min, num, delta);
+		HistogramFunction u2hist = new HistogramFunction(min, num, delta);
+		HistogramFunction asDisrHist = new HistogramFunction(min, num, delta);
+		HistogramFunction asDisrU2Hist = new HistogramFunction(min, num, delta);
+		HistogramFunction momentHist = new HistogramFunction(min, num, delta);
+		HistogramFunction u2momentHist = new HistogramFunction(min, num, delta);
+		double maxLen = hist.getMaxX()+halfDelta;
 		
 		double totRate = StatUtils.sum(sol.getRateForAllRups());
 		double rateScale = 1;
 		if (scaleToTotal != 1)
 			rateScale = scaleToTotal / totRate;
 		
+		double maxLengthFound = 0d;
+		
 		for (int r=0; r<rupSet.getNumRuptures(); r++) {
 			double rate = sol.getRateForRup(r);
-			double moment = MagUtils.momentToMag(rupSet.getMagForRup(r));
+			double moment = MagUtils.magToMoment(rupSet.getMagForRup(r));
 			double scaledRate = rate*rateScale;
 			double length = rupSet.getLengthForRup(r)/1000d; // m to km
+			
+			if (length > maxLengthFound)
+				maxLengthFound = length;
+			
+			int index;
 			
 			if (length < maxLen) {
 				hist.add(length, scaledRate);
 				momentHist.add(length, moment*rate);
 				asDisrHist.add(length, 1d);
+				index = hist.getClosestXIndex(length);
+			} else {
+				index = counts.length-1;
 			}
+			
+			counts[index]++;
+			rates[index] += rate;
+			moRates[index] += moment*rate;
 		}
 //		asDisrHist.scale(1d/totRate);
 		
@@ -84,7 +109,7 @@ public class RupLengthHistogramGenerator {
 			
 			for (int r=0; r<u2rupSet.getNumRuptures(); r++) {
 				double rate = u2sol.getRateForRup(r);
-				double moment = MagUtils.momentToMag(u2rupSet.getMagForRup(r));
+				double moment = MagUtils.magToMoment(u2rupSet.getMagForRup(r));
 				double scaledRate = rate*rateScale;
 				double length = u2rupSet.getLengthForRup(r)/1000d; // m to km
 				
@@ -142,6 +167,32 @@ public class RupLengthHistogramGenerator {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 5f, Color.RED));
 		new GraphWindow(funcs, "Cumulative Moment Rates", chars);
+		
+		CSVFile<String> csv = new CSVFile<String>(true);
+		csv.addLine("Bin Start", "Bin End", "# Ruptures", "Sum Rate", "Sum Moment Rate");
+		for (int i=0; i<counts.length; i++) {
+			if (counts[i] == 0)
+				break;
+			List<String> line = Lists.newArrayList();
+			
+			double start, end;
+			if (i == hist.getNum()) {
+				start = hist.getMaxX()+halfDelta;
+				end = maxLengthFound;
+			} else {
+				start = hist.getX(i)-halfDelta;
+				end = hist.getX(i)+halfDelta;
+			}
+			
+			line.add((float)start+"");
+			line.add((float)end+"");
+			line.add(counts[i]+"");
+			line.add((float)rates[i]+"");
+			line.add((float)moRates[i]+"");
+			
+			csv.addLine(line);
+		}
+		csv.writeToFile(new File("/tmp/length_counts.csv"));
 	}
 
 }

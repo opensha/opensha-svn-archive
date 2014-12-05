@@ -27,7 +27,7 @@ public class JavaShellScriptWriter implements XMLSaveable {
 	private boolean headless;
 	private Map<String, String> properties;
 	
-	private int autoMemBufferMB = 3000;
+	private int autoMemBufferMB = 5000;
 	private boolean autoMemDetect = false;
 	
 	public JavaShellScriptWriter(File javaBin, int maxHeapSizeMB, Collection<File> classpath) {

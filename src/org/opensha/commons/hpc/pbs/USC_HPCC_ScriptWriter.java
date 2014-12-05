@@ -13,6 +13,7 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 	public static final File JAVA_BIN = new File("/usr/usc/jdk/1.7.0_25/bin/java");
 	
 	private String nodesAddition;
+	private int perNodeMemGB = -1;
 	
 	public USC_HPCC_ScriptWriter() {
 		this(null);
@@ -29,6 +30,10 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 	public void setNodesAddition(String nodesAddition) {
 		this.nodesAddition = nodesAddition;
 	}
+	
+	public void setPerNodeMemGB(int perNodeMemGB) {
+		this.perNodeMemGB = perNodeMemGB;
+	}
 
 	@Override
 	public List<String> getBatchHeader(int mins, int nodes,
@@ -38,10 +43,17 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 		if (queue != null && !queue.isEmpty())
 			pbs.add("#PBS -q "+queue);
 		String dashL = "#PBS -l walltime=00:"+mins+":00,nodes="+nodes;
+		
 		if (nodesAddition != null && !nodesAddition.isEmpty())
 			dashL += ":"+nodesAddition;
+		if (perNodeMemGB > 0 && ppn <= 0)
+			ppn = 1;
 		if (ppn > 0)
 			dashL += ":ppn="+ppn;
+		if (perNodeMemGB > 0) {
+			int memPerProcess = perNodeMemGB/ppn;
+			dashL += ",pmem="+memPerProcess+"gb";
+		}
 		pbs.add(dashL);
 		pbs.add("#PBS -V");
 		pbs.add("");

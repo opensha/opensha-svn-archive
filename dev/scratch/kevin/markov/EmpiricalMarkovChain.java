@@ -69,7 +69,7 @@ public class EmpiricalMarkovChain extends MarkovChain {
 		stateCount += 1d;
 		totalStatesDataset.set(toState, stateCount);
 		
-		PossibleStates possibleInitialStates = getPossibleInitialStates();
+		PossibleStates possibleInitialStates = getOccupancy();
 
 		// register this state as a transition from the previous state
 		if (fromState != null) {

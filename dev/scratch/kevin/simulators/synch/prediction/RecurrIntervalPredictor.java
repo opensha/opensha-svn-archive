@@ -3,6 +3,8 @@ package scratch.kevin.simulators.synch.prediction;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -12,6 +14,8 @@ public class RecurrIntervalPredictor implements Predictor {
 	private List<List<Double>> occFreqs;
 	private int[] prevState;
 	private int nDims;
+	
+	private double distSpacing;
 	
 	private int stateCount = 0;
 
@@ -30,6 +34,7 @@ public class RecurrIntervalPredictor implements Predictor {
 		rupFreqs = Lists.newArrayList();
 		occFreqs = Lists.newArrayList();
 		nDims = initialPath.get(0).length;
+		this.distSpacing = distSpacing;
 		
 		for (int i=0; i<nDims; i++) {
 			rupFreqs.add(new ArrayList<Double>());
@@ -95,6 +100,26 @@ public class RecurrIntervalPredictor implements Predictor {
 		}
 		
 		return ret;
+	}
+	
+	public EvenlyDiscretizedFunc getOccupancyDist(int index, int size) {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.5*distSpacing, size, distSpacing);
+		
+		List<Double> occs = occFreqs.get(index);
+		
+		for (int i=0; i<size; i++) {
+			double occ;
+			if (i >= occs.size())
+				occ = 0d;
+			else
+				occ = occs.get(i);
+			
+			func.set(i, occ);
+		}
+		
+		func.scale(1d/func.calcSumOfY_Vals());
+		
+		return func;
 	}
 
 	@Override

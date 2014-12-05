@@ -77,6 +77,11 @@ public interface XYZ_DataSet extends java.io.Serializable, Cloneable {
 	public double getMaxZ();
 	
 	/**
+	 * @return the sum of all Z values
+	 */
+	public double getSumZ();
+	
+	/**
 	 * Sets the value at the given point. If the point doesn't exist, it will be added
 	 * to the dataset.
 	 * 

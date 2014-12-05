@@ -582,7 +582,7 @@ public class MCERDataProductsCalc {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			String argStr = "--run-id 2657,3037,2722,3022,3030,3027,2636,2638,2660,2703,3504,2988,2965,3007";
 			argStr += " --component RotD100";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER";
+			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
 			argStr += " --erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF.xml";
 			argStr += " --atten-rel-file src/org/opensha/sha/cybershake/conf/ask2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"

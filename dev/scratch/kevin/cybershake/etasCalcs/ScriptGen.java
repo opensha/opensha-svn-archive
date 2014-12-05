@@ -7,22 +7,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
+import org.opensha.sha.cybershake.etas.ETASModProbConfig.ETAS_CyberShake_Scenarios;
 
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class ScriptGen {
-
-	private static enum Scenarios {
-		BOMBAY_BEACH_CAT,
-		BOMBAY_BEACH_SINGLE,
-		BOMBAY_BEACH_M6,
-		PARKFIELD
-	}
 
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
@@ -32,12 +28,20 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH};
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
-		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6, Scenarios.PARKFIELD};
+		ETAS_CyberShake_Scenarios[] scenarios = {
+				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
+				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+				ETAS_CyberShake_Scenarios.PARKFIELD,
+				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
 		boolean timeIndep = false;
 		int numSims = 20000;
-		String nameAdd = "-nospont-round6";
+//		String nameAdd = "-nospont-round6";
+		String nameAdd = "-round5";
 		
-		int memGigs;
+//		int memGigs = 9;
+//		int perNodeMemGB = 0;
+		int memGigs = 10;
+		int perNodeMemGB = 32;
 		int mins = 24*60;
 		int nodes = 99;
 		int ppn = 8;
@@ -47,18 +51,17 @@ public class ScriptGen {
 		FastMPJShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
-		memGigs = 9;
 		remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/cybershake");
 		remoteSolFile = new File(remoteDir, "ucerf2_mapped_sol.zip");
 		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 		pbsWrite = new USC_HPCC_ScriptWriter();
-		mpjWrite.setAutoMemDetect(true);
+		((USC_HPCC_ScriptWriter)pbsWrite).setPerNodeMemGB(perNodeMemGB);
 		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
-		for (Scenarios scenario : scenarios) {
+		for (ETAS_CyberShake_Scenarios scenario : scenarios) {
 			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
 			if (timeIndep)
 				jobName += "-indep";
@@ -78,23 +81,22 @@ public class ScriptGen {
 			
 			String argz = "--min-dispatch 1 --max-dispatch 1 --no-spontaneous --num "+numSims
 					+" --sol-file "+remoteSolFile.getAbsolutePath();
-			switch (scenario) {
-			case BOMBAY_BEACH_CAT:
-				argz += " --trigger-catalog "+(new File(remoteDir, "bombay_catalog.txt")).getAbsolutePath();
-				break;
-			case BOMBAY_BEACH_SINGLE:
-				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 4.8";
-				break;
-			case BOMBAY_BEACH_M6:
-				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 6.0";
-				break;
-			case PARKFIELD:
-				argz += " --trigger-rupture-id 30473";
-				break;
-
-			default:
-				throw new IllegalStateException("unknown scenario: "+scenario);
+//			case BOMBAY_BEACH_CAT:
+//				argz += " --trigger-catalog "+(new File(remoteDir, "bombay_catalog.txt")).getAbsolutePath();
+//				break;
+//			case BOMBAY_BEACH_SINGLE:
+//				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 4.8";
+//				break;
+			Preconditions.checkState(scenario.getTriggerRupIndex() >= 0
+					|| (scenario.getTriggerLoc() != null && scenario.getTriggerMag() > 0d));
+			if (scenario.getTriggerRupIndex() >= 0) {
+				argz += " --trigger-rupture-id "+scenario.getTriggerRupIndex();
+			} else {
+				Location loc = scenario.getTriggerLoc();
+				argz += " --trigger-loc "+loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth();
 			}
+			if (scenario.getTriggerMag() > 0d)
+				argz += " --trigger-mag "+scenario.getTriggerMag();
 			if (timeIndep)
 				argz += " --indep";
 			argz += " "+remoteDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();

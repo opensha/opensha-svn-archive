@@ -1795,7 +1795,7 @@ public class SynchParamCalculator {
 		double numM = 0;
 		double numN = 0;
 		
-		PossibleStates possibleInitialStates = chain.getPossibleInitialStates();
+		PossibleStates possibleInitialStates = chain.getOccupancy();
 		for (int[] state : possibleInitialStates.getStates()) {
 			double freq = possibleInitialStates.getFrequency(state);
 			numWindows += freq;

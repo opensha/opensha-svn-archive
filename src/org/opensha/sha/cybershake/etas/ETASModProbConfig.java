@@ -21,9 +21,11 @@ import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -35,6 +37,7 @@ import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.eew.ZeroProbMod;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -65,8 +68,10 @@ import com.google.common.io.CharStreams;
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	public enum ETAS_CyberShake_Scenarios {
-		PARKFIELD("Parkfield Scenario", 8),
-		BOMBAY_M6("Bombay Beach M6 Scenario", 9),
+		PARKFIELD("Parkfield Scenario", 8, 30473),
+		BOMBAY_BEACH_M6("Bombay Beach M6 Point Scenario", 9, new Location(33.31833333333334,-115.72833333333335,5.8), 6.0),
+		BOMBAY_BEACH_BRAWLEY_FAULT_M6("Bombay Beach M6 Fault Scenario", -1, 238408),
+		MOJAVE_S_POINT_M6("Mojave M6 Point Scenario", -1, new Location(34.42295,-117.80177,5.8), 6.0),
 		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
 		TEST_BOMBAY_M6_SUBSET_FIRST("Bombay Beach M6 Scenario First Half", -1),
 		TEST_BOMBAY_M6_SUBSET_SECOND("Bombay Beach M6 Scenario Second Half", -1),
@@ -76,9 +81,32 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		private int probModelID;
 		private String name;
+		private int triggerRupIndex;
+		private Location triggerLoc;
+		private double triggerMag;
 		private ETAS_CyberShake_Scenarios(String name, int probModelID) {
+			this(name, probModelID, -1);
+		}
+		
+		private ETAS_CyberShake_Scenarios(String name, int probModelID, int triggerRupIndex) {
+			this(name, probModelID, triggerRupIndex, null, Double.NaN);
+		}
+		
+		private ETAS_CyberShake_Scenarios(String name, int probModelID, Location triggerLoc, double triggerMag) {
+			this(name, probModelID, -1, triggerLoc, triggerMag);
+		}
+		
+		private ETAS_CyberShake_Scenarios(String name, int probModelID, int triggerRupIndex,
+				Location triggerLoc, double triggerMag) {
+			this.triggerRupIndex = triggerRupIndex;
+			this.triggerLoc = triggerLoc;
+			this.triggerMag = triggerMag;
 			this.probModelID = probModelID;
 			this.name = name;
+		}
+		
+		public boolean isETAS() {
+			return triggerRupIndex >= 0 || triggerLoc != null;
 		}
 		
 		@Override
@@ -88,6 +116,18 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		public int getProbModelID() {
 			return probModelID;
+		}
+
+		public int getTriggerRupIndex() {
+			return triggerRupIndex;
+		}
+
+		public Location getTriggerLoc() {
+			return triggerLoc;
+		}
+
+		public double getTriggerMag() {
+			return triggerMag;
 		}
 	}
 	
@@ -155,6 +195,14 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	private Map<IDPairing, Map<Double, List<Integer>>> rvProbs;
 	private List<RVProbSortable> rvProbsSortable;
+	
+	private double[][] fractOccurances;
+	
+	private double normalizedTriggerRate = 0d;
+	
+	// if set to true, will bump up probability for all RVs equally instead of the closest hypocenters to
+	// the etas rupture hypos
+	private boolean triggerAllHyposEqually = false;
 
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
 			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile)
@@ -583,6 +631,14 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		System.out.println("Done loading hypos");
 	}
 	
+	public void setNormTriggerRate(double normalizedTriggerRate) {
+		this.normalizedTriggerRate = normalizedTriggerRate;
+		// clear all caches
+		rvProbs = null;
+		rvProbsSortable = null;
+		mod = null;
+	}
+	
 	private void loadRVProbs() {
 		// loads in probabilities for rupture variations from the ETAS catalogs
 		
@@ -595,9 +651,25 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		// TODO correctly deal with exceedence probs, as a rup can happen more than once in a catalog 
 		MinMaxAveTracker rvTrack = new MinMaxAveTracker();
 		
+		double occurMult = 1d;
+		if (normalizedTriggerRate > 0d) {
+			// we're normalizing the rate of triggered events
+			double actualTriggerCount = 0d;
+			for (List<ETAS_EqkRupture> catalog : catalogs)
+				actualTriggerCount += catalog.size();
+			// this is the rate of triggered ruptures
+			actualTriggerCount /= catalogs.size();
+			
+			occurMult = normalizedTriggerRate/actualTriggerCount;
+		}
+		
 		// map from ID pairing to <rv ID, fractional num etas occurrences>
 		Map<IDPairing, Map<Integer, Double>> rvOccurCountsMap = Maps.newHashMap();
 		Map<IDPairing, List<Integer>> allRVsMap = Maps.newHashMap();
+		
+		fractOccurances = new double[ucerf2.getNumSources()][];
+		
+		double singleFractRate = 1d/(double)catalogs.size();
 		
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
@@ -605,6 +677,12 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				Preconditions.checkNotNull(hypo);
 				IDPairing pair = rupMappingTable.get(rup.getFSSIndex());
 				Preconditions.checkNotNull(pair);
+				double[] sourceOccurances = fractOccurances[pair.getID1()];
+				if (sourceOccurances == null) {
+					sourceOccurances = new double[ucerf2.getNumRuptures(pair.getID1())];
+					fractOccurances[pair.getID1()] = sourceOccurances;
+				}
+				sourceOccurances[pair.getID2()] += singleFractRate;
 				Map<Location, List<Integer>> rvHypoLocs = rvHypoLocations.get(rup.getFSSIndex());
 				
 				List<Integer> allRVsList = Lists.newArrayList();
@@ -638,7 +716,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				}
 				
 				// each mapped rv gets a fractional occurance, adding up to one
-				double fractionalOccur = 1d/(double)toBePromoted.size();
+				double fractionalOccur = occurMult/(double)toBePromoted.size();
 				for (int rvIndex : toBePromoted) {
 					Double count = rvCounts.get(rvIndex);
 					if (count == null)
@@ -750,6 +828,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		}
 	}
 	
+	public void setTriggerAllHyposEqually(boolean triggerAllHyposEqually) {
+		this.triggerAllHyposEqually = triggerAllHyposEqually;
+	}
+	
 	private RuptureProbabilityModifier rupProbMod;
 
 	@Override
@@ -767,7 +849,11 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 					if (fssIndex == null)
 						return 0d;
 					double rupRate = sol.getRateForRup(fssIndex);
-					double prob = 1-Math.exp(-aftRateCorr*rupRate*duration);
+					double durationAdjustedRate = rupRate * duration;
+					if (triggerAllHyposEqually && fractOccurances != null && fractOccurances[sourceID] != null)
+						// this means we're applying rate increases to the whole rupture not just specifi RVs
+						durationAdjustedRate += fractOccurances[sourceID][rupID];
+					double prob = 1-Math.exp(-aftRateCorr*durationAdjustedRate);
 					return prob;
 				}
 			};
@@ -790,7 +876,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	@Override
 	public synchronized RuptureVariationProbabilityModifier getRupVarProbModifier() {
 		if (scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2
-				|| scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP)
+				|| scenario == ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP || triggerAllHyposEqually)
 			return null;
 		try {
 			if (catalogs == null) {
@@ -822,6 +908,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		@Override
 		public Map<Double, List<Integer>> getVariationProbs(int sourceID,
 				int rupID, double originalProb) {
+			if (triggerAllHyposEqually)
+				return null;
 			return rvProbs.get(new IDPairing(sourceID, rupID));
 		}
 		
@@ -971,6 +1059,76 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	ERF getCS_UCERF2_ERF() {
 		return ucerf2;
+	}
+	
+	public ERF getModERFforGMPE() {
+		final double timeRateMultiplier = timeSpan.getTimeYears();
+		return new AbstractERF() {
+			
+			@Override
+			public String getName() {
+				return scenario.name()+" ETAS MODIFIED UCERF2";
+			}
+			
+			@Override
+			public void updateForecast() {
+				
+			}
+			
+			@Override
+			public ProbEqkSource getSource(int sourceID) {
+				final ProbEqkSource orig = ucerf2.getSource(sourceID);
+				final List<ProbEqkRupture> modRups = Lists.newArrayList();
+				for (int rupID=0; rupID<orig.getNumRuptures(); rupID++) {
+					double fractOccur;
+					if (fractOccurances != null && fractOccurances[sourceID] != null)
+						fractOccur = fractOccurances[sourceID][rupID];
+					else
+						fractOccur = 0d;
+					final ProbEqkRupture origRup = orig.getRupture(rupID);
+					double origProb = origRup.getProbability();
+					double origRate = -Math.log(1d-origProb); // 1 year, don't need to divide by years
+					// convert to the correct time span and modify for trigger rate
+					double modRate = origRate*timeRateMultiplier + fractOccur;
+					double modProb = 1-Math.exp(-modRate);
+					modRups.add(new ProbEqkRupture(origRup.getMag(), origRup.getAveRake(),
+							modProb, origRup.getRuptureSurface(), null));
+				}
+				ProbEqkSource mod = new ProbEqkSource() {
+					
+					@Override
+					public RuptureSurface getSourceSurface() {
+						return orig.getSourceSurface();
+					}
+					
+					@Override
+					public LocationList getAllSourceLocs() {
+						return orig.getAllSourceLocs();
+					}
+					
+					@Override
+					public ProbEqkRupture getRupture(int nRupture) {
+						return modRups.get(nRupture);
+					}
+					
+					@Override
+					public int getNumRuptures() {
+						return orig.getNumRuptures();
+					}
+					
+					@Override
+					public double getMinDistance(Site site) {
+						return orig.getMinDistance(site);
+					}
+				};
+				return mod;
+			}
+			
+			@Override
+			public int getNumSources() {
+				return ucerf2.getNumSources();
+			}
+		};
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {

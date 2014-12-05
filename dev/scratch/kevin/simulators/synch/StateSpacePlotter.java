@@ -12,6 +12,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotPreferences;
@@ -21,6 +22,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
@@ -82,24 +84,7 @@ public class StateSpacePlotter {
 			for (int j=i+1; j<nDims; j++) {
 				String name2 = names.get(j).getName();
 				
-				EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
-				
-				PossibleStates occupancy = chain.getPossibleInitialStates();
-				double sumZ = 0d;
-				for (int[] state : occupancy.getStates()) {
-					int xInd = state[i];
-					int yInd = state[j];
-					
-					if (xInd >= xyz.getNumX() || yInd >= xyz.getNumY())
-						continue;
-					
-					double freq = occupancy.getFrequency(state);
-					
-					xyz.set(xInd, yInd, xyz.get(xInd, yInd)+freq);
-					sumZ += freq;
-				}
-				
-				xyz.scale(1d/sumZ);
+				EvenlyDiscrXYZ_DataSet xyz = getOccupancy(i, j);
 				
 				CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, xyz.getMaxZ());
 				
@@ -108,7 +93,30 @@ public class StateSpacePlotter {
 		}
 	}
 	
-	public void plotProbEither() throws IOException {
+	public EvenlyDiscrXYZ_DataSet getOccupancy(int i, int j) {
+		EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
+		
+		PossibleStates occupancy = chain.getOccupancy();
+		double sumZ = 0d;
+		for (int[] state : occupancy.getStates()) {
+			int xInd = state[i];
+			int yInd = state[j];
+			
+			if (xInd >= xyz.getNumX() || yInd >= xyz.getNumY())
+				continue;
+			
+			double freq = occupancy.getFrequency(state);
+			
+			xyz.set(xInd, yInd, xyz.get(xInd, yInd)+freq);
+			sumZ += freq;
+		}
+		
+		xyz.scale(1d/sumZ);
+		
+		return xyz;
+	}
+	
+	public void plotProb(MarkovProb prob) throws IOException {
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, 1d);
 		cpt.setNanColor(Color.WHITE);
 		
@@ -117,24 +125,36 @@ public class StateSpacePlotter {
 			for (int j=i+1; j<nDims; j++) {
 				String name2 = names.get(j).getName();
 				
-				EvenlyDiscrXYZ_DataSet xyz = getMarkovXYZ(MarkovProb.EITHER, i, j);
+				EvenlyDiscrXYZ_DataSet xyz = getMarkovXYZ(prob, i, j);
 				
-				plot2D(xyz, cpt, name1, name2, "Prob Either", "prob_either", false);
+				plot2D(xyz, cpt, name1, name2, prob.title, prob.prefix, false);
 			}
 		}
 	}
 	
-	private enum MarkovProb {
-		E1,
-		E2,
-		EITHER,
-		BOTH,
-		NONE
+	public void plotProbEither() throws IOException {
+		plotProb(MarkovProb.EITHER);
+	}
+	
+	public enum MarkovProb {
+		E1("P(E1)", "prob_e1"),
+		E2("P(E2)", "prob_e2"),
+		EITHER("Prob Either", "prob_either"),
+		BOTH("Prob Both", "prob_both"),
+		NONE("Prob None", "prob_none");
+		
+		private String title;
+		private String prefix;
+		
+		private MarkovProb(String title, String prefix) {
+			this.title = title;
+			this.prefix = prefix;
+		}
 	}
 	
 	private EvenlyDiscrXYZ_DataSet getMarkovXYZ(MarkovProb type, int i, int j) {
 		MarkovChain collapsed = chain.getCollapsedChain(i, j);
-		collapsed = new OccupancyBasedMarkovChain2D(chain.getDistSpacing(), collapsed.getPossibleInitialStates());
+//		collapsed = new OccupancyBasedMarkovChain2D(chain.getDistSpacing(), collapsed.getOccupancy());
 		
 		EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
 		
@@ -188,21 +208,137 @@ public class StateSpacePlotter {
 		return xyz;
 	}
 	
+	public void plotDiagonals(double occThreshold) throws IOException {
+		for (int i=0; i<nDims; i++) {
+			String name1 = names.get(i).getName();
+			for (int j=i+1; j<nDims; j++) {
+				String name2 = names.get(j).getName();
+				
+				MarkovChain collapsed = chain.getCollapsedChain(i, j);
+				PossibleStates occupancy = collapsed.getOccupancy();
+				
+				// TODO remove test
+				// make it independent
+//				PossibleStates marginalX = occupancy.getMarginal(0);
+//				PossibleStates marginalY = occupancy.getMarginal(1);
+//				PossibleStates indepOcc = new PossibleStates(null);
+//				for (int[] state : occupancy.getStates()) {
+//					double freqX = marginalX.getFrequency(new int[] {state[0]});
+//					double freqY = marginalY.getFrequency(new int[] {state[1]});
+//					indepOcc.add(state, freqX*freqY);
+//				}
+//				occupancy = indepOcc;
+				
+				int numBins = getNumBins(i, j);
+				
+				List<EvenlyDiscretizedFunc> diags = Lists.newArrayList();
+				List<int[]> startStates = Lists.newArrayList();
+				
+				// first go down the y axis
+				for (int yInd=numBins; --yInd>=0;)
+					startStates.add(new int[] {0, yInd});
+				// now go along the x axis, skipping zero (already got it)
+				for (int xInd=1; xInd<numBins; xInd++)
+					startStates.add(new int[] {xInd, 0});
+				
+				Preconditions.checkState(startStates.size() == numBins*2-1);
+				
+				double totOcc = occupancy.getTot();
+				
+				double maxStartOcc = 0d;
+				for (int[] startState : startStates) {
+					EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.5*distSpacing, numBins, distSpacing);
+					for (int k=0; k<numBins; k++) {
+						int xInd = startState[0]+k;
+						int yInd = startState[1]+k;
+						double freq = occupancy.getFrequency(new int[] {xInd, yInd});
+						if (freq == 0d)
+							break;
+						func.set(k, freq);
+					}
+					if (func.getY(0) > maxStartOcc)
+						maxStartOcc = func.getY(0);
+					float occPercent = (float)(100d*func.calcSumOfY_Vals()/totOcc);
+					func.setName("Start: ["+startState[0]+","+startState[1]+"]. "+occPercent+" % Of Occ");
+					diags.add(func);
+				}
+				
+				int centerIndex = numBins-1;
+				int[] centerState = startStates.get(centerIndex);
+				Preconditions.checkState(centerState[0] == 0 && centerState[1] == 0,
+						"Bad center index: ["+centerState[0]+","+centerState[1]+"]");
+				int numPerSideToInclude = 0;
+				for (int k=0; k<diags.size(); k++) {
+					EvenlyDiscretizedFunc func = diags.get(k);
+					double fractOfOcc = func.calcSumOfY_Vals()/totOcc;
+					if (fractOfOcc >= occThreshold) {
+						int dist = k-centerIndex;
+						if (dist < 0)
+							dist = -dist;
+						if (dist > numPerSideToInclude)
+							numPerSideToInclude = dist;
+					}
+				}
+				if (numPerSideToInclude < 8)
+					numPerSideToInclude = 8;
+				
+				List<DiscretizedFunc> funcs = Lists.newArrayList();
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				int expectedNum = numPerSideToInclude*2+1;
+				CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, expectedNum);
+				for (int k=centerIndex-numPerSideToInclude; k<=centerIndex+numPerSideToInclude; k++) {
+					EvenlyDiscretizedFunc func = diags.get(k).deepClone();
+					func.scale(1d/func.getY(0));
+					Color c;
+					if (k == centerIndex)
+						c = Color.BLACK;
+					else
+						c = cpt.getColor(funcs.size());
+					funcs.add(func);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+				}
+				Preconditions.checkState(funcs.size() == expectedNum);
+				
+				PlotSpec spec = new PlotSpec(funcs, chars, name1+" vs "+name2, "Time (years)", "Scaled Occ Diags");
+				plot1D(spec, name1, name2, "diag_scaled");
+				
+				// now do a stacked version
+				cpt = cpt.rescale(0, maxStartOcc);
+				funcs = Lists.newArrayList();
+				chars = Lists.newArrayList();
+				
+				for (int k=centerIndex-numPerSideToInclude; k<=centerIndex+numPerSideToInclude; k++) {
+					EvenlyDiscretizedFunc func = diags.get(k).deepClone();
+					double origStart = func.getY(0);
+					func.scale(1d/func.getY(0));
+					double add = k - centerIndex - 1;
+					for (int l=0; l<func.getNum(); l++)
+						func.add(l, add);
+					Color c;
+//					if (k == centerIndex)
+//						c = Color.BLACK;
+//					else
+						c = cpt.getColor((float)origStart);
+					funcs.add(func);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+				}
+				Preconditions.checkState(funcs.size() == expectedNum);
+				
+				spec = new PlotSpec(funcs, chars, name1+" vs "+name2, "Time (years)", "Stacked Occ Diags");
+				plot1D(spec, name1, name2, "diag_stacked");
+			}
+		}
+	}
+	
 	private void plot2D(EvenlyDiscrXYZ_DataSet xyz, CPT cpt, String name1, String name2,
 			String zLabel, String filePrefix, boolean marginals) throws IOException {
+		plot2D(xyz, cpt, name1, name2, zLabel, filePrefix, marginals, outputDir);
+	}
+	
+	public static void plot2D(EvenlyDiscrXYZ_DataSet xyz, CPT cpt, String name1, String name2,
+			String zLabel, String filePrefix, boolean marginals, File outputDir) throws IOException {
 		XYZPlotSpec xyzSpec = new XYZPlotSpec(xyz, cpt, name1+" "+name2+" "+zLabel,
 				name1+" OI", name2+" OI", zLabel);
-		List<DiscretizedFunc> marginals1 = Lists.newArrayList();
-		List<DiscretizedFunc> marginals2 = Lists.newArrayList();
-		EvenlyDiscretizedFunc margeFunc1 = xyz.calcMarginalXDist();
-		EvenlyDiscretizedFunc margeFunc2 = xyz.calcMarginalYDist();
-		marginals1.add(margeFunc1);
-		marginals2.add(margeFunc2);
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
-				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		PlotSpec marginal1 = new PlotSpec(marginals1, chars, name1+" Marginal "+zLabel, "Years", zLabel);
-		PlotSpec marginal2 = new PlotSpec(marginals2, chars, name2+" Marginal "+zLabel, "Years", zLabel);
-		
 //		GraphWindow gw = new GraphWindow(marginal1);
 //		gw = new GraphWindow(marginal2);
 		
@@ -213,6 +349,16 @@ public class StateSpacePlotter {
 		int height = 680;
 		
 		if (marginals) {
+			List<DiscretizedFunc> marginals1 = Lists.newArrayList();
+			List<DiscretizedFunc> marginals2 = Lists.newArrayList();
+			EvenlyDiscretizedFunc margeFunc1 = xyz.calcMarginalXDist();
+			EvenlyDiscretizedFunc margeFunc2 = xyz.calcMarginalYDist();
+			marginals1.add(margeFunc1);
+			marginals2.add(margeFunc2);
+			List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+					new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			PlotSpec marginal1 = new PlotSpec(marginals1, chars, name1+" Marginal "+zLabel, "Years", zLabel);
+			PlotSpec marginal2 = new PlotSpec(marginals2, chars, name2+" Marginal "+zLabel, "Years", zLabel);
 			GraphPanel margGP = new GraphPanel(PlotPreferences.getDefault());
 			margGP.drawGraphPanel(marginal1, false, false);
 			extraPlots = Lists.newArrayList(margGP.getPlot());
@@ -243,9 +389,13 @@ public class StateSpacePlotter {
 	
 	private static int getNBinsForFract(MarkovChain chain, int index, double fractToInclude) {
 		List<Integer> indexes = Lists.newArrayList();
-		PossibleStates marginal = chain.getPossibleInitialStates().getMarginal(index);
+		PossibleStates marginal = chain.getOccupancy().getMarginal(index);
+		double totOcc = marginal.getTot();
+		double scalar = 1d;
+		if (totOcc < 1000)
+			scalar = 1000d/totOcc;
 		for (int[] state : marginal.getStates()) {
-			double freq = marginal.getFrequency(state);
+			double freq = marginal.getFrequency(state)*scalar;
 			for (int i=0; i<freq; i++)
 				indexes.add(state[0]);
 		}
@@ -254,6 +404,32 @@ public class StateSpacePlotter {
 		Collections.sort(indexes);
 		int listIndex = (int)(indexes.size()*fractToInclude+0.5);
 		return indexes.get(listIndex);
+	}
+	
+	private void plot1D(PlotSpec spec, String name1, String name2, String filePrefix) throws IOException {
+		plot1D(spec, name1, name2, filePrefix, outputDir);
+	}
+	
+	public static void plot1D(PlotSpec spec, String name1, String name2, String filePrefix, File outputDir)
+			throws IOException {
+		if (outputDir == null) {
+			// display it
+			new GraphWindow(spec);
+		} else {
+			// write plot
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
+			gp.setBackgroundColor(Color.WHITE);
+			
+			gp.drawGraphPanel(spec);
+			gp.getCartPanel().setSize(1000, 800);
+			File out = new File(outputDir, filePrefix+"_"+PeriodicityPlotter.getFileSafeString(name1)
+					+"_"+PeriodicityPlotter.getFileSafeString(name2));
+			gp.saveAsPNG(out.getAbsolutePath()+".png");
+			gp.saveAsPDF(out.getAbsolutePath()+".pdf");
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -290,8 +466,10 @@ public class StateSpacePlotter {
 			
 			StateSpacePlotter plot = new StateSpacePlotter(chain, rupIdens, setOutputDir);
 			
-			plot.plotOccupancies();
-			plot.plotProbEither();
+//			plot.plotOccupancies();
+//			plot.plotProbEither();
+			
+			plot.plotDiagonals(0.02);
 		}
 		System.exit(0);
 	}

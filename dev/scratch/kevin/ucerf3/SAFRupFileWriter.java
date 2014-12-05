@@ -44,6 +44,8 @@ public class SAFRupFileWriter {
 			
 			HashSet<Integer> rups = new HashSet<Integer>();
 			HashSet<Integer> skippedRups = new HashSet<Integer>();
+			
+			HashSet<Integer> tempRups = new HashSet<Integer>();
 			for (int parentID : ssafSects) {
 				List<Integer> parentRups = rupSet.getRupturesForParentSection(parentID);
 				if (onlySAF) {
@@ -66,8 +68,20 @@ public class SAFRupFileWriter {
 					}
 					parentRups = filtered;
 				}
+				if (parentID == 301)
+					tempRups.addAll(parentRups);
 				rups.addAll(parentRups);
 			}
+			
+			double rate7p8 = 0;
+			for (int rupID : rupSet.getRupturesForParentSection(301))
+				if (rups.contains(rupID) && rupSet.getMagForRup(rupID) >= 7.8)
+					rate7p8 += sol.getRateForRup(rupID);
+//			for (int rupID : tempRups) {
+//				if (rupSet.getMagForRup(rupID) >= 7.8)
+//					rate7p8 += sol.getRateForRup(rupID);
+//			}
+			System.out.println(fm.name()+" Mojave 7.8 rate: "+rate7p8+", 30yr Poisson: "+(1d-Math.exp(-rate7p8*30d)));
 			
 			List<Integer> rupsSorted = Lists.newArrayList(rups);
 			Collections.sort(rupsSorted);
