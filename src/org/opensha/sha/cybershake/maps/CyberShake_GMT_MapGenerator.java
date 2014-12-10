@@ -16,6 +16,7 @@ import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
@@ -505,20 +506,45 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			
 			if (markers) {
 				gmtCommandLines.add("# scatter markers");
-				String colorStr = GMT_MapGenerator.getGMTColorString(markerColor);
+				// TODO fix
+				
+				// write out file
+				String symbolFile = "symbol_set.xy";
+				gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
+				boolean symbolCPT = map.isUseCPTForScatterColor() && myCPT != null;
 				for (int i=0; i<scatterData.size(); i++) {
-					Point2D pt = scatterData.getPoint(i);
-					double x = pt.getX();
-					double y = pt.getY();
-					
-					if (map.isUseCPTForScatterColor() && myCPT != null)
-						colorStr = GMT_MapGenerator.getGMTColorString(myCPT.getColor((float)scatterData.get(i)));
-					
-					commandLine = "echo " + x + " " + y + " | ";
-					commandLine += "${GMT_PATH}psxy"+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
-									+"0.03i -G"+colorStr + " -W0.0162i,"+colorStr + " -: -K -O >> "+psFile;
-					gmtCommandLines.add(commandLine);
+					Point2D point = scatterData.getPoint(i);
+					String line = point.getX() + "\t" + point.getY();
+					if (symbolCPT)
+						line += "\t" + (float)scatterData.get(i);
+					gmtCommandLines.add(line);
 				}
+				gmtCommandLines.add("END");
+				
+				if (symbolCPT) {
+					String colorStr = GMT_MapGenerator.getGMTColorString(markerColor);
+					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
+							+"0.03i -G"+colorStr + " -W0.0162i,"+colorStr + " -: -K -O >> "+psFile;
+				} else {
+					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
+							+"0.03i -G+"+" -C"+myCPTFileName+" -W0.0162i"+" -: -K -O >> "+psFile;
+				}
+				gmtCommandLines.add(commandLine);
+				
+				// old way
+//				for (int i=0; i<scatterData.size(); i++) {
+//					Point2D pt = scatterData.getPoint(i);
+//					double x = pt.getX();
+//					double y = pt.getY();
+//					
+//					if (map.isUseCPTForScatterColor() && myCPT != null)
+//						colorStr = GMT_MapGenerator.getGMTColorString(myCPT.getColor((float)scatterData.get(i)));
+//					
+//					commandLine = "echo " + x + " " + y + " | ";
+//					commandLine += "${GMT_PATH}psxy"+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
+//									+"0.03i -G"+colorStr + " -W0.0162i,"+colorStr + " -: -K -O >> "+psFile;
+//					gmtCommandLines.add(commandLine);
+//				}
 			}
 			
 			GMT_MapGenerator.addSpecialElements(gmtCommandLines, map, region, proj, psFile);
