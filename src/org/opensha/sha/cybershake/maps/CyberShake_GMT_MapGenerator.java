@@ -522,12 +522,13 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("END");
 				
 				if (symbolCPT) {
+					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
+							+"0.03i -C"+myCPTFileName+" -W0.0162i"+" -: -K -O >> "+psFile;
+					// TODO -G?
+				} else {
 					String colorStr = GMT_MapGenerator.getGMTColorString(markerColor);
 					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
 							+"0.03i -G"+colorStr + " -W0.0162i,"+colorStr + " -: -K -O >> "+psFile;
-				} else {
-					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
-							+"0.03i -G+"+" -C"+myCPTFileName+" -W0.0162i"+" -: -K -O >> "+psFile;
 				}
 				gmtCommandLines.add(commandLine);
 				
