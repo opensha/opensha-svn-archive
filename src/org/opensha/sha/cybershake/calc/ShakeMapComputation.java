@@ -3,6 +3,7 @@ package org.opensha.sha.cybershake.calc;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
@@ -21,6 +22,8 @@ import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
+
+import com.google.common.collect.Lists;
 
 public class ShakeMapComputation {
 	
@@ -48,36 +51,50 @@ public class ShakeMapComputation {
 	
 	public GeoDataSet getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
 			int sourceID, int rupID, Location hypo) {
+		return getShakeMap(datasetID, erfID, rupVarScenID, imTypeID, sourceID, rupID, Lists.newArrayList(hypo));
+	}
+	
+	public GeoDataSet getShakeMap(int datasetID, int erfID, int rupVarScenID, int imTypeID,
+			int sourceID, int rupID, List<Location> hypos) {
 		CybershakeIM im = hc2db.getIMFromID(imTypeID);
-		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, hypo);
+		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, hypos);
 	}
 	
 	public GeoDataSet getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
 			int sourceID, int rupID, Location hypo) {
+		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, Lists.newArrayList(hypo));
+	}
+	
+	public GeoDataSet getShakeMap(int datasetID, int erfID, int rupVarScenID, CybershakeIM im,
+			int sourceID, int rupID, List<Location> hypos) {
 		ArrayList<Integer> rvsToInclude;
-		if (hypo == null) {
+		if (hypos == null || hypos.isEmpty()) {
 			rvsToInclude = null;
 		} else {
+			HashSet<Integer> rvsToIncludeSet = new HashSet<Integer>();
 			HashMap<Integer, Location> rvHypos = erf2db.getHypocenters(erfID, sourceID, rupID, rupVarScenID);
 			
-			// find closest to this hypocenter
-			Location closestRV = null;
-			double closestDist = Double.MAX_VALUE;
-			for (Location rvHypo : rvHypos.values()) {
-				double dist = LocationUtils.linearDistance(hypo, rvHypo);
-				if (dist < closestDist) {
-					closestDist = dist;
-					closestRV = rvHypo;
+			for (Location hypo : hypos) {
+				// find closest to this hypocenter
+				Location closestRV = null;
+				double closestDist = Double.MAX_VALUE;
+				for (Location rvHypo : rvHypos.values()) {
+					double dist = LocationUtils.linearDistance(hypo, rvHypo);
+					if (dist < closestDist) {
+						closestDist = dist;
+						closestRV = rvHypo;
+					}
 				}
+				
+				for (int rvID : rvHypos.keySet()) {
+					Location rvHypo = rvHypos.get(rvID);
+					if (closestRV.equals(rvHypo))
+						rvsToIncludeSet.add(rvID);
+				}
+				
+				System.out.println("Matched hypocenter with RV hypo "+closestDist+" KM away. "+rvsToIncludeSet.size()+" RVs");
 			}
-			System.out.println("Matched hypocenter with RV hypo "+closestDist+" KM away.");
-			
-			rvsToInclude = new ArrayList<Integer>();
-			for (int rvID : rvHypos.keySet()) {
-				Location rvHypo = rvHypos.get(rvID);
-				if (closestRV.equals(rvHypo))
-					rvsToInclude.add(rvID);
-			}
+			rvsToInclude = Lists.newArrayList(rvsToIncludeSet);
 		}
 		
 		return getShakeMap(datasetID, erfID, rupVarScenID, im, sourceID, rupID, rvsToInclude);

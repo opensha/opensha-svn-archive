@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.data.siteData.SiteData;
@@ -197,10 +198,10 @@ public class HardCodedScenarioShakeMapGen {
 		return new CustomGriddedRegion(locs);
 	}
 	
-	private static GeoDataSet computeBaseMap(EqkRupture rup,
+	public static GeoDataSet computeBaseMap(EqkRupture rup,
 			AttenuationRelationship attenRel,
-			SitesInGriddedRegion sites,
-			boolean isProbAtIML,double value) throws ParameterException {
+			Iterable<Site> sites,
+			boolean isProbAtIML, double value) throws ParameterException {
 		ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator();
 		
 		ArrayList<AttenuationRelationship> selectedAttenRels = new ArrayList<AttenuationRelationship>();

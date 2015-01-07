@@ -45,6 +45,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -57,11 +58,23 @@ public class CBSiteAmpCalc {
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_noddw");
 //		boolean ddwCorr = true;
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp");
+//		boolean ddwCorr = false;
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_bssa");
+//		boolean ddwCorr = false;
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_bssa");
 		boolean ddwCorr = false;
-		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_bssa");
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_mean");
+		File outputDir = new File("/tmp/asdf");
 		
-		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
-				2660, 2703, 3504, 2988, 2965, 3007);
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
+		
+		AttenuationRelationship meanGMPE = AttenRelRef.BSSA_2014.instance(null);
+//		AttenuationRelationship meanGMPE = new NGAWest_2014_Averaged_AttenRel(null, false);
+		
+		List<Integer> runIDs = Lists.newArrayList(
+//				2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
+//				2660, 2703, 3504, 2988, 2965, 3007);
+				2636);
 		File asceFile = new File("/home/kevin/CyberShake/MCER/ASCE7-10_Sms_Sm1_TL_det LL for 14 sites.xls");
 		
 		boolean backSeis = true;
@@ -91,7 +104,6 @@ public class CBSiteAmpCalc {
 //		Preconditions.checkArgument(!attenRels.isEmpty(), "Must specify at least 1 GMPE");
 //		MultiIMR_Averaged_AttenRel meanGMPE = new MultiIMR_Averaged_AttenRel(attenRels);
 		
-		AttenuationRelationship meanGMPE = AttenRelRef.BSSA_2014.instance(null);
 		meanGMPE.setParamDefaults();
 		List<AttenuationRelationship> meanGMPEList = Lists.newArrayList();
 		meanGMPEList.add(meanGMPE);
@@ -122,6 +134,8 @@ public class CBSiteAmpCalc {
 				forceAddIMs.add(new CybershakeIM(-1, IMType.SA, period, null, comp));
 		
 		for (int runID : runIDs) {
+			System.out.println("**************** RUN ID: "+runID);
+			
 			CybershakeRun run = runs2db.getRun(runID);
 			CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
 			
@@ -136,26 +150,39 @@ public class CBSiteAmpCalc {
 			
 			// first scenario, normal site data
 			siteDatasList.add(origSiteDatas);
-			// null basin, Wills Vs30
-			siteDatasList.add(getReplaced(origSiteDatas,
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN)));
-			// null basin, rock
-			siteDatasList.add(getReplaced(origSiteDatas,
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
-					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d)));
-			// CVM basin, rock
-			siteDatasList.add(getReplaced(origSiteDatas,
-					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d)));
-			// null basin, soft
-			siteDatasList.add(getReplaced(origSiteDatas,
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
-					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
-					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 155d)));
-			// CVM basin, soft
-			siteDatasList.add(getReplaced(origSiteDatas,
-					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 155d)));
+//			// null basin, Wills Vs30
+//			siteDatasList.add(getReplaced(origSiteDatas,
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN)));
+//			// null basin, rock
+//			siteDatasList.add(getReplaced(origSiteDatas,
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+//					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d)));
+//			// CVM basin, rock
+//			siteDatasList.add(getReplaced(origSiteDatas,
+//					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 760d)));
+//			// null basin, soft
+//			siteDatasList.add(getReplaced(origSiteDatas,
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+//					new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+//					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 155d)));
+//			// CVM basin, soft
+//			siteDatasList.add(getReplaced(origSiteDatas,
+//					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 155d)));
+			
+			for (boolean nullBasin : new boolean[] {true, false}) {
+				for (double vs30 : new double[] {1620d, 1524d, 914d, 762d, 488d, 366d, 265d, 183d, 155d}) {
+					if (nullBasin)
+						siteDatasList.add(getReplaced(origSiteDatas,
+								new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+								new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_2_5, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
+								new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, vs30)));
+					else
+						siteDatasList.add(getReplaced(origSiteDatas,
+								new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, vs30)));
+				}
+			}
 			
 			CSVFile<String> csv = new CSVFile<String>(true);
 			
@@ -239,6 +266,7 @@ public class CBSiteAmpCalc {
 			String name = site.short_name+"_run"+run.getRunID()+"_GMPE_SiteAmp_"+comp.getShortName()+".csv";
 			
 			File outputFile = new File(outputDir, name);
+			System.out.println("**************** WRITING RESULTS TO "+outputFile.getAbsolutePath());
 			csv.writeToFile(outputFile);
 			
 			// now write SA version
@@ -261,6 +289,7 @@ public class CBSiteAmpCalc {
 			name = site.short_name+"_run"+run.getRunID()+"_GMPE_SiteAmp_"+comp.getShortName()+"_sa.csv";
 			
 			outputFile = new File(outputDir, name);
+			System.out.println("**************** WRITING RESULTS TO "+outputFile.getAbsolutePath());
 			saCSV.writeToFile(outputFile);
 		}
 		

@@ -16,7 +16,9 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
@@ -46,6 +48,7 @@ import com.google.common.collect.Lists;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
@@ -62,9 +65,19 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+//		RegionUtils.regionToKML(new CaliforniaRegions.LA_BOX(), "la_box", Color.BLACK);
+//		RegionUtils.regionToKML(new CaliforniaRegions.SF_BOX(), "sf_box", Color.BLACK);
+//		System.exit(0);
 		FaultSystemSolution theSol = FaultSystemIO.loadSol(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
 						+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemRupSet rupSet = theSol.getRupSet();
+		int numWith = 0;
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList())
+			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
+				numWith++;
+		System.out.println(numWith+"/"+rupSet.getNumSections()+" have last event data");
+		System.exit(0);
 		HistogramFunction hist = new HistogramFunction(0.25, 40, 0.5);
 		for (FaultSectionPrefData sect : theSol.getRupSet().getFaultSectionDataList()) {
 			double len = sect.getTraceLength();

@@ -1385,6 +1385,9 @@ public class HazardCurvePlotter {
 		double pDiff = DataUtils.getPercentDiff(closestPeriod, period);
 		Preconditions.checkState(pDiff < 0.01, "No match for period="+period+", closest="+closestPeriod);
 		saPeriodParam.setValue(closestPeriod);
+		Preconditions.checkState(attenRel.getIntensityMeasure() instanceof SA_Param
+				&& ((Double)attenRel.getIntensityMeasure().getIndependentParameter(PeriodParam.NAME).getValue()).floatValue()
+						== (float)closestPeriod);
 //		attenRel.setIntensityMeasure(intensityMeasure)
 		
 		LocationList locList = new LocationList();

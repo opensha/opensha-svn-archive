@@ -14,6 +14,7 @@ import org.opensha.commons.util.FileUtils;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
@@ -25,23 +26,49 @@ public class ETASResultCombiner {
 		// used to combine multiple etas result zip files into a single zip file
 		
 		File[] zipFiles = {
-				// bombay
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round1.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round2.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round3.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round4.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_round5.zip")
+				// bombay fault
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-bombay_beach_brawley_fault_m6-round1/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round2/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round3/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round4/results.zip")
+				
+				// bombay m6
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-bombay_beach_m6-round1/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round2/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round3/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round4/results.zip")
+				
+				// mojave s
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-mojave_s_point_m6-round1/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round2/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round3/results.zip"),
+//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round4/results.zip")
 				
 				// parkfield
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round1.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round2.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round3.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round4.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_round5.zip")
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-parkfield-round1/results.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round2/results.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round3/results.zip"),
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round4/results.zip")
 		};
 		
-//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results_combined.zip");
-		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results_combined.zip");
+//		boolean onlyWithFaultBased = false;
+//		double minMag = 5d;
+		
+		boolean onlyWithFaultBased = true;
+		double minMag = 0d;
+		
+//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-combined.zip");
+//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-combined.zip");
+//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-combined.zip");
+		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-combined.zip");
+		
+		if (onlyWithFaultBased) {
+			String name = outputFile.getName();
+			Preconditions.checkState(name.endsWith(".zip"));
+			name = name.substring(0, name.indexOf(".zip"))+"_only_with_fault.zip";
+			outputFile = new File(outputFile.getParentFile(), name);
+		}
+		
 		File workDir = Files.createTempDir();
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
@@ -49,6 +76,7 @@ public class ETASResultCombiner {
 		List<String> infoStrings = Lists.newArrayList();
 		
 		for (File zipFile : zipFiles) {
+			System.out.println("Loading "+zipFile.getAbsolutePath());
 			ZipFile zip = new ZipFile(zipFile);
 			
 			for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
@@ -83,16 +111,29 @@ public class ETASResultCombiner {
 				
 				List<ETAS_EqkRupture> catalog;
 				try {
-					catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), 5d);
+					catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), minMag);
 				} catch (Exception e) {
 					continue;
 				}
 				// now remove all spontaneous
 				catalog = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, 0);
 				
+				if (onlyWithFaultBased) {
+					boolean found = false;
+					for (ETAS_EqkRupture rup : catalog) {
+						if (rup.getFSSIndex() >= 0) {
+							found = true;
+							break;
+						}
+					}
+					if (!found)
+						continue;
+				}
+				
 				catalogs.add(catalog);
 				infoStrings.add(infoString.toString());
 			}
+			zip.close();
 		}
 		
 		System.out.println("Loaded "+catalogs.size()+" catalogs");

@@ -69,15 +69,15 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	public enum ETAS_CyberShake_Scenarios {
 		PARKFIELD("Parkfield Scenario", 8, 30473),
-		BOMBAY_BEACH_M6("Bombay Beach M6 Point Scenario", 9, new Location(33.31833333333334,-115.72833333333335,5.8), 6.0),
-		BOMBAY_BEACH_BRAWLEY_FAULT_M6("Bombay Beach M6 Fault Scenario", -1, 238408),
+		BOMBAY_BEACH_M6("Bombay Beach Pt Scenario", 9, new Location(33.31833333333334,-115.72833333333335,5.8), 6.0),
+		BOMBAY_BEACH_BRAWLEY_FAULT_M6("Bombay Beach Scenario", -1, 238408),
 		MOJAVE_S_POINT_M6("Mojave M6 Point Scenario", -1, new Location(34.42295,-117.80177,5.8), 6.0),
 		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
 		TEST_BOMBAY_M6_SUBSET_FIRST("Bombay Beach M6 Scenario First Half", -1),
 		TEST_BOMBAY_M6_SUBSET_SECOND("Bombay Beach M6 Scenario Second Half", -1),
 		TEST_NEGLIGABLE("Test Negligable Scenario", -1),
-		MAPPED_UCERF2("Mapped UCERF2, no ETAS", 10),
-		MAPPED_UCERF2_TIMEDEP("Mapped UCERF2 Time Dep, no ETAS", 11);
+		MAPPED_UCERF2("UCERF2 Time Indep", 10),
+		MAPPED_UCERF2_TIMEDEP("UCERF2 Time Dep, no ETAS", 11);
 		
 		private int probModelID;
 		private String name;
@@ -160,6 +160,8 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private static final boolean calc_by_add_spontaneous = true;
+	// if >0, all hypos within this distance will be promoted, not just closest
+	private static final double hypocenter_buffer_km = 10d;
 	
 	private ETAS_CyberShake_Scenarios scenario;
 	private ETAS_Cybershake_TimeSpans timeSpan;
@@ -692,6 +694,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				
 				double minDist = Double.POSITIVE_INFINITY;
 				Location closestLoc = null;
+				List<Location> locsWithinBuffer = Lists.newArrayList();
 				for (Location loc : rvHypoLocs.keySet()) {
 					double dist = LocationUtils.linearDistanceFast(loc, hypo);
 					Preconditions.checkState(!loc.equals(closestLoc), "Duplicate locations!");
@@ -699,12 +702,24 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 						minDist = dist;
 						closestLoc = loc;
 					}
+					if (dist <= hypocenter_buffer_km)
+						locsWithinBuffer.add(loc);
 				}
 				Preconditions.checkNotNull(closestLoc);
 				Preconditions.checkState(minDist < 1000d, "No hypo match with 1000 km (closest="+minDist+")");
 				
 //				double myProb = prob;
-				List<Integer> toBePromoted = Lists.newArrayList(rvHypoLocs.get(closestLoc));
+				List<Integer> toBePromoted;
+				if (locsWithinBuffer.size() < 2) {
+					// just do the closest
+					toBePromoted = Lists.newArrayList(rvHypoLocs.get(closestLoc));
+				} else {
+					// include all hypocenters within the buffer
+					toBePromoted = Lists.newArrayList();
+					for (Location hypoLoc : locsWithinBuffer) {
+						toBePromoted.addAll(rvHypoLocs.get(hypoLoc));
+					}
+				}
 				rvTrack.addValue(toBePromoted.size());
 				Preconditions.checkState(toBePromoted.size() >= 1,
 						"Should be more than one ID for each hypo (size="+toBePromoted.size()+")");
@@ -990,41 +1005,59 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		return rvProbsSortable;
 	}
 	
-	class RVProbSortable implements Comparable<RVProbSortable> {
+	public static class RVProbSortable implements Comparable<RVProbSortable> {
 		
-		private int sourceID, rupID, rvID;
-		private Location hypocenter;
+		private int sourceID, rupID;
+		private List<Integer> rvIDs;
+		private List<Location> hypocenters;
 		private double mag;
 		private double occurances;
 		private double triggerRate;
-		
-		private double triggerMoRate;
 
 		public RVProbSortable(int sourceID, int rupID, int rvID, double mag,
 				Location hypocenter, double occurances, double triggerRate) {
-			super();
 			this.sourceID = sourceID;
 			this.rupID = rupID;
-			this.rvID = rvID;
 			this.mag = mag;
-			this.hypocenter = hypocenter;
+			this.rvIDs = Lists.newArrayList(rvID);
+			this.hypocenters = Lists.newArrayList(hypocenter);
 			this.occurances = occurances;
 			this.triggerRate = triggerRate;
+		}
+
+		public RVProbSortable(int sourceID, int rupID, double mag) {
+			this.sourceID = sourceID;
+			this.rupID = rupID;
+			this.mag = mag;
 			
-			double moment = Math.pow(10, 1.5*(mag + 6d));
-			triggerMoRate = moment * triggerRate;
+			this.occurances = 0d;
+			this.triggerRate = 0d;
+			this.hypocenters = Lists.newArrayList();
+			this.rvIDs = Lists.newArrayList();
 		}
 
 		@Override
 		public int compareTo(RVProbSortable o) {
 //			return Double.compare(o.triggerRate, triggerRate);
-			return Double.compare(o.triggerMoRate, triggerMoRate);
+			return Double.compare(o.getTriggerMoRate(), getTriggerMoRate());
+		}
+		
+		public void addRV(double occurances, double triggerRate, int rvID, Location hypocenter) {
+			this.occurances += occurances;
+			this.triggerRate += triggerRate;
+			rvIDs.add(rvID);
+			hypocenters.add(hypocenter);
+		}
+		
+		public double getTriggerMoRate() {
+			double moment = Math.pow(10, 1.5*(mag + 6d));
+			return moment * triggerRate;
 		}
 		
 		@Override
 		public String toString() {
-			return "Source: "+sourceID+", Rup: "+rupID+", RV: "+rvID+", Mag: "+mag+"\nHypocenter: "+hypocenter
-					+"\noccur: "+occurances+", triggerRate: "+triggerRate;
+			return "Source: "+sourceID+", Rup: "+rupID+", RV: "+Joiner.on(",").join(rvIDs)+", Mag: "+mag
+					+"\nHypocenter: "+Joiner.on(",").join(hypocenters)+"\noccur: "+occurances+", triggerRate: "+triggerRate;
 		}
 
 		public int getSourceID() {
@@ -1035,12 +1068,12 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			return rupID;
 		}
 
-		public int getRvID() {
-			return rvID;
+		public List<Integer> getRvIDs() {
+			return rvIDs;
 		}
 
-		public Location getHypocenter() {
-			return hypocenter;
+		public List<Location> getHypocenters() {
+			return hypocenters;
 		}
 
 		public double getOccurances() {

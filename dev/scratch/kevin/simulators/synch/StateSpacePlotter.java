@@ -11,6 +11,7 @@ import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.data.xyz.XYZ_DataSet;
 import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -37,6 +38,7 @@ import scratch.kevin.simulators.SynchIdens;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class StateSpacePlotter {
 	
@@ -136,12 +138,77 @@ public class StateSpacePlotter {
 		plotProb(MarkovProb.EITHER);
 	}
 	
+	public void plotPhi() throws IOException {
+//		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-1d, 1d);
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-0.5d, 0.5d);
+		cpt.setNanColor(Color.WHITE);
+		
+		for (int i=0; i<nDims; i++) {
+			String name1 = names.get(i).getName();
+			for (int j=i+1; j<nDims; j++) {
+				String name2 = names.get(j).getName();
+				
+				EvenlyDiscrXYZ_DataSet psi1 = getMarkovXYZ(MarkovProb.PHI_1, i, j);
+				EvenlyDiscrXYZ_DataSet psi2 = getMarkovXYZ(MarkovProb.PHI_2, i, j);
+				EvenlyDiscrXYZ_DataSet psi0 = getMarkovXYZ(MarkovProb.PHI_0, i, j);
+				EvenlyDiscrXYZ_DataSet psi3 = getMarkovXYZ(MarkovProb.PHI_3, i, j);
+				
+				psi1.log10();
+				psi2.log10();
+				psi0.log10();
+				psi3.log10();
+				
+				List<XYZPlotSpec> specs = Lists.newArrayList();
+				
+				specs.add(new XYZPlotSpec(psi1, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "Log10(Phi 1)"));
+				specs.add(new XYZPlotSpec(psi2, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "Log10(Phi 2)"));
+				specs.add(new XYZPlotSpec(psi0, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "Log10(Phi 0)"));
+				specs.add(new XYZPlotSpec(psi3, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "Log10(Phi 3)"));
+				
+//				for (XYZPlotSpec spec : specs) {
+//					XYZ_DataSet xyz = spec.getXYZ_Data();
+//					for (int index=0; index<xyz.size(); index++)
+//						if (!Doubles.isFinite(xyz.get(index)))
+//							xyz.set(index, Double.NaN);
+//				}
+				
+				int width = 600;
+				int height = 2000;
+				
+				XYZGraphPanel panel = new XYZGraphPanel();
+				panel.drawPlot(specs, false, false, null, null,
+						null, null);
+				
+				if (outputDir == null) {
+					// display it
+					XYZPlotWindow window = new XYZPlotWindow(panel);
+					window.setSize(width, height);
+				} else {
+					// write plot
+					panel.getChartPanel().setSize(width, height);
+					File out = new File(outputDir, "phi_"+PeriodicityPlotter.getFileSafeString(name1)
+							+"_"+PeriodicityPlotter.getFileSafeString(name2));
+					panel.saveAsPNG(out.getAbsolutePath()+".png");
+					panel.saveAsPDF(out.getAbsolutePath()+".pdf");
+				}
+			}
+		}
+	}
+	
 	public enum MarkovProb {
 		E1("P(E1)", "prob_e1"),
 		E2("P(E2)", "prob_e2"),
 		EITHER("Prob Either", "prob_either"),
 		BOTH("Prob Both", "prob_both"),
-		NONE("Prob None", "prob_none");
+		NONE("Prob None", "prob_none"),
+		PHI_0("Psi 0", "psi_0"),
+		PHI_1("Psi 1", "psi_1"),
+		PHI_2("Psi 2", "psi_2"),
+		PHI_3("Psi 3", "psi_3");
 		
 		private String title;
 		private String prefix;
@@ -155,6 +222,8 @@ public class StateSpacePlotter {
 	private EvenlyDiscrXYZ_DataSet getMarkovXYZ(MarkovProb type, int i, int j) {
 		MarkovChain collapsed = chain.getCollapsedChain(i, j);
 //		collapsed = new OccupancyBasedMarkovChain2D(chain.getDistSpacing(), collapsed.getOccupancy());
+		MarkovChain marginalX = collapsed.getCollapsedChain(0);
+		MarkovChain marginalY = collapsed.getCollapsedChain(1);
 		
 		EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
 		
@@ -194,6 +263,24 @@ public class StateSpacePlotter {
 						break;
 					case NONE:
 						prob = (tot-numEither)/tot;
+						break;
+					case PHI_0:
+						double pNone = (tot-numEither)/tot;
+						prob = pNone/(marginalX.getTransitionProb(new int[] {xInd}, new int[] {xInd+1})
+								* marginalY.getTransitionProb(new int[] {yInd}, new int[] {yInd+1}));
+						break;
+					case PHI_1:
+						double pNE1 = 1d-numE1/tot;
+						prob = pNE1/marginalX.getTransitionProb(new int[] {xInd}, new int[] {xInd+1});
+						break;
+					case PHI_2:
+						double pNE2 = 1d-numE2/tot;
+						prob = pNE2/marginalY.getTransitionProb(new int[] {yInd}, new int[] {yInd+1});
+						break;
+					case PHI_3:
+						double pBoth = numBoth/tot;
+						prob = pBoth/(marginalX.getTransitionProb(new int[] {xInd}, new int[] {0})
+								* marginalY.getTransitionProb(new int[] {yInd}, new int[] {0}));
 						break;
 
 					default:
@@ -470,6 +557,8 @@ public class StateSpacePlotter {
 //			plot.plotProbEither();
 			
 			plot.plotDiagonals(0.02);
+			
+			plot.plotPhi();
 		}
 		System.exit(0);
 	}

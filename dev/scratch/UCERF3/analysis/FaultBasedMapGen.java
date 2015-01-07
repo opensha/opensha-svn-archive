@@ -3,6 +3,7 @@ package scratch.UCERF3.analysis;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,7 +14,10 @@ import java.util.zip.ZipException;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.StatUtils;
+import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
@@ -36,6 +40,7 @@ import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -883,6 +888,74 @@ public class FaultBasedMapGen {
 		}
 	}
 	
+	public static void makeFaultKML(CPT cpt, List<LocationList> faults, double[] values,
+			File saveDir, String prefix, boolean skipNans, int numColorBins, int lineWidth,
+			String name) throws IOException {
+		// discretize CPT file - KML files can't have continuous line colors
+		double cptMin = cpt.getMinValue();
+		double cptMax = cpt.getMaxValue();
+		double cptDelta = (cptMax - cptMin)/(double)numColorBins;
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(cptMin+0.5*cptDelta, numColorBins, cptDelta);
+		List<Color> cptColors = Lists.newArrayList();
+		for (Point2D pt : func)
+			cptColors.add(cpt.getColor((float)pt.getX()));
+		
+		Document doc = XMLUtils.createDocumentWithRoot("Document");
+		Element docEl = doc.getRootElement();
+		docEl.addElement("name").addText(name);
+		
+		// create style elements for discretized CPT file
+		for (int i=0; i<numColorBins; i++)
+			 addStyleEl(docEl, cptColors.get(i), lineWidth, "CPT_"+i);
+		addStyleEl(docEl, cpt.getBelowMinColor(), lineWidth, "CPT_BELOW_MIN");
+		addStyleEl(docEl, cpt.getAboveMaxColor(), lineWidth, "CPT_ABOVE_MAX");
+		if (!skipNans)
+			addStyleEl(docEl, cpt.getNaNColor(), lineWidth, "CPT_NAN");
+		
+		// add lines
+		Element folderEl = docEl.addElement("Folder");
+		folderEl.addElement("name").addText("Faults");
+		
+		for (int i=0; i<faults.size(); i++) {
+			LocationList fault = faults.get(i);
+			double val = values[i];
+			String styleID;
+			if (Double.isNaN(val) && skipNans)
+				continue;
+			if (val < cptMin)
+				styleID = "CPT_BELOW_MIN";
+			else if (val > cptMax)
+				styleID = "CPT_ABOVE_MAX";
+			else if (Double.isNaN(val))
+				styleID = "CPT_NAN";
+			else
+				styleID = "CPT_"+func.getClosestXIndex(val);
+			
+			Element placemarkEl = folderEl.addElement("Placemark");
+			placemarkEl.addElement("name").addText("Fault "+i); // TODO actual names?
+			placemarkEl.addElement("styleUrl").addText("#"+styleID);
+			Element lineStrEl = placemarkEl.addElement("LineString");
+			lineStrEl.addElement("tesselate").addText("1");
+			Element coordsEl = lineStrEl.addElement("coordinates");
+			String coordsStr = "";
+			for (Location loc : fault)
+				coordsStr += loc.getLongitude()+","+loc.getLatitude()+",0\n";
+			coordsEl.addText(coordsStr);
+		}
+		
+		File outputFile = new File(saveDir, prefix+".kml");
+		XMLUtils.writeDocumentToFile(outputFile, doc);
+	}
+	private static void addStyleEl(Element parent, Color c, int lineWidth, String label) {
+		Element styleEl = parent.addElement("Style");
+		styleEl.addAttribute("id", label);
+		Element lineEl = styleEl.addElement("LineStyle");
+		Element colorEl = lineEl.addElement("color");
+		String hex = String.format("#%02x%02x%02x%02x", c.getAlpha(), c.getBlue(), c.getGreen(), c.getRed());
+		colorEl.addText(hex);
+		lineEl.addElement("width").addText(lineWidth+"");
+	}
+	
 	public static final double FAULT_HIGHLIGHT_VALUE = -123456e20;
 	
 	public static GMT_Map buildMap(CPT cpt, List<LocationList> faults,
@@ -915,6 +988,21 @@ public class FaultBasedMapGen {
 //				Preconditions.checkState(Double.isNaN(vals.get(i).value)
 //						|| vals.get(i).value >= vals.get(i-1).value, vals.get(i-1).value+", "+vals.get(i).value);
 			
+			try {
+				FileWriter fw = new FileWriter(new File("/tmp/text.xy"));
+				for (TraceValue val : vals) {
+					LocationList fault = val.trace;
+					double value = val.value;
+					fw.write("> -Z"+value+"\n");
+					for (Location loc : fault)
+						fw.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\n");
+				}
+				fw.close();
+				cpt.writeCPTFile(new File("/tmp/cpt.cpt"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			for (TraceValue val : vals) {
 				LocationList fault = val.trace;
 				double value = val.value;
@@ -954,8 +1042,8 @@ public class FaultBasedMapGen {
 	
 	public static void main(String[] args) throws IOException, DocumentException, GMT_MapException, RuntimeException {
 		
-		getLog10_SlipRateCPT().writeCPTFile("Log10_SlipRate.cpt");
-		System.exit(0);
+//		getLog10_SlipRateCPT().writeCPTFile("Log10_SlipRate.cpt");
+//		System.exit(0);
 		
 		File invSolsDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 //		File solFile = new File(invSolsDir, "FM3_1_GLpABM_MaHB08_DsrTap_DrEllB_Char_VarAseis0.2_VarOffAseis0.5_VarMFDMod1_VarNone_sol.zip");

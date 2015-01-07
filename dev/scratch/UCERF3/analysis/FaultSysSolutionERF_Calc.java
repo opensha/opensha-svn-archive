@@ -2555,6 +2555,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 		
 		HashSet<FaultTraceComparable> tracesSet = new HashSet<FaultSysSolutionERF_Calc.FaultTraceComparable>();
+		Map<FaultModels, List<LocationList>> fmTracesMap = Maps.newHashMap();
 		Map<FaultModels, Map<FaultTraceComparable, Integer>> fmIndexMaps = Maps.newHashMap();
 		Map<FaultTraceComparable, Double> meanYearsSinceMap = Maps.newHashMap();
 		Map<FaultTraceComparable, Double> fractWithYearsSinceMap;
@@ -2563,6 +2564,7 @@ public class FaultSysSolutionERF_Calc {
 		else
 			fractWithYearsSinceMap = null;
 		long curMillis = new GregorianCalendar(FaultSystemSolutionERF.START_TIME_DEFAULT, 0, 0).getTimeInMillis();
+		Table<FaultModels, String, Integer> fmSubSectIndexMap = HashBasedTable.create();
 		for (FaultModels fm : fms) {
 			Map<FaultTraceComparable, Integer> fmIndexMap = Maps.newHashMap();
 			fmIndexMaps.put(fm, fmIndexMap);
@@ -2571,6 +2573,13 @@ public class FaultSysSolutionERF_Calc {
 					fm, DeformationModels.GEOLOGIC,
 					UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
 			LastEventData.populateSubSects(subSects, LastEventData.load());
+			
+			List<LocationList> fmTraces = Lists.newArrayList();
+			for (int i=0; i<subSects.size(); i++) {
+				fmTraces.add(subSects.get(i).getFaultTrace());
+				fmSubSectIndexMap.put(fm, subSects.get(i).getName(), i);
+			}
+			fmTracesMap.put(fm, fmTraces);
 			
 			if (parents) {
 				// average open intervals 
@@ -2636,6 +2645,7 @@ public class FaultSysSolutionERF_Calc {
 		Collections.sort(traceComps);
 		List<LocationList> traces = Lists.newArrayList();
 		double[] meanTimeDepVals = new double[traceComps.size()];
+		Map<FaultModels, double[]> fmMeanTimeDepVals = Maps.newHashMap();
 		double[] minTimeDepVals = new double[traceComps.size()];
 		double[] maxTimeDepVals = new double[traceComps.size()];
 		double[] gainU3Vals = new double[traceComps.size()];
@@ -2682,9 +2692,11 @@ public class FaultSysSolutionERF_Calc {
 		for (int i = 0; i < traceComps.size(); i++) {
 			FaultTraceComparable trace = traceComps.get(i);
 			List<Double> timeDepVals = Lists.newArrayList();
+			Map<FaultModels, List<Double>> fmTimeDepValsMap = Maps.newHashMap();
 			List<Double> poisVals = Lists.newArrayList();
 			List<Double> gainVals = Lists.newArrayList();
 			List<Double> weights = Lists.newArrayList();
+			Map<FaultModels, List<Double>> fmTimeDepWeightsMap = Maps.newHashMap();
 			Table<MagDependentAperiodicityOptions, BPTAveragingTypeOptions, List<Double>>
 				bptOpsValsTable = null;
 			if (meanBPT_COVVals != null || meanBPT_CalcVals != null) {
@@ -2698,11 +2710,22 @@ public class FaultSysSolutionERF_Calc {
 				Integer index = fmIndexMaps.get(fm).get(trace);
 				if (index == null)
 					continue;
+				List<Double> fmTimeDepVals = fmTimeDepValsMap.get(fm);
+				List<Double> fmTimeDepWeights = fmTimeDepWeightsMap.get(fm);
+				if (fmTimeDepVals == null) {
+					fmTimeDepVals = Lists.newArrayList();
+					fmTimeDepValsMap.put(fm, fmTimeDepVals);
+					fmTimeDepWeights = Lists.newArrayList();
+					fmTimeDepWeightsMap.put(fm, fmTimeDepWeights);
+				}
 				SectProbGainResults val = branchVals.get(branch)[index];
 				timeDepVals.add(val.pTimeDep);
+				fmTimeDepVals.add(val.pTimeDep);
 				poisVals.add(val.pPois);
 				gainVals.add(val.pGain);
-				weights.add(weightProv.getWeight(branch));
+				double weight = weightProv.getWeight(branch);
+				weights.add(weight);
+				fmTimeDepWeights.add(weight);
 				if (bptOpsValsTable != null) {
 					for (Cell<MagDependentAperiodicityOptions, BPTAveragingTypeOptions,
 							Map<LogicTreeBranch, SectProbGainResults[]>> cell : table.cellSet())
@@ -2711,6 +2734,21 @@ public class FaultSysSolutionERF_Calc {
 				}
 			}
 			double[] timeDepValsArray = Doubles.toArray(timeDepVals);
+			for (FaultModels fm : fmTimeDepValsMap.keySet()) {
+				if (parents)
+					break;
+				List<Double> fmTimeDepVals = fmTimeDepValsMap.get(fm);
+				double[] fmTimeDepValsArray = Doubles.toArray(fmTimeDepVals);
+				double[] fmWeightsArray = Doubles.toArray(fmTimeDepWeightsMap.get(fm));
+				int subSectIndex = fmSubSectIndexMap.get(fm, trace.name);
+				double[] fmMeanTimeDep = fmMeanTimeDepVals.get(fm);
+				if (fmMeanTimeDep == null) {
+					fmMeanTimeDep = new double[fmSubSectIndexMap.row(fm).size()];
+					fmMeanTimeDepVals.put(fm, fmMeanTimeDep);
+				}
+				fmMeanTimeDep[subSectIndex] = FaultSystemSolutionFetcher.calcScaledAverage(
+						fmTimeDepValsArray, fmWeightsArray);
+			}
 			double[] poisValsArray = Doubles.toArray(poisVals);
 			double[] weightsArray = Doubles.toArray(weights);
 			
@@ -3107,6 +3145,19 @@ public class FaultSysSolutionERF_Calc {
 		
 		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(meanTimeDepVals), region,
 				outputDir, "mean_time_dep_prob", false, true, "UCERF3 Mean Time Dep Prob");
+		FaultBasedMapGen.makeFaultKML(logProbCPT, traces, FaultBasedMapGen.log10(meanTimeDepVals), outputDir,
+				"mean_time_dep_prob", false, 40, 4, "UCERF3 Mean Time Dep Prob");
+		for (FaultModels fm : fmMeanTimeDepVals.keySet()) {
+			if (parents)
+				break;
+			double[] fmVals = fmMeanTimeDepVals.get(fm);
+			List<LocationList> fmTraces = fmTracesMap.get(fm);
+			
+			FaultBasedMapGen.makeFaultPlot(logProbCPT, fmTraces, FaultBasedMapGen.log10(fmVals), region,
+					outputDir, fm.name()+"_mean_time_dep_prob", false, true, fm.name()+" UCERF3 Mean Time Dep Prob");
+			FaultBasedMapGen.makeFaultKML(logProbCPT, fmTraces, FaultBasedMapGen.log10(fmVals), outputDir,
+					fm.name()+"_mean_time_dep_prob", false, 40, 4, fm.name()+" UCERF3 Mean Time Dep Prob");
+		}
 		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(minTimeDepVals), region,
 				outputDir, "min_time_dep_prob", false, true, "UCERF3 Min Time Dep Prob");
 		FaultBasedMapGen.makeFaultPlot(logProbCPT, traces, FaultBasedMapGen.log10(maxTimeDepVals), region,
@@ -3829,24 +3880,25 @@ public class FaultSysSolutionERF_Calc {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-		double[] minMags = { 0d, 6.7d, 7.7d };
-		int[] csvMagRangeIndexes = { 4, 0, 2 };
-		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
-		double[] durations = { 5d, 30d };
+//		double[] minMags = { 0d, 6.7d, 7.7d };
+//		int[] csvMagRangeIndexes = { 4, 0, 2 };
+//		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
+//		double[] durations = { 5d, 30d };
+//		File[] csvDirs = { new File(dirPrefix+"-5yr"), new File(dirPrefix+"-30yr")};
+//		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-5yr"), new File(dirPrefix+"-main-30yr")};
 		
 		// just 6.7, 30yr
-//		double[] minMags = { 6.7d };
-//		int[] csvMagRangeIndexes = { 0 };
-//		int[] csvFaultMagRangeIndexes = { 1 };
-//		double[] durations = { 30d };
+		double[] minMags = { 6.7d };
+		int[] csvMagRangeIndexes = { 0 };
+		int[] csvFaultMagRangeIndexes = { 1 };
+		double[] durations = { 30d };
+		File[] csvDirs = { new File(dirPrefix+"-30yr")};
+		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-30yr")};
 		
 		Preconditions.checkState(aveTypes.size() >= 1);
 		String[] csvZipNames = new String[aveTypes.size()];
 		for (int i=0; i<aveTypes.size(); i++)
 			csvZipNames[i] = MPJ_ERF_ProbGainCalcScriptWriter.getAveDirName(aveTypes.get(i))+".zip";
-		
-		File[] csvDirs = { new File(dirPrefix+"-5yr"), new File(dirPrefix+"-30yr")};
-		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-5yr"), new File(dirPrefix+"-main-30yr")};
 		
 //		File[] csvDirs = { new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-5yr"),
 //				new File("/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875-30yr")};
@@ -3979,6 +4031,15 @@ public class FaultSysSolutionERF_Calc {
 				
 				// copy over branch averaged appropriate files
 				Files.copy(new File(tmpResultsDir, "mean_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Mean.pdf"));
+				Files.copy(new File(tmpResultsDir, "mean_time_dep_prob.kml"), new File(branchDir, "U3_TimeDep_Mean.kml"));
+				Files.copy(new File(tmpResultsDir, "FM3_1_mean_time_dep_prob.pdf"),
+						new File(branchDir, "U3_FM3_1_TimeDep_Mean.pdf"));
+				Files.copy(new File(tmpResultsDir, "FM3_1_mean_time_dep_prob.kml"),
+						new File(branchDir, "U3_FM3_1_TimeDep_Mean.kml"));
+				Files.copy(new File(tmpResultsDir, "FM3_2_mean_time_dep_prob.pdf"),
+						new File(branchDir, "U3_FM3_2_TimeDep_Mean.pdf"));
+				Files.copy(new File(tmpResultsDir, "FM3_2_mean_time_dep_prob.kml"),
+						new File(branchDir, "U3_FM3_2_TimeDep_Mean.kml"));
 				Files.copy(new File(tmpResultsDir, "min_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Min.pdf"));
 				Files.copy(new File(tmpResultsDir, "max_time_dep_prob.pdf"), new File(branchDir, "U3_TimeDep_Max.pdf"));
 				Files.copy(new File(tmpResultsDir, "gain_u3.pdf"), new File(branchDir, "U3_Gain.pdf"));
@@ -4858,7 +4919,7 @@ public class FaultSysSolutionERF_Calc {
 		
 //		makeAveMoRateMapForU3pt3(true);
 		
-		makeIconicFigureForU3TimeDependence();
+//		makeIconicFigureForU3TimeDependence();
 //		System.exit(0);
 //		System.out.println(loadUCERF2MainFaultMPDs(true).size());
 //		System.exit(0);
@@ -4896,13 +4957,14 @@ public class FaultSysSolutionERF_Calc {
 //		System.exit(0);
 		
 //		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2013_12_14-ucerf3-prob-gains-open1875";
-//		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_02_15-ucerf3-prob-gains-open1875";
+		String dirPrefix = "/home/kevin/OpenSHA/UCERF3/probGains/2014_02_15-ucerf3-prob-gains-open1875";
 //		File outputMainDir = new File("/home/kevin/OpenSHA/UCERF3");
-//		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
-//				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
-//						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
+				new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
+						"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 //		String dirPrefix = "/home/scec-02/kmilner/ucerf3/prob_gains/2013_12_24-ucerf3-prob-gains-open1875";
 //		File outputMainDir = new File("/var/www/html/ftp/kmilner/ucerf3");
+		File outputMainDir = new File("/tmp/asdf");
 //		FaultSystemSolution meanSol = FaultSystemIO.loadSol(
 //				new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/"
 //						+ "2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_"
@@ -4918,8 +4980,8 @@ public class FaultSysSolutionERF_Calc {
 		// default
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RATE_AVE_NORM_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RATE_AVE_NORM_TIME_SINCE"), meanSol);
-//		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
-//				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
+		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE), true,
+				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_NORM_TIME_SINCE"), meanSol);
 //		writeTimeDepPlotsForWeb(Lists.newArrayList(BPTAveragingTypeOptions.AVE_RI_AVE_TIME_SINCE), true,
 //				dirPrefix, new File(outputMainDir, "TimeDependent_AVE_RI_AVE_TIME_SINCE"), meanSol);
 		// do all of them including avg sensitivity plots

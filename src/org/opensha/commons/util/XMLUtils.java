@@ -96,9 +96,18 @@ public class XMLUtils {
 	 * @return
 	 */
 	public static Document createDocumentWithRoot() {
+		return createDocumentWithRoot(DEFAULT_ROOT_NAME);
+	}
+	
+	/**
+	 * Creates a new XML document with a root element.
+	 * 
+	 * @return
+	 */
+	public static Document createDocumentWithRoot(String rootName) {
 		Document doc = DocumentHelper.createDocument();
 		
-		doc.addElement(DEFAULT_ROOT_NAME);
+		doc.addElement(rootName);
 		
 		return doc;
 	}

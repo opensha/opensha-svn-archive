@@ -339,8 +339,9 @@ public class UCERF3_EAL_Combiner {
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 		File compoundSolFile = new File(invSolDir,
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_WITH_GRIDDED.zip");
-		
-		File probsZipDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_20-ucerf3-erf-probs");
+
+//		File probsZipDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_03_20-ucerf3-erf-probs");
+		File probsZipDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_10_07-ucerf3-erf-probs");
 		
 //		File rupLossesFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_index.bin");
 //		File rupGriddedFile = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_10_29-eal/output_fss_gridded.bin");
