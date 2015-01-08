@@ -416,10 +416,8 @@ public class InversionInputGenerator {
 		Stopwatch watch_total = null;
 		Stopwatch watch = null;
 		if (D) {
-			watch_total = new Stopwatch();
-			watch_total.start();
-			watch = new Stopwatch();
-			watch.start();
+			watch_total = Stopwatch.createStarted();
+			watch = Stopwatch.createStarted();
 		}
 		
 		// Make sparse matrix of slip in each rupture & data vector of section slip rates

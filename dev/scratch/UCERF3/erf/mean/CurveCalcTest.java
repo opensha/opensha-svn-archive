@@ -115,8 +115,7 @@ public class CurveCalcTest {
 			subdirName = getSubDirName(upperDepthTol, magTol, combineRakes, rakeBasisDM);
 			
 			System.out.println("Combining rups for tol="+upperDepthTol+", combineRakes="+combineRakes);
-			Stopwatch watch = new Stopwatch();
-			watch.start();
+			Stopwatch watch = Stopwatch.createStarted();
 			FaultSystemSolution reducedSol = RuptureCombiner.getCombinedSolution(sol, upperDepthTol, false, combineRakes, rakeBasis);
 			FaultSystemRupSet reducedRupSet = reducedSol.getRupSet();
 			watch.stop();
@@ -211,7 +210,7 @@ public class CurveCalcTest {
 	private static <T extends Enum<T>> List<T> readArgAsList(String arg,
 			Class<T> clazz) {
 		Iterable<T> it = Iterables.transform(SPLIT.split(arg),
-			Enums.valueOfFunction(clazz));
+			Enums.stringConverter(clazz));
 		return Lists.newArrayList(it);
 	}
 

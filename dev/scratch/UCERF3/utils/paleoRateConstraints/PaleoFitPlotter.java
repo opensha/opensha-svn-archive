@@ -413,10 +413,10 @@ public class PaleoFitPlotter {
 			
 			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight, sol.getLogicTreeBranch());
 			
-			Stopwatch watch = new Stopwatch();
-			Stopwatch paleoWatch = new Stopwatch();
-			Stopwatch slipsWatch = new Stopwatch();
-			Stopwatch aveSlipsWatch = new Stopwatch();
+			Stopwatch watch = Stopwatch.createUnstarted();
+			Stopwatch paleoWatch = Stopwatch.createUnstarted();
+			Stopwatch slipsWatch = Stopwatch.createUnstarted();
+			Stopwatch aveSlipsWatch = Stopwatch.createUnstarted();
 			
 			watch.start();
 			

@@ -303,9 +303,7 @@ public class TestCalc {
 		double[] probs = new double[size];
 		for (int i=0;i<size; i++) probs[i] = 1 - Math.exp(rates[i]);
 		
-		Stopwatch sw = new Stopwatch();
-		
-		sw.start();
+		Stopwatch sw = Stopwatch.createStarted();
 		// NSHMP 
 		//	- annualized rate (R) from source
 		//	- for each GM Poiss Prob is: 1 - exp(PE1*R1 + PE2*R2 + ... PEi*Ri)

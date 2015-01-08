@@ -88,16 +88,14 @@ public class ERFInsideSpeedTest {
 		System.out.println("Calculating!");
 		
 		for (Region r : RegionalMFDPlot.getDefaultRegions()) {
-			Stopwatch watch = new Stopwatch();
-			watch.start();
+			Stopwatch watch = Stopwatch.createStarted();
 			ERF_Calculator.getParticipationMagFreqDistInRegion(erf, r, 5.05, 40, 0.1, true, cache);
 			watch.stop();
 			System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs for "+r.getName());
 		}
 		
 		for (Region r : RegionalMFDPlot.getDefaultRegions()) {
-			Stopwatch watch = new Stopwatch();
-			watch.start();
+			Stopwatch watch = Stopwatch.createStarted();
 			ERF_Calculator.getParticipationMagFreqDistInRegion(erf, r, 5.05, 40, 0.1, true, cache);
 			watch.stop();
 			System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs for "+r.getName());

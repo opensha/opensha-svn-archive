@@ -3,7 +3,7 @@
 	<classpathentry excluding="**/_nobuild/*|junk/*|scratch/UCERF3/data/scratch/" kind="src" path="dev"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-16.0.1.jar">
+	<classpathentry exported="true" kind="lib" path="lib/guava-18.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
 		</attributes>

@@ -3,6 +3,7 @@ package scratch.kevin.ucerf3.etas;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -163,7 +164,7 @@ public class ETAS_CatalogStats {
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
 		
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+		for (ZipEntry entry : Collections.list(zip.entries())) {
 			if (!entry.isDirectory())
 				continue;
 //			System.out.println(entry.getName());

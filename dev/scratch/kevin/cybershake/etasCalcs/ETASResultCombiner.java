@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -79,7 +80,7 @@ public class ETASResultCombiner {
 			System.out.println("Loading "+zipFile.getAbsolutePath());
 			ZipFile zip = new ZipFile(zipFile);
 			
-			for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+			for (ZipEntry entry : Collections.list(zip.entries())) {
 				if (!entry.isDirectory())
 					continue;
 //				if (Math.random() > 0.01)

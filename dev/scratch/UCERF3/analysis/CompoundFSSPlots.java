@@ -3001,8 +3001,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				imr.getParameter(PeriodParam.NAME).setValue(period.getValue());
 			}
 			
-			Stopwatch watch = new Stopwatch();
-			watch.start();
+			Stopwatch watch = Stopwatch.createStarted();
 			plot.debug(solIndex, "calculating curve: "+site.getName()+". "+prefix);
 			calc.getHazardCurve(func, site, imr, erf);
 			watch.stop();
@@ -8496,8 +8495,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 	 * Called at the end to finalize the plot. This should handle assembly of PlotSpecs.
 	 */
 	protected void finalizePlot() {
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		doFinalizePlot();
 		watch.stop();
 		addToFinalizeTimeCount(watch.elapsed(TimeUnit.MILLISECONDS));
@@ -8711,16 +8709,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		public void compute() {
 			try {
-				Stopwatch overheadWatch = new Stopwatch();
-				
-				overheadWatch.start();
+				Stopwatch overheadWatch = Stopwatch.createStarted();
 				debug("Fetching solution for branch: "+branch);
 				InversionFaultSystemSolution sol = fetcher.getSolution(branch);
 
 				overheadWatch.stop();
 
 				for (CompoundFSSPlots plot : plots) {
-					Stopwatch computeWatch = new Stopwatch();
+					Stopwatch computeWatch = Stopwatch.createUnstarted();
 					if (plot.usesERFs()) {
 						// if it's an ERF plot we need to make sure the ERF has been built and set
 						// any parameters

@@ -28,7 +28,8 @@ public class RTGM_Tests {
 	private static Splitter valSplit = Splitter.on(' ').omitEmptyStrings();
 	private static Splitter numSplit = Splitter.on(',');
 	private static Function<String, NEHRP_TestCity> findCity = Enums
-		.valueOfFunction(NEHRP_TestCity.class);
+		.stringConverter(NEHRP_TestCity.class);
+	
 	
 	private static List<ResultSet> results;
 	
@@ -42,7 +43,6 @@ public class RTGM_Tests {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		
 		// load results
 		results = Lists.newArrayList();
 		URL url = Resources.getResource(RTGM_Tests.class, "m/resultsFINAL.txt");

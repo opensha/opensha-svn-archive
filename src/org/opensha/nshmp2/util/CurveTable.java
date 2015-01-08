@@ -352,8 +352,7 @@ public class CurveTable {
 		double mMax = 7.5;
 		double rMax = 1000;
 
-		Stopwatch sw = new Stopwatch();
-		sw.start();
+		Stopwatch sw = Stopwatch.createStarted();
 
 		CurveTable table = CurveTable.create(rMax, 5d, mMin, mMax, 0.1,
 			imrGrdMap, f, FaultCode.M_CONV_AB);

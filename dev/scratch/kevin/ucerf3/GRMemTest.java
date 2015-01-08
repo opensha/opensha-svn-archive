@@ -48,8 +48,7 @@ public class GRMemTest {
 					new InversionInputGenerator(rupSet, config, paleoConstraints, null, paleoModel);
 			
 			System.out.println("Generating inputs...");
-			Stopwatch watch = new Stopwatch();
-			watch.start();
+			Stopwatch watch = Stopwatch.createStarted();
 			if (args.length > 0)
 				gen.generateInputs(SparseRCDoubleMatrix2D.class);
 			else

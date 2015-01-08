@@ -115,7 +115,7 @@ public class ScriptGen {
 	private static <T extends Enum<T>> List<T> readArgAsList(String arg,
 			Class<T> clazz) {
 		Iterable<T> it = Iterables.transform(S.split(arg),
-			Enums.valueOfFunction(clazz));
+			Enums.stringConverter(clazz));
 		return Lists.newArrayList(it);
 	}
 	

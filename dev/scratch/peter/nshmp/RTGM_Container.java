@@ -161,8 +161,7 @@ public class RTGM_Container implements Iterable<Location> {
 	 */
 	public static void main(String[] args) {
 		File f = new File("/Volumes/Scratch/nshmp-sources/DesignMap/RTGM.dat");
-		Stopwatch sw = new Stopwatch();
-		sw.start();
+		Stopwatch sw = Stopwatch.createStarted();
 		RTGM_Container rc = RTGM_Container.create(f);
 		sw.stop();
 		System.out.println("time: " + sw.elapsed(TimeUnit.MILLISECONDS));

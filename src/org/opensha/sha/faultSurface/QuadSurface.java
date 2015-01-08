@@ -1082,8 +1082,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		long[] ret = new long[5];
 		
 		// distance rup
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		for (int i=0; i<num_calcs; i++) {
 			Location loc = getTestLoc(true);
 			surf.getDistanceRup(loc);
@@ -1092,8 +1091,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		ret[0] = watch.elapsed(TimeUnit.MILLISECONDS);
 		
 		// distance JB
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<num_calcs; i++) {
 			Location loc = getTestLoc(true);
 			surf.getDistanceJB(loc);
@@ -1102,8 +1100,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		ret[1] = watch.elapsed(TimeUnit.MILLISECONDS);
 		
 		// distance Seis
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<num_calcs; i++) {
 			Location loc = getTestLoc(true);
 			surf.getDistanceSeis(loc);
@@ -1112,8 +1109,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		ret[2] = watch.elapsed(TimeUnit.MILLISECONDS);
 		
 		// distance X
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<num_calcs; i++) {
 			Location loc = getTestLoc(true);
 			surf.getDistanceX(loc);
@@ -1122,8 +1118,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		ret[3] = watch.elapsed(TimeUnit.MILLISECONDS);
 		
 		// combined
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<num_calcs; i++) {
 			Location loc = getTestLoc(true);
 			surf.getDistanceRup(loc);
@@ -1151,8 +1146,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		System.out.println("Building surfaces");
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		List<RuptureSurface> surfs = Lists.newArrayList();
 		for (int r=0; r<sol.getRupSet().getNumRuptures(); r++) {
 			surfs.add(sol.getRupSet().getSurfaceForRupupture(r, 1d, useQuad));
@@ -1163,29 +1157,25 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {}
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<surfs.size(); i++) {
 			surfs.get(i).getDistanceRup(getTestLoc(randomizeLoc));
 		}
 		watch.stop();
 		System.out.println("Distance Rup: "+(float)(watch.elapsed(TimeUnit.MILLISECONDS)/1000d)+" s");
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<surfs.size(); i++) {
 			surfs.get(i).getDistanceJB(getTestLoc(randomizeLoc));
 		}
 		watch.stop();
 		System.out.println("Distance JB: "+(float)(watch.elapsed(TimeUnit.MILLISECONDS)/1000d)+" s");
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<surfs.size(); i++) {
 			surfs.get(i).getDistanceSeis(getTestLoc(randomizeLoc));
 		}
 		watch.stop();
 		System.out.println("Distance Seis: "+(float)(watch.elapsed(TimeUnit.MILLISECONDS)/1000d)+" s");
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<surfs.size(); i++) {
 			surfs.get(i).getDistanceX(getTestLoc(randomizeLoc));
 		}
@@ -1193,8 +1183,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		System.out.println("Distance X: "+(float)(watch.elapsed(TimeUnit.MILLISECONDS)/1000d)+" s");
 		
 		// now do it with the same location, calculating each
-		watch = new Stopwatch();
-		watch.start();
+		watch = Stopwatch.createStarted();
 		for (int i=0; i<surfs.size(); i++) {
 			Location testLoc = getTestLoc(randomizeLoc);
 			surfs.get(i).getDistanceRup(testLoc);

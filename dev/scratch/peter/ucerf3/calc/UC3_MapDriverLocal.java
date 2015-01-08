@@ -66,8 +66,7 @@ public class UC3_MapDriverLocal {
 		
 		outDir += (bg == INCLUDE) ? "all/" : (bg == EXCLUDE) ? "flt/" : "bg/";
 		
-		Stopwatch sw = new Stopwatch();
-		sw.start();
+		Stopwatch sw = Stopwatch.createStarted();
 		new UC3_MapDriverLocal(sol, outDir, imr, tg, 0.1, p, bg);
 		sw.stop();
 

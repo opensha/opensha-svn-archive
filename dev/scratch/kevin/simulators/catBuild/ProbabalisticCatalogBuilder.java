@@ -81,9 +81,8 @@ public class ProbabalisticCatalogBuilder implements CatalogBuilder {
 			Stopwatch loopWatch = null;
 			Stopwatch probWatch = null;
 			if (D) {
-				loopWatch = new Stopwatch();
-				loopWatch.start();
-				probWatch = new Stopwatch();
+				loopWatch =Stopwatch.createStarted();
+				probWatch = Stopwatch.createUnstarted();
 			}
 			
 			List<Integer> iterationIndexes = Lists.newArrayList();

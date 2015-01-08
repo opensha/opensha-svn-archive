@@ -294,7 +294,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		ZipFile zip = new ZipFile(zipFile);
 		
-		ArrayList<ZipEntry> entries = Lists.newArrayList(Iterators.forEnumeration(zip.entries()));
+		List<? extends ZipEntry> entries = Collections.list(zip.entries());
 		// sort for constant ordering
 		Collections.sort(entries, new Comparator<ZipEntry>() {
 

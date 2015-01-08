@@ -98,7 +98,7 @@ public class InversionConvergencePlotGen {
 			throws IOException {
 		Map<String, List<ZipEntry>> entriesMap = Maps.newHashMap();
 		
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(file.entries()))) {
+		for (ZipEntry entry : Collections.list(file.entries())) {
 			String name = entry.getName();
 			if (!name.contains("_rates_"))
 				continue;
@@ -144,7 +144,7 @@ public class InversionConvergencePlotGen {
 	private static List<double[]> loadBranchRuns(ZipFile file, FaultModels fm, String nameGrep)
 			throws IOException {
 		List<double[]> retList = Lists.newArrayList();
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(file.entries()))) {
+		for (ZipEntry entry : Collections.list(file.entries())) {
 			String name = entry.getName();
 			
 			if (!name.startsWith(fm.getShortName()))
@@ -334,7 +334,7 @@ public class InversionConvergencePlotGen {
 			throws IOException {
 		// first find all noMinRates entries
 		List<ZipEntry> noMinsEntries = Lists.newArrayList();
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(file.entries()))) {
+		for (ZipEntry entry : Collections.list(file.entries())) {
 			if (!entry.getName().contains(nameGrep))
 				continue;
 			if (entry.getName().endsWith("_noMinRates.bin"))

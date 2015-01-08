@@ -670,7 +670,8 @@ public class LogicTreePBSWriter {
 		
 		ZipFile zip = new ZipFile(zipFile);
 		
-		for (ZipEntry entry : Lists.newArrayList(Iterators.forEnumeration(zip.entries()))) {
+		for (ZipEntry entry : Collections.list(zip.entries())) {
+			
 			if (entry.isDirectory())
 				continue;
 			String name = new File(entry.getName()).getName();

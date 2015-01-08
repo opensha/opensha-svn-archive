@@ -220,8 +220,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			indepERF.updateForecast();
 		}
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		for (int i=0; i<numTrials; i++) {
 			System.out.println("Performing trial "+i);
 			double randDuration = durationDelta*Math.random();

@@ -83,8 +83,7 @@ public class HazardBenchmark {
 		
 		HazardCurveCalculator calc = new HazardCurveCalculator();
 		
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		calc.getHazardCurve(curve, site, imr, erf);
 		watch.stop();
 		System.out.println("Took "+(watch.elapsed(TimeUnit.MILLISECONDS) / 1000d)+" secs to calculate");

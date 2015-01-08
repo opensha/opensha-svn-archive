@@ -24,8 +24,7 @@ public class SparseWriteTest {
 		File output = new File(dir, "output.bin");
 //		input = output;
 		System.out.println("Loading...");
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 //		DoubleMatrix2D mat = MatrixIO.loadSparse(input, SparseCCDoubleMatrix2D.class);
 		DoubleMatrix2D mat = MatrixIO.loadSparse(input, SparseDoubleMatrix2D.class);
 		watch.stop();

@@ -33,8 +33,7 @@ public class PE_Tester {
 		System.out.println(getExceedProbability(iml, mean, std, false, 0.0));
 		System.out.println(getExceedProbability(mean, std, iml, 1));
 		
-		Stopwatch sw = new Stopwatch();
-		sw.start();
+		Stopwatch sw = Stopwatch.createStarted();
 		for (int i=0; i<1000000; i++) {
 			double r = (Math.random() - 0.5) * 0.1;
 			getExceedProbability(iml, mean+r, std, false, 0.0);

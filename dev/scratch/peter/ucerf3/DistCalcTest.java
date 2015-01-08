@@ -38,7 +38,7 @@ public class DistCalcTest {
 			branchID, IncludeBackgroundOption.EXCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-		Stopwatch sw = new Stopwatch();
+		Stopwatch sw = Stopwatch.createUnstarted();
 		for (Location loc : locs) {
 			System.out.println("Starting calc for " + loc);
 			sw.reset().start();
@@ -55,7 +55,7 @@ public class DistCalcTest {
 			IncludeBackgroundOption.INCLUDE, false, true, 1.0);
 		erf.updateForecast();
 		EpistemicListERF wrappedERF = ERF_ID.wrapInList(erf);
-		Stopwatch sw = new Stopwatch();
+		Stopwatch sw = Stopwatch.createUnstarted();
 		for (Location loc : locs) {
 			System.out.println("Starting calc for " + loc);
 			sw.reset().start();

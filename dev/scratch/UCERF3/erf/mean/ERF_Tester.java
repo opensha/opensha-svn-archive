@@ -41,8 +41,7 @@ public class ERF_Tester {
 			rakeBasis = RakeBasisWriter.loadRakeBasis(rakeBasisZip, DeformationModels.GEOLOGIC);
 		}
 		System.out.println("Combining rups for tol="+upperDepthTol+", combineRakes="+combineRakes+", combineMags="+combineMags);
-		Stopwatch watch = new Stopwatch();
-		watch.start();
+		Stopwatch watch = Stopwatch.createStarted();
 		FaultSystemSolution reducedSol = RuptureCombiner.getCombinedSolution(sol, upperDepthTol, false, combineRakes, rakeBasis);
 		if (combineMags > 0)
 			reducedSol.setRupMagDists(RuptureCombiner.combineMFDs(combineMags, reducedSol.getRupMagDists()));
@@ -117,8 +116,7 @@ public class ERF_Tester {
 				erf = null;
 				System.gc();
 				System.out.println("Combining rups for tol="+upperDepthTol+", combineRakes="+combineRakes);
-				Stopwatch watch = new Stopwatch();
-				watch.start();
+				Stopwatch watch = Stopwatch.createStarted();
 				FaultSystemSolution reducedSol = RuptureCombiner.getCombinedSolution(sol, upperDepthTol, false, combineRakes, null);
 				FaultSystemRupSet reducedRupSet = reducedSol.getRupSet();
 				watch.stop();

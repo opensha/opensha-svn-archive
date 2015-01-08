@@ -141,7 +141,7 @@ public class UC3_CalcMPJ_CurveAverage extends MPJTaskCalculator {
 	private static <T extends Enum<T>> List<T> readArgAsList(String arg,
 			Class<T> clazz) {
 		Iterable<T> it = Iterables.transform(SPLIT.split(arg),
-			Enums.valueOfFunction(clazz));
+			Enums.stringConverter(clazz));
 		return Lists.newArrayList(it);
 	}
 

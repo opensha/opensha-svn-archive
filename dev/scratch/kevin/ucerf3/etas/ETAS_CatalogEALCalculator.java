@@ -170,7 +170,7 @@ public class ETAS_CatalogEALCalculator {
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
 		
-		ArrayList<ZipEntry> entries = Lists.newArrayList(Iterators.forEnumeration(zip.entries()));
+		List<? extends ZipEntry> entries = Collections.list(zip.entries());
 		// sort for constant ordering
 		Collections.sort(entries, new Comparator<ZipEntry>() {
 
