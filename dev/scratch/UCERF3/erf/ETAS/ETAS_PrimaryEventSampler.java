@@ -576,7 +576,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 					else if (origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 1)
 						insidePoly[c]=1;
 
-					else {
+					else {	// check if loc is within any of the subsection polygons
 						insidePoly[c]=0;
 						for(int s=0; s< rupSet.getNumSections(); s++) {
 							if(faultPolyMgr.getPoly(s).contains(loc)) {
@@ -1267,19 +1267,32 @@ if(locsToSampleFrom.size() == 0) {
 	
 	/**
 	 * This method
+	 * The commented out elements below show that we can't ignore supraseismogenic events
+	 * in these rates due to extreme characteristic MFDs in some locations (in part because
+	 * gridded seis rates are spread but fault rates arent)
 	 */
 	private synchronized IntegerPDF_FunctionSampler getCubeSamplerWithERF_RatesOnly() {
 		if(cubeSamplerRatesOnly == null) {
 			cubeSamplerRatesOnly = new IntegerPDF_FunctionSampler(numCubes);
+//			double maxTest = 0;
+//			int testCubeIndex = -1;
 			for(int i=0;i<numCubes;i++) {
 				int[] sources = srcInCubeList.get(i);
 				float[] fract = fractionSrcInCubeList.get(i);
 				double totRate=0;
+//				double supraRate=0;
 				for(int j=0; j<sources.length;j++) {
 					totRate += sourceRates[sources[j]]*(double)fract[j];
+//					if(sources[j] < this.numFltSystSources)
+//						supraRate += sourceRates[sources[j]]*(double)fract[j];
 				}
+//				if(supraRate/totRate > maxTest) {
+//					maxTest = supraRate/totRate;
+//					testCubeIndex = i;
+//				}
 				cubeSamplerRatesOnly.set(i,totRate);
 			}
+// System.out.println("HERE maxTest="+maxTest+"\ttestCubeIndex="+testCubeIndex+"\tloc: "+this.getCubeLocationForIndex(testCubeIndex));
 		}
 		return cubeSamplerRatesOnly;
 	}
@@ -1356,7 +1369,13 @@ if(locsToSampleFrom.size() == 0) {
 		}
 	}
 	
-	
+	/**
+	 * This sets fracts[s] = 0.0 for supra-seismogenic ruptures on all cubes that contain a point on the surface of
+	 * the given rupture, preventing the such sources from ever being triggered from these cubes.
+	 * 
+	 * TODO these should evolve back into being triggerable with time
+	 * @param rupture
+	 */
 	public void removeTriggeringOnSupraSeisRup(EqkRupture rupture) {
 		
 		ArrayList<Integer> cubeLocsProcessed = new ArrayList<Integer>();
@@ -1377,6 +1396,12 @@ if(locsToSampleFrom.size() == 0) {
 	}
 	
 	
+	/**
+	 * This returns a scale factor for each original grid cell, whereby multiplying the supra-seismogenic MFD
+	 * therein by this factor will produced the same number of expected primary aftershocks as for a perfect GR
+	 * (extrapolating the sub-seismogenic MFD to the maximum magnitude of the supra-seismogenic MFD).
+	 * @return
+	 */
 	public double[] getGR_CorrFactorsForOrigGridCells() {
 		
 		double[] grCorrFactorForCellArray = new double[origGriddedRegion.getNodeCount()];

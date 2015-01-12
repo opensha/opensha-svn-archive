@@ -245,6 +245,7 @@ public class ETAS_Simulator {
 			System.out.println("obsEqkRuptureList.size()="+obsEqkRuptureList.size());
 		}
 		
+		// add scenario rup to end of obsEqkRuptureList
 		int scenarioRupID = -1;
 		double numPrimaryAshockForScenario = 0;
 		if(scenarioRup != null) {
@@ -259,8 +260,8 @@ public class ETAS_Simulator {
 		
 
 		// this will store the simulated aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
-		ObsEqkRupOrigTimeComparator otComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
-		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);
+		ObsEqkRupOrigTimeComparator oigTimeComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
+		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);
 		
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
@@ -274,7 +275,7 @@ public class ETAS_Simulator {
 		erf.updateForecast();	// do this to get annual rate over the entire forecast (used to sample spontaneous events)
 		if(D) System.out.println("Done updating forecast in testETAS_Simulation");
 		
-		//Compute origTotRate; this calculation includes rates outside region, 
+		//Compute origTotRate; this calculation includes any ruptures outside region, 
 		// but this is dominated by gridded seis so shouldn't matter; using 
 		// ERF_Calculator.getTotalRateInRegion(erf, griddedRegion, 0.0) takes way too long.
 		if(D) System.out.println("Computing origTotRate");
@@ -316,9 +317,11 @@ public class ETAS_Simulator {
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		st = System.currentTimeMillis();
+		
+		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);
+				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		
@@ -347,7 +350,7 @@ public class ETAS_Simulator {
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
-		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, otComparator);	// not sure about the first field
+		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);	// not sure about the first field
 		int testParID=0;	// this will be used to test IDs
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
 		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
@@ -505,6 +508,7 @@ public class ETAS_Simulator {
 				else
 					rup.setGridNodeIndex(sourceIndex - numFaultSysSources);
 			}
+			// Not spontaneous, so set as a primary aftershock
 			else {
 				succeededInSettingRupture = etas_PrimEventSampler.setRandomPrimaryEvent(rup);
 			}
@@ -805,7 +809,7 @@ public class ETAS_Simulator {
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 
-		ETAS_EqkRupture scenarioRup= buildScenarioRup(scenario, erf);
+		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
 		
 //		System.out.println("aveStrike="+scenarioRup.getRuptureSurface().getAveStrike());
 //		for(Location loc:scenarioRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
@@ -1032,7 +1036,8 @@ public class ETAS_Simulator {
 //		runTest(null, params, null, "HistCatalogTest_2", getHistCatalog());
 //		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
-		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
+//		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
+		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
 
 		

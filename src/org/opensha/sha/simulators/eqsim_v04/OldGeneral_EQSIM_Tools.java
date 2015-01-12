@@ -1522,6 +1522,97 @@ public class OldGeneral_EQSIM_Tools {
 	}
 
 	
+	public void plotNormRI_AtHypocenters(double supraSeisMagThresh, boolean saveStuff) {
+
+		// make array of time of last event for each element
+		double[] lastTimeForElement = new double[rectElementsList.size()];
+		int[] lastEventID_ForElement = new int[rectElementsList.size()];
+		for(int i=0; i<lastTimeForElement.length;i++) {
+			lastTimeForElement[i]=Double.NaN;  // initialize to bogus value so we can check
+			lastEventID_ForElement[i]=-1;
+		}
+		
+		// get average RI for each element
+		double[] aveRI_ForElement = new double[rectElementsList.size()];
+		int[] numEventsForElement = new int[rectElementsList.size()];
+		for(EQSIM_Event event:eventList) {
+			double eventTime = event.getTime();
+			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, supraSeisMagThresh)) {  
+				int[] elemIDs = event.getAllElementIDs();
+				int numElements = elemIDs.length;
+				for(int e=0;e<numElements;e++) {
+					int index = elemIDs[e]-1;  // index = ID-1
+					numEventsForElement[index] += 1;
+					double lastTime = lastTimeForElement[index];
+					if(!Double.isNaN(lastTime)) {
+						aveRI_ForElement[index] += (eventTime-lastTime);
+					}
+					lastTimeForElement[index] = eventTime;
+				}
+			}
+		}
+		for(int i=0; i<aveRI_ForElement.length; i++) {
+			aveRI_ForElement[i] /= numEventsForElement[i]-1;	// one less than the number of events; sum is just equal to last minus first time
+			aveRI_ForElement[i] /= SECONDS_PER_YEAR;
+		}
+
+		// reinitialize array
+		for(int i=0; i<lastTimeForElement.length;i++) 
+			lastTimeForElement[i]=-1;  // initialize to bogus value so we can check
+
+		
+		CalcProgressBar progressBar = new CalcProgressBar("testTimePredictability","Events Processed");
+		progressBar.showProgress(true);
+		
+		int eventNum=-1;
+		
+		ArrayList<Double> normRI_List = new ArrayList<Double>();
+		
+		// loop over all events
+		for(EQSIM_Event event:eventList) {
+			double eventTime = event.getTime();
+			
+			eventNum +=1;
+			progressBar.updateProgress(eventNum, eventList.size());
+			
+			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, supraSeisMagThresh)) {  
+				int hypoElemID = event.get(0).getHypocenterElementID();
+				int hypoElemIndex = hypoElemID-1;  // index = ID-1
+				double lastTime = lastTimeForElement[hypoElemIndex];
+				if(lastTime != -1) {
+					double normRI = ((eventTime-lastTime)/SECONDS_PER_YEAR)/aveRI_ForElement[hypoElemIndex];
+					normRI_List.add(normRI);
+					if(normRI<0.1) {
+						System.out.println(normRI+"\t"+event.getID()+"\t"+lastEventID_ForElement[hypoElemIndex]+"\t"+hypoElemID);
+					}
+				}
+
+				// now fill in the last event data for next time
+				for(int id : event.getAllElementIDs()) {
+					int index = id-1;
+					lastTimeForElement[index] = eventTime;
+					lastEventID_ForElement[index] = event.getID();
+				}
+			}
+		}
+		
+		GraphWindow plot = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normRI_List, Double.NaN), 
+				"Normalized Hypocenter RI");
+		
+		if(saveStuff) {
+			try {
+				plot.saveAsPDF(dirNameForSavingFiles+"/normRI_atHypocenters.pdf");
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+	}
+	
+	
 	
 	/**
 	 * This method evaluates Ned's average time- and slip-predictability in various ways.

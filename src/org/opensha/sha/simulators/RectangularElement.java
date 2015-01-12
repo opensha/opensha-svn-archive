@@ -164,6 +164,14 @@ public class RectangularElement {
 	}
 	
 	/**
+	 * This returns the average depth (in km, positive is down) of all four vertices
+	 * @return
+	 */
+	public double getAveDepth() {
+		return (vertices[0].getDepth()+vertices[1].getDepth()+vertices[2].getDepth()+vertices[3].getDepth())/4.0;
+	}
+	
+	/**
 	 * This returns the average/center location defined by averaging lats, 
 	 * lons, and depths of the four vertices
 	 * @return

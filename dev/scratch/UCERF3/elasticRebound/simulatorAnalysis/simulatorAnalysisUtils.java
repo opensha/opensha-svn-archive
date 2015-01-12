@@ -184,8 +184,8 @@ public class simulatorAnalysisUtils {
 //						infoStrings.add(tools.checkFullDDW_rupturing(true,true));
 //					}
 //					// total MFD
-					System.out.println("Working on computeTotalMagFreqDist(*)");
-					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
+//					System.out.println("Working on computeTotalMagFreqDist(*)");
+//					tools.computeTotalMagFreqDist(4.05, 8.95, 50, true, true);
 
 //					// norm RI dist for surface elements
 //					System.out.println("Working on plotNormRecurIntsForAllSurfaceElements(*)");
@@ -207,10 +207,14 @@ public class simulatorAnalysisUtils {
 //					System.out.println("Working on plotRI_DistsAtObsPaleoRateSites(*)");
 //					plotRI_DistsAtObsPaleoRateSites(tools, true);
 					
-					// all the time & slip predictability tests (plus other things):
-					System.out.println("Working on testTimePredictability(*)");
-					String info = tools.testTimePredictability(magThresh, true, null, false);
-					infoStrings.add(info);
+//					// all the time & slip predictability tests (plus other things):
+//					System.out.println("Working on testTimePredictability(*)");
+//					String info = tools.testTimePredictability(magThresh, true, null, false);
+//					infoStrings.add(info);
+					
+					// normalized RI at hypocenters
+					System.out.println("Working on plotNormRI_AtHypocenters(*)");					
+					tools.plotNormRI_AtHypocenters(magThresh, true);
 
 					try {
 						FileWriter infoFileWriter = new FileWriter(dirNameForSavingFiles+"/INFO.txt");

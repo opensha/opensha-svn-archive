@@ -45,7 +45,7 @@ public class EventRecord {
     double[] elementSlips = new double[0];
     int[] elementIDs = new int[0];
     
-    List<RectangularElement> rectElementsList;
+    List<RectangularElement> rectElementsList;	// this is all the elements, not just those used here
     
     /**
      * No arg constructor
@@ -202,6 +202,25 @@ public class EventRecord {
 	public double getTime() { return time;}
 	
 	public void setTime(double time) { this.time=time;}
+	
+	/**
+	 * This returns the ID of the element closest to the hypocenter 
+	 * (or first point to rupture on this EventRecord)
+	 * @return
+	 */
+	public int getHypocenterElementID() {
+		double minDist = Double.MAX_VALUE;
+		int id = -1;
+		for(int elemID:getElementIDs()) {
+			RectangularElement rectElem = rectElementsList.get(elemID-1);  // index is ID-1
+			double dist = (rectElem.getAveDAS()-hypo_das)*(rectElem.getAveDAS()-hypo_das) + (rectElem.getAveDepth()-hypo_depth)*(rectElem.getAveDepth()-hypo_depth);
+			if(dist<minDist) {
+				minDist=dist;
+				id = rectElem.getID();
+			}
+		}
+		return id;
+	}
 	
 	public int[] getElementIDs() {
 		if (elementIDs.length > numElements) {
