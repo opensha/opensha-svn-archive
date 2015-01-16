@@ -31,6 +31,7 @@ import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.kevin.markov.EmpiricalMarkovChain;
+import scratch.kevin.markov.OccBasedIterativeSolver;
 import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
@@ -42,6 +43,7 @@ import scratch.kevin.simulators.synch.StateSpacePlotter;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
 public class PredictionTests {
@@ -96,6 +98,8 @@ public class PredictionTests {
 			for (int j=0; j<predictors.size(); j++) {
 				Predictor p = predictors.get(j);
 				double[] prediction = p.getRuptureProbabilities();
+				for (int k=0; k<prediction.length; k++)
+					Preconditions.checkState(Doubles.isFinite(prediction[k]));
 				double[] predictedN = predictedNs.get(j);
 				for (int k=0; k<nDims; k++)
 					predictedN[k] += prediction[k];
@@ -537,10 +541,10 @@ public class PredictionTests {
 		List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(minMag, maxMag,
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
-				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
+//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA);
-//				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
+				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		
@@ -560,10 +564,15 @@ public class PredictionTests {
 		predictors.add(new MarkovPredictor());
 		predictors.add(new RecurrIntervalPredictor());
 		int nullHypothesisIndex = predictors.size()-1;
-		SynchRIPredictor synch = new SynchRIPredictor(50);
-		predictors.add(synch);
-		if (rupIdens.size() == 2 && fakeData)
-			predictors.add(new SplitPredictor(new RecurrIntervalPredictor(), new SynchRIPredictor(50)));
+//		SynchRIPredictor synch = new SynchRIPredictor(50);
+//		predictors.add(synch);
+//		if (rupIdens.size() == 2 && fakeData)
+//			predictors.add(new SplitPredictor(new RecurrIntervalPredictor(), new SynchRIPredictor(50)));
+		if (rupIdens.size() == 2) {
+			// add occupancy based
+			predictors.add(new OccBasedMarkovPredictor(new RecurrIntervalPredictor(), false, 0.9999));
+			predictors.add(new OccBasedMarkovPredictor(new RecurrIntervalPredictor(), true, 0.9999));
+		}
 		predictors.add(new PoissonPredictor());
 //		int nullHypothesisIndex = predictors.size()-1;
 		
@@ -585,7 +594,7 @@ public class PredictionTests {
 			if (do2DPlots && minRate == 0d)
 				tests.write2DProbPlots(plot2DOutputDir, rupIdens);
 		}
-		synch.writePlots(synchPlotOutputDir, rupIdens);
+//		synch.writePlots(synchPlotOutputDir, rupIdens);
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.Range;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -31,6 +32,7 @@ import scratch.kevin.markov.EmpiricalMarkovChain;
 import scratch.kevin.markov.MarkovChain;
 import scratch.kevin.markov.OccupancyBasedMarkovChain2D;
 import scratch.kevin.markov.PossibleStates;
+import scratch.kevin.markov.XYZBasedMarkovChain;
 import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
@@ -58,6 +60,7 @@ public class StateSpacePlotter {
 		this.chain = chain;
 		this.names = names;
 		this.outputDir = outputDir;
+		Preconditions.checkState(outputDir == null || (outputDir.exists() || outputDir.mkdir()));
 		this.distSpacing = chain.getDistSpacing();
 		
 		this.nDims = chain.getNDims();
@@ -81,6 +84,10 @@ public class StateSpacePlotter {
 	}
 	
 	public void plotOccupancies() throws IOException {
+		plotOccupancies(true);
+	}
+	
+	public void plotOccupancies(boolean marginals) throws IOException {
 		for (int i=0; i<nDims; i++) {
 			String name1 = names.get(i).getName();
 			for (int j=i+1; j<nDims; j++) {
@@ -90,7 +97,45 @@ public class StateSpacePlotter {
 				
 				CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, xyz.getMaxZ());
 				
-				plot2D(xyz, cpt, name1, name2, "Occupancy", "occ", true);
+				plot2D(xyz, cpt, name1, name2, "Occupancy", "occ", marginals);
+				
+				// now plot the axis as functions
+				
+				EvenlyDiscretizedFunc occLagFunc = new EvenlyDiscretizedFunc(
+						-xyz.getMaxY(), xyz.getNumY()+xyz.getNumX()-1, distSpacing);
+				
+				// normalize by the independent 
+				EvenlyDiscretizedFunc margX = xyz.calcMarginalXDist();
+				EvenlyDiscretizedFunc margY = xyz.calcMarginalYDist();
+				
+				int index = 0;
+				for (int yInd=xyz.getNumY(); --yInd>=0;) {
+					double occ = xyz.get(0, yInd);
+					double indepOcc = margX.getY(0)*margY.getY(yInd);
+					double prob = Math.log(occ/indepOcc);
+					if (!Doubles.isFinite(prob))
+						prob = 0d;
+					occLagFunc.set(index++, prob);
+				}
+				for (int xInd=1; xInd<xyz.getNumX(); xInd++) {
+					double occ = xyz.get(xInd, 0);
+					double indepOcc = margX.getY(xInd)*margY.getY(0);
+					double prob = Math.log(occ/indepOcc);
+					if (!Doubles.isFinite(prob))
+						prob = 0d;
+					occLagFunc.set(index++, prob);
+				}
+				
+				Range xRange = new Range(-30*distSpacing, 30*distSpacing);
+				Range yRange = new Range(-2d, 2d);
+				
+				List<DiscretizedFunc> funcs = Lists.newArrayList();
+				funcs.add(occLagFunc);
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				PlotSpec spec = new PlotSpec(funcs, chars, "Occupation Prob Gain", "Lag (years)", "Ln(Gain)");
+
+				plot1D(spec, name1, name2, "occ_lag");
 			}
 		}
 	}
@@ -130,6 +175,89 @@ public class StateSpacePlotter {
 				EvenlyDiscrXYZ_DataSet xyz = getMarkovXYZ(prob, i, j);
 				
 				plot2D(xyz, cpt, name1, name2, prob.title, prob.prefix, false);
+			}
+		}
+	}
+	
+	public void plotStateTrans(boolean separatePlots, boolean plotOneNotOther) throws IOException {
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, 1d);
+		cpt.setNanColor(Color.WHITE);
+		
+		for (int i=0; i<nDims; i++) {
+			String name1 = names.get(i).getName();
+			for (int j=i+1; j<nDims; j++) {
+				String name2 = names.get(j).getName();
+				
+				EvenlyDiscrXYZ_DataSet both = getMarkovXYZ(MarkovProb.BOTH, i, j);
+				EvenlyDiscrXYZ_DataSet none = getMarkovXYZ(MarkovProb.NONE, i, j);
+				EvenlyDiscrXYZ_DataSet e1;
+				EvenlyDiscrXYZ_DataSet e2;
+				String titleE1, titleE2;
+				if (plotOneNotOther) {
+					titleE1 = "P(E1 !E2)";
+					titleE2 = "P(!E1 E2)";
+					e1 = getMarkovXYZ(MarkovProb.E1_NE2, i, j);
+					e2 = getMarkovXYZ(MarkovProb.NE1_E2, i, j);
+				} else {
+					titleE1 = "P(E1)";
+					titleE2 = "P(E2)";
+					e1 = getMarkovXYZ(MarkovProb.E1, i, j);
+					e2 = getMarkovXYZ(MarkovProb.E2, i, j);
+				}
+				
+				XYZPlotSpec bothSpec = new XYZPlotSpec(both, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "P(E1 E2)");
+				XYZPlotSpec noneSpec = new XYZPlotSpec(none, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", "P(!E1 !E2");
+				XYZPlotSpec e1Spec = new XYZPlotSpec(e1, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", titleE1);
+				XYZPlotSpec e2Spec = new XYZPlotSpec(e2, cpt, name1+" "+name2,
+						name1+" OI", name2+" OI", titleE2);
+				
+				List<List<XYZPlotSpec>> specLists = Lists.newArrayList();
+				List<String> prefixes = Lists.newArrayList();
+				
+				int width;
+				int height;
+				
+				if (separatePlots) {
+					width = 600;
+					height = 680;
+					specLists.add(Lists.newArrayList(bothSpec));
+					prefixes.add("markov_both");
+					specLists.add(Lists.newArrayList(noneSpec));
+					prefixes.add("markov_none");
+					specLists.add(Lists.newArrayList(e1Spec));
+					prefixes.add("markov_e1");
+					specLists.add(Lists.newArrayList(e2Spec));
+					prefixes.add("markov_e2");
+				} else {
+					width = 600;
+					height = 2000;
+					specLists.add(Lists.newArrayList(bothSpec, noneSpec, e1Spec, e2Spec));
+					prefixes.add("all_markov");
+				}
+				
+				for (int n=0; n<specLists.size(); n++) {
+					List<XYZPlotSpec> specs = specLists.get(n);
+					String prefix = prefixes.get(n);
+					
+					XYZGraphPanel panel = new XYZGraphPanel();
+					panel.drawPlot(specs, false, false, null, null);
+					
+					if (outputDir == null) {
+						// display it
+						XYZPlotWindow window = new XYZPlotWindow(panel);
+						window.setSize(width, height);
+					} else {
+						// write plot
+						panel.getChartPanel().setSize(width, height);
+						File out = new File(outputDir, prefix+"_"+PeriodicityPlotter.getFileSafeString(name1)
+								+"_"+PeriodicityPlotter.getFileSafeString(name2));
+						panel.saveAsPNG(out.getAbsolutePath()+".png");
+						panel.saveAsPDF(out.getAbsolutePath()+".pdf");
+					}
+				}
 			}
 		}
 	}
@@ -208,7 +336,9 @@ public class StateSpacePlotter {
 		PHI_0("Psi 0", "psi_0"),
 		PHI_1("Psi 1", "psi_1"),
 		PHI_2("Psi 2", "psi_2"),
-		PHI_3("Psi 3", "psi_3");
+		PHI_3("Psi 3", "psi_3"),
+		E1_NE2("P(E1 !E2)", "prob_e1_ne2"),
+		NE1_E2("P(!E1 E2)", "prob_ne1_e2");
 		
 		private String title;
 		private String prefix;
@@ -222,8 +352,12 @@ public class StateSpacePlotter {
 	private EvenlyDiscrXYZ_DataSet getMarkovXYZ(MarkovProb type, int i, int j) {
 		MarkovChain collapsed = chain.getCollapsedChain(i, j);
 //		collapsed = new OccupancyBasedMarkovChain2D(chain.getDistSpacing(), collapsed.getOccupancy());
-		MarkovChain marginalX = collapsed.getCollapsedChain(0);
-		MarkovChain marginalY = collapsed.getCollapsedChain(1);
+		MarkovChain marginalX = null;
+		MarkovChain marginalY = null;
+		if (type == MarkovProb.PHI_0 || type == MarkovProb.PHI_1 || type == MarkovProb.PHI_2 || type == MarkovProb.PHI_3) {
+			marginalX = collapsed.getCollapsedChain(0);
+			marginalY = collapsed.getCollapsedChain(1);
+		}
 		
 		EvenlyDiscrXYZ_DataSet xyz = buildXYZ(i, j);
 		
@@ -235,13 +369,17 @@ public class StateSpacePlotter {
 					prob = Double.NaN;
 				} else {
 					double tot = 0;
-					double numE1=0, numE2=0, numBoth=0, numEither=0;
+					double numE1=0, numE2=0, numBoth=0, numEither=0, numE1_NE2=0, numNE1_E2=0;
 					for (int[] dest : possible.getStates()) {
 						double freq = possible.getFrequency(dest);
 						if (dest[0] == 0)
 							numE1 += freq;
 						if (dest[1] == 0)
 							numE2 += freq;
+						if (dest[0] == 0 && dest[1] != 0)
+							numE1_NE2 += freq;
+						if (dest[0] != 0 && dest[1] == 0)
+							numNE1_E2 += freq;
 						if (dest[0] == 0 && dest[1] == 0)
 							numBoth += freq;
 						if (dest[0] == 0 || dest[1] == 0)
@@ -254,6 +392,12 @@ public class StateSpacePlotter {
 						break;
 					case E2:
 						prob = numE2/tot;
+						break;
+					case E1_NE2:
+						prob = numE1_NE2/tot;
+						break;
+					case NE1_E2:
+						prob = numNE1_E2/tot;
 						break;
 					case EITHER:
 						prob = numEither/tot;
@@ -474,7 +618,14 @@ public class StateSpacePlotter {
 		}
 	}
 	
-	private static int getNBinsForFract(MarkovChain chain, int index, double fractToInclude) {
+	public static int getNBinsForFract(MarkovChain chain, int index, double fractToInclude) {
+		if (chain instanceof XYZBasedMarkovChain) {
+			EvenlyDiscrXYZ_DataSet occXYZ = ((XYZBasedMarkovChain)chain).getOccupancyXYZ();
+			if (index == 0)
+				return occXYZ.getNumX();
+			else
+				return occXYZ.getNumY();
+		}
 		List<Integer> indexes = Lists.newArrayList();
 		PossibleStates marginal = chain.getOccupancy().getMarginal(index);
 		double totOcc = marginal.getTot();
@@ -553,12 +704,12 @@ public class StateSpacePlotter {
 			
 			StateSpacePlotter plot = new StateSpacePlotter(chain, rupIdens, setOutputDir);
 			
-//			plot.plotOccupancies();
+			plot.plotOccupancies();
 //			plot.plotProbEither();
 			
-			plot.plotDiagonals(0.02);
+//			plot.plotDiagonals(0.02);
 			
-			plot.plotPhi();
+//			plot.plotPhi();
 		}
 		System.exit(0);
 	}

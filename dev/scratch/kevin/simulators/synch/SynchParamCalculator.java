@@ -105,7 +105,10 @@ public class SynchParamCalculator {
 	protected static final boolean useIndepProbs = true;
 
 	// if true, lags are calculated by shifting the markov chain and computing as normal
-	protected static final boolean doLagByShift = true;
+	protected static final boolean doLagByShift = false;
+
+	// if true, lags are calculated by via state occupancy
+	protected static final boolean doLagByOcc = true;
 
 	enum WeightingScheme {
 		FREQ_EITHERS,
@@ -152,8 +155,12 @@ public class SynchParamCalculator {
 
 	private void calculate() {
 		if (weightingScheme == WeightingScheme.CATALOG_G) {
-			Preconditions.checkState(lag == 0, "Must use shift lag for catalog G");
-			gBar = calcCatalogG(chain, 0, 1);
+			if (doLagByOcc) {
+				gBar = calcOccG(chain, m, catLenMult, lag);
+			} else {
+				Preconditions.checkState(lag == 0, "Must use shift lag for catalog G");
+				gBar = calcCatalogG(chain, 0, 1);
+			}
 			return;
 		}
 		
@@ -1810,6 +1817,30 @@ public class SynchParamCalculator {
 		return numWindows * numMN/(numM*numN);
 	}
 	
+	public static double calcOccG(MarkovChain chain, int m, int n, int lag) {
+		// get as 2D chain 
+		if (chain.getNDims() != 2 || m != 0 || n != 1)
+			chain = chain.getCollapsedChain(m, n);
+		PossibleStates occ = chain.getOccupancy();
+		PossibleStates occMarginal1 = occ.getMarginal(0);
+		PossibleStates occMarginal2 = occ.getMarginal(1);
+		
+		double probE1 = occMarginal1.getFrequency(new int[] {0}) / occMarginal1.getTot();
+		double probE2 = occMarginal2.getFrequency(new int[] {0}) / occMarginal2.getTot();
+		
+		int[] numeratorState;
+		if (lag == 0)
+			numeratorState = new int[] {0,0};
+		else if (lag < 0)
+			numeratorState = new int[] {0,-lag};
+		else
+			numeratorState = new int[] {lag,0};
+		
+		double probE1E2 = occ.getFrequency(numeratorState)/occ.getTot();
+		
+		return probE1E2/(probE1*probE2);
+	}
+	
 	private static double calcProbGain(List<EQSIM_Event> events, RuptureIdentifier first,
 			RuptureIdentifier second, double years, boolean includeCorupInGain) {
 		List<EQSIM_Event> firstMatches = first.getMatches(events);
@@ -2203,6 +2234,8 @@ public class SynchParamCalculator {
 			indepStr = "dep";
 
 		String name = "weight_"+weightingScheme.name()+"_"+indepStr;
+		if (doLagByOcc)
+			name += "_occLag";
 		if (doLagByShift)
 			name += "_shiftLag";
 		return name;

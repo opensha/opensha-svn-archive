@@ -41,10 +41,10 @@ public class TestOccFromSynch {
 		List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(minMag, maxMag,
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO, SynchFaults.SAF_CARRIZO);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
-				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
+//				SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA);
-//				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
+				SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO);
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		String name1 = rupIdens.get(0).getName();
@@ -75,13 +75,17 @@ public class TestOccFromSynch {
 		}
 		origOccXYZ.scale(1d/origOccXYZ.getSumZ());
 		
-//		EvenlyDiscretizedFunc marginalX = origOccXYZ.calcMarginalXDist();
-//		EvenlyDiscretizedFunc marginalY = origOccXYZ.calcMarginalYDist();
-//		
-//		// multiply marginals for starting
-//		for (int xInd=0; xInd<newOccXYZ.getNumX(); xInd++)
-//			for (int yInd=0; yInd<newOccXYZ.getNumY(); yInd++)
-//				newOccXYZ.set(xInd, yInd, marginalX.getY(xInd)*marginalY.getY(yInd));
+		EvenlyDiscrXYZ_DataSet indepOccXYZ = new EvenlyDiscrXYZ_DataSet(
+				50, 50, 0.5*distSpacing, 0.5*distSpacing, distSpacing);
+		
+		
+		EvenlyDiscretizedFunc marginalX = origOccXYZ.calcMarginalXDist();
+		EvenlyDiscretizedFunc marginalY = origOccXYZ.calcMarginalYDist();
+		
+		// multiply marginals for starting
+		for (int xInd=0; xInd<indepOccXYZ.getNumX(); xInd++)
+			for (int yInd=0; yInd<indepOccXYZ.getNumY(); yInd++)
+				indepOccXYZ.set(xInd, yInd, marginalX.getY(xInd)*marginalY.getY(yInd));
 		
 //		// fill in edges
 //		for (int xInd=0; xInd<newOccXYZ.getNumX(); xInd++)
@@ -90,7 +94,7 @@ public class TestOccFromSynch {
 //			newOccXYZ.set(0, yInd, origOccXYZ.get(0, yInd));
 		
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, origOccXYZ.getMaxZ());
-		File outputDir = new File("/tmp");
+		File outputDir = new File("/home/kevin/Simulators/inferred_occupancy");
 		
 //		newOccXYZ = getScaledToDiags(newOccXYZ, origOccXYZ);
 		
@@ -115,30 +119,33 @@ public class TestOccFromSynch {
 		System.out.println("Sum Z: orig="+origOccXYZ.getSumZ()+", new="+newOccXYZ.getSumZ());
 		
 //		double maxZ = Math.max(newOccXYZ.getMaxZ(), origOccXYZ.getMaxZ());
+		boolean marginals = false;
 		StateSpacePlotter.plot2D(origOccXYZ, cpt, name1, name2, "Orig. Occupancy",
-				"occ_orig", true, outputDir);
+				"occ_orig", marginals, outputDir);
+		StateSpacePlotter.plot2D(indepOccXYZ, cpt, name1, name2, "Indep. Occupancy",
+				"occ_indep", marginals, outputDir);
 		StateSpacePlotter.plot2D(newOccXYZ, cpt, name1, name2, "Alg. Occupancy",
-				"occ_alg", true, outputDir);
+				"occ_alg", marginals, outputDir);
 		
-		File origOutput = new File(outputDir, "markov_probs_orig");
-		Preconditions.checkState((origOutput.exists() && origOutput.isDirectory()) || origOutput.mkdir());
-		File newOutput = new File(outputDir, "markov_probs_alg");
-		Preconditions.checkState((newOutput.exists() && newOutput.isDirectory()) || newOutput.mkdir());
-		StateSpacePlotter origPlotter = new StateSpacePlotter(origChain,
-				rupIdens, origOutput);
-		newOccXYZ.scale(fullPath.size());
-//		StateSpacePlotter newPlotter = new StateSpacePlotter(new OccupancyBasedMarkovChain2D(distSpacing, newOccXYZ),
-//				rupIdens, newOutput);
-		StateSpacePlotter newPlotter = new StateSpacePlotter(new OccupancyBasedMarkovChain2D(
-				distSpacing, origChain.getOccupancy()), rupIdens, newOutput);
-		
-		origPlotter.plotOccupancies();
-		newPlotter.plotOccupancies();
-		
-		for (MarkovProb prob : MarkovProb.values()) {
-			origPlotter.plotProb(prob);
-			newPlotter.plotProb(prob);
-		}
+//		File origOutput = new File(outputDir, "markov_probs_orig");
+//		Preconditions.checkState((origOutput.exists() && origOutput.isDirectory()) || origOutput.mkdir());
+//		File newOutput = new File(outputDir, "markov_probs_alg");
+//		Preconditions.checkState((newOutput.exists() && newOutput.isDirectory()) || newOutput.mkdir());
+//		StateSpacePlotter origPlotter = new StateSpacePlotter(origChain,
+//				rupIdens, origOutput);
+//		newOccXYZ.scale(fullPath.size());
+////		StateSpacePlotter newPlotter = new StateSpacePlotter(new OccupancyBasedMarkovChain2D(distSpacing, newOccXYZ),
+////				rupIdens, newOutput);
+//		StateSpacePlotter newPlotter = new StateSpacePlotter(new OccupancyBasedMarkovChain2D(
+//				distSpacing, origChain.getOccupancy()), rupIdens, newOutput);
+//		
+//		origPlotter.plotOccupancies();
+//		newPlotter.plotOccupancies();
+//		
+//		for (MarkovProb prob : MarkovProb.values()) {
+//			origPlotter.plotProb(prob);
+//			newPlotter.plotProb(prob);
+//		}
 	}
 	
 	public static EvenlyDiscrXYZ_DataSet buildOcc(
@@ -156,6 +163,7 @@ public class TestOccFromSynch {
 		Preconditions.checkArgument(firstRow.getNum() == marginalX.getNum());
 		Preconditions.checkArgument(firstCol.getNum() == marginalY.getNum());
 		
+		// first calculate assuming independence
 		EvenlyDiscrXYZ_DataSet newOccXYZ = new EvenlyDiscrXYZ_DataSet(
 				firstRow.getNum(), firstCol.getNum(), firstRow.getMinX(), firstCol.getMinX(),
 				firstRow.getDelta(), firstCol.getDelta());

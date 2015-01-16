@@ -19,7 +19,7 @@ public class PossibleStates {
 	}
 	
 	public void add(int[] state, double frequency) {
-		Preconditions.checkState(frequency >= 0, "Frequency cannot be negative!");
+		Preconditions.checkState(frequency >= 0, "Frequency cannot be negative! freq="+frequency);
 		IndicesKey key = new IndicesKey(state);
 		Integer index = stateIndexMap.get(key);
 		if (index == null) {

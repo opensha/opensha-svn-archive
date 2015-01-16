@@ -2,7 +2,9 @@ package scratch.kevin.simulators.synch.prediction;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 import scratch.kevin.markov.EmpiricalMarkovChain;
 import scratch.kevin.markov.MarkovChain;
@@ -10,7 +12,8 @@ import scratch.kevin.markov.PossibleStates;
 
 public class MarkovPredictor implements Predictor {
 	
-	private EmpiricalMarkovChain chain;
+	MarkovChain chain;
+	private int[] prevState;
 	private int numMisses = 0;
 	private int totPredictions = 0;
 	
@@ -47,19 +50,19 @@ public class MarkovPredictor implements Predictor {
 		chain = new EmpiricalMarkovChain(path, distSpacing);
 		if (backupPredictor != null)
 			backupPredictor.init(path, distSpacing);
+		prevState = path.get(path.size()-1);
 	}
 
 	@Override
 	public void addState(int[] state) {
-		chain.addState(state);
+		chain.addState(prevState, state);
 		if (backupPredictor != null)
 			backupPredictor.addState(state);
+		prevState = state;
 	}
 
 	@Override
 	public double[] getRuptureProbabilities() {
-		List<int[]> fullPath = chain.getFullPath();
-		int[] prevState = fullPath.get(fullPath.size()-1);
 		return getRuptureProbabilities(prevState);
 	}
 	
@@ -82,6 +85,7 @@ public class MarkovPredictor implements Predictor {
 			for (int i=0; i<states.size(); i++) {
 				int[] state = states.get(i);
 				double freq = possible.getFrequency(state);
+				Preconditions.checkState(Doubles.isFinite(freq) && freq >= 0d);
 				
 				for (int j=0; j<state.length; j++)
 					if (state[j] == 0)
@@ -90,8 +94,9 @@ public class MarkovPredictor implements Predictor {
 				totFreq += freq;
 			}
 			// now normalize
-			for (int i=0; i<ret.length; i++)
-				ret[i] = ret[i]/totFreq;
+			if (totFreq > 0d)
+				for (int i=0; i<ret.length; i++)
+					ret[i] = ret[i]/totFreq;
 		} else {
 			if (backupPredictor != null)
 				ret = backupPredictor.getRuptureProbabilities();
