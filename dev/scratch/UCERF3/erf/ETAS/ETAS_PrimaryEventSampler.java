@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -78,8 +80,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	final static boolean D=ETAS_Simulator.D;
 	
-	String defaultFractSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSrcInCubeCache";
-	String defaultSrcInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/srcInCubeCache";
+	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCache";
+	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
 	
@@ -106,14 +108,16 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	// this will hold the rate of each ERF source (which can be modified by external objects)
 	double sourceRates[];
+	double totSectNuclRateArray[];
+	ArrayList<HashMap<Integer,Float>> srcNuclRateOnSectList;
 	
 	// this stores the rates of erf ruptures that go unassigned (outside the region here)
-	double rateUnassigned;
+//	double rateUnassigned;
 	
 	double totRate;
 	
-	List<float[]> fractionSrcInCubeList;
-	List<int[]> srcInCubeList;
+	List<float[]> fractionSectInCubeList;
+	List<int[]> sectInCubeList;
 	int[] isCubeInsideFaultPolygon;	// independent of depth, so number of elements the equal to numCubesPerDepth
 	
 	int[] origGridSeisTrulyOffVsSubSeisStatus;
@@ -168,7 +172,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	/**
 	 * Constructor that uses default values
-	 * @param regionForRates
+	 * @param regionForRates - the gridded region for gridded seismicity (must be same as in GridSourceGenerator)
 	 * @param erf
 	 * @param sourceRates
 	 * @param pointSrcDiscr
@@ -178,18 +182,18 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String oututFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSrcInCubeList, 
-			List<int[]> inputSrcInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
+			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSectInCubeList, 
+			List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, oututFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, inputFractSrcInCubeList, inputSrcInCubeList, inputIsCubeInsideFaultPolygon);
+				applyGR_Corr, inputFractSectInCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
 	/**
 	 * 
-	 * @param griddedRegion - original gridded region for etas sampling
+	 * @param griddedRegion - the gridded region for gridded seismicity (must be same as in GridSourceGenerator)
 	 * @param numPtSrcSubPts - this is how the sampling region will be discretized (discr = pointSrcDiscr/numPtSrcSubPts)
 	 * @param erf
 	 * @param sourceRates - pointer to an array of source rates (which may get updated externally)
@@ -208,7 +212,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String oututFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-			List<float[]> inputFractSrcInCubeList, List<int[]> inputSrcInCubeList, int[] inputIsCubeInsideFaultPolygon) {
+			List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList, int[] inputIsCubeInsideFaultPolygon) {
 		
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -316,7 +320,51 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
 		
+		
+		totNumSrc = erf.getNumSources();
+		if(totNumSrc != sourceRates.length)
+			throw new RuntimeException("Problem with number of sources");
+		
+		if(erf instanceof FaultSystemSolutionERF)
+			numFltSystSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
+		else
+			numFltSystSources=0;
+		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources+
+				"\tnumPointsForRates="+numCubes);
+		srcIndexList = new ArrayList<Integer>();	// make a list so src indices are not duplicated in lists
+		for(int i=0; i<totNumSrc;i++)
+			srcIndexList.add(new Integer(i));
+
+		
 		this.sourceRates = sourceRates;
+		
+		System.gc();
+		ETAS_SimAnalysisTools.writeMemoryUse("Memory before making data");
+		if(erf instanceof FaultSystemSolutionERF) {
+			// create the arrays that will store section nucleation info
+			totSectNuclRateArray = new double[rupSet.getNumSections()];
+			// this is a hashmap for each section, which contains the source index (key) and nucleation rate (value)
+			srcNuclRateOnSectList = new ArrayList<HashMap<Integer,Float>>();
+			for(int sect=0;sect<rupSet.getNumSections();sect++) {
+				srcNuclRateOnSectList.add(new HashMap<Integer,Float>());
+			}
+			FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
+			for(int src=0; src<numFltSystSources; src++) {
+				int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
+				List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
+				for(int sect:sectIndexList) {
+					srcNuclRateOnSectList.get(sect).put(src,0f);
+				}
+			}
+			// now compute initial values for these arrays
+			computeSectNucleationRates();
+			System.gc();
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory after making data");
+//			System.exit(-1);
+		}
+
+
+		
 		
 		this.etasDistDecay=distDecay;
 		this.etasMinDist=minDist;
@@ -350,22 +398,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 // System.out.println("HERE numPtSrcSubPts="+numPtSrcSubPts+"\t"+pointSrcDiscr+"\t"+regSpacing);
 	
 
-		totNumSrc = erf.getNumSources();
-		if(totNumSrc != sourceRates.length)
-			throw new RuntimeException("Problem with number of sources");
-		
-		if(erf instanceof FaultSystemSolutionERF)
-			numFltSystSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
-		else
-			numFltSystSources=0;
-		if(D) System.out.println("totNumSrc="+totNumSrc+"\tnumFltSystSources="+numFltSystSources+
-				"\tnumPointsForRates="+numCubes);
-		srcIndexList = new ArrayList<Integer>();	// make a list so src indices are not duplicated in lists
-		for(int i=0; i<totNumSrc;i++)
-			srcIndexList.add(new Integer(i));
-		
-		rateUnassigned=0;
-		
+				
 		origGridSeisTrulyOffVsSubSeisStatus = this.getOrigGridSeisTrulyOffVsSubSeisStatus();
 		
 //		int testNum=0;
@@ -374,21 +407,21 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //				System.out.println("TEST HERE testNum="+testNum);
 		
 		// read or make cache data if needed
-		if(inputFractSrcInCubeList!=null && inputSrcInCubeList != null && inputIsCubeInsideFaultPolygon != null) {
-				srcInCubeList = inputSrcInCubeList;
-				fractionSrcInCubeList = inputFractSrcInCubeList;
+		if(inputFractSectInCubeList!=null && inputSectInCubeList != null && inputIsCubeInsideFaultPolygon != null) {
+				sectInCubeList = inputSectInCubeList;
+				fractionSectInCubeList = inputFractSectInCubeList;
 				isCubeInsideFaultPolygon = inputIsCubeInsideFaultPolygon;
 		}
 		else {
-			File intListListFile = new File(defaultSrcInCubeCacheFilename);
-			File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);	
+			File intListListFile = new File(defaultSectInCubeCacheFilename);
+			File floatListListFile = new File(defaultFractSectInCubeCacheFilename);	
 			File cubeInsidePolyFile = new File(defaultCubeInsidePolyCacheFilename);	
 			if (intListListFile.exists() && floatListListFile.exists() && cubeInsidePolyFile.exists()) {
 				try {
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading fractionSrcAtPointList");
-					fractionSrcInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
+					fractionSectInCubeList = MatrixIO.floatArraysListFromFile(floatListListFile);
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading srcAtPointList");
-					srcInCubeList = MatrixIO.intArraysListFromFile(intListListFile);
+					sectInCubeList = MatrixIO.intArraysListFromFile(intListListFile);
 					// the following test is not better in terms of memory use
 					//					ArrayList<ArrayList<Integer>> test = intArraysListFromFile(intListListFile);
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after reading srcAtPointList");
@@ -420,9 +453,78 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 	}
 	
-	public void setSrcAtPointCaches(List<float[]> fractionSrcAtPointList, List<int[]> srcAtPointList) {
-		this.fractionSrcInCubeList = fractionSrcAtPointList;
-		this.srcInCubeList = srcAtPointList;
+	
+	
+	private void computeSectNucleationRates() {
+		long st= System.currentTimeMillis();
+		for(int s=0;s<totSectNuclRateArray.length;s++) {	// intialized totals to zero
+			totSectNuclRateArray[s] = 0d;
+		}
+		//
+		FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
+		double[] sectNormTimeSince = fssERF.getNormTimeSinceLastForSections();
+		for(int src=0; src<numFltSystSources; src++) {
+			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
+			List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
+			double[] nuclRateForSect = new double[sectIndexList.size()];
+			double sum=0;
+			for(int s=0;s<nuclRateForSect.length;s++) {
+				int sectIndex = sectIndexList.get(s);
+				double normTS = sectNormTimeSince[sectIndex];
+				// TODO should check for poisson model here
+				if(Double.isNaN(normTS)) 
+					nuclRateForSect[s] = 1.0;	// assume it's 1.0
+				else
+					nuclRateForSect[s]=normTS;
+				sum += nuclRateForSect[s];
+			}
+			for(int s=0;s<nuclRateForSect.length;s++) {
+				int sectIndex = sectIndexList.get(s);
+				double sectNuclRate;
+				if(sum>0)
+					sectNuclRate = nuclRateForSect[s]*sourceRates[src]/sum;
+				else
+					sectNuclRate = 0d;
+				srcNuclRateOnSectList.get(sectIndex).put(src, (float)sectNuclRate);
+				totSectNuclRateArray[sectIndex] += sectNuclRate;
+			}
+		}
+		
+		System.out.println("HERE for 1847 totSectNuclRateArray="+totSectNuclRateArray[1847]);
+		
+		// TESTS
+		for(int sect=0;sect<rupSet.getNumSections(); sect++) {
+			double testTotRate = 0;
+			for(float vals:srcNuclRateOnSectList.get(sect).values()) 
+				testTotRate += vals;
+			double ratio = testTotRate/totSectNuclRateArray[sect];
+			if(ratio<0.9999 || ratio>1.0001) {
+				throw new RuntimeException("Test failed in computeSectNucleationRates(); ratio ="+ratio+" for sect "+sect);
+			}
+		}
+		// test that nucleation rates give back source rates
+		double[] testSrcRates = new double[numFltSystSources];
+		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
+			HashMap<Integer,Float> map = srcNuclRateOnSectList.get(sectIndex);
+			for(int srcIndex:map.keySet())
+				testSrcRates[srcIndex] += map.get(srcIndex);
+		}
+		for(int srcIndex=0;srcIndex<this.numFltSystSources;srcIndex++) {
+			double testRatio = testSrcRates[srcIndex]/sourceRates[srcIndex];
+			if(testRatio<0.9999 || testRatio>1.0001) {
+				throw new RuntimeException("Source rate test failed in computeSectNucleationRates(); testRatio ="+
+			testRatio+" for srcIndex "+srcIndex+"\ntestSrcRates="+testSrcRates[srcIndex]+"\nsourceRates="+sourceRates[srcIndex]);
+			}
+		}
+		
+		double timeSec = (double)(System.currentTimeMillis()-st)/1000d;
+		System.out.println("computeSectNucleationRates runtime(sec) = "+timeSec);
+	}
+	
+	
+	public void setSectInCubeCaches(List<float[]> fractionSectAtPointList, List<int[]> sectInCubeList) {
+		this.fractionSectInCubeList = fractionSectAtPointList;
+		this.sectInCubeList = sectInCubeList;
 	}
 	
 	
@@ -452,100 +554,61 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		try {
 			progressBar = new CalcProgressBar("Sources to process in ETAS_PrimaryEventSamplerAlt", "junk");
 		} catch (Exception e1) {} // headless
-		ArrayList<ArrayList<Integer>> sourcesAtPointList = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> sectAtPointList = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Float>> fractionsAtPointList = new ArrayList<ArrayList<Float>>();
+
+		int numSect = rupSet.getNumSections();
 		for(int i=0; i<numCubes;i++) {
-			sourcesAtPointList.add(new ArrayList<Integer>());
+			sectAtPointList.add(new ArrayList<Integer>());
 			fractionsAtPointList.add(new ArrayList<Float>());
 		}
+		
+		double surfGridSpacing = 1.0;	// TODO decrease for greater accuracy!
 		if (progressBar != null) progressBar.showProgress(true);
-		for(int s=0;s<totNumSrc;s++) {
-			ProbEqkSource src = erf.getSource(s);
-			if (progressBar != null) progressBar.updateProgress(s, totNumSrc);
+		for(int s=0;s<numSect;s++) {
+			if (progressBar != null) progressBar.updateProgress(s, numSect);
 
-			// If it's not a gridded seismicity source:
-			if(s<numFltSystSources) {
-				Hashtable<Integer,Float> fractAtPointTable = new Hashtable<Integer,Float>(); // int is ptIndex and double is fraction there
-				LocationList locsOnRupSurf = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();	// assuming all ruptures in souce have same surface
-				int numLocs = locsOnRupSurf.size();
-				float ptFract = 1f/(float)numLocs;
-				for(Location loc: locsOnRupSurf) {
-					int regIndex = gridRegForCubes.indexForLocation(loc);
-//if(!doneOne) {
-//	System.out.println("fault loc: "+loc);
-//	System.out.println("assoc reg loc: "+gridRegForRatesInSpace.getLocation(regIndex));
-//	doneOne=true;
-//	//System.exit(0);
-//}
-					int depIndex = getCubeDepthIndex(loc.getDepth());
-					if(depIndex >= numCubeDepths) {
-						depIndex = numCubeDepths-1;	// TODO
-						if(D) System.out.println("Depth below max for point on "+src.getName()+"\t depth="+loc.getDepth());
+			Hashtable<Integer,Float> fractAtPointTable = new Hashtable<Integer,Float>(); // int is ptIndex and double is fraction there
+			LocationList locsOnSectSurf = rupSet.getFaultSectionData(s).getStirlingGriddedSurface(surfGridSpacing, false, true).getEvenlyDiscritizedListOfLocsOnSurface();
+			//				LocationList locsOnRupSurf = src.getRupture(0).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();	// assuming all ruptures in souce have same surface
+			int numLocs = locsOnSectSurf.size();
+			float ptFract = 1f/(float)numLocs;
+			for(Location loc: locsOnSectSurf) {
+				int regIndex = gridRegForCubes.indexForLocation(loc);
+				int depIndex = getCubeDepthIndex(loc.getDepth());
+				if(depIndex >= numCubeDepths) {
+					depIndex = numCubeDepths-1;	// TODO
+					if(D) System.out.println("Depth below max for point on "+rupSet.getFaultSectionData(s).getName()+"\t depth="+loc.getDepth());
+				}
+
+				if(regIndex != -1) {
+					int cubeIndex = this.getCubeIndexForRegAndDepIndices(regIndex, depIndex);
+					if(cubeIndex>=numCubes) {
+						throw new RuntimeException("Error: ptIndex="+cubeIndex+"/depIndex="+depIndex+"/tnumDepths="+numCubeDepths);
 					}
-
-					if(regIndex != -1) {
-						int cubeIndex = this.getCubeIndexForRegAndDepIndices(regIndex, depIndex);
-						if(cubeIndex>=numCubes) {
-							throw new RuntimeException("Error: ptIndex="+cubeIndex+"/depIndex="+depIndex+"/tnumDepths="+numCubeDepths);
-						}
-						if(fractAtPointTable.containsKey(cubeIndex)) {
-							float newFrac = fractAtPointTable.get(cubeIndex) + ptFract;
-							fractAtPointTable.put(cubeIndex,newFrac);
-						}
-						else {
-							fractAtPointTable.put(cubeIndex,ptFract);
-						}
+					if(fractAtPointTable.containsKey(cubeIndex)) {
+						float newFrac = fractAtPointTable.get(cubeIndex) + ptFract;
+						fractAtPointTable.put(cubeIndex,newFrac);
 					}
 					else {
-						rateUnassigned += sourceRates[s]/numLocs;
-					}
-				}	
-				// now assign this hashTable
-				for(Integer ptIndex : fractAtPointTable.keySet()) {
-					float fract = fractAtPointTable.get(ptIndex);
-					sourcesAtPointList.get(ptIndex).add(srcIndexList.get(s));
-					fractionsAtPointList.get(ptIndex).add(fract);
-				}
-			}
-			else {	// It's a point source
-				for(ProbEqkRupture rup: src)
-					if(!rup.getRuptureSurface().isPointSurface())	// make sure they're all point surfaces
-						throw new RuntimeException("All ruptures for source must have point surfaces here");
-
-				Location centerLoc = src.getRupture(0).getRuptureSurface().getFirstLocOnUpperEdge();
-				double numPts = numPtSrcSubPts*numPtSrcSubPts*numCubeDepths;
-				double ptRate = sourceRates[s]/numPts;
-				float ptFrac = 1f/(float)numPts;
-				// distribution this among the locations within the space represented by the point source
-				for(int iLat=0; iLat<numPtSrcSubPts;iLat++) {
-					double lat = centerLoc.getLatitude()-pointSrcDiscr/2 + iLat*cubeLatLonSpacing + cubeLatLonSpacing/2.0;
-					for(int iLon=0; iLon<numPtSrcSubPts;iLon++) {
-						double lon = centerLoc.getLongitude()-pointSrcDiscr/2 + iLon*cubeLatLonSpacing + cubeLatLonSpacing/2.0;
-						int regIndex = gridRegForCubes.indexForLocation(new Location(lat,lon));
-// if(regIndex==1000) System.out.println("TEST HERE: "+lat+"\t"+lon+"\t"+gridRegForRatesInSpace.getLocation(regIndex));
-						if(regIndex != -1){
-							for(int iDep =0; iDep<numCubeDepths; iDep++) {
-//								int ptIndex = iDep*numRegLocs+regIndex;
-								int cubeIndex = getCubeIndexForRegAndDepIndices(regIndex,iDep);	// TODO method is miss named; should be cube not sampler' result is correct here
-								sourcesAtPointList.get(cubeIndex).add(srcIndexList.get(s));
-								fractionsAtPointList.get(cubeIndex).add(ptFrac);
-							}
-						}
-						else {
-							rateUnassigned += ptRate*numCubeDepths;
-//							System.out.println("1\t"+centerLoc.getLatitude()+"\t"+centerLoc.getLongitude()+"\t"+centerLoc.getDepth());
-						}
+						fractAtPointTable.put(cubeIndex,ptFract);
 					}
 				}
+			}	
+			// now assign this hashTable
+			for(Integer cubeIndex : fractAtPointTable.keySet()) {
+				float fract = fractAtPointTable.get(cubeIndex);
+				sectAtPointList.get(cubeIndex).add(s);
+				fractionsAtPointList.get(cubeIndex).add(fract);
 			}
 		}
-		if(D) System.out.println("rateUnassigned="+rateUnassigned);
+
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory before writing files");
-		File intListListFile = new File(defaultSrcInCubeCacheFilename);
-		File floatListListFile = new File(defaultFractSrcInCubeCacheFilename);
+		File intListListFile = new File(defaultSectInCubeCacheFilename);
+		File floatListListFile = new File(defaultFractSectInCubeCacheFilename);
 		try {
-			MatrixIO.intListListToFile(sourcesAtPointList,intListListFile);
+			MatrixIO.intListListToFile(sectAtPointList,intListListFile);
 			MatrixIO.floatListListToFile(fractionsAtPointList, floatListListFile);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -621,9 +684,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			e.printStackTrace();
 		}
 
-		
 		if(D) System.out.println("ETAS_PrimaryEventSampler.generateAndWriteListListDataToFile() took "+(System.currentTimeMillis()-st)/60000+ " min");
-
 
 	}
 	
@@ -712,6 +773,99 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	
 	/**
+	 *  This returns the relative probability of triggering each source that exists within the cube.
+	 *  null is returned if no sources exist in cube.
+	 * @param cubeIndex
+	 * @return Hashtable where key is src index and value is relative probability
+	 */
+	public Hashtable<Integer,Double> getRelativeTriggerProbOfSourcesInCube(int cubeIndex) {
+		Hashtable<Integer,Double> probForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		
+		if(probForSrcHashtable == null) {
+			return null;
+		}
+		else {
+			//Normalize rates to relative probabilities
+			double sum=0;
+			for(int srcIndex:probForSrcHashtable.keySet())
+				sum += probForSrcHashtable.get(srcIndex);
+			for(int srcIndex:probForSrcHashtable.keySet()) {
+				double normVal = probForSrcHashtable.get(srcIndex)/sum;
+				probForSrcHashtable.put(srcIndex, normVal);
+			}
+			
+			if(D) {	// test that sum equals 1.0
+				double testVal = 0;
+				for(int srcIndex:probForSrcHashtable.keySet())
+					testVal += probForSrcHashtable.get(srcIndex);
+				if(testVal<0.9999 || testVal>1.0001)
+					throw new RuntimeException("PROBLEM");				
+			}
+
+			return probForSrcHashtable;
+		}
+	}
+	
+	
+	
+	
+	
+	/**
+	 *  This returns the nucleation rate of each source that exists within the cube.
+	 *  null is returned if no sources exist in cube.
+	 * @param cubeIndex
+	 * @return Hashtable where key is src index and value is rate
+	 */
+	public Hashtable<Integer,Double> getNucleationRatesOfSourcesInCube(int cubeIndex) {
+		Hashtable<Integer,Double> rateForSrcHashtable = new Hashtable<Integer,Double>();
+		
+		// compute nucleation rate of gridded-seis source in this cube
+		int gridSrcIndex = -1;
+		double gridSrcRate=0;
+		int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));
+		if(griddeSeisRegionIndex != -1)	{
+			gridSrcIndex = numFltSystSources + griddeSeisRegionIndex;
+			gridSrcRate = sourceRates[gridSrcIndex]/(numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);	// divide rate among all the cubes in grid cell
+		}
+		
+		int[] sectInCubeArray = sectInCubeList.get(cubeIndex);
+		
+		if(gridSrcIndex == -1 && sectInCubeArray.length==0) {
+			return null;
+		}
+		
+		if(gridSrcIndex != -1 && sectInCubeArray.length==0) {
+			rateForSrcHashtable.put(gridSrcIndex, gridSrcRate);	// only gridded source in this cube
+			return rateForSrcHashtable;
+		}
+		
+		if(gridSrcIndex != -1) 
+			rateForSrcHashtable.put(gridSrcIndex, gridSrcRate);	// add gridded source rate
+		
+		// now fill in nucleation rate of remaining sources
+		float[] fracts = fractionSectInCubeList.get(cubeIndex);
+		for(int s=0;s<sectInCubeArray.length;s++) {
+			int sectIndex = sectInCubeArray[s];
+			double fracSectInCube = fracts[s];
+			HashMap<Integer,Float> srcRateOnSectMap = srcNuclRateOnSectList.get(sectIndex);
+			for(int srcIndex:srcRateOnSectMap.keySet()) {
+				double srcNuclRateInCube = srcRateOnSectMap.get(srcIndex)*fracSectInCube;
+				if(rateForSrcHashtable.containsKey(srcIndex)) {
+					double newRate = rateForSrcHashtable.get(srcIndex) + srcNuclRateInCube;
+					rateForSrcHashtable.put(srcIndex, newRate);
+				}
+				else {
+					rateForSrcHashtable.put(srcIndex, srcNuclRateInCube);
+				}
+			}
+		}
+		
+		return rateForSrcHashtable;
+	}
+
+	
+	
+	/**
 	 * For the given main shock, this gives the relative trigger probability of each source in the ERF.
 	 * This loops over all points on the main shock rupture surface, giving equal triggering
 	 * potential to each.
@@ -727,48 +881,26 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		// normalize so values sum to 1.0
 		aveSampler.scale(1.0/aveSampler.getSumOfY_vals());
 		
-		// now loop over all the points for rates
-		double total = 0;
+		// now loop over all cubes
 		for(int i=0;i <numCubes;i++) {
-			int[] sources = srcInCubeList.get(i);
-			if(sources.length==0) {
-				continue;
-			}
-			if (sources.length==1) {
-				trigProb[sources[0]] += aveSampler.getY(i);
-			}
-			else {
-				float[] fracts = fractionSrcInCubeList.get(i);
-				// compute the relative probability of each source at this point
-				double[] relProb = new double[sources.length];
-				
-				int indexForOrigGriddedRegion = -1;
-				if(applyGR_Corr) {
-					indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getCubeLocationForIndex(i));	// more efficient way?
-//if(indexForOrigGriddedRegion == -1)
-//	System.out.println("bad loc: "+getLocationForSamplerIndex(i));
+			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i);
+			if(relSrcProbForCube != null) {
+				for(int srcKey:relSrcProbForCube.keySet()) {
+					trigProb[srcKey] += aveSampler.getY(i)*relSrcProbForCube.get(srcKey);
 				}
-				for(int s=0; s<sources.length;s++) {
-					if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1) {
-// System.out.println("GOT HERE: "+grCorrFactorForCellArray[indexForOrigGriddedRegion]+"\t"+applyGR_Corr);
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion];	
-					}
-					else {
-						relProb[s] = sourceRates[sources[s]]*(double)fracts[s];	
-					}
-				}
-				total=0;
-				for(int s=0; s<sources.length;s++)	// sum for normalization
-					total += relProb[s];
-				for(int s=0; s<sources.length;s++)
-					trigProb[sources[s]] += aveSampler.getY(i)*relProb[s]/total;
 			}
+//			else {
+//				// I confirmed that all of these are around the edges
+//				Location loc = getCubeLocationForIndex(i);
+//				System.out.println("relSrcProbForCube is null for cube index "+i+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
+//			}
 		}
 
-//		double testSum=0;
-//		for(int s=0; s<trigProb.length; s++)
-//			testSum += trigProb[s];
-//		System.out.println("########### testSum="+testSum);
+		double testSum=0;
+		for(int s=0; s<trigProb.length; s++)
+			testSum += trigProb[s];
+		if(testSum<0.9999 || testSum>1.0001)
+			throw new RuntimeException("PROBLEM");
 		
 //		st = System.currentTimeMillis()-st;
 //		System.out.println("###########"+((float)st/1000f)+" sec");
@@ -797,25 +929,161 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	
 	
-	public double[] getCurrentRateOfEachSubsection() {
-		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
-		double[] sectRate = new double[rupSet.getNumSections()];
-		for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
-			int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
-			for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
-				sectRate[sectIndex] += sourceRates[srcIndex];
+	/**
+	 * This plots the relative probability that each subsection will trigger a
+	 * supra-seis primary aftershocks, given one has been triggered.  
+	 * 
+	 * This could also return a String with a list of the top numToList fault-based 
+	 * sources and top sections (see next method below).
+	 */
+	public String plotSubSectRelativeTriggerProbGivenSupraSeisRupture(ETAS_EqkRupture mainshock, File resultsDir, int numToList, String nameSuffix) {
+		String info = "";
+		if(erf instanceof FaultSystemSolutionERF) {
+			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+
+			IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
+
+			// normalize so values sum to 1.0
+			aveSampler.scale(1.0/aveSampler.getSumOfY_vals());
+
+			double[] sectProbArray = new double[rupSet.getNumSections()];
+
+			// now loop over all cubes
+			for(int i=0;i <numCubes;i++) {
+				int[] sectInCubeArray = sectInCubeList.get(i);
+				float[] fractInCubeArray = fractionSectInCubeList.get(i);
+				for(int s=0;s<sectInCubeArray.length;s++) {
+					int sectIndex = sectInCubeArray[s];
+					sectProbArray[sectIndex] += totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*aveSampler.getY(i);
+				}
 			}
-		}			
-		return sectRate;
+
+			// normalize:
+			double sum=0;
+			for(double val:sectProbArray)
+				sum += val;
+			double min=Double.MAX_VALUE, max=0.0;
+			for(int sect=0;sect<sectProbArray.length;sect++) {
+				sectProbArray[sect] /= sum;
+				if(sectProbArray[sect]<1e-16)
+					sectProbArray[sect]=1e-16;
+				//				if(min>sectProbArray[sect])
+				//					min=sectProbArray[sect];
+				//				if(max<sectProbArray[sect])
+				//					max=sectProbArray[sect];
+			}
+			//			min = Math.floor(Math.log10(min));
+			//			max = Math.ceil(Math.log10(max));
+			min = -5;
+			max = 0;
+			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(min, max);;
+			List<FaultSectionPrefData> faults = rupSet.getFaultSectionDataList();
+
+			//			// now log space
+			double[] values = FaultBasedMapGen.log10(sectProbArray);
+
+
+			String name = "SectRelativeTriggerProb"+nameSuffix;
+			String title = "Log10(Relative Trigger Prob)";
+			// this writes all the value to a file
+			try {
+				FileWriter fr = new FileWriter(new File(resultsDir, name+".txt"));
+				for(int s=0; s<sectProbArray.length;s++) {
+					fr.write(s +"\t"+(float)sectProbArray[s]+"\t"+faults.get(s).getName()+"\n");
+				}
+				fr.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+			try {
+				FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, true, false, title);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+			// List to sections TODO need to clean up
+
+			// this class pairs a probability with an index for sorting
+			class ProbPairing implements Comparable<ProbPairing> {
+				private double prob;
+				private int index;
+				private ProbPairing(double prob, int index) {
+					this.prob = prob;
+					this.index = index;
+				}
+
+				@Override
+				public int compareTo(ProbPairing o) {
+					// negative so biggest first
+					return -Double.compare(prob, o.prob);
+				}
+
+			};
+
+			// this stores the minimum probability currently in the list
+			double curMinProb = Double.POSITIVE_INFINITY;
+			// list of probabilities. only the highest numToList values will be kept in this list
+			// this list is always kept sorted, highest to lowest
+			List<ProbPairing> pairings = new ArrayList<ProbPairing>(numToList+5);
+
+			// now do sections
+			curMinProb = Double.POSITIVE_INFINITY;
+			// list of probabilities. only the highest numToList values will be kept in this list
+			// this list is always kept sorted, highest to lowest
+			pairings = new ArrayList<ProbPairing>(numToList+5);
+			for(int i=0;i<sectProbArray.length;i++) {
+				double prob = sectProbArray[i];
+				if (prob < curMinProb && pairings.size() == numToList)
+					// already below the current min, skip
+					continue;
+				ProbPairing pairing = new ProbPairing(prob, i);
+				int index = Collections.binarySearch(pairings, pairing);
+				if (index < 0) {
+					// not in there yet, calculate insertion index from binary search result
+					index = -(index + 1);
+				}
+				pairings.add(index, pairing);
+				// remove if we just made it too big
+				if (pairings.size() > numToList)
+					pairings.remove(pairings.size()-1);
+				// reset current min
+				curMinProb = pairings.get(pairings.size()-1).prob;
+			}
+
+			// sanity checks
+			double prevProb = Double.POSITIVE_INFINITY;
+			for (ProbPairing pairing : pairings) {
+				Preconditions.checkState(prevProb >= pairing.prob, "pairing list isn't sorted?");
+				prevProb = pairing.prob;
+			}
+
+			info += "\nThe following sections are most likely to be triggered:\n\n";
+			List<FaultSectionPrefData> fltDataList = tempERF.getSolution().getRupSet().getFaultSectionDataList();
+			for(ProbPairing pairing : pairings) {
+				int sectIndex = pairing.index;
+				double prob = pairing.prob;
+				info += "\t"+prob+"\t"+sectIndex+"\t"+fltDataList.get(sectIndex).getName()+"\n";
+			}
+			
+			return info;
+		}
+		else {
+			throw new RuntimeException("erf must be instance of FaultSystemSolutionERF");
+		}
+
+
+
 	}
 			
 			
 	/**
-	 * This plots the relative probability that each subsection will be involved
+	 * This plots the relative probability that each subsection will participate
 	 * given a primary aftershocks of the supplied mainshock.  This also returns
 	 * a String with a list of the top numToList fault-based sources and top sections.
 	 */
-	public String plotSubSectTriggerProbGivenRuptureAndReturnInfo(ETAS_EqkRupture mainshock, File resultsDir, int numToList) {
+	public String plotSubSectParticipationProbGivenRuptureAndReturnInfo(ETAS_EqkRupture mainshock, File resultsDir, int numToList, String nameSuffix) {
 		String info = "";
 		if(erf instanceof FaultSystemSolutionERF) {
 			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
@@ -835,8 +1103,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			double[] values = FaultBasedMapGen.log10(sectProbArray);
 			
 			
-			String name = "SectPrimaryTriggerProb";
-			String title = "Log10(Primary Trigger Prob)";
+			String name = "SectPrimaryParticipationProb"+nameSuffix;
+			String title = "Log10(Primary Participation Prob)";
 			// this writes all the value to a file
 			try {
 				FileWriter fr = new FileWriter(new File(resultsDir, name+".txt"));
@@ -915,11 +1183,11 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				prevProb = pairing.prob;
 			}
 
-			info += "\nScenario is most likely to trigger the following fault-based sources:\n\n";
+			info += "\nScenario is most likely to trigger the following fault-based sources (prob, srcIndex, mag, name):\n\n";
 			for(ProbPairing pairing : pairings) {
 				int srcIndex = pairing.index;
 				double prob = pairing.prob;
-				info += "\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n";
+				info += "\t"+prob+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getRupture(0).getMag()+"\t"+erf.getSource(srcIndex).getName()+"\n";
 			}
 			
 			
@@ -954,7 +1222,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				prevProb = pairing.prob;
 			}
 
-			info += "\nScenario is most likely to trigger the following sections:\n\n";
+			info += "\nThe following sections are most likely to participate in a triggered event:\n\n";
 			List<FaultSectionPrefData> fltDataList = tempERF.getSolution().getRupSet().getFaultSectionDataList();
 			for(ProbPairing pairing : pairings) {
 				int sectIndex = pairing.index;
@@ -962,16 +1230,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				info += "\t"+prob+"\t"+sectIndex+"\t"+fltDataList.get(sectIndex).getName()+"\n";
 			}
 
-			
-			
-			
-			
-			
-			
-			
-
-			
-			
 		}
 		else {
 			throw new RuntimeException("erf must be instance of FaultSystemSolutionERF");
@@ -1008,7 +1266,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	 * surface point at that location is from the source.
 	 * from the source
 	 * @return boolean tells whether it succeeded in setting the rupture
-	 * @param mainshock
 	 * @param rupToFillIn
 	 */
 	public boolean setRandomPrimaryEvent(ETAS_EqkRupture rupToFillIn) {
@@ -1072,10 +1329,9 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 					locsToSampleFrom.add(loc);
 				}
 			}	
+			
 if(locsToSampleFrom.size() == 0) {
 	System.out.println("PROBLEM: randSrcIndex="+randSrcIndex+"\tName: = "+src.getName());
-	for(int srcID:srcInCubeList.get(aftShCubeIndex))
-		System.out.println(srcID);
 	System.out.println("lat\tlon\tdepth");
 	System.out.println(latForCubeCenter[aftShCubeIndex]+"\t"+lonForCubeCenter[aftShCubeIndex]+"\t"+depthForCubeCenter[aftShCubeIndex]);
 	for(Location loc: locsOnRupSurf) {
@@ -1083,6 +1339,7 @@ if(locsToSampleFrom.size() == 0) {
 	}	
 	throw new RuntimeException("problem");
 }
+
 			// choose one randomly
 			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
@@ -1122,7 +1379,7 @@ if(locsToSampleFrom.size() == 0) {
 
 			double relLat = latForCubeCenter[aftShCubeIndex]-translatedParLoc.getLatitude();
 			double relLon = lonForCubeCenter[aftShCubeIndex]-translatedParLoc.getLongitude();
-			double relDep = depthForCubeCenter[aftShCubeIndex]-translatedParLoc.getDepth();
+			double relDep = depthForCubeCenter[aftShCubeIndex]-translatedParLoc.getDepth();	// TODO why not used (remove or bug?)
 			
 			rupToFillIn.setGridNodeIndex(randSrcIndex - numFltSystSources);
 						
@@ -1252,6 +1509,7 @@ if(locsToSampleFrom.size() == 0) {
 	public void declareRateChange() {
 		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory before discarding chached Samplers");
 		cubeSamplerRatesOnly = null;
+		computeSectNucleationRates();
 		// clear the cache
 		samplerCache.invalidateAll();
 		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
@@ -1277,20 +1535,29 @@ if(locsToSampleFrom.size() == 0) {
 //			double maxTest = 0;
 //			int testCubeIndex = -1;
 			for(int i=0;i<numCubes;i++) {
-				int[] sources = srcInCubeList.get(i);
-				float[] fract = fractionSrcInCubeList.get(i);
-				double totRate=0;
-//				double supraRate=0;
-				for(int j=0; j<sources.length;j++) {
-					totRate += sourceRates[sources[j]]*(double)fract[j];
-//					if(sources[j] < this.numFltSystSources)
-//						supraRate += sourceRates[sources[j]]*(double)fract[j];
+				// compute rate of gridded-seis source in this cube
+				double gridSrcRate=0.0;
+				int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(i));
+				if(griddeSeisRegionIndex != -1)	 {
+					int gridSrcIndex = numFltSystSources + griddeSeisRegionIndex;
+					gridSrcRate = sourceRates[gridSrcIndex]/(numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);	// divide rate among all the cubes in grid cell
 				}
-//				if(supraRate/totRate > maxTest) {
-//					maxTest = supraRate/totRate;
-//					testCubeIndex = i;
-//				}
-				cubeSamplerRatesOnly.set(i,totRate);
+				double totRate= gridSrcRate; // start with gridded seis rate
+				int[] sections = sectInCubeList.get(i);
+				float[] fracts = fractionSectInCubeList.get(i);
+				for(int j=0; j<sections.length;j++) {
+//					if(Double.isNaN(totSectNuclRateArray[sections[j]])) throw new RuntimeException("totSectNuclRateArray");
+//					if(Float.isNaN(fracts[j])) throw new RuntimeException("fracts");
+					totRate += totSectNuclRateArray[sections[j]]*(double)fracts[j];
+				}
+				if(!Double.isNaN(totRate)) {
+					cubeSamplerRatesOnly.set(i,totRate);
+				}
+				else {
+//					Location loc = this.getCubeLocationForIndex(i);
+//					System.out.println("NaN\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
+					throw new RuntimeException("totRate="+Double.NaN+" for cube "+i+"; "+this.getCubeLocationForIndex(i));
+				}
 			}
 // System.out.println("HERE maxTest="+maxTest+"\ttestCubeIndex="+testCubeIndex+"\tloc: "+this.getCubeLocationForIndex(testCubeIndex));
 		}
@@ -1339,62 +1606,98 @@ if(locsToSampleFrom.size() == 0) {
 	
 	
 	/**
-	 * This returns a negative int (-1) if there is no source in the cube (which can happen if
-	 * includeERF_Rates = false since these points won't be zero)
-	 * @param ptIndex
+	 * This returns -1 if ??????
+	 * 
+	 * getRelativeTriggerProbOfSourcesInCube(int cubeIndex) has a lot of redundant code, but this might be faster?
+	 * 
+	 * TODO this other method implies this will crash for certain cubes that have no gridded cell mapping
+	 * @param srcIndex
 	 * @return
 	 */
 	public int getRandomSourceIndexInCube(int cubeIndex) {
-		int[] sources = srcInCubeList.get(cubeIndex);
-		if(sources.length==0) {
-			return -1;
+		
+		// compute rate of gridded-seis source in this cube
+		int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));
+		if(griddeSeisRegionIndex == -1)	// TODO THROW EXCEPTION FOR NOW UNTIL I UNDERSTAND CONDITIONS BETTER
+			throw new RuntimeException("No gridded source index for cube at: "+getCubeLocationForIndex(cubeIndex).toString());
+		
+		int gridSrcIndex = numFltSystSources + griddeSeisRegionIndex;
+		
+		int[] sectInCubeArray = sectInCubeList.get(cubeIndex);
+		if(sectInCubeArray.length==0) {
+			return gridSrcIndex;	// only gridded source in this cube
 		}
-		else if (sources.length==1) {
-			return sources[0];
-		}
-		else {
-			float[] fracts = fractionSrcInCubeList.get(cubeIndex);
-			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sources.length);
-			int indexForOrigGriddedRegion = -2;
-			if(applyGR_Corr)
-				indexForOrigGriddedRegion = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));	// more efficient way?
-			for(int s=0; s<sources.length;s++) {
-				if(applyGR_Corr && sources[s]<numFltSystSources && indexForOrigGriddedRegion != -1) {
-					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]*grCorrFactorForCellArray[indexForOrigGriddedRegion]);		
+		else {		// choose between gridded seis and a section uncleation
+			IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(sectInCubeArray.length+1);  // plus 1 for gridded source
+			double gridSrcRate = sourceRates[gridSrcIndex]/(numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);	// divide rate among all the cubes in grid cell
+			sampler.set(0,gridSrcRate);	// first is the gridded source
+			float[] fracts = fractionSectInCubeList.get(cubeIndex);
+			for(int s=0; s<sectInCubeArray.length;s++) {
+				if(applyGR_Corr && griddeSeisRegionIndex != -1) {
+					sampler.set(s+1,totSectNuclRateArray[sectInCubeArray[s]]*(double)fracts[s]*grCorrFactorForCellArray[griddeSeisRegionIndex]);		
 				}
 				else
-					sampler.set(s,sourceRates[sources[s]]*(double)fracts[s]);		
+					sampler.set(s+1,totSectNuclRateArray[sectInCubeArray[s]]*(double)fracts[s]);		
 			}
-			return sources[sampler.getRandomInt(etas_utils.getRandomDouble())];
-		}
-	}
-	
-	/**
-	 * This sets fracts[s] = 0.0 for supra-seismogenic ruptures on all cubes that contain a point on the surface of
-	 * the given rupture, preventing the such sources from ever being triggered from these cubes.
-	 * 
-	 * TODO these should evolve back into being triggerable with time
-	 * @param rupture
-	 */
-	public void removeTriggeringOnSupraSeisRup(EqkRupture rupture) {
-		
-		ArrayList<Integer> cubeLocsProcessed = new ArrayList<Integer>();
-		for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
-			int cubeIndex = getCubeIndexForLocation(loc);
-			if(!cubeLocsProcessed.contains(cubeIndex)) {
-				int[] sources = srcInCubeList.get(cubeIndex);
-				float[] fracts = fractionSrcInCubeList.get(cubeIndex);
-				for(int s=0; s<sources.length;s++) {
-					int srcIndex = sources[s];
-					if(srcIndex<numFltSystSources) {
-						fracts[s] = 0f;
-					}
+			int randSampleIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
+			if(randSampleIndex == 0)	// gridded source chosen
+				return gridSrcIndex;
+			else {	// choose a source that nucleates on the section
+				
+				
+				int sectIndex = sectInCubeArray[randSampleIndex-1];
+				HashMap<Integer,Float> srcNuclRateHashMap = srcNuclRateOnSectList.get(sectIndex);
+				IntegerPDF_FunctionSampler srcSampler = new IntegerPDF_FunctionSampler(srcNuclRateHashMap.size());
+				int[] srcIndexArray = new int[srcNuclRateHashMap.size()];
+				int index=0;
+				for(int srcIndex:srcNuclRateHashMap.keySet()) {
+					srcIndexArray[index] = srcIndex;
+					srcSampler.set(index, srcNuclRateHashMap.get(srcIndex));
+					index+=1;
 				}
-				cubeLocsProcessed.add(cubeIndex);
+				return srcIndexArray[srcSampler.getRandomInt(etas_utils.getRandomDouble())];
+				
+				// THIS REQUIRES LESS MEMORY:
+//				List<Integer> fltSysRupList = rupSet.getRupturesForSection(sectIndex);
+//				IntegerPDF_FunctionSampler fssSrcSampler = new IntegerPDF_FunctionSampler(fltSysRupList.size());
+//				for(int r=0;r<fltSysRupList.size();r++) {
+//					int fltSysRupIndex = fltSysRupList.get(r);
+//					int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(fltSysRupIndex);
+//					fssSrcSampler.set(r,sourceRates[srcIndex]);
+//				}
+//				int randInt = fssSrcSampler.getRandomInt(etas_utils.getRandomDouble());
+//				int chosenFltSysRup = fltSysRupList.get(randInt);
+//				return ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(chosenFltSysRup);				
 			}
 		}
 	}
 	
+//	/**
+//	 * This sets fracts[s] = 0.0 for supra-seismogenic ruptures on all cubes that contain a point on the surface of
+//	 * the given rupture, preventing the such sources from ever being triggered from these cubes.
+//	 * 
+//	 * TODO these should evolve back into being triggerable with time
+//	 * @param rupture
+//	 */
+//	public void removeTriggeringOnSupraSeisRup(EqkRupture rupture) {
+//		
+//		ArrayList<Integer> cubeLocsProcessed = new ArrayList<Integer>();
+//		for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+//			int cubeIndex = getCubeIndexForLocation(loc);
+//			if(!cubeLocsProcessed.contains(cubeIndex)) {
+//				int[] sources = srcInCubeList.get(cubeIndex);
+//				float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+//				for(int s=0; s<sources.length;s++) {
+//					int srcIndex = sources[s];
+//					if(srcIndex<numFltSystSources) {
+//						fracts[s] = 0f;
+//					}
+//				}
+//				cubeLocsProcessed.add(cubeIndex);
+//			}
+//		}
+//	}
+//	
 	
 	/**
 	 * This returns a scale factor for each original grid cell, whereby multiplying the supra-seismogenic MFD
@@ -1530,6 +1833,20 @@ if(locsToSampleFrom.size() == 0) {
 		getCubeSamplerWithERF_RatesOnly();
 		
 		totRate=this.cubeSamplerRatesOnly.calcSumOfY_Vals();
+		
+		// compute the rate of unassigned sections
+		double[] sectRatesTest = new double[this.rupSet.getNumSections()];
+		for(int i=0;i<numCubes;i++) {
+			int[] sections = sectInCubeList.get(i);
+			float[] fracts = fractionSectInCubeList.get(i);
+			for(int j=0; j<sections.length;j++) {
+				sectRatesTest[sections[j]] += totSectNuclRateArray[sections[j]]*(double)fracts[j];
+			}
+		}
+		double rateUnassigned = 0;
+		for(int s=0;s<sectRatesTest.length;s++)
+			rateUnassigned += (this.totSectNuclRateArray[s]-sectRatesTest[s]);
+		
 		totRate+=rateUnassigned;
 		
 		double testRate2=0;
@@ -1541,7 +1858,8 @@ if(locsToSampleFrom.size() == 0) {
 				testRate2 += src.getRupture(r).getMeanAnnualRate(duration);
 			}
 		}
-		System.out.println("\ttotRateTest="+(float)totRate+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(totRate/testRate2));
+		System.out.println("\ttotRateTest="+(float)totRate+" should equal Rate2="+(float)testRate2+";\tratio="+(float)(totRate/testRate2)+
+				";\t rateUnassigned"+rateUnassigned);
 	}
 	
 	
@@ -1577,45 +1895,54 @@ if(locsToSampleFrom.size() == 0) {
 	
 	/**
 	 * This assumes that the computeMFD_ForSrcArrays(*) has already been run (exception is thrown if not)
+	 * 
+	 * TODO this can be constructed from what's returned by getCubeMFD_GriddedSeisOnly(int cubeIndex) and 
+	 * getCubeMFD_SupraSeisOnly(int cubeIndex) if the max-mag tests here are no longer needed.
 	 * @param cubeIndex
 	 * @return
 	 */
 	private SummedMagFreqDist getCubeMFD(int cubeIndex) {
+		
 		if(mfdForSrcArray == null) {
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		
+		if(rateForSrcHashtable == null)
+			return null;
+		
 		double maxMagTest=0;
 		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
-		int[] sources = srcInCubeList.get(cubeIndex);
-		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
-		for(int s=0; s<sources.length;s++) {
+		for(int srcIndex:rateForSrcHashtable.keySet()) {
 			SummedMagFreqDist mfd=null;
-			int srcIndex = sources[s];
+			double srcRate = rateForSrcHashtable.get(srcIndex);
 			int gridIndex = srcIndex-numFltSystSources;
 			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
-			double wt = (double)fracts[s];
 			if(srcIndex >= numFltSystSources && origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
 				double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
 				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
 					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
-					wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+					srcRate *= fracInsideFaultPoly;
 //					System.out.println("Got inside fault poly "+cubeIndex);
 				}
 				else {
 					mfd = mfdForTrulyOffOnlyArray[srcIndex];
-					wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+					srcRate *= (1.0-fracInsideFaultPoly);
 //					System.out.println("Got truly off "+cubeIndex);
 				}
 			}
 			else {
 				mfd = mfdForSrcArray[srcIndex];
 			}
-			for(int m=0;m<mfd.getNum();m++)
-				magDist.add(m, mfd.getY(m)*wt);
-			double maxMag = mfd.getMaxMagWithNonZeroRate();
-			if(maxMagTest < maxMag && wt>0)
-				maxMagTest = maxMag;
+			double totRate = mfd.getTotalIncrRate();
+			if(totRate>0) {
+				for(int m=0;m<mfd.getNum();m++)
+					magDist.add(m, mfd.getY(m)*srcRate/totRate);
+				double maxMag = mfd.getMaxMagWithNonZeroRate();
+				if(maxMagTest < maxMag && totRate>0)
+					maxMagTest = maxMag;			
+			}
 		}
 		
 		
@@ -1637,41 +1964,84 @@ if(locsToSampleFrom.size() == 0) {
 	 * @return
 	 */
 	private SummedMagFreqDist getCubeMFD_GriddedSeisOnly(int cubeIndex) {
+		
 		if(mfdForSrcArray == null) {
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		
+		if(rateForSrcHashtable == null)
+			return null;
+		
 		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
-		int[] sources = srcInCubeList.get(cubeIndex);
-		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
-		for(int s=0; s<sources.length;s++) {
+		for(int srcIndex:rateForSrcHashtable.keySet()) {
+			if(srcIndex < numFltSystSources)
+				continue;	// skip fault based sources
 			SummedMagFreqDist mfd=null;
-			int srcIndex = sources[s];
-			if(srcIndex<numFltSystSources)	// skip if it's a fault-based source
-				continue;
+			double srcNuclRate = rateForSrcHashtable.get(srcIndex);
 			int gridIndex = srcIndex-numFltSystSources;
 			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
-			double wt = (double)fracts[s];
-			if(origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
+			if(srcIndex >= numFltSystSources && origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
 				double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
 				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
 					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
-					wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+					srcNuclRate *= fracInsideFaultPoly;
 //					System.out.println("Got inside fault poly "+cubeIndex);
 				}
 				else {
 					mfd = mfdForTrulyOffOnlyArray[srcIndex];
-					wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+					srcNuclRate *= (1.0-fracInsideFaultPoly);
 //					System.out.println("Got truly off "+cubeIndex);
 				}
 			}
 			else {
 				mfd = mfdForSrcArray[srcIndex];
 			}
-			for(int m=0;m<mfd.getNum();m++)
-				magDist.add(m, mfd.getY(m)*wt);
+			double totRate = mfd.getTotalIncrRate();
+			if(totRate>0) {
+				for(int m=0;m<mfd.getNum();m++)
+					magDist.add(m, mfd.getY(m)*srcNuclRate/totRate);
+			}
 		}
+		
 		return magDist;
+		
+//		if(mfdForSrcArray == null) {
+//			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
+//		}
+//		
+//		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+//		int[] sources = srcInCubeList.get(cubeIndex);
+//		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+//		for(int s=0; s<sources.length;s++) {
+//			SummedMagFreqDist mfd=null;
+//			int srcIndex = sources[s];
+//			if(srcIndex<numFltSystSources)	// skip if it's a fault-based source
+//				continue;
+//			int gridIndex = srcIndex-numFltSystSources;
+//			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
+//			double wt = (double)fracts[s];
+//			if(origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
+//				double fracInsideFaultPoly = faultPolyMgr.getNodeFraction(gridIndex);
+//				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
+//					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
+//					wt = 1.0/(fracInsideFaultPoly*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+////					System.out.println("Got inside fault poly "+cubeIndex);
+//				}
+//				else {
+//					mfd = mfdForTrulyOffOnlyArray[srcIndex];
+//					wt = 1.0/((1.0-fracInsideFaultPoly)*numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);
+////					System.out.println("Got truly off "+cubeIndex);
+//				}
+//			}
+//			else {
+//				mfd = mfdForSrcArray[srcIndex];
+//			}
+//			for(int m=0;m<mfd.getNum();m++)
+//				magDist.add(m, mfd.getY(m)*wt);
+//		}
+//		return magDist;
 	}
 
 	
@@ -1683,22 +2053,51 @@ if(locsToSampleFrom.size() == 0) {
 	 * @return
 	 */
 	private SummedMagFreqDist getCubeMFD_SupraSeisOnly(int cubeIndex) {
+		
+		
 		if(mfdForSrcArray == null) {
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		
+		if(rateForSrcHashtable == null)
+			return null;
+		
 		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
-		int[] sources = srcInCubeList.get(cubeIndex);
-		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
-		for(int s=0; s<sources.length;s++) {
-			int srcIndex = sources[s];
-			if(srcIndex<numFltSystSources) {
+		for(int srcIndex:rateForSrcHashtable.keySet()) {
+			if(srcIndex < numFltSystSources) {
 				SummedMagFreqDist mfd = mfdForSrcArray[srcIndex];
-				for(int m=0;m<mfd.getNum();m++)
-					magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+				double srcNuclRate = rateForSrcHashtable.get(srcIndex);
+				double totRate = mfd.getTotalIncrRate();
+				if(totRate>0) {
+					for(int m=0;m<mfd.getNum();m++) {
+						magDist.add(m, mfd.getY(m)*srcNuclRate/totRate);
+				
+					}
+				}
 			}
 		}
+		
 		return magDist;
+		
+
+//		if(mfdForSrcArray == null) {
+//			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
+//		}
+//		
+//		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+//		int[] sources = srcInCubeList.get(cubeIndex);
+//		float[] fracts = fractionSrcInCubeList.get(cubeIndex);
+//		for(int s=0; s<sources.length;s++) {
+//			int srcIndex = sources[s];
+//			if(srcIndex<numFltSystSources) {
+//				SummedMagFreqDist mfd = mfdForSrcArray[srcIndex];
+//				for(int m=0;m<mfd.getNum();m++)
+//					magDist.add(m, mfd.getY(m)*(double)fracts[s]);
+//			}
+//		}
+//		return magDist;
 	}
 
 	
@@ -1985,8 +2384,8 @@ if(locsToSampleFrom.size() == 0) {
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
-		System.out.println(griddedRegion.indexForLocation(new Location(34.5,-118.0)));
-		System.out.println(griddedRegion.getLocation(griddedRegion.indexForLocation(new Location(34.5,-118.0))));
+//		System.out.println(griddedRegion.indexForLocation(new Location(34.5,-118.0)));
+//		System.out.println(griddedRegion.getLocation(griddedRegion.indexForLocation(new Location(34.5,-118.0))));
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
 
@@ -2007,13 +2406,13 @@ if(locsToSampleFrom.size() == 0) {
 //		etas_PrimEventSampler.testMagFreqDist();
 
 //		etas_PrimEventSampler.temp();
-		etas_PrimEventSampler.temp2();
+//		etas_PrimEventSampler.temp2();
 		
 		
 		
-//		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
-//		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
-//		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
+		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
+		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
+		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
 //		etas_PrimEventSampler.plotOrigERF_RatesMap("OrigERF_RatesMap");
 //		etas_PrimEventSampler.plotRandomSampleRatesMap("RandomSampleRatesMap", 10000000);
 
@@ -2256,7 +2655,9 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0; i<numCubesAtDepth;i++) {
 			progressBar.updateProgress(i, numCubesAtDepth);
 			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			maxMagData.set(i, getCubeMFD(samplerIndex).getMaxMagWithNonZeroRate());
+			SummedMagFreqDist mfd = getCubeMFD(samplerIndex);
+			if(mfd != null)
+				maxMagData.set(i, mfd.getMaxMagWithNonZeroRate());
 //			Location loc = maxMagData.getLocation(i);
 //			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
 		}
@@ -2320,10 +2721,14 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0; i<numCubesAtDepth;i++) {
 			progressBar.updateProgress(i, numCubesAtDepth);
 			int cubeIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(getCubeMFD_SupraSeisOnly(cubeIndex), getCubeMFD_GriddedSeisOnly(cubeIndex));
-			if(Double.isInfinite(bulge))
-				bulge = 1e3;
-
+			SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(cubeIndex);
+			SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);
+			double bulge = 1.0;
+			if(mfdSupra != null &&  mfdGridded != null) {
+				bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(mfdSupra, mfdGridded);
+				if(Double.isInfinite(bulge))
+					bulge = 1e3;				
+			}
 			bulgeData.set(i, bulge);
 //			Location loc = maxMagData.getLocation(i);
 //			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+maxMagData.get(i));
@@ -2395,7 +2800,10 @@ if(locsToSampleFrom.size() == 0) {
 		for(int i=0; i<numCubesAtDepth;i++) {
 			progressBar.updateProgress(i, numCubesAtDepth);
 			int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
-			double rate = getCubeMFD(samplerIndex).getCumRate(magIndex);
+			SummedMagFreqDist mfd = getCubeMFD(samplerIndex);
+			double rate = 0.0;
+			if(mfd != null)
+				rate = getCubeMFD(samplerIndex).getCumRate(magIndex);
 			if(rate == 0.0)
 				rate = 1e-16;
 			xyzDataSet.set(i, rate);
@@ -2534,7 +2942,7 @@ if(locsToSampleFrom.size() == 0) {
 		getCubeSamplerWithERF_RatesOnly();
 		
 		// get numYrs yrs worth of samples
-		totRate=cubeSamplerRatesOnly.calcSumOfY_Vals()+rateUnassigned;
+		totRate=cubeSamplerRatesOnly.calcSumOfY_Vals();
 		int numSamples = numYrs*(int)totRate;
 		System.out.println("num random samples for map test = "+numSamples);
 		// do this to make sure it exists
@@ -2544,7 +2952,7 @@ if(locsToSampleFrom.size() == 0) {
 		progressBar.showProgress(true);
 		for(int i=0;i<numSamples;i++) {
 			progressBar.updateProgress(i, numSamples);
-			int indexFromSampler = cubeSamplerRatesOnly.getRandomInt();
+			int indexFromSampler = cubeSamplerRatesOnly.getRandomInt(etas_utils.getRandomDouble());
 			int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(indexFromSampler);
 			int indexForMap = mapGriddedRegion.indexForLocation(gridRegForCubes.locationForIndex(regAndDepIndex[0]));	// ignoring depth
 			double oldNum = xyzDataSet.get(indexForMap)*numYrs;

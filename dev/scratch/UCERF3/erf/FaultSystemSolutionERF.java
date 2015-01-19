@@ -100,7 +100,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 
 	public static final String NAME = "Fault System Solution ERF";
 	private String name = NAME;
@@ -235,6 +235,12 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		// set it in the fault section data objects
 		int fltSysRupIndex = getFltSysRupIndexForSource(srcIndex);
 		setFltSystemSourceOccurranceTimeForFSSIndex(fltSysRupIndex, epoch);
+	}
+	
+	
+	
+	public double[] getNormTimeSinceLastForSections() {
+		return probModelsCalc.getNormTimeSinceLastForSections(timeSpan.getStartTimeInMillis());
 	}
 	
 	/**

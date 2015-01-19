@@ -3680,6 +3680,27 @@ public class ProbabilityModelsCalc {
 //		System.exit(0);
 	}
 	
+	/**
+	 * This returns an array of normalized time since last event for each section, with
+	 * a value of Double.NaN if it's unknown
+	 * @param currentTimeMillis
+	 * @return
+	 */
+	public double[] getNormTimeSinceLastForSections(long currentTimeMillis) {
+		double[] normTimeSince = new double[numSections];
+		for(int s=0; s<numSections;s++) {
+			long epochOfLast = dateOfLastForSect[s];
+			if(epochOfLast != Long.MIN_VALUE) {
+				double yearsSinceLast = ((double)(currentTimeMillis-epochOfLast)/MILLISEC_PER_YEAR);
+				normTimeSince[s] = longTermPartRateForSectArray[s]*yearsSinceLast;
+			}
+			else {
+				normTimeSince[s] = Double.NaN;
+			}	
+		}
+		return normTimeSince;
+	}
+	
 	
 	private void readSectTimeSinceLastEventFromFile(String fileName, long currentTimeMillis) {
 		

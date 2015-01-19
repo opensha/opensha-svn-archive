@@ -319,7 +319,7 @@ public class ETAS_Simulator {
 		st = System.currentTimeMillis();
 		
 		// Create the ETAS_PrimaryEventSampler
-		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
+		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
 				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
@@ -335,8 +335,8 @@ public class ETAS_Simulator {
 //System.out.println("Mojave N 4 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1836, scenarioRup)+"\t"+dataList.get(1836).getName());
 
 		// prevent supra-seis triggering on scenario surface if it's a FSS rupture
-		if(scenarioRup != null && scenarioRup.getFSSIndex() >= 0)
-			etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
+//		if(scenarioRup != null && scenarioRup.getFSSIndex() >= 0)
+//			etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
 
 //System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).getCumRateDistWithOffset().toString());
 //System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).toString());
@@ -425,11 +425,17 @@ public class ETAS_Simulator {
 // System.exit(-1);
 			// Compute Primary Event Sampler Map
 			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
-			// Compute subsection trigger probability map
-			String info = etas_PrimEventSampler.plotSubSectTriggerProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 50);
+			
+			// Compute subsection participation probability map
+			String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 30, "_Scenario");
+			
+			// for subsection trigger probabilities (different than participation).
+			info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(scenarioRup, resultsDir, 30, "_Scenario");
 			
 			System.out.println(info);	
 			info_fr.write(info+"\n");
+
+
 		}
 		
 		if(D) {
@@ -602,8 +608,8 @@ public class ETAS_Simulator {
 					}
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();
-					// and prevent triggering on surface of what just ruptured
-					etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
+//					// and prevent triggering on surface of what just ruptured
+//					etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 
 				}
 				String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
@@ -612,8 +618,25 @@ public class ETAS_Simulator {
 					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
 					double startDay = 0.0;	// from the moment it occurs
 					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
-					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, erf.getNthRupture(nthRup), expNum);
+					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, rup, expNum);
+					
+					String nameSuffix = "triggered"+(nthFaultSysRupAftershocks.size()-1);
+
+//					// Compute Primary Event Sampler Map
+//					etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(rup), "Primary Sampler for "+nameSuffix, nameSuffix+"_PrimaryMap", resultsDir);
+//					
+//					// Compute subsection participation probability map
+//					String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(rup, resultsDir, 30, nameSuffix);
+//					
+//					// for subsection trigger probabilities (different than participation).
+//					info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(rup, resultsDir,30, nameSuffix);
+//					
+//					System.out.println(info);	
+//					info_fr.write(info+"\n");
+//					info_fr.close();
+//					System.exit(-1);
+
 				}
 			}
 		}
@@ -755,7 +778,7 @@ public class ETAS_Simulator {
 //				scenarioRup.setRuptureSurface(trimmedSurface);
 //	System.out.println(trimmedSurface.getEvenlyDiscritizedListOfLocsOnSurface().size());
 //	System.exit(-1);
-//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 5.0, 0.0)));
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
@@ -1037,8 +1060,9 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409022950070l, "Napa failure", null);
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
-		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
+//		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_3", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

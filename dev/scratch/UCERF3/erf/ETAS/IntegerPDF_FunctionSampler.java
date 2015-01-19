@@ -35,6 +35,29 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		cumDistVals = new double[numInts];
 	}
 	
+	/**
+	 * 
+	 * @param values - the Y values for the sampler
+	 */
+	public IntegerPDF_FunctionSampler(float[] values) {
+		super(0.0, values.length, 1.0);
+		cumDistVals = new double[values.length];
+		for(int i=0;i<values.length;i++)
+			set(i, (float)values[i]);
+	}
+
+	
+	/**
+	 * 
+	 * @param values - the Y values for the sampler
+	 */
+	public IntegerPDF_FunctionSampler(double[] values) {
+		super(0.0, values.length, 1.0);
+		cumDistVals = new double[values.length];
+		for(int i=0;i<values.length;i++)
+			set(i, values[i]);
+	}
+
 	
 	/**
 	 * This makes the cumulative dist function
