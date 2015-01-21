@@ -15,8 +15,10 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -28,9 +30,7 @@ import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
-import scratch.kevin.magDepth.NoCollissionFunc;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -186,14 +186,14 @@ public class InversionConvergencePlotGen {
 		normRateFunc.setName("Cumulative Rate (normalized)");
 		EvenlyDiscretizedFunc normMoRateFunc = new EvenlyDiscretizedFunc(0d, numRates, 1d);
 		normMoRateFunc.setName("Cumulative Moment Rate (normalized)");
-		NoCollissionFunc normStdDevVsRateFunc = new NoCollissionFunc();
+		DefaultXY_DataSet normStdDevVsRateFunc = new DefaultXY_DataSet();
 		normStdDevVsRateFunc.setName("Std Dev / Mean vs Rate");
-		NoCollissionFunc normStdDevVsMoRateFunc = new NoCollissionFunc();
+		DefaultXY_DataSet normStdDevVsMoRateFunc = new DefaultXY_DataSet();
 		normStdDevVsMoRateFunc.setName("Std Dev / Mean vs Moment Rate");
 
-		NoCollissionFunc nVsRateFunc = new NoCollissionFunc();
+		DefaultXY_DataSet nVsRateFunc = new DefaultXY_DataSet();
 		nVsRateFunc.setName("N for SDOM within 10% vs Rate");
-		NoCollissionFunc nVsMoRateFunc = new NoCollissionFunc();
+		DefaultXY_DataSet nVsMoRateFunc = new DefaultXY_DataSet();
 		nVsMoRateFunc.setName("N for SDOM within 10% vs Rate");
 		
 		Collections.sort(entries);
@@ -242,7 +242,7 @@ public class InversionConvergencePlotGen {
 		normRateFunc.scale(rateNorm);
 		normMoRateFunc.scale(moRateNorm);
 		
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<XY_DataSet> funcs = Lists.newArrayList();
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		funcs.add(normStdDevFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
@@ -285,13 +285,13 @@ public class InversionConvergencePlotGen {
 	}
 	
 	private static void writePlot(File dir, String prefix,
-			ArrayList<DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars,
+			List<? extends XY_DataSet> funcs, ArrayList<PlotCurveCharacterstics> chars,
 			String title, String xAxis, String yAxis, boolean yLog) throws IOException {
 		writePlot(dir, prefix, funcs, chars, title, xAxis, yAxis, yLog, null);
 	}
 	
 	private static void writePlot(File dir, String prefix,
-			ArrayList<DiscretizedFunc> funcs, ArrayList<PlotCurveCharacterstics> chars,
+			List<? extends XY_DataSet> funcs, ArrayList<PlotCurveCharacterstics> chars,
 			String title, String xAxis, String yAxis, boolean yLog, double[][] axis) throws IOException {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setYLog(yLog);

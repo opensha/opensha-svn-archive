@@ -5,14 +5,12 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -22,6 +20,7 @@ import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -30,27 +29,18 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
-import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
-import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.param.ApplyGardnerKnopoffAftershockFilterParam;
-import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -78,7 +68,12 @@ import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
-import scratch.kevin.magDepth.NoCollissionFunc;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class TablesAndPlotsGen {
 	
@@ -670,7 +665,7 @@ public class TablesAndPlotsGen {
 	
 	public static void makeNumRunsForRateWithin10Plot(
 			AverageFaultSystemSolution avgSol, File outputDir, String prefix) throws IOException {
-		NoCollissionFunc scatter = new NoCollissionFunc();
+		DefaultXY_DataSet scatter = new DefaultXY_DataSet();
 		
 		for (int r=0; r<avgSol.getRupSet().getNumRuptures(); r++) {
 			double s = avgSol.getRateStdDev(r);
@@ -681,7 +676,7 @@ public class TablesAndPlotsGen {
 			scatter.set(m, n);
 		}
 		
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<PlotElement> funcs = Lists.newArrayList();
 		funcs.add(scatter);
 		ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));

@@ -6,22 +6,20 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.geo.Location;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
-import org.opensha.commons.gui.plot.GraphWindow;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -195,14 +193,14 @@ public class DepthPlotMaker {
 		if (maxDepth <= 0)
 			maxDepth = Double.POSITIVE_INFINITY;
 		System.out.println("Plotting "+list.size()+" mappings");
-		NoCollissionFunc func = new NoCollissionFunc();
+		DefaultXY_DataSet func = new DefaultXY_DataSet();
 		for (Mapping val : list) {
 			if (val.depth < maxDepth) {
 				func.set(val.mag, -val.depth);
 			}
 		}
 		System.out.println("Done setting func, displaying.");
-		ArrayList<DiscretizedFunc> funcs = Lists.newArrayList();
+		ArrayList<XY_DataSet> funcs = Lists.newArrayList();
 		funcs.add(func);
 		ArrayList<PlotCurveCharacterstics> plotChars = Lists.newArrayList(new PlotCurveCharacterstics(PlotSymbol.X, 2f, Color.BLACK));
 		GraphWindow gw = new GraphWindow(funcs, "Mag Vs. Depth", plotChars);
