@@ -5785,7 +5785,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 		}
 		
-		private void addWeighted(Map<Integer, IncrementalMagFreqDist> mfdMap, int index,
+		public static void addWeighted(Map<Integer, IncrementalMagFreqDist> mfdMap, int index,
 				IncrementalMagFreqDist newMFD, double weight) {
 			if (newMFD == null)
 				// simple case
