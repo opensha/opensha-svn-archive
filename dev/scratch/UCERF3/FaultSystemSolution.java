@@ -635,7 +635,7 @@ public class FaultSystemSolution implements Serializable {
 			func.set((double) sectIndex + 0.0001, constraint.getUpper95ConfOfRate());
 			func.setName(constraint.getFaultSectionName());
 			funcs3.add(func);
-			double r=(constraint.getMeanRate()-finalPaleoVisibleEventRateFunc.getClosestY(sectIndex))/(constraint.getUpper95ConfOfRate()-constraint.getLower95ConfOfRate());
+			double r=(constraint.getMeanRate()-finalPaleoVisibleEventRateFunc.getClosestYtoX(sectIndex))/(constraint.getUpper95ConfOfRate()-constraint.getLower95ConfOfRate());
 			// System.out.println("Constraint #"+c+" misfit: "+r);
 			totalError+=Math.pow(r,2);
 		}			
@@ -700,7 +700,7 @@ public class FaultSystemSolution implements Serializable {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
-					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));		
+					offFaultMFD.set(m, totalTargetMFD.getClosestYtoX(m) - magHist.getClosestYtoX(m));		
 				}
 				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
 				offFaultMFD.setInfo("Total Target minus on-fault solution");totalTargetMFD.setInfo("Northern CA 1850-2007");
@@ -710,7 +710,7 @@ public class FaultSystemSolution implements Serializable {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
-					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
+					offFaultMFD.set(m, totalTargetMFD.getClosestYtoX(m) - magHist.getClosestYtoX(m));
 					
 				}
 				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");
@@ -721,7 +721,7 @@ public class FaultSystemSolution implements Serializable {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
 				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
-					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
+					offFaultMFD.set(m, totalTargetMFD.getClosestYtoX(m) - magHist.getClosestYtoX(m));
 					
 				}
 				offFaultMFD.setName("Implied Off-fault MFD for Solution"); totalTargetMFD.setName("Total Seismicity Rate for Region");

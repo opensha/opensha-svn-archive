@@ -46,7 +46,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	 */
 	public static double scaleForMagnitude(double m) {
 		checkArgument(m > instance.getMinX() && m < instance.getMaxX());
-		return instance.getClosestY(m);
+		return instance.getClosestYtoX(m);
 	}
 	
 	/**

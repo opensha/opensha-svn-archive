@@ -205,7 +205,7 @@ public abstract class AbstractXY_DataSetTest {
 	@Test
 	public void testGetClosestX() {
 		if (isArbitrarilyDiscretized())
-			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestX(0)));
+			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestXtoY(0)));
 		
 		int num = 10;
 		XY_DataSet xy = newPopulatedDataSet(num, false, false);
@@ -220,7 +220,7 @@ public abstract class AbstractXY_DataSetTest {
 				break;
 			}
 		}
-		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMinY, xy.getClosestX(minY-1d), test_tol);
+		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMinY, xy.getClosestXtoY(minY-1d), test_tol);
 		
 		// check above max
 		double maxY = xy.getMaxY();
@@ -232,45 +232,45 @@ public abstract class AbstractXY_DataSetTest {
 				break;
 			}
 		}
-		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMaxY, xy.getClosestX(maxY+1d), test_tol);
+		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMaxY, xy.getClosestXtoY(maxY+1d), test_tol);
 		
 		// test equals
 		for (int i=0; i<num; i++)
-			assertEquals("getClosestX for exact matches should return respective x", xy.getX(i), xy.getClosestX(xy.getY(i)), test_tol);
+			assertEquals("getClosestX for exact matches should return respective x", xy.getX(i), xy.getClosestXtoY(xy.getY(i)), test_tol);
 		
 		// test inbetweens
 		for (int i=0; i<num; i++) {
 			double x = xy.getX(i);
 			double y = xy.getY(i);
-			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestX(y+0.2), test_tol);
-			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestX(y-0.2), test_tol);
+			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestXtoY(y+0.2), test_tol);
+			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestXtoY(y-0.2), test_tol);
 		}
 	}
 	
 	@Test
-	public void testGetClosestY() {
+	public void testGetClosestYtoX() {
 		if (isArbitrarilyDiscretized())
-			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestY(0)));
+			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestYtoX(0)));
 		
 		int num = 10;
 		XY_DataSet xy = newPopulatedDataSet(num, false, false);
 		
 		// check below min
-		assertEquals("getClosestY for below min x should return y at smallest x", xy.getY(0), xy.getClosestY(xy.getMinX()-1d), test_tol);
+		assertEquals("getClosestY for below min x should return y at smallest x", xy.getY(0), xy.getClosestYtoX(xy.getMinX()-1d), test_tol);
 		
 		// check above max
-		assertEquals("getClosestY for above max x should return y at largest x", xy.getY(num-1), xy.getClosestY(xy.getMaxX()+1d), test_tol);
+		assertEquals("getClosestY for above max x should return y at largest x", xy.getY(num-1), xy.getClosestYtoX(xy.getMaxX()+1d), test_tol);
 		
 		// test equals
 		for (int i=0; i<num; i++)
-			assertEquals("getClosestY for exact matches should return respective y", xy.getY(i), xy.getClosestY(xy.getX(i)), test_tol);
+			assertEquals("getClosestY for exact matches should return respective y", xy.getY(i), xy.getClosestYtoX(xy.getX(i)), test_tol);
 		
 		// test inbetweens
 		for (int i=0; i<num; i++) {
 			double x = xy.getX(i);
 			double y = xy.getY(i);
-			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestY(x+0.2), test_tol);
-			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestY(x-0.2), test_tol);
+			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestYtoX(x+0.2), test_tol);
+			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestYtoX(x-0.2), test_tol);
 		}
 	}
 	

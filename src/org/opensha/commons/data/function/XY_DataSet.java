@@ -76,20 +76,22 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	public double getY(int index) throws IndexOutOfBoundsException;
 	
 	/**
-	 * Get the Y value for the point with closest X
+	 * Get the Y value for the point with closest X. If multiple points are equidistant, the smaller
+	 * X will be returned.
 	 * 
 	 * @param x
 	 * @return
 	 */
-	public double getClosestY(double x);
+	public double getClosestYtoX(double x);
 
 	/**
-	 * Get the X value for the point with closest Y
+	 * Get the X value for the point with closest Y. If multiple points are equidistant, the smaller
+	 * X will be returned.
 	 * 
 	 * @param y
 	 * @return
 	 */
-	public double getClosestX(double y);
+	public double getClosestXtoY(double y);
 
 
 	/* ***************/

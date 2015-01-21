@@ -234,7 +234,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 				if(mag < aveRupTopVersusMag.getMinX())
 					depth = defaultHypoDepth;
 				else
-					depth = aveRupTopVersusMag.getClosestY(mag);
+					depth = aveRupTopVersusMag.getClosestYtoX(mag);
 				Location loc = new Location(
 						location.getLatitude(),
 						location.getLongitude(),
@@ -295,7 +295,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 		
 		double rupLength;
 		if(magScalingRel instanceof MagAreaRelationship) {
-			double ddw = (aveRupTopVersusMag.getClosestY(mag) - lowerSeisDepth)/Math.sin(dip*Math.PI/180);
+			double ddw = (aveRupTopVersusMag.getClosestYtoX(mag) - lowerSeisDepth)/Math.sin(dip*Math.PI/180);
 			double area = magScalingRel.getMedianScale(mag);
 			if(ddw > Math.sqrt(area))
 				rupLength = ddw;

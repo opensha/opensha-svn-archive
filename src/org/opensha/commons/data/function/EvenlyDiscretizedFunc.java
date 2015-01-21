@@ -645,7 +645,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 
 
 	@Override
-	public double getClosestY(double x) {
+	public double getClosestYtoX(double x) {
 		// TODO unit test
 		if (x >= maxX)
 			return getY(size()-1);

@@ -562,7 +562,7 @@ public class DeformationModelFileParser {
 			if (creepOverSlip > momentReductionConversionFunc.getMaxX())
 				momentRecution = 1;
 			else
-				momentRecution = momentReductionConversionFunc.getClosestY(creepOverSlip);
+				momentRecution = momentReductionConversionFunc.getClosestYtoX(creepOverSlip);
 			
 			if (momentRecution <= maxMomentReduction)
 				def.momentReductions.set(sect-1, momentRecution);

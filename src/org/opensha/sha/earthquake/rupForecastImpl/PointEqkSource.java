@@ -253,7 +253,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 			if(mag < this.aveRupTopVersusMag.getMinX())
 				depth = this.defaultHypoDepth;
 			else
-				depth = aveRupTopVersusMag.getClosestY(mag);
+				depth = aveRupTopVersusMag.getClosestYtoX(mag);
 			//    	location.setDepth(depth);
 			location = new Location(
 					location.getLatitude(), location.getLongitude(), depth);

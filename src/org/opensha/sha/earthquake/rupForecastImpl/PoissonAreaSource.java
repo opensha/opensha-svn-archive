@@ -173,7 +173,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 							if(mag < aveRupTopVersusMag.getMinX())
 								depth = defaultHypoDepth;
 							else
-								depth = aveRupTopVersusMag.getClosestY(mag);
+								depth = aveRupTopVersusMag.getClosestYtoX(mag);
 							Location finalLoc = new Location(
 									loc.getLatitude(), loc.getLongitude(), depth);
 							rup.setPointSurface(finalLoc,focalMechanisms[k].getDip());

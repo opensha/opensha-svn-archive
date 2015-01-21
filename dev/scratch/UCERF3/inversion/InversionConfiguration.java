@@ -556,7 +556,7 @@ public class InversionConfiguration implements XMLSaveable {
 			newMFD.setTolerance(delta/2.0);
 			for (double m=minMag; m<=maxMag; m+=delta) {
 				// WARNING!  This doesn't interpolate.  For best results, set minMag & maxMag to points along original MFD constraint (i.e. 7.05, 7.15, etc)
-				newMFD.set(m, originalMFD.getClosestY(m));
+				newMFD.set(m, originalMFD.getClosestYtoX(m));
 			}
 			newMFDConstraints.add(i,new MFD_InversionConstraint(newMFD, mfdConstraints.get(i).getRegion()));	
 		}
@@ -680,10 +680,10 @@ public class InversionConfiguration implements XMLSaveable {
 			IncrementalMagFreqDist adjustmentRatio = new IncrementalMagFreqDist(targetMagFreqDist.getMinX(), targetMagFreqDist.size(), targetMagFreqDist.getDelta());
 			for (double m=targetMagFreqDist.getMinX(); m<=targetMagFreqDist.getMaxX(); m+= targetMagFreqDist.getDelta()) {
 				if (adjustOnlyIfOverMFD == false)
-					adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
+					adjustmentRatio.set(m, targetMagFreqDist.getClosestYtoX(m) / startingModelMagFreqDist.getClosestYtoX(m));
 				else {
-					if (startingModelMagFreqDist.getClosestY(m) > targetMagFreqDist.getClosestY(m))
-						adjustmentRatio.set(m, targetMagFreqDist.getClosestY(m) / startingModelMagFreqDist.getClosestY(m));
+					if (startingModelMagFreqDist.getClosestYtoX(m) > targetMagFreqDist.getClosestYtoX(m))
+						adjustmentRatio.set(m, targetMagFreqDist.getClosestYtoX(m) / startingModelMagFreqDist.getClosestYtoX(m));
 					else
 						adjustmentRatio.set(m, 1.0);
 				}
@@ -692,8 +692,8 @@ public class InversionConfiguration implements XMLSaveable {
 			// Adjust initial model rates
 			for(int rup=0; rup<rupSet.getNumRuptures(); rup++) {
 				double mag = rupMeanMag[rup];
-				if (!Double.isNaN(adjustmentRatio.getClosestY(mag)) && !Double.isInfinite(adjustmentRatio.getClosestY(mag)))
-					initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestY(mag);
+				if (!Double.isNaN(adjustmentRatio.getClosestYtoX(mag)) && !Double.isInfinite(adjustmentRatio.getClosestYtoX(mag)))
+					initialRupModel[rup] = initialRupModel[rup] * adjustmentRatio.getClosestYtoX(mag);
 			}
 			
 		}
@@ -894,7 +894,7 @@ public class InversionConfiguration implements XMLSaveable {
 		
 		// Set up initial (non-normalized) target MFD rates for each rupture, normalized by meanSlipRate
 		for (int rup=0; rup<numRup; rup++) {
-			initial_state[rup] = targetMagFreqDist.getClosestY(rupMeanMag[rup]) * minimumSlipRate[rup] / magHist.getClosestY(rupMeanMag[rup]);
+			initial_state[rup] = targetMagFreqDist.getClosestYtoX(rupMeanMag[rup]) * minimumSlipRate[rup] / magHist.getClosestYtoX(rupMeanMag[rup]);
 			if (Double.isNaN(initial_state[rup]) || Double.isInfinite(initial_state[rup]))
 				throw new IllegalStateException("Pre-normalization initial_state["+rup+"] = "+initial_state[rup]);
 		}
@@ -909,8 +909,8 @@ public class InversionConfiguration implements XMLSaveable {
 			if (rupMeanMag[rup]>7.0 && rupMeanMag[rup]<=7.1)
 				totalEventRate += initial_state[rup];
 		}
-		double normalization = targetMagFreqDist.getClosestY(7.0)/totalEventRate;	
-		if (targetMagFreqDist.getClosestY(7.0)==0)
+		double normalization = targetMagFreqDist.getClosestYtoX(7.0)/totalEventRate;	
+		if (targetMagFreqDist.getClosestYtoX(7.0)==0)
 			throw new IllegalStateException("targetMagFreqDist.getClosestY(7.0) = 0.  Check rupSet.getInversionMFDs().getTargetOnFaultSupraSeisMFD()");
 		// Adjust rates by normalization to match target MFD total event rates
 		for (int rup=0; rup<numRup; rup++) {

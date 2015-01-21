@@ -1135,12 +1135,12 @@ public class FaultSysSolutionERF_Calc {
 		tableString="U3_total\tU3_faults\tU3_gridded\tU2_total\tU2_faults\tU2_gridded\n";
 		for(double mag=5;mag<8.8;mag+=0.1) {
 			tableString+=(float)mag+"\t";
-			tableString+=mfd_U3_total_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U3_faults_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U3_gridded_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_total_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_faults_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_gridded_cum.getClosestY(mag)+"\n";
+			tableString+=mfd_U3_total_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U3_faults_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U3_gridded_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_total_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_faults_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_gridded_cum.getClosestYtoX(mag)+"\n";
 		}
 		System.out.println(tableString);		
 		
@@ -3493,7 +3493,7 @@ public class FaultSysSolutionERF_Calc {
 	private static double calcProbAboveMagFromMFD(EvenlyDiscretizedFunc cmlMFD, double minMag, double duration) {
 		cmlMFD = calcProbsFromSummedMFD(cmlMFD, duration);
 		Preconditions.checkState(minMag <= cmlMFD.getMaxX());
-		return cmlMFD.getClosestY(minMag);
+		return cmlMFD.getClosestYtoX(minMag);
 //		for (Point2D pt : calcProbsFromSummedMFD(cmlMFD, duration))
 //			if (pt.getX() >= minMag)
 //				return pt.getY();

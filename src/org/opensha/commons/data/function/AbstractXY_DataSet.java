@@ -60,7 +60,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	}
 	
 	@Override
-	public double getClosestX(double y) {
+	public double getClosestXtoY(double y) {
 		double x = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
 		for (int i=0; i<size(); i++) {
@@ -75,7 +75,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	}
 
 	@Override
-	public double getClosestY(double x) {
+	public double getClosestYtoX(double x) {
 		double y = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
 		for (int i=0; i<size(); i++) {

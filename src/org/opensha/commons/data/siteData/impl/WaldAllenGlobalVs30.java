@@ -215,7 +215,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			if (interpolate)
 				vs = coeffFunc.getInterpolatedY(slope);
 			else {
-				vs = coeffFunc.getClosestY(slope);
+				vs = coeffFunc.getClosestYtoX(slope);
 			}
 		}
 		

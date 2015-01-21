@@ -1323,7 +1323,7 @@ public class SynchParamCalculator {
 						}
 					} else {
 						// CCDF doesn't have a point at zero but we want one. average in the bin before/after zero and add in corups
-						double ccdf_at_zero = ccdf.getClosestY(-0.5*chain.getDistSpacing())+ccdf.getClosestY(0.5*chain.getDistSpacing());
+						double ccdf_at_zero = ccdf.getClosestYtoX(-0.5*chain.getDistSpacing())+ccdf.getClosestYtoX(0.5*chain.getDistSpacing());
 						ccdf_at_zero = ccdf_at_zero*0.5 + numCorups;
 						scaledCombined.set(0d, ccdf_at_zero);
 					}

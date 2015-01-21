@@ -2224,7 +2224,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //								}
 //							}
 							solMFDs.get(duration).get(r).get(cov).add(scaledMFD);
-							double prob6p7 = probs.getClosestY(6.7d);
+							double prob6p7 = probs.getClosestYtoX(6.7d);
 							map6p7.put(cov, prob6p7);
 							solOnMPDs.get(duration).get(r).get(cov).add(
 									FaultSysSolutionERF_Calc.calcProbsFromSummedMFD(onMFDs.get(cov).get(r), duration));
@@ -4413,7 +4413,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			double x = xVals.get(i);
 			if (ucerf2CmlMFD != null && ucerf2CmlMFD.getMinX() <= x
 					&& ucerf2CmlMFD.getMaxX() >= x) {
-				line.add(ucerf2CmlMFD.getClosestY(x) + "");
+				line.add(ucerf2CmlMFD.getClosestYtoX(x) + "");
 			} else {
 				line.add("");
 			}
