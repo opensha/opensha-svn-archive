@@ -27,12 +27,12 @@ public class CodeTests {
 		
 		
 		// now check that monte carlo sampling of the function converges to y-axis values
-		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(sampler.getX(0), sampler.getNum(), sampler.getDelta());
+		EvenlyDiscretizedFunc testFunc = new EvenlyDiscretizedFunc(sampler.getX(0), sampler.size(), sampler.getDelta());
 		int numSamples=100000000;
 		for(int i=0;i<numSamples;i++) {
 			testFunc.add(sampler.getRandomInt(),1.0);
 		}
-		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
+		for(int i=0;i<testFunc.size();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
 		
 /**/		//  Plot comparison
 		ArrayList funcs = new ArrayList();
@@ -41,7 +41,7 @@ public class CodeTests {
 		GraphWindow sr_graph = new GraphWindow(funcs, "");  
 		
 		double maxDiff =0;
-		for(int i=0;i<testFunc.getNum();i++) {
+		for(int i=0;i<testFunc.size();i++) {
 			double diff = Math.abs(testFunc.getY(i)-sampler.getY(i));
 			if(diff>maxDiff) maxDiff = diff;
 		}
@@ -62,8 +62,8 @@ public class CodeTests {
 		// make the target function & change it to a PDF
 		EvenlyDiscretizedFunc targetFunc = utils.getDefaultNumWithTimeFunc(5, tMin, tMax, tDelta);
 		double sum=0;
-		for(int i=0; i<targetFunc.getNum();i++) sum += targetFunc.getY(i);
-		for(int i=0; i<targetFunc.getNum();i++) targetFunc.set(i, targetFunc.getY(i)/sum);
+		for(int i=0; i<targetFunc.size();i++) sum += targetFunc.getY(i);
+		for(int i=0; i<targetFunc.size();i++) targetFunc.set(i, targetFunc.getY(i)/sum);
 		
 		// now test against a histogram filled from random samples
 		EvenlyDiscretizedFunc histogram = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
@@ -72,7 +72,7 @@ public class CodeTests {
 		for(int i=0;i<numSamples;i++) {
 			histogram.add(utils.getDefaultRandomTimeOfEvent(tMin, tMax), 1.0);
 		}
-		for(int i=0; i<histogram.getNum();i++)
+		for(int i=0; i<histogram.size();i++)
 			histogram.set(i,histogram.getY(i)/(numSamples));
 		
 		// plot functions
@@ -82,7 +82,7 @@ public class CodeTests {
 		GraphWindow sr_graph = new GraphWindow(funcs, "");  
 		
 		double maxDiff =0;
-		for(int i=0;i<targetFunc.getNum();i++) {
+		for(int i=0;i<targetFunc.size();i++) {
 			double diff = Math.abs(targetFunc.getY(i)-histogram.getY(i));
 			if(diff>maxDiff) maxDiff = diff;
 		}
@@ -117,7 +117,7 @@ public class CodeTests {
 			int index = utils.getPoissonRandomNumber(lambda);
 			if(index <maxNum) histogram.add(index, 1.0);
 		}
-		for(int i=0; i<histogram.getNum();i++)
+		for(int i=0; i<histogram.size();i++)
 			histogram.set(i,histogram.getY(i)/(numSamples));
 		
 		// plot functions
@@ -127,7 +127,7 @@ public class CodeTests {
 		GraphWindow sr_graph = new GraphWindow(funcs, ""); 
 */		
 		double maxDiff =0;
-		for(int i=0;i<targetFunc.getNum();i++) {
+		for(int i=0;i<targetFunc.size();i++) {
 			double diff = Math.abs(targetFunc.getY(i)-histogram.getY(i));
 			if(diff>maxDiff) maxDiff = diff;
 		}

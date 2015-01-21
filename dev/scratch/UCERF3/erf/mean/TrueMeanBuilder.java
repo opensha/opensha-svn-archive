@@ -736,14 +736,14 @@ public class TrueMeanBuilder {
 			return;
 		IncrementalMagFreqDist mfd = mfds.get(index);
 		if (mfd == null) {
-			mfd = new IncrementalMagFreqDist(newMFD.getMinX(), newMFD.getNum(), newMFD.getDelta());
+			mfd = new IncrementalMagFreqDist(newMFD.getMinX(), newMFD.size(), newMFD.getDelta());
 			mfds.put(index, mfd);
 		} else {
 			Preconditions.checkState((float)mfd.getMinX() == (float)newMFD.getMinX());
 			Preconditions.checkState((float)mfd.getMaxX() == (float)newMFD.getMaxX());
-			Preconditions.checkState(mfd.getNum() == newMFD.getNum());
+			Preconditions.checkState(mfd.size() == newMFD.size());
 		}
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i=0; i<mfd.size(); i++) {
 			mfd.add(i, newMFD.getY(i)*weight);
 		}
 	}

@@ -137,7 +137,7 @@ public class EEWShakeMapCalc {
 		System.out.println("calculating curve for run " + run.getRunID());
 		ArrayList<Double> xVals = new ArrayList<Double>();
 		ArbitrarilyDiscretizedFunc curve = getXVals();
-		for (int i=0; i<curve.getNum(); i++)
+		for (int i=0; i<curve.size(); i++)
 			xVals.add(curve.getX(i));
 		
 		double myProbs = 0;
@@ -171,7 +171,7 @@ public class EEWShakeMapCalc {
 			}
 		}
 //		System.out.println("Curve before inverse: " + curve);
-		for(int j=0; j<curve.getNum(); ++j) 
+		for(int j=0; j<curve.size(); ++j) 
 			curve.set(curve.getX(j),(1-curve.getY(j)));
 		System.out.println("Curve after inverse: " + curve);
 		System.out.println("Scaled curve probs total: " + myProbs);

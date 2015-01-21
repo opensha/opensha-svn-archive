@@ -266,7 +266,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			}
 		}
 		// make the difference MFD (which should be zero)
-		for(int m=0; m< diffrenceMFD.getNum(); m++) {
+		for(int m=0; m< diffrenceMFD.size(); m++) {
 			double diff = mfdOfAssocRupsWithOrigMags.getY(m)-(nucleationMFD.getY(m)+outsideRegionMFD.getY(m)-subSeismoMFD.getY(m));
 			diffrenceMFD.set(m,diff);
 		}
@@ -918,7 +918,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 			getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
 
 		nCalTargetMinusBackground= new IncrementalMagFreqDist(5.05,35,0.1);
-		for(int m=0; m<nCalTargetMinusBackground.getNum();m++)
+		for(int m=0; m<nCalTargetMinusBackground.size();m++)
 			nCalTargetMinusBackground.set(m,nCalTotalTargetGR_MFD.getY(m)-nCal_UCERF2_BackgrMFD_WithAftShocks.getY(m));
 		nCalTargetMinusBackground.setName("N. Cal Target Minus Background");
 		nCalTargetMinusBackground.setInfo(" ");
@@ -945,7 +945,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		
 		nCal_UCERF2_BackgrMFD_WithAftShocks = new IncrementalMagFreqDist(5.05,35,0.1);
 		
-		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.size();m++) {
 			double mag = nCal_UCERF2_BackgrMFD_WithAftShocks.getX(m);
 			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m, totMFD.getY(mag)-faultMFD.getY(mag));
 		}
@@ -953,7 +953,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		// convert to cum MFD and add aftershocks using Karen's formula
 		EvenlyDiscretizedFunc cumBackgroundMFD = nCal_UCERF2_BackgrMFD_WithAftShocks.getCumRateDistWithOffset();
 		//now add the aftershocks
-		for(int m=0; m<cumBackgroundMFD.getNum();m++) {
+		for(int m=0; m<cumBackgroundMFD.size();m++) {
 			// Karen's fraction of earthquakes >=M that are aftershocks or foreshocks = 1 - 0.039*10^(0.2*M)
 			double mag = cumBackgroundMFD.getX(m);
 			double frAshock = 1.0 - 0.039*Math.pow(10.0,0.2*mag);
@@ -965,7 +965,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		}
 		
 		// convert back to incremental dist
-		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.size();m++) {
 			double yVal = cumBackgroundMFD.getY(m)-cumBackgroundMFD.getY(m+1);
 			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,yVal);
 			if(nCal_UCERF2_BackgrMFD_WithAftShocks.getX(m) > 7.8) nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,0.0);  // fix weird values
@@ -974,7 +974,7 @@ public class FindEquivNoCalUCERF2_Ruptures {
 		// finally, correct so that faultMFD + backgroundMFD = target
 		double target = getN_CalTotalTargetGR_MFD().getTotalIncrRate() - faultMFD.getTotalIncrRate();
 		double totHere = nCal_UCERF2_BackgrMFD_WithAftShocks.getTotalIncrRate();
-		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.getNum();m++) {
+		for(int m=0; m<nCal_UCERF2_BackgrMFD_WithAftShocks.size();m++) {
 			nCal_UCERF2_BackgrMFD_WithAftShocks.set(m,nCal_UCERF2_BackgrMFD_WithAftShocks.getY(m)*target/totHere);
 		}
 		

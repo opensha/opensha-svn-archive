@@ -31,7 +31,7 @@ public class MFDCalc {
 			mfd.set(ind, mfd.getY(ind)+eventRate);
 		}
 		if (duration > 0)
-			for (int i=0; i<mfd.getNum(); i++)
+			for (int i=0; i<mfd.size(); i++)
 				mfd.set(i, mfd.getY(i) / duration);
 		
 		return mfd;

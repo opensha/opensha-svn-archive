@@ -355,9 +355,9 @@ public class RuptureCombiner {
 							totFunc.set(ind, pt.getY()+totFunc.getY(ind));
 					}
 				}
-				double[] allMags = new double[totFunc.getNum()];
-				double[] allRates = new double[totFunc.getNum()];
-				for (int i=0; i<totFunc.getNum(); i++) {
+				double[] allMags = new double[totFunc.size()];
+				double[] allRates = new double[totFunc.size()];
+				for (int i=0; i<totFunc.size(); i++) {
 					allMags[i] = totFunc.getX(i);
 					allRates[i] = totFunc.getY(i);
 				}
@@ -608,7 +608,7 @@ public class RuptureCombiner {
 		
 		for (int r=0; r<origMFDs.length; r++) {
 			DiscretizedFunc origMFD = origMFDs[r];
-			if (origMFD.getNum() <= 1) {
+			if (origMFD.size() <= 1) {
 				combinedMFDs[r] = origMFD;
 				continue;
 			}
@@ -746,8 +746,8 @@ public class RuptureCombiner {
 			// check MFDs
 			DiscretizedFunc mfd1 = sol1.getRupMagDist(r);
 			DiscretizedFunc mfd2 = sol2.getRupMagDist(index);
-			Preconditions.checkState(mfd1.getNum() == mfd2.getNum(), "MFD sizes inconsistant");
-			for (int i=0; i<mfd1.getNum(); i++) {
+			Preconditions.checkState(mfd1.size() == mfd2.size(), "MFD sizes inconsistant");
+			for (int i=0; i<mfd1.size(); i++) {
 				checkFloatTolerance(mfd1.getX(i), mfd2.getX(i), "Mags wrong for rup "+r+"/"+index+" mfd "+i);
 				checkFloatTolerance(mfd1.getY(i), mfd2.getY(i), "Rates wrong for rup "+r+"/"+index+" mfd "+i);
 			}

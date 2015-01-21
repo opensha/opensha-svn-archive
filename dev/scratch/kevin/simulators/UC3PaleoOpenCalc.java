@@ -156,7 +156,7 @@ public class UC3PaleoOpenCalc {
 		else
 			name += " ("+cov.name()+")";
 		
-		for (int i=func.getNum(); --i>=0;) {
+		for (int i=func.size(); --i>=0;) {
 			double year = func.getX(i);
 			double duration = calcEndYear - year;
 			
@@ -250,7 +250,7 @@ public class UC3PaleoOpenCalc {
 		if (randType != null)
 			name += " ("+randType.getName()+")";
 		
-		for (int i=func.getNum(); --i>=0;) {
+		for (int i=func.size(); --i>=0;) {
 			double year = func.getX(i);
 			double duration = calcEndYear - year;
 			

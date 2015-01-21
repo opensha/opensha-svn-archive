@@ -264,8 +264,8 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
         return;
       }
       int num = numVal.intValue();
-      double y[] = new double[function.getNum()];
-      for(int i=0; i<function.getNum(); ++i)
+      double y[] = new double[function.size()];
+      for(int i=0; i<function.size(); ++i)
         y[i] = function.getY(i);
       function.set(min, max, num);
       String xStr = "";
@@ -353,7 +353,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
       }
 
       // check that user has entered correct number of Y values
-      if(yIndex!=function.getNum())
+      if(yIndex!=function.size())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
       //refreshParamEditor();
       if(D) System.out.println(S + "Ending");
@@ -372,7 +372,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
       EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)evenlyDiscrFuncParam.getValue();
       parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).setValue(new Double(func.getMinX()));
       parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).setValue(new Double(func.getMaxX()));
-      parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).setValue(new Integer(func.getNum()));
+      parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).setValue(new Integer(func.size()));
       editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).refreshParamEditor();
       editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).refreshParamEditor();
       editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).refreshParamEditor();
@@ -380,7 +380,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEdito
       if ( func != null ) { // show X, Y values from the function
         this.xTextArea.setText("");
         this.yTextArea.setText("");
-        int num = func.getNum();
+        int num = func.size();
         String xText = "";
         String yText= "";
         for(int i=0; i<num; ++i) {

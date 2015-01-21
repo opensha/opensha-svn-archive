@@ -124,9 +124,9 @@ public class TestBinaryCurveArchiver {
 			while (curve != null) {
 				Location loc = reader.currentLocation();
 				assertEquals("Location doesn't mat", sites.get(cnt).getLocation(), loc);
-				assertEquals("X value count wront", myXVals.getNum(), curve.getNum());
+				assertEquals("X value count wront", myXVals.size(), curve.size());
 				DiscretizedFunc calcCurve = funcs.get(imt)[cnt];
-				for (int i=0; i<curve.getNum(); i++) {
+				for (int i=0; i<curve.size(); i++) {
 					assertEquals(myXVals.getX(i), curve.getX(i), 1e-10);
 					assertEquals(calcCurve.getX(i), calcCurve.getX(i), 1e-10);
 					assertEquals(calcCurve.getY(i), calcCurve.getY(i), 1e-10);
@@ -172,7 +172,7 @@ public class TestBinaryCurveArchiver {
 					for (String imt : funcs.keySet()) {
 						DiscretizedFunc myXVals = xVals.get(imt);
 						ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-						for (int i=0; i<myXVals.getNum(); i++)
+						for (int i=0; i<myXVals.size(); i++)
 							func.set(myXVals.getX(i), Math.random());
 						archive.archiveCurve(func, new CurveMetadata(site, index, null, imt));
 						Preconditions.checkState(funcs.get(imt)[index] == null);

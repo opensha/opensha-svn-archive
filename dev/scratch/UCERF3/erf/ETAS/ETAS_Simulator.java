@@ -305,7 +305,7 @@ public class ETAS_Simulator {
 			ProbEqkSource src = erf.getSource(s);
 			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
 			for(ProbEqkRupture rup:src) {
-				if (nthRup >= spontaneousRupSampler.getNum())
+				if (nthRup >= spontaneousRupSampler.size())
 					throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
 				spontaneousRupSampler.set(nthRup, rup.getMeanAnnualRate(duration));
 				nthRup+=1;

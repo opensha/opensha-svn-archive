@@ -615,7 +615,7 @@ public class CommandLineInversionRunner {
 							info += "\n\n****** MFD Cumulative M5 Rates ******";
 							for (DiscretizedFunc func : funcs) {
 								double cumulative = 0d;
-								for (int i=func.getNum(); --i>=0;)
+								for (int i=func.size(); --i>=0;)
 									if (func.getX(i) >= 5d)
 										cumulative += func.getY(i);
 									else
@@ -784,7 +784,7 @@ public class CommandLineInversionRunner {
 			PaleoProbabilityModel paleoProbModel) {
 		EvenlyDiscretizedFunc solFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
 		EvenlyDiscretizedFunc rupSetFunc = new EvenlyDiscretizedFunc(0d, 4, 1d);
-		int maxX = solFunc.getNum()-1;
+		int maxX = solFunc.size()-1;
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 
@@ -826,7 +826,7 @@ public class CommandLineInversionRunner {
 		// now normalize rupSetFunc so that the sum of it's y values equals the sum of solFunc's y values
 		double totY = solFunc.calcSumOfY_Vals();
 		double origRupSetTotY = rupSetFunc.calcSumOfY_Vals();
-		for (int i=0; i<rupSetFunc.getNum(); i++) {
+		for (int i=0; i<rupSetFunc.size(); i++) {
 			double y = rupSetFunc.getY(i);
 			double fract = y / origRupSetTotY;
 			double newY = totY * fract;
@@ -1241,10 +1241,10 @@ public class CommandLineInversionRunner {
 				
 				// nucleation sum
 				SummedMagFreqDist subPlusSupraSeismoNuclMFD = new SummedMagFreqDist(
-						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
+						subSeismoMFD.getMinX(), subSeismoMFD.size(), subSeismoMFD.getDelta());
 				subPlusSupraSeismoNuclMFD.addIncrementalMagFreqDist(subSeismoMFD);
 				subPlusSupraSeismoNuclMFD.addIncrementalMagFreqDist(resizeToDimensions(
-						nuclMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
+						nuclMFD, subSeismoMFD.getMinX(), subSeismoMFD.size(), subSeismoMFD.getDelta()));
 				EvenlyDiscretizedFunc subPlusSupraSeismoNuclCmlMFD = subPlusSupraSeismoNuclMFD.getCumRateDistWithOffset();
 				subPlusSupraSeismoNuclMFDs = Lists.newArrayList();
 				subPlusSupraSeismoNuclCmlMFDs = Lists.newArrayList();
@@ -1253,10 +1253,10 @@ public class CommandLineInversionRunner {
 				
 				// participation sum
 				SummedMagFreqDist subPlusSupraSeismoParticMFD = new SummedMagFreqDist(
-						subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta());
+						subSeismoMFD.getMinX(), subSeismoMFD.size(), subSeismoMFD.getDelta());
 				subPlusSupraSeismoParticMFD.addIncrementalMagFreqDist(subSeismoMFD);
 				subPlusSupraSeismoParticMFD.addIncrementalMagFreqDist(resizeToDimensions(
-						partMFD, subSeismoMFD.getMinX(), subSeismoMFD.getNum(), subSeismoMFD.getDelta()));
+						partMFD, subSeismoMFD.getMinX(), subSeismoMFD.size(), subSeismoMFD.getDelta()));
 				EvenlyDiscretizedFunc subPlusSupraSeismoParticCmlMFD = subPlusSupraSeismoParticMFD.getCumRateDistWithOffset();
 				subPlusSupraSeismoParticMFDs = Lists.newArrayList();
 				subPlusSupraSeismoParticCmlMFDs = Lists.newArrayList();
@@ -1327,11 +1327,11 @@ public class CommandLineInversionRunner {
 	
 	private static IncrementalMagFreqDist resizeToDimensions(
 			IncrementalMagFreqDist mfd, double min, int num, double delta) {
-		if (mfd.getMinX() == min && mfd.getNum() == num && mfd.getDelta() == delta)
+		if (mfd.getMinX() == min && mfd.size() == num && mfd.getDelta() == delta)
 			return mfd;
 		IncrementalMagFreqDist resized = new IncrementalMagFreqDist(min, num, delta);
 		
-		for (int i=0; i<mfd.getNum(); i++)
+		for (int i=0; i<mfd.size(); i++)
 			if (mfd.getY(i) > 0)
 				resized.set(mfd.get(i));
 		
@@ -1442,13 +1442,13 @@ public class CommandLineInversionRunner {
 				newInfo = " ";
 		}
 		riCmlFunc.setInfo(newInfo);
-		for (int i=0; i<cmlFunc.getNum(); i++) {
+		for (int i=0; i<cmlFunc.size(); i++) {
 			double y = cmlFunc.getY(i);
 			if (y > 0)
 				riCmlFunc.set(cmlFunc.getX(i), 1d/y);
 		}
-		if (riCmlFunc.getNum() == 0) {
-			for (int i=0; i<cmlFunc.getNum(); i++) {
+		if (riCmlFunc.size() == 0) {
+			for (int i=0; i<cmlFunc.size(); i++) {
 				riCmlFunc.set(cmlFunc.getX(i), 0d);
 			}
 		}

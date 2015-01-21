@@ -232,8 +232,8 @@ public class MFD_Plotter {
 		// and interpolate others
 		
 		// src mfd points sued as basis for interpolation
-		double[] xSrc = new double[src.getNum()];
-		double[] ySrc = new double[src.getNum()];
+		double[] xSrc = new double[src.size()];
+		double[] ySrc = new double[src.size()];
 		int idx = 0;
 		for (Point2D p : src) {
 			xSrc[idx] = p.getX();
@@ -262,7 +262,7 @@ public class MFD_Plotter {
 		double delta = in.getDelta();
 		double min = in.getMinX() - delta;
 		double max = in.getMaxX() + delta;
-		int num = in.getNum() + 2;
+		int num = in.size() + 2;
 		IncrementalMagFreqDist out = new IncrementalMagFreqDist(min, max, num);
 		out.set(0, 1e-30);
 		out.set(num-1, 1e-30);

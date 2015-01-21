@@ -148,7 +148,7 @@ public class DeterministicResultPlotter {
 					func.set(period, val);
 				}
 				
-				Preconditions.checkState(func.getNum() > 2, "Too few points for func at "+cellName
+				Preconditions.checkState(func.size() > 2, "Too few points for func at "+cellName
 						+", lastRowNum: "+sheet.getLastRowNum());
 				
 				if (col == csValCol) {

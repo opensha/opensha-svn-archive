@@ -153,7 +153,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			IncrementalMagFreqDist mfd = magFreqDists[i];
 			double min = minMag;
 			if(min<mfd.getX(0)) min = mfd.getX(0);
-			for(int m=mfd.getXIndex(min);m<mfd.getNum();m++) {
+			for(int m=mfd.getXIndex(min);m<mfd.size();m++) {
 				double prob = 1-Math.exp(-mfd.getY(m)*duration);
 				if(prob>0) num +=1;
 			}
@@ -223,7 +223,7 @@ public class PointToLineSource extends ProbEqkSource implements java.io.Serializ
 			isStrikeRandom=true;
 		}
 
-		for (int m=0; m<magFreqDist.getNum(); m++){
+		for (int m=0; m<magFreqDist.size(); m++){
 			double mag = magFreqDist.getX(m);
 			double rate = magFreqDist.getY(m);
 			double prob = 1-Math.exp(-rate*weight*duration);

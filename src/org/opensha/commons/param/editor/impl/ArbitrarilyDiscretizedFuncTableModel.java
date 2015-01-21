@@ -64,19 +64,19 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 				System.out.println("Update called with new data...");
 				if (func == null)
 					System.out.println("old func: null");
-				else if (func.getNum() == 0)
+				else if (func.size() == 0)
 					System.out.println("old func: empty");
 				else
 					System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
 				if (newFunc == null)
 					System.out.println("new func: null");
-				else if (newFunc.getNum() == 0)
+				else if (newFunc.size() == 0)
 					System.out.println("new func: empty");
 				else
 					System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
 			}
 			this.func.clear();
-			for (int i=0; i<newFunc.getNum(); i++) {
+			for (int i=0; i<newFunc.size(); i++) {
 				double x = newFunc.getX(i);
 				double y = newFunc.getY(i);
 				func.set(x, y);
@@ -88,13 +88,13 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 				System.out.println("Update called with old data");
 				if (func == null)
 					System.out.println("old func: null");
-				else if (func.getNum() == 0)
+				else if (func.size() == 0)
 					System.out.println("old func: empty");
 				else
 					System.out.println("Old First: " + func.getX(0) + ", " + func.getY(0));
 				if (newFunc == null)
 					System.out.println("new func: null");
-				else if (newFunc.getNum() == 0)
+				else if (newFunc.size() == 0)
 					System.out.println("new func: empty");
 				else
 					System.out.println("New First: " + newFunc.getX(0) + ", " + newFunc.getY(0));
@@ -112,8 +112,8 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 			return false;
 		
 		// first make sure there's the same number of values
-		int size = func1.getNum();
-		if (size != func2.getNum())
+		int size = func1.size();
+		if (size != func2.size())
 			return false;
 		
 		for (int i=0; i<size; i++) {
@@ -147,7 +147,7 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 			if (D) System.out.println("ROW COUNT ON NULL FUNC!");
 			return 0;
 		} else {
-			int rows = func.getNum();
+			int rows = func.size();
 //			System.out.println("Row Count: " + rows);
 			return rows;
 		}
@@ -178,7 +178,7 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 		ArbitrarilyDiscretizedFunc old = (ArbitrarilyDiscretizedFunc)func.deepClone();
 		func.clear();
 		
-		for (int i=0; i<old.getNum(); i++) {
+		for (int i=0; i<old.size(); i++) {
 			boolean match = false;
 			for (int j : indexes) {
 				if (i == j) {

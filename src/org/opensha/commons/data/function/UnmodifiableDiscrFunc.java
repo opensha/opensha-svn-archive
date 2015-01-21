@@ -64,8 +64,8 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public int getNum() {
-		return func.getNum();
+	public int size() {
+		return func.size();
 	}
 
 	@Override

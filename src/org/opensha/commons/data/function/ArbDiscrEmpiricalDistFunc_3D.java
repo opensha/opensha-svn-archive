@@ -98,7 +98,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
 	}
 
 	public int getNumX() {
-		return xAxisHist.getNum();
+		return xAxisHist.size();
 	}
 
 
@@ -119,7 +119,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
         throw new InvalidRangeException("fraction value must be between 0 and 1");
       
       EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-      for(int i=0; i<func.getNum(); i++) {
+      for(int i=0; i<func.size(); i++) {
     	  func.set(i,arbDiscrEmpDistFuncArray[i].getInterpolatedFractile(fraction));
       }
       return func;
@@ -138,7 +138,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
         throw new InvalidRangeException("fraction value must be between 0 and 1");
 
       EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-      for(int i=0; i<func.getNum(); i++) {
+      for(int i=0; i<func.size(); i++) {
     	  func.set(i,arbDiscrEmpDistFuncArray[i].getDiscreteFractile(fraction));
       }
       return func;
@@ -153,7 +153,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getMeanCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getMean());
         }
         return func;
@@ -166,7 +166,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getStdDevCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getStdDev());
         }
         return func;
@@ -179,7 +179,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getCOV_Curve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getStdDev()/arbDiscrEmpDistFuncArray[i].getMean());
         }
         return func;
@@ -194,7 +194,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getModeCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getMode());
         }
         return func;
@@ -208,7 +208,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getMostCentralModeCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getMostCentralMode());
         }
         return func;
@@ -221,7 +221,7 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
      */
     public EvenlyDiscretizedFunc getMedianCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
-        for(int i=0; i<func.getNum(); i++) {
+        for(int i=0; i<func.size(); i++) {
       	  func.set(i,arbDiscrEmpDistFuncArray[i].getMedian());
         }
         return func;

@@ -142,7 +142,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
       ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
 
-      for(int i = 0; i<tempCumDist.getNum();i++) {
+      for(int i = 0; i<tempCumDist.size();i++) {
         if(fraction <= tempCumDist.getY(i))
           return tempCumDist.getX(i);
       }
@@ -186,7 +186,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     	//ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
     	double sumXY=0.0, sumY=0.0;
     	
-    	for(int i=0; i<getNum(); ++i) {
+    	for(int i=0; i<size(); ++i) {
     		//System.out.println(getX(i)+","+getY(i));
     		sumXY+=getX(i)*getY(i);
     		sumY+=getY(i);
@@ -204,8 +204,8 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     	//throw new RuntimeException("Need to confirm whether this is implemented correctly");
     	double mean = getMean();
     	double stdDev=0;
-    	for(int i=0; i<getNum(); ++i) stdDev+=Math.pow(mean-getX(i),2);
-    	stdDev /=getNum();
+    	for(int i=0; i<size(); ++i) stdDev+=Math.pow(mean-getX(i),2);
+    	stdDev /=size();
     	return Math.sqrt(stdDev);
     }
     
@@ -228,7 +228,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     	if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
     	int index=-1;
     	double maxY = Double.NEGATIVE_INFINITY;
-    	for(int i=0; i<getNum(); ++i) {
+    	for(int i=0; i<size(); ++i) {
     		if(getY(i)>maxY) {
     			maxY = getY(i);
     			index = i;
@@ -247,7 +247,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      	double maxY = getMaxY();
     	// now create list of X-axis values where Y=Ymax
     	ArrayList xVals = new ArrayList();
-    	for(int i=0; i<getNum(); ++i)  {
+    	for(int i=0; i<size(); ++i)  {
     		if(getY(i)==maxY) xVals.add(new Double(getX(i)));
     	}
     	int index = xVals.size()/2;
@@ -258,7 +258,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     public boolean isMultiModal() {
     	int count=0;
     	double val = getMaxY();
-    	for(int i=0; i<getNum(); ++i)  {
+    	for(int i=0; i<size(); ++i)  {
     		if(getY(i)==val) ++count;
     	}
     	if(count>1) return true;	

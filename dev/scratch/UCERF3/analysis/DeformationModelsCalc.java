@@ -439,7 +439,7 @@ public class DeformationModelsCalc {
 		ba2008.getParameter(ComponentParam.NAME).setValue(component);
 		
 		EvenlyDiscretizedFunc imlVsDistFunc = new EvenlyDiscretizedFunc(0., 201., 202);
-		for(int i=0;i<imlVsDistFunc.getNum();i++) {
+		for(int i=0;i<imlVsDistFunc.size();i++) {
 			Double dist = new Double(imlVsDistFunc.getX(i));
 			DistanceJBParameter distParm = (DistanceJBParameter) ba2008.getParameter(DistanceJBParameter.NAME);
 			distParm.setValueIgnoreWarning(dist);
@@ -1514,7 +1514,7 @@ public class DeformationModelsCalc {
 			double ratio = data.calcMomentRate(true)/data.calcMomentRate(false);
 			if(!Double.isNaN(ratio)) {
 				moRateReductionHist.add(ratio, 1.0);
-				if(moRateReductionHist.getClosestXIndex(ratio) == moRateReductionHist.getNum()-1) {	// no reduction
+				if(moRateReductionHist.getClosestXIndex(ratio) == moRateReductionHist.size()-1) {	// no reduction
 					totNoReduction += data.calcMomentRate(false);
 					numNotReduced += 1;
 				}
@@ -2083,7 +2083,7 @@ public class DeformationModelsCalc {
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 1100, 0.01);
 		EvenlyDiscretizedFunc offMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
 		EvenlyDiscretizedFunc onMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
-		for(int i=0; i<offMmaxFunc.getNum();i++) {
+		for(int i=0; i<offMmaxFunc.size();i++) {
 			double fracOff = offMmaxFunc.getX(i);
 			gr.setAllButMagUpper(0.0, moRateOffFault, fracOff*totMge5_rate*1e5, 1.0, false);
 			offMmaxFunc.set(i,gr.getMagUpper());

@@ -73,7 +73,7 @@ public class AttenRelCurves2DB {
 			if (arCurveID == null)
 				throw new IllegalStateException("Curve IDs inserted, but no curve found for loc: "+loc);
 			
-			for (int j=0; j<curve.getNum(); j++) {
+			for (int j=0; j<curve.size(); j++) {
 				if (j > 0 || i > 0)
 					sql.append(",");
 				sql.append("\n");
@@ -333,7 +333,7 @@ public class AttenRelCurves2DB {
 		
 		if (isProbAt_IML) {
 			// we do it based on fixed x values
-			for (int i=0; i<curve.getNum(); i++) {
+			for (int i=0; i<curve.size(); i++) {
 				double val = curve.getX(i);
 				if (val < level && val > minValue)
 					minValue = val;

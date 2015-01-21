@@ -151,7 +151,7 @@ public class TestFhcc {
 				if (i == idxSite){
 					System.out.println("Site "+site.getLocation().getLongitude()
 							+" "+site.getLocation().getLatitude());
-					for (int j=0; j < hazFun.getNum(); j++){
+					for (int j=0; j < hazFun.size(); j++){
 						System.out.printf(" %6.2f %7.5e \n",hazFun.getX(j),hazFun.getY(j));
 					}
 				}

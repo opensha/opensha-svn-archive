@@ -836,7 +836,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		if(myAleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
-			if (rupMFD == null || rupMFD.getNum() < 2) {	// single mag source
+			if (rupMFD == null || rupMFD.size() < 2) {	// single mag source
 				// set source type
 				double prob;
 				if(probModel == ProbabilityModelOptions.U3_BPT || probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
@@ -853,7 +853,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 					// apply aftershock and/or gain corrections
 				DiscretizedFunc rupMFDcorrected = rupMFD.deepClone();
 				if(probModel == ProbabilityModelOptions.U3_BPT || probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
-					for(int i=0;i<rupMFDcorrected.getNum();i++) {
+					for(int i=0;i<rupMFDcorrected.size();i++) {
 						double origRate = rupMFDcorrected.getY(i);
 						double prob = aftRateCorr*probGain*origRate*duration;
 						double equivRate = -Math.log(1-prob)/duration;
@@ -888,7 +888,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 			Preconditions.checkState(src.getNumRuptures() > 0,
 					"Source has zero rups! Mag="+meanMag+", aleatoryMagAreaStdDev="+myAleatoryMagAreaStdDev
 					+", fssRate="+faultSysSolution.getRateForRup(fltSystRupIndex)+", adjRupRate="+rupRate
-					+", probGain="+probGain+", mft.getNum()="+srcMFD.getNum());
+					+", probGain="+probGain+", mft.getNum()="+srcMFD.size());
 		}
 		// make and set the name
 		List<FaultSectionPrefData> data = rupSet.getFaultSectionDataForRupture(fltSystRupIndex);

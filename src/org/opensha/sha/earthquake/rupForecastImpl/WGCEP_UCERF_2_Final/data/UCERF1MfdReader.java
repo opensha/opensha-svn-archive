@@ -66,7 +66,7 @@ public class UCERF1MfdReader {
 		ArbitrarilyDiscretizedFunc ucerf1Rate = getUCERF1IncrementalMFD(faultName);
 		ArbitrarilyDiscretizedFunc ucerf1CumRate = new ArbitrarilyDiscretizedFunc();
 		double rate=0;
-		for(int i=ucerf1Rate.getNum()-1; i>=0; --i) {
+		for(int i=ucerf1Rate.size()-1; i>=0; --i) {
 			rate+=ucerf1Rate.getY(i);
 			ucerf1CumRate.set(ucerf1Rate.getX(i), rate);
 		}

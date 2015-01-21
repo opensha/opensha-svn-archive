@@ -179,7 +179,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	
 	private static SummedMagFreqDist initSummedMFD(IncrementalMagFreqDist model) {
 		return new SummedMagFreqDist(model.getMinX(), model.getMaxX(),
-			model.getNum());
+			model.size());
 	}
 
 
@@ -188,7 +188,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 	 */
 	private static void scaleMFD(IncrementalMagFreqDist mfd) {
 		double scale;
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i=0; i<mfd.size(); i++) {
 			scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfd.getX(i));
 			mfd.set(i, mfd.getY(i) * scale);
 		}
@@ -210,7 +210,7 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 			int num = (int) ((mMax - mMin) / delta) + 1;
 //			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
 			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, num, delta);
-			for (int i=0; i<mfdOut.getNum(); i++) {
+			for (int i=0; i<mfdOut.size(); i++) {
 				double mag = mfdOut.getX(i);
 				double rate = mfdIn.getY(mag);
 				mfdOut.set(mag, rate);

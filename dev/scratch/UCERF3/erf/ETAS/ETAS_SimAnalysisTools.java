@@ -73,43 +73,43 @@ public class ETAS_SimAnalysisTools {
 
 		// M<5
 		DefaultXY_DataSet epLocsGen0_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 0, allAftershocks);
-		if(epLocsGen0_Mlt5.getNum()>0) {
+		if(epLocsGen0_Mlt5.size()>0) {
 			funcs.add(epLocsGen0_Mlt5);
 			epLocsGen0_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen1_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 1, allAftershocks);
-		if(epLocsGen1_Mlt5.getNum()>0) {
+		if(epLocsGen1_Mlt5.size()>0) {
 			funcs.add(epLocsGen1_Mlt5);
 			epLocsGen1_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen2_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 2, allAftershocks);
-		if(epLocsGen2_Mlt5.getNum()>0) {
+		if(epLocsGen2_Mlt5.size()>0) {
 			funcs.add(epLocsGen2_Mlt5);
 			epLocsGen2_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 3, allAftershocks);
-		if(epLocsGen3_Mlt5.getNum()>0) {
+		if(epLocsGen3_Mlt5.size()>0) {
 			funcs.add(epLocsGen3_Mlt5);
 			epLocsGen3_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 4, allAftershocks);
-		if(epLocsGen4_Mlt5.getNum()>0) {
+		if(epLocsGen4_Mlt5.size()>0) {
 			funcs.add(epLocsGen4_Mlt5);
 			epLocsGen4_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.LIGHT_GRAY));
 		}
 		DefaultXY_DataSet epLocsGen5_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 5, allAftershocks);
-		if(epLocsGen5_Mlt5.getNum()>0) {
+		if(epLocsGen5_Mlt5.size()>0) {
 			funcs.add(epLocsGen5_Mlt5);
 			epLocsGen5_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 6, allAftershocks);
-		if(epLocsGen6_Mlt5.getNum()>0) {
+		if(epLocsGen6_Mlt5.size()>0) {
 			funcs.add(epLocsGen6_Mlt5);
 			epLocsGen6_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.YELLOW));
@@ -118,43 +118,43 @@ public class ETAS_SimAnalysisTools {
 
 		// 5.0<=M<6.5
 		DefaultXY_DataSet epLocsGen0_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 0, allAftershocks);
-		if(epLocsGen0_Mgt5lt65.getNum()>0) {
+		if(epLocsGen0_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen0_Mgt5lt65);
 			epLocsGen0_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen1_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 1, allAftershocks);
-		if(epLocsGen1_Mgt5lt65.getNum()>0) {
+		if(epLocsGen1_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen1_Mgt5lt65);
 			epLocsGen1_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 2, allAftershocks);
-		if(epLocsGen2_Mgt5lt65.getNum()>0) {
+		if(epLocsGen2_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen2_Mgt5lt65);
 			epLocsGen2_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 3, allAftershocks);
-		if(epLocsGen3_Mgt5lt65.getNum()>0) {
+		if(epLocsGen3_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen3_Mgt5lt65);
 			epLocsGen3_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 4, allAftershocks);
-		if(epLocsGen4_Mgt5lt65.getNum()>0) {
+		if(epLocsGen4_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen4_Mgt5lt65);
 			epLocsGen4_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.LIGHT_GRAY));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 5, allAftershocks);
-		if(epLocsGen5_Mgt5lt65.getNum()>0) {
+		if(epLocsGen5_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen5_Mgt5lt65);
 			epLocsGen5_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 6, allAftershocks);
-		if(epLocsGen6_Mgt5lt65.getNum()>0) {
+		if(epLocsGen6_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen6_Mgt5lt65);
 			epLocsGen6_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.YELLOW));
@@ -163,43 +163,43 @@ public class ETAS_SimAnalysisTools {
 
 		// 6.5<=M<9.0
 		DefaultXY_DataSet epLocsGen0_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 0, allAftershocks);
-		if(epLocsGen0_Mgt65.getNum()>0) {
+		if(epLocsGen0_Mgt65.size()>0) {
 			funcs.add(epLocsGen0_Mgt65);
 			epLocsGen0_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen1_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 1, allAftershocks);
-		if(epLocsGen1_Mgt65.getNum()>0) {
+		if(epLocsGen1_Mgt65.size()>0) {
 			funcs.add(epLocsGen1_Mgt65);
 			epLocsGen1_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 2, allAftershocks);
-		if(epLocsGen2_Mgt65.getNum()>0) {
+		if(epLocsGen2_Mgt65.size()>0) {
 			funcs.add(epLocsGen2_Mgt65);
 			epLocsGen2_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 3, allAftershocks);
-		if(epLocsGen3_Mgt65.getNum()>0) {
+		if(epLocsGen3_Mgt65.size()>0) {
 			funcs.add(epLocsGen3_Mgt65);
 			epLocsGen3_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 4, allAftershocks);
-		if(epLocsGen4_Mgt65.getNum()>0) {
+		if(epLocsGen4_Mgt65.size()>0) {
 			funcs.add(epLocsGen4_Mgt65);
 			epLocsGen4_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.LIGHT_GRAY));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 5, allAftershocks);
-		if(epLocsGen5_Mgt65.getNum()>0) {
+		if(epLocsGen5_Mgt65.size()>0) {
 			funcs.add(epLocsGen5_Mgt65);
 			epLocsGen5_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 6, allAftershocks);
-		if(epLocsGen6_Mgt65.getNum()>0) {
+		if(epLocsGen6_Mgt65.size()>0) {
 			funcs.add(epLocsGen6_Mgt65);
 			epLocsGen6_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.YELLOW));
@@ -979,8 +979,8 @@ public class ETAS_SimAnalysisTools {
 		}
 		
 		// expected relative num secondary aftershocks at each magnitude
-		IncrementalMagFreqDist expSecondaryNum = new IncrementalMagFreqDist(mfd.getMinX(), mfd.getMaxX(), mfd.getNum());
-		for(int i= 0;i<expSecondaryNum.getNum();i++)
+		IncrementalMagFreqDist expSecondaryNum = new IncrementalMagFreqDist(mfd.getMinX(), mfd.getMaxX(), mfd.size());
+		for(int i= 0;i<expSecondaryNum.size();i++)
 			expSecondaryNum.set(i,mfd.getY(i)*Math.pow(10,mfd.getX(i)));
 		
 		double aveNum = 0;
@@ -1458,7 +1458,7 @@ public class ETAS_SimAnalysisTools {
 		if (mainShockMag > 0) {
 			// now annotation
 			int numAbove = 0;
-			int tot = scatter.getNum();
+			int tot = scatter.size();
 			for (Point2D pt : scatter) {
 				if (pt.getX() > mainShockMag)
 					numAbove++;

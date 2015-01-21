@@ -165,7 +165,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 			isStrikeRandom=true;
 		}
 
-		for (int m=0; m<magFreqDist.getNum(); m++){
+		for (int m=0; m<magFreqDist.size(); m++){
 			double mag = magFreqDist.getX(m);
 			double rate = magFreqDist.getY(m);
 			double prob = 1-Math.exp(-rate*weight*duration);

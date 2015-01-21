@@ -556,7 +556,7 @@ ParameterChangeListener {
 				ArbitrarilyDiscretizedFunc perturbs = curPerturbsPerItersVsTimes.get(i);
 				String category = curNames.get(i);
 				
-				int lastInd = perturbs.getNum()-1;
+				int lastInd = perturbs.size()-1;
 				if (perturb) {
 					double norm = perturbs.get(lastInd).getY() * 100d;
 					dataset.addValue(norm, series.get(0), category);
@@ -672,7 +672,7 @@ ParameterChangeListener {
 			double transitionEnergy = 0;
 			double transitionDelta = 0;
 			double transitionPercent = 0;
-			for (int i=0; i<func.getNum(); i++) {
+			for (int i=0; i<func.size(); i++) {
 				double x = func.getX(i);
 				if ((x - lookBack - 0.001) < func.getMinX())
 					continue;
@@ -712,7 +712,7 @@ ParameterChangeListener {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, color));
 			if (convergedFunc != null) {
 				convergedFunc.setName(func.getName()+" (converged)");
-				double finalEnergy = func.getY(func.getNum()-1);
+				double finalEnergy = func.getY(func.size()-1);
 				double postConvergeImp = DataUtils.getPercentDiff(finalEnergy, transitionEnergy);
 				convergedFunc.setInfo("Post converge: "+transitionEnergy+" => "+finalEnergy+" ("
 						+(transitionEnergy-finalEnergy)+" = "+(float)postConvergeImp+" %)"

@@ -187,7 +187,7 @@ public abstract class AbstractXY_DataSetTest {
 	@Test (expected=IndexOutOfBoundsException.class)
 	public void testPopulatedSetByIndexOutOfBounds() {
 		XY_DataSet populated = newPopulatedDataSet(100, false, false);
-		populated.set(populated.getNum(), 0.142124);
+		populated.set(populated.size(), 0.142124);
 	}
 	
 	@Test
@@ -195,11 +195,11 @@ public abstract class AbstractXY_DataSetTest {
 		XY_DataSet xy;
 		if (isArbitrarilyDiscretized()) {
 			xy = newEmptyDataSet();
-			assertEquals("should be 0 for empty dataset", 0, xy.getNum());
+			assertEquals("should be 0 for empty dataset", 0, xy.size());
 		}
 		
 		xy = newPopulatedDataSet(100, isArbitrarilyDiscretized(), false);
-		assertEquals("should be 100 for pupulated dataset", 100, xy.getNum());
+		assertEquals("should be 100 for pupulated dataset", 100, xy.size());
 	}
 	
 	@Test
@@ -213,7 +213,7 @@ public abstract class AbstractXY_DataSetTest {
 		// check below min
 		double minY = xy.getMinY();
 		double xAtMinY = Double.NaN;
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			Point2D pt = xy.get(i);
 			if (pt.getY() == minY) {
 				xAtMinY = pt.getX();
@@ -225,7 +225,7 @@ public abstract class AbstractXY_DataSetTest {
 		// check above max
 		double maxY = xy.getMaxY();
 		double xAtMaxY = Double.NaN;
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			Point2D pt = xy.get(i);
 			if (pt.getY() == maxY) {
 				xAtMaxY = pt.getX();
@@ -283,7 +283,7 @@ public abstract class AbstractXY_DataSetTest {
 		MinMaxAveTracker xTrack = new MinMaxAveTracker();
 		MinMaxAveTracker yTrack = new MinMaxAveTracker();
 		
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			xTrack.addValue(xy.getX(i));
 			yTrack.addValue(xy.getY(i));
 		}
@@ -316,7 +316,7 @@ public abstract class AbstractXY_DataSetTest {
 		int num = expectedX.size();
 		Preconditions.checkState(num == expectedY.size());
 		
-		assertEquals("size is inconsistant", num, xy.getNum());
+		assertEquals("size is inconsistant", num, xy.size());
 		
 		for (int i=0; i<num; i++) {
 			assertEquals("x value off at pt: "+i, expectedX.get(i), xy.getX(i), test_tol);
@@ -330,7 +330,7 @@ public abstract class AbstractXY_DataSetTest {
 			return; // only works on arb discr functions
 		XY_DataSet xy = newEmptyDataSet();
 		
-		assertEquals("initial size is off", 0, xy.getNum());
+		assertEquals("initial size is off", 0, xy.size());
 		
 		ArrayList<Double> xVals = new ArrayList<Double>();
 		ArrayList<Double> yVals = new ArrayList<Double>();
@@ -461,7 +461,7 @@ public abstract class AbstractXY_DataSetTest {
 		Iterator<Double> xIt = xy.getXValuesIterator();
 		Iterator<Double> yIt = xy.getYValuesIterator();
 		
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			assertTrue("hasNext() (point iterator) should be true!", ptIt.hasNext());
 			assertTrue("hasNext() (x iterator) should be true!", xIt.hasNext());
 			assertTrue("hasNext() (y iterator) should be true!", yIt.hasNext());
@@ -504,8 +504,8 @@ public abstract class AbstractXY_DataSetTest {
 			xy.setYAxisName("test y axis name "+System.currentTimeMillis());
 		XY_DataSet cloned = xy.deepClone();
 		
-		int num = xy.getNum();
-		assertEquals("size of clone incorrect", num, cloned.getNum());
+		int num = xy.size();
+		assertEquals("size of clone incorrect", num, cloned.size());
 		assertEquals("name not copied over with clone", xy.getName(), cloned.getName());
 		assertEquals("info not copied over with clone", xy.getInfo(), cloned.getInfo());
 		assertEquals("x axis name not copied over with clone", xy.getXAxisName(), cloned.getXAxisName());
@@ -537,18 +537,18 @@ public abstract class AbstractXY_DataSetTest {
 				}
 				double newY = Math.random();
 				
-				int clonedNum = cloned.getNum();
+				int clonedNum = cloned.size();
 				xy.set(newX, newY);
-				assertEquals("cloned shouldn't have grown with addition of new pt to orig", clonedNum, cloned.getNum());
+				assertEquals("cloned shouldn't have grown with addition of new pt to orig", clonedNum, cloned.size());
 				if (i % 2 == 0) {
-					int origNum = xy.getNum();
+					int origNum = xy.size();
 					newX = 0;
 					while (newX == 0 || xy.hasPoint(newX, 0)) {
 						 newX = Math.random() * 100d - 50d;
 					}
 					newY = Math.random();
 					cloned.set(newX, newY);
-					assertEquals("oritg shouldn't have grown with addition of new pt to cloned", origNum, xy.getNum());
+					assertEquals("oritg shouldn't have grown with addition of new pt to cloned", origNum, xy.size());
 				}
 			}
 		}

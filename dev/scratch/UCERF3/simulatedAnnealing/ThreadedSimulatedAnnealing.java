@@ -966,7 +966,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		
 		// this chops off any huge energy values in the first 5% of the run so that the plots
 		// are readable at the energy levels that are actually interesting
-		double energyAter5percent = energyVsIters[1].getY((int)((energyVsIters[1].getNum()-1d)*0.05 + 0.5));
+		double energyAter5percent = energyVsIters[1].getY((int)((energyVsIters[1].size()-1d)*0.05 + 0.5));
 		double energyPlotMax = energyAter5percent*1.2;
 		double energyPlotMin = 0;
 		double timeMin = 0, itersMin = 0;
@@ -1048,7 +1048,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		for (int i=0; i<energyVsIters.length; i++) {
 			ArbitrarilyDiscretizedFunc norm = new ArbitrarilyDiscretizedFunc();
 			ArbitrarilyDiscretizedFunc energyFunc = energyVsIters[i];
-			for (int j=startPoint; j<energyFunc.getNum(); j++) {
+			for (int j=startPoint; j<energyFunc.size(); j++) {
 				double normalized = energyFunc.getY(j) / maxEnergy;
 				norm.set(energyFunc.getX(j), normalized);
 			}
@@ -1058,7 +1058,7 @@ public class ThreadedSimulatedAnnealing implements SimulatedAnnealing {
 		double maxPerturbs = (double)perturbs.get(perturbs.size()-1);
 		maxPerturbs -= minPerturbs;
 		normPerturbs = new ArbitrarilyDiscretizedFunc();
-		for (int i=startPoint; i<perturbsVsIters.getNum(); i++) {
+		for (int i=startPoint; i<perturbsVsIters.size(); i++) {
 			double normalized = (perturbsVsIters.getY(i) - minPerturbs) / maxPerturbs;
 			normPerturbs.set(perturbsVsIters.getX(i), normalized);
 		}

@@ -138,7 +138,7 @@ public class PointSource extends ProbEqkSource {
 	public ProbEqkRupture getRupture(int idx) {
 		FocalMech mech = mechForIndex(idx);
 		double wt = mechWts.get(mech);
-		int magIdx = idx % mfd.getNum();
+		int magIdx = idx % mfd.size();
 		double mag = mfd.getX(magIdx);
 		double depth = depthForMag(mag);
 		updateRupture(mag, mech.dip(), mech.rake(), depth);
@@ -212,7 +212,7 @@ public class PointSource extends ProbEqkSource {
 
 	@Override
 	public int getNumRuptures() {
-		return mfd.getNum() * mechCount;
+		return mfd.size() * mechCount;
 	}
 
 	@Override
@@ -257,8 +257,8 @@ public class PointSource extends ProbEqkSource {
 	}
 
 	private void setMechIndices() {
-		int ssCount = (int) Math.ceil(mechWts.get(STRIKE_SLIP)) * mfd.getNum();
-		int revCount = (int) Math.ceil(mechWts.get(REVERSE)) * mfd.getNum();
+		int ssCount = (int) Math.ceil(mechWts.get(STRIKE_SLIP)) * mfd.size();
+		int revCount = (int) Math.ceil(mechWts.get(REVERSE)) * mfd.size();
 		ssIdx = (ssCount > 0) ? ssCount : -1;
 		revIdx = (revCount > 0) ? ssCount + revCount : -1;
 	}

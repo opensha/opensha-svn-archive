@@ -332,7 +332,7 @@ public class UCERF3_Observed_MFD_Fetcher {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
 
 		// apply aftershock filter
-		for(int i=0; i<directCountsLA.getNum();i++) {
+		for(int i=0; i<directCountsLA.size();i++) {
 			double fract = GardnerKnopoffAftershockFilter.scaleForMagnitude(directCountsLA.getX(i));
 			directCountsLA.set(i,fract*directCountsLA.getY(i));
 			directCountsLA_Lower95.set(i,fract*directCountsLA_Lower95.getY(i));

@@ -63,7 +63,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	public double getClosestX(double y) {
 		double x = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
-		for (int i=0; i<getNum(); i++) {
+		for (int i=0; i<size(); i++) {
 			double newY = getY(i);
 			double newDist = Math.abs(newY - y);
 			if (newDist < dist) {
@@ -78,7 +78,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	public double getClosestY(double x) {
 		double y = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
-		for (int i=0; i<getNum(); i++) {
+		for (int i=0; i<size(); i++) {
 			double newX = getX(i);
 			double newDist = Math.abs(newX - x);
 			if (newDist < dist) {
@@ -97,7 +97,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	 * else returns false
 	 */
 	public boolean areAllXValuesInteger(double tolerance) {
-		int num = getNum();
+		int num = size();
 		double x, diff;
 		for (int i = 0; i < num; ++i) {
 			x = getX(i);
@@ -119,7 +119,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -146,7 +146,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -169,7 +169,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -190,7 +190,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 				return getX(index);
 			}
 			@Override public int size() {
-				return getNum();
+				return AbstractXY_DataSet.this.size();
 			}
 			@Override public Iterator<Double> iterator() {
 				final Iterator<Point2D> it = AbstractXY_DataSet.this.iterator();
@@ -218,7 +218,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 			}
 			@Override
 			public int size() {
-				return getNum();
+				return AbstractXY_DataSet.this.size();
 			}
 			@Override public Iterator<Double> iterator() {
 				final Iterator<Point2D> it = AbstractXY_DataSet.this.iterator();

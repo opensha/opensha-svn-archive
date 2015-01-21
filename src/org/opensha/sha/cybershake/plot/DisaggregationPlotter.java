@@ -223,7 +223,7 @@ public class DisaggregationPlotter {
 			// convert prob values to IMLs
 			for (double probLevel : probLevels) {
 				if (probLevel > curve.getY(0)
-						|| probLevel < curve.getY(curve.getNum() - 1)) {
+						|| probLevel < curve.getY(curve.size() - 1)) {
 					System.err.println("Cannot produce plot at prob="+probLevel+" as it is outside of" +
 							" the range of the hazard curve");
 					continue;

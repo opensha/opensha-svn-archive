@@ -233,7 +233,7 @@ public class FaultSystemSolution implements Serializable {
 		for (int r : rupSet.getRupturesForSection(sectIndex)) {
 			double mag = rupSet.getMagForRup(r);
 			DiscretizedFunc mfd = getRupMagDist(r);
-			if (mfd == null || mfd.getNum() == 1) {
+			if (mfd == null || mfd.size() == 1) {
 				if(mag>=magLow && mag<magHigh)
 					partRate += getRateForRup(r);
 			} else {
@@ -293,7 +293,7 @@ public class FaultSystemSolution implements Serializable {
 		for (int r : rupSet.getRupturesForSection(sectIndex)) {
 			double mag = rupSet.getMagForRup(r);
 			DiscretizedFunc mfd = getRupMagDist(r);
-			if (mfd == null || mfd.getNum() == 1) {
+			if (mfd == null || mfd.size() == 1) {
 				if(mag>=magLow && mag<magHigh) {
 					double rate = getRateForRup(r);
 					double sectArea = rupSet.getAreaForSection(sectIndex);
@@ -698,7 +698,7 @@ public class FaultSystemSolution implements Serializable {
 			// OPTIONAL: Plot implied off-fault MFD % Total Target
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_NOCAL Region") {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.NO_CA_1850).getMagFreqDist();
-				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));		
 				}
@@ -708,7 +708,7 @@ public class FaultSystemSolution implements Serializable {
 			}
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_SOCAL Region") {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.SO_CA_1850).getMagFreqDist();
-				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
 					
@@ -719,7 +719,7 @@ public class FaultSystemSolution implements Serializable {
 			}
 			if (mfdConstraints.get(i).getRegion().getName()=="RELM_TESTING Region") {
 				IncrementalMagFreqDist totalTargetMFD = OLD_UCERF3_MFD_ConstraintFetcher.getTargetMFDConstraint(TimeAndRegion.ALL_CA_1850).getMagFreqDist();
-				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.getNum(), totalTargetMFD.getDelta());
+				IncrementalMagFreqDist offFaultMFD = new IncrementalMagFreqDist(totalTargetMFD.getMinX(), totalTargetMFD.size(), totalTargetMFD.getDelta());
 				for (double m=totalTargetMFD.getMinX(); m<=totalTargetMFD.getMaxX(); m+=totalTargetMFD.getDelta()) {
 					offFaultMFD.set(m, totalTargetMFD.getClosestY(m) - magHist.getClosestY(m));
 					

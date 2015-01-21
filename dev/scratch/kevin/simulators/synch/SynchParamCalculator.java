@@ -1290,12 +1290,12 @@ public class SynchParamCalculator {
 				//						lagFuncs.add(synchLagFunc);
 				//					} else {
 				EvenlyDiscretizedFunc lnSynchFunc = new EvenlyDiscretizedFunc(
-						synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
-				for (int i=0; i<synchLagFunc.getNum(); i++)
+						synchLagFunc.getMinX(), synchLagFunc.size(), synchLagFunc.getDelta());
+				for (int i=0; i<synchLagFunc.size(); i++)
 					lnSynchFunc.set(i, Math.log(synchLagFunc.getY(i)));
 				lagFuncs.add(lnSynchFunc);
-				double lnSynchAvg = lnSynchFunc.calcSumOfY_Vals()/lnSynchFunc.getNum();
-				double linearSynchAvg = synchLagFunc.calcSumOfY_Vals()/synchLagFunc.getNum();
+				double lnSynchAvg = lnSynchFunc.calcSumOfY_Vals()/lnSynchFunc.size();
+				double linearSynchAvg = synchLagFunc.calcSumOfY_Vals()/synchLagFunc.size();
 				//					}
 				spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
 
@@ -1331,14 +1331,14 @@ public class SynchParamCalculator {
 					double synchMax = Math.max(Math.abs(plotSynchFunc.getMaxY()), Math.abs(plotSynchFunc.getMinY()));
 					boolean logCCDF = false;
 					if (logCCDF)
-						for (int i=0; i<scaledCombined.getNum(); i++)
+						for (int i=0; i<scaledCombined.size(); i++)
 							scaledCombined.set(i, Math.log(scaledCombined.getY(i)));
 					// subtract the average
 					double ccdfAvg = 0d;
 					for (Point2D pt : scaledCombined)
 						ccdfAvg += pt.getY();
-					ccdfAvg /= scaledCombined.getNum();
-					for (int i=0; i<scaledCombined.getNum(); i++)
+					ccdfAvg /= scaledCombined.size();
+					for (int i=0; i<scaledCombined.size(); i++)
 						scaledCombined.set(i, scaledCombined.getY(i)-ccdfAvg);
 					// it's now centered about 0
 					double ccdfMax = Math.max(Math.abs(scaledCombined.getMaxY()), Math.abs(scaledCombined.getMinY()));

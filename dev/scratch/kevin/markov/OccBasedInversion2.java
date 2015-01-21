@@ -143,7 +143,7 @@ public class OccBasedInversion2 {
 	}
 	
 	private static double probFromMarginal(EvenlyDiscretizedFunc marginal, int index) {
-		if (index == marginal.getNum()-1)
+		if (index == marginal.size()-1)
 			return 1d;
 		double occAt = marginal.getY(index);
 		double occNext = marginal.getY(index+1);

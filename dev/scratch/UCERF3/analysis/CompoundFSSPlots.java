@@ -400,10 +400,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 //					// TODO REMOVE
 //					offMFD = sol.getRupSet().getInversionTargetMFDs().getTotalGriddedSeisMFD();
 					IncrementalMagFreqDist trimmedOffMFD = new IncrementalMagFreqDist(
-							onMFD.getMinX(), onMFD.getMaxX(), onMFD.getNum());
+							onMFD.getMinX(), onMFD.getMaxX(), onMFD.size());
 					IncrementalMagFreqDist totMFD = new IncrementalMagFreqDist(
-							onMFD.getMinX(), onMFD.getMaxX(), onMFD.getNum());
-					for (int n = 0; n < trimmedOffMFD.getNum(); n++) {
+							onMFD.getMinX(), onMFD.getMaxX(), onMFD.size());
+					for (int n = 0; n < trimmedOffMFD.size(); n++) {
 						double x = trimmedOffMFD.getX(n);
 						if (x <= offMFD.getMaxX())
 							trimmedOffMFD.set(n, offMFD.getY(x));
@@ -836,8 +836,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if(INCLUDE_AFTERSHOCKS) {
 					// it's a summed, turn it into an incremental to allow set operation
 					IncrementalMagFreqDist scaled = new IncrementalMagFreqDist(
-							mfdPart.getMinX(), mfdPart.getNum(), mfdPart.getDelta());
-					for(int i=0;i<mfdPart.getNum();i++) {
+							mfdPart.getMinX(), mfdPart.size(), mfdPart.getDelta());
+					for(int i=0;i<mfdPart.size();i++) {
 						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
 						scaled.set(i, mfdPart.getY(i)/scale);	// divide to add aftershocks back in
 					}
@@ -955,8 +955,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (int r = 0; r < regions.size(); r++) {
 					DiscretizedFunc totMFD = mfds.get(r);
 					DiscretizedFunc onMFD = mfds.get(r);
-					DiscretizedFunc offMFD = new EvenlyDiscretizedFunc(totMFD.getMinX(), totMFD.getMaxX(), totMFD.getNum());
-					for (int i=0; i<totMFD.getNum(); i++)
+					DiscretizedFunc offMFD = new EvenlyDiscretizedFunc(totMFD.getMinX(), totMFD.getMaxX(), totMFD.size());
+					for (int i=0; i<totMFD.size(); i++)
 						offMFD.set(i, totMFD.getY(i) - onMFD.getY(i));
 					offMFDs.add(offMFD);
 				}
@@ -1228,7 +1228,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 								maxY = myMax;
 							if (num < 0 && func instanceof EvenlyDiscretizedFunc) {
 								EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
-								num = eFunc.getNum();
+								num = eFunc.size();
 								min = eFunc.getMinX();
 							}
 						}
@@ -1809,8 +1809,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if(INCLUDE_AFTERSHOCKS) {
 					// it's a summed, turn it into an incremental to allow set operation
 					IncrementalMagFreqDist scaled = new IncrementalMagFreqDist(
-							mfdPart.getMinX(), mfdPart.getNum(), mfdPart.getDelta());
-					for(int i=0;i<mfdPart.getNum();i++) {
+							mfdPart.getMinX(), mfdPart.size(), mfdPart.getDelta());
+					for(int i=0;i<mfdPart.size();i++) {
 						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
 						scaled.set(i, mfdPart.getY(i)/scale);	// divide to add aftershocks back in
 					}
@@ -1900,8 +1900,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if(INCLUDE_AFTERSHOCKS) {
 					// it's a summed, turn it into an incremental to allow set operation
 					IncrementalMagFreqDist scaled = new IncrementalMagFreqDist(
-							mfdPart.getMinX(), mfdPart.getNum(), mfdPart.getDelta());
-					for(int i=0;i<mfdPart.getNum();i++) {
+							mfdPart.getMinX(), mfdPart.size(), mfdPart.getDelta());
+					for(int i=0;i<mfdPart.size();i++) {
 						double scale = GardnerKnopoffAftershockFilter.scaleForMagnitude(mfdPart.getX(i));
 						scaled.set(i, mfdPart.getY(i)/scale);	// divide to add aftershocks back in
 					}
@@ -1960,7 +1960,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		public static void calcFaultProbs(EvenlyDiscretizedFunc probFunc, EvenlyDiscretizedFunc rateFunc, FaultSystemSolutionERF erf,
 				FaultSystemRupSet rupSet, Collection<Integer> faultRups) {
 			List<List<Double>> probs = Lists.newArrayList();
-			for (int i=0; i<probFunc.getNum(); i++)
+			for (int i=0; i<probFunc.size(); i++)
 				probs.add(new ArrayList<Double>());
 			double duration = erf.getTimeSpan().getDuration();
 			for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
@@ -1970,7 +1970,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					double prob = source.computeTotalProb();
 					double rate = source.computeTotalEquivMeanAnnualRate(duration)*duration;
 					double mag = rupSet.getMagForRup(rupID);
-					for (int i=0; i<probFunc.getNum(); i++) {
+					for (int i=0; i<probFunc.size(); i++) {
 						if (mag >= probFunc.getX(i)) {
 							probs.get(i).add(prob);
 							if (rateFunc != null)
@@ -1979,7 +1979,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 				}
 			}
-			for (int i=0; i<probFunc.getNum(); i++) 
+			for (int i=0; i<probFunc.size(); i++) 
 				probFunc.set(i, FaultSysSolutionERF_Calc.calcSummedProbs(probs.get(i)));
 		}
 		
@@ -2158,8 +2158,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 						for (int r = 0; r < regions.size(); r++) {
 							DiscretizedFunc totMFD = mfds.get(cov).get(r);
 							DiscretizedFunc onMFD = mfds.get(cov).get(r);
-							EvenlyDiscretizedFunc offMFD = new EvenlyDiscretizedFunc(totMFD.getMinX(), totMFD.getMaxX(), totMFD.getNum());
-							for (int i=0; i<totMFD.getNum(); i++)
+							EvenlyDiscretizedFunc offMFD = new EvenlyDiscretizedFunc(totMFD.getMinX(), totMFD.getMaxX(), totMFD.size());
+							for (int i=0; i<totMFD.size(); i++)
 								offMFD.set(i, totMFD.getY(i) - onMFD.getY(i));
 							offMFDs.get(cov).add(offMFD);
 						}
@@ -2820,7 +2820,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			DiscretizedFunc xVals = mpds.values().iterator().next().get(0);
 			
 			csv.addLine(header);
-			for (int i=0; i<xVals.getNum(); i++) {
+			for (int i=0; i<xVals.size(); i++) {
 				List<String> line = Lists.newArrayList();
 				line.add(xVals.getX(i)+"");
 				for (int j=0; j<3; j++)
@@ -2918,7 +2918,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						EvenlyDiscretizedFunc f1 = (EvenlyDiscretizedFunc) elems.get(0);
 						double min = f1.getMinX();
 						double delta = f1.getDelta();
-						int num = f1.getNum();
+						int num = f1.size();
 						double plotMaxY = 0d;
 						for (int i=0; i<elems.size(); i++) {
 							if (elems.get(i) instanceof DiscretizedFunc) {
@@ -3009,7 +3009,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			// un-log it
 			ArbitrarilyDiscretizedFunc unLogged = new ArbitrarilyDiscretizedFunc();
-			for (int j=0; j<func.getNum(); j++)
+			for (int j=0; j<func.size(); j++)
 				unLogged.set(Math.exp(func.getX(j)), func.getY(j));
 			
 			CurveMetadata meta = new CurveMetadata(site, solIndex, null	, prefix);
@@ -3569,7 +3569,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						Map<String, PlotSpec> histSpecs = hist.getStackedHistPlots(true, delta);
 						
 						DiscretizedFunc f1 = (DiscretizedFunc) histSpecs.get(histSpecs.keySet().iterator().next()).getPlotElems().get(0);
-						while (f1.getNum() < 5) {
+						while (f1.size() < 5) {
 							delta /= 2;
 							histSpecs = hist.getStackedHistPlots(true, delta);
 							
@@ -3588,10 +3588,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 		
 		private static void validateCurve(DiscretizedFunc curve, String metadata) {
-			Preconditions.checkState(curve.getNum() > 1,
-					"Hazard curve has too few points ("+curve.getNum()+")! "+metadata);
+			Preconditions.checkState(curve.size() > 1,
+					"Hazard curve has too few points ("+curve.size()+")! "+metadata);
 			double sumY = 0d;
-			for (int i=0; i<curve.getNum(); i++) {
+			for (int i=0; i<curve.size(); i++) {
 				Point2D pt = curve.get(i);
 				// Y checks
 				if (!Doubles.isFinite(pt.getY()))
@@ -4714,13 +4714,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 
 		private static IncrementalMagFreqDist resizeToDimensions(
 				IncrementalMagFreqDist mfd, double min, int num, double delta) {
-			if (mfd.getMinX() == min && mfd.getNum() == num
+			if (mfd.getMinX() == min && mfd.size() == num
 					&& mfd.getDelta() == delta)
 				return mfd;
 			IncrementalMagFreqDist resized = new IncrementalMagFreqDist(min,
 					num, delta);
 
-			for (int i = 0; i < mfd.getNum(); i++)
+			for (int i = 0; i < mfd.size(); i++)
 				if (mfd.getY(i) > 0)
 					resized.set(mfd.get(i));
 
@@ -5792,14 +5792,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 				return;
 			IncrementalMagFreqDist runningMFD = mfdMap.get(index);
 			if (runningMFD == null) {
-				runningMFD = new IncrementalMagFreqDist(newMFD.getMinX(), newMFD.getNum(), newMFD.getDelta());
+				runningMFD = new IncrementalMagFreqDist(newMFD.getMinX(), newMFD.size(), newMFD.getDelta());
 				mfdMap.put(index, runningMFD);
 			} else {
-				Preconditions.checkState(runningMFD.getNum() == newMFD.getNum(), "MFD sizes inconsistent");
+				Preconditions.checkState(runningMFD.size() == newMFD.size(), "MFD sizes inconsistent");
 				Preconditions.checkState((float)runningMFD.getMinX() == (float)newMFD.getMinX(), "MFD min x inconsistent");
 				Preconditions.checkState((float)runningMFD.getDelta() == (float)newMFD.getDelta(), "MFD delta inconsistent");
 			}
-			for (int i=0; i<runningMFD.getNum(); i++)
+			for (int i=0; i<runningMFD.size(); i++)
 				runningMFD.add(i, newMFD.getY(i)*weight);
 		}
 		
@@ -7285,7 +7285,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					GriddedGeoDataSet data = new GriddedGeoDataSet(griddedRegion,
 							true);
 					AbstractXY_DataSet meanDataFunc = calc.getMeanCurve();
-					Preconditions.checkState(meanDataFunc.getNum() == data.size());
+					Preconditions.checkState(meanDataFunc.size() == data.size());
 					for (int i = 0; i < data.size(); i++)
 						data.set(i, meanDataFunc.getY(i));
 
@@ -7376,7 +7376,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					GriddedGeoDataSet indepVals = new GriddedGeoDataSet(griddedRegion,
 							true);
 					meanDataFunc = calc.getMeanCurve();
-					Preconditions.checkState(meanDataFunc.getNum() == indepVals.size());
+					Preconditions.checkState(meanDataFunc.size() == indepVals.size());
 					for (int i = 0; i < indepVals.size(); i++)
 						indepVals.set(i, meanDataFunc.getY(i));
 
@@ -7783,7 +7783,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				GriddedGeoDataSet data = new GriddedGeoDataSet(griddedRegion,
 						true);
 				AbstractXY_DataSet meanDataFunc = calc.getMeanCurve();
-				Preconditions.checkState(meanDataFunc.getNum() == data.size());
+				Preconditions.checkState(meanDataFunc.size() == data.size());
 				for (int i = 0; i < data.size(); i++)
 					data.set(i, meanDataFunc.getY(i));
 

@@ -152,20 +152,20 @@ public class TestOccFromSynch {
 			EvenlyDiscretizedFunc firstRow, EvenlyDiscretizedFunc firstCol,
 			EvenlyDiscretizedFunc marginalX, EvenlyDiscretizedFunc marginalY, int numIters) {
 		// validate inputs
-		for (int i=0; i<firstRow.getNum(); i++)
+		for (int i=0; i<firstRow.size(); i++)
 			Preconditions.checkState(Doubles.isFinite(firstRow.getY(i)));
-		for (int i=0; i<firstCol.getNum(); i++)
+		for (int i=0; i<firstCol.size(); i++)
 			Preconditions.checkState(Doubles.isFinite(firstCol.getY(i)));
-		for (int i=0; i<marginalX.getNum(); i++)
+		for (int i=0; i<marginalX.size(); i++)
 			Preconditions.checkState(Doubles.isFinite(marginalX.getY(i)));
-		for (int i=0; i<marginalY.getNum(); i++)
+		for (int i=0; i<marginalY.size(); i++)
 			Preconditions.checkState(Doubles.isFinite(marginalY.getY(i)));
-		Preconditions.checkArgument(firstRow.getNum() == marginalX.getNum());
-		Preconditions.checkArgument(firstCol.getNum() == marginalY.getNum());
+		Preconditions.checkArgument(firstRow.size() == marginalX.size());
+		Preconditions.checkArgument(firstCol.size() == marginalY.size());
 		
 		// first calculate assuming independence
 		EvenlyDiscrXYZ_DataSet newOccXYZ = new EvenlyDiscrXYZ_DataSet(
-				firstRow.getNum(), firstCol.getNum(), firstRow.getMinX(), firstCol.getMinX(),
+				firstRow.size(), firstCol.size(), firstRow.getMinX(), firstCol.getMinX(),
 				firstRow.getDelta(), firstCol.getDelta());
 		for (int xInd=0; xInd<newOccXYZ.getNumX(); xInd++)
 			for (int yInd=0; yInd<newOccXYZ.getNumY(); yInd++)

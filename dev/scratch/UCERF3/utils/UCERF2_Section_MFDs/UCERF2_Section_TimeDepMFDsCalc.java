@@ -264,7 +264,7 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 					FileWriter fw = new FileWriter(fileName);
 					fw.write(sectionNamefromID_Map.get(parID)+"\n");
 					fw.write("mag\tmean\tmin\tmax\n");
-					for(int i=0;i<meanCurve.getNum();i++) {
+					for(int i=0;i<meanCurve.size();i++) {
 						// note that we are dividing by weight
 						fw.write(meanCurve.getX(i)+"\t"+meanCurve.getY(i)/weight+"\t"+minCurve.getY(i)/weight+"\t"+maxCurve.getY(i)/weight+"\n");
 					}
@@ -285,7 +285,7 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 					FileWriter fwCum = new FileWriter(fileNameCum);
 					fwCum.write(sectionNamefromID_Map.get(parID)+"\n");
 					fwCum.write("mag\tmean\tmin\tmax\n");
-					for(int i=0;i<meanCurve.getNum();i++) {
+					for(int i=0;i<meanCurve.size();i++) {
 						// note that we are dividing by weight
 						fwCum.write(meanCurveCum.getX(i)+"\t"+meanCurveCum.getY(i)/weight+"\t"+minCurveCum.getY(i)/weight+"\t"+maxCurveCum.getY(i)/weight+"\n");
 					}

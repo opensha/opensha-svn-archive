@@ -26,10 +26,10 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 		this.lowerFunc = new UnmodifiableDiscrFunc(lowerFunc);
 		this.upperFunc = new UnmodifiableDiscrFunc(upperFunc);
 		
-		Preconditions.checkArgument(meanFunc.getNum() == lowerFunc.getNum(), "Lower func not same length as mean");
-		Preconditions.checkArgument(meanFunc.getNum() == upperFunc.getNum(), "Upper func not same length as mean");
+		Preconditions.checkArgument(meanFunc.size() == lowerFunc.size(), "Lower func not same length as mean");
+		Preconditions.checkArgument(meanFunc.size() == upperFunc.size(), "Upper func not same length as mean");
 		
-		for (int i=0; i<getNum(); i++) {
+		for (int i=0; i<size(); i++) {
 			double x = meanFunc.getX(i);
 			double y = meanFunc.getY(i);
 			

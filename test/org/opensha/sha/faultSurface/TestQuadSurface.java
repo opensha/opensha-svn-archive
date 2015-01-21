@@ -192,7 +192,7 @@ public class TestQuadSurface {
 		
 		// now discretize
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, (double)cpt.getMaxValue(), 50);
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			funcs.add(new DefaultXY_DataSet());
 			double val = func.getX(i);
 			PlotSymbol sym;

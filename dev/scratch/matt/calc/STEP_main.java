@@ -524,9 +524,9 @@ public class STEP_main {
 			//log("hypForcast loc" + loc);
 			IncrementalMagFreqDist magDist = hypForcast.getFirstMagFreqDist();
 			IncrementalMagFreqDist hypForecastMagDist = new IncrementalMagFreqDist(magDist.getMinX(),
-					magDist.getNum(),magDist.getDelta());
+					magDist.size(),magDist.getDelta());
 			
-			for(int j=0;j<hypForecastMagDist.getNum();++j)
+			for(int j=0;j<hypForecastMagDist.size();++j)
 				hypForecastMagDist.set(j, 0.0);
 			
 			stepHypForecastList.add( new HypoMagFreqDistAtLoc(hypForecastMagDist,loc));

@@ -1625,7 +1625,7 @@ public class UCERF2 extends AbstractERF {
 	 */
 	public void getTotal_B_FaultsProb(DiscretizedFunc magProbDist, 
 			Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			double minMag = magProbDist.getX(i);
@@ -1683,7 +1683,7 @@ public class UCERF2 extends AbstractERF {
 	 */
 	public void getProbsForB_Fault(String bFaultName,
 			DiscretizedFunc magProbDist, Region region ) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++) {
 			if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals(bFaultName)) {
 				for(int i=0; i<numMags; ++i) {
@@ -1699,7 +1699,7 @@ public class UCERF2 extends AbstractERF {
 	
 
 	public void getTotal_NonCA_B_FaultsProb(DiscretizedFunc magProbDist, Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			double minMag = magProbDist.getX(i);
@@ -1717,7 +1717,7 @@ public class UCERF2 extends AbstractERF {
 	 */
 	public void getTotal_A_FaultsProb(DiscretizedFunc magProbDist, 
 			Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			double minMag = magProbDist.getX(i);
@@ -1742,7 +1742,7 @@ public class UCERF2 extends AbstractERF {
 	 */
 	public void getProbForA_Fault(String aFaultName, DiscretizedFunc magProbDist, 
 			Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		for(int srcIndex=0; srcIndex < aFaultSourceGenerators.size(); srcIndex++) {
 			Object source = aFaultSourceGenerators.get(srcIndex);
 			if(source instanceof A_FaultSegmentedSourceGenerator) { // Segmented source
@@ -1784,7 +1784,7 @@ public class UCERF2 extends AbstractERF {
 
 	// this assumes not time dependence
 	public void getTotal_BackgroundProb(DiscretizedFunc magProbDist, Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 //		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
@@ -1800,7 +1800,7 @@ public class UCERF2 extends AbstractERF {
 
 	// this assumes not time dependence
 	public void getTotal_BackgroundMFD(DiscretizedFunc magFreqDist, Region region) {
-		int numMags = magFreqDist.getNum();
+		int numMags = magFreqDist.size();
 //		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
@@ -1814,7 +1814,7 @@ public class UCERF2 extends AbstractERF {
 
 	// this assumes no time dependence
 	public void getTotal_C_ZoneProb(DiscretizedFunc magProbDist, Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotalC_ZoneMFD_InRegion(region);
 		for(int i=0; i<numMags; ++i) {
 			double minMag = magProbDist.getX(i);
@@ -1825,7 +1825,7 @@ public class UCERF2 extends AbstractERF {
 	}
 
 	public void getTotalProb(DiscretizedFunc magProbDist, Region region) {
-		int numMags = magProbDist.getNum();
+		int numMags = magProbDist.size();
 		DiscretizedFunc bFaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();
 		DiscretizedFunc nonCA_B_FaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();
 		DiscretizedFunc aFaultsProbDist = (DiscretizedFunc)magProbDist.deepClone();

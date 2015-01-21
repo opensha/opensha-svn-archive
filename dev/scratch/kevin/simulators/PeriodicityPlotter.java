@@ -328,7 +328,7 @@ public class PeriodicityPlotter {
 			}
 			
 			double min = 0;
-			int num = slidingWindows.get(0).getNum();
+			int num = slidingWindows.get(0).size();
 			double delta = 1d;
 			
 			ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -1191,10 +1191,10 @@ public class PeriodicityPlotter {
 				if (t < hist.getMaxX()+0.5*delta)
 					hist.add(t, 1d);
 			}
-			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(delta, hist.getNum(), delta);
+			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(delta, hist.size(), delta);
 			double cnt = 0;
 			func.setName(idens.get(i).getName());
-			for (int j=0; j<hist.getNum(); j++) {
+			for (int j=0; j<hist.size(); j++) {
 				cnt += hist.getY(j);
 //				if (i == 0)
 //					System.out.println("j="+j+", cnt="+cnt+", hist.getY="+hist.getY(j));
@@ -1263,10 +1263,10 @@ public class PeriodicityPlotter {
 	}
 	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {
-		EvenlyDiscretizedFunc cml = new EvenlyDiscretizedFunc(func.getMinX(), func.getNum(), func.getDelta());
+		EvenlyDiscretizedFunc cml = new EvenlyDiscretizedFunc(func.getMinX(), func.size(), func.getDelta());
 		
 		double tot = 0d;
-		for (int i=func.getNum(); --i>=0;) {
+		for (int i=func.size(); --i>=0;) {
 			tot += func.getY(i);
 			cml.set(i, tot);
 		}
@@ -1455,9 +1455,9 @@ public class PeriodicityPlotter {
 			}
 			
 			EvenlyDiscretizedFunc cmlWithOffset = new EvenlyDiscretizedFunc(
-					hist.getMinX()+0.5d, hist.getMaxX()+0.5d, hist.getNum());
+					hist.getMinX()+0.5d, hist.getMaxX()+0.5d, hist.size());
 			double cnt = 0;
-			for (int i=0; i<hist.getNum(); i++) {
+			for (int i=0; i<hist.size(); i++) {
 				cnt += hist.getY(i);
 				cmlWithOffset.set(i, cnt);
 			}
@@ -1681,7 +1681,7 @@ public class PeriodicityPlotter {
 		ArbitrarilyDiscretizedFunc cumulativeFunc = new ArbitrarilyDiscretizedFunc();
 		
 		double cumulativeRate = 0;
-		for (int i=0; i<timeFunc.getNum(); i++) {
+		for (int i=0; i<timeFunc.size(); i++) {
 			double x = timeFunc.getX(i);
 			cumulativeRate += timeFunc.getY(i);
 			cumulativeFunc.set(x, cumulativeRate);

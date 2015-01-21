@@ -462,7 +462,7 @@ public class FaultSystemSolutionPoissonERF extends AbstractERF {
 		if(aleatoryMagAreaStdDev == 0) {
 			// TODO allow rup MFD with aleatory?
 			DiscretizedFunc rupMFD = faultSysSolution.getRupMagDist(fltSystRupIndex);	// this exists for multi-branch mean solutions
-			if (rupMFD == null || rupMFD.getNum() < 2) {
+			if (rupMFD == null || rupMFD.size() < 2) {
 				// normal source
 				boolean isPoisson = true;
 				double prob = 1-Math.exp(-aftRateCorr*faultSysSolution.getRateForRup(fltSystRupIndex)*timeSpan.getDuration());

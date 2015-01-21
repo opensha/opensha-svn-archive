@@ -211,7 +211,7 @@ public class ETAS_PrimaryEventSamplerJUNK2 {
 		for(int i=0; i<revisedBlockList.size();i++) {
 			ArbIncrementalMagFreqDist blockMagProbDist = revisedBlockList.get(i).getMagProbDist();
 			double blockProb=randomBlockSampler.getY(i);
-			for(int j=0; j<blockMagProbDist.getNum(); j++)
+			for(int j=0; j<blockMagProbDist.size(); j++)
 				magDist.addResampledMagRate(blockMagProbDist.getX(j), blockProb*blockMagProbDist.getY(j), true);
 		}
 		// now normalize
@@ -241,7 +241,7 @@ public class ETAS_PrimaryEventSamplerJUNK2 {
 					blockMagDist.addResampledMagRate(magList.get(j), rateInsideList.get(j), true);
 			}
 			blockMagDist.scale(blockProb/total);
-			for(int j=0; j<blockMagDist.getNum(); j++) magDist.add(blockMagDist.getX(j), blockMagDist.getY(j));
+			for(int j=0; j<blockMagDist.size(); j++) magDist.add(blockMagDist.getX(j), blockMagDist.getY(j));
 		}
 		return magDist;
 	}
@@ -359,7 +359,7 @@ public class ETAS_PrimaryEventSamplerJUNK2 {
 				thresh+=threshIncr;
 			}
 		}
-		for(int i=0;i<testFunc.getNum();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
+		for(int i=0;i<testFunc.size();i++) testFunc.set(i,testFunc.getY(i)/numSamples);
 		
 		// make orig dist for plotting comparison
 		EvenlyDiscretizedFunc origFunc = new EvenlyDiscretizedFunc(0.0, numBlocks, 1.0);
@@ -464,13 +464,13 @@ public class ETAS_PrimaryEventSamplerJUNK2 {
 			distHist.add(dist,1.0);
 			sum+=1;
 		}
-		for(int i=0;i<distHist.getNum();i++) distHist.set(i,distHist.getY(i)/sum);
+		for(int i=0;i<distHist.size();i++) distHist.set(i,distHist.getY(i)/sum);
 		
-		for(int i=0; i<target.getNum();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
+		for(int i=0; i<target.size();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
 		double sum2 = target.calcSumOfY_Vals();
-		for(int i=0; i<target.getNum();i++) target.set(i,target.getY(i)/sum2);
+		for(int i=0; i<target.size();i++) target.set(i,target.getY(i)/sum2);
 		
-		for(int i=0; i<target.getNum();i++) targetHist.add(target.getX(i), target.getY(i));
+		for(int i=0; i<target.size();i++) targetHist.add(target.getX(i), target.getY(i));
 		
 		distHist.setName("Simulated Distance Decay for Primary Aftershocks");
 		targetHist.setName("Target Distance Decay for Primary Aftershocks");

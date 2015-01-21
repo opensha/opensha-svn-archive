@@ -305,7 +305,7 @@ public class InversionConvergencePlotGen {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(dir, prefix+".png").getAbsolutePath());
-		if (funcs.get(0).getNum() < 2000)
+		if (funcs.get(0).size() < 2000)
 			gp.saveAsTXT(new File(dir, prefix+".txt").getAbsolutePath());
 	}
 	

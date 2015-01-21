@@ -142,7 +142,7 @@ for(int m=0;m<testFunc.getNum();m++)
       ArbitrarilyDiscretizedFunc cumFunc = (ArbitrarilyDiscretizedFunc)cumMFDList.get(i);
       // if(i==0) System.out.println(" CUM FUNC::::\n"+cumFunc.toString());
       if(cumFunc==null) continue;
-      for(int j=0; j<magFreqDist.getNum(); ++j ) {
+      for(int j=0; j<magFreqDist.size(); ++j ) {
         mag = magFreqDist.getX(j);
         // get interpolated rate
 //if((mag == 7.0 || mag==7.1) && i==testIndex) debug = true;
@@ -238,7 +238,7 @@ for(int m=0;m<testFunc.getNum();m++)
     for (int i = 0; i < size; ++i) {
       //iterates over all the ArbDiscrEmpiricalDistFunc ( for each location in the region),
       //and adds those distribution that store mag-rate distriution.
-      int numEmpDistElemnents = funcs[i].getNum();
+      int numEmpDistElemnents = funcs[i].size();
 
       if (numEmpDistElemnents == 0) {
         //System.out.println(region.getGridLocation(i));
@@ -249,7 +249,7 @@ for(int m=0;m<testFunc.getNum();m++)
     	  // get the cumulative dist of the ArbDiscrFunc (sum of values ≤ X)
         ArbitrarilyDiscretizedFunc cumDist = funcs[i].getCumDist();
         //if(i==0) System.out.println("cum function>>>>>>\n"+func.toString());
-        int numMags = cumDist.getNum();
+        int numMags = cumDist.size();
         ArbitrarilyDiscretizedFunc magRateFunction = new ArbitrarilyDiscretizedFunc();
         // now convert it to the cumulative mag-freq-dist (sum of values ≤ each mag)
         magRateFunction.set(cumDist.getX(0), cumDist.getY(numMags- 1));

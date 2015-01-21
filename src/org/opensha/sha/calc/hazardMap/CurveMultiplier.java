@@ -68,7 +68,7 @@ public class CurveMultiplier {
 	public static DiscretizedFunc multiplyCurve(DiscretizedFunc curve, double factor) {
 		ArbitrarilyDiscretizedFunc multFunc = new ArbitrarilyDiscretizedFunc();
 		
-		int numPoints = curve.getNum();
+		int numPoints = curve.size();
 		
 		for (int i=0; i<numPoints; i++) {
 			double x = curve.getX(i);

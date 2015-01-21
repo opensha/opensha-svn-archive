@@ -355,7 +355,7 @@ public abstract class AbstractDiscretizedFuncTest extends
 	private static void doTestScale(DiscretizedFunc func, double val) {
 		DiscretizedFunc cloned = func.deepClone();
 		cloned.scale(val);
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			double origY = func.getY(i);
 			double expected = origY * val;
 			assertEquals("scale didn't work (should be "+origY+"*"+val+"="+expected+")", expected, cloned.getY(i), test_tol);

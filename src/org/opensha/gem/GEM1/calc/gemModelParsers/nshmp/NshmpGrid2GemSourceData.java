@@ -442,7 +442,7 @@ public class NshmpGrid2GemSourceData extends GemFileParser {
 //								}
 								if(!Double.isNaN(strike)){
 									// scale the rates, by the specified weight, for magnitudes greater than the taper magnitude
-									for(int im=0;im<mfd.getNum();im++){ 
+									for(int im=0;im<mfd.size();im++){ 
 										if(mfd.getX(im)>=mTaper){
 										double val = mfd.getY(im)*weightMTaperMat.getVal().get(is);
 										mfd.set(im,val);

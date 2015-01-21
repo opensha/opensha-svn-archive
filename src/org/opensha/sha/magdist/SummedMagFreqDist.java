@@ -143,7 +143,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 		   "deltas differ by more then tolerance");
 
 	   // loop over points of the given dist and add those that are within range
-	   for (int i=0;i<magFreqDist.getNum();++i) {
+	   for (int i=0;i<magFreqDist.size();++i) {
 		   double xVal = magFreqDist.getX(i);
 		   int indexHere = getXIndex(xVal);
 		   if(indexHere != -1) {
@@ -178,7 +178,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 		   "deltas differ by more then tolerance");
 
 	   // loop over points of the given dist and add those that are within range
-	   for (int i=0;i<magFreqDist.getNum();++i) {
+	   for (int i=0;i<magFreqDist.size();++i) {
 		   double xVal = magFreqDist.getX(i);
 		   if(getMinX()-tolerance<xVal && xVal<getMaxX()+tolerance) {
 			   double newY = getY(xVal)-magFreqDist.getY(i);
@@ -210,7 +210,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
    public void addResampledMagFreqDist(DiscretizedFunc func, boolean preserveRates) {
 
-     for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
+     for (int i=0;i<func.size();++i) {     // add the y values from this new distribution
     	 addResampledMagRate(func.getX(i), func.getY(i), preserveRates);
      }
 
@@ -273,7 +273,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 	
 	@Override
 	public void scale(double val) {
-		for(int i=0; i<getNum();i++) super.set(i, val*getY(i));
+		for(int i=0; i<size();i++) super.set(i, val*getY(i));
 	}
 
 

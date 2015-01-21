@@ -317,7 +317,7 @@ public class InfoLabel extends JLabel {
     AbstractDiscretizedFunc func = estimate.getValues();
     String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Probability</b> <br>";
-    for(int i=0; i<func.getNum(); ++i)
+    for(int i=0; i<func.size(); ++i)
         text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
              GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";
@@ -334,7 +334,7 @@ public class InfoLabel extends JLabel {
    AbstractDiscretizedFunc func = estimate.getValues();
    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
-   for(int i=0; i<func.getNum(); ++i)
+   for(int i=0; i<func.size(); ++i)
        text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
             GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";

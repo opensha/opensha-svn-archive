@@ -101,7 +101,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 		//gR.scaleToIncrRate(magLower,rate);
 
 		// Determine number of ruptures
-		int numMags = gR.getNum();
+		int numMags = gR.size();
 		totNumRups=0;
 		WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
 		for(int i=0;i<num;++i){
@@ -137,7 +137,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 	 * @return the object of the ProbEqkRupture class after setting the probability
 	 */
 	public ProbEqkRupture getRupture(int nthRupture){
-		int numMags = gR.getNum();
+		int numMags = gR.size();
 		double mag=0, rupLen=0;
 		int numRups=0, tempNumRups=0;
 

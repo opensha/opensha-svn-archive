@@ -173,7 +173,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 			GaussianMagFreqDist gDist = new GaussianMagFreqDist(-3.0,3.0,25,0.0,1.0,1.0);
 			gDist.scaleToCumRate(0, 1.0);  // normalize to make it a probability density
 			if(D) System.out.println("gDist:\n"+gDist.toString());
-			for(int m=0; m<gDist.getNum(); m++) {
+			for(int m=0; m<gDist.size(); m++) {
 				addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
 						rupAspectRatio, rupOffset, rake, minMag, gDist.getX(m), gDist.getY(m), 
 						floatTypeFlag, fullFaultRupMagThresh);
@@ -287,7 +287,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
 		if( D ) System.out.println(C+": magScalingSigma="+magScalingSigma);
 
 		// loop over magnitudes
-		int numMags = magDist.getNum();
+		int numMags = magDist.size();
 		for(int i=0;i<numMags;++i){
 			mag = magDist.getX(i);
 			rate = magDist.getY(i);

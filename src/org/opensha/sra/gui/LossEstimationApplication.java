@@ -934,7 +934,7 @@ implements Runnable, ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI
 	 * @param function
 	 */
 	private void getAnnualizedPE(ArbitrarilyDiscretizedFunc function){
-		int num = function.getNum();
+		int num = function.size();
 		for(int i=0;i<num;++i){
 			double rate = function.getY(i);
 			double pe = 1-Math.exp(-1*rate);
@@ -1011,11 +1011,11 @@ implements Runnable, ParameterChangeListener, CurveDisplayAppAPI, IMR_GuiBeanAPI
 	 */
 	//  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
 	private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,double[] imls){
-		int numPoints = hazFunc.getNum();
+		int numPoints = hazFunc.size();
 		DiscretizedFunc tempFunc = hazFunc.deepClone();
 		hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV ,SA or FaultDispl
-		for(int i=0;i<tempFunc.getNum();++i)
+		for(int i=0;i<tempFunc.size();++i)
 			hazFunc.set(imls[i],tempFunc.getY(i));
 
 		return hazFunc;

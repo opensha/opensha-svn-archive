@@ -107,11 +107,11 @@ public class TestModel1_ERF extends FaultSystemSolutionERF {
 		int numPtsOnFault = pointLocsOnFault.size();
 		if(D) System.out.println("numPtsOnFault+"+numPtsOnFault);
 		onFaultPointMFD  = new ArbIncrementalMagFreqDist(2.55, 6.05, 36);
-		for(int i=0; i<onFaultPointMFD.getNum();i++)
+		for(int i=0; i<onFaultPointMFD.size();i++)
 			onFaultPointMFD.set(i,targetFaultGR.getY(i)/numPtsOnFault);
 		// make point off fault 1/10th rate of those on the faults
 		offFaultPointMFD = new ArbIncrementalMagFreqDist(2.55, 7.55, 51);
-		for(int i=0; i<offFaultPointMFD.getNum();i++)
+		for(int i=0; i<offFaultPointMFD.size();i++)
 			offFaultPointMFD.set(i,targetFaultGR.getY(i)/(numPtsOnFault*offFaultSeisReductionFactor));
 		
 		

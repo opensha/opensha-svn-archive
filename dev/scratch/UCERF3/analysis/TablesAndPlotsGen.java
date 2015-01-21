@@ -873,7 +873,7 @@ public class TablesAndPlotsGen {
 
 			ArbitrarilyDiscretizedFunc bpt_poisNge1_ratio_func = new ArbitrarilyDiscretizedFunc();
 
-			for(int i=0;i<logX_func.getNum();i++) {
+			for(int i=0;i<logX_func.size();i++) {
 				double durOverMean = Math.pow(10, logX_func.getX(i));
 				double duration = mean*durOverMean;
 				bptCalc.setAllParameters(mean, aperiodicity, deltaX, numPoints, duration, histOpenInterval);
@@ -1011,7 +1011,7 @@ public class TablesAndPlotsGen {
 				EvenlyDiscretizedFunc logX_func = new EvenlyDiscretizedFunc(Math.log10(0.0001), Math.log10(2), 100);	// x-axis is log10(openInt/mean)
 				ArbitrarilyDiscretizedFunc bpt_func = new ArbitrarilyDiscretizedFunc();
 				bpt_func.setName("BPT Prob Ratio for durOverMean="+durOverMean+" & aper="+aperiodicity);
-				for(int i=0;i<logX_func.getNum();i++) {
+				for(int i=0;i<logX_func.size();i++) {
 					double openIntOverMean = Math.pow(10, logX_func.getX(i));
 					double histOpenInterval = mean*openIntOverMean;
 					bptCalc.setAllParameters(mean, aperiodicity, deltaX, numPoints, duration, histOpenInterval);

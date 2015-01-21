@@ -232,7 +232,7 @@ public class OccBasedIterativeSolver {
 	private static double calcMarginalProb(EvenlyDiscretizedFunc occMarginal, int index) {
 		double occ = occMarginal.getY(index);
 		double occNext;
-		if (index < occMarginal.getNum()-1)
+		if (index < occMarginal.size()-1)
 			occNext = occMarginal.getY(index+1);
 		else
 			occNext = 0d;

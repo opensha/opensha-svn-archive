@@ -182,7 +182,7 @@ extends ProbEqkSource {
 		double prob;
 
 		// Make the ruptures
-		for (int i = 0; i < magDist.getNum(); ++i) {
+		for (int i = 0; i < magDist.size(); ++i) {
 			mag = magDist.getX(i);
 			// make sure it has a non-zero rate
 			if (magDist.getY(i) > 0) {
@@ -224,11 +224,11 @@ extends ProbEqkSource {
 
 		// compute total rate of magDist
 		double totRate = 0, qkRate, qkProb;
-		for (int i = 0; i < magDist.getNum(); ++i)
+		for (int i = 0; i < magDist.size(); ++i)
 			totRate += magDist.getY(i);
 
 		// Make the ruptures
-		for (int i = 0; i < magDist.getNum(); ++i) {
+		for (int i = 0; i < magDist.size(); ++i) {
 			mag = magDist.getX(i);
 			// make sure it has a non-zero rate
 			if ((qkRate = magDist.getY(i)) > 0) {

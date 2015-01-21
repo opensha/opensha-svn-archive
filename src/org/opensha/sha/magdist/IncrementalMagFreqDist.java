@@ -474,7 +474,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
    public double findMagJustAboveMomentRate(double moRate) {
 	   double cumMoRate=0;
 	   int targetIndex = -1;
-	   for(int i=0;i<getNum();i++) {
+	   for(int i=0;i<size();i++) {
 		   cumMoRate += getMomentRate(i);
 		   if(cumMoRate>moRate) {
 			   targetIndex = i-1;
@@ -493,7 +493,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 	 * @param mag 
 	 */
 	public void zeroAboveMag(double mag) {
-		for (int i = getXIndex(mag)+1; i < getNum(); i++) {
+		for (int i = getXIndex(mag)+1; i < size(); i++) {
 			set(i, 0);
 		}
 	}
@@ -503,7 +503,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 	 * @param mag 
 	 */
 	public void zeroAtAndAboveMag(double mag) {
-		for (int i = getXIndex(mag); i < getNum(); i++) {
+		for (int i = getXIndex(mag); i < size(); i++) {
 			set(i, 0);
 		}
 	}   

@@ -248,7 +248,7 @@ public class CurveCompare {
 			DiscretizedFunc curve = cell.getValue();
 			DiscretizedFunc refCurve = refCurves.get(siteName, period);
 			Preconditions.checkNotNull(refCurve, "Ref curve not found for "+siteName+", "+period);
-			Preconditions.checkState(curve.getNum() == refCurve.getNum(), "Curve sizes inconsistant!");
+			Preconditions.checkState(curve.size() == refCurve.size(), "Curve sizes inconsistant!");
 			
 			double twoIn50 = CurveUtilsUC33.getPE(curve, ProbOfExceed.PE2IN50);
 			double tenIn50 = CurveUtilsUC33.getPE(curve, ProbOfExceed.PE10IN50);
@@ -260,7 +260,7 @@ public class CurveCompare {
 			
 			MinMaxAveTracker myTrack = new MinMaxAveTracker();
 			
-			for (int i=0; i<curve.getNum(); i++) {
+			for (int i=0; i<curve.size(); i++) {
 				Point2D pt = curve.get(i);
 				Point2D refPt = refCurve.get(i);
 				

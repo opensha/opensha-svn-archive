@@ -223,7 +223,7 @@ public class TestAdmin {
 				
 				BufferedWriter br = new BufferedWriter(new FileWriter(
 						PEER_DIR_OUT + test + PEER_FILE_SUFFIX));
-				for (int j = 0; j < adf.getNum(); ++j) {
+				for (int j = 0; j < adf.size(); ++j) {
 					br.write(adf.get(j).getX() + "\t"
 							+ adf.get(j).getY() + "\n");
 				}

@@ -73,7 +73,7 @@ super(min, num, delta);
 
   public void setResampledMagFreqDist(DiscretizedFunc func, boolean preserveRates) {
 
-	  for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
+	  for (int i=0;i<func.size();++i) {     // add the y values from this new distribution
 		  addResampledMagRate(func.getX(i), func.getY(i), preserveRates);
 	  }
   }

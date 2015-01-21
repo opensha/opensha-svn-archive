@@ -91,8 +91,8 @@ public class MFD_InversionConstraint implements XMLSaveable {
 		
 		Element mfdEl = constrEl.element(IncrementalMagFreqDist.XML_METADATA_NAME);
 		EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc) EvenlyDiscretizedFunc.fromXMLMetadata(mfdEl);
-		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(func.getMinX(), func.getNum(), func.getDelta());
-		for (int i=0; i<func.getNum(); i++) {
+		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(func.getMinX(), func.size(), func.getDelta());
+		for (int i=0; i<func.size(); i++) {
 			mfd.set(i, func.getY(i));
 		}
 		

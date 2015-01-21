@@ -422,15 +422,15 @@ public class CSEP_Forecast {
 		// Handle case where src only has one mag - put rate in closest bin
 		// Single mag mfds that are high (e.g. M=9.2 cascadia) will go in
 		// highest dest bin (M=9.0)
-		if (src.getNum() == 1) {
+		if (src.size() == 1) {
 			int destIdx = dest.getClosestXIndex(src.getX(0));
 			dest.set(destIdx, src.getY(0));
 			return dest;
 		}
 
 		// src mfd points used as basis for interpolation
-		double[] srcMags = new double[src.getNum()];
-		double[] srcRates = new double[src.getNum()];
+		double[] srcMags = new double[src.size()];
+		double[] srcRates = new double[src.size()];
 		int idx = 0;
 		for (Point2D p : src) {
 			srcMags[idx] = p.getX();

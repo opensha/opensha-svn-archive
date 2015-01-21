@@ -66,7 +66,7 @@ public class XY_EstimateDB_DAO  {
 	 * @throws InsertException
 	 */
 	public void addEstimate(int estimateInstanceId, DiscretizedFunc func) throws InsertException {
-		int numPoints = func.getNum();
+		int numPoints = func.size();
 		try {
 			for (int i = 0; i < numPoints; ++i) {
 				// insert into log normal table

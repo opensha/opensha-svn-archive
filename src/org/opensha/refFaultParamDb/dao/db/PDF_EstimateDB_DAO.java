@@ -79,7 +79,7 @@ public class PDF_EstimateDB_DAO implements EstimateDAO_API {
 		EvenlyDiscretizedFunc evenlyDiscFunc = (EvenlyDiscretizedFunc)pdfEstimate.getFunc();
 		String sql = "insert into "+TABLE_NAME+"("+EST_ID+","+MIN_X+","+DELTA_X+","+
 		NUM+") values ("+estimateInstanceId+","+evenlyDiscFunc.getMinX()+","+
-		evenlyDiscFunc.getDelta()+","+evenlyDiscFunc.getNum()+")";
+		evenlyDiscFunc.getDelta()+","+evenlyDiscFunc.size()+")";
 		try {
 			dbAccessAPI.insertUpdateOrDeleteData(sql);
 		}catch(SQLException sqlException) {

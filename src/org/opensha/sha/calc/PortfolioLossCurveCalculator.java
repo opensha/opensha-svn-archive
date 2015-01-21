@@ -93,7 +93,7 @@ public class PortfolioLossCurveCalculator {
 	 */
 	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction,double years) {
 		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
-		int size = annualizedRateFunc.getNum();
+		int size = annualizedRateFunc.size();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
 		}
@@ -137,7 +137,7 @@ public class PortfolioLossCurveCalculator {
 		int k;
 
 		// get the number of points
-		int numPoints = hazFunction.getNum();
+		int numPoints = hazFunction.size();
 
 		// set the maximum distance in the attenuation relationship
 		// (Note- other types of IMRs may not have this method so we should really check type here)
@@ -288,7 +288,7 @@ public class PortfolioLossCurveCalculator {
 	 * @param arb
 	 */
 	protected void initDiscretizeValues(DiscretizedFunc arb, double val){
-		int num = arb.getNum();
+		int num = arb.size();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
 	}

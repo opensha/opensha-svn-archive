@@ -300,7 +300,7 @@ public class Utils {
 		}
 		try {
 			double Pclip = Utils.gaussProbExceed(mean, sigma, clip);
-			for (int i = 0; i < imls.getNum(); i++) {
+			for (int i = 0; i < imls.size(); i++) {
 				double x = imls.getX(i);
 				double y = Utils.gaussProbExceed(mean, sigma, Math.log(x), Pclip, ONE_SIDED);
 				imls.set(i, y);
@@ -383,7 +383,7 @@ public class Utils {
 	 * @param f2 function to add
 	 */
 	public static void addFunc(DiscretizedFunc f1, DiscretizedFunc f2) {
-		for (int i = 0; i < f1.getNum(); i++) {
+		for (int i = 0; i < f1.size(); i++) {
 			f1.set(i, f1.getY(i) + f2.getY(i));
 		}
 	}
@@ -395,7 +395,7 @@ public class Utils {
 	 * @param f2 function to multiple f1 by
 	 */
 	public static void multiplyFunc(DiscretizedFunc f1, DiscretizedFunc f2) {
-		for (int i = 0; i < f1.getNum(); i++) {
+		for (int i = 0; i < f1.size(); i++) {
 			f1.set(i, f1.getY(i) * f2.getY(i));
 		}
 	}
@@ -406,7 +406,7 @@ public class Utils {
 	 * @param f function to operate on
 	 */
 	public static void complementFunc(DiscretizedFunc f) {
-		for (int i = 0; i < f.getNum(); i++) {
+		for (int i = 0; i < f.size(); i++) {
 			f.set(i, 1 - f.getY(i));
 		}
 	}
@@ -434,7 +434,7 @@ public class Utils {
 	 * @param v value to use
 	 */
 	public static void setFunc(DiscretizedFunc f, double v) {
-		for (int i=0; i<f.getNum(); i++) {
+		for (int i=0; i<f.size(); i++) {
 			f.set(i, v);
 		}
 	}

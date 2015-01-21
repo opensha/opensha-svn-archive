@@ -832,7 +832,7 @@ ScalarIMRChangeListener {
 								+ "-PGA_OpenSHA.txt");
 						DiscretizedFunc func = (DiscretizedFunc) functionList
 						.get(0);
-						for (int j = 0; j < func.getNum(); ++j)
+						for (int j = 0; j < func.size(); ++j)
 							peerFile.write(func.get(j).getX() + "\t"
 									+ func.get(j).getY() + "\n");
 						peerFile.close();
@@ -1326,7 +1326,7 @@ ScalarIMRChangeListener {
 			 * bugWindow.setVisible(true); bugWindow.pack();
 			 * e.printStackTrace(); }
 			 */
-			int num = hazFunction.getNum();
+			int num = hazFunction.size();
 			// checks if successfully disaggregated.
 			boolean disaggSuccessFlag = false;
 			boolean disaggrAtIML = false;
@@ -2034,7 +2034,7 @@ ScalarIMRChangeListener {
 					.getSelectedIMT());
 
 		if (IMT_Info.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
-			for (int i = 0; i < function.getNum(); ++i)
+			for (int i = 0; i < function.size(); ++i)
 				arb.set(Math.log(function.getX(i)), 1);
 
 			// System.out.println("11111111111HazFunction: "+arb.toString());
@@ -2052,7 +2052,7 @@ ScalarIMRChangeListener {
 	 */
 	private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
 			ArbitrarilyDiscretizedFunc hazFunc) {
-		int numPoints = hazFunc.getNum();
+		int numPoints = hazFunc.size();
 		DiscretizedFunc tempFunc = hazFunc.deepClone();
 		hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV ,SA or FaultDispl
@@ -2376,7 +2376,7 @@ ScalarIMRChangeListener {
 		else
 			func = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
 
-		int size = func.getNum();
+		int size = func.size();
 		for (int i = 0; i < size; ++i)
 			imlList.add(new Double(func.getX(i)));
 

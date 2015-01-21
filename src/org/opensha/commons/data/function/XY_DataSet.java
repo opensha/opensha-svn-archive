@@ -46,7 +46,7 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	/* ******************************/
 
 	/** returns the number of points in this function list */
-	public int getNum();
+	public int size();
 
 	/** return the minimum x value along the x-axis. */
 	public double getMinX() throws IndexOutOfBoundsException;

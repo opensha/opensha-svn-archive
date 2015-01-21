@@ -65,7 +65,7 @@ public class PtSrcDistCorr {
 		for(int d=0; d<horzDists.length; d++) {
 			double horzDist = horzDists[d];
 			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(5.05,35,0.1);
-			for(int m=0; m<func.getNum(); m++) {
+			for(int m=0; m<func.size(); m++) {
 				double mag = func.getX(m);
 				double corr = PtSrcDistCorr.getCorrection(horzDist, mag, PtSrcDistCorr.Type.FIELD);
 				func.set(m, corr);
@@ -73,7 +73,7 @@ public class PtSrcDistCorr {
 			func.setName("Dist="+horzDist+";\tType=FIELD");
 			funcs.add(func);
 			func = new EvenlyDiscretizedFunc(5.05,35,0.1);
-			for(int m=0; m<func.getNum(); m++) {
+			for(int m=0; m<func.size(); m++) {
 				double mag = func.getX(m);
 				if(mag<=7.6) {
 //					double roundedMag = ((double)Math.round(mag*100.0))/100;

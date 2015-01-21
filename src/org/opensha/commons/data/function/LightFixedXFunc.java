@@ -18,7 +18,7 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	private double[] xVals, yVals;
 	
 	public LightFixedXFunc(DiscretizedFunc func) {
-		xVals = new double[func.getNum()];
+		xVals = new double[func.size()];
 		yVals = new double[xVals.length];
 		
 		for (int i=0; i<xVals.length; i++) {
@@ -118,7 +118,7 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public int getNum() {
+	public int size() {
 		return xVals.length;
 	}
 

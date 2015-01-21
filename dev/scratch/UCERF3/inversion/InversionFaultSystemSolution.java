@@ -656,7 +656,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 		
 		if (solGriddedMFD != null) {
 			// total sum
-			SummedMagFreqDist totalModelMFD = new SummedMagFreqDist(solMFD.getMinX(), solMFD.getMaxX(), solMFD.getNum());
+			SummedMagFreqDist totalModelMFD = new SummedMagFreqDist(solMFD.getMinX(), solMFD.getMaxX(), solMFD.size());
 //			System.out.println(solMFD.getMinX()+"\t"+solMFD.getMaxX()+"\t"+solMFD.getNum());
 //			System.out.println(solOffFaultMFD.getMinX()+"\t"+solOffFaultMFD.getMaxX()+"\t"+solOffFaultMFD.getNum());
 			totalModelMFD.addIncrementalMagFreqDist(solMFD);
@@ -822,9 +822,9 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 			
 			// SummedMagFreqDist doesn't allow set, so put it in a new one
 			IncrementalMagFreqDist truncatedMFD = new IncrementalMagFreqDist(
-					finalTrulyOffMFD.getMinX(), finalTrulyOffMFD.getNum(), finalTrulyOffMFD.getDelta());
+					finalTrulyOffMFD.getMinX(), finalTrulyOffMFD.size(), finalTrulyOffMFD.getDelta());
 			int startZeroIndex = finalTrulyOffMFD.getClosestXIndex(mMaxOffFault) + 1;	// plus 1
-			for (int i=0; i<startZeroIndex && i<finalTrulyOffMFD.getNum(); i++)
+			for (int i=0; i<startZeroIndex && i<finalTrulyOffMFD.size(); i++)
 				truncatedMFD.set(i, finalTrulyOffMFD.getY(i));
 			finalTrulyOffMFD.setName("InversionFaultSystemSolution.getFinalTrulyOffFaultMFD()");
 

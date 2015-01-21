@@ -149,11 +149,11 @@ Named,java.io.Serializable{
 //		if( !getInfo().equals(function.getInfo() )  ) return false;
 		
 		// now check size
-		if (this.getNum() != function.getNum())
+		if (this.size() != function.size())
 			return false;
 		
 		// now check that the points are equal
-		for (int i=0; i<this.getNum(); i++) {
+		for (int i=0; i<this.size(); i++) {
 			Point2D pt1 = this.get(i);
 			Point2D pt2 = function.get(i);
 			if (!pt1.equals(pt2))
@@ -177,7 +177,7 @@ Named,java.io.Serializable{
 		xml.addAttribute("tolerance", this.getTolerance() + "");
 		xml.addAttribute("xAxisName", this.getXAxisName());
 		xml.addAttribute("yAxisName", this.getYAxisName());
-		xml.addAttribute("num", this.getNum() + "");
+		xml.addAttribute("num", this.size() + "");
 		xml.addAttribute("minX", this.getMinX() + "");
 		xml.addAttribute("maxX", this.getMaxX() + "");
 		if (this instanceof EvenlyDiscretizedFunc) {
@@ -185,7 +185,7 @@ Named,java.io.Serializable{
 		}
 
 		Element points = xml.addElement(AbstractDiscretizedFunc.XML_METADATA_POINTS_NAME);
-		for (int i=0; i<this.getNum(); i++) {
+		for (int i=0; i<this.size(); i++) {
 			Element point = points.addElement(AbstractDiscretizedFunc.XML_METADATA_POINT_NAME);
 			point.addAttribute("x", this.getX(i) + "");
 			point.addAttribute("y", this.getY(i) + "");
@@ -237,7 +237,7 @@ Named,java.io.Serializable{
 
 	public static void writeSimpleFuncFile(DiscretizedFunc func, File outFile) throws IOException {
 		FileWriter fr = new FileWriter(outFile);
-		for (int i = 0; i < func.getNum(); ++i)
+		for (int i = 0; i < func.size(); ++i)
 			fr.write(func.getX(i) + " " + func.getY(i) + "\n");
 		fr.close();
 	}
@@ -286,13 +286,13 @@ Named,java.io.Serializable{
 	
 	public double calcSumOfY_Vals() {
 		double sum=0;
-		for(int i=0; i<getNum();i++) sum += getY(i);
+		for(int i=0; i<size();i++) sum += getY(i);
 		return sum;
 	}
 	
 	@Override
 	public void scale(double val) {
-		for(int i=0; i<getNum();i++) this.set(i, val*getY(i));
+		for(int i=0; i<size();i++) this.set(i, val*getY(i));
 	}
 
 

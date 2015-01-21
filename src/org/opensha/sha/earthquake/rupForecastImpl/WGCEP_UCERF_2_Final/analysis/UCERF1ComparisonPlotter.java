@@ -130,7 +130,7 @@ public class UCERF1ComparisonPlotter {
 		IncrementalMagFreqDist sjWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)sjIncrRateFuncList.get(0)).deepClone();
 		IncrementalMagFreqDist ssafWtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)ssafIncrRateFuncList.get(0)).deepClone();
 		XY_DataSet func = sjIncrRateFuncList.get(0);
-		for(int imag=0; imag<func.getNum(); ++imag) {
+		for(int imag=0; imag<func.size(); ++imag) {
 			double val1 = 0.5*sjIncrRateFuncList.get(0).getY(imag) + 0.2*sjIncrRateFuncList.get(1).getY(imag) + 0.3*sjIncrRateFuncList.get(2).getY(imag);
 			sjWtAveMFD.set(func.getX(imag), val1);
 			val1 = 0.5*ssafIncrRateFuncList.get(0).getY(imag) + 0.2*ssafIncrRateFuncList.get(1).getY(imag) + 0.3*ssafIncrRateFuncList.get(2).getY(imag);
@@ -201,11 +201,11 @@ public class UCERF1ComparisonPlotter {
 		for(int i=0; i<aFaultIncrRateFuncList.size(); ++i) {
 			String faultName = faultNames.get(i);
 			ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
-			if(ucerf1Rate.getNum()==0) ucerf1Rate.set(0.0, 0.0);
+			if(ucerf1Rate.size()==0) ucerf1Rate.set(0.0, 0.0);
 			aFaultIncrRateFuncList.get(i).add(ucerf1Rate);
 			ucerf1Rate.setName(name);
 			ArbitrarilyDiscretizedFunc cumMFD = UCERF1MfdReader.getUCERF1CumMFD(faultName);
-			if(cumMFD.getNum()==0) cumMFD.set(0.0, 0.0);
+			if(cumMFD.size()==0) cumMFD.set(0.0, 0.0);
 			cumMFD.setName(name);
 			aFaultCumRateFuncList.get(i).add(cumMFD);
 		}
@@ -321,7 +321,7 @@ public class UCERF1ComparisonPlotter {
 			//System.out.println("i="+i+", Funclist size="+funcList.size());
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
 			XY_DataSet func = funcList.get(0);
-			for(int imag=0; imag<func.getNum(); ++imag) {
+			for(int imag=0; imag<func.size(); ++imag) {
 				// D2.1
 				double val1 = 0.225*funcList.get(0).getY(imag) + 0.225*funcList.get(1).getY(imag) + 
 						0.225*funcList.get(2).getY(imag) + 0.225*funcList.get(3).getY(imag) + 
@@ -423,7 +423,7 @@ public class UCERF1ComparisonPlotter {
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
 			XY_DataSet func = funcList.get(0);
 			
-			for(int imag=0; imag<func.getNum(); ++imag) 
+			for(int imag=0; imag<func.size(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 
 						0.3*funcList.get(0).getY(imag) + 0.3*funcList.get(1).getY(imag)+
 						0.1*funcList.get(2).getY(imag) + 0.1*funcList.get(3).getY(imag)+
@@ -442,11 +442,11 @@ public class UCERF1ComparisonPlotter {
 		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
 			String faultName = bFaultNames[i];
 			ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
-			if(ucerf1Rate.getNum()==0) ucerf1Rate.set(0.0, 0.0);
+			if(ucerf1Rate.size()==0) ucerf1Rate.set(0.0, 0.0);
 			bFaultIncrRateFuncList.get(i).add(ucerf1Rate);
 			ucerf1Rate.setName(name);
 			ArbitrarilyDiscretizedFunc cumMFD = UCERF1MfdReader.getUCERF1CumMFD(faultName);
-			if(cumMFD.getNum()==0) cumMFD.set(0.0, 0.0);
+			if(cumMFD.size()==0) cumMFD.set(0.0, 0.0);
 			cumMFD.setName(name);
 			bFaultCumRateFuncList.get(i).add(cumMFD);
 		}

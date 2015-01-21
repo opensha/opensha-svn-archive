@@ -261,7 +261,7 @@ public class STEP_mainTest extends TestCase {
 		IncrementalMagFreqDist[] magFreqDists = hypoMagDistAtLoc.getMagFreqDistList();
 		double maxVal = 0;
 		for(IncrementalMagFreqDist magFreqDist:magFreqDists){
-			int num = magFreqDist.getNum();
+			int num = magFreqDist.size();
 			for( int index=0; index < num; index++){
 				double mag = magFreqDist.getX(index);
 				double val = magFreqDist.getY(index);

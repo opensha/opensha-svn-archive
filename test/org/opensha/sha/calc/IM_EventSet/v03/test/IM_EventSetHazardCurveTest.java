@@ -144,7 +144,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API {
 		double maxDiff = 0;
 		double maxPDiff = 0;
 		
-		for (int i=0; i<hCurve.getNum(); i++) {
+		for (int i=0; i<hCurve.size(); i++) {
 			Point2D hPt = hCurve.get(i);
 			Point2D rPt = realCurve.get(i);
 			
@@ -183,14 +183,14 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API {
 	
 	private static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFunc arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
-		for (int i = 0; i < arb.getNum(); ++i)
+		for (int i = 0; i < arb.size(); ++i)
 			new_func.set(Math.log(arb.getX(i)), 1);
 		return new_func;
 	}
 	
 	private static ArbitrarilyDiscretizedFunc unLogFunction(
 			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
-		int numPoints = oldHazFunc.getNum();
+		int numPoints = oldHazFunc.size();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		for (int i = 0; i < numPoints; ++i) {
 			hazFunc.set(oldHazFunc.getX(i), logHazFunction.getY(i));

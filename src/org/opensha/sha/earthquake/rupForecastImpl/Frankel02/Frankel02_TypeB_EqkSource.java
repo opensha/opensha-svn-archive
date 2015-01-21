@@ -141,7 +141,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 		// get a list of mags and rates for non-zero rates
 		mags = new ArrayList();
 		rates = new ArrayList();
-		for (int i=0; i<magFreqDist.getNum(); ++i){
+		for (int i=0; i<magFreqDist.size(); ++i){
 			if(magFreqDist.getY(i) > 0){
 				//magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
 				mags.add(new Double(magFreqDist.getX(i)));

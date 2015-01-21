@@ -185,7 +185,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	public double getDelta() { return delta; }
 
 	/** Returns the number of points in this series */
-	public int getNum(){ return num; }
+	public int size(){ return num; }
 
 
 	/**
@@ -257,7 +257,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * into the y-points array.  The index is based along the x-axis.
 	 */
 	public Point2D get(int index){
-		if (index < 0 || index >= getNum())
+		if (index < 0 || index >= size())
 			return null;
 		return new Point2D.Double(getX(index), getY(index));
 	}
@@ -599,7 +599,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
 		if (x >= maxX)
-			return getY(getNum()-1);
+			return getY(size()-1);
 		
 		int x1Ind = getIndexBefore(x);
 		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
@@ -648,7 +648,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	public double getClosestY(double x) {
 		// TODO unit test
 		if (x >= maxX)
-			return getY(getNum()-1);
+			return getY(size()-1);
 		if (x <= minX)
 			return getY(0);
 		int ind = getIndexBefore(x);
@@ -675,7 +675,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
 		if (x >= maxX)
-			return getY(getNum()-1);
+			return getY(size()-1);
 		
 		int x1Ind = getIndexBefore(x);
 		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
@@ -709,7 +709,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		if(x>maxX+tolerance || x<minX-tolerance)
 			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
 		if (x >= maxX)
-			return getY(getNum()-1);
+			return getY(size()-1);
 		
 		int x1Ind = getIndexBefore(x);
 		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
@@ -765,7 +765,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		//String S = C + ": equalXValues():";
 
 		if( !(function instanceof EvenlyDiscretizedFunc ) ) return false;
-		if( num != function.getNum() ) return false;
+		if( num != function.size() ) return false;
 
 
 		double min = minX;
@@ -836,7 +836,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		StringBuffer b = new StringBuffer()
 			.append("     Name: ").append(getName())
 			.append(IOUtils.LINE_SEPARATOR)
-			.append("   Points: ").append(getNum())
+			.append("   Points: ").append(size())
 			.append(IOUtils.LINE_SEPARATOR)
 			.append("     Info: ").append(getInfo())
 			.append(IOUtils.LINE_SEPARATOR)

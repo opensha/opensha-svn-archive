@@ -48,7 +48,7 @@ public class CustomCurveUploader {
 			CybershakeRun run = runs2db.getRun(runID);
 			ArbitrarilyDiscretizedFunc curve = 
 				ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(file.getAbsolutePath());
-			System.out.println("loaded " + curve.getNum() + " points from "+file.getName());
+			System.out.println("loaded " + curve.size() + " points from "+file.getName());
 			curves.put(run, curve);
 			runs.add(run);
 		}
@@ -73,7 +73,7 @@ public class CustomCurveUploader {
 		
 		for (CybershakeRun run : runs) {
 			ArbitrarilyDiscretizedFunc curve = curves.get(run);
-			System.out.println("About to insert a curve with " + curve.getNum() + " points!");
+			System.out.println("About to insert a curve with " + curve.size() + " points!");
 			
 			int curveID = hc2db.getHazardCurveID(run.getRunID(), hdID, imTypeID);
 			if (curveID < 0) {

@@ -64,11 +64,11 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	 */
 	private void updateCumDistVals() {
 		sumOfYvals=0;
-		for(int i=0;i<getNum();i++) {
+		for(int i=0;i<size();i++) {
 			sumOfYvals += getY(i);
 			cumDistVals[i]=sumOfYvals;
 		}
-		for(int i=0;i<getNum();i++) cumDistVals[i] /= sumOfYvals;
+		for(int i=0;i<size();i++) cumDistVals[i] /= sumOfYvals;
 //		for(int i=0;i<getNum();i++) System.out.println(i+"\t"+cumDistVals[i]);
 	}
 	
@@ -119,7 +119,7 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		
 		// search for the index
 		int indexLow=0;
-		int indexHigh=getNum();
+		int indexHigh=size();
 		long st = System.currentTimeMillis();
 		while(indexHigh-indexLow > 1) {
 			int testIndex = (int)Math.floor((indexHigh+indexLow)/2);
@@ -146,9 +146,9 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 //
 //			}
 		}
-		if(indexHigh == this.getNum()) {
+		if(indexHigh == this.size()) {
 			boolean containsNaNs=false;
-			for(int i=0;i<this.getNum();i++)
+			for(int i=0;i<this.size();i++)
 				if(Double.isNaN(getY(i))) {
 						containsNaNs=true;
 						break;

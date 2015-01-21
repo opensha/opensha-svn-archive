@@ -177,7 +177,7 @@ implements Serializable {
 	}
 
 	/** returns the number of points in this function list */
-	public int getNum(){ return points.size(); }
+	public int size(){ return points.size(); }
 
 	/**
 	 * return the minimum x value along the x-axis. Since the values
@@ -644,7 +644,7 @@ if(debug) {
 	 */
 	public boolean equalXValues(DiscretizedFunc function){
 		// String S = C + ": equalXValues():";
-		if( this.getNum() != function.getNum() ) return false;
+		if( this.size() != function.size() ) return false;
 		Iterator it = this.iterator();
 		while(it.hasNext()) {
 			Point2D point = (Point2D)it.next();
@@ -665,7 +665,7 @@ if(debug) {
 		StringBuffer b = new StringBuffer();
 
 		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
+		b.append("Num Points: " + size() + '\n');
 		b.append("Info: " + getInfo() + "\n\n");
 		b.append("X, Y Data:" + '\n');
 		b.append(getMetadataString()+ '\n');
@@ -719,7 +719,7 @@ if(debug) {
 		Iterator<Point2D> it =iterator();
 		try{
 			s.writeObject(points.getComparator());
-			s.writeObject(new Integer(getNum()));
+			s.writeObject(new Integer(size()));
 			while(it.hasNext()){
 				Point2D data = (Point2D)it.next();
 				//System.out.println("Data: "+data.toString());
@@ -764,12 +764,12 @@ if(debug) {
 	 */
 	public ArbitrarilyDiscretizedFunc getYY_Function(DiscretizedFunc function){
 
-		if(getNum() !=function.getNum())
+		if(size() !=function.size())
 			throw new InvalidRangeException("This operation cannot be performed on functions "+
 			"with different size");
 
 		ArbitrarilyDiscretizedFunc newFunction = new ArbitrarilyDiscretizedFunc();
-		int numPoints = function.getNum();
+		int numPoints = function.size();
 		for(int j=0;j<numPoints;++j)
 			newFunction.set(getY(j),function.getY(j));
 

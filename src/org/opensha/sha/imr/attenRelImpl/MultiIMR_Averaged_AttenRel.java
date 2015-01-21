@@ -674,7 +674,7 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 				funcs.add(imr.getExceedProbabilities((DiscretizedFunc)intensityMeasureLevels.deepClone()));
 			}
 		}
-		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+		for (int i=0; i<intensityMeasureLevels.size(); i++) {
 			double[] vals = new double[imrs.size()];
 			for (int j=0; j<funcs.size(); j++) {
 				DiscretizedFunc func = funcs.get(j);

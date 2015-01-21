@@ -187,7 +187,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener {
 		// remove functions which have 0 elements
 		for(int i=0; i<magAreaFuncs.size(); ++i) {
 			ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)magAreaFuncs.get(i);
-			if(func.getNum()==0) {
+			if(func.size()==0) {
 				magAreaFuncs.remove(i);
 				--i;
 			}

@@ -68,7 +68,7 @@ public class ComponentCalcAndPlotter {
 		
 		ArbitrarilyDiscretizedFunc func = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
 		imlVals = new ArrayList<Double>();
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			imlVals.add(func.getX(i));
 		}
 	}

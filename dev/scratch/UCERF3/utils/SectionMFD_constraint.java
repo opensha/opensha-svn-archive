@@ -622,21 +622,21 @@ public class SectionMFD_constraint {
 	public ArbIncrementalMagFreqDist getResampledToEventlyDiscrMFD(double minMag, int numMag, double deltaMag) {
 		ArbitrarilyDiscretizedFunc cumFunc = getCumMFD();
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, deltaMag);
-		for(int i=0;i<mfd.getNum();i++) {
+		for(int i=0;i<mfd.size();i++) {
 			double magBinLower = mfd.getX(i) - deltaMag/2.0;
 			double magBinUpper = mfd.getX(i) + deltaMag/2.0;
 			double rateLower, rateUpper;
 			
 			if(magBinLower<=cumFunc.getX(0))
 				rateLower = cumFunc.getY(0);
-			else if(magBinLower>cumFunc.getX(cumFunc.getNum()-1))
+			else if(magBinLower>cumFunc.getX(cumFunc.size()-1))
 				rateLower = 0;
 			else
 				rateLower = cumFunc.getInterpolatedY_inLogYDomain(magBinLower);
 			
 			if(magBinUpper<=cumFunc.getX(0))
 				rateUpper = cumFunc.getY(0);
-			else if(magBinUpper>cumFunc.getX(cumFunc.getNum()-1))
+			else if(magBinUpper>cumFunc.getX(cumFunc.size()-1))
 				rateUpper = 0;
 			else
 				rateUpper = cumFunc.getInterpolatedY_inLogYDomain(magBinUpper);

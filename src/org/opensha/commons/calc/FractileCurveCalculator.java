@@ -94,9 +94,9 @@ public class FractileCurveCalculator {
     if(numFunctions==0) throw new RuntimeException(ERROR_LIST);
 
     // check  that all curves in list have same number of X values
-    int numPoints = functionList.get(0).getNum();
+    int numPoints = functionList.get(0).size();
     for(int i=1; i<numFunctions; ++i)
-      if(functionList.get(i).getNum()!=numPoints) throw new RuntimeException(ERROR_POINTS);
+      if(functionList.get(i).size()!=numPoints) throw new RuntimeException(ERROR_POINTS);
 
     this.funcList = functionList;
     this.relativeWeights = relativeWts; // these do not need to be normalized
@@ -127,7 +127,7 @@ public class FractileCurveCalculator {
   public AbstractXY_DataSet getMeanCurve() {
 	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
     double wt, totWt=0;
-    int numPoints = funcList.get(0).getNum();
+    int numPoints = funcList.get(0).size();
     int numFuncs = funcList.size();
     int i, f;
 
@@ -165,12 +165,12 @@ public class FractileCurveCalculator {
 	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
 
     // initialize function to large values
-    for(int i=0;i<result.getNum();i++)
+    for(int i=0;i<result.size();i++)
       result.set(i,Double.MAX_VALUE);
 
     // loop over functions & x-axis values
     for(int f=0;f<funcList.size();f++) {
-       for(int i=0;i<result.getNum();i++) {
+       for(int i=0;i<result.size();i++) {
     	   if(funcList.get(f).getY(i)<result.getY(i))
     		   result.set(i, funcList.get(f).getY(i) );
        }
@@ -191,12 +191,12 @@ public class FractileCurveCalculator {
 	  AbstractXY_DataSet result = (AbstractXY_DataSet) funcList.get(0).deepClone();
 
     // initialize function to large values
-    for(int i=0;i<result.getNum();i++)
+    for(int i=0;i<result.size();i++)
       result.set(i,-Double.MAX_VALUE);
 
     // loop over functions & x-axis values
     for(int f=0;f<funcList.size();f++) {
-       for(int i=0;i<result.getNum();i++) {
+       for(int i=0;i<result.size();i++) {
     	   if(funcList.get(f).getY(i)>result.getY(i))
     		   result.set(i, funcList.get(f).getY(i) );
        }

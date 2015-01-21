@@ -842,7 +842,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends AbstractERF{
 
       if(D) {
         System.out.println(totalMagFreqDist);
-        for(int n=0;n< totalMagFreqDist.getNum();n++)
+        for(int n=0;n< totalMagFreqDist.size();n++)
           System.out.println("\t"+(float)totalMagFreqDist.getX(n)+"  "+(float)totalMagFreqDist.getY(n));
       }
 

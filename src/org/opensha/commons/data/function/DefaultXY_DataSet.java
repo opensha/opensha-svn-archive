@@ -128,7 +128,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public int getNum() {
+	public int size() {
 		return points.size();
 	}
 
@@ -194,7 +194,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 		//Iterator it2 = this.iterator();
 
 		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
+		b.append("Num Points: " + size() + '\n');
 		b.append("Info: " + getInfo() + "\n\n");
 		b.append("X, Y Data:" + '\n');
 		b.append(getMetadataString()+ '\n');

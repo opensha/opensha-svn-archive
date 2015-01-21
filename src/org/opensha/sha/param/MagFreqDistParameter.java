@@ -630,7 +630,7 @@ implements java.io.Serializable
 			EvenlyDiscretizedFunc func =(EvenlyDiscretizedFunc)evenlyDiscrtizedFunc.getValue();
 			double min = func.getMinX();
 			double max = func.getMaxX();
-			int num = func.getNum();
+			int num = func.size();
 			ArbIncrementalMagFreqDist arbMagDist = new ArbIncrementalMagFreqDist(min,max,num);
 			for(int i=0;i<num;++i)
 				arbMagDist.set(func.getX(i),func.getY(i));

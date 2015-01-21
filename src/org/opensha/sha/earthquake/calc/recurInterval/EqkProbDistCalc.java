@@ -123,9 +123,9 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 
 	public EvenlyDiscretizedFunc getHazFunc() {
 		if(!upToDate) computeDistributions();
-		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(0, pdf.getMaxX(), pdf.getNum());
+		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(0, pdf.getMaxX(), pdf.size());
 		double haz;
-		for(int i=0;i<hazFunc.getNum();i++) {
+		for(int i=0;i<hazFunc.size();i++) {
 			haz = pdf.getY(i)/(1.0-cdf.getY(i));
 			if(Double.isInfinite(haz) || Double.isInfinite(-haz)) haz = Double.NaN;
 			hazFunc.set(i,haz);
@@ -146,7 +146,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		int numPts = numPoints - (int)(duration/deltaX+1);
 //System.out.println("numPts="+numPts+"\t"+duration);
 		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
-		for(int i=0;i<condFunc.getNum();i++) {
+		for(int i=0;i<condFunc.size();i++) {
 			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
 		}
 		condFunc.setName(NAME+" Conditional Probability Function");
@@ -289,7 +289,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		if(!upToDate) computeDistributions();
 		
 		deltaX_Param.setValue(dist.getDelta()/2);	// increase discretization here just to be safe
-		numPointsParam.setValue(dist.getNum()*2+1);	// vals start from zero whereas passed in histograms might start at delta/2
+		numPointsParam.setValue(dist.size()*2+1);	// vals start from zero whereas passed in histograms might start at delta/2
 		double bestMean=0;
 		double bestAper=0;
 		double best_rms=Double.MAX_VALUE;
@@ -301,7 +301,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 				aperiodicityParam.setValue(minAper+c*deltaAper);
 				EvenlyDiscretizedFunc pdf = this.getPDF();
 				double rms=0;
-				for(int i=0;i<dist.getNum()-1;i++) {
+				for(int i=0;i<dist.size()-1;i++) {
 					double diff=(dist.getY(i)-pdf.getInterpolatedY(dist.getX(i)));
 					rms += diff*diff;
 				}
@@ -346,7 +346,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 			double denom2=0;
 			EvenlyDiscretizedFunc condProbFunc = getCondProbFunc();
 			int firstIndex = condProbFunc.getClosestXIndex(histOpenInterval);
-			for(int i=firstIndex;i<condProbFunc.getNum();i++) {
+			for(int i=firstIndex;i<condProbFunc.size();i++) {
 				double probOfTimeSince = (1-cdf.getY(i));
 				if(i==firstIndex)
 					probOfTimeSince *= ((cdf.getX(i)+deltaX/2.0) - histOpenInterval)/deltaX;	// fraction of first bin
@@ -360,7 +360,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 			
 			double numer3=0;
 			int numIndicesForDuration = (int)Math.round(duration/cdf.getDelta());
-			for(int i=firstIndex;i<cdf.getNum()-numIndicesForDuration;i++) {
+			for(int i=firstIndex;i<cdf.size()-numIndicesForDuration;i++) {
 				numer3 += (cdf.getY(i+numIndicesForDuration)-cdf.getY(i))*cdf.getDelta();
 			}
 			double result3 = (numer3/denom2);
@@ -417,7 +417,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		EvenlyDiscretizedFunc timeSinceLastPDF = new EvenlyDiscretizedFunc(0.0, numPoints , deltaX);
 		double normDenom=0;
 		int firstIndex = timeSinceLastPDF.getClosestXIndex(histOpenInterval);
-		for(int i=firstIndex;i<timeSinceLastPDF.getNum();i++) {
+		for(int i=firstIndex;i<timeSinceLastPDF.size();i++) {
 			double probOfTimeSince = (1-cdf.getY(i));
 			timeSinceLastPDF.set(i,probOfTimeSince);
 			normDenom+=probOfTimeSince; 
@@ -448,7 +448,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public static double computeMeanFromPDF(EvenlyDiscretizedFunc pdf) {
 		double result = 0;
 		double normDenom=0;
-		for(int i=0;i<pdf.getNum();i++) {
+		for(int i=0;i<pdf.size();i++) {
 			result += pdf.getX(i)*pdf.getY(i);
 			normDenom += pdf.getY(i);
 		}

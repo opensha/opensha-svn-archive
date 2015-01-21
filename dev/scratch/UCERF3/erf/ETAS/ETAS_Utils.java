@@ -186,7 +186,7 @@ public class ETAS_Utils {
 		graph.setYLog(true);
 
 		EvenlyDiscretizedFunc testLogFunction = new EvenlyDiscretizedFunc(histLogMinDistKm,histLogMaxDistKm,histNum);
-		for(int i=0;i<testLogFunction.getNum();i++) {
+		for(int i=0;i<testLogFunction.size();i++) {
 			double dist = Math.pow(10d, testLogFunction.getX(i));
 			testLogFunction.set(i,getHardebeckDensity(dist, ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT, 24d));
 		}
@@ -239,7 +239,7 @@ public class ETAS_Utils {
 		double lowerBinEdge;
 		double binWt = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);	// everything within the upper edge of first bin
 		logTargetDecay.set(0,binWt);
-		for(int i=1;i<logTargetDecay.getNum();i++) {
+		for(int i=1;i<logTargetDecay.size();i++) {
 			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
 			lowerBinEdge = Math.pow(10,logLowerEdge);
 			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
@@ -267,7 +267,7 @@ public class ETAS_Utils {
 	 */
 	public static EvenlyDiscretizedFunc getDecayFractionInsideDistFunc(double minLogDist, double maxLogDist, int num, double distDecay, double minDist) {
 		EvenlyDiscretizedFunc logTargetDecay = new EvenlyDiscretizedFunc(minLogDist,maxLogDist,num);
-		for(int i=0;i<logTargetDecay.getNum();i++) {
+		for(int i=0;i<logTargetDecay.size();i++) {
 			logTargetDecay.set(i,getDecayFractionInsideDistance(distDecay, minDist, Math.pow(10d,logTargetDecay.getX(i))));
 		}
 		logTargetDecay.setName("logTargetDecay");
@@ -440,7 +440,7 @@ public class ETAS_Utils {
 	 */
 	public static  EvenlyDiscretizedFunc getNumWithTimeFunc(double k, double p, double magMain, double magMin, double c, double tMin, double tMax, double tDelta) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
-		for(int i=0;i<func.getNum();i++) {
+		for(int i=0;i<func.size();i++) {
 			double binTmin = func.getX(i) - tDelta/2;
 			double binTmax = func.getX(i) + tDelta/2;
 			double yVal = getExpectedNumEvents(k, p, magMain, magMin, c, binTmin, binTmax);
@@ -473,7 +473,7 @@ public class ETAS_Utils {
 	public static HistogramFunction getNumWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
 			double log_tMax, double log_tDelta) {
 		HistogramFunction func = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
-		for(int i=0;i<func.getNum();i++) {
+		for(int i=0;i<func.size();i++) {
 			double binTmin = Math.pow(10, func.getX(i) - log_tDelta/2);
 			double binTmax = Math.pow(10, func.getX(i) + log_tDelta/2);
 			double yVal = getExpectedNumEvents(k, p, magMain, magMin, c, binTmin, binTmax);
@@ -523,7 +523,7 @@ public class ETAS_Utils {
 		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 		for(int j=0;j<distDecayArray.length;j++) {
 			EvenlyDiscretizedFunc cumDecayFunc = new EvenlyDiscretizedFunc(-3d,25,0.25);
-			for(int i=0;i<cumDecayFunc.getNum();i++) {
+			for(int i=0;i<cumDecayFunc.size();i++) {
 				double dist = Math.pow(10d, cumDecayFunc.getX(i));
 				cumDecayFunc.set(i,getDecayFractionInsideDistance(distDecayArray[j], minDistArray[j], dist));
 			}
@@ -626,19 +626,19 @@ public class ETAS_Utils {
 		// each magnitude has an equal number of expected
 		
 		double expNumGR = 0;
-		for(int i=0;i<gr.getNum();i++) {
+		for(int i=0;i<gr.size();i++) {
 			double mag = gr.getX(i);
 			expNumGR += gr.getY(i)*Math.pow(10, mag);
 		}
 		
 		double expNumSubSeis = 0;
-		for(int i=0;i<subSeisMFD.getNum();i++) {
+		for(int i=0;i<subSeisMFD.size();i++) {
 			double mag = subSeisMFD.getX(i);
 			expNumSubSeis += subSeisMFD.getY(i)*Math.pow(10, mag);
 		}
 
 		double expNumSupraSeis = 0;
-		for(int i=0;i<supraSeisMFD.getNum();i++) {
+		for(int i=0;i<supraSeisMFD.size();i++) {
 			double mag = supraSeisMFD.getX(i);
 			expNumSupraSeis += supraSeisMFD.getY(i)*Math.pow(10, mag);
 		}

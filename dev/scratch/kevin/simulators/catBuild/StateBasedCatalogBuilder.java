@@ -499,9 +499,9 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			if ((rupCount + noRupCount) > 1)
 				numStatesWithMulti++;
 			
-			if (noRupCount < noRupCounts.getNum())
+			if (noRupCount < noRupCounts.size())
 				noRupCounts.add(noRupCount, 1d);
-			if (rupCount < rupCounts.getNum())
+			if (rupCount < rupCounts.size())
 				rupCounts.add(rupCount, 1d);
 			allCounts.add(rupCount+noRupCount, 1d);
 		}

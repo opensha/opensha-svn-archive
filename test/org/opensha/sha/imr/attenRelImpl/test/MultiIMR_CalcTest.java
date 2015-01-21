@@ -327,7 +327,7 @@ public class MultiIMR_CalcTest {
 
 		int perfectMatches = 0;
 
-		for (int j=0; j<multiCurve.getNum(); j++) {
+		for (int j=0; j<multiCurve.size(); j++) {
 			double x = multiCurve.getX(j);
 			double yMulti = multiCurve.getY(j);
 			double ySingleAvg = averageCurve.getY(j);
@@ -360,7 +360,7 @@ public class MultiIMR_CalcTest {
 		System.out.println("********* " + meta + " *********");
 		System.out.println("Percent differences between MultiIMR value and averaged single values " +
 				"(for each hazard curve x value):\n" + tracker1);
-		System.out.println(perfectMatches+"/"+multiCurve.getNum()+" non zero curve points match EXACTLY");
+		System.out.println(perfectMatches+"/"+multiCurve.size()+" non zero curve points match EXACTLY");
 		System.out.println("********************************************************");
 
 	}
@@ -390,7 +390,7 @@ public class MultiIMR_CalcTest {
 		MinMaxAveTracker tracker1 = new MinMaxAveTracker();
 		MinMaxAveTracker tracker2 = new MinMaxAveTracker();
 
-		for (int j=0; j<curve1.getNum(); j++) {
+		for (int j=0; j<curve1.size(); j++) {
 
 			double y1 = curve1.getY(j);
 			double y2 = curve2.getY(j);
@@ -464,7 +464,7 @@ public class MultiIMR_CalcTest {
 		hc.getHazardCurve(cb08Func, site, cb08_master, erf);
 		hc.getHazardCurve(ba08Func, site, ba08_master, erf);
 
-		int numVals = multiFunc.getNum();
+		int numVals = multiFunc.size();
 		int numEqualCB = 0;
 		int numEqualBA = 0;
 

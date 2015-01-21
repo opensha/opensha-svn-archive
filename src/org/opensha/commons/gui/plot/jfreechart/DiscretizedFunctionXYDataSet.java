@@ -168,7 +168,7 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
 		int num = -1;
 		if ( series < functions.size() ) {
 			XY_DataSet f = functions.get( series );
-			num = f.getNum();
+			num = f.size();
 			if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero( f, xLog, yLog) ) num -= 1;
 		}
 		return num;

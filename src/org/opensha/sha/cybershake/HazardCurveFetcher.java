@@ -124,7 +124,7 @@ public class HazardCurveFetcher {
 	public void writeCurveToFile(DiscretizedFunc curve, String fileName) throws IOException {
 		FileWriter fw = new FileWriter(fileName);
 		
-		for (int i = 0; i < curve.getNum(); ++i)
+		for (int i = 0; i < curve.size(); ++i)
 			fw.write(curve.getX(i) + " " + curve.getY(i) + "\n");
 		
 		fw.close();

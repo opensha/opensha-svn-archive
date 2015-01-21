@@ -152,7 +152,7 @@ public class NonCA_FaultsFetcher  implements java.io.Serializable {
 				if(srcTypeId == 1) {
 					// reduce rates in MFD
 					IncrementalMagFreqDist modMagFreqDist = charMFD.deepClone();
-					for(int magIndex=0; magIndex<modMagFreqDist.getNum() && empiricalModel!=null; ++magIndex) {
+					for(int magIndex=0; magIndex<modMagFreqDist.size() && empiricalModel!=null; ++magIndex) {
 						modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
 					}
 					FaultRuptureSource frs = new FaultRuptureSource(modMagFreqDist,surface, rake,duration);
@@ -163,7 +163,7 @@ public class NonCA_FaultsFetcher  implements java.io.Serializable {
 				}
 				else {// reduce rates in MFD
 					IncrementalMagFreqDist modMagFreqDist = grMFD.deepClone();
-					for(int magIndex=0; magIndex<modMagFreqDist.getNum() && empiricalModel!=null; ++magIndex) {
+					for(int magIndex=0; magIndex<modMagFreqDist.size() && empiricalModel!=null; ++magIndex) {
 						modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
 					}
 					Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(modMagFreqDist,surface,

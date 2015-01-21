@@ -115,7 +115,7 @@ public class UC33_NicoUtils {
 						if (mapFunc == null) {
 							cityMap.put(city, addFunc);
 						} else {
-							for (int i=0; i<mapFunc.getNum(); i++) {
+							for (int i=0; i<mapFunc.size(); i++) {
 								mapFunc.set(i, mapFunc.getY(i) + addFunc.getY(i));
 							}
 						}
@@ -136,13 +136,13 @@ public class UC33_NicoUtils {
 				
 				// add cascadia curve
 				DiscretizedFunc cascFunc = readCurve(city, p, "casc");
-				for (int i=0; i<cascFunc.getNum(); i++) {
+				for (int i=0; i<cascFunc.size(); i++) {
 					cityCurve.set(i, cityCurve.getY(i) + cascFunc.getY(i));
 				}
 					
 				// add deep curve
 				DiscretizedFunc deepFunc = readCurve(city, p, "deep");
-				for (int i=0; i<deepFunc.getNum(); i++) {
+				for (int i=0; i<deepFunc.size(); i++) {
 					cityCurve.set(i, cityCurve.getY(i) + deepFunc.getY(i));
 				}
 				
@@ -211,13 +211,13 @@ public class UC33_NicoUtils {
 				
 				// add cascadia curve
 				DiscretizedFunc cascFunc = readCurve(city, p, "casc");
-				for (int i=0; i<cascFunc.getNum(); i++) {
+				for (int i=0; i<cascFunc.size(); i++) {
 					cityCurve.set(i, cityCurve.getY(i) + cascFunc.getY(i));
 				}
 					
 				// add deep curve
 				DiscretizedFunc deepFunc = readCurve(city, p, "deep");
-				for (int i=0; i<deepFunc.getNum(); i++) {
+				for (int i=0; i<deepFunc.size(); i++) {
 					cityCurve.set(i, cityCurve.getY(i) + deepFunc.getY(i));
 				}
 				

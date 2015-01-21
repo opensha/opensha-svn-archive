@@ -110,9 +110,9 @@ public class AsciiFileCurveArchiver implements CurveResultsArchiver {
 		if (file.exists()) {
 			try {
 				DiscretizedFunc func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(outFileName);
-				if (func.getNum() == xVals.getNum()) {
+				if (func.size() == xVals.size()) {
 					boolean match = true;
-					for (int i=0; i<func.getNum(); i++) {
+					for (int i=0; i<func.size(); i++) {
 						if (func.getX(i) != xVals.getX(i)) {
 							match = false;
 							break;

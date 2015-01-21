@@ -102,7 +102,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		 
 		//get first mag freq distrribution
 		IncrementalMagFreqDist hypoMagFreqDist0 = hypoMagFreqDist[0];
-		int num = hypoMagFreqDist0.getNum(); //1
+		int num = hypoMagFreqDist0.size(); //1
 		//logger.info("num " +  num);
 		//2. there is only 1 mag 
 		assertEquals("there is only 1 mag ", 1,num );
@@ -156,7 +156,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		 
 		//get first mag freq distrribution
 		IncrementalMagFreqDist hypoMagFreqDist0 = hypoMagFreqDist[0];
-		int num = hypoMagFreqDist0.getNum(); //1
+		int num = hypoMagFreqDist0.size(); //1
 		logger.info("num " +  num);
 		//2. there is only 1 mag 
 		assertEquals("there are 41 mag ", 41,num );

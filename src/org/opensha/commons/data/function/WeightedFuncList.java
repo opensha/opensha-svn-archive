@@ -183,8 +183,8 @@ public class WeightedFuncList {
 		// check  that all curves in list have same number of X values
 		int listSize= functionList.size();
 		if(listSize !=0){
-			int numPoints = ((DiscretizedFunc)functionList.get(0)).getNum();
-			if(function.getNum()!=numPoints)
+			int numPoints = ((DiscretizedFunc)functionList.get(0)).size();
+			if(function.size()!=numPoints)
 				return false;
 		}
 		return true;

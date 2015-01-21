@@ -41,14 +41,14 @@ public class SeisDepthDistribution {
 		depthDistFunc.setName("Depth Distribution Function");
 		
 		HistogramFunction histFunc = new HistogramFunction(0.05, 240,0.1);
-		for(int i=0;i<histFunc.getNum();i++)
+		for(int i=0;i<histFunc.size();i++)
 			histFunc.set(i,depthDistFunc.getInterpolatedY(histFunc.getX(i)));
 		
 		cumHistFunc = histFunc.getCumulativeDistFunctionWithHalfBinOffset();
 		cumHistFunc.scale(1.0/cumHistFunc.getMaxY());
 		
 		inverseCumDepthDistFunc = new ArbitrarilyDiscretizedFunc();
-		for(int i=0;i<cumHistFunc.getNum();i++) {
+		for(int i=0;i<cumHistFunc.size();i++) {
 			inverseCumDepthDistFunc.set(cumHistFunc.getY(i),cumHistFunc.getX(i));
 		}
 		
@@ -98,7 +98,7 @@ public class SeisDepthDistribution {
 	public void plotBinnedDepthDistribution() {
 		double delta=2;
 		HistogramFunction binnedDepthDistFunc = new HistogramFunction(1d, 12,delta);
-		for(int i=0;i<binnedDepthDistFunc.getNum();i++) {
+		for(int i=0;i<binnedDepthDistFunc.size();i++) {
 			double prob = getProbBetweenDepths(binnedDepthDistFunc.getX(i)-delta/2d,binnedDepthDistFunc.getX(i)+delta/2d);
 			binnedDepthDistFunc.set(i,prob);
 		}

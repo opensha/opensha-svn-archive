@@ -97,7 +97,7 @@ public class FatalityDollarsScatterPlot {
 			DiscretizedFunc[] fatalityGridded = fatalityFetch.getGriddedMagLossDists(attenRelRef, null);
 			DiscretizedFunc[] dollarGridded = dollarFetch.getGriddedMagLossDists(attenRelRef, null);
 			for (int i=0; i<fatalityGridded.length; i++)
-				for (int j=0; j<fatalityGridded[i].getNum(); j++)
+				for (int j=0; j<fatalityGridded[i].size(); j++)
 					xy.set(dollarGridded[i].getY(j)*dollarScale, fatalityGridded[i].getY(j)*fatalityScale);
 		}
 		

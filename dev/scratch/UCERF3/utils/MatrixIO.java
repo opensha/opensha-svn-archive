@@ -504,7 +504,7 @@ public class MatrixIO {
 		List<double[]> arrays = Lists.newArrayList();
 		// pack as xvals, yvals and save as array list
 		for (DiscretizedFunc func : funcs) {
-			int num = func.getNum();
+			int num = func.size();
 			double[] xVals = new double[num];
 			double[] yVals = new double[num];
 			for (int i=0; i<num; i++) {

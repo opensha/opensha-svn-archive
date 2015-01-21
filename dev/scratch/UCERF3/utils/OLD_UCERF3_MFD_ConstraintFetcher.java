@@ -317,9 +317,9 @@ public class OLD_UCERF3_MFD_ConstraintFetcher {
 		EvenlyDiscretizedFunc withAftCum = UCERF2.getObsCumMFD(true).get(0);
 		EvenlyDiscretizedFunc noAftCum = UCERF2.getObsCumMFD(false).get(0);
 		double min = noAftCum.getX(0)+noAftCum.getDelta()/2.0;
-		double max = noAftCum.getX(noAftCum.getNum()-1)-noAftCum.getDelta()/2.0;
-		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(min, max, noAftCum.getNum()-1);
-		for(int i=0;i<withAftCum.getNum()-1;i++) {
+		double max = noAftCum.getX(noAftCum.size()-1)-noAftCum.getDelta()/2.0;
+		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(min, max, noAftCum.size()-1);
+		for(int i=0;i<withAftCum.size()-1;i++) {
 			double mag = (withAftCum.getX(i)+withAftCum.getX(i+1))/2;
 			double with = withAftCum.getY(i)-withAftCum.getY(i+1);
 			double wOut = noAftCum.getY(i)-noAftCum.getY(i+1);

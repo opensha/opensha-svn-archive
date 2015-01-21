@@ -595,7 +595,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    double stdDev = getStdDev();
 	    double mean = getMean();
 
-	    for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+	    for (int i=0; i<intensityMeasureLevels.size(); i++) {
 			double x = intensityMeasureLevels.getX(i);
 			double y = getExceedProbability(mean, stdDev, x);
 			intensityMeasureLevels.set(i, y);

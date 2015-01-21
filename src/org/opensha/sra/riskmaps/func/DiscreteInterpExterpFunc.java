@@ -325,7 +325,7 @@ public class DiscreteInterpExterpFunc extends DiscreteFunction {
 	}
 	
 	public static DiscreteInterpExterpFunc fromArbDistFunc(DiscretizedFunc func) {
-		int size = func.getNum();
+		int size = func.size();
 		double xVals[] = new double[size];
 		double yVals[] = new double[size];
 		

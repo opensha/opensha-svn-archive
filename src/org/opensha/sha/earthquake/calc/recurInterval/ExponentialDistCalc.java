@@ -119,7 +119,7 @@ public final class ExponentialDistCalc extends EqkProbDistCalc implements Parame
 		double rate= 1/mean;
 		double t;
 		
-		for(int i=0; i< pdf.getNum(); i++) { // skip first point because it's NaN
+		for(int i=0; i< pdf.size(); i++) { // skip first point because it's NaN
 			t = pdf.getX(i);
 			pdf.set(i,rate*Math.exp(-t*rate));
 			cdf.set(i,1-Math.exp(-t*rate));

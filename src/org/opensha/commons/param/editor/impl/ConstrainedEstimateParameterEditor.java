@@ -408,7 +408,7 @@ ParameterChangeFailListener, ActionListener{
 	// set the values in discrete value estimate
 	private void setDiscreteEstimateVals(DiscreteValueEstimate discreteValEst) {
 		this.chooseEstimateParam.setValue(DiscreteValueEstimate.NAME);
-		System.out.println("Est has: "+discreteValEst.getValues().getNum());
+		System.out.println("Est has: "+discreteValEst.getValues().size());
 		arbitrarilyDiscFuncParam.setValue(null);
 		this.arbitrarilyDiscFuncParam.setValue(new ArbitrarilyDiscretizedFunc(discreteValEst.getValues()));
 		arbitrarilyDiscFuncParam.getEditor().refreshParamEditor();
@@ -935,7 +935,7 @@ ParameterChangeFailListener, ActionListener{
 	 */
 	private Estimate setDiscreteValueEstimate() {
 		ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
-		if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
+		if(val.size()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
 				MSG_VALUE_MISSING_SUFFIX);
 		try {
 			DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
@@ -953,7 +953,7 @@ ParameterChangeFailListener, ActionListener{
 	 */
 	private Estimate setIntegerEstimate() {
 		ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
-		if(val.getNum()==0)
+		if(val.size()==0)
 			throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+MSG_VALUE_MISSING_SUFFIX);
 		try {
 			IntegerEstimate estimate = new IntegerEstimate(val, true);
@@ -1014,7 +1014,7 @@ ParameterChangeFailListener, ActionListener{
 	 */
 	private Estimate setFractileListEstimate() {
 		ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
-		if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
+		if(val.size()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
 				MSG_VALUE_MISSING_SUFFIX);
 		try {
 			DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
@@ -1050,7 +1050,7 @@ ParameterChangeFailListener, ActionListener{
 
 
 	private void copyFunction(AbstractDiscretizedFunc funcFrom, AbstractDiscretizedFunc funcTo) {
-		int numVals = funcFrom.getNum();
+		int numVals = funcFrom.size();
 		for(int i=0; i < numVals; ++i) funcTo.set(funcFrom.getX(i), funcFrom.getY(i));
 	}
 
