@@ -123,16 +123,6 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public boolean hasPoint(Point2D point) {
-		return func.hasPoint(point);
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return func.hasPoint(x, y);
-	}
-
-	@Override
 	public String getMetadataString() {
 		return func.getMetadataString();
 	}

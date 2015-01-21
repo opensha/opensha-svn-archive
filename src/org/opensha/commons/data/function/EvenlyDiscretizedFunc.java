@@ -867,30 +867,31 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		return b.toString();
 	}
 
-	/**
-	 * Returns true if the x value is withing tolerance of an x-value in this list,
-	 * and the y value is equal to y value in the list.
-	 */
-	public boolean hasPoint(Point2D point){
-		return point != null && hasPoint(point.getX(),point.getY());
-	}
-
-	/**
-	 * Returns true if the x value is withing tolerance of an x-value in this list,
-	 * and the y value is equal to y value in the list.
-	 */
-	public boolean hasPoint(double x, double y){
-		try {
-			int index = getXIndex( x );
-			if (index < 0)
-				return false;
-			double yVal = this.getY(index);
-			if(Double.isNaN(yVal)|| yVal!=y) return false;
-			return true;
-		} catch(Point2DException e) {
-			return false;
-		}
-	}
+	// old implementations, replaced by hasX(double) in parent abstract class
+//	/**
+//	 * Returns true if the x value is withing tolerance of an x-value in this list,
+//	 * and the y value is equal to y value in the list.
+//	 */
+//	public boolean hasPoint(Point2D point){
+//		return point != null && hasPoint(point.getX(),point.getY());
+//	}
+//
+//	/**
+//	 * Returns true if the x value is withing tolerance of an x-value in this list,
+//	 * and the y value is equal to y value in the list.
+//	 */
+//	public boolean hasPoint(double x, double y){
+//		try {
+//			int index = getXIndex( x );
+//			if (index < 0)
+//				return false;
+//			double yVal = this.getY(index);
+//			if(Double.isNaN(yVal)|| yVal!=y) return false;
+//			return true;
+//		} catch(Point2DException e) {
+//			return false;
+//		}
+//	}
 
 	/** Returns the index of this DataPoint based on it's x any y value
 	 *  both the x-value and y-values in list should match with that of point

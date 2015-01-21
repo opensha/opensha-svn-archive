@@ -99,6 +99,11 @@ Named,java.io.Serializable{
 		tolerance = newTolerance;
 	}
 	
+	@Override
+	public boolean hasX(double x) {
+		return getXIndex(x) >= 0;
+	}
+	
 	private boolean areBothNull(String first, String second) {
 		return first == null && second == null;
 	}

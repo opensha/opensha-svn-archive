@@ -279,26 +279,6 @@ implements Serializable {
 	}
 
 	/**
-	 * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
-	 * Returns true if found, else false if point not in list.
-	 */
-	public boolean hasPoint(Point2D point){
-		int index = getIndex(point);
-		if( index < 0 ) return false;
-		else return true;
-	}
-
-	/**
-	 * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
-	 * Returns true if found, else false if point not in list.
-	 */
-	public boolean hasPoint(double x, double y){
-		return hasPoint( new Point2D.Double(x, y) );
-	}
-
-
-
-	/**
 	 * Returns an iterator over all datapoints in the list. Results returned
 	 * in sorted order. Returns null if no points present.
 	 * @return
@@ -637,22 +617,23 @@ if(debug) {
 
 	}
 
-	/**
-	 * Determines if two functions are the same by comparing
-	 * that each point x value is the same. This requires
-	 * the two lists to have the same number of points.
-	 */
-	public boolean equalXValues(DiscretizedFunc function){
-		// String S = C + ": equalXValues():";
-		if( this.size() != function.size() ) return false;
-		Iterator it = this.iterator();
-		while(it.hasNext()) {
-			Point2D point = (Point2D)it.next();
-			if( !function.hasPoint( point ) ) return false;
-		}
-		return true;
-
-	}
+	// not used, can resurrect using hasX if needed
+//	/**
+//	 * Determines if two functions are the same by comparing
+//	 * that each point x value is the same. This requires
+//	 * the two lists to have the same number of points.
+//	 */
+//	public boolean equalXValues(DiscretizedFunc function){
+//		// String S = C + ": equalXValues():";
+//		if( this.size() != function.size() ) return false;
+//		Iterator it = this.iterator();
+//		while(it.hasNext()) {
+//			Point2D point = (Point2D)it.next();
+//			if( !function.hasPoint( point ) ) return false;
+//		}
+//		return true;
+//
+//	}
 
 
 

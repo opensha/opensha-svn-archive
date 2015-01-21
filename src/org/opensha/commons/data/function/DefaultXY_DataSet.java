@@ -143,16 +143,6 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public boolean hasPoint(Point2D point) {
-		return points.contains(point);
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return hasPoint(new Point2D.Double(x, y));
-	}
-
-	@Override
 	public void set(Point2D point) throws Point2DException {
 		points.add(point);
 		xStats.addValue(point.getX());
@@ -219,6 +209,14 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 		return b.toString();
 	}
 
+	@Override
+	public boolean hasX(double x) {
+		// potentially slow, but calling points.contains(...) will check y values as well and isn't correct
+		for (Point2D pt : this)
+			if (pt.getX() == x)
+				return true;
+		return false;
+	}
 
 
 }

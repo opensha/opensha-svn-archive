@@ -115,22 +115,12 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	/* **********/
 	/* Queries  */
 	/* **********/
-
+	
 	/**
-	 * Determine wheither a point exists in the list,
-	 * as determined by it's x-value within tolerance.
-	 * 
-	 * Will return false if given a null value.
+	 * Determine whether a point exists in the list,
+	 * as determined by it's x-value within tolerance (if applicable).
 	 */
-	public boolean hasPoint(Point2D point);
-
-
-	/**
-	 * Determine wheither a point exists in the list,
-	 * as determined by it's x-value within tolerance.
-	 */
-	public boolean hasPoint(double x, double y);
-
+	public boolean hasX(double x);
 
 
 	/* ************/

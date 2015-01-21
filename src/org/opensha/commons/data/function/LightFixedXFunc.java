@@ -179,16 +179,6 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public boolean hasPoint(Point2D point) {
-		return getIndex(point) >= 0;
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return hasPoint(new Point2D.Double(x, y));
-	}
-
-	@Override
 	public String getMetadataString() {
 		return null;
 	}

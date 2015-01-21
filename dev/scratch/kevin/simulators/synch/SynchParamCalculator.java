@@ -1310,14 +1310,15 @@ public class SynchParamCalculator {
 						scaledCombined.set(pt.getX(), pt.getY());
 					// there should only be coruptures at pt 0;
 					double numCorups = corups.getY(0d);
-					if (ccdf.hasPoint(0d, 0d)) {
+					if (ccdf.hasX(0d)) {
 						// we have a point at zero in the ccdf, just add in the coruptures
 						for (Point2D pt : corups) {
 							if (pt.getY() > 0) {
 								double x = pt.getX();
 								double y = pt.getY();
-								if (scaledCombined.hasPoint(pt))
-									y += scaledCombined.getY(scaledCombined.getXIndex(x));
+								int xInd = scaledCombined.getXIndex(x);
+								if (xInd >= 0)
+									y += scaledCombined.getY(xInd);
 								scaledCombined.set(x, y);
 							}
 						}

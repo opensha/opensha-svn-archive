@@ -667,7 +667,7 @@ public class RuptureCombiner {
 					double meanMag = calcScaledAverage(rates, mags);
 					combinedPt = new Point2D.Double(meanMag, StatUtils.sum(rates));
 				}
-				Preconditions.checkState(!newMFD.hasPoint(combinedPt), "Duplicate!");
+				Preconditions.checkState(!newMFD.hasX(combinedPt.getX()), "Duplicate!");
 				newMFD.set(combinedPt);
 			}
 			combinedMFDs[r] = new LightFixedXFunc(newMFD);

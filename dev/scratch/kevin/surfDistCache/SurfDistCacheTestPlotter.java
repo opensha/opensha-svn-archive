@@ -223,7 +223,7 @@ public class SurfDistCacheTestPlotter {
 			DiscretizedFunc func = funcs.get(i);
 			PlotCurveCharacterstics plotChars = chars.get(i);
 			
-			if (!func.hasPoint(1d, 0d) || func.size() < 2)
+			if (!func.hasX(1d) || func.size() < 2)
 				continue;
 			
 			double serialTime = func.getY(1d);

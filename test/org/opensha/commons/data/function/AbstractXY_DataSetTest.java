@@ -64,7 +64,7 @@ public abstract class AbstractXY_DataSetTest {
 	
 	static double randomXNotContained(XY_DataSet xy) {
 		double val = Double.NaN;
-		while (Double.isNaN(val) || xy.hasPoint(val, 0d))
+		while (Double.isNaN(val) || xy.hasX(val))
 			val = Math.random() * 100d - 50d;
 		return val;
 	}
@@ -426,30 +426,16 @@ public abstract class AbstractXY_DataSetTest {
 	}
 	
 	@Test
-	public void testHasPoint() {
+	public void testHasX() {
 		int num = 100;
 		XY_DataSet xy = newQuickTestDataSet();
 		
-		assertFalse("hasPoint should return false for null", xy.hasPoint(null));
-		
 		for (int i=0; i<num; i++)
-			assertFalse("hasPoint should return false for random vals on empty", xy.hasPoint(Math.random(), Math.random()));
+			assertFalse("hasX should return false for random vals on empty", xy.hasX(Math.random()));
 		
 		xy = newPopulatedDataSet(num, isArbitrarilyDiscretized(), false);
-		for (int i=0; i<num; i++) {
-			double x = xy.getX(i);
-			double y = xy.getY(i);
-			
-			double diffY = randomNotEqualTo(y);
-			
-			assertTrue("hasPoint should return true when given values from getters", xy.hasPoint(new Point2D.Double(x, y)));
-			assertTrue("hasPoint should return true when given values from getters", xy.hasPoint(x, y));
-			if (isArbitrarilyDiscretized()) {
-				//TODO remove this hack!!!!
-				assertTrue("hasPoint should still return true when given a different y value", xy.hasPoint(new Point2D.Double(x, diffY)));
-				assertTrue("hasPoint should still return true when given a different y value", xy.hasPoint(x, diffY));
-			}
-		}
+		for (int i=0; i<num; i++)
+			assertTrue("hasX should return true when given values from getters", xy.hasX(xy.getX(i)));
 	}
 	
 	@Test
@@ -532,7 +518,7 @@ public abstract class AbstractXY_DataSetTest {
 		if (isArbitrarilyDiscretized()) {
 			for (int i=0; i<10; i++) {
 				double newX = 0;
-				while (newX == 0 || xy.hasPoint(newX, 0)) {
+				while (newX == 0 || xy.hasX(newX)) {
 					 newX = Math.random() * 100d - 50d;
 				}
 				double newY = Math.random();
@@ -543,7 +529,7 @@ public abstract class AbstractXY_DataSetTest {
 				if (i % 2 == 0) {
 					int origNum = xy.size();
 					newX = 0;
-					while (newX == 0 || xy.hasPoint(newX, 0)) {
+					while (newX == 0 || xy.hasX(newX)) {
 						 newX = Math.random() * 100d - 50d;
 					}
 					newY = Math.random();
