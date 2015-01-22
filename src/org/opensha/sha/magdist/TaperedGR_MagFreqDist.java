@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.gui.plot.GraphWindow;
 
 /**
@@ -73,8 +71,7 @@ public class TaperedGR_MagFreqDist
    * using the min, max and num we calculate the delta
    */
 
-  public TaperedGR_MagFreqDist(double min, double max, int num) throws
-      XY_DataSetException, InvalidRangeException {
+  public TaperedGR_MagFreqDist(double min, double max, int num) throws InvalidRangeException {
     super(min, max, num);
     
   }
@@ -88,8 +85,7 @@ public class TaperedGR_MagFreqDist
    */
 
   public TaperedGR_MagFreqDist(double bValue, double totCumRate,
-                                     double min, double max, int num) throws
-      XY_DataSetException, InvalidRangeException {
+                                     double min, double max, int num) throws InvalidRangeException {
     super(min, max, num);
     setAllButTotMoRate(min, max, totCumRate, bValue);
   }
@@ -108,9 +104,7 @@ public class TaperedGR_MagFreqDist
 
   public TaperedGR_MagFreqDist(double min, int num, double delta,
                                      double magLower, double magCorner,
-                                     double totMoRate, double bValue) throws
-      InvalidRangeException,
-      Point2DException {
+                                     double totMoRate, double bValue) throws InvalidRangeException {
     super(min, num, delta);
     setAllButTotCumRate(magLower, magCorner, totMoRate, bValue);
   }
@@ -123,8 +117,7 @@ public class TaperedGR_MagFreqDist
    * @param bValue    : b Value
    */
   public void setAllButTotCumRate(double magLower, double magCorner,
-                                  double totMoRate, double bValue) throws
-      Point2DException {
+                                  double totMoRate, double bValue) {
 
     this.magLower = magLower;
     this.magCorner = magCorner;
@@ -142,8 +135,7 @@ public class TaperedGR_MagFreqDist
    */
 
   public void setAllButTotMoRate(double magLower, double magCorner,
-                                 double totCumRate, double bValue) throws
-      Point2DException {
+                                 double totCumRate, double bValue) {
 
     this.magLower = magLower;
     this.magCorner = magCorner;
@@ -165,9 +157,7 @@ public class TaperedGR_MagFreqDist
    * @param bValue        : b value
    */
   public void setAllButCornerMag(double magLower, double totMoRate,
-		  double totCumRate, double bValue) throws
-		  XY_DataSetException,
-		  Point2DException {
+		  double totCumRate, double bValue) {
 	  
 	  this.magLower = magLower;
 	  this.bValue = bValue;
@@ -284,12 +274,12 @@ public class TaperedGR_MagFreqDist
    * private function to set the rate values
    */
 
-  private void calculateRelativeRates() throws Point2DException {
+  private void calculateRelativeRates() {
 
     // checks that magCorner, magLower lie between minX and maxX
     // it also checks that magCorner > magLower
     if (magLower < minX || magLower > maxX)
-      throw new Point2DException(
+      throw new IllegalArgumentException(
           "magLower should lie between minX and maxX");
     if (magLower > magCorner)
       throw new InvalidRangeException("magLower must be < magCorner");
@@ -320,7 +310,7 @@ public class TaperedGR_MagFreqDist
    * @return the cumulative rate at magLower
    */
 
-  public double getTotCumRate() throws Point2DException {
+  public double getTotCumRate() {
     return getCumRate(magLower);
   }
 
@@ -361,7 +351,7 @@ public class TaperedGR_MagFreqDist
    * this function returns String for drawing Legen in JFreechart
    * @return : returns the String which is needed for Legend in graph
    */
-  public String getDefaultInfo() throws Point2DException {
+  public String getDefaultInfo() {
     return ("minMag=" + minX + "; maxMag=" + maxX + "; numMag=" + num +
             "; bValue=" + bValue + "; magLower=" + magLower + "; magCorner=" +
             (float) magCorner +

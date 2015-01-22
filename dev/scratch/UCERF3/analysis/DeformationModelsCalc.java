@@ -24,8 +24,6 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -1873,16 +1871,8 @@ public class DeformationModelsCalc {
 		for(int i=0;i< ucerf3_SmSeisDist.size();i++) {
 			double rate = totObsRate*ucerf3_SmSeisDist.get(i)*1e5;		// increase by 1e5 for rate at zero mag
 			double moRate = aveDefModTotal.get(i);
-			try {
 				gr.setAllButMagUpper(0, moRate, rate, 1.0, false);
 				mMaxData.set(i, gr.getMagUpper());
-			} catch (XY_DataSetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Point2DException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		try {
 			GMT_CA_Maps.plotMagnitudeMap(mMaxData, "Implied Mmax", " " , "AveDefMod_UCERF3_smSeis_ImpliedMmaxMap");

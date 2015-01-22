@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.apache.commons.io.IOUtils;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 import com.google.common.base.Preconditions;
@@ -145,20 +143,20 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 
 	public void set(double min, double max, int num) {
 		if (num <= 0)
-			throw new XY_DataSetException("num points must be > 0");
+			throw new IllegalArgumentException("num points must be > 0");
 
 		if (num == 1 && min != max)
-			throw new XY_DataSetException("min must equal max if num points = 1");
+			throw new IllegalArgumentException("min must equal max if num points = 1");
 
 		if (min > max)
-			throw new XY_DataSetException("min must be less than max");
+			throw new IllegalArgumentException("min must be less than max");
 		else if (min < max)
 			delta = (max - min) / (num - 1);
 		else { // max == min
 			if (num == 1)
 				delta = 0;
 			else
-				throw new XY_DataSetException("num must = 1 if min = max");
+				throw new IllegalArgumentException("num must = 1 if min = max");
 		}
 
 		this.minX = min;
@@ -295,7 +293,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * tolerance of one of the discretized values.
 	 * @see #getClosestXIndex(double)
 	 */
-	public int getXIndex( double x) throws Point2DException{
+	public int getXIndex( double x) {
 		int i = getClosestXIndex(x);
 		double closestX = getX(i);
 		return withinTolerance(x, closestX) ? i : -1;
@@ -315,17 +313,17 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * well outside the range spanned by the function are associated with index
 	 * of the min or max function value as appropriate.
 	 */
-	public int getClosestXIndex( double x) throws Point2DException {
+	public int getClosestXIndex( double x) {
 		double iVal = PRECISION_SCALE * (x - minX) / delta;
 		int i = (delta == 0) ? 0 : (int) Math.round(iVal);
 		return (i<0) ? 0 : (i>=num) ? num-1 : i;
 	}
 
 	/**
-	 * Calls set( x value, y value ). A DataPoint2DException is thrown
+	 * Calls set( x value, y value ). An IllegalArgumentException is thrown
 	 * if the x value is not an x-axis point.
 	 */
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 
 		set( point.getX(), point.getY());
 	}
@@ -335,7 +333,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * calculated, then the y-value is set in it's array. A
 	 * DataPoint2DException is thrown if the x value is not an x-axis point.
 	 */
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		int index = getXIndex( x );
 		points[index] = y;
 	}
@@ -346,10 +344,12 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * calculated, then the y-value is added in it's array.  
 	 * The specified x value is the mid-point of the histogram interval.
 	 * 
-	 * DataPoint2DException is thrown if the x value is not an x-axis point.
+	 * IllegalArgumentException is thrown if the x value is not an x-axis point.
 	 */
-	public void add(double x, double y) throws Point2DException {
+	public void add(double x, double y) {
 		int index = getXIndex( x );
+		if (index < 0)
+			throw new IllegalArgumentException("No point at x="+x);
 		points[index] = y+points[index];
 	}
 
@@ -357,7 +357,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * this function will throw an exception if the index is not
 	 * within the range of 0 to num -1
 	 */
-	public void set(int index, double y) throws Point2DException {
+	public void set(int index, double y) {
 		if( index < 0 || index >= num ) {
 			throw new IndexOutOfBoundsException(C + ": set(): The specified index ("+index+") doesn't match this function domain.");
 		}
@@ -371,9 +371,9 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * this function will throw an exception if the index is not
 	 * within the range of 0 to num -1
 	 */
-	public void add(int index, double y) throws Point2DException {
+	public void add(int index, double y) {
 		if( index < 0 || index > ( num -1 ) ) {
-			throw new Point2DException(C + ": set(): The specified index doesn't match this function domain.");
+			throw new IndexOutOfBoundsException(C + ": set(): The specified index doesn't match this function domain.");
 		}
 		points[index] = y+points[index];
 	}
@@ -585,15 +585,11 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * returns -1 if there is no such value in the list
 	 * */
 	public int getIndex(Point2D point){
-		try {
-			int index= getXIndex( point.getX() );
-			if (index < 0) return -1;
-			double y = this.getY(index);
-			if(y!=point.getY()) return -1;
-			return index;
-		}catch(Point2DException e) {
-			return -1;
-		}
+		int index= getXIndex( point.getX() );
+		if (index < 0) return -1;
+		double y = this.getY(index);
+		if(y!=point.getY()) return -1;
+		return index;
 	}
 
 //	public static void main(String args[]) {

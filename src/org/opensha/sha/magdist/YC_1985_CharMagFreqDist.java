@@ -23,8 +23,6 @@ package org.opensha.sha.magdist;
 import java.awt.geom.Point2D;
 
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 
 
 
@@ -75,7 +73,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * @param num - number of points in distribution
     */
    public YC_1985_CharMagFreqDist(double min,double max,int num)
-                                 throws XY_DataSetException,InvalidRangeException{
+                                 throws InvalidRangeException{
      super(min,max,num);
    }
 
@@ -98,7 +96,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    public YC_1985_CharMagFreqDist(double min,int num,double delta, double magLower,
                               double magUpper, double deltaMagChar, double magPrime,
                               double deltaMagPrime, double bValue, double totMoRate)
-                              throws InvalidRangeException,Point2DException {
+                              throws InvalidRangeException {
      super(min,num,delta);
 
      this.magLower = magLower;
@@ -126,7 +124,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     */
    public YC_1985_CharMagFreqDist(double min,int num,double delta, double deltaMagChar, double magPrime,
                               double deltaMagPrime, double bValue, double totMoRate)
-                              throws InvalidRangeException,Point2DException {
+                              throws InvalidRangeException {
      super(min,num,delta);
      // assumes magLower = minX and magUpper = maxX
      magLower=minX;
@@ -156,7 +154,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
    public void setAllButTotCharRate(double magLower, double magUpper, double deltaMagChar,
                       double magPrime, double deltaMagPrime, double bValue,
-                      double totMoRate) throws Point2DException,InvalidRangeException {
+                      double totMoRate) throws InvalidRangeException {
 
         this.magLower = magLower;
         this.magUpper = magUpper;
@@ -183,7 +181,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
    public void setAllButTotMoRate(double magLower, double magUpper, double deltaMagChar,
                       double magPrime, double deltaMagPrime, double bValue,
-                      double totCharRate) throws Point2DException,InvalidRangeException {
+                      double totCharRate) throws InvalidRangeException {
 
         this.magLower = magLower;
         this.magUpper = magUpper;
@@ -227,7 +225,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * private function to set the rate values
     */
 
-  private void calculateRelativeRates() throws Point2DException,InvalidRangeException{
+  private void calculateRelativeRates() throws InvalidRangeException{
 
 
     // checks that magUpper, magLower, magPrime, deltaMagPrime, and deltaMagChar
@@ -237,7 +235,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     if( deltaMagPrime < 0 )
         throw new InvalidRangeException("deltaMagPrime must be positive");
     if(magLower < minX || magLower > maxX)
-        throw new Point2DException("magLower should lie between minX and maxX");
+        throw new IllegalArgumentException("magLower should lie between minX and maxX");
     if(magLower > magUpper)
         throw new InvalidRangeException("magLower cannot be less than magUpper");
     if(magPrime > magUpper || magPrime < magLower)

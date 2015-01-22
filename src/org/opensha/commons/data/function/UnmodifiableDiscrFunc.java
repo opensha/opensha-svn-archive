@@ -2,7 +2,6 @@ package org.opensha.commons.data.function;
 
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.util.ClassUtils;
 
 public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
@@ -79,12 +78,12 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		setFail();
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		setFail();
 	}
 

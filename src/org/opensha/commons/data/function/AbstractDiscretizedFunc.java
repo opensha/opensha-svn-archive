@@ -90,12 +90,10 @@ Named,java.io.Serializable{
 	 */
 	protected double tolerance = 0.0;
 
-	/**Returns the tolerance of this function. */
+	@Override
 	public double getTolerance() { return tolerance; }
-	/**
-	 * Sets the tolerance of this function. Throws an InvalidRangeException
-	 * if the tolerance is less than zero, an illegal value.
-	 */
+	
+	@Override
 	public void setTolerance(double newTolerance) throws InvalidRangeException {
 		if( newTolerance < 0 )
 			throw new InvalidRangeException("Tolerance must be larger or equal to 0");
@@ -266,6 +264,7 @@ Named,java.io.Serializable{
 	 * Default equals for all Discretized Functions. Determines if two functions
 	 * are the same by comparing that the name, info, and values are the same.
 	 */
+	@Override
 	public boolean equals(Object obj){
 //		if (true)
 //			return true;
@@ -431,6 +430,7 @@ Named,java.io.Serializable{
 		return func;
 	}
 	
+	@Override
 	public double calcSumOfY_Vals() {
 		double sum=0;
 		for(int i=0; i<size();i++) sum += getY(i);

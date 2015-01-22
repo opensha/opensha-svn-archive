@@ -32,7 +32,6 @@ import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.data.Point2DToleranceSortedArrayList;
 import org.opensha.commons.data.Point2DToleranceSortedList;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 import com.google.common.base.Preconditions;
@@ -253,23 +252,25 @@ implements Serializable {
 
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws Point2DException{
+	public void set(Point2D point) {
 		if (!points.add(point))
-			throw new RuntimeException("set called but nothing changed!");
+			throw new IllegalStateException("set called but nothing changed!");
 	}
 
 	/**
 	 * Either adds a new DataPoint, or replaces an existing one, within tolerance,
 	 * created from the input x and y values.
 	 */
-	public void set(double x, double y) throws Point2DException{ set(new Point2D.Double(x,y)); }
+	public void set(double x, double y) {
+		set(new Point2D.Double(x,y));
+	}
 
 
 	/**
 	 * Replaces a y value for an existing point, accessed by index. If no DataPoint exists
 	 * nothing is done.
 	 */
-	public void set(int index, double y) throws Point2DException{
+	public void set(int index, double y) {
 		Point2D point = get(index);
 		if( point != null ) {
 			point.setLocation(point.getX(), y);

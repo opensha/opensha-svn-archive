@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.dom4j.Element;
-import org.opensha.commons.exceptions.Point2DException;
 
 import com.google.common.primitives.Doubles;
 
@@ -143,14 +142,14 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		points.add(point);
 		xStats.addValue(point.getX());
 		yStats.addValue(point.getY());
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		set(new Point2D.Double(x, y));
 	}
 

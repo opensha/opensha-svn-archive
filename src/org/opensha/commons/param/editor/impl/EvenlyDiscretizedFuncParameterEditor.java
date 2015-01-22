@@ -32,7 +32,6 @@ import javax.swing.JTextArea;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.AbstractParameterEditorOld;
@@ -51,351 +50,351 @@ import org.opensha.commons.param.impl.EvenlyDiscretizedFuncParameter;
 public class EvenlyDiscretizedFuncParameterEditor extends AbstractParameterEditorOld
 {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	/** Class name for debugging. */
-    protected final static String C = "EvenlyDiscretizedFuncParameterEditor";
-    /** If true print out debug statements. */
-    protected final static boolean D = false;
+	protected final static String C = "EvenlyDiscretizedFuncParameterEditor";
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
 
 
-    //private final static String EDITOR_TITLE = "Evenly Discretized ";
+	//private final static String EDITOR_TITLE = "Evenly Discretized ";
 
-    private final static String  ONE_Y_VAL_MSG = "Each line should have just " +
-        "one Y value";
-    private final static String Y_VALID_MSG = "Y Values entered must be valid numbers" ;
-    private final static String INCORRECT_NUM_Y_VALS = "Number of Y vals should be equal to number of X values";
-    protected final static Dimension SCROLLPANE_DIM = new Dimension( 70, 230 );
-    /**
-     * Paramter List for holding all parameters
-     */
-    private ParameterList parameterList;
+	private final static String  ONE_Y_VAL_MSG = "Each line should have just " +
+			"one Y value";
+	private final static String Y_VALID_MSG = "Y Values entered must be valid numbers" ;
+	private final static String INCORRECT_NUM_Y_VALS = "Number of Y vals should be equal to number of X values";
+	protected final static Dimension SCROLLPANE_DIM = new Dimension( 70, 230 );
+	/**
+	 * Paramter List for holding all parameters
+	 */
+	private ParameterList parameterList;
 
-    private EvenlyDiscretizedFuncParameter evenlyDiscrFuncParam;
+	private EvenlyDiscretizedFuncParameter evenlyDiscrFuncParam;
 
-    /**
-     * ParameterListEditor for holding parameters
-     */
-    private ParameterListEditor editor;
+	/**
+	 * ParameterListEditor for holding parameters
+	 */
+	private ParameterListEditor editor;
 
-    /**
-     * X values text area
-     */
-    private JTextArea xTextArea;
-    // x scroll pane
-    private JScrollPane xScrollPane;
+	/**
+	 * X values text area
+	 */
+	private JTextArea xTextArea;
+	// x scroll pane
+	private JScrollPane xScrollPane;
 
-    /**
-     * Y values text area
-     */
-    private JTextArea yTextArea;
-    // y scroll pane
-    private JScrollPane yScrollPane;
-    private EvenlyDiscretizedFunc function;
-    private String xAxisName = "";
-    private String yAxisName = "";
-    private  String title ;
+	/**
+	 * Y values text area
+	 */
+	private JTextArea yTextArea;
+	// y scroll pane
+	private JScrollPane yScrollPane;
+	private EvenlyDiscretizedFunc function;
+	private String xAxisName = "";
+	private String yAxisName = "";
+	private  String title ;
 
-    /** No-Arg constructor calls parent constructor */
-    public EvenlyDiscretizedFuncParameterEditor() {
-      super();
-    }
+	/** No-Arg constructor calls parent constructor */
+	public EvenlyDiscretizedFuncParameterEditor() {
+		super();
+	}
 
-    /**
-     * Constructor that sets the parameter that it edits. An
-     * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
-     */
-    public EvenlyDiscretizedFuncParameterEditor(Parameter model) throws
-        Exception {
+	/**
+	 * Constructor that sets the parameter that it edits. An
+	 * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
+	 */
+	public EvenlyDiscretizedFuncParameterEditor(Parameter model) throws
+	Exception {
 
-      super(model);
+		super(model);
 
-      String S = C + ": Constructor(model): ";
-      if (D)
-        System.out.println(S + "Starting");
+		String S = C + ": Constructor(model): ";
+		if (D)
+			System.out.println(S + "Starting");
 
-      this.setParameter(model);
-      if (D)
-        System.out.println(S.concat("Ending"));
+		this.setParameter(model);
+		if (D)
+			System.out.println(S.concat("Ending"));
 
-    }
-
-
-    /**
-     * Main GUI Initialization point. This block of code is updated by JBuilder
-     * when using it's GUI Editor.
-     */
-    protected void jbInit() throws Exception {
-      focusLostProcessing = true;
-      this.setLayout(GBL);
-    }
+	}
 
 
-
-    public void setParameter(Parameter param) {
-
-      String S = C + ": Constructor(): ";
-      if (D) System.out.println(S + "Starting:");
-      if ( (param != null) && ! (param instanceof EvenlyDiscretizedFuncParameter))
-        throw new RuntimeException(S +
-                                   "Input model parameter must be a EvenlyDiscretizedFuncParameter.");
-      setParameterInEditor(param);
-      evenlyDiscrFuncParam = (EvenlyDiscretizedFuncParameter)param;
-      // make the params editor
-      function = (EvenlyDiscretizedFunc)param.getValue();
-
-      xAxisName = "";
-      yAxisName = "";
-      title = param.getName();
-      if(function!=null) {
-        if(function.getXAxisName()!=null) xAxisName = function.getXAxisName();
-        if(function.getYAxisName()!=null) yAxisName = function.getYAxisName();
-      }
-
-      // labels to be displayed on header of text area
-      JLabel xLabel = new JLabel(xAxisName);
-      JLabel yLabel = new JLabel(yAxisName);
+	/**
+	 * Main GUI Initialization point. This block of code is updated by JBuilder
+	 * when using it's GUI Editor.
+	 */
+	protected void jbInit() throws Exception {
+		focusLostProcessing = true;
+		this.setLayout(GBL);
+	}
 
 
-      initParamListAndEditor();
-      this.setLayout(GBL);
-      add(this.editor, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 0, 0), 0, 0));
 
-      add(xLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-      add(yLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.NONE,
-                                              new Insets(0, 0, 0, 0), 0, 0));
+	public void setParameter(Parameter param) {
 
-      add(this.xScrollPane, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 0, 0), 0, 0));
-      add(this.yScrollPane, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 0, 0), 0, 0));
+		String S = C + ": Constructor(): ";
+		if (D) System.out.println(S + "Starting:");
+		if ( (param != null) && ! (param instanceof EvenlyDiscretizedFuncParameter))
+			throw new RuntimeException(S +
+					"Input model parameter must be a EvenlyDiscretizedFuncParameter.");
+		setParameterInEditor(param);
+		evenlyDiscrFuncParam = (EvenlyDiscretizedFuncParameter)param;
+		// make the params editor
+		function = (EvenlyDiscretizedFunc)param.getValue();
 
+		xAxisName = "";
+		yAxisName = "";
+		title = param.getName();
+		if(function!=null) {
+			if(function.getXAxisName()!=null) xAxisName = function.getXAxisName();
+			if(function.getYAxisName()!=null) yAxisName = function.getYAxisName();
+		}
 
-      this.refreshParamEditor();
-      // All done
-      if (D) System.out.println(S + "Ending:");
-    }
+		// labels to be displayed on header of text area
+		JLabel xLabel = new JLabel(xAxisName);
+		JLabel yLabel = new JLabel(yAxisName);
 
 
-    /*
-     *
-     */
-    protected void initParamListAndEditor() {
+		initParamListAndEditor();
+		this.setLayout(GBL);
+		add(this.editor, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
+				, GridBagConstraints.CENTER,
+				GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 
-      // Starting
-      String S = C + ": initControlsParamListAndEditor(): ";
-      if (D)
-        System.out.println(S + "Starting:");
-      parameterList = evenlyDiscrFuncParam.getEvenlyDiscretizedParams();
-      this.editor = new ParameterListEditor(parameterList);
-      editor.setTitle(title);
+		add(xLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+				, GridBagConstraints.CENTER,
+				GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
+		add(yLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+				, GridBagConstraints.CENTER,
+				GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0), 0, 0));
 
-      xTextArea = new JTextArea();
-      xTextArea.setEnabled(false);
-      xScrollPane = new JScrollPane(xTextArea);
-      xScrollPane.setMinimumSize( SCROLLPANE_DIM );
-      xScrollPane.setPreferredSize( SCROLLPANE_DIM );
-
-      yTextArea = new JTextArea();
-      yTextArea.addFocusListener(this);
-      yScrollPane = new JScrollPane(yTextArea);
-      yScrollPane.setMinimumSize( SCROLLPANE_DIM );
-      yScrollPane.setPreferredSize( SCROLLPANE_DIM );
-
-    }
-
-    /**
-     * It enables/disables the editor according to whether user is allowed to
-     * fill in the values.
-     */
-    public void setEnabled(boolean isEnabled) {
-      this.editor.setEnabled(isEnabled);
-      this.xTextArea.setEnabled(isEnabled);
-      this.yTextArea.setEnabled(isEnabled);
-
-    }
+		add(this.xScrollPane, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+				, GridBagConstraints.CENTER,
+				GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
+		add(this.yScrollPane, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
+				, GridBagConstraints.CENTER,
+				GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0), 0, 0));
 
 
-    /**
-     * When user clicks in the texstarea to fill up the Y values, fill the X values
-     * automatically
-     * @param e
-     */
-    public void focusGained(FocusEvent e)  {
-      super.focusGained(e);
-      focusLostProcessing = false;
-      // check that user has entered min Val
-      Double minVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getValue();
-      String isMissing = " is missing";
-      if(minVal==null) {
-    	this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getComponent().grabFocus();
-        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME+isMissing);
-        return;
-      }
-      double min = minVal.doubleValue();
-      // check that user has entered max val
-      Double maxVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getValue();
-      if(maxVal==null) {
-    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getComponent().grabFocus();
-        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME+isMissing);
-        return;
-      }
-      double max = maxVal.doubleValue();
-      //check that user has entered num values
-      Integer numVal = (Integer)parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getValue();
-      if(numVal==null) {
-    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getComponent().grabFocus();
-        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME+isMissing);
-
-        return;
-      }
-      int num = numVal.intValue();
-      double y[] = new double[function.size()];
-      for(int i=0; i<function.size(); ++i)
-        y[i] = function.getY(i);
-      function.set(min, max, num);
-      String xStr = "";
-      String yStr = "";
-      for(int i=0; i<num; ++i) {
-        if(i<y.length) function.set(i,y[i]);
-        else function.set(i,0.0);
-        xStr = xStr + (float)function.getX(i) + "\n";
-        yStr = yStr +  function.getY(i)+" \n";
-      }
-      xTextArea.setText(xStr);
-      yTextArea.setText(yStr);
-      focusLostProcessing = true;
-    }
-
-    /**
-     * returns the Min of the magnitude for the distribution
-     * @return
-     */
-    public double getMin() {
-
-      return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).
-              getValue()).doubleValue();
-    }
-
-    /**
-     * returns the Max of the magnitude for thr distribution
-     * @return
-     */
-    public double getMax() {
-      return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).
-              getValue()).doubleValue();
-    }
-
-    /**
-     * returns the Number of magnitudes for the Distribution
-     * @return
-     */
-    public int getNum() {
-      return ( (Integer) parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).
-              getValue()).intValue();
-    }
+		this.refreshParamEditor();
+		// All done
+		if (D) System.out.println(S + "Ending:");
+	}
 
 
-    /**
-     * Called when the user clicks on another area of the GUI outside
-     * this editor panel. This synchornizes the editor text field
-     * value to the internal parameter reference.
-     */
-    public void focusLost(FocusEvent e) throws ConstraintException {
+	/*
+	 *
+	 */
+	protected void initParamListAndEditor() {
 
-      String S = C + ": focusLost(): ";
-      if(D) System.out.println(S + "Starting");
+		// Starting
+		String S = C + ": initControlsParamListAndEditor(): ";
+		if (D)
+			System.out.println(S + "Starting:");
+		parameterList = evenlyDiscrFuncParam.getEvenlyDiscretizedParams();
+		this.editor = new ParameterListEditor(parameterList);
+		editor.setTitle(title);
 
-      super.focusLost(e);
+		xTextArea = new JTextArea();
+		xTextArea.setEnabled(false);
+		xScrollPane = new JScrollPane(xTextArea);
+		xScrollPane.setMinimumSize( SCROLLPANE_DIM );
+		xScrollPane.setPreferredSize( SCROLLPANE_DIM );
 
-      if(!focusLostProcessing ) return;
+		yTextArea = new JTextArea();
+		yTextArea.addFocusListener(this);
+		yScrollPane = new JScrollPane(yTextArea);
+		yScrollPane.setMinimumSize( SCROLLPANE_DIM );
+		yScrollPane.setPreferredSize( SCROLLPANE_DIM );
 
-      String str = yTextArea.getText();
-      StringTokenizer st = new StringTokenizer(str,"\n");
-      int yIndex = 0;
-      while(st.hasMoreTokens()){
-        StringTokenizer st1 = new StringTokenizer(st.nextToken());
-        int numVals = st1.countTokens();
-        // check that each line in text area just contains 1 value
-        if(numVals !=1) {
-          JOptionPane.showMessageDialog(this, this.ONE_Y_VAL_MSG);
-          return;
-        }
-        double tempY_Val=0;
-        // check that y value is a valid number
-        try{
-          tempY_Val = Double.parseDouble(st1.nextToken());
-          // set the Y value in the function
-          function.set(yIndex, tempY_Val);
+	}
 
-          ++yIndex;
-        }catch(NumberFormatException ex){
-          JOptionPane.showMessageDialog(this, Y_VALID_MSG);
-          return;
-        }catch(Point2DException ex) {
-           JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
-           return;
-        }
-      }
+	/**
+	 * It enables/disables the editor according to whether user is allowed to
+	 * fill in the values.
+	 */
+	public void setEnabled(boolean isEnabled) {
+		this.editor.setEnabled(isEnabled);
+		this.xTextArea.setEnabled(isEnabled);
+		this.yTextArea.setEnabled(isEnabled);
 
-      // check that user has entered correct number of Y values
-      if(yIndex!=function.size())
-        JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
-      //refreshParamEditor();
-      if(D) System.out.println(S + "Ending");
-    }
+	}
 
 
-    /**
-     * Called when the parameter has changed independently from
-     * the editor, such as with the ParameterWarningListener.
-     * This function needs to be called to to update
-     * the GUI component ( text field, picklist, etc. ) with
-     * the new parameter value.
-     */
-    public void refreshParamEditor() {
-      if(evenlyDiscrFuncParam==null || evenlyDiscrFuncParam.getValue()==null) return;
-      EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)evenlyDiscrFuncParam.getValue();
-      parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).setValue(new Double(func.getMinX()));
-      parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).setValue(new Double(func.getMaxX()));
-      parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).setValue(new Integer(func.size()));
-      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).refreshParamEditor();
-      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).refreshParamEditor();
-      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).refreshParamEditor();
+	/**
+	 * When user clicks in the texstarea to fill up the Y values, fill the X values
+	 * automatically
+	 * @param e
+	 */
+	public void focusGained(FocusEvent e)  {
+		super.focusGained(e);
+		focusLostProcessing = false;
+		// check that user has entered min Val
+		Double minVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getValue();
+		String isMissing = " is missing";
+		if(minVal==null) {
+			this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getComponent().grabFocus();
+			JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME+isMissing);
+			return;
+		}
+		double min = minVal.doubleValue();
+		// check that user has entered max val
+		Double maxVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getValue();
+		if(maxVal==null) {
+			this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getComponent().grabFocus();
+			JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME+isMissing);
+			return;
+		}
+		double max = maxVal.doubleValue();
+		//check that user has entered num values
+		Integer numVal = (Integer)parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getValue();
+		if(numVal==null) {
+			this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getComponent().grabFocus();
+			JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME+isMissing);
 
-      if ( func != null ) { // show X, Y values from the function
-        this.xTextArea.setText("");
-        this.yTextArea.setText("");
-        int num = func.size();
-        String xText = "";
-        String yText= "";
-        for(int i=0; i<num; ++i) {
-          xText += (float)func.getX(i)  + "\n";
-          yText += func.getY(i)  + "\n";
-        }
-        xTextArea.setText(xText);
-        yTextArea.setText(yText);
-      }
-      else {
-        xTextArea.setText("");
-        yTextArea.setText("");
-      }
-      this.repaint();
-    }
+			return;
+		}
+		int num = numVal.intValue();
+		double y[] = new double[function.size()];
+		for(int i=0; i<function.size(); ++i)
+			y[i] = function.getY(i);
+		function.set(min, max, num);
+		String xStr = "";
+		String yStr = "";
+		for(int i=0; i<num; ++i) {
+			if(i<y.length) function.set(i,y[i]);
+			else function.set(i,0.0);
+			xStr = xStr + (float)function.getX(i) + "\n";
+			yStr = yStr +  function.getY(i)+" \n";
+		}
+		xTextArea.setText(xStr);
+		yTextArea.setText(yStr);
+		focusLostProcessing = true;
+	}
+
+	/**
+	 * returns the Min of the magnitude for the distribution
+	 * @return
+	 */
+	public double getMin() {
+
+		return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).
+				getValue()).doubleValue();
+	}
+
+	/**
+	 * returns the Max of the magnitude for thr distribution
+	 * @return
+	 */
+	public double getMax() {
+		return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).
+				getValue()).doubleValue();
+	}
+
+	/**
+	 * returns the Number of magnitudes for the Distribution
+	 * @return
+	 */
+	public int getNum() {
+		return ( (Integer) parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).
+				getValue()).intValue();
+	}
 
 
-  }
+	/**
+	 * Called when the user clicks on another area of the GUI outside
+	 * this editor panel. This synchornizes the editor text field
+	 * value to the internal parameter reference.
+	 */
+	public void focusLost(FocusEvent e) throws ConstraintException {
+
+		String S = C + ": focusLost(): ";
+		if(D) System.out.println(S + "Starting");
+
+		super.focusLost(e);
+
+		if(!focusLostProcessing ) return;
+
+		String str = yTextArea.getText();
+		StringTokenizer st = new StringTokenizer(str,"\n");
+		int yIndex = 0;
+		while(st.hasMoreTokens()){
+			StringTokenizer st1 = new StringTokenizer(st.nextToken());
+			int numVals = st1.countTokens();
+			// check that each line in text area just contains 1 value
+			if(numVals !=1) {
+				JOptionPane.showMessageDialog(this, this.ONE_Y_VAL_MSG);
+				return;
+			}
+			double tempY_Val=0;
+			// check that y value is a valid number
+			try{
+				tempY_Val = Double.parseDouble(st1.nextToken());
+				// set the Y value in the function
+				function.set(yIndex, tempY_Val);
+
+				++yIndex;
+			}catch(NumberFormatException ex){
+				JOptionPane.showMessageDialog(this, Y_VALID_MSG);
+				return;
+			}catch(IllegalArgumentException ex) {
+				JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
+				return;
+			}
+		}
+
+		// check that user has entered correct number of Y values
+		if(yIndex!=function.size())
+			JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
+		//refreshParamEditor();
+		if(D) System.out.println(S + "Ending");
+	}
+
+
+	/**
+	 * Called when the parameter has changed independently from
+	 * the editor, such as with the ParameterWarningListener.
+	 * This function needs to be called to to update
+	 * the GUI component ( text field, picklist, etc. ) with
+	 * the new parameter value.
+	 */
+	public void refreshParamEditor() {
+		if(evenlyDiscrFuncParam==null || evenlyDiscrFuncParam.getValue()==null) return;
+		EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)evenlyDiscrFuncParam.getValue();
+		parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).setValue(new Double(func.getMinX()));
+		parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).setValue(new Double(func.getMaxX()));
+		parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).setValue(new Integer(func.size()));
+		editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).refreshParamEditor();
+		editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).refreshParamEditor();
+		editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).refreshParamEditor();
+
+		if ( func != null ) { // show X, Y values from the function
+			this.xTextArea.setText("");
+			this.yTextArea.setText("");
+			int num = func.size();
+			String xText = "";
+			String yText= "";
+			for(int i=0; i<num; ++i) {
+				xText += (float)func.getX(i)  + "\n";
+				yText += func.getY(i)  + "\n";
+			}
+			xTextArea.setText(xText);
+			yTextArea.setText(yText);
+		}
+		else {
+			xTextArea.setText("");
+			yTextArea.setText("");
+		}
+		this.repaint();
+	}
+
+
+}

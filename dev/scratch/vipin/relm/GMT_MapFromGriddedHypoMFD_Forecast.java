@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
@@ -134,7 +133,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
 			try {
 				rateAboveMag = magFreqDist.getCumRate(mag); 
 
-			}catch(Point2DException dataPointException) {
+			}catch(IllegalArgumentException dataPointException) {
 				// if magnitude is less than least magnitude in this Mag-Freq dist
 				if(mag<magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
 				// if this mag is above highest mag in this MagFreqDist

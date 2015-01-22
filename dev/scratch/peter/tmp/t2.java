@@ -3,7 +3,6 @@ package scratch.peter.tmp;
 import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.exceptions.Point2DException;
 
 /**
  * Add comments here
@@ -92,7 +91,7 @@ public class t2 {
 //		return ( Math.abs( x - xx)  <= tolerance);
 //	}
 	
-	public static int getClosestXIndex( double x) throws Point2DException{
+	public static int getClosestXIndex( double x) {
 		double tmp = x / delta;
 		double rtmp = Math.rint(tmp);
 		int itmp = (int) rtmp;

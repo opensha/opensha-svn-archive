@@ -4,8 +4,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
 
 /**
  * This is a lightweight array based DescretizedFunc instance that doesn't allow
@@ -101,6 +99,8 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 
 	@Override
 	public Point2D get(int index) {
+		if (index < 0 || index >= size())
+			return null;
 		return new Point2D.Double(xVals[index], yVals[index]);
 	}
 
@@ -115,18 +115,18 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		int ind = getIndex(point);
 		if (ind < 0)
-			throw new UnsupportedOperationException("Can't add new points");
+			throw new IllegalArgumentException("No matching value in functions domain and can't add new points");
 		yVals[ind] = point.getY();
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		int ind = getXIndex(x);
 		if (ind < 0)
-			throw new UnsupportedOperationException("Can't add new points");
+			throw new IllegalArgumentException("No matching value in functions domain and can't add new points");
 		yVals[ind] = y;
 	}
 

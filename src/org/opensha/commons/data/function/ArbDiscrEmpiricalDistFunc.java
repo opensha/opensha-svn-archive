@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.Point2DToleranceComparator;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 

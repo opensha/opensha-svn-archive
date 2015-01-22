@@ -2,9 +2,6 @@ package scratch.UCERF3.erf.ETAS;
 
 import java.awt.geom.Point2D;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.exceptions.Point2DException;
-
-
 
 /**
  * This class stores integer values in the X axis and the relative probability associated with each integer
@@ -170,23 +167,23 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
 	
 	// override the following to record that data has changed
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		super.set(point);
 		dataChange = true;
 	}
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		super.set(x,y);
 		dataChange = true;
 	}
-	public void add(double x, double y) throws Point2DException {
+	public void add(double x, double y) {
 		super.add(x, y);
 		dataChange = true;
 	}
-	public void set(int index, double y) throws Point2DException {
+	public void set(int index, double y) {
 		super.set(index, y);
 		dataChange = true;
 	}
-	public void add(int index, double y) throws Point2DException {
+	public void add(int index, double y) {
 		super.add(index, y);
 		dataChange = true;
 	}

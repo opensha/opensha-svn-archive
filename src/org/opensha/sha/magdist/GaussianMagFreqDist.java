@@ -21,8 +21,6 @@ package org.opensha.sha.magdist;
 
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 /**
@@ -80,7 +78,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param num - number of points in distribution
    */
   public GaussianMagFreqDist(double min,double max,int num)
-    throws XY_DataSetException,InvalidRangeException {
+    throws InvalidRangeException {
 
     super(min,max,num);
 
@@ -97,8 +95,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param totMoRate - the total moment rate
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
-                             double totMoRate) throws XY_DataSetException,
-                             InvalidRangeException,Point2DException {
+                             double totMoRate) throws InvalidRangeException {
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -118,7 +115,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
-                             double totMoRate) throws Point2DException,InvalidRangeException {
+                             double totMoRate) throws InvalidRangeException {
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -141,7 +138,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
                              double totMoRate,double truncLevel,int truncType)
-                             throws Point2DException, InvalidRangeException{
+                             throws InvalidRangeException{
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -165,8 +162,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
                              double totMoRate,double truncLevel,int truncType)
-                             throws XY_DataSetException, InvalidRangeException,
-                             Point2DException {
+                             throws InvalidRangeException {
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -183,8 +179,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param stdDev - the standard deviation
    * @param totMoRate - the total moment rate
    */
-  public void setAllButCumRate(double mean,double stdDev, double totMoRate)
-                               throws Point2DException {
+  public void setAllButCumRate(double mean,double stdDev, double totMoRate) {
   this.mean=mean;
   this.stdDev=stdDev;
   this.truncType = 0;
@@ -202,7 +197,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
   public void setAllButCumRate(double mean,double stdDev, double totMoRate,
-                               double truncLevel,int truncType) throws Point2DException{
+                               double truncLevel,int truncType) {
     this.mean=mean;
     this.stdDev=stdDev;
     this.truncLevel=truncLevel;
@@ -219,8 +214,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param stdDev - the standard deviation
    * @param totCumRate - the total cumulative rate (at the lowest magnitude)
    */
-  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate)
-                                throws Point2DException {
+  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate) {
   this.mean=mean;
   this.stdDev=stdDev;
   this.truncType = 0;
@@ -238,8 +232,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
   */
   public void setAllButTotMoRate(double mean,double stdDev, double totCumRate,
-                                 double truncLevel,int truncType)
-                                 throws Point2DException{
+                                 double truncLevel,int truncType) {
     this.mean=mean;
     this.stdDev=stdDev;
     this.truncLevel=truncLevel;
@@ -338,7 +331,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * Based on the truncType it sets the rate to be zero after setting the
    * truncLevel(which specifies the # of stdDev from mean where dist. cut to zero
    */
-  private void calculateRelativeRates()throws Point2DException {
+  private void calculateRelativeRates() {
 	if(stdDev != 0) {
 	    for(int i=0;i<num;++i) {
 	      double mag=getX(i);
