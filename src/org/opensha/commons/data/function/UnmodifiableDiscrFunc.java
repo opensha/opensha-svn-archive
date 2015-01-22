@@ -24,31 +24,6 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public double getFirstInterpolatedX(double y) {
-		return func.getFirstInterpolatedX(y);
-	}
-
-	@Override
-	public double getInterpolatedY(double x) {
-		return func.getInterpolatedY(x);
-	}
-
-	@Override
-	public double getInterpolatedY_inLogXLogYDomain(double x) {
-		return func.getInterpolatedY_inLogXLogYDomain(x);
-	}
-
-	@Override
-	public double getInterpolatedY_inLogYDomain(double x) {
-		return func.getInterpolatedY_inLogYDomain(x);
-	}
-
-	@Override
-	public double getFirstInterpolatedX_inLogXLogYDomain(double y) {
-		return func.getFirstInterpolatedX_inLogXLogYDomain(y);
-	}
-
-	@Override
 	public int getXIndex(double x) {
 		return func.getXIndex(x);
 	}
@@ -130,6 +105,17 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	@Override
 	public String toString() {
 		return func.toString();
+	}
+
+	@Override
+	protected int getXIndexBefore(double x) {
+		if (func instanceof AbstractDiscretizedFunc)
+			return ((AbstractDiscretizedFunc)func).getXIndexBefore(x);
+		for (int i=0; i<size(); i++) {
+			if (getX(i) >= x)
+				return i-1;
+		}
+		return size();
 	}
 
 }

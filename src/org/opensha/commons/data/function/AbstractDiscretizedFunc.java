@@ -36,6 +36,9 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.Interpolate;
+
+import com.google.common.base.Preconditions;
 
 
 /**
@@ -102,6 +105,145 @@ Named,java.io.Serializable{
 	@Override
 	public boolean hasX(double x) {
 		return getXIndex(x) >= 0;
+	}
+	
+	/**
+	 * Returns the x index that is before the given X value. If a point exists at this
+	 * x value, the index before that point should be returned. Return value is undefined
+	 * if x < minX or x > maxX, error checking should be done externally.
+	 * @param x
+	 * @return
+	 */
+	abstract int getXIndexBefore(double x);
+	
+	@Override
+	public double getInterpolatedY(double x) {
+		return getInterpolatedY(x, false, false);
+	}
+	
+	@Override
+	public double getInterpolatedY_inLogXLogYDomain(double x) {
+		return getInterpolatedY(x, true, true);
+	}
+	
+	@Override
+	public double getInterpolatedY_inLogYDomain(double x) {
+		return getInterpolatedY(x, false, true);
+	}
+	
+	private double getInterpolatedY(double x, boolean logX, boolean logY) {
+		//if passed parameter(x value) is not within range then throw exception
+		double minX = getMinX();
+		double maxX = getMaxX();
+		if(x>maxX+tolerance || x<minX-tolerance)
+			throw new InvalidRangeException("x Value ("+x+") must be within the range: "
+					+getX(0)+" and "+getX(size()-1));
+		if (x >= maxX)
+			// this means it is just barely above, but within tolerance of maxX
+			return getY(size()-1);
+		if (x <= minX)
+			// this means it is just barely below, but within tolerance of minX
+			return getY(0);
+
+		int x1Ind = getXIndexBefore(x);
+		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
+			return getY(0);
+
+		double x1 = getX(x1Ind);
+		double x2 = getX(x1Ind+1);
+
+		//finding the y values for the coressponding x values
+		double y1=getY(x1);
+		double y2=getY(x2);
+		
+		if(y1==0 && y2==0)
+			return 0;
+		
+		if (logX) {
+//			Preconditions.checkState(x1 > 0 && x2 > 0 && x > 0, "Cannot interpolate in logX domain with any x<=0");
+			// old version did this check at the end, but I think the above is better:
+			//		if (expY == Double.MIN_VALUE) expY = 0.0;
+			x1 = Math.log(x1);
+			x2 = Math.log(x2);
+			x = Math.log(x);
+		}
+		if (logY) {
+			y1 = Math.log(y1);
+			y2 = Math.log(y2);
+		}
+		//using the linear interpolation equation finding the value of y for given x
+		double y = Interpolate.findY(x1, y1, x2, y2, x);
+		if (logY)
+			y = Math.exp(y);
+		
+		return y;
+	}
+	
+	@Override
+	public double getFirstInterpolatedX(double y) {
+		return getFirstInterpolatedX(y, false, false);
+	}
+	
+	@Override
+	public double getFirstInterpolatedX_inLogXLogYDomain(double y) {
+		return getFirstInterpolatedX(y, true, true);
+	}
+	
+	private double getFirstInterpolatedX(double y, boolean logX, boolean logY) {
+		double y1=Double.NaN;
+		double y2=Double.NaN;
+		int i;
+		
+		int num = size();
+
+		//if Size of the function is 1 and Y value is equal to Y val of function
+		//return the only X value
+		if(num == 1 && y == getY(0))
+			return getX(0);
+
+		boolean found = false; // this boolean hold whether the passed y value lies within range
+
+		//finds the Y values within which the the given y value lies
+		for(i=0;i<num-1;++i)
+		{
+			y1=getY(i);
+			y2=getY(i+1);
+			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+				found = true;
+				break;
+			}
+		}
+
+		//if passed parameter(y value) is not within range then throw exception
+		if(!found) throw new InvalidRangeException(
+				"Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(num-1));
+
+
+		//finding the x values for the coressponding y values
+		double x1=getX(i);
+		double x2=getX(i+1);
+		
+		if(x1==0 && x2==0)
+			return 0;
+		
+		if (logX) {
+//			Preconditions.checkState(x1 > 0 && x2 > 0 && x > 0, "Cannot interpolate in logX domain with any x<=0");
+			// old version did this check at the end, but I think the above is better:
+			//		if (expY == Double.MIN_VALUE) expY = 0.0;
+			x1 = Math.log(x1);
+			x2 = Math.log(x2);
+		}
+		if (logY) {
+			y1 = Math.log(y1);
+			y2 = Math.log(y2);
+			y = Math.log(y);
+		}
+
+		//using the linear interpolation equation finding the value of x for given y
+		double x = Interpolate.findX(x1, y1, x2, y2, y);
+		if (logX)
+			x = Math.exp(x);
+		return x;
 	}
 	
 	private boolean areBothNull(String first, String second) {
