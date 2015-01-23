@@ -1524,7 +1524,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param numValues
 	 * @return
 	 */
-	public static LinkedHashMap<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
+	public static int[] getIndicesForHighestValuesInArray(double[] valsArray, int numValues) {
 		
 		// this class pairs a probability with an index for sorting
 		class ProbPairing implements Comparable<ProbPairing> {
@@ -1574,12 +1574,14 @@ public class ETAS_SimAnalysisTools {
 			prevProb = pairing.value;
 		}
 
-		LinkedHashMap<Integer,Double> hashMap = new LinkedHashMap<Integer,Double>();
+		int[] indices = new int[numValues];
+		int i=0;
 		for(ProbPairing pairing : pairings) {
-			hashMap.put(pairing.index, pairing.value);
+			indices[i]=pairing.index;
+			i++;
 		}
 		
-		return hashMap;
+		return indices;
 
 	}
 	
