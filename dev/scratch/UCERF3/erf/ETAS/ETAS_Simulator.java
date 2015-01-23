@@ -608,8 +608,6 @@ public class ETAS_Simulator {
 					}
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();
-//					// and prevent triggering on surface of what just ruptured
-//					etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(rup);
 
 				}
 				String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
@@ -622,18 +620,20 @@ public class ETAS_Simulator {
 					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, rup, expNum);
 					
 					String nameSuffix = "triggered"+(nthFaultSysRupAftershocks.size()-1);
+					
+					String info = "\n\tExpected Num Primary Aftershocks = "+(float)expNum;
 
 //					// Compute Primary Event Sampler Map
 //					etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(rup), "Primary Sampler for "+nameSuffix, nameSuffix+"_PrimaryMap", resultsDir);
 //					
 //					// Compute subsection participation probability map
-//					String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(rup, resultsDir, 30, nameSuffix);
+//					info += "\n\n"+etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(rup, resultsDir, 30, nameSuffix);
 //					
 //					// for subsection trigger probabilities (different than participation).
 //					info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(rup, resultsDir,30, nameSuffix);
 //					
 //					System.out.println(info);	
-//					info_fr.write(info+"\n");
+					info_fr.write(info+"\n");
 //					info_fr.close();
 //					System.exit(-1);
 
@@ -1048,7 +1048,7 @@ public class ETAS_Simulator {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
 //		params.set_d_MinDist(2.0);
-//		params.setImposeGR(false);
+//		params.setImposeGR(true);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
@@ -1061,8 +1061,8 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
-//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_1", null);	// aveStrike=295.0367915096109
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_3", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_11", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
