@@ -1523,7 +1523,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param numValues
 	 * @return
 	 */
-	public Hashtable<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
+	public static Hashtable<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
 		
 		// this class pairs a probability with an index for sorting
 		class ProbPairing implements Comparable<ProbPairing> {
