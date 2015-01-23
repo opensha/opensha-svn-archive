@@ -13,7 +13,9 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -939,12 +941,18 @@ public class ETAS_SimAnalysisTools {
 	 */
 	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
 			EqkRupture rupture, double expNum) {
-		SummedMagFreqDist mfd = etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rupture);
+		List<SummedMagFreqDist> mfdList = etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rupture);
+		SummedMagFreqDist mfd = mfdList.get(0);
+		SummedMagFreqDist mfdSupra = mfdList.get(1);
+		double totRate = mfd.getTotalIncrRate();
 		// convert MFD to expected num distribution
-		mfd.scale(expNum/(mfd.getTotalIncrRate()));
+		mfd.scale(expNum/(totRate));
 		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);
 		mfd.setInfo("Data:\n"+mfd.getMetadataString());
-		GraphWindow magProbDistsGraph = new GraphWindow(mfd, "Expected Primary Aftershock MFD"); 
+		mfdSupra.scale(expNum/(totRate));
+		mfdSupra.setName("Expected MFD for supra seis primary aftershocks of "+rupInfo);
+		mfdSupra.setInfo("Data:\n"+mfdSupra.getMetadataString());
+		GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "Expected Primary Aftershock MFD"); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Expected Num In Each Bin");
 		magProbDistsGraph.setY_AxisRange(10e-9, 10e-1);
@@ -954,20 +962,26 @@ public class ETAS_SimAnalysisTools {
 		magProbDistsGraph.setAxisLabelFontSize(20);
 		magProbDistsGraph.setTickLabelFontSize(18);			
 		
-		EvenlyDiscretizedFunc cumMFD=null;
+		EvenlyDiscretizedFunc cumMFD=null, cumMFDsupra=null;
 		
 		// cumulative distribution of expected num primary
 		GraphWindow cumDistsGraph = null;
 		if(!Double.isNaN(expNum)) {
 			cumMFD = mfd.getCumRateDistWithOffset();
-//			cumMFD.scale(mfd.getDelta()*expNum);
 			cumMFD.setName("Cum MFD for primary aftershocks of "+rupInfo);
 			String info = "expNum="+(float)expNum+" over forecast duration\n";
+			cumMFDsupra = mfdSupra.getCumRateDistWithOffset();
+			cumMFDsupra.setName("Cum MFD for supra seis primary aftershocks of "+rupInfo);
+
 			double expNumAtMainshockMag = cumMFD.getInterpolatedY(rupture.getMag());
 			info+="expNumAtMainshockMag="+(float)expNumAtMainshockMag+" (at mag "+(float)rupture.getMag()+")\n";
 			info += "Data:\n"+cumMFD.getMetadataString();
 			cumMFD.setInfo(info);
-			cumDistsGraph = new GraphWindow(cumMFD, "Expected Cumulative Primary Aftershock MFD"); 
+			cumMFDsupra.setInfo(cumMFDsupra.getMetadataString());
+			ArrayList<EvenlyDiscretizedFunc> cumMFD_List = new ArrayList<EvenlyDiscretizedFunc>();
+			cumMFD_List.add(cumMFD);
+			cumMFD_List.add(cumMFDsupra);
+			cumDistsGraph = new GraphWindow(cumMFD_List, "Expected Cumulative Primary Aftershock MFD"); 
 			cumDistsGraph.setX_AxisLabel("Mag");
 			cumDistsGraph.setY_AxisLabel("Expected Number");
 			cumDistsGraph.setY_AxisRange(10e-8, 10e4);
@@ -1018,14 +1032,14 @@ public class ETAS_SimAnalysisTools {
 			}
 		}
 		
-		ArrayList<EvenlyDiscretizedFunc> mfdList = new ArrayList<EvenlyDiscretizedFunc>();
-		mfdList.add(mfd);
+		ArrayList<EvenlyDiscretizedFunc> mfdListReturned = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdListReturned.add(mfd);
 		if(cumMFD != null)
-			mfdList.add(cumMFD);
+			mfdListReturned.add(cumMFD);
 		else
-			mfdList.add(null);
+			mfdListReturned.add(null);
 		
-		return mfdList;
+		return mfdListReturned;
 
 	}
 
@@ -1500,6 +1514,75 @@ public class ETAS_SimAnalysisTools {
 		}
 		
 	}
+	
+	
+	/**
+	 * This returns the highest values in array for the given number of observations requested, 
+	 * sorted from highest to lowest.
+	 * @param valsArray
+	 * @param numValues
+	 * @return
+	 */
+	public Hashtable<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
+		
+		// this class pairs a probability with an index for sorting
+		class ProbPairing implements Comparable<ProbPairing> {
+			private double value;
+			private int index;
+			private ProbPairing(double prob, int index) {
+				this.value = prob;
+				this.index = index;
+			}
+
+			@Override
+			public int compareTo(ProbPairing o) {
+				// negative so biggest first
+				return -Double.compare(value, o.value);
+			}
+
+		};
+
+		// this stores the minimum probability currently in the list
+		double curMinProb = Double.POSITIVE_INFINITY;
+		// list of probabilities. only the highest numToList values will be kept in this list
+		// this list is always kept sorted, highest to lowest
+		List<ProbPairing> pairings = new ArrayList<ProbPairing>(numValues+5);
+		for(int i=0;i<valsArray.length;i++) {
+			double value = valsArray[i];
+			if (value < curMinProb && pairings.size() == numValues)
+				// already below the current min, skip
+				continue;
+			ProbPairing pairing = new ProbPairing(value, i);
+			int index = Collections.binarySearch(pairings, pairing);
+			if (index < 0) {
+				// not in there yet, calculate insertion index from binary search result
+				index = -(index + 1);
+			}
+			pairings.add(index, pairing);
+			// remove if we just made it too big
+			if (pairings.size() > numValues)
+				pairings.remove(pairings.size()-1);
+			// reset current min
+			curMinProb = pairings.get(pairings.size()-1).value;
+		}
+
+		// sanity checks
+		double prevProb = Double.POSITIVE_INFINITY;
+		for (ProbPairing pairing : pairings) {
+			Preconditions.checkState(prevProb >= pairing.value, "pairing list isn't sorted?");
+			prevProb = pairing.value;
+		}
+
+		Hashtable<Integer,Double> hashTable = new Hashtable<Integer,Double>();
+		for(ProbPairing pairing : pairings) {
+			hashTable.put(pairing.index, pairing.value);
+		}
+		
+		return hashTable;
+
+	}
+	
+	
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {
 //		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/"
