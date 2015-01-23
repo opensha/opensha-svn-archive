@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -1523,7 +1524,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param numValues
 	 * @return
 	 */
-	public static Hashtable<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
+	public static LinkedHashMap<Integer,Double> getHighestValuesInArray(double[] valsArray, int numValues) {
 		
 		// this class pairs a probability with an index for sorting
 		class ProbPairing implements Comparable<ProbPairing> {
@@ -1573,12 +1574,12 @@ public class ETAS_SimAnalysisTools {
 			prevProb = pairing.value;
 		}
 
-		Hashtable<Integer,Double> hashTable = new Hashtable<Integer,Double>();
+		LinkedHashMap<Integer,Double> hashMap = new LinkedHashMap<Integer,Double>();
 		for(ProbPairing pairing : pairings) {
-			hashTable.put(pairing.index, pairing.value);
+			hashMap.put(pairing.index, pairing.value);
 		}
 		
-		return hashTable;
+		return hashMap;
 
 	}
 	
