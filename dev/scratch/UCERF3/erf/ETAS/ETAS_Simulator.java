@@ -91,6 +91,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -304,6 +305,11 @@ public class ETAS_Simulator {
 		for(int s=0;s<erf.getNumSources();s++) {
 			ProbEqkSource src = erf.getSource(s);
 			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
+//			if(D && sourceRates[s]==0) {
+//				FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+//				double rate = tempERF.getSolution().getRateForRup(tempERF.getFltSysRupIndexForSource(s));
+//				System.out.println("ZERO RATE SOURCE: "+rate+"\t"+src.getRupture(0).getProbability()+"\t"+src.getName());
+//			}
 			for(ProbEqkRupture rup:src) {
 				if (nthRup >= spontaneousRupSampler.getNum())
 					throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
@@ -418,6 +424,10 @@ public class ETAS_Simulator {
 			info_fr.write("\nObserved number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 			System.out.println("\nExpected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
+			
+			
+//			etas_PrimEventSampler.tempAveSamplerAtFaults(scenarioRup);
+//			System.exit(-1);
 			
 			// compute expected MFD
 			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
@@ -830,6 +840,21 @@ public class ETAS_Simulator {
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
 		
+//		IncrementalMagFreqDist testMFD = ((InversionFaultSystemSolution)erf.getSolution()).getFinalTotalNucleationMFD_forSect(1846, 2.05, 8.95, 70);
+//		IncrementalMagFreqDist testMFD2 = ((InversionFaultSystemSolution)erf.getSolution()).getFinalTrulyOffFaultMFD();
+//		testMFD2.normalizeByTotalRate();
+//		testMFD2.scaleToCumRate(2.05, testMFD.getCumRate(2.05));
+//		ArrayList<EvenlyDiscretizedFunc> tempList = new ArrayList<EvenlyDiscretizedFunc>();
+//		tempList.add(testMFD2.getCumRateDistWithOffset());
+//		tempList.add(testMFD.getCumRateDistWithOffset());
+//		GraphWindow graph = new GraphWindow(tempList, "Test MFDs"); 
+//		ArrayList<EvenlyDiscretizedFunc> tempList2 = new ArrayList<EvenlyDiscretizedFunc>();
+//		tempList2.add(testMFD2);
+//		tempList2.add(testMFD);
+//		GraphWindow graph2 = new GraphWindow(tempList2, "Test MFDs"); 
+
+		
+		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 
 		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
@@ -1062,7 +1087,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_11", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_18", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

@@ -610,8 +610,8 @@ public class ETAS_Utils {
 	 * @return
 	 */
 	public static double getScalingFactorToImposeGR(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD) {
-		if (supraSeisMFD.getMaxY() == 0d)
-			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults
+		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
 			return 1d;
 		
 		double minMag = subSeisMFD.getMinX();

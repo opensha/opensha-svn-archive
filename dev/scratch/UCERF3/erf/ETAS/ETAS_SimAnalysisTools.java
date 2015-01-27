@@ -1517,8 +1517,23 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
+	
 	/**
-	 * This returns the highest values in array for the given number of observations requested, 
+	 * This returns the indices of the highest values in given IntegerPDF_FunctionSampler 
+	 * for the specified number of points, sorted from highest to lowest.
+	 * @param valsArray
+	 * @param numValues
+	 * @return
+	 */
+	public static int[] getIndicesForHighestValuesInArray(IntegerPDF_FunctionSampler sampler, int numValues) {
+		return getIndicesForHighestValuesInArray(sampler.getY_valuesArray(), numValues);
+	}
+
+	
+	
+	
+	/**
+	 * This returns the indices of the highest values in the given array for the specified number of points, 
 	 * sorted from highest to lowest.
 	 * @param valsArray
 	 * @param numValues
@@ -1542,6 +1557,7 @@ public class ETAS_SimAnalysisTools {
 			}
 
 		};
+		
 
 		// this stores the minimum probability currently in the list
 		double curMinProb = Double.POSITIVE_INFINITY;

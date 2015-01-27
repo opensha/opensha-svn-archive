@@ -198,5 +198,9 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		super.set(min,max,num);
 		dataChange = true;
 	}
+	
+	public double[] getY_valuesArray() {
+		return points;
+	}
 
 }
