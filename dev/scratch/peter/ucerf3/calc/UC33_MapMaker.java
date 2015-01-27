@@ -123,7 +123,7 @@ public class UC33_MapMaker {
 		// for Morgan:
 //		buildUC3_NSHMP_BG_binariesMorgan();
 //		buildUC3_NSHMP_binariesMorgan();
-		buildUC3_NSHMP_binariesMorgan2();
+//		buildUC3_NSHMP_binariesMorgan2();
 //		buildUC2_NSHMP_binaries();
 //		build_UC3_GMM08_binary();
 		
@@ -148,6 +148,8 @@ public class UC33_MapMaker {
 //		build_NSHMP_TotalHazardMaps();
 		
 //		build_NSHMP13B_TotalHazardMap();
+		
+		build_NSHMP_LocalRatioMaps_forEQS();
 		
 //		resamplingTest();
 		
@@ -217,13 +219,53 @@ public class UC33_MapMaker {
 //		makeNSHMPratioMap(srcDir, outDir, branches);
 	}
 	
+	private static void build_NSHMP_LocalRatioMaps_forEQS() {
+		
+		double spacing = 0.02;
+
+		List<TestGrid> localGrids = Lists.newArrayList(SAN_FRANCISCO, LOS_ANGELES);
+		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50); //, PE10IN50);
+		
+		for (Period p : periods) {
+						
+			for (ProbOfExceed pe : PEs) {
+				for (TestGrid locGrid : localGrids) {
+					
+					// NSHMP14 hi res local
+					String overPath = SRC + "NSHMP14-SF-LA" + S + "mean_ucerf3_sol" + S + locGrid.name() + S + p + S + "curves.csv";
+					File overFile = new File(overPath);
+					CurveContainer ccOver = CurveContainer.create(overFile, locGrid, spacing);
+					
+					// NSHMP08 hi res local
+					String underPath = SRC + "NSHMP08-SF-LA" + S + "ALL" + S + locGrid.name() + S + p + S + "curves.csv";
+					File underFile = new File(underPath);
+					CurveContainer ccUnder = CurveContainer.create(underFile, locGrid, spacing);
+				
+					// data
+					GriddedRegion gr = locGrid.grid(spacing);
+					GeoDataSet xyzOver = NSHMP_DataUtils.extractPE(ccOver, gr, pe);
+					GeoDataSet xyzUnder = NSHMP_DataUtils.extractPE(ccUnder, gr, pe);
+					
+					GeoDataSet xyzRatio = GeoDataSetMath.divide(xyzOver, xyzUnder);
+					GeoDataSet xyzDiff = GeoDataSetMath.subtract(xyzOver, xyzUnder);
+					String id = locGrid + "-" + p.getLabel() +  "-" + pe;
+					String ratioFile = ROOT + "NSHMP14-SF-LA" + S + "FM2" + S + id + "-ratio";
+					String diffFile = ROOT + "NSHMP14-SF-LA" + S + "FM2" + S + id + "-diff";
+					makeRatioPlotNSHMP(xyzRatio, spacing, locGrid.bounds(), ratioFile, "GM ratio", true);
+					makeDiffPlotNSHMP(xyzDiff, spacing, locGrid.bounds(), diffFile, "GM diff", true);
+				}
+			}
+		}
+	}
+	
 	private static void build_NSHMP_LocalRatioMaps() {
 		
 		double spacing = 0.05;
 
 		List<TestGrid> localGrids = Lists.newArrayList(SAN_FRANCISCO, LOS_ANGELES);
 		List<Period> periods = Lists.newArrayList(GM0P00, GM0P20, GM1P00);
-		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50); //, PE10IN50);
+		List<ProbOfExceed> PEs = Lists.newArrayList(PE2IN50);
 		
 		for (Period p : periods) {
 			// NSHMP13 hi res 40 branchAvg curves CA_NSHMP
@@ -256,6 +298,7 @@ public class UC33_MapMaker {
 			}
 		}
 	}
+
 	
 	private static void makeLocalRatioMaps() {
 		makeLocalRatioMaps("nshmp_SF-LA-13", true, "nshmp_SF-LA", true, "NSHM13-NSHM", 0.1);
@@ -1985,12 +2028,12 @@ public class UC33_MapMaker {
 			map.setCustomLabel(title);
 			map.setRescaleCPT(false);
 			if (showFaults) {
-//				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
+				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
-//			savePDF(dlDir);
+			savePDF(dlDir);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -2013,9 +2056,9 @@ public class UC33_MapMaker {
 			map.setCustomLabel(title);
 			map.setRescaleCPT(true);
 			if (showFaults) {
-//				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
-				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
+				addFaultTraces(FaultModels.FM2_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_1, map, Color.BLACK);
+//				addFaultTraces(FaultModels.FM3_2, map, Color.BLACK);
 			}
 			NSHMP_PlotUtils.makeMap(map, mapGen, "No metadata", dlDir);
 			savePDF(dlDir);
