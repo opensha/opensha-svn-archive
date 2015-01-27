@@ -24,6 +24,7 @@ import org.opensha.nshmp2.util.Utils;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
@@ -296,7 +297,50 @@ public class NSHMP14_WUS extends AttenuationRelationship implements
 
 	@Override
 	public double getEpsilon() {
-		throw new UnsupportedOperationException();
+//		throw new UnsupportedOperationException();
+		
+		// NOTE experimental, redundant mean & sigma calcs
+		
+		updateArgs();
+		initGMPEs();
+		
+		// set mean, sigma, and weight arrays
+		int curveCount = gmpeMap.size();
+		if (epi) curveCount *= EPI_CT;
+		double[] means = new double[curveCount];
+		double[] sigmas = new double[curveCount];
+		double[] weights = new double[curveCount];
+		
+		int idx = 0;
+		for (NGAW2_GMM imr : gmpeMap.keySet()) {
+			ScalarGroundMotion sgm = imr.calc();
+			double m = sgm.mean();
+			double s = sgm.stdDev();
+			double w = gmpeMap.get(imr);
+			if (epi) {
+				double epiVal = getUncertainty(Mw, rJB);
+				for (int i=0; i<EPI_CT; i++) {
+					means[idx] = m + epiVal * EPI_SIGN[i];
+					weights[idx] = w * EPI_WT[i];
+					sigmas[idx] = s;
+					idx++;
+				}
+			} else {
+				means[idx] = m;
+				sigmas[idx] = s;
+				weights[idx] = w;
+				idx++;
+			}
+		}
+		
+		// get and sum values
+		double iml = ((Double) im.getValue()).doubleValue();
+		double epsilon = 0.0;
+		for (int i=0; i<means.length; i++) {
+			epsilon += ((iml - means[i]) / sigmas[i]) * weights[i];
+		}
+		return epsilon;
+
 	}
 
 	@Override
@@ -390,7 +434,50 @@ public class NSHMP14_WUS extends AttenuationRelationship implements
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
-		throw new UnsupportedOperationException();
+		//throw new UnsupportedOperationException();
+		
+		// TODO experimental, supports poor man's deagg
+
+		updateArgs();
+		initGMPEs();
+		
+		// set mean, sigma, and weight arrays
+		int curveCount = gmpeMap.size();
+		if (epi) curveCount *= EPI_CT;
+		double[] means = new double[curveCount];
+		double[] sigmas = new double[curveCount];
+		double[] weights = new double[curveCount];
+		
+		int idx = 0;
+		for (NGAW2_GMM imr : gmpeMap.keySet()) {
+			ScalarGroundMotion sgm = imr.calc();
+			double m = sgm.mean();
+			double s = sgm.stdDev();
+			double w = gmpeMap.get(imr);
+			if (epi) {
+				double epiVal = getUncertainty(Mw, rJB);
+				for (int i=0; i<EPI_CT; i++) {
+					means[idx] = m + epiVal * EPI_SIGN[i];
+					weights[idx] = w * EPI_WT[i];
+					sigmas[idx] = s;
+					idx++;
+				}
+			} else {
+				means[idx] = m;
+				sigmas[idx] = s;
+				weights[idx] = w;
+				idx++;
+			}
+		}
+
+		// get and sum values
+		double pe = 0.0;
+		for (int i=0; i<means.length; i++) {
+			pe += Utils.getExceedProbability(
+				Math.exp((Double) im.getValue()), means[i], sigmas[i], false, 0.0) * weights[i];
+		}
+		return pe;
+
 	}
 
 	@Override
