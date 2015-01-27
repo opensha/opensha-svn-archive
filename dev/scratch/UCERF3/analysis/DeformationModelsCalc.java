@@ -24,8 +24,6 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.data.xyz.XYZ_DataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -439,7 +437,7 @@ public class DeformationModelsCalc {
 		ba2008.getParameter(ComponentParam.NAME).setValue(component);
 		
 		EvenlyDiscretizedFunc imlVsDistFunc = new EvenlyDiscretizedFunc(0., 201., 202);
-		for(int i=0;i<imlVsDistFunc.getNum();i++) {
+		for(int i=0;i<imlVsDistFunc.size();i++) {
 			Double dist = new Double(imlVsDistFunc.getX(i));
 			DistanceJBParameter distParm = (DistanceJBParameter) ba2008.getParameter(DistanceJBParameter.NAME);
 			distParm.setValueIgnoreWarning(dist);
@@ -1514,7 +1512,7 @@ public class DeformationModelsCalc {
 			double ratio = data.calcMomentRate(true)/data.calcMomentRate(false);
 			if(!Double.isNaN(ratio)) {
 				moRateReductionHist.add(ratio, 1.0);
-				if(moRateReductionHist.getClosestXIndex(ratio) == moRateReductionHist.getNum()-1) {	// no reduction
+				if(moRateReductionHist.getClosestXIndex(ratio) == moRateReductionHist.size()-1) {	// no reduction
 					totNoReduction += data.calcMomentRate(false);
 					numNotReduced += 1;
 				}
@@ -1873,16 +1871,8 @@ public class DeformationModelsCalc {
 		for(int i=0;i< ucerf3_SmSeisDist.size();i++) {
 			double rate = totObsRate*ucerf3_SmSeisDist.get(i)*1e5;		// increase by 1e5 for rate at zero mag
 			double moRate = aveDefModTotal.get(i);
-			try {
 				gr.setAllButMagUpper(0, moRate, rate, 1.0, false);
 				mMaxData.set(i, gr.getMagUpper());
-			} catch (XY_DataSetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (Point2DException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		try {
 			GMT_CA_Maps.plotMagnitudeMap(mMaxData, "Implied Mmax", " " , "AveDefMod_UCERF3_smSeis_ImpliedMmaxMap");
@@ -2083,7 +2073,7 @@ public class DeformationModelsCalc {
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(0, 1100, 0.01);
 		EvenlyDiscretizedFunc offMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
 		EvenlyDiscretizedFunc onMmaxFunc = new EvenlyDiscretizedFunc(0.1,9,0.1);
-		for(int i=0; i<offMmaxFunc.getNum();i++) {
+		for(int i=0; i<offMmaxFunc.size();i++) {
 			double fracOff = offMmaxFunc.getX(i);
 			gr.setAllButMagUpper(0.0, moRateOffFault, fracOff*totMge5_rate*1e5, 1.0, false);
 			offMmaxFunc.set(i,gr.getMagUpper());

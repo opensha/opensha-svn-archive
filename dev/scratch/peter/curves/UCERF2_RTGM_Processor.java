@@ -81,7 +81,7 @@ class UCERF2_RTGM_Processor implements Runnable {
 	
 	private static DiscretizedFunc deLog(DiscretizedFunc f) {
 		DiscretizedFunc fOut = new ArbitrarilyDiscretizedFunc();
-		for (int i=0; i<f.getNum(); i++) {
+		for (int i=0; i<f.size(); i++) {
 			fOut.set(Math.exp(f.getX(i)), f.getY(i));
 		}
 		return fOut;

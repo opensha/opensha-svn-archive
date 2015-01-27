@@ -106,13 +106,13 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 	
 	private static double[] funcToArray(boolean x, DiscretizedFunc func, double minX) {
 		int firstIndex = 0;
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			if (func.getX(i) >= minX) {
 				firstIndex = i;
 				break;
 			}
 		}
-		int numAbove = func.getNum()-firstIndex;
+		int numAbove = func.size()-firstIndex;
 		double[] ret = new double[numAbove];
 		for (int i=0; i<numAbove; i++) {
 			if (x)
@@ -316,15 +316,15 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 		IncrementalMagFreqDist mfd;
 		if (func instanceof EvenlyDiscretizedFunc) {
 			EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
-			mfd = new IncrementalMagFreqDist(eFunc.getMinX(), eFunc.getNum(), eFunc.getDelta());
+			mfd = new IncrementalMagFreqDist(eFunc.getMinX(), eFunc.size(), eFunc.getDelta());
 		} else {
-			mfd = new IncrementalMagFreqDist(func.getMinX(), func.getNum(), func.getX(1) - func.getX(0));
+			mfd = new IncrementalMagFreqDist(func.getMinX(), func.size(), func.getX(1) - func.getX(0));
 		}
 		mfd.setInfo(func.getInfo());
 		mfd.setName(func.getName());
 		mfd.setXAxisName(func.getXAxisName());
 		mfd.setYAxisName(func.getYAxisName());
-		for (int i=0; i<func.getNum(); i++)
+		for (int i=0; i<func.size(); i++)
 			mfd.set(i, func.getY(i));
 		
 		return mfd;
@@ -359,7 +359,7 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 			if (nodeSubSeisMFD == null || nodeSubSeisMFD.getMaxY() == 0) {
 				Preconditions.checkState(reader.getNodeSubSeisMFD(i) == null);
 			} else {
-				Preconditions.checkNotNull(reader.getNodeSubSeisMFD(i), i+". Was supposed to be size "+nodeSubSeisMFD.getNum()
+				Preconditions.checkNotNull(reader.getNodeSubSeisMFD(i), i+". Was supposed to be size "+nodeSubSeisMFD.size()
 						+" tot "+(float)nodeSubSeisMFD.getTotalIncrRate()+", was null");
 				Preconditions.checkState((float)nodeSubSeisMFD.getTotalIncrRate() ==
 						(float)reader.getNodeSubSeisMFD(i).getTotalIncrRate());

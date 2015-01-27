@@ -84,7 +84,7 @@ public class EqksInGeoBlockUtils {
 					else
 						numUnAssigned +=1;
 				}
-				int numNodes = numInEachNode.getNum();
+				int numNodes = numInEachNode.size();
 				if(numNodes>0) {
 					for(int i=0;i<numNodes;i++) {
 						int nodeIndex = (int)Math.round(numInEachNode.getX(i));

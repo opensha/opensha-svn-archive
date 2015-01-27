@@ -129,7 +129,7 @@ public class GemFileParser {
 					if (INFO) System.out.println("MinX "+momRateDist.getMinX()+" MaxX"+momRateDist.getMaxX());
 					if (INFO) System.out.println("Mo(idx5):"+src.getMagfreqDistFocMech().getMagFreqDist(0).getMomentRate(5));
 					
-					for (int i=0; i < momRateDist.getNum(); i++ ){
+					for (int i=0; i < momRateDist.size(); i++ ){
 						if (momRateDist.get(i).getX() >= magThreshold){
 							totMom += momRateDist.get(i).getY();
 							if (INFO) System.out.println(i+" "+momRateDist.get(i).getY());
@@ -293,7 +293,7 @@ public class GemFileParser {
 				double totMom = 0.0;
 				double momRate = 0.0;
 				double magThreshold = 5.0;
-				for (int i=0; i < momRateDist.getNum(); i++ ){
+				for (int i=0; i < momRateDist.size(); i++ ){
 					if (momRateDist.get(i).getX() >= magThreshold){
 						totMom += totMom;
 					}

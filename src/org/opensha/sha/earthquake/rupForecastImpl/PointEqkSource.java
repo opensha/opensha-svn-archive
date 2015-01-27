@@ -189,7 +189,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 		for (int i=0; i<magFreqDists.length; i++) {
 			FocalMechanism focalMech = focalMechanisms[i];
 			IncrementalMagFreqDist magFreqDist = magFreqDists[i];
-			for (int m=0; m<magFreqDist.getNum(); m++){
+			for (int m=0; m<magFreqDist.size(); m++){
 				if(magFreqDist.getY(m) > 0 && magFreqDist.getX(m) >= minMag){
 					mags.add(new Double(magFreqDist.getX(m)));
 					rates.add(new Double(magFreqDist.getY(m)));
@@ -211,7 +211,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 		//magsAndRates = new ArbitrarilyDiscretizedFunc();
 		mags = new ArrayList();
 		rates = new ArrayList();
-		for (int i=0; i<magFreqDist.getNum(); ++i){
+		for (int i=0; i<magFreqDist.size(); ++i){
 			if(magFreqDist.getY(i) > 0 && magFreqDist.getX(i) >= minMag){
 				mags.add(new Double(magFreqDist.getX(i)));
 				rates.add(new Double(magFreqDist.getY(i)));
@@ -253,7 +253,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 			if(mag < this.aveRupTopVersusMag.getMinX())
 				depth = this.defaultHypoDepth;
 			else
-				depth = aveRupTopVersusMag.getClosestY(mag);
+				depth = aveRupTopVersusMag.getClosestYtoX(mag);
 			//    	location.setDepth(depth);
 			location = new Location(
 					location.getLatitude(), location.getLongitude(), depth);

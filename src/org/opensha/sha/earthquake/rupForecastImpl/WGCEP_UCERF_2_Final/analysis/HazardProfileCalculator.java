@@ -89,7 +89,7 @@ public class HazardProfileCalculator implements ParameterChangeWarningListener {
 			HSSFWorkbook wb  = new HSSFWorkbook();
 			HSSFSheet sheet = wb.createSheet(); // Sheet for displaying the Total Rates
 			sheet.createRow(0);
-			int numX_Vals = function.getNum();
+			int numX_Vals = function.size();
 			for(int i=0; i<numX_Vals; ++i)
 				sheet.createRow(i+1).createCell((short)0).setCellValue(function.getX(i));
 			

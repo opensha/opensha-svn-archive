@@ -233,7 +233,7 @@ public class GridParser {
 			// apply weight
 			if (weightGrid && mfd.getMaxX() >= mTaper) {
 				int j = mfd.getXIndex(mTaper + grSrc.dMag / 2);
-				for (; j < mfd.getNum(); j++)
+				for (; j < mfd.size(); j++)
 					mfd.set(j, mfd.getY(j) * wgtDat[i]);
 			}
 			mfdList.add(mfd);
@@ -438,7 +438,7 @@ public class GridParser {
 	}
 	
 	private void applyWeight(IncrementalMagFreqDist mfd, double[] weights) {
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i=0; i<mfd.size(); i++) {
 			double weight = weights[i];
 			if (weight == 1.0) continue;
 			mfd.set(i, mfd.getY(i) * weight);

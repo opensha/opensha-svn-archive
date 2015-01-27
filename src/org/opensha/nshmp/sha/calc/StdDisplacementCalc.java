@@ -41,7 +41,7 @@ public class StdDisplacementCalc {
 
     ArbitrarilyDiscretizedFunc sdTFunction = new ArbitrarilyDiscretizedFunc();
 
-    int numPoints = saFunction.getNum();
+    int numPoints = saFunction.size();
     for (int i = 0; i < numPoints; ++i) {
       double tempPeriod = Math.pow(saFunction.getX(i), 2.0);
       double sdVal = 9.77 * saFunction.getY(i) * tempPeriod;

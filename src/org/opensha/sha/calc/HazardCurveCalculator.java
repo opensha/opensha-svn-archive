@@ -201,7 +201,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	@Override
 	public DiscretizedFunc getAnnualizedRates(DiscretizedFunc hazFunction, double years) {
 		DiscretizedFunc annualizedRateFunc = (DiscretizedFunc)hazFunction.deepClone();
-		int size = annualizedRateFunc.getNum();
+		int size = annualizedRateFunc.size();
 		for(int i=0;i<size;++i){
 			annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
 		}
@@ -256,7 +256,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		int k;
 
 		// get the number of points
-		int numPoints = hazFunction.getNum();
+		int numPoints = hazFunction.size();
 
 		// define distance filtering stuff
 		double maxDistance = maxDistanceParam.getValue();
@@ -441,7 +441,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		DiscretizedFunc hazCurve;
 		hazCurve = (DiscretizedFunc)hazFunction.deepClone();
 		initDiscretizeValues(hazFunction, 0);
-		int numPts=hazCurve.getNum();
+		int numPts=hazCurve.size();
 		// for progress bar
 		currRuptures=0;
 		//	  totRuptures=numEventSets;
@@ -476,7 +476,7 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 		int k;
 
 		// get the number of points
-		int numPoints = hazFunction.getNum();
+		int numPoints = hazFunction.size();
 
 		// define distance filtering stuff
 		double maxDistance = maxDistanceParam.getValue();
@@ -612,10 +612,10 @@ implements HazardCurveCalculatorAPI, ParameterChangeWarningListener{
 	 * @param arb
 	 */
 	protected void initDiscretizeValues(DiscretizedFunc arb, double val){
-		int num = arb.getNum();
+		int num = arb.size();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
-		Preconditions.checkState(num == arb.getNum(), "initializing X values changed size of function! " +
+		Preconditions.checkState(num == arb.size(), "initializing X values changed size of function! " +
 				"It is possible that there is a NaN or infitite value in the hazard curve.");
 	}
 

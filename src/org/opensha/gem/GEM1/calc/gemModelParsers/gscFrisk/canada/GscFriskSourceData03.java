@@ -103,7 +103,7 @@ public class GscFriskSourceData03 extends GemFileParser {
 								mfdMo = new IncrementalMagFreqDist(MMIN+MWDT/2,num,MWDT);
 								
 								// Populating the mfd for moment magnitude
-								for (int i=0; i < mfdMo.getNum(); i++){
+								for (int i=0; i < mfdMo.size(); i++){
 									double rate = 
 										sumMfd.getInterpolatedY(mfdMo.getX(i)-MWDT/2) - 
 										sumMfd.getInterpolatedY(mfdMo.getX(i)+MWDT/2);
@@ -195,7 +195,7 @@ public class GscFriskSourceData03 extends GemFileParser {
 							if (INFO) {
 								System.out.println("Created EvenlyDiscretized Function mmin"+
 										sumMfd.getMinX()+" mmax"+sumMfd.getMaxX()+" num intervals"+
-										sumMfd.getNum());
+										sumMfd.size());
 							}
 							
 							// Depending on the model, creates the Mfd or converts it from Mlg to Mo
@@ -207,7 +207,7 @@ public class GscFriskSourceData03 extends GemFileParser {
 								mfdMo = new IncrementalMagFreqDist(MMIN+MWDT/2,num,MWDT);
 								
 								// Populating the mfd for moment magnitude
-								for (int i=0; i < mfdMo.getNum(); i++){
+								for (int i=0; i < mfdMo.size(); i++){
 									double rate = 
 										sumMfd.getInterpolatedY(mfdMo.getX(i)-MWDT/2) - 
 										sumMfd.getInterpolatedY(mfdMo.getX(i)+MWDT/2);
@@ -396,12 +396,12 @@ public class GscFriskSourceData03 extends GemFileParser {
 			ArbitrarilyDiscretizedFunc mfdMoOriginal = new ArbitrarilyDiscretizedFunc();
 			
 			// Populating the mfd used for conversion
-			for (int i=0; i < sumMfd.getNum(); i++){
+			for (int i=0; i < sumMfd.size(); i++){
 				mfdMoOriginal.set(mlg2mo(sumMfd.getX(i)),sumMfd.getY(i));
 			}
 			
 			// Populating the mfd for moment magnitude
-			for (int i=0; i < mfdMo.getNum(); i++){
+			for (int i=0; i < mfdMo.size(); i++){
 				double rate = mfdMoOriginal.getInterpolatedY(mfdMo.getX(i)-MWDT/2) - 
 					mfdMoOriginal.getInterpolatedY(mfdMo.getX(i)+MWDT/2);
 				mfdMo.set(i,rate);

@@ -660,7 +660,7 @@ public class ProbabilityModelsCalc {
 //			double condRecurIntWhereUnknown = aveCondRecurInterval;
 			
 			if(aveNormTimeSinceLast) {
-				for(int i=0;i<normBPT_CDF.getNum();i++) {
+				for(int i=0;i<normBPT_CDF.size();i++) {
 					double normTimeSinceYears = normBPT_CDF.getX(i);
 					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
 					if(normTimeSinceYears*condRecurIntWhereUnknown>=histOpenInterval && relProbForTimeSinceLast>1e-15) {
@@ -677,7 +677,7 @@ public class ProbabilityModelsCalc {
 				}
 			}
 			else {	// average date of last event
-				for(int i=0;i<normBPT_CDF.getNum();i++) {
+				for(int i=0;i<normBPT_CDF.size();i++) {
 					double timeSinceYears = normBPT_CDF.getX(i)*condRecurIntWhereUnknown;
 					double relProbForTimeSinceLast = 1.0-normBPT_CDF.getY(i);	// this is the probability of the date of last event (not considering hist open interval)
 //if(fltSysRupIndex==testRupID) {
@@ -1651,7 +1651,7 @@ public class ProbabilityModelsCalc {
 				}
 				// now put above averages in normRI_AlongStrike
 				if(numSectInRup>10) {
-					for(int i =0;i<sumRI_AlongHist.getNum();i++) {
+					for(int i =0;i<sumRI_AlongHist.size();i++) {
 						double num = numRI_AlongHist.getY(i);
 						if(num > 0) {
 							normRI_AlongStrike.set(sumRI_AlongHist.getX(i), sumRI_AlongHist.getY(i)/num, 1.0);
@@ -1836,7 +1836,7 @@ public class ProbabilityModelsCalc {
 			aveGainVsMagHist.add(magOfNthRups[i], aveRupProbGainArray[i]*longTermRateOfNthRups[i]);
 			tempWtHist.add(magOfNthRups[i], longTermRateOfNthRups[i]);
 		}
-		for(int i=0;i<aveGainVsMagHist.getNum();i++) {
+		for(int i=0;i<aveGainVsMagHist.size();i++) {
 			double wt = tempWtHist.getY(i);
 			if(wt>1e-15) // avoid division by zero
 				aveGainVsMagHist.set(i,aveGainVsMagHist.getY(i)/wt);
@@ -2765,7 +2765,7 @@ public class ProbabilityModelsCalc {
 			aveGainVsMagHist.add(magOfNthRups[i], aveRupProbGainArray[i]*longTermRateOfNthRups[i]);
 			tempWtHist.add(magOfNthRups[i], longTermRateOfNthRups[i]);
 		}
-		for(int i=0;i<aveGainVsMagHist.getNum();i++) {
+		for(int i=0;i<aveGainVsMagHist.size();i++) {
 			double wt = tempWtHist.getY(i);
 			if(wt>1e-15) // avoid division by zero
 				aveGainVsMagHist.set(i,aveGainVsMagHist.getY(i)/wt);

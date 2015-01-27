@@ -1290,12 +1290,12 @@ public class SynchParamCalculator {
 				//						lagFuncs.add(synchLagFunc);
 				//					} else {
 				EvenlyDiscretizedFunc lnSynchFunc = new EvenlyDiscretizedFunc(
-						synchLagFunc.getMinX(), synchLagFunc.getNum(), synchLagFunc.getDelta());
-				for (int i=0; i<synchLagFunc.getNum(); i++)
+						synchLagFunc.getMinX(), synchLagFunc.size(), synchLagFunc.getDelta());
+				for (int i=0; i<synchLagFunc.size(); i++)
 					lnSynchFunc.set(i, Math.log(synchLagFunc.getY(i)));
 				lagFuncs.add(lnSynchFunc);
-				double lnSynchAvg = lnSynchFunc.calcSumOfY_Vals()/lnSynchFunc.getNum();
-				double linearSynchAvg = synchLagFunc.calcSumOfY_Vals()/synchLagFunc.getNum();
+				double lnSynchAvg = lnSynchFunc.calcSumOfY_Vals()/lnSynchFunc.size();
+				double linearSynchAvg = synchLagFunc.calcSumOfY_Vals()/synchLagFunc.size();
 				//					}
 				spec = new PlotSpec(lagFuncs, myLagChars, lagTitle, lagXAxisLabel, lagYAxisLabel);
 
@@ -1310,20 +1310,21 @@ public class SynchParamCalculator {
 						scaledCombined.set(pt.getX(), pt.getY());
 					// there should only be coruptures at pt 0;
 					double numCorups = corups.getY(0d);
-					if (ccdf.hasPoint(0d, 0d)) {
+					if (ccdf.hasX(0d)) {
 						// we have a point at zero in the ccdf, just add in the coruptures
 						for (Point2D pt : corups) {
 							if (pt.getY() > 0) {
 								double x = pt.getX();
 								double y = pt.getY();
-								if (scaledCombined.hasPoint(pt))
-									y += scaledCombined.getY(scaledCombined.getXIndex(x));
+								int xInd = scaledCombined.getXIndex(x);
+								if (xInd >= 0)
+									y += scaledCombined.getY(xInd);
 								scaledCombined.set(x, y);
 							}
 						}
 					} else {
 						// CCDF doesn't have a point at zero but we want one. average in the bin before/after zero and add in corups
-						double ccdf_at_zero = ccdf.getClosestY(-0.5*chain.getDistSpacing())+ccdf.getClosestY(0.5*chain.getDistSpacing());
+						double ccdf_at_zero = ccdf.getClosestYtoX(-0.5*chain.getDistSpacing())+ccdf.getClosestYtoX(0.5*chain.getDistSpacing());
 						ccdf_at_zero = ccdf_at_zero*0.5 + numCorups;
 						scaledCombined.set(0d, ccdf_at_zero);
 					}
@@ -1331,14 +1332,14 @@ public class SynchParamCalculator {
 					double synchMax = Math.max(Math.abs(plotSynchFunc.getMaxY()), Math.abs(plotSynchFunc.getMinY()));
 					boolean logCCDF = false;
 					if (logCCDF)
-						for (int i=0; i<scaledCombined.getNum(); i++)
+						for (int i=0; i<scaledCombined.size(); i++)
 							scaledCombined.set(i, Math.log(scaledCombined.getY(i)));
 					// subtract the average
 					double ccdfAvg = 0d;
 					for (Point2D pt : scaledCombined)
 						ccdfAvg += pt.getY();
-					ccdfAvg /= scaledCombined.getNum();
-					for (int i=0; i<scaledCombined.getNum(); i++)
+					ccdfAvg /= scaledCombined.size();
+					for (int i=0; i<scaledCombined.size(); i++)
 						scaledCombined.set(i, scaledCombined.getY(i)-ccdfAvg);
 					// it's now centered about 0
 					double ccdfMax = Math.max(Math.abs(scaledCombined.getMaxY()), Math.abs(scaledCombined.getMinY()));

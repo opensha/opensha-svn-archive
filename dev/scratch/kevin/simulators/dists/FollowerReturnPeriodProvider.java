@@ -228,7 +228,7 @@ public class FollowerReturnPeriodProvider implements
 			}
 		}
 		
-		for (int i=0; i<followerIndepHits.getNum(); i++) {
+		for (int i=0; i<followerIndepHits.size(); i++) {
 			followerIndepCumDist.set(i, followerIndepHits.getY(i)/followerIndepTot.getY(i));
 		}
 		
@@ -555,7 +555,7 @@ public class FollowerReturnPeriodProvider implements
 //		List<PlotCurveCh>
 		
 		double totPixels = 800;
-		double funcNum = refHist.getNum();
+		double funcNum = refHist.size();
 		
 		int pixelsPerCell = (int)(totPixels / funcNum);
 		if (pixelsPerCell < 1)
@@ -812,11 +812,11 @@ public class FollowerReturnPeriodProvider implements
 		specs.add(new XYZPlotSpec(autoGivenCrossHitsData, probCPT, title, xAxisLabel, yAxisLabel, ""));
 		yRanges.add(new Range(0d, 750));
 		
-		HistogramFunction driverHist = new HistogramFunction(refHist.getMinX(), refHist.getNum(), refHist.getDelta());
+		HistogramFunction driverHist = new HistogramFunction(refHist.getMinX(), refHist.size(), refHist.getDelta());
 		for (double rp : driverActualDist.getRPs())
 			if (rp <= maxVal)
 				driverHist.add(rp, 1d);
-		HistogramFunction followerHist = new HistogramFunction(refHist.getMinX(), refHist.getNum(), refHist.getDelta());
+		HistogramFunction followerHist = new HistogramFunction(refHist.getMinX(), refHist.size(), refHist.getDelta());
 		for (double rp : followerActualDist.getRPs())
 			if (rp <= maxVal)
 				followerHist.add(rp, 1d);
@@ -828,7 +828,7 @@ public class FollowerReturnPeriodProvider implements
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK),
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		if (randomizedCat != null) {
-			HistogramFunction randFollowHist = new HistogramFunction(refHist.getMinX(), refHist.getNum(), refHist.getDelta());
+			HistogramFunction randFollowHist = new HistogramFunction(refHist.getMinX(), refHist.size(), refHist.getDelta());
 			List<EQSIM_Event> randMatches = follower.getMatches(randomizedCat);
 			for (double rp : PeriodicityPlotter.getRPs(randMatches))
 				if (rp <= maxVal)

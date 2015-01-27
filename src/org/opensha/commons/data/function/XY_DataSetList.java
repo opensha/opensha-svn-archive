@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Named;
-import org.opensha.commons.exceptions.XY_DataSetException;
 
 /**
  * <b>Title:</b> XY_DataSetList<p>
@@ -226,7 +225,7 @@ public class XY_DataSetList extends ArrayList<XY_DataSet> implements Serializabl
             counter++;
             b.append("\nData Set #" + counter + '\n');
             b.append("Name: " + function.getName() + '\n');
-            b.append("Num Points: " + function.getNum() + '\n');
+            b.append("Num Points: " + function.size() + '\n');
             b.append("Info: " + function.getInfo() + "\n\n");
             b.append("X, Y Data:" + '\n');
 

@@ -629,7 +629,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 										// set total moment rate
 										mfd.setAllButTotCumRate(minMag[imag], minMag[imag]+(nmagv-1)*dMag[imag], fileWeight*dmW[iepi]*magWeight[imag]*tmr, bVal[imag]);
 										if(printMFD){
-											for(int ii=0;ii<mfd.getNum();ii++){
+											for(int ii=0;ii<mfd.size();ii++){
 												oWriter.write(mfd.getX(ii)+" "+mfd.getIncrRate(ii)/fileWeight+"\n");
 											//System.out.println(mfd.getX(ii)+" "+mfd.getIncrRate(ii)/fileWeight);
 											}
@@ -704,7 +704,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 										mfdChar.setAllButCumRate(mag, stdMchar, fileWeight*dmW[iepi]*magWeight[imag]*tmr, truncLevel, truncType);
 //										System.out.println("mean magnitude, total rate: "+mfdChar.getMean()+", "+mfdChar.getTotalIncrRate());
 										if(printMFD){
-											for(int ii=0;ii<mfdChar.getNum();ii++){
+											for(int ii=0;ii<mfdChar.size();ii++){
 												oWriter.write(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight+"\n");
 												//System.out.println(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight);
 											}
@@ -715,7 +715,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 										mfdChar.setAllButTotMoRate(mag, stdMchar, fileWeight*dmW[iepi]*magWeight[imag]*tcr, truncLevel, truncType);
 //										System.out.println("mean magnitude, total rate: "+mfdChar.getMean()+", "+mfdChar.getTotalIncrRate());
 										if(printMFD){
-											for(int ii=0;ii<mfdChar.getNum();ii++){
+											for(int ii=0;ii<mfdChar.size();ii++){
 												oWriter.write(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight+"\n");
 												//System.out.println(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight);
 											}
@@ -761,7 +761,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 								// set total moment rate
 								mfd.setAllButTotCumRate(minMag[imag], minMag[imag]+(nmag[imag]-1)*dMag[imag], fileWeight*magWeight[imag]*tmr, bVal[imag]);
 								if(printMFD){
-									for(int ii=0;ii<mfd.getNum();ii++){
+									for(int ii=0;ii<mfd.size();ii++){
 										oWriter.write(mfd.getX(ii)+" "+mfd.getIncrRate(ii)/fileWeight+"\n");
 									 // System.out.println(mfd.getX(ii)+" "+mfd.getIncrRate(ii)/fileWeight);
 									}
@@ -872,7 +872,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 									// set gaussian mfd by balancing moment rate
 									mfdChar.setAllButCumRate(mag, stdMchar, fileWeight*dmW[iepi]*magWeight[imag]*tmr, truncLevel, truncType);
 									if(printMFD){
-										for(int ii=0;ii<mfdChar.getNum();ii++){
+										for(int ii=0;ii<mfdChar.size();ii++){
 											oWriter.write(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight+"\n");
 											//System.out.println(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight);
 										}	
@@ -882,7 +882,7 @@ public class NshmpFault2GemSourceData extends GemFileParser {
 									// set gaussian mfd by balancing rate
 									mfdChar.setAllButTotMoRate(mag, Math.abs(stdMchar), fileWeight*dmW[iepi]*magWeight[imag]*tcr, truncLevel, truncType);
 									if(printMFD){
-										for(int ii=0;ii<mfdChar.getNum();ii++){
+										for(int ii=0;ii<mfdChar.size();ii++){
 											oWriter.write(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight+"\n");
 											//System.out.println(mfdChar.getX(ii)+" "+mfdChar.getIncrRate(ii)/fileWeight);
 										}	

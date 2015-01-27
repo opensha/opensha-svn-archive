@@ -397,7 +397,7 @@ ParameterChangeListener {
 		}
 		
 		// populate original
-		for (int i=0; i<imls.getNum(); i++) {
+		for (int i=0; i<imls.size(); i++) {
 			double val = 0.0;
 			for (DiscretizedFunc f : funcs.keySet()) {
 				val += f.getY(i) * funcs.get(f);

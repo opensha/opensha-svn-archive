@@ -167,7 +167,7 @@ public class UCER3_EAL_CombinerTest {
 				
 				if (gridProv.getNodeMFD(n, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF).calcSumOfY_Vals()>0)
 					numAboveZero++;
-				Preconditions.checkState(gridProv.getNodeMFD(n, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF).getNum() > 0);
+				Preconditions.checkState(gridProv.getNodeMFD(n, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF).size() > 0);
 			}
 			Preconditions.checkState(numAboveZero>0, "Sol "+i+" has all zero mfd nodes!");
 			
@@ -213,7 +213,7 @@ public class UCER3_EAL_CombinerTest {
 			if (i == randEmptyRup)
 				fssLosses[i] = new double[0];
 			else
-				fssLosses[i] = new double[rupMFDs[i].getNum()];
+				fssLosses[i] = new double[rupMFDs[i].size()];
 			for (int j=0; j<fssLosses[i].length; j++)
 				fssLosses[i][j] = r.nextDouble() * 1000d;
 		}

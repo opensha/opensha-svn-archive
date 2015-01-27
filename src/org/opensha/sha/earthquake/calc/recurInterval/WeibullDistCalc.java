@@ -71,7 +71,7 @@ public final class WeibullDistCalc extends EqkProbDistCalc implements ParameterC
 // System.out.println("k="+k+"\nlambda="+lambda+"\ngamma1="+gamma1);
 		
 		double t,pd,cd=0;
-		for(int i=1; i< pdf.getNum(); i++) { // skip first point because it's NaN
+		for(int i=1; i< pdf.size(); i++) { // skip first point because it's NaN
 			t = cdf.getX(i);
 			pd = (k/lambda)*Math.pow(t/lambda,k-1)*Math.exp(-1*Math.pow(t/lambda, k));
 			if(Double.isNaN(pd)){

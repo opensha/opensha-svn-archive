@@ -209,7 +209,7 @@ public class NshmpCeusGridData extends GemFileParser implements Serializable {
 					ArbitrarilyDiscretizedFunc rupVsMagj = psj.getAveRupTopVsMag();
 					
 					// they have the same number of points by definition (in the parser)
-					for(int iv=0;iv<rupVsMagi.getNum();iv++){
+					for(int iv=0;iv<rupVsMagi.size();iv++){
 						if(rupVsMagj.get(iv).getX()!=rupVsMagi.get(iv).getX() || rupVsMagj.get(iv).getY()!=rupVsMagi.get(iv).getY()){
 							sameAveRupTopVsMag = false;
 							break;

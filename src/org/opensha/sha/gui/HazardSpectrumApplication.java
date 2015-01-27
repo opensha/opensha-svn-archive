@@ -633,7 +633,7 @@ extends HazardCurveApplication {
 			function = imtInfo.getDefaultHazardCurve(SA_Param.NAME);
 
 
-		for (int i = 0; i < function.getNum(); ++i)
+		for (int i = 0; i < function.size(); ++i)
 			arb.set(function.getX(i), 1);
 	}
 

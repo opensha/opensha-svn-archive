@@ -620,7 +620,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 						EvenlyDiscretizedFunc taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 						EvenlyDiscretizedFunc taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 						double x,y, sum=0;
-						int num = taperedSlipPDF.getNum();
+						int num = taperedSlipPDF.size();
 						for(int i=0; i<num;i++) {
 							x = taperedSlipPDF.getX(i);
 							y = Math.pow(Math.sin(x*Math.PI), 0.5);

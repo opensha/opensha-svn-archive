@@ -325,7 +325,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 	public static PlotSpec getMFDConvergencePlotSpec(IncrementalMagFreqDist[] mfds, boolean nucleation, String sectName, int n) {
 		double minX = mfds[0].getMinX();
 		double maxX = mfds[0].getMaxX();
-		int num = mfds[0].getNum();
+		int num = mfds[0].size();
 		
 		EvenlyDiscretizedFunc meanFunc = new EvenlyDiscretizedFunc(minX, maxX, num);
 		meanFunc.setName("Mean");
@@ -459,7 +459,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 					DiscretizedFunc func = funcs.get(solFuncIndexes.get(j));
 					double min = func.getMinX();
 					double max = func.getMaxX();
-					int num = func.getNum();
+					int num = func.size();
 					minFuncs.add(new EvenlyDiscretizedFunc(min, max, num));
 					maxFuncs.add(new EvenlyDiscretizedFunc(min, max, num));
 					meanFuncs.add(new EvenlyDiscretizedFunc(min, max, num));
@@ -473,7 +473,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 				EvenlyDiscretizedFunc maxFunc = maxFuncs.get(j);
 				EvenlyDiscretizedFunc meanFunc = meanFuncs.get(j);
 				
-				for (int k=0; k<func.getNum(); k++) {
+				for (int k=0; k<func.size(); k++) {
 					double val = func.getY(k);
 					
 					double minVal = minFunc.getY(k);
@@ -488,7 +488,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		for (int i=0; i<meanFuncs.size(); i++) {
 			EvenlyDiscretizedFunc meanFunc = meanFuncs.get(i);
-			for (int index=0; index<meanFunc.getNum(); index++)
+			for (int index=0; index<meanFunc.size(); index++)
 				meanFunc.set(index, meanFunc.getY(index) / (double)numSols);
 		}
 		

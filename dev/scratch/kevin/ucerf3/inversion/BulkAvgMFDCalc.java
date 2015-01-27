@@ -50,7 +50,7 @@ public class BulkAvgMFDCalc {
 			double minMag = rupSet.getMinMag();
 			double maxMag = avgSol.getInversionConfiguration().getMFDTransitionMag();
 			double e = 0;
-			for (int j=0; j<targetMFD.getNum(); j++) {
+			for (int j=0; j<targetMFD.size(); j++) {
 				double x = targetMFD.getX(j);
 				double targetY = targetMFD.getY(j);
 				if (x < minMag || x > maxMag)

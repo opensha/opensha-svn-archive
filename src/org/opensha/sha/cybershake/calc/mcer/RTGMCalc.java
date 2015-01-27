@@ -567,7 +567,7 @@ public class RTGMCalc {
 		
 		double twoPi = 2d*Math.PI;
 		
-		for (int i=0; i<saFunc.getNum(); i++) {
+		for (int i=0; i<saFunc.size(); i++) {
 			double period = saFunc.getX(i);
 			double sa = saFunc.getY(i)*HazardCurveComputation.CONVERSION_TO_G; // convert to cm/sec^2
 			double vel = (period/twoPi)*sa;
@@ -621,12 +621,12 @@ public class RTGMCalc {
 	
 	private static void validateCurveForRTGM(DiscretizedFunc curve) {
 		// make sure it's not empty
-		Preconditions.checkState(curve.getNum() > 2, "curve is empty");
+		Preconditions.checkState(curve.size() > 2, "curve is empty");
 		// make sure it has actual values
 		Preconditions.checkState(curve.getMaxY() > 0d, "curve has all zero y values");
 		// make sure it is monotonically decreasing
 		String xValStr = Iterators.toString(curve.getYValuesIterator());
-		for (int j=1; j<curve.getNum(); j++)
+		for (int j=1; j<curve.size(); j++)
 			Preconditions.checkState(curve.getY(j) <= curve.getY(j-1),
 				"Curve not monotonically decreasing: "+xValStr);
 	}

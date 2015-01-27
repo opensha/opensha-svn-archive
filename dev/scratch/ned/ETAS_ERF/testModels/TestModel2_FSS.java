@@ -215,7 +215,7 @@ public class TestModel2_FSS extends FaultSystemSolution {
 
 		faultGR = new ArbIncrementalMagFreqDist(roundedMinMag, roundedMaxMag, numPts2);
 		faultGR.setName("faultGR");
-		for(int i=0;i<faultGR.getNum();i++) {
+		for(int i=0;i<faultGR.size();i++) {
 			double mag = faultGR.getX(i);
 			faultGR.set(mag, targetFaultGR.getY(mag));
 		}

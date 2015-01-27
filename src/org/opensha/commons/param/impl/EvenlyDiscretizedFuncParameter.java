@@ -95,7 +95,7 @@ public class EvenlyDiscretizedFuncParameter extends
 		EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)getValue();
 		double min = func.getMinX();
 		double max = func.getMaxX();
-		int num = func.getNum();
+		int num = func.size();
 		if (D)
 			System.out.println(S + "Starting:");
 		minParam = new DoubleParameter(MIN_PARAM_NAME,new Double(min));
@@ -230,7 +230,7 @@ public class EvenlyDiscretizedFuncParameter extends
 		String metadata = getDependentParamMetadataString();
 		metadata +="\n"+"Function Info="+" [ ";
 		EvenlyDiscretizedFunc func= (EvenlyDiscretizedFunc)getValue();
-		int num = func.getNum();
+		int num = func.size();
 		for(int i=0;i<num;++i)
 			metadata +=(float)func.getX(i)+" "+(float)func.getY(i)+" , ";
 		metadata = metadata.substring(0,metadata.lastIndexOf(","));

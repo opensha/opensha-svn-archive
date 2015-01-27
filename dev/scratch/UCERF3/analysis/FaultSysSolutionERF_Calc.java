@@ -879,7 +879,7 @@ public class FaultSysSolutionERF_Calc {
 			System.out.println(e+" of "+erf_list.getNumERFs());
 			SummedMagFreqDist mfdPart = ERF_Calculator.getParticipationMagFreqDistInRegion(erf_list.getERF(e), new CaliforniaRegions.SF_BOX(), 5.05, 40, 0.1, true);
 			EvenlyDiscretizedFunc testMFD_Part = mfdPart.getCumRateDistWithOffset();
-			for(int i=0;i<testMFD_Part.getNum();i++) {
+			for(int i=0;i<testMFD_Part.size();i++) {
 				double prob_part = 1.0 - Math.exp(-testMFD_Part.getY(i)*30);
 				testMFD_Part.set(i,prob_part);
 			}
@@ -1135,12 +1135,12 @@ public class FaultSysSolutionERF_Calc {
 		tableString="U3_total\tU3_faults\tU3_gridded\tU2_total\tU2_faults\tU2_gridded\n";
 		for(double mag=5;mag<8.8;mag+=0.1) {
 			tableString+=(float)mag+"\t";
-			tableString+=mfd_U3_total_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U3_faults_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U3_gridded_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_total_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_faults_cum.getClosestY(mag)+"\t";
-			tableString+=mfd_U2_gridded_cum.getClosestY(mag)+"\n";
+			tableString+=mfd_U3_total_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U3_faults_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U3_gridded_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_total_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_faults_cum.getClosestYtoX(mag)+"\t";
+			tableString+=mfd_U2_gridded_cum.getClosestYtoX(mag)+"\n";
 		}
 		System.out.println(tableString);		
 		
@@ -1250,7 +1250,7 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 	static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
-		int numMag = cmlMFD.getNum();
+		int numMag = cmlMFD.size();
 		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(cmlMFD.getMinX(), numMag, cmlMFD.getDelta());
 		
 		// convert from rates to poisson probabilities
@@ -1265,7 +1265,7 @@ public class FaultSysSolutionERF_Calc {
 	private static void calcSummedProbs(List<List<Double>> probsList, EvenlyDiscretizedFunc result) {
 		// now sum the probabilities as:
 		// totProb = 1 - (1 - prob1)*(1 - prob2)*...*(1 - probN)
-		for (int i=0; i<result.getNum(); i++) {
+		for (int i=0; i<result.size(); i++) {
 			List<Double> probs = probsList.get(i);
 			double totProb = calcSummedProbs(probs);
 			result.set(i, totProb);
@@ -1293,7 +1293,7 @@ public class FaultSysSolutionERF_Calc {
 		if (mag < xVals.getX(magIndex))
 			magIndex--;
 		Preconditions.checkState(magIndex >= 0);
-		for (int m=0; m<=magIndex && m<xVals.getNum(); m++)
+		for (int m=0; m<=magIndex && m<xVals.size(); m++)
 			probsList.get(m).add(prob);
 	}
 	
@@ -3493,7 +3493,7 @@ public class FaultSysSolutionERF_Calc {
 	private static double calcProbAboveMagFromMFD(EvenlyDiscretizedFunc cmlMFD, double minMag, double duration) {
 		cmlMFD = calcProbsFromSummedMFD(cmlMFD, duration);
 		Preconditions.checkState(minMag <= cmlMFD.getMaxX());
-		return cmlMFD.getClosestY(minMag);
+		return cmlMFD.getClosestYtoX(minMag);
 //		for (Point2D pt : calcProbsFromSummedMFD(cmlMFD, duration))
 //			if (pt.getX() >= minMag)
 //				return pt.getY();

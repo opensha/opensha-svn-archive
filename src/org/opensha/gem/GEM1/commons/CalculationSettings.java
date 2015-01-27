@@ -136,7 +136,7 @@ public class CalculationSettings {
     public static ArbitrarilyDiscretizedFunc getDefaultLogIMLVals() {
     	ArbitrarilyDiscretizedFunc imlList = getDefaultIMLVals();
     	ArbitrarilyDiscretizedFunc imlLogList = new ArbitrarilyDiscretizedFunc();
-    	for (int i=0; i<imlList.getNum(); i++) {
+    	for (int i=0; i<imlList.size(); i++) {
     		imlLogList.set(Math.log(imlList.getX(i)), 1.0);
     	}
     	return imlLogList;

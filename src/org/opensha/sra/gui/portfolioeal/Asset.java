@@ -204,12 +204,12 @@ public class Asset implements Cloneable {
 	 */
 	private DiscretizedFunc resetHazardXValues( DiscretizedFunc hazFunction, Vulnerability vulnModel ) {
 		XY_DataSet tempFunc = hazFunction.deepClone();
-		Preconditions.checkState(tempFunc.getNum() == hazFunction.getNum());
+		Preconditions.checkState(tempFunc.size() == hazFunction.size());
 		hazFunction = new ArbitrarilyDiscretizedFunc();
 		double imlvals[] = vulnModel.getIMLValues();
-		Preconditions.checkState(imlvals.length == tempFunc.getNum(), "IML val length inconsistant: "
-				+imlvals.length+" != "+tempFunc.getNum());
-		for( int i = 0; i < tempFunc.getNum(); ++i ) {
+		Preconditions.checkState(imlvals.length == tempFunc.size(), "IML val length inconsistant: "
+				+imlvals.length+" != "+tempFunc.size());
+		for( int i = 0; i < tempFunc.size(); ++i ) {
 			hazFunction.set(imlvals[i],tempFunc.getY(i));
 		}
 		return hazFunction;
@@ -286,7 +286,7 @@ public class Asset implements Cloneable {
 			hazFunction.set( Math.log( imls[i] ), 1 );
 		}
 		
-		Preconditions.checkState(imls.length == hazFunction.getNum());
+		Preconditions.checkState(imls.length == hazFunction.size());
 
 		// Create a HazardCurveCalculator with a site, imr, and erf
 		try {
@@ -302,7 +302,7 @@ public class Asset implements Cloneable {
 			error = true;
 		}
 		
-		Preconditions.checkState(imls.length == hazFunction.getNum());
+		Preconditions.checkState(imls.length == hazFunction.size());
 
 		// Reset the x values of the hazard function
 		hazFunction = (ArbitrarilyDiscretizedFunc) resetHazardXValues( hazFunction, vulnModel );
@@ -394,7 +394,7 @@ public class Asset implements Cloneable {
 			hazFunction.set(imls[i], 1);
 		}
 		
-		Preconditions.checkState(imls.length == hazFunction.getNum());
+		Preconditions.checkState(imls.length == hazFunction.size());
 		
 		double[][] results = new double[erf.getNumSources()][];
 		
@@ -424,10 +424,10 @@ public class Asset implements Cloneable {
 				// calc deterministic hazard curve
 				calc.getHazardCurve(logHazFunction, newSite, imr, rupture);
 				
-				Preconditions.checkState(imls.length == logHazFunction.getNum());
+				Preconditions.checkState(imls.length == logHazFunction.size());
 
 				// populate the linear func with the y values
-				for (int i=0; i<logHazFunction.getNum(); i++)
+				for (int i=0; i<logHazFunction.size(); i++)
 					hazFunction.set(i, logHazFunction.getY(i));
 
 //				// Create the annualized rates function to be used in the EAL calculator

@@ -160,14 +160,14 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 		if (energies.get(energies.size()-1)[0] < maxEqualityEnergy) {
 			// if we're already under the max equality level, adjust the scale so that
 			// everything interesting is visible
-			gw.setAxisRange(0, equalityFunc.getX(equalityFunc.getNum()-1)*1.1, 0, maxEqualityEnergy*1.2);
+			gw.setAxisRange(0, equalityFunc.getX(equalityFunc.size()-1)*1.1, 0, maxEqualityEnergy*1.2);
 		} else {
 			gw.setAutoRange();
 		}
 	}
 	
 	private void updatePlotFuncs() {
-		int start = funcs.get(0).getNum();
+		int start = funcs.get(0).size();
 		for (int i=start; i<energies.size(); i++) {
 			long iter = iterations.get(i);
 			double[] energy = energies.get(i);
@@ -175,7 +175,7 @@ public class ProgressTrackingCompletionCriteria implements CompletionCriteria {
 				funcs.get(j).set((double)iter, energy[j]);
 		}
 		for (ArbitrarilyDiscretizedFunc func : funcs)
-			func.setInfo("Final Energy: "+func.getY(func.getNum()-1));
+			func.setInfo("Final Energy: "+func.getY(func.size()-1));
 	}
 	
 	@Override

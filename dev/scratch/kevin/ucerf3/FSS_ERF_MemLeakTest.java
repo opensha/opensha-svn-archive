@@ -81,7 +81,7 @@ public class FSS_ERF_MemLeakTest {
 			DiscretizedFunc curve = IMT_Info.getUSGS_PGA_Function();
 			
 			ArbitrarilyDiscretizedFunc logHazFunction = new ArbitrarilyDiscretizedFunc();
-			for (int i = 0; i < curve.getNum(); ++i)
+			for (int i = 0; i < curve.size(); ++i)
 				logHazFunction.set(Math.log(curve.getX(i)), 1);
 			calc.getHazardCurve(logHazFunction, site, imr, erf);
 			System.out.println("*** DONE ***");

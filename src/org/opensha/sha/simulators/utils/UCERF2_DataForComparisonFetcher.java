@@ -71,7 +71,7 @@ public class UCERF2_DataForComparisonFetcher {
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		funcs.addAll(ucerf2.getObsIncrMFD(includeAftershocks));
 		for(DiscretizedFunc func:funcs) {
-			for(int i=0;i<func.getNum();i++) func.set(i,func.getY(i)*0.5);
+			for(int i=0;i<func.size();i++) func.set(i,func.getY(i)*0.5);
 			func.setInfo("  ");
 		}
 		funcs.get(0).setName("UCERF2 Observed Incremental MFD Divided by Two (best estimate)");
@@ -93,7 +93,7 @@ public class UCERF2_DataForComparisonFetcher {
 		ArrayList<DiscretizedFunc> funcs = new ArrayList<DiscretizedFunc>();
 		funcs.addAll(UCERF2.getObsCumMFD(includeAftershocks));
 		for(DiscretizedFunc func:funcs) {
-			for(int i=0;i<func.getNum();i++) func.set(i,func.getY(i)*0.5);
+			for(int i=0;i<func.size();i++) func.set(i,func.getY(i)*0.5);
 			func.setInfo("  ");
 		}
 		funcs.get(0).setName("UCERF2 Observed Cumulative MFD Divided by Two (best estimate)");

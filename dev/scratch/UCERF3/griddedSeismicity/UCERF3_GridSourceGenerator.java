@@ -85,7 +85,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
 		mfdMin = realOffFaultMFD.getMinX();
 		mfdMax = realOffFaultMFD.getMaxX();
-		mfdNum = realOffFaultMFD.getNum();
+		mfdNum = realOffFaultMFD.size();
 
 //		polyMgr = FaultPolyMgr.create(fss.getFaultSectionDataList(), 12d);
 		polyMgr = ifss.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr();

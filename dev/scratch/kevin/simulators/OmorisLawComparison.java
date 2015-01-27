@@ -91,7 +91,7 @@ public class OmorisLawComparison {
 				ArbitrarilyDiscretizedFunc eventFunc = new ArbitrarilyDiscretizedFunc();
 				ArbitrarilyDiscretizedFunc omoriComp = new ArbitrarilyDiscretizedFunc();
 				
-				Preconditions.checkState(indepMFD.getNum() == 1);
+				Preconditions.checkState(indepMFD.size() == 1);
 				Preconditions.checkState(indepMFD.getX(0) == magBin);
 				double indepVal = indepMFD.getY(0);
 				
@@ -109,7 +109,7 @@ public class OmorisLawComparison {
 				double myCSVMax = mfd.getMaxX()+0.5*csvDelta;
 				
 				List<String> header = Lists.newArrayList("");
-				for (int m=0; m<mfd.getNum(); m++)
+				for (int m=0; m<mfd.size(); m++)
 					header.add(""+(float)mfd.getX(m));
 				csv.addLine(header);
 				
@@ -137,7 +137,7 @@ public class OmorisLawComparison {
 					double maxDurationSecs = days*secondsPerDay;
 					double minDurationSecs = maxDurationSecs-secondsPerDay;
 					
-					for (int m=0; m<mfd.getNum(); m++)
+					for (int m=0; m<mfd.size(); m++)
 						mfd.set(m, 0d);
 					
 					List<EQSIM_Event> eventsInWindows = Lists.newArrayList();
@@ -158,13 +158,13 @@ public class OmorisLawComparison {
 					}
 					
 					List<String> line = Lists.newArrayList(days+"");
-					for (int m=0; m<mfd.getNum(); m++)
+					for (int m=0; m<mfd.size(); m++)
 						line.add((int)mfd.getY(m)+"");
 					csv.addLine(line);
 					
 					IncrementalMagFreqDist depMFD = MFDCalc.calcMFD(eventsInWindows, elementsInRegion,
 							0, magBin, 1, binWidth);
-					Preconditions.checkState(depMFD.getNum() == 1);
+					Preconditions.checkState(depMFD.size() == 1);
 					Preconditions.checkState(depMFD.getX(0) == magBin);
 					
 					double t = days;

@@ -612,14 +612,14 @@ public class ERF_Calculator {
 		try {
 			fw = new FileWriter(filePathAndName);
 			String header = "lat\tlon";
-			for(int m=0; m<totalMFD.getNum();m++)
+			for(int m=0; m<totalMFD.size();m++)
 				header += "\t"+(float)totalMFD.getX(m);
 			fw.write(header+"\n");
 			for(int i=0;i<griddedRegion.getNodeCount();i++) {
 				Location loc = griddedRegion.locationForIndex(i);
 				String line = (float)loc.getLatitude()+"\t"+(float)loc.getLongitude();
 				IncrementalMagFreqDist mfd = mfds.get(i);
-				for(int m=0; m<mfd.getNum();m++)
+				for(int m=0; m<mfd.size();m++)
 					line += "\t"+(float)mfd.getY(m);
 				fw.write(line+"\n");
 			}

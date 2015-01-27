@@ -411,7 +411,7 @@ public class DataGenerator_HazardCurves
 			 xlRow.createCell((short) 1).setCellValue(curLon);
 			 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
 			 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
-			 for(int j = 0; j < function.getNum(); ++j) {
+			 for(int j = 0; j < function.size(); ++j) {
 				 xlRow.createCell((short) 4).setCellValue(
 						 Double.parseDouble(saValFormat.format(function.getX(j))));
 				 xlRow.createCell((short) 5).setCellValue(

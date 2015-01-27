@@ -160,7 +160,7 @@ public final class DataDisplayFormatter {
 			colPad("(" + xAxisUnits + ")", xAxisString, 2) + 
 			colPad("(" + yAxisUnits + ")", yAxisString, 2) + "\n";
 
-		for (int i = 0; i < function.getNum(); ++i) {
+		for (int i = 0; i < function.size(); ++i) {
 			dataInfo += colPad(saValFormat.format(function.getX(i)),xAxisString,2) +
 				colPad(annualExceedanceFormat.format(function.getY(i)),yAxisString,2) +
 				"\n";
@@ -187,7 +187,7 @@ public final class DataDisplayFormatter {
         functionList.get(1);
     ArbitrarilyDiscretizedFunc function2 = (ArbitrarilyDiscretizedFunc)
         functionList.get(0);
-		for (int i = 0; i < function1.getNum(); ++i) {
+		for (int i = 0; i < function1.size(); ++i) {
 			dataInfo += colPad(saValFormat.format(function1.getX(i)),"Period",2) +
 				colPad(saValFormat.format(function1.getY(i)), 6, 2) +
 				colPad(saValFormat.format(function2.getY(i)), 6, 2) + "\n";
@@ -209,7 +209,7 @@ public final class DataDisplayFormatter {
 	  info.append(colPad("Period", 6, 2) + colPad("Sa", 6, 2) + "\n");
 	  info.append(colPad("(sec)", 6, 2) + colPad("(g)", 6, 2) + "\n");
 	  ArbitrarilyDiscretizedFunc func=(ArbitrarilyDiscretizedFunc) funcs.get(1);
-	  int num = func.getNum();
+	  int num = func.size();
 	  for (int i = 0; i < num; ++i) {
 		  info.append(colPad(saValFormat.format(func.getX(i)), "Period", 2) +
 				  colPad(saValFormat.format(func.getY(i)), 6, 2) + "\n");

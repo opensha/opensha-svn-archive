@@ -320,7 +320,7 @@ public class MomentMatchingPortfolioLECTest {
 		
 		// now skip the empty rows
 		row++; // comment line
-		row += func.getNum();
+		row += func.size();
 		
 		return row;
 	}

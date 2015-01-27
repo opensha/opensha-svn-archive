@@ -62,7 +62,7 @@ public class FractileListEstimate extends Estimate {
 	   String text =  "EstimateType="+getName()+"\n";
 	   text+=super.toString()+"\n";
 	   text+="Values from toString() method of specific estimate\nValue\tProbability\n";
-	   for(int i=0; func!=null && i<func.getNum(); ++i) {
+	   for(int i=0; func!=null && i<func.size(); ++i) {
 		   text += "\n"+func.getX(i) + "\t"+func.getY(i);
 	   }	
 	   return text;
@@ -81,7 +81,7 @@ public class FractileListEstimate extends Estimate {
    public void setValues(AbstractDiscretizedFunc func) {
      max = func.getMaxX();
      min = func.getMinX();
-     int numValues = func.getNum();
+     int numValues = func.size();
      // check that 0≤Y≤1
      double y,y_last=-1;
      double sum=0;
@@ -108,7 +108,7 @@ public class FractileListEstimate extends Estimate {
     */
    public double getMedian() {
      // check that median is defined
-     int numValues = func.getNum();
+     int numValues = func.size();
      if(numValues==1 && func.getY(0)!=0.5)
        throw new InvalidParamValException(MEDIAN_UNDEFINED);
      else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
@@ -125,7 +125,7 @@ public class FractileListEstimate extends Estimate {
     * @return
     */
    public double getFractile(double prob) {
-     if(prob > func.getY(0) && prob > func.getY(func.getNum()-1))
+     if(prob > func.getY(0) && prob > func.getY(func.size()-1))
         return func.getFirstInterpolatedX(prob);
      else
        throw new InvalidParamValException(FRACTILE_UNDEFINED);

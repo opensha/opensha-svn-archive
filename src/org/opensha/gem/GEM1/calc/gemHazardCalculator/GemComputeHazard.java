@@ -82,12 +82,12 @@ public class GemComputeHazard implements Runnable {
     	
     	//  Y values of the hazard curves
     	ArrayList<Double[]> probExList = new ArrayList<Double[]>();
-    	for(int i=0;i<siteList.size();i++) probExList.add(new Double[imlList.getNum()]);
+    	for(int i=0;i<siteList.size();i++) probExList.add(new Double[imlList.size()]);
     	//for(int i=0;i<siteList.size();i++) probExList.add(new Double[iml.getArrayLnIML().size()]);
     	
     	// array of ground motion values
     	ArrayList<Double> gmv = new ArrayList<Double>();
-    	for(int i=0;i<imlList.getNum();i++) gmv.add(i, imlList.getX(i));
+    	for(int i=0;i<imlList.size();i++) gmv.add(i, imlList.getX(i));
     	
 		//this.hcRep = new GEMHazardCurveRepository(siteList,iml.getArrayLnIML(),probExList,units);	
 		this.hcRep = new GEMHazardCurveRepository(siteList,gmv,probExList,units);
@@ -114,12 +114,12 @@ public class GemComputeHazard implements Runnable {
      	
      	//  Y values of the hazard curves
      	ArrayList<Double[]> probExList = new ArrayList<Double[]>();
-     	for(int i=0;i<siteList.size();i++) probExList.add(new Double[imlList.getNum()]);
+     	for(int i=0;i<siteList.size();i++) probExList.add(new Double[imlList.size()]);
      	//for(int i=0;i<siteList.size();i++) probExList.add(new Double[iml.getArrayLnIML().size()]);
      	
      	// array of ground motion values
      	ArrayList<Double> gmv = new ArrayList<Double>();
-     	for(int i=0;i<imlList.getNum();i++) gmv.add(i, imlList.getX(i));
+     	for(int i=0;i<imlList.size();i++) gmv.add(i, imlList.getX(i));
      	
  		//this.hcRep = new GEMHazardCurveRepository(siteList,iml.getArrayLnIML(),probExList,units);	
  		this.hcRep = new GEMHazardCurveRepository(siteList,gmv,probExList,units);
@@ -219,8 +219,8 @@ public class GemComputeHazard implements Runnable {
 		    	hcc.getHazardCurve(hcThread,siteList.get(i),gmpeTmp,ERFThread);
 		    //}
 			
-			Double[] tmp = new Double[hcThread.getNum()];
-			for (int j=0; j<hcThread.getNum(); j++){
+			Double[] tmp = new Double[hcThread.size()];
+			for (int j=0; j<hcThread.size(); j++){
 				tmp[j] = hcThread.getY(j);
 			}
 			

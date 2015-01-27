@@ -591,7 +591,7 @@ public class RupsInFaultSystemInversion {
 				taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 				taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 				double x,y, sum=0;
-				int num = taperedSlipPDF.getNum();
+				int num = taperedSlipPDF.size();
 				for(int i=0; i<num;i++) {
 					x = taperedSlipPDF.getX(i);
 					y = Math.pow(Math.sin(x*Math.PI), 0.5);
@@ -705,7 +705,7 @@ public class RupsInFaultSystemInversion {
 //			findUCERF2_Rups.getN_Cal_UCERF2_BackgrMFD_WithAfterShocks();
 //			findUCERF2_Rups.getN_CalTotalTargetGR_MFD();
 			targetMagFreqDist = findUCERF2_Rups.getN_CalTargetMinusBackground_MFD(); 
-			numRows=numRows+targetMagFreqDist.getNum(); // add number of rows used for magnitude distribution constraint
+			numRows=numRows+targetMagFreqDist.size(); // add number of rows used for magnitude distribution constraint
 		}
 		
 		

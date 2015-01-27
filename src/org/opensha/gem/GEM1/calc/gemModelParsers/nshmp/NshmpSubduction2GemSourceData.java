@@ -277,7 +277,7 @@ public class NshmpSubduction2GemSourceData extends GemFileParser {
             	//mfd = new IncrementalMagFreqDist(minimumMag,maximumMag,dMag);
             	mfd = new IncrementalMagFreqDist(minimumMag,numMag,dMag);
             	//System.out.println(mfd);
-            	for(int iv=0;iv<mfd.getNum();iv++){
+            	for(int iv=0;iv<mfd.size();iv++){
             		double mag = minimumMag+iv*dMag;
             		//System.out.println(mag);
             		// line 730

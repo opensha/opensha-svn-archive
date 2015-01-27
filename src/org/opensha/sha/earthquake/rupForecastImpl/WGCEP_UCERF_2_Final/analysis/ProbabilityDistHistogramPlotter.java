@@ -246,7 +246,7 @@ public class ProbabilityDistHistogramPlotter {
 			DiscretizedFunc aFaultsProbs, 
 			DiscretizedFunc bFaultsProbs, DiscretizedFunc nonCA_B_FaultsProbs, 
 			DiscretizedFunc cZoneProbs, DiscretizedFunc bckgroundProbs) {
-		int numMags = totalProbs.getNum();
+		int numMags = totalProbs.size();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			prob *= 1-bFaultsProbs.getY(i);
@@ -408,7 +408,7 @@ public class ProbabilityDistHistogramPlotter {
 	 * @param func2
 	 */
 	private void addFuncs(EvenlyDiscretizedFunc func1, EvenlyDiscretizedFunc func2) {
-		for(int i=0; i<func1.getNum(); ++i)
+		for(int i=0; i<func1.size(); ++i)
 			func1.add(i, func2.getY(i));
 	}
 
@@ -571,7 +571,7 @@ public class ProbabilityDistHistogramPlotter {
 
 				rowIndex = 6;
 				// now write all x values in first column
-				for(int i=0; i<xValuesFunc.getNum(); ++i)
+				for(int i=0; i<xValuesFunc.size(); ++i)
 					newSheet.createRow(rowIndex++).createCell((short)0).setCellValue(xValuesFunc.getX(i));
 
 				// write min, max, avg and Y values in all subsequent columns
@@ -586,7 +586,7 @@ public class ProbabilityDistHistogramPlotter {
 
 					rowIndex = 6;
 					// now write all x values in first column
-					for(int i=0; i<func.getNum(); ++i)
+					for(int i=0; i<func.size(); ++i)
 						newSheet.createRow(rowIndex++).createCell((short)colIndex).setCellValue(func.getY(i));
 
 				}

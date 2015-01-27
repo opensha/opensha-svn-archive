@@ -69,6 +69,7 @@ public interface DiscretizedFunc extends XY_DataSet {
 	
 	/** returns the y-value given an x-value - within tolerance */
 	public double getY(double x);
+	
 
 	/* ***************/
 	/* INTERPOLATION */
@@ -124,6 +125,7 @@ public interface DiscretizedFunc extends XY_DataSet {
 	 */
 	public double getFirstInterpolatedX_inLogXLogYDomain(double y);
 	
+	
 	/* ***************************/
 	/* Index Getters From Points */
 	/* ***************************/
@@ -149,6 +151,13 @@ public interface DiscretizedFunc extends XY_DataSet {
 	 */
 	public void scale(double scale);
 	
+	/**
+	 * Calculates the sum of all y values. If any such value is NaN, this will return NaN.
+	 * @return
+	 */
+	public double calcSumOfY_Vals();
+	
+	@Override
 	public DiscretizedFunc deepClone();
 
 }

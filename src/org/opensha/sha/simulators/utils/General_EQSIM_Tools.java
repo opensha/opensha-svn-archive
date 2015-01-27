@@ -43,7 +43,6 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
@@ -799,7 +798,7 @@ public class General_EQSIM_Tools {
 		
 		if(!Double.isNaN(bptAperForComparison)) {
 			BPT_DistCalc bpt_calc = new BPT_DistCalc();
-			bpt_calc.setAll(1.0, bptAperForComparison, funcList.get(1).getDelta()/2, funcList.get(1).getNum());	// not the first one because that's the obs histogram
+			bpt_calc.setAll(1.0, bptAperForComparison, funcList.get(1).getDelta()/2, funcList.get(1).size());	// not the first one because that's the obs histogram
 			EvenlyDiscretizedFunc bpt_func = bpt_calc.getPDF();
 			bpt_func.setName("BPT Dist for comparison");
 			bpt_func.setInfo("(mean="+1.0+", aper="+bptAperForComparison+")");
@@ -1424,7 +1423,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 
 		
 		// Plot average norm RI along rupture
-		for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
+		for(int i=0;i<aveNormRI_AlongRup.size();i++) {
 			aveNormRI_AlongRup.set(i, aveNormRI_AlongRup.getY(i)/numRIsAlongHist.getY(i));
 		}
 		ArrayList<DiscretizedFunc> funcList = new ArrayList<DiscretizedFunc>();
@@ -1449,13 +1448,13 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			fw = new FileWriter("riDistsAlongStrikeXYZ.txt");
 			fw.write("normDistAlong\tnormRI\tfraction\n");
 			ArrayList<DiscretizedFunc> normRI_AlongRupFuncList = new ArrayList<DiscretizedFunc>();
-			for(int i=0;i<aveNormRI_AlongRup.getNum();i++) {
+			for(int i=0;i<aveNormRI_AlongRup.size();i++) {
 				double distAlong = aveNormRI_AlongRup.getX(i);
 				HistogramFunction hist = riDistsAlongAlongRup[i];
 				hist.normalizeBySumOfY_Vals();
 				hist.setName("Dist Along "+(float)distAlong);
 				normRI_AlongRupFuncList.add(hist);
-				for(int j=0;j<hist.getNum();j++)
+				for(int j=0;j<hist.size();j++)
 					fw.write((float)distAlong+"\t"+(float)hist.getX(j)+"\t"+(float)hist.getY(j)+"\n");
 //				}
 			}

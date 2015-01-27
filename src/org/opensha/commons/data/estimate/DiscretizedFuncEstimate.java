@@ -58,7 +58,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
 	  String text =  "EstimateType="+getName()+"\n";
 	  text+=super.toString()+"\n";
 	  text+="Values from toString() method of specific estimate\nValue\tProbability\n";
-	  for(int i=0; func!=null && i<func.getNum(); ++i) {
+	  for(int i=0; func!=null && i<func.size(); ++i) {
 		  text += "\n"+func.getX(i) + "\t"+func.getY(i);
 	  }	
 	  text+="\ngetFractile(0.5) = "+this.getFractile(0.5)+"\n"+
@@ -77,7 +77,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
 
     // Check normalization and value range
     double sum=0, val;
-    int num = newFunc.getNum();
+    int num = newFunc.size();
     if(isNormalized) { // check values
       for (int i = 0; i < num; ++i) {
         val = newFunc.getY(i);
@@ -102,7 +102,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
       }
     }
 	func = new ArbDiscrEmpiricalDistFunc();
-    for(int i=0; i<newFunc.getNum(); ++i)
+    for(int i=0; i<newFunc.size(); ++i)
     	func.set(newFunc.getX(i), newFunc.getY(i));
     
     min = func.getMinX();

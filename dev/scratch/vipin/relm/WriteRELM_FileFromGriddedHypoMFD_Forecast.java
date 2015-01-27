@@ -213,12 +213,12 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
          HypoMagFreqDistAtLoc hypoMFD_AtLoc4 = griddedHypoMFD.getHypoMagFreqDistAtLoc(region.indexForLocation(loc4));
          IncrementalMagFreqDist incrementalMFD4 = hypoMFD_AtLoc4.getMagFreqDistList()[0];
          
-         for(int j=0; j<incrementalMFD1.getNum(); ++j) {
+         for(int j=0; j<incrementalMFD1.size(); ++j) {
              mag1  = incrementalMFD1.getX(j)-incrementalMFD1.getDelta()/2;
              mag2  = incrementalMFD1.getX(j)+incrementalMFD1.getDelta()/2;
              rate  = (incrementalMFD1.getIncrRate(j)+incrementalMFD2.getIncrRate(j)+
              		incrementalMFD3.getIncrRate(j)+incrementalMFD4.getIncrRate(j))/4;
-             if(j==incrementalMFD1.getNum()-1) mag2=10.0;
+             if(j==incrementalMFD1.size()-1) mag2=10.0;
              fw.write((float)lon1+"\t"+(float)(lon2)+"\t"+
             		 (float)lat1+"\t"+(float)(lat2)+"\t"+depth1+"\t"+
                       depth2+"\t"+(float)mag1+"\t"+(float)mag2+"\t"+rate+"\t"+MASK+"\n");

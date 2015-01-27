@@ -108,7 +108,7 @@ public class FSS_ERF_PrefBlendTest {
 				DiscretizedFunc avgFunc = averagedFuncs.get(i);
 				DiscretizedFunc indFunc = funcs.get(i);
 				
-				for (int j=0; j<avgFunc.getNum(); j++)
+				for (int j=0; j<avgFunc.size(); j++)
 					avgFunc.set(j, avgFunc.getY(j) + weight*indFunc.getY(j));
 			}
 		}
@@ -118,7 +118,7 @@ public class FSS_ERF_PrefBlendTest {
 			DiscretizedFunc avgFunc = averagedFuncs.get(i);
 			DiscretizedFunc blendFunc = blendFuncs.get(i);
 			
-			for (int j=0; j<avgFunc.getNum(); j++) {
+			for (int j=0; j<avgFunc.size(); j++) {
 				double expected = avgFunc.getY(j);
 				double actual = blendFunc.getY(j);
 				assertEquals("Failed for site "+i+" pt "+j+" at x="+avgFunc.getX(j), expected, actual, tol);

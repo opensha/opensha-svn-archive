@@ -121,7 +121,7 @@ public class ResultPlotter {
 		}
 		ArbitrarilyDiscretizedFunc[] ret = { energyVsIter, energyVsTime, iterVsTime };
 		
-		System.out.println("DONE (size="+energyVsTime.getNum()+")");
+		System.out.println("DONE (size="+energyVsTime.size()+")");
 		
 		return ret;
 	}
@@ -181,7 +181,7 @@ public class ResultPlotter {
 			ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
 			newFunc.setName(name);
 			
-			for (int i=0; i<func.getNum(); i++) {
+			for (int i=0; i<func.size(); i++) {
 				double iters, other;
 				if (itersIsX) {
 					iters = func.getX(i);
@@ -308,7 +308,7 @@ public class ResultPlotter {
 	
 	private static ArbitrarilyDiscretizedFunc getSwapped(DiscretizedFunc func) {
 		ArbitrarilyDiscretizedFunc swapped = new ArbitrarilyDiscretizedFunc();
-		for (int i=0; i<func.getNum(); i++)
+		for (int i=0; i<func.size(); i++)
 			swapped.set(func.getY(i), func.getX(i));
 		return swapped;
 	}
@@ -355,7 +355,7 @@ public class ResultPlotter {
 	private static double getLowestEnergy(List<DiscretizedFunc> funcs) {
 		double min = Double.MAX_VALUE;
 		for (DiscretizedFunc func : funcs) {
-			double minE = func.getY(func.getNum()-1);
+			double minE = func.getY(func.size()-1);
 			if (minE < min)
 				min = minE;
 		}
@@ -395,20 +395,20 @@ public class ResultPlotter {
 	private static final double extrap_slope_pt_fraction = 0.90;
 	
 	private static DiscretizedFunc getExtrapolatedRef(DiscretizedFunc ref, double targetEnergy) {
-		double energy = ref.getY(ref.getNum()-1);
+		double energy = ref.getY(ref.size()-1);
 		if (targetEnergy > energy)
 			// ref func already goes low enough!
 			return null;
 		
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		ret.setName(ref.getName()+" (EXTRAPOLATED)");
-		double startTime = ref.getX(ref.getNum()-1);
-		double timeDelta = startTime - ref.getX(ref.getNum()-2);
+		double startTime = ref.getX(ref.size()-1);
+		double timeDelta = startTime - ref.getX(ref.size()-2);
 		
-		int i1 = ref.getNum()-1;
+		int i1 = ref.size()-1;
 		int i0 = -1;
 		double extrapPtTime = startTime * extrap_slope_pt_fraction;
-		for (int i=0; i<ref.getNum(); i++) {
+		for (int i=0; i<ref.size(); i++) {
 			double time = ref.getX(i);
 			if (time > extrapPtTime) {
 				i0 = i;
@@ -444,7 +444,7 @@ public class ResultPlotter {
 			ArbitrarilyDiscretizedFunc speedupFunc = new ArbitrarilyDiscretizedFunc();
 			speedupFunc.setName(comp.getName());
 			
-			for (int i=0; i<comp.getNum(); i++) {
+			for (int i=0; i<comp.size(); i++) {
 				double time = comp.getX(i);
 				double refTime = comp.getY(i);
 				
@@ -620,7 +620,7 @@ public class ResultPlotter {
 		if (thread_speed_csv && dir != null) {
 			CSVFile<String> csv = new CSVFile<String>(true);
 			csv.addLine(Lists.newArrayList("Threads", "Speedup"));
-			for (int i=0; i<spd.getNum(); i++) {
+			for (int i=0; i<spd.size(); i++) {
 				Integer threads = (int)spd.getX(i);
 				Double speedup = spd.getY(i);
 				
@@ -1220,10 +1220,10 @@ public class ResultPlotter {
 							if (combTimeComps != null && combTimeComps.get(i) !=  null) {
 								DiscretizedFunc stitched = new ArbitrarilyDiscretizedFunc();
 								stitched.setName(origFunc.getName()+" (STICHED WITH EXTRAP)");
-								for (int j=0; j<origFunc.getNum(); j++) {
+								for (int j=0; j<origFunc.size(); j++) {
 									stitched.set(origFunc.get(j));
 								}
-								for (int j=0; j<func.getNum(); j++) {
+								for (int j=0; j<func.size(); j++) {
 									stitched.set(func.get(j));
 								}
 								combTimeComps.set(i, stitched);

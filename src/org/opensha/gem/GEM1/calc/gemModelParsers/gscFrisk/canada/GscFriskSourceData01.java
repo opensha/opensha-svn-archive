@@ -165,12 +165,12 @@ public class GscFriskSourceData01 extends GemFileParser {
 						ArbitrarilyDiscretizedFunc mfdMoOriginal = new ArbitrarilyDiscretizedFunc();
 						
 						// Populating the mfd used for conversion
-						for (int i=0; i < sumMfd.getNum(); i++){
+						for (int i=0; i < sumMfd.size(); i++){
 							mfdMoOriginal.set(mlg2mo(sumMfd.getX(i)),sumMfd.getY(i));
 						}
 						
 						// Populating the mfd for moment magnitude
-						for (int i=0; i < mfdMo.getNum(); i++){
+						for (int i=0; i < mfdMo.size(); i++){
 							double rate = mfdMoOriginal.getInterpolatedY(mfdMo.getX(i)-MWDT/2) - 
 								mfdMoOriginal.getInterpolatedY(mfdMo.getX(i)+MWDT/2);
 							mfdMo.set(i,rate);

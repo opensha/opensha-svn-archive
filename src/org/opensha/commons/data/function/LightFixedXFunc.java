@@ -4,8 +4,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
 
 /**
  * This is a lightweight array based DescretizedFunc instance that doesn't allow
@@ -18,7 +16,7 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	private double[] xVals, yVals;
 	
 	public LightFixedXFunc(DiscretizedFunc func) {
-		xVals = new double[func.getNum()];
+		xVals = new double[func.size()];
 		yVals = new double[xVals.length];
 		
 		for (int i=0; i<xVals.length; i++) {
@@ -49,55 +47,12 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
-	private int getXIndexBefore(double x) {
+	@Override
+	public int getXIndexBefore(double x) {
 		int ind = Arrays.binarySearch(xVals, x);
 		if (ind < 0)
 			return -ind-2;
 		return ind-1;
-	}
-
-	@Override
-	public double getInterpolatedY(double x) {
-//		throw new UnsupportedOperationException("Not yet implemented");
-		// finds the size of the point array
-		int max=xVals.length;
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(max-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1)
-					+" (supplied x: "+x+")");
-		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
-		if(x==getX(max-1))
-			return getY(x);
-		//finds the X values within which the the given x value lies
-		int x1Ind = getXIndexBefore(x);
-		if (x1Ind == -1)
-			// this means that it matches at index 0
-			return getY(0);
-		int x2Ind = x1Ind+1;
-		Point2D pt1 = get(x1Ind);
-		Point2D pt2 = get(x2Ind);
-		double x1 = pt1.getX();
-		double y1 = pt1.getY();
-		double x2 = pt2.getX();
-		double y2 = pt2.getY();
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-		return y;
-	}
-
-	@Override
-	public double getInterpolatedY_inLogXLogYDomain(double x) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	@Override
-	public double getInterpolatedY_inLogYDomain(double x) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	@Override
-	public double getFirstInterpolatedX_inLogXLogYDomain(double y) {
-		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
@@ -118,7 +73,7 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public int getNum() {
+	public int size() {
 		return xVals.length;
 	}
 
@@ -144,6 +99,8 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 
 	@Override
 	public Point2D get(int index) {
+		if (index < 0 || index >= size())
+			return null;
 		return new Point2D.Double(xVals[index], yVals[index]);
 	}
 
@@ -158,34 +115,24 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		int ind = getIndex(point);
 		if (ind < 0)
-			throw new UnsupportedOperationException("Can't add new points");
+			throw new IllegalArgumentException("No matching value in functions domain and can't add new points");
 		yVals[ind] = point.getY();
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		int ind = getXIndex(x);
 		if (ind < 0)
-			throw new UnsupportedOperationException("Can't add new points");
+			throw new IllegalArgumentException("No matching value in functions domain and can't add new points");
 		yVals[ind] = y;
 	}
 
 	@Override
 	public void set(int index, double Y) throws IndexOutOfBoundsException {
 		yVals[index] = Y;
-	}
-
-	@Override
-	public boolean hasPoint(Point2D point) {
-		return getIndex(point) >= 0;
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return hasPoint(new Point2D.Double(x, y));
 	}
 
 	@Override

@@ -591,7 +591,7 @@ public class HazardCurve2DB {
 		String sql = "INSERT into Hazard_Curve_Points "+ 
 				"(Hazard_Curve_ID,X_Value,Y_Value) "+
 				"VALUES";
-		int numPoints = hazardFunc.getNum();
+		int numPoints = hazardFunc.size();
 		for (int i=0; i<numPoints; i++) {
 			Point2D pt = hazardFunc.get(i);
 			sql += " (" + id + "," + pt.getX() + "," + pt.getY() + ")";

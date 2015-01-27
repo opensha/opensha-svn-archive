@@ -709,12 +709,12 @@ public class InversionInputGenerator {
 						if (excludeParkfieldRupsFromMfdEqualityConstraints==false || !parkfieldRups.contains(rup)) {		
 //							A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeEqualityConstraintWt * fractRupInside);
 							if (QUICK_GETS_SETS){
-								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
-								if (targetMagFreqDist.getClosestY(mag)==0) 
+								A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestYtoX(mag));
+								if (targetMagFreqDist.getClosestYtoX(mag)==0) 
 									A.setQuick(rowIndex+targetMagFreqDist.getClosestXIndex(mag)-targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()),rup,0);
 							}
 							else
-								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+								A.set(rowIndex+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeEqualityConstraintWt * fractRupInside / targetMagFreqDist.getClosestYtoX(mag));
 							numNonZeroElements++;
 						}
 					}
@@ -753,12 +753,12 @@ public class InversionInputGenerator {
 					if (fractRupInside > 0 && mag>targetMagFreqDist.getMinX()-targetMagFreqDist.getDelta()/2.0 && mag<targetMagFreqDist.getMaxX()+targetMagFreqDist.getDelta()/2.0) {
 //						A_ineq.setQuick(rowIndex_MFD+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside);
 						if (QUICK_GETS_SETS) {
-							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
-							if (targetMagFreqDist.getClosestY(mag)==0) 
+							A_ineq.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestYtoX(mag));
+							if (targetMagFreqDist.getClosestYtoX(mag)==0) 
 								A.setQuick(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,0);
 						}
 						else
-							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestY(mag));
+							A_ineq.set(rowIndex_ineq+targetMagFreqDist.getClosestXIndex(mag),rup,magnitudeInequalityConstraintWt * fractRupInside / targetMagFreqDist.getClosestYtoX(mag));
 					}
 				}		
 				for (int xIndex=targetMagFreqDist.getClosestXIndex(rupSet.getMinMag()); xIndex<=targetMagFreqDist.getClosestXIndex(rupSet.getMaxMag()); xIndex++) {

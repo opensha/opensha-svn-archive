@@ -659,7 +659,7 @@ public class RupRateConvergenceGUI extends JFrame implements ParameterChangeList
 		} else if (param == sortParam) {
 			rebuildPlot();
 		} else {
-			int totSize = funcs.get(0).getNum();
+			int totSize = funcs.get(0).size();
 			
 			// move/zoom buttons
 			if (param == startParam) {

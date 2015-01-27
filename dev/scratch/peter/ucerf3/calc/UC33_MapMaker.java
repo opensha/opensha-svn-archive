@@ -2419,7 +2419,7 @@ public class UC33_MapMaker {
 	// hazpoint generates curves that are short when they contain trailing
 	// zero values, a curve container keeps the zeros (or very low values)
 	private static void addCurves(DiscretizedFunc c1, DiscretizedFunc c2) {
-		for (int i=0; i<c1.getNum(); i++) {
+		for (int i=0; i<c1.size(); i++) {
 			c1.set(i, c1.getY(i) + c2.getY(i));
 		}
 	}

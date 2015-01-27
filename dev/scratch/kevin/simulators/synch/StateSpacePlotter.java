@@ -543,7 +543,7 @@ public class StateSpacePlotter {
 					double origStart = func.getY(0);
 					func.scale(1d/func.getY(0));
 					double add = k - centerIndex - 1;
-					for (int l=0; l<func.getNum(); l++)
+					for (int l=0; l<func.size(); l++)
 						func.add(l, add);
 					Color c;
 //					if (k == centerIndex)

@@ -306,7 +306,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 
 			@Override
 			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
-				int numInts = value.getNum();
+				int numInts = value.size();
 				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
 				// each double value is 8 bytes
 				int weight = 2*8*numInts+30; // pad for object overhead and other primitives
@@ -1112,7 +1112,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist supraMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
-		for(int i=0;i<aveCubeSampler.getNum(); i++) {
+		for(int i=0;i<aveCubeSampler.size(); i++) {
 			SummedMagFreqDist mfd = getCubeMFD(i);
 			if(mfd != null) {
 				double total = mfd.getTotalIncrRate();
@@ -1999,7 +1999,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		double maxMagTest=0;
 		int testSrcIndex=-1;
-		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].size());
 		for(int srcIndex:rateForSrcHashtable.keySet()) {
 			SummedMagFreqDist mfd=null;
 			double srcNuclRate = rateForSrcHashtable.get(srcIndex);
@@ -2020,7 +2020,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			}
 			double totRate = mfd.getTotalIncrRate();
 			if(totRate>0) {
-				for(int m=0;m<mfd.getNum();m++) {
+				for(int m=0;m<mfd.size();m++) {
 					magDist.add(m, mfd.getY(m)*srcNuclRate/totRate);
 				}
 				double maxMag = mfd.getMaxMagWithNonZeroRate();
@@ -2062,7 +2062,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		if(rateForSrcInCubeHashtable == null)
 			return null;
 		
-		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].size());
 		for(int srcIndex:rateForSrcInCubeHashtable.keySet()) {
 			if(srcIndex < numFltSystSources)
 				continue;	// skip fault based sources
@@ -2085,7 +2085,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			}
 			double totRate = mfd.getTotalIncrRate();
 			if(totRate>0) {
-				for(int m=0;m<mfd.getNum();m++)
+				for(int m=0;m<mfd.size();m++)
 					magDist.add(m, mfd.getY(m)*srcNuclRate/totRate);
 			}
 		}
@@ -2152,14 +2152,14 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		if(rateForSrcHashtable == null)
 			return null;
 		
-		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].size());
 		for(int srcIndex:rateForSrcHashtable.keySet()) {
 			if(srcIndex < numFltSystSources) {
 				SummedMagFreqDist mfd = mfdForSrcArray[srcIndex];
 				double srcNuclRate = rateForSrcHashtable.get(srcIndex);
 				double totRate = mfd.getTotalIncrRate();
 				if(totRate>0) {
-					for(int m=0;m<mfd.getNum();m++) {
+					for(int m=0;m<mfd.size();m++) {
 						magDist.add(m, mfd.getY(m)*srcNuclRate/totRate);
 				
 					}
@@ -2483,7 +2483,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		if(mfdForSrcArray == null)
 			computeMFD_ForSrcArrays(2.05,8.95,70);
-		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].getNum());
+		SummedMagFreqDist magDist = new SummedMagFreqDist(mfdForSrcArray[0].getMinX(), mfdForSrcArray[0].getMaxX(), mfdForSrcArray[0].size());
 		IntegerPDF_FunctionSampler aveSampler = getAveSamplerForRupture(mainshock);
 		ArrayList<Integer> usedCubesIndices = new ArrayList<Integer>();
 		FaultSectionPrefData fltSectData = rupSet.getFaultSectionData(sectIndex);

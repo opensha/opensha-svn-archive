@@ -242,9 +242,9 @@ public class GEMAreaSourceData extends GEMSourceData {
 		buf.write(String.format("\t\t\t\t\t<%sEvenlyDiscretized binSize=\"%.2f\" minVal=\"5.0\" binCount=\"%d\"> \n",
 				prefix,
 				this.magfreqDistFocMech.getMagFreqDist(0).getDelta(),
-				this.magfreqDistFocMech.getMagFreqDist(0).getNum()));
+				this.magfreqDistFocMech.getMagFreqDist(0).size()));
 		buf.write(String.format("\t\t\t\t\t\t<DistributionValues xmlns=\"\">"));
-		for (int j=0; j < this.magfreqDistFocMech.getMagFreqDist(0).getNum(); j++){
+		for (int j=0; j < this.magfreqDistFocMech.getMagFreqDist(0).size(); j++){
 			buf.write(String.format("%.3f %.5e ",
 					this.magfreqDistFocMech.getMagFreqDist(0).get(j).getX(),
 					this.magfreqDistFocMech.getMagFreqDist(0).get(j).getY()));
@@ -257,7 +257,7 @@ public class GEMAreaSourceData extends GEMSourceData {
 					prefix));
 			buf.write(String.format("\t\t\t\t\t<%sRupTopDist>\n",prefix));
 			buf.write(String.format("\t\t\t\t\t\t<DistributionValues xmlns=\"\">"));
-			for (int j=0; j < this.getAveRupTopVsMag().getNum(); j++){
+			for (int j=0; j < this.getAveRupTopVsMag().size(); j++){
 				buf.write(String.format("%.3f %.5e ",
 						this.getAveRupTopVsMag().getX(j),
 						this.getAveRupTopVsMag().getY(j) ));

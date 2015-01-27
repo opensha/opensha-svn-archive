@@ -154,7 +154,7 @@ public class PointSource13 extends ProbEqkSource {
 		FocalMech mech = mechForIndex(idx);
 		double wt = mechWts.get(mech);
 		if (mech != STRIKE_SLIP) wt *= 0.5;
-		int magIdx = idx % mfd.getNum();
+		int magIdx = idx % mfd.size();
 		double mag = mfd.getX(magIdx);
 		double depth = depthForMag(mag);
 		boolean footwall = isOnFootwall(idx);
@@ -234,7 +234,7 @@ public class PointSource13 extends ProbEqkSource {
 
 	@Override
 	public int getNumRuptures() {
-		return mfd.getNum() * mechCount;
+		return mfd.size() * mechCount;
 	}
 
 	@Override
@@ -313,7 +313,7 @@ public class PointSource13 extends ProbEqkSource {
 	}
 
 	private void setIndices() {
-		int nMag = mfd.getNum();
+		int nMag = mfd.size();
 		int ssCount = (int) Math.ceil(mechWts.get(STRIKE_SLIP)) * nMag;
 		int revCount = (int) Math.ceil(mechWts.get(REVERSE)) * nMag * 2;
 		int norCount = (int) Math.ceil(mechWts.get(NORMAL)) * nMag * 2;

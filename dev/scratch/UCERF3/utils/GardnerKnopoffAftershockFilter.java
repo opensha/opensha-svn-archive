@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
@@ -46,7 +45,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	 */
 	public static double scaleForMagnitude(double m) {
 		checkArgument(m > instance.getMinX() && m < instance.getMaxX());
-		return instance.getClosestY(m);
+		return instance.getClosestYtoX(m);
 	}
 	
 	/**
@@ -57,8 +56,7 @@ public class GardnerKnopoffAftershockFilter extends EvenlyDiscretizedFunc {
 	 * @throws XY_DataSetException
 	 * @throws InvalidRangeException
 	 */
-	public GardnerKnopoffAftershockFilter(double min, double max, int num) throws XY_DataSetException,
-			InvalidRangeException {
+	public GardnerKnopoffAftershockFilter(double min, double max, int num) throws InvalidRangeException {
 		super(min, max, num);
 
 		allGR = new GutenbergRichterMagFreqDist(min, max, num);

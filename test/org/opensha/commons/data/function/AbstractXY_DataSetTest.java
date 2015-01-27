@@ -64,7 +64,7 @@ public abstract class AbstractXY_DataSetTest {
 	
 	static double randomXNotContained(XY_DataSet xy) {
 		double val = Double.NaN;
-		while (Double.isNaN(val) || xy.hasPoint(val, 0d))
+		while (Double.isNaN(val) || xy.hasX(val))
 			val = Math.random() * 100d - 50d;
 		return val;
 	}
@@ -187,7 +187,7 @@ public abstract class AbstractXY_DataSetTest {
 	@Test (expected=IndexOutOfBoundsException.class)
 	public void testPopulatedSetByIndexOutOfBounds() {
 		XY_DataSet populated = newPopulatedDataSet(100, false, false);
-		populated.set(populated.getNum(), 0.142124);
+		populated.set(populated.size(), 0.142124);
 	}
 	
 	@Test
@@ -195,17 +195,17 @@ public abstract class AbstractXY_DataSetTest {
 		XY_DataSet xy;
 		if (isArbitrarilyDiscretized()) {
 			xy = newEmptyDataSet();
-			assertEquals("should be 0 for empty dataset", 0, xy.getNum());
+			assertEquals("should be 0 for empty dataset", 0, xy.size());
 		}
 		
 		xy = newPopulatedDataSet(100, isArbitrarilyDiscretized(), false);
-		assertEquals("should be 100 for pupulated dataset", 100, xy.getNum());
+		assertEquals("should be 100 for pupulated dataset", 100, xy.size());
 	}
 	
 	@Test
 	public void testGetClosestX() {
 		if (isArbitrarilyDiscretized())
-			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestX(0)));
+			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestXtoY(0)));
 		
 		int num = 10;
 		XY_DataSet xy = newPopulatedDataSet(num, false, false);
@@ -213,64 +213,64 @@ public abstract class AbstractXY_DataSetTest {
 		// check below min
 		double minY = xy.getMinY();
 		double xAtMinY = Double.NaN;
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			Point2D pt = xy.get(i);
 			if (pt.getY() == minY) {
 				xAtMinY = pt.getX();
 				break;
 			}
 		}
-		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMinY, xy.getClosestX(minY-1d), test_tol);
+		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMinY, xy.getClosestXtoY(minY-1d), test_tol);
 		
 		// check above max
 		double maxY = xy.getMaxY();
 		double xAtMaxY = Double.NaN;
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			Point2D pt = xy.get(i);
 			if (pt.getY() == maxY) {
 				xAtMaxY = pt.getX();
 				break;
 			}
 		}
-		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMaxY, xy.getClosestX(maxY+1d), test_tol);
+		assertEquals("getClosestX for below min Y should return x at first smallest y", xAtMaxY, xy.getClosestXtoY(maxY+1d), test_tol);
 		
 		// test equals
 		for (int i=0; i<num; i++)
-			assertEquals("getClosestX for exact matches should return respective x", xy.getX(i), xy.getClosestX(xy.getY(i)), test_tol);
+			assertEquals("getClosestX for exact matches should return respective x", xy.getX(i), xy.getClosestXtoY(xy.getY(i)), test_tol);
 		
 		// test inbetweens
 		for (int i=0; i<num; i++) {
 			double x = xy.getX(i);
 			double y = xy.getY(i);
-			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestX(y+0.2), test_tol);
-			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestX(y-0.2), test_tol);
+			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestXtoY(y+0.2), test_tol);
+			assertEquals("getClosestX messed up for inbetweens!", x, xy.getClosestXtoY(y-0.2), test_tol);
 		}
 	}
 	
 	@Test
-	public void testGetClosestY() {
+	public void testGetClosestYtoX() {
 		if (isArbitrarilyDiscretized())
-			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestY(0)));
+			assertTrue("should be NaN on an empty list!", Double.isNaN(newEmptyDataSet().getClosestYtoX(0)));
 		
 		int num = 10;
 		XY_DataSet xy = newPopulatedDataSet(num, false, false);
 		
 		// check below min
-		assertEquals("getClosestY for below min x should return y at smallest x", xy.getY(0), xy.getClosestY(xy.getMinX()-1d), test_tol);
+		assertEquals("getClosestY for below min x should return y at smallest x", xy.getY(0), xy.getClosestYtoX(xy.getMinX()-1d), test_tol);
 		
 		// check above max
-		assertEquals("getClosestY for above max x should return y at largest x", xy.getY(num-1), xy.getClosestY(xy.getMaxX()+1d), test_tol);
+		assertEquals("getClosestY for above max x should return y at largest x", xy.getY(num-1), xy.getClosestYtoX(xy.getMaxX()+1d), test_tol);
 		
 		// test equals
 		for (int i=0; i<num; i++)
-			assertEquals("getClosestY for exact matches should return respective y", xy.getY(i), xy.getClosestY(xy.getX(i)), test_tol);
+			assertEquals("getClosestY for exact matches should return respective y", xy.getY(i), xy.getClosestYtoX(xy.getX(i)), test_tol);
 		
 		// test inbetweens
 		for (int i=0; i<num; i++) {
 			double x = xy.getX(i);
 			double y = xy.getY(i);
-			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestY(x+0.2), test_tol);
-			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestY(x-0.2), test_tol);
+			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestYtoX(x+0.2), test_tol);
+			assertEquals("getClosestY messed up for inbetweens!", y, xy.getClosestYtoX(x-0.2), test_tol);
 		}
 	}
 	
@@ -283,7 +283,7 @@ public abstract class AbstractXY_DataSetTest {
 		MinMaxAveTracker xTrack = new MinMaxAveTracker();
 		MinMaxAveTracker yTrack = new MinMaxAveTracker();
 		
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			xTrack.addValue(xy.getX(i));
 			yTrack.addValue(xy.getY(i));
 		}
@@ -316,7 +316,7 @@ public abstract class AbstractXY_DataSetTest {
 		int num = expectedX.size();
 		Preconditions.checkState(num == expectedY.size());
 		
-		assertEquals("size is inconsistant", num, xy.getNum());
+		assertEquals("size is inconsistant", num, xy.size());
 		
 		for (int i=0; i<num; i++) {
 			assertEquals("x value off at pt: "+i, expectedX.get(i), xy.getX(i), test_tol);
@@ -330,7 +330,7 @@ public abstract class AbstractXY_DataSetTest {
 			return; // only works on arb discr functions
 		XY_DataSet xy = newEmptyDataSet();
 		
-		assertEquals("initial size is off", 0, xy.getNum());
+		assertEquals("initial size is off", 0, xy.size());
 		
 		ArrayList<Double> xVals = new ArrayList<Double>();
 		ArrayList<Double> yVals = new ArrayList<Double>();
@@ -426,30 +426,16 @@ public abstract class AbstractXY_DataSetTest {
 	}
 	
 	@Test
-	public void testHasPoint() {
+	public void testHasX() {
 		int num = 100;
 		XY_DataSet xy = newQuickTestDataSet();
 		
-		assertFalse("hasPoint should return false for null", xy.hasPoint(null));
-		
 		for (int i=0; i<num; i++)
-			assertFalse("hasPoint should return false for random vals on empty", xy.hasPoint(Math.random(), Math.random()));
+			assertFalse("hasX should return false for random vals on empty", xy.hasX(Math.random()));
 		
 		xy = newPopulatedDataSet(num, isArbitrarilyDiscretized(), false);
-		for (int i=0; i<num; i++) {
-			double x = xy.getX(i);
-			double y = xy.getY(i);
-			
-			double diffY = randomNotEqualTo(y);
-			
-			assertTrue("hasPoint should return true when given values from getters", xy.hasPoint(new Point2D.Double(x, y)));
-			assertTrue("hasPoint should return true when given values from getters", xy.hasPoint(x, y));
-			if (isArbitrarilyDiscretized()) {
-				//TODO remove this hack!!!!
-				assertTrue("hasPoint should still return true when given a different y value", xy.hasPoint(new Point2D.Double(x, diffY)));
-				assertTrue("hasPoint should still return true when given a different y value", xy.hasPoint(x, diffY));
-			}
-		}
+		for (int i=0; i<num; i++)
+			assertTrue("hasX should return true when given values from getters", xy.hasX(xy.getX(i)));
 	}
 	
 	@Test
@@ -461,7 +447,7 @@ public abstract class AbstractXY_DataSetTest {
 		Iterator<Double> xIt = xy.getXValuesIterator();
 		Iterator<Double> yIt = xy.getYValuesIterator();
 		
-		for (int i=0; i<xy.getNum(); i++) {
+		for (int i=0; i<xy.size(); i++) {
 			assertTrue("hasNext() (point iterator) should be true!", ptIt.hasNext());
 			assertTrue("hasNext() (x iterator) should be true!", xIt.hasNext());
 			assertTrue("hasNext() (y iterator) should be true!", yIt.hasNext());
@@ -504,8 +490,8 @@ public abstract class AbstractXY_DataSetTest {
 			xy.setYAxisName("test y axis name "+System.currentTimeMillis());
 		XY_DataSet cloned = xy.deepClone();
 		
-		int num = xy.getNum();
-		assertEquals("size of clone incorrect", num, cloned.getNum());
+		int num = xy.size();
+		assertEquals("size of clone incorrect", num, cloned.size());
 		assertEquals("name not copied over with clone", xy.getName(), cloned.getName());
 		assertEquals("info not copied over with clone", xy.getInfo(), cloned.getInfo());
 		assertEquals("x axis name not copied over with clone", xy.getXAxisName(), cloned.getXAxisName());
@@ -532,23 +518,23 @@ public abstract class AbstractXY_DataSetTest {
 		if (isArbitrarilyDiscretized()) {
 			for (int i=0; i<10; i++) {
 				double newX = 0;
-				while (newX == 0 || xy.hasPoint(newX, 0)) {
+				while (newX == 0 || xy.hasX(newX)) {
 					 newX = Math.random() * 100d - 50d;
 				}
 				double newY = Math.random();
 				
-				int clonedNum = cloned.getNum();
+				int clonedNum = cloned.size();
 				xy.set(newX, newY);
-				assertEquals("cloned shouldn't have grown with addition of new pt to orig", clonedNum, cloned.getNum());
+				assertEquals("cloned shouldn't have grown with addition of new pt to orig", clonedNum, cloned.size());
 				if (i % 2 == 0) {
-					int origNum = xy.getNum();
+					int origNum = xy.size();
 					newX = 0;
-					while (newX == 0 || xy.hasPoint(newX, 0)) {
+					while (newX == 0 || xy.hasX(newX)) {
 						 newX = Math.random() * 100d - 50d;
 					}
 					newY = Math.random();
 					cloned.set(newX, newY);
-					assertEquals("oritg shouldn't have grown with addition of new pt to cloned", origNum, xy.getNum());
+					assertEquals("oritg shouldn't have grown with addition of new pt to cloned", origNum, xy.size());
 				}
 			}
 		}

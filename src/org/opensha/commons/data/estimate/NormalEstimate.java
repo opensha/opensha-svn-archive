@@ -243,7 +243,7 @@ public class NormalEstimate extends Estimate {
   public AbstractDiscretizedFunc getPDF_Test() {
     EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
     double deltaX = func.getDelta();
-    int numPoints = func.getNum();
+    int numPoints = func.size();
     double x;
     for(int i=0; i<numPoints; ++i) {
       x = func.getX(i);
@@ -272,7 +272,7 @@ public class NormalEstimate extends Estimate {
    */
   public AbstractDiscretizedFunc getCDF_Test() {
     EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
-    int numPoints = func.getNum();
+    int numPoints = func.size();
     for(int i=0; i<numPoints; ++i)
       func.set(i, getProbLessThanEqual(func.getX(i)));
     func.setInfo("CDF from Normal Distribution using getProbLessThanEqual() method");

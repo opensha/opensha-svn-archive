@@ -82,7 +82,7 @@ public class GridSrcMFDPlotter {
 		EvenlyDiscretizedFunc fSubSeisCum = fSubSeisIncr.getCumRateDist();
 		
 		IncrementalMagFreqDist fSupSeisIncr = fss.calcNucleationMFD_forSect(idx,
-			fSubSeisIncr.getMinX(), fSubSeisIncr.getMaxX(),fSubSeisIncr.getNum());
+			fSubSeisIncr.getMinX(), fSubSeisIncr.getMaxX(),fSubSeisIncr.size());
 		fSupSeisIncr.setName(name + " SupraSeis MFD");
 		EvenlyDiscretizedFunc fSupSeisCum = fSupSeisIncr.getCumRateDist();
 		
@@ -186,7 +186,7 @@ public class GridSrcMFDPlotter {
 	}
 	
 	private static void addDistro(EvenlyDiscretizedFunc f1, EvenlyDiscretizedFunc f2) {
-		for (int i=0; i<f1.getNum(); i++) {
+		for (int i=0; i<f1.size(); i++) {
 			f1.set(i, f1.getY(i) + f2.getY(i));
 		}
 	}

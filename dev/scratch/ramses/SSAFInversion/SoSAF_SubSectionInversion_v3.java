@@ -35,8 +35,6 @@ import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.eq.MagUtils;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.util.RunScript;
 import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
@@ -234,7 +232,7 @@ public class SoSAF_SubSectionInversion_v3 {
 			for (int s = 0; s < segmentParticipationMFDs.size(); s++) {
 				SummedMagFreqDist mfd = segmentParticipationMFDs.get(s);
 				EvenlyDiscretizedFunc cmfd = mfd.getCumRateDist();
-				for (int m = 0; m < mfd.getNum(); m++) {
+				for (int m = 0; m < mfd.size(); m++) {
 					if (mfd.getY(m) != 0.0)
 						fw.write(s + "\t" + (float) mfd.getX(m) + "\t"
 								+ (float) Math.log10(mfd.getY(m)) + "\n");
@@ -1480,7 +1478,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		taperedSlipCDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 		taperedSlipPDF = new EvenlyDiscretizedFunc(0, 5001, 0.0002);
 		double x, y, sum = 0;
-		int num = taperedSlipPDF.getNum();
+		int num = taperedSlipPDF.size();
 		for (int i = 0; i < num; i++) {
 			x = taperedSlipPDF.getX(i);
 			// y = Math.sqrt(1-(x-0.5)*(x-0.5)/0.25);
@@ -1991,7 +1989,7 @@ public class SoSAF_SubSectionInversion_v3 {
 			sumOfSegPartMFDs.addIncrementalMagFreqDist(segPartMFD);
 		}
 		// compute aveOfSegPartMFDs from sumOfSegPartMFDs
-		for (int m = 0; m < sumOfSegPartMFDs.getNum(); m++)
+		for (int m = 0; m < sumOfSegPartMFDs.size(); m++)
 			aveOfSegPartMFDs.add(m, sumOfSegPartMFDs.getY(m) / num_seg);
 		aveOfSegPartMFDs.setInfo("Average Seg Participation MFD");
 

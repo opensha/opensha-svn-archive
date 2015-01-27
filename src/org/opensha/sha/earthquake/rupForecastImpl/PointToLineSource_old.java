@@ -165,7 +165,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 			isStrikeRandom=true;
 		}
 
-		for (int m=0; m<magFreqDist.getNum(); m++){
+		for (int m=0; m<magFreqDist.size(); m++){
 			double mag = magFreqDist.getX(m);
 			double rate = magFreqDist.getY(m);
 			double prob = 1-Math.exp(-rate*weight*duration);
@@ -176,7 +176,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 				if(mag < aveRupTopVersusMag.getMinX())
 					depth = defaultHypoDepth;
 				else
-					depth = aveRupTopVersusMag.getClosestY(mag);
+					depth = aveRupTopVersusMag.getClosestYtoX(mag);
 				Location loc = new Location(
 						location.getLatitude(),
 						location.getLongitude(),
@@ -235,7 +235,7 @@ public class PointToLineSource_old extends ProbEqkSource implements java.io.Seri
 
 		double rupLength;
 		if(magScalingRel instanceof MagAreaRelationship) {
-			double ddw = (aveRupTopVersusMag.getClosestY(mag) - lowerSeisDepth)/Math.sin(dip*Math.PI/180);
+			double ddw = (aveRupTopVersusMag.getClosestYtoX(mag) - lowerSeisDepth)/Math.sin(dip*Math.PI/180);
 			double area = magScalingRel.getMedianScale(mag);
 			if(ddw > Math.sqrt(area))
 				rupLength = ddw;

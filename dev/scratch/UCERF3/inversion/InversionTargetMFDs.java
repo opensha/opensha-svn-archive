@@ -305,7 +305,7 @@ public class InversionTargetMFDs {
 				totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(subSeisGR);
 				FaultTrace sectTrace = faultSectionData.get(s).getStirlingGriddedSurface(1.0).getRowAsTrace(0);
 				double fractSectInSoCal = RegionUtils.getFractionInside(soCalGrid, sectTrace);
-				for(int i=minSupraMagIndex;i<grNuclMFD.getNum();i++) {
+				for(int i=minSupraMagIndex;i<grNuclMFD.size();i++) {
 					targetOnFaultSupraSeisMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff);
 					noCalTargetSupraMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*(1.0-fractSectInSoCal));
 					soCalTargetSupraMFD.add(i, grNuclMFD.getY(i)*tempCoupCoeff*fractSectInSoCal);
@@ -326,7 +326,7 @@ public class InversionTargetMFDs {
 				targetOnFaultSupraSeisMFD.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD);
 				noCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 				soCalTargetSupraMFD = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				for(int i=0;i<targetOnFaultSupraSeisMFD.getNum();i++) {
+				for(int i=0;i<targetOnFaultSupraSeisMFD.size();i++) {
 					noCalTargetSupraMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*(1.0-fractSeisInSoCal));	// this is approximate ?????????
 					soCalTargetSupraMFD.add(i, targetOnFaultSupraSeisMFD.getY(i)*fractSeisInSoCal);
 				}

@@ -110,7 +110,7 @@ public class HazardMapVerifier {
 			
 			double maxVariance = 0;
 			int different = 0;
-			int num = refFunc.getNum();
+			int num = refFunc.size();
 			double totalVariance = 0;
 			
 			for (int i=0; i<num; i++) {

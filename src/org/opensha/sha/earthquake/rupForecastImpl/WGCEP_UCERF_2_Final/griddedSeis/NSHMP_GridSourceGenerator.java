@@ -550,7 +550,7 @@ public class NSHMP_GridSourceGenerator implements Serializable {
 
 //		apply bulge reduction at & above mag 6.5 if desired
 		if(applyBulgeReduction && mfd.getMaxX()>=6.5) {	
-			for(int i=mfd.getXIndex(6.5+DELTA_MAG/2); i<mfd.getNum(); ++i)
+			for(int i=mfd.getXIndex(6.5+DELTA_MAG/2); i<mfd.size(); ++i)
 				mfd.set(i, mfd.getY(i)/3);
 		}
 		return mfd;

@@ -231,7 +231,7 @@ public class LogicTreeMFDsPlotter {
 			for(int i=0; i<mfdList.size(); ++i) {
 				IncrementalMagFreqDist mfd = mfdList.get(i);
 				fw.write("#Run "+(i+1)+"\n");
-				for(int magIndex=0; magIndex<mfd.getNum(); ++magIndex)
+				for(int magIndex=0; magIndex<mfd.size(); ++magIndex)
 					fw.write(mfd.getX(magIndex)+"\t"+mfd.getY(magIndex)+"\n");
 			}
 			fw.close();
@@ -692,7 +692,7 @@ public class LogicTreeMFDsPlotter {
 			EvenlyDiscretizedFunc nshmpCumMFD = nshmp02TotMFD.getCumRateDistWithOffset();
 			
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
-			for(int i=0; i<nshmpCumMFD.getNum(); i=i+2)
+			for(int i=0; i<nshmpCumMFD.size(); i=i+2)
 				resampledNSHMP_MFD.set(nshmpCumMFD.getX(i), nshmpCumMFD.getY(i));
 			
 			resampledNSHMP_MFD.setName("NSHMP-2002 Total MFD");
@@ -821,7 +821,7 @@ public class LogicTreeMFDsPlotter {
 	 * @param wt
 	 */
 	private void addMFDs(SummedMagFreqDist targetMFD, IncrementalMagFreqDist sourceMFD, double wt) {
-		for(int i=0; i<sourceMFD.getNum(); ++i) {
+		for(int i=0; i<sourceMFD.size(); ++i) {
 			targetMFD.add(sourceMFD.getX(i), wt*sourceMFD.getY(i));
 		}
 	}

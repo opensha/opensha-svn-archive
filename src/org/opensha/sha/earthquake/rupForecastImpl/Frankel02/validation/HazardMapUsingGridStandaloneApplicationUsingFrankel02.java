@@ -358,7 +358,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
      toServlet.writeObject(eqkRupForecastLocation);
      //send the X values in a arraylist
      ArrayList list = new ArrayList();
-     for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
+     for(int i = 0; i<function.size(); ++i) list.add(new String(""+function.getX(i)));
      toServlet.writeObject(list);
      // send the MAX DISTANCE
      Double maxDistance = new Double(200.0);

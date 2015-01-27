@@ -337,7 +337,7 @@ public class JordanMadridHazardCalc implements Callable<HazardResult> {
 
 	// adds f2 to f1 in place
 	public static void addFuncs(DiscretizedFunc f1, DiscretizedFunc f2) {
-		for (int i=0; i<f1.getNum(); i++) {
+		for (int i=0; i<f1.size(); i++) {
 			f1.set(i, f1.getY(i) + f2.getY(i));
 		}
 	}

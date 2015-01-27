@@ -151,7 +151,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    *
    */
   private void calcObsExceedProbVals(){
-    int numVals= xyVals.getNum();
+    int numVals= xyVals.size();
     for(int i=0;i<numVals;++i){
       double val = 1-((double)i)/numVals;
       xyVals.set(i,val);
@@ -392,7 +392,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    */
   private DiscretizedFunc initX_Values(){
     DiscretizedFunc arb = new ArbitrarilyDiscretizedFunc();
-      for(int i=0;i<xyVals.getNum();++i)
+      for(int i=0;i<xyVals.size();++i)
         arb.set(Math.log(xyVals.getX(i)),1);
       return arb;
   }
@@ -408,7 +408,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    */
   private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(DiscretizedFunc arb){
 
-      for(int i=0; i<arb.getNum(); ++i)
+      for(int i=0; i<arb.size(); ++i)
         xyVals.set(i, arb.getY(i));
       return xyVals;
 

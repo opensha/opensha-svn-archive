@@ -149,7 +149,7 @@ public class UCERF3_EALHistGen {
 			CommandLineInversionRunner.setFontSizes(gp);
 			EvenlyDiscretizedFunc f1 = (EvenlyDiscretizedFunc) elems.get(0);
 			double min = f1.getMinX();
-			int num = f1.getNum();
+			int num = f1.size();
 			double plotMaxY = 0d;
 			for (int i=0; i<elems.size(); i++) {
 				if (elems.get(i) instanceof DiscretizedFunc) {

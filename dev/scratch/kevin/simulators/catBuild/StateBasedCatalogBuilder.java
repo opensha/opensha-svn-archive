@@ -11,28 +11,22 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
-import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
-import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.IDPairing;
-import scratch.kevin.magDepth.NoCollissionFunc;
 import scratch.kevin.markov.EmpiricalMarkovChain;
 import scratch.kevin.markov.IndicesKey;
 import scratch.kevin.markov.PossibleStates;
@@ -42,7 +36,6 @@ import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.dists.RandomDistType;
 import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
-import scratch.kevin.simulators.synch.SynchParamCalculator;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -499,9 +492,9 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			if ((rupCount + noRupCount) > 1)
 				numStatesWithMulti++;
 			
-			if (noRupCount < noRupCounts.getNum())
+			if (noRupCount < noRupCounts.size())
 				noRupCounts.add(noRupCount, 1d);
-			if (rupCount < rupCounts.getNum())
+			if (rupCount < rupCounts.size())
 				rupCounts.add(rupCount, 1d);
 			allCounts.add(rupCount+noRupCount, 1d);
 		}

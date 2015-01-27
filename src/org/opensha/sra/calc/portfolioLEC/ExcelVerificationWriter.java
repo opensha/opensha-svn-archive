@@ -218,7 +218,7 @@ public class ExcelVerificationWriter {
 		}
 		
 		// portfolio scenario LEC section
-		int numCurvePts = results.get(0).getExceedanceProbs().getNum();
+		int numCurvePts = results.get(0).getExceedanceProbs().size();
 		HSSFRow[] exceedanceCurveRows = new HSSFRow[numCurvePts];
 		for (int curveI=0; curveI<numCurvePts; curveI++) {
 			exceedanceCurveRows[curveI] = sheet.getRow(curRow++);

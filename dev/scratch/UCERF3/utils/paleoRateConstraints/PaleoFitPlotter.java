@@ -981,7 +981,7 @@ public class PaleoFitPlotter {
 				}
 			}
 			
-			if (aveSlipRateMean.getNum() > 0) {
+			if (aveSlipRateMean.size() > 0) {
 				rateFuncs.add(aveSlipRateMean);
 				rateChars.add(new PlotCurveCharacterstics(DATA_SYMBOL, 5f, aveSlipColor));
 //				rateFuncs.add(aveSlipRateUpper);
@@ -990,7 +990,7 @@ public class PaleoFitPlotter {
 //				rateChars.add(new PlotCurveCharacterstics(CONFIDENCE_BOUND_SYMBOL, 5f, aveSlipColor));
 			}
 			
-			if (paleoRateMean.getNum() > 0) {
+			if (paleoRateMean.size() > 0) {
 				rateFuncs.add(paleoRateMean);
 				rateChars.add(new PlotCurveCharacterstics(DATA_SYMBOL, 5f, paleoProbColor));
 				rateFuncs.add(paleoRateUpper);
@@ -1004,7 +1004,7 @@ public class PaleoFitPlotter {
 				}
 			}
 			
-			if (aveSlipDataMean.getNum() > 0) {
+			if (aveSlipDataMean.size() > 0) {
 				aveSlipFuncs.add(aveSlipDataMean);
 				aveSlipChars.add(new PlotCurveCharacterstics(DATA_SYMBOL, 5f, aveSlipColor));
 				aveSlipFuncs.add(aveSlipDataUpper);

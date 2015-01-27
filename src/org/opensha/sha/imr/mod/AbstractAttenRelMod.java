@@ -101,7 +101,7 @@ public abstract class AbstractAttenRelMod implements ShortNamed {
 			sigmaTruncLevelParam = null;
 		}
 
-		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+		for (int i=0; i<intensityMeasureLevels.size(); i++) {
 			double x = intensityMeasureLevels.getX(i);
 			double y = AttenuationRelationship.getExceedProbability(mean, stdDev, x,
 					sigmaTruncTypeParam, sigmaTruncLevelParam);

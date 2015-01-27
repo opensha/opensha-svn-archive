@@ -293,7 +293,7 @@ public class TestCalc {
 		Utils.zeroFunc(rOut);
 
 		DiscretizedFunc fpe = Period.GM0P00.getFunction();
-		for (int i=0; i<fpe.getNum(); i++) fpe.set(i, Math.random());
+		for (int i=0; i<fpe.size(); i++) fpe.set(i, Math.random());
 		
 		// set annualized rate array
 		double[] rates = new double[size];
@@ -308,12 +308,12 @@ public class TestCalc {
 		//	- annualized rate (R) from source
 		//	- for each GM Poiss Prob is: 1 - exp(PE1*R1 + PE2*R2 + ... PEi*Ri)
 		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < fpe.getNum(); j++) {
+			for (int j = 0; j < fpe.size(); j++) {
 				rOut.set(j, rOut.getY(j) + rates[i] * fpe.getY(j));
 			}
 		}
 		// rates to Poiss probs
-		for (int i = 0; i < rOut.getNum(); i++) {
+		for (int i = 0; i < rOut.size(); i++) {
 			pOut.set(i, 1 - Math.exp(rOut.getY(i)));
 		}
 		sw.stop();
@@ -324,12 +324,12 @@ public class TestCalc {
 		//	- PoissProb (P) from source
 		//	- for each GM Poiss Prob is: 1 - [ (1-P1)^PE1 * (1-P2)^PE2 * ... (1-Pi)^PEi ]
 		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < fpe.getNum(); j++) {
+			for (int j = 0; j < fpe.size(); j++) {
 				pOut.set(j, pOut.getY(j) * Math.pow(1 - probs[i], fpe.getY(j)));
 			}
 		}
 		// PoissProb final step
-		for (int i = 0; i < pOut.getNum(); i++) {
+		for (int i = 0; i < pOut.size(); i++) {
 			pOut.set(i, 1 - pOut.getY(i));
 		}
 		sw.stop();

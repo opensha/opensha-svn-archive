@@ -109,7 +109,7 @@ public class AveSlipConstraint implements Serializable {
 	
 	public static double getProbabilityOfObservedSlip(double meters) {
 		if (meters > probObsSlipModel.getMaxX())
-			return probObsSlipModel.getY(probObsSlipModel.getNum()-1);
+			return probObsSlipModel.getY(probObsSlipModel.size()-1);
 		return probObsSlipModel.getInterpolatedY(meters);
 	}
 	

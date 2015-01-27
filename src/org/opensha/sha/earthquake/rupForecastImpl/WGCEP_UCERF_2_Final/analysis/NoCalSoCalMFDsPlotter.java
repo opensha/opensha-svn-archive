@@ -165,7 +165,7 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @param duration
 	 */
 	private void convertProbToPoissonRates(IncrementalMagFreqDist cumMFD, double duration) {
-		for(int i=0; i <cumMFD.getNum();i++){
+		for(int i=0; i <cumMFD.size();i++){
 			cumMFD.set(i,-Math.log(1-cumMFD.getY(i))/duration);
 	
 		}

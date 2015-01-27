@@ -36,7 +36,7 @@ public class CurveDirMultiplier {
 				DiscretizedFunc newFunc = CurveMultiplier.multiplyCurve(func, factor);
 				String newFileName = outputDir + curve.getName();
 				ArbitrarilyDiscretizedFunc.writeSimpleFuncFile(newFunc, newFileName);
-				System.out.println("processed " + curve.getName() + " had " + func.getNum() + " has " + newFunc.getNum());
+				System.out.println("processed " + curve.getName() + " had " + func.size() + " has " + newFunc.size());
 			}
 		}
 	}

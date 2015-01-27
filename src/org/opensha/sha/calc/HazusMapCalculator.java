@@ -296,7 +296,7 @@ public class HazusMapCalculator {
    */
   private DiscretizedFunc initDiscretizedValuesToLog(DiscretizedFunc linearFunc,double val){
     DiscretizedFunc toXLogFunc = new ArbitrarilyDiscretizedFunc();
-      for (int i = 0; i < linearFunc.getNum(); ++i)
+      for (int i = 0; i < linearFunc.size(); ++i)
         toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
     return toXLogFunc;
   }
@@ -446,7 +446,7 @@ public class HazusMapCalculator {
         		 }
         		 
         	 }
-        	 numPoints = condProbFunc.getNum();
+        	 numPoints = condProbFunc.size();
         	 condProbFunc = initDiscretizedValuesToLog(condProbFunc,1.0);
            // get the conditional probability of exceedance from the IMR
           condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
@@ -482,7 +482,7 @@ public class HazusMapCalculator {
       // for non-poisson source:
       if (!poissonSource)
         for(int i=0;i<numIMTs;++i){
-        	  numPoints = hazFunction[i].getNum();
+        	  numPoints = hazFunction[i].size();
           for (k = 0; k < numPoints; k++)
             hazFunction[i].set(k, hazFunction[i].getY(k) * (1 - sourceHazFunc[i].getY(k)));
         }
@@ -492,13 +492,13 @@ public class HazusMapCalculator {
     // finalize the hazard function
     if (sourceUsed)
       for(int j=0;j<numIMTs;++j){
-        numPoints = hazFunction[j].getNum();
+        numPoints = hazFunction[j].size();
         for (i = 0; i < numPoints; ++i)
           hazFunction[j].set(i, 1 - hazFunction[j].getY(i));
       }
     else
       for(int j=0;j<numIMTs;++j){
-        numPoints = hazFunction[j].getNum();
+        numPoints = hazFunction[j].size();
         for (i = 0; i < numPoints; ++i)
           hazFunction[j].set(i, 0.0);
       }
@@ -507,21 +507,21 @@ public class HazusMapCalculator {
     DiscretizedFunc[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
     for(int j=0;j<numIMTs;++j)
       tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
-    numPoints = hazFunction[0].getNum();
+    numPoints = hazFunction[0].size();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[0].set(hazFunction[0].getX(i),
                             hazFunction[0].getY(i));
     
-    numPoints = hazFunction[1].getNum();
+    numPoints = hazFunction[1].size();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[1].set(hazFunction[1].getX(i),
                              hazFunction[1].getY(i));
     
-    numPoints = hazFunction[2].getNum();
+    numPoints = hazFunction[2].size();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[2].set(hazFunction[2].getX(i),
                              hazFunction[2].getY(i));
-    numPoints = hazFunction[3].getNum();
+    numPoints = hazFunction[3].size();
     for (i = 0; i < numPoints; ++i)
        tempHazFunction[3].set(hazFunction[3].getX(i),
                              hazFunction[3].getY(i));
@@ -547,7 +547,7 @@ public class HazusMapCalculator {
    * @param arb
    */
   private void initDiscretizeValues(DiscretizedFunc arb, double val){
-    int num = arb.getNum();
+    int num = arb.size();
     for(int i=0;i<num;++i)
       arb.set(i,val);
   }

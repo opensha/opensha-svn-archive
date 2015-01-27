@@ -102,7 +102,7 @@ public class DataUtilsTest {
 		double delta = 0.0001;
 		
 		DefaultXY_DataSet xy = nearestNeighborHist(nnDat, 1, 3);
-		assertTrue(xy.getNum() == 6);
+		assertTrue(xy.size() == 6);
 		assertEquals(1.5, xy.getY(0), delta);
 		assertEquals(3.0, xy.getY(1), delta);
 		assertEquals(1.0, xy.getY(2), delta);
@@ -117,7 +117,7 @@ public class DataUtilsTest {
 		assertEquals(17.0, xy.getX(5), delta);
 		
 		xy = nearestNeighborHist(nnDat, 1, 4);
-		assertTrue(xy.getNum() == 5);
+		assertTrue(xy.size() == 5);
 		assertEquals(2.0, xy.getY(0), delta);
 		assertEquals(1.3333, xy.getY(1), delta);
 		assertEquals(2.0, xy.getY(2), delta);
@@ -132,7 +132,7 @@ public class DataUtilsTest {
 		// testing repeat values that would have infinite bin values; results
 		// in shorter output data set
 		xy = nearestNeighborHist(nnDat_repeat, 1, 4);
-		assertTrue(xy.getNum() == 1);
+		assertTrue(xy.size() == 1);
 		
 		// testing small array of repeat values that would have infinite bin
 		// values and results in an empty output data set

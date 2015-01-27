@@ -117,7 +117,7 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 
 		//log the IML valuesbefore passing to HazardCurveCalculator
 		DiscretizedFunc logIML_Func = new ArbitrarilyDiscretizedFunc();
-		for(int i=0; i<function.getNum(); ++i)
+		for(int i=0; i<function.size(); ++i)
 			logIML_Func.set(Math.log(function.getX(i)), 1);
 
 		// calculate the hazard curve
@@ -125,12 +125,12 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 
 		// Unlog the IML values. The Y Values we get from hazardCurveCalculator are unmodified
 		DiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
-		for(int i=0; i<function.getNum(); ++i)
+		for(int i=0; i<function.size(); ++i)
 			hazFunc.set(function.getX(i), logIML_Func.getY(i));
 
 		try {
 			FileWriter fr = new FileWriter(site.getName() + ".txt");
-			for(int i=0;i<hazFunc.getNum();++i) {
+			for(int i=0;i<hazFunc.size();++i) {
 				fr.write(hazFunc.getX(i)+" "+hazFunc.getY(i)+"\n");
 			}
 			fr.flush();

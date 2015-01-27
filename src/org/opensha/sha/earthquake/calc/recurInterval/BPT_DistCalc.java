@@ -73,7 +73,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double temp1 = mean/(2.*Math.PI*(aperiodicity*aperiodicity));
 		double temp2 = 2.*mean*(aperiodicity*aperiodicity);
 		double t,pd,cd=0;
-		for(int i=1; i< pdf.getNum(); i++) { // skip first point because it's NaN
+		for(int i=1; i< pdf.size(); i++) { // skip first point because it's NaN
 			t = cdf.getX(i);
 			pd = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-mean)*(t-mean)/(temp2*t));
 			if(Double.isNaN(pd)){
@@ -329,7 +329,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 */
 	private void computeSafeTimeSinceLastCutoff() {
 		safeTimeSinceLast = Double.NaN;
-		for(int x=0;x<cdf.getNum();x++) {
+		for(int x=0;x<cdf.size();x++) {
 			if(1.0-cdf.getY(x) < SAFE_ONE_MINUS_CDF) {	// when cdf gets too close to 1, keep last safeTimeSinceLast
 				break;
 			}
@@ -371,7 +371,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 
 				EvenlyDiscretizedFunc condProbFuncOnlyForXvalues = super.getCondProbFunc();
 
-				for(int i=0;i<condProbFuncOnlyForXvalues.getNum();i++) {
+				for(int i=0;i<condProbFuncOnlyForXvalues.size();i++) {
 					double timeSince = condProbFuncOnlyForXvalues.getX(i);
 					if(timeSince<safeDist) {
 //						double safeProb = safeCondProbFunc.getY(i);

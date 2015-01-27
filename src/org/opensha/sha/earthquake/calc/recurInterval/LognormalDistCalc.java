@@ -71,7 +71,7 @@ public final class LognormalDistCalc extends EqkProbDistCalc implements Paramete
 		double temp1 = sigma*Math.sqrt(2.0*Math.PI);
 		double temp2 = 2.0*sigma*sigma;
 		double t,pd,cd=0;
-		for(int i=1; i< pdf.getNum(); i++) { // skip first point because it's NaN
+		for(int i=1; i< pdf.size(); i++) { // skip first point because it's NaN
 			t = cdf.getX(i);
 			pd = Math.exp(-(Math.log(t)-mu)*(Math.log(t)-mu)/temp2)/(temp1*t);
 			if(Double.isNaN(pd)){

@@ -392,7 +392,7 @@ public class ERF_RatesInSpace {
 	public void testMagFreqDist(FaultSystemSolutionPoissonERF erf) {
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		getPointSampler();	// make sure it exisits
-		for(int i=0; i<pointSampler.getNum();i++) {
+		for(int i=0; i<pointSampler.size();i++) {
 			magDist.addIncrementalMagFreqDist(getEqksAtPointForSamplerIndex(i).getMagFreqDist(erf));
 		}
 		magDist.setName("MFD from EqksAtPoint list");

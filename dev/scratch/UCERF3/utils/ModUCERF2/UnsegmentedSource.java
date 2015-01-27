@@ -386,7 +386,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
 		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
-		for(int i =0; i<sourceMFD.getNum(); i++)
+		for(int i =0; i<sourceMFD.size(); i++)
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 
 		// create the source
@@ -407,7 +407,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		visibleSegSourceMFD = new IncrementalMagFreqDist[num_seg];
 		for(int s=0; s< num_seg; s++) {
 			visibleSegSourceMFD[s] = (IncrementalMagFreqDist) segSourceMFD[s].deepClone();
-			for(int i =0; i<sourceMFD.getNum(); i++)
+			for(int i =0; i<sourceMFD.size(); i++)
 				visibleSegSourceMFD[s].set(i,segSourceMFD[s].getY(i)*getProbVisible(segSourceMFD[s].getX(i)));
 		}
 
@@ -514,7 +514,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 		// mag based contributions
 		HashMap<Double, ArbitrarilyDiscretizedFunc> magFuncMap = new HashMap<Double, ArbitrarilyDiscretizedFunc>();
-		int numMags = this.sourceMFD.getNum();
+		int numMags = this.sourceMFD.size();
 		for(int i=0; i<numMags; ++i) {
 			if(sourceMFD.getY(i)==0) continue;
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
@@ -693,7 +693,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		segSourceMFD = new IncrementalMagFreqDist[num_seg]; 
 		for(int i=0; i<num_seg; ++i) segSourceMFD[i] = (IncrementalMagFreqDist) sourceMFD.deepClone(); 
 		// loop over all magnitudes in flaoter MFD
-		for (int i=0; i<sourceMFD.getNum(); ++i) {
+		for (int i=0; i<sourceMFD.size(); ++i) {
 			double mag = sourceMFD.getX(i);
 			double rupLength = magAreaRel.getMedianArea(mag)/aveDDW;  // in km
 			double[] segProbs = getProbSegObsRupture(segLengths, totalLength, rupLength);
@@ -732,7 +732,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// first get the probability of observing the rupture at 100 points long the fault
 		if(rupLength<totalLength/2) {
 			double multFactor = rupLength/(totalLength-rupLength);  
-			for(int i=0; i<probFunc.getNum(); ++i) {
+			for(int i=0; i<probFunc.size(); ++i) {
 				double l = probFunc.getX(i);
 				double prob;
 				if(l<rupLength) prob = l/rupLength*multFactor;
@@ -741,7 +741,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				probFunc.set(i, prob);
 			}
 		} else { //  if(rupLength>totalLength/2) {
-			for(int i=0; i<probFunc.getNum(); ++i) {
+			for(int i=0; i<probFunc.size(); ++i) {
 				double l = probFunc.getX(i);
 				double prob;
 				if(l<(totalLength-rupLength)) prob = l/(totalLength-rupLength);
@@ -795,7 +795,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public double getFinalAveSegSlipRate(int ithSegment) {
 		ArbDiscrEmpiricalDistFunc segmenstSlipDist = getSegmentSlipDist(ithSegment);
 		double slipRate=0;
-		for(int i=0; i<segmenstSlipDist.getNum(); ++i)
+		for(int i=0; i<segmenstSlipDist.size(); ++i)
 			slipRate+=segmenstSlipDist.getX(i)*segmenstSlipDist.getY(i);
 		return slipRate;
 	}
@@ -876,7 +876,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 //			if(this.segmentData.getFaultName().equals("Calaveras"))
 //			System.out.println(segMFD);
 			IncrementalMagFreqDist visibleSegMFD =  visibleSegSourceMFD[seg];
-			for(int i=0; i<segMFD.getNum(); ++i) {
+			for(int i=0; i<segMFD.size(); ++i) {
 				double mag = segMFD.getX(i);
 				double moment = MagUtils.magToMoment(mag);
 				double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*1e6, moment);
@@ -1181,7 +1181,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double totSrcRate=0, totSrcRateEmp=0; // for computing the source gain
 		
 		// Make GR ruptures
-		for (int i=0; grMFD!=null && i<grMFD.getNum(); ++i){
+		for (int i=0; grMFD!=null && i<grMFD.size(); ++i){
 			double rate = grMFD.getY(i);
 			if(rate == 0) continue;	// skip zero rates
 			double mag = grMFD.getX(i);
@@ -1257,7 +1257,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	    if(empiricalModel != null) {
 	    	empiricalCorr = empiricalModel.getCorrection(surface)*empirical_weight + (1-empirical_weight); 
 	    }
-	    for (int i=0; charMFD!=null && i<charMFD.getNum(); ++i){
+	    for (int i=0; charMFD!=null && i<charMFD.size(); ++i){
 	    	double rate = charMFD.getY(i);
 	    	if(rate == 0) continue;	// skip zero rates
 	    	double mag = charMFD.getX(i);

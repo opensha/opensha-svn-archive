@@ -254,7 +254,7 @@ public class ETAS_CatalogEALCalculator {
 				if (fssIndex >= 0) {
 					// fault based source
 					Preconditions.checkState((float)mag == (float)meanSol.getRupSet().getMagForRup(fssIndex));
-					if (condLossDists[fssIndex].getNum() == 0)
+					if (condLossDists[fssIndex].size() == 0)
 						continue;
 					lossDists.add(condLossDists[fssIndex]);
 					// make sure weights sum to 1
@@ -296,7 +296,7 @@ public class ETAS_CatalogEALCalculator {
 				// calculate expected number of loss dists for verification
 				int expectedNum = 1;
 				for (DiscretizedFunc lossDist : lossDists)
-					expectedNum *= lossDist.getNum();
+					expectedNum *= lossDist.size();
 				
 				List<LossChain> lossChains = getLossChains(totSingleLosses, lossDists);
 				Preconditions.checkState(lossChains.size() == expectedNum,
@@ -342,8 +342,8 @@ public class ETAS_CatalogEALCalculator {
 					sumY += pt.getY();
 					meanLoss += pt.getX()*pt.getY();
 				}
-				Preconditions.checkState((float)sumY == 1f || condLossDists[fssIndex].getNum()==0,
-						"rup losses don't sum to 1: "+(float)sumY+" ("+condLossDists[fssIndex].getNum()+"");
+				Preconditions.checkState((float)sumY == 1f || condLossDists[fssIndex].size()==0,
+						"rup losses don't sum to 1: "+(float)sumY+" ("+condLossDists[fssIndex].size()+"");
 				triggerLoss = meanLoss;
 			} else {
 				// grid source
@@ -405,14 +405,14 @@ public class ETAS_CatalogEALCalculator {
 				// interpolate
 				if (mag > magLossDist.getMaxX()) {
 					double binWidth;
-					if (magLossDist.getNum() >= 2)
-						binWidth = magLossDist.getX(magLossDist.getNum()-1)
-							- magLossDist.getX(magLossDist.getNum()-2);
+					if (magLossDist.size() >= 2)
+						binWidth = magLossDist.getX(magLossDist.size()-1)
+							- magLossDist.getX(magLossDist.size()-2);
 					else
 						binWidth = 0d;
 					if (mag < magLossDist.getMaxX()+binWidth) {
 						System.out.println("Above but within last bin, returning that");
-						return magLossDist.getY(magLossDist.getNum()-1);
+						return magLossDist.getY(magLossDist.size()-1);
 					} else {
 						System.out.println("Above mag loss dist, returning zero");
 						return 0d;
@@ -578,7 +578,7 @@ public class ETAS_CatalogEALCalculator {
 		for (int i = 0; i < catalogDists.size(); i++) {
 			DiscretizedFunc catalogDist = catalogDists.get(i);
 			double meanVal = 0d;
-			for (int index=0; index<catalogDist.getNum(); index++) {
+			for (int index=0; index<catalogDist.size(); index++) {
 				double loss = catalogDist.getX(index);
 				double weight = catalogDist.getY(index);
 				
@@ -596,7 +596,7 @@ public class ETAS_CatalogEALCalculator {
 				
 				if (loss > distMax)
 					// above max, put in last bin
-					lossHist.add(lossHist.getNum()-1, weight);
+					lossHist.add(lossHist.size()-1, weight);
 				else if (loss < distMin)
 					// below min, put in first bin
 					lossHist.add(0, weight);
@@ -630,9 +630,9 @@ public class ETAS_CatalogEALCalculator {
 		
 		if (xAxisScale != 1d && xAxisScale != 0d) {
 			HistogramFunction newLossHist = new HistogramFunction(
-					lossHist.getMinX()*xAxisScale, lossHist.getNum(), lossHist.getDelta()*xAxisScale);
+					lossHist.getMinX()*xAxisScale, lossHist.size(), lossHist.getDelta()*xAxisScale);
 			System.out.println("Scaled minX: "+newLossHist.getMinX()+" maxX="+newLossHist.getMaxX());
-			for (int i=0; i<lossHist.getNum(); i++)
+			for (int i=0; i<lossHist.size(); i++)
 				newLossHist.set(i, lossHist.getY(i));
 			lossHist = newLossHist;
 		}
@@ -676,7 +676,7 @@ public class ETAS_CatalogEALCalculator {
 		// now loss excedence
 		HistogramFunction cumDist = lossHist.getCumulativeDistFunctionWithHalfBinOffset();
 		// convert to exceedance
-		for (int i=0; i<cumDist.getNum(); i++)
+		for (int i=0; i<cumDist.size(); i++)
 			cumDist.set(i, 1d-cumDist.getY(i));
 		
 		elems = Lists.newArrayList();

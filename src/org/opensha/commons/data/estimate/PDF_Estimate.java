@@ -111,7 +111,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   */
  public double getProbLessThanEqual(double x) {
    if(x<cumDistFunc.getX(0)) return 0;
-   else if (x>cumDistFunc.getX(cumDistFunc.getNum()-1)) return 1;
+   else if (x>cumDistFunc.getX(cumDistFunc.size()-1)) return 1;
    return cumDistFunc.getInterpolatedY(x);
  }
 
@@ -134,7 +134,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
 
    EvenlyDiscretizedFunc pdfFunc = (EvenlyDiscretizedFunc)(AbstractDiscretizedFunc)func.deepClone();
    double deltaX = pdfFunc.getDelta();
-   int numPoints = pdfFunc.getNum();
+   int numPoints = pdfFunc.size();
    double x;
    for(int i=0; i<numPoints; ++i) {
      x = pdfFunc.getX(i);

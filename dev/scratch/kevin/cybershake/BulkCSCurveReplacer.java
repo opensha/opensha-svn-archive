@@ -113,9 +113,9 @@ public class BulkCSCurveReplacer {
 	}
 	
 	private boolean doesCurveHaveXValues(DiscretizedFunc curve, ArrayList<Double> xVals) {
-		if (xVals.size() != curve.getNum())
+		if (xVals.size() != curve.size())
 			return false;
-		for (int i=0; i<curve.getNum(); i++) {
+		for (int i=0; i<curve.size(); i++) {
 			boolean matched = false;
 			for (double xVal : xVals) {
 				if (xVal == curve.getX(i)) {
@@ -140,7 +140,7 @@ public class BulkCSCurveReplacer {
 		
 		ArbitrarilyDiscretizedFunc func = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
 		ArrayList<Double> imVals = new ArrayList<Double>();
-		for (int i=0; i<func.getNum(); i++)
+		for (int i=0; i<func.size(); i++)
 			imVals.add(func.getX(i));
 		
 		for (CybershakeRun run : ampRuns) {
@@ -162,7 +162,7 @@ public class BulkCSCurveReplacer {
 				if (curveFile.exists()) {
 					try {
 						DiscretizedFunc oldFunc = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(fileName);
-						if (oldFunc.getNum() == imVals.size())
+						if (oldFunc.size() == imVals.size())
 							continue;
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -311,7 +311,7 @@ public class ETAS_Simulator {
 //				System.out.println("ZERO RATE SOURCE: "+rate+"\t"+src.getRupture(0).getProbability()+"\t"+src.getName());
 //			}
 			for(ProbEqkRupture rup:src) {
-				if (nthRup >= spontaneousRupSampler.getNum())
+				if (nthRup >= spontaneousRupSampler.size())
 					throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
 				spontaneousRupSampler.set(nthRup, rup.getMeanAnnualRate(duration));
 				nthRup+=1;

@@ -210,12 +210,12 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		if (slope <= coeffFunc.getMinX())
 			vs = coeffFunc.getY(0);
 		else if (slope >= coeffFunc.getMaxX())
-			vs = coeffFunc.getY(coeffFunc.getNum()-1);
+			vs = coeffFunc.getY(coeffFunc.size()-1);
 		else {
 			if (interpolate)
 				vs = coeffFunc.getInterpolatedY(slope);
 			else {
-				vs = coeffFunc.getClosestY(slope);
+				vs = coeffFunc.getClosestYtoX(slope);
 			}
 		}
 		
@@ -305,7 +305,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 			coeffFunc = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
 			double prevX = 0;
 			double prevY = 0;
-			for (int i=0; i<coeffFunc.getNum(); i++) {
+			for (int i=0; i<coeffFunc.size(); i++) {
 				double x = coeffFunc.getX(i);
 				double y = coeffFunc.getY(i);
 				if (x < prevX || y < prevY)
@@ -359,7 +359,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	}
 	
 	public static void printMapping(ArbitrarilyDiscretizedFunc func) {
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			System.out.println(func.getX(i) + "\t=>\t" + func.getY(i));
 		}
 	}

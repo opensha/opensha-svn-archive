@@ -260,7 +260,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	private ArbitrarilyDiscretizedFunc getLogXFunction(ArbitrarilyDiscretizedFunc func) {
 		ArbitrarilyDiscretizedFunc logFunc = new ArbitrarilyDiscretizedFunc();
 		
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			logFunc.set(Math.log(func.getX(i)), func.getY(i));
 		}
 		
@@ -268,7 +268,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	}
 	
 	private void oneMinusYFunction(ArbitrarilyDiscretizedFunc func) {
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			func.set(i, 1 - func.getY(i));
 		}
 	}
@@ -370,7 +370,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 			imVals = getIMVals(this.csSite.id, erfID, sgtVarID, rupVarID, velModelID, srcID, rupID, curIM);
 		} catch (SQLException e) {
 			//			e.printStackTrace();
-			for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+			for (int i=0; i<intensityMeasureLevels.size(); i++) {
 				intensityMeasureLevels.set(i, 0);
 			}
 			return intensityMeasureLevels;
@@ -378,7 +378,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		
 		ArbitrarilyDiscretizedFunc logFunc = getLogX_OneMinusYCumDistFunction(imVals);
 		
-		for (int i=0; i<intensityMeasureLevels.getNum(); i++) {
+		for (int i=0; i<intensityMeasureLevels.size(); i++) {
 			double iml = intensityMeasureLevels.getX(i);
 			double prob = getProbabilityFromLogCumDistFunc(logFunc, iml);
 			intensityMeasureLevels.set(i, prob);

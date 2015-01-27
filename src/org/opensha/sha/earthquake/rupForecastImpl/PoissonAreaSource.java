@@ -160,7 +160,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 				Location loc = gridReg.getNodeList().get(j);
 				for (int k=0; k < magFreqDists.length; k++){
 					IncrementalMagFreqDist mfd = magFreqDists[k];
-					for (int w=0; w < mfd.getNum(); w++){
+					for (int w=0; w < mfd.size(); w++){
 						double mag = mfd.getX(w);
 						double rate = mfd.getY(w)*nodeWeights[j];
 						double prob = 1.0 - Math.exp(-duration*(rate));
@@ -173,7 +173,7 @@ public class PoissonAreaSource extends PointToLineSource implements java.io.Seri
 							if(mag < aveRupTopVersusMag.getMinX())
 								depth = defaultHypoDepth;
 							else
-								depth = aveRupTopVersusMag.getClosestY(mag);
+								depth = aveRupTopVersusMag.getClosestYtoX(mag);
 							Location finalLoc = new Location(
 									loc.getLatitude(), loc.getLongitude(), depth);
 							rup.setPointSurface(finalLoc,focalMechanisms[k].getDip());

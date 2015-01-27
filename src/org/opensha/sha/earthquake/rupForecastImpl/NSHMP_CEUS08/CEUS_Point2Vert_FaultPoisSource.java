@@ -116,7 +116,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 
 		if(D) {
 			System.out.println("magCutOff="+magCutOff);
-			System.out.println("num pts in magFreqDist="+magFreqDist.getNum());
+			System.out.println("num pts in magFreqDist="+magFreqDist.size());
 		}
 
 		// set the mags, rates, and rupture surfaces
@@ -195,7 +195,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 		if(Math.abs(1-(fracNormal+fracReverse+fracStrikeSlip)) > 1e-6)
 			throw new RuntimeException("fractions must sum to 1.0");
 
-		int numMags = magFreqDist.getNum();
+		int numMags = magFreqDist.size();
 
 		ss_firstIndex = -1;
 		ss_lastIndex = -1;
@@ -234,7 +234,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 		ptSurface.setAveDip(aveDip);
 		ptSurface.setAveStrike(strike);
 
-		double maxMag = magFreqDist.getX(magFreqDist.getNum()-1);
+		double maxMag = magFreqDist.getX(magFreqDist.size()-1);
 		// make finite source if necessary
 		if(maxMag > magCutOff) {
 			Location loc1, loc2;
@@ -370,7 +370,7 @@ public class CEUS_Point2Vert_FaultPoisSource extends ProbEqkSource implements ja
 				finiteFault = finiteFault.deepCopyOverrideDepth(depth);
 			}
 
-			if(magIndex == magFreqDist.getNum()-1) {
+			if(magIndex == magFreqDist.size()-1) {
 				probEqkRupture.setRuptureSurface(finiteFault);
 			}
 			else {

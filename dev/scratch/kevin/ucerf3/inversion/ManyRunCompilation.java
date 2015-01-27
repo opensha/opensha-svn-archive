@@ -8,54 +8,40 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import javax.swing.JFrame;
-
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.CSVFile;
-import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 import org.opensha.sha.imr.ScalarIMR;
-import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sra.calc.parallel.ThreadedEALCalc;
 import org.opensha.sra.gui.portfolioeal.Asset;
 import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
-import org.opensha.sra.gui.portfolioeal.Portfolio;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
-import scratch.UCERF3.erf.FaultSystemSolutionPoissonERF;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -63,7 +49,10 @@ import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
-import scratch.kevin.magDepth.NoCollissionFunc;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class ManyRunCompilation {
 	
@@ -392,7 +381,7 @@ public class ManyRunCompilation {
 		
 		ArrayList<ArbitrarilyDiscretizedFunc> theoreticalNFuncs = Lists.newArrayList();
 		ArrayList<ArbitrarilyDiscretizedFunc> percentAvobeMeanOverSDOMFuncs = Lists.newArrayList();
-		ArrayList<NoCollissionFunc> scatterMeanOverSDOMFuncs = Lists.newArrayList();
+		ArrayList<DefaultXY_DataSet> scatterMeanOverSDOMFuncs = Lists.newArrayList();
 		
 		double min = 6;
 		double max = 8.5;
@@ -449,7 +438,7 @@ public class ManyRunCompilation {
 			percentAvobeMeanOverSDOMFunc.setName("% sects above targen Mean / Std. Dev Of Mean"+str);
 			percentAvobeMeanOverSDOMFuncs.add(percentAvobeMeanOverSDOMFunc);
 			
-			NoCollissionFunc scatterMeanOverSDOMFunc = new NoCollissionFunc();
+			DefaultXY_DataSet scatterMeanOverSDOMFunc = new DefaultXY_DataSet();
 			scatterMeanOverSDOMFunc.setName("Mean Rate vs Mean / Std. Dev Of Mean"+str);
 			scatterMeanOverSDOMFuncs.add(scatterMeanOverSDOMFunc);
 			

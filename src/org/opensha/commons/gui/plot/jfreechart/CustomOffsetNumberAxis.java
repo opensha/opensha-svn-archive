@@ -223,7 +223,7 @@ public class CustomOffsetNumberAxis extends NumberAxis {
 		int num = 15;
 		
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, num, delta);
-		for (int i=0; i<func.getNum(); i++)
+		for (int i=0; i<func.size(); i++)
 			func.set(i, Math.random());
 		GraphWindow gw = new GraphWindow(func, "Asdf", new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 		gw.setGriddedFuncAxesTicks(true);

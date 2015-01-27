@@ -216,11 +216,11 @@ public class PEER_AreaForecast extends AbstractERF{
 //      System.out.println(((GutenbergRichterMagFreqDist)magDistParam.getValue()).getName());
 //      dist_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
       dist_GR = (GutenbergRichterMagFreqDist)magDistParam.getValue();
-      IncrementalMagFreqDist dist = new IncrementalMagFreqDist(dist_GR.getMinX(), dist_GR.getMaxX(), dist_GR.getNum());
+      IncrementalMagFreqDist dist = new IncrementalMagFreqDist(dist_GR.getMinX(), dist_GR.getMaxX(), dist_GR.size());
 
 //      double cumRate = dist_GR.getCumRate((int) 0);
 //      cumRate /= numLocs;
-      for(int i=0; i<dist.getNum();i++)
+      for(int i=0; i<dist.size();i++)
     	  dist.set(i, dist_GR.getY(i)/numLocs);
  //     dist_GR.scaleToCumRate(0,cumRate);
 

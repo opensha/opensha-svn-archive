@@ -21,8 +21,6 @@ package org.opensha.sha.magdist;
 
 
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 
 
 /**
@@ -37,334 +35,325 @@ import org.opensha.commons.exceptions.XY_DataSetException;
 
 
 public class GutenbergRichterMagFreqDist
-    extends IncrementalMagFreqDist {
+extends IncrementalMagFreqDist {
 
-  public static String NAME = new String("Gutenberg Richter Dist"); // for showing messages
+	public static String NAME = new String("Gutenberg Richter Dist"); // for showing messages
 
-  //for Debug purposes
-  private boolean D = false;
+	//for Debug purposes
+	private boolean D = false;
 
-  private double magLower; // lowest magnitude that has non zero rate
-  private double magUpper; // highest magnitude that has non zero rate
-  private double bValue; // the b value
+	private double magLower; // lowest magnitude that has non zero rate
+	private double magUpper; // highest magnitude that has non zero rate
+	private double bValue; // the b value
 
-  /**
-   * constructor : this is same as parent class constructor
-   * @param min
-   * @param num
-   * @param delta
-   * using the parameters we call the parent class constructors to initialise the parent class variables
-   */
+	/**
+	 * constructor : this is same as parent class constructor
+	 * @param min
+	 * @param num
+	 * @param delta
+	 * using the parameters we call the parent class constructors to initialise the parent class variables
+	 */
 
-  public GutenbergRichterMagFreqDist(double min, int num, double delta) throws
-      InvalidRangeException {
-    super(min, num, delta);
-    this.magLower = min;
-  }
+	public GutenbergRichterMagFreqDist(double min, int num, double delta) throws
+	InvalidRangeException {
+		super(min, num, delta);
+		this.magLower = min;
+	}
 
-  /**
-   * constructor: this is sameas parent class constructor
-   * @param min
-   * @param max
-   * @param num
-   * using the min, max and num we calculate the delta
-   */
+	/**
+	 * constructor: this is sameas parent class constructor
+	 * @param min
+	 * @param max
+	 * @param num
+	 * using the min, max and num we calculate the delta
+	 */
 
-  public GutenbergRichterMagFreqDist(double min, double max, int num) throws
-      XY_DataSetException, InvalidRangeException {
-    super(min, max, num);
-    
-  }
+	public GutenbergRichterMagFreqDist(double min, double max, int num) throws InvalidRangeException {
+		super(min, max, num);
 
-  /**
-   * constructor: this is sameas parent class constructor
-   * @param min
-   * @param max
-   * @param num
-   * using the min, max and num we calculate the delta
-   */
+	}
 
-  public GutenbergRichterMagFreqDist(double bValue, double totCumRate,
-                                     double min, double max, int num) throws
-      XY_DataSetException, InvalidRangeException {
-    super(min, max, num);
-    this.setAllButTotMoRate(min, max, totCumRate, bValue);
-  }
+	/**
+	 * constructor: this is sameas parent class constructor
+	 * @param min
+	 * @param max
+	 * @param num
+	 * using the min, max and num we calculate the delta
+	 */
 
-  /**
-   * constructor: this constructor assumes magLower is minX and
-   *               magUpper to be maxX
-   * @param min
-   * @param num
-   * @param delta
-   * @param totMoRate : total Moment Rate
-   * @param bValue : b value for this distribution
-   */
+	public GutenbergRichterMagFreqDist(double bValue, double totCumRate,
+			double min, double max, int num) throws InvalidRangeException {
+		super(min, max, num);
+		this.setAllButTotMoRate(min, max, totCumRate, bValue);
+	}
 
-  public GutenbergRichterMagFreqDist(double min, int num, double delta,
-                                     double totMoRate, double bValue) throws
-      Point2DException {
-    super(min, num, delta);
-    // assumes magLower = minX and magUpper = maxX
-    setAllButTotCumRate(minX, maxX, totMoRate, bValue);
-  }
+	/**
+	 * constructor: this constructor assumes magLower is minX and
+	 *               magUpper to be maxX
+	 * @param min
+	 * @param num
+	 * @param delta
+	 * @param totMoRate : total Moment Rate
+	 * @param bValue : b value for this distribution
+	 */
 
-  /**
-   * constructor:
-   * @param min
-   * @param num
-   * @param delta
-   * @param magLower  :  lowest magnitude that has non zero rate
-   * @param magUpper  :  highest magnitude that has non zero rate
-   * @param totMoRate :  total Moment Rate
-   * @param bValue : b value for this distribution
-   */
+	public GutenbergRichterMagFreqDist(double min, int num, double delta,
+			double totMoRate, double bValue) {
+		super(min, num, delta);
+		// assumes magLower = minX and magUpper = maxX
+		setAllButTotCumRate(minX, maxX, totMoRate, bValue);
+	}
 
-  public GutenbergRichterMagFreqDist(double min, int num, double delta,
-                                     double magLower, double magUpper,
-                                     double totMoRate, double bValue) throws
-      InvalidRangeException,
-      Point2DException {
-    super(min, num, delta);
-    setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
-  }
+	/**
+	 * constructor:
+	 * @param min
+	 * @param num
+	 * @param delta
+	 * @param magLower  :  lowest magnitude that has non zero rate
+	 * @param magUpper  :  highest magnitude that has non zero rate
+	 * @param totMoRate :  total Moment Rate
+	 * @param bValue : b value for this distribution
+	 */
 
-  /**
-   * Set all values except Cumulative Rate
-   * @param magLower  : lowest magnitude that has non zero rate
-   * @param magUpper  : highest magnitude that has non zero rate
-   * @param totMoRate : Total Moment Rate
-   * @param bValue    : b Value
-   */
-  public void setAllButTotCumRate(double magLower, double magUpper,
-                                  double totMoRate, double bValue) throws
-      Point2DException {
+	public GutenbergRichterMagFreqDist(double min, int num, double delta,
+			double magLower, double magUpper,
+			double totMoRate, double bValue) throws  InvalidRangeException {
+		super(min, num, delta);
+		setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
+	}
 
-    this.magLower = magLower;
-    this.magUpper = magUpper;
-    this.bValue = bValue;
-    calculateRelativeRates();
-    scaleToTotalMomentRate(totMoRate);
-  }
+	/**
+	 * Set all values except Cumulative Rate
+	 * @param magLower  : lowest magnitude that has non zero rate
+	 * @param magUpper  : highest magnitude that has non zero rate
+	 * @param totMoRate : Total Moment Rate
+	 * @param bValue    : b Value
+	 */
+	public void setAllButTotCumRate(double magLower, double magUpper,
+			double totMoRate, double bValue) {
 
-  /**
-   * Set all values except total moment rate
-   * @param magLower   : lowest magnitude that has non zero rate
-   * @param magUpper   : highest magnitude that has non zero rate
-   * @param totCumRate : Total Cumulative Rate
-   * @param bValue     : b value
-   */
+		this.magLower = magLower;
+		this.magUpper = magUpper;
+		this.bValue = bValue;
+		calculateRelativeRates();
+		scaleToTotalMomentRate(totMoRate);
+	}
 
-  public void setAllButTotMoRate(double magLower, double magUpper,
-                                 double totCumRate, double bValue) throws
-      Point2DException {
+	/**
+	 * Set all values except total moment rate
+	 * @param magLower   : lowest magnitude that has non zero rate
+	 * @param magUpper   : highest magnitude that has non zero rate
+	 * @param totCumRate : Total Cumulative Rate
+	 * @param bValue     : b value
+	 */
 
-    this.magLower = magLower;
-    this.magUpper = magUpper;
-    this.bValue = bValue;
-    calculateRelativeRates();
-    scaleToCumRate(magLower, totCumRate);
-  }
+	public void setAllButTotMoRate(double magLower, double magUpper,
+			double totCumRate, double bValue) {
 
-  /**
-   * Set All but magUpper
-   * @param magLower      : lowest magnitude that has non zero rate
-   * @param totMoRate     : total moment rate
-   * @param totCumRate    : total cumulative rate
-   * @param bValue        : b value
-   * @param relaxTotMoRate  : It is "true" or "false". It accounts for tha fact
-   * that due to magnitude discretization, the specified totCumRate and totMoRate
-   * cannot both be satisfied simultaneously. if it is false, it means that match
-   * totMoRate exactly else it matches totCumRate exactly
-   */
-  public void setAllButMagUpper(double magLower, double totMoRate,
-                                double totCumRate,
-                                double bValue, boolean relaxTotMoRate) throws
-      XY_DataSetException,
-      Point2DException {
+		this.magLower = magLower;
+		this.magUpper = magUpper;
+		this.bValue = bValue;
+		calculateRelativeRates();
+		scaleToCumRate(magLower, totCumRate);
+	}
 
-    if (D) System.out.println("magLower = " + magLower);
-    if (D) System.out.println("totMoRate = " + totMoRate);
-    if (D) System.out.println("totCumRate = " + totCumRate);
-    if (D) System.out.println("bValue = " + bValue);
-    if (D) System.out.println("relaxCumRate = " + relaxTotMoRate);
+	/**
+	 * Set All but magUpper
+	 * @param magLower      : lowest magnitude that has non zero rate
+	 * @param totMoRate     : total moment rate
+	 * @param totCumRate    : total cumulative rate
+	 * @param bValue        : b value
+	 * @param relaxTotMoRate  : It is "true" or "false". It accounts for tha fact
+	 * that due to magnitude discretization, the specified totCumRate and totMoRate
+	 * cannot both be satisfied simultaneously. if it is false, it means that match
+	 * totMoRate exactly else it matches totCumRate exactly
+	 */
+	public void setAllButMagUpper(double magLower, double totMoRate,
+			double totCumRate,
+			double bValue, boolean relaxTotMoRate) {
 
-    // create variables for analytical moment integration
-    double b = bValue;
-    double N = totCumRate;
-    double z = 1.5 - b;
-    double X = N * b * Math.pow(10.0, 9.05) / z;
-    double M1 = magLower;
-    double M2;
-    double tempTotMoRate = 0.0, lastMoRate = 0.0; // initialize this temporary moment rate
+		if (D) System.out.println("magLower = " + magLower);
+		if (D) System.out.println("totMoRate = " + totMoRate);
+		if (D) System.out.println("totCumRate = " + totCumRate);
+		if (D) System.out.println("bValue = " + bValue);
+		if (D) System.out.println("relaxCumRate = " + relaxTotMoRate);
 
-    int index;
+		// create variables for analytical moment integration
+		double b = bValue;
+		double N = totCumRate;
+		double z = 1.5 - b;
+		double X = N * b * Math.pow(10.0, 9.05) / z;
+		double M1 = magLower;
+		double M2;
+		double tempTotMoRate = 0.0, lastMoRate = 0.0; // initialize this temporary moment rate
 
-    // now we find magUpper by trying each mag as magUpper, computing the total
-    // moment rate analytically, and stopping when we get above the target moment
-    //rate.
-    for (index = getXIndex(M1) + 1; tempTotMoRate < totMoRate && index < num;
-         index++) {
-      lastMoRate = tempTotMoRate;
-      M2 = getX(index);
-      tempTotMoRate = X * (Math.pow(10, z * M2) - Math.pow(10, z * M1)) /
-          (Math.pow(10, -b * M1) - Math.pow(10, -b * M2));
-    }
+		int index;
 
-    index--;
+		// now we find magUpper by trying each mag as magUpper, computing the total
+		// moment rate analytically, and stopping when we get above the target moment
+		//rate.
+		for (index = getXIndex(M1) + 1; tempTotMoRate < totMoRate && index < num;
+				index++) {
+			lastMoRate = tempTotMoRate;
+			M2 = getX(index);
+			tempTotMoRate = X * (Math.pow(10, z * M2) - Math.pow(10, z * M1)) /
+					(Math.pow(10, -b * M1) - Math.pow(10, -b * M2));
+		}
 
-    if (D) System.out.println("just above target: index=" + index + "; mag=" +
-                              getX(index));
-    if (D) System.out.println("lastMoRate = " + lastMoRate);
-    if (D) System.out.println("tempTotMoRate = " + tempTotMoRate);
-    if (D) System.out.println("targetMoRate = " + totMoRate);
+		index--;
 
-    // find which mag point it's closer:
-    if (lastMoRate <= totMoRate && tempTotMoRate >= totMoRate) {
-      double diff1 = tempTotMoRate - totMoRate;
-      double diff2 = totMoRate - lastMoRate;
+		if (D) System.out.println("just above target: index=" + index + "; mag=" +
+				getX(index));
+		if (D) System.out.println("lastMoRate = " + lastMoRate);
+		if (D) System.out.println("tempTotMoRate = " + tempTotMoRate);
+		if (D) System.out.println("targetMoRate = " + totMoRate);
 
-      // if it's closer to previous point
-      if (diff2 < diff1) index--;
-    }
-    else
-      throw new RuntimeException("Moment rate not attainable; totMoRate="+totMoRate+"  totCumRate="+totCumRate);
+		// find which mag point it's closer:
+		if (lastMoRate <= totMoRate && tempTotMoRate >= totMoRate) {
+			double diff1 = tempTotMoRate - totMoRate;
+			double diff2 = totMoRate - lastMoRate;
 
-    magUpper = getX(index);
+			// if it's closer to previous point
+			if (diff2 < diff1) index--;
+		}
+		else
+			throw new RuntimeException("Moment rate not attainable; totMoRate="+totMoRate+"  totCumRate="+totCumRate);
 
-    if (D) System.out.println("chosen magUpper=" + magUpper);
+		magUpper = getX(index);
 
-    if (relaxTotMoRate)
-      setAllButTotMoRate(magLower, magUpper, totCumRate, bValue);
-    else
-      setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
-  }
+		if (D) System.out.println("chosen magUpper=" + magUpper);
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  /*public void set(Point2D point) throws MagFreqDistException {
+		if (relaxTotMoRate)
+			setAllButTotMoRate(magLower, magUpper, totCumRate, bValue);
+		else
+			setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
+	}
+
+	/**
+	 * Throws the exception if the set functions are called from outside the class
+	 * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+	 * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
+	 * @param point
+	 * @throws MagFreqDistException
+	 */
+	/*public void set(Point2D point) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }*/
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  /*public void set(double x, double y) throws MagFreqDistException {
+	/**
+	 * Throws the exception if the set functions are called from outside the class
+	 * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+	 * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
+	 * @param x
+	 * @param y
+	 * @throws MagFreqDistException
+	 */
+	/*public void set(double x, double y) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }*/
 
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside.
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  /*public void set(int index, double y) throws MagFreqDistException {
+	/**
+	 * Throws the exception if the set functions are called from outside the class
+	 * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+	 * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside.
+	 * @param index
+	 * @param y
+	 * @throws MagFreqDistException
+	 */
+	/*public void set(int index, double y) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }*/
 
-  /**
-   * private function to set the rate values
-   */
+	/**
+	 * private function to set the rate values
+	 */
 
-  private void calculateRelativeRates() throws Point2DException {
+	private void calculateRelativeRates() {
 
-    // checks that magUpper, magLower lie between minX and maxX
-    // it also checks that magUpper > magLower
-    if (magLower < minX || magLower > maxX)
-      throw new Point2DException(
-          "magLower should lie between minX and maxX; magLower="+magLower);
-    if (magLower > magUpper)
-      throw new InvalidRangeException("magLower must be < magUpper; magLower="+magLower);
+		// checks that magUpper, magLower lie between minX and maxX
+		// it also checks that magUpper > magLower
+		if (magLower < minX || magLower > maxX)
+			throw new IllegalArgumentException(
+					"magLower should lie between minX and maxX; magLower="+magLower);
+		if (magLower > magUpper)
+			throw new InvalidRangeException("magLower must be < magUpper; magLower="+magLower);
 
-    int indexLow = getXIndex(magLower); // find the index of magLower
-    if(indexLow == -1)
-    	throw new RuntimeException("magLower is not within tolerance of an x-axis value");
+		int indexLow = getXIndex(magLower); // find the index of magLower
+		if(indexLow == -1)
+			throw new RuntimeException("magLower is not within tolerance of an x-axis value");
 
-    int indexUp = getXIndex(magUpper); // find the index of magUpper
-    if(indexUp == -1)
-    	throw new RuntimeException("magUpper is not within tolerance of an x-axis value");
+		int indexUp = getXIndex(magUpper); // find the index of magUpper
+		if(indexUp == -1)
+			throw new RuntimeException("magUpper is not within tolerance of an x-axis value");
 
-    int i;
+		int i;
 
-    for (i = 0; i < indexLow; ++i) // set all rates below magLower to 0
-      super.set(i, 0.0);
+		for (i = 0; i < indexLow; ++i) // set all rates below magLower to 0
+			super.set(i, 0.0);
 
-    for (i = indexLow; i <= indexUp; ++i) // assign correct values to rates between magLower and magUpper
-      super.set(i, Math.pow(10, -bValue * getX(i)));
+		for (i = indexLow; i <= indexUp; ++i) // assign correct values to rates between magLower and magUpper
+			super.set(i, Math.pow(10, -bValue * getX(i)));
 
-    for (i = indexUp + 1; i < num; ++i) // set all rates above magUpper tp 0
-      super.set(i, 0.0);
-  }
+		for (i = indexUp + 1; i < num; ++i) // set all rates above magUpper tp 0
+			super.set(i, 0.0);
+	}
 
-  /**
-   *
-   * @return the cumulative rate at magLower
-   */
+	/**
+	 *
+	 * @return the cumulative rate at magLower
+	 */
 
-  public double getTotCumRate() throws Point2DException {
-    return getCumRate(magLower);
-  }
+	public double getTotCumRate() {
+		return getCumRate(magLower);
+	}
 
-  /**
-   * @return th bValue for this distribution
-   */
+	/**
+	 * @return th bValue for this distribution
+	 */
 
-  public double get_bValue() {
-    return bValue;
-  }
+	public double get_bValue() {
+		return bValue;
+	}
 
-  /**
-   *
-   * @return the magLower : lowest magnitude that has non zero rate
-   */
-  public double getMagLower() {
-    return magLower;
-  }
+	/**
+	 *
+	 * @return the magLower : lowest magnitude that has non zero rate
+	 */
+	public double getMagLower() {
+		return magLower;
+	}
 
-  /**
-   *
-   * @return the magUpper : highest magnitude that has non zero rate
-   */
-  public double getMagUpper() {
-    return magUpper;
-  }
+	/**
+	 *
+	 * @return the magUpper : highest magnitude that has non zero rate
+	 */
+	public double getMagUpper() {
+		return magUpper;
+	}
 
-  /**
-   * returns the name of this class
-   * @return
-   */
+	/**
+	 * returns the name of this class
+	 * @return
+	 */
 
-  public String getDefaultName() {
-    return NAME;
-  }
+	public String getDefaultName() {
+		return NAME;
+	}
 
-  /**
-   * this function returns String for drawing Legen in JFreechart
-   * @return : returns the String which is needed for Legend in graph
-   */
-  public String getDefaultInfo() throws Point2DException {
-    return ("minMag=" + minX + "; maxMag=" + maxX + "; numMag=" + num +
-            "; bValue=" + bValue + "; magLower=" + magLower + "; magUpper=" +
-            (float) magUpper +
-            "; totMoRate=" + (float)this.getTotalMomentRate() + "; totCumRate=" +
-            (float) getCumRate(magLower));
-  }
+	/**
+	 * this function returns String for drawing Legen in JFreechart
+	 * @return : returns the String which is needed for Legend in graph
+	 */
+	public String getDefaultInfo() {
+		return ("minMag=" + minX + "; maxMag=" + maxX + "; numMag=" + num +
+				"; bValue=" + bValue + "; magLower=" + magLower + "; magUpper=" +
+				(float) magUpper +
+				"; totMoRate=" + (float)this.getTotalMomentRate() + "; totCumRate=" +
+				(float) getCumRate(magLower));
+	}
 
-  /** Returns a rcopy of this and all points in this GutenbergRichter */
-  /*public DiscretizedFuncAPI deepClone() throws DataPoint2DException {
+	/** Returns a rcopy of this and all points in this GutenbergRichter */
+	/*public DiscretizedFuncAPI deepClone() throws DataPoint2DException {
 
     GutenbergRichterMagFreqDist f = new GutenbergRichterMagFreqDist(minX, num,
         delta);
@@ -374,8 +363,8 @@ public class GutenbergRichterMagFreqDist
     return f;
   }*/
 
-  /**
-   * this method (defined in parent) is deactivated here (name is finalized)
+	/**
+	 * this method (defined in parent) is deactivated here (name is finalized)
 
       public void setName(String name) throws  UnsupportedOperationException{
    throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
@@ -383,19 +372,19 @@ public class GutenbergRichterMagFreqDist
       }
 
 
-   * this method (defined in parent) is deactivated here (name is finalized)
+	 * this method (defined in parent) is deactivated here (name is finalized)
 
       public void setInfo(String info)throws  UnsupportedOperationException{
    throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
      }*/
-  
-  
+
+
 	public static void main(String[] args) {
-		  GutenbergRichterMagFreqDist grTest = new GutenbergRichterMagFreqDist(1d, 1d,0.0,10d,100);
-		  System.out.println(grTest);
-		  System.out.println("bVal="+grTest.compute_bValue(Double.NaN,Double.NaN));
-		  
+		GutenbergRichterMagFreqDist grTest = new GutenbergRichterMagFreqDist(1d, 1d,0.0,10d,100);
+		System.out.println(grTest);
+		System.out.println("bVal="+grTest.compute_bValue(Double.NaN,Double.NaN));
+
 
 	}
 

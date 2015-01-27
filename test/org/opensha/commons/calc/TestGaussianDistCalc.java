@@ -355,7 +355,7 @@ public class TestGaussianDistCalc {
 		EvenlyDiscretizedFunc func =  getTestCDFVals();
 
 
-		for(int i=0;i < func.getNum(); ++i) {
+		for(int i=0;i < func.size(); ++i) {
 
 			double srv = func.getX(i);
 			double prob = func.getY(i);

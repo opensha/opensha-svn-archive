@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.StringTokenizer;
 
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
@@ -130,7 +129,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
             int index = incrMagFreqDist.getXIndex(mag);
             incrMagFreqDist.set(mag, incrMagFreqDist.getY(index) + rate);
           }
-          catch (Point2DException dataPointException) {
+          catch (IllegalArgumentException dataPointException) {
             // do not do anything if this mag is not allowed
           }
         } else {

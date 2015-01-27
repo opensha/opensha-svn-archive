@@ -107,7 +107,7 @@ public class SsAfrica2GemSourceData extends GemFileParser {
 					seiList.get(srcGeo.getId()).getMMax()-mwid/2,num);
 			
 			double aGR = Math.log10(lambda/(Math.pow(10,-bGR*mmin)-Math.pow(10,-bGR*mmax)) );
-			for (int j=0; j<mfd.getNum()-1; j++){
+			for (int j=0; j<mfd.size()-1; j++){
 				double rate = Math.pow(10,aGR-bGR*(j*mwid+MMIN)) - Math.pow(10,aGR-bGR*((j+1)*mwid+MMIN));
 				mfd.add(j,rate);
 				//System.out.printf("%5.2f %7.5f\n",mfd.getX(j),rate);

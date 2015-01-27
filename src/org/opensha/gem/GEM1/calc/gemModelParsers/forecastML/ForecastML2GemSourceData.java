@@ -193,7 +193,7 @@ public class ForecastML2GemSourceData extends GemFileParser{
 			    
 				// average top of rupture-magnitude distribution
 				ArbitrarilyDiscretizedFunc aveRupTopVsMag = new ArbitrarilyDiscretizedFunc();
-				for(int iv=0;iv<mfd.getNum();iv++){
+				for(int iv=0;iv<mfd.size();iv++){
 					double mag = mfd.getX(iv);
 					aveRupTopVsMag.set(mag, defaultDepth);
 				}

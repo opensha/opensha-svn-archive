@@ -27,7 +27,7 @@ public abstract class AbstractPortfolioLECCalculator {
 			DiscretizedFunc[][] funcs, ERF erf, DiscretizedFunc function) {
 		
 		if (D) System.out.println("Creating final curve");
-		for (int k=0; k<function.getNum(); k++) {
+		for (int k=0; k<function.size(); k++) {
 			double x = function.getX(k);
 			if (D) System.out.println("iml: " + x);
 			

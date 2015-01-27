@@ -129,7 +129,7 @@ public class ETAS_LocationWeightCalculatorAlt {
 		double lowerBinEdge;
 		double binWt = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);	// everything within the upper edge of first bin
 		logTargetDecay.set(0,binWt);
-		for(int i=1;i<logTargetDecay.getNum();i++) {
+		for(int i=1;i<logTargetDecay.size();i++) {
 			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
 			lowerBinEdge = Math.pow(10,logLowerEdge);
 			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
@@ -417,7 +417,7 @@ public class ETAS_LocationWeightCalculatorAlt {
 		// make target histogram
 		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(0.5 , 999.5, 1000);
 		double halfDelta=targetHist.getDelta()/2;
-		for(int i=0;i<targetHist.getNum();i++) {
+		for(int i=0;i<targetHist.size();i++) {
 			double upper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, targetHist.getX(i)+halfDelta);
 			double lower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, targetHist.getX(i)-halfDelta);
 			targetHist.set(i,upper-lower);

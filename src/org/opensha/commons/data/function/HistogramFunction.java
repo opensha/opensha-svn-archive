@@ -55,9 +55,9 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 	 * @return
 	 */
 	public HistogramFunction getCumulativeDistFunction() {
-		HistogramFunction cumHist = new HistogramFunction(getMinX(), getNum(), getDelta());
+		HistogramFunction cumHist = new HistogramFunction(getMinX(), size(), getDelta());
 		double sum=0;
-		for(int i=0;i<getNum();i++) {
+		for(int i=0;i<size();i++) {
 			sum+=getY(i);
 			cumHist.set(i,sum);
 		}
@@ -71,10 +71,10 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 	 * @return
 	 */
 	public HistogramFunction getCumulativeDistFunctionWithHalfBinOffset() {
-		HistogramFunction cumHist = new HistogramFunction(getMinX()-getDelta()/2d, getNum()+1, getDelta());
+		HistogramFunction cumHist = new HistogramFunction(getMinX()-getDelta()/2d, size()+1, getDelta());
 		double sum=0;
 		cumHist.set(0,0d);
-		for(int i=1;i<cumHist.getNum();i++) {
+		for(int i=1;i<cumHist.size();i++) {
 			sum+=getY(i-1);
 			cumHist.set(i,sum);
 		}
@@ -87,7 +87,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 	 */
 	public double getMode() {
 		double mode=Double.NaN, max=-1;;
-		for(int i=0;i<getNum();i++) {
+		for(int i=0;i<size();i++) {
 			if(getY(i)>max) {
 				max = getY(i);
 				mode = getX(i);
@@ -99,7 +99,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 	public double computeMean() {
 		double sum = calcSumOfY_Vals();
 		double mean = 0;
-		for(int i=0;i<getNum();i++) {
+		for(int i=0;i<size();i++) {
 			mean+=getX(i)*getY(i)/sum;
 		}
 		return mean;
@@ -110,7 +110,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		double sum = calcSumOfY_Vals();
 		double mean = computeMean();
 		double var = 0;
-		for(int i=0;i<getNum();i++) {
+		for(int i=0;i<size();i++) {
 			var+=(getX(i)-mean)*(getX(i)-mean)*getY(i)/sum;
 		}
 		return Math.sqrt(var);
@@ -153,7 +153,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 			HistogramFunction h1 = hists.get(i-1);
 			HistogramFunction h2 = hists.get(i);
 			
-			Preconditions.checkArgument(h1.getNum() == h2.getNum(),
+			Preconditions.checkArgument(h1.size() == h2.size(),
 					"Histogram x values inconsistent!");
 			Preconditions.checkArgument((float)h1.getMinX() == (float)h2.getMinX(),
 					"Histogram x values inconsistent!");
@@ -161,12 +161,12 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 					"Histogram x values inconsistent!");
 		}
 		
-		int numX = hists.get(0).getNum();
+		int numX = hists.get(0).size();
 		
 		// this keeps track of the running total
 		double[] binTots = new double[numX];
 		for (HistogramFunction hist : hists) {
-			HistogramFunction stackHist = new HistogramFunction(hist.getMinX(), hist.getNum(), hist.getDelta());
+			HistogramFunction stackHist = new HistogramFunction(hist.getMinX(), hist.size(), hist.getDelta());
 			stackHist.setName(hist.getName());
 			String info = hist.getInfo();
 			if (info == null || info.isEmpty())
@@ -180,7 +180,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 				info += "\nSum of unstacked y values: "+(float)hist.calcSumOfY_Vals();
 			stackHist.setInfo(info);
 			
-			for (int i=0; i<hist.getNum(); i++) {
+			for (int i=0; i<hist.size(); i++) {
 				double y = hist.getY(i);
 				stackHist.set(i, y+binTots[i]);
 				binTots[i] += y;
@@ -192,7 +192,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		if (normalize) {
 			double ratio = 1d/overallTot;
 			for (HistogramFunction hist : stacked)
-				for (int i=0; i<hist.getNum(); i++)
+				for (int i=0; i<hist.size(); i++)
 					hist.set(i, hist.getY(i)*ratio);
 		}
 		
@@ -207,8 +207,8 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		bpt_calc.setAll(110, 0.25, 1, 600);
 		EvenlyDiscretizedFunc func = bpt_calc.getPDF();
 		GraphWindow graph = new GraphWindow(func, "Test BPT"); 
-		HistogramFunction hist = new HistogramFunction(func.getMinX(),func.getMaxX(), func.getNum());
-		for(int i=0;i<hist.getNum();i++)
+		HistogramFunction hist = new HistogramFunction(func.getMinX(),func.getMaxX(), func.size());
+		for(int i=0;i<hist.size();i++)
 			hist.set(i, func.getY(i));
 		System.out.println("mean="+hist.computeMean());
 		System.out.println("std="+hist.computeStdDev());

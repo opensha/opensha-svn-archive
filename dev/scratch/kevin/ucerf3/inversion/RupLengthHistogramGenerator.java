@@ -176,7 +176,7 @@ public class RupLengthHistogramGenerator {
 			List<String> line = Lists.newArrayList();
 			
 			double start, end;
-			if (i == hist.getNum()) {
+			if (i == hist.size()) {
 				start = hist.getMaxX()+halfDelta;
 				end = maxLengthFound;
 			} else {

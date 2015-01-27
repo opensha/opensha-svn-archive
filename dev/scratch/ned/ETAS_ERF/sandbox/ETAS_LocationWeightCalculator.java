@@ -105,10 +105,10 @@ public class ETAS_LocationWeightCalculator {
 		max = (num)*deltaDistForHist-deltaDistForHist/2;
 		EvenlyDiscretizedFunc target = new EvenlyDiscretizedFunc(min, max, num);
 		
-		for(int i=0; i<target.getNum();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
+		for(int i=0; i<target.size();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
 		double sum2 = target.calcSumOfY_Vals();
-		for(int i=0; i<target.getNum();i++) target.set(i,target.getY(i)/sum2);
-		for(int i=0; i<target.getNum();i++) targetHist.add(target.getX(i), target.getY(i));
+		for(int i=0; i<target.size();i++) target.set(i,target.getY(i)/sum2);
+		for(int i=0; i<target.size();i++) targetHist.add(target.getX(i), target.getY(i));
 		
 		for(int iLat=0;iLat<numLatLon; iLat++) {
 			for(int iLon=0;iLon<numLatLon; iLon++) {
@@ -341,10 +341,10 @@ public class ETAS_LocationWeightCalculator {
 		EvenlyDiscretizedFunc target = new EvenlyDiscretizedFunc(min, max, num);
 		
 		
-		for(int i=0; i<target.getNum();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
+		for(int i=0; i<target.size();i++) target.set(i,Math.pow(target.getX(i)+minDist, -distDecay));
 		double sum2 = target.calcSumOfY_Vals();
-		for(int i=0; i<target.getNum();i++) target.set(i,target.getY(i)/sum2);
-		for(int i=0; i<target.getNum();i++) targetHist.add(target.getX(i), target.getY(i));
+		for(int i=0; i<target.size();i++) target.set(i,target.getY(i)/sum2);
+		for(int i=0; i<target.size();i++) targetHist.add(target.getX(i), target.getY(i));
 		targetHist.setName("Target Distance Decay for Primary Aftershocks");
 
 		

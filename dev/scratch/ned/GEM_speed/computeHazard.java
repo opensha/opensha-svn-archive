@@ -147,7 +147,7 @@ public class computeHazard implements Runnable {
 		//	    hc.set(1.09,1);
 		//	    hc.set(1.52,1);
 		//	    hc.set(2.13,1);
-		for(int in=0;in<hc.getNum();in++) hc.set(Math.log(hc.getX(in)), hc.getY(in));
+		for(int in=0;in<hc.size();in++) hc.set(Math.log(hc.getX(in)), hc.getY(in));
 
 
 		// attenuation relationship (Abrahmson and Silva 1997)

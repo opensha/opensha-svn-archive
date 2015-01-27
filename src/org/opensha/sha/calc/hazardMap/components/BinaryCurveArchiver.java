@@ -67,7 +67,7 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 		doubleBuffs = Maps.newHashMap();
 		
 		for (DiscretizedFunc xVals : xValsMap.values()) {
-			Integer num = xVals.getNum();
+			Integer num = xVals.size();
 			if (!doubleRecordBuffers.containsKey(num)) {
 				byte[] doubleRecordBuffer = new byte[calcRecordLen(num)];
 				
@@ -112,7 +112,7 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 			File outputFile = new File(outputDir, imrName+".bin");
 			if (!outputFile.exists()) {
 				DiscretizedFunc xVals = xValsMap.get(imrName);
-				int numXVals = xVals.getNum();
+				int numXVals = xVals.size();
 				long fileSize = calcFilePos(numXVals, numSites);
 
 				try {
@@ -226,8 +226,8 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 			CurveMetadata meta) throws IOException {
 		String imrName = meta.getShortLabel();
 		RandomAccessFile file = getFile(imrName);
-		int numX = xValsMap.get(imrName).getNum();
-		Preconditions.checkState(curve.getNum() == numX);
+		int numX = xValsMap.get(imrName).size();
+		Preconditions.checkState(curve.size() == numX);
 		long pos = calcFilePos(numX, meta.getIndex());
 		DoubleBuffer doubleBuff = doubleBuffs.get(numX);
 		byte[] doubleRecordBuffer = doubleRecordBuffers.get(numX);
@@ -267,7 +267,7 @@ public class BinaryCurveArchiver implements CurveResultsArchiver {
 		try {
 			String imrName = meta.getShortLabel();
 			RandomAccessFile file = getFile(imrName);
-			int numX = xValsMap.get(imrName).getNum();
+			int numX = xValsMap.get(imrName).size();
 			long pos = calcFilePos(numX, meta.getIndex());
 			file.seek(pos);
 			file.read(singleDoubleRecordBuffer);

@@ -471,7 +471,7 @@ public class ETAS_LocationWeightCalculator {
 		// make target histogram
 		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(0.5 , 999.5, 1000);
 		double halfDelta=targetHist.getDelta()/2;
-		for(int i=0;i<targetHist.getNum();i++) {
+		for(int i=0;i<targetHist.size();i++) {
 			double upper = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)+halfDelta);
 			double lower = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)-halfDelta);
 			targetHist.set(i,upper-lower);

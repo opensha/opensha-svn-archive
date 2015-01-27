@@ -502,12 +502,12 @@ public class SimJunctionMapper {
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		if (passXY.getNum() > 0) {
+		if (passXY.size() > 0) {
 			funcs.add(passXY);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 6f, Color.GREEN));
 		}
 		
-		if (failXY.getNum() > 0) {
+		if (failXY.size() > 0) {
 			funcs.add(failXY);
 			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 6f, Color.RED));
 		}
@@ -678,7 +678,7 @@ public class SimJunctionMapper {
 				simSol, simDistances, jumpDist, minMag, null)[0];
 		ucerfFunc.scale(1d/ucerfFunc.calcSumOfY_Vals());
 		simFunc.scale(1d/simFunc.calcSumOfY_Vals());
-		EvenlyDiscretizedFunc empiricalFunc = new EvenlyDiscretizedFunc(ucerfFunc.getMinX(), ucerfFunc.getMaxX(), ucerfFunc.getNum());
+		EvenlyDiscretizedFunc empiricalFunc = new EvenlyDiscretizedFunc(ucerfFunc.getMinX(), ucerfFunc.getMaxX(), ucerfFunc.size());
 		empiricalFunc.set(0, 0.405);
 		empiricalFunc.set(1, 0.32);
 		empiricalFunc.set(2, 0.1);

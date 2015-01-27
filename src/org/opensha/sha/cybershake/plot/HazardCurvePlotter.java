@@ -826,7 +826,7 @@ public class HazardCurvePlotter {
 				
 				ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
 				ArrayList<Double> imVals = new ArrayList<Double>();
-				for (int i=0; i<func.getNum(); i++)
+				for (int i=0; i<func.size(); i++)
 					imVals.add(func.getX(i));
 				
 				DiscretizedFunc curve = curveCalc.computeHazardCurve(imVals, run, im);
@@ -1163,7 +1163,7 @@ public class HazardCurvePlotter {
 			
 			fw.write(header + "\n");
 			
-			for (int j=0; j<curve.getNum(); j++) {
+			for (int j=0; j<curve.size(); j++) {
 				fw.write(curve.getX(j) + "\t" + curve.getY(j) + "\n");
 			}
 		}
@@ -1555,7 +1555,7 @@ public class HazardCurvePlotter {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
 		if (this.xLogFlag) {
-			for (int i = 0; i < arb.getNum(); ++i)
+			for (int i = 0; i < arb.size(); ++i)
 				new_func.set(Math.log(arb.getX(i)), 1);
 			return new_func;
 		}
@@ -1572,7 +1572,7 @@ public class HazardCurvePlotter {
 	 */
 	private ArbitrarilyDiscretizedFunc unLogFunction(
 			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
-		int numPoints = oldHazFunc.getNum();
+		int numPoints = oldHazFunc.size();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
 		if (this.xLogFlag) {

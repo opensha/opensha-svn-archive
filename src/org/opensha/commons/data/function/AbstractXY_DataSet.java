@@ -28,42 +28,46 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	 */
 	protected String name = "";
 	
-	/** Returns the name of this function. */
+	@Override
 	public String getName(){ return name; }
-	/** Sets the name of this function. */
+	
+	@Override
 	public void setName(String name){ this.name = name; }
 
-
-	/** Returns the info of this function. */
+	@Override
 	public String getInfo(){ return info; }
 
-	/** Sets the info string of this function. */
+	@Override
 	public void setInfo(String info){ this.info = info; }
 	
 	//X and Y Axis name
 	protected String xAxisName,yAxisName;
 	
+	@Override
 	public void setXAxisName(String xName){
 		xAxisName = xName;
 	}
 
+	@Override
 	public String getXAxisName(){
 		return xAxisName;
 	}
 
+	@Override
 	public void setYAxisName(String yName){
 		yAxisName = yName;
 	}
 
+	@Override
 	public String getYAxisName(){
 		return yAxisName;
 	}
 	
 	@Override
-	public double getClosestX(double y) {
+	public double getClosestXtoY(double y) {
 		double x = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
-		for (int i=0; i<getNum(); i++) {
+		for (int i=0; i<size(); i++) {
 			double newY = getY(i);
 			double newDist = Math.abs(newY - y);
 			if (newDist < dist) {
@@ -75,10 +79,10 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 	}
 
 	@Override
-	public double getClosestY(double x) {
+	public double getClosestYtoX(double x) {
 		double y = Double.NaN;
 		double dist = Double.POSITIVE_INFINITY;
-		for (int i=0; i<getNum(); i++) {
+		for (int i=0; i<size(); i++) {
 			double newX = getX(i);
 			double newDist = Math.abs(newX - x);
 			if (newDist < dist) {
@@ -89,15 +93,9 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		return y;
 	}
 	
-	/**
-	 * It finds out whether the X values are within tolerance of an integer value
-	 * @param tol tolerance value to consider  rounding errors
-	 *
-	 * @return true if all X values are within the tolerance of an integer value
-	 * else returns false
-	 */
+	@Override
 	public boolean areAllXValuesInteger(double tolerance) {
-		int num = getNum();
+		int num = size();
 		double x, diff;
 		for (int i = 0; i < num; ++i) {
 			x = getX(i);
@@ -107,11 +105,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		return true;
 	}
 	
-	/**
-	 * Returns an iterator over all x-values in the list. Results returned
-	 * in sorted order. Returns null if no points present.
-	 * @return
-	 */
+	@Override
 	public Iterator<Double> getXValuesIterator(){
 		return new Iterator<Double>() {
 			
@@ -119,7 +113,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -134,11 +128,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		};
 	}
 
-	/**
-	 * Returns an iterator over all y-values in the list. Results returned
-	 * in sorted order along the x-axis. Returns null if no points present.
-	 * @return
-	 */
+	@Override
 	public Iterator<Double> getYValuesIterator(){
 		return new Iterator<Double>() {
 			
@@ -146,7 +136,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -169,7 +159,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 
 			@Override
 			public boolean hasNext() {
-				return index < getNum();
+				return index < size();
 			}
 
 			@Override
@@ -184,13 +174,14 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		};
 	}
 	
+	@Override
 	public List<Double> xValues() {
 		return new AbstractList<Double>() {
 			@Override public Double get(int index) {
 				return getX(index);
 			}
 			@Override public int size() {
-				return getNum();
+				return AbstractXY_DataSet.this.size();
 			}
 			@Override public Iterator<Double> iterator() {
 				final Iterator<Point2D> it = AbstractXY_DataSet.this.iterator();
@@ -209,6 +200,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 		};
 	}
 	
+	@Override
 	public List<Double> yValues() {
 		// doublecheck AbstractList docs and check/test immutability of list
 		return new AbstractList<Double>() {
@@ -218,7 +210,7 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 			}
 			@Override
 			public int size() {
-				return getNum();
+				return AbstractXY_DataSet.this.size();
 			}
 			@Override public Iterator<Double> iterator() {
 				final Iterator<Point2D> it = AbstractXY_DataSet.this.iterator();
@@ -236,12 +228,14 @@ public abstract class AbstractXY_DataSet implements XY_DataSet {
 			}
 		};
 	}
+	
 	@Override
 	public XY_DataSetList getDatasetsToPlot() {
 		XY_DataSetList list = new XY_DataSetList();
 		list.add(this);
 		return list;
 	}
+	
 	@Override
 	public List<Integer> getPlotNumColorList() {
 		return Lists.newArrayList(1);

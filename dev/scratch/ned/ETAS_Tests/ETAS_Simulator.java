@@ -425,37 +425,37 @@ public class ETAS_Simulator {
 
 		// M<5
 		DefaultXY_DataSet epLocsGen1_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 1);
-		if(epLocsGen1_Mlt5.getNum()>0) {
+		if(epLocsGen1_Mlt5.size()>0) {
 			funcs.add(epLocsGen1_Mlt5);
 			epLocsGen1_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen2_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 2);
-		if(epLocsGen2_Mlt5.getNum()>0) {
+		if(epLocsGen2_Mlt5.size()>0) {
 			funcs.add(epLocsGen2_Mlt5);
 			epLocsGen2_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 3);
-		if(epLocsGen3_Mlt5.getNum()>0) {
+		if(epLocsGen3_Mlt5.size()>0) {
 			funcs.add(epLocsGen3_Mlt5);
 			epLocsGen3_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 4);
-		if(epLocsGen4_Mlt5.getNum()>0) {
+		if(epLocsGen4_Mlt5.size()>0) {
 			funcs.add(epLocsGen4_Mlt5);
 			epLocsGen4_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 5);
-		if(epLocsGen5_Mlt5.getNum()>0) {
+		if(epLocsGen5_Mlt5.size()>0) {
 			funcs.add(epLocsGen5_Mlt5);
 			epLocsGen5_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mlt5 = getEpicenterLocsXY_DataSet(2.0, 5.0, 6);
-		if(epLocsGen6_Mlt5.getNum()>0) {
+		if(epLocsGen6_Mlt5.size()>0) {
 			funcs.add(epLocsGen6_Mlt5);
 			epLocsGen6_Mlt5.setInfo("(circles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 1f, Color.YELLOW));
@@ -464,37 +464,37 @@ public class ETAS_Simulator {
 
 		// 5.0<=M<6.5
 		DefaultXY_DataSet epLocsGen1_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 1);
-		if(epLocsGen1_Mgt5lt65.getNum()>0) {
+		if(epLocsGen1_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen1_Mgt5lt65);
 			epLocsGen1_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLACK));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 2);
-		if(epLocsGen2_Mgt5lt65.getNum()>0) {
+		if(epLocsGen2_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen2_Mgt5lt65);
 			epLocsGen2_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 3);
-		if(epLocsGen3_Mgt5lt65.getNum()>0) {
+		if(epLocsGen3_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen3_Mgt5lt65);
 			epLocsGen3_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 4);
-		if(epLocsGen4_Mgt5lt65.getNum()>0) {
+		if(epLocsGen4_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen4_Mgt5lt65);
 			epLocsGen4_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 5);
-		if(epLocsGen5_Mgt5lt65.getNum()>0) {
+		if(epLocsGen5_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen5_Mgt5lt65);
 			epLocsGen5_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt5lt65 = getEpicenterLocsXY_DataSet(5.0, 6.5, 6);
-		if(epLocsGen6_Mgt5lt65.getNum()>0) {
+		if(epLocsGen6_Mgt5lt65.size()>0) {
 			funcs.add(epLocsGen6_Mgt5lt65);
 			epLocsGen6_Mgt5lt65.setInfo("(triangles)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.YELLOW));
@@ -503,37 +503,37 @@ public class ETAS_Simulator {
 
 		// 6.5<=M<9.0
 		DefaultXY_DataSet epLocsGen1_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 1);
-		if(epLocsGen1_Mgt65.getNum()>0) {
+		if(epLocsGen1_Mgt65.size()>0) {
 			funcs.add(epLocsGen1_Mgt65);
 			epLocsGen1_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.LIGHT_GRAY));
 		}
 		DefaultXY_DataSet epLocsGen2_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 2);
-		if(epLocsGen2_Mgt65.getNum()>0) {
+		if(epLocsGen2_Mgt65.size()>0) {
 			funcs.add(epLocsGen2_Mgt65);
 			epLocsGen2_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.BLUE));
 		}
 		DefaultXY_DataSet epLocsGen3_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 3);
-		if(epLocsGen3_Mgt65.getNum()>0) {
+		if(epLocsGen3_Mgt65.size()>0) {
 			funcs.add(epLocsGen3_Mgt65);
 			epLocsGen3_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.GREEN));
 		}
 		DefaultXY_DataSet epLocsGen4_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 4);
-		if(epLocsGen4_Mgt65.getNum()>0) {
+		if(epLocsGen4_Mgt65.size()>0) {
 			funcs.add(epLocsGen4_Mgt65);
 			epLocsGen4_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.RED));
 		}
 		DefaultXY_DataSet epLocsGen5_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 5);
-		if(epLocsGen5_Mgt65.getNum()>0) {
+		if(epLocsGen5_Mgt65.size()>0) {
 			funcs.add(epLocsGen5_Mgt65);
 			epLocsGen5_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.ORANGE));
 		}
 		DefaultXY_DataSet epLocsGen6_Mgt65 = getEpicenterLocsXY_DataSet(6.5, 9.0, 6);
-		if(epLocsGen6_Mgt65.getNum()>0) {
+		if(epLocsGen6_Mgt65.size()>0) {
 			funcs.add(epLocsGen6_Mgt65);
 			epLocsGen6_Mgt65.setInfo("(squares)");
 			plotChars.add(new PlotCurveCharacterstics(PlotSymbol.SQUARE, 8f, Color.YELLOW));
@@ -660,7 +660,7 @@ public class ETAS_Simulator {
 					else
 						numUnAssigned +=1;
 				}
-				int numNodes = numInEachNode.getNum();
+				int numNodes = numInEachNode.size();
 				if(numNodes>0) {
 					for(int i=0;i<numNodes;i++) {
 						int nodeIndex = (int)Math.round(numInEachNode.getX(i));
@@ -1136,9 +1136,9 @@ public class ETAS_Simulator {
 		distDecayFuncs.get(1).setName("Theoretical Distance Decay");
 		distDecayFuncs.get(1).setInfo("(dist+minDist)^-distDecay, where minDist="+minDist+" and distDecay="+distDecay+", and where finite discretization accounted for");
 		EvenlyDiscretizedFunc tempFunc = distDecayFuncs.get(0);
-		EvenlyDiscretizedFunc obsPrimaryDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.getNum(), tempFunc.getDelta());
+		EvenlyDiscretizedFunc obsPrimaryDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.size(), tempFunc.getDelta());
 		obsPrimaryDistHist.setTolerance(tempFunc.getTolerance());
-		EvenlyDiscretizedFunc obsAllDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.getNum(), tempFunc.getDelta());
+		EvenlyDiscretizedFunc obsAllDistHist = new EvenlyDiscretizedFunc(delta/2, tempFunc.size(), tempFunc.getDelta());
 		obsAllDistHist.setTolerance(tempFunc.getTolerance());
 		double totAllNum = 0, totPrimaryNum = 0;
 		for (PrimaryAftershock event : allAftershocks) {
@@ -1155,7 +1155,7 @@ public class ETAS_Simulator {
 				totAllNum += 1;
 			}
 		}
-		for(int i=0; i<obsPrimaryDistHist.getNum();i++) {
+		for(int i=0; i<obsPrimaryDistHist.size();i++) {
 			obsPrimaryDistHist.set(i, obsPrimaryDistHist.getY(i)/totPrimaryNum);		// convert to PDF
 			obsAllDistHist.set(i, obsAllDistHist.getY(i)/totAllNum);					// convert to PDF
 		}

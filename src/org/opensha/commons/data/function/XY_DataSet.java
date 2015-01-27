@@ -4,12 +4,10 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.dom4j.Element;
 import org.opensha.commons.data.Named;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.metadata.XMLSaveable;
 
@@ -37,6 +35,7 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 
 	/** Sets the info string of this function. */
 	public void setInfo( String info );
+	
 	/** Returns the info of this function.  */
 	public String getInfo();
 
@@ -46,7 +45,7 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	/* ******************************/
 
 	/** returns the number of points in this function list */
-	public int getNum();
+	public int size();
 
 	/** return the minimum x value along the x-axis. */
 	public double getMinX() throws IndexOutOfBoundsException;
@@ -59,7 +58,6 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 
 	/** return the maximum y value along the y-axis */
 	public double getMaxY() throws IndexOutOfBoundsException;
-
 
 
 	/* ******************/
@@ -76,20 +74,22 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	public double getY(int index) throws IndexOutOfBoundsException;
 	
 	/**
-	 * Get the Y value for the point with closest X
+	 * Get the Y value for the point with closest X. If multiple points are equidistant, the smaller
+	 * X will be returned.
 	 * 
 	 * @param x
 	 * @return
 	 */
-	public double getClosestY(double x);
+	public double getClosestYtoX(double x);
 
 	/**
-	 * Get the X value for the point with closest Y
+	 * Get the X value for the point with closest Y. If multiple points are equidistant, the smaller
+	 * X will be returned.
 	 * 
 	 * @param y
 	 * @return
 	 */
-	public double getClosestX(double y);
+	public double getClosestXtoY(double y);
 
 
 	/* ***************/
@@ -97,13 +97,13 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	/* ***************/
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws Point2DException;
+	public void set(Point2D point);
 
 	/**
 	 * Creates a new DataPoint, then either adds it if it doesn't exist,
 	 * or replaces an existing one, within tolerance
 	 */
-	public void set(double x, double y) throws Point2DException;
+	public void set(double x, double y);
 
 	/** Replaces a DataPoint y-value at the specifed index. */
 	public void set(int index, double Y) throws IndexOutOfBoundsException;
@@ -113,22 +113,12 @@ public interface XY_DataSet extends PlotElement, Named, XMLSaveable, Serializabl
 	/* **********/
 	/* Queries  */
 	/* **********/
-
+	
 	/**
-	 * Determine wheither a point exists in the list,
-	 * as determined by it's x-value within tolerance.
-	 * 
-	 * Will return false if given a null value.
+	 * Determine whether a point exists in the list,
+	 * as determined by it's x-value within tolerance (if applicable).
 	 */
-	public boolean hasPoint(Point2D point);
-
-
-	/**
-	 * Determine wheither a point exists in the list,
-	 * as determined by it's x-value within tolerance.
-	 */
-	public boolean hasPoint(double x, double y);
-
+	public boolean hasX(double x);
 
 
 	/* ************/

@@ -72,12 +72,12 @@ public class BranchAveragedSubSeismoTest {
 				GutenbergRichterMagFreqDist subSeismo = subSeismoList.get(i);
 				if (subSeismos[i] == null)
 					subSeismos[i] = new EvenlyDiscretizedFunc(
-							subSeismo.getMinX(), subSeismo.getNum(), subSeismo.getDelta());
+							subSeismo.getMinX(), subSeismo.size(), subSeismo.getDelta());
 				else
-					Preconditions.checkState(subSeismo.getNum() == subSeismos[i].getNum()
+					Preconditions.checkState(subSeismo.size() == subSeismos[i].size()
 							&& (float)subSeismo.getMinX() == (float)subSeismos[i].getMinX());
 				
-				for (int j=0; j<subSeismo.getNum(); j++)
+				for (int j=0; j<subSeismo.size(); j++)
 					subSeismos[i].set(j, subSeismos[i].getY(j)+weight*subSeismo.getY(j));
 			}
 			
@@ -106,7 +106,7 @@ public class BranchAveragedSubSeismoTest {
 			double maxAbsDiff = 0;
 			double maxPDiff = 0;
 			
-			for (int j=0; j<meanFunc.getNum(); j++) {
+			for (int j=0; j<meanFunc.size(); j++) {
 				double meanY = meanFunc.getY(j);
 				double baY = baFunc.getY(j);
 				

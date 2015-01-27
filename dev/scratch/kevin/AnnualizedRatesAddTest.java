@@ -67,7 +67,7 @@ public class AnnualizedRatesAddTest {
 		DiscretizedFunc only_rates = calc.getAnnualizedRates(func, 30);
 		
 		DiscretizedFunc comb_rates = new ArbitrarilyDiscretizedFunc();
-		for (int i=0; i<exclude_rates.getNum(); i++) {
+		for (int i=0; i<exclude_rates.size(); i++) {
 			comb_rates.set(exclude_rates.getX(i), exclude_rates.getY(i)+only_rates.getY(i));
 		}
 		

@@ -96,7 +96,7 @@ public class DataGenerator_UHS
   private DecimalFormat saFormat = new DecimalFormat("0.000");
 
   private void getSASsVals() {
-    int numPoints = saFunction.getNum();
+    int numPoints = saFunction.size();
     for (int i = 0; i < numPoints; ++i) {
       String periodVal = saFormat.format(saFunction.getX(i));
       // double period = Double.parseDouble(periodVal);
@@ -448,7 +448,7 @@ public class DataGenerator_UHS
 		 xlRow.createCell((short) 1).setCellValue(curLon);
 		 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
 		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
-		 for(int j = 0; j < saFunc.getNum(); ++j) {
+		 for(int j = 0; j < saFunc.size(); ++j) {
 			 xlRow.createCell((short) 4).setCellValue(
 					 Double.parseDouble(saFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 5).setCellValue(

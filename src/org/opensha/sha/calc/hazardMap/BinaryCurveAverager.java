@@ -93,7 +93,7 @@ public class BinaryCurveAverager {
 		fName = fName.replaceAll(".bin", "");
 		
 		DiscretizedFunc xVals = maps.get(0).values().iterator().next().deepClone();
-		for (int i=0; i<xVals.getNum(); i++)
+		for (int i=0; i<xVals.size(); i++)
 			xVals.set(i, 0d);
 		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
 		xValsMap.put(fName, xVals);
@@ -128,7 +128,7 @@ public class BinaryCurveAverager {
 				double weight = weights.get(i);
 				DiscretizedFunc curve = maps.get(i).get(loc);
 				
-				for (int j=0; j<avgFunc.getNum(); j++)
+				for (int j=0; j<avgFunc.size(); j++)
 					avgFunc.set(j, avgFunc.getY(j)+curve.getY(j)*weight);
 			}
 			locs.add(loc);

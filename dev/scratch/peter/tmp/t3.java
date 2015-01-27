@@ -24,7 +24,7 @@ public class t3 {
 		IncrementalMagFreqDist mfd = incrMFD(mMin, mMax, mNum, aVal, bVal);
 		System.out.println(mfd);
 		double tmr = 0.0;
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i=0; i<mfd.size(); i++) {
 			tmr += MagUtils.magToMoment(mfd.getX(i)) * mfd.getY(i);
 		}
 		System.out.println("TotMoRate1: " + tmr);
@@ -35,7 +35,7 @@ public class t3 {
 		mfd = new GutenbergRichterMagFreqDist(bVal, totCumRate, mMin, mMax, mNum);
 		System.out.println(mfd);
 		tmr = 0.0;
-		for (int i=0; i<mfd.getNum(); i++) {
+		for (int i=0; i<mfd.size(); i++) {
 			System.out.println("m & rate: " + mfd.getX(i) + " " + mfd.getY(i));
 			tmr += MagUtils.magToMoment(mfd.getX(i)) * mfd.getY(i);
 		}

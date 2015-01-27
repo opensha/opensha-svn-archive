@@ -138,7 +138,7 @@ public class GridERF extends NSHMP_ERF {
 		// focal mech variations
 		int count = 0;
 		for (IncrementalMagFreqDist mfd : mfds) {
-			count += mfd.getNum();
+			count += mfd.size();
 		}
 		return count;
 	}

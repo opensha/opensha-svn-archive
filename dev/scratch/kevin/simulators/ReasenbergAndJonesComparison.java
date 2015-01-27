@@ -77,7 +77,7 @@ public class ReasenbergAndJonesComparison {
 				double delta = time - startTime;
 				
 //				System.out.println(e.getID()+" delta="+delta);
-				for (int index=countFunc.getNum(); --index>=0;) {
+				for (int index=countFunc.size(); --index>=0;) {
 					double secs = countFunc.getX(index) * SECONDS_IN_DAY;
 //					System.out.println((index+1)+" days. "+delta+" <= "+secs+" ? "+(delta <= secs));
 					if (delta <= secs)
@@ -90,7 +90,7 @@ public class ReasenbergAndJonesComparison {
 		}
 		
 		String info = null;
-		for (int index=0; index<countFunc.getNum(); index++) {
+		for (int index=0; index<countFunc.size(); index++) {
 			double cnt = countFunc.getY(index);
 			double rate = cnt / (double)matches.size();
 			if (info == null)
@@ -192,7 +192,7 @@ public class ReasenbergAndJonesComparison {
 					EvenlyDiscretizedFunc rj = getRJIntegralFunc(a, c, p, minDays, maxDays);
 					
 					double misfit = 0;
-					for (int i=0; i<rj.getNum(); i++) {
+					for (int i=0; i<rj.size(); i++) {
 						double diff = rj.getY(i) - countFunc.getY(i);
 						misfit += diff*diff;
 					}

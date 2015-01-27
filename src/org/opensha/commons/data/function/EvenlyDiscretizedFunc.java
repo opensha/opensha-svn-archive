@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.apache.commons.io.IOUtils;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 import com.google.common.base.Preconditions;
@@ -145,20 +143,20 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 
 	public void set(double min, double max, int num) {
 		if (num <= 0)
-			throw new XY_DataSetException("num points must be > 0");
+			throw new IllegalArgumentException("num points must be > 0");
 
 		if (num == 1 && min != max)
-			throw new XY_DataSetException("min must equal max if num points = 1");
+			throw new IllegalArgumentException("min must equal max if num points = 1");
 
 		if (min > max)
-			throw new XY_DataSetException("min must be less than max");
+			throw new IllegalArgumentException("min must be less than max");
 		else if (min < max)
 			delta = (max - min) / (num - 1);
 		else { // max == min
 			if (num == 1)
 				delta = 0;
 			else
-				throw new XY_DataSetException("num must = 1 if min = max");
+				throw new IllegalArgumentException("num must = 1 if min = max");
 		}
 
 		this.minX = min;
@@ -185,7 +183,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	public double getDelta() { return delta; }
 
 	/** Returns the number of points in this series */
-	public int getNum(){ return num; }
+	public int size(){ return num; }
 
 
 	/**
@@ -257,7 +255,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * into the y-points array.  The index is based along the x-axis.
 	 */
 	public Point2D get(int index){
-		if (index < 0 || index >= getNum())
+		if (index < 0 || index >= size())
 			return null;
 		return new Point2D.Double(getX(index), getY(index));
 	}
@@ -295,7 +293,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * tolerance of one of the discretized values.
 	 * @see #getClosestXIndex(double)
 	 */
-	public int getXIndex( double x) throws Point2DException{
+	public int getXIndex( double x) {
 		int i = getClosestXIndex(x);
 		double closestX = getX(i);
 		return withinTolerance(x, closestX) ? i : -1;
@@ -315,17 +313,17 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * well outside the range spanned by the function are associated with index
 	 * of the min or max function value as appropriate.
 	 */
-	public int getClosestXIndex( double x) throws Point2DException {
+	public int getClosestXIndex( double x) {
 		double iVal = PRECISION_SCALE * (x - minX) / delta;
 		int i = (delta == 0) ? 0 : (int) Math.round(iVal);
 		return (i<0) ? 0 : (i>=num) ? num-1 : i;
 	}
 
 	/**
-	 * Calls set( x value, y value ). A DataPoint2DException is thrown
+	 * Calls set( x value, y value ). An IllegalArgumentException is thrown
 	 * if the x value is not an x-axis point.
 	 */
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 
 		set( point.getX(), point.getY());
 	}
@@ -335,7 +333,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * calculated, then the y-value is set in it's array. A
 	 * DataPoint2DException is thrown if the x value is not an x-axis point.
 	 */
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		int index = getXIndex( x );
 		points[index] = y;
 	}
@@ -346,10 +344,12 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * calculated, then the y-value is added in it's array.  
 	 * The specified x value is the mid-point of the histogram interval.
 	 * 
-	 * DataPoint2DException is thrown if the x value is not an x-axis point.
+	 * IllegalArgumentException is thrown if the x value is not an x-axis point.
 	 */
-	public void add(double x, double y) throws Point2DException {
+	public void add(double x, double y) {
 		int index = getXIndex( x );
+		if (index < 0)
+			throw new IllegalArgumentException("No point at x="+x);
 		points[index] = y+points[index];
 	}
 
@@ -357,7 +357,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * this function will throw an exception if the index is not
 	 * within the range of 0 to num -1
 	 */
-	public void set(int index, double y) throws Point2DException {
+	public void set(int index, double y) {
 		if( index < 0 || index >= num ) {
 			throw new IndexOutOfBoundsException(C + ": set(): The specified index ("+index+") doesn't match this function domain.");
 		}
@@ -371,9 +371,9 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 	 * this function will throw an exception if the index is not
 	 * within the range of 0 to num -1
 	 */
-	public void add(int index, double y) throws Point2DException {
+	public void add(int index, double y) {
 		if( index < 0 || index > ( num -1 ) ) {
-			throw new Point2DException(C + ": set(): The specified index doesn't match this function domain.");
+			throw new IndexOutOfBoundsException(C + ": set(): The specified index doesn't match this function domain.");
 		}
 		points[index] = y+points[index];
 	}
@@ -392,266 +392,20 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		}
 		return list.listIterator();
 	}
-
-	/**
-	 * Given the input y value, finds the two sequential
-	 * x values with the closest y values, then calculates an
-	 * interpolated x value for this y value, fitted to the curve. <p>
-	 *
-	 * Since there may be multiple y values with the same value, this
-	 * function just matches the first found.
-	 *
-	 * @param y(value for which interpolated first x value has to be found
-	 * @return x(this  is the interpolated x based on the given y value)
-	 */
-
-	public double getFirstInterpolatedX(double y){
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if(num == 1 && y == getY(0))
-			return getX(0);
-
-		boolean found = false; // this boolean hold whether the passed y value lies within range
-
-		//finds the Y values within which the the given y value lies
-		for(i=0;i<num-1;++i) {
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
-				found = true;
-				break;
-			}
-		}
-
-		//if passed parameter(y value) is not within range then throw exception
-		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(num-1));
-
-
-		//finding the x values for the coressponding y values
-		double x1=getX(i);
-		double x2=getX(i+1);
-
-		//using the linear interpolation equation finding the value of x for given y
-		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-		return x;
-	}
 	
-	
-	/**
-	 * Given the input y value, finds all interpolated x-axis values where y equals
-	 * the given value (using linear interpolation between neighboring points).
-	 * Values are increasing in x and the list is empty if none are found. <p>
-	 *
-	 *
-	 * @param y(value for which interpolated first x value has to be found
-	 * @return ArrayList of interpolated x-axis values
-	 */
-
-	public ArrayList<Double> getAllInterpolatedX(double y){
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-		ArrayList<Double> vals = new ArrayList<Double>();
-
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if(num == 1 && y == getY(0)) {
-			vals.add(0d);
-			return vals;
-		}
-
-		//finds the Y values within which the the given y value lies
-		for(i=0;i<num-1;++i) {
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
-				double x1=getX(i);
-				double x2=getX(i+1);
-				double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-				vals.add(x);
-			}
-		}
-
-		return vals;
-	}
-
-	
-	
-	/**
-	 * Given the input y value, finds the two sequential
-	 * x values with the closest y values, then calculates an
-	 * interpolated x value for this y value, fitted to the curve.
-	 * This is only done after the given xIndex (and not including) <p>
-	 *
-	 * Since there may be multiple y values with the same value, this
-	 * function just matches the first found.
-	 *
-	 * @param y(value for which interpolated first x value has to be found
-	 * @return x(this  is the interpolated x based on the given y value)
-	 */
-
-	public double getFirstInterpolatedX_afterXindex(double y, int xIndex){
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if(num == 1)
-			throw new RuntimeException("num must be greater than 1");
-
-		boolean found = false; // this boolean hold whether the passed y value lies within range
-
-		//finds the Y values within which the the given y value lies
-		for(i=xIndex+1;i<num-1;++i) {
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
-				found = true;
-				break;
-			}
-		}
-
-		//if passed parameter(y value) is not within range then throw exception
-		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(xIndex+1)+" and "+getY(num-1));
-
-
-		//finding the x values for the coressponding y values
-		double x1=getX(i);
-		double x2=getX(i+1);
-
-		//using the linear interpolation equation finding the value of x for given y
-		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-		return x;
-	}
-
-
-
-	/**
-	 * Given the input y value, finds the two sequential
-	 * x values with the closest y values, then calculates an
-	 * interpolated x value for this y value, fitted to the curve.
-	 * The interpolated Y value returned is in the linear space but
-	 * the interpolation is done in the log space.
-	 * Since there may be multiple y values with the same value, this
-	 * function just matches the first found starting at the x-min point
-	 * along the x-axis.
-	 * @param y : Y value in the linear space coressponding to which we are required to find the interpolated
-	 * x value in the log space.
-	 * @return x(this  is the interpolated x based on the given y value)
-	 */
-	public double getFirstInterpolatedX_inLogXLogYDomain(double y){
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if(num == 1 && y == getY(0))
-			return getX(0);
-
-
-		boolean found = false; // this boolean hold whether the passed y value lies within range
-
-		//finds the Y values within which the the given y value lies
-		for(i=0;i<num-1;++i)
-		{
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
-				found = true;
-				break;
-			}
-		}
-
-		//if passed parameter(y value) is not within range then throw exception
-		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(num-1));
-
-
-		//finding the x values for the coressponding y values
-		double x1=Math.log(getX(i));
-		double x2=Math.log(getX(i+1));
-		y1= Math.log(y1);
-		y2= Math.log(y2);
-		y= Math.log(y);
-
-		//using the linear interpolation equation finding the value of x for given y
-		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-		return Math.exp(x);
-	}
-
-
-	/**
-	 * This function interpolates the y-axis value corresponding to the given value of x
-	 * @param x(value for which interpolated first y value has to be found
-	 * @return y(this  is the interpolated y based on the given x value)
-	 * @author Morgan and Kevin
-	 */
-	public double getInterpolatedY(double x){
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX+tolerance || x<minX-tolerance)
-			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x >= maxX)
-			return getY(getNum()-1);
-		
-		int x1Ind = getIndexBefore(x);
-		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
-			return getY(0);
-		
-		double x1 = getX(x1Ind);
-		double x2 = getX(x1Ind+1);
-		
-		//finding the y values for the coressponding x values
-		double y1=getY(x1);
-		double y2=getY(x2);
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-		
-		return y;
-	}
-	
-	private int getIndexBefore(double x) {
+	@Override
+	protected int getXIndexBefore(double x) {
 		return (int)Math.floor((x-minX)/delta);
 	}
-	
-	// old slow method
-//	public double getInterpolatedY_old(double x){
-//		double x1=Double.NaN;
-//		double x2=Double.NaN;
-//		//if passed parameter(x value) is not within range then throw exception
-//		if(x>getX(num-1) || x<getX(0))
-//			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-//		//finds the X values within which the the given x value lies
-//		for(int i=0;i<num-1;++i) {
-//			x1=getX(i);
-//			x2=getX(i+1);
-//			if(x>=x1 && x<=x2)
-//				break;
-//		}
-//		//finding the y values for the coressponding x values
-//		double y1=getY(x1);
-//		double y2=getY(x2);
-//		//using the linear interpolation equation finding the value of y for given x
-//		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-//		return y;
-//	}
-
 
 	@Override
-	public double getClosestY(double x) {
+	public double getClosestYtoX(double x) {
 		// TODO unit test
 		if (x >= maxX)
-			return getY(getNum()-1);
+			return getY(size()-1);
 		if (x <= minX)
 			return getY(0);
-		int ind = getIndexBefore(x);
+		int ind = getXIndexBefore(x);
 		double x1 = getX(ind);
 		double x2 = getX(ind+1);
 		double d1 = x-x1;
@@ -660,73 +414,6 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 			return getY(ind);
 		return getY(ind+1);
 	}
-
-
-	/**
-	 * This function interpolates the y-axis value corresponding to the given value of x.
-	 * the interpolation of the Y value is done in the log space for x and y values.
-	 * The Y value returned is in the linear space but the interpolation is done in the log space.
-	 * @param x : X value in the linear space corresponding to which we are required to find the interpolated
-	 * y value in log space.
-	 * @return y(this  is the interpolated y in linear space based on the given x value)
-	 */
-	public double getInterpolatedY_inLogXLogYDomain(double x){
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX+tolerance || x<minX-tolerance)
-			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x >= maxX)
-			return getY(getNum()-1);
-		
-		int x1Ind = getIndexBefore(x);
-		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
-			return getY(0);
-		
-		double x1 = getX(x1Ind);
-		double x2 = getX(x1Ind+1);
-		
-		//finding the y values for the coressponding x values
-		double y1=Math.log(getY(x1));
-		double y2=Math.log(getY(x2));
-		x1 = Math.log(x1);
-		x2 = Math.log(x2);
-		x = Math.log(x);
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-		return Math.exp(y);
-	}
-
-
-	/**
-	 * This function interpolates the y-axis value corresponding to the given value of x.
-	 * the interpolation of the Y value is done in the log space y values.
-	 * The Y value returned is in the linear space but the interpolation is done in the log space.
-	 * @param x : X value in the linear space corresponding to which we are required to find the interpolated
-	 * y value in log space.
-	 * @return y(this  is the interpolated y in linear space based on the given x value)
-	 */
-	public double getInterpolatedY_inLogYDomain(double x){
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>maxX+tolerance || x<minX-tolerance)
-			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
-		if (x >= maxX)
-			return getY(getNum()-1);
-		
-		int x1Ind = getIndexBefore(x);
-		if(x1Ind == -1)	// this happens if x<minX (but within tolerance)
-			return getY(0);
-		
-		double x1 = getX(x1Ind);
-		double x2 = getX(x1Ind+1);
-		
-		//finding the y values for the coressponding x values
-		double y1=Math.log(getY(x1));
-		double y2=Math.log(getY(x2));
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-		return Math.exp(y);
-	}
-
-
 
 	/** Returns a copy of this and all points in this DiscretizedFunction.
 	 *  A copy, or clone has all values the same, but is a different java class
@@ -765,7 +452,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		//String S = C + ": equalXValues():";
 
 		if( !(function instanceof EvenlyDiscretizedFunc ) ) return false;
-		if( num != function.getNum() ) return false;
+		if( num != function.size() ) return false;
 
 
 		double min = minX;
@@ -836,7 +523,7 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		StringBuffer b = new StringBuffer()
 			.append("     Name: ").append(getName())
 			.append(IOUtils.LINE_SEPARATOR)
-			.append("   Points: ").append(getNum())
+			.append("   Points: ").append(size())
 			.append(IOUtils.LINE_SEPARATOR)
 			.append("     Info: ").append(getInfo())
 			.append(IOUtils.LINE_SEPARATOR)
@@ -867,45 +554,42 @@ public class EvenlyDiscretizedFunc extends AbstractDiscretizedFunc{
 		return b.toString();
 	}
 
-	/**
-	 * Returns true if the x value is withing tolerance of an x-value in this list,
-	 * and the y value is equal to y value in the list.
-	 */
-	public boolean hasPoint(Point2D point){
-		return point != null && hasPoint(point.getX(),point.getY());
-	}
-
-	/**
-	 * Returns true if the x value is withing tolerance of an x-value in this list,
-	 * and the y value is equal to y value in the list.
-	 */
-	public boolean hasPoint(double x, double y){
-		try {
-			int index = getXIndex( x );
-			if (index < 0)
-				return false;
-			double yVal = this.getY(index);
-			if(Double.isNaN(yVal)|| yVal!=y) return false;
-			return true;
-		} catch(Point2DException e) {
-			return false;
-		}
-	}
+	// old implementations, replaced by hasX(double) in parent abstract class
+//	/**
+//	 * Returns true if the x value is withing tolerance of an x-value in this list,
+//	 * and the y value is equal to y value in the list.
+//	 */
+//	public boolean hasPoint(Point2D point){
+//		return point != null && hasPoint(point.getX(),point.getY());
+//	}
+//
+//	/**
+//	 * Returns true if the x value is withing tolerance of an x-value in this list,
+//	 * and the y value is equal to y value in the list.
+//	 */
+//	public boolean hasPoint(double x, double y){
+//		try {
+//			int index = getXIndex( x );
+//			if (index < 0)
+//				return false;
+//			double yVal = this.getY(index);
+//			if(Double.isNaN(yVal)|| yVal!=y) return false;
+//			return true;
+//		} catch(Point2DException e) {
+//			return false;
+//		}
+//	}
 
 	/** Returns the index of this DataPoint based on it's x any y value
 	 *  both the x-value and y-values in list should match with that of point
 	 * returns -1 if there is no such value in the list
 	 * */
 	public int getIndex(Point2D point){
-		try {
-			int index= getXIndex( point.getX() );
-			if (index < 0) return -1;
-			double y = this.getY(index);
-			if(y!=point.getY()) return -1;
-			return index;
-		}catch(Point2DException e) {
-			return -1;
-		}
+		int index= getXIndex( point.getX() );
+		if (index < 0) return -1;
+		double y = this.getY(index);
+		if(y!=point.getY()) return -1;
+		return index;
 	}
 
 //	public static void main(String args[]) {

@@ -701,7 +701,7 @@ public class DataGenerator_NEHRP
 			 xlRow.createCell((short) 1).setCellValue(curLon);
 			 xlRow.createCell((short) 2).setCellValue("B");
 			 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
-			 for(int j = 0; j < saFunc.getNum(); ++j) {
+			 for(int j = 0; j < saFunc.size(); ++j) {
 				 xlRow.createCell((short) 4).setCellValue(
 						 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 				 xlRow.createCell((short) 5).setCellValue(
@@ -1010,7 +1010,7 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
 		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
 		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
-		 for(int j = 0; j < saFunc.getNum(); ++j) {
+		 for(int j = 0; j < saFunc.size(); ++j) {
 			 xlRow.createCell((short) 6).setCellValue(
 					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 7).setCellValue(
@@ -1157,7 +1157,7 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
 		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
 		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
-		 for(int j = 0; j < saFunc.getNum(); ++j) {
+		 for(int j = 0; j < saFunc.size(); ++j) {
 			 xlRow.createCell((short) 6).setCellValue(
 					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 7).setCellValue(

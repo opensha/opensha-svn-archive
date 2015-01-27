@@ -86,7 +86,7 @@ public class UCERF3_BranchAvgLossFetcher {
 		// calc true mean eal as a check
 		double trueMeanEAL = 0d;
 		for (int r=0; r<rupLosses.length; r++)
-			for (int m=0; m<totRupMFDs[r].getNum(); m++)
+			for (int m=0; m<totRupMFDs[r].size(); m++)
 				trueMeanEAL += rupLosses[r][m] * totRupMFDs[r].getY(m);
 		System.out.println("True mean fault based EAL (both FMs): "+trueMeanEAL);
 		
@@ -128,7 +128,7 @@ public class UCERF3_BranchAvgLossFetcher {
 				
 				// MFD in true mean sol
 				DiscretizedFunc mfd = totRupMFDs[trueMeanIndex];
-				Preconditions.checkState(mfd.getNum() == rupLosses[trueMeanIndex].length);
+				Preconditions.checkState(mfd.size() == rupLosses[trueMeanIndex].length);
 				
 				int lossIndex = getMatchingXIndexFloatPrecision(mag, mfd);
 				Preconditions.checkState(lossIndex >= 0);
@@ -192,7 +192,7 @@ public class UCERF3_BranchAvgLossFetcher {
 	}
 	
 	public static int getMatchingXIndexFloatPrecision(double x, DiscretizedFunc func) {
-		for (int i=0; i<func.getNum(); i++)
+		for (int i=0; i<func.size(); i++)
 			if ((float)func.getX(i) == (float)x)
 				return i;
 		return -1;

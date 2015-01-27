@@ -208,7 +208,7 @@ public class MeanUCERF3_CurveCompareTest {
 			DiscretizedFunc func = ArbitrarilyDiscretizedFunc.loadFuncFromSimpleFile(file.getAbsolutePath());
 			if (curve == null) {
 				curve = new ArbitrarilyDiscretizedFunc();
-				for (int i=0; i<func.getNum(); i++)
+				for (int i=0; i<func.size(); i++)
 					curve.set(func.getX(i), 0d);
 			}
 			
@@ -226,7 +226,7 @@ public class MeanUCERF3_CurveCompareTest {
 			
 			numAvg++;
 			
-			for (int i=0; i<curve.getNum(); i++)
+			for (int i=0; i<curve.size(); i++)
 				curve.set(i, curve.getY(i) + weight*func.getY(i));
 		}
 		
@@ -238,7 +238,7 @@ public class MeanUCERF3_CurveCompareTest {
 	private static void writeDiagnostics(DiscretizedFunc avgCurve, DiscretizedFunc meanU3Curve) {
 		double maxDiscrep = 0;
 		double maxDiscrepPercent = 0;
-		for (int i=0; i<avgCurve.getNum(); i++) {
+		for (int i=0; i<avgCurve.size(); i++) {
 			double x = avgCurve.getX(i);
 			double avgY = avgCurve.getY(i);
 			double meanU3Y = meanU3Curve.getY(i);

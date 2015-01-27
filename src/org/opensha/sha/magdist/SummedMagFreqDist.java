@@ -27,8 +27,6 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.InvalidRangeException;
-import org.opensha.commons.exceptions.Point2DException;
-import org.opensha.commons.exceptions.XY_DataSetException;
 
 
 
@@ -74,7 +72,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public  SummedMagFreqDist(double min,double max,int num)
-                             throws XY_DataSetException,InvalidRangeException {
+                             throws InvalidRangeException {
      super(min,max,num);
    }
 
@@ -117,7 +115,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
    public  SummedMagFreqDist(double min,double max,int num,
                              boolean saveMagFreqDist,boolean saveAllInfo)
-                             throws XY_DataSetException,InvalidRangeException {
+                             throws InvalidRangeException {
      super(min,max,num);
      this.saveMagFreqDists=saveMagFreqDist;
      this.saveAllInfo = saveAllInfo;
@@ -134,16 +132,15 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * range of this distribution are ignored.
     * @param magFreqDist the Magnitude Frequency distribution to be added
     */
-   public void addIncrementalMagFreqDist(EvenlyDiscretizedFunc magFreqDist)
-   throws XY_DataSetException,Point2DException {
+   public void addIncrementalMagFreqDist(EvenlyDiscretizedFunc magFreqDist) {
 
 	   // check that deltas are within tolorance
 	   if(Math.abs(getDelta()-magFreqDist.getDelta()) > tolerance)
-		   throw new XY_DataSetException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
+		   throw new IllegalArgumentException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
 		   "deltas differ by more then tolerance");
 
 	   // loop over points of the given dist and add those that are within range
-	   for (int i=0;i<magFreqDist.getNum();++i) {
+	   for (int i=0;i<magFreqDist.size();++i) {
 		   double xVal = magFreqDist.getX(i);
 		   int indexHere = getXIndex(xVal);
 		   if(indexHere != -1) {
@@ -169,16 +166,15 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * @param magFreqDist new Magnitude Frequency distribution to be subtracted
     */
 
-   public void subtractIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-               throws XY_DataSetException,Point2DException {
+   public void subtractIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist) {
 	   
 	   // check that deltas are within tolorance
 	   if(Math.abs(getDelta()-magFreqDist.getDelta()) > tolerance)
-		   throw new XY_DataSetException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
+		   throw new IllegalArgumentException("SummedMagFreqDist.addIncrementalMagFreqDist() error: "+
 		   "deltas differ by more then tolerance");
 
 	   // loop over points of the given dist and add those that are within range
-	   for (int i=0;i<magFreqDist.getNum();++i) {
+	   for (int i=0;i<magFreqDist.size();++i) {
 		   double xVal = magFreqDist.getX(i);
 		   if(getMinX()-tolerance<xVal && xVal<getMaxX()+tolerance) {
 			   double newY = getY(xVal)-magFreqDist.getY(i);
@@ -210,7 +206,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
    public void addResampledMagFreqDist(DiscretizedFunc func, boolean preserveRates) {
 
-     for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
+     for (int i=0;i<func.size();++i) {     // add the y values from this new distribution
     	 addResampledMagRate(func.getX(i), func.getY(i), preserveRates);
      }
 
@@ -273,7 +269,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 	
 	@Override
 	public void scale(double val) {
-		for(int i=0; i<getNum();i++) super.set(i, val*getY(i));
+		for(int i=0; i<size();i++) super.set(i, val*getY(i));
 	}
 
 
@@ -282,14 +278,13 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * @param magFreqDist
     */
 
-   public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-                          throws XY_DataSetException,Point2DException {
+   public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist) {
 
      if(saveMagFreqDists) {    // check if this distribution exists
        int index = savedMagFreqDists.indexOf(magFreqDist);
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new XY_DataSetException("this distribution does not exist");
+         throw new IllegalArgumentException("this distribution does not exist");
        else           // remove the distribution if it is found
          savedMagFreqDists.remove(magFreqDist);
      }
@@ -298,12 +293,12 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
        int index = savedInfoList.indexOf(magFreqDist.getInfo());
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new XY_DataSetException("this distribution does not exist");
+         throw new IllegalArgumentException("this distribution does not exist");
        else          // remove the distribution if it is found
          savedInfoList.remove(magFreqDist.getInfo());
      }
      else
-        throw new XY_DataSetException("Distributions are not saved");
+        throw new IllegalArgumentException("Distributions are not saved");
 
      for(int i=0;i<num;++i)      // remove the rates associated with the removed distribution
        super.set(i,this.getY(i) - magFreqDist.getY(i));

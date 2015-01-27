@@ -294,10 +294,10 @@ public class CompoundSolAboveWaterlevelCalc {
 	}
 	
 	private static EvenlyDiscretizedFunc getCmlGreaterOrEqual(EvenlyDiscretizedFunc func) {
-		EvenlyDiscretizedFunc cml = new EvenlyDiscretizedFunc(func.getMinX(), func.getNum(), func.getDelta());
+		EvenlyDiscretizedFunc cml = new EvenlyDiscretizedFunc(func.getMinX(), func.size(), func.getDelta());
 		
 		double tot = 0d;
-		for (int i=func.getNum(); --i>=0;) {
+		for (int i=func.size(); --i>=0;) {
 			tot += func.getY(i);
 			cml.set(i, tot);
 		}

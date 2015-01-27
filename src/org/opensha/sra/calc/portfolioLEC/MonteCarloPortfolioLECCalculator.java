@@ -66,7 +66,7 @@ AbstractPortfolioLECCalculator {
 				imr.setEqkRupture(rup);
 				
 				DiscretizedFunc lecForRup = new ArbitrarilyDiscretizedFunc();
-				for (int i=0; i<function.getNum(); i++)
+				for (int i=0; i<function.size(); i++)
 					lecForRup.set(function.getX(i), 0d);
 				
 				for (int n=0; n<numSimulations; n++) {
@@ -132,7 +132,7 @@ AbstractPortfolioLECCalculator {
 //					double probLgivenQ = 1/numSimulations;
 					// eqn 59
 					
-					for (int i=0; i<lecForRup.getNum(); i++) {
+					for (int i=0; i<lecForRup.size(); i++) {
 						double l = lecForRup.getX(i);
 						double lSubNQMinusL = LsubNQ - l;
 						if (lSubNQMinusL > 0)
@@ -141,7 +141,7 @@ AbstractPortfolioLECCalculator {
 				}
 				// eqn 60
 				// multiply sums by 1/N
-				for (int i=0; i<lecForRup.getNum(); i++) {
+				for (int i=0; i<lecForRup.size(); i++) {
 					lecForRup.set(i, oneDivN*lecForRup.getY(i));
 				}
 				funcs[sourceID][rupID] = lecForRup;

@@ -113,7 +113,7 @@ public class TurkeyEmmeSourceData extends GemFileParser  {
 					(bGR,totCumRate,mMin+mWdt/2,mMax-mWdt/2,mNum);
 				
 				if (INFO) {
-					for (int i=0; i<distGR.getNum(); i++){
+					for (int i=0; i<distGR.size(); i++){
 						System.out.printf("   mag %5.2f rte: %6.2f\n", distGR.getX(i), distGR.getY(i));
 					}
 				}

@@ -302,9 +302,9 @@ public class RTGM implements Callable<RTGM> {
 	/* Resamples hc with supplied interfal over min to f.max */
 	private static DiscretizedFunc logResample(DiscretizedFunc f, double min, 
 			double interval) {
-		double[] oldXs = new double[f.getNum()];
-		double[] oldYs = new double[f.getNum()];
-		for (int i=0; i<f.getNum(); i++) {
+		double[] oldXs = new double[f.size()];
+		double[] oldYs = new double[f.size()];
+		for (int i=0; i<f.size(); i++) {
 			oldXs[i] = f.getX(i);
 			oldYs[i] = f.getY(i);
 		}
@@ -325,7 +325,7 @@ public class RTGM implements Callable<RTGM> {
 			if (p.getY() != 0) fOut.set(p);
 		}
 		Preconditions.checkArgument(
-			fOut.getNum() > 2,
+			fOut.size() > 2,
 			"Curve must have more than two non-zero y-values \n" + f);
 		return fOut;
 	}

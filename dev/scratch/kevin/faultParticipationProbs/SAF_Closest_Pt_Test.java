@@ -340,7 +340,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		
 		private boolean hasValues() {
 			for (SummedMagFreqDist mfd : getMFDs()) {
-				if (mfd != null && mfd.getNum() > 0)
+				if (mfd != null && mfd.size() > 0)
 					return true;
 			}
 			return false;
@@ -376,7 +376,7 @@ public class SAF_Closest_Pt_Test implements TaskProgressListener {
 		
 		public double getRateForMag(int row, int col, double mag) {
 			SummedMagFreqDist mfd = mfds.get(row, col);
-			if (mfd.getNum() == 0)
+			if (mfd.size() == 0)
 				return 0;
 			EvenlyDiscretizedFunc cumDist  = mfd.getCumRateDist();
 			double predictedRate = cumDist.getInterpolatedY(mag);

@@ -142,7 +142,7 @@ public class Fhcc {
 //						}
 						
 						// Update the source hazard function
-						for (int j=0; j < arbFun.getNum(); j++){
+						for (int j=0; j < arbFun.size(); j++){
 							srcHazFun.set(j,srcHazFun.getY(j) + qkProb*arbFun.getY(j));
 						}
 					}
@@ -151,7 +151,7 @@ public class Fhcc {
 				
 				// Update the source hazard function
 				double[] pmf = new double[numGm];
-				for (int k=0; k<srcHazFun.getNum();k++){
+				for (int k=0; k<srcHazFun.size();k++){
 					srcHazFun.set(k,srcHazFun.getY(k)*(1-srcHazFun.getY(k)));
 					// Calculate the pmf
 					if (k > 0){

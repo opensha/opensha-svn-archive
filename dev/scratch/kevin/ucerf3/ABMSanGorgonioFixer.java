@@ -104,14 +104,14 @@ public class ABMSanGorgonioFixer {
 	public static EvenlyDiscretizedFunc buildSumFunc(List<DiscretizedFunc> funcs, double max) {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0d, max, 200);
 		
-		for (int i=0; i<func.getNum(); i++) {
+		for (int i=0; i<func.size(); i++) {
 			double x = func.getX(i);
 			
 			double sum = 0;
 			for (DiscretizedFunc otherFunc : funcs) {
 				if (otherFunc.getMinX() > x || otherFunc.getMaxX() < x)
 					continue;
-				for (int index=1; index<otherFunc.getNum(); index++) {
+				for (int index=1; index<otherFunc.size(); index++) {
 					double myStart = otherFunc.getX(index-1);
 					double myEnd = otherFunc.getX(index);
 					if (x >= myStart && x <= myEnd) {

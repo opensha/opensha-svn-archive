@@ -193,7 +193,7 @@ implements SpectrumCalculatorAPI {
 		int k;
 
 		// get the number of points
-		int numPoints = tempSpecFunc.getNum();
+		int numPoints = tempSpecFunc.size();
 
 		double maxDistance = maxDistanceParam.getValue();
 
@@ -360,7 +360,7 @@ implements SpectrumCalculatorAPI {
 	 * @param arb
 	 */
 	private void initDiscretizeValues(DiscretizedFunc arb, double val){
-		int num = arb.getNum();
+		int num = arb.size();
 		for(int i=0;i<num;++i)
 			arb.set(i,val);
 	}
@@ -376,7 +376,7 @@ implements SpectrumCalculatorAPI {
 	private DiscretizedFunc initDiscretizedValuesToLog(DiscretizedFunc linearFunc,double val){
 		DiscretizedFunc toXLogFunc = new ArbitrarilyDiscretizedFunc();
 		if (IMT_Info.isIMT_LogNormalDist(SA_Param.NAME))
-			for (int i = 0; i < linearFunc.getNum(); ++i)
+			for (int i = 0; i < linearFunc.size(); ++i)
 				toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
 		return toXLogFunc;
 	}
@@ -402,7 +402,7 @@ implements SpectrumCalculatorAPI {
 		//creating the Master function that initializes the Function with supported SA Periods Vals
 		DiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 		initDiscretizeValues(hazFunction, supportedSA_Periods, 1.0);
-		int numPoints = hazFunction.getNum();
+		int numPoints = hazFunction.size();
 		
 		PtSrcDistCorr.Type distCorrType = getPtSrcDistCorrType();
 
@@ -627,7 +627,7 @@ implements SpectrumCalculatorAPI {
 		else{
 			hazFunction = (DiscretizedFunc) imr.getSA_IML_AtExceedProbSpectrum(
 					imlProbVal);
-			int numPoints = hazFunction.getNum();
+			int numPoints = hazFunction.size();
 			for(int i=0;i<numPoints;++i){
 				hazFunction.set(i,Math.exp(hazFunction.getY(i)));
 			}

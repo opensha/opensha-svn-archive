@@ -106,11 +106,11 @@ public class AsciiCurveAverager {
 		
 		ArbitrarilyDiscretizedFunc aveFunc = new ArbitrarilyDiscretizedFunc();
 		
-		int numPoints = curves.get(0).getNum();
+		int numPoints = curves.get(0).size();
 		
 		// verify that they all have the same # of points
 		for (DiscretizedFunc curve : curves) {
-			if (numPoints != curve.getNum())
+			if (numPoints != curve.size())
 				throw new RuntimeException("All curves must have the same # of points!");
 		}
 		

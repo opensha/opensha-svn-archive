@@ -47,14 +47,14 @@ public class BinaryHazardCurveWriter {
 		
 		DiscretizedFunc xVals = curves.get(0);
 		// num x vals
-		dout.writeInt(xVals.getNum());
-		for (int i=0; i<xVals.getNum(); i++)
+		dout.writeInt(xVals.size());
+		for (int i=0; i<xVals.size(); i++)
 			dout.writeDouble(xVals.getX(i));
 		
 		// now write all of the y values
 		for (int i=0; i<curves.size(); i++) {
 			DiscretizedFunc curve = curves.get(i);
-			Preconditions.checkState(curve.getNum() == xVals.getNum());
+			Preconditions.checkState(curve.size() == xVals.size());
 			Location loc = sites.get(i);
 			
 			dout.writeDouble(loc.getLatitude());

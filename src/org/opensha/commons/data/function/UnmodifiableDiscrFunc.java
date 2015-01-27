@@ -2,7 +2,6 @@ package org.opensha.commons.data.function;
 
 import java.awt.geom.Point2D;
 
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.util.ClassUtils;
 
 public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
@@ -24,31 +23,6 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public double getFirstInterpolatedX(double y) {
-		return func.getFirstInterpolatedX(y);
-	}
-
-	@Override
-	public double getInterpolatedY(double x) {
-		return func.getInterpolatedY(x);
-	}
-
-	@Override
-	public double getInterpolatedY_inLogXLogYDomain(double x) {
-		return func.getInterpolatedY_inLogXLogYDomain(x);
-	}
-
-	@Override
-	public double getInterpolatedY_inLogYDomain(double x) {
-		return func.getInterpolatedY_inLogYDomain(x);
-	}
-
-	@Override
-	public double getFirstInterpolatedX_inLogXLogYDomain(double y) {
-		return func.getFirstInterpolatedX_inLogXLogYDomain(y);
-	}
-
-	@Override
 	public int getXIndex(double x) {
 		return func.getXIndex(x);
 	}
@@ -64,8 +38,8 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public int getNum() {
-		return func.getNum();
+	public int size() {
+		return func.size();
 	}
 
 	@Override
@@ -104,12 +78,12 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		setFail();
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		setFail();
 	}
 
@@ -123,16 +97,6 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	}
 
 	@Override
-	public boolean hasPoint(Point2D point) {
-		return func.hasPoint(point);
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return func.hasPoint(x, y);
-	}
-
-	@Override
 	public String getMetadataString() {
 		return func.getMetadataString();
 	}
@@ -140,6 +104,17 @@ public class UnmodifiableDiscrFunc extends AbstractDiscretizedFunc {
 	@Override
 	public String toString() {
 		return func.toString();
+	}
+
+	@Override
+	protected int getXIndexBefore(double x) {
+		if (func instanceof AbstractDiscretizedFunc)
+			return ((AbstractDiscretizedFunc)func).getXIndexBefore(x);
+		for (int i=0; i<size(); i++) {
+			if (getX(i) >= x)
+				return i-1;
+		}
+		return size();
 	}
 
 }

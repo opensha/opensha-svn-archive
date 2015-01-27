@@ -64,7 +64,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
 	 */
 	public AbstractDiscretizedFunc getCDF_Test() {
 		ArbitrarilyDiscretizedFunc cdfFunc = new ArbitrarilyDiscretizedFunc();
-		int num = func.getNum();
+		int num = func.size();
 		double delta = 1e-3;
 		double x ;
 		for(int i=0; i<num; ++i) {
@@ -88,7 +88,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
 	 */
 	public double getProbLessThanEqual(double x) {
 		if(x<this.cumDistFunc.getX(0)) return 0;// return 0 if it less than 1st X value in this estimate
-		int num = cumDistFunc.getNum();
+		int num = cumDistFunc.size();
 		for(int i=1; i<num; ++i)
 			if(cumDistFunc.getX(i)>x)
 				return cumDistFunc.getY(i-1);
@@ -123,7 +123,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
 	 */
 	public double getRandomValue() {
 		double randomVal = Math.random();
-		int num = cumDistFunc.getNum();
+		int num = cumDistFunc.size();
 		for(int i=0; i<num; ++i)
 			if(cumDistFunc.getY(i)>randomVal)
 				return cumDistFunc.getX(i);

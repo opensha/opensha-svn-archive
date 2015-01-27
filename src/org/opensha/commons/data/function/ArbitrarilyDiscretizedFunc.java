@@ -32,7 +32,6 @@ import org.opensha.commons.data.Point2DComparator;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.data.Point2DToleranceSortedArrayList;
 import org.opensha.commons.data.Point2DToleranceSortedList;
-import org.opensha.commons.exceptions.Point2DException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
 import com.google.common.base.Preconditions;
@@ -177,7 +176,7 @@ implements Serializable {
 	}
 
 	/** returns the number of points in this function list */
-	public int getNum(){ return points.size(); }
+	public int size(){ return points.size(); }
 
 	/**
 	 * return the minimum x value along the x-axis. Since the values
@@ -253,23 +252,25 @@ implements Serializable {
 
 
 	/** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-	public void set(Point2D point) throws Point2DException{
+	public void set(Point2D point) {
 		if (!points.add(point))
-			throw new RuntimeException("set called but nothing changed!");
+			throw new IllegalStateException("set called but nothing changed!");
 	}
 
 	/**
 	 * Either adds a new DataPoint, or replaces an existing one, within tolerance,
 	 * created from the input x and y values.
 	 */
-	public void set(double x, double y) throws Point2DException{ set(new Point2D.Double(x,y)); }
+	public void set(double x, double y) {
+		set(new Point2D.Double(x,y));
+	}
 
 
 	/**
 	 * Replaces a y value for an existing point, accessed by index. If no DataPoint exists
 	 * nothing is done.
 	 */
-	public void set(int index, double y) throws Point2DException{
+	public void set(int index, double y) {
 		Point2D point = get(index);
 		if( point != null ) {
 			point.setLocation(point.getX(), y);
@@ -277,26 +278,6 @@ implements Serializable {
 		} else
 			throw new IndexOutOfBoundsException();
 	}
-
-	/**
-	 * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
-	 * Returns true if found, else false if point not in list.
-	 */
-	public boolean hasPoint(Point2D point){
-		int index = getIndex(point);
-		if( index < 0 ) return false;
-		else return true;
-	}
-
-	/**
-	 * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
-	 * Returns true if found, else false if point not in list.
-	 */
-	public boolean hasPoint(double x, double y){
-		return hasPoint( new Point2D.Double(x, y) );
-	}
-
-
 
 	/**
 	 * Returns an iterator over all datapoints in the list. Results returned
@@ -311,272 +292,12 @@ implements Serializable {
 		return points.iterator();
 	}
 
-	/**
-	 * Given the imput y value, finds the two sequential
-	 * x values with the closest y values, then calculates an
-	 * interpolated x value for this y value, fitted to the curve. <p>
-	 *
-	 * Since there may be multiple y values with the same value, this
-	 * function just matches the first found.
-	 *
-	 * @param y(value for which interpolated first x value has to be found
-	 * @return x(this  is the interpolated x based on the given y value)
-	 */
-
-	public double getFirstInterpolatedX(double y){
-		// finds the size of the point array
-		int max=points.size();
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if (max == 1 && y == getY(0))
-			return getX(0);
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-		boolean found = false; // this boolean hold whether the passed y value lies within range
-
-		//finds the Y values within which the the given y value lies
-		for(i=0;i<max-1;++i) {
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
-				found = true;
-				break;
-			}
-		}
-
-		//if passed parameter(y value) is not within range then throw exception
-		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(max-1));
-
-
-		//finding the x values for the coressponding y values
-		double x1=getX(i);
-		double x2=getX(i+1);
-
-		//using the linear interpolation equation finding the value of x for given y
-		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-		return x;
-	}
-
-
-	/**
-	 * Given the input y value, finds the two sequential
-	 * x values with the closest y values, then calculates an
-	 * interpolated x value for this y value, fitted to the curve.
-	 * The interpolated Y value returned is in the linear space but
-	 * the interpolation is done in the log space.
-	 * Since there may be multiple y values with the same value, this
-	 * function just matches the first found starting at the x-min point
-	 * along the x-axis.
-	 * @param y : Y value in the linear space coressponding to which we are required to find the interpolated
-	 * x value in the log space.
-	 * @return x(this  is the interpolated x based on the given y value)
-	 */
-	public double getFirstInterpolatedX_inLogXLogYDomain(double y){
-		// finds the size of the point array
-		int max=points.size();
-		//if Size of the function is 1 and Y value is equal to Y val of function
-		//return the only X value
-		if (max == 1 && y == getY(0))
-			return getX(0);
-
-		double y1=Double.NaN;
-		double y2=Double.NaN;
-		int i;
-
-		boolean found = false; // this boolean hold whether the passed y value lies within range
-
-		//finds the Y values within which the the given y value lies
-		for(i=0;i<max-1;++i) {
-			y1=getY(i);
-			y2=getY(i+1);
-			if((y<=y1 && y>=y2) || (y>=y1 && y<=y2)) {
-				found = true;
-				break;
-			}
-		}
-
-		//if passed parameter(y value) is not within range then throw exception
-		if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(max-1));
-
-		//finding the x values for the coressponding y values
-		double x1=Math.log(getX(i));
-		double x2=Math.log(getX(i+1));
-		y1= Math.log(y1);
-		y2= Math.log(y2);
-		y= Math.log(y);
-
-		//using the linear interpolation equation finding the value of x for given y
-		double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-		return Math.exp(x);
-	}
-
-	private int getXIndexBefore(double x) {
+	@Override
+	int getXIndexBefore(double x) {
 		int ind = points.binarySearch(new Point2D.Double(x, 0));
 		if (ind < 0)
 			return -ind-2;
 		return ind-1;
-	}
-
-	/**
-	 * Given the imput x value, finds the two sequential
-	 * x values with the closest x values, then calculates an
-	 * interpolated y value for this x value, fitted to the curve.
-	 *
-	 * @param x(value for which interpolated first y value has to be found
-	 * @return y(this  is the interpolated x based on the given x value)
-	 */
-	public double getInterpolatedY(double x){
-		// finds the size of the point array
-		int max=points.size();
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(max-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1)
-					+" (supplied x: "+x+")");
-		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
-		if(x==getX(max-1))
-			return getY(x);
-		//finds the X values within which the the given x value lies
-		int x1Ind = getXIndexBefore(x);
-		if (x1Ind == -1)
-			// this means that it matches at index 0
-			return getY(0);
-		int x2Ind = x1Ind+1;
-		Point2D pt1 = get(x1Ind);
-		Point2D pt2 = get(x2Ind);
-		double x1 = pt1.getX();
-		double y1 = pt1.getY();
-		double x2 = pt2.getX();
-		double y2 = pt2.getY();
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
-		return y;
-	}
-
-	/**
-	 * This function interpolates the y-axis value corresponding to the given value of x.
-	 * the interpolation of the Y value is done in the log space for x and y values.
-	 * The Y value returned is in the linear space but the interpolation is done in the log space.  If 
-	 * both bounding y values are zero, then zero is returned.  If only one of the bounding y values is zero,
-	 * that value is converted to Double.MIN_VALUE.  If the interpolated y value is Double.MIN_VALUE, it 
-	 * is converted to 0.0.
-	 * @param x : X value in the linear space corresponding to which we are required to find the interpolated
-	 * y value in log space.
-	 * @return y(this  is the interpolated y in linear space based on the given x value)
-	 */
-	public double getInterpolatedY_inLogXLogYDomain(double x){
-		// finds the size of the point array
-		int max=points.size();
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(max-1) || x<getX(0))
-			throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(max-1));
-		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
-		if(x==getX(max-1))
-			return getY(x);
-		int x1Ind = getXIndexBefore(x);
-		int x2Ind = x1Ind+1;
-		Point2D pt1 = get(x1Ind);
-		Point2D pt2 = get(x2Ind);
-		double x1 = pt1.getX();
-		double y1 = pt1.getY();
-		double x2 = pt2.getX();
-		double y2 = pt2.getY();
-		if(y1==0 && y2==0) return 0;
-		if(y1==0) y1 = Double.MIN_VALUE;
-		if(y2==0) y2 = Double.MIN_VALUE;
-		double logY1=Math.log(y1);
-		double logY2=Math.log(y2);
-		x1 = Math.log(x1);
-		x2 = Math.log(x2);
-		x = Math.log(x);
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
-		double expY = Math.exp(y);
-		if (expY == Double.MIN_VALUE) expY = 0.0;
-		return expY;
-	}
-
-	/*  THIS WAS FOR DEBUGGING WHERE ERRORS OCCURRED IF ONLY ONE Y-VALUE WAS 0.0
-    public double getInterpolatedY_inLogXLogYDomain(double x, boolean debug){
-        // finds the size of the point array
-        int max=points.size();
-        double x1=Double.NaN;
-        double x2=Double.NaN;
-        //if passed parameter(x value) is not within range then throw exception
-        if(x>getX(max-1) || x<getX(0))
-          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
-        //if x value is equal to the maximum value of all given X's then return the corresponding Y value
-        if(x==getX(max-1))
-          return getY(x);
-        //finds the X values within which the the given x value lies
-        for(int i=0;i<max-1;++i) {
-          x1=getX(i);
-          x2=getX(i+1);
-          if(x>=x1 && x<=x2)
-            break;
-        }
-        //finding the y values for the coressponding x values
-        double y1 = getY(x1);
-        double y2 = getY(x2);
-        if(y1==0 && y2==0) return 0;
-        if(y1==0) y1 = Double.MIN_VALUE;
-        if(y2==0) y2 = Double.MIN_VALUE;
-        double logY1=Math.log(y1);
-        double logY2=Math.log(y2);
-if(debug) {
-	System.out.println("tol="+this.tolerance);
-	System.out.print(x1+"\t"+x2+"\t"+x+"\t");
-}
-        x1 = Math.log(x1);
-        x2 = Math.log(x2);
-        x = Math.log(x);
-        //using the linear interpolation equation finding the value of y for given x
-        double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
-        double expY = Math.exp(y);
-        if (expY == Double.MIN_VALUE) expY = 0.0;
-if(debug) {
-    System.out.println(y1+"\t"+y2+"\t"+logY1+"\t"+logY2+"\t"+x1+"\t"+x2+"\t"+x+
-    		"\t"+y+"\t"+Math.exp(x1)+"\t"+Math.exp(x2)+"\t"+Math.exp(x)+"\t"+expY+"\t"+Double.MIN_VALUE);
-        }
-
-		return expY;
-
-      }
-	 */
-
-	/**
-	 * This function interpolates the y-axis value corresponding to the given value of x.
-	 * the interpolation of the Y value is done in the log-y space.
-	 * The Y value returned is in the linear space.
-	 * @param x : X value in the linear space corresponding to which we are required to find the interpolated
-	 * y value in log space.
-	 * @return y(this  is the interpolated y in linear space based on the given x value)
-	 */
-	public double getInterpolatedY_inLogYDomain(double x){
-		// finds the size of the point array
-		int max=points.size();
-		//if passed parameter(x value) is not within range then throw exception
-		if(x>getX(max-1) || x<getX(0))
-			throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
-		//if x value is equal to the maximum value of all given X's then return the corresponding Y value
-		if(x==getX(max-1))
-			return getY(x);
-		//finds the X values within which the the given x value lies
-		int x1Ind = getXIndexBefore(x);
-		int x2Ind = x1Ind+1;
-		Point2D pt1 = get(x1Ind);
-		Point2D pt2 = get(x2Ind);
-		double x1 = pt1.getX();
-		double y1 = pt1.getY();
-		double x2 = pt2.getX();
-		double y2 = pt2.getY();
-		if(y1==0 && y2==0) return 0;
-		double logY1=Math.log(y1);
-		double logY2=Math.log(y2);
-		//using the linear interpolation equation finding the value of y for given x
-		double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
-		return Math.exp(y);
 	}
 
 	private double extrapolate(double x1, double x2, double y1, double y2,
@@ -637,22 +358,23 @@ if(debug) {
 
 	}
 
-	/**
-	 * Determines if two functions are the same by comparing
-	 * that each point x value is the same. This requires
-	 * the two lists to have the same number of points.
-	 */
-	public boolean equalXValues(DiscretizedFunc function){
-		// String S = C + ": equalXValues():";
-		if( this.getNum() != function.getNum() ) return false;
-		Iterator it = this.iterator();
-		while(it.hasNext()) {
-			Point2D point = (Point2D)it.next();
-			if( !function.hasPoint( point ) ) return false;
-		}
-		return true;
-
-	}
+	// not used, can resurrect using hasX if needed
+//	/**
+//	 * Determines if two functions are the same by comparing
+//	 * that each point x value is the same. This requires
+//	 * the two lists to have the same number of points.
+//	 */
+//	public boolean equalXValues(DiscretizedFunc function){
+//		// String S = C + ": equalXValues():";
+//		if( this.size() != function.size() ) return false;
+//		Iterator it = this.iterator();
+//		while(it.hasNext()) {
+//			Point2D point = (Point2D)it.next();
+//			if( !function.hasPoint( point ) ) return false;
+//		}
+//		return true;
+//
+//	}
 
 
 
@@ -665,7 +387,7 @@ if(debug) {
 		StringBuffer b = new StringBuffer();
 
 		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
+		b.append("Num Points: " + size() + '\n');
 		b.append("Info: " + getInfo() + "\n\n");
 		b.append("X, Y Data:" + '\n');
 		b.append(getMetadataString()+ '\n');
@@ -719,7 +441,7 @@ if(debug) {
 		Iterator<Point2D> it =iterator();
 		try{
 			s.writeObject(points.getComparator());
-			s.writeObject(new Integer(getNum()));
+			s.writeObject(new Integer(size()));
 			while(it.hasNext()){
 				Point2D data = (Point2D)it.next();
 				//System.out.println("Data: "+data.toString());
@@ -764,12 +486,12 @@ if(debug) {
 	 */
 	public ArbitrarilyDiscretizedFunc getYY_Function(DiscretizedFunc function){
 
-		if(getNum() !=function.getNum())
+		if(size() !=function.size())
 			throw new InvalidRangeException("This operation cannot be performed on functions "+
 			"with different size");
 
 		ArbitrarilyDiscretizedFunc newFunction = new ArbitrarilyDiscretizedFunc();
-		int numPoints = function.getNum();
+		int numPoints = function.size();
 		for(int j=0;j<numPoints;++j)
 			newFunction.set(getY(j),function.getY(j));
 
@@ -813,10 +535,12 @@ if(debug) {
 		f.set(10000d, 0.314945);
 		
 //		double[] lookups = {10,20,30,40,50,60,70,80,100,150,200,250,333,475,700,800,1000,1200,1300,1500,1800,2000,2475,10000};
-		double[] lookups = {150,200,250,333,475,700,800,1000,1200,1300,1500,1800,2000,2475,10000};
+		double[] lookups = {100,150,200,250,333,475,700,800,1000,1200,1300,1500,1800,2000,2475,10000};
 
 		for (double v : lookups) {
 			int iBefore = f.getXIndexBefore(v);
+			System.out.println("Trying v="+v+". iBefore="+iBefore);
+			System.out.flush();
 			double yInterp = f.getInterpolatedY_inLogXLogYDomain(v);
 			
 			System.out.println("lookup: " + v);

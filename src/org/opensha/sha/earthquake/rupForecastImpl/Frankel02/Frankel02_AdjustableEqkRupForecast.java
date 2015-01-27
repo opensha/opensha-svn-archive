@@ -834,7 +834,7 @@ public class Frankel02_AdjustableEqkRupForecast extends AbstractERF{
 
 			if(D) {
 				System.out.println(totalMagFreqDist);
-				for(int n=0;n< totalMagFreqDist.getNum();n++)
+				for(int n=0;n< totalMagFreqDist.size();n++)
 					System.out.println("\t"+(float)totalMagFreqDist.getX(n)+"  "+(float)totalMagFreqDist.getY(n));
 			}
 
@@ -1344,7 +1344,7 @@ public class Frankel02_AdjustableEqkRupForecast extends AbstractERF{
 		double mag = 5;
 		System.out.println("nshmp02_Backgr_MFD.set("+(float)mag+", "+(float)rate+");");
 		//System.out.println("5.0\t"+(float)rate);
-		for(int i=0;i<totBackgroundMFD.getNum()-1;i++) {
+		for(int i=0;i<totBackgroundMFD.size()-1;i++) {
 			rate = Math.sqrt(totBackgroundMFD.getY(i)*totBackgroundMFD.getY(i+1));
 			mag = totBackgroundMFD.getX(i)+0.05;
 			System.out.println("nshmp02_Backgr_MFD.set("+(float)mag+", "+(float)rate+");");

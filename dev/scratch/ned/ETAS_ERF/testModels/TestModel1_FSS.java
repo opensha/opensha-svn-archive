@@ -176,7 +176,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 //		System.out.println("\n"+targetFaultGR);
 		
 		faultGR = new ArbIncrementalMagFreqDist(6.15, 7.55, 15);
-		for(int i=0;i<faultGR.getNum();i++) {
+		for(int i=0;i<faultGR.size();i++) {
 			double mag = faultGR.getX(i);
 			faultGR.set(mag, targetFaultGR.getY(mag));
 		}

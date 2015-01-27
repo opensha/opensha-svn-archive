@@ -271,7 +271,7 @@ public class CEUS_IMR_Tests {
 		f2.setTolerance(tol);
 		for (Point2D p : f1) {
 			// check that x value exists
-			assertTrue("Function 2 missing point:" + p, f2.hasPoint(p));
+			assertTrue("Function 2 missing point:" + p, f2.hasX(p.getX()));
 			// compare pct diff of y
 			double y1 = p.getY();
 			double y2 = f2.getY(p.getX());

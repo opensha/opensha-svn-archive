@@ -302,13 +302,13 @@ public class MCERDataProductsCalc {
 		ArbitrarilyDiscretizedFunc mean = new ArbitrarilyDiscretizedFunc();
 		double scalar = 1d/funcs.size(); // evenly weight
 		for (DiscretizedFunc func : funcs) {
-			if (mean.getNum() == 0) {
+			if (mean.size() == 0) {
 				// initialize with zeros
 				for (Point2D pt : func)
 					mean.set(pt.getX(), 0d);
 			}
-			Preconditions.checkState(mean.getNum() == func.getNum());
-			for (int index=0; index<mean.getNum(); index++) {
+			Preconditions.checkState(mean.size() == func.size());
+			for (int index=0; index<mean.size(); index++) {
 				double y = mean.getY(index);
 				y += scalar * func.getY(index);
 				mean.set(index, y);
@@ -372,7 +372,7 @@ public class MCERDataProductsCalc {
 		
 		DiscretizedFunc xVals = funcs.get(0);
 		
-		for (int i=0; i<xVals.getNum(); i++) {
+		for (int i=0; i<xVals.size(); i++) {
 			double x = xVals.getX(i);
 			
 			double y = 0;

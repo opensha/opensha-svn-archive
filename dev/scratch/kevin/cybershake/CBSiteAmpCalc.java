@@ -254,7 +254,7 @@ public class CBSiteAmpCalc {
 				Preconditions.checkState(rtgmCalc.calc());
 
 				DiscretizedFunc probFunc = RTGMCalc.saToPsuedoVel(rtgmCalc.getGMPESpectrumMap().get(comp).get(0));
-				Preconditions.checkState(probFunc.getNum() == detFunc.getNum(), probFunc.getNum()+" != "+detFunc.getNum());
+				Preconditions.checkState(probFunc.size() == detFunc.size(), probFunc.size()+" != "+detFunc.size());
 				
 				DiscretizedFunc asceDeterm = null;
 				if (includeASCE) {
@@ -275,7 +275,7 @@ public class CBSiteAmpCalc {
 				}
 				
 				DiscretizedFunc mcer = MCERDataProductsCalc.calcMCER(detFunc, probFunc, asceDeterm);
-				Preconditions.checkState(mcer.getNum() == periods.size());
+				Preconditions.checkState(mcer.size() == periods.size());
 				
 				for (int i=0; i<periods.size(); i++) {
 					double period = periods.get(i);

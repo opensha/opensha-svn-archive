@@ -345,7 +345,7 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 				
 				// Equation 44
 				ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc();
-				for (int k=0; k<function.getNum(); k++) {
+				for (int k=0; k<function.size(); k++) {
 //					double x = Math.pow(10d, -5d + 0.1 * k);
 					double x = function.getX(k);
 					double inside = Math.log(x * sumMeanValues / thetaSubLgivenS) / betaSubLgivenS;
@@ -353,7 +353,7 @@ public class MomentMatchingPortfolioLECCalculator extends AbstractPortfolioLECCa
 				}
 				if (D) System.out.println("distFunc: (part of eqn 44)\n" + distFunc);
 				ArbitrarilyDiscretizedFunc exceedanceProbs = new ArbitrarilyDiscretizedFunc();
-				for (int k=0; k<distFunc.getNum(); k++) {
+				for (int k=0; k<distFunc.size(); k++) {
 					double x = distFunc.getX(k);
 					double y = distFunc.getY(k);
 					double val = normDist.cumulativeProbability(y);

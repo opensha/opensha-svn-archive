@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.dom4j.Element;
-import org.opensha.commons.exceptions.Point2DException;
 
 import com.google.common.primitives.Doubles;
 
@@ -128,7 +127,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public int getNum() {
+	public int size() {
 		return points.size();
 	}
 
@@ -143,24 +142,14 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 	}
 
 	@Override
-	public boolean hasPoint(Point2D point) {
-		return points.contains(point);
-	}
-
-	@Override
-	public boolean hasPoint(double x, double y) {
-		return hasPoint(new Point2D.Double(x, y));
-	}
-
-	@Override
-	public void set(Point2D point) throws Point2DException {
+	public void set(Point2D point) {
 		points.add(point);
 		xStats.addValue(point.getX());
 		yStats.addValue(point.getY());
 	}
 
 	@Override
-	public void set(double x, double y) throws Point2DException {
+	public void set(double x, double y) {
 		set(new Point2D.Double(x, y));
 	}
 
@@ -194,7 +183,7 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 		//Iterator it2 = this.iterator();
 
 		b.append("Name: " + getName() + '\n');
-		b.append("Num Points: " + getNum() + '\n');
+		b.append("Num Points: " + size() + '\n');
 		b.append("Info: " + getInfo() + "\n\n");
 		b.append("X, Y Data:" + '\n');
 		b.append(getMetadataString()+ '\n');
@@ -219,6 +208,14 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 		return b.toString();
 	}
 
+	@Override
+	public boolean hasX(double x) {
+		// potentially slow, but calling points.contains(...) will check y values as well and isn't correct
+		for (Point2D pt : this)
+			if (pt.getX() == x)
+				return true;
+		return false;
+	}
 
 
 }

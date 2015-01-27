@@ -48,13 +48,13 @@ public class ProbModelsPlottingUtils {
 		// fill in name and Info for obs dist:
 		double obsAboveFive=0;
 		int firstIndex = dist.getClosestXIndex(5.0);
-		for(int i=firstIndex;i<dist.getNum();i++)
+		for(int i=firstIndex;i<dist.size();i++)
 			obsAboveFive += dist.getY(i);
 		
 		double bptAboveFive=0;
 		EvenlyDiscretizedFunc bptDist = funcList.get(1);
 		firstIndex = bptDist.getClosestXIndex(5.0);
-		for(int i=firstIndex;i<bptDist.getNum();i++)
+		for(int i=firstIndex;i<bptDist.size();i++)
 			bptAboveFive += bptDist.getY(i);
 
 		dist.setName("Recur. Int. Dist");
@@ -66,7 +66,7 @@ public class ProbModelsPlottingUtils {
 		
 		if(!Double.isNaN(bptAperForComparison)) {
 			BPT_DistCalc bpt_calc = new BPT_DistCalc();
-			bpt_calc.setAll(1.0, bptAperForComparison, funcList.get(1).getDelta()/2, funcList.get(1).getNum());	// not the first one because that's the obs histogram
+			bpt_calc.setAll(1.0, bptAperForComparison, funcList.get(1).getDelta()/2, funcList.get(1).size());	// not the first one because that's the obs histogram
 			EvenlyDiscretizedFunc bpt_func = bpt_calc.getPDF();
 			bpt_func.setName("BPT Dist for comparison");
 			bpt_func.setInfo("(mean="+1.0+", aper="+bptAperForComparison+")");
@@ -92,13 +92,13 @@ public class ProbModelsPlottingUtils {
 		// fill in name and Info for obs dist:
 		double obsAboveFive=0;
 		int firstIndex = dist.getClosestXIndex(5.0);
-		for(int i=firstIndex;i<dist.getNum();i++)
+		for(int i=firstIndex;i<dist.size();i++)
 			obsAboveFive += dist.getY(i);
 		
 		double bptAboveFive=0;
 		EvenlyDiscretizedFunc bptDist = funcList.get(1);
 		firstIndex = bptDist.getClosestXIndex(5.0);
-		for(int i=firstIndex;i<bptDist.getNum();i++)
+		for(int i=firstIndex;i<bptDist.size();i++)
 			bptAboveFive += bptDist.getY(i);
 
 		dist.setName("Recur. Int. Dist");

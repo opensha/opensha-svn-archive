@@ -158,7 +158,7 @@ public class UCERF3_EAL_Combiner {
 					continue;
 				
 				DiscretizedFunc mfd = rupMFDs[meanRupIndex];
-				Preconditions.checkState(faultLosses[meanRupIndex].length == mfd.getNum());
+				Preconditions.checkState(faultLosses[meanRupIndex].length == mfd.size());
 				
 				if (faultLosses[meanRupIndex].length == 1) {
 					rupMFDIndex = 0;
@@ -170,7 +170,7 @@ public class UCERF3_EAL_Combiner {
 						if (rupMFDIndex > 0 && (float)mfd.getX(rupMFDIndex-1) == (float)mag)
 							rupMFDIndex = rupMFDIndex-1;
 						else
-							Preconditions.checkState(rupMFDIndex < mfd.getNum() && (float)mfd.getX(rupMFDIndex) == (float)mag,
+							Preconditions.checkState(rupMFDIndex < mfd.size() && (float)mfd.getX(rupMFDIndex) == (float)mag,
 								"Bad mag. Mine="+mag+". MFD=["+Joiner.on(",").join(mfd.xValues())+"]");
 					}
 				}
@@ -227,11 +227,11 @@ public class UCERF3_EAL_Combiner {
 //							"Grid source rup count inconsistency. Loaded: "+lossDist.getNum()
 //							+", from prov: "+source.getNumRuptures());
 					// do mag lookups in floating point precision
-					float[] lossMags = new float[lossDist.getNum()];
-					for (int j=0; j<lossDist.getNum(); j++)
+					float[] lossMags = new float[lossDist.size()];
+					for (int j=0; j<lossDist.size(); j++)
 						lossMags[j] = (float)lossDist.getX(j);
 					IncrementalMagFreqDist mfd = gridProv.getNodeMFD(n, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF);
-					for (int j=0; j<mfd.getNum(); j++) {
+					for (int j=0; j<mfd.size(); j++) {
 						double mag = mfd.getX(j);
 						double rate = mfd.getY(j);
 						if (rate == 0d)

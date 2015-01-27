@@ -474,7 +474,7 @@ public class FSS_ERF_ParamTest {
 					if (rupMFDs == null)
 						assertEquals(applyMessage, source.getNumRuptures(), 1);
 					else
-						assertEquals(applyMessage, source.getNumRuptures(), rupMFDs[invRup].getNum());
+						assertEquals(applyMessage, source.getNumRuptures(), rupMFDs[invRup].size());
 				} else {
 					// make sure greater than 1 and evenly spaced
 					if (source.computeTotalProb() < 1e-15 && source.getNumRuptures() == 1)

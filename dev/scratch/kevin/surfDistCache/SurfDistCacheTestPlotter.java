@@ -201,7 +201,7 @@ public class SurfDistCacheTestPlotter {
 					}
 					impFunc.set(x, (refY - y)/refY);
 				}
-				if (impFunc.getNum() > 0) {
+				if (impFunc.size() > 0) {
 					impFunc.setName(func.getName());
 					impFuncs.add(impFunc);
 					impChars.add(plotChars);
@@ -223,7 +223,7 @@ public class SurfDistCacheTestPlotter {
 			DiscretizedFunc func = funcs.get(i);
 			PlotCurveCharacterstics plotChars = chars.get(i);
 			
-			if (!func.hasPoint(1d, 0d) || func.getNum() < 2)
+			if (!func.hasX(1d) || func.size() < 2)
 				continue;
 			
 			double serialTime = func.getY(1d);
@@ -265,13 +265,13 @@ public class SurfDistCacheTestPlotter {
 			DiscretizedFunc func = funcs.get(i);
 			PlotCurveCharacterstics plotChars = chars.get(i);
 
-			if (func.getNum() < 2)
+			if (func.size() < 2)
 				continue;
 
 			ArbitrarilyDiscretizedFunc relScaling = new ArbitrarilyDiscretizedFunc();
 			relScaling.setName(func.getName());
 			
-			for (int j=1; j<func.getNum(); j++) {
+			for (int j=1; j<func.size(); j++) {
 				double prevThreads = func.getX(j-1);
 				double prevTime = func.getY(j-1);
 				double threads = func.getX(j);

@@ -647,7 +647,7 @@ public class A_FaultSegmentedSourceGenerator {
 
 			// reduce rates in MFD
 			IncrementalMagFreqDist modMagFreqDist = rupMagFreqDist[i].deepClone();
-			for(int magIndex=0; magIndex<modMagFreqDist.getNum(); ++magIndex) {
+			for(int magIndex=0; magIndex<modMagFreqDist.size(); ++magIndex) {
 				modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
 			}
 			// Create source if rate is greater than ~zero (or age of earth)
@@ -1349,7 +1349,7 @@ public class A_FaultSegmentedSourceGenerator {
 			// Add the rates of all ruptures which are part of a segment
 			for(int rup=0; rup<num_rup; rup++)
 				if(rupInSeg[seg][rup]==1) {
-					for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
+					for(int i=0; i<rupSlipDist[rup].size(); ++i)
 						segSlipDist[seg].set(segRupSlipFactor[rup][seg]*rupSlipDist[rup].getX(i), 
 								rupSlipDist[rup].getY(i));
 				}
@@ -1478,7 +1478,7 @@ public class A_FaultSegmentedSourceGenerator {
 		rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
 		for(int rup=0; rup<num_rup; ++rup) {
 			rupSlipDist[rup] = new ArbitrarilyDiscretizedFunc();
-			for(int imag=0; imag<rupMagFreqDist[rup].getNum(); ++imag) {
+			for(int imag=0; imag<rupMagFreqDist[rup].size(); ++imag) {
 				if(rupMagFreqDist[rup].getY(imag)==0) continue; // if rate is 0, do not find the slip for this mag
 				double moment = MagUtils.magToMoment(rupMagFreqDist[rup].getX(imag));
 				double slip = FaultMomentCalc.getSlip(rupArea[rup], moment);
@@ -1747,7 +1747,7 @@ public class A_FaultSegmentedSourceGenerator {
 		taperedSlipCDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
 		taperedSlipPDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
 		double x,y, sum=0;
-		int num = taperedSlipPDF.getNum();
+		int num = taperedSlipPDF.size();
 		for(int i=0; i<num;i++) {
 			x = taperedSlipPDF.getX(i);
 			// y = Math.sqrt(1-(x-0.5)*(x-0.5)/0.25);

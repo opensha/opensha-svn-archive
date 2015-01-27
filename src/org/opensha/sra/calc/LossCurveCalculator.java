@@ -84,11 +84,11 @@ public class LossCurveCalculator {
 	public double getLossExceedance(ArbitrarilyDiscretizedFunc hazFunc,
 			ArbitrarilyDiscretizedFunc fragilityFunc) {
 		
-		int numIMLs = fragilityFunc.getNum();
+		int numIMLs = fragilityFunc.size();
 		
 //		System.out.println("numIMLs: " + numIMLs);
 		
-		if (numIMLs != hazFunc.getNum())
+		if (numIMLs != hazFunc.size())
 			throw new IllegalArgumentException("X-Values must match for hazard curve and fragility curve.");
 		
 		Matrix hazMatrix = new Matrix(1, numIMLs);

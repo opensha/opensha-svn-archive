@@ -55,11 +55,11 @@ class RTGM_Util {
 	 */
 	static double trapz(DiscretizedFunc f) {
 		Preconditions.checkNotNull(f, "Supplied function is null");
-		Preconditions.checkArgument(f.getNum() > 1,
+		Preconditions.checkArgument(f.size() > 1,
 				"Supplied function is too short");
 		double sum = 0;
 		Point2D p1, p2;
-		for (int i=1; i<f.getNum(); i++) {
+		for (int i=1; i<f.size(); i++) {
 			p1 = f.get(i-1);
 			p2 = f.get(i);
 			sum += (p2.getX() - p1.getX()) * (p2.getY() + p1.getY());
@@ -99,9 +99,9 @@ class RTGM_Util {
 	static void multiplyFunc(DiscretizedFunc f1, DiscretizedFunc f2) {
 		Preconditions.checkNotNull(f1, "Supplied function f1 is null");
 		Preconditions.checkNotNull(f2, "Supplied function f2 is null");
-		Preconditions.checkArgument(f1.getNum() == f2.getNum(),
+		Preconditions.checkArgument(f1.size() == f2.size(),
 				"Supplied functions are not the same size");
-		for (int i = 0; i < f1.getNum(); i++) {
+		for (int i = 0; i < f1.size(); i++) {
 			f1.set(i, f1.getY(i) * f2.getY(i));
 		}
 	}

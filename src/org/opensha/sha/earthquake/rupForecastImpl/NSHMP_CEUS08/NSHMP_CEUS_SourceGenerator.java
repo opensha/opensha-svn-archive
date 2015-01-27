@@ -287,14 +287,14 @@ public class NSHMP_CEUS_SourceGenerator extends GriddedRegion {
 			//now convert the mags from mb to Mw
 			ArbDiscrEmpiricalDistFunc mfdAtLoc = new ArbDiscrEmpiricalDistFunc();  // this is used so that values sum when x-axis value is already in the function
 			double mag, rate;
-			for(int i=0;i<mfdAtLocConversion4.getNum();i++) {
+			for(int i=0;i<mfdAtLocConversion4.size();i++) {
 				rate=mfdAtLocConversion4.getY(i);
 				if(rate>0) {
 					mag=convertMbToMw(mfdAtLocConversion4.getX(i),4);
 					mfdAtLoc.set(mag, rate);
 				}	
 			}
-			for(int i=0;i<mfdAtLocConversion3.getNum();i++) {
+			for(int i=0;i<mfdAtLocConversion3.size();i++) {
 				rate=mfdAtLocConversion3.getY(i);
 				if(rate>0) {
 					mag=convertMbToMw(mfdAtLocConversion3.getX(i),3);

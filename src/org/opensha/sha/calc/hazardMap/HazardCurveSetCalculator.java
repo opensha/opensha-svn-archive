@@ -177,7 +177,7 @@ public class HazardCurveSetCalculator {
 		// TODO: we need to check if the log should be taken for all IMTs GEM will be using!
 		// take log only if it is PGA, PGV or SA
 //		if (this.xLogFlag) {
-			for (int i = 0; i < arb.getNum(); ++i)
+			for (int i = 0; i < arb.size(); ++i)
 				new_func.set(Math.log(arb.getX(i)), 1);
 			return new_func;
 //		}
@@ -187,7 +187,7 @@ public class HazardCurveSetCalculator {
 	
 	public static ArbitrarilyDiscretizedFunc unLogFunction(
 			DiscretizedFunc oldHazFunc, DiscretizedFunc logHazFunction) {
-		int numPoints = oldHazFunc.getNum();
+		int numPoints = oldHazFunc.size();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
 //		if (this.xLogFlag) {

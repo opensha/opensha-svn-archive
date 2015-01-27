@@ -394,7 +394,7 @@ public class HazardDecompositionPlotter {
 				cacheHits++;
 			}
 			// now fill in passed func
-			for (int i=0; i<intensityMeasureLevels.getNum(); i++)
+			for (int i=0; i<intensityMeasureLevels.size(); i++)
 				intensityMeasureLevels.set(i, probs.getY(i));
 			return intensityMeasureLevels;
 		}

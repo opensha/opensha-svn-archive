@@ -338,9 +338,9 @@ public class RIDistPlot {
 		HistogramFunction synFunc = getHistFunc(rps);
 		HistogramFunction eFunc = null;
 		if (graphic_debug && graphic_cnt < 100)
-			eFunc = new HistogramFunction(synFunc.getMinX(), synFunc.getNum(), synFunc.getDelta());
+			eFunc = new HistogramFunction(synFunc.getMinX(), synFunc.size(), synFunc.getDelta());
 		double e = 0;
-		for (int n=0; n<func.getNum(); n++) {
+		for (int n=0; n<func.size(); n++) {
 			double data = func.getY(n);
 			double syn = synFunc.getY(n);
 			double absDiff = Math.abs(data - syn);
