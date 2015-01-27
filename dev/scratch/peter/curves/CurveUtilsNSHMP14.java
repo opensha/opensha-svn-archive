@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -78,9 +79,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
@@ -121,6 +124,8 @@ public class CurveUtilsNSHMP14 {
 //		}
 
 		runBranchSummaries2(outPath, flagsPath, periods, locsPath, PE2IN50);
+		
+//		buildTornados(outPath, periods, locsPath, PE2IN50);
 	}
 	
 	
@@ -238,16 +243,26 @@ public class CurveUtilsNSHMP14 {
 		// header
 		XY_DataSet model = fracMap.get(Fractile.MIN);
 		Iterable<String> fracFields = Iterables.concat(
-			Lists.newArrayList("fractile"),
+			Lists.newArrayList("fractile", "IML_At2in50", "RateAtMeanIML"),
 			Iterables.transform(model.xValues(),
 				Functions.toStringFunction()));
 		Files.write(JOIN.join(fracFields) + LF, fracFile, US_ASCII);
+
+		// true mean which is used to get fractile rates
+		double tMean = getPE(XYtoFunc(fracMap.get(Fractile.MEAN)), PE2IN50);
+
 		// body
 		for (Entry<Fractile, XY_DataSet> fracEntry : fracMap.entrySet()) {
+
+			ArbitrarilyDiscretizedFunc f = XYtoFunc(fracEntry.getValue());
+			double IMLat2in50 = getPE(f, PE2IN50);
+			double rateAtMeanIML = getRate(f, tMean);
+
 			Iterable<String> fracData = Iterables.concat(
 				Lists.newArrayList(fracEntry.getKey().name()),
-				Iterables.transform(fracEntry.getValue().yValues(),
-					Functions.toStringFunction()));
+				Iterables.transform(Lists.newArrayList(IMLat2in50, rateAtMeanIML),
+					Functions.toStringFunction()),
+				Iterables.transform(fracEntry.getValue().yValues(), Functions.toStringFunction()));
 			Files.append(JOIN.join(fracData) + LF, fracFile, US_ASCII);
 		}
 	}
@@ -573,6 +588,131 @@ public class CurveUtilsNSHMP14 {
 			double[] Ys = Doubles.toArray(f.yValues());
 			return Interpolate.findLogLogY(Xs, Ys, iml);
 		}
+	}
+
+	// convert leaf data to from for matlab plotting
+	private static void buildTornados(String dir, Iterable<Period> periods, String locsPath,
+			ProbOfExceed pe) throws IOException {
+
+		Map<String, Location> locMap = UC3_CalcUtils.readSiteFile(locsPath);
+		Iterable<String> locNames = locMap.keySet();
+
+		List<Set<String>> keySetList = createTornadoKeyLists();
+
+		// storing tornado rank counts: occurences of each branch
+		// at each rank or level 0-8
+		// will want to expand this to look at individual periods
+		List<Multiset<String>> tornadoRanks = Lists.newArrayList();
+		for (int i=0; i<keySetList.size(); i++) {
+			Multiset<String> multiset = HashMultiset.create();
+			tornadoRanks.add(multiset);
+		}
+		
+		for (Period p : periods) {
+			
+			System.out.println(p);
+			for (String name : locNames) {
+				System.out.println("    " + name);
+				String srcPath = dir + p.name() + S + name + S;
+
+				// read noMean column leaves file
+				File leafFile = new File(srcPath + "leaves_" + pe.name() + ".csv");
+				List<String> leafLines = Files.readLines(leafFile, US_ASCII);
+				Map<String, Double> leafMap = Maps.newHashMap();
+				double mean = Double.valueOf(SPLIT.splitToList(leafLines.get(1)).get(1));
+				for (String line : Iterables.skip(leafLines, 2)) {
+					// skip header and NONE row
+					List<String> parts = SPLIT.splitToList(line);
+					double noMean = Double.valueOf(parts.get(2));
+					leafMap.put(parts.get(0), mean / noMean);
+				}
+
+				// build strings of min and max for each branch and add
+				// to sorted delta map
+				TreeMap<Double, String> deltaMap = Maps.newTreeMap();
+				for (Set<String> keySet : keySetList) {
+					double minVal = Double.MAX_VALUE;
+					String minKey = "";
+					double maxVal = Double.MIN_VALUE;
+					String maxKey = "";
+					for (String key : keySet) {
+						double val = leafMap.get(key);
+						if (val < minVal) {
+							minVal = val;
+							minKey = key;
+						}
+						if (val > maxVal) {
+							maxVal = val;
+							maxKey = key;
+						}
+					}
+					double delta = maxVal - minVal;
+					List<?> outParts = Lists.newArrayList(minKey, minVal, maxKey, maxVal);
+					String out = JOIN.join(outParts);
+					deltaMap.put(delta, out);
+				}
+
+				// save map - while building leaf rank counts
+				File tornadoFile = new File(srcPath, "tornado_" + pe.name() + ".csv");
+				Files.write("", tornadoFile, US_ASCII);
+				int count = 0;
+				for (String line : deltaMap.descendingMap().values()) {
+					Files.append(line + LF, tornadoFile, US_ASCII);
+					
+					String leaf = line.substring(0, line.indexOf(','));
+					int leafIndex = lookupLeafIndex(keySetList, leaf);
+					String branchName = branchNames.get(leafIndex);
+					tornadoRanks.get(count).add(branchName);
+					count++;
+				}
+			}
+		}
+		
+		// write tornado ranks
+		File tornadoRankFile = new File(dir, "tornadoRanks.csv");
+		String tornadoRankHeader = "rank," + JOIN.join(branchNames) + LF;
+		Files.write(tornadoRankHeader, tornadoRankFile, US_ASCII);
+		int rankCount = 0;
+		for (Multiset<String> rankData : tornadoRanks) {
+			List<Integer> counts = Lists.newArrayList(rankCount);
+			for (String branchName : branchNames) {
+				counts.add(rankData.count(branchName));
+			}
+			String countStr = JOIN.join(counts) + LF;
+			Files.append(countStr, tornadoRankFile, US_ASCII);
+			rankCount++;
+		}
+	}
+
+	private static int lookupLeafIndex(List<Set<String>> leafSetList, String leaf) {
+		for (int i=0; i<leafSetList.size(); i++) {
+			Set<String> leafSet = leafSetList.get(i);
+			if (leafSet.contains(leaf)) return i;
+		}
+		throw new IllegalArgumentException("Bad leaf id: " + leaf);
+	}
+	
+	// branch names in same order as tornado key lists
+	private static List<String> branchNames = Lists.newArrayList("Fault Model",
+		"Deformation Model", "Scaling Relationship", "Slip Along Rupture", "M\u22655 Rate",
+		"Off-fault Mmax", "Smoothed Seismicity Model", "Ground Motion Model");
+
+	private static List<Set<String>> createTornadoKeyLists() {
+		List<Set<String>> setList = new ArrayList<Set<String>>();
+
+		for (Class<? extends LogicTreeBranchNode<?>> clazz : UC33classList) {
+			LogicTreeBranchNode<?>[] nodes = clazz.getEnumConstants();
+			Set<String> ltbSet = Sets.newHashSet();
+			Function<LogicTreeBranchNode<?>, String> fn = LTB_ToStringFn.INSTANCE;
+			for (LogicTreeBranchNode<?> node : nodes) {
+				if (!UC33nodeList.contains(node)) continue;
+				ltbSet.add(fn.apply(node));
+			}
+			setList.add(ltbSet);
+		}
+
+		setList.add(GMM_ID_WT_MAP.keySet());
+		return setList;
 	}
 
 }

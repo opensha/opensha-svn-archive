@@ -123,11 +123,11 @@ public class CurveUtilsNSHMP14epi {
 		String locsPath = ROOT + "curvejobs/sites/noPBR.txt";
 		String flagsPath = outPath + "nodeFlags.csv";
 
-		// reorganize(periods, srcPath, outPath, locsPath);
+//		 reorganize(periods, srcPath, outPath, locsPath);
 
-		// if (!new File(flagsPath).exists()) {
-		// createFlagFile(outPath + "GM0P00/LOS_ANGELES/params.csv", flagsPath);
-		// }
+//		 if (!new File(flagsPath).exists()) {
+//		 createFlagFile(outPath + "GM0P00/LOS_ANGELES/params.csv", flagsPath);
+//		 }
 
 //		 runBranchSummaries2(outPath, flagsPath, periods, locsPath, PE2IN50);
 
@@ -245,18 +245,23 @@ public class CurveUtilsNSHMP14epi {
 		// header
 		XY_DataSet model = fracMap.get(Fractile.MIN);
 		Iterable<String> fracFields = Iterables.concat(
-			Lists.newArrayList("fractile", "2in50", "10in50"),
+			Lists.newArrayList("fractile", "IML_At2in50", "RateAtMeanIML"),
 			Iterables.transform(model.xValues(), Functions.toStringFunction()));
 		Files.write(JOIN.join(fracFields) + LF, fracFile, US_ASCII);
+		
+		// true mean which is used to get fractile rates
+		double tMean = getPE(XYtoFunc(fracMap.get(Fractile.MEAN)), PE2IN50);
+
 		// body
 		for (Entry<Fractile, XY_DataSet> fracEntry : fracMap.entrySet()) {
 
-			double pe2in50 = getPE(XYtoFunc(fracEntry.getValue()), PE2IN50);
-			double pe10in50 = getPE(XYtoFunc(fracEntry.getValue()), PE10IN50);
+			ArbitrarilyDiscretizedFunc f = XYtoFunc(fracEntry.getValue());
+			double IMLat2in50 = getPE(f, PE2IN50);
+			double rateAtMeanIML = getRate(f, tMean);
 
 			Iterable<String> fracData = Iterables.concat(
 				Lists.newArrayList(fracEntry.getKey().name()),
-				Iterables.transform(Lists.newArrayList(pe2in50, pe10in50),
+				Iterables.transform(Lists.newArrayList(IMLat2in50, rateAtMeanIML),
 					Functions.toStringFunction()),
 				Iterables.transform(fracEntry.getValue().yValues(), Functions.toStringFunction()));
 			Files.append(JOIN.join(fracData) + LF, fracFile, US_ASCII);
