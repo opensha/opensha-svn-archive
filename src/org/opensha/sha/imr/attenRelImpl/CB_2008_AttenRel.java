@@ -125,7 +125,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 	private HashMap indexFromPerHashMap;
 
 	private int iper;
-	private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
+	private double vs30, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
 	private String stdDevType;
 	private Component component;
 	private boolean magSaturation;
@@ -299,7 +299,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 		}
 
 		// compute rJB
-		rJB = rRup - distRupMinusJB_OverRup*rRup;
+		double rJB = rRup - distRupMinusJB_OverRup*rRup;
 //		System.out.println(distRupMinusJB_OverRup + " " + rJB);
 
 		// set default value of basin depth based on the final value of vs30
@@ -340,7 +340,7 @@ public class CB_2008_AttenRel extends AttenuationRelationship implements
 		}
 
 		// compute rJB
-		rJB = rRup - distRupMinusJB_OverRup*rRup;
+		double rJB = rRup - distRupMinusJB_OverRup*rRup;
 		
 
 		// set default value of basin depth based on the final value of vs30
