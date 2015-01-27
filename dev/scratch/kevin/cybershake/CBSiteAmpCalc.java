@@ -62,19 +62,27 @@ public class CBSiteAmpCalc {
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_bssa");
 //		boolean ddwCorr = false;
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_bssa");
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_bssa_redo");
 		boolean ddwCorr = false;
-//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_mean");
-		File outputDir = new File("/tmp/asdf");
+		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_mean_redo");
+//		File outputDir = new File("/tmp/asdf");
+		
+		boolean includeASCE = false; 
 		
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
-		AttenuationRelationship meanGMPE = AttenRelRef.BSSA_2014.instance(null);
+//		AttenuationRelationship meanGMPE = AttenRelRef.BSSA_2014.instance(null);
 //		AttenuationRelationship meanGMPE = new NGAWest_2014_Averaged_AttenRel(null, false);
 		
 		List<Integer> runIDs = Lists.newArrayList(
-//				2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
-//				2660, 2703, 3504, 2988, 2965, 3007);
-				2636);
+//				2657, 3037, 2722, 3022, 3030, 3027, 2636,
+//				2638, 2660, 2703, 3504, 2988, 2965, 3007);
+				
+//				2657, 3037, 2722, 3022, 3030, 3027, 2636);
+				2638, 2660, 2703, 3504, 2988, 2965, 3007);
+		
+//				2636);
+		
 		File asceFile = new File("/home/kevin/CyberShake/MCER/ASCE7-10_Sms_Sm1_TL_det LL for 14 sites.xls");
 		
 		boolean backSeis = true;
@@ -95,21 +103,27 @@ public class CBSiteAmpCalc {
 		}
 		List<AttenuationRelationship> attenRels = Lists.newArrayList();
 
-//		String attenFiles = "src/org/opensha/sha/cybershake/conf/cb2014.xml,src/org/opensha/sha/cybershake/conf/cy2014.xml"
-//				+ ",src/org/opensha/sha/cybershake/conf/bssa2014.xml,src/org/opensha/sha/cybershake/conf/ask2014.xml";
-//		for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
-//			AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
-//			attenRels.add(attenRel);
-//		}
-//		Preconditions.checkArgument(!attenRels.isEmpty(), "Must specify at least 1 GMPE");
-//		MultiIMR_Averaged_AttenRel meanGMPE = new MultiIMR_Averaged_AttenRel(attenRels);
+		String attenFiles = "src/org/opensha/sha/cybershake/conf/cb2014.xml,src/org/opensha/sha/cybershake/conf/cy2014.xml"
+				+ ",src/org/opensha/sha/cybershake/conf/bssa2014.xml,src/org/opensha/sha/cybershake/conf/ask2014.xml";
+		for (String attenRelFile : HazardCurvePlotter.commaSplit(attenFiles)) {
+			AttenuationRelationship attenRel = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(attenRelFile);
+			attenRels.add(attenRel);
+		}
+		Preconditions.checkArgument(!attenRels.isEmpty(), "Must specify at least 1 GMPE");
+		MultiIMR_Averaged_AttenRel meanGMPE = new MultiIMR_Averaged_AttenRel(attenRels);
 		
 		meanGMPE.setParamDefaults();
 		List<AttenuationRelationship> meanGMPEList = Lists.newArrayList();
 		meanGMPEList.add(meanGMPE);
-		
+
 		List<Double> periods = Lists.newArrayList(0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,
 				0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0);
+//		List<Double> periods = Lists.newArrayList(2.0,3.0,4.0,5.0,7.5,10.0);
+		
+		double[] vs30s = {1620d, 1524d, 914d, 762d, 488d, 366d, 265d, 183d, 155d};
+		boolean[] nullBasins = {true, false};
+//		double[] vs30s = {1524d, 762d, 488d, 265d};
+//		boolean[] nullBasins = {true};
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		Runs2DB runs2db = new Runs2DB(db);
@@ -117,16 +131,20 @@ public class CBSiteAmpCalc {
 		CyberShakeComponent comp = CyberShakeComponent.RotD100;
 		double percentile = GMPEDeterministicComparisonCalc.default_percentile;
 		
-		HSSFWorkbook wb;
-		try {
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(asceFile));
-			wb = new HSSFWorkbook(fs);
-		} catch (Exception e1) {
-			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
-			throw ExceptionUtils.asRuntimeException(e1);
+		HSSFSheet asceSheet = null;
+		FormulaEvaluator evaluator = null;
+		if (includeASCE) {
+			HSSFWorkbook wb;
+			try {
+				POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(asceFile));
+				wb = new HSSFWorkbook(fs);
+			} catch (Exception e1) {
+				System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
+				throw ExceptionUtils.asRuntimeException(e1);
+			}
+			asceSheet = wb.getSheetAt(0);
+			evaluator = wb.getCreationHelper().createFormulaEvaluator();
 		}
-		HSSFSheet sheet = wb.getSheetAt(0);
-		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 		
 		List<CybershakeIM> forceAddIMs = Lists.newArrayList();
 		for (Double period : periods)
@@ -171,8 +189,8 @@ public class CBSiteAmpCalc {
 //			siteDatasList.add(getReplaced(origSiteDatas,
 //					new SiteDataValue<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, 155d)));
 			
-			for (boolean nullBasin : new boolean[] {true, false}) {
-				for (double vs30 : new double[] {1620d, 1524d, 914d, 762d, 488d, 366d, 265d, 183d, 155d}) {
+			for (boolean nullBasin : nullBasins) {
+				for (double vs30 : vs30s) {
 					if (nullBasin)
 						siteDatasList.add(getReplaced(origSiteDatas,
 								new SiteDataValue<Double>(SiteData.TYPE_DEPTH_TO_1_0, SiteData.TYPE_FLAG_INFERRED, Double.NaN),
@@ -238,21 +256,23 @@ public class CBSiteAmpCalc {
 				DiscretizedFunc probFunc = RTGMCalc.saToPsuedoVel(rtgmCalc.getGMPESpectrumMap().get(comp).get(0));
 				Preconditions.checkState(probFunc.getNum() == detFunc.getNum(), probFunc.getNum()+" != "+detFunc.getNum());
 				
-				DiscretizedFunc xVals = detFunc.deepClone();
-				HSSFRow row = null;
-				for (int r=0; r<=sheet.getLastRowNum(); r++) {
-					HSSFRow testRow = sheet.getRow(r);
-					HSSFCell nameCell = testRow.getCell(0);
-					if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
-						row = testRow;
-						break;
+				DiscretizedFunc asceDeterm = null;
+				if (includeASCE) {
+					DiscretizedFunc xVals = detFunc.deepClone();
+					HSSFRow row = null;
+					for (int r=0; r<=asceSheet.getLastRowNum(); r++) {
+						HSSFRow testRow = asceSheet.getRow(r);
+						HSSFCell nameCell = testRow.getCell(0);
+						if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
+							row = testRow;
+							break;
+						}
 					}
+					Preconditions.checkState(row != null, "Couldn't find site "+site.short_name+" in ASCE spreadsheet");
+					double tl = MCERDataProductsCalc.loadASCEValue(row.getCell(4), evaluator);
+					double detASCE =  MCERDataProductsCalc.loadASCEValue(row.getCell(7), evaluator);
+					asceDeterm = MCERDataProductsCalc.calcASCE(xVals, detASCE, tl);
 				}
-				Preconditions.checkState(row != null, "Couldn't find site "+site.short_name+" in ASCE spreadsheet");
-				double tl = MCERDataProductsCalc.loadASCEValue(row.getCell(4), evaluator);
-				double detASCE =  MCERDataProductsCalc.loadASCEValue(row.getCell(7), evaluator);
-				
-				DiscretizedFunc asceDeterm = MCERDataProductsCalc.calcASCE(xVals, detASCE, tl);
 				
 				DiscretizedFunc mcer = MCERDataProductsCalc.calcMCER(detFunc, probFunc, asceDeterm);
 				Preconditions.checkState(mcer.getNum() == periods.size());

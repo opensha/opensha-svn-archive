@@ -512,7 +512,9 @@ public class MCERDataProductsCalc {
 			double x = pt.getX();
 			
 			double dVal = determ.getY(x);
+			Preconditions.checkState(dVal >= 0, "Deterministic value must be >= 0");
 			double pVal = prob.getY(x);
+			Preconditions.checkState(pVal >= 0, "Probabilistic value must be >= 0");
 			double dLowVal;
 			if (determLowerLimit != null)
 				dLowVal = determLowerLimit.getY(x);
@@ -520,6 +522,7 @@ public class MCERDataProductsCalc {
 				dLowVal = 0d;
 			
 			double val = Math.min(pVal, Math.max(dVal, dLowVal));
+			Preconditions.checkState(val > 0d, "It's zero???? pVal="+pVal+", dVal="+dVal+", dLowVal="+dLowVal);
 			
 			ret.set(x, val);
 		}
