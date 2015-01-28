@@ -248,7 +248,8 @@ public class HazardCurveComputation {
 				try {
 					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {
-					return null;
+					throw new RuntimeException("SQL Exception calculating curve for runID="+runID
+							+", src="+srcId+", rup="+rupId+", imType="+imType.getID(), e);
 				}
 				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
 			}
