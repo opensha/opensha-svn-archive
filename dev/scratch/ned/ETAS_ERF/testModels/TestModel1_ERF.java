@@ -18,6 +18,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.mapping.gmt.gui.ImageViewerWindow;
 import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -29,7 +30,6 @@ import org.opensha.sha.earthquake.param.AleatoryMagAreaStdDevParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -38,7 +38,6 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;

@@ -1,4 +1,4 @@
-package scratch.kevin;
+package org.opensha.commons.util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;

@@ -7,10 +7,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 
-import org.opensha.sha.calc.hazardMap.mpj.MPJHazardCurveDriver;
-
 import mpi.MPI;
-import mpi.MPIException;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;

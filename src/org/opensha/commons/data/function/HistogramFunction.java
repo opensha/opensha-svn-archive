@@ -6,10 +6,6 @@ package org.opensha.commons.data.function;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.math3.stat.StatUtils;
-import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.earthquake.calc.recurInterval.BPT_DistCalc;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -201,19 +197,20 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		return stacked;
 	}
 	
-	// test of compute methods
-	public static void main(String[] args) {
-		BPT_DistCalc bpt_calc = new BPT_DistCalc();
-		bpt_calc.setAll(110, 0.25, 1, 600);
-		EvenlyDiscretizedFunc func = bpt_calc.getPDF();
-		GraphWindow graph = new GraphWindow(func, "Test BPT"); 
-		HistogramFunction hist = new HistogramFunction(func.getMinX(),func.getMaxX(), func.size());
-		for(int i=0;i<hist.size();i++)
-			hist.set(i, func.getY(i));
-		System.out.println("mean="+hist.computeMean());
-		System.out.println("std="+hist.computeStdDev());
-		System.out.println("cov="+hist.computeCOV());
-
-	}
+//	// test of compute methods
+//	public static void main(String[] args) {
+//		// should not reference sha classes like the below code does
+//		BPT_DistCalc bpt_calc = new BPT_DistCalc();
+//		bpt_calc.setAll(110, 0.25, 1, 600);
+//		EvenlyDiscretizedFunc func = bpt_calc.getPDF();
+//		GraphWindow graph = new GraphWindow(func, "Test BPT"); 
+//		HistogramFunction hist = new HistogramFunction(func.getMinX(),func.getMaxX(), func.size());
+//		for(int i=0;i<hist.size();i++)
+//			hist.set(i, func.getY(i));
+//		System.out.println("mean="+hist.computeMean());
+//		System.out.println("std="+hist.computeStdDev());
+//		System.out.println("cov="+hist.computeCOV());
+//
+//	}
 
 }

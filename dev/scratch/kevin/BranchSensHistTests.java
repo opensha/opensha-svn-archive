@@ -13,8 +13,8 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotSpec;
-import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import com.google.common.collect.Lists;
 

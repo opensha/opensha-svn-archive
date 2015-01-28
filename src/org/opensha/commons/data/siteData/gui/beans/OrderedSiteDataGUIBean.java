@@ -45,10 +45,10 @@ import javax.swing.event.ListSelectionListener;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.util.SiteDataTypeParameterNameMap;
 import org.opensha.sha.util.SiteTranslator;
 
 public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, ListSelectionListener {

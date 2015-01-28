@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.sha.gui.infoTools;
+package org.opensha.commons.mapping.gmt.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

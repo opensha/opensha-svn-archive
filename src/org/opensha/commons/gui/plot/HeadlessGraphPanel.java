@@ -1,13 +1,8 @@
-package org.opensha.sha.gui.infoTools;
+package org.opensha.commons.gui.plot;
 
 import java.util.List;
 
 import org.jfree.data.Range;
-import org.opensha.commons.gui.plot.GraphPanel;
-import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
-import org.opensha.commons.gui.plot.PlotElement;
-import org.opensha.commons.gui.plot.PlotPreferences;
-import org.opensha.commons.gui.plot.PlotSpec;
 
 public class HeadlessGraphPanel extends GraphPanel {
 	

@@ -8,10 +8,10 @@ import java.util.List;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 import com.google.common.collect.Lists;
 

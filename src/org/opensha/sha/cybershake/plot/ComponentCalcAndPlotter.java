@@ -27,6 +27,7 @@ import org.jfree.chart.ChartUtilities;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphPanel;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -36,7 +37,6 @@ import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.infoTools.HeadlessGraphPanel;
 
 public class ComponentCalcAndPlotter {
 	

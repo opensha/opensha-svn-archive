@@ -15,8 +15,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.opensha.commons.util.ClassUtils;
-
-import scratch.kevin.DeadlockDetectionThread;
+import org.opensha.commons.util.DeadlockDetectionThread;
 
 public abstract class MPJTaskCalculator {
 	

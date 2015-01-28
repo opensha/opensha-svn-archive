@@ -28,7 +28,6 @@ import java.util.ListIterator;
 
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.WarningParameter;
 import org.opensha.commons.param.impl.StringParameter;

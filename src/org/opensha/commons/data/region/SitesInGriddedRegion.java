@@ -35,7 +35,6 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.param.Parameter;
-import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.util.SiteTranslator;
 
 /**

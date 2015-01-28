@@ -72,6 +72,7 @@ import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.mapping.gmt.gui.ImageViewerWindow;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -81,7 +82,6 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 
 /**

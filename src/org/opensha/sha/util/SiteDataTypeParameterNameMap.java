@@ -17,7 +17,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package org.opensha.commons.data.siteData.util;
+package org.opensha.sha.util;
 
 import java.util.Collection;
 import java.util.ListIterator;
@@ -29,7 +29,6 @@ import org.opensha.commons.util.NtoNMap;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
-import org.opensha.sha.util.SiteTranslator;
 
 /**
  * This class represents an N to N mapping between site data types and parameter names. If

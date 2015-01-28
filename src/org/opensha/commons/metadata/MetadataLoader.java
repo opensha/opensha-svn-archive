@@ -19,20 +19,13 @@
 
 package org.opensha.commons.metadata;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.io.SAXReader;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 //import org.opensha.sha.calc.hazardMap.old.HazardMapJob;
-import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.imr.AbstractIMR;
-import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 
 public class MetadataLoader implements ParameterChangeWarningListener {
 
@@ -95,29 +88,6 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 			throw e;
 		} catch (Exception e ) {
 			throw new RuntimeException(e);
-		}
-	}
-
-
-	public static void main(String args[]) {
-		try {
-			SAXReader reader = new SAXReader();
-	        Document document = reader.read(new File("output.xml"));
-	        AbstractIMR imr = AbstractIMR.fromXMLMetadata(document.getRootElement().element(AbstractIMR.XML_METADATA_NAME), new MetadataLoader());
-	        System.out.println("Name: " + imr.getName());
-	        System.out.println("IMT: " + imr.getIntensityMeasure().getName());
-	        System.out.println("Period: " + imr.getParameter(PeriodParam.NAME).getValue());
-	        AbstractERF erf = AbstractERF.fromXMLMetadata(document.getRootElement().element(AbstractERF.XML_METADATA_NAME));
-	        System.out.println("Name: " + erf.getName());
-//	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());
-//	        System.out.println("TimeSpan: " + erf.getTimeSpan().getStartTimeYear() + ", " + erf.getTimeSpan().getDuration());
-//	        HazardMapJob job = HazardMapJob.fromXMLMetadata(document.getRootElement().element(HazardMapJob.XML_METADATA_NAME));
-//	        System.out.println(job.toString());
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

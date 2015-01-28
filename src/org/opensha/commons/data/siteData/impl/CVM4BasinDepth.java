@@ -22,11 +22,6 @@ package org.opensha.commons.data.siteData.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
 
 import org.dom4j.Attribute;
 import org.dom4j.Document;
@@ -35,16 +30,10 @@ import org.opensha.commons.data.siteData.AbstractBinarySiteDataLoader;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.SiteData;
-import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
-import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
-import org.opensha.commons.util.binFile.BinaryMesh2DCalculator.DataType;
-import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 
 public class CVM4BasinDepth extends AbstractBinarySiteDataLoader {
 	

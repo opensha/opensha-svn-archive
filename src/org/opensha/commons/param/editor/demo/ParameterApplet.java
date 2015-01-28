@@ -63,7 +63,6 @@ import org.opensha.commons.param.impl.RegionParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.param.impl.WarningIntegerParameter;
-import org.opensha.sha.param.SimpleFaultParameter;
 
 
 
@@ -214,7 +213,7 @@ public class ParameterApplet
         list.addParameter( makeConstrainedDoubleDiscreteParameter() );
         list.addParameter( makeWarningDoubleParameter());
         list.addParameter( makeWarningIntegerParameter());
-        list.addParameter(this.makeEvenlyGriddedsurfaceParameter());
+//        list.addParameter(this.makeEvenlyGriddedsurfaceParameter());
         for ( int i = 3; i < number; i++ )
             list.addParameter( makeStringParameter() );
         list.addParameter(makeParameterListParameter());
@@ -317,14 +316,14 @@ public class ParameterApplet
         return param;
     }
 
-    /** Makes the parameter example of type EvenlyGriddedSurface **/
-    private Parameter makeEvenlyGriddedsurfaceParameter(){
-
-      String name = "Simple Fault Parameter";
-      Parameter param = new SimpleFaultParameter(name,null);
-      paramCount++;
-      return param;
-    }
+//    /** Makes the parameter example of type EvenlyGriddedSurface **/
+//    private Parameter makeEvenlyGriddedsurfaceParameter(){
+//
+//      String name = "Simple Fault Parameter";
+//      Parameter param = new SimpleFaultParameter(name,null);
+//      paramCount++;
+//      return param;
+//    }
 
     /** Makes a parameter example of this type */
     private Parameter makeConstrainedIntegerParameter() {

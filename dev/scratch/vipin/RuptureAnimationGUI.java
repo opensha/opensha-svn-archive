@@ -36,7 +36,6 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
-import org.opensha.commons.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
 import org.opensha.commons.param.editor.impl.IntegerParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -363,9 +362,10 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
     GriddedSurfaceImpl griddedSurface = new GriddedSurfaceImpl(1, locList.size(), Double.NaN);
     for (int i = 0; i < locList.size(); ++i)
       griddedSurface.setLocation(0, i, locList.get(i));
-    GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
-    if(index==0) plot.setDataset(griddedDataSet);
-    else plot.setDataset(index-1, griddedDataSet);
+    throw new UnsupportedOperationException("Disabled when we removed old GriddedSurfaceXYDataSet");
+    //    GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
+//    if(index==0) plot.setDataset(griddedDataSet);
+//    else plot.setDataset(index-1, griddedDataSet);
   }
 
   /**

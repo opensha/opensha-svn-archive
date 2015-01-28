@@ -40,6 +40,7 @@ import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import org.opensha.commons.mapping.gmt.gui.ImageViewerWindow;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 
 /**
