@@ -105,6 +105,7 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -135,6 +136,7 @@ import scratch.UCERF3.erf.UCERF2_Mapped.UCERF2_FM2pt1_FaultSysSolTimeDepERF;
 import scratch.UCERF3.erf.mean.MeanUCERF3;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -681,6 +683,74 @@ public class FaultSysSolutionERF_Calc {
 	}
 
 	
+	/**
+	 * This computes fault section nuclation MFD, accounting for any applied time dependence, aleatory mag-area 
+	 * uncertainty, and smaller ruptures set to zero in the ERF (which is how this differs from 
+	 * InversionFaultSystemSolution.calcNucleationRateForAllSects(*)), and assuming a uniform distribution
+	 * of nucleations over the rupture surface.
+	 * @param erf
+	 * @param min, max, and num (MFD discretization values)
+	 * @return
+	 */
+	public static SummedMagFreqDist[] calcNucleationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
+		InversionFaultSystemRupSet rupSet = ((InversionFaultSystemSolution)erf.getSolution()).getRupSet();
+		
+		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
+		for(int i=0;i<mfdArray.length;i++) {
+			mfdArray[i] = new SummedMagFreqDist(min,max,num);
+		}
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min, max, num, true);
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			double rupArea = rupSet.getAreaForRup(fssRupIndex);
+			for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex)) {
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				for(int i=0;i<num;i++) {
+					mfdArray[sectIndex].add(i,srcMFD.getY(i)*sectArea/rupArea);
+				}
+			}
+		}
+		return mfdArray;
+	}
+	
+
+	/**
+	 * This computes time-independent fault section nuclation MFD, accounting for any applied time dependence, aleatory mag-area 
+	 * uncertainty, and smaller ruptures set to zero in the ERF (which is how this differs from 
+	 * InversionFaultSystemSolution.calcNucleationRateForAllSects(*)), and assuming a uniform distribution
+	 * of nucleations over the rupture surface.
+	 * @param erf
+	 * @param min, max, and num (MFD discretization values)
+	 * @return
+	 */
+	public static SummedMagFreqDist[] calcTimeIndNucleationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
+		double[] longTermRatesArray = erf.getLongTermRateOfFltSysRupInERF();
+		InversionFaultSystemRupSet rupSet = ((InversionFaultSystemSolution)erf.getSolution()).getRupSet();
+		
+		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
+		for(int i=0;i<mfdArray.length;i++) {
+			mfdArray[i] = new SummedMagFreqDist(min,max,num);
+		}
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min, max, num, true);
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			// normalized by long-term rate
+			srcMFD.scaleToCumRate(0, longTermRatesArray[fssRupIndex]);
+			double rupArea = rupSet.getAreaForRup(fssRupIndex);
+			for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex)) {
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				for(int i=0;i<num;i++) {
+					mfdArray[sectIndex].add(i,srcMFD.getY(i)*sectArea/rupArea);
+				}
+			}
+		}
+		return mfdArray;
+	}
+
 	
 	/**
 	 * This computes fault section moment rates assuming a uniform distribution
@@ -4905,6 +4975,41 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 
+	
+	
+	public static void testTotSubSeisMFD(FaultSystemSolutionERF erf) {
+		GridSourceProvider gridSrcProvider = erf.getGridSourceProvider();
+		SummedMagFreqDist mfd1 = new SummedMagFreqDist(2.05,8.95,70);
+		for(int i=0;i<gridSrcProvider.getGriddedRegion().getNumLocations(); i++) {
+			IncrementalMagFreqDist mfd = gridSrcProvider.getNodeSubSeisMFD(i);
+			if(mfd != null)
+				mfd1.addIncrementalMagFreqDist(mfd);
+//			else {
+//				Location loc = gridSrcProvider.getGriddedRegion().getLocation(i);
+//				System.out.println("null MFD at node "+i+"; "+loc.toString());
+//			}
+		}
+		mfd1.setName("Total Subseis MFD from grid source provider");
+		
+		SummedMagFreqDist mfd2 = new SummedMagFreqDist(2.05,8.95,70);
+		for(GutenbergRichterMagFreqDist mfd: ((InversionFaultSystemSolution)erf.getSolution()).getFinalSubSeismoOnFaultMFD_List()) {
+			mfd2.addIncrementalMagFreqDist(mfd);
+		}
+		mfd1.setName("Total Subseis MFD from InversionFaultSystemSolution");
+
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		mfdList.add(mfd1);
+		mfdList.add(mfd2);
+		
+		GraphWindow mfd_Graph = new GraphWindow(mfdList, "Subseis MFD comparison"); 
+		mfd_Graph.setX_AxisLabel("Mag");
+		mfd_Graph.setY_AxisLabel("Rate");
+		mfd_Graph.setYLog(true);
+		mfd_Graph.setPlotLabelFontSize(22);
+		mfd_Graph.setAxisLabelFontSize(20);
+		mfd_Graph.setTickLabelFontSize(18);			
+
+	}
 
 
 	

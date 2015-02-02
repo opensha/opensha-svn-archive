@@ -72,6 +72,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -425,25 +426,34 @@ public class ETAS_Simulator {
 			System.out.println("\nExpected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 			
+			expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
+			
 			
 //			etas_PrimEventSampler.tempAveSamplerAtFaults(scenarioRup);
 //			System.exit(-1);
 			
 			// compute expected MFD
-			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
-					etas_PrimEventSampler, scenarioRup, expNum);
+//			long st2 = System.currentTimeMillis();
+//			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
+//					etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(scenarioRup), scenarioRup, expNum);
+//			System.out.println("getExpectedPrimaryMFD_PDF took (msec) "+(System.currentTimeMillis()-st2));
+////			st2 = System.currentTimeMillis();
+//			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
+//					etas_PrimEventSampler.getExpectedPrimaryMFD_PDF_Alt(scenarioRup), scenarioRup, expNum);
+//			System.out.println("getExpectedPrimaryMFD_PDF_Alt took (msec) "+(System.currentTimeMillis()-st2));
+//
 // System.exit(-1);
-			// Compute Primary Event Sampler Map
-			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
-			
-			// Compute subsection participation probability map
-			String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 30, "_Scenario");
-			
-			// for subsection trigger probabilities (different than participation).
-			info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(scenarioRup, resultsDir, 30, "_Scenario");
-			
-			System.out.println(info);	
-			info_fr.write(info+"\n");
+//			// Compute Primary Event Sampler Map
+//			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
+//			
+//			// Compute subsection participation probability map
+//			String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 30, "_Scenario");
+//			
+//			// for subsection trigger probabilities (different than participation).
+//			info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(scenarioRup, resultsDir, 30, "_Scenario");
+//			
+//			System.out.println(info);	
+//			info_fr.write(info+"\n");
 
 
 		}
@@ -620,19 +630,27 @@ public class ETAS_Simulator {
 					etas_PrimEventSampler.declareRateChange();
 
 				}
-				String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
 					double startDay = 0.0;	// from the moment it occurs
 					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler, rup, expNum);
 					
-					String nameSuffix = "triggered"+(nthFaultSysRupAftershocks.size()-1);
+					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trig#"+(nthFaultSysRupAftershocks.size()-1);
 					
-					String info = "\n\tExpected Num Primary Aftershocks = "+(float)expNum;
+					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
+//					info_fr.write("\nObserved number of primary events for "+rupInfo+": "+?????+"\n");
+					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
+//					System.out.println("Observed number of primary events for Scenario: "+?????+"\n");
 
+					expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir,info_fr);
+
+//					String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
+//					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rup), rup, expNum);
+
+	
+//					String nameSuffix = "triggered"+(nthFaultSysRupAftershocks.size()-1);
 //					// Compute Primary Event Sampler Map
 //					etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(rup), "Primary Sampler for "+nameSuffix, nameSuffix+"_PrimaryMap", resultsDir);
 //					
@@ -643,7 +661,7 @@ public class ETAS_Simulator {
 //					info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(rup, resultsDir,30, nameSuffix);
 //					
 //					System.out.println(info);	
-					info_fr.write(info+"\n");
+//					info_fr.write(info+"\n");
 //					info_fr.close();
 //					System.exit(-1);
 
@@ -853,7 +871,10 @@ public class ETAS_Simulator {
 //		tempList2.add(testMFD);
 //		GraphWindow graph2 = new GraphWindow(tempList2, "Test MFDs"); 
 
-		
+		ProbEqkSource src = erf.getSource(erf.getNumSources()-100);
+		System.out.println(src.getName()+" HERE:\n"+ERF_Calculator.getTotalMFD_ForSource(src, erf.getTimeSpan().getDuration(), 2.05, 8.95, 70, true).toString());
+		System.exit(-1);
+
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 
@@ -917,6 +938,9 @@ public class ETAS_Simulator {
 		// means solution ERF
 		System.out.println("Starting ERF instantiation");
 		
+		// temporary hack
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
+		
 //		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolution fss;
@@ -939,12 +963,12 @@ public class ETAS_Simulator {
 //		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
 //		File compoundFile = new File(invDir, fileName);
 //		CompoundFaultSystemSolution fetcher;
-//		FaultSystemSolutionERF erf  = null;
+//		FaultSystemSolutionERF_ETAS erf = null;
 //		try {
 //			fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 //			LogicTreeBranch ref = LogicTreeBranch.DEFAULT;
 //			InversionFaultSystemSolution sol = fetcher.getSolution(ref);
-//			erf = new FaultSystemSolutionERF(sol);
+//			erf = new FaultSystemSolutionERF_ETAS(sol);
 //		} catch (ZipException e) {
 //			e.printStackTrace();
 //		} catch (IOException e) {
@@ -970,6 +994,41 @@ public class ETAS_Simulator {
 		
 		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
 		System.out.println("ERF instantiation took "+timeSec+" sec");
+		
+		
+		
+//		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
+//		InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)tempERF.getSolution();
+//		double minMag = 2.05;
+//		double maxMag = 8.95;
+//		int numMag = 70;
+//		List<GutenbergRichterMagFreqDist> subSeisMFD_List = invSol.getFinalSubSeismoOnFaultMFD_List();
+//		List<IncrementalMagFreqDist> supraSeisMFD_List = invSol.getFinalSupraSeismoOnFaultMFD_List(minMag, maxMag, numMag);
+////		for(int s=0;s<invSol.getRupSet().getNumSections(); s++) {
+////			System.out.println(s+"\t"+invSol.getRupSet().getFaultSectionData(s).getName());
+////		}
+//		
+//		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+//		SummedMagFreqDist[] tdMFD_Array = FaultSysSolutionERF_Calc.calcNucleationMFDForAllSects(tempERF, minMag, maxMag, numMag);
+//		SummedMagFreqDist[] tiMFD_Array = FaultSysSolutionERF_Calc.calcTimeIndNucleationMFDForAllSects(tempERF, minMag, maxMag, numMag);
+//		int parkfieldIndex = 1923;
+//		mfdList.add(supraSeisMFD_List.get(parkfieldIndex));
+//		mfdList.add(tdMFD_Array[parkfieldIndex]);
+//		mfdList.add(tiMFD_Array[parkfieldIndex]);
+//		mfdList.add(subSeisMFD_List.get(parkfieldIndex));
+//		GraphWindow mfd_Graph = new GraphWindow(mfdList, "MFDs"); 
+//		mfd_Graph.setX_AxisLabel("Mag");
+//		mfd_Graph.setY_AxisLabel("Rate");
+//		mfd_Graph.setYLog(true);
+//		mfd_Graph.setPlotLabelFontSize(22);
+//		mfd_Graph.setAxisLabelFontSize(20);
+//		mfd_Graph.setTickLabelFontSize(18);			
+////		System.out.println(parkfieldIndex+"\t"+invSol.getRupSet().getFaultSectionData(parkfieldIndex).getName());
+////		System.out.println(supraSeisMFD_List.get(parkfieldIndex).toString());
+////		System.exit(-1);
+		
+		
+		
 
 		return erf;
 	}
@@ -1067,13 +1126,11 @@ public class ETAS_Simulator {
 //
 //		System.exit(-1);
 		
-		// temporary hack
-		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
 //		params.set_d_MinDist(2.0);
-//		params.setImposeGR(true);
+		params.setImposeGR(true);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
@@ -1087,7 +1144,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_18", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_21", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

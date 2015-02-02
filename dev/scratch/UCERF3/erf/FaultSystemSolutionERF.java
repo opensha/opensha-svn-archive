@@ -1060,6 +1060,11 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		}
 		probModelsCalc = null;
 	}
+	
+	
+	public GridSourceProvider getGridSourceProvider() {
+		return gridSources;
+	}
 
 
 	

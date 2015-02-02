@@ -931,18 +931,18 @@ public class ETAS_SimAnalysisTools {
 	 * (as a function of magnitude), and the the expected cumulative MFD for primary events (if the
 	 * given expNum is not NaN) from the given rupture.
 	 * 
-	 * This returns a list with the expected mfd (element 0) and the cumulative MFD (element 1, which is null if expNum=NaN)
+	 * This returns a list with the expected mfd (element 0) and the cumulative MFD (element 1, which is null if expNum=NaN),
+	 * plus supra mfd (element 2) and cumulative supra mfd (element 3)
 	 * 
 	 * @param rupInfo - Info String
 	 * @param pdf_FileName - plots are saved if this is non null
-	 * @param etas_PrimEventSampler
+	 * @param List<SummedMagFreqDist> mfdList
 	 * @param rupture
 	 * @param expNum - expected number of primary aftershocks
 	 * @return
 	 */
-	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  ETAS_PrimaryEventSampler etas_PrimEventSampler, 
+	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  List<SummedMagFreqDist> mfdList, 
 			EqkRupture rupture, double expNum) {
-		List<SummedMagFreqDist> mfdList = etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rupture);
 		SummedMagFreqDist mfd = mfdList.get(0);
 		SummedMagFreqDist mfdSupra = mfdList.get(1);
 		double totRate = mfd.getTotalIncrRate();
@@ -1039,6 +1039,12 @@ public class ETAS_SimAnalysisTools {
 			mfdListReturned.add(cumMFD);
 		else
 			mfdListReturned.add(null);
+		mfdListReturned.add(mfdSupra);
+		if(cumMFDsupra != null)
+			mfdListReturned.add(cumMFDsupra);
+		else
+			mfdListReturned.add(null);
+
 		
 		return mfdListReturned;
 
