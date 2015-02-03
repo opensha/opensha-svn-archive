@@ -26,13 +26,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
+@Deprecated
 public class BranchAveragedFSSBuilder {
 	
+	@Deprecated
 	public static InversionFaultSystemSolution build(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, FaultModels fm, List<String> branchNames) {
 		return build(fetch, LaughTestFilter.getDefault(), weightProvider, fm, branchNames);
 	}
 	
+	@Deprecated
 	public static InversionFaultSystemSolution build(FaultSystemSolutionFetcher fetch, LaughTestFilter laughTest,
 			BranchWeightProvider weightProvider, FaultModels fm, List<String> branchNames) {
 		

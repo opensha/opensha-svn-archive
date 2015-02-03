@@ -5621,11 +5621,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		GriddedRegion region = plot.region;
 
-		boolean multiFM = plot.weightsMap.keySet().size()>1;
 		for (FaultModels fm : plot.weightsMap.keySet()) {
 			String myPrefix = prefix;
-			if (multiFM)
-				myPrefix += "_"+fm.getShortName();
+			LogicTreeBranch runningBranch = plot.runningBranches.get(fm);
+			for (int i=0; i<runningBranch.size(); i++) {
+				LogicTreeBranchNode<?> val = runningBranch.getValue(i);
+				if (val != null && val.getRelativeWeight(runningBranch.getValue(InversionModels.class)) < 1d)
+					myPrefix += "_"+val.encodeChoiceString();
+			}
+//			if (multiFM)
+//				myPrefix += "_"+fm.getShortName();
 			if (plot.solIndex >= 0)
 				myPrefix += "_run"+plot.solIndex;
 			File outputFile = new File(dir, myPrefix+"_MEAN_BRANCH_AVG_SOL.zip");
@@ -5652,7 +5657,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			String info = reference.getInfoString();
 			
-			info = "****** BRANCH AVERAGED SOLUTION FOR "+plot.weightsMap.get(fm).size()+" SOLUTIONS ******\n\n"+info;
+			info = "****** BRANCH AVERAGED SOLUTION FOR "+plot.weightsMap.get(fm).size()+" SOLUTIONS ******\n\n";
+			
+			info += "****** Logic Tree Branch ******";
+			for (int i=0; i<runningBranch.size(); i++) {
+				LogicTreeBranchNode<?> node = runningBranch.getValue(i);
+				info += "\n"+ClassUtils.getClassNameWithoutPackage(LogicTreeBranch.getEnumEnclosingClass(
+						LogicTreeBranch.getLogicTreeNodeClasses().get(i)))+": ";
+				if (node == null)
+					info += "(multiple)";
+				else
+					info += node.name();
+			}
+			info += "\n*******************************";
 			
 			List<List<Integer>> clusterRups = Lists.newArrayList();
 			List<List<Integer>> clusterSects = Lists.newArrayList();
@@ -5704,6 +5721,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<FaultModels, double[]> ratesMap = Maps.newConcurrentMap();
 		private Map<FaultModels, double[]> magsMap = Maps.newConcurrentMap();
 		private Map<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
+		private Map<FaultModels, LogicTreeBranch> runningBranches = Maps.newConcurrentMap();
 		
 		private Map<FaultModels, List<IncrementalMagFreqDist>> subSeisMFDsMap = Maps.newConcurrentMap();
 		
@@ -5783,7 +5801,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 					for (int i=0; i<subSeisMFDs.size(); i++)
 						runningSubSeisMFDs.add(new IncrementalMagFreqDist(tempMFD.getMinX(), tempMFD.size(), tempMFD.getDelta()));
 					subSeisMFDsMap.put(fm, runningSubSeisMFDs);
+					runningBranches.put(fm, (LogicTreeBranch)branch.clone());
 				}
+				updateRunningBranch(runningBranches.get(fm), branch);
 				weightsList.add(weight);
 				Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
 				Map<Integer, IncrementalMagFreqDist> runningNodeUnassociatedMFDs = nodeUnassociatedMFDsMap.get(fm);
@@ -5804,6 +5824,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 					defModelsMap.get(fm).add(branch.getValue(DeformationModels.class));
 				}
 			}
+		}
+		
+		private static void updateRunningBranch(LogicTreeBranch runningBranch, LogicTreeBranch currentBranch) {
+			for (int i=0; i<currentBranch.size(); i++)
+				if (runningBranch.getValue(i) != currentBranch.getValue(i))
+					runningBranch.clearValue(i);
 		}
 		
 		public static void addWeighted(Map<Integer, IncrementalMagFreqDist> mfdMap, int index,
@@ -5854,7 +5880,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 						ratesMap.put(fm, new double[o.ratesMap.get(fm).length]);
 						magsMap.put(fm, new double[o.magsMap.get(fm).length]);
 						defModelsMap.put(fm, new HashSet<DeformationModels>());
+						runningBranches.put(fm, o.runningBranches.get(fm));
 					}
+					updateRunningBranch(runningBranches.get(fm), o.runningBranches.get(fm));
 					Map<Integer, IncrementalMagFreqDist> nodeSubSeisMFDs = o.nodeSubSeisMFDsMap.get(fm);
 					Map<Integer, IncrementalMagFreqDist> nodeUnassociatedMFDs = o.nodeUnassociatedMFDsMap.get(fm);
 					Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
