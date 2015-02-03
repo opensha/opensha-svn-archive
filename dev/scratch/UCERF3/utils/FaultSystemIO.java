@@ -561,7 +561,7 @@ public class FaultSystemIO {
 		
 		// look for sub seismo MFDs
 		ZipEntry subSeisMFDsEntry = zip.getEntry(getRemappedName("sub_seismo_on_fault_mfds.bin", nameRemappings));
-		if (rupMFDsEntry != null) {
+		if (subSeisMFDsEntry != null) {
 			if (DD) System.out.println("loading sub seismo MFDs");
 			DiscretizedFunc[] origSubSeisMFDs = MatrixIO.discFuncsFromInputStream(zip.getInputStream(subSeisMFDsEntry));
 			Preconditions.checkState(origSubSeisMFDs.length == rupSet.getNumSections());
