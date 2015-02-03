@@ -65,6 +65,17 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
+		CompoundFaultSystemSolution cfss2 = CompoundFaultSystemSolution.fromZipFile(new File(
+				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
+		FaultSystemSolution sol1 = cfss2.getSolution(cfss2.getBranches().iterator().next());
+		File sol1File = new File("/tmp/sol1.zip");
+		FaultSystemIO.writeSol(sol1, sol1File);
+		FaultSystemSolution sol2 = FaultSystemIO.loadSol(sol1File);
+		System.out.println("# sub seismos: "+sol2.getSubSeismoOnFaultMFD_List().size());
+		System.out.println("Orig first: "+sol1.getSubSeismoOnFaultMFD_List().get(0));
+		System.out.println("New first: "+sol2.getSubSeismoOnFaultMFD_List().get(0));
+		System.exit(0);
 //		RegionUtils.regionToKML(new CaliforniaRegions.LA_BOX(), "la_box", Color.BLACK);
 //		RegionUtils.regionToKML(new CaliforniaRegions.SF_BOX(), "sf_box", Color.BLACK);
 //		System.exit(0);

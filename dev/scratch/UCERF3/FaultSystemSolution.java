@@ -6,53 +6,38 @@ package scratch.UCERF3;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.commons.data.region.CaliforniaRegions;
-import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Region;
-import org.opensha.commons.geo.RegionUtils;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.commons.util.FileUtils;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.faultSurface.CompoundSurface;
-import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
-import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.inversion.InversionInputGenerator;
 import scratch.UCERF3.utils.MFD_InversionConstraint;
-import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.OLD_UCERF3_MFD_ConstraintFetcher.TimeAndRegion;
-import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
+import scratch.UCERF3.utils.UCERF2_MFD_ConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 /**
  * This abstract class is intended to represent an Earthquake Rate Model solution 
@@ -86,13 +71,26 @@ public class FaultSystemSolution implements Serializable {
 	// usually null.
 	private DiscretizedFunc[] rupMFDs;
 	
+	protected List<? extends IncrementalMagFreqDist> subSeismoOnFaultMFDs;
+	
 	/**
 	 * Default constructor, validates inputs
 	 * @param rupSet
 	 * @param rates
 	 */
 	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates) {
-		init(rupSet, rates, null);
+		this(rupSet, rates, null);
+	}
+	
+	/**
+	 * Default constructor, validates inputs
+	 * @param rupSet
+	 * @param rates
+	 * @param subSeismoOnFaultMFDs
+	 */
+	public FaultSystemSolution(FaultSystemRupSet rupSet, double[] rates,
+			List<? extends IncrementalMagFreqDist> subSeismoOnFaultMFDs) {
+		init(rupSet, rates, null, subSeismoOnFaultMFDs);
 	}
 	
 	/**
@@ -115,7 +113,8 @@ public class FaultSystemSolution implements Serializable {
 		
 	}
 	
-	protected void init(FaultSystemRupSet rupSet, double[] rates, String infoString) {
+	protected void init(FaultSystemRupSet rupSet, double[] rates, String infoString,
+			List<? extends IncrementalMagFreqDist> subSeismoOnFaultMFDs) {
 		this.rupSet = rupSet;
 		this.rates = rates;
 		Preconditions.checkArgument(rates.length == rupSet.getNumRuptures(), "# rates and ruptures is inconsistent!");
@@ -123,6 +122,10 @@ public class FaultSystemSolution implements Serializable {
 			this.infoString = rupSet.getInfoString();
 		else
 			this.infoString = infoString;
+		if (subSeismoOnFaultMFDs != null)
+			Preconditions.checkState(subSeismoOnFaultMFDs.size() == rupSet.getNumSections(),
+					"Sub seismo MFD count and sub section count inconsistent");
+		this.subSeismoOnFaultMFDs = subSeismoOnFaultMFDs;
 	}
 	
 	/**
@@ -799,6 +802,19 @@ public class FaultSystemSolution implements Serializable {
 	public void setRupMagDists(DiscretizedFunc[] rupMFDs) {
 		Preconditions.checkArgument(rupMFDs == null || rupMFDs.length == getRupSet().getNumRuptures());
 		this.rupMFDs = rupMFDs;
+	}
+	
+	/**
+	 * This returns the list of final sub-seismo MFDs for each fault section (e.g., for use in an ERF),
+	 * or null if not applicable to this FaultSystemSolution.
+	 * @return
+	 */
+	public List<? extends IncrementalMagFreqDist> getSubSeismoOnFaultMFD_List() {
+		return subSeismoOnFaultMFDs;
+	}
+	
+	public void setSubSeismoOnFaultMFD_List(List<? extends IncrementalMagFreqDist> subSeismoOnFaultMFDs) {
+		this.subSeismoOnFaultMFDs = subSeismoOnFaultMFDs;
 	}
 
 }

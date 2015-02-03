@@ -160,7 +160,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 
 	/**
 	 * Returns the sub-seismogenic MFD associated with a section.
-	 * @param idx node index
+	 * @param idx sub section index
 	 * @return the MFD
 	 */
 	public IncrementalMagFreqDist getSectSubSeisMFD(int idx) {

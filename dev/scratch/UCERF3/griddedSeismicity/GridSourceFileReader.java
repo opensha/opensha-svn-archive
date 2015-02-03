@@ -209,9 +209,9 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 			double[] subY = arrays.get(cnt++); // +2 for X and unassociated
 			
 			if (unY.length > 0)
-				nodeUnassociatedMFDs.put(i, asIncr(new LightFixedXFunc(xVals, unY)));
+				nodeUnassociatedMFDs.put(i, FaultSystemIO.asIncr(new LightFixedXFunc(xVals, unY)));
 			if (subY.length > 0)
-				nodeSubSeisMFDs.put(i, asIncr(new LightFixedXFunc(xVals, subY)));
+				nodeSubSeisMFDs.put(i, FaultSystemIO.asIncr(new LightFixedXFunc(xVals, subY)));
 		}
 		Preconditions.checkState(cnt == arrays.size());
 		
@@ -309,25 +309,7 @@ public class GridSourceFileReader extends AbstractGridSourceProvider implements 
 		EvenlyDiscretizedFunc func =
 				(EvenlyDiscretizedFunc)AbstractDiscretizedFunc.fromXMLMetadata(funcEl);
 		
-		return asIncr(func);
-	}
-	
-	private static IncrementalMagFreqDist asIncr(DiscretizedFunc func) {
-		IncrementalMagFreqDist mfd;
-		if (func instanceof EvenlyDiscretizedFunc) {
-			EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
-			mfd = new IncrementalMagFreqDist(eFunc.getMinX(), eFunc.size(), eFunc.getDelta());
-		} else {
-			mfd = new IncrementalMagFreqDist(func.getMinX(), func.size(), func.getX(1) - func.getX(0));
-		}
-		mfd.setInfo(func.getInfo());
-		mfd.setName(func.getName());
-		mfd.setXAxisName(func.getXAxisName());
-		mfd.setYAxisName(func.getYAxisName());
-		for (int i=0; i<func.size(); i++)
-			mfd.set(i, func.getY(i));
-		
-		return mfd;
+		return FaultSystemIO.asIncr(func);
 	}
 	
 	public static void main(String[] args) throws IOException, DocumentException {

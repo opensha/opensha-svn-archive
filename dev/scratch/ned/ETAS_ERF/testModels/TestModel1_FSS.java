@@ -221,7 +221,7 @@ public class TestModel1_FSS extends InversionFaultSystemSolution {
 		
 		System.out.println("rupSet.getNumRuptures()="+rupSet.getNumRuptures());
 		
-		init(rupSet, rateForRup, null);
+		init(rupSet, rateForRup, null, null);
 	}
 	
 	/**

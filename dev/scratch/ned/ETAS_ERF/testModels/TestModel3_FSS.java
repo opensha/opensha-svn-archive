@@ -178,7 +178,7 @@ public class TestModel3_FSS extends FaultSystemSolution {
 		
 		System.out.println("rupSet.getNumRuptures()="+rupSet.getNumRuptures());
 		
-		init(rupSet, rateForRup, null);
+		init(rupSet, rateForRup, null, null);
 		
 		double[] partRateArray = calcParticRateForAllSects(0d, 10d);
 //		for(int s=0;s<subSectionData.size();s++) {

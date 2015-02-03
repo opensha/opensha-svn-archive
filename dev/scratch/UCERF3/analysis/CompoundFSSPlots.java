@@ -117,6 +117,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -5661,15 +5662,23 @@ public abstract class CompoundFSSPlots implements Serializable {
 			}
 			
 			// first build the rup set
-			InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
-					reference, reference.getLogicTreeBranch(), laughTest,
-					reference.getAveSlipForAllRups(), reference.getCloseSectionsListList(),
-					reference.getRupturesForClusters(), reference.getSectionsForClusters());
-			rupSet.setMagForallRups(mags);
+			
+			// old version that was an IFSS
+//			InversionFaultSystemRupSet rupSet = new InversionFaultSystemRupSet(
+//					reference, reference.getLogicTreeBranch(), laughTest,
+//					reference.getAveSlipForAllRups(), reference.getCloseSectionsListList(),
+//					reference.getRupturesForClusters(), reference.getSectionsForClusters());
+//			rupSet.setMagForallRups(mags);
+			
+			FaultSystemRupSet rupSet = new FaultSystemRupSet(reference.getFaultSectionDataList(),
+					reference.getSlipRateForAllSections(), reference.getSlipRateStdDevForAllSections(),
+					reference.getAreaForAllSections(), reference.getSectionIndicesForAllRups(), mags,
+					reference.getAveRakeForAllRups(), reference.getAreaForAllRups(), reference.getLengthForAllRups(), info);
 			
 			GridSourceProvider gridSources = new GridSourceFileReader(region,
 					plot.nodeSubSeisMFDsMap.get(fm), plot.nodeUnassociatedMFDsMap.get(fm));
-			InversionFaultSystemSolution sol = new InversionFaultSystemSolution(rupSet, rates);
+//			InversionFaultSystemSolution sol = new InversionFaultSystemSolution(rupSet, rates);
+			FaultSystemSolution sol = new FaultSystemSolution(rupSet, rates, plot.subSeisMFDsMap.get(fm));
 			sol.setGridSourceProvider(gridSources);
 			
 			FaultSystemIO.writeSol(sol, outputFile);
@@ -5695,6 +5704,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private Map<FaultModels, double[]> ratesMap = Maps.newConcurrentMap();
 		private Map<FaultModels, double[]> magsMap = Maps.newConcurrentMap();
 		private Map<FaultModels, List<Double>> weightsMap = Maps.newConcurrentMap();
+		
+		private Map<FaultModels, List<IncrementalMagFreqDist>> subSeisMFDsMap = Maps.newConcurrentMap();
 		
 		private Map<FaultModels, HashSet<DeformationModels>> defModelsMap = Maps.newHashMap();
 		
@@ -5751,6 +5762,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				nodeSubSeisMFDs.put(i, gridSources.getNodeSubSeisMFD(i));
 				nodeUnassociatedMFDs.put(i, gridSources.getNodeUnassociatedMFD(i));
 			}
+			List<? extends IncrementalMagFreqDist> subSeisMFDs = sol.getFinalSubSeismoOnFaultMFD_List();
 			
 			synchronized (fm) {
 				List<Double> weightsList = weightsMap.get(fm);
@@ -5766,6 +5778,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 					if (numRups == 229104 || numRups == 249656) {
 						rupSetCache.put(fm, sol.getRupSet());
 					}
+					List<IncrementalMagFreqDist> runningSubSeisMFDs = Lists.newArrayList();
+					IncrementalMagFreqDist tempMFD = subSeisMFDs.get(0);
+					for (int i=0; i<subSeisMFDs.size(); i++)
+						runningSubSeisMFDs.add(new IncrementalMagFreqDist(tempMFD.getMinX(), tempMFD.size(), tempMFD.getDelta()));
+					subSeisMFDsMap.put(fm, runningSubSeisMFDs);
 				}
 				weightsList.add(weight);
 				Map<Integer, IncrementalMagFreqDist> runningNodeSubSeisMFDs = nodeSubSeisMFDsMap.get(fm);
@@ -5775,6 +5792,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 					addWeighted(runningNodeSubSeisMFDs, i, nodeSubSeisMFDs.get(i), weight);
 					addWeighted(runningNodeUnassociatedMFDs, i, nodeUnassociatedMFDs.get(i), weight);
 				}
+				
+				List<IncrementalMagFreqDist> runningSubSeisMFDs = subSeisMFDsMap.get(fm);
+				for (int i=0; i<subSeisMFDs.size(); i++)
+					addWeighted(runningSubSeisMFDs.get(i), subSeisMFDs.get(i), weight);
 				
 				addWeighted(ratesMap.get(fm), sol.getRateForAllRups(), weight);
 				addWeighted(magsMap.get(fm), rupSet.getMagForAllRups(), weight);
@@ -5799,6 +5820,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				Preconditions.checkState((float)runningMFD.getMinX() == (float)newMFD.getMinX(), "MFD min x inconsistent");
 				Preconditions.checkState((float)runningMFD.getDelta() == (float)newMFD.getDelta(), "MFD delta inconsistent");
 			}
+			addWeighted(runningMFD, newMFD, weight);
+		}
+		
+		public static void addWeighted(IncrementalMagFreqDist runningMFD,
+				IncrementalMagFreqDist newMFD, double weight) {
 			for (int i=0; i<runningMFD.size(); i++)
 				runningMFD.add(i, newMFD.getY(i)*weight);
 		}
@@ -5821,6 +5847,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						weightsMap.put(fm, new ArrayList<Double>());
 						nodeSubSeisMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
 						nodeUnassociatedMFDsMap.put(fm, new HashMap<Integer, IncrementalMagFreqDist>());
+						List<IncrementalMagFreqDist> subSeisMFDs = new ArrayList<IncrementalMagFreqDist>();
+						for (IncrementalMagFreqDist oMFD : o.subSeisMFDsMap.get(fm))
+							subSeisMFDs.add(new IncrementalMagFreqDist(oMFD.getMinX(), oMFD.size(), oMFD.getDelta()));
+						subSeisMFDsMap.put(fm, subSeisMFDs);
 						ratesMap.put(fm, new double[o.ratesMap.get(fm).length]);
 						magsMap.put(fm, new double[o.magsMap.get(fm).length]);
 						defModelsMap.put(fm, new HashSet<DeformationModels>());
@@ -5833,6 +5863,10 @@ public abstract class CompoundFSSPlots implements Serializable {
 						// weight is one because these have already been scaled
 						addWeighted(runningNodeSubSeisMFDs, i, nodeSubSeisMFDs.get(i), 1d);
 						addWeighted(runningNodeUnassociatedMFDs, i, nodeUnassociatedMFDs.get(i), 1d);
+					}
+					for (int i=0; i<subSeisMFDsMap.get(fm).size(); i++) {
+						// weight is one because these have already been scaled
+						addWeighted(subSeisMFDsMap.get(fm).get(i), o.subSeisMFDsMap.get(fm).get(i), 1d);
 					}
 					weightsMap.get(fm).addAll(o.weightsMap.get(fm));
 					
@@ -5860,6 +5894,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (IncrementalMagFreqDist mfd : nodeUnassociatedMFDsMap.get(fm).values())
 					mfd.scale(scale);
 				
+				for (IncrementalMagFreqDist mfd : subSeisMFDsMap.get(fm))
+					mfd.scale(scale);
+				
 				double[] rates = ratesMap.get(fm);
 				double[] mags = magsMap.get(fm);
 				
@@ -5869,7 +5906,6 @@ public abstract class CompoundFSSPlots implements Serializable {
 				}
 			}
 		}
-		
 	}
 
 	public static List<DiscretizedFunc> getFractiles(XY_DataSetList data,
@@ -9102,14 +9138,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		if (sols > 0) {
 			// For one FM
-//			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
-//					FaultModels.FM3_1);
+			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
+					FaultModels.FM3_1);
 			
 			// For both FMs
-			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
-			while (!hasBothFMs(fetch))
-				fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
-			System.out.println("Now has "+fetch.getBranches().size()+" branches");
+//			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+//			while (!hasBothFMs(fetch))
+//				fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+//			System.out.println("Now has "+fetch.getBranches().size()+" branches");
 		}
 		
 		// if true, only use instances of the mean fault system solution
@@ -9162,11 +9198,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
-		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
+//		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
 //		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
 //				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
 //		plots.add(new ERFProbModelCalc());
-//		plots.add(new BranchAvgFSSBuilder(weightProvider));
+		plots.add(new BranchAvgFSSBuilder(weightProvider));
 //		plots.add(new TimeDepGriddedParticipationProbPlot(weightProvider));
 //		plots.add(new PaleoSiteCorrelationPlot(weightProvider));
 //		plots.add(new ParentSectMFDsPlot(weightProvider));

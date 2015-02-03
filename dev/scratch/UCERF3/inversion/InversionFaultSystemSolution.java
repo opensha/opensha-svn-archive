@@ -170,7 +170,7 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	
 	protected void init(InversionFaultSystemRupSet rupSet, double[] rates,
 			InversionConfiguration config, Map<String, Double> energies) {
-		super.init(rupSet, rates, rupSet.getInfoString());
+		super.init(rupSet, rates, rupSet.getInfoString(), null);
 		this.rupSet = rupSet;
 		this.branch = rupSet.getLogicTreeBranch();
 		this.invModel = branch.getValue(InversionModels.class);
@@ -695,6 +695,13 @@ public class InversionFaultSystemSolution extends FaultSystemSolution {
 	}
 	
 	
+	@Override
+	public synchronized List<? extends IncrementalMagFreqDist> getSubSeismoOnFaultMFD_List() {
+		if (subSeismoOnFaultMFDs == null)
+			subSeismoOnFaultMFDs = getFinalSubSeismoOnFaultMFD_List();
+		return super.getSubSeismoOnFaultMFD_List();
+	}
+
 	/**
 	 * This returns the list of final supra-seismo nucleation MFDs for each fault section, where
 	 * each comes from the calcNucleationMFD_forSect(*) method of the parent.  

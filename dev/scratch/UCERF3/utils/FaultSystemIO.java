@@ -21,12 +21,14 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.function.AbstractDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -557,6 +559,18 @@ public class FaultSystemIO {
 			sol.setRupMagDists(rupMFDs);
 		}
 		
+		// look for sub seismo MFDs
+		ZipEntry subSeisMFDsEntry = zip.getEntry(getRemappedName("sub_seismo_on_fault_mfds.bin", nameRemappings));
+		if (rupMFDsEntry != null) {
+			if (DD) System.out.println("loading sub seismo MFDs");
+			DiscretizedFunc[] origSubSeisMFDs = MatrixIO.discFuncsFromInputStream(zip.getInputStream(subSeisMFDsEntry));
+			Preconditions.checkState(origSubSeisMFDs.length == rupSet.getNumSections());
+			List<IncrementalMagFreqDist> subSeisMFDs = Lists.newArrayList();
+			for (int i=0; i<origSubSeisMFDs.length; i++)
+				subSeisMFDs.add(asIncr(origSubSeisMFDs[i]));
+			sol.setSubSeismoOnFaultMFD_List(subSeisMFDs);
+		}
+		
 		// finally look for grid sources
 		ZipEntry gridSourcesEntry = zip.getEntry(getRemappedName("grid_sources.xml", nameRemappings));
 		ZipEntry gridSourcesBinEntry = zip.getEntry(getRemappedName("grid_sources.bin", nameRemappings));
@@ -869,6 +883,17 @@ public class FaultSystemIO {
 			zipFileNames.add(mfdFile.getName());
 		}
 		
+		// write sub seismo MFDs if applicable
+		List<? extends IncrementalMagFreqDist> subSeisMFDs = sol.getSubSeismoOnFaultMFD_List();
+		if (subSeisMFDs != null) {
+			File mfdFile = new File(tempDir, getRemappedName("sub_seismo_on_fault_mfds.bin", nameRemappings));
+			DiscretizedFunc[] subSeisMFDsArray = new DiscretizedFunc[subSeisMFDs.size()];
+			for (int i=0; i<subSeisMFDs.size(); i++)
+				subSeisMFDsArray[i] = subSeisMFDs.get(i);
+			MatrixIO.discFuncsToFile(subSeisMFDsArray, mfdFile);
+			zipFileNames.add(mfdFile.getName());
+		}
+		
 		// overwrite info string
 		String info = sol.getInfoString();
 		if (info != null && !info.isEmpty()) {
@@ -969,6 +994,26 @@ public class FaultSystemIO {
 		while (str.length() < digits)
 			str = "0"+str;
 		return str;
+	}
+
+	public static IncrementalMagFreqDist asIncr(DiscretizedFunc func) {
+		IncrementalMagFreqDist mfd;
+		if (func instanceof EvenlyDiscretizedFunc) {
+			EvenlyDiscretizedFunc eFunc = (EvenlyDiscretizedFunc)func;
+			mfd = new IncrementalMagFreqDist(eFunc.getMinX(), eFunc.size(), eFunc.getDelta());
+		} else {
+			mfd = new IncrementalMagFreqDist(func.getMinX(), func.size(), func.getX(1) - func.getX(0));
+		}
+		mfd.setInfo(func.getInfo());
+		mfd.setName(func.getName());
+		mfd.setXAxisName(func.getXAxisName());
+		mfd.setYAxisName(func.getYAxisName());
+		for (int i=0; i<func.size(); i++) {
+			mfd.set(i, func.getY(i));
+			Preconditions.checkState((float)mfd.getX(i) == (float)func.getX(i));
+		}
+		
+		return mfd;
 	}
 
 }

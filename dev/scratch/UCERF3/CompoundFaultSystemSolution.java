@@ -212,6 +212,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 	 * grid_sources_reg.xml			NONE // new binary format
 	 * grid_sources.bin				ALL // new binary format
 	 * rup_mfds.bin					ALL
+	 * sub_seismo_on_fault_mfds.bin	ALL
 	 * 
 	 * null entry in map means ALL!
 	 */
@@ -246,6 +247,7 @@ public class CompoundFaultSystemSolution extends FaultSystemSolutionFetcher {
 		dependencyMap.put("grid_sources_reg.xml", buildList());
 		dependencyMap.put("grid_sources.bin", null);
 		dependencyMap.put("rup_mfds.bin", null);
+		dependencyMap.put("sub_seismo_on_fault_mfds.bin", null);
 	}
 	
 	private static List<Class<? extends LogicTreeBranchNode<?>>> buildList(
