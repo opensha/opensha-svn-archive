@@ -1394,6 +1394,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		boolean doContour = map.getGriddedData() != null && map.getContourIncrement() > 0;
 		boolean contourOnly = doContour && map.isContourOnly();
+		String grdFileForContour = grdFileName;
 		
 		int dpi = map.getDpi();
 		if (griddedData == null) {
@@ -1402,7 +1403,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add(commandLine+"\n");
 		} else {
 			if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()
-					&& (!map.isUseGMTSmoothing() || map.getTopoResolution() == null)) {
+					&& (!map.isUseGMTSmoothing() || map.getTopoResolution() == null || contourOnly)) {
 				String maskName = "mask.xy";
 				String maskGRD = "mask.grd";
 				rmFiles.add(maskGRD);
@@ -1474,6 +1475,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 					gmtCommandLines.add("mv "+hiResFile+" "+unmaskedGRD);
 					gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+hiResFile+"\n");
 				}
+				grdFileForContour = hiResFile;
 				
 				String intenFile = tempFilePrefix+"Inten.grd";
 				gmtCommandLines.add("# Cut the topo file to match the data region");
@@ -1493,9 +1495,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 //			if (contourOnly)
 //				onlyAdd =
 			if (contourOnly)
-				commandLine="${GMT_PATH}grdcontour "+grdFileName+xOff+yOff+projWdth+" -K "+region+contourPenIncStr+ " > " + psFileName;
+				commandLine="${GMT_PATH}grdcontour "+grdFileForContour+xOff+yOff+projWdth
+					+" -K "+region+contourPenIncStr+ " > " + psFileName;
 			else
-				commandLine="${GMT_PATH}grdcontour "+grdFileName+projWdth+" -O -K "+region+contourPenIncStr+ " >> " + psFileName;
+				commandLine="${GMT_PATH}grdcontour "+grdFileForContour+projWdth
+					+" -O -K "+region+contourPenIncStr+ " >> " + psFileName;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
