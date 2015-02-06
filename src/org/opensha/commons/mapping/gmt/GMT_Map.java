@@ -112,6 +112,10 @@ public class GMT_Map implements Serializable {
 	
 	private boolean maskIfNotRectangular = false;
 	
+	// if non zero, will draw contour lines
+	private double contourIncrement = 0d;
+	private boolean contourOnly = false;
+	
 	public GMT_Map(Region region, GeoDataSet griddedData,
 			double griddedDataInc, String cptFile) {
 		this.region = region;
@@ -411,6 +415,22 @@ public class GMT_Map implements Serializable {
 
 	public void setMaskIfNotRectangular(boolean maskIfNotRectangular) {
 		this.maskIfNotRectangular = maskIfNotRectangular;
+	}
+
+	public double getContourIncrement() {
+		return contourIncrement;
+	}
+
+	public void setContourIncrement(double contourIncrement) {
+		this.contourIncrement = contourIncrement;
+	}
+
+	public boolean isContourOnly() {
+		return contourOnly;
+	}
+
+	public void setContourOnly(boolean contourOnly) {
+		this.contourOnly = contourOnly;
 	}
 
 }

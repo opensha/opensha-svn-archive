@@ -1392,6 +1392,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
 		
+		boolean doContour = map.getGriddedData() != null && map.getContourIncrement() > 0;
+		boolean contourOnly = doContour && map.isContourOnly();
+		
 		int dpi = map.getDpi();
 		if (griddedData == null) {
 			// we have to initialize it ourselves - this doesn't actually plot anything
@@ -1420,16 +1423,20 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			
 			if (!map.isUseGMTSmoothing()) {
-				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+"-Ts -K"+dpi+ region + " > " + psFileName;
-				gmtCommandLines.add(commandLine+"\n");
+				if (!contourOnly) {
+					commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+"-Ts -K"+dpi+ region + " > " + psFileName;
+					gmtCommandLines.add(commandLine+"\n");
+				}
 			}
 			// generate the image depending on whether topo relief is desired
 			else if (map.getTopoResolution() == null) {
-				gmtCommandLines.add("# Plot the gridded data");
-				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+" -K -E"+dpi+ region + " > " + psFileName;
-				gmtCommandLines.add(commandLine+"\n");
+				if (!contourOnly) {
+					gmtCommandLines.add("# Plot the gridded data");
+					commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+" -K -E"+dpi+ region + " > " + psFileName;
+					gmtCommandLines.add(commandLine+"\n");
+				}
 			}
-			else {
+			else if (!contourOnly) {
 				// redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
 				TopographicSlopeFile topoFile = map.getTopoResolution();
 				gridSpacing = GeoTools.secondsToDeg(map.getTopoResolution().resolution());
@@ -1478,6 +1485,18 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				" -I"+tempFilePrefix+"Inten.grd -C"+cptFile+" "+ "-K -E"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine);
 			}
+		}
+		
+		if (doContour) {
+			gmtCommandLines.add("# Plot contours");
+			String contourPenIncStr = " -W1p -A"+(float)map.getContourIncrement();
+//			if (contourOnly)
+//				onlyAdd =
+			if (contourOnly)
+				commandLine="${GMT_PATH}grdcontour "+grdFileName+xOff+yOff+projWdth+" -K "+region+contourPenIncStr+ " > " + psFileName;
+			else
+				commandLine="${GMT_PATH}grdcontour "+grdFileName+projWdth+" -O -K "+region+contourPenIncStr+ " >> " + psFileName;
+			gmtCommandLines.add(commandLine+"\n");
 		}
 		
 		gmtCommandLines.add("");
