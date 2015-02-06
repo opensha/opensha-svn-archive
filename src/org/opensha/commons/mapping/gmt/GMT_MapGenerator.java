@@ -1398,10 +1398,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			commandLine="echo 1000 1000 | ${GMT_PATH}psxy "+region+ xOff + yOff + projWdth+" -K > " + psFileName;
 			gmtCommandLines.add(commandLine+"\n");
 		} else {
-			String maskGRD = null;
-			if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {
+			if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()
+					&& (!map.isUseGMTSmoothing() || map.getTopoResolution() == null)) {
 				String maskName = "mask.xy";
-				maskGRD = "mask.grd";
+				String maskGRD = "mask.grd";
 				rmFiles.add(maskGRD);
 				try {
 					writeMaskFile(map.getRegion(), dir+maskName);
@@ -1447,6 +1447,27 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
 				topoFile.resolution() + "c -Q "+region;
 				gmtCommandLines.add(commandLine);
+				
+				if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {
+					String maskName = "mask.xy";
+					String maskGRD = "mask.grd";
+					rmFiles.add(maskGRD);
+					try {
+						writeMaskFile(map.getRegion(), dir+maskName);
+					} catch (IOException e) {
+						throw new GMT_MapException("Couldn't write mask file!", e);
+					}
+					String spacing = topoFile.resolution() + "c";
+					gmtCommandLines.add("# create mask");
+					commandLine = "${GMT_PATH}grdmask "+maskName+region+" -I"+spacing+" -NNaN/1/1 -G"+maskGRD;
+					gmtCommandLines.add(commandLine+"\n");
+					
+					String unmaskedGRD = "unmasked_"+hiResFile;
+					rmFiles.add(unmaskedGRD);
+					gmtCommandLines.add("mv "+hiResFile+" "+unmaskedGRD);
+					gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+hiResFile+"\n");
+				}
+				
 				String intenFile = tempFilePrefix+"Inten.grd";
 				gmtCommandLines.add("# Cut the topo file to match the data region");
 				commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
