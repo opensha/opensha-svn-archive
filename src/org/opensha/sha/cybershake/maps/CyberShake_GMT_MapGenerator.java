@@ -405,7 +405,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			maskGRD = "mask.grd";
 			rmFiles.add(maskGRD);
 			try {
-				writeMaskFile(map.getRegion(), dir+maskName);
+				GMT_MapGenerator.writeMaskFile(map.getRegion(), dir+maskName);
 			} catch (IOException e) {
 				throw new GMT_MapException("Couldn't write mask file!", e);
 			}
@@ -573,20 +573,6 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		System.out.println("DONE generating map script for dir: " + dir);
 		
 		return gmtCommandLines;
-	}
-	
-	private static void writeMaskFile(Region region, String fileName) throws IOException {
-		FileWriter fw = new FileWriter(fileName);
-		
-		Location first = null;
-		for (Location loc : region.getBorder()) {
-			if (first == null)
-				first = loc;
-			fw.write(loc.getLongitude() + " " + loc.getLatitude() + "\n");
-		}
-		fw.write(first.getLongitude() + " " + first.getLatitude() + "\n");
-		
-		fw.close();
 	}
 
 }

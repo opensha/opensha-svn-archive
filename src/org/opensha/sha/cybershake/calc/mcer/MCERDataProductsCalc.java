@@ -367,6 +367,73 @@ public class MCERDataProductsCalc {
 		return ret;
 	}
 	
+	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double vs30, double tl) {
+		// convert vs30 from m/s to ft/s
+		vs30 *= 3.2808399;
+		double fa, fv;
+		if (vs30 > 5000) {
+			// site class A
+			fa = 0.8;
+			fv = 0.8;
+		} else if (vs30 > 2500) {
+			// site class B
+			fa = 1.0;
+			fv = 1.0;
+		} else if (vs30 > 1200) {
+			// site class C
+			fa = 1.0;
+			fv = 1.3;
+		} else if (vs30 > 600) {
+			// site class D
+			fa = 1.0;
+			fv = 1.5;
+		} else {
+			// site class E
+			fa = 0.9;
+			fv = 2.4;
+		}
+		
+		return calcASCE_DetLowerLimit(xValsFunc, fv, fa, tl);
+	}
+	
+	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double fv, double fa, double tl) {
+		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+		
+		double firstRatioXVal = 0.08*fv/fa;
+		double secondRatioXVal = 0.4*fv/fa;
+		
+		List<Double> xVals = Lists.newArrayList();
+		for (Point2D pt : xValsFunc)
+			xVals.add(pt.getX());
+		// make sure that the discontinuities in the function are included for plotting purposes
+		if (isWithinDomain(xValsFunc, tl) && !xValsFunc.hasX(tl))
+			xVals.add(tl);
+		if (isWithinDomain(xValsFunc, firstRatioXVal) && !xValsFunc.hasX(firstRatioXVal))
+			xVals.add(firstRatioXVal);
+		if (isWithinDomain(xValsFunc, secondRatioXVal) && !xValsFunc.hasX(secondRatioXVal))
+			xVals.add(secondRatioXVal);
+		
+		for (double t : xVals) {
+			double sa;
+			if (t >= tl)
+				sa = 0.6*fv*tl/(t*t);
+			else if (t >= secondRatioXVal)
+				sa = 0.6*fv/t;
+			else if (t >= firstRatioXVal)
+				sa = 1.5*fa;
+			else
+				// linear interpolation from (0, 0.6*fa) to (0.08*fv/fa, 1.5*fa)
+				sa = (1.5*fa - 0.6*fa)*t/firstRatioXVal + 0.6*fa;
+			ret.set(t, sa);
+		}
+		
+		return ret;
+	}
+	
+	private static boolean isWithinDomain(DiscretizedFunc func, double x) {
+		return x >= func.getMinX() && x <= func.getMaxX();
+	}
+	
 	private static DiscretizedFunc maximum(List<DiscretizedFunc> funcs) {
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		
@@ -583,9 +650,11 @@ public class MCERDataProductsCalc {
 
 	public static void main(String[] args) throws DocumentException, InvocationTargetException, IOException {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
-			String argStr = "--run-id 2657,3037,2722,3022,3030,3027,2636,2638,2660,2703,3504,2988,2965,3007";
+//			String argStr = "--run-id 2657,3037,2722,3022,3030,3027,2636,2638,2660,2703,3504,2988,2965,3007";
+			String argStr = "--run-id 2657";
 			argStr += " --component RotD100";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
+			argStr += " --output-dir /tmp/mcer_data_products";
 			argStr += " --erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF.xml";
 			argStr += " --atten-rel-file src/org/opensha/sha/cybershake/conf/ask2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"

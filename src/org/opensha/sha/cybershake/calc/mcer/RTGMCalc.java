@@ -631,7 +631,7 @@ public class RTGMCalc {
 				"Curve not monotonically decreasing: "+xValStr);
 	}
 	
-	static double calcRTGM(DiscretizedFunc curve) {
+	public static double calcRTGM(DiscretizedFunc curve) {
 		// convert from annual probability to annual frequency
 		curve = gmpeCalc.getAnnualizedRates(curve, 1d);
 		RTGM calc = RTGM.create(curve, null, null);

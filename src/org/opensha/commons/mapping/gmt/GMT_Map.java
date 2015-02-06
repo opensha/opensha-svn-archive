@@ -31,6 +31,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.cybershake.maps.GMT_InterpolationSettings;
 
 public class GMT_Map implements Serializable {
 	
@@ -105,6 +106,11 @@ public class GMT_Map implements Serializable {
 	private PSXYSymbolSet xySymbolSet = null;
 	
 	private boolean generateKML = false;
+	
+	// scatter support
+	private GMT_InterpolationSettings interpSettings;
+	
+	private boolean maskIfNotRectangular = false;
 	
 	public GMT_Map(Region region, GeoDataSet griddedData,
 			double griddedDataInc, String cptFile) {
@@ -385,6 +391,26 @@ public class GMT_Map implements Serializable {
 
 	public void setGenerateKML(boolean generateKML) {
 		this.generateKML = generateKML;
+	}
+	
+	public GMT_InterpolationSettings getInterpSettings() {
+		return interpSettings;
+	}
+
+	/**
+	 * If non null, dataset is considered to be scattered and will be interpolated with the given settings
+	 * @param interpSettings
+	 */
+	public void setInterpSettings(GMT_InterpolationSettings interpSettings) {
+		this.interpSettings = interpSettings;
+	}
+
+	public boolean isMaskIfNotRectangular() {
+		return maskIfNotRectangular;
+	}
+
+	public void setMaskIfNotRectangular(boolean maskIfNotRectangular) {
+		this.maskIfNotRectangular = maskIfNotRectangular;
 	}
 
 }

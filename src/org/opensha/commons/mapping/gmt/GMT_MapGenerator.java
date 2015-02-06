@@ -62,6 +62,7 @@ import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.cybershake.maps.GMT_InterpolationSettings;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -1337,10 +1338,21 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			} catch (IOException e) {
 				throw new GMT_MapException("Could not write XYZ data to a file", e);
 			}
-			gmtCommandLines.add("# convert xyz file to grd file");
-			commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
-							region +" -D/degree/degree/amp/=/=/=  -: -H0";
-			gmtCommandLines.add(commandLine);
+			if (map.getInterpSettings() == null) {
+				// simple gridded data
+				gmtCommandLines.add("# convert xyz file to grd file");
+				commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
+								region +" -D/degree/degree/amp/=/=/=  -: -H0";
+				gmtCommandLines.add(commandLine);
+			} else {
+				// scatter data that must be interpolated
+				GMT_InterpolationSettings interpSettings = map.getInterpSettings();
+				gmtCommandLines.add("# do GMT interpolation on the scatter data");
+				commandLine = "${GMT_PATH}surface "+ map.getXyzFileName() +" -G"+ grdFileName+ " -I"+gridSpacing+
+								region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
+								+" "+interpSettings.getTensionArg()+" -: -H0";
+				gmtCommandLines.add(commandLine);
+			}
 		}
 		
 		// get color scale limits
@@ -1386,6 +1398,27 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			commandLine="echo 1000 1000 | ${GMT_PATH}psxy "+region+ xOff + yOff + projWdth+" -K > " + psFileName;
 			gmtCommandLines.add(commandLine+"\n");
 		} else {
+			String maskGRD = null;
+			if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {
+				String maskName = "mask.xy";
+				maskGRD = "mask.grd";
+				rmFiles.add(maskGRD);
+				try {
+					writeMaskFile(map.getRegion(), dir+maskName);
+				} catch (IOException e) {
+					throw new GMT_MapException("Couldn't write mask file!", e);
+				}
+				String spacing = gridSpacing + "";
+				gmtCommandLines.add("# create mask");
+				commandLine = "${GMT_PATH}grdmask "+maskName+region+" -I"+spacing+" -NNaN/1/1 -G"+maskGRD;
+				gmtCommandLines.add(commandLine+"\n");
+				
+				String unmaskedGRD = "unmasked_"+grdFileName;
+				rmFiles.add(unmaskedGRD);
+				gmtCommandLines.add("mv "+grdFileName+" "+unmaskedGRD);
+				gmtCommandLines.add("${GMT_PATH}grdmath "+unmaskedGRD+" "+maskGRD+" MUL = "+grdFileName+"\n");
+			}
+			
 			if (!map.isUseGMTSmoothing()) {
 				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + projWdth + " -C"+cptFile+" "+"-Ts -K"+dpi+ region + " > " + psFileName;
 				gmtCommandLines.add(commandLine+"\n");
@@ -1550,6 +1583,20 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 
 		return gmtCommandLines;
+	}
+	
+	public static void writeMaskFile(Region region, String fileName) throws IOException {
+		FileWriter fw = new FileWriter(fileName);
+		
+		Location first = null;
+		for (Location loc : region.getBorder()) {
+			if (first == null)
+				first = loc;
+			fw.write(loc.getLongitude() + " " + loc.getLatitude() + "\n");
+		}
+		fw.write(first.getLongitude() + " " + first.getLatitude() + "\n");
+		
+		fw.close();
 	}
 	
 	public static void addCleanup(ArrayList<String> gmtCommandLines, ArrayList<String> rmFiles) {

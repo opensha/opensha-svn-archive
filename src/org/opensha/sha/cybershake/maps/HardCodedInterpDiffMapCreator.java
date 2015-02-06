@@ -57,7 +57,7 @@ public class HardCodedInterpDiffMapCreator {
 		return getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
 	}
 	
-	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, List<Integer> datasetIDs, int imTypeID) {
+	protected static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, List<Integer> datasetIDs, int imTypeID) {
 		Preconditions.checkArgument(!datasetIDs.isEmpty(), "Must supply at least one dataset ID");
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);

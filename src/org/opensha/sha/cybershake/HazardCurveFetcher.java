@@ -31,6 +31,7 @@ import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
+import org.opensha.sha.cybershake.calc.mcer.RTGMCalc;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -97,7 +98,11 @@ public class HazardCurveFetcher {
 	public ArrayList<Double> getSiteValues(boolean isProbAt_IML, double val) {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		for (DiscretizedFunc func : funcs) {
-			vals.add(HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val));
+			if (val < 0)
+				// RTGM
+				vals.add(RTGMCalc.calcRTGM(func));
+			else
+				vals.add(HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val));
 		}
 		return vals;
 	}
