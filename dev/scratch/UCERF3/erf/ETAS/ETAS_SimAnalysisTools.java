@@ -935,13 +935,13 @@ public class ETAS_SimAnalysisTools {
 	 * plus supra mfd (element 2) and cumulative supra mfd (element 3)
 	 * 
 	 * @param rupInfo - Info String
-	 * @param pdf_FileName - plots are saved if this is non null
+	 * @param pdf_FileNamePrefix - plots are saved if this is non null
 	 * @param List<SummedMagFreqDist> mfdList
 	 * @param rupture
 	 * @param expNum - expected number of primary aftershocks
 	 * @return
 	 */
-	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileName,  List<SummedMagFreqDist> mfdList, 
+	public static List<EvenlyDiscretizedFunc> plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileNamePrefix,  List<SummedMagFreqDist> mfdList, 
 			EqkRupture rupture, double expNum) {
 		SummedMagFreqDist mfd = mfdList.get(0);
 		SummedMagFreqDist mfdSupra = mfdList.get(1);
@@ -949,7 +949,7 @@ public class ETAS_SimAnalysisTools {
 		// convert MFD to expected num distribution
 		mfd.scale(expNum/(totRate));
 		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);
-		mfd.setInfo("Data:\n"+mfd.getMetadataString());
+		mfd.setInfo("expNum="+expNum+"Data:\n"+mfd.getMetadataString());
 		mfdSupra.scale(expNum/(totRate));
 		mfdSupra.setName("Expected MFD for supra seis primary aftershocks of "+rupInfo);
 		mfdSupra.setInfo("Data:\n"+mfdSupra.getMetadataString());
@@ -1021,12 +1021,12 @@ public class ETAS_SimAnalysisTools {
 		expSecGraph.setTickLabelFontSize(18);			
 
 		
-		if(pdf_FileName != null) {
+		if(pdf_FileNamePrefix != null) {
 			try {
-				magProbDistsGraph.saveAsPDF(pdf_FileName+"_Incr.pdf");
-				expSecGraph.saveAsPDF(pdf_FileName+"_ExpRelSecAft.pdf");
+				magProbDistsGraph.saveAsPDF(pdf_FileNamePrefix+"_Incr.pdf");
+				expSecGraph.saveAsPDF(pdf_FileNamePrefix+"_ExpRelSecAft.pdf");
 				if(!Double.isNaN(expNum))
-					cumDistsGraph.saveAsPDF(pdf_FileName+"_Cum.pdf");
+					cumDistsGraph.saveAsPDF(pdf_FileNamePrefix+"_Cum.pdf");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1592,7 +1592,8 @@ public class ETAS_SimAnalysisTools {
 		// sanity checks
 		double prevProb = Double.POSITIVE_INFINITY;
 		for (ProbPairing pairing : pairings) {
-			Preconditions.checkState(prevProb >= pairing.value, "pairing list isn't sorted?");
+			Preconditions.checkState(prevProb >= pairing.value, "pairing list isn't sorted?  prevProb="+
+		prevProb+",  pairing.value="+pairing.value);
 			prevProb = pairing.value;
 		}
 

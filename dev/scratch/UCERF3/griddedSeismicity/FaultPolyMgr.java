@@ -71,6 +71,8 @@ public class FaultPolyMgr implements Iterable<Area> {
 	/**
 	 * Returns a map of nodes (indices of nodes intersected by faults) to the
 	 * fraction of each node that intersects faults.
+	 * 
+	 * In other words, the fraction of each node that is covered by one or more fault polygons.
 	 * @return the node extent map
 	 */
 	public Map<Integer, Double> getNodeExtents() {
@@ -78,21 +80,28 @@ public class FaultPolyMgr implements Iterable<Area> {
 	}
 	
 	/**
-	 * Returns the fraction of the node at idx that participates in fault
+	 * Returns the fraction of the node at nodeIdx that participates in fault
 	 * section related seismicity (i.e. the percent of cell represented by a 
 	 * node that is spanned by fault-section polygons).
-	 * @param idx
-	 * @return the fraction of the node area at {@code idx} occupied by faults
+	 * 
+	 * In other words, the fraction of the node that is covered by one or more fault polygons.
+	 * 
+	 * @param nodeIdx
+	 * @return the fraction of the node area at {@code nodeIdx} occupied by faults
 	 */
-	public double getNodeFraction(int idx) {
-		Double fraction = nodeExtents.get(idx);
+	public double getNodeFraction(int nodeIdx) {
+		Double fraction = nodeExtents.get(nodeIdx);
 		return (fraction == null) ? 0.0 : fraction;
 	}
 	
 	/**
 	 * Returns a map of the indices of nodes that intersect the fault-section at
-	 * {@code idx} where the values are the (weighted) fraction of the area of
+	 * {@code sectIdx} where the values are the (weighted) fraction of the area of
 	 * the node occupied by the fault-section.
+	 * 
+	 * In other words, this returns a list of nodes and the faction of that node assigned 
+	 * to the fault polygon (where each fraction is reduced by extent to which each node
+	 * is also covered by other fault polygons).
 	 * 
 	 * <p>Use this method when distributing some property of a node across the fault
 	 * sections it intersects.</p>
@@ -100,14 +109,17 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * @param idx fault-section index
 	 * @return a map of fault-section participation in nodes
 	 */
-	public Map<Integer, Double> getScaledNodeFractions(int idx) {
-		return sectInNodePartic.row(idx);
+	public Map<Integer, Double> getScaledNodeFractions(int sectIdx) {
+		return sectInNodePartic.row(sectIdx);
 	}
 	
 	/**
 	 * Returns a map of the indices of nodes that intersect the fault-section at
-	 * {@code idx} where the values are the fraction of the area of the
+	 * {@code sectIdx} where the values are the fraction of the area of the
 	 * fault-section occupied by each node. The values in the map sum to 1.
+	 * 
+	 * In other words, the fraction of the fault polygon occupied by each node,
+	 * where fractions sum to 1.0. 
 	 * 
 	 * <p>Use this method when distributing some property of a fault section across
 	 * the nodes it intersects.</p>
@@ -115,17 +127,17 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * @param idx section index
 	 * @return a map of node participation in a fault-section
 	 */
-	public Map<Integer, Double> getNodeFractions(int idx) {
-		return nodeInSectPartic.row(idx);
+	public Map<Integer, Double> getNodeFractions(int sectIdx) {
+		return nodeInSectPartic.row(sectIdx);
 	}
 	
 	/**
-	 * Returns the polygon{@code Region} for the fault section at {@code idx}.
+	 * Returns the polygon{@code Region} for the fault section at {@code sectIdx}.
 	 * @param idx section to get polygon for
 	 * @return the section's polygon
 	 */
-	public Region getPoly(int idx) {
-		Area a = polys.get(idx);
+	public Region getPoly(int sectIdx) {
+		Area a = polys.get(sectIdx);
 		if (a == null) return null;
 		LocationList locs = SectionPolygons.areaToLocLists(a).get(0);
 		return new Region(locs, null);

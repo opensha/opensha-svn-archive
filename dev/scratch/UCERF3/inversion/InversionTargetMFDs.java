@@ -100,7 +100,7 @@ public class InversionTargetMFDs {
 	final static boolean D = false;
 	final static boolean GR_OFF_FAULT_IS_TAPERED = true;
 	String debugString;
-
+	
 	InversionFaultSystemRupSet invRupSet;
 	double totalRegionRateMgt5, onFaultRegionRateMgt5, offFaultRegionRateMgt5;
 	double mMaxOffFault;
@@ -131,6 +131,8 @@ public class InversionTargetMFDs {
 	public final static double MAX_MAG = 8.95;
 	public final static int NUM_MAG = 90;
 	public final static double DELTA_MAG = 0.1;
+	
+	public final static double FAULT_BUFFER = 12d;	// buffer for fault polygons
 
 
 	/**
@@ -168,7 +170,7 @@ public class InversionTargetMFDs {
 		
 		List<FaultSectionPrefData> faultSectionData =  invRupSet.getFaultSectionDataList();
 		
-		gridSeisUtils = new GriddedSeisUtils(faultSectionData, spatialSeisPDFforOnFaultRates, 12.0);
+		gridSeisUtils = new GriddedSeisUtils(faultSectionData, spatialSeisPDFforOnFaultRates, FAULT_BUFFER);
 		
 		GriddedRegion noCalGrid = RELM_RegionUtils.getNoCalGriddedRegionInstance();
 		GriddedRegion soCalGrid = RELM_RegionUtils.getSoCalGriddedRegionInstance();

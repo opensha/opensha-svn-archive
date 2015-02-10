@@ -168,6 +168,22 @@ public class CalcProgressBar extends JDialog {
 	}
 
 	/**
+	 * Updates the dialog progress and info message using the supplied
+	 * <code>count</code> and <code>total</code> values.
+	 * @param count
+	 * @param total
+	 */
+	public void updateProgress(long count, long total) {
+		if (total != 0) {
+			int value = (int)((count * 100) / total);
+			StringBuilder sb = new StringBuilder();
+			sb.append(count).append(" of ").append(total).append(" Complete");
+			info.setText(sb.toString());
+			progress.setValue(value);
+		}
+	}
+
+	/**
 	 * Shows or hides the dialog.
 	 * @param show
 	 */

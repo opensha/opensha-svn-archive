@@ -421,9 +421,11 @@ public class ETAS_Simulator {
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), scenarioRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 			
+			info_fr.write("\nMagnitude of Scenario: "+(float)scenarioRup.getMag()+"\n");
 			info_fr.write("\nExpected number of primary events for Scenario: "+expNum+"\n");
 			info_fr.write("\nObserved number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
-			System.out.println("\nExpected number of primary events for Scenario: "+expNum);
+			System.out.println("\nMagnitude of Scenario: "+(float)scenarioRup.getMag());
+			System.out.println("Expected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 			
 			expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
@@ -637,14 +639,14 @@ public class ETAS_Simulator {
 					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 					
-					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trig#"+(nthFaultSysRupAftershocks.size()-1);
+					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
 					
 					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
 //					info_fr.write("\nObserved number of primary events for "+rupInfo+": "+?????+"\n");
 					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
 //					System.out.println("Observed number of primary events for Scenario: "+?????+"\n");
 
-					expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir,info_fr);
+					etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
 
 //					String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
 //					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rup), rup, expNum);
@@ -870,10 +872,6 @@ public class ETAS_Simulator {
 //		tempList2.add(testMFD2);
 //		tempList2.add(testMFD);
 //		GraphWindow graph2 = new GraphWindow(tempList2, "Test MFDs"); 
-
-		ProbEqkSource src = erf.getSource(erf.getNumSources()-100);
-		System.out.println(src.getName()+" HERE:\n"+ERF_Calculator.getTotalMFD_ForSource(src, erf.getTimeSpan().getDuration(), 2.05, 8.95, 70, true).toString());
-		System.exit(-1);
 
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
@@ -1130,7 +1128,7 @@ public class ETAS_Simulator {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
 //		params.set_d_MinDist(2.0);
-		params.setImposeGR(true);
+//		params.setImposeGR(true);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
@@ -1144,7 +1142,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_21", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_25", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

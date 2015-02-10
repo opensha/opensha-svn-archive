@@ -727,7 +727,7 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static SummedMagFreqDist[] calcTimeIndNucleationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
 		double[] longTermRatesArray = erf.getLongTermRateOfFltSysRupInERF();
-		InversionFaultSystemRupSet rupSet = ((InversionFaultSystemSolution)erf.getSolution()).getRupSet();
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
 		
 		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
 		for(int i=0;i<mfdArray.length;i++) {
@@ -4992,7 +4992,7 @@ public class FaultSysSolutionERF_Calc {
 		mfd1.setName("Total Subseis MFD from grid source provider");
 		
 		SummedMagFreqDist mfd2 = new SummedMagFreqDist(2.05,8.95,70);
-		for(GutenbergRichterMagFreqDist mfd: ((InversionFaultSystemSolution)erf.getSolution()).getFinalSubSeismoOnFaultMFD_List()) {
+		for(IncrementalMagFreqDist mfd: erf.getSolution().getSubSeismoOnFaultMFD_List()) {
 			mfd2.addIncrementalMagFreqDist(mfd);
 		}
 		mfd1.setName("Total Subseis MFD from InversionFaultSystemSolution");
