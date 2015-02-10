@@ -1332,9 +1332,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<CSVFile<String>> csvs = plot.subSectsCSVs.get(duration, fm);
 				String csvPrefix = fm.encodeChoiceString()+"_"+durStr+"_sub_sect_probs";
 				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_mean.csv"));
-				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_min.csv"));
-				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_max.csv"));
-				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_poisson_mean.csv"));
+				csvs.get(1).writeToFile(new File(durDir, csvPrefix+"_u3_td_min.csv"));
+				csvs.get(2).writeToFile(new File(durDir, csvPrefix+"_u3_td_max.csv"));
+				csvs.get(3).writeToFile(new File(durDir, csvPrefix+"_u3_poisson_mean.csv"));
 			}
 		}
 		
@@ -5626,13 +5626,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 			LogicTreeBranch runningBranch = plot.runningBranches.get(fm);
 			for (int i=0; i<runningBranch.size(); i++) {
 				LogicTreeBranchNode<?> val = runningBranch.getValue(i);
-				if (val != null && val.getRelativeWeight(runningBranch.getValue(InversionModels.class)) < 1d)
-					myPrefix += "_"+val.encodeChoiceString();
+				if (val != null && val.getRelativeWeight(runningBranch.getValue(InversionModels.class)) < 1d) {
+					if (!myPrefix.isEmpty())
+						myPrefix += "_";
+					myPrefix += val.encodeChoiceString();
+				}
 			}
 //			if (multiFM)
 //				myPrefix += "_"+fm.getShortName();
-			if (plot.solIndex >= 0)
-				myPrefix += "_run"+plot.solIndex;
+			if (plot.solIndex >= 0) {
+				if (!myPrefix.isEmpty())
+					myPrefix += "_";
+				myPrefix += "run"+plot.solIndex;
+			}
 			File outputFile = new File(dir, myPrefix+"_MEAN_BRANCH_AVG_SOL.zip");
 			
 			double[] rates = plot.ratesMap.get(fm);
