@@ -5011,7 +5011,166 @@ public class FaultSysSolutionERF_Calc {
 
 	}
 
-
+	private static void makeFactSheetKML(CSVFile<String> timeDepMeanCSV, CSVFile<String> timeDepMinCSV,
+			CSVFile<String> timeDepMaxCSV, CSVFile<String> timeIndepCSV, CSVFile<String> parentMeanCSV,
+			List<FaultSectionPrefData> subSects, File outputFile) throws IOException {
+		// use floats for prettier printing
+		float colorMag = 6.7f;
+		int colorMagColumn = 18;
+		double duration = 30;
+		
+		float[] tableMags = { 6.7f, 7f, 7.5f, 8f };
+		int[] tableColumns = { 18, 21, 26, 31 };
+		
+		String[] columnHeaders = { "Min Mag", "Mean Prob", "Min Prob<sup>1</sup>", "Max Prob<sup>1</sup>",
+				"Gain<sup>2</sup>", "U3/U2<sup>3</sup>" };
+		
+		Preconditions.checkState(colorMag == Float.parseFloat(timeDepMeanCSV.get(0, colorMagColumn)));
+		for (int i=0; i<tableMags.length; i++)
+			Preconditions.checkState(tableMags[i] == Float.parseFloat(timeDepMeanCSV.get(0, tableColumns[i])));
+		for (int i=0; i<tableMags.length; i++)
+			Preconditions.checkState(tableMags[i] == Float.parseFloat(parentMeanCSV.get(0, tableColumns[i])));
+		
+		List<LocationList> faults = Lists.newArrayList();
+		double[] plotValues = new double[subSects.size()];
+		List<String> descriptions = Lists.newArrayList();
+		
+		String gte = "\u2265"; // greather than or equal to symbol
+		
+		// parent section time dep means
+		// map from parent name to row in CSV
+		Map<String, Integer> parentNameRowMap = Maps.newHashMap();
+		for (int row=1; row<parentMeanCSV.getNumRows(); row++)
+			parentNameRowMap.put(parentMeanCSV.get(row, 0), row);
+		// now get UCERF2 parents
+		Map<Integer, ArbitrarilyDiscretizedFunc> ucerf2ParentMPDs = Maps.newHashMap();
+		for (FaultSectionPrefData subSect : subSects) {
+			Integer parentID = subSect.getParentSectionId();
+			if (ucerf2ParentMPDs.containsKey(parentID))
+				continue;
+			ArrayList<IncrementalMagFreqDist> u2MFDs =
+					UCERF2_Section_TimeDepMFDsCalc.getMeanMinAndMaxMFD(parentID, true, true);
+			if (u2MFDs == null)
+				continue;
+			IncrementalMagFreqDist meanU2MFD = u2MFDs.get(0);
+			meanU2MFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+			// cumulative mfd so get the first above
+			ArbitrarilyDiscretizedFunc u2Probs = new ArbitrarilyDiscretizedFunc();
+			for (double minMag : tableMags)
+				u2Probs.set(minMag, calcProbAboveMagFromMFD(meanU2MFD, minMag, duration));
+			ucerf2ParentMPDs.put(parentID, u2Probs);
+		}
+		
+		for (int i=0; i<subSects.size(); i++) {
+			FaultSectionPrefData subSect = subSects.get(i);
+			FaultTrace trace = subSect.getFaultTrace();
+			trace.setName(subSect.getName());
+			faults.add(trace);
+			plotValues[i] = Double.parseDouble(timeDepMeanCSV.get(i+1, colorMagColumn));
+			
+			String description = "<b>30 year participation probabilities:</b>";
+			String[][] tableVals = new String[tableMags.length+1][columnHeaders.length];
+			tableVals[0] = columnHeaders;
+			
+			ArbitrarilyDiscretizedFunc ucerf2Probs = ucerf2ParentMPDs.get(subSect.getParentSectionId());
+			
+			for (int j=0; j<tableMags.length; j++) {
+				double tdVal = Double.parseDouble(timeDepMeanCSV.get(i+1, tableColumns[j]));
+				double minVal = Double.parseDouble(timeDepMinCSV.get(i+1, tableColumns[j]));
+				double maxVal = Double.parseDouble(timeDepMaxCSV.get(i+1, tableColumns[j]));
+				// TODO TI in min/max?
+				double tiVal = Double.parseDouble(timeIndepCSV.get(i+1, tableColumns[j]));
+				
+				tableVals[j+1][0] = "M"+gte+tableMags[j];
+				tableVals[j+1][1] = formattedProb(tdVal);
+				tableVals[j+1][2] = formattedProb(minVal);
+				tableVals[j+1][3] = formattedProb(maxVal);
+				if (tdVal == 0d) {
+					tableVals[j+1][4] = "-";
+					tableVals[j+1][5] = "-";
+				} else {
+					tableVals[j+1][4] = formattedGain(tdVal/tiVal);
+					if (ucerf2Probs == null) {
+						tableVals[j+1][5] = formattedGain(Double.NaN);
+					} else {
+						double u2Prob = ucerf2Probs.getY(tableMags[j]);
+						double u3ParentProb = Double.parseDouble(parentMeanCSV.get(
+								parentNameRowMap.get(subSect.getParentSectionName()), tableColumns[j]));
+						tableVals[j+1][5] = formattedGain(u3ParentProb/u2Prob);
+					}
+				}
+			}
+//			for (int j=0; j<tableMags.length; j++) {
+//				double tdVal = Double.parseDouble(timeDepMeanCSV.get(i+1, tableColumns[j]));
+////				double tiVal = Double.parseDouble(timeDepCSV.get(i+1, tableColumns[j]));
+//				if (!description.isEmpty())
+//					description += "\n<br>";
+//				description += "M"+gte+tableMags[j]+": "+df.format(tdVal);
+//			}
+			// TODO ripeness?
+			description += "<br>\n"+generateHTMLTable(tableVals);
+			// footnotes
+			description += "<br>\n";
+			description += "<font size=\"-2\">";
+			description += "<br>1. Min/Max across all UCERF3 logic tree branches";
+			description += "<br>2. Time dependent prob gain (to time independent UCERF3)";
+			description += "<br>3. Parent fault section prob gain form UCERF3 to UCERF2";
+			description += "</font>";
+			descriptions.add(description);
+		}
+		
+		CPT logProbCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4d, 0d);
+		
+		File saveDir = outputFile.getParentFile();
+		String prefix = outputFile.getName();
+		if (prefix.toLowerCase().endsWith(".kml"))
+			prefix = prefix.substring(0, prefix.toLowerCase().indexOf(".kml"));
+		
+		FaultBasedMapGen.makeFaultKML(logProbCPT, faults, FaultBasedMapGen.log10(plotValues), saveDir, prefix,
+				false, 40, 4, "UCERF3 Mean Time Dep Prob", descriptions);
+	}
+	
+	private static final DecimalFormat kmlProbDF = new DecimalFormat("0.00%");
+	private static final String kmlBelowMinStr = "< 0.01%";
+	private static final DecimalFormat kmlGainDF = new DecimalFormat("0.00");
+	private static final String kmlInfGainStr = "\u221E";
+	private static final double kmlMinProb = 0.01/100d;
+	private static String formattedProb(double val) {
+		String str;
+		if (val == 0d)
+			str = "-";
+		else if (val > 0 && val < kmlMinProb)
+			str = kmlBelowMinStr;
+		else
+			str = kmlProbDF.format(val);
+//		str = str.replaceAll("%", "");
+		return str;
+	}
+	private static String formattedGain(double val) {
+		String str;
+		if (!Doubles.isFinite(val))
+			str = kmlInfGainStr;
+		else
+			str = kmlGainDF.format(val);
+		return str;
+	}
+	
+	private static String generateHTMLTable(String[][] values) {
+		StringBuilder str = new StringBuilder();
+		str.append("<table cellpadding=\"5\">\n");
+		for (int row=0; row<values.length; row++) {
+			str.append("\t<tr>\n");
+			for (int col=0; col<values[row].length; col++) {
+				if (row == 0 || col == 0)
+					str.append("\t\t<th>").append(values[row][col]).append("</th>\n");
+				else
+					str.append("\t\t<td>").append(values[row][col]).append("</td>\n");
+			}
+			str.append("\t</tr>\n");
+		}
+		str.append("</table>");
+		return str.toString();
+	}
 	
 	
 	/**
@@ -5019,6 +5178,23 @@ public class FaultSysSolutionERF_Calc {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		
+		List<FaultSectionPrefData> subSects = FaultSystemIO.loadRupSet(new File(
+				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")).getFaultSectionDataList();
+		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/press_release/fm3.1_timedep_30yr_probs.kml");
+		makeFactSheetKML(
+				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
+						+ "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
+						+ "FM3_1_30yr_sub_sect_probs_u3_td_min.csv"), true),
+				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
+						+ "FM3_1_30yr_sub_sect_probs_u3_td_max.csv"), true),
+				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
+						+ "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
+						+ "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true), subSects, outputFile);
+		System.exit(0);
 		
 //		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
 		

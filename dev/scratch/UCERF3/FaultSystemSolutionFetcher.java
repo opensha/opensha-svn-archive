@@ -136,5 +136,21 @@ public abstract class FaultSystemSolutionFetcher implements Iterable<InversionFa
 			}
 		};
 	}
+	
+	public static FaultSystemSolutionFetcher getSubsetSample(
+			final FaultSystemSolutionFetcher fetch, final List<LogicTreeBranch> branches) {
+		return new FaultSystemSolutionFetcher() {
+			
+			@Override
+			public Collection<LogicTreeBranch> getBranches() {
+				return branches;
+			}
+			
+			@Override
+			protected InversionFaultSystemSolution fetchSolution(LogicTreeBranch branch) {
+				return fetch.fetchSolution(branch);
+			}
+		};
+	}
 
 }

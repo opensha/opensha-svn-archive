@@ -51,6 +51,7 @@ import scratch.UCERF3.utils.FaultSystemIO;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 	
@@ -426,6 +427,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		uniformWeightsOption.setRequired(false);
 		options.addOption(uniformWeightsOption);
 		
+		Option durationsOption = new Option("dur", "duration", true,
+				"Override the default set of durations for time dependent plots (comma separated)");
+		durationsOption.setRequired(false);
+		options.addOption(durationsOption);
+		
 		return options;
 	}
 
@@ -487,6 +493,17 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			List<CompoundFSSPlots> plots = Lists.newArrayList();
 			
 			boolean plotAll = cmd.hasOption("all");
+			
+			if (cmd.hasOption("duration")) {
+				String durStr = cmd.getOptionValue("duration").trim();
+				List<Double> vals = Lists.newArrayList();
+				for (String val : durStr.split(",")) {
+					val = val.trim();
+					vals.add(Double.parseDouble(val));
+				}
+				Preconditions.checkArgument(!vals.isEmpty(), "Must supply at least one duration");
+				CompoundFSSPlots.time_dep_durations = Doubles.toArray(vals);
+			}
 			
 			if (plotAll || cmd.hasOption("mfd")) {
 				List<Region> regions = RegionalMFDPlot.getDefaultRegions();

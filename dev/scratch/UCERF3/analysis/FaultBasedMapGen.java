@@ -17,6 +17,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
@@ -891,6 +892,12 @@ public class FaultBasedMapGen {
 	public static void makeFaultKML(CPT cpt, List<LocationList> faults, double[] values,
 			File saveDir, String prefix, boolean skipNans, int numColorBins, int lineWidth,
 			String name) throws IOException {
+		makeFaultKML(cpt, faults, values, saveDir, prefix, skipNans, numColorBins, lineWidth, name, null);
+	}
+	
+	public static void makeFaultKML(CPT cpt, List<LocationList> faults, double[] values,
+			File saveDir, String prefix, boolean skipNans, int numColorBins, int lineWidth,
+			String name, List<String> descriptions) throws IOException {
 		// discretize CPT file - KML files can't have continuous line colors
 		double cptMin = cpt.getMinValue();
 		double cptMax = cpt.getMaxValue();
@@ -932,7 +939,15 @@ public class FaultBasedMapGen {
 				styleID = "CPT_"+func.getClosestXIndex(val);
 			
 			Element placemarkEl = folderEl.addElement("Placemark");
-			placemarkEl.addElement("name").addText("Fault "+i); // TODO actual names?
+			String faultName = "Fault "+i;
+			if (fault instanceof Named) {
+				String tempName = ((Named)fault).getName();
+				if (name != null)
+					faultName = tempName;
+			}
+			placemarkEl.addElement("name").addText(faultName);
+			if (descriptions != null)
+				placemarkEl.addElement("description").addCDATA(descriptions.get(i));
 			placemarkEl.addElement("styleUrl").addText("#"+styleID);
 			Element lineStrEl = placemarkEl.addElement("LineString");
 			lineStrEl.addElement("tesselate").addText("1");
