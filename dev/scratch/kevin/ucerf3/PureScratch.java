@@ -18,6 +18,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -51,6 +52,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -65,20 +67,33 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
-				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-		System.out.println(sol3.getSubSeismoOnFaultMFD_List().size());
-		System.exit(0);
+//		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
+//				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//		System.out.println(sol3.getSubSeismoOnFaultMFD_List().size());
+//		System.exit(0);
 		CompoundFaultSystemSolution cfss2 = CompoundFaultSystemSolution.fromZipFile(new File(
 				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
-		FaultSystemSolution sol1 = cfss2.getSolution(cfss2.getBranches().iterator().next());
-		File sol1File = new File("/tmp/sol1.zip");
-		FaultSystemIO.writeSol(sol1, sol1File);
-		FaultSystemSolution sol2 = FaultSystemIO.loadSol(sol1File);
-		System.out.println("# sub seismos: "+sol2.getSubSeismoOnFaultMFD_List().size());
-		System.out.println("Orig first: "+sol1.getSubSeismoOnFaultMFD_List().get(0));
-		System.out.println("New first: "+sol2.getSubSeismoOnFaultMFD_List().get(0));
+		InversionFaultSystemSolution sol1 = cfss2.getSolution(LogicTreeBranch.DEFAULT);
+		int subSect = 1267;
+		System.out.println(sol1.getSubSeismoOnFaultMFD_List().get(subSect));
+		int numContained = 0;
+		Region reg = sol1.getGridSourceProvider().getGriddedRegion();
+		System.out.println("Poly overlap? "+(Region.intersect(reg,
+				sol1.getRupSet().getInversionTargetMFDs().getGridSeisUtils().getPolyMgr().getPoly(subSect)) != null));
+//		((UCERF3_GridSourceGenerator)sol1.getGridSourceProvider()).get
+		for (Location loc : sol1.getRupSet().getFaultSectionData(subSect).getFaultTrace()) {
+			if (reg.contains(loc))
+				numContained++;
+		}
+		
+		System.out.println(numContained+" points contained in "+reg.getName());
+//		File sol1File = new File("/tmp/sol1.zip");
+//		FaultSystemIO.writeSol(sol1, sol1File);
+//		FaultSystemSolution sol2 = FaultSystemIO.loadSol(sol1File);
+//		System.out.println("# sub seismos: "+sol2.getSubSeismoOnFaultMFD_List().size());
+//		System.out.println("Orig first: "+sol1.getSubSeismoOnFaultMFD_List().get(0));
+//		System.out.println("New first: "+sol2.getSubSeismoOnFaultMFD_List().get(0));
 		System.exit(0);
 //		RegionUtils.regionToKML(new CaliforniaRegions.LA_BOX(), "la_box", Color.BLACK);
 //		RegionUtils.regionToKML(new CaliforniaRegions.SF_BOX(), "sf_box", Color.BLACK);
