@@ -301,13 +301,13 @@ public class HardCodedInterpDiffMapCreator {
 	 */
 	public static void main(String[] args){
 		try {
-			boolean logPlot = true;
+			boolean logPlot = false;
 			int imTypeID = 21; // 3 sec SA
 			// the main dataset(s) that we're plotting
 			
 			// CVM-S4i26, AWP CPU
-//			int velModelID = 5;
-//			List<Integer> datasetIDs = Lists.newArrayList(37);
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
 			// CVM-S4i26, AWP GPU
 //			int velModelID = 5;
@@ -321,20 +321,20 @@ public class HardCodedInterpDiffMapCreator {
 //			int velModelID = 7; // wait but this is CVM-H no gtl????
 //			List<Integer> datasetIDs = Lists.newArrayList(34);
 			
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(12);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(12);
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(25);
 			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
-//			Double customMin = 0d;
+			Double customMin = 0d;
 ////			Double customMax = 1.4;
-////			Double customMax = 1.0;
+			Double customMax = 1.0;
 //			Double customMax = 1.2;
-			Double customMin = -8d;
-			Double customMax = -2d;
+//			Double customMin = -8d;
+//			Double customMax = -2d;
 			
 			
 //			boolean isProbAt_IML = true;
@@ -357,10 +357,10 @@ public class HardCodedInterpDiffMapCreator {
 			// probably always leave this null
 			ModProbConfig config = null;
 			// the point on the hazard curve we are plotting
-//			boolean isProbAt_IML = false;
-//			double val = 0.0004;
-			boolean isProbAt_IML = true;
-			double val = 0.2;
+			boolean isProbAt_IML = false;
+			double val = 0.0004;
+//			boolean isProbAt_IML = true;
+//			double val = 0.2;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
 			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);

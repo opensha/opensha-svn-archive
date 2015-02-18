@@ -562,19 +562,24 @@ public class RTGMCalc {
 		return velMap;
 	}
 	
+	private static final double twoPi = 2d*Math.PI;
+	
 	public static DiscretizedFunc saToPsuedoVel(DiscretizedFunc saFunc) {
 		ArbitrarilyDiscretizedFunc velFunc = new ArbitrarilyDiscretizedFunc(saFunc.getName());
 		
-		double twoPi = 2d*Math.PI;
-		
 		for (int i=0; i<saFunc.size(); i++) {
 			double period = saFunc.getX(i);
-			double sa = saFunc.getY(i)*HazardCurveComputation.CONVERSION_TO_G; // convert to cm/sec^2
-			double vel = (period/twoPi)*sa;
+			double sa = saFunc.getY(i);
+			double vel = saToPsuedoVel(sa, period);
 			velFunc.set(period, vel);
 		}
 		
 		return velFunc;
+	}
+	
+	public static double saToPsuedoVel(double sa, double period) {
+		sa *= HazardCurveComputation.CONVERSION_TO_G; // convert to cm/sec^2
+		return (period/twoPi)*sa;
 	}
     
     private static final List<Color> gmpeColors = Lists.newArrayList(

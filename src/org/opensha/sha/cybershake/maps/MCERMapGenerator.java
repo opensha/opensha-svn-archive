@@ -1,16 +1,24 @@
 package org.opensha.sha.cybershake.maps;
 
+import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.cybershake.calc.mcer.RTGMCalc;
 
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 
@@ -36,7 +44,7 @@ public class MCERMapGenerator {
 		String units = (float)period+"s";
 		String prefixAdd;
 		if (psv) {
-			units += " PCV (cm/sec)";
+			units += " PSV (cm/sec)";
 			prefixAdd = "_psv";
 		} else {
 			units += " Sa (g)";
@@ -44,8 +52,14 @@ public class MCERMapGenerator {
 		}
 		
 		if (probData != null) {
-			GMT_Map probMap = buildScatterMap(probData, "Prob. MCER, "+units, cpt);
+			GMT_Map probMap = buildScatterMap(probData, psv, period, "Prob. MCER, "+units, cpt);
+			FaultBasedMapGen.plotMap(outputDir, "prob_mcer"+prefixAdd+"_marks", false, probMap);
+			probMap.setSymbolSet(null);
 			FaultBasedMapGen.plotMap(outputDir, "prob_mcer"+prefixAdd, false, probMap);
+			probMap.setContourIncrement(0.1);
+			FaultBasedMapGen.plotMap(outputDir, "prob_mcer"+prefixAdd+"_contours", false, probMap);
+			probMap.setContourOnly(true);
+			FaultBasedMapGen.plotMap(outputDir, "prob_mcer"+prefixAdd+"_contours_only", false, probMap);
 		}
 		// TODO deterministic
 		
@@ -56,8 +70,11 @@ public class MCERMapGenerator {
 		// TODO governing scatter
 	}
 	
-	private static GMT_Map buildScatterMap(GeoDataSet data, String label, CPT cpt) {
+	private static GMT_Map buildScatterMap(GeoDataSet data, boolean psv, double period, String label, CPT cpt) {
 		data = data.copy();
+		if (psv)
+			for (int index=0; index<data.size(); index++)
+				data.set(index, RTGMCalc.saToPsuedoVel(data.get(index), period));
 		data.log10();
 		label = "Log10("+label+")";
 		
@@ -66,9 +83,25 @@ public class MCERMapGenerator {
 		map.setLogPlot(false); // already did manually
 		map.setMaskIfNotRectangular(true);
 		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
+//		map.setTopoResolution(null);
+		map.setBlackBackground(false);
 		map.setCustomScaleMin((double)cpt.getMinValue());
 		map.setCustomScaleMax((double)cpt.getMaxValue());
 		map.setCustomLabel(label);
+//		map.setDpi(150);
+		
+		// now add scatter
+		PSXYSymbolSet xySet = new PSXYSymbolSet();
+		CPT xyCPT = new CPT(0d, 1d, Color.WHITE, Color.WHITE);
+		xySet.setCpt(xyCPT);
+		for (Location loc : data.getLocationList()) {
+			PSXYSymbol sym = new PSXYSymbol(new Point2D.Double(loc.getLongitude(), loc.getLatitude()),
+					Symbol.INVERTED_TRIANGLE, 0.08f, 0f, null, Color.WHITE);
+			xySet.addSymbol(sym, 0d);
+//			symbols.add(sym);
+		}
+//		map.setSymbols(symbols);
+		map.setSymbolSet(xySet);
 		
 		return map;
 	}

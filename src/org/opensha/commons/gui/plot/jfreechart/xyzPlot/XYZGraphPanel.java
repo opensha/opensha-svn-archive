@@ -373,7 +373,8 @@ public class XYZGraphPanel extends JPanel {
 
 					//based on plotting characteristics for each curve sending configuring plot object
 					//to be send to JFreechart for plotting.
-					GraphPanel.drawCurvesUsingPlottingFeatures(subPlot, lineType, lineWidth, symbol, symbolWidth, color, datasetIndex);
+					GraphPanel.drawCurvesUsingPlottingFeatures(subPlot, lineType, lineWidth, symbol,
+							symbolWidth, color, datasetIndex-1);
 				}
 				subPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 			}
