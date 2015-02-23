@@ -5324,6 +5324,19 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 	
+	/**
+	 * Calculate subsection values for a specific fault model. Array of returned values is: U3 Time Dep Prob, U3 TD/TI gain,
+	 * U3/U2 parent sect gain
+	 * 
+	 * @param subSectName
+	 * @param col
+	 * @param mag
+	 * @param td_mean_csv
+	 * @param ti_mean_csv
+	 * @param parent_csv
+	 * @param sub_sects
+	 * @return
+	 */
 	private static double[] calcFactSheetVals(String subSectName, int col, double mag, CSVFile<String> td_mean_csv,
 			CSVFile<String> ti_mean_csv, CSVFile<String> parent_csv, List<FaultSectionPrefData> sub_sects) {
 		FaultSectionPrefData s = null;
@@ -5363,7 +5376,6 @@ public class FaultSysSolutionERF_Calc {
 		
 		return new double[] { tdVal, tdGain, u3Gain };
 	}
-
 	
 	/**
 	 * @param args
