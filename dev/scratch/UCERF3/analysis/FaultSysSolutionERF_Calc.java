@@ -5271,6 +5271,21 @@ public class FaultSysSolutionERF_Calc {
 		return str.toString();
 	}
 	
+	/**
+	 * This generates the sub section probability tables for the UCERF3 fact sheet. Data files used as input are from
+	 * http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/erf_mag_prob_plots/30yr/
+	 * 
+	 * U3/U2 ratios are done on the parent section level.
+	 * 
+	 * @param fm31_td_mean_csv
+	 * @param fm31_ti_mean_csv
+	 * @param fm31_parent_csv
+	 * @param fm31_sub_sects
+	 * @param fm32_td_mean_csv
+	 * @param fm32_ti_mean_csv
+	 * @param fm32_parent_csv
+	 * @param fm32_sub_sects
+	 */
 	private static void calcFactSheetSubSectTableVals(
 			CSVFile<String> fm31_td_mean_csv, CSVFile<String> fm31_ti_mean_csv,
 			CSVFile<String> fm31_parent_csv, List<FaultSectionPrefData> fm31_sub_sects,
@@ -5401,7 +5416,7 @@ public class FaultSysSolutionERF_Calc {
 				subSects_3_1,
 				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
 				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3__30yr_parent_sect_probs_u3_td_mean.csv"), true),
 				subSects_3_2);
 		
 		System.exit(0);
