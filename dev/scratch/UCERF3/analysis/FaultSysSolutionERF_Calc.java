@@ -33,7 +33,9 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
@@ -76,6 +78,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -5010,10 +5013,11 @@ public class FaultSysSolutionERF_Calc {
 		mfd_Graph.setTickLabelFontSize(18);			
 
 	}
-
-	private static void makeFactSheetKML(CSVFile<String> timeDepMeanCSV, CSVFile<String> timeDepMinCSV,
-			CSVFile<String> timeDepMaxCSV, CSVFile<String> timeIndepCSV, CSVFile<String> parentMeanCSV,
-			List<FaultSectionPrefData> subSects, File outputFile) throws IOException {
+	
+	private static Document getFactSheetKML(CSVFile<String> timeDepMeanCSV, CSVFile<String> timeDepMinCSV,
+			CSVFile<String> timeDepMaxCSV, CSVFile<String> timeIndepCSV,
+			List<CSVFile<String>> timeDepPercentileCSVs, double[] timeDepPercentiles, CSVFile<String> parentMeanCSV,
+			List<FaultSectionPrefData> subSects, String title) throws IOException {
 		// use floats for prettier printing
 		float colorMag = 6.7f;
 		int colorMagColumn = 18;
@@ -5022,8 +5026,24 @@ public class FaultSysSolutionERF_Calc {
 		float[] tableMags = { 6.7f, 7f, 7.5f, 8f };
 		int[] tableColumns = { 18, 21, 26, 31 };
 		
-		String[] columnHeaders = { "Min Mag", "Mean Prob", "Min Prob<sup>1</sup>", "Max Prob<sup>1</sup>",
-				"Gain<sup>2</sup>", "U3/U2<sup>3</sup>" };
+		int numProbCols = timeDepPercentileCSVs.size()+3;
+		Color probColor = new Color(230, 230, 230); // very light gray
+		Color gainColor = new Color(230, 200, 200); // very light red
+		List<String[]> headers = Lists.newArrayList();
+		List<String> firstHeader = Lists.newArrayList("", "30 Year Participation Prob (%)<sup>1</sup>");
+		for (int i=0; i<timeDepPercentileCSVs.size()+2; i++)
+			firstHeader.add(col_span_placeholder);
+		firstHeader.add("Gain");
+		firstHeader.add(col_span_placeholder);
+		headers.add(firstHeader.toArray(new String[0]));
+		List<String> secondHeader = Lists.newArrayList("Min Mag", "Mean", "Min");
+		for (double p : timeDepPercentiles)
+			secondHeader.add("p<sub>"+(float)p+"</sub>");
+		secondHeader.addAll(Lists.newArrayList("Max", "TD/TI<sup>2</sup>", "U3/U2<sup>3</sup>"));
+		headers.add(secondHeader.toArray(new String[0]));
+		Preconditions.checkState(firstHeader.size() == secondHeader.size());
+		
+		int nh = headers.size();
 		
 		Preconditions.checkState(colorMag == Float.parseFloat(timeDepMeanCSV.get(0, colorMagColumn)));
 		for (int i=0; i<tableMags.length; i++)
@@ -5068,9 +5088,11 @@ public class FaultSysSolutionERF_Calc {
 			faults.add(trace);
 			plotValues[i] = Double.parseDouble(timeDepMeanCSV.get(i+1, colorMagColumn));
 			
-			String description = "<b>30 year participation probabilities:</b>";
-			String[][] tableVals = new String[tableMags.length+1][columnHeaders.length];
-			tableVals[0] = columnHeaders;
+			String description = "";
+			String[][] tableVals = new String[tableMags.length+nh][headers.get(0).length];
+			Color[][] tableColors = new Color[tableVals.length][tableVals[0].length];
+			for (int h=0; h<nh; h++)
+				tableVals[h] = headers.get(h);
 			
 			ArbitrarilyDiscretizedFunc ucerf2Probs = ucerf2ParentMPDs.get(subSect.getParentSectionId());
 			
@@ -5081,23 +5103,38 @@ public class FaultSysSolutionERF_Calc {
 				// TODO TI in min/max?
 				double tiVal = Double.parseDouble(timeIndepCSV.get(i+1, tableColumns[j]));
 				
-				tableVals[j+1][0] = "M"+gte+tableMags[j];
-				tableVals[j+1][1] = formattedProb(tdVal);
-				tableVals[j+1][2] = formattedProb(minVal);
-				tableVals[j+1][3] = formattedProb(maxVal);
+				int row = j+nh;
+				int col = 0;
+				
+				tableVals[row][col++] = "M"+gte+tableMags[j];
+				tableVals[row][col++] = formattedProb(tdVal);
+				tableVals[row][col++] = formattedProb(minVal);
+				for (CSVFile<String> pCSV : timeDepPercentileCSVs)
+					tableVals[row][col++] = formattedProb(Double.parseDouble(pCSV.get(i+1, tableColumns[j])));
+				tableVals[row][col++] = formattedProb(maxVal);
 				if (tdVal == 0d) {
-					tableVals[j+1][4] = "-";
-					tableVals[j+1][5] = "-";
+					tableVals[row][col++] = "-";
+					tableVals[row][col++] = "-";
 				} else {
-					tableVals[j+1][4] = formattedGain(tdVal/tiVal);
+					tableVals[row][col++] = formattedGain(tdVal/tiVal);
 					if (ucerf2Probs == null) {
-						tableVals[j+1][5] = formattedGain(Double.NaN);
+						tableVals[row][col++] = formattedGain(Double.NaN);
 					} else {
 						double u2Prob = ucerf2Probs.getY(tableMags[j]);
 						double u3ParentProb = Double.parseDouble(parentMeanCSV.get(
 								parentNameRowMap.get(subSect.getParentSectionName()), tableColumns[j]));
-						tableVals[j+1][5] = formattedGain(u3ParentProb/u2Prob);
+						tableVals[row][col++] = formattedGain(u3ParentProb/u2Prob);
 					}
+				}
+			}
+			
+			for (int row=0; row<tableVals.length; row++) {
+				for (int col=1; col<tableVals[row].length; col++) {
+					
+					if (col - 1 < numProbCols)
+						tableColors[row][col] = probColor;
+					else
+						tableColors[row][col] = gainColor;
 				}
 			}
 //			for (int j=0; j<tableMags.length; j++) {
@@ -5108,11 +5145,13 @@ public class FaultSysSolutionERF_Calc {
 //				description += "M"+gte+tableMags[j]+": "+df.format(tdVal);
 //			}
 			// TODO ripeness?
-			description += "<br>\n"+generateHTMLTable(tableVals);
+			if (!description.isEmpty())
+				description += "<br>\n";
+			description += generateHTMLTable(tableVals, tableColors);
 			// footnotes
 			description += "<br>\n";
 			description += "<font size=\"-2\">";
-			description += "<br>1. Min/Max across all UCERF3 logic tree branches";
+			description += "<br>1. Mean/Min/Max/Percentiles across all UCERF3 logic tree branches";
 			description += "<br>2. Time dependent prob gain (to time independent UCERF3)";
 			description += "<br>3. Parent fault section prob gain form UCERF3 to UCERF2";
 			description += "</font>";
@@ -5121,13 +5160,56 @@ public class FaultSysSolutionERF_Calc {
 		
 		CPT logProbCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4d, 0d);
 		
-		File saveDir = outputFile.getParentFile();
-		String prefix = outputFile.getName();
-		if (prefix.toLowerCase().endsWith(".kml"))
-			prefix = prefix.substring(0, prefix.toLowerCase().indexOf(".kml"));
-		
-		FaultBasedMapGen.makeFaultKML(logProbCPT, faults, FaultBasedMapGen.log10(plotValues), saveDir, prefix,
+		Document doc = FaultBasedMapGen.getFaultKML(logProbCPT, faults, FaultBasedMapGen.log10(plotValues),
 				false, 40, 4, "UCERF3 Mean Time Dep Prob", descriptions);
+		
+		doc.getRootElement().element("Folder").element("name").setText(title);
+		
+		return doc;
+	}
+
+	private static void writeFactSheetKMZ(File outputFile, Document... docs) throws IOException {
+		Document doc = docs[0];
+		// now add legend
+		Element root = doc.getRootElement();
+		
+		// add other docs
+		for (int i=1; i<docs.length; i++) {
+			Element el = docs[i].getRootElement().element("Folder");
+			docs[i].getRootElement().remove(el);
+			// deselect by default
+			el.addElement("visibility").setText("0");
+			// must do to all children as well...annoying
+			List<Element> placemarkEls = Lists.newArrayList(el.elementIterator("Placemark"));
+			for (Element placemarkEl : placemarkEls)
+				placemarkEl.addElement("visibility").setText("0");
+			// add to main doc
+			root.add(el);
+		}
+		
+		// add overlay
+		Element overlayEl = root.addElement("ScreenOverlay");
+		overlayEl.addElement("name").setText("Legend");
+		overlayEl.addElement("Icon").addElement("href").setText("partic_legend.png");
+		Element overlayXYEl = overlayEl.addElement("overlayXY");
+		overlayXYEl.addAttribute("x", "0.05");
+		overlayXYEl.addAttribute("y", "0.05");
+		overlayXYEl.addAttribute("xunits", "fraction");
+		overlayXYEl.addAttribute("yunits", "fraction");
+		Element screenXYEl = overlayEl.addElement("screenXY");
+		screenXYEl.addAttribute("x", "0.05");
+		screenXYEl.addAttribute("y", "0.05");
+		screenXYEl.addAttribute("xunits", "fraction");
+		screenXYEl.addAttribute("yunits", "fraction");
+		
+		XMLUtils.writeDocumentToFile(outputFile, doc);
+		
+		// now make kmz
+		String fName = outputFile.getName().replaceAll(".kml", "")+".kmz";
+		File zipFile = new File(outputFile.getParentFile(), fName);
+		ArrayList<String> zipFiles = Lists.newArrayList(outputFile.getName(), "partic_legend.png");
+		FileUtils.createZipFile(zipFile.getAbsolutePath(),
+				outputFile.getParentFile().getAbsolutePath(), zipFiles);
 	}
 	
 	private static final DecimalFormat kmlProbDF = new DecimalFormat("0.00%");
@@ -5143,7 +5225,7 @@ public class FaultSysSolutionERF_Calc {
 			str = kmlBelowMinStr;
 		else
 			str = kmlProbDF.format(val);
-//		str = str.replaceAll("%", "");
+		str = str.replaceAll("%", "");
 		return str;
 	}
 	private static String formattedGain(double val) {
@@ -5155,16 +5237,33 @@ public class FaultSysSolutionERF_Calc {
 		return str;
 	}
 	
-	private static String generateHTMLTable(String[][] values) {
+	private static String col_span_placeholder = "!COLSPAN!";
+	
+	private static String generateHTMLTable(String[][] values, Color[][] colors) {
 		StringBuilder str = new StringBuilder();
 		str.append("<table cellpadding=\"5\">\n");
 		for (int row=0; row<values.length; row++) {
 			str.append("\t<tr>\n");
 			for (int col=0; col<values[row].length; col++) {
+				String colSpanStr = "";
+				if (values[row][col].equals(col_span_placeholder))
+					continue;
+				int colSpans = 1;
+				for (int col2=col+1; col2<values[row].length; col2++) {
+					if (values[row][col2].equals(col_span_placeholder))
+						colSpans++;
+					else
+						break;
+				}
+				if (colSpans > 1)
+					colSpanStr = " colspan=\""+colSpans+"\"";
+				String colorStr = "";
+				if (colors[row][col] != null)
+					colorStr = " bgcolor=\""+"#" + Integer.toHexString(colors[row][col].getRGB() & 0x00ffffff)+"\"";
 				if (row == 0 || col == 0)
-					str.append("\t\t<th>").append(values[row][col]).append("</th>\n");
+					str.append("\t\t<th"+colSpanStr+colorStr+">").append(values[row][col]).append("</th>\n");
 				else
-					str.append("\t\t<td>").append(values[row][col]).append("</td>\n");
+					str.append("\t\t<td"+colSpanStr+colorStr+">").append(values[row][col]).append("</td>\n");
 			}
 			str.append("\t</tr>\n");
 		}
@@ -5172,6 +5271,84 @@ public class FaultSysSolutionERF_Calc {
 		return str.toString();
 	}
 	
+	private static void calcFactSheetSubSectTableVals(
+			CSVFile<String> fm31_td_mean_csv, CSVFile<String> fm31_ti_mean_csv,
+			CSVFile<String> fm31_parent_csv, List<FaultSectionPrefData> fm31_sub_sects,
+			CSVFile<String> fm32_td_mean_csv, CSVFile<String> fm32_ti_mean_csv,
+			CSVFile<String> fm32_parent_csv, List<FaultSectionPrefData> fm32_sub_sects) {
+		List<String> names = Lists.newArrayList();
+		names.add("San Andreas (Mojave S), Subsection 7");
+		names.add("San Andreas (Peninsula) 2011 CFM, Subsection 8");
+		names.add("Hayward (No) 2011 CFM, Subsection 4");
+		names.add("Calaveras (No) 2011 CFM, Subsection 3");
+		names.add("San Jacinto (San Bernardino), Subsection 4");
+		names.add("Elsinore (Glen Ivy) rev, Subsection 1");
+		
+		float[] tableMags = { 6.7f, 7.5f, 8f };
+		int[] tableColumns = { 18, 26, 31 };
+		
+		for (String name : names) {
+			System.out.println(name);
+			double ripeness = -1;
+			for (int i=0; i<tableMags.length; i++) {
+				float mag = tableMags[i];
+				int col = tableColumns[i];
+				
+				double[] fm31_vals = calcFactSheetVals(name, col, mag, fm31_td_mean_csv, fm31_ti_mean_csv,
+						fm31_parent_csv, fm31_sub_sects);
+				double[] fm32_vals = calcFactSheetVals(name, col, mag, fm32_td_mean_csv, fm32_ti_mean_csv,
+						fm32_parent_csv, fm32_sub_sects);
+				
+				double avgTD = 0.5*fm31_vals[0] + 0.5*fm32_vals[0];
+				if (i == 0)
+					ripeness = 0.5*fm31_vals[1] + 0.5*fm32_vals[1];
+				double avgU3_gain = 0.5*fm31_vals[2] + 0.5*fm32_vals[2];
+				System.out.println("\t"+mag+": "+formattedProb(avgTD)+" ("+formattedGain(avgU3_gain)+")");
+			}
+			System.out.println("\tRipeness: "+formattedGain(ripeness));
+		}
+	}
+	
+	private static double[] calcFactSheetVals(String subSectName, int col, double mag, CSVFile<String> td_mean_csv,
+			CSVFile<String> ti_mean_csv, CSVFile<String> parent_csv, List<FaultSectionPrefData> sub_sects) {
+		FaultSectionPrefData s = null;
+		for (FaultSectionPrefData subSect : sub_sects) {
+			if (subSect.getName().equals(subSectName)) {
+				s = subSect;
+				break;
+			}
+		}
+		Preconditions.checkNotNull(s);
+		
+		int row = s.getSectionId()+1;
+		
+		double tdVal = Double.parseDouble(td_mean_csv.get(row, col));
+		double tiVal = Double.parseDouble(ti_mean_csv.get(row, col));
+		double tdGain = tdVal/tiVal;
+		
+		// now parent sect U3/U2
+		double u3Gain = -1d;
+		for (row=1; row<parent_csv.getNumRows(); row++) {
+			if (parent_csv.get(row, 0).equals(s.getParentSectionName())) {
+				double u3Val = Double.parseDouble(parent_csv.get(row, col));
+				
+				ArrayList<IncrementalMagFreqDist> u2MFDs =
+						UCERF2_Section_TimeDepMFDsCalc.getMeanMinAndMaxMFD(s.getParentSectionId(), true, true);
+				if (u2MFDs == null)
+					continue;
+				IncrementalMagFreqDist meanU2MFD = u2MFDs.get(0);
+				meanU2MFD.scale(1.0/FaultSystemSolutionERF.MO_RATE_REDUCTION_FOR_SUPRA_SEIS_RUPS);
+				double u2Val = calcProbAboveMagFromMFD(meanU2MFD, mag, 30d);
+				u3Gain = u3Val / u2Val;
+				
+				break;
+			}
+		}
+		Preconditions.checkState(u3Gain != -1d);
+		
+		return new double[] { tdVal, tdGain, u3Gain };
+	}
+
 	
 	/**
 	 * @param args
@@ -5179,21 +5356,54 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		List<FaultSectionPrefData> subSects = FaultSystemIO.loadRupSet(new File(
-				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")).getFaultSectionDataList();
-		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/press_release/fm3.1_timedep_30yr_probs.kml");
-		makeFactSheetKML(
-				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
-						+ "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
-				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
-						+ "FM3_1_30yr_sub_sect_probs_u3_td_min.csv"), true),
-				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
-						+ "FM3_1_30yr_sub_sect_probs_u3_td_max.csv"), true),
-				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
-						+ "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-				CSVFile.readFile(new File("/home/kevin/OpenSHA/UCERF3/press_release/"
-						+ "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true), subSects, outputFile);
+		File invDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/");
+		
+		List<FaultSectionPrefData> subSects_3_1 = FaultSystemIO.loadRupSet(new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"))
+				.getFaultSectionDataList();
+		List<FaultSectionPrefData> subSects_3_2 = FaultSystemIO.loadRupSet(new File(invDir,
+				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"))
+				.getFaultSectionDataList();
+		File pressReleaseDir = new File("/home/kevin/OpenSHA/UCERF3/press_release/");
+		File outputFile = new File(pressReleaseDir, "ucerf3_timedep_30yr_probs.kml");
+		Document fm3_1Doc = getFactSheetKML(
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_min.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_max.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
+								"FM3_1_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
+								CSVFile.readFile(new File(pressReleaseDir,
+										"FM3_1_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
+										new double[] { 2.5d, 97.5d },
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				subSects_3_1, "Fault Model 3.1");
+		Document fm3_2Doc = getFactSheetKML(
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_min.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_max.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
+								"FM3_2_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
+								CSVFile.readFile(new File(pressReleaseDir,
+										"FM3_2_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
+										new double[] { 2.5d, 97.5d },
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				subSects_3_2, "Fault Model 3.2");
+		writeFactSheetKMZ(outputFile, fm3_1Doc, fm3_2Doc);
+		
+		
+		// now the table
+		calcFactSheetSubSectTableVals(
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				subSects_3_1,
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				subSects_3_2);
+		
 		System.exit(0);
 		
 //		makeNucleationRateMapForU3pt3(7.0, true, 0.12);

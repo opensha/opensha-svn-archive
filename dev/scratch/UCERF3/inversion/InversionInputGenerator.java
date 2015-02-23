@@ -1067,9 +1067,11 @@ public class InversionInputGenerator {
 			}
 			d[rowIndex]=momentConstraintWt * totalMomentTarget;
 			rowIndex++;
-			System.out.println("Adding Moment Constraint took "+getTimeStr(watch)+".");
-			watch.reset();
-			watch.start();
+			if (D) {
+				System.out.println("Adding Moment Constraint took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+			}
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements);
 		}
 		
@@ -1097,9 +1099,11 @@ public class InversionInputGenerator {
 			}
 			d[rowIndex]=ParkfieldConstraintWt * ParkfieldMeanRate;
 			rowIndex++;
-			System.out.println("Adding Parkfield Constraint took "+getTimeStr(watch)+".");
-			watch.reset();
-			watch.start();
+			if (D) {
+				System.out.println("Adding Parkfield Constraint took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+			}
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 		}
 		
@@ -1155,9 +1159,11 @@ public class InversionInputGenerator {
 					rowIndex++;
 				}
 			}
-			System.out.println("Adding Event-Rate Smoothness Constraint took "+getTimeStr(watch)+".");
-			watch.reset();
-			watch.start();
+			if (D) {
+				System.out.println("Adding Event-Rate Smoothness Constraint took "+getTimeStr(watch)+".");
+				watch.reset();
+				watch.start();
+			}
 			System.out.println("Number of nonzero elements in A matrix = "+numNonZeroElements+"\n");
 			
 		}

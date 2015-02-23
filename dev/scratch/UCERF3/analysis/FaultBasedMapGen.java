@@ -898,6 +898,15 @@ public class FaultBasedMapGen {
 	public static void makeFaultKML(CPT cpt, List<LocationList> faults, double[] values,
 			File saveDir, String prefix, boolean skipNans, int numColorBins, int lineWidth,
 			String name, List<String> descriptions) throws IOException {
+		Document doc = getFaultKML(cpt, faults, values, skipNans, numColorBins, lineWidth, name, descriptions);
+		
+		File outputFile = new File(saveDir, prefix+".kml");
+		XMLUtils.writeDocumentToFile(outputFile, doc);
+	}
+	
+	public static Document getFaultKML(CPT cpt, List<LocationList> faults, double[] values,
+			boolean skipNans, int numColorBins, int lineWidth, String name, List<String> descriptions) {
+		
 		// discretize CPT file - KML files can't have continuous line colors
 		double cptMin = cpt.getMinValue();
 		double cptMax = cpt.getMaxValue();
@@ -958,8 +967,7 @@ public class FaultBasedMapGen {
 			coordsEl.addText(coordsStr);
 		}
 		
-		File outputFile = new File(saveDir, prefix+".kml");
-		XMLUtils.writeDocumentToFile(outputFile, doc);
+		return doc;
 	}
 	private static void addStyleEl(Element parent, Color c, int lineWidth, String label) {
 		Element styleEl = parent.addElement("Style");

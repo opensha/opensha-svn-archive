@@ -1340,8 +1340,11 @@ public abstract class CompoundFSSPlots implements Serializable {
 				csvs.get(3).writeToFile(new File(durDir, csvPrefix+"_u3_poisson_mean.csv"));
 				
 				csvs = plot.subSectsPercentileCSVs.get(duration, fm);
-				csvs.get(0).writeToFile(new File(durDir, csvPrefix+"_u3_td_p2.5.csv"));
-				csvs.get(1).writeToFile(new File(durDir, csvPrefix+"_u3_td_p97.5.csv"));
+				for (int i=0; i<plot.sub_sect_fractiles.length; i++) {
+					CSVFile<String> csv = csvs.get(i);
+					String name = csvPrefix+"_u3_td_p"+(float)(plot.sub_sect_fractiles[i]*100d)+".csv";
+					csv.writeToFile(new File(durDir, name));
+				}
 			}
 			// parent sect CSVs
 			for (FaultModels fm : plot.parentSectsCSVs.columnKeySet()) {
@@ -1503,7 +1506,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 		private double[] ucerf2IndepWeights;
 
 		// none (except min/mean/max which are always included)
-		private double[] fractiles;
+		private double[] region_fractiles;
+		private double[] sub_sect_fractiles = { 0.025, 0.16, 0.84, 0.975};
 		
 		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.LOW_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES, null};
@@ -1608,7 +1612,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<Region> regions, double[] fractiles) {
 			this.weightProvider = weightProvider;
 			this.regions = regions;
-			this.fractiles = fractiles;
+			this.region_fractiles = fractiles;
 
 			UCERF2_TimeDependentEpistemicList ucerf2_erf_list = checkOutUCERF2_DepERF();
 			numUCEF2_DepERFs = ucerf2_erf_list.getNumERFs();
@@ -2615,59 +2619,59 @@ public abstract class CompoundFSSPlots implements Serializable {
 					ArrayList<PlotCurveCharacterstics> chars = Lists.newArrayList();
 					
 					funcs.addAll(getFractiles(ucerf2OnFuncs, ucerf2Weights,
-							"UCERF2 Time Dependent On Fault MPDs", fractiles));
-					chars.addAll(getFractileChars(Color.GREEN, fractiles.length));
+							"UCERF2 Time Dependent On Fault MPDs", region_fractiles));
+					chars.addAll(getFractileChars(Color.GREEN, region_fractiles.length));
 					
 					funcs.addAll(getFractiles(ucerf2OffFuncs, ucerf2Weights,
-							"UCERF2 Time Dependent Off Fault MPDs", fractiles));
-					chars.addAll(getFractileChars(Color.MAGENTA, fractiles.length));
+							"UCERF2 Time Dependent Off Fault MPDs", region_fractiles));
+					chars.addAll(getFractileChars(Color.MAGENTA, region_fractiles.length));
 					
 					// UCERF3 time DEPENDENT
 					
 					funcs.addAll(getFractiles(ucerf3OnFuncs, weights,
-							"UCERF3 Time Dependent On Fault MPDs", fractiles));
-					chars.addAll(getFractileChars(Color.ORANGE, fractiles.length));
+							"UCERF3 Time Dependent On Fault MPDs", region_fractiles));
+					chars.addAll(getFractileChars(Color.ORANGE, region_fractiles.length));
 					
 					funcs.addAll(getFractiles(ucerf3OffFuncs, weights,
-							"UCERF3 Time Dependent Off Fault MPDs", fractiles));
-					chars.addAll(getFractileChars(Color.GRAY, fractiles.length));
+							"UCERF3 Time Dependent Off Fault MPDs", region_fractiles));
+					chars.addAll(getFractileChars(Color.GRAY, region_fractiles.length));
 					
 					// UCERF2
 					DiscretizedFunc u2IndepMean = getFractiles(ucerf2IndepFuncs, ucerf2IndepWeights,
-							"UCERF2 Time Independent Total MPDs", fractiles).get(fractiles.length);
+							"UCERF2 Time Independent Total MPDs", region_fractiles).get(region_fractiles.length);
 					DiscretizedFunc u2IndepMeanFreq = getFractiles(ucerf2IndepFreqFuncs, ucerf2IndepWeights,
-							"UCERF2 Time Independent Total MFDs", fractiles).get(fractiles.length);
+							"UCERF2 Time Independent Total MFDs", region_fractiles).get(region_fractiles.length);
 					u2IndepRegionMPDs.put(region.getName(), u2IndepMean);
 					u2IndepRegionMFDs.put(region.getName(), u2IndepMeanFreq);
 					funcs.add(u2IndepMean);
 					PlotCurveCharacterstics u2IndepChar = getFractileChars(
-							Color.DARK_GRAY, fractiles.length).get(fractiles.length);
+							Color.DARK_GRAY, region_fractiles.length).get(region_fractiles.length);
 					u2IndepChar.setLineWidth(2f);
 					chars.add(u2IndepChar);
 
 					List<DiscretizedFunc> u2DepFractiles = getFractiles(ucerf2Funcs, ucerf2Weights,
-							"UCERF2 Time Dependent Total MPDs", fractiles);
+							"UCERF2 Time Dependent Total MPDs", region_fractiles);
 					DiscretizedFunc u2DepFreq = getFractiles(ucerf2FreqFuncs, ucerf2Weights,
-							"UCERF2 Time Dependent Total MFDs", fractiles).get(fractiles.length);
-					u2DepRegionMPDs.put(region.getName(), u2DepFractiles.get(fractiles.length));
+							"UCERF2 Time Dependent Total MFDs", region_fractiles).get(region_fractiles.length);
+					u2DepRegionMPDs.put(region.getName(), u2DepFractiles.get(region_fractiles.length));
 					u2DepRegionMFDs.put(region.getName(), u2DepFreq);
 					funcs.addAll(u2DepFractiles);
-					chars.addAll(getFractileChars(Color.RED, fractiles.length));
+					chars.addAll(getFractileChars(Color.RED, region_fractiles.length));
 					
 					// UCERF3 total time INDEPENDENT
 					// only a mean line
 					List<DiscretizedFunc> indepFractiles = getFractiles(ucerf3IndepFuncs, origWeights,
-							"UCERF3 Time Independent Total MPDs", fractiles);
-					DiscretizedFunc indepMean = indepFractiles.get(fractiles.length);
+							"UCERF3 Time Independent Total MPDs", region_fractiles);
+					DiscretizedFunc indepMean = indepFractiles.get(region_fractiles.length);
 					indepRegionMPDs.put(region.getName(), indepFractiles);
 					funcs.add(indepMean);
 					PlotCurveCharacterstics indepChar = getFractileChars(
-							Color.BLACK, fractiles.length).get(fractiles.length);
+							Color.BLACK, region_fractiles.length).get(region_fractiles.length);
 					indepChar.setLineWidth(2f);
 					chars.add(indepChar);
 					List<DiscretizedFunc> indepRateFractiles = getFractiles(ucerf3IndepRateFuncs, origWeights,
-							"UCERF3 Time Independent Total MPDs", fractiles);
-					DiscretizedFunc indepRateMean = indepRateFractiles.get(fractiles.length);
+							"UCERF3 Time Independent Total MPDs", region_fractiles);
+					DiscretizedFunc indepRateMean = indepRateFractiles.get(region_fractiles.length);
 					indepRegionMFDs.put(region.getName(), indepRateFractiles);
 
 //					SummedMagFreqDist meanU2Part = ERF_Calculator
@@ -2680,13 +2684,13 @@ public abstract class CompoundFSSPlots implements Serializable {
 //							Color.BLUE));
 
 					List<DiscretizedFunc> depFractiles = getFractiles(ucerf3Funcs, weights,
-							"UCERF3 Time Dependent Total MPDs", fractiles);
-					DiscretizedFunc depMean = depFractiles.get(fractiles.length);
+							"UCERF3 Time Dependent Total MPDs", region_fractiles);
+					DiscretizedFunc depMean = depFractiles.get(region_fractiles.length);
 					depRegionMPDs.put(region.getName(), depFractiles);
 					funcs.addAll(depFractiles);
-					chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
+					chars.addAll(getFractileChars(Color.BLUE, region_fractiles.length));
 					List<DiscretizedFunc> depRateFractiles = getFractiles(ucerf3RateFuncs, weights,
-							"UCERF3 Time Dependent Total MPDs", fractiles);
+							"UCERF3 Time Dependent Total MPDs", region_fractiles);
 					depRegionMFDs.put(region.getName(), depRateFractiles);
 
 					String title = region.getName();
@@ -2767,25 +2771,25 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 					
 					// indep on bottom, only mean
-					List<DiscretizedFunc> indepFractiles = getFractiles(indepMPDs, origWeights, faultName+" Time Independent", fractiles);
-					DiscretizedFunc indepMean = indepFractiles.get(fractiles.length);
+					List<DiscretizedFunc> indepFractiles = getFractiles(indepMPDs, origWeights, faultName+" Time Independent", region_fractiles);
+					DiscretizedFunc indepMean = indepFractiles.get(region_fractiles.length);
 					indepFaultMPDs.put(faultName, indepFractiles);
 					indepFaultMFDs.put(faultName, getFractiles(indepMFDs, origWeights,
-							faultName+" Time Independent", fractiles));
+							faultName+" Time Independent", region_fractiles));
 					funcs.add(indepMean);
 					PlotCurveCharacterstics indepChar = getFractileChars(
-							Color.BLACK, fractiles.length).get(fractiles.length);
+							Color.BLACK, region_fractiles.length).get(region_fractiles.length);
 					indepChar.setLineWidth(2f);
 					chars.add(indepChar);
 					
 					// dep on top
-					List<DiscretizedFunc> depFractiles = getFractiles(depMPDs, weights, faultName+" Time Dependent", fractiles);
-					DiscretizedFunc depMean = depFractiles.get(fractiles.length);
+					List<DiscretizedFunc> depFractiles = getFractiles(depMPDs, weights, faultName+" Time Dependent", region_fractiles);
+					DiscretizedFunc depMean = depFractiles.get(region_fractiles.length);
 					depFaultMPDs.put(faultName, depFractiles);
 					depFaultMFDs.put(faultName, getFractiles(depMFDs, weights,
-							faultName+" Time Dependent", fractiles));
+							faultName+" Time Dependent", region_fractiles));
 					funcs.addAll(depFractiles);
-					chars.addAll(getFractileChars(Color.BLUE, fractiles.length));
+					chars.addAll(getFractileChars(Color.BLUE, region_fractiles.length));
 
 					String title = faultName;
 
@@ -2820,8 +2824,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 					}
 					
 					CSVFile<String> meanCSV = new CSVFile<String>(true);
-					CSVFile<String> p2p5CSV = new CSVFile<String>(true);
-					CSVFile<String> p97p5CSV = new CSVFile<String>(true);
+					List<CSVFile<String>> fractileCSVs = Lists.newArrayList();
+					for (int i=0; i<sub_sect_fractiles.length; i++)
+						fractileCSVs.add(new CSVFile<String>(true));
 					CSVFile<String> minCSV = new CSVFile<String>(true);
 					CSVFile<String> maxCSV = new CSVFile<String>(true);
 					CSVFile<String> poissonCSV = new CSVFile<String>(true);
@@ -2855,8 +2860,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 					Preconditions.checkNotNull(poissonProbs);
 					
 					meanCSV.addLine(header);
-					p2p5CSV.addLine(header);
-					p97p5CSV.addLine(header);
+					for (CSVFile<String> fractileCSV : fractileCSVs)
+						fractileCSV.addLine(header);
 					minCSV.addLine(header);
 					maxCSV.addLine(header);
 					poissonCSV.addLine(header);
@@ -2867,15 +2872,16 @@ public abstract class CompoundFSSPlots implements Serializable {
 						String name = poissonList.getName();
 						
 						List<DiscretizedFunc> allFractiles =
-								getFractiles(allList, weightsForFM, "", new double[] { 0.025, 0.975});
+								getFractiles(allList, weightsForFM, "", sub_sect_fractiles);
 						List<DiscretizedFunc> poissonFractiles =
 								getFractiles(poissonList, origWeightsForFM, "", new double[0]);
 
-						p2p5CSV.addLine(getMFDRow(allFractiles.get(0), name));
-						p97p5CSV.addLine(getMFDRow(allFractiles.get(1), name));
-						meanCSV.addLine(getMFDRow(allFractiles.get(2), name));
-						minCSV.addLine(getMFDRow(allFractiles.get(3), name));
-						maxCSV.addLine(getMFDRow(allFractiles.get(4), name));
+						int counter = 0;
+						for (int i=0; i<sub_sect_fractiles.length; i++)
+							fractileCSVs.get(i).addLine(getMFDRow(allFractiles.get(counter++), name));
+						meanCSV.addLine(getMFDRow(allFractiles.get(counter++), name));
+						minCSV.addLine(getMFDRow(allFractiles.get(counter++), name));
+						maxCSV.addLine(getMFDRow(allFractiles.get(counter++), name));
 						poissonCSV.addLine(getMFDRow(poissonFractiles.get(0), name));
 					}
 					
@@ -2887,11 +2893,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					
 					subSectsCSVs.put(duration, fm, csvs);
 					
-					csvs = Lists.newArrayList();
-					csvs.add(p2p5CSV);
-					csvs.add(p97p5CSV);
-					
-					subSectsPercentileCSVs.put(duration, fm, csvs);
+					subSectsPercentileCSVs.put(duration, fm, fractileCSVs);
 				}
 				
 				// parent sect probs
@@ -3031,7 +3033,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				for (int j=0; j<3; j++)
 					// loop over mean, min, max
 					for (String fault : names)
-						line.add(mpds.get(fault).get(j+fractiles.length).getY(i)+"");
+						line.add(mpds.get(fault).get(j+region_fractiles.length).getY(i)+"");
 				// now U2
 				if (!u2MPDs.isEmpty()) {
 					for (String fault : names) {

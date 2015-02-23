@@ -137,7 +137,8 @@ public class CommandLineInversionRunner {
 		COULOMB_EXCLUDE("coulombex", "coulomb-exclude-threshold", "CoulombExclusion", true,
 				"Set coulomb filter exclusion DCFF threshold"),
 		UCERF3p2("u3p2", "ucerf3p2", "U3p2", false, "Flag for reverting to UCERF3.2 rup set/data"),
-		RUP_SMOOTH_WT("rupsm", "rup-rate-smoothing-wt", "RupSmth", true, "Rupture rate smoothing constraint weight");
+		RUP_SMOOTH_WT("rupsm", "rup-rate-smoothing-wt", "RupSmth", true, "Rupture rate smoothing constraint weight"),
+		U2_MAPPED_RUPS_ONLY("u2rups", "u2-rups-only", "U2Rups", false, "UCERF2 Mappable Ruptures Only");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -318,6 +319,11 @@ public class CommandLineInversionRunner {
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					laughTest, defaultAseis, branch);
 			System.out.println("Num rups: "+rupSet.getNumRuptures());
+			
+			if (cmd.hasOption(InversionOptions.U2_MAPPED_RUPS_ONLY.argName)) {
+				rupSet = getUCERF2RupsOnly(rupSet);
+				System.out.println("Num rups after UCERF2 mapping: "+rupSet.getNumRuptures());
+			}
 
 			// store distances for jump plot later
 			Map<IDPairing, Double> distsMap = rupSet.getSubSectionDistances();
@@ -1851,6 +1857,42 @@ public class CommandLineInversionRunner {
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+	}
+	
+	private static InversionFaultSystemRupSet getUCERF2RupsOnly(InversionFaultSystemRupSet rupSet) {
+		List<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
+		
+		int newNumRups = 0;
+		for (double[] u2Vals : ucerf2_magsAndRates)
+			if (u2Vals != null)
+				newNumRups++;
+		
+		List<List<Integer>> sectionForRups = Lists.newArrayList();
+		double[] mags = new double[newNumRups];
+		double[] rakes = new double[newNumRups];
+		double[] rupAreas = new double[newNumRups];
+		double[] rupLengths = new double[newNumRups];
+		double[] rupAveSlips = new double[newNumRups];
+		
+		int cnt = 0;
+		for (int r=0; r<ucerf2_magsAndRates.size(); r++) {
+			if (ucerf2_magsAndRates.get(r) == null)
+				continue;
+			sectionForRups.add(rupSet.getSectionsIndicesForRup(r));
+			mags[cnt] = rupSet.getMagForRup(r);
+			rakes[cnt] = rupSet.getAveRakeForRup(r);
+			rupAreas[cnt] = rupSet.getAreaForRup(r);
+			rupLengths[cnt] = rupSet.getLengthForRup(r);
+			rupAveSlips[cnt] = rupSet.getAveSlipForRup(r);
+			cnt++;
+		}
+		
+		FaultSystemRupSet subset = new FaultSystemRupSet(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),
+				rupSet.getSlipRateStdDevForAllSections(), rupSet.getAreaForAllSections(),
+				sectionForRups, mags, rakes, rupAreas, rupLengths, rupSet.getInfoString());
+		
+		return new InversionFaultSystemRupSet(subset, rupSet.getLogicTreeBranch(), rupSet.getLaughTestFilter(), rupAveSlips,
+				null, null, null);
 	}
 	
 	public static boolean doRupPairingSmoothnessPlotsExist(File dir, String prefix) {

@@ -23,20 +23,26 @@ public class ScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
 		
+		String solTypeStr = "mapped";
+		String fssName = "ucerf2_mapped_sol.zip";
+//		String solTypeStr = "u3inverted";
+//		String fssName = "ucerf2_u3inverted_sol.zip";
+		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH};
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		ETAS_CyberShake_Scenarios[] scenarios = {
-				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
+//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
 				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
 				ETAS_CyberShake_Scenarios.PARKFIELD,
 				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
 		boolean timeIndep = false;
-		int numSims = 20000;
+		int numSims = 40000;
+		String nameAdd = "-round1";
 //		String nameAdd = "-nospont-round6";
-		String nameAdd = "-round5";
+//		String nameAdd = "-round5";
 		
 //		int memGigs = 9;
 //		int perNodeMemGB = 0;
@@ -52,7 +58,7 @@ public class ScriptGen {
 		BatchScriptWriter pbsWrite;
 		
 		remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/cybershake");
-		remoteSolFile = new File(remoteDir, "ucerf2_mapped_sol.zip");
+		remoteSolFile = new File(remoteDir, fssName);
 		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 		pbsWrite = new USC_HPCC_ScriptWriter();
@@ -62,7 +68,8 @@ public class ScriptGen {
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
 		for (ETAS_CyberShake_Scenarios scenario : scenarios) {
-			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
+			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
+					+"-"+solTypeStr+"-"+scenario.name().toLowerCase();
 			if (timeIndep)
 				jobName += "-indep";
 			if (nameAdd != null)
