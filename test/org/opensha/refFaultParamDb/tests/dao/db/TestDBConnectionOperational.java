@@ -19,6 +19,11 @@ public class TestDBConnectionOperational {
 	public void setUp() throws Exception {
 	}
 	
+	@Test
+	public void testFake() throws Throwable {
+		// do nothing
+	}
+	
 //	@Test
 //	public void testDirectConnection3() throws Throwable {
 //		runTestTimed(DB_ConnectionPool.getDB3ReadOnlyConn());
