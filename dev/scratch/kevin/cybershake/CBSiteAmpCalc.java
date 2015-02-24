@@ -46,6 +46,7 @@ import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -131,20 +132,20 @@ public class CBSiteAmpCalc {
 		CyberShakeComponent comp = CyberShakeComponent.RotD100;
 		double percentile = GMPEDeterministicComparisonCalc.default_percentile;
 		
-		HSSFSheet asceSheet = null;
-		FormulaEvaluator evaluator = null;
-		if (includeASCE) {
-			HSSFWorkbook wb;
-			try {
-				POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(asceFile));
-				wb = new HSSFWorkbook(fs);
-			} catch (Exception e1) {
-				System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
-				throw ExceptionUtils.asRuntimeException(e1);
-			}
-			asceSheet = wb.getSheetAt(0);
-			evaluator = wb.getCreationHelper().createFormulaEvaluator();
-		}
+//		HSSFSheet asceSheet = null;
+//		FormulaEvaluator evaluator = null;
+//		if (includeASCE) {
+//			HSSFWorkbook wb;
+//			try {
+//				POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(asceFile));
+//				wb = new HSSFWorkbook(fs);
+//			} catch (Exception e1) {
+//				System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
+//				throw ExceptionUtils.asRuntimeException(e1);
+//			}
+//			asceSheet = wb.getSheetAt(0);
+//			evaluator = wb.getCreationHelper().createFormulaEvaluator();
+//		}
 		
 		List<CybershakeIM> forceAddIMs = Lists.newArrayList();
 		for (Double period : periods)
@@ -256,23 +257,26 @@ public class CBSiteAmpCalc {
 				DiscretizedFunc probFunc = RTGMCalc.saToPsuedoVel(rtgmCalc.getGMPESpectrumMap().get(comp).get(0));
 				Preconditions.checkState(probFunc.size() == detFunc.size(), probFunc.size()+" != "+detFunc.size());
 				
-				DiscretizedFunc asceDeterm = null;
-				if (includeASCE) {
-					DiscretizedFunc xVals = detFunc.deepClone();
-					HSSFRow row = null;
-					for (int r=0; r<=asceSheet.getLastRowNum(); r++) {
-						HSSFRow testRow = asceSheet.getRow(r);
-						HSSFCell nameCell = testRow.getCell(0);
-						if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
-							row = testRow;
-							break;
-						}
-					}
-					Preconditions.checkState(row != null, "Couldn't find site "+site.short_name+" in ASCE spreadsheet");
-					double tl = MCERDataProductsCalc.loadASCEValue(row.getCell(4), evaluator);
-					double detASCE =  MCERDataProductsCalc.loadASCEValue(row.getCell(7), evaluator);
-					asceDeterm = MCERDataProductsCalc.calcASCE(xVals, detASCE, tl);
-				}
+				double vs30 = (Double)attenRels.get(0).getParameter(Vs30_Param.NAME).getValue();
+				
+				DiscretizedFunc asceDeterm = RTGMCalc.saToPsuedoVel(
+						MCERDataProductsCalc.calcASCE_DetLowerLimit(detFunc.deepClone(), vs30, site.createLocation()));
+//				if (includeASCE) {
+//					DiscretizedFunc xVals = detFunc.deepClone();
+//					HSSFRow row = null;
+//					for (int r=0; r<=asceSheet.getLastRowNum(); r++) {
+//						HSSFRow testRow = asceSheet.getRow(r);
+//						HSSFCell nameCell = testRow.getCell(0);
+//						if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
+//							row = testRow;
+//							break;
+//						}
+//					}
+//					Preconditions.checkState(row != null, "Couldn't find site "+site.short_name+" in ASCE spreadsheet");
+//					double tl = MCERDataProductsCalc.loadASCEValue(row.getCell(4), evaluator);
+//					double detASCE =  MCERDataProductsCalc.loadASCEValue(row.getCell(7), evaluator);
+//					asceDeterm = MCERDataProductsCalc.calcASCE(xVals, detASCE, tl);
+//				}
 				
 				DiscretizedFunc mcer = MCERDataProductsCalc.calcMCER(detFunc, probFunc, asceDeterm);
 				Preconditions.checkState(mcer.size() == periods.size());

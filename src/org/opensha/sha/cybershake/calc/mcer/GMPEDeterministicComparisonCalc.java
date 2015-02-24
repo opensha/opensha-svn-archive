@@ -148,6 +148,10 @@ public class GMPEDeterministicComparisonCalc {
 		this.siteDatas = siteDatas;
 	}
 	
+	public List<SiteDataValue<?>> getSiteData() {
+		return siteDatas;
+	}
+	
 	public void setCyberShakeData(List<DeterministicResult> csDeterms) {
 		this.csDeterms = csDeterms;
 	}

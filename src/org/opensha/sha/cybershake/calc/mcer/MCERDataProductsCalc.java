@@ -29,8 +29,12 @@ import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.dom4j.DocumentException;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.siteData.SiteData;
+import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -88,8 +92,8 @@ public class MCERDataProductsCalc {
 	private CybershakeSiteInfo2DB sites2db;
 	private CachedPeakAmplitudesFromDB amps2db;
 	
-	private HSSFSheet asceSheet;
-	private FormulaEvaluator evaluator;
+//	private HSSFSheet asceSheet;
+//	private FormulaEvaluator evaluator;
 	
 	private CyberShakeDeterministicCalc csDetCalc;
 	
@@ -148,18 +152,18 @@ public class MCERDataProductsCalc {
 		// load IMs
 		ims = amps2db.getIMs(periods, IMType.SA, comp);
 		
-		// load ASCE table
-		HSSFWorkbook wb;
-		try {
-			POIFSFileSystem fs = new POIFSFileSystem(
-					MCERDataProductsCalc.class.getResourceAsStream(ASCE_REL_PATH));
-			wb = new HSSFWorkbook(fs);
-		} catch (Exception e1) {
-			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
-			throw ExceptionUtils.asRuntimeException(e1);
-		}
-		asceSheet = wb.getSheetAt(0);
-		evaluator = wb.getCreationHelper().createFormulaEvaluator();
+//		// load ASCE table
+//		HSSFWorkbook wb;
+//		try {
+//			POIFSFileSystem fs = new POIFSFileSystem(
+//					MCERDataProductsCalc.class.getResourceAsStream(ASCE_REL_PATH));
+//			wb = new HSSFWorkbook(fs);
+//		} catch (Exception e1) {
+//			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
+//			throw ExceptionUtils.asRuntimeException(e1);
+//		}
+//		asceSheet = wb.getSheetAt(0);
+//		evaluator = wb.getCreationHelper().createFormulaEvaluator();
 	}
 	
 	public void calc(int runID) throws IOException {
@@ -267,34 +271,45 @@ public class MCERDataProductsCalc {
 			gmpeProb.set(period, rtgm);
 		}
 		
-		// load in ASCE values if available
-		HSSFRow row = null;
-		for (int r=0; r<=asceSheet.getLastRowNum(); r++) {
-			HSSFRow testRow = asceSheet.getRow(r);
-			HSSFCell nameCell = testRow.getCell(0);
-			if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
-				row = testRow;
-				break;
-			}
+//		// load in ASCE values if available
+//		HSSFRow row = null;
+//		for (int r=0; r<=asceSheet.getLastRowNum(); r++) {
+//			HSSFRow testRow = asceSheet.getRow(r);
+//			HSSFCell nameCell = testRow.getCell(0);
+//			if (nameCell != null && nameCell.getStringCellValue().trim().equals(site.short_name)) {
+//				row = testRow;
+//				break;
+//			}
+//		}
+//		DiscretizedFunc asceDeterm, asceProb;
+//		if (row == null) {
+//			System.out.println("WARNING: Couldn't find site "+site.short_name+" in ASCE spreadsheet");
+//			asceDeterm = null;
+//			asceProb = null;
+//		} else {
+//			DiscretizedFunc xVals = gmpeProb;
+//			double tl = loadASCEValue(row.getCell(4), evaluator);
+//			double prob = loadASCEValue(row.getCell(5), evaluator);
+//			double det = loadASCEValue(row.getCell(7), evaluator);
+//			asceDeterm = calcASCE(xVals, det, tl);
+//			asceProb = calcASCE(xVals, prob, tl);
+//			asceProb = null;
+//		}
+		// get vs30 from GMPE calc
+		double vs30 = Double.NaN;
+		for (SiteDataValue<?> val : gmpeDetermCalc.getSiteData()) {
+			if (val.getDataType().equals(SiteData.TYPE_VS30))
+				vs30 = (Double)val.getValue();
 		}
-		DiscretizedFunc asceDeterm, asceProb;
-		if (row == null) {
-			System.out.println("WARNING: Couldn't find site "+site.short_name+" in ASCE spreadsheet");
-			asceDeterm = null;
-			asceProb = null;
-		} else {
-			DiscretizedFunc xVals = gmpeProb;
-			double tl = loadASCEValue(row.getCell(4), evaluator);
-			double prob = loadASCEValue(row.getCell(5), evaluator);
-			double det = loadASCEValue(row.getCell(7), evaluator);
-			asceDeterm = calcASCE(xVals, det, tl);
-			asceProb = calcASCE(xVals, prob, tl);
-		}
+		Preconditions.checkState(!Double.isNaN(vs30), "Vs30 not loaded in GMPE calc");
+		// gmpeProb just used for x values here
+		DiscretizedFunc asceDeterm = calcASCE_DetLowerLimit(gmpeProb, vs30, site.createLocation());
+		DiscretizedFunc asceProb = null; // not used
 		
 		// now generate combined plots
 		System.out.println("Generating plots");
 		makePlots(runOutputDir, site, run, RTGMCalc.saToPsuedoVel(csDetSpectrum),
-				RTGMCalc.saToPsuedoVel(gmpeDetSpectrum), asceDeterm, RTGMCalc.saToPsuedoVel(csProb),
+				RTGMCalc.saToPsuedoVel(gmpeDetSpectrum), RTGMCalc.saToPsuedoVel(asceDeterm), RTGMCalc.saToPsuedoVel(csProb),
 				RTGMCalc.saToPsuedoVel(gmpeProb), asceProb);
 	}
 	
@@ -349,25 +364,27 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
-	public static DiscretizedFunc calcASCE(DiscretizedFunc xValsFunc, double val, double tl) {
-		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
-		
-		List<Double> xVals = Lists.newArrayList();
-		for (Point2D pt : xValsFunc)
-			xVals.add(pt.getX());
-		xVals.add(tl); // make sure that TL is in there
-		
-		for (double x : xVals) {
-			if (x <= tl)
-				ret.set(x, val);
-			else
-				ret.set(x, val*(tl/x));
-		}
-		
-		return ret;
-	}
+//	public static DiscretizedFunc calcASCE(DiscretizedFunc xValsFunc, double val, double tl) {
+//		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+//		
+//		List<Double> xVals = Lists.newArrayList();
+//		for (Point2D pt : xValsFunc)
+//			xVals.add(pt.getX());
+//		xVals.add(tl); // make sure that TL is in there
+//		
+//		for (double x : xVals) {
+//			if (x <= tl)
+//				ret.set(x, val);
+//			else
+//				ret.set(x, val*(tl/x));
+//		}
+//		
+//		return ret;
+//	}
 	
-	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double vs30, double tl) {
+	private static TLDataLoader tlData;
+	
+	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double vs30, Location loc) {
 		// convert vs30 from m/s to ft/s
 		vs30 *= 3.2808399;
 		double fa, fv;
@@ -392,6 +409,23 @@ public class MCERDataProductsCalc {
 			fa = 0.9;
 			fv = 2.4;
 		}
+		
+		synchronized (MCERDataProductsCalc.class) {
+			if (tlData == null) {
+				try {
+					tlData = new TLDataLoader(
+							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
+									"/resources/data/site/USGS_TL/tl-nodes.csv"), true),
+							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
+									"/resources/data/site/USGS_TL/tl-attributes.csv"), true));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		}
+		
+		double tl = tlData.getValue(loc);
+		Preconditions.checkState(!Double.isNaN(tl), "No TL data found for site at "+loc);
 		
 		return calcASCE_DetLowerLimit(xValsFunc, fv, fa, tl);
 	}
