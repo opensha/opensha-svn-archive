@@ -69,6 +69,7 @@ import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.faultSurface.utils.GriddedSurfaceUtils;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -108,30 +109,22 @@ public class ETAS_Simulator {
 	static boolean pause_for_events = false;
 	
 	/**
-	 * This represents an ETAS simulation.  
-	 * 
-	 * This assume ER probabilities are constant up until 
-	 * the next fault-system event (only works if fault system events occur every few years or
-	 * less).
-	 * 
-	 * TODO:
-	 * 
-	 * 0) get rid of ETAS_EqkRupture.setParentID() and the parentID field within (since pointer to parent rupture exists)
-	 * 1) define tests for all code elements
-	 * 2) document all the code
+	 * This version takes the pre-computed data arrays as arguments
 	 * 
 	 * 
-	 * @param resultsDir directory where results will be writer
+	 * @param resultsDir
+	 * @param erf
 	 * @param griddedRegion
-	 * @param obsEqkRuptureList
+	 * @param scenarioRup
+	 * @param histQkList
 	 * @param includeSpontEvents
 	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
 	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
-	 * @param simulationName 
+	 * @param simulationName
 	 * @param randomSeed - set for reproducibility, or set null if new seed desired
-	 * @throws IOException 
-
+	 * @param etasParams
+	 * @throws IOException
 	 */
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
@@ -150,22 +143,33 @@ public class ETAS_Simulator {
 	 * the next fault-system event (only works if fault system events occur every few years or
 	 * less).
 	 * 
-	 * What is assumed about region grid spacing? TODO
+	 * The IDs assigned to ETAS ruptures are as follows: the list index for events in the histQkList; histQkList.size() 
+	 * for any non-null scenarioRup; and the integers that follow the scenarioRup index for simulated events in order of 
+	 * creation (not occurrence)
+	 * 
+	 * TODO:
+	 * 
+	 * 0) get rid of ETAS_EqkRupture.setParentID() and the parentID field within (since pointer to parent rupture exists)
+	 * 1) define tests for all code elements
+	 * 2) document all the code
 	 * 
 	 * 
-	 * @param resultsDir directory where results will be writer
+	 * @param resultsDir
+	 * @param erf
 	 * @param griddedRegion
-	 * @param obsEqkRuptureList
+	 * @param scenarioRup
+	 * @param histQkList
 	 * @param includeSpontEvents
 	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
 	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
-	 * @param simulationName 
+	 * @param simulationName
 	 * @param randomSeed - set for reproducibility, or set null if new seed desired
-	 * @param fractionSrcAtPointList - from pre-computed data file
-	 * @param srcAtPointList - from pre-computed data file
-	 * @throws IOException 
-
+	 * @param fractionSrcInCubeListt - from pre-computed data file	TODO chance name of this
+	 * @param srcInCubeListt - from pre-computed data file	TODO chance name of this
+	 * @param inputIsCubeInsideFaultPolygont - from pre-computed data file
+	 * @param etasParams
+	 * @throws IOException
 	 */
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
@@ -227,7 +231,7 @@ public class ETAS_Simulator {
 			if(D) System.out.println("\t"+param.getName()+" = "+param.getValue());
 		}
 		
-		info_fr.flush();
+		info_fr.flush();	// this writes the above out now in case of crash
 		
 		// Make the list of observed ruptures, plus scenario if that was included
 		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
@@ -259,8 +263,6 @@ public class ETAS_Simulator {
 			}
 		}
 		
-		
-
 		// this will store the simulated aftershocks & spontaneous events (in order of occurrence) - ObsEqkRuptureList? (they're added in order anyway)
 		ObsEqkRupOrigTimeComparator oigTimeComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
 		PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);
@@ -333,53 +335,31 @@ public class ETAS_Simulator {
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		
 		
-//double[] sectRateArray = etas_PrimEventSampler.getCurrentRateOfEachSubsection();
-//List<FaultSectionPrefData> dataList = ((FaultSystemSolutionERF)erf).getSolution().getRupSet().getFaultSectionDataList();
-//System.out.println("Mojave S 9 Rate: "+sectRateArray[1846]+"\t"+dataList.get(1846).getName());
-//System.out.println("Mojave N 4 Rate: "+sectRateArray[1836]+"\t"+dataList.get(1836).getName());
-
-//System.out.println("Mojave S 9 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1846, scenarioRup)+"\t"+dataList.get(1846).getName());
-//System.out.println("Mojave N 4 Prob: "+etas_PrimEventSampler.tempGetSampleProbForAllCubesOnFaultSection(1836, scenarioRup)+"\t"+dataList.get(1836).getName());
-
-		// prevent supra-seis triggering on scenario surface if it's a FSS rupture
-//		if(scenarioRup != null && scenarioRup.getFSSIndex() >= 0)
-//			etas_PrimEventSampler.removeTriggeringOnSupraSeisRup(scenarioRup);
-
-//System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).getCumRateDistWithOffset().toString());
-//System.out.println("Mojave S 9 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1846, scenarioRup).toString());
-//System.out.println("Mojave S 3 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1840, scenarioRup).getCumRateDistWithOffset().toString());
-//System.out.println("Mojave S 3 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1840, scenarioRup).toString());
-//System.out.println("\nMojave N 4 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1836, scenarioRup).getCumRateDistWithOffset().toString());
-//System.out.println("\nMojave N 4 MFD: \n"+etas_PrimEventSampler.tempGetSampleMFD_ForAllCubesOnFaultSection(1836, scenarioRup).toString());
-//System.exit(-1);
-		
-		
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
 		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);	// not sure about the first field
 		int testParID=0;	// this will be used to test IDs
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
-		for(ETAS_EqkRupture rup: obsEqkRuptureList) {
-			int parID = rup.getID();
+		for(ETAS_EqkRupture parRup: obsEqkRuptureList) {
+			int parID = parRup.getID();
 			if(parID != testParID) 
 				throw new RuntimeException("problem with ID");
-			long rupOT = rup.getOriginTime();
+			long rupOT = parRup.getOriginTime();
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 			// get a list of random primary event times, in units of days since main shock
-//			double[] randomAftShockTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
-			double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-			if(rup.getID() == scenarioRupID)
+			double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), parRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+			if(parRup.getID() == scenarioRupID)
 				numPrimaryAshockForScenario = randomAftShockTimes.length;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
-					ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
-					newRup.setParentID(parID);
-					newRup.setGeneration(1);
-					newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
-					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
+					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parRup, eventID, ot);
+					newRup.setParentID(parID);	// TODO don't need this if it's set from parent rup in above constructor
+					newRup.setGeneration(1);	// TODO shouldn't need this either since it's 1 plus that of parent (also set in costructor)
+					newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface()));
+					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc()); // for efficiency
 					eventsToProcess.add(newRup);
 					eventID +=1;
 				}
@@ -413,7 +393,7 @@ public class ETAS_Simulator {
 
 		// If scenarioRup != null, compute ExpectedPrimaryMFD if in debug mode; this takes time!
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList=null;
-		boolean doit = true;
+		boolean doit = true;	// to be able to turn off even if in debug mode
 		if(D && scenarioRup !=null && doit) {
 			if(D) System.out.println("Computing Scenario Diagnostics");
 			long rupOT = scenarioRup.getOriginTime();
@@ -429,34 +409,6 @@ public class ETAS_Simulator {
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 			
 			expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
-			
-			
-//			etas_PrimEventSampler.tempAveSamplerAtFaults(scenarioRup);
-//			System.exit(-1);
-			
-			// compute expected MFD
-//			long st2 = System.currentTimeMillis();
-//			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
-//					etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(scenarioRup), scenarioRup, expNum);
-//			System.out.println("getExpectedPrimaryMFD_PDF took (msec) "+(System.currentTimeMillis()-st2));
-////			st2 = System.currentTimeMillis();
-//			expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Scenario", new File(resultsDir,"scenarioExpPrimMFD").getAbsolutePath(), 
-//					etas_PrimEventSampler.getExpectedPrimaryMFD_PDF_Alt(scenarioRup), scenarioRup, expNum);
-//			System.out.println("getExpectedPrimaryMFD_PDF_Alt took (msec) "+(System.currentTimeMillis()-st2));
-//
-// System.exit(-1);
-//			// Compute Primary Event Sampler Map
-//			etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(scenarioRup), "Primary Sampler for Scenario", "scenarioPrimaryMap", resultsDir);
-//			
-//			// Compute subsection participation probability map
-//			String info = etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(scenarioRup, resultsDir, 30, "_Scenario");
-//			
-//			// for subsection trigger probabilities (different than participation).
-//			info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(scenarioRup, resultsDir, 30, "_Scenario");
-//			
-//			System.out.println(info);	
-//			info_fr.write(info+"\n");
-
 
 		}
 		
@@ -464,7 +416,6 @@ public class ETAS_Simulator {
 			System.out.println("Testing the etas_PrimEventSampler");
 			etas_PrimEventSampler.testRates();
 //			etas_PrimEventSampler.testMagFreqDist();	// this is time consuming
-
 		}
 
 		CalcProgressBar progressBar;
@@ -491,7 +442,7 @@ public class ETAS_Simulator {
 		else
 			mapThread = null;
 		
-		if (D && pause_for_events) {
+		if (D && pause_for_events) {	// this is demo mode for talks; so it can be set to go when the button hit
 			try {
 				JOptionPane.showMessageDialog(null, "Continue", "Ready To Generate Events", JOptionPane.PLAIN_MESSAGE);
 			} catch (HeadlessException e) {
@@ -505,7 +456,7 @@ public class ETAS_Simulator {
 			
 			ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 			
-			boolean succeededInSettingRupture=true;
+			boolean succeededInSettingRupture=true;	// used later to indicate whether ETAS Primary event sampler succeeded in sampling an event
 			
 			if(rup.getParentID() == -1)	{ // it's a spontaneous event TODO
 //			if(rup.getParentRup() == null)	{ // it's a spontaneous event
@@ -566,8 +517,8 @@ public class ETAS_Simulator {
 					for(int i=0; i<eventTimes.length;i++) {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
 						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
-						newRup.setGeneration(gen);
-						newRup.setParentID(parID);
+						newRup.setGeneration(gen);	// TODO have set in above constructor?
+						newRup.setParentID(parID);	// TODO have set in above constructor?
 						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
 						etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
 						eventsToProcess.add(newRup);
@@ -634,7 +585,7 @@ public class ETAS_Simulator {
 				}
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
-					System.out.println("Running plotExpectedPrimaryMFD_ForRup");
+					System.out.println("Running generateRuptureDiagnostics(*)");
 					double startDay = 0.0;	// from the moment it occurs
 					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
@@ -642,30 +593,9 @@ public class ETAS_Simulator {
 					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
 					
 					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
-//					info_fr.write("\nObserved number of primary events for "+rupInfo+": "+?????+"\n");
 					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
-//					System.out.println("Observed number of primary events for Scenario: "+?????+"\n");
 
 					etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
-
-//					String tempFileName = new File(resultsDir,"FltSysRup"+fltSysRupIndex+"_ExpPrimMFD").getAbsolutePath();
-//					ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup("Triggered Supra Seis Flt Sys Rup #"+fltSysRupIndex, tempFileName, etas_PrimEventSampler.getExpectedPrimaryMFD_PDF(rup), rup, expNum);
-
-	
-//					String nameSuffix = "triggered"+(nthFaultSysRupAftershocks.size()-1);
-//					// Compute Primary Event Sampler Map
-//					etas_PrimEventSampler.plotSamplerMap(etas_PrimEventSampler.getAveSamplerForRupture(rup), "Primary Sampler for "+nameSuffix, nameSuffix+"_PrimaryMap", resultsDir);
-//					
-//					// Compute subsection participation probability map
-//					info += "\n\n"+etas_PrimEventSampler.plotSubSectParticipationProbGivenRuptureAndReturnInfo(rup, resultsDir, 30, nameSuffix);
-//					
-//					// for subsection trigger probabilities (different than participation).
-//					info += "\n\n"+ etas_PrimEventSampler.plotSubSectRelativeTriggerProbGivenSupraSeisRupture(rup, resultsDir,30, nameSuffix);
-//					
-//					System.out.println(info);	
-//					info_fr.write(info+"\n");
-//					info_fr.close();
-//					System.exit(-1);
 
 				}
 			}
@@ -727,8 +657,6 @@ public class ETAS_Simulator {
 			testEventStats+="\tTotal Observed Num Aftershocks:\n\t\tAt main-shock mag = "+obsAllNumAtMainMag+"\n\t\tAt one minus main-shock mag = "+obsAllNumAtMainMagMinusOne+"\n";
 			if(D) System.out.println(testEventStats);
 			info_fr.write(testEventStats);
-
-			
 		} else if (D) {
 			ETAS_SimAnalysisTools.plotEpicenterMap(simulationName, new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), null, simulatedRupsQueue, griddedRegion.getBorder());
 		}
@@ -859,6 +787,17 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
+		
+//		testERF_ParamChanges(erf);
+//		System.exit(-1);
+		
+//		// print surpise valley surface (lowest GR corr)
+//		FaultSectionPrefData surpriseFaultData = erf.getSolution().getRupSet().getFaultSectionData(2460);
+//		System.out.println(surpriseFaultData.getName());
+//		StirlingGriddedSurface surf = surpriseFaultData.getStirlingGriddedSurface(1.0, false, true);
+//		System.out.println("Mid surf loc: "+surf.getLocation(surf.getNumRows()/2, surf.getNumCols()/2));
+//		System.exit(-1);
+		
 		
 //		IncrementalMagFreqDist testMFD = ((InversionFaultSystemSolution)erf.getSolution()).getFinalTotalNucleationMFD_forSect(1846, 2.05, 8.95, 70);
 //		IncrementalMagFreqDist testMFD2 = ((InversionFaultSystemSolution)erf.getSolution()).getFinalTrulyOffFaultMFD();
@@ -1043,9 +982,10 @@ public class ETAS_Simulator {
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
+		NEAR_SURPRISE_VALLEY_6p0("Near Surprise Valley 6.0", new Location(41.83975, -120.12356, 4.67500), 6.0),
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
-		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 5.0),	// on N edge of the Mojave scenario
+		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
 		NEAR_N_MOJAVE_3KM("On N Mojave", getMojaveTestLoc(3.0), 5.0),	// on N edge of the Mojave scenario
 		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d), // will prompt when built, these are just defaults
 		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
@@ -1100,6 +1040,68 @@ public class ETAS_Simulator {
 		}
 	}
 	
+	/**
+	 *  A temporary method to see if switching back and forth from Poisson to Time Dependent effects
+	 *  parameter values (e.g., start time and duration).
+	 *  
+	 * @param erf
+	 */
+	public static void testERF_ParamChanges(FaultSystemSolutionERF_ETAS erf) {
+		
+		ArrayList paramValueList = new ArrayList();
+		System.out.println("\nOrig ERF Adjustable Paramteres:\n");
+		for(Parameter param : erf.getAdjustableParameterList()) {
+			System.out.println("\t"+param.getName()+" = "+param.getValue());
+			paramValueList.add(param.getValue());
+		}
+		TimeSpan tsp = erf.getTimeSpan();
+		String startTimeString = tsp.getStartTimeMonth()+"/"+tsp.getStartTimeDay()+"/"+tsp.getStartTimeYear()+"; hr="+tsp.getStartTimeHour()+"; min="+tsp.getStartTimeMinute()+"; sec="+tsp.getStartTimeSecond();
+		double duration = erf.getTimeSpan().getDuration();
+		System.out.println("\tERF StartTime: "+startTimeString);
+		System.out.println("\tERF TimeSpan Duration: "+duration+" years");
+		paramValueList.add(startTimeString);
+		paramValueList.add(duration);
+		int numParams = paramValueList.size();
+		
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		System.out.println("\nPois ERF Adjustable Paramteres:\n");
+		for(Parameter param : erf.getAdjustableParameterList()) {
+			System.out.println("\t"+param.getName()+" = "+param.getValue());
+		}
+		tsp = erf.getTimeSpan();
+		startTimeString = tsp.getStartTimeMonth()+"/"+tsp.getStartTimeDay()+"/"+tsp.getStartTimeYear()+"; hr="+tsp.getStartTimeHour()+"; min="+tsp.getStartTimeMinute()+"; sec="+tsp.getStartTimeSecond();
+		System.out.println("\tERF StartTime: "+startTimeString);
+		System.out.println("\tERF TimeSpan Duration: "+erf.getTimeSpan().getDuration()+" years");
+
+		
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_BPT);
+		erf.updateForecast();
+		System.out.println("\nFinal ERF Adjustable Paramteres:\n");
+		int testNum = erf.getAdjustableParameterList().size()+2;
+		if(numParams != testNum) {
+			System.out.println("PROBLEM: num parameters changed:\t"+numParams+"\t"+testNum);
+		}
+		int i=0;
+		for(Parameter param : erf.getAdjustableParameterList()) {
+			System.out.println("\t"+param.getName()+" = "+param.getValue());
+			if(param.getValue() != paramValueList.get(i))
+				System.out.println("PROBLEM: "+param.getValue()+"\t"+paramValueList.get(i));
+			i+=1;
+		}
+		tsp = erf.getTimeSpan();
+		double duration2 = erf.getTimeSpan().getDuration();
+		String startTimeString2 = tsp.getStartTimeMonth()+"/"+tsp.getStartTimeDay()+"/"+tsp.getStartTimeYear()+"; hr="+tsp.getStartTimeHour()+"; min="+tsp.getStartTimeMinute()+"; sec="+tsp.getStartTimeSecond();
+		System.out.println("\tERF StartTime: "+startTimeString2);
+		System.out.println("\tERF TimeSpan Duration: "+duration2+" years");
+		if(!startTimeString2.equals(startTimeString))
+			System.out.println("PROBLEM: "+startTimeString2+"\t"+startTimeString2);
+		if(duration2 != duration)
+			System.out.println("PROBLEM Duration: "+duration2+"\t"+duration);
+
+
+	}
+	
 
 	/**
 	 * @param args
@@ -1132,7 +1134,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
-//		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_1", null);
+		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_2", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, params, new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, params, null, "LaHabraTest_1", null);
 //		runTest(null, params, null, "NoMainshockTest_1", null);
@@ -1142,7 +1144,8 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_25", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

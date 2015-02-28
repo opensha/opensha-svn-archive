@@ -105,6 +105,9 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	public static final String NAME = "Fault System Solution ERF";
 	private String name = NAME;
 	
+	// these are to chache timespan object for switching back and forth between time-independent (ti) and time-dependent (td) models.
+	protected TimeSpan tiTimeSpanCache, tdTimeSpanCache;
+	
 	// Adjustable parameters
 	public static final String FILE_PARAM_NAME = "Solution Input File";
 	protected FileParameter fileParam;
@@ -524,18 +527,24 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	 */
 	protected void initTimeSpan() {
 		if(probModel == ProbabilityModelOptions.POISSON) {
-			timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-			timeSpan.setDuration(DURATION_DEFAULT);
-			timeSpan.addParameterChangeListener(this);
+			if(tiTimeSpanCache == null) {
+				tiTimeSpanCache = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+				tiTimeSpanCache.setDuration(DURATION_DEFAULT);
+				tiTimeSpanCache.addParameterChangeListener(this);
+			}
+			timeSpan = tiTimeSpanCache;
 		}
 		else {
-			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
-			timeSpan.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
-			timeSpan.setDuration(DURATION_DEFAULT);
-			timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
-			timeSpan.setStartTime(START_TIME_DEFAULT);
+			if(tdTimeSpanCache == null) {
+				tdTimeSpanCache = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+				tdTimeSpanCache.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
+				tdTimeSpanCache.setDuration(DURATION_DEFAULT);
+				tdTimeSpanCache.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
+				tdTimeSpanCache.setStartTime(START_TIME_DEFAULT);	
+				tdTimeSpanCache.addParameterChangeListener(this);			
+			}
+			timeSpan = tdTimeSpanCache;
 		}
-		timeSpan.addParameterChangeListener(this);			
 	}
 
 	

@@ -28,6 +28,13 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
  *
  * <b>Title:</b> EqkRupture<br>
  * <b>Description:</b> <br>
+ * 
+ * 
+ * 
+ * TODO resolve potential inconsistencies between:
+ * 
+ * 		perentID  and  parentRup.getID()
+ * 		generation and parentRup.getGeneration()+1
  *
  * @author Ned Field
  * @version 1.0
@@ -43,13 +50,25 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	
 	public ETAS_EqkRupture() {};
 	
+	/**
+	 * This sets the magnitude, surface, and rake from the given rupture
+	 * (e.g., conversion from ProbEqkRupture to ETAS_EqkRupture).  All other
+	 * values are default.  Note that the surface is a pointer to the original.
+	 * @param probRup
+	 */
 	public ETAS_EqkRupture(ProbEqkRupture probRup) {
 		this.setMag(probRup.getMag());
 		this.setRuptureSurface(probRup.getRuptureSurface());
 		this.setAveRake(probRup.getAveRake());
 	}
 	
-	
+
+	/**
+	 * This sets the magnitude, surface, rake, origin time, and event ID from the given rupture
+	 * (e.g., conversion from ObsEqkRupture to ETAS_EqkRupture).  All other
+	 * values are default.  Note that the surface is a pointer to the original.
+	 * @param probRup
+	 */
 	public ETAS_EqkRupture(ObsEqkRupture probRup) {
 		this.setMag(probRup.getMag());
 		this.setRuptureSurface(probRup.getRuptureSurface());
@@ -58,6 +77,12 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 		this.setEventId(probRup.getEventId());
 	}
 	
+	/**
+	 * This sets only the values given; other things to be filled in later
+	 * @param parentRup
+	 * @param id
+	 * @param originTimeInMillis
+	 */
 	public ETAS_EqkRupture(ETAS_EqkRupture parentRup, int id, long originTimeInMillis) {
 		this.parentRup=parentRup;
 		this.id=id;

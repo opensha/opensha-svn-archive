@@ -31,12 +31,15 @@ public class FaultSystemSolutionERF_ETAS extends FaultSystemSolutionERF {
 	 */
 	@Override
 	protected void initTimeSpan() {
-			timeSpan = new TimeSpan(TimeSpan.MILLISECONDS, TimeSpan.YEARS);
-			timeSpan.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
-			timeSpan.setDuration(DURATION_DEFAULT);
-			timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
-			timeSpan.setStartTime(START_TIME_DEFAULT, 1, 1, 0, 0, 0, 0);
-			timeSpan.addParameterChangeListener(this);			
+		if(tdTimeSpanCache == null) {
+			tdTimeSpanCache = new TimeSpan(TimeSpan.MILLISECONDS, TimeSpan.YEARS);
+			tdTimeSpanCache.setDuractionConstraint(DURATION_MIN, DURATION_MAX);
+			tdTimeSpanCache.setDuration(DURATION_DEFAULT);
+			tdTimeSpanCache.setStartTimeConstraint(TimeSpan.START_YEAR, START_TIME_MIN, START_TIME_MAX);
+			tdTimeSpanCache.setStartTime(START_TIME_DEFAULT, 1, 1, 0, 0, 0, 0);
+			tdTimeSpanCache.addParameterChangeListener(this);		
+		}
+		timeSpan = tdTimeSpanCache;
 	}
 
 

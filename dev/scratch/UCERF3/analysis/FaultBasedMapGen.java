@@ -223,7 +223,19 @@ public class FaultBasedMapGen {
 	}
 	
 	
-	
+	/**
+	 * Warning - this uses a fault system solution, whereas an ERF will have different results due to minimum supra-seis mag
+	 * cutoff, aleatory variability added to mag-area for fault ruptures, and perhaps other things.
+	 * @param sol
+	 * @param region
+	 * @param saveDir
+	 * @param prefix
+	 * @param display
+	 * @param logRatio
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
 	public static void plotBulgeFromFirstGenAftershocksMap(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio) 
 			throws GMT_MapException, RuntimeException, IOException {
 

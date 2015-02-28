@@ -47,10 +47,12 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -58,6 +60,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.base.Preconditions;
@@ -403,7 +406,7 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	/**
-	 * 
+	 * This plots an Epicenter map using JFreeChart
 	 * @param info
 	 * @param pdf_FileNameFullPath - set null is not PDF plot desired
 	 * @param mainShock - leave null if not available or desired
@@ -481,7 +484,14 @@ public class ETAS_SimAnalysisTools {
 	
 	
 	
-	
+	/**
+	 * This plots MFDs for all events and all aftershocks (regardless of parent).  TODO Does the 
+	 * latter make any sense?
+	 * 
+	 * @param info
+	 * @param resultsDir
+	 * @param eventsList
+	 */
 	public static void plotMagFreqDists(String info, File resultsDir, Collection<ETAS_EqkRupture> eventsList) {
 		
 		// get the observed mag-prob dist for the sampled set of events 
@@ -494,7 +504,7 @@ public class ETAS_SimAnalysisTools {
 		}
 		allEventsMagProbDist.setName("All Events MFD for simulation "+info);
 		allEventsMagProbDist.setInfo("Total Num = "+allEventsMagProbDist.calcSumOfY_Vals());
-		aftershockMagProbDist.setName("Aftershock MFD for simulation "+info);
+		aftershockMagProbDist.setName("All Aftershocks MFD for simulation "+info);
 		aftershockMagProbDist.setInfo("Total Num = "+aftershockMagProbDist.calcSumOfY_Vals());
 		
 		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
@@ -585,7 +595,12 @@ public class ETAS_SimAnalysisTools {
 
 	
 	/**
-	 * This plots the results returned by getAftershockMFDsForRup(Collection<ETAS_EqkRupture> eventsList, int rupID, String info)
+	 * This plots the the two elements of mfdList, where the first is allAftershocksMFD and the second is 
+	 * primaryAftershocksMFD for a given parent rupture; MFDs are total counts, not annualized rates.
+
+	 * 
+	 * mfdList is what is returned by getAftershockMFDsForRup(Collection<ETAS_EqkRupture> eventsList, int rupID, String info)
+	 * 
 	 * @param info
 	 * @param resultsDir
 	 * @param eventsList
@@ -1052,10 +1067,14 @@ public class ETAS_SimAnalysisTools {
 
 
 	/**
-	 * This plots a histogram time since parent for aftershocks.
+	 * This plots a histogram of the number of ruptures versus time since parent for the simulated catalog,
+	 * and compares to the target function.
 	 * @param info
 	 * @param pdf_FileName
 	 * @param simulatedRupsQueue
+	 * @param etasProductivity_k
+	 * @param etasTemporalDecay_p
+	 * @param etasMinTime_c
 	 */
 	public static void plotNumVsTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
 			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
@@ -1129,10 +1148,14 @@ public class ETAS_SimAnalysisTools {
 
 	
 	/**
-	 * This plots a histogram of log10 time since parent for aftershocks.
+	 * This plots a histogram of number of events versus log10 time since parent for simulated ruptures, 
+	 * and compares with the target function.
 	 * @param info
 	 * @param pdf_FileName
 	 * @param simulatedRupsQueue
+	 * @param etasProductivity_k
+	 * @param etasTemporalDecay_p
+	 * @param etasMinTime_c
 	 */
 	public static void plotNumVsLogTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
 			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
@@ -1202,6 +1225,9 @@ public class ETAS_SimAnalysisTools {
 	}
 
 	
+	/**
+	 * This writes simulated event data to a file.
+	 */
 	public static void writeEventDataToFile(String fileName, Collection<ETAS_EqkRupture> simulatedRupsQueue)
 			throws IOException {
 		FileWriter fw1 = new FileWriter(fileName);
@@ -1212,10 +1238,22 @@ public class ETAS_SimAnalysisTools {
 		fw1.close();
 	}
 	
+	/**
+	 * This writes the header associated with the writeEventDataToFile(*) method
+	 * @param fileWriter
+	 * @throws IOException
+	 */
 	public static void writeEventHeaderToFile(FileWriter fileWriter) throws IOException {
 		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
 	}
 	
+	
+	/**
+	 * This writes the given rupture to the given fileWriter
+	 * @param fileWriter
+	 * @param rup
+	 * @throws IOException
+	 */
 	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) throws IOException {
 		Location hypoLoc = rup.getHypocenterLocation();
 		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
@@ -1318,6 +1356,16 @@ public class ETAS_SimAnalysisTools {
 	    System.out.println("\ttotal free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024));
 	}
 	
+	
+	/**
+	 * This plots the given catalog using GMT.
+	 * @param catalog
+	 * @param outputDir
+	 * @param outputPrefix
+	 * @param display
+	 * @throws IOException
+	 * @throws GMT_MapException
+	 */
 	public static void plotCatalogGMT(List<? extends ObsEqkRupture> catalog, File outputDir, String outputPrefix, boolean display)
 			throws IOException, GMT_MapException {
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(2.5d, 8.5d);
@@ -1358,6 +1406,8 @@ public class ETAS_SimAnalysisTools {
 		FaultBasedMapGen.plotMap(outputDir, outputPrefix, display, map);
 	}
 	
+	
+	
 	public static int getFSSIndex(ETAS_EqkRupture rup, FaultSystemSolutionERF erf) {
 		int nthIndex = rup.getNthERF_Index();
 		Preconditions.checkState(nthIndex >= 0, "No Nth rupture index!");
@@ -1382,8 +1432,11 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	/**
-	 * This will set the rupture surface in each ETAS_EqkRupture with an Nth rupture index that corresponds
-	 * to a fault systen rupture in the given erf
+	 * This will set the rupture surface in each ETAS_EqkRupture with that from the given ERF using the 
+	 * Nth rupture index in each ETAS_EqkRupture (e.g., use this when the catalog is read from a file that
+	 * does not contain the finite rupture-surface data).  This assumes compatibility between the catalog 
+	 * and erf.  TODO Is this latter assumption tested anywhere?
+	 * 
 	 * @param catalog
 	 * @param erf
 	 */
@@ -1401,6 +1454,9 @@ public class ETAS_SimAnalysisTools {
 	
 	/**
 	 * This will return a catalog that contains only ruptures that are, or are children/grandchildren/etc of the given
+	 * 
+	 * TODO does this assume the given list is in chronological order?
+	 * 
 	 * parent event ID.
 	 * @param catalog
 	 * @param parentID
@@ -1607,6 +1663,9 @@ public class ETAS_SimAnalysisTools {
 		return indices;
 
 	}
+	
+	
+	
 	
 	
 	

@@ -696,7 +696,7 @@ public class FaultSysSolutionERF_Calc {
 	 * @return
 	 */
 	public static SummedMagFreqDist[] calcNucleationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
-		InversionFaultSystemRupSet rupSet = ((InversionFaultSystemSolution)erf.getSolution()).getRupSet();
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
 		
 		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
 		for(int i=0;i<mfdArray.length;i++) {
@@ -719,40 +719,6 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 
-	/**
-	 * This computes time-independent fault section nuclation MFD, accounting for any applied time dependence, aleatory mag-area 
-	 * uncertainty, and smaller ruptures set to zero in the ERF (which is how this differs from 
-	 * InversionFaultSystemSolution.calcNucleationRateForAllSects(*)), and assuming a uniform distribution
-	 * of nucleations over the rupture surface.
-	 * @param erf
-	 * @param min, max, and num (MFD discretization values)
-	 * @return
-	 */
-	public static SummedMagFreqDist[] calcTimeIndNucleationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
-		double[] longTermRatesArray = erf.getLongTermRateOfFltSysRupInERF();
-		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
-		
-		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
-		for(int i=0;i<mfdArray.length;i++) {
-			mfdArray[i] = new SummedMagFreqDist(min,max,num);
-		}
-		double duration = erf.getTimeSpan().getDuration();
-		
-		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
-			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min, max, num, true);
-			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
-			// normalized by long-term rate
-			srcMFD.scaleToCumRate(0, longTermRatesArray[fssRupIndex]);
-			double rupArea = rupSet.getAreaForRup(fssRupIndex);
-			for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex)) {
-				double sectArea = rupSet.getAreaForSection(sectIndex);
-				for(int i=0;i<num;i++) {
-					mfdArray[sectIndex].add(i,srcMFD.getY(i)*sectArea/rupArea);
-				}
-			}
-		}
-		return mfdArray;
-	}
 
 	
 	/**

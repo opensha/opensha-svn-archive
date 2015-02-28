@@ -79,6 +79,7 @@ public class ETAS_LocationWeightCalculator {
 	 * @param midLat - the mid latitude used to compute bin widths (since widths decrease with latitude)
 	 * @param etasDistDecay - the ETAS distance decay parameter
 	 * @param etasMinDist - the ETAS min distance
+	 * @param etas_utils - used for generating random samples so that reproducibility can be maintained.
 	 */
 	public ETAS_LocationWeightCalculator(double maxDistKm, double maxDepthKm, double latLonDiscrDeg, double depthDiscrKm, 
 			double midLat, double etasDistDecay, double etasMinDist, ETAS_Utils etas_utils) {
