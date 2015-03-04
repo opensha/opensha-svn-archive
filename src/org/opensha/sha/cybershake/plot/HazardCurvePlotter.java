@@ -869,9 +869,8 @@ public class HazardCurvePlotter {
 	
 	private Color getNextCSColor() {
 		if (csPlotColors == null) {
-			csPlotColors = Lists.newArrayList();
-			for (int i=3; i<7; i++)
-				csPlotColors.add(getColorForVM(i));
+			csPlotColors = Lists.newArrayList(Color.BLUE, Color.BLACK, Color.RED, Color.GREEN,
+					Color.ORANGE, Color.CYAN, Color.MAGENTA);
 		}
 		
 		if (csColorIndex == csPlotColors.size())
