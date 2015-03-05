@@ -1262,6 +1262,12 @@ public class ETAS_SimAnalysisTools {
 					+"\t"+rup.getFSSIndex()+"\t"+rup.getGridNodeIndex()+"\n");
 	}
 	
+	/**
+	 * This loads an ETAS rupture from a line of an ETAS catalog text file.
+	 * 
+	 * @param line
+	 * @return
+	 */
 	public static ETAS_EqkRupture loadRuptureFromFileLine(String line) {
 		line = line.trim();
 		
@@ -1301,10 +1307,26 @@ public class ETAS_SimAnalysisTools {
 		return rup;
 	}
 	
+	/**
+	 * Loads an ETAS catalog from the given text catalog file
+	 * 
+	 * @param catalogFile
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile) throws IOException {
 		return loadCatalog(catalogFile, -10d);
 	}
 	
+	/**
+	 * Loads an ETAS catalog from the given text catalog file. Only ruptures with magnitudes greater than or equal
+	 * to minMag will be returned.
+	 * 
+	 * @param catalogFile
+	 * @param minMag
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag) throws IOException {
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
@@ -1318,10 +1340,26 @@ public class ETAS_SimAnalysisTools {
 		return catalog;
 	}
 	
+	/**
+	 * Loads an ETAS catalog from the given text catalog file input stream.
+	 * 
+	 * @param catalogStream
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream) throws IOException {
 		return loadCatalog(catalogStream, -10d);
 	}
 	
+	/**
+	 * Loads an ETAS catalog from the given text catalog file input stream. Only ruptures with magnitudes greater
+	 * than or equal to minMag will be returned.
+	 * 
+	 * @param catalogStream
+	 * @param minMag
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream, double minMag) throws IOException {
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(catalogStream));
@@ -1407,7 +1445,14 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
-	
+	/**
+	 * This will return the fault system solution index of the given rupture, or -1 if it is a gridded
+	 * seismicity rupture. This assumes that the Nth rupture index has already been set in the given rupture.
+	 * 
+	 * @param rup
+	 * @param erf
+	 * @return
+	 */
 	public static int getFSSIndex(ETAS_EqkRupture rup, FaultSystemSolutionERF erf) {
 		int nthIndex = rup.getNthERF_Index();
 		Preconditions.checkState(nthIndex >= 0, "No Nth rupture index!");
@@ -1423,6 +1468,11 @@ public class ETAS_SimAnalysisTools {
 		return -1;
 	}
 	
+	/**
+	 * This will set the fault system solution index in each ETAS rupture from the Nth rupture index. 
+	 * @param catalog
+	 * @param erf
+	 */
 	public static void loadFSSIndexesFromNth(List<ETAS_EqkRupture> catalog, FaultSystemSolutionERF erf) {
 		for (ETAS_EqkRupture rup : catalog) {
 			int fssIndex = getFSSIndex(rup, erf);
@@ -1454,10 +1504,8 @@ public class ETAS_SimAnalysisTools {
 	
 	/**
 	 * This will return a catalog that contains only ruptures that are, or are children/grandchildren/etc of the given
+	 * parent event ID. This assumes that events are in chronological order.
 	 * 
-	 * TODO does this assume the given list is in chronological order?
-	 * 
-	 * parent event ID.
 	 * @param catalog
 	 * @param parentID
 	 * @return
@@ -1478,6 +1526,14 @@ public class ETAS_SimAnalysisTools {
 		return ret;
 	}
 	
+	/**
+	 * Generates a scatter plot of the number of aftershocks vs the maximum aftershock magnitude for a given
+	 * suite of ETAS simulated catalogs. If parentID is supplied, the catalogs will first be filtered to only
+	 * contain descendants of that rupture.
+	 * 
+	 * @param catalogs
+	 * @param parentID
+	 */
 	public static void plotMaxMagVsNumAftershocks(List<List<ETAS_EqkRupture>> catalogs, int parentID) {
 		try {
 			plotMaxMagVsNumAftershocks(catalogs, parentID, 0d, null, null);
@@ -1486,6 +1542,22 @@ public class ETAS_SimAnalysisTools {
 		}
 	}
 	
+	/**
+	 * Generates a scatter plot of the number of aftershocks vs the maximum aftershock magnitude for a given
+	 * suite of ETAS simulated catalogs. If parentID is supplied, the catalogs will first be filtered to only
+	 * contain descendants of that rupture.
+	 * 
+	 * If outputFile is non null, plot will be written to the given file instead of displayed interactively.
+	 * 
+	 * If title is non null, the plot title will be replaced with the given title
+	 * 
+	 * @param catalogs
+	 * @param parentID
+	 * @param mainShockMag
+	 * @param outputFile
+	 * @param title
+	 * @throws IOException
+	 */
 	public static void plotMaxMagVsNumAftershocks(List<List<ETAS_EqkRupture>> catalogs, int parentID,
 			double mainShockMag, File outputFile, String title) throws IOException {
 		XY_DataSet scatter = new DefaultXY_DataSet();
