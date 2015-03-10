@@ -32,6 +32,7 @@ import org.opensha.commons.param.constraint.ParameterConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.commons.param.editor.impl.ConstrainedDoubleDiscreteParameterEditor;
+import org.opensha.commons.util.ExceptionUtils;
 
 /**
  * <b>Title:</b> DoubleDiscreteParameter<p>
@@ -386,7 +387,7 @@ implements Parameter<Double>
 				try {
 					paramEdit = new ConstrainedDoubleDiscreteParameterEditor(this);
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					ExceptionUtils.throwAsRuntimeException(e);
 				}
 		}
 		return paramEdit;
