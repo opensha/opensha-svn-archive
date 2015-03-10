@@ -4992,20 +4992,24 @@ public class FaultSysSolutionERF_Calc {
 		float[] tableMags = { 6.7f, 7f, 7.5f, 8f };
 		int[] tableColumns = { 18, 21, 26, 31 };
 		
-		int numProbCols = timeDepPercentileCSVs.size()+3;
+//		int numProbCols = timeDepPercentileCSVs.size()+3;
+		int numProbCols = timeDepPercentileCSVs.size()+1;
 		Color probColor = new Color(230, 230, 230); // very light gray
 		Color gainColor = new Color(230, 200, 200); // very light red
 		List<String[]> headers = Lists.newArrayList();
-		List<String> firstHeader = Lists.newArrayList("", "30 Year Participation Prob (%)<sup>1</sup>");
-		for (int i=0; i<timeDepPercentileCSVs.size()+2; i++)
+		List<String> firstHeader = Lists.newArrayList("", "30 Year Participation Prob (%)");
+//		for (int i=0; i<timeDepPercentileCSVs.size()+2; i++)
+		for (int i=0; i<timeDepPercentileCSVs.size(); i++)
 			firstHeader.add(col_span_placeholder);
-		firstHeader.add("Gain");
+		firstHeader.add("Ratios");
 		firstHeader.add(col_span_placeholder);
 		headers.add(firstHeader.toArray(new String[0]));
-		List<String> secondHeader = Lists.newArrayList("Min Mag", "Mean", "Min");
+//		List<String> secondHeader = Lists.newArrayList("Mag", "Mean", "Min");
+		List<String> secondHeader = Lists.newArrayList("Mag", "<b>Mean</b><sup>1</sup>");
 		for (double p : timeDepPercentiles)
-			secondHeader.add("p<sub>"+(float)p+"</sub>");
-		secondHeader.addAll(Lists.newArrayList("Max", "TD/TI<sup>2</sup>", "U3/U2<sup>3</sup>"));
+			secondHeader.add("p<sub>"+(float)p+"</sub><sup>1</sup>");
+//		secondHeader.addAll(Lists.newArrayList("Max", "Gain<sup>2</sup>", "U3/U2<sup>3</sup>"));
+		secondHeader.addAll(Lists.newArrayList("Gain<sup>2</sup>", "U3/U2<sup>3</sup>"));
 		headers.add(secondHeader.toArray(new String[0]));
 		Preconditions.checkState(firstHeader.size() == secondHeader.size());
 		
@@ -5073,11 +5077,11 @@ public class FaultSysSolutionERF_Calc {
 				int col = 0;
 				
 				tableVals[row][col++] = "M"+gte+tableMags[j];
-				tableVals[row][col++] = formattedProb(tdVal);
-				tableVals[row][col++] = formattedProb(minVal);
+				tableVals[row][col++] = "<b>"+formattedProb(tdVal)+"</b>";
+//				tableVals[row][col++] = formattedProb(minVal);
 				for (CSVFile<String> pCSV : timeDepPercentileCSVs)
 					tableVals[row][col++] = formattedProb(Double.parseDouble(pCSV.get(i+1, tableColumns[j])));
-				tableVals[row][col++] = formattedProb(maxVal);
+//				tableVals[row][col++] = formattedProb(maxVal);
 				if (tdVal == 0d) {
 					tableVals[row][col++] = "-";
 					tableVals[row][col++] = "-";
@@ -5117,17 +5121,25 @@ public class FaultSysSolutionERF_Calc {
 			// footnotes
 			description += "<br>\n";
 			description += "<font size=\"-2\">";
-			description += "<br>1. Mean/Min/Max/Percentiles across all UCERF3 logic tree branches";
-			description += "<br>2. Time dependent prob gain (to time independent UCERF3)";
-			description += "<br>3. Parent fault section prob gain form UCERF3 to UCERF2";
+//			description += "<br>1. Mean/Min/Max/Percentiles across all UCERF3 logic tree branches";
+			description += "<br>1. Mean and percentiles across all UCERF3 logic tree branches";
+			description += "<br>2. Mean time dependent probability gain (to time independent UCERF3)";
+			description += "<br>3. Mean UCERF3/UCERF2 probability, averaged over parent fault section";
 			description += "</font>";
 			descriptions.add(description);
 		}
 		
 		CPT logProbCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-4d, 0d);
 		
+//		// will hide faults when region of width of 100 km is more than 3500 pixels
+//		double bufferRegionKM = 100d;
+//		int bufferMaxPixels = 3500;
+		
+		double bufferRegionKM = -1d;
+		int bufferMaxPixels = 3500;
+		
 		Document doc = FaultBasedMapGen.getFaultKML(logProbCPT, faults, FaultBasedMapGen.log10(plotValues),
-				false, 40, 4, "UCERF3 Mean Time Dep Prob", descriptions);
+				false, 40, 4, "UCERF3 Mean Time Dep Prob", descriptions, bufferRegionKM, bufferMaxPixels);
 		
 		doc.getRootElement().element("Folder").element("name").setText(title);
 		
@@ -5159,12 +5171,12 @@ public class FaultSysSolutionERF_Calc {
 		overlayEl.addElement("Icon").addElement("href").setText("partic_legend.png");
 		Element overlayXYEl = overlayEl.addElement("overlayXY");
 		overlayXYEl.addAttribute("x", "0.05");
-		overlayXYEl.addAttribute("y", "0.05");
+		overlayXYEl.addAttribute("y", "0.92");
 		overlayXYEl.addAttribute("xunits", "fraction");
 		overlayXYEl.addAttribute("yunits", "fraction");
 		Element screenXYEl = overlayEl.addElement("screenXY");
 		screenXYEl.addAttribute("x", "0.05");
-		screenXYEl.addAttribute("y", "0.05");
+		screenXYEl.addAttribute("y", "0.92");
 		screenXYEl.addAttribute("xunits", "fraction");
 		screenXYEl.addAttribute("yunits", "fraction");
 		
@@ -5181,7 +5193,8 @@ public class FaultSysSolutionERF_Calc {
 	private static final DecimalFormat kmlProbDF = new DecimalFormat("0.00%");
 	private static final String kmlBelowMinStr = "< 0.01%";
 	private static final DecimalFormat kmlGainDF = new DecimalFormat("0.00");
-	private static final String kmlInfGainStr = "\u221E";
+//	private static final String kmlInfGainStr = "\u221E";
+	private static final String kmlInfGainStr = "-";
 	private static final double kmlMinProb = 0.01/100d;
 	private static String formattedProb(double val) {
 		String str;
@@ -5394,7 +5407,7 @@ public class FaultSysSolutionERF_Calc {
 				subSects_3_1,
 				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
 				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3__30yr_parent_sect_probs_u3_td_mean.csv"), true),
+				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
 				subSects_3_2);
 		
 		System.exit(0);

@@ -918,6 +918,12 @@ public class FaultBasedMapGen {
 	
 	public static Document getFaultKML(CPT cpt, List<LocationList> faults, double[] values,
 			boolean skipNans, int numColorBins, int lineWidth, String name, List<String> descriptions) {
+		return getFaultKML(cpt, faults, values, skipNans, numColorBins, lineWidth, name, descriptions, 0d, -1);
+	}
+	
+	public static Document getFaultKML(CPT cpt, List<LocationList> faults, double[] values,
+			boolean skipNans, int numColorBins, int lineWidth, String name, List<String> descriptions,
+			double bufferWidthKM, int bufferMaxPixels) {
 		
 		// discretize CPT file - KML files can't have continuous line colors
 		double cptMin = cpt.getMinValue();
@@ -977,6 +983,32 @@ public class FaultBasedMapGen {
 			for (Location loc : fault)
 				coordsStr += loc.getLongitude()+","+loc.getLatitude()+",0\n";
 			coordsEl.addText(coordsStr);
+			
+			// add LOD keyed to buffer around center
+			if (bufferWidthKM > 0d && bufferMaxPixels > 0) {
+				double bufferKM = 0.5*bufferWidthKM; // half in each direction
+				Location firstLoc = fault.first();
+				Location lastLoc = fault.last();
+				Location middleLoc = new Location(0.5*(firstLoc.getLatitude()+lastLoc.getLatitude()),
+						0.5*(firstLoc.getLongitude()+lastLoc.getLongitude()));
+				Location north = LocationUtils.location(middleLoc, 0d, bufferKM);
+				Location east = LocationUtils.location(middleLoc, Math.PI/2d, bufferKM);
+				Location south = LocationUtils.location(middleLoc, Math.PI, bufferKM);
+				Location west = LocationUtils.location(middleLoc, 1.5d*Math.PI, bufferKM);
+				
+				Element regEl = placemarkEl.addElement("Region");
+				Element boxEl = regEl.addElement("LatLonAltBox");
+				boxEl.addElement("north").setText(north.getLatitude()+"");
+				boxEl.addElement("south").setText(south.getLatitude()+"");
+				boxEl.addElement("east").setText(east.getLongitude()+"");
+				boxEl.addElement("west").setText(west.getLongitude()+"");
+				Element lodEl = regEl.addElement("Lod");
+				lodEl.addElement("minLodPixels").setText("-1");
+				lodEl.addElement("maxLodPixels").setText(bufferMaxPixels+"");
+				lodEl.addElement("minFadeExtent").setText("-1");
+				// fade out last 10%
+				lodEl.addElement("maxFadeExtent").setText((int)(bufferMaxPixels*0.9)+"");
+			}
 		}
 		
 		return doc;
