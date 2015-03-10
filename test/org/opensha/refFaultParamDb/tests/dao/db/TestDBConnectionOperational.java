@@ -20,29 +20,24 @@ public class TestDBConnectionOperational {
 	}
 	
 	@Test
-	public void testFake() throws Throwable {
-		// do nothing
+	public void testDirectConnection3() throws Throwable {
+		runTestTimed(DB_ConnectionPool.getDB3ReadOnlyConn());
 	}
 	
-//	@Test
-//	public void testDirectConnection3() throws Throwable {
-//		runTestTimed(DB_ConnectionPool.getDB3ReadOnlyConn());
-//	}
-//	
-//	@Test
-//	public void testServletConnection3() throws Throwable {
-//		runTestTimed(DB_ConnectionPool.getDB3ReadWriteConn());
-//	}
-//	
-//	@Test
-//	public void testDirectConnection2() throws Throwable {
-//		runTestTimed(DB_ConnectionPool.getDB2ReadOnlyConn());
-//	}
-//	
-//	@Test
-//	public void testServletConnection2() throws Throwable {
-//		runTestTimed(DB_ConnectionPool.getDB2ReadWriteConn());
-//	}
+	@Test
+	public void testServletConnection3() throws Throwable {
+		runTestTimed(DB_ConnectionPool.getDB3ReadWriteConn());
+	}
+	
+	@Test
+	public void testDirectConnection2() throws Throwable {
+		runTestTimed(DB_ConnectionPool.getDB2ReadOnlyConn());
+	}
+	
+	@Test
+	public void testServletConnection2() throws Throwable {
+		runTestTimed(DB_ConnectionPool.getDB2ReadWriteConn());
+	}
 	
 	private void runTestTimed(DB_AccessAPI db) throws Throwable {
 		this.db = db;
