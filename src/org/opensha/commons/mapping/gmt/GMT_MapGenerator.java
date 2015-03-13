@@ -1491,7 +1491,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		if (doContour) {
 			gmtCommandLines.add("# Plot contours");
-			String contourPenIncStr = " -W1p -A"+(float)map.getContourIncrement();
+			String contourPenIncStr = " -W1p ";
+			if (map.isCPTEqualSpacing())
+				contourPenIncStr += "-C"+cptFile;
+			else
+				contourPenIncStr += "-A"+(float)map.getContourIncrement();
 //			if (contourOnly)
 //				onlyAdd =
 			if (contourOnly)
