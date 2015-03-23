@@ -70,7 +70,7 @@ import com.google.common.collect.Table;
 public class MCERDataProductsCalc {
 	
 	private static final String ASCE_REL_PATH = "data/ASCE7-10_Sms_Sm1_TL_det LL for 14 sites.xls";
-	private static File cacheDir;
+	public static File cacheDir;
 	static {
 		File dir = new File("/home/kevin/CyberShake/MCER/.amps_cache");
 		if (dir.exists())
@@ -622,13 +622,18 @@ public class MCERDataProductsCalc {
 			else
 				dLowVal = 0d;
 			
-			double val = Math.min(pVal, Math.max(dVal, dLowVal));
-			Preconditions.checkState(val > 0d, "It's zero???? pVal="+pVal+", dVal="+dVal+", dLowVal="+dLowVal);
+			double val = calcMCER(dVal, pVal, dLowVal);
 			
 			ret.set(x, val);
 		}
 		
 		return ret;
+	}
+	
+	public static double calcMCER(double dVal, double pVal, double dLowVal) {
+		double val = Math.min(pVal, Math.max(dVal, dLowVal));
+		Preconditions.checkState(val > 0d, "It's zero???? pVal="+pVal+", dVal="+dVal+", dLowVal="+dLowVal);
+		return val;
 	}
 	
 	private static Options createOptions() {

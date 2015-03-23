@@ -101,6 +101,8 @@ public class RTGMCalc {
 	
 	private List<SiteDataValue<?>> siteDatas;
 	
+	private int forceSingleIMTypeID = -1;
+	
 	public RTGMCalc(CommandLine cmd, DBAccess db) {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
 		int runID = Integer.parseInt(cmd.getOptionValue("run-id"));
@@ -215,8 +217,16 @@ public class RTGMCalc {
 		this.velPlot = velPlot;
 	}
 	
+	/**
+	 * If set and nonnegative, only this IM type ID will be calculated
+	 * @param forceSingleIMTypeID
+	 */
+	public void setForceSingleIMTypeID(int forceSingleIMTypeID) {
+		this.forceSingleIMTypeID = forceSingleIMTypeID;
+	}
+	
 	public boolean calc() throws IOException {
-		List<Integer> curveIDs = curves2db.getAllHazardCurveIDs(runID, -1);
+		List<Integer> curveIDs = curves2db.getAllHazardCurveIDs(runID, forceSingleIMTypeID);
 		// filter out any oddball probability models
 		int origSize = curveIDs.size();
 		for (int i=curveIDs.size(); --i>=0;) {

@@ -22,6 +22,7 @@ package org.opensha.sha.cybershake;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,8 +31,11 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
+import org.opensha.sha.cybershake.calc.mcer.CyberShakeDeterministicCalc;
 import org.opensha.sha.cybershake.calc.mcer.RTGMCalc;
+import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -45,27 +49,34 @@ public class HazardCurveFetcher {
 	HazardCurve2DB curve2db;
 	CybershakeSiteInfo2DB site2db;
 	
-	List<Integer> ids;
+	List<Integer> curveIDs;
 	List<CybershakeSite> sites;
+	List<Integer> runIDs;
 	List<DiscretizedFunc> funcs;
 	
 	List<CybershakeSite> allSites = null;
 	
+	private int imTypeID;
+	private CybershakeIM im;
+	
 	public HazardCurveFetcher(DBAccess db, int datasetID, int imTypeID) {
 		this.initDBConnections(db);
-		init(curve2db.getAllHazardCurveIDsForDataset(datasetID, imTypeID));
+		init(curve2db.getAllHazardCurveIDsForDataset(datasetID, imTypeID), imTypeID);
 	}
 	
 	public HazardCurveFetcher(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int velModelID, int imTypeID) {
 		this.initDBConnections(db);
 		System.out.println("rupV: " + rupVarScenarioID + " sgtV: " + sgtVarID + " velID: " + velModelID);
-		init(curve2db.getAllHazardCurveIDs(erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID));
+		init(curve2db.getAllHazardCurveIDs(erfID, rupVarScenarioID, sgtVarID, velModelID, imTypeID), imTypeID);
 	}
 	
-	private void init(ArrayList<Integer> ids) {
-		this.ids = ids;
+	private void init(ArrayList<Integer> ids, int imTypeID) {
+		this.curveIDs = ids;
+		this.imTypeID = imTypeID;
+		this.im = curve2db.getIMFromID(imTypeID);
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFunc>();
+		runIDs = new ArrayList<Integer>();
 		// keep track of duplicates - we want the most recent curve (which will be the first in the list
 		// as the accessor sorts by curve date desc
 		HashSet<Integer> siteIDs = new HashSet<Integer>();
@@ -84,6 +95,7 @@ public class HazardCurveFetcher {
 			sites.add(site2db.getSiteFromDB(siteID));
 			DiscretizedFunc curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
+			runIDs.add(curve2db.getRunIDForCurve(id));
 		}
 		for (int id : duplicateCurveIDs)
 			// use indexof because remove(int) will do index not object
@@ -106,9 +118,32 @@ public class HazardCurveFetcher {
 		}
 		return vals;
 	}
+	
+	public List<Double> calcRTGM() {
+		List<Double> vals = new ArrayList<Double>();
+		for (DiscretizedFunc func : funcs)
+			vals.add(RTGMCalc.calcRTGM(func));
+		return vals;
+	}
+	
+	public List<Double> calcDeterministic(CyberShakeDeterministicCalc detCalc) {
+		List<Double> vals = new ArrayList<Double>();
+		for (int runID : runIDs) {
+			try {
+				vals.add(detCalc.calculate(runID, im).getVal());
+			} catch (SQLException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+		return vals;
+	}
 
 	public List<Integer> getCurveIDs() {
-		return ids;
+		return curveIDs;
+	}
+	
+	public List<Integer> getRunIDs() {
+		return runIDs;
 	}
 
 	public List<CybershakeSite> getCurveSites() {
@@ -124,6 +159,10 @@ public class HazardCurveFetcher {
 			allSites = site2db.getAllSitesFromDB();
 		}
 		return allSites;
+	}
+	
+	public CybershakeIM getIM() {
+		return im;
 	}
 	
 	public void writeCurveToFile(DiscretizedFunc curve, String fileName) throws IOException {

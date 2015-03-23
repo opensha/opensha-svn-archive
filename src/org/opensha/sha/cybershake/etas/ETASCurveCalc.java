@@ -93,6 +93,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
@@ -1105,15 +1106,16 @@ public class ETASCurveCalc {
 		}
 	}
 	
-	private void writeDistanceGainPlot(GeoDataSet numerator, GeoDataSet denominator, FaultSystemSolution sol, File outputDir)
+	private void writeDistanceGainPlot(GeoDataSet numerator, GeoDataSet denominator, FaultSystemSolution sol,
+			FaultModels fm, File outputDir)
 			throws IOException {
 		ETAS_CyberShake_Scenarios scenario = conf.getScenario();
 		if (!scenario.isETAS())
 			return;
 		RuptureSurface surf = null;
 		Location triggerLoc = null;
-		if (scenario.getTriggerRupIndex() >= 0)
-			surf = sol.getRupSet().getSurfaceForRupupture(scenario.getTriggerRupIndex(), 1d, false);
+		if (scenario.getTriggerRupIndex(fm) >= 0)
+			surf = sol.getRupSet().getSurfaceForRupupture(scenario.getTriggerRupIndex(fm), 1d, false);
 		else
 			triggerLoc = scenario.getTriggerLoc();
 		GeoDataSet xyz = ProbGainCalc.calcProbGain(denominator, numerator);
@@ -1162,6 +1164,7 @@ public class ETASCurveCalc {
 			
 //			ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_WEEK;
 			ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_DAY;
+			FaultModels fm = FaultModels.FM3_1;
 			
 			File mainDir = new File(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas"),
 					"results_"+timeSpan.name().toLowerCase());
@@ -1373,7 +1376,7 @@ public class ETASCurveCalc {
 					createRatioMap(maps.get(i), baseMap, names.get(i)+" Gain",
 							new File(mapDir, filePrefixes.get(i)+"_gain.png"));
 					if (doDistGain)
-						calcs.get(i).writeDistanceGainPlot(maps.get(i), baseMap, sol, distGainDir);
+						calcs.get(i).writeDistanceGainPlot(maps.get(i), baseMap, sol, fm, distGainDir);
 				}
 			}
 			

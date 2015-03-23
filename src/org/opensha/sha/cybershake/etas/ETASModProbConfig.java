@@ -49,6 +49,7 @@ import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -68,9 +69,9 @@ import com.google.common.io.CharStreams;
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	public enum ETAS_CyberShake_Scenarios {
-		PARKFIELD("Parkfield Scenario", 8, 30473),
+		PARKFIELD("Parkfield Scenario", 8, triggerMap(FaultModels.FM3_1, 30473, FaultModels.FM2_1, 2099)),
 		BOMBAY_BEACH_M6("Bombay Beach Pt Scenario", 9, new Location(33.31833333333334,-115.72833333333335,5.8), 6.0),
-		BOMBAY_BEACH_BRAWLEY_FAULT_M6("Bombay Beach Scenario", -1, 238408),
+		BOMBAY_BEACH_BRAWLEY_FAULT_M6("Bombay Beach Scenario", -1, triggerMap(FaultModels.FM3_1, 238408)),
 		MOJAVE_S_POINT_M6("Mojave M6 Point Scenario", -1, new Location(34.42295,-117.80177,5.8), 6.0),
 		TEST_BOMBAY_M6_SUBSET("Bombay Beach M6 Scenario 50%", -1),
 		TEST_BOMBAY_M6_SUBSET_FIRST("Bombay Beach M6 Scenario First Half", -1),
@@ -81,24 +82,38 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		private int probModelID;
 		private String name;
-		private int triggerRupIndex;
+		private Map<FaultModels, Integer> triggerRupIndexes;
 		private Location triggerLoc;
 		private double triggerMag;
-		private ETAS_CyberShake_Scenarios(String name, int probModelID) {
-			this(name, probModelID, -1);
+		
+		private static Map<FaultModels, Integer> triggerMap(FaultModels fm, int index) {
+			Map<FaultModels, Integer> triggerRupIndexes = Maps.newHashMap();
+			triggerRupIndexes.put(fm, index);
+			return triggerRupIndexes;
 		}
 		
-		private ETAS_CyberShake_Scenarios(String name, int probModelID, int triggerRupIndex) {
-			this(name, probModelID, triggerRupIndex, null, Double.NaN);
+		private static Map<FaultModels, Integer> triggerMap(FaultModels fm1, int index1, FaultModels fm2, int index2) {
+			Map<FaultModels, Integer> triggerRupIndexes = Maps.newHashMap();
+			triggerRupIndexes.put(fm1, index1);
+			triggerRupIndexes.put(fm2, index2);
+			return triggerRupIndexes;
+		}
+		
+		private ETAS_CyberShake_Scenarios(String name, int probModelID) {
+			this(name, probModelID, null);
+		}
+		
+		private ETAS_CyberShake_Scenarios(String name, int probModelID, Map<FaultModels, Integer> triggerRupIndexes) {
+			this(name, probModelID, triggerRupIndexes, null, Double.NaN);
 		}
 		
 		private ETAS_CyberShake_Scenarios(String name, int probModelID, Location triggerLoc, double triggerMag) {
-			this(name, probModelID, -1, triggerLoc, triggerMag);
+			this(name, probModelID, null, triggerLoc, triggerMag);
 		}
 		
-		private ETAS_CyberShake_Scenarios(String name, int probModelID, int triggerRupIndex,
+		private ETAS_CyberShake_Scenarios(String name, int probModelID, Map<FaultModels, Integer> triggerRupIndexes,
 				Location triggerLoc, double triggerMag) {
-			this.triggerRupIndex = triggerRupIndex;
+			this.triggerRupIndexes = triggerRupIndexes;
 			this.triggerLoc = triggerLoc;
 			this.triggerMag = triggerMag;
 			this.probModelID = probModelID;
@@ -106,7 +121,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		}
 		
 		public boolean isETAS() {
-			return triggerRupIndex >= 0 || triggerLoc != null;
+			return triggerRupIndexes != null || triggerLoc != null;
 		}
 		
 		@Override
@@ -118,8 +133,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			return probModelID;
 		}
 
-		public int getTriggerRupIndex() {
-			return triggerRupIndex;
+		public int getTriggerRupIndex(FaultModels fm) {
+			if (triggerRupIndexes == null)
+				return -1;
+			return triggerRupIndexes.get(fm);
 		}
 
 		public Location getTriggerLoc() {

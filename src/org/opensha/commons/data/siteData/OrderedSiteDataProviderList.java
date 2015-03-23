@@ -53,6 +53,8 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.XMLUtils;
 
+import com.google.common.base.Preconditions;
+
 public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSaveable, Cloneable {
 	
 	public static final String XML_METADATA_NAME = "OrderedSiteDataProviderList";
@@ -191,6 +193,30 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 	 * @return
 	 */
 	public ArrayList<SiteDataValue<?>> getBestAvailableData(Location loc) {
+		return doGetBestAvailableData(loc, null);
+	}
+	
+	/**
+	 * This method returns a list of the best available data for this location,
+	 * where "best" is defined by the order of this provider list.
+	 * 
+	 * The result will return the best data value of the given type, or null
+	 * if no match.
+	 * 
+	 * @param loc
+	 * @param dataType
+	 * @return
+	 */
+	public SiteDataValue<?> getBestAvailableData(Location loc, String dataType) {
+		Preconditions.checkNotNull(dataType, "Must specify data type");
+		List<SiteDataValue<?>> vals = doGetBestAvailableData(loc, dataType);
+		if (vals.isEmpty())
+			return null;
+		Preconditions.checkState(vals.size() == 1);
+		return vals.get(0);
+	}
+	
+	private ArrayList<SiteDataValue<?>> doGetBestAvailableData(Location loc, String dataType) {
 		ArrayList<SiteDataValue<?>> vals = new ArrayList<SiteDataValue<?>>();
 		ArrayList<String> completedTypes = new ArrayList<String>();
 		
@@ -199,6 +225,8 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 				continue;
 			SiteData<?> provider = providers.get(i);
 			String type = provider.getDataType();
+			if (dataType != null && !dataType.equals(type))
+				continue;
 			// if we already have this data type, then skip it
 			if (completedTypes.contains(type))
 				continue;

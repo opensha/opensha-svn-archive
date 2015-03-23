@@ -13,6 +13,7 @@ import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.sha.cybershake.etas.ETASModProbConfig.ETAS_CyberShake_Scenarios;
 
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.base.Preconditions;
@@ -23,10 +24,12 @@ public class ScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
 		
-		String solTypeStr = "mapped";
-		String fssName = "ucerf2_mapped_sol.zip";
-//		String solTypeStr = "u3inverted";
-//		String fssName = "ucerf2_u3inverted_sol.zip";
+//		FaultModels fm = FaultModels.FM3_1;
+//		String solTypeStr = "mapped";
+//		String fssName = "ucerf2_mapped_sol.zip";
+		FaultModels fm = FaultModels.FM2_1;
+		String solTypeStr = "u3inverted";
+		String fssName = "ucerf2_u3inverted_sol.zip";
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -34,8 +37,10 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		ETAS_CyberShake_Scenarios[] scenarios = {
-//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
-				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+//				ETAS_CyberShake_Scenarios.PARKFIELD,
+//				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6
+				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
 				ETAS_CyberShake_Scenarios.PARKFIELD,
 				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
 		boolean timeIndep = false;
@@ -94,10 +99,10 @@ public class ScriptGen {
 //			case BOMBAY_BEACH_SINGLE:
 //				argz += " --trigger-loc 33.31833333333334,-115.72833333333335,5.8 --trigger-mag 4.8";
 //				break;
-			Preconditions.checkState(scenario.getTriggerRupIndex() >= 0
+			Preconditions.checkState(scenario.getTriggerRupIndex(fm) >= 0
 					|| (scenario.getTriggerLoc() != null && scenario.getTriggerMag() > 0d));
-			if (scenario.getTriggerRupIndex() >= 0) {
-				argz += " --trigger-rupture-id "+scenario.getTriggerRupIndex();
+			if (scenario.getTriggerRupIndex(fm) >= 0) {
+				argz += " --trigger-rupture-id "+scenario.getTriggerRupIndex(fm);
 			} else {
 				Location loc = scenario.getTriggerLoc();
 				argz += " --trigger-loc "+loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth();
