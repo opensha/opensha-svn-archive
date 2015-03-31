@@ -23,6 +23,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.ModProbConfig;
@@ -207,6 +208,7 @@ public class HardCodedInterpDiffMapCreator {
 				+isProbAt_IML+"_"+(float)level+"_"+imTypeID+".txt");
 		if (cacheFile.exists()) {
 			try {
+				System.out.println("Loading from "+cacheFile.getAbsolutePath());
 				return ArbDiscrGeoDataSet.loadXYZFile(cacheFile.getAbsolutePath(), true);
 			} catch (Exception e) {
 				// don't fail on cache problem
@@ -285,7 +287,7 @@ public class HardCodedInterpDiffMapCreator {
 		return new PSXYSymbol(pt, Symbol.STAR, width, penWidth, penColor, fillColor);
 	}
 	
-	protected static void setTruncation(ScalarIMR imr, double trunc) {
+	public static void setTruncation(ScalarIMR imr, double trunc) {
 		imr.getParameter(SigmaTruncLevelParam.NAME).setValue(trunc);
 		if (trunc < 0)
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_NONE);
@@ -420,12 +422,30 @@ public class HardCodedInterpDiffMapCreator {
 				baseMapIMR, config, probGain, customLabel);
 	}
 	
+
+	
 	public static String getMap(boolean logPlot, int velModelID, List<Integer> datasetIDs, int imTypeID,
 			Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		boolean singleDay = config != null;
+		System.out.println("Fetching curves...");
+		AbstractGeoDataSet scatterData;
+		if (singleDay)
+			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
+		else
+			scatterData = getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
+		
+		return getMap(scatterData, logPlot, velModelID, imTypeID, customMin, customMax, isProbAt_IML,
+				val, baseMapIMR, probGain, customLabel);
+	}
+	
+	public static String getMap(GeoDataSet scatterData, boolean logPlot, int velModelID, int imTypeID,
+			Double customMin, Double customMax, boolean isProbAt_IML,
+			double val, ScalarIMR baseMapIMR,
+			boolean probGain, String customLabel) throws FileNotFoundException,
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
 		GeoDataSet baseMap;
@@ -436,13 +456,6 @@ public class HardCodedInterpDiffMapCreator {
 		} else {
 			baseMap = null;
 		}
-		
-		System.out.println("Fetching curves...");
-		AbstractGeoDataSet scatterData;
-		if (singleDay)
-			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
-		else
-			scatterData = getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
 		
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
@@ -470,9 +483,9 @@ public class HardCodedInterpDiffMapCreator {
 		map.setCustomScaleMax(customMax);
 		
 		Location hypo = null;
-		if (config != null && config instanceof ScenarioBasedModProbConfig) {
-			hypo = ((ScenarioBasedModProbConfig)config).getHypocenter();
-		}
+//		if (config != null && config instanceof ScenarioBasedModProbConfig) {
+//			hypo = ((ScenarioBasedModProbConfig)config).getHypocenter();
+//		}
 		PSXYSymbol symbol = getHypoSymbol(region, hypo);
 		if (symbol != null) {
 			map.addSymbol(symbol);
@@ -480,7 +493,6 @@ public class HardCodedInterpDiffMapCreator {
 		
 		String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 						"val: " + val + "\n" +
-						"singleDay: " + singleDay + "\n" +
 						"imTypeID: " + imTypeID + "\n";
 		
 		System.out.println("Making map...");
@@ -494,6 +506,14 @@ public class HardCodedInterpDiffMapCreator {
 		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID);
 		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID);
 		
+		String[] addrs = getCompareMap(logPlot, scatterData1, scatterData2, imTypeID, customLabel, false);
+		return "diff: "+addrs[0]+" ratio: "+addrs[1];
+	}
+	
+	
+	public static String[] getCompareMap(boolean logPlot, GeoDataSet scatterData1, GeoDataSet scatterData2, int imTypeID,
+			String customLabel, boolean tightCPTs) throws FileNotFoundException,
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
@@ -502,6 +522,17 @@ public class HardCodedInterpDiffMapCreator {
 		
 		CPT diffCPT = CyberShake_GMT_MapGenerator.getDiffCPT();
 		CPT ratioCPT = CyberShake_GMT_MapGenerator.getRatioCPT();
+		if (tightCPTs) {
+			diffCPT = diffCPT.rescale(-0.1, 0.1);
+			ratioCPT = (CPT) ratioCPT.clone();
+			Preconditions.checkState(ratioCPT.size() == 6);
+			float[] vals = {0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f};
+			for (int i=0; i<vals.length-1; i++) {
+				CPTVal val = ratioCPT.get(i);
+				val.start = vals[i];
+				val.end = vals[i+1];
+			}
+		}
 //		CPT diffCPT = polar.rescale(-0.4, 0.4);
 //		CPT ratioCPT = polar.rescale(0.5, 1.5);
 		
@@ -517,12 +548,10 @@ public class HardCodedInterpDiffMapCreator {
 		map.setXyzFileName("diff_map.xyz");
 		map.setCustomScaleMin((double)diffCPT.getMinValue());
 		map.setCustomScaleMax((double)diffCPT.getMaxValue());
-		map.setCPTEqualSpacing(true);
+		map.setCPTEqualSpacing(!tightCPTs);
 		map.setRescaleCPT(false);
 		
-		String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
-						"val: " + val + "\n" +
-						"imTypeID: " + imTypeID + "\n";
+		String metadata = "Ration Map\n";
 		
 		System.out.println("Making map...");
 		String diffAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
@@ -536,12 +565,12 @@ public class HardCodedInterpDiffMapCreator {
 		map.setXyzFileName("ratio_map.xyz");
 		map.setCustomScaleMin((double)ratioCPT.getMinValue());
 		map.setCustomScaleMax((double)ratioCPT.getMaxValue());
-		map.setCPTEqualSpacing(true);
+		map.setCPTEqualSpacing(!tightCPTs);
 		map.setRescaleCPT(false);
 		
 		System.out.println("Making map...");
 		String ratioAddr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
-		return "diff: "+diffAddr+" ratio: "+ratioAddr;
+		return new String[] {diffAddr, ratioAddr};
 	}
 
 }

@@ -176,6 +176,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		
 		CybershakeRun run = runs2db.getRun(runID);
 		Preconditions.checkNotNull(run, "No run found for "+runID+"?");
+		if (D) System.out.println("Getting source list");
 		List<Integer> sourcesLeft = Lists.newArrayList(sites2db.getSrcIdsForSite(run.getSiteID(), run.getERFID()));
 		Preconditions.checkState(!sourcesLeft.isEmpty());
 		
@@ -188,12 +189,13 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 				numRups += erf.getNumRuptures(sourceID);
 				sources.add(sourceID);
 			}
-			
+//			if (D) System.out.println("Getting amps for "+sources.size()+" sources ("+numRups+" rups)");
 			fillInAmpsFromDB(runID, im, sources, vals);
 			for (int sourceID : sources)
 				Preconditions.checkState(vals[sourceID] != null,
 				"Amps not filled in for run="+runID+", im="+im.getID()+", source="+sourceID+". Amps table incomplete?");
 		}
+//		if (D) System.out.println("Done loading vals for "+runID);
 		
 		return vals;
 	}
@@ -204,7 +206,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		String sql = "SELECT Source_ID,Rupture_ID,IM_Value from "+TABLE_NAME+" where Run_ID="+runID
 				+" and IM_Type_ID = '"+im.getID()+"' and Source_ID IN ("+Joiner.on(",").join(sources)
 				+") ORDER BY Source_ID,Rupture_ID,Rup_Var_ID";
-		//				System.out.println(sql);
+//		if (D) System.out.println(sql);
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -212,6 +214,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+//		if (D) System.out.println("Done selecting");
 		boolean valid = rs.first();
 		if (!valid) {
 			rs.close();

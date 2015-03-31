@@ -212,9 +212,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	@Override
 	protected void calculateBatch(int[] batch) throws Exception {
 		if (fractionSrcAtPointList == null) {
-			File fractionSrcAtPointListFile = new File(inputDir, "fractionSrcAtPointList.bin");
-			File srcAtPointListFile = new File(inputDir, "srcAtPointList.bin");
-			File isCubeInsideFaultPolygonFile = new File(inputDir, "isCubeInsideFaultPolygon.bin");
+			File fractionSrcAtPointListFile = new File(inputDir, "fractSectInCubeCache");
+			File srcAtPointListFile = new File(inputDir, "sectInCubeCache");
+			File isCubeInsideFaultPolygonFile = new File(inputDir, "cubeInsidePolyCache");
 			Preconditions.checkState(fractionSrcAtPointListFile.exists(),
 					"cache file not found: "+fractionSrcAtPointListFile.getAbsolutePath());
 			Preconditions.checkState(srcAtPointListFile.exists(),

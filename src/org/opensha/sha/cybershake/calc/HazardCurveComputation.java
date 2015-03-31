@@ -148,7 +148,7 @@ public class HazardCurveComputation {
 		}
 		if (rupProbMod != null)
 			qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
-		handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
+		handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, run, imType);
 
 		for(int j=0; j<numIMLs; ++j) 
 			hazardFunc.set(hazardFunc.getX(j),(1-hazardFunc.getY(j)));
@@ -239,7 +239,7 @@ public class HazardCurveComputation {
 					if (rupVarProbMod == null)
 						continue;
 					else {
-						Map<Double, List<Integer>> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb);
+						Map<Double, List<Integer>> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
 						if (modProbs == null || modProbs.isEmpty())
 							continue;
 					}
@@ -251,7 +251,7 @@ public class HazardCurveComputation {
 					throw new RuntimeException("SQL Exception calculating curve for runID="+runID
 							+", src="+srcId+", rup="+rupId+", imType="+imType.getID(), e);
 				}
-				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod);
+				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, run, imType);
 			}
 		}
 
@@ -262,31 +262,51 @@ public class HazardCurveComputation {
 	}
 	
 	public static void handleRupture(List<Double> xVals, List<Double> imVals,
-			DiscretizedFunc hazardFunc, double qkProb,
-			int sourceID, int rupID, RuptureVariationProbabilityModifier rupProbVarMod) {
+			DiscretizedFunc hazardFunc, double qkProb, int sourceID, int rupID,
+			RuptureVariationProbabilityModifier rupProbVarMod, CybershakeRun run, CybershakeIM im) {
 		if (rupProbVarMod == null) {
 			// we don't have a rupture variation probability modifier
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
 			return;
 		}
-		Map<Double, List<Integer>> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb);
+		Map<Double, List<Integer>> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
 		if (modProbs == null) {
 			// we have a rup var prob mod, but it doesn't apply to this rupture
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
 			return;
 		}
 		
+		// old way which splits up into multiple cum dist funcs but can be inaccurate at low probabilities
+//		for (Double prob : modProbs.keySet()) {
+//			List<Integer> rvs = modProbs.get(prob);
+//			Preconditions.checkState(!rvs.isEmpty());
+//			Preconditions.checkState(Doubles.isFinite(prob) && prob >= 0);
+//			if (prob == 0)
+//				continue;
+//			ArrayList<Double> modVals = Lists.newArrayList();
+//			for (int rvID : modProbs.get(prob))
+//				modVals.add(imVals.get(rvID));
+//			handleRupture(xVals, modVals, hazardFunc, prob);
+//		}
+		
+		// new way which weights the empirical exceedance distribution with modified the probabilities
+		double modQkProb = 0d;
+		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		for (Double prob : modProbs.keySet()) {
 			List<Integer> rvs = modProbs.get(prob);
 			Preconditions.checkState(!rvs.isEmpty());
 			Preconditions.checkState(Doubles.isFinite(prob) && prob >= 0);
 			if (prob == 0)
 				continue;
-			ArrayList<Double> modVals = Lists.newArrayList();
+			modQkProb += prob;
+			double weightPer = prob / (double)rvs.size();
 			for (int rvID : modProbs.get(prob))
-				modVals.add(imVals.get(rvID));
-			handleRupture(xVals, modVals, hazardFunc, prob);
+				function.set(imVals.get(rvID)/CONVERSION_TO_G,weightPer);
 		}
+//		for (double val : imVals) {
+//			function.set(val/CONVERSION_TO_G,1);
+//		}
+		setIMLProbs(xVals,hazardFunc, function.getNormalizedCumDist(), modQkProb);
 	}
 	
 	public static void handleRupture(List<Double> xVals, List<Double> imVals,

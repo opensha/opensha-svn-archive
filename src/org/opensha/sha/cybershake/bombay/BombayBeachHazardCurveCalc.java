@@ -196,7 +196,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 //	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb) {
+	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 		List<Integer> modIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
 		if (modIDs == null || modIDs.isEmpty())
 			return null;

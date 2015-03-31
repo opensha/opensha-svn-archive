@@ -1859,7 +1859,7 @@ public class CommandLineInversionRunner {
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 	}
 	
-	private static InversionFaultSystemRupSet getUCERF2RupsOnly(InversionFaultSystemRupSet rupSet) {
+	public static InversionFaultSystemRupSet getUCERF2RupsOnly(InversionFaultSystemRupSet rupSet) {
 		List<double[]> ucerf2_magsAndRates = InversionConfiguration.getUCERF2MagsAndrates(rupSet);
 		
 		int newNumRups = 0;

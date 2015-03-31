@@ -145,8 +145,8 @@ public class ETASCurveCalc {
 //	private static Double customMin = -6d;
 //	private static Double customMax = -2d;
 	private static double val = 0.2;
-	private static Double customMin = -7d;
-	private static Double customMax = -3d;
+	private static Double customMin = -6d;
+	private static Double customMax = -2d;
 	private static Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 	private static GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 	private static InterpDiffMapType[] mapTypes = {InterpDiffMapType.INTERP_MARKS};
@@ -237,7 +237,7 @@ public class ETASCurveCalc {
 		for (int i = 0; i < sites.size(); i++) {
 			CybershakeSite site = sites.get(i);
 			int refCurveID = refCurveIDs.get(i);
-			if (site.type_id == 4)
+			if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
 				continue; // TEST
 			
 			System.out.println("Calculating for: "+site.name);
@@ -607,7 +607,7 @@ public class ETASCurveCalc {
 	public static void createRatioMap(GeoDataSet numerator, GeoDataSet denominator, String label, File outputFile)
 			throws IOException {
 		double minX = 0d;
-		double maxX = 2d;
+		double maxX = 3d;
 		
 		createRatioMap(numerator, denominator, label, outputFile, minX, maxX);
 	}
@@ -1173,11 +1173,11 @@ public class ETASCurveCalc {
 			
 			boolean debugSiteCalcOnly = false;
 			boolean makeMaps = true; // change
-			boolean plotShakemaps = true; // change
+			boolean plotShakemaps = false; // change
 			boolean doConvergence = false;
 			boolean doNormalizedCalcs = false;
 			boolean doDistGain = false; // only when makeMaps=true
-			boolean doGMPE = true;
+			boolean doGMPE = false;
 			boolean doAllRV_Equal = false; // change
 			publish_curves = false;
 			force_recalc = true;
@@ -1235,6 +1235,9 @@ public class ETASCurveCalc {
 			
 			FaultSystemSolution sol = FaultSystemIO.loadSol(
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
+			File mappingFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv");
+//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_u3inverted_sol.zip"));
+//			File mappingFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u3_inverted_mappings.csv");
 			
 			String[] curveSites = { "STNI", "S157", "S716", "S323", "S361", "MRSD", "SBSM" };
 //			String[] curveSites = null;
@@ -1245,8 +1248,10 @@ public class ETASCurveCalc {
 			
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
 					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
-							+ "2014_12_01-parkfield-combined.zip")},
-					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//							+ "2014_12_01-parkfield-combined.zip")},
+							+ "2015_03_23-u2mapped-parkfield-round1/results.zip")},
+//							+ "2015_03_23-u3inverted-parkfield-round1/results.zip")},
+					mappingFile);
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("parkfield");
@@ -1254,32 +1259,34 @@ public class ETASCurveCalc {
 			if (!debugSiteCalcOnly && makeMaps)
 				maps.add(calc.calcMap(new File(mapDir, "parkfield_hazard.png")));
 			
-//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6, timeSpan, sol,
-//					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
-//							+ "2014_12_01-bombay_beach_m6-combined.zip")},
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
-//			calcs.add(calc);
-//			filePrefixes.add("bombay");
-//			colors.add(Color.ORANGE);
-//			if (!debugSiteCalcOnly && makeMaps)
-//				maps.add(calc.calcMap(new File(mapDir, "bombay_hazard.png")));
-			
-			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6, timeSpan, sol,
+			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6, timeSpan, sol,
 					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
-							+ "2014_12_01-bombay_beach_brawley_fault_m6-combined.zip")},
-					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//							+ "2014_12_01-bombay_beach_m6-combined.zip")},
+							+ "2015_03_23-u2mapped-bombay_beach_m6-round1/results.zip")},
+//							+ "2015_03_23-u3inverted-bombay_beach_m6-round1/results.zip")},
+					mappingFile);
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calcs.add(calc);
-			filePrefixes.add("bombay_flt");
+			filePrefixes.add("bombay");
 			colors.add(Color.ORANGE);
 			if (!debugSiteCalcOnly && makeMaps)
-				maps.add(calc.calcMap(new File(mapDir, "bombay_flt_hazard.png")));
+				maps.add(calc.calcMap(new File(mapDir, "bombay_hazard.png")));
+			
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6, timeSpan, sol,
+//					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
+//							+ "2014_12_01-bombay_beach_brawley_fault_m6-combined.zip")},
+//					mappingFile);
+//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calcs.add(calc);
+//			filePrefixes.add("bombay_flt");
+//			colors.add(Color.ORANGE);
+//			if (!debugSiteCalcOnly && makeMaps)
+//				maps.add(calc.calcMap(new File(mapDir, "bombay_flt_hazard.png")));
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6, timeSpan, sol,
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
 //							+ "2014_12_01-mojave_s_point_m6-combined.zip")},
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//					mappingFile);
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("mojave");
@@ -1289,7 +1296,7 @@ public class ETASCurveCalc {
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_NEGLIGABLE, timeSpan, sol,
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//					mappingFile);
 //			publish_curves = false;
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			calcs.add(calc);
@@ -1300,14 +1307,14 @@ public class ETASCurveCalc {
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET, timeSpan, sol,
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//					mappingFile);
 //			publish_curves = false;
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(mapDir, "test_bombay_subset_hazard.png"));
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET_FIRST, timeSpan, sol,
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip")},
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//					mappingFile);
 //			publish_curves = false;
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			calcs.add(calc);
@@ -1318,7 +1325,7 @@ public class ETASCurveCalc {
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET_SECOND, timeSpan, sol,
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip")},
-//					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+//					mappingFile);
 //			publish_curves = false;
 //			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 //			calcs.add(calc);
@@ -1333,7 +1340,7 @@ public class ETASCurveCalc {
 				conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP,
 						timeSpan, timeDepSol,
 						new File[0],
-						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv"));
 				calc = new ETASCurveCalc(conf, 21, refDatasetID);
 				calcs.add(calc);
 				filePrefixes.add("ucerf2_dep");
@@ -1345,7 +1352,7 @@ public class ETASCurveCalc {
 			
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, timeSpan, sol,
 					new File[0],
-					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+					mappingFile);
 			calc = new ETASCurveCalc(conf, 21, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("ucerf2");

@@ -9,6 +9,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.sha.cybershake.bombay.BombayBeachHazardCurveCalc;
 import org.opensha.sha.cybershake.bombay.RupHyposWithinCutoff;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
+import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -82,7 +84,7 @@ public class EEWCalc implements RuptureVariationProbabilityModifier {
 //	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb) {
+	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 		double rupProb = rupsWithinCutoff.getERF().getRupture(sourceID, rupID).getProbability();
 		ArrayList<Integer> inclIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
 		if (inclIDs == null || inclIDs.size() == 0)

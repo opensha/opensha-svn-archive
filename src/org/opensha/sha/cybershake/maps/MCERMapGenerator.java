@@ -359,9 +359,9 @@ public class MCERMapGenerator {
 //		generateMaps(probData, null, null, new File("/tmp/mcer_test"), 3d, true);
 		int datasetID = 35;
 		// geom mean 3s
-		int imTypeID = 21;
-		double period = 3d;
-		String outputName = "test1_geom";
+//		int imTypeID = 21;
+//		double period = 3d;
+//		String outputName = "test1_geom";
 		
 		// geom mean 5s
 //		int imTypeID = 11;
@@ -376,6 +376,11 @@ public class MCERMapGenerator {
 		// RotD100 3s
 //		int imTypeID = 146;
 //		double period = 3d;
+//		int imTypeID = 142;
+//		double period = 5d;
+		int imTypeID = 136;
+		double period = 10d;
+		String outputName = "test1_rotd100";
 		
 		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName+"/"+(int)period+"s");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());

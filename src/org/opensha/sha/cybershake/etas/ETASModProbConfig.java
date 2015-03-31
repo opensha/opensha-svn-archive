@@ -36,6 +36,8 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.cybershake.AbstractModProbConfig;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
+import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.eew.ZeroProbMod;
 import org.opensha.sha.earthquake.AbstractERF;
@@ -939,7 +941,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 
 		@Override
 		public Map<Double, List<Integer>> getVariationProbs(int sourceID,
-				int rupID, double originalProb) {
+				int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 			if (triggerAllHyposEqually)
 				return null;
 			return rvProbs.get(new IDPairing(sourceID, rupID));

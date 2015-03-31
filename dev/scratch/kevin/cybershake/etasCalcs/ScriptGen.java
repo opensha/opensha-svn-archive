@@ -24,12 +24,17 @@ public class ScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
 		
-//		FaultModels fm = FaultModels.FM3_1;
-//		String solTypeStr = "mapped";
-//		String fssName = "ucerf2_mapped_sol.zip";
-		FaultModels fm = FaultModels.FM2_1;
-		String solTypeStr = "u3inverted";
-		String fssName = "ucerf2_u3inverted_sol.zip";
+		String cacheDirName = "cache_u3rups_u2mapped";
+		FaultModels fm = FaultModels.FM3_1;
+		String solTypeStr = "u2mapped";
+		String fssName = "ucerf2_mapped_sol.zip";
+//		String cacheDirName = "cache_u2rups_u3inverted";
+//		FaultModels fm = FaultModels.FM2_1;
+//		String solTypeStr = "u3inverted";
+//		String fssName = "ucerf2_u3inverted_sol.zip";
+		
+//		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+		String dateStr = "2015_03_23";
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -37,12 +42,12 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		ETAS_CyberShake_Scenarios[] scenarios = {
-//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6};
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
 //				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6
-				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
-				ETAS_CyberShake_Scenarios.PARKFIELD,
-				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
+//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
+//				ETAS_CyberShake_Scenarios.PARKFIELD,
+//				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
 		boolean timeIndep = false;
 		int numSims = 40000;
 		String nameAdd = "-round1";
@@ -73,8 +78,7 @@ public class ScriptGen {
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
 		for (ETAS_CyberShake_Scenarios scenario : scenarios) {
-			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())
-					+"-"+solTypeStr+"-"+scenario.name().toLowerCase();
+			String jobName = dateStr+"-"+solTypeStr+"-"+scenario.name().toLowerCase();
 			if (timeIndep)
 				jobName += "-indep";
 			if (nameAdd != null)
@@ -111,7 +115,7 @@ public class ScriptGen {
 				argz += " --trigger-mag "+scenario.getTriggerMag();
 			if (timeIndep)
 				argz += " --indep";
-			argz += " "+remoteDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
+			argz += " "+new File(remoteDir, cacheDirName).getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 			
 			List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
 			

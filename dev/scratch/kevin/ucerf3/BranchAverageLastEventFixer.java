@@ -44,6 +44,8 @@ public class BranchAverageLastEventFixer {
 			String fName = file.getName().toLowerCase();
 			if (fName.endsWith(".zip") && fName.contains("branch_avg"))
 				handleSolFile(file, data);
+			else if (file.isDirectory() && !fName.startsWith("."))
+				handleDir(file, data);
 		}
 	}
 	
