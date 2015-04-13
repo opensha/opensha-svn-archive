@@ -426,6 +426,12 @@
 		<antcall target="resource.erfs.dev" />
 		<antcall target="resource.erfs.gem" />
 		<antcall target="resource.erfs.aux" />
+		
+		<copy todir="${build}/resources/data/site/USGS_TL" overwrite="true">
+			<fileset dir="${src}/resources/data/site/USGS_TL">
+				<include name="*.csv" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="resource.tests">
