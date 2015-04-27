@@ -49,6 +49,7 @@ public class scratch {
 				TestGrid.CA_NSHMP_NE.grid(0.1).getNodeCount();
 		System.out.println(tot);
 		
+		// test
 //		Range<Double> r = Range.open(1.0,23.0);
 //		System.out.println(r);
 		
