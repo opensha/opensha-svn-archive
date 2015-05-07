@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
@@ -55,7 +57,7 @@ import com.google.common.primitives.Ints;
 public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private int numSims;
-	private FaultSystemSolution sol;
+	private FaultSystemSolution[] sols;
 //	private FaultSystemSolutionERF_ETAS erf;
 	private Map<Integer, List<LastEventData>> lastEventData;
 	private File inputDir;
@@ -111,7 +113,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		File solFile = new File(cmd.getOptionValue("sol-file"));
 		Preconditions.checkArgument(solFile.exists(), "Solution file doesn't exist: "+solFile.getAbsolutePath());
-		sol = FaultSystemIO.loadSol(solFile);
+		sols = new FaultSystemSolution[getNumThreads()];
+		// must load in solution ofr each thread as last even data will be overridden/updated
+		for (int i=0; i<sols.length; i++)
+			sols[i] = FaultSystemIO.loadSol(solFile);
 		
 		// if we have a triggered event
 		ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
@@ -141,14 +146,16 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 //			int fssRupID=197792;
 			fssScenarioRupID = Integer.parseInt(cmd.getOptionValue("trigger-rupture-id"));
 //			int srcID = erf.getSrcIndexForFltSysRup(fssRupID);
+			
+			FaultSystemRupSet rupSet = sols[0].getRupSet();
 
 //			ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
 //			mainshockRup.setAveRake(rupFromERF.getAveRake());
 //			mainshockRup.setMag(rupFromERF.getMag());
 //			mainshockRup.setRuptureSurface(rupFromERF.getRuptureSurface());
-			mainshockRup.setAveRake(sol.getRupSet().getAveRakeForRup(fssScenarioRupID));
-			mainshockRup.setMag(sol.getRupSet().getMagForRup(fssScenarioRupID));
-			mainshockRup.setRuptureSurface(sol.getRupSet().getSurfaceForRupupture(fssScenarioRupID, 1d, false));
+			mainshockRup.setAveRake(rupSet.getAveRakeForRup(fssScenarioRupID));
+			mainshockRup.setMag(rupSet.getMagForRup(fssScenarioRupID));
+			mainshockRup.setRuptureSurface(rupSet.getSurfaceForRupupture(fssScenarioRupID, 1d, false));
 			mainshockRup.setID(0);
 //			debug("test Mainshock: "+erf.getSource(srcID).getName());
 			
@@ -235,79 +242,208 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Map<Integer, Integer> restartsMap = Maps.newHashMap();
 		
 		while (!queue.isEmpty()) {
-			int index = queue.poll();
-			System.gc();
-			
-			File outputDir = new File(this.outputDir, "results");
-			if (!outputDir.exists())
-				outputDir.mkdir();
-			
-			String runName = ""+index;
-			int desiredLen = ((getNumTasks()-1)+"").length();
-			while (runName.length() < desiredLen)
-				runName = "0"+runName;
-			runName = "sim_"+runName;
-			File resultsDir = new File(outputDir, runName);
-			
-			if (isAlreadyDone(resultsDir)) {
-				debug(index+" is already done: "+resultsDir.getName());
-				continue;
-			}
-			debug("calculating "+index);
-			
-			// reset date of last event
-			if (timeIndep) {
-				for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
-					sect.setDateOfLastEvent(Long.MIN_VALUE);
-			} else {
-				LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
-			}
-			
-			debug("Instantiationg ERF");
-			FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration);
-			
-			if (fssScenarioRupID >= 0) {
-				// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
-				erf.setFltSystemSourceOccurranceTimeForFSSIndex(fssScenarioRupID, ot);
-			}
-			
-			erf.updateForecast();
-			debug("Done instantiating ERF");
-			
-			// redo with the previous random seed to avoid bias towards shorter running jobs in cases
-			// with many restarts (as shorter jobs more likely to finish before wall time is up).
-			long randSeed = getPrevRandSeed(resultsDir);
-			if (randSeed > 0 && restartsMap.get(index) == null)
-				debug("Resuming old rand seed of "+randSeed+" for "+runName);
-			else
-				randSeed = System.currentTimeMillis();
-			
-			
-//			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
-			try {
-				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
-						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
-						fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
-			} catch (Throwable t) {
-				debug("Calc failed with seed "+randSeed+". Exception: "+t);
-				t.printStackTrace();
-				if (t.getCause() != null) {
-					System.out.println("cause exceptoin:");
-					t.getCause().printStackTrace();
+			calcForDeque(queue, restartsMap);
+		}
+		
+//		while (!queue.isEmpty()) {
+//			int index = queue.poll();
+//			System.gc();
+//			
+//			File outputDir = new File(this.outputDir, "results");
+//			if (!outputDir.exists())
+//				outputDir.mkdir();
+//			
+//			String runName = ""+index;
+//			int desiredLen = ((getNumTasks()-1)+"").length();
+//			while (runName.length() < desiredLen)
+//				runName = "0"+runName;
+//			runName = "sim_"+runName;
+//			File resultsDir = new File(outputDir, runName);
+//			
+//			if (isAlreadyDone(resultsDir)) {
+//				debug(index+" is already done: "+resultsDir.getName());
+//				continue;
+//			}
+//			debug("calculating "+index);
+//			
+//			// reset date of last event
+//			if (timeIndep) {
+//				for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+//					sect.setDateOfLastEvent(Long.MIN_VALUE);
+//			} else {
+//				LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
+//			}
+//			
+//			debug("Instantiationg ERF");
+//			FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration);
+//			
+//			if (fssScenarioRupID >= 0) {
+//				// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
+//				erf.setFltSystemSourceOccurranceTimeForFSSIndex(fssScenarioRupID, ot);
+//			}
+//			
+//			erf.updateForecast();
+//			debug("Done instantiating ERF");
+//			
+//			// redo with the previous random seed to avoid bias towards shorter running jobs in cases
+//			// with many restarts (as shorter jobs more likely to finish before wall time is up).
+//			long randSeed = getPrevRandSeed(resultsDir);
+//			if (randSeed > 0 && restartsMap.get(index) == null)
+//				debug("Resuming old rand seed of "+randSeed+" for "+runName);
+//			else
+//				randSeed = System.currentTimeMillis();
+//			
+//			
+////			List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
+//			try {
+//				ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
+//						includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
+//						fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
+//			} catch (Throwable t) {
+//				debug("Calc failed with seed "+randSeed+". Exception: "+t);
+//				t.printStackTrace();
+//				if (t.getCause() != null) {
+//					System.out.println("cause exceptoin:");
+//					t.getCause().printStackTrace();
+//				}
+//				System.err.flush();
+//				Integer prevFails = restartsMap.get(index);
+//				if (prevFails == null)
+//					prevFails = 0;
+//				if (prevFails == 2) {
+//					debug("Index "+index+" failed 3 times, bailing");
+//					ExceptionUtils.throwAsRuntimeException(t);
+//				}
+//				restartsMap.put(index, prevFails+1);
+//				debug("retrying "+index+" later");
+//				queue.add(index);
+//			}
+//		}
+	}
+	
+	private void calcForDeque(Deque<Integer> queue, Map<Integer, Integer> restartsMap) throws InterruptedException {
+		CalcThread[] threads = new CalcThread[getNumThreads()];
+		for (int i=0; i<threads.length; i++)
+			threads[i] = new CalcThread(outputDir, sols[i], queue, restartsMap);
+		
+		for (CalcThread thread : threads)
+			thread.start();
+		
+		for (CalcThread thread : threads)
+			thread.join();
+	}
+	
+	private class CalcThread extends Thread {
+		
+		private File outputDir;
+		private FaultSystemSolution sol;
+		private Deque<Integer> queue;
+		private Map<Integer, Integer> restartsMap;
+		
+		public CalcThread(File outputDir, FaultSystemSolution sol,
+				Deque<Integer> queue, Map<Integer, Integer> restartsMap) {
+			this.outputDir = outputDir;
+			this.sol = sol;
+			this.queue = queue;
+			this.restartsMap = restartsMap;
+		}
+
+		@Override
+		public void run() {
+			while (!queue.isEmpty()) {
+				Integer index;
+				synchronized (queue) {
+					index = queue.poll();
 				}
-				System.err.flush();
-				Integer prevFails = restartsMap.get(index);
-				if (prevFails == null)
-					prevFails = 0;
-				if (prevFails == 2) {
-					debug("Index "+index+" failed 3 times, bailing");
-					ExceptionUtils.throwAsRuntimeException(t);
+				if (index == null)
+					// possible since multiple threads
+					break;
+				System.gc();
+
+				File outputDir = new File(this.outputDir, "results");
+				if (!outputDir.exists())
+					outputDir.mkdir();
+
+				String runName = ""+index;
+				int desiredLen = ((getNumTasks()-1)+"").length();
+				while (runName.length() < desiredLen)
+					runName = "0"+runName;
+				runName = "sim_"+runName;
+				File resultsDir = new File(outputDir, runName);
+
+				try {
+					if (isAlreadyDone(resultsDir)) {
+						debug(index+" is already done: "+resultsDir.getName());
+						continue;
+					}
+				} catch (IOException e) {
+					throw ExceptionUtils.asRuntimeException(e);
 				}
-				restartsMap.put(index, prevFails+1);
-				debug("retrying "+index+" later");
-				queue.add(index);
+				debug("calculating "+index);
+
+				// reset date of last event
+				if (timeIndep) {
+					for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
+						sect.setDateOfLastEvent(Long.MIN_VALUE);
+				} else {
+					LastEventData.populateSubSects(sol.getRupSet().getFaultSectionDataList(), lastEventData);
+				}
+
+				debug("Instantiationg ERF");
+				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration);
+
+				if (fssScenarioRupID >= 0) {
+					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
+					erf.setFltSystemSourceOccurranceTimeForFSSIndex(fssScenarioRupID, ot);
+				}
+
+				erf.updateForecast();
+				debug("Done instantiating ERF");
+
+				// redo with the previous random seed to avoid bias towards shorter running jobs in cases
+				// with many restarts (as shorter jobs more likely to finish before wall time is up).
+				long randSeed;
+				try {
+					randSeed = getPrevRandSeed(resultsDir);
+				} catch (IOException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+				if (randSeed > 0 && restartsMap.get(index) == null)
+					debug("Resuming old rand seed of "+randSeed+" for "+runName);
+				else
+					randSeed = System.currentTimeMillis();
+
+
+				//				List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
+				try {
+					ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
+							includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
+							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
+					debug("completed "+index);
+				} catch (Throwable t) {
+					debug("Calc failed with seed "+randSeed+". Exception: "+t);
+					t.printStackTrace();
+					if (t.getCause() != null) {
+						System.out.println("cause exceptoin:");
+						t.getCause().printStackTrace();
+					}
+					System.err.flush();
+					synchronized (queue) {
+						Integer prevFails = restartsMap.get(index);
+						if (prevFails == null)
+							prevFails = 0;
+						if (prevFails == 2) {
+							debug("Index "+index+" failed 3 times, bailing");
+							ExceptionUtils.throwAsRuntimeException(t);
+						}
+						restartsMap.put(index, prevFails+1);
+						debug("retrying "+index+" later");
+						queue.add(index);
+					}
+				}
 			}
 		}
+		
 	}
 	
 	/**

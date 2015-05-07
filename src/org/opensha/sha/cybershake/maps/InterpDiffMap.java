@@ -42,7 +42,7 @@ public class InterpDiffMap extends GMT_Map {
 	private InterpDiffMapType[] mapTypes;
 	
 	private boolean useCPTForScatterColor = false;
-	private boolean autoLabel = true;
+	private boolean autoLabel = false;
 	
 	public InterpDiffMap(Region region, GeoDataSet baseMap, double basemapInc, CPT cpt,
 			GeoDataSet scatter, GMT_InterpolationSettings interpSettings,

@@ -382,8 +382,37 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		calc.setRupVarProbModifier(new ConditionalHypocenterDistribution(erf, db, erfID, rvScenID, dist));
 		
 		// the point on the hazard curve we are plotting
-		boolean isProbAt_IML = false;
-		double val = 0.0004;
+//		boolean isProbAt_IML = false;
+//		double val = 0.0004;
+//		String valStr = "2% in 50yr";
+//		String valFileStr = "2p50";
+//		Double customMin = 0d;
+//		Double customMax = 1d;
+//		boolean logPlot = false;
+		
+		boolean isProbAt_IML = true;
+		double val = 0.3;
+		String valStr = "1yr POE 0.3g";
+		String valFileStr = "0.3g";
+		Double customMin = -5d;
+		Double customMax = -1d;
+		boolean logPlot = true;
+		
+//		boolean isProbAt_IML = true;
+//		double val = 0.2;
+//		String valStr = "1yr POE 0.2g";
+//		String valFileStr = "0.2g";
+//		Double customMin = -5d;
+//		Double customMax = -1d;
+//		boolean logPlot = true;
+		
+//		boolean isProbAt_IML = true;
+//		double val = 0.1;
+//		String valStr = "1yr POE 0.1g";
+//		String valFileStr = "0.1g";
+//		Double customMin = -5d;
+//		Double customMax = -1d;
+//		boolean logPlot = true;
 		
 		// use this to find run IDs, will recalculate curves
 		HazardCurveFetcher fetch = new HazardCurveFetcher(db, datasetID, imTypeID);
@@ -444,26 +473,33 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 			}
 		}
 		
-		Double customMin = 0d;
-		Double customMax = 1d;
+		// now deal with infinities
+		if (logPlot) {
+			for (int i=0; i<scatter.size(); i++)
+				if (scatter.get(i) == 0d)
+					scatter.set(i, 1e-16);
+			for (int i=0; i<origScatter.size(); i++)
+				if (origScatter.get(i) == 0d)
+					origScatter.set(i, 1e-16);
+		}
 		
 		ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 		HardCodedInterpDiffMapCreator.setTruncation(baseMapIMR, 3.0);
 		
 		System.out.println("Modified:");
-		String addr = HardCodedInterpDiffMapCreator.getMap(scatter, false, velModelID, imTypeID,
-				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Cond Prob Modified");
-		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_mod_map.png"));
+		String addr = HardCodedInterpDiffMapCreator.getMap(scatter, logPlot, velModelID, imTypeID,
+				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Cond Prob Modified, "+valStr);
+		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_mod_map_"+valFileStr+".png"));
 		System.out.println("Orig:");
-		addr = HardCodedInterpDiffMapCreator.getMap(origScatter, false, velModelID, imTypeID,
-				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Original Map");
-		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_orig_map.png"));
+		addr = HardCodedInterpDiffMapCreator.getMap(origScatter, logPlot, velModelID, imTypeID,
+				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Original Map, "+valStr);
+		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_orig_map_"+valFileStr+".png"));
 		
 		// now ratio
 		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
-				false, scatter, origScatter, imTypeID, "Cond. Hypo. Dist", true);
-		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, "cond_hypo_diff_map.png"));
-		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, "cond_hypo_ratio_map.png"));
+				false, scatter, origScatter, imTypeID, "Cond. Hypo. Dist, "+valStr, true);
+		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, "cond_hypo_diff_map_"+valFileStr+".png"));
+		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, "cond_hypo_ratio_map_"+valFileStr+".png"));
 		db.destroy();
 		System.exit(0);
 	}

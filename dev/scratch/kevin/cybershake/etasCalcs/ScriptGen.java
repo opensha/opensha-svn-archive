@@ -10,6 +10,7 @@ import java.util.List;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
+import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.sha.cybershake.etas.ETASModProbConfig.ETAS_CyberShake_Scenarios;
 
@@ -34,7 +35,8 @@ public class ScriptGen {
 //		String fssName = "ucerf2_u3inverted_sol.zip";
 		
 //		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
-		String dateStr = "2015_03_23";
+//		String dateStr = "2015_03_23";
+		String dateStr = "2015_04_09";
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -42,37 +44,48 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		ETAS_CyberShake_Scenarios[] scenarios = {
-				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6};
+				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
-//				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6
+//				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
+				ETAS_CyberShake_Scenarios.PARKFIELD};
 //				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
 //				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
-		boolean timeIndep = false;
+		boolean timeIndep = true;
 		int numSims = 40000;
-		String nameAdd = "-round1";
+		String nameAdd = "-round3";
 //		String nameAdd = "-nospont-round6";
 //		String nameAdd = "-round5";
-		
-//		int memGigs = 9;
-//		int perNodeMemGB = 0;
-		int memGigs = 10;
-		int perNodeMemGB = 32;
-		int mins = 24*60;
-		int nodes = 99;
-		int ppn = 8;
-		String queue = null;
 		
 		File remoteDir, remoteSolFile;
 		FastMPJShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
-		remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/cybershake");
+//		int memGigs = 10;
+//		int perNodeMemGB = 32;
+//		int mins = 24*60;
+//		int nodes = 99;
+//		int ppn = 8;
+//		String queue = null;
+//		int threads = 1;
+//		remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/cybershake");
+//		remoteSolFile = new File(remoteDir, fssName);
+//		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
+//				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+//		pbsWrite = new USC_HPCC_ScriptWriter();
+//		((USC_HPCC_ScriptWriter)pbsWrite).setPerNodeMemGB(perNodeMemGB);
+		
+		int memGigs = 25;
+		int mins = 12*60;
+		int nodes = 128;
+		int ppn = 16;
+		String queue = null;
+		int threads = 8;
+		remoteDir = new File("/work/00950/kevinm/ucerf3/etas_sim/cybershake");
 		remoteSolFile = new File(remoteDir, fssName);
-		mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-				null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
-		pbsWrite = new USC_HPCC_ScriptWriter();
-		((USC_HPCC_ScriptWriter)pbsWrite).setPerNodeMemGB(perNodeMemGB);
+		mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
+				null, StampedeScriptWriter.FMPJ_HOME, false);
+		pbsWrite = new StampedeScriptWriter();
 		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
@@ -95,8 +108,8 @@ public class ScriptGen {
 			
 			File pbsFile = new File(localJobDir, jobName+".pbs");
 			
-			String argz = "--min-dispatch 1 --max-dispatch 1 --no-spontaneous --num "+numSims
-					+" --sol-file "+remoteSolFile.getAbsolutePath();
+			String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads+" --no-spontaneous"
+					+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
 //			case BOMBAY_BEACH_CAT:
 //				argz += " --trigger-catalog "+(new File(remoteDir, "bombay_catalog.txt")).getAbsolutePath();
 //				break;

@@ -1,6 +1,7 @@
 package org.opensha.sha.cybershake.etas;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -20,10 +21,13 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.dom4j.DocumentException;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -33,6 +37,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.AbstractModProbConfig;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.RuptureVariationProbabilityModifier;
@@ -49,14 +54,24 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
+import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
+import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
 import scratch.kevin.ucerf3.etas.ETAS_CatalogStats;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
@@ -148,6 +163,38 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		public double getTriggerMag() {
 			return triggerMag;
 		}
+		
+		public ETAS_EqkRupture getRupture(long ot, FaultSystemRupSet rupSet, FaultModels fm) {
+			if (!isETAS())
+				return null;
+			if (triggerRupIndexes != null) {
+				ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
+				mainshockRup.setOriginTime(ot);
+				
+				int fssScenarioRupID = triggerRupIndexes.get(fm);
+				
+				mainshockRup.setAveRake(rupSet.getAveRakeForRup(fssScenarioRupID));
+				mainshockRup.setMag(rupSet.getMagForRup(fssScenarioRupID));
+				mainshockRup.setRuptureSurface(rupSet.getSurfaceForRupupture(fssScenarioRupID, 1d, false));
+				mainshockRup.setID(0);
+//				debug("test Mainshock: "+erf.getSource(srcID).getName());
+				
+				if (!Double.isNaN(triggerMag))
+					mainshockRup.setMag(triggerMag);
+				
+				return mainshockRup;
+			} else {
+				ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
+				mainshockRup.setOriginTime(ot);	
+				
+				mainshockRup.setAveRake(0.0);
+				mainshockRup.setMag(triggerMag);
+				mainshockRup.setPointSurface(triggerLoc);
+				mainshockRup.setID(0);
+				
+				return mainshockRup;
+			}
+		}
 	}
 	
 	public enum ETAS_Cybershake_TimeSpans {
@@ -175,6 +222,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		public double getTimeYears() {
 			return years;
+		}
+		
+		public double getTimeDays() {
+			return years * 365.25;
 		}
 	}
 	
@@ -973,18 +1024,75 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		return new GregorianCalendar(2014, 0, 1).getTime();
 	}
 	
-	public void writeTriggerMFD(File outputDir, String prefix) throws IOException {
+	IncrementalMagFreqDist writeTriggerMFD(File outputDir, String prefix) throws IOException {
+		return writeTriggerMFD(outputDir, prefix, null);
+	}
+	
+	IncrementalMagFreqDist writeTriggerMFD(File outputDir, String prefix, IncrementalMagFreqDist primaryMFD)
+			throws IOException {
 		getRupVarProbModifier(); // make sure everything has been loaded
+		
+		return writeTriggerMFD(outputDir, prefix, catalogs, scenario, timeSpan, null, getLongTermMFD(), primaryMFD, -1);
+	}
+	
+	void writeTriggerMFDAnim(File outputDir, String prefix, int numPer) throws IOException {
+		getRupVarProbModifier(); // make sure everything has been loaded
+		
+		int index = 0;
+		
+		int numDigits = ((catalogs.size()-1)+"").length();
+		
+		while (index < catalogs.size()) {
+			index += numPer;
+			if (index >= catalogs.size())
+				index = catalogs.size();
+			
+			List<List<ETAS_EqkRupture>> subCat = catalogs.subList(0, index);
+			
+			String numStr = index+"";
+			while (numStr.length() < numDigits)
+				numStr = "0"+numStr;
+			writeTriggerMFD(outputDir, prefix+"_"+numStr, subCat, scenario, timeSpan, index+" catalogs", null, null, numPer);
+		}
+	}
+	
+	static IncrementalMagFreqDist writeTriggerMFD(File outputDir, String prefix, List<List<ETAS_EqkRupture>> catalogs,
+			ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan, String annotation,
+			IncrementalMagFreqDist longTermMFD, IncrementalMagFreqDist primaryMFD, int subIncr) throws IOException {
 		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(6.05, 31, 0.1d);
 		incrMFD.setName("Incremental MFD");
 		
+		// this will keep track of the MFD as catalog size increases
+		List<IncrementalMagFreqDist> subMFDs = null;
+		List<Integer> subMFDIndexes = null;
+		if (subIncr > 0) {
+			subMFDs = Lists.newArrayList();
+			subMFDIndexes = Lists.newArrayList();
+			for (int index=subIncr; index<catalogs.size()-1; index+=subIncr) {
+				IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(6.05, 31, 0.1d);
+				mfd.setName(index+"");
+				subMFDs.add(mfd);
+				subMFDIndexes.add(index);
+			}
+		}
+		
 		double catRate = 1d/catalogs.size();
 		
+		int index = 0;
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
 //				System.out.println("Mag: "+rup.getMag()+", "+incrMFD.getMinX()+" => "+incrMFD.getMaxX());
-				incrMFD.add(incrMFD.getClosestXIndex(rup.getMag()), catRate);
+				int mfdInd = incrMFD.getClosestXIndex(rup.getMag());
+				incrMFD.add(mfdInd, catRate);
+				if (subMFDs != null) {
+					for (int i=0; i<subMFDs.size(); i++) {
+						int testIndex = subMFDIndexes.get(i);
+						if (index < subMFDIndexes.get(i))
+							subMFDs.get(i).add(mfdInd, 1d/((double)testIndex));
+					}
+				}
 			}
+			index++;
 		}
 		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
@@ -997,8 +1105,79 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
 		
+		if (longTermMFD != null) {
+			EvenlyDiscretizedFunc cmlLongTermMFD = longTermMFD.getCumRateDistWithOffset();
+			cmlLongTermMFD.setName("Time Indep");
+			funcs.add(cmlLongTermMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, new Color(130, 86, 5))); // BROWN
+		}
+		
+		if (subMFDs != null) {
+			double minVal = 0d;
+			double maxVal = catalogs.size();
+			CPT cpt = new CPT(minVal, maxVal, Color.GREEN.darker(), Color.BLACK);
+			for (int i=0; i<subMFDs.size(); i++) {
+				Color c = cpt.getColor((float)subMFDIndexes.get(i));
+				funcs.add(subMFDs.get(i).getCumRateDistWithOffset());
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, c));
+			}
+		}
+		
+		if (primaryMFD != null) {
+			primaryMFD.setName("Primary MFD");
+			EvenlyDiscretizedFunc cmlPrimaryMFD = primaryMFD.getCumRateDistWithOffset();
+			funcs.add(cmlPrimaryMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN.darker()));
+		}
+		
 		funcs.add(cmlMFD);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, scenario.name+" Scenario Supra Seis MFD",
+				"Magnitude", timeSpan.name+" Rate");
+		spec.setLegendVisible(true);
+		
+		if (annotation != null) {
+			XYTextAnnotation ann = new XYTextAnnotation(annotation, 8.25, 4e-1);
+			ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 24));
+			ann.setTextAnchor(TextAnchor.BASELINE_RIGHT);
+			spec.setPlotAnnotations(Lists.newArrayList(ann));
+		}
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		gp.setXLog(false);
+		gp.setYLog(true);
+		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
+		gp.drawGraphPanel(spec);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+		
+		incrMFD.setName(scenario.toString());
+		
+		return incrMFD;
+	}
+	
+	void writeTriggerVsIndepMFD(File outputDir, String prefix, IncrementalMagFreqDist incrMFD,
+			IncrementalMagFreqDist indepMFD, Color color) throws IOException {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		EvenlyDiscretizedFunc cmlMFD = incrMFD.getCumRateDistWithOffset();
+		cmlMFD.setName("BPT Time Dependent");
+		funcs.add(cmlMFD);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, color));
+		
+		EvenlyDiscretizedFunc indepCmlMFD = indepMFD.getCumRateDistWithOffset();
+		indepCmlMFD.setName("Poisson");
+		funcs.add(indepCmlMFD);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, color));
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, scenario.name+" Scenario Supra Seis MFD",
 				"Magnitude", timeSpan.name+" Rate");
@@ -1012,12 +1191,145 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		gp.setXLog(false);
 		gp.setYLog(true);
-		gp.setUserBounds(6d, 8.5d, 1e-5, 1e0);
+		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
 		gp.drawGraphPanel(spec);
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
+	private IncrementalMagFreqDist longTermMFD = null;
+	
+	synchronized IncrementalMagFreqDist getLongTermMFD() {
+		if (longTermMFD != null)
+			return longTermMFD;
+		longTermMFD = new IncrementalMagFreqDist(6.05, 31, 0.1d);
+		double minMag = 6d;
+		
+		double rateMult = timeSpan.getTimeYears();
+		
+		for (int r=0; r<sol.getRupSet().getNumRuptures(); r++) {
+			double rate = sol.getRateForRup(r);
+			if (rate == 0d)
+				continue;
+			rate *= rateMult;
+			double mag = sol.getRupSet().getMagForRup(r);
+			if (mag < minMag)
+				continue;
+			longTermMFD.add(longTermMFD.getClosestXIndex(mag), rate);
+		}
+		
+		return longTermMFD;
+	}
+	
+	static void writeCombinedMFDs(File outputDir, List<? extends IncrementalMagFreqDist> mfds,
+			List<Color> colors, IncrementalMagFreqDist longTermIndepMFD, IncrementalMagFreqDist longTermDepMFD,
+			ETAS_Cybershake_TimeSpans timeSpan) throws IOException {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		if (longTermIndepMFD != null) {
+			EvenlyDiscretizedFunc cmlLongTermMFD = longTermIndepMFD.getCumRateDistWithOffset();
+			cmlLongTermMFD.setName("Time Indep");
+			funcs.add(cmlLongTermMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		}
+		
+		if (longTermDepMFD != null) {
+			EvenlyDiscretizedFunc cmlLongTermMFD = longTermDepMFD.getCumRateDistWithOffset();
+			cmlLongTermMFD.setName("BPT Time Dep");
+			funcs.add(cmlLongTermMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
+		}
+		
+		for (int i=0; i<mfds.size(); i++) {
+			IncrementalMagFreqDist mfd = mfds.get(i);
+			EvenlyDiscretizedFunc cmlMFD = mfd.getCumRateDistWithOffset();
+			mfd.setName(mfd.getName());
+			funcs.add(cmlMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, colors.get(i)));
+		}
+		
+		System.out.println("Plotting combined MFD with "+funcs.size()+" Functions ("+mfds.size()+" input MFDs)");
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Combined Scenario Supra Seis MFDs",
+				"Magnitude", timeSpan.name+" Rate");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		gp.setXLog(false);
+		gp.setYLog(true);
+		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
+		gp.drawGraphPanel(spec);
+		gp.getCartPanel().setSize(1000, 800);
+		String prefix = "combined_mfds";
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
+	IncrementalMagFreqDist getPrimaryMFD(File cacheDir, FaultModels fm) throws IOException {
+		if (!scenario.isETAS())
+			return null;
+		// the following makes me feel dirty and sad
+		GriddedRegion griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
+		double duration = timeSpan.getTimeYears();
+		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(sol, false, duration);
+		erf.updateForecast();
+		double sourceRates[] = new double[erf.getNumSources()];
+		for(int s=0;s<erf.getNumSources();s++) {
+			ProbEqkSource src = erf.getSource(s);
+			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
+		}
+		double gridSeisDiscr = 0.1;
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		ETAS_Utils etas_utils = new ETAS_Utils();
+		File fractionSrcAtPointListFile = new File(cacheDir, "fractSectInCubeCache");
+		File srcAtPointListFile = new File(cacheDir, "sectInCubeCache");
+		File isCubeInsideFaultPolygonFile = new File(cacheDir, "cubeInsidePolyCache");
+		Preconditions.checkState(fractionSrcAtPointListFile.exists(),
+				"cache file not found: "+fractionSrcAtPointListFile.getAbsolutePath());
+		Preconditions.checkState(srcAtPointListFile.exists(),
+				"cache file not found: "+srcAtPointListFile.getAbsolutePath());
+		Preconditions.checkState(isCubeInsideFaultPolygonFile.exists(),
+				"cache file not found: "+isCubeInsideFaultPolygonFile.getAbsolutePath());
+		List<float[]> fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
+		List<int[]> srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
+		int[] isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
+		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
+				gridSeisDiscr, null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
+				etasParams.getImposeGR(), fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon);
+		
+		ETAS_EqkRupture rupture = scenario.getRupture(ot, sol.getRupSet(), fm);
+		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		IntegerPDF_FunctionSampler aveAveCubeSamplerForRup =
+				sampler.getAveSamplerForRupture(rupture);
+
+		double[] relSrcProbs = sampler.getRelativeTriggerProbOfEachSource(aveAveCubeSamplerForRup);
+		
+		// list contains total, and supra seismogenic
+		List<SummedMagFreqDist> expectedPrimaryMFD_PDF = sampler.getExpectedPrimaryMFD_PDF(relSrcProbs);
+		IncrementalMagFreqDist supraMFD = expectedPrimaryMFD_PDF.get(1);
+		
+		// this is a PDF, need to scale by expected number of events. the total one (not just supra seis)
+		// sums to one, the supra seis one here is different
+		
+		// start/end days are relative ot occurance time
+		double startDay = 0;
+		double endDay = timeSpan.getTimeDays();
+		
+		double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(),
+				rupture.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+		// scale to get actual expected number of EQs in each mag bin
+		supraMFD.scale(expNum);
+		
+		return supraMFD;
 	}
 	
 	List<RVProbSortable> getRVProbsSortable() {

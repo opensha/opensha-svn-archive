@@ -26,42 +26,48 @@ public class ETASResultCombiner {
 	public static void main(String[] args) throws IOException {
 		// used to combine multiple etas result zip files into a single zip file
 		
+		File simsDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
+		
+		
 		File[] zipFiles = {
+				
+				
 				// bombay fault
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-bombay_beach_brawley_fault_m6-round1/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round2/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round3/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-round4/results.zip")
+				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round1/results.zip"),
+				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round2/results.zip"),
+				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round3/results.zip")
+		};
+		File outputFile = new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-combined.zip");
 				
 				// bombay m6
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-bombay_beach_m6-round1/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round2/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round3/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-round4/results.zip")
+//				new File(simsDir, "2014_11_25-bombay_beach_m6-round1/results.zip"),
+//				new File(simsDir, "2014_12_01-bombay_beach_m6-round2/results.zip"),
+//				new File(simsDir, "2014_12_01-bombay_beach_m6-round3/results.zip"),
+//				new File(simsDir, "2014_12_01-bombay_beach_m6-round4/results.zip")
+//		};
+//		File outputFile = new File(simsDir, "2014_12_01-bombay_beach_m6-combined.zip");
 				
 				// mojave s
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-mojave_s_point_m6-round1/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round2/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round3/results.zip"),
-//				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-round4/results.zip")
+//				new File(simsDir, "2014_11_25-mojave_s_point_m6-round1/results.zip"),
+//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round2/results.zip"),
+//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round3/results.zip"),
+//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round4/results.zip")
+//		};
+//		File outputFile = new File(simsDir, "2014_12_01-mojave_s_point_m6-combined.zip");
 				
 				// parkfield
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_11_25-parkfield-round1/results.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round2/results.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round3/results.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-round4/results.zip")
-		};
+//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round1/results.zip"),
+//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round2/results.zip"),
+//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round3/results.zip")
+//		};
+////		File outputFile = new File(simsDir, "2015_03_23-u2mapped-parkfield-combined.zip");
+//		File outputFile = new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-combined.zip");
 		
-//		boolean onlyWithFaultBased = false;
-//		double minMag = 5d;
+		boolean onlyWithFaultBased = false;
+		double minMag = 5d;
 		
-		boolean onlyWithFaultBased = true;
-		double minMag = 0d;
-		
-//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_brawley_fault_m6-combined.zip");
-//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-bombay_beach_m6-combined.zip");
-//		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-mojave_s_point_m6-combined.zip");
-		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_12_01-parkfield-combined.zip");
+//		boolean onlyWithFaultBased = true;
+//		double minMag = 0d;
 		
 		if (onlyWithFaultBased) {
 			String name = outputFile.getName();
@@ -77,7 +83,7 @@ public class ETASResultCombiner {
 		List<String> infoStrings = Lists.newArrayList();
 		
 		for (File zipFile : zipFiles) {
-			System.out.println("Loading "+zipFile.getAbsolutePath());
+			System.out.print("Loading "+zipFile.getAbsolutePath()+" ... ");
 			ZipFile zip = new ZipFile(zipFile);
 			
 			for (ZipEntry entry : Collections.list(zip.entries())) {
@@ -134,6 +140,7 @@ public class ETASResultCombiner {
 				catalogs.add(catalog);
 				infoStrings.add(infoString.toString());
 			}
+			System.out.println(catalogs.size()+" catalogs.");
 			zip.close();
 		}
 		

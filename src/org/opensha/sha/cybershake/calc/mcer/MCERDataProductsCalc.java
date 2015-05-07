@@ -690,7 +690,9 @@ public class MCERDataProductsCalc {
 	public static void main(String[] args) throws DocumentException, InvocationTargetException, IOException {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 //			String argStr = "--run-id 2657,3037,2722,3022,3030,3027,2636,2638,2660,2703,3504,2988,2965,3007";
-			String argStr = "--run-id 2657";
+//			String argStr = "--run-id 2657";
+			String argStr = "--run-id 3030"; // STNI orig
+//			String argStr = "--run-id 3873"; // STNI 1 hz
 			argStr += " --component RotD100";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
 			argStr += " --output-dir /tmp/mcer_data_products";

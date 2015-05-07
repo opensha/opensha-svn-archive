@@ -12,6 +12,7 @@ import javax.swing.border.Border;
 
 import org.opensha.commons.gui.LabeledBorderPanel;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ClassUtils;
 
 public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel implements ParameterEditor<E> {
 
@@ -96,7 +97,10 @@ public abstract class AbstractParameterEditor<E> extends LabeledBorderPanel impl
 			if (model == null)
 				throw new IllegalArgumentException("null parameters not supported by this editor");
 			else
-				throw new IllegalArgumentException("Parameter '"+model.getName()+"' not supported by this editor");
+				throw new IllegalArgumentException(
+						"Parameter '"+model.getName()+"' of type '"
+						+ClassUtils.getClassNameWithoutPackage(model.getClass())
+						+"' not supported by this editor");
 		}
 		this.param = model;
 		updateTitle();

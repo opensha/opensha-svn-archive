@@ -27,7 +27,7 @@ public abstract class MPJTaskCalculator {
 	private static final int MAX_DISPATCH_DEFAULT = 100;
 	
 	public static final boolean D = true;
-	protected static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+	public static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
 	
 	protected int rank;
 	protected int size;
