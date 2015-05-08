@@ -387,6 +387,13 @@ public class ASK_2014 implements NGAW2_GMM {
 		if (vs30 >= vLin) return 0.0;
 		return (-b * saRock) / (saRock + c) +
 			    (b * saRock) / (saRock + c * pow(vs30 / vLin, N));
-	}	
+	}
+	
+	// can be useful for debugging
+//	public String toString() {
+//		return imt.name()+"\t"+(float)Mw+"\t"+(float)rJB+"\t"+(float)rRup+"\t"+(float)rX
+//				+"\t"+(float)rY0+"\t"+(float)dip+"\t"+(float)width+"\t"+(float)zTop
+//				+"\t"+(float)vs30+"\t"+vsInf+"\t"+(float)z1p0+"\t"+style;
+//	}
 	
 }

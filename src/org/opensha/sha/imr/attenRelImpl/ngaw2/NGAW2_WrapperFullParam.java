@@ -12,6 +12,7 @@ import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.constraint.impl.DoubleConstraint;
 import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -19,7 +20,13 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.param.EqkRuptureParams.DipParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupTopDepthParam;
+import org.opensha.sha.imr.param.EqkRuptureParams.RupWidthParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.DampingParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGD_Param;
@@ -28,6 +35,9 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
+import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
@@ -41,19 +51,27 @@ import com.google.common.base.Preconditions;
  * @author kevin
  *
  */
-public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterChangeListener {
+public class NGAW2_WrapperFullParam extends AttenuationRelationship implements ParameterChangeListener {
 	
 	private String shortName;
 	private NGAW2_GMM gmpe;
 	private ScalarGroundMotion gm;
 	
-	public NGAW2_Wrapper(String shortName, NGAW2_GMM gmpe) {
+	
+	// params not in parent class
+	private DistanceX_Parameter distanceXParam;
+	
+	public NGAW2_WrapperFullParam(String shortName, NGAW2_GMM gmpe) {
 		this.shortName = shortName;
 		this.gmpe = gmpe;
 		
 		initSupportedIntensityMeasureParams();
 		initSiteParams();
+		initEqkRuptureParams();
+		initPropagationEffectParams();
 		initOtherParams();
+		
+		initIndependentParamLists();
 	}
 	
 	NGAW2_GMM getGMPE() {
@@ -62,21 +80,25 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 
 	@Override
 	public double getMean() {
-		if (gm == null)
-			gm = gmpe.calc();
+		ScalarGroundMotion gm = getGroundMotion();
 		return gm.mean();
 	}
 
 	@Override
 	public double getStdDev() {
-		if (gm == null)
-			gm = gmpe.calc();
+		ScalarGroundMotion gm = getGroundMotion();
 		return gm.stdDev();
 	}
 
 	@Override
 	public void setParamDefaults() {
 		for (Parameter<?> param : siteParams)
+			param.setValueAsDefault();
+		for (Parameter<?> param : propagationEffectParams)
+			param.setValueAsDefault();
+		for (Parameter<?> param : eqkRuptureParams)
+			param.setValueAsDefault();
+		for (Parameter<?> param : otherParams)
 			param.setValueAsDefault();
 	}
 
@@ -93,128 +115,107 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 	@Override
 	public void setSite(Site site) {
 		super.setSite(site);
-		update();
+		this.vs30Param.setValueIgnoreWarning(site.getParameter(Double.class, Vs30_Param.NAME).getValue());
+		this.vs30_TypeParam.setValue(site.getParameter(String.class, Vs30_TypeParam.NAME).getValue());
+		this.depthTo1pt0kmPerSecParam.setValue(site.getParameter(Double.class,
+				DepthTo1pt0kmPerSecParam.NAME).getValue());
+		this.depthTo2pt5kmPerSecParam.setValue(site.getParameter(Double.class,
+				DepthTo2pt5kmPerSecParam.NAME).getValue());
+		
+		setPropagationEffectParams();
 	}
 
 	@Override
 	public void setEqkRupture(EqkRupture eqkRupture) {
 		super.setEqkRupture(eqkRupture);
-		update();
-	}
-
-	@Override
-	public void setIntensityMeasure(Parameter intensityMeasure)
-			throws ParameterException, ConstraintException {
-		super.setIntensityMeasure(intensityMeasure);
-		update();
-	}
-
-	@Override
-	public void setIntensityMeasure(String intensityMeasureName)
-			throws ParameterException {
-		super.setIntensityMeasure(intensityMeasureName);
-		update();
-	}
-
-	@Override
-	public void setAll(EqkRupture eqkRupture, Site site,
-			Parameter intensityMeasure) throws ParameterException,
-			IMRException, ConstraintException {
-		// use super so as to not trigger multiple update calls
-		super.setSite(site);
-		super.setEqkRupture(eqkRupture);
-		super.setIntensityMeasure(intensityMeasure);
-		update();
+		
+		RuptureSurface surf = eqkRupture.getRuptureSurface();
+		
+		magParam.setValue(eqkRupture.getMag());
+		rakeParam.setValue(eqkRupture.getAveRake());
+		dipParam.setValueIgnoreWarning(surf.getAveDip());
+		rupWidthParam.setValueIgnoreWarning(surf.getAveWidth());
+		rupTopDepthParam.setValueIgnoreWarning(surf.getAveRupTopDepth());
+		double zHyp;
+		if (eqkRupture.getHypocenterLocation() != null) {
+			zHyp = eqkRupture.getHypocenterLocation().getDepth();
+		} else {
+			zHyp = surf.getAveRupTopDepth() +
+				Math.sin(surf.getAveDip() * TO_RAD) * surf.getAveWidth() /
+				2.0;
+		}
+		focalDepthParam.setValueIgnoreWarning(zHyp);
+		
+		setPropagationEffectParams();
 	}
 
 	@Override
 	protected void setPropagationEffectParams() {
-		update();
+		if (site != null && eqkRupture != null) {
+			Location siteLoc = site.getLocation();
+			RuptureSurface surf = eqkRupture.getRuptureSurface();
+			
+			distanceJBParam.setValueIgnoreWarning(surf.getDistanceJB(siteLoc));
+			distanceRupParam.setValueIgnoreWarning(surf.getDistanceRup(siteLoc));
+			distanceXParam.setValueIgnoreWarning(surf.getDistanceX(siteLoc));
+		}
+	}
+	
+	/**
+	 * This clears any stored GM value and should be called whenever a parameter is changed
+	 */
+	private void clear() {
+		gm = null;
 	}
 	
 	/**
 	 * This updates all values in the wrapped GMPE
 	 */
-	private void update() {
-		gm = null;
+	private synchronized ScalarGroundMotion getGroundMotion() {
+		if (gm != null)
+			return gm;
 		
-		if (site != null && eqkRupture != null) {
-			// IMT
-			IMT imt;
-			if (im.getName().equals(SA_Param.NAME))
-				imt = IMT.getSA(SA_Param.getPeriodInSA_Param(im));
-			else
-				imt = IMT.parseIMT(im.getName());
-			
-			RuptureSurface surf = eqkRupture.getRuptureSurface();
-			Location siteLoc = site.getLocation();
-			
-			this.vs30Param.setValue(site.getParameter(Double.class, Vs30_Param.NAME).getValue());
-			this.vs30_TypeParam.setValue(site.getParameter(String.class, Vs30_TypeParam.NAME).getValue());
-			this.depthTo1pt0kmPerSecParam.setValue(site.getParameter(Double.class,
-					DepthTo1pt0kmPerSecParam.NAME).getValue());
-			this.depthTo2pt5kmPerSecParam.setValue(site.getParameter(Double.class,
-					DepthTo2pt5kmPerSecParam.NAME).getValue());
-			
-			double rake = eqkRupture.getAveRake();
-			// assert in range [-180 180]
-			FaultUtils.assertValidRake(rake);
-			FaultStyle style = getFaultStyle(rake);
-			
-			gmpe.set_IMT(imt);
-			
-			gmpe.set_Mw(eqkRupture.getMag());
-			
-			gmpe.set_rJB(surf.getDistanceJB(siteLoc));
-			gmpe.set_rRup(surf.getDistanceRup(siteLoc));
-			gmpe.set_rX(surf.getDistanceX(siteLoc));
-			
-			gmpe.set_dip(surf.getAveDip());
-			gmpe.set_width(surf.getAveWidth());
-			gmpe.set_zTop(surf.getAveRupTopDepth());
-			if (eqkRupture.getHypocenterLocation() != null) {
-				gmpe.set_zHyp(eqkRupture.getHypocenterLocation().getDepth());
-			} else {
-				double zHyp = surf.getAveRupTopDepth() +
-					Math.sin(surf.getAveDip() * TO_RAD) * surf.getAveWidth() /
-					2.0;
-				gmpe.set_zHyp(zHyp);
-			}
-			gmpe.set_vs30(vs30Param.getValue());
-			gmpe.set_vsInf(vs30_TypeParam.getValue().equals(Vs30_TypeParam.VS30_TYPE_INFERRED));
-			if (depthTo2pt5kmPerSecParam.getValue() == null)
-				gmpe.set_z2p5(Double.NaN);
-			else
-				gmpe.set_z2p5(depthTo2pt5kmPerSecParam.getValue());
-			if (depthTo1pt0kmPerSecParam.getValue() == null)
-				gmpe.set_z1p0(Double.NaN);
-			else
-				// OpenSHA has Z1.0 in m instead of km, need to convert
-				gmpe.set_z1p0(depthTo1pt0kmPerSecParam.getValue()/1000d);
-			
-			gmpe.set_fault(style);
-			
-		} else {
-			gmpe.set_IMT(null);
-			
-			gmpe.set_Mw(Double.NaN);
-			
-			gmpe.set_rJB(Double.NaN);
-			gmpe.set_rRup(Double.NaN);
-			gmpe.set_rX(Double.NaN);
-			
-			gmpe.set_dip(Double.NaN);
-			gmpe.set_width(Double.NaN);
-			gmpe.set_zTop(Double.NaN);
-			gmpe.set_zHyp(Double.NaN);
-
-			gmpe.set_vs30(Double.NaN);
-			gmpe.set_vsInf(true);
+		// IMT
+		IMT imt;
+		if (im.getName().equals(SA_Param.NAME))
+			imt = IMT.getSA(SA_Param.getPeriodInSA_Param(im));
+		else
+			imt = IMT.parseIMT(im.getName());
+		
+		double rake = rakeParam.getValue();
+		// assert in range [-180 180]
+		FaultUtils.assertValidRake(rake);
+		FaultStyle style = getFaultStyle(rake);
+		
+		gmpe.set_IMT(imt);
+		
+		gmpe.set_Mw(magParam.getValue());
+		
+		gmpe.set_rJB(distanceJBParam.getValue());
+		gmpe.set_rRup(distanceRupParam.getValue());
+		gmpe.set_rX(distanceXParam.getValue());
+		
+		gmpe.set_dip(dipParam.getValue());
+		gmpe.set_width(rupWidthParam.getValue());
+		gmpe.set_zTop(rupTopDepthParam.getValue());
+		gmpe.set_zHyp(focalDepthParam.getValue());
+		gmpe.set_vs30(vs30Param.getValue());
+		gmpe.set_vsInf(vs30_TypeParam.getValue().equals(Vs30_TypeParam.VS30_TYPE_INFERRED));
+		if (depthTo2pt5kmPerSecParam.getValue() == null)
 			gmpe.set_z2p5(Double.NaN);
+		else
+			gmpe.set_z2p5(depthTo2pt5kmPerSecParam.getValue());
+		if (depthTo1pt0kmPerSecParam.getValue() == null)
 			gmpe.set_z1p0(Double.NaN);
-			
-			gmpe.set_fault(null);
-		}
+		else
+			// OpenSHA has Z1.0 in m instead of km, need to convert
+			gmpe.set_z1p0(depthTo1pt0kmPerSecParam.getValue()/1000d);
+		
+		gmpe.set_fault(style);
+		
+		gm = gmpe.calc();
+		
+		return gm;
 	}
 	
 	static FaultStyle getFaultStyle(double rake) {
@@ -282,7 +283,7 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 	@Override
 	protected void initSiteParams() {
 		// we just have these such that they show up as requirements to use this IMR
-		vs30Param = new Vs30_Param();
+		vs30Param = new Vs30_Param(760, 150, 1500);
 		vs30_TypeParam = new Vs30_TypeParam();
 		depthTo1pt0kmPerSecParam = new DepthTo1pt0kmPerSecParam(
 				null, DepthTo1pt0kmPerSecParam.MIN, DepthTo1pt0kmPerSecParam.MAX, true);
@@ -294,16 +295,52 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 		siteParams.addParameter(vs30_TypeParam);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
 		siteParams.addParameter(depthTo2pt5kmPerSecParam);
+		
+		for (Parameter<?> param : siteParams)
+			param.addParameterChangeListener(this);
 	}
 
 	@Override
 	protected void initEqkRuptureParams() {
+		eqkRuptureParams.clear();
 		
+		magParam = new MagParam(4, 9, 5.0);
+		eqkRuptureParams.addParameter(magParam);
+		
+		dipParam = new DipParam(15, 90, 90);
+		eqkRuptureParams.addParameter(dipParam);
+		
+		rupWidthParam = new RupWidthParam(0d, 500d, 10d);
+		eqkRuptureParams.addParameter(rupWidthParam);
+		
+		rakeParam = new RakeParam();
+		eqkRuptureParams.addParameter(rakeParam);
+		
+		rupTopDepthParam = new RupTopDepthParam(0, 15, 0);
+		eqkRuptureParams.addParameter(rupTopDepthParam);
+		
+		focalDepthParam = new FocalDepthParam(0, 15, 0);
+		eqkRuptureParams.addParameter(focalDepthParam);
+		
+		for (Parameter<?> param : eqkRuptureParams)
+			param.addParameterChangeListener(this);
 	}
 
 	@Override
 	protected void initPropagationEffectParams() {
+		propagationEffectParams.clear();
 		
+		distanceJBParam = new DistanceJBParameter(new DoubleConstraint(0d, 400d), 0d);
+		propagationEffectParams.addParameter(distanceJBParam);
+		
+		distanceRupParam = new DistanceRupParameter(new DoubleConstraint(0d, 400d), 0d);
+		propagationEffectParams.addParameter(distanceRupParam);
+		
+		distanceXParam = new DistanceX_Parameter(new DoubleConstraint(0d, 400d), 0d);
+		propagationEffectParams.addParameter(distanceXParam);
+		
+		for (Parameter<?> param : propagationEffectParams)
+			param.addParameterChangeListener(this);
 	}
 
 	@Override
@@ -312,6 +349,7 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 		
 		componentParam = new ComponentParam(Component.RotD50, Component.RotD50);
 		componentParam.setValueAsDefault();
+		componentParam.addParameterChangeListener(this);
 		otherParams.addParameter(componentParam);
 		
 		StringConstraint options = new StringConstraint();
@@ -323,7 +361,7 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
-		update();
+		clear();
 	}
 	
 	/**
@@ -338,20 +376,26 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 		// params that the mean depends upon
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(distanceRupParam);
-		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
+		meanIndependentParams.addParameter(distanceJBParam);
+		meanIndependentParams.addParameter(distanceXParam);
+		
 		meanIndependentParams.addParameter(vs30Param);
 		meanIndependentParams.addParameter(depthTo2pt5kmPerSecParam);
+		meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
+		
 		meanIndependentParams.addParameter(magParam);
-		meanIndependentParams.addParameter(fltTypeParam);
-		meanIndependentParams.addParameter(rupTopDepthParam);
+		meanIndependentParams.addParameter(rakeParam);
 		meanIndependentParams.addParameter(dipParam);
+		meanIndependentParams.addParameter(rupTopDepthParam);
+		meanIndependentParams.addParameter(rupWidthParam);
+		meanIndependentParams.addParameter(focalDepthParam);
 		meanIndependentParams.addParameter(componentParam);
 
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
 		stdDevIndependentParams.addParameterList(meanIndependentParams);
-		stdDevIndependentParams.addParameter(stdDevTypeParam);
+		stdDevIndependentParams.addParameter(vs30_TypeParam);
 
 		// params that the exceed. prob. depends upon
 		exceedProbIndependentParams.clear();

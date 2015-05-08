@@ -4,7 +4,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 @SuppressWarnings("javadoc")
 public class NGAW2_Wrappers {
-	public static class ASK_2014_Wrapper extends NGAW2_Wrapper {
+	public static class ASK_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public ASK_2014_Wrapper() {
 			this(null);
@@ -16,7 +16,7 @@ public class NGAW2_Wrappers {
 		}
 		
 	}
-	public static class BSSA_2014_Wrapper extends NGAW2_Wrapper {
+	public static class BSSA_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public BSSA_2014_Wrapper() {
 			this(null);
@@ -28,7 +28,7 @@ public class NGAW2_Wrappers {
 		}
 		
 	}
-	public static class CB_2014_Wrapper extends NGAW2_Wrapper {
+	public static class CB_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public CB_2014_Wrapper() {
 			this(null);
@@ -40,7 +40,7 @@ public class NGAW2_Wrappers {
 		}
 		
 	}
-	public static class CY_2014_Wrapper extends NGAW2_Wrapper {
+	public static class CY_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public CY_2014_Wrapper() {
 			this(null);
@@ -52,7 +52,7 @@ public class NGAW2_Wrappers {
 		}
 		
 	}
-	public static class GK_2014_Wrapper extends NGAW2_Wrapper {
+	public static class GK_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public GK_2014_Wrapper() {
 			this(null);
@@ -64,7 +64,7 @@ public class NGAW2_Wrappers {
 		}
 		
 	}
-	public static class Idriss_2014_Wrapper extends NGAW2_Wrapper {
+	public static class Idriss_2014_Wrapper extends NGAW2_WrapperFullParam {
 		
 		public Idriss_2014_Wrapper() {
 			this(null);

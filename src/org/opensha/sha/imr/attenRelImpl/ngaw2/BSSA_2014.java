@@ -266,4 +266,9 @@ public class BSSA_2014 implements NGAW2_GMM {
 		return sqrt(phiMRV * phiMRV + tau * tau);
 	}
 	
+	// can be useful for debugging
+//	public String toString() {
+//		return imt.name()+"\t"+(float)Mw+"\t"+(float)rJB+"\t"+(float)vs30+"\t"+(float)z1p0+"\t"+style;
+//	}
+	
 }

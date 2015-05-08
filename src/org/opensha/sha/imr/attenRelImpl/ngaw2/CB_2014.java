@@ -352,4 +352,11 @@ public class CB_2014 implements NGAW2_GMM {
 		return hi + (lo - hi) * (5.5 - Mw);
 	}
 	
+	// can be useful for debugging
+//	public String toString() {
+//		return imt.name()+"\t"+(float)Mw+"\t"+(float)rJB+"\t"+(float)rRup+"\t"+(float)rX
+//				+"\t"+(float)dip+"\t"+(float)width+"\t"+(float)zTop+"\t"+(float)zHyp
+//				+"\t"+(float)vs30+"\t"+(float)z2p5+"\t"+style;
+//	}
+	
 }

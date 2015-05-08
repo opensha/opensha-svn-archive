@@ -119,6 +119,11 @@ import org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.ASK_2014_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.BSSA_2014_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CB_2014_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CY_2014_Wrapper;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2014_Wrapper;
 
 import com.google.common.collect.Lists;
 
@@ -248,6 +253,16 @@ implements ParameterChangeFailListener, ParameterChangeWarningListener, ItemList
 	 *  loader to load these
 	 */
 	static {
+		imNames.add(org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2014.NAME);
+		attenRelClasses.add(ASK_2014_Wrapper.class.getName());
+		imNames.add(org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014.NAME);
+		attenRelClasses.add(BSSA_2014_Wrapper.class.getName());
+		imNames.add(org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2014.NAME);
+		attenRelClasses.add(CB_2014_Wrapper.class.getName());
+		imNames.add(org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2014.NAME);
+		attenRelClasses.add(CY_2014_Wrapper.class.getName());
+		imNames.add(org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME);
+		attenRelClasses.add(Idriss_2014_Wrapper.class.getName());
 		imNames.add(InterpolatedBA_2008_AttenRel.NAME);
 		attenRelClasses.add(InterpolatedBA_2008_AttenRel.class.getName());
 		imNames.add(CY_2008_AttenRel.NAME);

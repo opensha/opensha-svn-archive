@@ -1,6 +1,7 @@
 package org.opensha.sha.imr.attenRelImpl.ngaw2;
 
 import static org.junit.Assert.*;
+import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenRelRef;
+import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrapper;
@@ -45,7 +47,7 @@ import com.google.common.collect.Lists;
 @RunWith(Parameterized.class)
 public class NGAW2_WrapperTest {
 	
-	private NGAW2_Wrapper wrapper;
+	private AttenuationRelationship wrapper;
 	private NGAW2_GMM gmpe;
 	
 	private static ERF wrapper_erf;
@@ -59,9 +61,14 @@ public class NGAW2_WrapperTest {
 	private static final double tol = 1e-10;
 	
 	public NGAW2_WrapperTest(AttenRelRef ref) {
-		wrapper = (NGAW2_Wrapper)ref.instance(null);
+		wrapper = (AttenuationRelationship)ref.instance(null);
 		wrapper.setParamDefaults();
-		gmpe = wrapper.getGMPE();
+		if (wrapper instanceof NGAW2_WrapperFullParam)
+			gmpe = ((NGAW2_WrapperFullParam)wrapper).getGMPE();
+		else if (wrapper instanceof NGAW2_Wrapper)
+			gmpe = ((NGAW2_Wrapper)wrapper).getGMPE();
+		else
+			throw new IllegalStateException("Unknown wrapper type");
 		
 		wrapper_site = new Site();
 		wrapper_site.addParameterList(wrapper.getSiteParams());
@@ -83,7 +90,8 @@ public class NGAW2_WrapperTest {
 	public static Collection<AttenRelRef[]> data() {
 		ArrayList<AttenRelRef[]> ret = new ArrayList<AttenRelRef[]>();
 		for (AttenRelRef imr : AttenRelRef.values()) {
-			if (!NGAW2_Wrapper.class.isAssignableFrom(imr.getAttenRelClass()))
+			if (!NGAW2_Wrapper.class.isAssignableFrom(imr.getAttenRelClass())
+					&& !NGAW2_WrapperFullParam.class.isAssignableFrom(imr.getAttenRelClass()))
 				continue;
 			AttenRelRef[] array = { imr };
 			ret.add(array);
@@ -156,7 +164,11 @@ public class NGAW2_WrapperTest {
 					throw new IllegalStateException();
 				}
 				
-				// set values in GMPE
+				double wrapper_mean = wrapper.getMean();
+				double wrapper_std_dev = wrapper.getStdDev();
+				String wrappedParams = gmpe.toString();
+				
+				// set values directly in GMPE for comparison
 				gmpe.set_IMT(imt);
 				
 				RuptureSurface surf = gmpe_rup.getRuptureSurface();
@@ -170,10 +182,12 @@ public class NGAW2_WrapperTest {
 				gmpe.set_dip(surf.getAveDip());
 				gmpe.set_width(surf.getAveWidth());
 				gmpe.set_zTop(surf.getAveRupTopDepth());
-				if (gmpe_rup.getHypocenterLocation() != null)
+				if (gmpe_rup.getHypocenterLocation() != null) {
 					gmpe.set_zHyp(gmpe_rup.getHypocenterLocation().getDepth());
-				else
-					gmpe.set_zHyp(Double.NaN);
+				} else {
+					gmpe.set_zHyp(surf.getAveRupTopDepth() +
+							Math.sin(surf.getAveDip() * TO_RAD) * surf.getAveWidth() / 2.0);
+				}
 
 				gmpe.set_vs30(vs30);
 				gmpe.set_vsInf(vsInferred);
@@ -184,18 +198,19 @@ public class NGAW2_WrapperTest {
 				if (z10 == null)
 					gmpe.set_z1p0(Double.NaN);
 				else
-					gmpe.set_z1p0(z10);
+					gmpe.set_z1p0(z10/1000d);
 				
 				gmpe.set_fault(NGAW2_Wrapper.getFaultStyle(gmpe_rup.getAveRake()));
 				
-				double wrapper_mean = wrapper.getMean();
-				double wrapper_std_dev = wrapper.getStdDev();
-				
 				ScalarGroundMotion gm = gmpe.calc();
-				assertEquals("Mean error for rup "+sourceID+","+rupID+", set_type="+set_type,
-						gm.mean(), wrapper_mean, tol);
-				assertEquals("Std. dev. error for rup "+sourceID+","+rupID+", set_type="+set_type,
-						gm.stdDev(), wrapper_std_dev, tol);
+				
+				String directParams = gmpe.toString();
+				
+				assertEquals("Mean error for rup "+sourceID+","+rupID+", set_type="+set_type
+						+", GMPE="+wrapper.getShortName()+"\n\tWrapped:\t"+wrappedParams
+						+"\n\tDirect:\t"+directParams, gm.mean(), wrapper_mean, tol);
+				assertEquals("Std. dev. error for rup "+sourceID+","+rupID+", set_type="+set_type
+						+", GMPE="+wrapper.getShortName(), gm.stdDev(), wrapper_std_dev, tol);
 			}
 		}
 	}

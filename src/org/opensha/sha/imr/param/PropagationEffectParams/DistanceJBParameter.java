@@ -77,6 +77,12 @@ public class DistanceJBParameter extends AbstractDoublePropEffectParam {
 		init(); 
 		this.setDefaultValue(defaultValue);
 	}
+	
+	public DistanceJBParameter(DoubleConstraint warningConstraint, double defaultValue) { 
+		super(NAME);
+		init(warningConstraint); 
+		this.setDefaultValue(defaultValue);
+	}
 
 
 	/** Initializes the constraints, name, etc. for this parameter */
