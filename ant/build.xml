@@ -218,7 +218,7 @@
 				<exclude name="Frankel02/**/*.java" />
 				<include name="Frankel96/**" />
 				<exclude name="Frankel96/**/*.java" />
-				<include name="WG02/singleIterationWithModes.OpenSHA.30yr.txt" />
+				<include name="WG02/*.txt" />
 				<include name="WGCEP_UCERF1/**" />
 				<exclude name="WGCEP_UCERF1/**/*.java" />
 				<include name="step/*.txt" />
