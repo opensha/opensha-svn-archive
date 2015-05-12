@@ -602,7 +602,7 @@ public class ETAS_Utils {
 	
 	/**
 	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total MFD (sub+supra) to
-	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-mag
+	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-non-zero-mag
 	 * of the supra MFD).
 	 * 
 	 * @param supraSeisMFD

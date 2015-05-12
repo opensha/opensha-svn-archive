@@ -15,6 +15,7 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.TimeSpan;
@@ -582,6 +583,99 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	}
 	
 	
+	// TODO remove
+	private double getFarthestCubeDistAtDepthForSection(int sectionIndex, double depthKm, Set<Integer> cubeList) {
+		
+		// get the surface and find the row index corresponding to depthKm
+		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, true);
+		double min = Double.MAX_VALUE;
+		int rowIndex=-1;
+		for(int r=0;r<surface.getNumRows();r++) {
+			double diff = Math.abs(surface.get(r,0).getDepth()-depthKm);
+			if(diff < min) {
+				min = diff;
+				rowIndex = r;
+			}
+		}
+		// get the cube depth index for depthKm 
+		int cubeDepthIndex = getCubeDepthIndex(depthKm);
+		
+		// now find the distance of farthest cube at depthKm perpendicular to a line on the surface at depthKm
+		double maxDist = -1;
+		for(int cubeIndex:cubeList) {
+			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
+			if(this.getCubeDepthIndex(cubeLoc.getDepth()) != cubeDepthIndex)
+				continue;	// skip those that aren't at depthKm
+			// find the mind dist to the line on the surface 
+			double minDist = Double.MAX_VALUE;
+			for(int c=0; c<surface.getNumCols();c++) {
+				Location surfLoc= surface.getLocation(rowIndex, c);
+				double dist = LocationUtils.linearDistanceFast(cubeLoc, surfLoc);
+				if(dist<minDist)
+					minDist = dist;
+			}
+			// is this the farthest yet found?
+			if(maxDist<minDist)
+				maxDist=minDist;
+		}
+		return maxDist;
+	}
+	
+	/**
+	 * This computes the half width of the fault-section polygon (perpendicular to the strike) in a
+	 * somewhat weird way.
+	 * 
+	 * @param sectionIndex
+	 * @param cubeList
+	 * @return
+	 */
+	private double getFaultSectionPolygonHalfWidth(int sectionIndex, Set<Integer> cubeList) {
+		
+		// get the surface and find the row index corresponding to depthKm
+		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, false);
+		
+//System.out.println("Surface Dip: "+surface.getAveDip());
+//System.out.println("Surface:");
+//for(int r=0;r<surface.getNumRows();r++) {
+//	for(int c=0;c<surface.getNumCols();c++) {
+//		Location loc = surface.get(r, c);
+//		System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
+//	}
+//}
+//Region reg = faultPolyMgr.getPoly(sectionIndex);
+//System.out.println("Polygon:");
+//for(Location loc:reg.getBorder()) {
+//	System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
+//}
+
+		int rowIndexHalfWayDown = surface.getNumRows()/2;
+		double depthHalfWayDown = surface.getLocation(rowIndexHalfWayDown,0).getDepth();
+		// get the cube depth index for depthKm 
+		int cubeDepthIndex = getCubeDepthIndex(depthHalfWayDown);
+		
+		// now find the distance of farthest cube at depthKm perpendicular to a line on the surface at depthKm
+		double maxDist = -1;
+		for(int cubeIndex:cubeList) {
+			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
+			if(this.getCubeDepthIndex(cubeLoc.getDepth()) != cubeDepthIndex)
+				continue;	// skip those that aren't at depthKm
+			// find the min dist to the line on the surface 
+			double minDist = Double.MAX_VALUE;
+			for(int c=0; c<surface.getNumCols();c++) {
+				Location surfLoc= surface.getLocation(rowIndexHalfWayDown, c);
+				double dist = LocationUtils.linearDistanceFast(cubeLoc, surfLoc);
+				if(dist<minDist)
+					minDist = dist;
+			}
+			// is this the farthest yet found?
+			if(maxDist<minDist)
+				maxDist=minDist;
+		}
+// System.out.println(sectionIndex+"\t"+maxDist+"\t"+this.fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+		return maxDist;
+	}
+
+	
 	/**
 	 * For the given section, this returns all the cubes that are within the section polygon, together
 	 * with the fraction of the section that each cube gets (linear distance decay in cumulative M6.5 rate,
@@ -605,7 +699,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		}
 		
 		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
-		double targetRateAtMaxDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
+		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
 
 //		double totSupraSeisRate = supraSeisMFD.getCumRate(minSupraSeisMag);
 //		IncrementalMagFreqDist trulyOffMFD = fss.getFinalTrulyOffFaultMFD().deepClone();
@@ -652,16 +746,33 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //		System.out.println("targetRateAtMaxDist="+targetRateAtMaxDist);
 		
 		
-		// solve for linear-trend values a and b (r=ad+b, where d is distance and r is rate)
 		HashMap<Integer,Double> distMap = getCubesAndDistancesInsideSectionPolygon(sectionIndex, 4.0);
+		
+//		// find farthest distance at 7 km
+//		int cubeDepthIndex = getCubeDepthIndex(7.0);
+//		
+//		// now find the distance of farthest cube at depthKm perpendicular to a line on the surface at depthKm
+//		double maxDistAt7km = -1;
+//		for(int cubeIndex:distMap.keySet()) {
+//			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
+//			if(this.getCubeDepthIndex(cubeLoc.getDepth()) != cubeDepthIndex)
+//				continue;	// skip those that aren't at 7 km depth
+//			if(distMap.get(cubeIndex) > maxDistAt7km)
+//				maxDistAt7km = distMap.get(cubeIndex);
+//		}
+		
+		
+//System.out.println("HERE maxDistAt7km = "+maxDistAt7km);
+		
 		double n = distMap.size();
-		if(targetRateAtMaxDist>totSupraSeisRate) {	// distribute uniformly
+		if(targetRateAtTargetDist>totSupraSeisRate) {	// distribute uniformly
 			for(int cubeIndex:distMap.keySet()) {
 				wtMap.put(cubeIndex, (float)(1.0/n));
 			}
 			return wtMap;
 		}
 
+		// solve for linear-trend values a and b (r=ad+b, where d is distance and r is rate)
 		double dMax=0, dMin=Double.MAX_VALUE, dSum=0;
 		int cubeIndexMax=-1, cubeIndexMin=-1;
 		for(int cubeIndex:distMap.keySet()) {
@@ -676,8 +787,28 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				cubeIndexMin = cubeIndex;
 			}
 		}
-		double a = (totSupraSeisRate-targetRateAtMaxDist)/(dSum-n*dMax);
-		double b = targetRateAtMaxDist/distMap.size() - a*dMax;
+		
+//		double targetDist = getFaultSectionPolygonHalfWidth(sectionIndex, distMap.keySet());
+		double targetDist = dMax;
+
+		double a = (totSupraSeisRate-targetRateAtTargetDist)/(dSum-n*targetDist);
+		double b = targetRateAtTargetDist/distMap.size() - a*targetDist;
+		
+		if(a > 0) {
+			System.out.println("a>0 for\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName()+"\t"+(dSum-n*targetDist));
+//			throw new RuntimeException("Problem here");
+		}
+		
+//		// check for negative value at maximum distance
+//		if(a*dMax+b < 0.0) {
+//			targetDist = dMax+1.0;
+//			targetRateAtTargetDist = 0;
+//			double ratio = a*targetDist+b;
+//			a = (totSupraSeisRate-targetRateAtTargetDist)/(dSum-n*targetDist);
+//			b = targetRateAtTargetDist/distMap.size() - a*targetDist;
+//			ratio /= a*targetDist+b;
+//			System.out.println("CORR\t"+ratio+"\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+//		}
 		
 //System.out.println("dMin="+dMin+"\tcubeIndexMin="+cubeIndexMin+"\t"+this.getCubeLocationForIndex(cubeIndexMin));
 // this will plot the closest and farthest cube MFD
@@ -695,7 +826,9 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //closeFar_Graph.setTickLabelFontSize(18);	
 
 //System.out.println("N="+distMap.size()+"\tdMax="+dMax+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-//System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtMaxDist);
+//System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist"+targetRateAtTargetDist);
+//System.out.println("targetDist = "+targetDist);
+
 		
 		for(int cubeIndex:distMap.keySet()) {
 			double rate = a*distMap.get(cubeIndex) + b;
@@ -706,20 +839,25 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		// test
 		double sum=0;
+		boolean negValPrinted = false;
 		for(int cubeIndex: wtMap.keySet()) {
 			double val = wtMap.get(cubeIndex);
 			if(val<0) {
 				throw new RuntimeException("problem");
-//				System.out.println("N="+distMap.size()+"\tdMax="+dMax+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-//				System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtMaxDist);
-//				System.out.println("val="+val);
-//				System.out.println(sectionIndex+"\t"+fss.getRupSet().getFaultSectionData(sectionIndex).getName());
-//				System.out.println(totSectMFD.toString());
-//				System.out.println(fss.getFinalSubSeismoOnFaultMFD_List().get(sectionIndex).toString());
+//				if(!negValPrinted) {
+//					System.out.println("NEG VALUE\t"+val+"\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+//					negValPrinted=true;
+//				}
+//				System.out.println("N="+distMap.size()+"\ttargetDist="+targetDist+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
+//				System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist="+targetRateAtTargetDist);
+//				System.out.println("val="+val+"\tdist="+distMap.get(cubeIndex));
+//				System.out.println(sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+//				System.out.println(subSeisMFD.toString());
+//				System.out.println(supraSeisMFD.toString());
 //
 //				System.exit(-1);
 			}
-			else sum += val;
+			sum += val;
 		}
 		
 		if(sum == 0) {
@@ -729,7 +867,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		if(sum<0.999 || sum>1.001) {
 			System.out.println("N="+distMap.size()+"\tdMax="+dMax+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtMaxDist);
+			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtTargetDist);
 			System.out.println(subSeisMFD.toString());
 			throw new RuntimeException("problem; sum="+sum+" for sectionIndex="+sectionIndex+"\t"+
 					fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
@@ -831,6 +969,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 			e.printStackTrace();
 		}
 		
+System.exit(0);
+
 		// Now compute which cubes are inside polygons
 		if (D) System.out.println("Starting on insidePoly calculation");
 		int numCubes = gridRegForCubes.getNodeCount();
@@ -1138,6 +1278,25 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		}
 		
 		return rateForSrcHashtable;
+	}
+	
+	
+	public void testNucleationRatesOfSourcesInCubes() {
+		System.out.println("testNucleationRatesOfSourcesInCubes():");
+		double[] testSrcRate = new double[this.sourceRates.length];
+		for(int c=0;c<numCubes;c++) {
+			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c);
+			for(int srcIndex:srcRatesInCube.keySet()) {
+				testSrcRate[srcIndex] += srcRatesInCube.get(srcIndex);
+			}
+		}
+		
+		for(int srcIndex=0; srcIndex < sourceRates.length; srcIndex++) {
+			double fractDiff = Math.abs(testSrcRate[srcIndex]-sourceRates[srcIndex])/sourceRates[srcIndex];
+			if(fractDiff>0.0001) {
+				System.out.println("\tDiff="+(float)fractDiff+" for "+this.fssERF.getSource(srcIndex).getName());
+			}
+		}
 	}
 
 	
@@ -2390,7 +2549,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		totRate=this.cubeSamplerRatesOnly.calcSumOfY_Vals();
 		
-		// compute the rate of unassigned sections
 		double[] sectRatesTest = new double[this.rupSet.getNumSections()];
 		for(int i=0;i<numCubes;i++) {
 			int[] sections = sectInCubeList.get(i);
@@ -2399,9 +2557,16 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				sectRatesTest[sections[j]] += totSectNuclRateArray[sections[j]]*(double)fracts[j];
 			}
 		}
+		// compute the rate of unassigned sections
 		double rateUnassigned = 0;
-		for(int s=0;s<sectRatesTest.length;s++)
-			rateUnassigned += (this.totSectNuclRateArray[s]-sectRatesTest[s]);
+		for(int s=0;s<sectRatesTest.length;s++) {
+			double sectRateDiff = this.totSectNuclRateArray[s]-sectRatesTest[s];
+			double fractDiff = Math.abs(sectRateDiff)/totSectNuclRateArray[s];
+			if(fractDiff>0.001 & D) {
+				System.out.println("\tfractDiff = "+(float)fractDiff+" for " + rupSet.getFaultSectionData(s).getName());
+			}
+			rateUnassigned += sectRateDiff;
+		}
 		
 		totRate+=rateUnassigned;
 		
@@ -3099,6 +3264,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				applyGRcorr,null,null,null);
 		
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection(1846);	// Mojave S section
+//		etas_PrimEventSampler.getCubesAndFractForFaultSection(256);
+		
 		
 //		etas_PrimEventSampler.testGR_CorrFactors(1846);
 		
@@ -3160,7 +3327,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //			e.printStackTrace();
 //		}
 		
-		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData");
+//		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData");
 //		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 18.0), "gmtPie_SliceData");
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
@@ -3254,8 +3421,9 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 
 		long st = System.currentTimeMillis();
-		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup(rupInfo, new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
-				this.getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum);
+		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup(rupInfo, 
+				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
+				getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum);
 		if (D) System.out.println("getExpectedPrimaryMFD_PDF took (msec) "+(System.currentTimeMillis()-st));
 		
 		EvenlyDiscretizedFunc supraCumMFD = expectedPrimaryMFDsForScenarioList.get(3);

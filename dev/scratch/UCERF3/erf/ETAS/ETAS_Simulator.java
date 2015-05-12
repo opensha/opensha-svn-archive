@@ -106,7 +106,7 @@ public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
-	static boolean pause_for_events = false;
+	static boolean pause_for_events = true;
 	
 	/**
 	 * This version takes the pre-computed data arrays as arguments
@@ -165,7 +165,7 @@ public class ETAS_Simulator {
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
 	 * @param simulationName
 	 * @param randomSeed - set for reproducibility, or set null if new seed desired
-	 * @param fractionSrcInCubeListt - from pre-computed data file	TODO chance name of this
+	 * @param fractionSrcInCubeList - from pre-computed data file	TODO chance name of this
 	 * @param srcInCubeListt - from pre-computed data file	TODO chance name of this
 	 * @param inputIsCubeInsideFaultPolygont - from pre-computed data file
 	 * @param etasParams
@@ -240,7 +240,7 @@ public class ETAS_Simulator {
 			int id=0;
 			for(ObsEqkRupture qk : histQkList) {
 				Location hyp = qk.getHypocenterLocation();
-				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {
+				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {	//TODO remove hard-coded 24.0 (get from depth dist)
 					ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
 					etasRup.setID(id);
 					obsEqkRuptureList.add(etasRup);
@@ -450,6 +450,8 @@ public class ETAS_Simulator {
 			}
 		}
 		
+		info_fr.flush();	// this writes the above out now in case of crash
+		
 		while(eventsToProcess.size()>0) {
 			
 			if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
@@ -553,52 +555,56 @@ public class ETAS_Simulator {
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
-				// set the date of last event for this rupture
-				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
-
-				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
-				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
-				Long st2 = System.currentTimeMillis();
-				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
-					erf.updateForecast();
-					for(int s=0;s<numFaultSysSources;s++) {
-						ProbEqkSource src = erf.getSource(s);
-						double oldRate = sourceRates[s];
-						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
-						double newRate = sourceRates[s];
-						// TEST THAT RATE CHANGED PROPERLY
-						if(D) {
-							if(s == erf.getSrcIndexForNthRup(nthRup)) {
-								System.out.print("for rup that occurred, oldRate="+(float)oldRate+" & newRate = "+(float)newRate+"\n");			
-							}
-						}
-						// update the spontaneous event sampler with new rupture rates
-						for(int r=0 ; r<src.getNumRuptures(); r++) {
-							ProbEqkRupture rupInSrc = src.getRupture(r);
-							double rate = rupInSrc.getMeanAnnualRate(duration);
-							spontaneousRupSampler.set(erf.getIndexN_ForSrcAndRupIndices(s, r), rate);
-						}
-					}
-					// now update the ETAS sampler
-					etas_PrimEventSampler.declareRateChange();
-
-				}
-				if(D) {
-					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
-					System.out.println("Running generateRuptureDiagnostics(*)");
-					double startDay = 0.0;	// from the moment it occurs
-					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
-					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-					
-					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
-					
-					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
-					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
-
-					etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
-
-				}
+//				// set the date of last event for this rupture
+//				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
+//
+//				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
+//				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
+//				Long st2 = System.currentTimeMillis();
+//				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+//					erf.updateForecast();
+//					for(int s=0;s<numFaultSysSources;s++) {
+//						ProbEqkSource src = erf.getSource(s);
+//						double oldRate = sourceRates[s];
+//						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
+//						double newRate = sourceRates[s];
+//						// TEST THAT RATE CHANGED PROPERLY
+//						if(D) {
+//							if(s == erf.getSrcIndexForNthRup(nthRup)) {
+//								System.out.print("for rup that occurred, oldRate="+(float)oldRate+" & newRate = "+(float)newRate+"\n");			
+//							}
+//						}
+//						// update the spontaneous event sampler with new rupture rates
+//						for(int r=0 ; r<src.getNumRuptures(); r++) {
+//							ProbEqkRupture rupInSrc = src.getRupture(r);
+//							double rate = rupInSrc.getMeanAnnualRate(duration);
+//							spontaneousRupSampler.set(erf.getIndexN_ForSrcAndRupIndices(s, r), rate);
+//						}
+//					}
+//					// now update the ETAS sampler
+//					etas_PrimEventSampler.declareRateChange();
+//
+//				}
+//				if(D) {
+//					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
+//					System.out.println("Running generateRuptureDiagnostics(*)");
+//					double startDay = 0.0;	// from the moment it occurs
+//					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+//					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+//					
+//					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
+//					
+//					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
+//					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
+//
+//					if(doit)
+//						etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
+//
+//				}
 			}
+			
+			info_fr.flush();	// this writes the above out now in case of crash
+
 		}
 		
 		if (progressBar != null) progressBar.showProgress(false);
@@ -823,8 +829,8 @@ public class ETAS_Simulator {
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=true;
-		boolean includeIndirectTriggering=true;
+		boolean includeSpontEvents=false;
+		boolean includeIndirectTriggering=false;
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1134,7 +1140,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
-		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_2", null);
+//		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_2", null);
 //		runTest(TestScenario.NEAR_N_MOJAVE_3KM, params, new Long(1407965202664l), "NearN_Mojave_3KM_1", null);
 //		runTest(TestScenario.LA_HABRA_6p2, params, null, "LaHabraTest_1", null);
 //		runTest(null, params, null, "NoMainshockTest_1", null);
@@ -1143,7 +1149,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
-//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_noSpnont_8", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_35", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 
