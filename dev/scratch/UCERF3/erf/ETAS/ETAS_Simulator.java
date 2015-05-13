@@ -551,8 +551,9 @@ public class ETAS_Simulator {
 				String rupString = "\t"+ts.getStartTimeMonth()+"/"+ts.getStartTimeDay()+"/"+ts.getStartTimeYear()+"\tmag="+
 						(float)rup.getMag()+"\t"+erf.getSource(srcIndex).getName()+
 						"\n\tnthRup="+nthRup+", srcIndex="+srcIndex+", RupIndexInSource="+
-						erf.getRupIndexInSourceForNthRup(nthRup)+", fltSysRupIndex="+fltSysRupIndex+"\tgen="+rup.getGeneration()+
-						"\tparID="+rup.getParentRup().getID()+"\tparMag="+rup.getParentRup().getMag();
+						erf.getRupIndexInSourceForNthRup(nthRup)+", fltSysRupIndex="+fltSysRupIndex+"\tgen="+rup.getGeneration();
+				if (rup.getParentRup() != null)
+					rupString += "\tparID="+rup.getParentRup().getID()+"\tparMag="+rup.getParentRup().getMag();
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
