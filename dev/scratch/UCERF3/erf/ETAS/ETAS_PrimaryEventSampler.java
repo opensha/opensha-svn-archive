@@ -1281,22 +1281,107 @@ System.exit(0);
 	}
 	
 	
+	public void testRandomSourcesFromCubes() {
+		long minNumSamples = 1;
+
+		System.out.println("testRandomSourcesFromCubes():");
+		System.out.println("\tloop over cubes...");
+		CalcProgressBar progressBar = new CalcProgressBar("loop over cubes", "junk");
+		progressBar.showProgress(true);
+		for(int c=0;c<numCubes;c++) {
+			progressBar.updateProgress(c, numCubes);
+			
+			int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(c));
+			if(griddeSeisRegionIndex == -1)
+				continue;
+			Hashtable<Integer,Double> srcProbInCube = getRelativeTriggerProbOfSourcesInCube(c);
+			if(srcProbInCube == null || srcProbInCube.size() == 1)
+				continue;
+			double minVal = 1;
+			for(int srcIndex:srcProbInCube.keySet()) {
+				double prob = srcProbInCube.get(srcIndex);
+				if(!Double.isNaN(prob))
+					if(prob < minVal)
+						minVal = prob;
+			}	
+			
+			if(minVal == 1) continue;
+			
+			long numSamples = minNumSamples*(long)(1.0/(double)minVal);
+			
+			Hashtable<Integer,Double> testSrcProbInCube = new Hashtable<Integer,Double>();
+			CalcProgressBar samplesProgressBar = new CalcProgressBar("loop over samples for cube "+c, "junk");
+			samplesProgressBar.showProgress(true);
+			for(long i=0;i<numSamples;i++) {
+				progressBar.updateProgress(i, numSamples);
+				int srcIndex = getRandomSourceIndexInCube(c);
+				if(testSrcProbInCube.containsKey(srcIndex)) {
+					double newVal = testSrcProbInCube.get(srcIndex) + 1.0/(double)numSamples;
+					testSrcProbInCube.put(srcIndex, newVal);
+				}
+				else {
+					testSrcProbInCube.put(srcIndex, 1.0/(double)numSamples);
+				}
+			}
+			samplesProgressBar.showProgress(false);
+			System.out.println("cube "+c+"\t"+numSamples);
+			for(int srcIndex: srcProbInCube.keySet()) {
+				double val = srcProbInCube.get(srcIndex);
+				double testVal = Double.NaN;
+				if(testSrcProbInCube.containsKey(srcIndex)) {
+					testVal = testSrcProbInCube.get(srcIndex);
+				}
+				System.out.println("\t"+srcIndex+"\t"+testVal+"\t"+val+"\t"+(testVal/val));
+			}
+			
+			System.exit(-1);
+		}
+		progressBar.showProgress(false);
+	}
+
+	
+	/**
+	 * This tests whether source rates can be recoverd from the source rates in each 
+	 * cube (getNucleationRatesOfSourcesInCube()).  Results are good except at grid sources along
+	 * the edge of the relm region and for Mendocino sources that are partially outside the region.
+	 */
 	public void testNucleationRatesOfSourcesInCubes() {
 		System.out.println("testNucleationRatesOfSourcesInCubes():");
 		double[] testSrcRate = new double[this.sourceRates.length];
+		System.out.println("\tloop over cubes...");
+		CalcProgressBar progressBar = new CalcProgressBar("loop over cubes", "junk");
+		progressBar.showProgress(true);
 		for(int c=0;c<numCubes;c++) {
+			progressBar.updateProgress(c, numCubes);
 			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c);
-			for(int srcIndex:srcRatesInCube.keySet()) {
-				testSrcRate[srcIndex] += srcRatesInCube.get(srcIndex);
+			if(srcRatesInCube != null) {
+				for(int srcIndex:srcRatesInCube.keySet()) {
+					double rate = srcRatesInCube.get(srcIndex);
+					if(!Double.isNaN(rate))
+						testSrcRate[srcIndex] += rate;
+				}				
 			}
 		}
+		progressBar.showProgress(false);
 		
+		System.out.println("\tloop over sources...");
+		progressBar = new CalcProgressBar("loop over sources", "junk");
+		progressBar.showProgress(true);
 		for(int srcIndex=0; srcIndex < sourceRates.length; srcIndex++) {
+			progressBar.updateProgress(srcIndex, sourceRates.length);
 			double fractDiff = Math.abs(testSrcRate[srcIndex]-sourceRates[srcIndex])/sourceRates[srcIndex];
 			if(fractDiff>0.0001) {
-				System.out.println("\tDiff="+(float)fractDiff+" for "+this.fssERF.getSource(srcIndex).getName());
+				int gridRegionIndex = srcIndex-numFltSystSources;
+				if(gridRegionIndex>=0) {
+					Location loc = this.origGriddedRegion.getLocation(gridRegionIndex);
+					System.out.println("\tDiff="+(float)fractDiff+" for "+srcIndex+"; "+this.fssERF.getSource(srcIndex).getName()+"\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());			
+				}
+				else {
+					System.out.println("\tDiff="+(float)fractDiff+" for "+srcIndex+"; "+this.fssERF.getSource(srcIndex).getName());			
+				}
 			}
 		}
+		progressBar.showProgress(false);
 	}
 
 	
@@ -3262,6 +3347,9 @@ System.exit(0);
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGRcorr,null,null,null);
+		
+//		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
+		etas_PrimEventSampler.testRandomSourcesFromCubes();
 		
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection(1846);	// Mojave S section
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection(256);
