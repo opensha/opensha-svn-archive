@@ -1281,6 +1281,10 @@ System.exit(0);
 	}
 	
 	
+	/**
+	 * This test takes forever on a single cube, and so should be removed or modified.
+	 * TODO remove this test
+	 */
 	public void testRandomSourcesFromCubes() {
 		long minNumSamples = 1;
 
@@ -1537,9 +1541,14 @@ System.exit(0);
 			for(int i=0;i <numCubes;i++) {
 				int[] sectInCubeArray = sectInCubeList.get(i);
 				float[] fractInCubeArray = fractionSectInCubeList.get(i);
+				double sum = 0;
 				for(int s=0;s<sectInCubeArray.length;s++) {
 					int sectIndex = sectInCubeArray[s];
-					sectProbArray[sectIndex] += totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i);
+					sum += totSectNuclRateArray[sectIndex]*fractInCubeArray[s];
+				}				
+				for(int s=0;s<sectInCubeArray.length;s++) {
+					int sectIndex = sectInCubeArray[s];
+					sectProbArray[sectIndex] += totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
 				}
 			}
 
@@ -1547,6 +1556,7 @@ System.exit(0);
 			double sum=0;
 			for(double val:sectProbArray)
 				sum += val;
+System.out.println("SUM TEST HERE: "+sum);
 			double min=Double.MAX_VALUE, max=0.0;
 			for(int sect=0;sect<sectProbArray.length;sect++) {
 				sectProbArray[sect] *= expectedNumSupra/sum;
@@ -1903,11 +1913,9 @@ System.exit(0);
 			int numToList, String nameSuffix) {
 		String info = "";
 		if(erf instanceof FaultSystemSolutionERF) {
-			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
-//			double[] relSrcProbs = getRelativeTriggerProbOfEachSource(mainshock);
 			double[] sectProbArray = new double[rupSet.getNumSections()];
 			for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
-				int fltSysIndex = tempERF.getFltSysRupIndexForSource(srcIndex);
+				int fltSysIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
 				for(Integer sectIndex:rupSet.getSectionsIndicesForRup(fltSysIndex)) {
 					sectProbArray[sectIndex] += relSrcProbs[srcIndex];
 				}
@@ -1964,7 +1972,7 @@ System.exit(0);
 			// list top fault section participations
 			topValueIndices = ETAS_SimAnalysisTools.getIndicesForHighestValuesInArray(sectProbArray, numToList);
 			info += "\nThe following sections are most likely to participate in a triggered event:\n\n";
-			List<FaultSectionPrefData> fltDataList = tempERF.getSolution().getRupSet().getFaultSectionDataList();
+			List<FaultSectionPrefData> fltDataList = fssERF.getSolution().getRupSet().getFaultSectionDataList();
 			for(int sectIndex :topValueIndices) {
 				info += "\t"+sectProbArray[sectIndex]+"\t"+sectIndex+"\t"+fltDataList.get(sectIndex).getName()+"\n";
 			}
@@ -3503,9 +3511,9 @@ System.exit(0);
 		if(!subDirName.exists())
 			subDirName.mkdir();
 		
-		IntegerPDF_FunctionSampler aveAveCubeSamplerForRup = getAveSamplerForRupture(rupture);
+		IntegerPDF_FunctionSampler aveCubeSamplerForRup = getAveSamplerForRupture(rupture);
 
-		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveAveCubeSamplerForRup);
+		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup);
 		
 
 		long st = System.currentTimeMillis();
@@ -3529,7 +3537,7 @@ System.exit(0);
 
 		// Compute Primary Event Sampler Map
 		st = System.currentTimeMillis();
-		plotSamplerMap(aveAveCubeSamplerForRup, "Primary Sampler for "+rupInfo, "PrimarySamplerMap_"+rupInfo, subDirName);
+		plotSamplerMap(aveCubeSamplerForRup, "Primary Sampler for "+rupInfo, "PrimarySamplerMap_"+rupInfo, subDirName);
 		if (D) System.out.println("plotSamplerMap took (msec) "+(System.currentTimeMillis()-st));
 
 				// Compute subsection participation probability map
@@ -3541,7 +3549,7 @@ System.exit(0);
 		// for subsection trigger probabilities (different than participation).
 		st = System.currentTimeMillis();
 		if (D) System.out.println("expectedNumSupra="+expectedNumSupra);
-		info += "\n\n"+ plotSubSectRelativeTriggerProbGivenSupraSeisRupture(aveAveCubeSamplerForRup, subDirName, 30, rupInfo, expectedNumSupra);
+		info += "\n\n"+ plotSubSectRelativeTriggerProbGivenSupraSeisRupture(aveCubeSamplerForRup, subDirName, 30, rupInfo, expectedNumSupra);
 		if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st));
 
 		

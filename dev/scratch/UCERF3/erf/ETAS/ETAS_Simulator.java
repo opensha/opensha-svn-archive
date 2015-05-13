@@ -551,56 +551,57 @@ public class ETAS_Simulator {
 				String rupString = "\t"+ts.getStartTimeMonth()+"/"+ts.getStartTimeDay()+"/"+ts.getStartTimeYear()+"\tmag="+
 						(float)rup.getMag()+"\t"+erf.getSource(srcIndex).getName()+
 						"\n\tnthRup="+nthRup+", srcIndex="+srcIndex+", RupIndexInSource="+
-						erf.getRupIndexInSourceForNthRup(nthRup)+", fltSysRupIndex="+fltSysRupIndex+"\tgen="+rup.getGeneration();
+						erf.getRupIndexInSourceForNthRup(nthRup)+", fltSysRupIndex="+fltSysRupIndex+"\tgen="+rup.getGeneration()+
+						"\tparID="+rup.getParentRup().getID()+"\tparMag="+rup.getParentRup().getMag();
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
-//				// set the date of last event for this rupture
-//				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
-//
-//				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
-//				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
-//				Long st2 = System.currentTimeMillis();
-//				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
-//					erf.updateForecast();
-//					for(int s=0;s<numFaultSysSources;s++) {
-//						ProbEqkSource src = erf.getSource(s);
-//						double oldRate = sourceRates[s];
-//						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
-//						double newRate = sourceRates[s];
-//						// TEST THAT RATE CHANGED PROPERLY
-//						if(D) {
-//							if(s == erf.getSrcIndexForNthRup(nthRup)) {
-//								System.out.print("for rup that occurred, oldRate="+(float)oldRate+" & newRate = "+(float)newRate+"\n");			
-//							}
-//						}
-//						// update the spontaneous event sampler with new rupture rates
-//						for(int r=0 ; r<src.getNumRuptures(); r++) {
-//							ProbEqkRupture rupInSrc = src.getRupture(r);
-//							double rate = rupInSrc.getMeanAnnualRate(duration);
-//							spontaneousRupSampler.set(erf.getIndexN_ForSrcAndRupIndices(s, r), rate);
-//						}
-//					}
-//					// now update the ETAS sampler
-//					etas_PrimEventSampler.declareRateChange();
-//
-//				}
-//				if(D) {
-//					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
-//					System.out.println("Running generateRuptureDiagnostics(*)");
-//					double startDay = 0.0;	// from the moment it occurs
-//					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
-//					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-//					
-//					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
-//					
-//					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
-//					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
-//
-//					if(doit)
-//						etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
-//
-//				}
+				// set the date of last event for this rupture
+				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
+
+				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
+				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
+				Long st2 = System.currentTimeMillis();
+				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+					erf.updateForecast();
+					for(int s=0;s<numFaultSysSources;s++) {
+						ProbEqkSource src = erf.getSource(s);
+						double oldRate = sourceRates[s];
+						sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
+						double newRate = sourceRates[s];
+						// TEST THAT RATE CHANGED PROPERLY
+						if(D) {
+							if(s == erf.getSrcIndexForNthRup(nthRup)) {
+								System.out.print("for rup that occurred, oldRate="+(float)oldRate+" & newRate = "+(float)newRate+"\n");			
+							}
+						}
+						// update the spontaneous event sampler with new rupture rates
+						for(int r=0 ; r<src.getNumRuptures(); r++) {
+							ProbEqkRupture rupInSrc = src.getRupture(r);
+							double rate = rupInSrc.getMeanAnnualRate(duration);
+							spontaneousRupSampler.set(erf.getIndexN_ForSrcAndRupIndices(s, r), rate);
+						}
+					}
+					// now update the ETAS sampler
+					etas_PrimEventSampler.declareRateChange();
+
+				}
+				if(D) {
+					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
+					System.out.println("Running generateRuptureDiagnostics(*)");
+					double startDay = 0.0;	// from the moment it occurs
+					double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+					double expNum = ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+					
+					String rupInfo = "FltSysRup"+fltSysRupIndex+"_trigNum"+(nthFaultSysRupAftershocks.size()-1);
+					
+					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
+					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
+
+					if(doit)
+						etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
+
+				}
 			}
 			
 			info_fr.flush();	// this writes the above out now in case of crash
@@ -1149,7 +1150,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
-		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_35", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_36", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 
