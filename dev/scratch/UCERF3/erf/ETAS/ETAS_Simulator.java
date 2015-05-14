@@ -106,7 +106,7 @@ public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
 	private static boolean live_map = true;
-	static boolean pause_for_events = true;
+	static boolean pause_for_events = false;
 	
 	/**
 	 * This version takes the pre-computed data arrays as arguments
@@ -831,8 +831,8 @@ public class ETAS_Simulator {
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=false;
-		boolean includeIndirectTriggering=false;
+		boolean includeSpontEvents=true;
+		boolean includeIndirectTriggering=true;
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1151,7 +1151,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
-		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_36", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 

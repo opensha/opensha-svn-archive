@@ -1345,9 +1345,9 @@ System.exit(0);
 
 	
 	/**
-	 * This tests whether source rates can be recoverd from the source rates in each 
+	 * This tests whether source rates can be recovered from the source rates in each 
 	 * cube (getNucleationRatesOfSourcesInCube()).  Results are good except at grid sources along
-	 * the edge of the relm region and for Mendocino sources that are partially outside the region.
+	 * the edge of the RELM region and for Mendocino sources that are partially outside the region.
 	 */
 	public void testNucleationRatesOfSourcesInCubes() {
 		System.out.println("testNucleationRatesOfSourcesInCubes():");
@@ -1548,7 +1548,10 @@ System.exit(0);
 				}				
 				for(int s=0;s<sectInCubeArray.length;s++) {
 					int sectIndex = sectInCubeArray[s];
-					sectProbArray[sectIndex] += totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
+					double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
+					sectProbArray[sectIndex] += val;
+if(Double.isNaN(val))
+		throw new RuntimeException(totSectNuclRateArray[sectIndex]+"\t"+fractInCubeArray[s]+"\t"+sampler.getY(i)+"\t"+sum);
 				}
 			}
 
@@ -1869,6 +1872,57 @@ System.out.println("SUM TEST HERE: "+sum);
 	}
 
 	
+	
+	
+	public void writeRatesCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix, double magThresh) {
+				
+		try {
+			FileWriter fileWriterGMT = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"GMT.txt"));
+			FileWriter fileWriterSCECVDO = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"SCECVDO.txt"));
+			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+			
+			// get closest cube-center
+			Location startCubeLoc = getCubeLocationForIndex(getCubeIndexForLocation(startLoc));
+	        
+	        // hard coded:
+	        cpt = cpt.rescale(-14, -4);
+	        
+	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
+			
+			double halfCubeLatLon = cubeLatLonSpacing/2.0;
+			double halfCubeDepth = depthDiscr/2.0;
+			double startCubeLon = startCubeLoc.getLongitude();
+			double startCubeLat = startCubeLoc.getLatitude();
+			int numLatLon = (int)(lengthDegrees/cubeLatLonSpacing);
+
+			// Data for squares on the EW trending vertical face
+			double lat = startCubeLat;
+			double lon = startCubeLon;
+			for(int i=0;i<numLatLon;i++) {
+				for(int d=0; d<numCubeDepths; d++) {
+					double depth = getCubeDepth(d);
+					Location cubeLoc = new Location(lat,lon,depth);
+					int cubeIndex = getCubeIndexForLocation(cubeLoc);
+					SummedMagFreqDist mfd = getCubeMFD(cubeIndex);
+					double val = mfd.getCumRate(magThresh);
+					Color c = cpt.getColor((float)Math.log10(val));
+					fileWriterGMT.write("> -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterSCECVDO.write("> "+val+"\n");
+					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					fileWriterGMT.write(polygonString);
+					fileWriterSCECVDO.write(polygonString);
+				}
+			}
+			fileWriterGMT.close();
+			fileWriterSCECVDO.close();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+
 	
 	/**
 	 * This plots the implied MFD bulge for sections (log10 of one over the GR correction) using GMT
@@ -2934,7 +2988,7 @@ System.out.println("SUM TEST HERE: "+sum);
 
 	
 	/**
-	 * This compares the MFD represented here to that in the ERF.
+	 * This compares the sum of the cube MFDs to the total ERF MFD.
 	 * What about one including sources outside the region?
 	 * @param erf
 	 */
@@ -3001,7 +3055,9 @@ System.out.println("SUM TEST HERE: "+sum);
 
 	}
 	
-	
+	/**
+	 * This verifies that summing cube values in each grid cell equals the value from the ERF in that cell.
+	 */
 	public void testGriddedSeisRatesInCubes() {
 		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 
