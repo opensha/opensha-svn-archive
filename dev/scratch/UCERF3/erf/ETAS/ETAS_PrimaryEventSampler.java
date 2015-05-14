@@ -1914,6 +1914,8 @@ System.out.println("SUM TEST HERE: "+sum);
 					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
 					fileWriterGMT.write(polygonString);
 					fileWriterSCECVDO.write(polygonString);
+					lat+=cubeLatLonSpacing;
+					lon+=cubeLatLonSpacing;
 				}
 			}
 			fileWriterGMT.close();
