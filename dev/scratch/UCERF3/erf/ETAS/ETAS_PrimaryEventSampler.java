@@ -1545,13 +1545,13 @@ System.exit(0);
 				for(int s=0;s<sectInCubeArray.length;s++) {
 					int sectIndex = sectInCubeArray[s];
 					sum += totSectNuclRateArray[sectIndex]*fractInCubeArray[s];
-				}				
-				for(int s=0;s<sectInCubeArray.length;s++) {
-					int sectIndex = sectInCubeArray[s];
-					double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
-					sectProbArray[sectIndex] += val;
-if(Double.isNaN(val))
-		throw new RuntimeException(totSectNuclRateArray[sectIndex]+"\t"+fractInCubeArray[s]+"\t"+sampler.getY(i)+"\t"+sum);
+				}
+				if(sum > 0) {	// avoid division by zero if all rates are zero
+					for(int s=0;s<sectInCubeArray.length;s++) {
+						int sectIndex = sectInCubeArray[s];
+						double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
+						sectProbArray[sectIndex] += val;
+					}
 				}
 			}
 
