@@ -625,6 +625,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	 * This computes the half width of the fault-section polygon (perpendicular to the strike) in a
 	 * somewhat weird way.
 	 * 
+	 * TODO Remove?
+	 * 
 	 * @param sectionIndex
 	 * @param cubeList
 	 * @return
@@ -880,6 +882,147 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 
 		return wtMap;
 	}
+	
+	
+	
+	private HashMap<Integer,Float> tempGetCubesAndFractForFaultSection(int sectionIndex) {
+		
+		double targetFractDiff = 0.0001;
+		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
+		
+		System.out.println("starting tempGetCubesAndFractForFaultSection");
+		// Make sure long-term MFDs are created
+		makeLongTermSectMFDs();
+
+		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectionIndex);
+		IncrementalMagFreqDist supraSeisMFD = longTermSupraSeisMFD_OnSectArray[sectionIndex];
+		
+		double minSupraSeisMag = subSeisMFD.getMaxMagWithNonZeroRate() + 0.1;
+		if(Double.isNaN(minSupraSeisMag)) {	// this happens for Mendocino sections outside the RELM region
+//			System.out.println(sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+			return null;
+		}
+		
+		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
+		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
+
+		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
+		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
+		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
+		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
+		double targetDist = 0; // max dist within seismo depth
+		for(int i=0; i<numCubes;i++) {
+			Location cubeLoc = getCubeLocationForIndex(i);
+			if(faultPolygon.contains(cubeLoc)) {
+				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
+				cubeDistMap.put(i, dist);
+				if(cubeLoc.getDepth()<=lowerSeisDepth && dist>targetDist) {
+					targetDist = dist;
+				}				
+			}
+		}
+						
+		double n = cubeDistMap.size();
+		if(targetRateAtTargetDist>totSupraSeisRate) {	// distribute uniformly
+			for(int cubeIndex:cubeDistMap.keySet()) {
+				wtMap.put(cubeIndex, (float)(1.0/n));
+			}
+			return wtMap;
+		}
+
+System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist"+targetRateAtTargetDist+"\tN="+cubeDistMap.size());
+
+		targetRateAtTargetDist /= cubeDistMap.size();
+		
+System.out.println("Reduced targetRateAtTargetDist="+targetRateAtTargetDist+"\ttargetDist="+targetDist);
+
+		// solve for log-linear-trend values a and b (R=10^(a-bD), where D is distance and R is rate in ith cube)
+		double b_trial = 0;
+		double b_incr = 1.0;
+		double b = Double.NaN;
+		int numTries=0;
+		boolean done = false;
+		while(!done) {
+			double b1 = b_trial;
+			double totTestRate1 = 0;
+			for(int cubeIndex:cubeDistMap.keySet()) {
+				totTestRate1 += targetRateAtTargetDist*Math.pow(10.0,b1*(targetDist-cubeDistMap.get(cubeIndex)));
+			}
+			double fractDiff1 = Math.abs((totSupraSeisRate-totTestRate1)/totSupraSeisRate);
+			if(fractDiff1<targetFractDiff) {
+				b=b1;
+				done=true;
+System.out.println("Done1:\t"+b1+"\t"+totTestRate1+"\t"+totSupraSeisRate+"\t"+fractDiff1);
+				continue;
+			}
+	
+			double b2 = b_trial+b_incr;
+			double totTestRate2 = 0;
+			for(int cubeIndex:cubeDistMap.keySet()) {
+				totTestRate2 += targetRateAtTargetDist*Math.pow(10.0,b2*(targetDist-cubeDistMap.get(cubeIndex)));
+			}
+			double fractDiff2 = Math.abs((totSupraSeisRate-totTestRate2)/totSupraSeisRate);
+			if(fractDiff2<targetFractDiff) {
+				b=b2;
+				done=true;
+System.out.println("Done2:\t"+b2+"\t"+totTestRate2+"\t"+totSupraSeisRate+"\t"+fractDiff2);
+				continue;
+			}
+
+			
+System.out.println(b_trial+"\t"+b_incr+"\t"+totTestRate1+"\t"+totTestRate2+"\t"+totSupraSeisRate);
+if(numTries >1000000)
+System.exit(0);
+
+			// if it's bounded by the two tries above
+			if(totTestRate1<totSupraSeisRate && totTestRate2>totSupraSeisRate) {
+				b_incr /= 10.0;	// do again with smaller increment
+			}
+			else { // step to next increment
+				b_trial += b_incr;
+			}
+		}
+		
+		double a = Math.log10(targetRateAtTargetDist) + b*targetDist;
+		
+System.out.println("N="+cubeDistMap.size()+"\ta="+a+"\tb="+b);
+		
+
+		for(int cubeIndex:cubeDistMap.keySet()) {
+			double rate = Math.pow(10, a - b*cubeDistMap.get(cubeIndex));
+			wtMap.put(cubeIndex, (float)(rate/totSupraSeisRate));
+Location loc = this.getCubeLocationForIndex(cubeIndex);
+System.out.println(cubeIndex+"\t"+cubeDistMap.get(cubeIndex)+"\t"+wtMap.get(cubeIndex)+"\t"+rate+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
+		}
+		
+		// test
+		double sum=0;
+		for(int cubeIndex: wtMap.keySet()) {
+			double val = wtMap.get(cubeIndex);
+			if(val<0) {
+				throw new RuntimeException("problem");
+			}
+			sum += val;
+		}
+		
+		if(sum == 0) {
+			System.out.println("sum=null for "+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+			return null;
+		}
+		
+		if(sum<0.999 || sum>1.001) {
+			System.out.println("N="+cubeDistMap.size()+"\ta="+a+"\tb="+b);
+			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtTargetDist);
+			System.out.println(subSeisMFD.toString());
+			throw new RuntimeException("problem; sum="+sum+" for sectionIndex="+sectionIndex+"\t"+
+					fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+		}
+
+		return wtMap;
+	}
+
+	
+	
 	
 	
 	/**
@@ -1914,9 +2057,9 @@ System.out.println("SUM TEST HERE: "+sum);
 					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
 					fileWriterGMT.write(polygonString);
 					fileWriterSCECVDO.write(polygonString);
-					lat+=cubeLatLonSpacing;
-					lon+=cubeLatLonSpacing;
 				}
+				lat+=cubeLatLonSpacing;
+				lon+=cubeLatLonSpacing;
 			}
 			fileWriterGMT.close();
 			fileWriterSCECVDO.close();
@@ -3415,10 +3558,12 @@ System.out.println("SUM TEST HERE: "+sum);
 				applyGRcorr,null,null,null);
 		
 //		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
-		etas_PrimEventSampler.testRandomSourcesFromCubes();
+//		etas_PrimEventSampler.testRandomSourcesFromCubes();
 		
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection(1846);	// Mojave S section
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection(256);
+		
+		etas_PrimEventSampler.tempGetCubesAndFractForFaultSection(1846); 	// Mojave S section
 		
 		
 //		etas_PrimEventSampler.testGR_CorrFactors(1846);
@@ -3483,11 +3628,13 @@ System.out.println("SUM TEST HERE: "+sum);
 		
 //		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData");
 //		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 18.0), "gmtPie_SliceData");
-		
+//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(36.15,-121.,1.), 0.75,"crossSectData", 6.65);
+
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_GRcorr2");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.65,"RatesAboveM6pt6_AtDepth7km");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,3.05,"RatesAboveM3pt0_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.55,"RatesAboveM6pt5_AtDepth7km_GRcorr");
 
 		// the following could be compared with an xy scatter plot (did it in Igor; looks good)
