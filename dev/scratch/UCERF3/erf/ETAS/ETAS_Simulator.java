@@ -178,8 +178,11 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
+		// ste the number or fault-based sources
 		int numFaultSysSources = 0;
+		FaultSystemSolutionERF fssERF = null;
 		if(erf instanceof FaultSystemSolutionERF) {
+			fssERF = (FaultSystemSolutionERF)erf;
 			numFaultSysSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
 		}
 		
@@ -188,6 +191,7 @@ public class ETAS_Simulator {
 		// gridSeisDiscr could come from erf.getSolution().getGridSourceProvider().getGriddedRegion().getLatSpacing()
 		// add testScenario as method argument (can be null)
 		
+		// set the random seed for reproducibility
 		ETAS_Utils etas_utils;
 		if(randomSeed != null)
 			etas_utils = new ETAS_Utils(randomSeed);
@@ -200,7 +204,7 @@ public class ETAS_Simulator {
 		// directory for saving results
 		if(!resultsDir.exists()) resultsDir.mkdir();
 		
-		// file for writing simulations info
+		// set file for writing simulation info & write some preliminary stuff to it
 		FileWriter info_fr = new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
 		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
 		ETAS_SimAnalysisTools.writeEventHeaderToFile(simulatedEventsFileWriter);
@@ -270,12 +274,12 @@ public class ETAS_Simulator {
 		// this is for keeping track of aftershocks on the fault system
 		ArrayList<Integer> nthFaultSysRupAftershocks = new ArrayList<Integer>();
 		
+		// get simulation timespan info
 		long simStartTimeMillis = erf.getTimeSpan().getStartTimeCalendar().getTimeInMillis();
 		long simEndTimeMillis = erf.getTimeSpan().getEndTimeCalendar().getTimeInMillis();
 		double simDuration = erf.getTimeSpan().getDuration();
 		
 		if(D) System.out.println("Updating forecast in testETAS_Simulation");
-		// get the total rate over the duration of the forecast
 		erf.updateForecast();	// do this to get annual rate over the entire forecast (used to sample spontaneous events)
 		if(D) System.out.println("Done updating forecast in testETAS_Simulation");
 		
@@ -304,15 +308,14 @@ public class ETAS_Simulator {
 		double duration = erf.getTimeSpan().getDuration();
 		IntegerPDF_FunctionSampler spontaneousRupSampler = new IntegerPDF_FunctionSampler(erf.getTotNumRups());
 		int nthRup=0;
-		System.out.println("tot num:"+erf.getTotNumRups());
+		if(D) System.out.println("total number of ruptures: "+erf.getTotNumRups());
 		for(int s=0;s<erf.getNumSources();s++) {
 			ProbEqkSource src = erf.getSource(s);
 			sourceRates[s] = src.computeTotalEquivMeanAnnualRate(duration);
-//			if(D && sourceRates[s]==0) {
-//				FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
-//				double rate = tempERF.getSolution().getRateForRup(tempERF.getFltSysRupIndexForSource(s));
-//				System.out.println("ZERO RATE SOURCE: "+rate+"\t"+src.getRupture(0).getProbability()+"\t"+src.getName());
-//			}
+			if(D && sourceRates[s]==0) {
+				double rate = fssERF.getSolution().getRateForRup(fssERF.getFltSysRupIndexForSource(s));
+				System.out.println("ZERO RATE FAULT SOURCE: "+rate+"\t"+src.getRupture(0).getProbability()+"\t"+src.getName());
+			}
 			for(ProbEqkRupture rup:src) {
 				if (nthRup >= spontaneousRupSampler.size())
 					throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
@@ -391,7 +394,7 @@ public class ETAS_Simulator {
 			info_fr.write("\n"+spEvStringInfo);
 		}
 
-		// If scenarioRup != null, compute ExpectedPrimaryMFD if in debug mode; this takes time!
+		// If scenarioRup != null, generate  diagnostics if in debug mode!
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList=null;
 		boolean doit = true;	// to be able to turn off even if in debug mode
 		if(D && scenarioRup !=null && doit) {
@@ -554,6 +557,9 @@ public class ETAS_Simulator {
 						erf.getRupIndexInSourceForNthRup(nthRup)+", fltSysRupIndex="+fltSysRupIndex+"\tgen="+rup.getGeneration();
 				if (rup.getParentRup() != null)
 					rupString += "\tparID="+rup.getParentRup().getID()+"\tparMag="+rup.getParentRup().getMag();
+				else {
+					rupString += "\tparID=-1 (spontaneous)";
+				}
 				if(D) System.out.println(rupString);
 				info_fr.write(rupString+"\n");
 
@@ -636,13 +642,13 @@ public class ETAS_Simulator {
 
 
 		if(D && scenarioRup !=null) {	// scenario rupture included
-			int inputRupID = scenarioRup.getID();
+			int inputRupID = scenarioRup.getID();	// TODO already defined above?
 			ETAS_SimAnalysisTools.plotEpicenterMap(simulationName, new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
-			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup(simulationName, new File(resultsDir,"distDecayForRup.pdf").getAbsolutePath(), 
+			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayForScenario.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), inputRupID);
-			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForFirstEvent = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			obsAshockMFDsForFirstEvent.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
-			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForFirstEvent);
+			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
+			obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
+			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForScenario);
 			
 			
 			// write stats for first rup
@@ -653,13 +659,13 @@ public class ETAS_Simulator {
 				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
 				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
-			EvenlyDiscretizedFunc obsPrimCumMFD = obsAshockMFDsForFirstEvent.get(1).getCumRateDistWithOffset();
+			EvenlyDiscretizedFunc obsPrimCumMFD = obsAshockMFDsForScenario.get(1).getCumRateDistWithOffset();
 			double obsPrimNumAtMainMag = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag());
 			double obsPrimNumAtMainMagMinusOne = obsPrimCumMFD.getInterpolatedY(scenarioRup.getMag()-1.0);
-			EvenlyDiscretizedFunc obsAllCumMFD = obsAshockMFDsForFirstEvent.get(1).getCumRateDistWithOffset();
+			EvenlyDiscretizedFunc obsAllCumMFD = obsAshockMFDsForScenario.get(1).getCumRateDistWithOffset();
 			double obsAllNumAtMainMag = obsAllCumMFD.getInterpolatedY(scenarioRup.getMag());
 			double obsAllNumAtMainMagMinusOne = obsAllCumMFD.getInterpolatedY(scenarioRup.getMag()-1.0);
-			String testEventStats="\nAftershock Stats for single input event:\n";
+			String testEventStats="\nAftershock Stats for Scenario event (only):\n";
 			testEventStats+="\tNum Primary Aftershocks at main shock mag("+(float)scenarioRup.getMag()+"):\n\t\tExpected="+expPrimNumAtMainMag+"\n\t\tObserved="+obsPrimNumAtMainMag+"\n";
 			testEventStats+="\tNum Primary Aftershocks at one minus main-shock mag("+(float)(scenarioRup.getMag()-1.0)+"):\n\t\tExpected="+expPrimNumAtMainMagMinusOne+"\n\t\tObserved="+obsPrimNumAtMainMagMinusOne+"\n";
 			testEventStats+="\tTotal Observed Num Aftershocks:\n\t\tAt main-shock mag = "+obsAllNumAtMainMag+"\n\t\tAt one minus main-shock mag = "+obsAllNumAtMainMagMinusOne+"\n";
@@ -670,10 +676,10 @@ public class ETAS_Simulator {
 		}
 		
 		if(D) {
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks(simulationName, new File(resultsDir,"distDecay.pdf").getAbsolutePath(), simulatedRupsQueue, etasParams.get_q(), etasParams.get_d());
-			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent(simulationName, new File(resultsDir,"logTimeDecay.pdf").getAbsolutePath(), simulatedRupsQueue,
+			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks(simulationName, new File(resultsDir,"distDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue, etasParams.get_q(), etasParams.get_d());
+			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent(simulationName, new File(resultsDir,"logTimeDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
 					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
-			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent(simulationName, new File(resultsDir,"timeDecay.pdf").getAbsolutePath(), simulatedRupsQueue,
+			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent(simulationName, new File(resultsDir,"timeDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
 					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
 			ETAS_SimAnalysisTools.plotMagFreqDists(simulationName, resultsDir, simulatedRupsQueue);
 		}
@@ -1151,7 +1157,8 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409243011639l, "NapaEvent_noSpont_uniform_2", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
-		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_5", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 

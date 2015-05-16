@@ -1,6 +1,7 @@
 package scratch.UCERF3.erf.ETAS;
 
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,10 +18,14 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.google.common.base.Preconditions;
@@ -489,16 +494,91 @@ public class ETAS_Utils {
 	public static EvenlyDiscretizedFunc getDefaultNumWithLogTimeFunc(double magMain, double log_tMin, double log_tMax, double log_tDelta) {
 		return getNumWithLogTimeFunc(k_DEFAULT, p_DEFAULT, magMain, magMin_DEFAULT, c_DEFAULT, log_tMin, log_tMax, log_tDelta);
 	}
+	
+	
+	/**
+	 * This lists the relative number of events in each generation expected from the given MFD
+	 * (relative to the number of primary events)
+	 * @param mfd
+	 * @param k
+	 * @param p
+	 * @param magMin
+	 * @param c
+	 */
+	public static void listExpNumForEachGeneration(IncrementalMagFreqDist mfd, double k, double p, double magMin, double c) {
+		
+		// normalize MFD to PDF between M 2.5 and max mag
+		int startMagIndex = mfd.getClosestXIndex(2.55);
+		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
+		double sum=0;
+		for(int m=startMagIndex; m<=endMagIndex;m++) {
+			sum += mfd.getY(m);
+		}
+		mfd.scale(1.0/sum);
+
+		System.out.println("Gen 1\t1.0\ttest="+mfd.calcSumOfY_Vals());
+		double numForLastGen = 1.0;
+		for(int g=2; g<15;g++) {	// loop over generations
+			double expNum = 0;
+			for(int m=startMagIndex; m<=endMagIndex;m++) {
+				expNum += numForLastGen * mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, 10000);
+			}
+			System.out.println("Gen "+g+"\t"+expNum);
+			numForLastGen=expNum;
+		}
+		
+	}
 
 	
 	public static void main(String[] args) {
 		
-		ETAS_Utils etas_utils = new ETAS_Utils(100);
-		etas_utils.getRandomInt(0);
 		
-		for(int i=0;i<10;i++)
-			System.out.println(i+"\t"+etas_utils.getRandomDouble());
-		System.exit(0);
+		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+//		System.out.println(grDist);
+		System.out.println("Perfect GR:");
+		listExpNumForEachGeneration(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT);
+		
+		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
+		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
+		supraSeisDist.scaleToCumRate(6.35, grDist.getCumRate(6.35)*20);	// this make it look pretty typical
+		
+		double grCorr = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
+
+		System.out.println("\nGR scale factor = "+grCorr);
+		
+		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*2.0);
+				
+		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
+		totDist.addIncrementalMagFreqDist(subSeisDist);
+		totDist.addIncrementalMagFreqDist(supraSeisDist);
+		
+		listExpNumForEachGeneration(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT);
+		
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		mfdList.add(subSeisDist);
+		mfdList.add(supraSeisDist);
+		mfdList.add(totDist);
+			// Plot these MFDs
+			GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "MFDs"); 
+			magProbDistsGraph.setX_AxisLabel("Mag");
+			magProbDistsGraph.setY_AxisLabel("Number");
+//			magProbDistsGraph.setY_AxisRange(1e-5, 1e3);
+//			magProbDistsGraph.setX_AxisRange(2d, 9d);
+			magProbDistsGraph.setYLog(true);
+			magProbDistsGraph.setPlotLabelFontSize(18);
+			magProbDistsGraph.setAxisLabelFontSize(16);
+			magProbDistsGraph.setTickLabelFontSize(14);
+		
+
+		
+		
+//		ETAS_Utils etas_utils = new ETAS_Utils(100);
+//		etas_utils.getRandomInt(0);
+//		
+//		for(int i=0;i<10;i++)
+//			System.out.println(i+"\t"+etas_utils.getRandomDouble());
+//		System.exit(0);
 
 		
 //		testDefaultHardebeckDensity();
@@ -518,22 +598,22 @@ public class ETAS_Utils {
 //		System.out.println("M6: "+getDefaultExpectedNumEvents(6.0, 0, 360));
 //		
 		
-		double distDecayArray[] = {ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.distDecay_DEFAULT, 1.4};
-		double minDistArray[] = {ETAS_Utils.minDist_DEFAULT, 2.0, ETAS_Utils.minDist_DEFAULT};
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		for(int j=0;j<distDecayArray.length;j++) {
-			EvenlyDiscretizedFunc cumDecayFunc = new EvenlyDiscretizedFunc(-3d,25,0.25);
-			for(int i=0;i<cumDecayFunc.size();i++) {
-				double dist = Math.pow(10d, cumDecayFunc.getX(i));
-				cumDecayFunc.set(i,getDecayFractionInsideDistance(distDecayArray[j], minDistArray[j], dist));
-			}
-			cumDecayFunc.setName("distDecay="+distDecayArray[j]+";\tminDist="+minDistArray[j]);
-			cumDecayFunc.setInfo(" ");
-			funcs.add(cumDecayFunc);
-		}
-		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
-		graph.setX_AxisLabel("log10 Distance");
-		graph.setX_AxisLabel("Cum Density");
+//		double distDecayArray[] = {ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.distDecay_DEFAULT, 1.4};
+//		double minDistArray[] = {ETAS_Utils.minDist_DEFAULT, 2.0, ETAS_Utils.minDist_DEFAULT};
+//		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+//		for(int j=0;j<distDecayArray.length;j++) {
+//			EvenlyDiscretizedFunc cumDecayFunc = new EvenlyDiscretizedFunc(-3d,25,0.25);
+//			for(int i=0;i<cumDecayFunc.size();i++) {
+//				double dist = Math.pow(10d, cumDecayFunc.getX(i));
+//				cumDecayFunc.set(i,getDecayFractionInsideDistance(distDecayArray[j], minDistArray[j], dist));
+//			}
+//			cumDecayFunc.setName("distDecay="+distDecayArray[j]+";\tminDist="+minDistArray[j]);
+//			cumDecayFunc.setInfo(" ");
+//			funcs.add(cumDecayFunc);
+//		}
+//		GraphWindow graph = new GraphWindow(funcs, "Probability of Aftershock Within Distance");
+//		graph.setX_AxisLabel("log10 Distance");
+//		graph.setX_AxisLabel("Cum Density");
 
 		
 		

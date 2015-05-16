@@ -516,7 +516,7 @@ public class ETAS_SimAnalysisTools {
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
 				
 		// Plot these MFDs
-		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "MFD for All Events",plotChars); 
+		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "MFD for All Events and Aftershocks",plotChars); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Number");
 		magProbDistsGraph.setY_AxisRange(0.1, 1e3);
@@ -536,7 +536,7 @@ public class ETAS_SimAnalysisTools {
 		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 				
 		// Plot these MFDs
-		GraphWindow cuMagProbDistsGraph = new GraphWindow(cumMagProbDists, "Cumulative MFD for All Events",plotCharsCum); 
+		GraphWindow cuMagProbDistsGraph = new GraphWindow(cumMagProbDists, "Cumulative MFD for All Events and Aftershocks",plotCharsCum); 
 		cuMagProbDistsGraph.setX_AxisLabel("Mag");
 		cuMagProbDistsGraph.setY_AxisLabel("Number");
 		cuMagProbDistsGraph.setY_AxisRange(0.1, 1e4);
@@ -677,12 +677,12 @@ public class ETAS_SimAnalysisTools {
 		double histLogMax = 4.0;
 		int histNum = 31;
 		EvenlyDiscretizedFunc expectedLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
-		expectedLogDistDecay.setName("Expected Dist Decay");
+		expectedLogDistDecay.setName("Expected Primary Dist Decay");
 		expectedLogDistDecay.setInfo("(distDecay="+distDecay+" and minDist="+minDist+")");
 
 		EvenlyDiscretizedFunc obsLogDistDecayHist = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
 		obsLogDistDecayHist.setTolerance(obsLogDistDecayHist.getDelta());
-		obsLogDistDecayHist.setName("Observed Dist Decay (relative to parent)");
+		obsLogDistDecayHist.setName("Observed Primary Dist Decay (relative to parent) for all aftershocks in "+info);
 		
 		double numFromPrimary = 0;
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
@@ -709,7 +709,7 @@ public class ETAS_SimAnalysisTools {
 		distDecayFuncs.add(expectedLogDistDecay);
 		distDecayFuncs.add(obsLogDistDecayHist);
 
-		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay for all Aftershocks "+info); 
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Primary Distance Decay for all Aftershocks "+info); 
 		graph.setX_AxisLabel("Log10-Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(histLogMin, histLogMax);
@@ -757,11 +757,11 @@ public class ETAS_SimAnalysisTools {
 
 		EvenlyDiscretizedFunc obsLogDistDecayHist = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
 		obsLogDistDecayHist.setTolerance(obsLogDistDecayHist.getDelta());
-		obsLogDistDecayHist.setName("Observed Dist Decay Hist (relative to parent) for input rupture of simulation "+info);
+		obsLogDistDecayHist.setName("Observed Dist Decay for 1st Generation Aftershocks of "+info);
 		
 		// this is for distances from the specified main shock
 		EvenlyDiscretizedFunc obsLogDistDecayFromOldestAncestor = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
-		obsLogDistDecayFromOldestAncestor.setName("Observed Dist Decay (from orig rup surface) for input rupture of simulation "+info);
+		obsLogDistDecayFromOldestAncestor.setName("Observed Dist Decay for All Generation Aftershocks of "+info);
 		obsLogDistDecayFromOldestAncestor.setTolerance(obsLogDistDecayHist.getDelta());
 
 		double numFromOrigSurface = 0;
@@ -769,6 +769,7 @@ public class ETAS_SimAnalysisTools {
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			ETAS_EqkRupture oldestAncestor = event.getOldestAncestor();
 			if(oldestAncestor != null && oldestAncestor.getID() == rupID) {
+				// fill in distance from parent
 				double logDist = Math.log10(event.getDistanceToParent());
 				if(logDist<histLogMin) {
 					obsLogDistDecayHist.add(0, 1.0);
