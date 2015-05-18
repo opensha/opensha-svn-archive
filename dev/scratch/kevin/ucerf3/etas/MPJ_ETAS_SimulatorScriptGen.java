@@ -26,18 +26,19 @@ public class MPJ_ETAS_SimulatorScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		
-		boolean stampede = false;
+		boolean stampede = true;
+		int threads = 2;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
-//		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
+		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
 //		Scenarios[] scenarios = {Scenarios.NAPA};
-		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
+//		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		boolean timeIndep = false;
 		int numSims = 5000;
 		
 		int memGigs;
-		int mins = 24*60;
+		int mins = 18*60;
 		int nodes = 40;
 		int ppn;
 		if (stampede)
@@ -46,7 +47,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			ppn = 8;
 		String queue = null;
 		
-		File remoteDir, remoteSolFile;
+		File remoteDir, remoteSolFile, cacheDir;
 		FastMPJShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
@@ -58,6 +59,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
 					null, StampedeScriptWriter.FMPJ_HOME, false);
 			pbsWrite = new StampedeScriptWriter();
+			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		} else {
 			memGigs = 9;
 			remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim");
@@ -67,9 +69,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
 			pbsWrite = new USC_HPCC_ScriptWriter();
+			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		}
 		
-		mpjWrite.setAutoMemDetect(true);
+		mpjWrite.setAutoMemDetect(false);
 		
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
@@ -90,7 +93,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			
 			File pbsFile = new File(localJobDir, jobName+".pbs");
 			
-			String argz = "--min-dispatch 1 --max-dispatch 1 --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
+			String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads
+					+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
 			switch (scenario) {
 			case LA_HABRA:
 				argz += " --trigger-loc 33.932,-117.917,4.8 --trigger-mag 6.2";
@@ -110,7 +114,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			}
 			if (timeIndep)
 				argz += " --indep";
-			argz += " "+remoteDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
+			argz += " "+cacheDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 			
 			List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
 			

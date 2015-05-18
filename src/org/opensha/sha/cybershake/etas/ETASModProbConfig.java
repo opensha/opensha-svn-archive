@@ -265,7 +265,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private Map<Integer, Map<Location, List<Integer>>> rvHypoLocations;
 	private Map<IDPairing, Map<Integer, Location>> hypoLocationsByRV;
 	
-	private Map<IDPairing, Map<Double, List<Integer>>> rvProbs;
+	private Map<IDPairing, List<Double>> rvProbs;
 	private List<RVProbSortable> rvProbsSortable;
 	
 	private double[][] fractOccurances;
@@ -890,26 +890,14 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				rvProbsSortable.add(new RVProbSortable(pair.getID1(), pair.getID2(), rvID, mag, hypocenter, occur, rvProb));
 			}
 			
-			// now reverse the mapping
-			Map<Double, List<Integer>> rvProbsToCombine = Maps.newHashMap();
-			for (Integer rvID : rvProbMap.keySet()) {
+			List<Double> rvProbsList = Lists.newArrayList();
+			for (int rvID=0; rvID<totNumRVs; rvID++) {
 				Double rvProb = rvProbMap.get(rvID);
-				List<Integer> rvsAtProb = rvProbsToCombine.get(rvProb);
-				if (rvsAtProb == null) {
-					rvsAtProb = Lists.newArrayList();
-					rvProbsToCombine.put(rvProb, rvsAtProb);
-				}
-				rvsAtProb.add(rvID);
+				Preconditions.checkNotNull(rvProb);
+				rvProbsList.add(rvProb);
 			}
 			
-			// now sub the probabilities for each set of combined rvs, add to actual map
-			Map<Double, List<Integer>> mergedProbs = Maps.newHashMap();
-			for (Double individualProb : rvProbsToCombine.keySet()) {
-				List<Integer> rvIndexes = rvProbsToCombine.get(individualProb);
-				double groupProb = individualProb*(double)rvIndexes.size();
-				mergedProbs.put(groupProb, rvIndexes);
-			}
-			rvProbs.put(pair, mergedProbs);
+			rvProbs.put(pair, rvProbsList);
 		}
 	}
 	
@@ -991,7 +979,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private class RupProbMod implements RuptureVariationProbabilityModifier {
 
 		@Override
-		public Map<Double, List<Integer>> getVariationProbs(int sourceID,
+		public List<Double> getVariationProbs(int sourceID,
 				int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 			if (triggerAllHyposEqually)
 				return null;
@@ -1000,7 +988,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 	}
 	
-	public Map<IDPairing, Map<Double, List<Integer>>> getRVProbs() {
+	public Map<IDPairing, List<Double>> getRVProbs() {
 		return rvProbs;
 	}
 	

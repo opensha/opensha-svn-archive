@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -33,6 +34,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.AbstractEvenlyGriddedSurface;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityModifier {
@@ -196,22 +198,23 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 //	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
-		List<Integer> modIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+	public List<Double> getVariationProbs(int sourceID, int rupID, double originalProb,
+			CybershakeRun run, CybershakeIM im) {
+		HashSet<Integer> modIDs = new HashSet<Integer>(rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID));
 		if (modIDs == null || modIDs.isEmpty())
 			return null;
 		int numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
 		int totRVs = modIDs.size() + numExcluded;
-		double fractIncluded = (double)modIDs.size()/(double)totRVs;
-		double fractExcluded = 1-fractIncluded;
-		
-		List<Integer> excludedIDs = rupsWithinCutoff.getExcludedRVs(sourceID, rupID);
-		
-		Map<Double, List<Integer>> ret = Maps.newHashMap();
-		
-		ret.put(originalProb*increaseMultFactor*fractIncluded, modIDs);
-		if (excludedIDs != null && !excludedIDs.isEmpty())
-			ret.put(originalProb*fractExcluded, excludedIDs);
+		double origProbPer = originalProb / (double)totRVs;
+		double modProbPer = origProbPer*increaseMultFactor;
+
+		List<Double> ret = Lists.newArrayList();
+		for (int rvID=0; rvID<totRVs; rvID++) {
+			if (modIDs.contains(rvID))
+				ret.add(modProbPer);
+			else
+				ret.add(origProbPer);
+		}
 		
 		return ret;
 	}

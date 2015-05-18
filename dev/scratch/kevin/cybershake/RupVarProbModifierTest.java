@@ -51,7 +51,7 @@ public class RupVarProbModifierTest implements RuptureVariationProbabilityModifi
 	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID,
+	public List<Double> getVariationProbs(int sourceID,
 			int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 		// get the number of amps
 		int numAmps;
@@ -112,7 +112,21 @@ public class RupVarProbModifierTest implements RuptureVariationProbabilityModifi
 			ret = ret2;
 		}
 		
-		return ret;
+		// convert back to lits of probabilities
+		List<Double> rvProbs = Lists.newArrayList();
+		for (int i=0; i<numAmps; i++)
+			rvProbs.add(0d);
+		
+		for (Double prob : ret.keySet()) {
+			List<Integer> indexes = ret.get(prob);
+			double probPer = prob/(double)indexes.size();
+			for (int rvIndex : indexes)
+				rvProbs.set(rvIndex, probPer);
+		}
+		
+//		System.out.println("Num amps: "+numAmps);
+		
+		return rvProbs;
 	}
 
 	public static void main(String[] args) {

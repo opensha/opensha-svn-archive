@@ -239,7 +239,7 @@ public class HazardCurveComputation {
 					if (rupVarProbMod == null)
 						continue;
 					else {
-						Map<Double, List<Integer>> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
+						List<Double> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
 						if (modProbs == null || modProbs.isEmpty())
 							continue;
 					}
@@ -269,7 +269,7 @@ public class HazardCurveComputation {
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
 			return;
 		}
-		Map<Double, List<Integer>> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
+		List<Double> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
 		if (modProbs == null) {
 			// we have a rup var prob mod, but it doesn't apply to this rupture
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
@@ -289,23 +289,20 @@ public class HazardCurveComputation {
 //			handleRupture(xVals, modVals, hazardFunc, prob);
 //		}
 		
-		// new way which weights the empirical exceedance distribution with modified the probabilities
+		Preconditions.checkState(modProbs.size() == imVals.size(), "%s != %s", modProbs.size(), imVals.size());
+		
+		// new way which weights the empirical exceedance distribution with the modified probabilities
 		double modQkProb = 0d;
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
-		for (Double prob : modProbs.keySet()) {
-			List<Integer> rvs = modProbs.get(prob);
-			Preconditions.checkState(!rvs.isEmpty());
+		for (int i=0; i<modProbs.size(); i++) {
+			double prob = modProbs.get(i);
+			double imVal = imVals.get(i);
 			Preconditions.checkState(Doubles.isFinite(prob) && prob >= 0);
 			if (prob == 0)
 				continue;
 			modQkProb += prob;
-			double weightPer = prob / (double)rvs.size();
-			for (int rvID : modProbs.get(prob))
-				function.set(imVals.get(rvID)/CONVERSION_TO_G,weightPer);
+			function.set(imVal/CONVERSION_TO_G,prob);
 		}
-//		for (double val : imVals) {
-//			function.set(val/CONVERSION_TO_G,1);
-//		}
 		setIMLProbs(xVals,hazardFunc, function.getNormalizedCumDist(), modQkProb);
 	}
 	

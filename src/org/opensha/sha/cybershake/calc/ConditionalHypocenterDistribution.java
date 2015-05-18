@@ -68,7 +68,10 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 	private int rvScenID;
 	private RealDistribution dist;
 	
-	private Table<Integer, Integer, Map<Double, List<Integer>>> varProbsCache = HashBasedTable.create();
+	/*
+	 * Table organized by sourceID, ruptureID to already cached variation probabilities
+	 */
+	private Table<Integer, Integer, List<Double>> varProbsCache = HashBasedTable.create();
 	
 	public ConditionalHypocenterDistribution(ERF erf, DBAccess db, int erfID, int rvScenID, RealDistribution dist) {
 		this.erf = erf;
@@ -209,8 +212,7 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID,
-			int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
+	public List<Double> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 		if (varProbsCache.contains(sourceID, rupID))
 			return varProbsCache.get(sourceID, rupID);
 		RuptureSurface surf = erf.getSource(sourceID).getRupture(rupID).getRuptureSurface();
@@ -245,48 +247,48 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 			sumHypoProbs += hypocenterProb;
 		}
 		
-		// normalize
+		// normalize to original probability
 		for (int i=0; i<hypocenterProbs.size(); i++)
-			hypocenterProbs.set(i, hypocenterProbs.get(i)/sumHypoProbs);
+			hypocenterProbs.set(i, originalProb*hypocenterProbs.get(i)/sumHypoProbs);
 		
 		if (debug_plots && sourceID == 128 && rupID == 1296)
 			debugPlotProbVsDAS(dasVals, hypocenterProbs);
 		
-		Map<Double, List<Integer>> ret = Maps.newHashMap();
-		for (int rvID=0; rvID<hypocenterProbs.size(); rvID++) {
-			double hypocenterProb = hypocenterProbs.get(rvID);
-			hypocenterProb *= originalProb;
-			// test that hypo prob is uniform, only applicable when alpha=beta=1
-//			double expected = (originalProb/(double)hypos.size());
-//			Preconditions.checkState((float)hypocenterProb == (float)expected, hypocenterProb+" != "+expected);
-			
-			List<Integer> idsAtProb = ret.get(hypocenterProb);
-			if (idsAtProb == null) {
-				idsAtProb = Lists.newArrayList();
-				ret.put(hypocenterProb, idsAtProb);
-			}
-			idsAtProb.add(rvID);
-		}
-		
-		Map<Double, List<Integer>> fixedRet = Maps.newHashMap();
-		for (double prob : ret.keySet()) {
-			List<Integer> ids = ret.get(prob);
-			fixedRet.put(prob*(double)ids.size(), ids);
-		}
-		ret = fixedRet;
+//		Map<Double, List<Integer>> ret = Maps.newHashMap();
+//		for (int rvID=0; rvID<hypocenterProbs.size(); rvID++) {
+//			double hypocenterProb = hypocenterProbs.get(rvID);
+//			hypocenterProb *= originalProb;
+//			// test that hypo prob is uniform, only applicable when alpha=beta=1
+////			double expected = (originalProb/(double)hypos.size());
+////			Preconditions.checkState((float)hypocenterProb == (float)expected, hypocenterProb+" != "+expected);
+//			
+//			List<Integer> idsAtProb = ret.get(hypocenterProb);
+//			if (idsAtProb == null) {
+//				idsAtProb = Lists.newArrayList();
+//				ret.put(hypocenterProb, idsAtProb);
+//			}
+//			idsAtProb.add(rvID);
+//		}
+//		
+//		Map<Double, List<Integer>> fixedRet = Maps.newHashMap();
+//		for (double prob : ret.keySet()) {
+//			List<Integer> ids = ret.get(prob);
+//			fixedRet.put(prob*(double)ids.size(), ids);
+//		}
+//		ret = fixedRet;
 		
 		// make sure the sum of all probabilities equals origProb
 		double runningProb = 0d;
-		for (double hypoProb : ret.keySet())
+		for (double hypoProb : hypocenterProbs)
 			runningProb += hypoProb;
 		Preconditions.checkState((float)runningProb == (float)originalProb,
 				"total probability doesn't equal original: "+runningProb+" != "+originalProb);
 		
 		synchronized (this) {
-			varProbsCache.put(sourceID, rupID, ret);
+			varProbsCache.put(sourceID, rupID, hypocenterProbs);
 		}
 		
-		return ret;
+		return hypocenterProbs;
 	}
 	
 	private void debugPlotProbVsDAS(List<Double> dasVals, List<Double> probs) {

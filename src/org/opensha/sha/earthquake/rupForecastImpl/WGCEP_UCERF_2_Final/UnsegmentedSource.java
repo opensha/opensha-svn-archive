@@ -1287,6 +1287,13 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 	public int getNumRuptures() { return ruptureList.size(); }
 
+	public int getTotNumGR_Rups() {
+		return totNumGR_rups;
+	}
+	
+	public int getTotNumChar_Rups() {
+		return totNumChar_rups;
+	}
 	
 	/**
 	 * This gets the ProbEqkRupture object for the nth Rupture

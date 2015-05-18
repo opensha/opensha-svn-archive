@@ -2,6 +2,7 @@ package org.opensha.sha.cybershake.eew;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.kevin.cybershake.BulkCSCurveReplacer;
@@ -84,17 +86,22 @@ public class EEWCalc implements RuptureVariationProbabilityModifier {
 //	}
 
 	@Override
-	public Map<Double, List<Integer>> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
+	public List<Double> getVariationProbs(int sourceID, int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
 		double rupProb = rupsWithinCutoff.getERF().getRupture(sourceID, rupID).getProbability();
-		ArrayList<Integer> inclIDs = rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID);
+		HashSet<Integer> inclIDs = new HashSet<Integer>(rupsWithinCutoff.getVariationsWithinCutoff(sourceID, rupID));
 		if (inclIDs == null || inclIDs.size() == 0)
 			return null;
-		double numIncluded = inclIDs.size();
-		double numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
-		double incToTotal = numIncluded / (numIncluded + numExcluded);
-		double inclRupsProb = rupProb * incToTotal;
-		Map<Double, List<Integer>> ret = Maps.newHashMap();
-		ret.put(inclRupsProb, inclIDs);
+		int numIncluded = inclIDs.size();
+		int numExcluded = rupsWithinCutoff.getNumExcluded(sourceID, rupID);
+		int totRVs = numIncluded+numExcluded;
+		double probPer = rupProb/(double)totRVs;
+		List<Double> ret = Lists.newArrayList();
+		for (int i=0; i<totRVs; i++) {
+			if (inclIDs.contains(i))
+				ret.add(probPer);
+			else
+				ret.add(0d);
+		}
 		return ret;
 	}
 	
