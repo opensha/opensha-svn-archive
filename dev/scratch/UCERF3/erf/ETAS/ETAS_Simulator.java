@@ -361,7 +361,12 @@ public class ETAS_Simulator {
 					ETAS_EqkRupture newRup = new ETAS_EqkRupture(parRup, eventID, ot);
 					newRup.setParentID(parID);	// TODO don't need this if it's set from parent rup in above constructor
 					newRup.setGeneration(1);	// TODO shouldn't need this either since it's 1 plus that of parent (also set in costructor)
-					newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface()));
+					if(parRup.getFSSIndex()==-1)
+						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface()));
+					else {
+						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface());
+						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
+					}
 					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc()); // for efficiency
 					eventsToProcess.add(newRup);
 					eventID +=1;
@@ -500,6 +505,15 @@ public class ETAS_Simulator {
 			// break out if we failed to set the rupture
 			if(!succeededInSettingRupture)
 				continue;
+			
+			nthRup = rup.getNthERF_Index();
+			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
+			int fltSysRupIndex = -1;
+			if(srcIndex<numFaultSysSources) {
+				fltSysRupIndex = ((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup);
+				rup.setFSSIndex(fltSysRupIndex);
+			}
+				
 
 			// add the rupture to the list
 			simulatedRupsQueue.add(rup);	// this storage does not take much memory during the simulations
@@ -524,7 +538,12 @@ public class ETAS_Simulator {
 						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
 						newRup.setGeneration(gen);	// TODO have set in above constructor?
 						newRup.setParentID(parID);	// TODO have set in above constructor?
-						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
+						if(rup.getFSSIndex()==-1)
+							newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
+						else {
+							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface());
+							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// add fuzziness to parent location
+						}
 						etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
 						eventsToProcess.add(newRup);
 						eventID +=1;
@@ -534,13 +553,10 @@ public class ETAS_Simulator {
 			
 			
 			// if it was a fault system rupture, need to update time span, rup rates, block, and samplers.
-			nthRup = rup.getNthERF_Index();
-			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 
 			if(srcIndex<numFaultSysSources) {
 				
 				nthFaultSysRupAftershocks.add(nthRup);
-				int fltSysRupIndex = ((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup);
 
 				// set the start time for the time dependent calcs
 				erf.getTimeSpan().setStartTimeInMillis(rupOT);	
@@ -750,7 +766,7 @@ public class ETAS_Simulator {
 //				scenarioRup.setRuptureSurface(trimmedSurface);
 //	System.out.println(trimmedSurface.getEvenlyDiscritizedListOfLocsOnSurface().size());
 //	System.exit(-1);
-//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(60.0, 3.0, 0.0)));
+//				scenarioRup.setRuptureSurface(rupFromERF.getRuptureSurface().getMoved(new LocationVector(295.037, 0.5, 0.0)));
 //				System.out.println("test Mainshock: "+erf.getSource(srcID).getName()+"; mag="+scenarioRup.getMag());
 				System.out.println("\tProbBeforeDateOfLastReset: "+erf.getSource(srcID).getRupture(0).getProbability());
 				erf.setFltSystemSourceOccurranceTime(srcID, ot);
@@ -1158,7 +1174,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_5", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_11", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 

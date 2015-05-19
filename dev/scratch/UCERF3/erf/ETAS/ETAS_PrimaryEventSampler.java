@@ -1432,7 +1432,7 @@ System.exit(0);
 	 * @param mainshock
 	 * @return
 	 */
-	public IntegerPDF_FunctionSampler getAveSamplerForRupture(EqkRupture mainshock) {
+	public IntegerPDF_FunctionSampler old_getAveSamplerForRupture(EqkRupture mainshock) {
 		long st = System.currentTimeMillis();
 		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numCubes);
 		
@@ -1454,7 +1454,47 @@ System.exit(0);
 		return aveSampler;
 	}
 	
-	
+	/**
+	 * This loops over all points on the rupture surface and creates a net (average) point sampler.
+	 * Note that this moves each point on the rupture surface horizontally to four different equally-
+	 * weighted points at +/- 0.025 degrees in lat and lon.  This is to stabilize the probability of
+	 * triggering the sections that extend off the ends off the fault rupture, where the relative 
+	 * likelihood of triggering one versus the other can change by 70% because of discretization issues 
+	 * (e.g., sliding the rupture down a tiny bit can change one or both end points to jump between haveing 
+	 * 4 versus 8 adjacent cubes with the unruptured extension in it).
+	 * @param mainshock
+	 * @return
+	 */
+	public IntegerPDF_FunctionSampler getAveSamplerForRupture(EqkRupture mainshock) {
+		long st = System.currentTimeMillis();
+		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numCubes);
+		
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		for(Location loc: locList) {
+			
+			// set the sampler
+			ArrayList<Location> locList2 = new ArrayList<Location>();
+			locList2.add(new Location(loc.getLatitude()+0.025,loc.getLongitude()+0.025,loc.getDepth()));
+			locList2.add(new Location(loc.getLatitude()+0.025,loc.getLongitude()-0.025,loc.getDepth()));
+			locList2.add(new Location(loc.getLatitude()-0.025,loc.getLongitude()+0.025,loc.getDepth()));
+			locList2.add(new Location(loc.getLatitude()-0.025,loc.getLongitude()-0.025,loc.getDepth()));
+			for(Location transLoc : locList2) {
+				int parLocIndex = getParLocIndexForLocation(transLoc);
+				IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, false);
+				
+				for(int i=0;i <numCubes;i++) {
+					aveSampler.add(i, sampler.getY(i));
+				}				
+			}
+			
+		}
+		if(D) {
+			double sec = ((double)(System.currentTimeMillis()-st))/1000d;
+			System.out.println("getAveSamplerForRupture() took (sec): "+(float)sec);
+		}
+		return aveSampler;
+	}
+
 	
 	/**
 	 * TODO No longer used?
@@ -1877,6 +1917,13 @@ System.exit(0);
 						int sectIndex = sectInCubeArray[s];
 						double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
 						sectProbArray[sectIndex] += val;
+
+// cubes for sections off ends of Mojave scenario						
+//if(sectIndex==1836 || sectIndex==1846) {
+//	Location loc = this.getCubeLocationForIndex(i);
+//	System.out.println(i+"\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth()+"\t"+sampler.getY(i)+"\t"+totSectNuclRateArray[sectIndex]+"\t"+fractInCubeArray[s]
+//			+"\t"+val+"\t"+sum+"\t"+getGridSourcRateInCube(i)+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
+//}
 					}
 				}
 			}
@@ -2329,7 +2376,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			
 			// write out probability of mainshock if it's a fault system source
 			if(mainshock.getFSSIndex() >=0 && erf instanceof FaultSystemSolutionERF) {
-				info += "\nProbability of sampling the scenarioRup:\n";
+				info += "\nProbability of sampling the rupture again:\n";
 				int srcIndex = ((FaultSystemSolutionERF)erf).getSrcIndexForFltSysRup(mainshock.getFSSIndex());
 				info += "\n\t"+relSrcProbs[srcIndex]+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName()+"\n";
 			}
@@ -2367,17 +2414,13 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 	
 	/**
 	 * This method will populate the given rupToFillIn with attributes of a randomly chosen
-	 * primary aftershock for the given main shock.  If a fault system rupture is sampled, the
-	 * hypocenter is chosen randomly from the points on the surface that are at the point where
-	 * the event was sampled from (uniform distribution, and not weighted by the distance each
-	 * surface point at that location is from the source.
-	 * from the source
+	 * primary aftershock for the given main shock.  
 	 * @return boolean tells whether it succeeded in setting the rupture
 	 * @param rupToFillIn
 	 */
 	public boolean setRandomPrimaryEvent(ETAS_EqkRupture rupToFillIn) {
 		
-		EqkRupture parRup = rupToFillIn.getParentRup();
+		ETAS_EqkRupture parRup = rupToFillIn.getParentRup();
 		
 		// get the location on the parent that does the triggering
 		Location actualParentLoc=rupToFillIn.getParentTriggerLoc();
@@ -2397,7 +2440,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			}
 			return false;
 		}
-
+		
 ////System.out.println("actualParentLoc: "+actualParentLoc);
 ////System.out.println("parDepIndex: "+getParDepthIndex(actualParentLoc.getDepth()));
 ////System.out.println("getParDepth(parDepIndex): "+getParDepth(parDepIndex));
@@ -2578,6 +2621,23 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		rupToFillIn.setDistanceToParent(distToParent);
 		
 		return true;
+	}
+	
+	/**
+	 * This adds + or - 0.025 degrees to both the lat and lon of the given location (sign is random,
+	 * and a separate random value is applied to lat vs lon). This is used when a fault system rupture 
+	 * is sampled in order to avoid numerical precision problems when it comes to samplind ajacent sections
+	 * along the fault.  See getAveSamplerForRupture(*) for more info.
+	 * @param loc
+	 * @return
+	 */
+	public Location getRandomFuzzyLocation(Location loc) {
+		double sign1=1, sign2=1;
+		if(etas_utils.getRandomDouble() < 0.5)
+			sign1=-1;
+		if(etas_utils.getRandomDouble() < 0.5)
+			sign2=-1;
+		return new Location(loc.getLatitude()+sign1*0.025, loc.getLongitude()+sign2*0.025, loc.getDepth());
 	}
 	
 	
@@ -3902,6 +3962,46 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			subDirName.mkdir();
 		
 		IntegerPDF_FunctionSampler aveCubeSamplerForRup = getAveSamplerForRupture(rupture);
+
+//int tempCubeIndex = 431146;
+//Location cubeLoc = getCubeLocationForIndex(tempCubeIndex);
+//double minDist = Double.MAX_VALUE;
+//double totDecayWt=0;
+//for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+//	Location parLoc = getParLocationForIndex(getParLocIndexForLocation(loc));
+//	double dist = LocationUtils.linearDistance(cubeLoc, parLoc);
+//	if(dist<minDist) minDist=dist;
+//	double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[tempCubeIndex]);
+//	double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[tempCubeIndex]);
+//	double wt = etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[tempCubeIndex], parLoc.getDepth());
+//	totDecayWt += wt;
+//	System.out.println(tempCubeIndex+"\t"+dist+"\t"+wt);
+//}
+//System.out.println("Distance for cube "+tempCubeIndex+" is "+minDist+"; totDecayWt = "+totDecayWt);
+//
+//tempCubeIndex = 426462;
+//cubeLoc = getCubeLocationForIndex(tempCubeIndex);
+//minDist = Double.MAX_VALUE;
+//totDecayWt=0;
+//for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
+//	Location parLoc = getParLocationForIndex(getParLocIndexForLocation(loc));
+//	double dist = LocationUtils.linearDistance(cubeLoc, parLoc);
+//	if(dist<minDist) minDist=dist;
+//	double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[tempCubeIndex]);
+//	double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[tempCubeIndex]);
+//	double wt = etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[tempCubeIndex], parLoc.getDepth());
+//	totDecayWt += wt;
+//	System.out.println(tempCubeIndex+"\t"+dist+"\t"+wt);
+//}
+//System.out.println("Distance for cube "+tempCubeIndex+" is "+minDist+"; totDecayWt = "+totDecayWt);
+//
+//System.exit(0);
+
+//long st2 = System.currentTimeMillis();
+//if (D) System.out.println("starting plotSubSectRelativeTriggerProbGivenSupraSeisRupture");
+//String info2 = "\n\n"+ plotSubSectRelativeTriggerProbGivenSupraSeisRupture(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum);
+//if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st2)+"\n"+info2);
+//System.exit(0);
 
 		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup);
 		

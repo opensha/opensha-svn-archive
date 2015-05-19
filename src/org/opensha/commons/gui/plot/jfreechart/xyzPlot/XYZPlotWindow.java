@@ -36,6 +36,10 @@ public class XYZPlotWindow extends JFrame {
 		this(Lists.newArrayList(spec));
 	}
 	
+	public XYZPlotWindow(XYZPlotSpec spec, Range xRange, Range yRange) {
+		this(Lists.newArrayList(spec), Lists.newArrayList(xRange), Lists.newArrayList(yRange));
+	}
+	
 	public XYZPlotWindow(List<XYZPlotSpec> specs) {
 		this(specs, null, null);
 	}

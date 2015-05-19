@@ -499,14 +499,21 @@ public class ETAS_Utils {
 	/**
 	 * This lists the relative number of events in each generation expected from the given MFD
 	 * (relative to the number of primary events)
+	 * @param mainMag
 	 * @param mfd
 	 * @param k
 	 * @param p
 	 * @param magMin
 	 * @param c
+	 * @param numDays - length of timespan following main shock
 	 */
-	public static void listExpNumForEachGeneration(IncrementalMagFreqDist mfd, double k, double p, double magMin, double c) {
-		
+	public static void listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays) {
+		int numGen=15;
+		double[] numForGen = new double[numGen];
+
+		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, numDays);
+		numForGen[0] = expPrimary;
+				
 		// normalize MFD to PDF between M 2.5 and max mag
 		int startMagIndex = mfd.getClosestXIndex(2.55);
 		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
@@ -516,17 +523,23 @@ public class ETAS_Utils {
 		}
 		mfd.scale(1.0/sum);
 
-		System.out.println("Gen 1\t1.0\ttest="+mfd.calcSumOfY_Vals());
-		double numForLastGen = 1.0;
-		for(int g=2; g<15;g++) {	// loop over generations
+		double numForLastGen = expPrimary;
+		for(int i=1; i<numGen;i++) {	// loop over generations
 			double expNum = 0;
 			for(int m=startMagIndex; m<=endMagIndex;m++) {
-				expNum += numForLastGen * mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, 10000);
+				expNum += numForLastGen * mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
 			}
-			System.out.println("Gen "+g+"\t"+expNum);
+			numForGen[i] = expNum;
 			numForLastGen=expNum;
 		}
 		
+		double totNum = 0;
+		for(int i=0; i<numGen;i++) 
+			totNum += numForGen[i];
+
+		for(int i=0; i<numGen;i++) 
+			System.out.println("Gen "+(i+1)+"\t"+numForGen[i]+"\t"+numForGen[i]/totNum);
+
 	}
 
 	
@@ -534,10 +547,12 @@ public class ETAS_Utils {
 		
 		
 		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
+		double mainMag = 7;
+		double numDays = 7;
 		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
 //		System.out.println(grDist);
 		System.out.println("Perfect GR:");
-		listExpNumForEachGeneration(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT);
+		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
 		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
@@ -547,13 +562,13 @@ public class ETAS_Utils {
 
 		System.out.println("\nGR scale factor = "+grCorr);
 		
-		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*2.0);
+		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr);
 				
 		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
 		totDist.addIncrementalMagFreqDist(subSeisDist);
 		totDist.addIncrementalMagFreqDist(supraSeisDist);
 		
-		listExpNumForEachGeneration(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT);
+		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
 		mfdList.add(subSeisDist);
