@@ -365,7 +365,7 @@ public class ETAS_Simulator {
 						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface()));
 					else {
 						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface());
-						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
+						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// this is to increase numerical stability
 					}
 					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc()); // for efficiency
 					eventsToProcess.add(newRup);

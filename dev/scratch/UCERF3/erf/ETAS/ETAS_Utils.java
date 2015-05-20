@@ -543,6 +543,26 @@ public class ETAS_Utils {
 	}
 
 	
+	public static void tempCriticality(IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays) {
+		// normalize MFD to PDF between M 2.5 and max mag
+		int startMagIndex = mfd.getClosestXIndex(2.55);
+		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
+		double sum=0;
+		for(int m=startMagIndex; m<=endMagIndex;m++) {
+			sum += mfd.getY(m);
+		}
+		mfd.scale(1.0/sum);
+
+		double criticality = 0;
+		for(int m=startMagIndex; m<=endMagIndex;m++) {
+			criticality += mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+		}
+		
+		System.out.println("criticality = "+criticality);
+
+	}
+
+	
 	public static void main(String[] args) {
 		
 		
@@ -552,7 +572,8 @@ public class ETAS_Utils {
 		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
 //		System.out.println(grDist);
 		System.out.println("Perfect GR:");
-		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
 		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
@@ -562,13 +583,14 @@ public class ETAS_Utils {
 
 		System.out.println("\nGR scale factor = "+grCorr);
 		
-		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr);
+		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*10.0);
 				
 		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
 		totDist.addIncrementalMagFreqDist(subSeisDist);
 		totDist.addIncrementalMagFreqDist(supraSeisDist);
 		
-		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+		tempCriticality(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
 		mfdList.add(subSeisDist);

@@ -2471,10 +2471,11 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			}
 			int nthRup = erf.getIndexN_ForSrcAndRupIndices(randSrcIndex,r);
 			ProbEqkRupture erf_rup = src.getRupture(r);
-			// need to choose point on rup surface that is the hypocenter			
-			LocationList locsOnRupSurf = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			
-//			// collect those inside the cube and choose one randomly
+			// need to choose point on rup surface that is the hypocenter			
+			
+//			// Old, Old way: collect those inside the cube and choose one randomly
+//			LocationList locsOnRupSurf = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 //			LocationList locsToSampleFrom = new LocationList();
 //			for(Location loc: locsOnRupSurf) {
 //				if(aftShCubeIndex == getCubeIndexForLocation(loc)) {
@@ -2494,18 +2495,29 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 //			int hypoLocIndex = etas_utils.getRandomInt(locsToSampleFrom.size()-1);
 //			rupToFillIn.setHypocenterLocation(locsToSampleFrom.get(hypoLocIndex));
 			
-			// choose the closest point on surface as the hypocenter
-			Location hypoLoc=null;
-			Location cubeLoc= getCubeLocationForIndex(aftShCubeIndex);
-			double minDist = Double.MAX_VALUE;
-			for(Location loc:locsOnRupSurf) {
-				double dist = LocationUtils.linearDistanceFast(cubeLoc, loc);
-				if(dist<minDist) {
-					hypoLoc = loc;
-					minDist = dist;
-				}	
-			}
-			rupToFillIn.setHypocenterLocation(hypoLoc);
+			
+			
+//			// Old way: choose the closest point on surface as the hypocenter
+//			LocationList locsOnRupSurf = erf_rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+//			Location hypoLoc=null;
+//			Location cubeLoc= getCubeLocationForIndex(aftShCubeIndex);
+//			double minDist = Double.MAX_VALUE;
+//			for(Location loc:locsOnRupSurf) {
+//				double dist = LocationUtils.linearDistanceFast(cubeLoc, loc);
+//				if(dist<minDist) {
+//					hypoLoc = loc;
+//					minDist = dist;
+//				}	
+//			}
+//			rupToFillIn.setHypocenterLocation(hypoLoc);
+			
+			
+			// Latest way:
+			// this makes it the distence from a vertex (par loc) to cube center, but we could add some randomness like below for
+			// gridded seis if we want results to look better (but bad-looking results will remind us about he discretization issues
+			// at large mags)
+			rupToFillIn.setHypocenterLocation(getCubeLocationForIndex(aftShCubeIndex));
+
 
 			rupToFillIn.setRuptureSurface(erf_rup.getRuptureSurface());
 			rupToFillIn.setFSSIndex(((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup));
