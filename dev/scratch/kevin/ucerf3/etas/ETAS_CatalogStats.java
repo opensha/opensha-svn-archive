@@ -11,10 +11,12 @@ import java.util.zip.ZipFile;
 
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -82,6 +84,21 @@ public class ETAS_CatalogStats {
 		return num;
 	}
 	
+	public static List<Double> calcTotalMoments(List<List<ETAS_EqkRupture>> catalogs) {
+		List<Double> ret = Lists.newArrayList();
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			ret.add(calcTotalMoment(catalog));
+		}
+		return ret;
+	}
+	
+	public static double calcTotalMoment(List<ETAS_EqkRupture> catalog) {
+		double moment = 0;
+		for (ETAS_EqkRupture rup : catalog)
+			moment += MagUtils.magToMoment(rup.getMag());
+		return moment;
+	}
+	
 	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name) throws IOException {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(5.05, 41, 0.1);
 		
@@ -135,10 +152,12 @@ public class ETAS_CatalogStats {
 //		double targetMinMag = 7.050480408896166;
 //		String name = "Mojave 7.05";
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/results.zip");
 		int triggerParentID = 0;
 		double targetMinMag = 6.0;
-		String name = "Napa M6";
+//		String name = "Napa M6";
+		String name = "Mojave M7";
 		File[] etasCatalogDirs = {etasCatalogDir};
 		File outputDir = new File(etasCatalogDir.getParentFile(), "outputs_stats");
 		
@@ -184,10 +203,39 @@ public class ETAS_CatalogStats {
 			}
 		}
 		
-		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 1);
-		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
-		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 365);
-		plotMFD(catalogs, outputDir, name);
+//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 1);
+//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
+//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 365);
+//		plotMFD(catalogs, outputDir, name);
+		
+		// print out catalogs with most triggered moment
+		List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			childrenCatalogs.add(ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, triggerParentID));
+		List<Integer> indexes = Lists.newArrayList();
+		for (int i=0; i<childrenCatalogs.size(); i++)
+			indexes.add(i);
+		List<Double> moments = calcTotalMoments(childrenCatalogs);
+		List<ComparablePairing<Double, Integer>> pairings = ComparablePairing.build(moments, indexes);
+		Collections.sort(pairings);
+		Collections.reverse(pairings);
+		System.out.println("Index\tMoment\tMax M\t# Trig\t# Supra");
+		for (int i=0; i<20; i++) {
+			ComparablePairing<Double, Integer> pairing = pairings.get(i);
+			int index = pairing.getData();
+			List<ETAS_EqkRupture> catalog = childrenCatalogs.get(index);
+			double moment = pairing.getComparable();
+			double maxMag = 0d;
+			int numSupra = 0;
+			for (ETAS_EqkRupture rup : catalog) {
+				maxMag = Math.max(maxMag, rup.getMag());
+				if (rup.getFSSIndex() >= 0)
+					numSupra++;
+			}
+			System.out.println(index+"\t"+(float)moment+"\t"+(float)maxMag+"\t"+catalog.size()+"\t"+numSupra);
+		}
+		
+		plotMFD(childrenCatalogs, outputDir, name);
 	}
 
 }

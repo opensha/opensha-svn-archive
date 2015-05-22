@@ -31,9 +31,8 @@ public class DurationLogPlotter {
 	public static void main(String[] args) throws IOException {
 		SimpleDateFormat df = MPJTaskCalculator.df;
 		
-		File logFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
-				+ "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round1/"
-				+ "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round1.pbs.o5091909");
+		File logFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"
+				+ "2015_05_13-mojave_7.pbs.o5290046");
 		
 		Map<Integer, Date> startDates = Maps.newHashMap();
 		Map<Integer, Date> endDates = Maps.newHashMap();
@@ -43,6 +42,10 @@ public class DurationLogPlotter {
 		String str = tis.readLine();
 		while(str != null) {
 			if (str.startsWith("[") && (str.contains("calculating") || str.contains("completed"))) {
+				if (str.contains("batch")) {
+					str = tis.readLine();
+					continue;
+				}
 				// isolate date
 				String dateStr = str.substring(1);
 				dateStr = dateStr.substring(0, dateStr.indexOf(" "));
@@ -59,7 +62,7 @@ public class DurationLogPlotter {
 				try {
 					Integer index = Integer.parseInt(split[split.length-1]);
 					if (str.contains("calculating")) {
-						Preconditions.checkState(!startDates.containsKey(index));
+//						Preconditions.checkState(!startDates.containsKey(index), "Duplicate for "+index);
 						startDates.put(index, date);
 					} else {
 						Preconditions.checkState(!endDates.containsKey(index));

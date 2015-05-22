@@ -36,6 +36,7 @@ public class HazardCurveComputation {
 	
 	private RuptureProbabilityModifier rupProbMod = null;
 	private RuptureVariationProbabilityModifier rupVarProbMod = null;
+	private RuptureVariationProbabilityModifier rupVarAdditionProbMod = null;
 
 	//	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 
@@ -46,16 +47,39 @@ public class HazardCurveComputation {
 		runs2db = new Runs2DB(db);
 	}
 	
+	/**
+	 * This can be used to override the internal peak amplitudes accessor with, for example,
+	 * a cached version.
+	 * @param peakAmplitudes
+	 */
 	public void setPeakAmpsAccessor(PeakAmplitudesFromDBAPI peakAmplitudes) {
 		this.peakAmplitudes = peakAmplitudes;
 	}
 
+	/**
+	 * This can be used to modify individual rupture probabilities
+	 * @param rupProbMod
+	 */
 	public void setRupProbModifier(RuptureProbabilityModifier rupProbMod) {
 		this.rupProbMod = rupProbMod;
 	}
 	
+	/**
+	 * This can be used to modify the probability of each individual rupture variation
+	 * @param rupVarProbMod
+	 */
 	public void setRupVarProbModifier(RuptureVariationProbabilityModifier rupVarProbMod) {
 		this.rupVarProbMod = rupVarProbMod;
+	}
+	
+	/**
+	 * This can be used to add additional probability to individual rupture variations of a rupture
+	 * such as in a short term forecast. The added RV probabilities will be handled as an additional
+	 * rupture rather than modifying the empirical exeedence distribution for the given rupture
+	 * @param rupVarProbMod
+	 */
+	public void setRupVarAdditionProbModifier(RuptureVariationProbabilityModifier rupVarProbMod) {
+		this.rupVarAdditionProbMod = rupVarProbMod;
 	}
 
 	/**
@@ -148,7 +172,7 @@ public class HazardCurveComputation {
 		}
 		if (rupProbMod != null)
 			qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
-		handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, run, imType);
+		handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, rupVarAdditionProbMod, run, imType);
 
 		for(int j=0; j<numIMLs; ++j) 
 			hazardFunc.set(hazardFunc.getX(j),(1-hazardFunc.getY(j)));
@@ -236,11 +260,16 @@ public class HazardCurveComputation {
 					qkProb = rupProbMod.getModifiedProb(srcId, rupId, qkProb);
 				if (qkProb == 0) {
 					// if the probability is zero and we're not modifying anything then we can skip this rupture
-					if (rupVarProbMod == null)
+					if (rupVarProbMod == null && rupVarAdditionProbMod == null)
 						continue;
 					else {
-						List<Double> modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
-						if (modProbs == null || modProbs.isEmpty())
+						List<Double> modProbs = null;
+						if (rupVarProbMod != null)
+							modProbs = rupVarProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
+						List<Double> modAddProbs = null;
+						if (rupVarAdditionProbMod != null)
+							modAddProbs = rupVarAdditionProbMod.getVariationProbs(srcId, rupId, qkProb, run, imType);
+						if ((modProbs == null || modProbs.isEmpty()) && (modAddProbs == null || modAddProbs.isEmpty()))
 							continue;
 					}
 				}
@@ -251,7 +280,7 @@ public class HazardCurveComputation {
 					throw new RuntimeException("SQL Exception calculating curve for runID="+runID
 							+", src="+srcId+", rup="+rupId+", imType="+imType.getID(), e);
 				}
-				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, run, imType);
+				handleRupture(xVals, imVals, hazardFunc, qkProb, srcId, rupId, rupVarProbMod, rupVarAdditionProbMod, run, imType);
 			}
 		}
 
@@ -263,35 +292,32 @@ public class HazardCurveComputation {
 	
 	public static void handleRupture(List<Double> xVals, List<Double> imVals,
 			DiscretizedFunc hazardFunc, double qkProb, int sourceID, int rupID,
-			RuptureVariationProbabilityModifier rupProbVarMod, CybershakeRun run, CybershakeIM im) {
-		if (rupProbVarMod == null) {
-			// we don't have a rupture variation probability modifier
-			handleRupture(xVals, imVals, hazardFunc, qkProb);
-			return;
-		}
-		List<Double> modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
+			RuptureVariationProbabilityModifier rupProbVarMod, RuptureVariationProbabilityModifier rupVarAdditionProbMod,
+			CybershakeRun run, CybershakeIM im) {
+		List<Double> modProbs = null;
+		if (rupProbVarMod != null)
+			modProbs = rupProbVarMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
+		List<Double> modAddProbs = null;
+		if (rupVarAdditionProbMod != null)
+			modAddProbs = rupVarAdditionProbMod.getVariationProbs(sourceID, rupID, qkProb, run, im);
+		
 		if (modProbs == null) {
-			// we have a rup var prob mod, but it doesn't apply to this rupture
+			// we don't have a rupture variation probability modifier (for this rupture at least)
 			handleRupture(xVals, imVals, hazardFunc, qkProb);
-			return;
+		} else {
+			// we need to modify the original rupture RV probs
+			handleModProbs(modProbs, xVals, imVals, hazardFunc);
 		}
 		
-		// old way which splits up into multiple cum dist funcs but can be inaccurate at low probabilities
-//		for (Double prob : modProbs.keySet()) {
-//			List<Integer> rvs = modProbs.get(prob);
-//			Preconditions.checkState(!rvs.isEmpty());
-//			Preconditions.checkState(Doubles.isFinite(prob) && prob >= 0);
-//			if (prob == 0)
-//				continue;
-//			ArrayList<Double> modVals = Lists.newArrayList();
-//			for (int rvID : modProbs.get(prob))
-//				modVals.add(imVals.get(rvID));
-//			handleRupture(xVals, modVals, hazardFunc, prob);
-//		}
-		
+		if (modAddProbs != null) {
+			// we need to also add a new rupture with these probabilities
+			handleModProbs(modAddProbs, xVals, imVals, hazardFunc);
+		}
+	}
+	
+	private static void handleModProbs(List<Double> modProbs, List<Double> xVals, List<Double> imVals,
+			DiscretizedFunc hazardFunc) {
 		Preconditions.checkState(modProbs.size() == imVals.size(), "%s != %s", modProbs.size(), imVals.size());
-		
-		// new way which weights the empirical exceedance distribution with the modified probabilities
 		double modQkProb = 0d;
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 		for (int i=0; i<modProbs.size(); i++) {

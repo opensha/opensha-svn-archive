@@ -291,7 +291,10 @@ public class ETASCurveCalc {
 				// have to calculate
 				if (calc == null) {
 					buildCurveCalc();
-					calc.setRupVarProbModifier(conf.getRupVarProbModifier());
+					if (conf.isRupVarProbModifierByAddition())
+						calc.setRupVarAdditionProbModifier(conf.getRupVarProbModifier());
+					else
+						calc.setRupVarProbModifier(conf.getRupVarProbModifier());
 					calc.setRupProbModifier(conf.getRupProbModifier());
 				}
 				calcTasks.add(new CalcTask(run, site, publishDatasetID));
@@ -589,7 +592,10 @@ public class ETASCurveCalc {
 		
 		if (calc == null) {
 			buildCurveCalc();
-			calc.setRupVarProbModifier(conf.getRupVarProbModifier());
+			if (conf.isRupVarProbModifierByAddition())
+				calc.setRupVarAdditionProbModifier(conf.getRupVarProbModifier());
+			else
+				calc.setRupVarProbModifier(conf.getRupVarProbModifier());
 			calc.setRupProbModifier(conf.getRupProbModifier());
 		}
 		
@@ -943,7 +949,10 @@ public class ETASCurveCalc {
 			System.out.println("Calculating for catalog size "+curCatalogs.size());
 			
 			conf.setCatalogs(curCatalogs);
-			calc.setRupVarProbModifier(conf.getRupVarProbModifier());
+			if (conf.isRupVarProbModifierByAddition())
+				calc.setRupVarAdditionProbModifier(conf.getRupVarProbModifier());
+			else
+				calc.setRupVarProbModifier(conf.getRupVarProbModifier());
 			calc.setRupProbModifier(conf.getRupProbModifier());
 			
 			for (int i=0; i<sites.size(); i++) {

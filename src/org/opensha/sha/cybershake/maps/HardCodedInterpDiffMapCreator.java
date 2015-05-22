@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -53,12 +54,14 @@ import com.google.common.collect.Lists;
 
 public class HardCodedInterpDiffMapCreator {
 	
-	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int datasetID, int imTypeID) {
+	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int datasetID,
+			int imTypeID, Collection<Integer> siteTypes) {
 		List<Integer> datasetIDs = Lists.newArrayList(datasetID);
-		return getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
+		return getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID, siteTypes);
 	}
 	
-	protected static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, List<Integer> datasetIDs, int imTypeID) {
+	protected static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val,
+			List<Integer> datasetIDs, int imTypeID, Collection<Integer> siteTypes) {
 		Preconditions.checkArgument(!datasetIDs.isEmpty(), "Must supply at least one dataset ID");
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);
@@ -69,14 +72,22 @@ public class HardCodedInterpDiffMapCreator {
 			
 			for (int i=0; i<sites.size(); i++) {
 				CybershakeSite site = sites.get(i);
-				if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
-					continue;
+				if (siteTypes == null) {
+					if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
+						continue;
+				} else {
+					if (!siteTypes.contains(site.type_id)) {
+//						System.out.println("Removing: "+site);
+						continue;
+					}
+				}
 				Location loc = site.createLocation();
 				if (scatterData.contains(loc))
 					continue;
 				double siteVal = vals.get(i);
 				scatterData.set(loc, siteVal);
 			}
+			System.out.println("Kept "+scatterData.size()+"/"+sites.size()+" sites for dataset "+datasetID);
 		}
 		return scatterData;
 	}
@@ -304,12 +315,33 @@ public class HardCodedInterpDiffMapCreator {
 	public static void main(String[] args){
 		try {
 			boolean logPlot = false;
-			int imTypeID = 21; // 3 sec SA
-			// the main dataset(s) that we're plotting
+			int imTypeID = 26; // 2 sec SA, GEOM
+//			int imTypeID = 21; // 3 sec SA, GEOM
+//			int imTypeID = 11; // 5 sec SA, GEOM
+//			int imTypeID = 1; // 10 sec SA, GEOM
+			
+			// map label
+			String customLabel = "2sec SA, 2% in 50 yrs";
+			
+			Collection<Integer> siteTypes = CybershakeSite.getTypesExcept(
+					CybershakeSite.TYPE_TEST_SITE, CybershakeSite.TYPE_GRID_05_KM);
+//			Collection<Integer> siteTypes = null; // will still exclude test if null
+			
+			// the point on the hazard curve we are plotting
+			boolean isProbAt_IML = false;
+			double val = 0.0004;
+//			boolean isProbAt_IML = true;
+//			double val = 0.2;
+			
+			/* the main dataset(s) that we're plotting */
+			
+			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(57);
 			
 			// CVM-S4i26, AWP CPU
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(37);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
 			// CVM-S4i26, AWP GPU
 //			int velModelID = 5;
@@ -327,8 +359,8 @@ public class HardCodedInterpDiffMapCreator {
 //			List<Integer> datasetIDs = Lists.newArrayList(12);
 			
 			// comparison dataset for ratio maps
-//			List<Integer> compDatasetIDs = Lists.newArrayList(25);
-			List<Integer> compDatasetIDs = null;
+			List<Integer> compDatasetIDs = Lists.newArrayList(35);
+//			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
@@ -358,18 +390,13 @@ public class HardCodedInterpDiffMapCreator {
 			
 			// probably always leave this null
 			ModProbConfig config = null;
-			// the point on the hazard curve we are plotting
-			boolean isProbAt_IML = false;
-			double val = 0.0004;
-//			boolean isProbAt_IML = true;
-//			double val = 0.2;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
-			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
-//			ScalarIMR baseMapIMR = null;
+			ScalarIMR baseMapIMR = null;
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
@@ -380,20 +407,19 @@ public class HardCodedInterpDiffMapCreator {
 //			baseMapIMR.setParamDefaults();
 			if (baseMapIMR != null)
 				setTruncation(baseMapIMR, 3.0);
-			// map label
-			String customLabel = "3sec SA, 2% in 50 yrs";
 			// always leave false, used for previous study
 			boolean probGain = false;
 			
 			
-			String addr = getMap(logPlot, velModelID, datasetIDs, imTypeID, customMin, customMax,
+			String addr = getMap(logPlot, velModelID, datasetIDs, imTypeID, siteTypes, customMin, customMax,
 					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
 			
 			System.out.println("Map address: " + addr);
 			
 			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
-				addr = getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, isProbAt_IML, val, customLabel);
+				addr = getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, siteTypes,
+						isProbAt_IML, val, customLabel);
 				
 				System.out.println("Comp map address: " + addr);
 			}
@@ -408,34 +434,36 @@ public class HardCodedInterpDiffMapCreator {
 	
 //	protected static InterpDiffMapType[] normPlotTypes = null;
 	protected static InterpDiffMapType[] normPlotTypes = { InterpDiffMapType.INTERP_NOMARKS,
-			InterpDiffMapType.INTERP_MARKS, InterpDiffMapType.BASEMAP, InterpDiffMapType.DIFF, InterpDiffMapType.RATIO};
+			InterpDiffMapType.INTERP_MARKS, InterpDiffMapType.BASEMAP, InterpDiffMapType.DIFF,
+			InterpDiffMapType.RATIO};
 	protected static InterpDiffMapType[] gainPlotTypes = 
 			{ InterpDiffMapType.INTERP_NOMARKS, InterpDiffMapType.INTERP_MARKS};
 	
 	protected static String getMap(boolean logPlot, int velModelID, int datasetID, int imTypeID,
-			Double customMin, Double customMax, boolean isProbAt_IML,
+			Collection<Integer> siteTypes, Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		List<Integer> datasetIDs = Lists.newArrayList(datasetID);
-		return getMap(logPlot, velModelID, datasetIDs, imTypeID, customMin, customMax, isProbAt_IML, val,
-				baseMapIMR, config, probGain, customLabel);
+		return getMap(logPlot, velModelID, datasetIDs, imTypeID, siteTypes, customMin, customMax,
+				isProbAt_IML, val, baseMapIMR, config, probGain, customLabel);
 	}
 	
 
 	
 	public static String getMap(boolean logPlot, int velModelID, List<Integer> datasetIDs, int imTypeID,
-			Double customMin, Double customMax, boolean isProbAt_IML,
+			Collection<Integer> siteTypes, Double customMin, Double customMax, boolean isProbAt_IML,
 			double val, ScalarIMR baseMapIMR, ModProbConfig config,
 			boolean probGain, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		boolean singleDay = config != null;
 		System.out.println("Fetching curves...");
 		AbstractGeoDataSet scatterData;
+		Preconditions.checkState(!singleDay || siteTypes == null, "Site types not implemented for single day");
 		if (singleDay)
 			scatterData = getCustomScatter(config, imTypeID, isProbAt_IML, val);
 		else
-			scatterData = getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID);
+			scatterData = getMainScatter(isProbAt_IML, val, datasetIDs, imTypeID, siteTypes);
 		
 		return getMap(scatterData, logPlot, velModelID, imTypeID, customMin, customMax, isProbAt_IML,
 				val, baseMapIMR, probGain, customLabel);
@@ -499,12 +527,13 @@ public class HardCodedInterpDiffMapCreator {
 		return CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
 	}
 	
-	protected static String getCompareMap(boolean logPlot, List<Integer> dataset1IDs, List<Integer> dataset2IDs, int imTypeID,
+	protected static String getCompareMap(boolean logPlot, List<Integer> dataset1IDs,
+			List<Integer> dataset2IDs, int imTypeID, Collection<Integer> siteTypes,
 			boolean isProbAt_IML, double val, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		System.out.println("Fetching curves...");
-		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID);
-		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID);
+		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID, siteTypes);
+		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID, siteTypes);
 		
 		String[] addrs = getCompareMap(logPlot, scatterData1, scatterData2, imTypeID, customLabel, false);
 		return "diff: "+addrs[0]+" ratio: "+addrs[1];

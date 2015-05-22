@@ -19,7 +19,11 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.util.HashSet;
+
 import org.opensha.commons.geo.Location;
+
+import com.google.common.primitives.Ints;
 
 public class CybershakeSite {
 	
@@ -30,6 +34,19 @@ public class CybershakeSite {
 	public static final int TYPE_GRID_20_KM = 5;
 	public static final int TYPE_GRID_10_KM = 6;
 	public static final int TYPE_GRID_05_KM = 7;
+	
+	private static final int MAX_TYPE_ID = 7;
+	
+	public static HashSet<Integer> getTypesExcept(int... except) {
+		HashSet<Integer> types = new HashSet<Integer>();
+		
+		for (int i=0; i<=MAX_TYPE_ID; i++) {
+			if (!Ints.contains(except, i))
+				types.add(i);
+		}
+		
+		return types;
+	}
 	
 	public int id;
 	public double lat;

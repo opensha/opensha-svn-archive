@@ -230,6 +230,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	}
 	
 	private static final boolean calc_by_add_spontaneous = true;
+	private static final boolean calc_by_treat_as_new_rupture = true;
 	// if >0, all hypos within this distance will be promoted, not just closest
 	private static final double hypocenter_buffer_km = 10d;
 	
@@ -872,8 +873,12 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			
 			if (calc_by_add_spontaneous) {
 				// add in all RVs at original probability
-				double startingProbPer = rupProbMod.getModifiedProb(
-						pair.getID1(), pair.getID2(), 0d)/(double)totNumRVs;
+				double startingProbPer;
+				if (calc_by_treat_as_new_rupture)
+					startingProbPer = 0d;
+				else
+					startingProbPer = rupProbMod.getModifiedProb(
+							pair.getID1(), pair.getID2(), 0d)/(double)totNumRVs;
 				for (Integer rvID : allRVsList)
 					rvProbMap.put(rvID, startingProbPer);
 			}
@@ -975,9 +980,13 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		return mod;
 	}
 	
+	public boolean isRupVarProbModifierByAddition() {
+		return calc_by_treat_as_new_rupture;
+	}
+	
 	private RupProbMod mod = null;
 	private class RupProbMod implements RuptureVariationProbabilityModifier {
-
+		
 		@Override
 		public List<Double> getVariationProbs(int sourceID,
 				int rupID, double originalProb, CybershakeRun run, CybershakeIM im) {
@@ -985,7 +994,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				return null;
 			return rvProbs.get(new IDPairing(sourceID, rupID));
 		}
-		
 	}
 	
 	public Map<IDPairing, List<Double>> getRVProbs() {

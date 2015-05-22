@@ -686,6 +686,7 @@ public class TrueMeanBuilder {
 		ZipEntry mappingEntry = zip.getEntry("branch_ids.bin");
 		Preconditions.checkNotNull(branchesEntry, "Given file doesn't have mappings!");
 		List<List<Integer>> idsList = MatrixIO.intListListFromInputStream(zip.getInputStream(mappingEntry));
+		zip.close();
 		Preconditions.checkState(branches.size() == idsList.size(), "mappings lengths inconsistent!");
 		Map<LogicTreeBranch, List<Integer>> mapping = Maps.newHashMap();
 		for (int i=0; i<branches.size(); i++)
