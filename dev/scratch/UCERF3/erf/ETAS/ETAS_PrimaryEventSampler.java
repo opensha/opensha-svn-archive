@@ -2468,9 +2468,10 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		// Make sure long-term MFDs are created
 		makeLongTermSectMFDs();
 
-//System.out.println("GR Correction Factors:");
+System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 
 		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
+			double val;
 			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
 				
 				// TODO only need this temporarily?
@@ -2479,15 +2480,16 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 					throw new RuntimeException("Problem");
 				}
 				
-				double val = ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-				values[sectIndex] = Math.log10(1.0/val);
+				val = 1.0/ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 			}
 			else {	// no supra-seismogenic ruptures
-				values[sectIndex] = 0;
-				System.out.println("no supra-seismogenic ruptures: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+				throw new RuntimeException("Problem");
 			}
+			
+			values[sectIndex] = Math.log10(val);
 
-//System.out.println(sectIndex+"\t"+(float)grCorrFactorForSectArray[sectIndex]+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+
+System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
 		}
 
 		String name = "ImpliedBulgeForSubSections_"+nameSuffix;
@@ -3977,7 +3979,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
-		boolean applyGRcorr = false;
+		boolean applyGRcorr = true;
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
