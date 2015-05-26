@@ -963,6 +963,9 @@ public class ETAS_Simulator {
 		System.out.println("ERF instantiation took "+timeSec+" sec");
 		
 		
+		for(ProbEqkRupture rup : erf.getSource(erf.getNumFaultSystemSources()+1000)) {
+			System.out.println(rup.getMag()+"\t"+rup.getAveRake());
+		}
 		
 //		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
 //		InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)tempERF.getSolution();
@@ -1138,7 +1141,6 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		
 //		Location testLoc = new Location(32.57336, -118.25770, 9.05759);
 //		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 //		System.out.println(griddedRegion.indexForLocation(testLoc));
@@ -1174,7 +1176,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_11", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_12", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 

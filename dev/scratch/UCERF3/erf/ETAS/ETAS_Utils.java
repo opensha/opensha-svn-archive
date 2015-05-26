@@ -572,7 +572,7 @@ public class ETAS_Utils {
 		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
 //		System.out.println(grDist);
 		System.out.println("Perfect GR:");
-//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
@@ -583,13 +583,14 @@ public class ETAS_Utils {
 
 		System.out.println("\nGR scale factor = "+grCorr);
 		
-		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*10.0);
+		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr);
+//		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate());
 				
 		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
 		totDist.addIncrementalMagFreqDist(subSeisDist);
 		totDist.addIncrementalMagFreqDist(supraSeisDist);
 		
-//		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		tempCriticality(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		
 		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();

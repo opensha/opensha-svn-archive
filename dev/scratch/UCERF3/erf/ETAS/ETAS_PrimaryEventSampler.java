@@ -51,6 +51,8 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -2254,7 +2256,151 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			Location startCubeLoc = getCubeLocationForIndex(getCubeIndexForLocation(startLoc));
 	        
 	        // hard coded:
-	        cpt = cpt.rescale(-14, -4);
+	        cpt = cpt.rescale(-8.5, -4.5);
+	        cpt.setBelowMinColor(Color.WHITE);
+	        
+	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
+			
+			double halfCubeLatLon = cubeLatLonSpacing/2.0;
+			double halfCubeDepth = depthDiscr/2.0;
+			double startCubeLon = startCubeLoc.getLongitude();
+			double startCubeLat = startCubeLoc.getLatitude();
+			int numLatLon = (int)(lengthDegrees/cubeLatLonSpacing);
+			
+//int testCubeIndex = this.getCubeIndexForLocation(new Location(34.76,-118.48,0.0));
+//int cubeRegIndex = getCubeRegAndDepIndicesForIndex(testCubeIndex)[0];
+//System.out.println("HERE isCubeInsideFaultPolygon[cubeRegIndex]="+isCubeInsideFaultPolygon[cubeRegIndex]);
+			
+			double minVal = Double.MAX_VALUE, maxVal = -Double.MAX_VALUE;
+
+			// Data for squares on the EW trending vertical face
+			double lat = startCubeLat;
+			double lon = startCubeLon;
+			for(int i=0;i<numLatLon;i++) {
+				for(int d=0; d<numCubeDepths; d++) {
+					double depth = getCubeDepth(d);
+					Location cubeLoc = new Location(lat,lon,depth);
+					int cubeIndex = getCubeIndexForLocation(cubeLoc);
+					SummedMagFreqDist mfd = getCubeMFD(cubeIndex);
+					double val = mfd.getCumRate(magThresh);
+					Color c = cpt.getColor((float)Math.log10(val));
+					if(minVal>Math.log10(val))
+						minVal=Math.log10(val);
+					if(maxVal<Math.log10(val))
+						maxVal=Math.log10(val);					
+					fileWriterGMT.write("> -W125/125/125 -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterSCECVDO.write("> "+val+"\n");
+					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					fileWriterGMT.write(polygonString);
+					fileWriterSCECVDO.write(polygonString);
+				}
+				lat+=cubeLatLonSpacing;
+				lon+=cubeLatLonSpacing;
+			}
+			
+			// Data for the surface
+			double depth = 0;
+			int numOtherWay = 30;
+			double newStartLat = startCubeLat;
+			double newStartLon = startCubeLon+cubeLatLonSpacing;
+			int numLonDone=0;
+			for(int j=0; j<numOtherWay; j++) {
+//				newStartLon = -j*cubeLatLonSpacing+startCubeLon;
+//				if( (j & 1) != 0) {
+//					if(j !=0)
+//						newStartLat+=cubeLatLonSpacing;
+//				}
+//				else
+//					newStartLon -= cubeLatLonSpacing;
+				if(numLonDone!=2){
+					newStartLon -= cubeLatLonSpacing;
+					numLonDone+=1;
+				}
+				else {
+					newStartLat+=cubeLatLonSpacing;
+					numLonDone=0;
+				}
+				lat = newStartLat;
+				lon = newStartLon;
+				for(int i=0;i<numLatLon;i++) {
+					Location cubeLoc = new Location(lat,lon,depth+halfCubeDepth);
+					int cubeIndex = getCubeIndexForLocation(cubeLoc);
+					SummedMagFreqDist mfd = getCubeMFD(cubeIndex);
+					double val = mfd.getCumRate(magThresh);
+					if(minVal>Math.log10(val))
+						minVal=Math.log10(val);
+					if(maxVal<Math.log10(val))
+						maxVal=Math.log10(val);					
+					Color c = cpt.getColor((float)Math.log10(val));
+//if(cubeIndex==testCubeIndex) System.out.println("HERE index, val: "+testCubeIndex+"\t"+val+"\n"+mfd);
+//if(cubeIndex==testCubeIndex) System.out.println("HERE RGB: "+"> -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterGMT.write("> -W125/125/125 -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterSCECVDO.write("> "+val+"\n");
+					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + depth +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + depth +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + depth +"\n";
+					if(j != 0)
+						polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + depth +"\n";
+					fileWriterGMT.write(polygonString);
+					fileWriterSCECVDO.write(polygonString);
+					lat += cubeLatLonSpacing;
+					lon += cubeLatLonSpacing;
+				}
+			}
+
+			
+			fileWriterGMT.close();
+			fileWriterSCECVDO.close();
+			
+			System.out.println("Value Range:\n\tminVal="+minVal+"\n\tmaxVal="+maxVal);
+			
+			// write out Mojave subsection polygons
+			FileWriter fileWriterPolygons = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, "PolygonData.txt"));
+			for(int i=1841; i>1835;i--) {
+				String polygonString = "> -W\n";
+				for(Location loc : faultPolyMgr.getPoly(i).getBorder()) {
+					polygonString += (float)loc.getLatitude() + "\t" + (float)loc.getLongitude() + "\t" + loc.getDepth() +"\n";
+				}
+				fileWriterPolygons.write(polygonString);
+
+			}
+			fileWriterPolygons.close();
+			
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	
+	/**
+	 * TODO THIS IS OUT OF DATE: START FROM SCRATCH USING writeRatesCrossSectionData
+	 * @param startLoc
+	 * @param lengthDegrees
+	 * @param fileNamePrefix
+	 */
+	public void writeBulgeCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix) {
+		
+		try {
+			FileWriter fileWriterGMT = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"GMT.txt"));
+			FileWriter fileWriterSCECVDO = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"SCECVDO.txt"));
+			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+			
+			// get closest cube-center
+			Location startCubeLoc = getCubeLocationForIndex(getCubeIndexForLocation(startLoc));
+			
+			if(mfdForSrcArray == null) {
+				computeMFD_ForSrcArrays(2.05, 8.95, 70);
+			}
+
+	        
+	        // hard coded:
+	        cpt = cpt.rescale(-3, 3);
 	        
 	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
 			
@@ -2272,11 +2418,18 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 					double depth = getCubeDepth(d);
 					Location cubeLoc = new Location(lat,lon,depth);
 					int cubeIndex = getCubeIndexForLocation(cubeLoc);
-					SummedMagFreqDist mfd = getCubeMFD(cubeIndex);
-					double val = mfd.getCumRate(magThresh);
-					Color c = cpt.getColor((float)Math.log10(val));
+					
+					SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(cubeIndex);
+					SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);
+					double bulge = 1.0;
+					if(mfdSupra != null &&  mfdGridded != null) {
+						bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(mfdSupra, mfdGridded, false);
+						if(Double.isInfinite(bulge))
+							bulge = 1e3;				
+					}
+					Color c = cpt.getColor((float)Math.log10(bulge));
 					fileWriterGMT.write("> -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
-					fileWriterSCECVDO.write("> "+val+"\n");
+					fileWriterSCECVDO.write("> "+bulge+"\n");
 					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
 					polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
 					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
@@ -2293,6 +2446,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			e1.printStackTrace();
 		}
 	}
+
 
 	
 	/**
@@ -2941,6 +3095,8 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		}
 
 	}
+	
+	
 	
 	
 	/**
@@ -3884,11 +4040,12 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		
 //		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData");
 //		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 18.0), "gmtPie_SliceData");
-//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(36.15,-121.,1.), 0.75,"crossSectDataExponential", 6.65);
-//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataExponential_mojave", 6.55);
+		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_onlyFault", 6.55);
+		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.55);
+//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
-		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_exp2");
+//		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_exp2_grCorrOn");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.25,"RatesAboveM7pt2_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.65,"RatesAboveM6pt6_AtDepth7km_exp2");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,3.05,"RatesAboveM3pt0_AtDepth7km");
