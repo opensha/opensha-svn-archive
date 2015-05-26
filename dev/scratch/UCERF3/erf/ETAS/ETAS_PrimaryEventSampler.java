@@ -2463,13 +2463,34 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			throws GMT_MapException, RuntimeException, IOException {
 
 		List<FaultSectionPrefData> faults = fssERF.getSolution().getRupSet().getFaultSectionDataList();
-
 		double[] values = new double[faults.size()];
-		for(int i=0;i<faults.size();i++) {
-			values[i] = Math.log10(1.0/grCorrFactorForSectArray[i]);
-		}
 		
-		String name = "BulgeFrom1stGenAft_"+nameSuffix;
+		// Make sure long-term MFDs are created
+		makeLongTermSectMFDs();
+
+//System.out.println("GR Correction Factors:");
+
+		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
+			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
+				
+				// TODO only need this temporarily?
+				if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
+					System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+					throw new RuntimeException("Problem");
+				}
+				
+				double val = ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				values[sectIndex] = Math.log10(1.0/val);
+			}
+			else {	// no supra-seismogenic ruptures
+				values[sectIndex] = 0;
+				System.out.println("no supra-seismogenic ruptures: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			}
+
+//System.out.println(sectIndex+"\t"+(float)grCorrFactorForSectArray[sectIndex]+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+		}
+
+		String name = "ImpliedBulgeForSubSections_"+nameSuffix;
 		String title = "Log10(Bulge From 1st Gen Aft)";
 		CPT cpt= FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
 		
@@ -3118,7 +3139,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			// Make sure long-term MFDs are created
 			makeLongTermSectMFDs();
 
-// System.out.println("GR Correction Factors:");
+//System.out.println("GR Correction Factors:");
 
 			double minCorr=Double.MAX_VALUE;
 			int minCorrIndex = -1;
@@ -3963,13 +3984,20 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 				applyGRcorr,null,null,null);
 		
 //		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 12.0), "gmtPie_SliceData");
-		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 12.0), "gmtPie_SliceData");
+//		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 12.0), "gmtPie_SliceData");
 
 		
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_onlyFault", 6.55);
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.55);
 
-		//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
+//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
+
+		// Sections bulge plot
+		try {
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedBulgeForSubSections"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		
 //		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
@@ -4039,12 +4067,6 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 //		System.out.println("testGriddedSeisRatesInCubes()");
 //		etas_PrimEventSampler.testGriddedSeisRatesInCubes();
 
-		// Sections bulge plot
-//		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedBulgeForSubSections"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 		
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
