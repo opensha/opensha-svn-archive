@@ -1891,9 +1891,9 @@ System.exit(0);
 	 * This also returns a String with a list of the top numToList fault-based 
 	 * sources and top sections (see next method below).
 	 * 
-	 * TODO move this to ETAS_SimAnalysisTools; rename to absolute probability (after making sure this makes sense)
+	 * TODO move this to ETAS_SimAnalysisTools
 	 */
-	public String plotSubSectRelativeTriggerProbGivenSupraSeisRupture(IntegerPDF_FunctionSampler sampler, File resultsDir, int numToList, 
+	public String plotSubSectTriggerProbGivenAllPrimayEvents(IntegerPDF_FunctionSampler sampler, File resultsDir, int numToList, 
 			String nameSuffix, double expectedNumSupra) {
 		String info = "";
 		if(erf instanceof FaultSystemSolutionERF) {
@@ -1952,8 +1952,8 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			double[] values = FaultBasedMapGen.log10(sectProbArray);
 
 
-			String name = "SectRelativeTriggerProb"+nameSuffix;
-			String title = "Log10(Relative Trigger Prob)";
+			String name = "SectTriggerProb"+nameSuffix;
+			String title = "Log10(Trigger Prob)";
 			// this writes all the value to a file
 			try {
 				FileWriter fr = new FileWriter(new File(resultsDir, name+".txt"));
@@ -2159,7 +2159,8 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 //	        cpt = cpt.rescale(Math.round(minVal), Math.round(maxVal));
 	        
 	        // hard coded:
-	        cpt = cpt.rescale(-8, -4);
+	        cpt = cpt.rescale(-7, -5);
+	        cpt = cpt.rescale(-9, -1);
 	        
 	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
 			
@@ -3937,9 +3938,6 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
-//		System.out.println(griddedRegion.indexForLocation(new Location(34.5,-118.0)));
-//		System.out.println(griddedRegion.getLocation(griddedRegion.indexForLocation(new Location(34.5,-118.0))));
-		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
 
 		// this tests whether total subseismo MFD from grid source provider is the same as from the fault-sys solution
@@ -3963,6 +3961,16 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGRcorr,null,null,null);
+		
+//		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 12.0), "gmtPie_SliceData");
+		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 12.0), "gmtPie_SliceData");
+
+		
+//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_onlyFault", 6.55);
+//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.55);
+
+		//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
+
 		
 //		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
 //		etas_PrimEventSampler.testRandomSourcesFromCubes();
@@ -4038,11 +4046,6 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 //			e.printStackTrace();
 //		}
 		
-//		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData");
-//		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 18.0), "gmtPie_SliceData");
-		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_onlyFault", 6.55);
-		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.55);
-//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_exp2_grCorrOn");
@@ -4199,7 +4202,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		plotSamplerMap(aveCubeSamplerForRup, "Primary Sampler for "+rupInfo, "PrimarySamplerMap_"+rupInfo, subDirName);
 		if (D) System.out.println("plotSamplerMap took (msec) "+(System.currentTimeMillis()-st));
 
-				// Compute subsection participation probability map
+		// Compute subsection participation probability map
 		st = System.currentTimeMillis();
 		String info = plotSubSectParticipationProbGivenRuptureAndReturnInfo(rupture, relSrcProbs, subDirName, 30, rupInfo);
 		if (D) System.out.println("plotSubSectParticipationProbGivenRuptureAndReturnInfo took (msec) "+(System.currentTimeMillis()-st));
@@ -4208,7 +4211,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 		// for subsection trigger probabilities (different than participation).
 		st = System.currentTimeMillis();
 		if (D) System.out.println("expectedNumSupra="+expectedNumSupra);
-		info += "\n\n"+ plotSubSectRelativeTriggerProbGivenSupraSeisRupture(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum);
+		info += "\n\n"+ plotSubSectTriggerProbGivenAllPrimayEvents(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum);
 		if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st));
 
 		

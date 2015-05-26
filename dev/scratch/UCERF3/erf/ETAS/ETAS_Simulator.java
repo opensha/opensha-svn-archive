@@ -963,10 +963,6 @@ public class ETAS_Simulator {
 		System.out.println("ERF instantiation took "+timeSec+" sec");
 		
 		
-		for(ProbEqkRupture rup : erf.getSource(erf.getNumFaultSystemSources()+1000)) {
-			System.out.println(rup.getMag()+"\t"+rup.getAveRake());
-		}
-		
 //		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
 //		InversionFaultSystemSolution invSol = (InversionFaultSystemSolution)tempERF.getSolution();
 //		double minMag = 2.05;
@@ -1176,7 +1172,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_12", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 
