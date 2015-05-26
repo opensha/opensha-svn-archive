@@ -1,9 +1,17 @@
 package org.opensha.sha.faultSurface;
 
+import java.util.concurrent.ExecutionException;
+
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.util.ExceptionUtils;
+
+import scratch.UCERF3.utils.IDPairing;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * This is an EvenlyGriddedSurface that is interpolated to become a higher resolution
@@ -16,6 +24,9 @@ public class InterpolatedEvenlyGriddedSurface extends
 	
 	private EvenlyGriddedSurface loResSurf;
 	private int discrPnts;
+	
+	private static final int maxCacheSize = 5000;
+	private LoadingCache<IDPairing, Location> locCache;
 	
 	public InterpolatedEvenlyGriddedSurface(EvenlyGriddedSurface loResSurf, double hiResSpacing) {
 		Preconditions.checkState(loResSurf.isGridSpacingSame());
@@ -37,6 +48,8 @@ public class InterpolatedEvenlyGriddedSurface extends
 		gridSpacingAlong = hiResSpacing;
 		gridSpacingDown = hiResSpacing;
 		sameGridSpacing = true;
+		
+		locCache = CacheBuilder.newBuilder().maximumSize(maxCacheSize).build(new LocCacheLoader());
 	}
 	
 	public EvenlyGriddedSurface getLowResSurface() {
@@ -62,54 +75,70 @@ public class InterpolatedEvenlyGriddedSurface extends
 	public double getAveDip() {
 		return loResSurf.getAveDip();
 	}
-
+	
 	@Override
 	public Location get(int row, int column) {
-		int origRow = row/discrPnts;
-		int origCol = column/discrPnts;
-		int rowI = row % discrPnts;
-		int colI = column % discrPnts;
-		
-//		System.out.println("Interp get: row="+row+", origRow="+origRow+", rowI="+rowI);
-//		System.out.println("\tcol="+column+", origCol="+origCol+", colI="+colI);
-//		System.out.println("\torigRows="+loResSurf.getNumRows()+", origCols="+loResSurf.getNumCols());
-		
-		Location topLeftLoc = loResSurf.get(origRow, origCol);
-//		Location botRightLoc = loResSurf.get(origRow+1, origCol+1);
-		double horzDist, horzAz;
-		if (origCol+1 == loResSurf.getNumCols()) {
-			horzDist = 0;
-			horzAz = 0;
-		} else {
-			Location topRightLoc = loResSurf.get(origRow, origCol+1);
-			horzDist = LocationUtils.horzDistance(topLeftLoc, topRightLoc);
-			horzAz = LocationUtils.azimuthRad(topLeftLoc, topRightLoc);
+		try {
+			return locCache.get(new IDPairing(row, column));
+		} catch (ExecutionException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
+	
+	private class LocCacheLoader extends CacheLoader<IDPairing, Location> {
+
+		@Override
+		public Location load(IDPairing pair) throws Exception {
+			int row = pair.getID1();
+			int column = pair.getID2();
+			
+			int origRow = row/discrPnts;
+			int origCol = column/discrPnts;
+			int rowI = row % discrPnts;
+			int colI = column % discrPnts;
+			
+//			System.out.println("Interp get: row="+row+", origRow="+origRow+", rowI="+rowI);
+//			System.out.println("\tcol="+column+", origCol="+origCol+", colI="+colI);
+//			System.out.println("\torigRows="+loResSurf.getNumRows()+", origCols="+loResSurf.getNumCols());
+			
+			Location topLeftLoc = loResSurf.get(origRow, origCol);
+//			Location botRightLoc = loResSurf.get(origRow+1, origCol+1);
+			double horzDist, horzAz;
+			if (origCol+1 == loResSurf.getNumCols()) {
+				horzDist = 0;
+				horzAz = 0;
+			} else {
+				Location topRightLoc = loResSurf.get(origRow, origCol+1);
+				horzDist = LocationUtils.horzDistance(topLeftLoc, topRightLoc);
+				horzAz = LocationUtils.azimuthRad(topLeftLoc, topRightLoc);
+			}
+			
+			double vertDist, vertAz, depthDelta;
+			if (origRow+1 == loResSurf.getNumRows()) {
+				vertDist = 0;
+				vertAz = 0;
+				depthDelta = 0;
+			} else {
+				Location botLeftLoc = loResSurf.get(origRow+1, origCol);
+				vertDist = LocationUtils.horzDistance(topLeftLoc, botLeftLoc);
+				vertAz = LocationUtils.azimuthRad(topLeftLoc, botLeftLoc);
+				depthDelta = botLeftLoc.getDepth()-topLeftLoc.getDepth();
+			}
+			
+			double relativeVertPos = (double)rowI/(double)discrPnts;
+			double relativeHorzPos = (double)colI/(double)discrPnts;
+			
+			// start top left
+			Location loc = topLeftLoc;
+			// move to the right
+			loc = LocationUtils.location(loc, horzAz, horzDist*relativeHorzPos);
+			// move down dip
+			if ((float)vertDist > 0f)
+				loc = LocationUtils.location(loc, vertAz, vertDist*relativeVertPos);
+			// now actually move down
+			return new Location(loc.getLatitude(), loc.getLongitude(), loc.getDepth()+depthDelta*relativeVertPos);
 		}
 		
-		double vertDist, vertAz, depthDelta;
-		if (origRow+1 == loResSurf.getNumRows()) {
-			vertDist = 0;
-			vertAz = 0;
-			depthDelta = 0;
-		} else {
-			Location botLeftLoc = loResSurf.get(origRow+1, origCol);
-			vertDist = LocationUtils.horzDistance(topLeftLoc, botLeftLoc);
-			vertAz = LocationUtils.azimuthRad(topLeftLoc, botLeftLoc);
-			depthDelta = botLeftLoc.getDepth()-topLeftLoc.getDepth();
-		}
-		
-		double relativeVertPos = (double)rowI/(double)discrPnts;
-		double relativeHorzPos = (double)colI/(double)discrPnts;
-		
-		// start top left
-		Location loc = topLeftLoc;
-		// move to the right
-		loc = LocationUtils.location(loc, horzAz, horzDist*relativeHorzPos);
-		// move down dip
-		if ((float)vertDist > 0f)
-			loc = LocationUtils.location(loc, vertAz, vertDist*relativeVertPos);
-		// now actually move down
-		return new Location(loc.getLatitude(), loc.getLongitude(), loc.getDepth()+depthDelta*relativeVertPos);
 	}
 
 	@Override
