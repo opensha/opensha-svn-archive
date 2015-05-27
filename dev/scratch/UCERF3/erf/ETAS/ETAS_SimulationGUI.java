@@ -58,10 +58,11 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	private BooleanParameter includeIndirectTriggeringParam;
 	private BooleanParameter includeEqkRatesParam;
 	
-	private static final String fract_src_file_name = "fractionSrcAtPointList.bin";
-	private static final String src_file_name = "srcAtPointList.bin";
-	private static final String inside_poly_file_name = "isCubeInsideFaultPolygon.bin";
-	private static final String cache_url = "http://opensha.usc.edu/ftp/kmilner/ucerf3/etas_cache/fm3_1_mean_fss/";
+	private static final String fract_sect_in_cube_file_name = "fractSectInCubeCache.bin";
+	private static final String sect_in_cube_file_name = "sectInCubeCache.bin";
+	private static final String cube_inside_poly_file_name = "cubeInsidePolyCache.bin";
+	private static final String cache_url =
+			"http://opensha.usc.edu/ftp/kmilner/ucerf3/etas_cache/fm3_1_mean_fss/";
 	private static final String fss_file_name =
 			"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip";
 //			"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
@@ -75,9 +76,9 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	private ConsoleWindow console;
 	
 	private FaultSystemSolution sol;
-	private List<float[]> fractionSrcAtPointList;
-	private List<int[]> srcAtPointList;
-	private int[] isCubeInsideFaultPolygon;
+	private List<float[]> fractionSectInCubeCache;
+	private List<int[]> sectInCubeCache;
+	private int[] cubeInsidePolyCache;
 	private Map<Integer, List<LastEventData>> lastEventData;
 	
 	private ParameterListEditor editor;
@@ -100,9 +101,12 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		cacheDirectoryParam = new FileParameter("Cache Directory (optional)");
 		cacheDirectoryParam.setDirectorySelect(true);
-		cacheDirectoryParam.setInfo("Directory where input files are cached. Should contain "+fract_src_file_name
-				+" and "+src_file_name+", or they will be downloaded on demand from "+cache_url+"\nDefault: ~/.opensha/etas_cache");
-		File defaultCacheDir = new File(new File(System.getProperty("user.home")), ".opensha"+File.separator+"etas_cache");
+		cacheDirectoryParam.setInfo("Directory where input files are cached. Should contain "
+				+fract_sect_in_cube_file_name+", "+sect_in_cube_file_name
+				+", and "+cube_inside_poly_file_name+", or they will be downloaded"
+						+ " on demand from "+cache_url+"\nDefault: ~/.opensha/etas_cache");
+		File defaultCacheDir = new File(new File(System.getProperty("user.home")),
+				".opensha"+File.separator+"etas_cache");
 		if (!defaultCacheDir.exists())
 			defaultCacheDir.mkdirs();
 		if (defaultCacheDir.exists())
@@ -206,35 +210,35 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		// check cache files
 		System.out.println("Checking cahces");
 		try {
-			if (fractionSrcAtPointList == null) {
-				File fractionSrcAtPointListFile = new File(cacheDir, fract_src_file_name);
-				if (!fractionSrcAtPointListFile.exists()) {
-					System.out.println("Fraction source cache file doesn't exist, downloading");
-					FileUtils.downloadURL(cache_url+fract_src_file_name, fractionSrcAtPointListFile);
+			if (fractionSectInCubeCache == null) {
+				File fractionSectInCubeFile = new File(cacheDir, fract_sect_in_cube_file_name);
+				if (!fractionSectInCubeFile.exists()) {
+					System.out.println("Fraction sect in cube cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+fract_sect_in_cube_file_name, fractionSectInCubeFile);
 				}
-				System.out.println("Loading fraction source cache file");
-				fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
-				System.out.println("Done loading fraction source cache file");
+				System.out.println("Loading fraction sect in cube cache file");
+				fractionSectInCubeCache = MatrixIO.floatArraysListFromFile(fractionSectInCubeFile);
+				System.out.println("Done loading fraction sect in cube cache file");
 			}
-			if (srcAtPointList == null) {
-				File srcAtPointListFile = new File(cacheDir, src_file_name);
-				if (!srcAtPointListFile.exists()) {
-					System.out.println("Fraction source cache file doesn't exist, downloading");
-					FileUtils.downloadURL(cache_url+src_file_name, srcAtPointListFile);
+			if (sectInCubeCache == null) {
+				File sectInCubeFile = new File(cacheDir, sect_in_cube_file_name);
+				if (!sectInCubeFile.exists()) {
+					System.out.println("Sect in cube cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+sect_in_cube_file_name, sectInCubeFile);
 				}
-				System.out.println("Loading source cache file");
-				srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
-				System.out.println("Done loading source cache file");
+				System.out.println("Loading sect in cube cache file");
+				sectInCubeCache = MatrixIO.intArraysListFromFile(sectInCubeFile);
+				System.out.println("Done loading sect in cube cache file");
 			}
-			if (isCubeInsideFaultPolygon == null) {
-				File srcAtPointListFile = new File(cacheDir, inside_poly_file_name);
+			if (cubeInsidePolyCache == null) {
+				File srcAtPointListFile = new File(cacheDir, cube_inside_poly_file_name);
 				if (!srcAtPointListFile.exists()) {
-					System.out.println("Fraction source cache file doesn't exist, downloading");
-					FileUtils.downloadURL(cache_url+inside_poly_file_name, srcAtPointListFile);
+					System.out.println("Cube inside poly cache file doesn't exist, downloading");
+					FileUtils.downloadURL(cache_url+cube_inside_poly_file_name, srcAtPointListFile);
 				}
-				System.out.println("Loading inside polygon cache file");
-				isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(srcAtPointListFile);
-				System.out.println("Done loading inside polygon cache file");
+				System.out.println("Loading cube inside polygon cache file");
+				cubeInsidePolyCache = MatrixIO.intArrayFromFile(srcAtPointListFile);
+				System.out.println("Done loading cube inside polygon cache file");
 			}
 		} catch (IllegalStateException e) {
 			JOptionPane.showMessageDialog(null,
@@ -282,8 +286,8 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenarioRup, histQkList,
 				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(), includeEqkRatesParam.getValue(),
-				griddedRegion.getLatSpacing(), null, randomSeed, fractionSrcAtPointList, srcAtPointList,
-				isCubeInsideFaultPolygon, etasParams);
+				griddedRegion.getLatSpacing(), null, randomSeed, fractionSectInCubeCache, sectInCubeCache,
+				cubeInsidePolyCache, etasParams);
 		
 		System.out.println("Done calculating");
 	}

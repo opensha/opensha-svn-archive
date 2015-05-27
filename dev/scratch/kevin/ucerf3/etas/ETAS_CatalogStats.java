@@ -99,19 +99,35 @@ public class ETAS_CatalogStats {
 		return moment;
 	}
 	
-	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name) throws IOException {
+	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name, int triggeredID)
+			throws IOException {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(5.05, 41, 0.1);
+		ArbIncrementalMagFreqDist primaryMFD = null;
+		if (triggeredID >= 0)
+			primaryMFD = new ArbIncrementalMagFreqDist(5.05, 41, 0.1);
 		
 		double rate = 1d/catalogs.size();
 		
-		for (List<ETAS_EqkRupture> catalog : catalogs)
-			for (ETAS_EqkRupture rup : catalog)
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
 				mfd.addResampledMagRate(rup.getMag(), rate, true);
+				if (primaryMFD != null && rup.getParentID() == triggeredID)
+					primaryMFD.addResampledMagRate(rup.getMag(), rate, true);
+			}
+		}
 		
 		EvenlyDiscretizedFunc cmlMFD = mfd.getCumRateDistWithOffset();
+		EvenlyDiscretizedFunc primaryCML_MFD = null;
+		if (primaryMFD != null)
+			primaryCML_MFD = primaryMFD.getCumRateDistWithOffset();
 		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		if (primaryMFD != null) {
+			funcs.add(primaryMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		}
 		
 		funcs.add(mfd);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
@@ -134,6 +150,8 @@ public class ETAS_CatalogStats {
 		
 		// now cumulative
 		funcs = Lists.newArrayList();
+		if (primaryCML_MFD != null)
+			funcs.add(primaryCML_MFD);
 		funcs.add(cmlMFD);
 		
 		spec = new PlotSpec(funcs, chars, name+" MFD", "Magnitude", "Cumulative Rate (1/yr)");
@@ -235,7 +253,7 @@ public class ETAS_CatalogStats {
 			System.out.println(index+"\t"+(float)moment+"\t"+(float)maxMag+"\t"+catalog.size()+"\t"+numSupra);
 		}
 		
-		plotMFD(childrenCatalogs, outputDir, name);
+		plotMFD(childrenCatalogs, outputDir, name, triggerParentID);
 	}
 
 }

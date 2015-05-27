@@ -218,24 +218,24 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 	@Override
 	protected void calculateBatch(int[] batch) throws Exception {
-//		if (fractionSrcAtPointList == null) {
-//			File fractionSrcAtPointListFile = new File(inputDir, "fractSectInCubeCache");
-//			File srcAtPointListFile = new File(inputDir, "sectInCubeCache");
-//			File isCubeInsideFaultPolygonFile = new File(inputDir, "cubeInsidePolyCache");
-//			Preconditions.checkState(fractionSrcAtPointListFile.exists(),
-//					"cache file not found: "+fractionSrcAtPointListFile.getAbsolutePath());
-//			Preconditions.checkState(srcAtPointListFile.exists(),
-//					"cache file not found: "+srcAtPointListFile.getAbsolutePath());
-//			Preconditions.checkState(isCubeInsideFaultPolygonFile.exists(),
-//					"cache file not found: "+isCubeInsideFaultPolygonFile.getAbsolutePath());
-//			debug("loading cache from "+fractionSrcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
-//			fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
-//			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
-//			srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
-//			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
-//			isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
-//			debug("done loading caches ("+getMemoryDebug()+")");
-//		}
+		if (fractionSrcAtPointList == null) {
+			File fractionSrcAtPointListFile = new File(inputDir, "fractSectInCubeCache");
+			File srcAtPointListFile = new File(inputDir, "sectInCubeCache");
+			File isCubeInsideFaultPolygonFile = new File(inputDir, "cubeInsidePolyCache");
+			Preconditions.checkState(fractionSrcAtPointListFile.exists(),
+					"cache file not found: "+fractionSrcAtPointListFile.getAbsolutePath());
+			Preconditions.checkState(srcAtPointListFile.exists(),
+					"cache file not found: "+srcAtPointListFile.getAbsolutePath());
+			Preconditions.checkState(isCubeInsideFaultPolygonFile.exists(),
+					"cache file not found: "+isCubeInsideFaultPolygonFile.getAbsolutePath());
+			debug("loading cache from "+fractionSrcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
+			fractionSrcAtPointList = MatrixIO.floatArraysListFromFile(fractionSrcAtPointListFile);
+			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
+			srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
+			debug("loading cache from "+srcAtPointListFile.getAbsolutePath()+" ("+getMemoryDebug()+")");
+			isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
+			debug("done loading caches ("+getMemoryDebug()+")");
+		}
 		
 		ArrayDeque<Integer> queue = new ArrayDeque<Integer>(Ints.asList(batch));
 		
