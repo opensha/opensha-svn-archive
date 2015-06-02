@@ -249,7 +249,7 @@ public class TimeDepRateExtractor {
 		ops.addOption(startYearOp);
 		
 		Option probModelOp = new Option("p", "prob-model", true,
-				"Probability model. One or more of of "+ProbabilityModelOptions.U3_PREF_BLEND.name()+","
+				"Probability model. One or more of "+ProbabilityModelOptions.U3_PREF_BLEND.name()+","
 						+ProbabilityModelOptions.POISSON.name()+","
 						+"BPT_LOW,BPT_MID,BPT_HIGH. Multiple entries can be comma separated.");
 		probModelOp.setRequired(true);
@@ -260,7 +260,7 @@ public class TimeDepRateExtractor {
 		ops.addOption(aftershockOp);
 		
 		Option histOpenOp = new Option("h", "hist-open-interval-basis", true,
-				"Year basis for historical openinterval. Default: "+HIST_OPEN_INTERVAL_BASIS_DEFAULT);
+				"Year basis for historical open interval. Default: "+HIST_OPEN_INTERVAL_BASIS_DEFAULT);
 		histOpenOp.setRequired(false);
 		ops.addOption(histOpenOp);
 		
@@ -273,7 +273,7 @@ public class TimeDepRateExtractor {
 		ops.addOption(outputOp);
 		
 		Option binaryOp = new Option("b", "binary", false,
-				"Output equivelant annualized rates binary file in FSS rates.bin format. Otherwise CSV format.");
+				"Output equivalent annualized rates binary file in FSS rates.bin format. Otherwise CSV format.");
 		binaryOp.setRequired(false);
 		ops.addOption(binaryOp);
 		
