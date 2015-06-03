@@ -21,6 +21,7 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_TESTING_GRIDDED;
 import org.opensha.commons.eq.MagUtils;
@@ -663,7 +664,8 @@ public class ETAS_Simulator {
 			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayForScenario.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), inputRupID);
 			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
+			if(doit == true)
+				obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
 			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForScenario);
 			
 			
@@ -671,7 +673,7 @@ public class ETAS_Simulator {
 			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-			if(expectedPrimaryMFDsForScenarioList.get(1) != null) {
+			if(doit && expectedPrimaryMFDsForScenarioList.get(1) != null) {
 				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
 				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
@@ -884,6 +886,14 @@ public class ETAS_Simulator {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		
+//		HistogramFunction func = new HistogramFunction(1.0, 61, 2.0);
+//		for(ObsEqkRupture qk : histQkList) {
+//			func.add(qk.getHypocenterLocation().getDepth(), 1);
+//		}
+//		GraphWindow graph = new GraphWindow(func, "Hypocenter Depth Histogram");
+		
+		
 		return histQkList;
 	}
 	
@@ -1172,8 +1182,10 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_maxLoss", null);
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noSpnont_28", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_4", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
+//		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
 
 		
