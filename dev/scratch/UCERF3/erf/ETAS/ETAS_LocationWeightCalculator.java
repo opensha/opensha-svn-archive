@@ -407,7 +407,9 @@ public class ETAS_LocationWeightCalculator {
 	}
 	
 	private int getLatIndex(double  relLat) {
-		return (int) Math.round((relLat-latLonDiscrDeg/2.0)/latLonDiscrDeg);
+//		return (int) Math.round((relLat-latLonDiscrDeg/2.0)/latLonDiscrDeg);
+		return (int) (relLat/latLonDiscrDeg);
+
 	}
 
 	
@@ -416,7 +418,8 @@ public class ETAS_LocationWeightCalculator {
 	}
 	
 	private int getLonIndex(double  relLon) {
-		return (int) Math.round((relLon-latLonDiscrDeg/2.0)/latLonDiscrDeg);
+//		return (int) Math.round((relLon-latLonDiscrDeg/2.0)/latLonDiscrDeg);
+		return (int) (relLon/latLonDiscrDeg);
 	}
 
 	private double getDepth(int iDep) {
@@ -424,7 +427,8 @@ public class ETAS_LocationWeightCalculator {
 	}
 
 	private int getDepthIndex(double depth) {
-		return (int)Math.round((depth-depthDiscrKm/2.0)/depthDiscrKm);
+//		return (int)Math.round((depth-depthDiscrKm/2.0)/depthDiscrKm);
+		return (int)(depth/depthDiscrKm);
 	}
 
 	private double getParDepth(int iParDep) {
