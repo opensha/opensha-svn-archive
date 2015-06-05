@@ -926,6 +926,11 @@ public class ETAS_Simulator {
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
+		int numSectsWithDateLast = 0;
+		for (FaultSectionPrefData sect : fss.getRupSet().getFaultSectionDataList())
+			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
+				numSectsWithDateLast++;
+		System.out.println(numSectsWithDateLast+"/"+fss.getRupSet().getFaultSectionDataList().size()+" sects have date of last");
 		return getU3_ETAS_ERF(fss);
 	}
 	
