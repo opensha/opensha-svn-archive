@@ -52,6 +52,9 @@ public class TimeDepRateExtractor {
 	private File outputFile;
 	private boolean binary;
 	
+	private boolean ignoreNoDateLast;
+	private int numSectsWithDateLast = 0;
+	
 	private TimeDepRateExtractor(CommandLine cmd) {
 		File solFile = new File(cmd.getOptionValue("solution"));
 		Preconditions.checkArgument(solFile.exists(), "Sol file doesn't exist: "+solFile.getAbsolutePath());
@@ -81,14 +84,14 @@ public class TimeDepRateExtractor {
 		
 		outputFile = new File(cmd.getOptionValue("output-file"));
 		binary = cmd.hasOption("binary");
-	}
-	
-	private void calc() throws IOException {
-		int numSectsWithDateLast = 0;
+		ignoreNoDateLast = cmd.hasOption("ignore-no-date-last");
+		
 		for (FaultSectionPrefData sect : sol.getRupSet().getFaultSectionDataList())
 			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
 				numSectsWithDateLast++;
-		
+	}
+	
+	private void calc() throws IOException {
 		if (numSectsWithDateLast == 0)
 			System.err.println("*** WARNING *** NO FAULT SECTIONS HAVE DATE OF LAST EVENT DATA!");
 		else
@@ -233,6 +236,11 @@ public class TimeDepRateExtractor {
 			System.out.println("\tTime Span Start Year: "+erf.getTimeSpan().getStartTimeYear());
 		System.out.println("****************************");
 		
+		Preconditions.checkState(!timeDep || numSectsWithDateLast > 0 || ignoreNoDateLast,
+				"You are attempting to calculate time dependent probabilities on a fault system solution where"
+				+ " the date of last event is not set on any fault section. You can skip this check and only"
+				+ " calculation probabilities using the historical open interval with the --ignore-no-date-last flag.");
+		
 		return erf;
 	}
 	
@@ -276,6 +284,12 @@ public class TimeDepRateExtractor {
 				"Output equivalent annualized rates binary file in FSS rates.bin format. Otherwise CSV format.");
 		binaryOp.setRequired(false);
 		ops.addOption(binaryOp);
+		
+		Option ignoreOp = new Option("i", "ignore-no-date-last", false,
+				"Skips check that ensures date of last event data is set on at least some fault sections. Can be used"
+				+ " to calculate time dependent probabilities using only the historical open interval.");
+		ignoreOp.setRequired(false);
+		ops.addOption(ignoreOp);
 		
 		return ops;
 	}
@@ -334,6 +348,12 @@ public class TimeDepRateExtractor {
 			
 			if (args.length != 0)
 				printHelpAndExit("Unknown option(s): "+Joiner.on(" ").join(args), options);
+			
+			System.err.println("****************************************************");
+			System.err.println("WARNING: This is provided as a service and is not exhaustively tested. "
+					+ "No warranty is expressed or implied and by using this software you agree to the "
+					+ "OpenSHA license/disclaimer available at http://opensha.org/license");
+			System.err.println("****************************************************\n");
 			
 			TimeDepRateExtractor extract = new TimeDepRateExtractor(cmd);
 			

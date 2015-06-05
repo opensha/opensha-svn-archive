@@ -474,6 +474,10 @@
 		<unjar src="${lib.dir}/parallelcolt-0.9.4.jar" dest="${build}" />
 	</target>
 	
+	<target name="unjar.libs.common.plus.cli" depends="unjar.libs.common">
+		<unjar src="${lib.dir}/commons-cli-1.2.jar" dest="${build}" />
+	</target>
+	
 	<target name="unjar.libs.extra">
 		<unjar src="${lib.dir}/csparsej.jar" dest="${build}" />
 		<unjar src="${lib.dir}/parallelcolt-0.9.4.jar" dest="${build}" />

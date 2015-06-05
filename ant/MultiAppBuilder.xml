@@ -251,6 +251,17 @@
 		</ant>
 	</target>
 	
+	<target name="build.ucerf3.td">
+		<ant antfile="${app.build.file}" target="build.app">
+			<property name="app.short.name" value="UCERF3_TD_Extract" />
+			<property name="app.main.class" value="scratch.UCERF3.utils.TimeDepRateExtractor" />
+			<property name="javac.includes"     value="scratch/UCERF3/utils/TimeDepRateExtractor.java" />
+			<property name="javac.excludes" value="" />
+			<property name="resource.target" value="resource.hazard.apps" />
+			<property name="unjar.target" value="unjar.libs.common.plus.cli" />
+		</ant>
+	</target>
+	
 	<target name="build.nolongersupported">
 		<ant antfile="${app.build.file}" target="build.app">
 			<property name="app.short.name" value="NotSupported" />

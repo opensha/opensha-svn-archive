@@ -62,9 +62,6 @@ public class DisclaimerDialog extends JDialog implements ActionListener {
 	private String shortName;
 	private ApplicationVersion version;
 	
-	private String license;
-	
-	
 	private JButton acceptButton;
 	private JButton exitButton;
 	private JCheckBox hideCheck;
