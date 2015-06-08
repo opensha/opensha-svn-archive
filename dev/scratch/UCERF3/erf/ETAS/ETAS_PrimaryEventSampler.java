@@ -144,7 +144,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 //	IntegerPDF_FunctionSampler[] cachedSamplers;
 	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
 	private long totLoadedWeight = 0;
-	private static long max_weight;
+	private static long cache_size_bytes;
 	private static boolean soft_cache_values;
 	
 	// default maximum cache size in gigabytes. can be overridden by setting the etas.cache.size.gb property
@@ -156,11 +156,11 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	static {
 		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", default_cache_size_gb+""));
-		max_weight = (long)(cacheSizeGB*1024d*1024d*1024d); // now in bytes
+		cache_size_bytes = ((long)(cacheSizeGB*1024d)*1024l*1024l); // now in bytes
 		soft_cache_values = Boolean.parseBoolean(System.getProperty("etas.cache.soft",
 				default_soft_cache_values+"").toLowerCase().trim());
 		if (D) System.out.println("ETAS Cache Size: "+(float)cacheSizeGB
-				+" GB = "+max_weight+" bytes, soft values: "+soft_cache_values);
+				+" GB = "+cache_size_bytes+" bytes, soft values: "+soft_cache_values);
 	}
 	
 	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
@@ -306,23 +306,38 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		// Kevin's code below - Ned does not yet understand
 		// this will weigh cache elements by their size
-		Weigher<Integer, IntegerPDF_FunctionSampler> weigher = new Weigher<Integer, IntegerPDF_FunctionSampler>(){
-
-			@Override
-			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
-				int numInts = value.size();
-				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
-				// each double value is 8 bytes
-				int weight = 2*8*numInts+30; // pad for object overhead and other primitives
-				totLoadedWeight += weight;
-				return weight;
-			}
-			
-		};
-		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumWeight(max_weight);
+		
+//		// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numCubeDepths*numCubesPerDepth
+//		// each double value is 8 bytes
+		int samplerSizeBytes = 2*8*(numCubeDepths*numCubesPerDepth)+30; // pad for object overhead and other primitives
+		long cacheSize = cache_size_bytes/samplerSizeBytes;
+		if (!disable_cache && cacheSize > 0) {
+			double fractCached = (double)cacheSize/(double)numCubes;
+			System.out.println("Sampler Size Bytes: "+samplerSizeBytes);
+			System.out.println("Cache will store at most "+cacheSize+"/"+numCubes+" = "
+					+(float)(100d*fractCached)+" % samplers");
+		}
+		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumSize(cacheSize);
 		if (soft_cache_values)
 			builder = builder.softValues();
-		samplerCache = builder.weigher(weigher).build(this);
+		samplerCache = builder.build(this);
+//		Weigher<Integer, IntegerPDF_FunctionSampler> weigher = new Weigher<Integer, IntegerPDF_FunctionSampler>(){
+//
+//			@Override
+//			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
+//				int numInts = value.size();
+//				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
+//				// each double value is 8 bytes
+//				int weight = 2*8*numInts+30; // pad for object overhead and other primitives
+//				totLoadedWeight += weight;
+//				return weight;
+//			}
+//			
+//		};
+//		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumWeight(max_weight);
+//		if (soft_cache_values)
+//			builder = builder.softValues();
+//		samplerCache = builder.weigher(weigher).build(this);
 		
 		// is this still used given the above?
 		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
@@ -2893,7 +2908,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 			}			
 		}
 		
-		if (disable_cache || max_weight <= 0l) {
+		if (disable_cache || cache_size_bytes <= 0l) {
 			try {
 				return load(locIndexForPar);
 			} catch (Exception e) {
