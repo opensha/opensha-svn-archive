@@ -150,7 +150,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	// default maximum cache size in gigabytes. can be overridden by setting the etas.cache.size.gb property
 	// this should be small if soft_cache_values = false, but can be large otherwise as cache values will be garbage
 	// collected when needed
-	private static double default_cache_size_gb = 4d;
+	private static double default_cache_size_gb = 8d;
 	// default value for soft cache values. can be overridden by setting the etas.cache.soft property to 'true'/'false'
 	private static boolean default_soft_cache_values = true;
 	
@@ -1514,6 +1514,7 @@ System.exit(0);
 			
 			if(D) {
 				progressBar.updateProgress(progress, locList.size());
+				progress += 1;
 			}
 			
 			// set the sampler

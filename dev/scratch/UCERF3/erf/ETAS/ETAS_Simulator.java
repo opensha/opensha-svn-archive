@@ -179,7 +179,9 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		// ste the number or fault-based sources
+		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
+
+		// set the number or fault-based sources
 		int numFaultSysSources = 0;
 		FaultSystemSolutionERF fssERF = null;
 		if(erf instanceof FaultSystemSolutionERF) {
@@ -402,9 +404,7 @@ public class ETAS_Simulator {
 
 		// If scenarioRup != null, generate  diagnostics if in debug mode!
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList=null;
-		boolean doit = false;	// to be able to turn off even if in debug mode
-		if(D && scenarioRup !=null && doit) {
-			if(D) System.out.println("Computing Scenario Diagnostics");
+		if(scenarioRup !=null) {
 			long rupOT = scenarioRup.getOriginTime();
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -416,9 +416,11 @@ public class ETAS_Simulator {
 			System.out.println("\nMagnitude of Scenario: "+(float)scenarioRup.getMag());
 			System.out.println("Expected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
-			
-			expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
 
+			if(D && generateDiagnostics) {
+				System.out.println("Computing Scenario Diagnostics");
+				expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
+			}
 		}
 		
 		if(D) {
@@ -622,7 +624,7 @@ public class ETAS_Simulator {
 					info_fr.write("\nExpected number of primary events for "+rupInfo+": "+expNum+"\n");
 					System.out.println("\nExpected number of primary events for "+rupInfo+": "+expNum);
 
-					if(doit)
+					if(generateDiagnostics)
 						etas_PrimEventSampler.generateRuptureDiagnostics(rup, expNum, rupInfo, resultsDir, info_fr);
 
 				}
@@ -664,7 +666,7 @@ public class ETAS_Simulator {
 			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayForScenario.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), inputRupID);
 			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			if(doit == true)
+			if(generateDiagnostics == true)
 				obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
 			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForScenario);
 			
@@ -673,7 +675,7 @@ public class ETAS_Simulator {
 			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-			if(doit && expectedPrimaryMFDsForScenarioList.get(1) != null) {
+			if(generateDiagnostics && expectedPrimaryMFDsForScenarioList.get(1) != null) {
 				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
 				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
@@ -1026,7 +1028,7 @@ public class ETAS_Simulator {
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
-		NEAR_SURPRISE_VALLEY_6p0("Near Surprise Valley 6.0", new Location(41.83975, -120.12356, 4.67500), 6.0),
+		NEAR_SURPRISE_VALLEY_5p0("Near Surprise Valley 5.0", new Location(41.83975, -120.12356, 4.67500), 5.0),
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
@@ -1188,11 +1190,11 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_5", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_New_11", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
-//		runTest(TestScenario.NEAR_SURPRISE_VALLEY_6p0, params, null, "NearSurpriseValley_03", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_01", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
