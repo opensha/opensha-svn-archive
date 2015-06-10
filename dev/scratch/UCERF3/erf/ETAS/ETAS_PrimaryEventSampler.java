@@ -9,14 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -30,13 +27,13 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
 import org.opensha.commons.mapping.gmt.gui.ImageViewerWindow;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.impl.CPTParameter;
-import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -47,37 +44,25 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
-import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.Weigher;
-import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
-import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
-import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 /**
  * This class divides the supplied gridded region (and specified depth extent) into cubes, and computes
@@ -88,9 +73,8 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author field
  *
  */
-public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_FunctionSampler> {
+public class ETAS_PrimaryEventSampler {
 	
-	private static boolean disable_cache = true;
 	boolean applyGR_Corr;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
@@ -142,32 +126,6 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	
 	IntegerPDF_FunctionSampler cubeSamplerRatesOnly; 
 	
-//	IntegerPDF_FunctionSampler[] cachedSamplers;
-	private LoadingCache<Integer, IntegerPDF_FunctionSampler> samplerCache;
-	private long totLoadedWeight = 0;
-	private static long cache_size_bytes;
-	private static boolean soft_cache_values;
-	
-	// default maximum cache size in gigabytes. can be overridden by setting the etas.cache.size.gb property
-	// this should be small if soft_cache_values = false, but can be large otherwise as cache values will
-	// be garbage collected when needed
-	private static double default_cache_size_gb = 4d;
-	// default value for soft cache values. can be overridden by setting the etas.cache.soft property
-	// to 'true'/'false'. Only applicable to guava cache
-	private static boolean default_soft_cache_values = true;
-	// use custom cache which uses smart eviction
-	private static boolean use_custom_cache = true;
-	
-	static {
-		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", default_cache_size_gb+""));
-		cache_size_bytes = ((long)(cacheSizeGB*1024d)*1024l*1024l); // now in bytes
-		soft_cache_values = Boolean.parseBoolean(System.getProperty("etas.cache.soft",
-				default_soft_cache_values+"").toLowerCase().trim());
-		if (D) System.out.println("ETAS Cache Size: "+(float)cacheSizeGB
-				+" GB = "+cache_size_bytes+" bytes, soft values: "+soft_cache_values);
-	}
-	
-	Map<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
 	Map<Integer,ArrayList<ETAS_EqkRupture>> eventListForParLocIndexMap;  // key is the parLocIndex and value is a list of ruptures to process
 //	int[] numForthcomingEventsAtParentLoc;
 //	int numCachedSamplers=0;
@@ -313,28 +271,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		// this will weigh cache elements by their size
 		
 		// this is used by the custom cache for smart evictions
-		numForthcomingEventsForParLocIndex = Maps.newHashMap();
 		eventListForParLocIndexMap = Maps.newHashMap();
 //		eventListForParLocIndexMap = new Map<Integer,ArrayList<ETAS_EqkRupture>>();
-		
-//		// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numCubeDepths*numCubesPerDepth
-//		// each double value is 8 bytes
-		int samplerSizeBytes = 2*8*(numCubeDepths*numCubesPerDepth)+30; // pad for object overhead and other primitives
-		int cacheSize = (int)(cache_size_bytes/samplerSizeBytes);
-		if (!disable_cache && cacheSize > 0) {
-			double fractCached = (double)cacheSize/(double)numCubes;
-			System.out.println("Sampler Size Bytes: "+samplerSizeBytes);
-			System.out.println("Cache will store at most "+cacheSize+"/"+numCubes+" = "
-					+(float)(100d*fractCached)+" % samplers");
-		}
-		if (use_custom_cache) {
-			samplerCache = new CubeSamplerCache(cacheSize, this, numForthcomingEventsForParLocIndex);
-		} else {
-			CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumSize(cacheSize);
-			if (soft_cache_values)
-				builder = builder.softValues();
-			samplerCache = builder.build(this);
-		}
 		
 		totNumSrc = erf.getNumSources();
 		if(totNumSrc != sourceRates.length)
@@ -1483,7 +1421,7 @@ System.exit(0);
 			
 			// set the sampler
 			int parLocIndex = getParLocIndexForLocation(loc);
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, false);
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 			
 			for(int i=0;i <numCubes;i++) {
 				aveSampler.add(i, sampler.getY(i));
@@ -1534,7 +1472,7 @@ System.exit(0);
 			locList2.add(new Location(loc.getLatitude()-0.005,loc.getLongitude()-0.005,loc.getDepth()));
 			for(Location transLoc : locList2) {
 				int parLocIndex = getParLocIndexForLocation(transLoc);
-				IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, false);
+				IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 				
 				for(int i=0;i <numCubes;i++) {
 					aveSampler.add(i, sampler.getY(i));
@@ -2063,7 +2001,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 			Location translatedParLoc = getParLocationForIndex(parLocIndex);
 			float parLat = (float) translatedParLoc.getLatitude();
 			float parLon = (float) translatedParLoc.getLongitude();
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, true);
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 			// normalize
 			sampler.scale(1.0/sampler.getSumOfY_vals());
 
@@ -2687,7 +2625,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		int aftShCubeIndex = rupToFillIn.getCubeIndex();
 		
 		if(aftShCubeIndex == -1) {	
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, true);
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 			// fill in the cube locations for all events with this parent location
 			for(ETAS_EqkRupture tempRup: eventListForParLocIndexMap.get(parLocIndex)) {
 				tempRup.setCubeIndex(sampler.getRandomInt(etas_utils.getRandomDouble()));
@@ -2901,43 +2839,17 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 	
 	
 	
-	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar, boolean updateForthcomingEvents) {
-		
-		return getCubeSamplerWithDistDecay(locIndexForPar);
-		
-//		if(updateForthcomingEvents) {
-//			int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
-//			if(numLeft == 0) {
-//				numForthcomingEventsForParLocIndex.remove(locIndexForPar);
-//			}
-//			else {
-//				numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
-//			}			
-//		}
-//		
-//		if (disable_cache || cache_size_bytes <= 0l) {
-//			try {
-//				return load(locIndexForPar);
-//			} catch (Exception e) {
-//				throw ExceptionUtils.asRuntimeException(e);
-//			}
-//		}
-//		System.out.println("Loaded with cache size "+samplerCache.size()+", weight: "+totLoadedWeight+"/"+max_weight);
-		
-//		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
-//		try {
-//			// get it from the cache, loading the value via load(key) below if necessary
-//			return samplerCache.get(locIndexForPar);
-//		} catch (Throwable e) {
-////			Throwable subE = e.getCause();
-////			while (subE != null) {
-////				if (e.getCause() != null) {
-////					System.out.println("Cause:");
-////					e.printStackTrace();
-////				}
-////			}
-//			throw ExceptionUtils.asRuntimeException(e);
-//		}
+	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar) {
+		if(includeERF_Rates && includeSpatialDecay) {
+			return getCubeSamplerWithDistDecay(locIndexForPar);
+		}
+		else if(includeERF_Rates && !includeSpatialDecay) {
+			return getCubeSamplerWithERF_RatesOnly();
+		}
+		else if(!includeERF_Rates && includeSpatialDecay) {
+			return getCubeSamplerWithOnlyDistDecay(locIndexForPar);
+		}
+		throw new IllegalStateException("include ERF rates and include spatial decay both false?");
 	}
 	
 	
@@ -2950,8 +2862,6 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		if(D)ETAS_SimAnalysisTools.writeMemoryUse("Memory before discarding chached Samplers");
 		cubeSamplerRatesOnly = null;
 		computeSectNucleationRates();
-		// clear the cache
-		samplerCache.invalidateAll();
 		computeTotSectRateInCubesArray();
 		if(mfdForSrcArray != null) {	// if using this array, update only fault system sources
 			for(int s=0; s<numFltSystSources;s++) {
@@ -4868,23 +4778,5 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		}
 		return "For RandomSampleRatesMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
-
-	/**
-	 * Method needed because this is a subclass of CacheLoader
-	 */
-	@Override
-	public IntegerPDF_FunctionSampler load(Integer locIndexForPar) throws Exception {
-		if(includeERF_Rates && includeSpatialDecay) {
-			return getCubeSamplerWithDistDecay(locIndexForPar);
-		}
-		else if(includeERF_Rates && !includeSpatialDecay) {
-			return getCubeSamplerWithERF_RatesOnly();
-		}
-		else if(!includeERF_Rates && includeSpatialDecay) {
-			return getCubeSamplerWithOnlyDistDecay(locIndexForPar);
-		}
-		throw new IllegalStateException("include ERF rates and include spatial decay both false?");
-	}
-
 
 }
