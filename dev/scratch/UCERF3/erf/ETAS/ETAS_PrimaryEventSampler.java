@@ -62,6 +62,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
@@ -148,11 +149,14 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	private static boolean soft_cache_values;
 	
 	// default maximum cache size in gigabytes. can be overridden by setting the etas.cache.size.gb property
-	// this should be small if soft_cache_values = false, but can be large otherwise as cache values will be garbage
-	// collected when needed
-	private static double default_cache_size_gb = 8d;
-	// default value for soft cache values. can be overridden by setting the etas.cache.soft property to 'true'/'false'
+	// this should be small if soft_cache_values = false, but can be large otherwise as cache values will
+	// be garbage collected when needed
+	private static double default_cache_size_gb = 4d;
+	// default value for soft cache values. can be overridden by setting the etas.cache.soft property
+	// to 'true'/'false'. Only applicable to guava cache
 	private static boolean default_soft_cache_values = true;
+	// use custom cache which uses smart eviction
+	private static boolean use_custom_cache = false;
 	
 	static {
 		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", default_cache_size_gb+""));
@@ -163,7 +167,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 				+" GB = "+cache_size_bytes+" bytes, soft values: "+soft_cache_values);
 	}
 	
-	Hashtable<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
+	Map<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
 //	int[] numForthcomingEventsAtParentLoc;
 //	int numCachedSamplers=0;
 //	int incrForReportingNumCachedSamplers=100;
@@ -307,41 +311,27 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		// Kevin's code below - Ned does not yet understand
 		// this will weigh cache elements by their size
 		
+		// this is used by the custom cache for smart evictions
+		numForthcomingEventsForParLocIndex = Maps.newHashMap();
+		
 //		// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numCubeDepths*numCubesPerDepth
 //		// each double value is 8 bytes
 		int samplerSizeBytes = 2*8*(numCubeDepths*numCubesPerDepth)+30; // pad for object overhead and other primitives
-		long cacheSize = cache_size_bytes/samplerSizeBytes;
+		int cacheSize = (int)(cache_size_bytes/samplerSizeBytes);
 		if (!disable_cache && cacheSize > 0) {
 			double fractCached = (double)cacheSize/(double)numCubes;
 			System.out.println("Sampler Size Bytes: "+samplerSizeBytes);
 			System.out.println("Cache will store at most "+cacheSize+"/"+numCubes+" = "
 					+(float)(100d*fractCached)+" % samplers");
 		}
-		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumSize(cacheSize);
-		if (soft_cache_values)
-			builder = builder.softValues();
-		samplerCache = builder.build(this);
-//		Weigher<Integer, IntegerPDF_FunctionSampler> weigher = new Weigher<Integer, IntegerPDF_FunctionSampler>(){
-//
-//			@Override
-//			public int weigh(Integer key, IntegerPDF_FunctionSampler value) {
-//				int numInts = value.size();
-//				// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numInts
-//				// each double value is 8 bytes
-//				int weight = 2*8*numInts+30; // pad for object overhead and other primitives
-//				totLoadedWeight += weight;
-//				return weight;
-//			}
-//			
-//		};
-//		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumWeight(max_weight);
-//		if (soft_cache_values)
-//			builder = builder.softValues();
-//		samplerCache = builder.weigher(weigher).build(this);
-		
-		// is this still used given the above?
-		numForthcomingEventsForParLocIndex = new Hashtable<Integer,Integer>();
-		
+		if (use_custom_cache) {
+			samplerCache = new CubeSamplerCache(cacheSize, this, numForthcomingEventsForParLocIndex);
+		} else {
+			CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumSize(cacheSize);
+			if (soft_cache_values)
+				builder = builder.softValues();
+			samplerCache = builder.build(this);
+		}
 		
 		totNumSrc = erf.getNumSources();
 		if(totNumSrc != sourceRates.length)
