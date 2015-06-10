@@ -156,7 +156,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	// to 'true'/'false'. Only applicable to guava cache
 	private static boolean default_soft_cache_values = true;
 	// use custom cache which uses smart eviction
-	private static boolean use_custom_cache = false;
+	private static boolean use_custom_cache = true;
 	
 	static {
 		double cacheSizeGB = Double.parseDouble(System.getProperty("etas.cache.size.gb", default_cache_size_gb+""));
