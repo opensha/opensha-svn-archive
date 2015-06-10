@@ -179,7 +179,7 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
+		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -370,7 +370,7 @@ public class ETAS_Simulator {
 						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface());
 						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// this is to increase numerical stability
 					}
-					etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc()); // for efficiency
+					etas_PrimEventSampler.addRuptureToProcess(newRup); // for efficiency
 					eventsToProcess.add(newRup);
 					eventID +=1;
 				}
@@ -547,7 +547,7 @@ public class ETAS_Simulator {
 							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface());
 							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// add fuzziness to parent location
 						}
-						etas_PrimEventSampler.addParentLocToProcess(newRup.getParentTriggerLoc());
+						etas_PrimEventSampler.addRuptureToProcess(newRup);
 						eventsToProcess.add(newRup);
 						eventID +=1;
 					}
@@ -1190,11 +1190,12 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NAPA, params, 1409709441451l, "NapaEvent_test ", null);
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_5", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_newApproach", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_newApproach3", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
-		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_01", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_01", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

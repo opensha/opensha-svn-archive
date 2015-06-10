@@ -90,7 +90,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  */
 public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_FunctionSampler> {
 	
-	private static boolean disable_cache = false;
+	private static boolean disable_cache = true;
 	boolean applyGR_Corr;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
@@ -168,6 +168,7 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	}
 	
 	Map<Integer,Integer> numForthcomingEventsForParLocIndex;  // key is the parLocIndex and value is the number of events to process TODO remove this
+	Map<Integer,ArrayList<ETAS_EqkRupture>> eventListForParLocIndexMap;  // key is the parLocIndex and value is a list of ruptures to process
 //	int[] numForthcomingEventsAtParentLoc;
 //	int numCachedSamplers=0;
 //	int incrForReportingNumCachedSamplers=100;
@@ -313,6 +314,8 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 		
 		// this is used by the custom cache for smart evictions
 		numForthcomingEventsForParLocIndex = Maps.newHashMap();
+		eventListForParLocIndexMap = Maps.newHashMap();
+//		eventListForParLocIndexMap = new Map<Integer,ArrayList<ETAS_EqkRupture>>();
 		
 //		// convert to size in bytes. each IntegerPDF_FunctionSampler has 2 double arrays of lengh numCubeDepths*numCubesPerDepth
 //		// each double value is 8 bytes
@@ -568,14 +571,15 @@ public class ETAS_PrimaryEventSampler extends CacheLoader<Integer, IntegerPDF_Fu
 	}
 	
 	
-	public void addParentLocToProcess(Location parLoc) {
-		int parLocIndex = this.getParLocIndexForLocation(parLoc);
-		if(numForthcomingEventsForParLocIndex.keySet().contains(parLocIndex)) {
-			int newNum = numForthcomingEventsForParLocIndex.get(parLocIndex) + 1;
-			numForthcomingEventsForParLocIndex.put(parLocIndex, newNum);
+	public void addRuptureToProcess(ETAS_EqkRupture rup) {
+		int parLocIndex = getParLocIndexForLocation(rup.getParentTriggerLoc());
+		if(eventListForParLocIndexMap.keySet().contains(parLocIndex)) {
+			eventListForParLocIndexMap.get(parLocIndex).add(rup);
 		}
 		else {
-			numForthcomingEventsForParLocIndex.put(parLocIndex, 1);
+			ArrayList<ETAS_EqkRupture> list = new ArrayList<ETAS_EqkRupture>();
+			list.add(rup);
+			eventListForParLocIndexMap.put(parLocIndex, list);
 		}
 	}
 	
@@ -2046,7 +2050,7 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 	
 	public void writeGMT_PieSliceDecayData(Location parLoc, String fileNamePrefix) {
 		
-		this.addParentLocToProcess(parLoc);
+//		this.addParentLocToProcess(parLoc);
 		
 		double sliceLenghtDegrees = 2;
 		
@@ -2640,9 +2644,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		}
 		return info;
 	}
-	
-	
-	
+		
 	
 	/**
 	 * This method will populate the given rupToFillIn with attributes of a randomly chosen
@@ -2681,19 +2683,32 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		
 		int parLocIndex = getParLocIndexForLocation(actualParentLoc);
 		Location translatedParLoc = getParLocationForIndex(parLocIndex);
-		IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, true);
+
+		int aftShCubeIndex = rupToFillIn.getCubeIndex();
 		
-		int aftShCubeIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
-		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
-		
-		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
-		if(randSrcIndex<0) {
-//			System.out.println("working on finding a non-neg source index");
-			while (randSrcIndex<0) {
-				aftShCubeIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
-				randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
+		if(aftShCubeIndex == -1) {	
+			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex, true);
+			// fill in the cube locations for all events with this parent location
+			for(ETAS_EqkRupture tempRup: eventListForParLocIndexMap.get(parLocIndex)) {
+				tempRup.setCubeIndex(sampler.getRandomInt(etas_utils.getRandomDouble()));
+			}
+			eventListForParLocIndexMap.remove(parLocIndex);
+			aftShCubeIndex = rupToFillIn.getCubeIndex();
+			if(aftShCubeIndex == -1) {
+				throw new RuntimeException("Problem Here");
 			}
 		}
+				
+		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
+		
+//		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
+//		if(randSrcIndex<0) {
+////			System.out.println("working on finding a non-neg source index");
+//			while (randSrcIndex<0) {
+//				aftShCubeIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
+//				randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
+//			}
+//		}
 		
 		if(randSrcIndex < numFltSystSources) {	// if it's a fault system source
 			ProbEqkSource src = erf.getSource(randSrcIndex);
@@ -2888,39 +2903,41 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 	
 	private IntegerPDF_FunctionSampler getCubeSampler(int locIndexForPar, boolean updateForthcomingEvents) {
 		
-		if(updateForthcomingEvents) {
-			int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
-			if(numLeft == 0) {
-				numForthcomingEventsForParLocIndex.remove(locIndexForPar);
-			}
-			else {
-				numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
-			}			
-		}
+		return getCubeSamplerWithDistDecay(locIndexForPar);
 		
-		if (disable_cache || cache_size_bytes <= 0l) {
-			try {
-				return load(locIndexForPar);
-			} catch (Exception e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-		}
+//		if(updateForthcomingEvents) {
+//			int numLeft = numForthcomingEventsForParLocIndex.get(locIndexForPar) - 1;
+//			if(numLeft == 0) {
+//				numForthcomingEventsForParLocIndex.remove(locIndexForPar);
+//			}
+//			else {
+//				numForthcomingEventsForParLocIndex.put(locIndexForPar, numLeft);
+//			}			
+//		}
+//		
+//		if (disable_cache || cache_size_bytes <= 0l) {
+//			try {
+//				return load(locIndexForPar);
+//			} catch (Exception e) {
+//				throw ExceptionUtils.asRuntimeException(e);
+//			}
+//		}
 //		System.out.println("Loaded with cache size "+samplerCache.size()+", weight: "+totLoadedWeight+"/"+max_weight);
 		
 //		System.out.print(numForthcomingEventsForParLocIndex.size()+", ");
-		try {
-			// get it from the cache, loading the value via load(key) below if necessary
-			return samplerCache.get(locIndexForPar);
-		} catch (Throwable e) {
-//			Throwable subE = e.getCause();
-//			while (subE != null) {
-//				if (e.getCause() != null) {
-//					System.out.println("Cause:");
-//					e.printStackTrace();
-//				}
-//			}
-			throw ExceptionUtils.asRuntimeException(e);
-		}
+//		try {
+//			// get it from the cache, loading the value via load(key) below if necessary
+//			return samplerCache.get(locIndexForPar);
+//		} catch (Throwable e) {
+////			Throwable subE = e.getCause();
+////			while (subE != null) {
+////				if (e.getCause() != null) {
+////					System.out.println("Cause:");
+////					e.printStackTrace();
+////				}
+////			}
+//			throw ExceptionUtils.asRuntimeException(e);
+//		}
 	}
 	
 	

@@ -42,7 +42,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 public class ETAS_EqkRupture extends ObsEqkRupture {
 	
-	private int id=-1, nthERF_Index=-1, generation=0, fssIndex=-1, gridNodeIndex=-1;
+	private int id=-1, nthERF_Index=-1, generation=0, fssIndex=-1, gridNodeIndex=-1, cubeIndex=-1;
 	private double distToParent=Double.NaN;
 	private ETAS_EqkRupture parentRup=null;
 	private int parentID=-1;	// TODO get rid of this
@@ -189,6 +189,15 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	public void setGridNodeIndex(int gridNodeIndex) {
 		this.gridNodeIndex = gridNodeIndex;
 	}
+	
+	public int getCubeIndex() {
+		return cubeIndex;
+	}
+
+	public void setCubeIndex(int cubeIndex) {
+		this.cubeIndex = cubeIndex;
+	}
+
 	
 	/**
 	 * This is the point on the parent rupture surface from which this aftershock was triggered
