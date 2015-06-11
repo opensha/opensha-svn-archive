@@ -61,7 +61,6 @@ public class CacheSpeedTester {
 		
 		long randSeed = 1408453138855l;
 		
-		boolean includeEqkRates = true;
 		boolean includeIndirectTriggering = true;
 		boolean includeSpontEvents = true;
 		
@@ -108,7 +107,7 @@ public class CacheSpeedTester {
 				subdir.mkdir();
 			System.gc();
 			ETAS_Simulator.testETAS_Simulation(subdir, erf, reg, mainshockRup, histQkList, includeSpontEvents,
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, null, randSeed, fractionSrcAtPointList, srcAtPointList,
+					includeIndirectTriggering, gridSeisDiscr, null, randSeed, fractionSrcAtPointList, srcAtPointList,
 					isCubeInsideFaultPolygon, new ETAS_ParameterList());
 		}
 		

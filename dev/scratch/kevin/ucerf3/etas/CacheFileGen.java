@@ -34,7 +34,6 @@ public class CacheFileGen {
 		
 		long randSeed = 1408453138855l;
 		
-		boolean includeEqkRates = true;
 		boolean includeIndirectTriggering = true;
 		boolean includeSpontEvents = true;
 		
@@ -61,7 +60,7 @@ public class CacheFileGen {
 //		erf.updateForecast();
 		
 		ETAS_Simulator.testETAS_Simulation(resultsDir, erf, reg, mainshockRup, histQkList, includeSpontEvents,
-				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, null, randSeed, new ETAS_ParameterList());
+				includeIndirectTriggering, gridSeisDiscr, null, randSeed, new ETAS_ParameterList());
 	}
 
 }

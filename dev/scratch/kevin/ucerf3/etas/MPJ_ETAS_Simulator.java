@@ -76,7 +76,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private boolean includeSpontEvents = true;
 	private boolean includeIndirectTriggering = true;
-	private boolean includeEqkRates = true;
 	private double gridSeisDiscr = 0.1;
 	
 	private boolean timeIndep = false;
@@ -417,7 +416,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				//				List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 				try {
 					ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
-							includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randSeed,
+							includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
 							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
 					debug("completed "+index);
 				} catch (Throwable t) {
@@ -473,7 +472,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	public static boolean isAlreadyDone(File resultsDir) throws IOException {
 		File infoFile = new File(resultsDir, "infoString.txt");
-		if (!infoFile.exists())
+		File eventsFile = new File(resultsDir, "simulatedEvents.txt");
+		if (!infoFile.exists() || !eventsFile.exists())
 			return false;
 		for (String line : Files.readLines(infoFile, Charset.defaultCharset())) {
 			if (line.contains("Total num ruptures: "))

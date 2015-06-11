@@ -56,7 +56,6 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 	
 	private BooleanParameter includeSpontEventsParam;
 	private BooleanParameter includeIndirectTriggeringParam;
-	private BooleanParameter includeEqkRatesParam;
 	
 	private static final String fract_sect_in_cube_file_name = "fractSectInCubeCache.bin";
 	private static final String sect_in_cube_file_name = "sectInCubeCache.bin";
@@ -125,9 +124,6 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		
 		includeIndirectTriggeringParam = new BooleanParameter("Include Indirect Triggering", true);
 		paramList.addParameter(includeIndirectTriggeringParam);
-		
-		includeEqkRatesParam = new BooleanParameter("Include Earthquake Rates", true);
-		paramList.addParameter(includeEqkRatesParam);
 		
 		scenarioParam = new EnumParameter<ETAS_Simulator.TestScenario>("Scenario", EnumSet.allOf(ETAS_Simulator.TestScenario.class), null, "(none)");
 		paramList.addParameter(scenarioParam);
@@ -285,7 +281,7 @@ public class ETAS_SimulationGUI extends JFrame implements ParameterChangeListene
 		ETAS_EqkRupture scenarioRup = ETAS_Simulator.buildScenarioRup(scenario, erf);
 		
 		ETAS_Simulator.testETAS_Simulation(outputDir, erf, griddedRegion, scenarioRup, histQkList,
-				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(), includeEqkRatesParam.getValue(),
+				includeSpontEventsParam.getValue(), includeIndirectTriggeringParam.getValue(),
 				griddedRegion.getLatSpacing(), null, randomSeed, fractionSectInCubeCache, sectInCubeCache,
 				cubeInsidePolyCache, etasParams);
 		
