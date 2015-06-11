@@ -62,7 +62,7 @@ public class ReproduceTest {
 		erf.updateForecast();
 		
 		ETAS_Simulator.testETAS_Simulation(resultsDir, erf, reg, mainshockRup, histQkList, includeSpontEvents,
-				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, null, randSeed,
+				includeIndirectTriggering, gridSeisDiscr, null, randSeed,
 				fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
 	}
 
