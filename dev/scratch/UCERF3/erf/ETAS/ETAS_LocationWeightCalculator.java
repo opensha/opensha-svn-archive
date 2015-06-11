@@ -70,6 +70,10 @@ public class ETAS_LocationWeightCalculator {
 	
 	ETAS_Utils etas_utils;
 	
+	Location[] locationArray;
+	IntegerPDF_FunctionSampler[] randLocSampler;
+
+	
 	/**
 	 * 
 	 * @param maxDistKm - the maximum distance for sampling in km
@@ -440,6 +444,51 @@ public class ETAS_LocationWeightCalculator {
 	}
 	
 
+	/**
+	 * This returns a random location (cube centered), where the lat and lon are relative to 
+	 * the parent event epicenter (and always positive because of the quarter-space used here), 
+	 * and depth is absolute
+	 * @param parDepth
+	 * @return
+	 */
+	public Location getRandomLoc(double parDepth) {
+		if(locationArray == null)
+			initRandomLocData();
+		int randInt = randLocSampler[getParDepthIndex(parDepth)].getRandomInt();
+		return locationArray[randInt];
+	}
+		
+	private void initRandomLocData() {
+		long st;
+		if(D) {
+			System.out.println("Starting initRandomLocData()");
+			st = System.currentTimeMillis();
+		}
+		int totNumPts = numLatLon*numLatLon*numDepth;
+		locationArray = new Location[totNumPts];
+		randLocSampler = new IntegerPDF_FunctionSampler[numParDepth];
+		for(int iParDep=0;iParDep<numParDepth;iParDep++) {
+			randLocSampler[iParDep] = new IntegerPDF_FunctionSampler(totNumPts);
+		}
+		int index=0;
+		for(int iDep=0;iDep<numDepth; iDep++) {
+			for(int iLat=0;iLat<numLatLon; iLat++) {
+				for(int iLon=0;iLon<numLatLon; iLon++) {
+					for(int iParDep=0;iParDep<numParDepth; iParDep++) {
+						double wt = getProbAtPoint(getLat(iLat), getLon(iLon), getDepth(iDep), getParDepth(iParDep));
+						randLocSampler[iParDep].set(index,wt);
+					}
+					locationArray[index] = new Location(getLat(iLat), getLon(iLon), getDepth(iDep));
+					index +=1;
+				}
+			}
+		}
+		if(D) {
+			double timeSec = ((double)(System.currentTimeMillis()-st))/1000d;
+			System.out.println("Done with initRandomLocData(); that took "+timeSec+" seconds");
+		}
+
+	}
 
 
 	public void testRandomSamples(int numSamples, double parDepth) {

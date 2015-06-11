@@ -2621,21 +2621,41 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		
 		int parLocIndex = getParLocIndexForLocation(actualParentLoc);
 		Location translatedParLoc = getParLocationForIndex(parLocIndex);
-
-		int aftShCubeIndex = rupToFillIn.getCubeIndex();
 		
-		if(aftShCubeIndex == -1) {	
-			IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
-			// fill in the cube locations for all events with this parent location
-			for(ETAS_EqkRupture tempRup: eventListForParLocIndexMap.get(parLocIndex)) {
-				tempRup.setCubeIndex(sampler.getRandomInt(etas_utils.getRandomDouble()));
-			}
-			eventListForParLocIndexMap.remove(parLocIndex);
+		// get the cube index for where the event was triggered
+		int aftShCubeIndex = -1;
+		if(includeERF_Rates) {
 			aftShCubeIndex = rupToFillIn.getCubeIndex();
-			if(aftShCubeIndex == -1) {
-				throw new RuntimeException("Problem Here");
+			if(aftShCubeIndex == -1) {	
+				IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
+				// fill in the cube locations for all events with this parent location for efficiency
+				for(ETAS_EqkRupture tempRup: eventListForParLocIndexMap.get(parLocIndex)) {
+					tempRup.setCubeIndex(sampler.getRandomInt(etas_utils.getRandomDouble()));
+				}
+				eventListForParLocIndexMap.remove(parLocIndex);
+				aftShCubeIndex = rupToFillIn.getCubeIndex();
+				if(aftShCubeIndex == -1) {
+					throw new RuntimeException("Problem Here");
+				}
 			}
 		}
+		else { // Only distance dacay
+			Location relativeLoc = etas_LocWeightCalc.getRandomLoc(translatedParLoc.getDepth());
+			double latSign = 1;
+			double lonSign = 1;
+			if(etas_utils.getRandomDouble()<0.5) {
+				latSign = -1;
+			}
+			if(etas_utils.getRandomDouble()<0.5) {
+				lonSign = -1;
+			}
+			Location cubeLoc = new Location(relativeLoc.getLatitude()*latSign+translatedParLoc.getLatitude(),
+					relativeLoc.getLongitude()*lonSign+translatedParLoc.getLongitude(), relativeLoc.getDepth());
+			aftShCubeIndex = getCubeIndexForLocation(cubeLoc);
+			if(aftShCubeIndex == -1)
+				return false;	// triggered location outside of the region
+		}
+
 				
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
 		
@@ -3236,15 +3256,22 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		return new Location(regLoc.getLatitude(),regLoc.getLongitude(),getCubeDepth(regAndDepIndex[1]));
 	}
 	
+	/**
+	 * this returns -1 if loc is not within the region or depth range
+	 * @param loc
+	 * @return
+	 */
 	public int getCubeIndexForLocation(Location loc) {
 		int iReg = gridRegForCubes.indexForLocation(loc);
+		if(iReg == -1)
+			return -1;
 		int iDep = getCubeDepthIndex(loc.getDepth());
 		return getCubeIndexForRegAndDepIndices(iReg,iDep);
 	}
 
 	private int getCubeIndexForRegAndDepIndices(int iReg,int iDep) {
 		int index = iDep*numCubesPerDepth+iReg;
-		if(index<numCubes)
+		if(index<numCubes && index>=0)
 			return index;
 		else
 			return -1;

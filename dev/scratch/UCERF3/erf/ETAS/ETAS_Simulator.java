@@ -106,7 +106,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
-	private static boolean live_map = true;
+	private static boolean live_map = false;
 	static boolean pause_for_events = false;
 	
 	/**
@@ -129,11 +129,11 @@ public class ETAS_Simulator {
 	 */
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
-			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
+			boolean includeIndirectTriggering, double gridSeisDiscr, String simulationName,
 			Long randomSeed, ETAS_ParameterList etasParams)
 					throws IOException {
 		testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup,  histQkList, includeSpontEvents,
-				includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName,
+				includeIndirectTriggering, gridSeisDiscr, simulationName,
 				randomSeed, null, null, null, etasParams);
 	}
 	
@@ -174,12 +174,12 @@ public class ETAS_Simulator {
 	 */
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
-			boolean includeIndirectTriggering, boolean includeEqkRates, double gridSeisDiscr, String simulationName,
+			boolean includeIndirectTriggering, double gridSeisDiscr, String simulationName,
 			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, int[] inputIsCubeInsideFaultPolygon, 
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -859,7 +859,6 @@ public class ETAS_Simulator {
 		
 		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
-		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
 		
 		System.out.println("Starting testETAS_Simulation");
@@ -867,7 +866,7 @@ public class ETAS_Simulator {
 			String dirNameForSavingFiles = "U3_ETAS_"+simulationName+"/";
 			File resultsDir = new File(dirNameForSavingFiles);
 			testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup, histQkList,  includeSpontEvents, 
-					includeIndirectTriggering, includeEqkRates, gridSeisDiscr, simulationName, randomSeed, etasParams);
+					includeIndirectTriggering, gridSeisDiscr, simulationName, randomSeed, etasParams);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1191,7 +1190,7 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_5", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_newApproach", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_newApproach3", null);	// aveStrike=295.0367915096109; All Hell!
+		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
