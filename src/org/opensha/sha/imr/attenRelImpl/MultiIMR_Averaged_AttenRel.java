@@ -24,6 +24,7 @@ import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.commons.param.impl.WeightedListParameter;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -544,7 +545,10 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	public void setSite(Site site) {
 		this.site = site;
 		for (Parameter param : siteParams) {
-			param.setValue(site.getParameter(param.getName()).getValue());
+			if (param instanceof WarningDoubleParameter)
+				((WarningDoubleParameter)param).setValueIgnoreWarning((Double)site.getParameter(param.getName()).getValue());
+			else
+				param.setValue(site.getParameter(param.getName()).getValue());
 		}
 		for (ScalarIMR imr : imrs) {
 			imr.setSite(site);
