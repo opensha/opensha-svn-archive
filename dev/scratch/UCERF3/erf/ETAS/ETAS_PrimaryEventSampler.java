@@ -886,13 +886,21 @@ public class ETAS_PrimaryEventSampler {
 		
 		double minSupraSeisMag = subSeisMFD.getMaxMagWithNonZeroRate() + 0.1;
 		if(Double.isNaN(minSupraSeisMag)) {	// this happens for Mendocino sections outside the RELM region
-			System.out.println("NULL for section:\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+			System.out.println("NULL for section:\t"+sectionIndex
+					+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
 			return null;
 		}
 		
 //		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
 //		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
 		double totSupraSeisRate = supraSeisMFD.getTotalIncrRate();
+		
+		if (totSupraSeisRate == 0d) {
+			System.out.println("NULL for section (totSupraSeisRate=0):\t"+sectionIndex
+					+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
+			return null;
+		}
+		
 		double targetRateAtTargetDist = totSupraSeisRate*ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD, subSeisMFD, false);
 
 		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
