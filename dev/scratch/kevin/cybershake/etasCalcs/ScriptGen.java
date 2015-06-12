@@ -34,9 +34,9 @@ public class ScriptGen {
 //		String solTypeStr = "u3inverted";
 //		String fssName = "ucerf2_u3inverted_sol.zip";
 		
-//		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
 //		String dateStr = "2015_03_23";
-		String dateStr = "2015_04_09";
+//		String dateStr = "2015_04_09";
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();

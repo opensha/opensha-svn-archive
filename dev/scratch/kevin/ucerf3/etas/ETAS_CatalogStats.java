@@ -9,14 +9,21 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.math3.stat.StatUtils;
+import org.opensha.commons.calc.FractileCurveCalculator;
+import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
+import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ComparablePairing;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -99,68 +106,147 @@ public class ETAS_CatalogStats {
 		return moment;
 	}
 	
-	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name, int triggeredID)
+	private static FractileCurveCalculator getFractileCalc(EvenlyDiscretizedFunc[] mfds) {
+		XY_DataSetList funcsList = new XY_DataSetList();
+		List<Double> relativeWeights = Lists.newArrayList();
+		for (int i=0; i<mfds.length; i++) {
+			funcsList.add(mfds[i]);
+			relativeWeights.add(1d);
+		}
+		return new FractileCurveCalculator(funcsList, relativeWeights);
+	}
+	
+	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name, String prefix)
 			throws IOException {
-		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(5.05, 41, 0.1);
-		ArbIncrementalMagFreqDist primaryMFD = null;
-		if (triggeredID >= 0)
-			primaryMFD = new ArbIncrementalMagFreqDist(5.05, 41, 0.1);
+//		double minMag = 5.05;
+//		int numMag = 41;
+//		double delta = 0.1;
+//		double minY = 1e-4;
+//		double maxY = 1e2;
+		
+		double minMag = 2.55;
+		int numMag = 66;
+		double delta = 0.1;
+		double minY = 1e-4;
+		double maxY = 1e4;
+		
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, delta);
+		mfd.setName("Total");
+		ArbIncrementalMagFreqDist[] subMFDs = new ArbIncrementalMagFreqDist[catalogs.size()];
+		EvenlyDiscretizedFunc[] cmlSubMFDs = new EvenlyDiscretizedFunc[catalogs.size()];
+		for (int i=0; i<catalogs.size(); i++)
+			subMFDs[i] = new ArbIncrementalMagFreqDist(minMag, numMag, delta);
 		
 		double rate = 1d/catalogs.size();
 		
-		for (List<ETAS_EqkRupture> catalog : catalogs) {
+		for (int i=0; i<catalogs.size(); i++) {
+			List<ETAS_EqkRupture> catalog = catalogs.get(i);
 			for (ETAS_EqkRupture rup : catalog) {
-				mfd.addResampledMagRate(rup.getMag(), rate, true);
-				if (primaryMFD != null && rup.getParentID() == triggeredID)
-					primaryMFD.addResampledMagRate(rup.getMag(), rate, true);
+				subMFDs[i].addResampledMagRate(rup.getMag(), 1d, true);
 			}
+			for (int n=0; n<mfd.size(); n++)
+				mfd.add(n, subMFDs[i].getY(n)*rate);
+			cmlSubMFDs[i] = subMFDs[i].getCumRateDistWithOffset();
 		}
 		
-		EvenlyDiscretizedFunc cmlMFD = mfd.getCumRateDistWithOffset();
-		EvenlyDiscretizedFunc primaryCML_MFD = null;
-		if (primaryMFD != null)
-			primaryCML_MFD = primaryMFD.getCumRateDistWithOffset();
 		
-		List<DiscretizedFunc> funcs = Lists.newArrayList();
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		if (primaryMFD != null) {
-			funcs.add(primaryMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		boolean[] cumulatives = { false, true };
+		
+		for (boolean cumulative : cumulatives) {
+			EvenlyDiscretizedFunc myMFD;
+			EvenlyDiscretizedFunc[] mySubMFDs;
+			String yAxisLabel;
+			String myPrefix = prefix;
+			if (myPrefix == null || myPrefix.isEmpty())
+				myPrefix = "";
+			else
+				myPrefix += "_";
+			if (cumulative) {
+				myMFD = mfd.getCumRateDistWithOffset();
+				mySubMFDs = cmlSubMFDs;
+				yAxisLabel = "Cumulative Rate (1/yr)";
+				myPrefix += "cumulative";
+			} else {
+				myMFD = mfd;
+				mySubMFDs = subMFDs;
+				yAxisLabel = "Incremental Rate (1/yr)";
+				myPrefix += "incremental";
+			}
+			
+			FractileCurveCalculator fractCalc = getFractileCalc(mySubMFDs);
+			
+			List<XY_DataSet> funcs = Lists.newArrayList();
+			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			
+			AbstractXY_DataSet fract025 = fractCalc.getFractile(0.025);
+			fract025.setName("2.5% Fractile");
+			AbstractXY_DataSet fract975 = fractCalc.getFractile(0.975);
+			fract975.setName("97.5% Fractile");
+			funcs.add(fract025);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN.darker()));
+			funcs.add(fract975);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN.darker()));
+			
+			AbstractXY_DataSet median = fractCalc.getFractile(0.5);
+			median.setName("Median");
+			funcs.add(median);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+			
+			double[] stdDevs = new double[myMFD.size()];
+			double[] sdoms = new double[myMFD.size()];
+			EvenlyDiscretizedFunc lower95_mean = new EvenlyDiscretizedFunc(myMFD.getMinX(), myMFD.size(), myMFD.getDelta());
+			lower95_mean.setName("Lower 95% of Mean");
+			EvenlyDiscretizedFunc upper95_mean = new EvenlyDiscretizedFunc(myMFD.getMinX(), myMFD.size(), myMFD.getDelta());
+			upper95_mean.setName("Upper 95% of Mean");
+			
+			for (int n=0; n<myMFD.size(); n++) {
+				double[] vals = new double[subMFDs.length];
+				for (int i=0; i<subMFDs.length; i++)
+					vals[i] = subMFDs[i].getY(n);
+				stdDevs[n] = Math.sqrt(StatUtils.variance(vals));
+				sdoms[n] = stdDevs[n]/Math.sqrt(subMFDs.length);
+				
+				double mean = myMFD.getY(n);
+				lower95_mean.set(n, mean - 1.98*sdoms[n]);
+				upper95_mean.set(n, mean + 1.98*sdoms[n]);
+			}
+			funcs.add(lower95_mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED.darker()));
+			funcs.add(upper95_mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED.darker()));
+			
+			myMFD.setName("Mean");
+			funcs.add(myMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			
+			PlotSpec spec = new PlotSpec(funcs, chars, name+" MFD", "Magnitude", yAxisLabel);
+			spec.setLegendVisible(true);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setUserBounds(myMFD.getMinX(), myMFD.getMaxX(), minY, maxY);
+			
+			gp.setBackgroundColor(Color.WHITE);
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
+			
+			gp.drawGraphPanel(spec, false, true);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
+			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
+			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
+			
+			CSVFile<String> csv = new CSVFile<String>(true);
+			csv.addLine("Mag", "Mean", "Std Dev", "SDOM", "p2.5%", "p97.5%", "Median", "Lower 95% of Mean", "Upper 95% of Mean");
+			
+			// now mean and std dev
+			for (int n=0; n<mfd.size(); n++)
+				csv.addLine(myMFD.getX(n)+"", myMFD.getY(n)+"", stdDevs[n]+"", sdoms[n]+"", fract025.getY(n)+"",
+						fract975.getY(n)+"", median.getY(n)+"", lower95_mean.getY(n)+"", upper95_mean.getY(n)+"");
+			
+			csv.writeToFile(new File(outputDir,  myPrefix+".csv"));
 		}
-		
-		funcs.add(mfd);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		
-		PlotSpec spec = new PlotSpec(funcs, chars, name+" MFD", "Magnitude", "Incremental Rate (1/yr)");
-		
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setUserBounds(cmlMFD.getMinX(), cmlMFD.getMaxX(), 1e-4, 1e1);
-		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
-		
-		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
-		gp.saveAsPNG(new File(outputDir, "mfd_incremental.png").getAbsolutePath());
-		gp.saveAsPDF(new File(outputDir, "mfd_incremental.pdf").getAbsolutePath());
-		gp.saveAsTXT(new File(outputDir, "mfd_incremental.txt").getAbsolutePath());
-		
-		// now cumulative
-		funcs = Lists.newArrayList();
-		if (primaryCML_MFD != null)
-			funcs.add(primaryCML_MFD);
-		funcs.add(cmlMFD);
-		
-		spec = new PlotSpec(funcs, chars, name+" MFD", "Magnitude", "Cumulative Rate (1/yr)");
-		
-		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
-		gp.saveAsPNG(new File(outputDir, "mfd_cumulative.png").getAbsolutePath());
-		gp.saveAsPDF(new File(outputDir, "mfd_cumulative.pdf").getAbsolutePath());
-		gp.saveAsTXT(new File(outputDir, "mfd_cumulative.txt").getAbsolutePath());
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -171,7 +257,8 @@ public class ETAS_CatalogStats {
 //		String name = "Mojave 7.05";
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/results.zip");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/results.zip");
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_08-mojave_7/results.zip");
 		int triggerParentID = 0;
 		double targetMinMag = 6.0;
 //		String name = "Napa M6";
@@ -221,6 +308,8 @@ public class ETAS_CatalogStats {
 			}
 		}
 		
+		System.out.println("Loaded "+catalogs.size()+" catalogs");
+		
 //		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 1);
 //		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
 //		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 365);
@@ -250,10 +339,18 @@ public class ETAS_CatalogStats {
 				if (rup.getFSSIndex() >= 0)
 					numSupra++;
 			}
+			
 			System.out.println(index+"\t"+(float)moment+"\t"+(float)maxMag+"\t"+catalog.size()+"\t"+numSupra);
 		}
 		
-		plotMFD(childrenCatalogs, outputDir, name, triggerParentID);
+		plotMFD(childrenCatalogs, outputDir, name, "full_children");
+		
+		List<List<ETAS_EqkRupture>> primaryCatalogs = Lists.newArrayList();
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			primaryCatalogs.add(ETAS_SimAnalysisTools.getPrimaryAftershocks(catalog, triggerParentID));
+		
+		plotMFD(primaryCatalogs, outputDir, "Primary "+name, "primary_aftershocks");
+		
 	}
 
 }
