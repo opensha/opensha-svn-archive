@@ -56,6 +56,17 @@ public class ComcatAccessor {
 	
 	private static final double day_millis = 24d*60d*60d*1000d;
 	
+	/**
+	 * Fetch all aftershocks of the given event. Returned list will not contain the mainshock
+	 * even if it matches the query.
+	 * @param mainshock
+	 * @param minDays
+	 * @param maxDays
+	 * @param minDepth
+	 * @param maxDepth
+	 * @param region
+	 * @return
+	 */
 	public ObsEqkRupList fetchAftershocks(ObsEqkRupture mainshock, double minDays, double maxDays,
 			double minDepth, double maxDepth, Region region) {
 		EventQuery query = new EventQuery();
